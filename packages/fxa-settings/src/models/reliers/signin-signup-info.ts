@@ -4,18 +4,16 @@
 
 import {
   bind,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
 // Sign inflow
 // params listed in:
 // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
 
-export class SignInSignUpInfo implements ModelContextProvider {
+export class SignInSignUpInfo extends ModelDataProvider {
   @bind([V.isAccessType], T.snakeCase)
   accessType: string | undefined;
 
@@ -66,14 +64,4 @@ export class SignInSignUpInfo implements ModelContextProvider {
 
   @bind([V.isEmail])
   email: string | undefined;
-
-  constructor(protected readonly curContext: ModelContext) {}
-
-  getModelContext(): ModelContext {
-    return this.curContext;
-  }
-
-  validate(): void {
-    return validateContext(this);
-  }
 }

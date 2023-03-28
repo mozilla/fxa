@@ -4,11 +4,11 @@
 
 import { Constants } from '../../lib/constants';
 import {
+  ModelDataStore,
   bind,
-  ContextKeyTransforms as T,
-  ContextValidation as V,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelValidation as V,
+} from '../../lib/model-data';
 import { OAuthError } from '../../lib/oauth';
 import { BaseRelier, RelierAccount, RelierData } from './base-relier';
 
@@ -153,7 +153,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
   loginHint: string | undefined;
 
   constructor(
-    protected readonly curContext: ModelContext,
+    protected readonly modelData: ModelDataStore,
     public readonly opts = {
       config: {
         scopedKeysEnabled: false,
@@ -163,7 +163,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
       },
     }
   ) {
-    super(curContext);
+    super(modelData);
   }
 
   isOAuth(): boolean {

@@ -3,8 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Constants } from '../../lib/constants';
-import { bind, ContextValidation as V } from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+import { bind, ModelValidation as V } from '../../lib/model-data';
 import { BaseRelier } from './base-relier';
 
 export interface BrowserRelierData {
@@ -46,10 +45,6 @@ export class BrowserRelier extends BaseRelier implements BrowserRelierData {
 
   @bind([V.isString])
   tokenCode: string | undefined;
-
-  constructor(protected readonly curContext: ModelContext) {
-    super(curContext);
-  }
 
   async isSync() {
     return true;

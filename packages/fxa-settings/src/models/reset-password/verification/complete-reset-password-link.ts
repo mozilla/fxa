@@ -4,18 +4,11 @@
 
 import {
   bind,
-  ContextValidation as V,
-  ModelContextProvider,
-  validateContext,
-  ContextValidationErrors,
-  ModelContext,
   ModelDataProvider,
-} from '../../../lib/context';
+  ModelValidation as V,
+} from '../../../lib/model-data';
 
-export class CompleteResetPasswordLink
-  extends ModelDataProvider
-  implements ModelContextProvider
-{
+export class CompleteResetPasswordLink extends ModelDataProvider {
   // TODO: change `isNonEmptyString` to `email` when validation is properly set up.
   // This is temporary for tests/Storybook so that `email=''` shows a damaged link
   @bind([V.isNonEmptyString, V.isRequired])
@@ -30,32 +23,4 @@ export class CompleteResetPasswordLink
 
   @bind([V.isHex, V.isRequired])
   token: string = '';
-
-  constructor(public readonly context: ModelContext) {
-    super(context);
-  }
-
-  validate(): void {
-    validateContext(this);
-  }
-
-  tryValidate(): { isValid: boolean; error?: ContextValidationErrors } {
-    let error: ContextValidationErrors | undefined;
-    let isValid = true;
-    try {
-      this.validate();
-    } catch (err) {
-      isValid = false;
-      if (err instanceof ContextValidationErrors) {
-        error = err;
-      } else {
-        throw err;
-      }
-    }
-
-    return {
-      isValid,
-      error,
-    };
-  }
 }

@@ -2,8 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { bind } from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+import { bind } from '../../lib/model-data';
 import { OAuthRelier, OAuthRelierData } from './oauth-relier';
 
 /**
@@ -26,9 +25,4 @@ export class PairingSupplicantRelier
 
   @bind([])
   scope: string | undefined = '';
-
-  constructor(protected curContext: ModelContext) {
-    super(curContext);
-    this.scope = '';
-  }
 }

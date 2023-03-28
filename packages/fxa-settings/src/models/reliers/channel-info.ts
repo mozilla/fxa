@@ -4,27 +4,15 @@
 
 import {
   bind,
-  ModelContext,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
-export class ChannelInfo implements ModelContextProvider {
+export class ChannelInfo extends ModelDataProvider {
   @bind([V.isChannelId], T.snakeCase)
   channelId: string | undefined;
 
   @bind([V.isChannelKey], T.snakeCase)
   channelKey: string | undefined;
-
-  constructor(protected readonly context: ModelContext) {}
-
-  getModelContext(): ModelContext {
-    return this.context;
-  }
-
-  validate(): void {
-    return validateContext(this);
-  }
 }

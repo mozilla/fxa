@@ -5,12 +5,10 @@
 import 'reflect-metadata';
 import {
   bind,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
-import { ModelContext } from '../../lib/context/interfaces/model-context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
 export interface RelierSubscriptionInfo {
   subscriptionProductId: string;
@@ -79,9 +77,9 @@ export interface RelierAccount {
 }
 
 /**
- * Create a relier class that can be bound to a given context.
+ * Create a relier class that can be bound to a data store
  */
-export class BaseRelier implements ModelContextProvider, Relier {
+export class BaseRelier extends ModelDataProvider implements Relier {
   get name() {
     return 'base';
   }
@@ -137,24 +135,6 @@ export class BaseRelier implements ModelContextProvider, Relier {
   @bind([V.isString], T.snakeCase)
   utmTerm: string | undefined;
 
-  /**
-   * Creates a new relier instance.
-   * @param curContext Holds the actual state of the component. All the bind decorators effectively
-   *    bind the model to whatever state is held inside this context object. Currently there are two
-   *    implementations one of URL query parameter contexts and one for local/session storage contexts.
-   */
-  constructor(protected readonly curContext: ModelContext) {
-    if (curContext == null) {
-      throw new Error('Context must be provided!');
-    }
-  }
-
-  getModelContext() {
-    return this.curContext;
-  }
-  validate() {
-    validateContext(this);
-  }
   isOAuth(): boolean {
     return false;
   }

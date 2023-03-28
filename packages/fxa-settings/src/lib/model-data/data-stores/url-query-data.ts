@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UrlContext, UrlContextWindow } from './url-context';
+import { UrlData, WindowWrapper } from './url-data';
 
 /**
- * Uses window.location.search to store state in set of url search parameter like strings.
+ * Creates a data store from the current URL state.
+ * Uses window.location.search (ie the query params) to hold state.
  */
-export class UrlSearchContext extends UrlContext {
-  constructor(public readonly window: UrlContextWindow) {
+export class UrlQueryData extends UrlData {
+  constructor(public readonly window: WindowWrapper) {
     super(window);
   }
 
@@ -20,7 +21,7 @@ export class UrlSearchContext extends UrlContext {
     const url = new URL(this.window.location.href);
     url.search = params.toString();
     // Use replaceState URL, but prevent page loads or history changes
-    this.window.history.replaceState({}, '', url);
+    this.window.history.replaceState({}, '', url.toString());
   }
 
   public toSearchQuery() {

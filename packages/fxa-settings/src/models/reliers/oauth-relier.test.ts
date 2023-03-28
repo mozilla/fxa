@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelContext, GenericContext } from '../../lib/context';
+import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { OAuthRelier } from './oauth-relier';
 
 describe('models/reliers/oauth-relier', function () {
-  let context: ModelContext;
+  let data: ModelDataStore;
   let model: OAuthRelier;
 
   beforeEach(function () {
-    context = new GenericContext({});
-    model = new OAuthRelier(context);
+    data = new GenericData({});
+    model = new OAuthRelier(data);
   });
 
   it('exists', () => {

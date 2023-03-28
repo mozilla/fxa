@@ -8,9 +8,9 @@ import { isEmailValid } from 'fxa-shared/email/helpers';
 import { Constants } from '../constants';
 
 /**
- * Dedicated error class for validation errors that occur when binding contextual values.
+ * Dedicated error class for validation errors that occur when using the @bind decorator.
  */
-export class ContextValidationError extends Error {
+export class ModelValidationError extends Error {
   constructor(
     public readonly key: string,
     public readonly value: any,
@@ -24,20 +24,20 @@ export class ContextValidationError extends Error {
   }
 }
 
-export class ContextValidationErrors extends Error {
+export class ModelValidationErrors extends Error {
   constructor(
     public readonly message: string,
-    public readonly errors: ContextValidationError[]
+    public readonly errors: ModelValidationError[]
   ) {
     super(message);
   }
 }
 
 /** Validations */
-export const ContextValidation = {
+export const ModelValidation = {
   isRequired: (k: string, v: any) => {
     if (v == null) {
-      throw new ContextValidationError(k, v, 'Must exist!');
+      throw new ModelValidationError(k, v, 'Must exist!');
     }
     return v;
   },
@@ -46,7 +46,7 @@ export const ContextValidation = {
       return v;
     }
     if (typeof v !== 'string') {
-      throw new ContextValidationError(k, v, 'Is not string');
+      throw new ModelValidationError(k, v, 'Is not string');
     }
     return v;
   },
@@ -55,7 +55,7 @@ export const ContextValidation = {
       return v;
     }
     if (typeof v !== 'string' || !/^(?:[a-fA-F0-9]{2})+$/.test(v)) {
-      throw new ContextValidationError(k, v, 'Is not a hex string');
+      throw new ModelValidationError(k, v, 'Is not a hex string');
     }
     return v;
   },
@@ -76,7 +76,7 @@ export const ContextValidation = {
     if (v === 'false') {
       return false;
     }
-    throw new ContextValidationError(k, v, 'Is not boolean');
+    throw new ModelValidationError(k, v, 'Is not boolean');
   },
   isNumber: (k: string, v: any) => {
     if (v == null) {
@@ -85,95 +85,95 @@ export const ContextValidation = {
 
     const n = parseFloat(v);
     if (isNaN(n)) {
-      throw new ContextValidationError(k, v, 'Is not a number');
+      throw new ModelValidationError(k, v, 'Is not a number');
     }
     return n;
   },
 
   isClientId: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isAccessType: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isCodeChallenge: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isCodeChallengeMethod: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isPrompt: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isUrl: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isUri: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isNonEmptyString: (k: string, v: any) => {
-    v = ContextValidation.isString(k, v);
+    v = ModelValidation.isString(k, v);
     if ((v || '').length === 0) {
-      throw new ContextValidationError(k, v, 'Cannot be an empty string');
+      throw new ModelValidationError(k, v, 'Cannot be an empty string');
     }
     return v;
   },
 
   isVerificationCode: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isAction: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isKeysJwk: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isIdToken: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isEmail: (k: string, v: any) => {
     // TODO: Add validation
-    v = ContextValidation.isString(k, v);
+    v = ModelValidation.isString(k, v);
     if (!isEmailValid(v)) {
-      throw new ContextValidationError(k, v, 'Is not a valid email');
+      throw new ModelValidationError(k, v, 'Is not a valid email');
     }
     return v;
   },
 
   isGreaterThanZero: (k: string, v: any) => {
     // TODO: Add validation
-    v = ContextValidation.isNumber(k, v);
+    v = ModelValidation.isNumber(k, v);
     if (v < 0) {
-      throw new ContextValidationError(k, v, 'Is not a positive number');
+      throw new ModelValidationError(k, v, 'Is not a positive number');
     }
     return v;
   },
 
   isPairingAuthorityRedirectUri: (k: string, v: any) => {
     if ((v || '') !== Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI) {
-      throw new ContextValidationError(
+      throw new ModelValidationError(
         k,
         v,
         'Is not a DEVICE_PAIRING_AUTHORITY_REDIRECT_URI'
@@ -184,16 +184,16 @@ export const ContextValidation = {
 
   isChannelId: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isChannelKey: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 
   isValidCountry: (k: string, v: any) => {
     // TODO: Add validation
-    return ContextValidation.isString(k, v);
+    return ModelValidation.isString(k, v);
   },
 };

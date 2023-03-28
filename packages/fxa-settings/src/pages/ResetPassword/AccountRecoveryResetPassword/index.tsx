@@ -17,10 +17,10 @@ import { LinkExpiredResetPassword } from '../../../components/LinkExpiredResetPa
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
-  ContextValidationErrors,
-  GenericContext,
-  UrlSearchContext,
-} from '../../../lib/context';
+  ModelValidationErrors,
+  GenericData,
+  UrlQueryData,
+} from '../../../lib/model-data';
 import {
   logErrorEvent,
   logViewEvent,
@@ -33,12 +33,12 @@ import {
   useBroker,
   useAccount,
   useRelier,
-  useUrlSearchContext,
+  useUrlQueryDataStore,
 } from '../../../models/hooks';
 import {
   AccountRecoveryKeyInfo,
   VerificationInfo,
-  useLocationStateContext as useLocationContext,
+  useLocationStateData,
 } from '../../../models';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
@@ -54,8 +54,8 @@ export const viewName = 'account-recovery-reset-password';
 export type AccountRecoveryResetPasswordProps = {
   overrides?: {
     navigate?: NavigateFn;
-    locationContext?: GenericContext;
-    urlSearchContext?: UrlSearchContext;
+    locationData?: GenericData;
+    urlQueryData?: UrlQueryData;
   };
 } & RouteComponentProps;
 
@@ -70,6 +70,8 @@ enum BannerState {
   PasswordResetSuccess,
   Redirecting,
   InvalidContext,
+  PasswordResendError,
+  ValidationError,
 }
 
 const AccountRecoveryResetPassword = ({
@@ -85,14 +87,14 @@ const AccountRecoveryResetPassword = ({
   let navigate = useNavigate();
   navigate = overrides?.navigate || navigate;
 
-  let urlSearchContext = useUrlSearchContext();
-  urlSearchContext = overrides?.urlSearchContext || urlSearchContext;
+  let urlQueryData = useUrlQueryDataStore();
+  urlQueryData = overrides?.urlQueryData || urlQueryData;
 
-  let locationContext = useLocationContext();
-  locationContext = overrides?.locationContext || locationContext;
+  let locationData = useLocationStateData();
+  locationData = overrides?.locationData || locationData;
 
-  const verificationInfo = new VerificationInfo(urlSearchContext);
-  const accountRecoveryKeyInfo = new AccountRecoveryKeyInfo(locationContext);
+  const verificationInfo = new VerificationInfo(urlQueryData);
+  const accountRecoveryKeyInfo = new AccountRecoveryKeyInfo(locationData);
   const state = getInitialState();
 
   const [bannerState, setBannerState] = useState<BannerState>(BannerState.None);
@@ -110,13 +112,13 @@ const AccountRecoveryResetPassword = ({
     });
 
   useEffect(() => {
-    if (state.contextError) {
-      alertInvalidContext(state.contextError);
+    if (state.validationError) {
+      alertValidationError(state.validationError);
     } else if (!state.supportsRecovery) {
       setBannerState(BannerState.Redirecting);
-      navigate(`/complete_reset_password?${urlSearchContext.toSearchQuery()}`);
+      navigate(`/complete_reset_password?${urlQueryData.toSearchQuery()}`);
     }
-  }, [state, navigate, urlSearchContext]);
+  }, [state, navigate, urlQueryData]);
 
   if (linkStatus === 'damaged') {
     return <ResetPasswordLinkDamaged />;
@@ -206,11 +208,10 @@ const AccountRecoveryResetPassword = ({
     let linkStatus: LinkStatus = LinkStatus.valid;
     let forceAuth = false;
     let supportsRecovery = true;
-    let contextError: ContextValidationErrors | null = null;
+    let validationError: ModelValidationErrors | null = null;
 
     try {
       email = verificationInfo.email || '';
-
       forceAuth = !!verificationInfo.forceAuth;
 
       if (!verificationInfo.isValid()) {
@@ -222,8 +223,8 @@ const AccountRecoveryResetPassword = ({
         supportsRecovery = false;
       }
     } catch (err) {
-      if (err instanceof ContextValidationErrors) {
-        contextError = err;
+      if (err instanceof ModelValidationErrors) {
+        validationError = err;
         linkStatus = LinkStatus.damaged;
       }
     }
@@ -233,7 +234,7 @@ const AccountRecoveryResetPassword = ({
       linkStatus,
       forceAuth,
       supportsRecovery,
-      contextError,
+      validationError,
     };
   }
 
@@ -246,8 +247,9 @@ const AccountRecoveryResetPassword = ({
         accountResetToken: accountRecoveryKeyInfo.accountResetToken,
         kB: accountRecoveryKeyInfo.kB,
         recoveryKeyId: accountRecoveryKeyInfo.recoveryKeyId,
-        emailToHashWith: verificationInfo.emailToHashWith || verificationInfo.email
-      }
+        emailToHashWith:
+          verificationInfo.emailToHashWith || verificationInfo.email,
+      };
       await account.resetPasswordWithRecoveryKey(options);
 
       // FOLLOW-UP: Functionality not yet available.
@@ -269,11 +271,11 @@ const AccountRecoveryResetPassword = ({
         logErrorEvent({ viewName, ...err });
         setLinkStatus(LinkStatus.expired);
       } else {
-        // Context validation errors indicate a bad state in either the url query or
-        // maybe storage. In these cases show an alert bar and let the error keep bubbling
-        // up.
-        if (err instanceof ContextValidationErrors) {
-          alertInvalidContext(err);
+        // Validation errors indicate a bad state in either the url query or
+        // maybe storage. In these cases show an alert bar and let the error
+        // keep bubbling up.
+        if (err instanceof ModelValidationErrors) {
+          alertValidationError(err);
         } else {
           logErrorEvent(err);
           setBannerState(BannerState.UnexpectedError);
@@ -290,12 +292,12 @@ const AccountRecoveryResetPassword = ({
   function navigateAway() {
     setUserPreference('account-recovery', account.recoveryKey);
     logViewEvent(viewName, 'recovery-key-consume.success');
-    navigate(
-      `/reset_password_with_recovery_key_verified?${urlSearchContext.toSearchQuery()}`
-    );
+
+    const queryString = urlQueryData.toSearchQuery();
+    navigate(`/reset_password_with_recovery_key_verified?${queryString}`);
   }
 
-  function alertInvalidContext(err: ContextValidationErrors) {
+  function alertValidationError(err: ModelValidationErrors) {
     setBannerState(BannerState.UnexpectedError);
     console.error(
       `Invalid keys detected: ${err.errors.map((x) => x.key).join(',')}`

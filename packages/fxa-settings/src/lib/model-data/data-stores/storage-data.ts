@@ -2,14 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseContext } from './base-context';
+import { ModelDataStore } from '../model-data-store';
 
 // TODO: Adapt to using ../../storage implementation. We need a way to migrate / deal with the namespace issue though.
 
 /**
- * Uses window.sessionStorage or window.localStorage to hold state.
+ * A data store using window.sessionStorage or window.localStorage to hold state.
  */
-export class StorageContext extends BaseContext {
+export class StorageData extends ModelDataStore {
   private static readonly NAMESPACE = '__fxa_session';
   private static readonly PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
@@ -31,7 +31,7 @@ export class StorageContext extends BaseContext {
     // Try parsing sessionStorage values
     try {
       const sessionStorageValueRaw = this.window.sessionStorage.getItem(
-        StorageContext.NAMESPACE
+        StorageData.NAMESPACE
       );
       if (sessionStorageValueRaw != null) {
         values = {
@@ -47,7 +47,7 @@ export class StorageContext extends BaseContext {
     // Try parsing localStorage values
     try {
       const localStorageValueRaw = this.window.localStorage.getItem(
-        StorageContext.NAMESPACE
+        StorageData.NAMESPACE
       );
       if (localStorageValueRaw != null) {
         values = {
@@ -70,7 +70,7 @@ export class StorageContext extends BaseContext {
     for (const key in this.state) {
       const value = this.state[key];
 
-      if (StorageContext.PERSIST_TO_LOCAL_STORAGE.indexOf(key) >= 0) {
+      if (StorageData.PERSIST_TO_LOCAL_STORAGE.indexOf(key) >= 0) {
         toSaveToLocalStorage[key] = value;
       } else {
         toSaveToSessionStorage[key] = value;
@@ -82,11 +82,11 @@ export class StorageContext extends BaseContext {
     // cookies are disabled.
     try {
       this.window.localStorage.setItem(
-        StorageContext.NAMESPACE,
+        StorageData.NAMESPACE,
         JSON.stringify(toSaveToLocalStorage)
       );
       this.window.sessionStorage.setItem(
-        StorageContext.NAMESPACE,
+        StorageData.NAMESPACE,
         JSON.stringify(toSaveToSessionStorage)
       );
     } catch (e) {

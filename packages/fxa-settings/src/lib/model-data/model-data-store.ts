@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelContext } from '..';
-
 /**
- * Abstract base class for Context type classes
+ * Abstract base class for model data store classes
  */
-export abstract class BaseContext implements ModelContext {
+export abstract class ModelDataStore {
   abstract getKeys(): Iterable<string>;
   abstract get(key: string): unknown;
   abstract set(key: string, val: unknown): void;
@@ -26,7 +24,8 @@ export abstract class BaseContext implements ModelContext {
 
   toJSON() {
     const temp: Record<string, unknown> = {};
-    for (const key in this.getKeys()) {
+    for (const key of this.getKeys()) {
+      console.log('!!! key', key);
       temp[key] = this.get(key);
     }
     return JSON.stringify(temp);

@@ -10,7 +10,7 @@ import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
-import { GenericContext } from '../lib/context';
+import { GenericData } from '../lib/model-data';
 import { useLocation } from '@reach/router';
 
 export function useAccount() {
@@ -97,21 +97,21 @@ export function useRelier() {
   return relierFactory.getRelier();
 }
 
-export function useUrlSearchContext() {
-  let { urlSearchContext } = useContext(AppContext);
-  if (urlSearchContext == null) {
-    throw new Error('urlSearchContext never initialized!');
+export function useUrlQueryDataStore() {
+  let { urlQueryData } = useContext(AppContext);
+  if (urlQueryData == null) {
+    throw new Error('urlQueryData never initialized!');
   }
-  return urlSearchContext;
+  return urlQueryData;
 }
 
-export function useLocationStateContext() {
+export function useLocationStateData() {
   const location = useLocation();
   if (location == null) {
     throw new Error('Location missing!');
   }
 
-  return new GenericContext((location.state || {}) as Record<string, unknown>);
+  return new GenericData((location.state || {}) as Record<string, unknown>);
 }
 
 export function useNotifier() {

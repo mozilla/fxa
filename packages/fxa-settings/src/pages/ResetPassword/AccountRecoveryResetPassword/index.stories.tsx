@@ -11,12 +11,12 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
 import { AppContext, AppContextValue } from '../../../models';
 import {
-  mockUrlSearchContext,
-  mockUrlHashContext,
-  mockStorageContext,
+  mockUrlQueryData,
+  mockUrlHashData,
+  mockStorageData,
   mockAccount,
   mockRelierFactory,
-  mockLocationContext,
+  mockLocationData,
 } from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -45,20 +45,20 @@ function setup() {
   const navigate = async (to: string | number, opts?: {}) => {
     console.log('Would navigate to', to, opts);
   };
-  const urlSearchContext = mockUrlSearchContext();
-  const urlHashContext = mockUrlHashContext();
-  const storageContext = mockStorageContext();
-  const locationContext = mockLocationContext();
+  const urlQueryData = mockUrlQueryData();
+  const urlHashData = mockUrlHashData();
+  const storageData = mockStorageData();
+  const locationData = mockLocationData();
   const relierFactory = mockRelierFactory(
-    urlSearchContext,
-    urlHashContext,
-    storageContext
+    urlQueryData,
+    urlHashData,
+    storageData
   );
 
   const ctx = mockAppContext({
-    urlSearchContext,
-    urlHashContext,
-    storageContext,
+    urlQueryData: urlQueryData,
+    urlHashData: urlHashData,
+    storageData: storageData,
     account,
     relierFactory,
   });
@@ -68,13 +68,13 @@ function setup() {
     props: {
       overrides: {
         navigate,
-        urlSearchContext,
-        locationContext,
+        urlQueryData,
+        locationData,
       },
     },
     account,
-    urlSearchContext,
-    locationContext,
+    urlQueryData,
+    locationData,
   };
 }
 
@@ -94,13 +94,13 @@ export const WithExpiredLink = () => {
 };
 
 export const WithBrokenLink = () => {
-  const { props, urlSearchContext, ctx } = setup();
-  urlSearchContext.set('email', 'foobar.com');
+  const { props, urlQueryData, ctx } = setup();
+  urlQueryData.set('email', 'foobar.com');
   return storyWithProps(ctx, props);
 };
 
 export const WithBrokenRecoveryKeyState = () => {
-  const { props, locationContext, ctx } = setup();
-  locationContext.set('kB', '');
+  const { props, locationData, ctx } = setup();
+  locationData.set('kB', '');
   return storyWithProps(ctx, props);
 };

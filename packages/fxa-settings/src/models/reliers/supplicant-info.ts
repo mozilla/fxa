@@ -4,14 +4,12 @@
 
 import {
   bind,
-  ModelContext,
-  ContextKeyTransforms as T,
-  ModelContextProvider,
-  ContextValidation as V,
-  validateContext,
-} from '../../lib/context';
+  KeyTransforms as T,
+  ModelDataProvider,
+  ModelValidation as V,
+} from '../../lib/model-data';
 
-export class SupplicantInfo implements ModelContextProvider {
+export class SupplicantInfo extends ModelDataProvider {
   @bind([V.isAccessType], T.snakeCase)
   accessType: string | undefined;
 
@@ -29,14 +27,4 @@ export class SupplicantInfo implements ModelContextProvider {
 
   @bind([V.isString], T.snakeCase)
   state: string | undefined;
-
-  constructor(protected readonly context: ModelContext) {}
-
-  getModelContext(): ModelContext {
-    return this.context;
-  }
-
-  validate(): void {
-    return validateContext(this);
-  }
 }

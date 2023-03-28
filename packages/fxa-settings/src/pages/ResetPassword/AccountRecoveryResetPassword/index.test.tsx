@@ -15,11 +15,11 @@ import AccountRecoveryResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
-  GenericContext,
-  StorageContext,
-  UrlHashContext,
-  UrlSearchContext,
-} from '../../../lib/context';
+  GenericData,
+  StorageData,
+  UrlHashData,
+  UrlQueryData,
+} from '../../../lib/model-data';
 import {
   logErrorEvent,
   logViewEvent,
@@ -28,12 +28,12 @@ import {
 import { Account, AppContext, AppContextValue, Relier } from '../../../models';
 import {
   mockAccount,
-  mockLocationContext,
+  mockLocationData,
   mockRelierFactory,
-  mockStorageContext,
-  mockUrlHashContext,
-  mockUrlSearchContext,
-  resetContextMock,
+  mockStorageData,
+  mockUrlHashData,
+  mockUrlQueryData,
+  resetDataStore,
 } from './mocks';
 import { RelierFactory } from '../../../lib/reliers';
 import { mockAppContext } from '../../../models/mocks';
@@ -59,11 +59,11 @@ jest.mock('../../../models/hooks', () => ({
 }));
 
 describe('AccountRecoveryResetPassword page', () => {
-  let urlSearchContext: UrlSearchContext;
-  let urlHashContext: UrlHashContext;
-  let storageContext: StorageContext;
+  let urlQueryData: UrlQueryData;
+  let urlHashData: UrlHashData;
+  let storageData: StorageData;
   let account: Account;
-  let locationContext: GenericContext;
+  let locationData: GenericData;
   let navigate: NavigateFn;
   let relierFactory: RelierFactory;
   let relier: Relier;
@@ -72,7 +72,7 @@ describe('AccountRecoveryResetPassword page', () => {
   async function renderPage() {
     const overrides = {
       navigate,
-      locationContext,
+      locationData,
     };
     render(
       <AppContext.Provider value={ctx}>
@@ -104,65 +104,61 @@ describe('AccountRecoveryResetPassword page', () => {
     });
   }
 
-  function resetContext() {
-    resetContextMock(mockUrlSearchContext(), urlSearchContext);
-    resetContextMock(mockUrlHashContext(), urlHashContext);
-    resetContextMock(mockStorageContext(), storageContext);
-    resetContextMock(mockLocationContext(), locationContext);
+  function resetDataStores() {
+    resetDataStore(mockUrlQueryData(), urlQueryData);
+    resetDataStore(mockUrlHashData(), urlHashData);
+    resetDataStore(mockStorageData(), storageData);
+    resetDataStore(mockLocationData(), locationData);
   }
 
   beforeAll(() => {
     account = mockAccount();
     navigate = jest.fn();
-    urlSearchContext = mockUrlSearchContext();
-    urlHashContext = mockUrlHashContext();
-    storageContext = mockStorageContext();
-    locationContext = mockLocationContext();
-    relierFactory = mockRelierFactory(
-      urlSearchContext,
-      urlHashContext,
-      storageContext
-    );
+    urlQueryData = mockUrlQueryData();
+    urlHashData = mockUrlHashData();
+    storageData = mockStorageData();
+    locationData = mockLocationData();
+    relierFactory = mockRelierFactory(urlQueryData, urlHashData, storageData);
     relier = relierFactory.getRelier();
 
     ctx = mockAppContext({
-      urlSearchContext,
-      urlHashContext,
-      storageContext,
+      urlQueryData,
+      urlHashData,
+      storageData,
       account,
       relierFactory,
     });
   });
 
   afterEach(() => {
-    resetContext();
+    resetDataStores();
     jest.restoreAllMocks();
   });
 
   describe('required recovery key info', () => {
     async function setState(key: string) {
-      locationContext.set(key, '');
+      locationData.set(key, '');
       await renderPage();
     }
 
     it(`requires kB`, function () {
       setState('kB');
       expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlSearchContext.toSearchQuery()}`
+        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
       );
     });
 
     it(`requires recoveryKeyId`, function () {
       setState('recoveryKeyId');
       expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlSearchContext.toSearchQuery()}`
+        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
       );
     });
 
     it(`requires accountResetToken`, function () {
       setState('accountResetToken');
       expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlSearchContext.toSearchQuery()}`
+        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
       );
     });
   });
@@ -170,7 +166,7 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('damaged link', () => {
     beforeEach(async () => {
       // By setting an invalid email state, we trigger a damaged link state.
-      urlSearchContext.set('email', 'foo');
+      urlQueryData.set('email', 'foo');
       await renderPage();
     });
 

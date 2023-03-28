@@ -6,7 +6,7 @@ import { LocationProvider } from '@reach/router';
 import { LinkType } from 'fxa-settings/src/lib/types';
 import CompleteResetPassword from '.';
 import LinkValidator from '../../../components/LinkValidator';
-import { UrlSearchContext } from '../../../lib/context';
+import { UrlQueryData } from '../../../lib/model-data';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
@@ -38,10 +38,10 @@ export const paramsWithMissingToken = {
   token: '',
 };
 
-export function mockUrlSearchContext(
+export function mockUrlQueryData(
   params: Record<string, string> = mockCompleteResetPasswordParams
 ) {
-  const ctx = new UrlSearchContext(window);
+  const ctx = new UrlQueryData(window);
   for (const param of Object.keys(params)) {
     ctx.set(param, params[param]);
   }
@@ -61,7 +61,7 @@ export const Subject = ({
         linkType={LinkType['reset-password']}
         viewName={'complete-reset-password'}
         getParamsFromModel={() => {
-          return new CompleteResetPasswordLink(mockUrlSearchContext(params));
+          return new CompleteResetPasswordLink(mockUrlQueryData(params));
         }}
       >
         {({ setLinkStatus, params }) => (
