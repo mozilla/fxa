@@ -136,8 +136,12 @@ export class SubscriptionReminders {
       const { email } = account;
       const formattedSubscription =
         await this.stripeHelper.formatSubscriptionForEmail(subscription);
-      const { amount, currency, interval_count, interval } =
+      const { interval_count, interval } =
         await this.stripeHelper.findAbbrevPlanById(planId);
+      const invoicePreview =
+        await this.stripeHelper.previewInvoiceBySubscriptionId({
+          subscriptionId: subscription.id,
+        });
       await this.mailer.sendSubscriptionRenewalReminderEmail(
         account.emails,
         account,
@@ -150,8 +154,8 @@ export class SubscriptionReminders {
           planIntervalCount: interval_count,
           planInterval: interval,
           // Using invoice prefix instead of plan to accommodate `yarn write-emails`.
-          invoiceTotalInCents: amount,
-          invoiceTotalCurrency: currency,
+          invoiceTotalInCents: invoicePreview.total,
+          invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
           planConfig: formattedSubscription.planConfig,
         }

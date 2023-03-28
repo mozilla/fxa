@@ -17,6 +17,7 @@ const {
   EMAIL_TYPE,
   SubscriptionReminders,
 } = require('../../../lib/payments/subscription-reminders');
+const invoicePreview = require('./fixtures/stripe/invoice_preview_tax.json');
 const longPlan1 = require('./fixtures/stripe/plan1.json');
 const longPlan2 = require('./fixtures/stripe/plan2.json');
 const shortPlan1 = require('./fixtures/stripe/plan3.json');
@@ -270,6 +271,10 @@ describe('SubscriptionReminders', () => {
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
+        total: invoicePreview.total,
+        currency: invoicePreview.currency,
+      });
       const planConfig = {
         wibble: 'quux',
       };
@@ -312,6 +317,12 @@ describe('SubscriptionReminders', () => {
         longPlan1.id
       );
       sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.previewInvoiceBySubscriptionId,
+        {
+          subscriptionId: subscription.id,
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
         mockLog.info,
         'sendSubscriptionRenewalReminderEmail',
         {
@@ -334,8 +345,8 @@ describe('SubscriptionReminders', () => {
           reminderLength: 14,
           planIntervalCount: 1,
           planInterval: 'month',
-          invoiceTotalInCents: 499,
-          invoiceTotalCurrency: 'usd',
+          invoiceTotalInCents: invoicePreview.total,
+          invoiceTotalCurrency: invoicePreview.currency,
           productMetadata: formattedSubscription.productMetadata,
           planConfig,
         }
@@ -365,6 +376,10 @@ describe('SubscriptionReminders', () => {
         interval_count: longPlan1.interval_count,
         interval: longPlan1.interval,
       });
+      mockStripeHelper.previewInvoiceBySubscriptionId = sandbox.fake.resolves({
+        total: invoicePreview.total,
+        currency: invoicePreview.currency,
+      });
       mockLog.info = sandbox.fake.returns({});
       mockLog.error = sandbox.fake.returns({});
       const errMessage = 'Something went wrong.';
@@ -387,6 +402,12 @@ describe('SubscriptionReminders', () => {
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.findAbbrevPlanById,
         longPlan1.id
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.previewInvoiceBySubscriptionId,
+        {
+          subscriptionId: subscription.id,
+        }
       );
       sinon.assert.calledOnceWithExactly(
         mockLog.error,
