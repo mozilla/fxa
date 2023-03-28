@@ -167,13 +167,85 @@ export function testL10n(
   const fallbackText = ftlMsgMock.textContent;
   const ftlBundleMsg = bundle.getMessage(ftlId);
 
+  const ftlChildAttrs: Record<string, string> | undefined =
+    _getElementAttrs(ftlMsgMock);
+  const ftlMsgAttrs: Record<string, boolean> = _getFtlMsgAttrs(ftlMsgMock);
+
+  if (ftlChildAttrs) {
+    const attrsMissingFallback: String[] = _getAttrsMissingFallback(
+      ftlMsgAttrs,
+      ftlChildAttrs
+    );
+    if (ftlChildAttrs && attrsMissingFallback.length > 0) {
+      throw new Error(
+        `An FtlMsg with ’id=${ftlId}’ is missing fallback text for the following attribute(s): ${attrsMissingFallback}`
+      );
+    }
+  }
+
   if (!ftlBundleMsg) {
     throw new Error(`Could not retrieve Fluent message tied to ID: ${ftlId}`);
   }
 
-  if (!fallbackText) {
-    throw new Error('No fallback text exists. Fallback text required!');
+  if (!ftlChildAttrs && !fallbackText) {
+    throw new Error(
+      `Fallback text is missing. Fallback text is required for ftl messages and their attributes.`
+    );
   }
 
-  checkMessage(bundle, ftlBundleMsg, fallbackText, ftlArgs);
+  checkMessage(bundle, ftlBundleMsg, fallbackText, ftlArgs, ftlChildAttrs);
+}
+
+/**
+ * Takes in a mocked FtlMsg and retrives the FTL message's attributes (if any):
+ * @param ftlMsgMock Mocked version of `FtlMsg` (`data-testid='ftlmsg-mock'`)
+ */
+function _getFtlMsgAttrs(ftlMsgMock: HTMLElement) {
+  const key = Object.keys(ftlMsgMock)[1];
+  const ftlMsgObj = Object(ftlMsgMock)[key];
+  const ftlMsgAttrs = Object(ftlMsgObj['data-attrs']);
+
+  if (Object.keys(ftlMsgAttrs).length === 0) {
+    return undefined;
+  } else {
+    return ftlMsgAttrs;
+  }
+}
+
+/**
+ * Takes in a mocked FtlMsg and retrives the element's attributes (if any):
+ * @param ftlMsgMock Mocked version of `FtlMsg` (`data-testid='ftlmsg-mock'`)
+ */
+function _getElementAttrs(ftlMsgMock: HTMLElement) {
+  const key = Object.keys(ftlMsgMock)[1];
+  const ftlMsgObj = Object(ftlMsgMock)[key];
+  const ftlChildProps = Object(ftlMsgObj.children.props);
+
+  if (Object.keys(ftlChildProps).length === 0 || ftlChildProps.children) {
+    return undefined;
+  } else {
+    return ftlChildProps;
+  }
+}
+
+/**
+ * Takes the FtlMessages required attributes and the elements attributes,
+ * and checks that all required attributes have fallback text
+ * @param ftlAttributes Attributes with boolean values indicating if l10n is required
+ * @param elemAttributes Attributes and values to use as fallback
+ * @return Array of attributes missing fallback text
+ */
+function _getAttrsMissingFallback(
+  ftlAttributes: Record<string, boolean>,
+  elemAttributes: Record<string, string>
+) {
+  let attributesWithMissingFallback: String[] = [];
+  if (ftlAttributes !== (undefined || null)) {
+    Object.keys(ftlAttributes).forEach((key) => {
+      if (ftlAttributes[key] && elemAttributes[key] === '') {
+        attributesWithMissingFallback.push(key);
+      }
+    });
+  }
+  return attributesWithMissingFallback;
 }

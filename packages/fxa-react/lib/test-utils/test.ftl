@@ -2,12 +2,19 @@
 test-simple = Simple and clean
 test-missing-message =
 test-missing-message-attrs =
-  .header =
-test-attrs =
-  .header = When you walk away
+  .placeholder =
+test-with-message-and-attr = When you walk away
+  .title = I feel so lonely
+test-attr-only =
+  .placeholder = When you walk away
+test-multiple-attrs = 
+  .placeholder = Placeholder
+  .defaultValue = Default
 test-straight-apostrophe = you don't hear me say
 test-straight-quote = "please, don’t go"
 test-var = { $name } smiled at me
+test-elem = Click <a>here</a>
+test-missing-elem = Click here
 test-term = Lately, { -term } is all I need
 test-dom-overlay = <img data-l10n-name='devices-image' alt="Devices">
 test-bad-dom-overlay-1 = <img

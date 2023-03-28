@@ -92,32 +92,39 @@ export function checkMessage(
   bundle: FluentBundle,
   message: Message,
   fallbackText: string | null,
-  ftlArgs?: Record<string, FluentVariable>
+  ftlArgs?: Record<string, FluentVariable>,
+  ftlChildAttr?: Record<string, string>
 ) {
-  if (!fallbackText) {
+  if (!fallbackText && !message.attributes) {
     throw new Error('Fallback text must be provided.');
   }
 
   // nested attributes can happen when we define something like:
   // `profile-picture =
   //   .header = Picture`
-  const nestedAttrValues = Object.values(message?.attributes || {});
+  const nestedAttrs: Record<string, Pattern> = Object(
+    message?.attributes || {}
+  );
 
   if (
     message === undefined ||
-    (message.value === null && nestedAttrValues.length === 0)
+    (message.value === null && Object.keys(nestedAttrs).length === 0)
   ) {
     throw new Error(`Invalid message. Message has no value.`);
   }
 
-  if (message.value) {
+  if (fallbackText && message.value) {
     _checkPattern(bundle, message.value, fallbackText, ftlArgs);
   }
 
-  if (nestedAttrValues) {
-    nestedAttrValues.forEach((nestedAttrValue) =>
-      _checkPattern(bundle, nestedAttrValue, fallbackText, ftlArgs)
-    );
+  // TODO: review, does not work
+  if (Object.keys(nestedAttrs).length > 0 && ftlChildAttr) {
+    Object(nestedAttrs).forEach((nestedAttr: Record<string, Pattern>) => {
+      const nestedAttrValue = Object.values(nestedAttr);
+      const key: string = Object.keys(nestedAttr)[0];
+      const ftlChildAttrValue = ftlChildAttr[key];
+      _checkPattern(bundle, nestedAttr.value, ftlChildAttrValue, ftlArgs);
+    });
   }
 }
 

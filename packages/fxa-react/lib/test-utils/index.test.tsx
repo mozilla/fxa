@@ -16,7 +16,13 @@ jest.mock('fxa-react/lib/utils', () => {
     __esModule: true,
     ...originalModule,
     FtlMsg: (props: FtlMsgProps) => (
-      <div data-testid="ftlmsg-mock" id={props.id}>
+      <div
+        data-testid="ftlmsg-mock"
+        id={props.id}
+        data-attrs={props.attrs}
+        data-vars={props.vars}
+        data-elems={props.elems}
+      >
         {props.children}
       </div>
     ),
@@ -27,9 +33,48 @@ const simpleComponent = (id: string, fallbackText = '') => (
   <FtlMsg {...{ id }}>{fallbackText}</FtlMsg>
 );
 
-const componentWithAttrs = (id: string, fallbackText = '') => (
-  <FtlMsg {...{ id }} attrs={{ header: true }}>
-    <h2>{fallbackText}</h2>
+const componentWithAttrOnly = (id: string, attributeFallbackText: string) => (
+  <FtlMsg {...{ id }} attrs={{ placeholder: true }}>
+    <input placeholder={attributeFallbackText} />
+  </FtlMsg>
+);
+
+const componentWithMessageAndAttr = (
+  id: string,
+  fallbackText: string,
+  attributeFallbackText: string
+) => (
+  <FtlMsg {...{ id }} attrs={{ title: true }}>
+    <p title={fallbackText}>{fallbackText}</p>
+  </FtlMsg>
+);
+
+const componentWithMultipleAttrs = (
+  id: string,
+  placeholderFallbackText = '',
+  defaultValueFallbackText = ''
+) => (
+  <FtlMsg {...{ id }} attrs={{ placeholder: true, defaultValue: true }}>
+    <input
+      placeholder={placeholderFallbackText}
+      defaultValue={defaultValueFallbackText}
+    />
+  </FtlMsg>
+);
+
+const componentWithElems = (id: string) => (
+  <FtlMsg id={id} elems={{ a: <a href=""></a> }}>
+    <p>
+      Click <a href="">here</a>
+    </p>
+  </FtlMsg>
+);
+
+const componentWithMissingElems = (id: string) => (
+  <FtlMsg id={id}>
+    <p>
+      Click <a href="">here</a>
+    </p>
   </FtlMsg>
 );
 
@@ -67,15 +112,53 @@ describe('testL10n', () => {
     );
   });
 
-  it('throws if FTL ID and attributes are present, but message is not found', () => {
+  it('throws if one required attribute is missing fallback text', () => {
     expect(() => {
-      render(componentWithAttrs('test-missing-message-attrs'));
+      render(componentWithAttrOnly('test-attr-only', ''));
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).toThrowError(
+      'An FtlMsg with ’id=test-attr-only’ is missing fallback text for the following attribute(s): placeholder'
+    );
+  });
+
+  it('throws if multiple required attributes are missing fallback text', () => {
+    expect(() => {
+      render(componentWithMultipleAttrs('test-multiple-attrs'));
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).toThrowError(
+      'An FtlMsg with ’id=test-multiple-attrs’ is missing fallback text for the following attribute(s): placeholder,defaultValue'
+    );
+  });
+
+  it('throws if no ftl message is found for a required attribute', () => {
+    expect(() => {
+      render(
+        componentWithAttrOnly(
+          'test-missing-message-attrs',
+          'When you walk away'
+        )
+      );
 
       const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
       testL10n(ftlMsgMock, bundle);
     }).toThrowError(
       'Could not retrieve Fluent message tied to ID: test-missing-message-attrs'
     );
+  });
+
+  // TODO: throws if ftl message for attribute does not match attribute fallback text
+
+  it('throws if FTL message expects elems that are missing', () => {
+    expect(() => {
+      render(componentWithMissingElems('test-elem'));
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).toThrowError('FtlMsg is missing elems');
   });
 
   it('successfully tests simple messages', () => {
@@ -87,9 +170,48 @@ describe('testL10n', () => {
     }).not.toThrow();
   });
 
-  it('successfully tests messages containing attributes', () => {
+  it('successfully tests messages containing a regular message and an attribute', () => {
     expect(() => {
-      render(componentWithAttrs('test-attrs', 'When you walk away'));
+      render(
+        componentWithMessageAndAttr(
+          'test-with-message-and-attr',
+          'When you walk away',
+          'I feel so lonely'
+        )
+      );
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).not.toThrow();
+  });
+
+  it('successfully tests messages containing one attribute', () => {
+    expect(() => {
+      render(componentWithAttrOnly('test-attr-only', 'When you walk away'));
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).not.toThrow();
+  });
+
+  it('successfully tests messages containing multiple attributes', () => {
+    expect(() => {
+      render(
+        componentWithMultipleAttrs(
+          'test-multiple-attrs',
+          'Placeholder',
+          'Default'
+        )
+      );
+
+      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
+      testL10n(ftlMsgMock, bundle);
+    }).not.toThrow();
+  });
+
+  it('successfully tests messages with elems', () => {
+    expect(() => {
+      render(componentWithElems('test-elem'));
 
       const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
       testL10n(ftlMsgMock, bundle);
