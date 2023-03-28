@@ -60,7 +60,7 @@ async function init() {
     batchSize,
     program.outputFile,
     program.ipAddressMapFile,
-    stripeHelper.stripe,
+    stripeHelper,
     rateLimit,
     database
   );

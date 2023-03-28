@@ -16,6 +16,7 @@ import {
   IpAddressMap,
   StripeAutomaticTaxConverterHelpers,
 } from './helpers';
+import { StripeHelper } from '../../lib/payments/stripe';
 
 export class StripeAutomaticTaxConverter {
   private config: ConfigType;
@@ -23,6 +24,7 @@ export class StripeAutomaticTaxConverter {
   private ipAddressMap: IpAddressMap;
   private helpers: StripeAutomaticTaxConverterHelpers;
   private stripeQueue: PQueue;
+  private stripe: Stripe;
   private ineligibleProducts: string[];
 
   /**
@@ -39,10 +41,12 @@ export class StripeAutomaticTaxConverter {
     private batchSize: number,
     private outputFile: string,
     ipAddressMapFile: string,
-    private stripe: Stripe,
+    private stripeHelper: StripeHelper,
     rateLimit: number,
     private database: any
   ) {
+    this.stripe = stripeHelper.stripe;
+
     const config = Container.get<ConfigType>(AppConfig);
     this.config = config;
 
@@ -228,6 +232,13 @@ export class StripeAutomaticTaxConverter {
 
     const geoLocation = this.geodb(ipAddress);
     if (!geoLocation?.countryCode || !geoLocation?.postalCode) return false;
+
+    const isCompatibleCountry =
+      this.stripeHelper.currencyHelper.isCurrencyCompatibleWithCountry(
+        customer.currency,
+        geoLocation.countryCode
+      );
+    if (!isCompatibleCountry) return false;
 
     await this.enqueueRequest(() =>
       this.stripe.customers.update(customer.id, {

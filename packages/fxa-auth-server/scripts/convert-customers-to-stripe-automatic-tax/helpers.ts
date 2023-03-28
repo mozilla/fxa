@@ -101,10 +101,13 @@ export class StripeAutomaticTaxConverterHelpers {
 
   /**
    * Checks if Stripe customer is in a taxable location
-   * @returns True if the user is currently taxable
+   * @returns True if the user is currently taxable, including customers in a not_collecting tax location
    */
   isTaxEligible(customer: Stripe.Customer) {
-    return customer.tax?.automatic_tax === 'supported';
+    return (
+      customer.tax?.automatic_tax === 'supported' ||
+      customer.tax?.automatic_tax === 'not_collecting'
+    );
   }
 
   /**
