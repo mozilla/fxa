@@ -213,7 +213,7 @@
     "simplesmtp": "0.3.35",
     "sinon": "^9.0.3",
     "through": "2.3.8",
-    "type-fest": "^3.6.1",
+    "type-fest": "^3.7.1",
     "typesafe-node-firestore": "^1.4.0",
     "typescript": "^4.9.3",
     "webpack": "^4.43.0",
