@@ -6,5 +6,5 @@
     "types": ["mocha", "./lib/types"]
   },
   "include": ["./lib/**/*", "./browser.ts"],
-  "exclude": ["dist","node_modules"]
+  "exclude": ["dist", "node_modules"]
 }

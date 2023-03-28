@@ -18,6 +18,7 @@
     "compile": "tsc --noEmit",
     "ts-check": "tsc --noEmit",
     "test": "mocha -r esbuild-register test/*",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "test:unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register test/*",
     "test:integration": "echo No integration tests present for $npm_package_name"
   },
@@ -35,11 +36,13 @@
     "@types/mocha": "^8",
     "@types/node": "^18.14.2",
     "@types/node-fetch": "^2.5.7",
+    "@types/prettier": "^2",
     "asmcrypto.js": "^0.22.0",
     "esbuild": "^0.14.2",
     "esbuild-register": "^3.2.0",
     "fast-text-encoding": "^1.0.4",
     "mocha": "^10.0.0",
+    "prettier": "^2.8.7",
     "typescript": "^4.9.3",
     "webcrypto-liner": "^1.4.0"
   },

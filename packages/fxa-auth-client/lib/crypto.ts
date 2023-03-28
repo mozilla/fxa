@@ -1,7 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { hexToUint8, uint8ToBase64Url, base64UrlToUint8, uint8ToHex, xor } from './utils';
+import {
+  hexToUint8,
+  uint8ToBase64Url,
+  base64UrlToUint8,
+  uint8ToHex,
+  xor,
+} from './utils';
 
 const encoder = () => new TextEncoder();
 const NAMESPACE = 'identity.mozilla.com/picl/v1/';
@@ -211,8 +217,11 @@ export async function jweEncrypt(
  * @param keyMaterial Key material
  * @param jwe JWE token
  */
-export async function jweDecrypt(keyMaterial: Uint8Array, jwe: string) : Promise<string> {
- const encoder = new TextEncoder();
+export async function jweDecrypt(
+  keyMaterial: Uint8Array,
+  jwe: string
+): Promise<string> {
+  const encoder = new TextEncoder();
   const [header, empty, iv, ciphertext, authenticationTag] = jwe.split('.');
   const key = await crypto.subtle.importKey(
     'raw',
@@ -234,7 +243,7 @@ export async function jweDecrypt(keyMaterial: Uint8Array, jwe: string) : Promise
       tagLength: 128,
     },
     key,
-   dataBuf
+    dataBuf
   );
   const decoder = new TextDecoder();
   return decoder.decode(decrypted);
