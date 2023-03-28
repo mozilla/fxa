@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import AppLayout from '../AppLayout';
 import { navigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -13,6 +13,21 @@ import Banner, { BannerType } from '../Banner';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { fetchLegalMd, LegalDocFile } from '../../lib/file-utils-legal';
+import { AppContext } from '../../models';
+
+export type FetchLegalDoc = (
+  locale: string,
+  legalDocFile: string
+) => Promise<{ markdown?: string; error?: string }>;
+
+export type LegalWithMarkdownProps = {
+  locale?: string;
+  viewName: 'legal-privacy' | 'legal-terms';
+  legalDocFile: LegalDocFile;
+  headingTextFtlId: string;
+  headingText: string;
+  fetchLegalDoc?: FetchLegalDoc;
+};
 
 const LegalWithMarkdown = ({
   locale,
@@ -20,23 +35,25 @@ const LegalWithMarkdown = ({
   legalDocFile,
   headingTextFtlId,
   headingText,
-}: {
-  locale?: string;
-  viewName: 'legal-privacy' | 'legal-terms';
-  legalDocFile: LegalDocFile;
-  headingTextFtlId: string;
-  headingText: string;
-}) => {
+  fetchLegalDoc,
+}: LegalWithMarkdownProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const [markdown, setMarkdown] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const { apolloClient } = useContext(AppContext);
 
   useEffect(() => {
     let isMounted = true;
     (async () => {
-      const { markdown: fetchedMarkdown, error } = await fetchLegalMd(
-        navigator.languages,
-        locale,
+      async function fetchLegal(locale: string, legalDocFile: string) {
+        if (fetchLegalDoc != null) {
+          return fetchLegalDoc(locale, legalDocFile);
+        }
+        return fetchLegalMd(apolloClient, locale, legalDocFile);
+      }
+
+      const { markdown: fetchedMarkdown, error } = await fetchLegal(
+        locale || navigator.language || 'en',
         legalDocFile
       );
       // ensure component is still mounted before trying to render (fixes state update warning)
@@ -52,7 +69,7 @@ const LegalWithMarkdown = ({
     return () => {
       isMounted = false;
     };
-  }, [locale, legalDocFile]);
+  }, [locale, legalDocFile, apolloClient, fetchLegalDoc]);
 
   const buttonHandler = () => {
     logViewEvent(`flow.${viewName}`, 'back', REACT_ENTRYPOINT);

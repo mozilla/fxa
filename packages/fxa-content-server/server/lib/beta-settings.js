@@ -108,6 +108,11 @@ function modifyProxyRes(proxyRes, req, res) {
       });
       res.send(new Buffer.from(html));
     } else {
+      // remove transfer-encoding header, a Content-Length header will be added
+      // automatically, and these two headers are incompatible. If this is not
+      // set any fetch request will fail with:
+      //  - Parse Error: Content-Length can't be present with Transfer-Encoding
+      res.set('Transfer-Encoding', '');
       res.send(body);
     }
 

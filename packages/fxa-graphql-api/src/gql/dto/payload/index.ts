@@ -18,3 +18,4 @@ export { VerifyTotpPayload } from './verify-totp';
 export { AccountStatusPayload } from './account-status';
 export { RecoveryKeyBundlePayload } from './recovery-key';
 export { PasswordChangePayload } from './password-change';
+export { LegalDoc } from './legal';

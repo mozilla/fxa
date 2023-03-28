@@ -4,14 +4,24 @@
 
 import React from 'react';
 import { RouteComponentProps } from '@reach/router';
-import LegalWithMarkdown from '../../../components/LegalWithMarkdown';
+import LegalWithMarkdown, {
+  FetchLegalDoc,
+} from '../../../components/LegalWithMarkdown';
 import { LegalDocFile } from '../../../lib/file-utils-legal';
 
 export const viewName = 'legal-terms';
 
-const LegalTerms = ({ locale }: { locale?: string } & RouteComponentProps) => (
+export type LegalTermsProps = {
+  locale?: string;
+  fetchLegalDoc?: FetchLegalDoc;
+};
+
+const LegalTerms = ({
+  locale,
+  fetchLegalDoc,
+}: LegalTermsProps & RouteComponentProps) => (
   <LegalWithMarkdown
-    {...{ locale, viewName }}
+    {...{ locale, fetchLegalDoc, viewName }}
     headingTextFtlId="legal-terms-heading"
     headingText="Terms of Service"
     legalDocFile={LegalDocFile.terms}

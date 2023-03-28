@@ -6,6 +6,7 @@ import React from 'react';
 import LegalPrivacy from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { fetchLegalDoc } from '../mocks';
 
 export default {
   title: 'Pages/Legal/Privacy',
@@ -13,4 +14,4 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Basic = () => <LegalPrivacy />;
+export const Basic = () => <LegalPrivacy {...{ fetchLegalDoc }} />;
