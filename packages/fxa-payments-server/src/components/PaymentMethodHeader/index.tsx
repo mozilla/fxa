@@ -1,4 +1,5 @@
 import { Localized } from '@fluent/react';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 import { Plan } from 'fxa-shared/subscriptions/types';
 import React from 'react';
 import useValidatorState from '../../lib/validator';
@@ -36,22 +37,28 @@ export type PaymentMethodHeaderProps = {
   plan: Plan;
   onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
   type?: PaymentMethodHeaderType;
+  invoice?: FirstInvoicePreview;
 };
 
 export const PaymentMethodHeader = ({
   plan,
   onClick,
   type,
+  invoice,
 }: PaymentMethodHeaderProps) => {
   const checkboxValidator = useValidatorState();
   return (
     <>
       {returnPaymentMethodHeader(type || PaymentMethodHeaderType.NoPrefix)}
-      <Localized id="payment-method-required">
-        <strong>Required</strong>
+      <Localized id="payment-method-first-approve">
+        <strong>First you'll need to approve your subscription</strong>
       </Localized>
       <Form validator={checkboxValidator}>
-        <PaymentConsentCheckbox plan={plan} onClick={onClick} />
+        <PaymentConsentCheckbox
+          plan={plan}
+          onClick={onClick}
+          invoice={invoice}
+        />
       </Form>
     </>
   );

@@ -61,8 +61,8 @@ describe('components/PaymentMethodHeader', () => {
     });
 
     it('returns correct text for required text', async () => {
-      const msgId = 'payment-method-required';
-      const expected = 'Required';
+      const msgId = 'payment-method-first-approve';
+      const expected = "First you'll need to approve your subscription";
       const actual = getLocalizedMessage(bundle, msgId, {});
       expect(actual).toEqual(expected);
     });
@@ -97,7 +97,7 @@ describe('components/PaymentMethodHeader', () => {
         MOCK_PLANS.find((p) => p.plan_id === 'plan_daily') || MOCK_PLANS[0];
       const props = { plan, onClick: () => {} };
       const expectedMsg =
-        'I authorize Mozilla, maker of Firefox products, to charge my payment method for the amount shown, according to Terms of ServiceOpens in new window and Privacy NoticeOpens in new window, until I cancel my subscription.';
+        'I authorize Mozilla, maker of Firefox products, to charge my payment method $5.00 daily for FPN, according to Terms of ServiceOpens in new window and Privacy NoticeOpens in new window, until I cancel my subscription.';
 
       const { findByTestId } = render(<PaymentMethodHeader {...props} />);
 

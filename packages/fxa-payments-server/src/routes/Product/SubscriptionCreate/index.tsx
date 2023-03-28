@@ -275,6 +275,9 @@ export const SubscriptionCreate = ({
                     className="subscription-create-pay-with-other"
                     data-testid="pay-with-other"
                   >
+                    <Localized id="pay-with-heading-paypal">
+                      <p className="pay-with-heading">Pay with PayPal</p>
+                    </Localized>
                     <Suspense fallback={<div>Loading...</div>}>
                       <div className="paypal-button">
                         <PaypalButton
