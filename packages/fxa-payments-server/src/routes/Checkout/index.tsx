@@ -65,6 +65,7 @@ import {
 import CouponForm from '../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -144,6 +145,7 @@ export const Checkout = ({
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]
   );
+  const [invoice, setInvoice] = useState<FirstInvoicePreview>();
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -356,6 +358,7 @@ export const Checkout = ({
                 isMobile,
                 showExpandButton: isMobile,
                 coupon,
+                setInvoice,
               }}
             />
 
@@ -404,11 +407,15 @@ export const Checkout = ({
             plan={selectedPlan}
             onClick={() => setCheckboxSet(!checkboxSet)}
             type={PaymentMethodHeaderType.SecondStep}
+            invoice={invoice}
           />
 
           <>
             {paypalScriptLoaded && (
               <>
+                <Localized id="pay-with-heading-paypal">
+                  <p className="pay-with-heading">Pay with PayPal</p>
+                </Localized>
                 <div data-testid="pay-with-other">
                   <Suspense fallback={<div>Loading...</div>}>
                     <PaypalButton
