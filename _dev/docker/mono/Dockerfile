@@ -11,6 +11,7 @@ RUN set -x \
 RUN apt-get update && apt-get install -y \
     netcat \
     openssl \
+    jq \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
