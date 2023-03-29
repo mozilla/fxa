@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { NavigateFn, RouteComponentProps, useNavigate } from '@reach/router';
+import {
+  NavigateFn,
+  RouteComponentProps,
+  useLocation,
+  useNavigate,
+} from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
 
@@ -27,18 +32,12 @@ import {
   setUserPreference,
   usePageViewEvent,
 } from '../../../lib/metrics';
+import { useNotifier, useBroker, useAccount } from '../../../models/hooks';
 import { LinkStatus } from '../../../lib/types';
 import {
-  useNotifier,
-  useBroker,
-  useAccount,
-  useRelier,
-  useUrlQueryDataStore,
-} from '../../../models/hooks';
-import {
-  AccountRecoveryKeyInfo,
-  VerificationInfo,
-  useLocationStateData,
+  CreateAccountRecoveryKeyInfo,
+  CreateRelier,
+  CreateVerificationInfo,
 } from '../../../models';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
@@ -69,7 +68,6 @@ enum BannerState {
   UnexpectedError,
   PasswordResetSuccess,
   Redirecting,
-  InvalidContext,
   PasswordResendError,
   ValidationError,
 }
@@ -82,19 +80,13 @@ const AccountRecoveryResetPassword = ({
   const notifier = useNotifier();
   const broker = useBroker();
   const account = useAccount();
-  const relier = useRelier();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  let navigate = useNavigate();
-  navigate = overrides?.navigate || navigate;
+  const relier = CreateRelier();
+  const verificationInfo = CreateVerificationInfo();
+  const accountRecoveryKeyInfo = CreateAccountRecoveryKeyInfo();
 
-  let urlQueryData = useUrlQueryDataStore();
-  urlQueryData = overrides?.urlQueryData || urlQueryData;
-
-  let locationData = useLocationStateData();
-  locationData = overrides?.locationData || locationData;
-
-  const verificationInfo = new VerificationInfo(urlQueryData);
-  const accountRecoveryKeyInfo = new AccountRecoveryKeyInfo(locationData);
   const state = getInitialState();
 
   const [bannerState, setBannerState] = useState<BannerState>(BannerState.None);
@@ -116,9 +108,14 @@ const AccountRecoveryResetPassword = ({
       alertValidationError(state.validationError);
     } else if (!state.supportsRecovery) {
       setBannerState(BannerState.Redirecting);
-      navigate(`/complete_reset_password?${urlQueryData.toSearchQuery()}`);
+      navigate(`/complete_reset_password?${location.search}`);
     }
-  }, [state, navigate, urlQueryData]);
+  }, [
+    state.validationError,
+    state.supportsRecovery,
+    navigate,
+    location.search,
+  ]);
 
   if (linkStatus === 'damaged') {
     return <ResetPasswordLinkDamaged />;
@@ -293,15 +290,11 @@ const AccountRecoveryResetPassword = ({
     setUserPreference('account-recovery', account.recoveryKey);
     logViewEvent(viewName, 'recovery-key-consume.success');
 
-    const queryString = urlQueryData.toSearchQuery();
-    navigate(`/reset_password_with_recovery_key_verified?${queryString}`);
+    navigate(`/reset_password_with_recovery_key_verified?${location.search}`);
   }
 
   function alertValidationError(err: ModelValidationErrors) {
     setBannerState(BannerState.UnexpectedError);
-    console.error(
-      `Invalid keys detected: ${err.errors.map((x) => x.key).join(',')}`
-    );
   }
 };
 

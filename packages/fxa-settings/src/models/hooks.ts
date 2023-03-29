@@ -10,8 +10,6 @@ import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
-import { GenericData } from '../lib/model-data';
-import { useLocation } from '@reach/router';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -83,35 +81,18 @@ export function useAlertBar() {
   return alertBarInfo;
 }
 
+export function useWindowWrapper() {
+  const { windowWrapper } = useContext(AppContext);
+  if (windowWrapper == null) {
+    throw new Error('windowWrapper never initialized!');
+  }
+  return windowWrapper;
+}
+
 export function useFtlMsgResolver() {
   const config = useConfig();
   const { l10n } = useLocalization();
   return new FtlMsgResolver(l10n, config.l10n.strict);
-}
-
-export function useRelier() {
-  const { relierFactory } = useContext(AppContext);
-  if (relierFactory == null) {
-    throw new Error('Relier factory never initialized!');
-  }
-  return relierFactory.getRelier();
-}
-
-export function useUrlQueryDataStore() {
-  let { urlQueryData } = useContext(AppContext);
-  if (urlQueryData == null) {
-    throw new Error('urlQueryData never initialized!');
-  }
-  return urlQueryData;
-}
-
-export function useLocationStateData() {
-  const location = useLocation();
-  if (location == null) {
-    throw new Error('Location missing!');
-  }
-
-  return new GenericData((location.state || {}) as Record<string, unknown>);
 }
 
 export function useNotifier() {

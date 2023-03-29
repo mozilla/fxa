@@ -10,6 +10,7 @@ import { UrlQueryData } from '../../../lib/model-data';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
+import { ReachRouterWindow } from '../../../lib/window';
 
 export const mockCompleteResetPasswordParams = {
   email: MOCK_ACCOUNT.primaryEmail.email,
@@ -41,11 +42,12 @@ export const paramsWithMissingToken = {
 export function mockUrlQueryData(
   params: Record<string, string> = mockCompleteResetPasswordParams
 ) {
-  const ctx = new UrlQueryData(window);
+  const window = new ReachRouterWindow();
+  const data = new UrlQueryData(window);
   for (const param of Object.keys(params)) {
-    ctx.set(param, params[param]);
+    data.set(param, params[param]);
   }
-  return ctx;
+  return data;
 }
 
 export const Subject = ({

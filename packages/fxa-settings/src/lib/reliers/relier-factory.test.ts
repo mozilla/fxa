@@ -15,6 +15,7 @@ import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
 import { RelierDelegates } from './interfaces';
 import { RelierFactory } from './relier-factory';
 import { DefaultRelierFlags } from './relier-factory-flags';
+import { ReachRouterWindow } from '../window';
 
 type RelierFlagOverrides = {
   isDevicePairingAsAuthority?: boolean;
@@ -32,6 +33,7 @@ type FactoryCallCounts = {
 };
 
 describe('lib/reliers/relier-factory', () => {
+  const window = new ReachRouterWindow();
   let sandbox: sinon.SinonSandbox;
   let flags: DefaultRelierFlags;
   let urlQueryData: UrlQueryData;
@@ -65,6 +67,7 @@ describe('lib/reliers/relier-factory', () => {
 
     // Create a factory with current state
     const factory = new RelierFactory({
+      window,
       data: urlQueryData,
       channelData: urlHashData,
       flags,

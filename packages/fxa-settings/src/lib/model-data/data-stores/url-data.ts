@@ -2,18 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ReachRouterWindow } from '../../window';
 import { ModelDataStore } from '../model-data-store';
-import { WindowLocation, HistorySource } from '@reach/router';
-
-export type Location = Pick<
-  WindowLocation,
-  'href' | 'pathname' | 'search' | 'hash'
->;
-export type History = Pick<HistorySource, 'history'>;
-
-export type WindowWrapper = History & {
-  location: Location;
-};
 
 /**
  * An abstract base class for persisting state in the URL.
@@ -30,7 +20,7 @@ export abstract class UrlData extends ModelDataStore {
    * @param window Current window
    * @param mode Whether or not to store state in the search query or the hash.
    */
-  constructor(public readonly window: WindowWrapper) {
+  constructor(public readonly window: ReachRouterWindow) {
     super();
   }
 

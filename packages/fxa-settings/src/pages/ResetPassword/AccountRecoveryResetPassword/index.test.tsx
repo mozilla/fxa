@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider, NavigateFn } from '@reach/router';
+import { LocationProvider } from '@reach/router';
 import '@testing-library/jest-dom/extend-expect';
 import {
   act,
@@ -15,69 +15,89 @@ import AccountRecoveryResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
-  GenericData,
-  StorageData,
-  UrlHashData,
-  UrlQueryData,
-} from '../../../lib/model-data';
-import {
   logErrorEvent,
   logViewEvent,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { Account, AppContext, AppContextValue, Relier } from '../../../models';
-import {
-  mockAccount,
-  mockLocationData,
-  mockRelierFactory,
-  mockStorageData,
-  mockUrlHashData,
-  mockUrlQueryData,
-  resetDataStore,
-} from './mocks';
-import { RelierFactory } from '../../../lib/reliers';
+import { AppContext, AppContextValue } from '../../../models';
+import * as mocks from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 
-jest.mock('../../../lib/metrics', () => ({
-  usePageViewEvent: jest.fn(),
-  logViewEvent: jest.fn(),
-  logErrorEvent: jest.fn(),
-  setUserPreference: jest.fn(),
-}));
+let mockHistory = mocks.mockWindowHistory();
+let mockWindowWrapper = mocks.mockWindowWrapper();
+let mockUrlQueryData = mocks.mockUrlQueryData();
+let mockStorageData = mocks.mockStorageData();
+let mockUrlHashData = mocks.mockUrlHashData();
+let mockLocationStateData = mocks.mockLocationStateData();
+let mockRelier = mocks.mockRelier();
+let mockAccount = mocks.mockAccount();
+let mockAuthClient = mocks.mockAuthClient();
+let mockOauthClient = mocks.mockOauthClient();
+let mockNavigate = mocks.mockNavigate();
+let mockNotifier = mocks.mockNotifier();
+let mockBroker = mocks.mockBroker();
 
-const mockOnAccountSignIn = jest.fn();
-const mockInvokeBrokerMethod = jest.fn();
-jest.mock('../../../models/hooks', () => ({
-  __esModule: true,
-  ...jest.requireActual('../../../models/hooks'),
-  useNotifier: () => ({
-    onAccountSignIn: mockOnAccountSignIn,
-  }),
-  useBroker: () => ({
-    invokeBrokerMethod: mockInvokeBrokerMethod,
-  }),
-}));
+jest.mock('../../../models/hooks', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('../../../models/hooks'),
+    useNotifier: () => mockNotifier,
+    useAccount: () => mockAccount,
+    useBroker: () => mockBroker,
+  };
+});
+
+jest.mock('@reach/router', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('@reach/router'),
+    useLocation: () => mockWindowWrapper.location,
+    useNavigate: () => mockNavigate,
+  };
+});
+
+jest.mock('../../../lib/metrics', () => {
+  return {
+    usePageViewEvent: jest.fn(),
+    logViewEvent: jest.fn(),
+    logErrorEvent: jest.fn(),
+    setUserPreference: jest.fn(),
+  };
+});
 
 describe('AccountRecoveryResetPassword page', () => {
-  let urlQueryData: UrlQueryData;
-  let urlHashData: UrlHashData;
-  let storageData: StorageData;
-  let account: Account;
-  let locationData: GenericData;
-  let navigate: NavigateFn;
-  let relierFactory: RelierFactory;
-  let relier: Relier;
   let ctx: AppContextValue;
 
+  function resetMocks() {
+    // Restores default implementations of the mocks
+    mocks.resetMocks();
+
+    // Create new references to mocks
+    mockHistory = mocks.mockWindowHistory();
+    mockWindowWrapper = mocks.mockWindowWrapper();
+    mockUrlQueryData = mocks.mockUrlQueryData();
+    mockStorageData = mocks.mockStorageData();
+    mockUrlHashData = mocks.mockUrlHashData();
+    mockLocationStateData = mocks.mockLocationStateData();
+    mockRelier = mocks.mockRelier();
+    mockAccount = mocks.mockAccount();
+    mockAuthClient = mocks.mockAuthClient();
+    mockOauthClient = mocks.mockOauthClient();
+    mockNavigate = mocks.mockNavigate();
+    mockNotifier = mocks.mockNotifier();
+    mockBroker = mocks.mockBroker();
+
+    // Reset the mock implementations
+    jest.restoreAllMocks();
+  }
+
   async function renderPage() {
-    const overrides = {
-      navigate,
-      locationData,
-    };
     render(
       <AppContext.Provider value={ctx}>
-        <LocationProvider>
-          <AccountRecoveryResetPassword {...{ overrides }} />
+        <LocationProvider
+          {...{ history: mockHistory, location: mockHistory.location }}
+        >
+          <AccountRecoveryResetPassword {...{}} />
         </LocationProvider>
       </AppContext.Provider>
     );
@@ -104,61 +124,48 @@ describe('AccountRecoveryResetPassword page', () => {
     });
   }
 
-  function resetDataStores() {
-    resetDataStore(mockUrlQueryData(), urlQueryData);
-    resetDataStore(mockUrlHashData(), urlHashData);
-    resetDataStore(mockStorageData(), storageData);
-    resetDataStore(mockLocationData(), locationData);
-  }
-
-  beforeAll(() => {
-    account = mockAccount();
-    navigate = jest.fn();
-    urlQueryData = mockUrlQueryData();
-    urlHashData = mockUrlHashData();
-    storageData = mockStorageData();
-    locationData = mockLocationData();
-    relierFactory = mockRelierFactory(urlQueryData, urlHashData, storageData);
-    relier = relierFactory.getRelier();
-
+  beforeEach(() => {
+    resetMocks();
     ctx = mockAppContext({
-      urlQueryData,
-      urlHashData,
-      storageData,
-      account,
-      relierFactory,
+      windowWrapper: mockWindowWrapper,
+      urlQueryData: mockUrlQueryData,
+      urlHashData: mockUrlHashData,
+      storageData: mockStorageData,
+      account: mockAccount,
+      authClient: mockAuthClient,
+      locationStateData: mockLocationStateData,
+      oauthClient: mockOauthClient,
     });
   });
 
-  afterEach(() => {
-    resetDataStores();
-    jest.restoreAllMocks();
+  afterAll(() => {
+    resetMocks();
   });
 
   describe('required recovery key info', () => {
     async function setState(key: string) {
-      locationData.set(key, '');
+      mockLocationStateData.set(key, '');
       await renderPage();
     }
 
     it(`requires kB`, function () {
       setState('kB');
-      expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
+      expect(mockNavigate).toBeCalledWith(
+        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
       );
     });
 
     it(`requires recoveryKeyId`, function () {
       setState('recoveryKeyId');
-      expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
+      expect(mockNavigate).toBeCalledWith(
+        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
       );
     });
 
     it(`requires accountResetToken`, function () {
       setState('accountResetToken');
-      expect(navigate).toBeCalledWith(
-        `/complete_reset_password?${urlQueryData.toSearchQuery()}`
+      expect(mockNavigate).toBeCalledWith(
+        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
       );
     });
   });
@@ -166,7 +173,7 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('damaged link', () => {
     beforeEach(async () => {
       // By setting an invalid email state, we trigger a damaged link state.
-      urlQueryData.set('email', 'foo');
+      mockUrlQueryData.set('email', 'foo');
       await renderPage();
     });
 
@@ -226,12 +233,10 @@ describe('AccountRecoveryResetPassword page', () => {
     });
 
     describe('successful reset', () => {
-      beforeAll(() => {
-        account.setLastLogin = jest.fn();
-        account.resetPasswordWithRecoveryKey = jest.fn();
-      });
-
       beforeEach(async () => {
+        mockAccount.setLastLogin = jest.fn();
+        mockAccount.resetPasswordWithRecoveryKey = jest.fn();
+
         await act(async () => {
           enterPassword('foo12356789!');
           clickResetPassword();
@@ -246,7 +251,7 @@ describe('AccountRecoveryResetPassword page', () => {
       });
 
       it('calls resetPasswordWithRecoveryKey', () => {
-        expect(account.resetPasswordWithRecoveryKey).toHaveBeenCalled();
+        expect(mockAccount.resetPasswordWithRecoveryKey).toHaveBeenCalled();
       });
 
       it('sets relier state', () => {
@@ -257,33 +262,31 @@ describe('AccountRecoveryResetPassword page', () => {
       });
 
       it('invokes broker', () => {
-        expect(mockInvokeBrokerMethod).toHaveBeenCalled();
+        expect(mockBroker.invokeBrokerMethod).toHaveBeenCalled();
       });
 
       it('invokes webchannel', () => {
-        expect(mockOnAccountSignIn).toHaveBeenCalled();
+        expect(mockNotifier.onAccountSignIn).toHaveBeenCalled();
       });
 
       it('sets last login data', () => {
-        expect(account.setLastLogin).toHaveBeenCalled();
+        expect(mockAccount.setLastLogin).toHaveBeenCalled();
       });
 
       it('sets relier resetPasswordConfirm state', () => {
-        expect(relier.resetPasswordConfirm).toBeTruthy();
+        expect(mockRelier.resetPasswordConfirm).toBeTruthy();
       });
     });
   });
 
   describe('expired link', () => {
-    beforeAll(() => {
+    beforeEach(async () => {
       // A link is deemed expired if the server returns an invalid token error.
-      account.resetPasswordWithRecoveryKey = jest
+      mockAccount.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockRejectedValue(AuthUiErrors['INVALID_TOKEN']);
-      account.resetPassword = jest.fn();
-    });
+      mockAccount.resetPassword = jest.fn();
 
-    beforeEach(async () => {
       await renderPage();
       await act(async () => {
         enterPassword('foo12356789!');

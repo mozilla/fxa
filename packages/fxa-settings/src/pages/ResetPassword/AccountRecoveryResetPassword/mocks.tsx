@@ -2,19 +2,44 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { NavigateFn, NavigateOptions } from '@reach/router';
+import {
+  NavigateFn,
+  NavigateOptions,
+  createHistory,
+  createMemorySource,
+  History,
+} from '@reach/router';
 import {
   ModelDataStore,
   StorageData,
   UrlHashData,
   UrlQueryData,
-  GenericData,
 } from '../../../lib/model-data';
 import { MozServices } from '../../../lib/types';
-import { Account } from '../../../models';
+import { Account, Relier } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
-import { WindowWrapper } from '../../../lib/model-data/data-stores/url-data';
+import { ReachRouterWindow } from '../../../lib/window';
 import { DefaultRelierFlags, RelierFactory } from '../../../lib/reliers';
+import AuthClient from 'fxa-auth-client/browser';
+import { OAuthClient } from '../../../lib/oauth';
+import { LocationStateData } from '../../../lib/model-data/data-stores/location-state-data';
+
+export const defaultUrlQueryParams: Record<string, any> = {
+  uid: MOCK_ACCOUNT.uid,
+  email: MOCK_ACCOUNT.primaryEmail.email,
+  emailToHashWith: MOCK_ACCOUNT.primaryEmail.email,
+  token: '1111111111111111111111111111111111111111111111111111111111111111',
+  code: '11111111111111111111111111111111',
+  subscriptionProductName: '',
+  subscriptionProductId: '',
+  context: 'fx_desktop_v3',
+};
+
+export const defaultLocationState: Record<string, any> = {
+  kB: '123',
+  accountResetToken: '123',
+  recoveryKeyId: '123',
+};
 
 export class UrlSearchDataMock extends UrlQueryData {
   // Holds an internal search state that is different than window.location.search
@@ -34,7 +59,7 @@ export class UrlSearchDataMock extends UrlQueryData {
     this.searchState = params.toString();
   }
 
-  constructor(window: WindowWrapper) {
+  constructor(window: ReachRouterWindow) {
     super(window);
     this.searchState = window.location.search.toString();
   }
@@ -58,9 +83,9 @@ export class UrlHashDataMock extends UrlHashData {
     this.state = params.toString();
   }
 
-  constructor(window: WindowWrapper) {
+  constructor(window: ReachRouterWindow) {
     super(window);
-    this.state = window.location.hash.replace(/^#/, '');
+    this.state = window.location.hash?.replace(/^#/, '') || '';
   }
 }
 
@@ -75,63 +100,108 @@ export class StorageDataMock extends StorageData {
 
 export class RelierFactoryMock extends RelierFactory {}
 
-export function mockUrlQueryData() {
-  const ctx = new UrlSearchDataMock(window);
-  const params: Record<string, string> = {
-    uid: MOCK_ACCOUNT.uid,
-    email: MOCK_ACCOUNT.primaryEmail.email,
-    emailToHashWith: MOCK_ACCOUNT.primaryEmail.email,
-    token: '1111111111111111111111111111111111111111111111111111111111111111',
-    code: '11111111111111111111111111111111',
-    subscriptionProductName: '',
-    subscriptionProductId: '',
-    context: 'fx_desktop_v3',
-  };
+let _history: History | undefined;
+let _window: ReachRouterWindow | undefined;
+let _urlQuery: UrlSearchDataMock | undefined;
+let _urlHash: UrlHashDataMock | undefined;
+let _locationState: LocationStateData | undefined;
+let _storage: StorageDataMock | undefined;
+let _relier: Relier | undefined;
+let _relierFactory: RelierFactoryMock | undefined;
+let _relierDelegate: any | undefined;
+let _account: Account | undefined;
 
-  for (const p of Object.keys(params)) {
-    ctx.set(p, params[p]);
-  }
-
-  return ctx;
+export function resetMocks() {
+  _history = undefined;
+  _window = undefined;
+  _urlQuery = undefined;
+  _urlHash = undefined;
+  _locationState = undefined;
+  _storage = undefined;
+  _relier = undefined;
+  _relierFactory = undefined;
+  _relierDelegate = undefined;
+  _account = undefined;
 }
 
-export function mockLocationData() {
-  return new GenericData({
-    kB: '123',
-    accountResetToken: '123',
-    recoveryKeyId: '123',
-  });
+export function mockWindowHistory() {
+  if (_history) {
+    return _history;
+  }
+  const source = createMemorySource('/fake');
+  _history = createHistory(source);
+  return _history;
+}
+
+export function mockWindowWrapper() {
+  if (_window) {
+    return _window;
+  }
+  _window = new ReachRouterWindow();
+  return _window;
+}
+
+export function mockUrlQueryData() {
+  if (_urlQuery) {
+    return _urlQuery;
+  }
+  const window = mockWindowWrapper();
+  _urlQuery = new UrlSearchDataMock(window);
+  for (const p of Object.keys(defaultUrlQueryParams)) {
+    _urlQuery.set(p, defaultUrlQueryParams[p]);
+  }
+  return _urlQuery;
+}
+
+export function mockLocationStateData() {
+  if (!_locationState) {
+    const window = mockWindowWrapper();
+    _locationState = new LocationStateData(window);
+    for (const p of Object.keys(defaultLocationState)) {
+      _locationState.set(p, defaultLocationState[p]);
+    }
+  }
+  return _locationState;
 }
 
 export function mockUrlHashData() {
-  const ctx = new UrlHashDataMock(window);
-  const params: Record<string, string> = {};
-  for (const p of Object.keys(params)) {
-    ctx.set(p, params[p]);
+  if (!_urlHash) {
+    _urlHash = new UrlHashDataMock(mockWindowWrapper());
   }
-  return ctx;
+  return _urlHash;
 }
 
 export function mockStorageData() {
-  return new StorageDataMock(window);
+  if (!_storage) {
+    const window = mockWindowWrapper();
+    _storage = new StorageDataMock(window);
+  }
+  return _storage;
 }
 
-export function mockRelier(
-  urlQueryData: UrlQueryData,
-  urlHashData: UrlHashData,
-  storageData: StorageData
-) {
-  const factory = mockRelierFactory(urlQueryData, urlHashData, storageData);
-  return factory.getRelier();
+export function mockRelier() {
+  if (!_relier) {
+    _relier = mockRelierFactory().getRelier();
+  }
+  return _relier;
 }
 
-export function mockRelierFactory(
-  urlQueryData: UrlQueryData,
-  urlHashData: UrlHashData,
-  storageData: StorageData
-) {
-  const factory = new RelierFactoryMock({
-    delegates: {
+export function mockRelierFactory() {
+  if (!_relierFactory) {
+    _relierFactory = new RelierFactoryMock({
+      window: mockWindowWrapper(),
+      delegates: mockRelierDelegates(),
+      data: mockUrlQueryData(),
+      channelData: mockUrlHashData(),
+      flags: new DefaultRelierFlags(mockUrlQueryData(), mockStorageData()),
+    });
+  }
+  return _relierFactory;
+}
+
+export function mockRelierDelegates() {
+  if (!_relierDelegate) {
+    _relierDelegate = {
       async getClientInfo(clientId: any) {
         return {};
       },
@@ -141,30 +211,46 @@ export function mockRelierFactory(
       getProductIdFromRoute() {
         return 'bar';
       },
-    },
-    data: urlQueryData,
-    channelData: urlHashData,
-    flags: new DefaultRelierFlags(urlQueryData, storageData),
-  });
-  return factory;
+    };
+  }
+  return _relierDelegate;
 }
 
 export function mockAccount() {
-  return {
-    ...MOCK_ACCOUNT,
-    setLastLogin: () => {},
-    resetPasswordWithRecoveryKey: () => {},
-    resetPassword: () => {},
-  } as unknown as Account;
+  if (!_account) {
+    _account = {
+      ...MOCK_ACCOUNT,
+      setLastLogin: () => {},
+      resetPasswordWithRecoveryKey: () => {},
+      resetPassword: () => {},
+    } as unknown as Account;
+  }
+  return _account;
 }
 
-export type NavOpts = {};
-export const mockNavigate: NavigateFn = async (
-  to: string | number,
-  options?: NavigateOptions<NavOpts>
-) => {
-  console.log('Would have called navigate with', { to, options });
-};
+export function mockAuthClient() {
+  return {} as AuthClient;
+}
+
+export function mockOauthClient() {
+  return {} as OAuthClient;
+}
+
+export function mockNavigate() {
+  return jest.fn();
+}
+
+export function mockNotifier() {
+  return {
+    onAccountSignIn: jest.fn(),
+  };
+}
+
+export function mockBroker() {
+  return {
+    invokeBrokerMethod: jest.fn(),
+  };
+}
 
 export function resetDataStore(source: ModelDataStore, target: ModelDataStore) {
   for (const k of source.getKeys()) {

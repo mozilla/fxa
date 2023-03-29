@@ -12,3 +12,4 @@ export * from './pairing-supplicant-relier';
 export * from './resume-obj';
 export * from './signin-signup-info';
 export * from './supplicant-info';
+export * from './factory';

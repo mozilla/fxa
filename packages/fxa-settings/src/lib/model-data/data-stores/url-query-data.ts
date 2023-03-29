@@ -2,14 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { UrlData, WindowWrapper } from './url-data';
+import { ReachRouterWindow } from '../../window';
+import { UrlData } from './url-data';
 
 /**
  * Creates a data store from the current URL state.
  * Uses window.location.search (ie the query params) to hold state.
  */
 export class UrlQueryData extends UrlData {
-  constructor(public readonly window: WindowWrapper) {
+  constructor(public readonly window: ReachRouterWindow) {
     super(window);
   }
 
@@ -20,11 +21,15 @@ export class UrlQueryData extends UrlData {
   protected setParams(params: URLSearchParams) {
     const url = new URL(this.window.location.href);
     url.search = params.toString();
-    // Use replaceState URL, but prevent page loads or history changes
-    this.window.history.replaceState({}, '', url.toString());
+
+    // Use replace false stops a page refresh
+    this.window.navigate(url.toString(), {
+      state: this.window.location.state,
+      replace: true,
+    });
   }
 
   public toSearchQuery() {
-    return this.getParams().toString();
+    return this.window.location.search;
   }
 }

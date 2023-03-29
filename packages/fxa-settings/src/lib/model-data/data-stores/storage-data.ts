@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ReachRouterWindow } from '../../window';
 import { ModelDataStore } from '../model-data-store';
 
 // TODO: Adapt to using ../../storage implementation. We need a way to migrate / deal with the namespace issue though.
@@ -15,7 +16,7 @@ export class StorageData extends ModelDataStore {
 
   private state: Record<string, unknown>;
 
-  constructor(private window: Window) {
+  constructor(private window: ReachRouterWindow) {
     super();
     this.state = {};
     this.load();

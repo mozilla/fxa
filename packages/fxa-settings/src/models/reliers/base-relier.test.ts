@@ -3,9 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { UrlQueryData } from '../../lib/model-data';
+import { ReachRouterWindow } from '../../lib/window';
 import { BaseRelier } from './base-relier';
 
 describe('BaseRelier Model', function () {
+  const window = new ReachRouterWindow();
   let model: BaseRelier;
   beforeEach(function () {
     model = new BaseRelier(new UrlQueryData(window));

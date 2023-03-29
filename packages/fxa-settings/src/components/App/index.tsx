@@ -37,10 +37,9 @@ import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 import SigninReported from '../../pages/Signin/SigninReported';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 import LinkValidator from '../LinkValidator';
-import { UrlQueryData } from '../../lib/model-data';
-import { CompleteResetPasswordLink } from '../../models/reset-password/verification';
 import { LinkType } from 'fxa-settings/src/lib/types';
 import WebChannelExample from '../../pages/WebChannelExample';
+import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
 export const App = ({
   flowQueryParams,
@@ -115,9 +114,7 @@ export const App = ({
                 linkType={LinkType['reset-password']}
                 viewName={'complete-reset-password'}
                 getParamsFromModel={() => {
-                  return new CompleteResetPasswordLink(
-                    new UrlQueryData(window)
-                  );
+                  return CreateCompleteResetPasswordLink();
                 }}
               >
                 {({ setLinkStatus, params }) => (

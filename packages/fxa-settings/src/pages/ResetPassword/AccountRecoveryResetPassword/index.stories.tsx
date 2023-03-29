@@ -3,23 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AccountRecoveryResetPassword, {
-  AccountRecoveryResetPasswordProps,
-} from '.';
-import { LocationProvider } from '@reach/router';
+import AccountRecoveryResetPassword from '.';
+import {
+  LocationProvider,
+  History,
+  createMemorySource,
+  createHistory,
+} from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
 import { AppContext, AppContextValue } from '../../../models';
 import {
-  mockUrlQueryData,
-  mockUrlHashData,
-  mockStorageData,
   mockAccount,
-  mockRelierFactory,
-  mockLocationData,
+  mockAuthClient,
+  mockOauthClient,
+  resetMocks,
 } from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import {
+  LocationStateData,
+  StorageData,
+  UrlHashData,
+  UrlQueryData,
+} from '../../../lib/model-data';
+import { ReachRouterWindow } from '../../../lib/window';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryResetPassword',
@@ -27,80 +35,81 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (
-  ctx: AppContextValue,
-  props: AccountRecoveryResetPasswordProps
-) => {
+const baseUrl = `http://${window.location.host}/?`;
+
+const storyWithProps = (ctx: AppContextValue, history?: History) => {
   return (
     <AppContext.Provider value={ctx}>
-      <LocationProvider>
-        <AccountRecoveryResetPassword {...props} />
+      <LocationProvider {...{ history }}>
+        <AccountRecoveryResetPassword />
       </LocationProvider>
     </AppContext.Provider>
   );
 };
 
 function setup() {
+  resetMocks();
   const account = mockAccount();
-  const navigate = async (to: string | number, opts?: {}) => {
-    console.log('Would navigate to', to, opts);
+  const source = createMemorySource('/reset_password');
+  const history = createHistory(source);
+  const windowWrapper = new ReachRouterWindow({
+    location: history.location,
+  });
+
+  // Create the default url state
+  const href = `${baseUrl}`;
+  history.location.href = href;
+  history.location.search =
+    'email=foo%40email.com&emailToHashWith=foo%40email.com&code=123&token=1234&uid=1234';
+  history.location.state = {
+    kB: '1234',
+    accountResetToken: '1234',
+    recoveryKeyId: '1234',
   };
-  const urlQueryData = mockUrlQueryData();
-  const urlHashData = mockUrlHashData();
-  const storageData = mockStorageData();
-  const locationData = mockLocationData();
-  const relierFactory = mockRelierFactory(
-    urlQueryData,
-    urlHashData,
-    storageData
-  );
 
   const ctx = mockAppContext({
-    urlQueryData: urlQueryData,
-    urlHashData: urlHashData,
-    storageData: storageData,
+    windowWrapper,
     account,
-    relierFactory,
+    locationStateData: new LocationStateData(windowWrapper),
+    urlQueryData: new UrlQueryData(windowWrapper),
+    urlHashData: new UrlHashData(windowWrapper),
+    storageData: new StorageData(windowWrapper),
+    authClient: mockAuthClient(),
+    oauthClient: mockOauthClient(),
   });
 
   return {
     ctx,
-    props: {
-      overrides: {
-        navigate,
-        urlQueryData,
-        locationData,
-      },
-    },
-    account,
-    urlQueryData,
-    locationData,
+    history,
   };
 }
 
 export const WithValidLink = () => {
-  const { props, ctx } = setup();
-  return storyWithProps(ctx, props);
+  const { ctx, history } = setup();
+  return storyWithProps(ctx, history);
 };
 
 export const WithExpiredLink = () => {
-  const { props, ctx, account } = setup();
+  const { ctx, history } = setup();
   // Mock the response. An INVALID_TOKEN means the link expired.
-  account.resetPasswordWithRecoveryKey = async () => {
+  ctx.account!.resetPasswordWithRecoveryKey = async () => {
     const err = AuthUiErrors['INVALID_TOKEN'];
     throw err;
   };
-  return storyWithProps(ctx, props);
+  return storyWithProps(ctx, history);
 };
 
+// An invalid link should result in a broken link error.
 export const WithBrokenLink = () => {
-  const { props, urlQueryData, ctx } = setup();
-  urlQueryData.set('email', 'foobar.com');
-  return storyWithProps(ctx, props);
+  const { ctx, history } = setup();
+  // An email must have an @ symbol.
+  history.location.search = 'email=foo';
+  return storyWithProps(ctx, history);
 };
 
 export const WithBrokenRecoveryKeyState = () => {
-  const { props, locationData, ctx } = setup();
-  locationData.set('kB', '');
-  return storyWithProps(ctx, props);
+  const { ctx, history } = setup();
+  // An empty kb value should indicate a bad recovery key state.
+  history.location.state.kB = '';
+  return storyWithProps(ctx, history);
 };
