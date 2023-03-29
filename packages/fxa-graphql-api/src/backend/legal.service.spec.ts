@@ -45,9 +45,7 @@ async function mockFetch(url: RequestInfo | URL, _init?: RequestInit) {
   };
 }
 
-// jest.mock('node-fetch', () => fetch);
-
-describe.only('#unit - LegalService', () => {
+describe('#unit - LegalService', () => {
   let service: LegalService;
 
   beforeEach(async () => {
