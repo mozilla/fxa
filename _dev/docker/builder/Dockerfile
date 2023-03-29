@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     python3-dev \
     build-essential \
     zip \
+    jq \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=app:app . /fxa
