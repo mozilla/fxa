@@ -4,3 +4,4 @@
 
 export * from './verification-info';
 export * from './account-recovery-key-info';
+export * from './factory';

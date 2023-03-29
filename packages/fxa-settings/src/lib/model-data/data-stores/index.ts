@@ -6,3 +6,4 @@ export * from './generic-data';
 export * from './storage-data';
 export * from './url-hash-data';
 export * from './url-query-data';
+export * from './location-state-data';

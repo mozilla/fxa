@@ -22,6 +22,7 @@ import {
   UrlQueryData,
 } from '../model-data';
 import { OAuthError } from '../oauth';
+import { ReachRouterWindow } from '../window';
 import { RelierFlags } from './interfaces';
 import { RelierDelegates } from './interfaces/relier-delegates';
 import { DefaultRelierFlags } from './relier-factory-flags';
@@ -70,11 +71,13 @@ export class RelierFactory {
   protected readonly delegates: RelierDelegates;
 
   constructor(opts: {
+    window: ReachRouterWindow;
     delegates: RelierDelegates;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
     flags?: RelierFlags;
   }) {
+    const { window } = opts;
     this.data = opts.data || new UrlQueryData(window);
     this.channelData = opts.channelData || new UrlHashData(window);
     this.flags =

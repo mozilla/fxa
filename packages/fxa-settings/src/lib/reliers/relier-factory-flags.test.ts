@@ -6,8 +6,10 @@ import { createSandbox, SinonSandbox } from 'sinon';
 import { Constants } from '../constants';
 import { StorageData, UrlQueryData } from '../model-data';
 import { DefaultRelierFlags } from './relier-factory-flags';
+import { ReachRouterWindow } from '../window';
 
 describe('lib/reliers/relier-factory-flags', function () {
+  const window = new ReachRouterWindow();
   let relierFlags: DefaultRelierFlags;
   let queryData: UrlQueryData;
   let storageData: StorageData;

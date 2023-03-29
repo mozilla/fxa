@@ -1,5 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import React, { useState, useEffect } from 'react';
-import { useInitialState, useRelier } from '../../models';
+import { CreateRelier, useInitialState } from '../../models';
 import { RouteComponentProps } from '@reach/router';
 
 export const PageWithLoggedInStatusState = (
@@ -14,7 +18,7 @@ export const PageWithLoggedInStatusState = (
   const [isSignedIn, setIsSignedIn] = useState<boolean>();
   const [isSync, setIsSync] = useState<boolean>();
   const [serviceName, setServiceName] = useState<string>();
-  const relier = useRelier();
+  const relier = CreateRelier();
 
   // TODO: Get the broker `continue` action once https://mozilla-hub.atlassian.net/browse/FXA-6989 is merged
   let continueHandler: Function | undefined;

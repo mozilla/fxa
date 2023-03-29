@@ -18,19 +18,19 @@ const { isEmail, isRequired, isVerificationCode, isHex, isString, isBoolean } =
 const { snakeCase } = KeyTransforms;
 
 export class VerificationInfo extends ModelDataProvider {
-  @bind([isEmail, isRequired])
+  @bind([isRequired, isEmail])
   email: string = '';
 
-  @bind([isEmail, isRequired])
+  @bind([isRequired, isEmail])
   emailToHashWith: string = '';
 
-  @bind([isVerificationCode, isRequired])
+  @bind([isRequired, isVerificationCode])
   code: string = '';
 
-  @bind([isHex, isRequired])
+  @bind([isRequired, isHex])
   token: string = '';
 
-  @bind([isString, isRequired])
+  @bind([isRequired, isString])
   uid: string = '';
 
   @bind([isBoolean], snakeCase)

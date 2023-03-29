@@ -14,7 +14,8 @@ import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
 import { AlertBarInfo } from './AlertBarInfo';
 import { mockAppContext } from './mocks';
 import { Session } from './Session';
-import { RelierFactory } from '../lib/reliers';
+import { LocationStateData } from '../lib/model-data/data-stores/location-state-data';
+import { ReachRouterWindow } from '../lib/window';
 
 export const GET_INITIAL_STATE = gql`
   query GetInitialState {
@@ -37,7 +38,8 @@ export interface AppContextValue {
   urlQueryData?: UrlQueryData;
   urlHashData?: UrlHashData;
   storageData?: StorageData;
-  relierFactory?: RelierFactory;
+  windowWrapper?: ReachRouterWindow;
+  locationStateData?: LocationStateData;
 }
 
 export function initializeAppContext() {
@@ -50,20 +52,12 @@ export function initializeAppContext() {
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
   const alertBarInfo = new AlertBarInfo();
-  const storageDataStore = new StorageData(window);
-  const urlQueryDataStore = new UrlQueryData(window);
-  const urlHashDataStore = new UrlHashData(window);
 
-  const relierFactory = new RelierFactory({
-    delegates: {
-      getClientInfo: (id: string) => oauthClient.getClientInfo(id),
-      getProductInfo: (id: string) => authClient.getProductInfo(id),
-      getProductIdFromRoute: () => {
-        const re = new RegExp('/subscriptions/products/(.*)');
-        return re.exec(window.location.pathname)?.[1] || '';
-      },
-    },
-  });
+  const windowWrapper = new ReachRouterWindow();
+  const urlQueryData = new UrlQueryData(windowWrapper);
+  const urlHashData = new UrlHashData(windowWrapper);
+  const storageData = new StorageData(windowWrapper);
+  const locationStateData = new LocationStateData(windowWrapper);
 
   const isForCurrentUser = (event: Event) => {
     const { account } = apolloClient.cache.readQuery<{ account: Account }>({
@@ -126,11 +120,12 @@ export function initializeAppContext() {
     config,
     account,
     alertBarInfo,
-    urlQueryData: urlQueryDataStore,
-    urlHashData: urlHashDataStore,
-    storageData: storageDataStore,
-    relierFactory,
+    urlQueryData,
+    urlHashData,
+    storageData,
+    locationStateData,
     navigatorLanguages: navigator.languages || ['en'],
+    windowWrapper,
   };
 
   return context;

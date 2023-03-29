@@ -25,7 +25,6 @@ export abstract class ModelDataStore {
   toJSON() {
     const temp: Record<string, unknown> = {};
     for (const key of this.getKeys()) {
-      console.log('!!! key', key);
       temp[key] = this.get(key);
     }
     return JSON.stringify(temp);
