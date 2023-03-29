@@ -8,7 +8,7 @@ import { useAccount, useAlertBar, useSession } from '../../../models';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 import { ReactComponent as SignOut } from './sign-out.svg';
-import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
+import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 
 export const DropDownAvatarMenu = () => {

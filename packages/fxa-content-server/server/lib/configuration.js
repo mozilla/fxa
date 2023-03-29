@@ -264,6 +264,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES',
     },
+    webChannelExampleRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of "web channel example" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
+    },
   },
   flow_id_expiry: {
     default: '2 hours',

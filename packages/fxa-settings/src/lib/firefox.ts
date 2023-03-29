@@ -2,7 +2,10 @@ export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
   PasswordChanged = 'fxaccounts:change_password',
-  FxAStatus = 'fxaccounts:fxa_status',   
+  FxAStatus = 'fxaccounts:fxa_status',
+  Login = 'fxaccounts:login',
+  Logout = 'fxaccounts:logout',
+  Loaded = 'fxaccounts:loaded',
   Error = 'fxError',
 }
 
@@ -35,24 +38,37 @@ type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
 // This is defined in the Firefox source code:
 // https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
 type FxAStatusRequest = {
-  service: 'sync', // ex. 'sync'
-  context: string // ex. 'fx_desktop_v3'
-}
+  service: 'sync'; // ex. 'sync'
+  context: string; // ex. 'fx_desktop_v3'
+};
+
 export type FxAStatusResponse = {
   capabilities: {
-    engines: string[],
-    multiService: boolean,
-    pairing: boolean
-  },
-  clientId?: string,
-  signedInUser?: SignedInUser
-}
-type SignedInUser = {
-  email: string,
-  sessionToken: string,
-  uid: string,
-  verified: boolean,
-}
+    engines: string[];
+    multiService: boolean;
+    pairing: boolean;
+  };
+  clientId?: string;
+  signedInUser?: SignedInUser;
+};
+
+export type SignedInUser = {
+  email: string;
+  sessionToken: string;
+  uid: string;
+  verified: boolean;
+};
+
+// ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
+export type FxALoginRequest = {
+  authAt: number;
+  email: string;
+  keyFetchToken: hexstring;
+  sessionToken: hexstring;
+  uid: hexstring;
+  unwrapBKey: string;
+  verified: boolean;
+};
 
 export class Firefox extends EventTarget {
   private broadcastChannel?: BroadcastChannel;
@@ -136,9 +152,10 @@ export class Firefox extends EventTarget {
 
   // send a message to the browser chrome
   send(command: FirefoxCommand, data: any, messageId?: string) {
+    const detail = this.formatEventDetail(command, data, messageId);
     window.dispatchEvent(
       new CustomEvent('WebChannelMessageToChrome', {
-        detail: this.formatEventDetail(command, data, messageId),
+        detail,
       })
     );
   }
@@ -178,9 +195,21 @@ export class Firefox extends EventTarget {
     this.send(FirefoxCommand.ProfileChanged, profile);
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
-  
+
   fxaStatus(options: FxAStatusRequest) {
     this.send(FirefoxCommand.FxAStatus, options);
+  }
+
+  fxaLogin(options: FxALoginRequest) {
+    this.send(FirefoxCommand.Login, options);
+  }
+
+  fxaLogout(options: { uid: string }) {
+    this.send(FirefoxCommand.Logout, options);
+  }
+
+  fxaLoaded(options: any) {
+    this.send(FirefoxCommand.Loaded, options);
   }
 }
 

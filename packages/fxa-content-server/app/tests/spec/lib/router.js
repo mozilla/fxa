@@ -39,6 +39,7 @@ describe('lib/router', () => {
     postVerifyAddRecoveryKeyRoutes: true,
     postVerifyCADViaQRRoutes: true,
     signInVerificationViaPushRoutes: true,
+    webChannelExampleRoutes: true,
   };
 
   beforeEach(() => {
