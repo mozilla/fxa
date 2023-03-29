@@ -138,10 +138,10 @@ describe('lib/reliers/relier-factory', () => {
       );
     });
 
-    it('has correct state`', function () {
+    it('has correct state`', async () => {
       expect(relier.name).toEqual('base');
       expect(relier.isOAuth()).toBeFalsy();
-      expect(relier.isSync()).toBeFalsy();
+      expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
       expect(relier.pickResumeTokenInfo()).toEqual({});
       expect(relier.isTrusted()).toBeTruthy();
@@ -175,10 +175,10 @@ describe('lib/reliers/relier-factory', () => {
       );
     });
 
-    it('has correct state', () => {
+    it('has correct state', async () => {
       expect(relier.name).toEqual('browser');
       expect(relier.isOAuth()).toBeFalsy();
-      expect(relier.isSync()).toBeTruthy();
+      expect(await relier.isSync()).toBeTruthy();
       expect(relier.wantsKeys()).toBeTruthy();
       expect(relier.pickResumeTokenInfo()).toEqual({});
       expect(relier.isTrusted()).toBeTruthy();
@@ -212,10 +212,10 @@ describe('lib/reliers/relier-factory', () => {
       );
     });
 
-    it('has correct state', () => {
+    it('has correct state', async () => {
       expect(relier.name).toEqual('oauth');
       expect(relier.isOAuth()).toBeTruthy();
-      expect(relier.isSync()).toBeFalsy();
+      expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
       expect(relier.pickResumeTokenInfo()).toEqual({});
       expect(relier.isTrusted()).toBeFalsy();
@@ -223,7 +223,7 @@ describe('lib/reliers/relier-factory', () => {
     // TODO: Port remaining tests from content-server
   });
 
-  describe.only('PairingSupplicantRelier creation', () => {
+  describe('PairingSupplicantRelier creation', () => {
     let relier: PairingSupplicantRelier;
 
     beforeAll(async () => {
@@ -258,13 +258,13 @@ describe('lib/reliers/relier-factory', () => {
       );
     });
 
-    it('has correct state', () => {
+    it('has correct state', async () => {
       mockSearchParams({
         redirect_uri: 'foo',
       });
       expect(relier.name).toEqual('pairing-authority');
       expect(relier.isOAuth()).toBeTruthy();
-      expect(relier.isSync()).toBeFalsy();
+      expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
       expect(relier.pickResumeTokenInfo()).toEqual({});
       expect(relier.isTrusted()).toBeFalsy();
