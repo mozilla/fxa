@@ -11,15 +11,18 @@ import { Checkbox } from '../fields';
 
 export type PaymentConsentCheckboxProps = {
   plan: Plan;
+  showRequiredError: boolean;
   onClick?: (event: React.MouseEvent<HTMLInputElement>) => void;
   invoice?: FirstInvoicePreview;
 };
 
 export const PaymentConsentCheckbox = ({
   plan,
+  showRequiredError,
   onClick,
   invoice,
 }: PaymentConsentCheckboxProps) => {
+  debugger;
   const { navigatorLanguages, config } = useContext(AppContext);
 
   const { termsOfService, privacyNotice } = urlsFromProductConfig(
@@ -50,7 +53,27 @@ export const PaymentConsentCheckbox = ({
         ),
       }}
     >
-      <Checkbox name="confirm" data-testid="confirm" onClick={onClick} required>
+      <Checkbox
+        name="confirm"
+        data-testid="confirm"
+        onClick={onClick}
+        showTooltip={showRequiredError}
+        onValidate={(value, focused, props) => {
+          let valid = true;
+          debugger;
+          if (!value) {
+            //&& showRequiredError) {
+            valid = false;
+          }
+          const errorMsg = 'checkbox required';
+          return {
+            value,
+            valid,
+            error: !valid ? errorMsg : null,
+          };
+        }}
+        required
+      >
         I authorize Mozilla, maker of Firefox products, to charge my payment
         method {price} for {plan.product_name}, according to{' '}
         <LinkExternal href={termsOfService}>Terms of Service</LinkExternal> and{' '}

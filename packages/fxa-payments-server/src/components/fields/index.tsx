@@ -366,6 +366,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
 
 type CheckboxProps = {
   onValidate?: OnValidateFunction;
+  showTooltip?: boolean;
 } & FieldProps &
   React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -388,13 +389,16 @@ export const Checkbox = (props: CheckboxProps) => {
     onValidate = defaultCheckboxValidator,
     required = false,
     className = 'input-row input-row--checkbox',
+    showTooltip,
     ...childProps
   } = props;
 
   const { validator } = useContext(FormContext) as FormContextValue;
+  const tooltipParentRef = useRef<any>(null);
 
   const onChange = useCallback(
     (ev) => {
+      debugger;
       const value = ev.target.checked;
       validator.updateField({
         name,
@@ -406,7 +410,14 @@ export const Checkbox = (props: CheckboxProps) => {
 
   return (
     <Field
-      {...{ fieldType: 'input', name, className, required, tooltip: false }}
+      {...{
+        fieldType: 'input',
+        tooltipParentRef,
+        name,
+        className,
+        required,
+        tooltip: true,
+      }}
     >
       <input
         {...{
@@ -414,6 +425,7 @@ export const Checkbox = (props: CheckboxProps) => {
           type: 'checkbox',
           name,
           onChange,
+          ref: tooltipParentRef,
         }}
       />
       <span className="label-text checkbox">{children ? children : label}</span>

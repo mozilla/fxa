@@ -36,6 +36,7 @@ const returnPaymentMethodHeader = (type: PaymentMethodHeaderType) => {
 export type PaymentMethodHeaderProps = {
   plan: Plan;
   onClick: (event: React.MouseEvent<HTMLInputElement>) => void;
+  showRequiredError: boolean;
   type?: PaymentMethodHeaderType;
   invoice?: FirstInvoicePreview;
 };
@@ -43,9 +44,11 @@ export type PaymentMethodHeaderProps = {
 export const PaymentMethodHeader = ({
   plan,
   onClick,
+  showRequiredError,
   type,
   invoice,
 }: PaymentMethodHeaderProps) => {
+  debugger;
   const checkboxValidator = useValidatorState();
   return (
     <>
@@ -58,6 +61,7 @@ export const PaymentMethodHeader = ({
           plan={plan}
           onClick={onClick}
           invoice={invoice}
+          showRequiredError={showRequiredError}
         />
       </Form>
     </>

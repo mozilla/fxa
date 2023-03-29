@@ -125,8 +125,8 @@ export const Checkout = ({
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
-
   const [coupon, setCoupon] = useState<CouponDetails>();
+  const [checkboxRequiredError, setCheckboxRequiredError] = useState(false);
 
   // Fetch plans on initial render or change in product ID
   useEffect(() => {
@@ -405,9 +405,15 @@ export const Checkout = ({
 
           <PaymentMethodHeader
             plan={selectedPlan}
-            onClick={() => setCheckboxSet(!checkboxSet)}
+            onClick={() => {
+              const checkboxValue = !checkboxSet;
+              setCheckboxSet(checkboxValue);
+              const errorValue = !checkboxValue;
+              setCheckboxRequiredError(errorValue);
+            }}
             type={PaymentMethodHeaderType.SecondStep}
             invoice={invoice}
+            showRequiredError={checkboxRequiredError}
           />
 
           <>
@@ -416,7 +422,15 @@ export const Checkout = ({
                 <Localized id="pay-with-heading-paypal">
                   <p className="pay-with-heading">Pay with PayPal</p>
                 </Localized>
-                <div data-testid="pay-with-other">
+                <div
+                  data-testid="pay-with-other"
+                  onClick={() => {
+                    debugger;
+                    if (!checkboxSet) {
+                      setCheckboxRequiredError(true);
+                    }
+                  }}
+                >
                   <Suspense fallback={<div>Loading...</div>}>
                     <PaypalButton
                       beforeCreateOrder={beforePaypalCreateOrder}
@@ -463,7 +477,13 @@ export const Checkout = ({
             )}
           </>
 
-          <div>
+          <div
+            onClick={() => {
+              if (!checkboxSet) {
+                setCheckboxRequiredError(true);
+              }
+            }}
+          >
             <Localized id="new-user-card-title">
               <div className="label-title">Enter your card information</div>
             </Localized>
