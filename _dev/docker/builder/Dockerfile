@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     zip \
     jq \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --chown=app:app . /fxa
