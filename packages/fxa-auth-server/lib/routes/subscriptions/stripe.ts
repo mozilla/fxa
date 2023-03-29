@@ -554,15 +554,10 @@ export class StripeHandler {
     await this.customs.check(request, email, 'createSubscriptionWithPMI');
 
     try {
-      const customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
+      let customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
       if (!customer) {
         throw error.unknownCustomer(uid);
       }
-
-      // Creating a subscription with automatic_tax enabled requires a customer with an address
-      // that is in a recognized location with an active tax registration.
-      const taxSubscription =
-        this.automaticTax && customer.tax?.automatic_tax === 'supported';
 
       const {
         priceId,
@@ -617,12 +612,26 @@ export class StripeHandler {
           await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
         }
 
+        const isSwitchingCurrencies = customer.subscriptions?.data.length && customer.currency !== planCurrency;
+        if (isSwitchingCurrencies) {
+          // Remove the customer's shipping address if they're switching currencies
+          await this.stripeHelper.stripe.customers.update(customer.id, {
+            shipping: null,
+          });
+          customer = await this.stripeHelper.fetchCustomer(uid, ['tax']) || customer;
+        }
+
         if (!this.automaticTax && paymentMethodCountry) {
           taxRateId = (
             await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
           )?.id;
         }
       }
+
+      // Creating a subscription with automatic_tax enabled requires a customer with an address
+      // that is in a recognized location with an active tax registration.
+      const taxSubscription =
+        this.automaticTax && customer.tax?.automatic_tax === 'supported';
 
       const taxOptions = this.automaticTax
         ? { automaticTax: taxSubscription }

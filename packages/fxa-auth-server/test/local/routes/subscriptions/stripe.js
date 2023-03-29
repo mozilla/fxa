@@ -1332,6 +1332,31 @@ describe('DirectStripeRoutes', () => {
       }
     });
 
+    it('errors if the paymentMethod country does not match the planCurrency', async () => {
+      paymentMethod.card.country = 'FR';
+      directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
+        paymentMethod
+      );
+      VALID_REQUEST.payload = {
+        priceId: 'Jane Doe',
+        paymentMethodId: 'pm_asdf',
+        idempotencyKey: uuidv4(),
+      };
+      try {
+        await directStripeRoutesInstance.createSubscriptionWithPMI(
+          VALID_REQUEST
+        );
+        assert.fail('Create subscription with wrong planCurrency should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(
+          err.message,
+          'Funding source country does not match plan currency.'
+        );
+      }
+    });
+
     it('calls deleteAccountIfUnverified when there is an error', async () => {
       paymentMethod.card.country = 'FR';
       directStripeRoutesInstance.stripeHelper.getPaymentMethod.resolves(
