@@ -49,23 +49,23 @@ Use the following as a template, and fill in your own values:
 
 This package uses [Jest](https://jestjs.io/) to test both the frontend and server. By default `yarn test` will run all yarn test scripts:
 
-- `yarn test:frontend` will test the React App frontend under `src/`
-- `yarn test:server` will test the Express server under `server/`
+- `yarn test-frontend` will test the React App frontend under `src/`
+- `yarn test-server` will test the Express server under `server/`
 
 Test specific tests with the following commands:
 
 ```bash
 # Test frontend tests for the component AlertBar
-yarn test:frontend AlertBar
+yarn test-frontend AlertBar
 
 # Grep frontend tests for "renders as expected"
-yarn test:frontend -t "renders as expected"
+yarn test-frontend -t "renders as expected"
 
 # Test server tests for the file server/lib/csp
-yarn test:server server/lib/csp
+yarn test-server server/lib/csp
 
 # Grep server tests for "logs raw events"
-yarn test:server -t "logs raw events"
+yarn test-server -t "logs raw events"
 ```
 
 Note that prior to testing you may need to create a build of the React App. You can do this by running `yarn build`.

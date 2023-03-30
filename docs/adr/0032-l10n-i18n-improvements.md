@@ -34,7 +34,7 @@ Historically, we did not deploy our `en` or `en-US` Fluent bundles, but we have 
 
 `fxa-payments-server` commits a single file to [`public/locales/en-US/main.ftl`](https://github.com/mozilla/fxa/blob/main/packages/fxa-payments-server/public/locales/en-US/main.ftl) which is copied to the l10n repo. This differs from `fxa-settings` and `fxa-auth-server`, wherein we separate FTL files per component and then concatenate the files together to copy into the l10n repo.
 
-For consistency, better maintainability, and because we need to set up concatenation anyway (see the `fxa-react` decision), we'll split `fxa-payments-server`'s FTL file into per-component `en.ftl` files. This will require setting up something similar to `fxa-auth-server`'s `merge-ftl:test` script for test, and we can make sure those reference the same relative path. We can also rename `main.ftl` to become `payments.ftl`.
+For consistency, better maintainability, and because we need to set up concatenation anyway (see the `fxa-react` decision), we'll split `fxa-payments-server`'s FTL file into per-component `en.ftl` files. This will require setting up something similar to `fxa-auth-server`'s `merge-ftl-test` script for test, and we can make sure those reference the same relative path. We can also rename `main.ftl` to become `payments.ftl`.
 
 #### Negative consequences
 

@@ -17,7 +17,7 @@ node -r esbuild-register ./scripts/oauth_gen_keys.js
 echo 'Updating ftl files'
 # Migrate current strings
 yarn run merge-ftl
-yarn run merge-ftl:test
+yarn run merge-ftl-test
 
 # Process sass for rendering of email templates
 echo

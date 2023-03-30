@@ -53,23 +53,23 @@ See the [`fxa-react` section of the `fxa-settings` docs](https://github.com/mozi
 
 This package uses [Jest](https://jestjs.io/) to test both the frontend and server. By default `yarn test` will run all test scripts:
 
-- `yarn test:frontend` will test the React App frontend under `src/`
-- `yarn test:server` will test the Express server under `server/`
+- `yarn test-frontend` will test the React App frontend under `src/`
+- `yarn test-server` will test the Express server under `server/`
 
 Test specific tests with the following commands:
 
 ```bash
 # Test frontend tests for the component AccountSearch
-yarn test:frontend AccountSearch
+yarn test-frontend AccountSearch
 
 # Grep frontend tests for "displays the error"
-yarn test:frontend -t "displays the error"
+yarn test-frontend -t "displays the error"
 
 # Test server tests for the file server/lib/csp
-yarn test:server server/lib/csp
+yarn test-server server/lib/csp
 
 # Grep server tests for "simple server routes"
-yarn test:server -t "simple server routes"
+yarn test-server -t "simple server routes"
 ```
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.

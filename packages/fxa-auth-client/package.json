@@ -19,8 +19,8 @@
     "ts-check": "tsc --noEmit",
     "test": "mocha -r esbuild-register test/*",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "test:unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register test/*",
-    "test:integration": "echo No integration tests present for $npm_package_name"
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register test/*",
+    "test-integration": "echo No integration tests present for $npm_package_name"
   },
   "author": "",
   "license": "MPL-2.0",

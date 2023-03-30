@@ -37,10 +37,10 @@
     "stylelint-config-prettier": "^9.0.3"
   },
   "scripts": {
-    "lint": "npm-run-all --parallel lint:eslint",
+    "lint": "npm-run-all --parallel lint-eslint",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "lint:eslint": "eslint .",
-    "lint:style": "stylelint --config ../../_dev/.stylelintrc static/*.css",
+    "lint-eslint": "eslint .",
+    "lint-style": "stylelint --config ../../_dev/.stylelintrc static/*.css",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",

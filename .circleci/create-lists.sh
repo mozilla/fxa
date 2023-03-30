@@ -44,12 +44,12 @@ do
   genIncludeArgs $pkg compile ts-build-includes.list
   genIncludeArgs $pkg lint lint-includes.list
   genIncludeArgs $pkg postinstall postinstall-includes.list
-  genIncludeArgs $pkg test:unit unit-test-includes.list
-  genIncludeArgs $pkg test:integration integration-test-includes.list
+  genIncludeArgs $pkg test-unit unit-test-includes.list
+  genIncludeArgs $pkg test-integration integration-test-includes.list
 
   # Creates a list of yarn workspace commands that can be run with gnu parallels.
   # This will ensure the script exists prior to generating the command.
-  genWorkspaceCmd $pkg test:unit unit-test.list
-  genWorkspaceCmd $pkg test:integration integration-test.list
+  genWorkspaceCmd $pkg test-unit unit-test.list
+  genWorkspaceCmd $pkg test-integration integration-test.list
 
 done < .lists/test.list
