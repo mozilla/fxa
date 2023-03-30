@@ -121,10 +121,10 @@ Test commands:
 
 ```bash
 # Test with coverage
-yarn test:cov
+yarn test-cov
 
 # Test on file change
-yarn test:watch
+yarn test-watch
 ```
 
 ## GraphQL Schema Generation
