@@ -37,6 +37,16 @@ const LinkValidator = <TModel extends ModelDataProvider>({
 
   const params = getParamsFromModel();
   const isValid = params.isValid();
+  const email = getEmailFromParams();
+
+  function getEmailFromParams() {
+    const email = params.getModelData().get('email');
+    if (typeof email === 'string') {
+      return email;
+    } else {
+      return undefined;
+    }
+  }
 
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(
     isValid ? LinkStatus.valid : LinkStatus.damaged
@@ -55,13 +65,18 @@ const LinkValidator = <TModel extends ModelDataProvider>({
 
   if (
     linkStatus === LinkStatus.expired &&
-    linkType === LinkType['reset-password']
+    linkType === LinkType['reset-password'] &&
+    email !== undefined
   ) {
-    return <LinkExpiredResetPassword {...{ viewName }} />;
+    return <LinkExpiredResetPassword {...{ email, viewName }} />;
   }
 
-  if (linkStatus === LinkStatus.expired && linkType === LinkType['signin']) {
-    return <LinkExpiredSignin {...{ viewName }} />;
+  if (
+    linkStatus === LinkStatus.expired &&
+    linkType === LinkType['signin'] &&
+    email !== undefined
+  ) {
+    return <LinkExpiredSignin {...{ email, viewName }} />;
   }
 
   return <>{child({ setLinkStatus, params })}</>;

@@ -10,6 +10,7 @@ import { LinkExpired, LinkExpiredProps } from '.';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
 export default {
   title: 'Components/LinkExpired',
@@ -26,6 +27,7 @@ export default {
 } as Meta;
 
 const viewName = 'example-view-name';
+const email = MOCK_ACCOUNT.primaryEmail.email;
 
 const mockResendHandler = async () => {
   try {
@@ -45,9 +47,9 @@ const mockedProps: LinkExpiredProps = {
 export const Default = () => <LinkExpired {...mockedProps} />;
 
 export const LinkExpiredForResetPassword = () => (
-  <LinkExpiredResetPassword {...{ viewName }} />
+  <LinkExpiredResetPassword {...{ email, viewName }} />
 );
 
 export const LinkExpiredForSignin = () => (
-  <LinkExpiredSignin {...{ viewName }} />
+  <LinkExpiredSignin {...{ email, viewName }} />
 );

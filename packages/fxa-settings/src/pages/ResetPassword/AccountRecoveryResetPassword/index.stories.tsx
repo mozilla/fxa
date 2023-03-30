@@ -89,7 +89,7 @@ export const WithValidLink = () => {
   return storyWithProps(ctx, history);
 };
 
-export const WithExpiredLink = () => {
+export const OnSubmitLinkExpired = () => {
   const { ctx, history } = setup();
   // Mock the response. An INVALID_TOKEN means the link expired.
   ctx.account!.resetPasswordWithRecoveryKey = async () => {
@@ -99,8 +99,8 @@ export const WithExpiredLink = () => {
   return storyWithProps(ctx, history);
 };
 
-// An invalid link should result in a broken link error.
-export const WithBrokenLink = () => {
+// An invalid link should result in a damaged link error.
+export const WithDamagedLink = () => {
   const { ctx, history } = setup();
   // An email must have an @ symbol.
   history.location.search = 'email=foo';

@@ -3,22 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-// import { useLocation } from '@reach/router';
 // import { useAccount } from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { LinkExpired } from '../LinkExpired';
 
-// type LocationState = { email: string };
-
-type SubComponentProps = {
+type LinkExpiredSigninProps = {
+  email: string;
   viewName: string;
 };
 
-export const LinkExpiredSignin = ({ viewName }: SubComponentProps) => {
+export const LinkExpiredSignin = ({
+  email,
+  viewName,
+}: LinkExpiredSigninProps) => {
   // const account = useAccount();
-  // const location = useLocation() as ReturnType<typeof useLocation> & {
-  //   state: LocationState;
-  // };
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
