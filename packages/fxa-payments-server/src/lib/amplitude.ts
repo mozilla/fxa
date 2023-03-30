@@ -31,7 +31,6 @@ const eventTypeNames = {
 
   submit3DS: '3ds-submit',
   success3DS: '3ds-success',
-  fail3DS: '3ds-fail',
   complete3DS: '3ds-complete',
 } as const;
 
@@ -252,7 +251,7 @@ export function createSubscriptionWithPaymentMethod_REJECTED(
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.createSubscriptionWithPaymentMethod,
-    eventTypeNames.fail3DS,
+    eventTypeNames.fail,
     eventProperties
   );
 }
@@ -287,7 +286,7 @@ export function updateDefaultPaymentMethod_REJECTED(
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
-    eventTypeNames.fail3DS,
+    eventTypeNames.fail,
     eventProperties
   );
 }
