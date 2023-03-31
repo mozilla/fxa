@@ -51,7 +51,7 @@ export const PaymentMethodHeader = ({
     <>
       {returnPaymentMethodHeader(type || PaymentMethodHeaderType.NoPrefix)}
       <Localized id="payment-method-first-approve">
-        <strong>First you'll need to approve your subscription</strong>
+        <strong>First you’ll need to approve your subscription</strong>
       </Localized>
       <Form validator={checkboxValidator}>
         <PaymentConsentCheckbox
