@@ -961,6 +961,44 @@ describe('/account/device/commands', () => {
     }
     assert.ok(mockPushbox.retrieve.notCalled);
   });
+
+  it('throws when a device id is not found', async () => {
+    const mockPushbox = mocks.mockPushbox();
+    const route = getRoute(
+      makeRoutes({
+        customs: mockCustoms,
+        log: mockLog,
+        pushbox: mockPushbox,
+      }),
+      '/account/device/commands'
+    );
+
+    mockRequest.auth.credentials.refreshTokenId = 'aaabbbccc';
+    mockRequest.auth.credentials.deviceId = undefined;
+    mockRequest.auth.credentials.client = { name: 'fx ios' };
+    mockRequest.auth.credentials.uaBrowser = 'Firefox iOS';
+
+    try {
+      await route.handler(mockRequest);
+      assert.fail('should have thrown');
+    } catch (err) {
+      assert.equal(err.output.statusCode, 400);
+      assert.equal(err.errno, error.ERRNO.DEVICE_UNKNOWN);
+      sinon.assert.calledOnceWithExactly(
+        mockLog.error,
+        'device.command.deviceIdMissing',
+        {
+          clientId: '',
+          clientName: 'fx ios',
+          uaBrowser: 'Firefox iOS',
+          uaBrowserVersion: undefined,
+          uaOS: undefined,
+          uaOSVersion: undefined,
+        }
+      );
+    }
+    assert.ok(mockPushbox.retrieve.notCalled);
+  });
 });
 
 describe('/account/devices/invoke_command', () => {

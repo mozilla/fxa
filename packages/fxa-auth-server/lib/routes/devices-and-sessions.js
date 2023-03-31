@@ -252,6 +252,19 @@ module.exports = (
           throw new error.featureNotEnabled();
         }
 
+        if (!deviceId) {
+          log.error('device.command.deviceIdMissing', {
+            clientId: credentials.client?.id ? hex(credentials.client.id) : '',
+            clientName: credentials.client?.name ? credentials.client.name : '',
+            uaBrowser: credentials.uaBrowser,
+            uaBrowserVersion: credentials.uaBrowserVersion,
+            uaOS: credentials.uaOS,
+            uaOSVersion: credentials.uaOSVersion,
+          });
+
+          throw new error.unknownDevice();
+        }
+
         const response = await pushbox.retrieve(uid, deviceId, limit, index);
 
         // To measure command delivery, we emit a "retrieved" event for each retrieved
