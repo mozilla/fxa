@@ -62,7 +62,7 @@ describe('components/PaymentMethodHeader', () => {
 
     it('returns correct text for required text', async () => {
       const msgId = 'payment-method-first-approve';
-      const expected = "First you'll need to approve your subscription";
+      const expected = 'First you’ll need to approve your subscription';
       const actual = getLocalizedMessage(bundle, msgId, {});
       expect(actual).toEqual(expected);
     });
