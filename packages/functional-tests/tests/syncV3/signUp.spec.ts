@@ -8,7 +8,7 @@ const password = 'passwordzxcv';
 const incorrectPassword = 'password123';
 let email;
 
-test.describe.skip('Firefox Desktop Sync v3 sign up', () => {
+test.describe('Firefox Desktop Sync v3 sign up', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');

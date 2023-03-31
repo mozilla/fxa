@@ -13,19 +13,19 @@ export class RecoveryKeyPage extends SettingsLayout {
   }
 
   async invalidRecoveryKeyError() {
-    return this.page.innerText('#error-tooltip-159');
+    return this.page.locator('#error-tooltip-159').innerText();
   }
 
   setPassword(password: string) {
-    return this.page.fill('input[type=password]', password);
+    return this.page.locator('input[type=password]').fill(password);
   }
 
   async confirmRecoveryKey() {
-    return this.page.click('button[type=submit]');
+    return this.page.locator('button[type=submit]').click();
   }
 
   async clickLostRecoveryKey() {
-    return this.page.click('.lost-recovery-key');
+    return this.page.locator('.lost-recovery-key').click();
   }
 
   submit() {

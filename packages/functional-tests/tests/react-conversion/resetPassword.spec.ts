@@ -14,23 +14,19 @@ const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
 test.describe('reset password', () => {
   test.beforeEach(async ({}, { project }) => {
-    test.slow(project.name !== 'local', 'email delivery can be slow');
+    test.slow();
   });
 
-  test.skip('can reset password', async ({
-    page,
-    target,
-    credentials,
-    context,
-  }) => {
+  test('can reset password', async ({ page, target, credentials, context }) => {
     await page.goto(getReactFeatureFlagUrl(target, '/reset_password'));
 
     // Verify react page has been loaded
     await page.waitForSelector('#root');
 
     await page.locator('input').fill(credentials.email);
+    let waitForNavigation = page.waitForNavigation();
     await page.locator('text="Begin reset"').click();
-    await page.waitForNavigation();
+    await waitForNavigation;
 
     // Verify confirm password reset page elements
     expect(
@@ -71,34 +67,33 @@ test.describe('reset password', () => {
     await diffPage.locator('input[name="newPassword"]').fill(NEW_PASSWORD);
     await diffPage.locator('input[name="confirmPassword"]').fill(NEW_PASSWORD);
 
-    await Promise.all([
-      await diffPage.locator('text="Reset password"').click(),
-      await diffPage.waitForNavigation(),
-    ]);
+    const pageWaitForNavigation = page.waitForNavigation();
+    const diffPageWaitForNavigation = diffPage.waitForNavigation();
+    await diffPage.locator('text="Reset password"').click();
+    await diffPageWaitForNavigation;
+    await pageWaitForNavigation;
 
     expect(
       await diffPage.locator('text="Your password has been reset"').isEnabled()
     ).toBeTruthy();
+
     await diffPage.close();
 
-    // Attempt to login
-    await page.waitForNavigation();
     expect(
       await page.locator('text="Enter your email"').isEnabled()
     ).toBeTruthy();
 
     await page.locator('input[type=email]').fill(credentials.email);
-    await Promise.all([
-      await page.locator('text="Sign up or sign in"').click(),
-      await page.waitForNavigation(),
-    ]);
+
+    waitForNavigation = page.waitForNavigation();
+    await page.locator('text="Sign up or sign in"').click();
+    await waitForNavigation;
 
     await page.locator('#password').fill(NEW_PASSWORD);
 
-    await Promise.all([
-      await page.locator('text="Sign in"').click(),
-      await page.waitForNavigation(),
-    ]);
+    waitForNavigation = page.waitForNavigation();
+    await page.locator('text="Sign in"').click();
+    await waitForNavigation;
 
     const settingsHeader = await page.locator('text=Settings');
     expect(await settingsHeader.isEnabled()).toBeTruthy();

@@ -26,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
 
     await settings.disconnectSync(credentials);
 
-    expect(page.url()).toMatch(login.url);
+    expect(page.url()).toContain(login.url);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
@@ -70,7 +70,7 @@ test.describe('severity-3 #smoke', () => {
     await page.goto('https://addons.mozilla.org/en-US/firefox/');
     await Promise.all([page.click('text=Log in'), page.waitForNavigation()]);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toMatch(
+    expect(page.url()).toContain(
       'https://addons.mozilla.org/en-US/firefox/users/edit'
     );
     await page.click('text=Delete My Profile');
@@ -96,7 +96,7 @@ test.describe('severity-3 #smoke', () => {
       page.waitForNavigation(),
     ]);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toMatch('https://getpocket.com/my-list');
+    expect(page.url()).toContain('https://getpocket.com/my-list');
     await page.click('[aria-label="Open Account Menu"]');
     await page.click('a:has-text("Log out")');
   });
@@ -114,7 +114,7 @@ test.describe('severity-3 #smoke', () => {
       page.waitForNavigation(),
     ]);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toMatch('https://monitor.firefox.com/user/dashboard');
+    expect(page.url()).toContain('https://monitor.firefox.com/user/dashboard');
     await page.click('#avatar-wrapper');
     await Promise.all([
       page.click('text=Sign Out'),
@@ -147,51 +147,5 @@ test.describe('severity-3 #smoke', () => {
     await page.hover('a[href="/en-US/users/auth"]');
     await page.click('text=Sign Out');
     await expect(page.locator('text=Sign In/Up').first()).toBeVisible();
-  });
-});
-
-test.describe('OAuth and Fx Desktop handshake', () => {
-  test('user signed into browser and OAuth login', async ({
-    target,
-    credentials,
-  }) => {
-    const { page, login, settings, relier } = await newPagesForSync(target);
-    await page.goto(
-      target.contentServerUrl +
-        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
-    );
-    await login.login(credentials.email, credentials.password);
-    expect(await login.isSyncConnectedHeader()).toBe(true);
-
-    // Normally we wouldn't need this delay, but because we are
-    // disconnecting the sync service, we need to ensure that the device
-    // record and web channels have been sent and created.
-    await page.waitForTimeout(1000);
-
-    await relier.goto();
-    await relier.clickEmailFirst();
-
-    // User can sign in with cached credentials, no password needed.
-    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
-    await expect(await login.isCachedLogin()).toBe(true);
-
-    await login.submit();
-    expect(await relier.isLoggedIn()).toBe(true);
-
-    await relier.signOut();
-
-    // Attempt to sign back in
-    await relier.clickEmailFirst();
-
-    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
-    await expect(await login.isCachedLogin()).toBe(true);
-
-    await login.submit();
-    expect(await relier.isLoggedIn()).toBe(true);
-
-    // Disconnect sync otherwise we can have flaky tests.
-    await settings.disconnectSync(credentials);
-
-    expect(page.url()).toMatch(login.url);
   });
 });

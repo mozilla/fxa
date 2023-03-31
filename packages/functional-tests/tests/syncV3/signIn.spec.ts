@@ -8,7 +8,7 @@ import { EmailHeader, EmailType } from '../../lib/email';
 const password = 'passwordzxcv';
 let email;
 
-test.describe.skip('Firefox Desktop Sync v3 sign in', () => {
+test.describe('Firefox Desktop Sync v3 sign in', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
@@ -118,5 +118,51 @@ test.describe.skip('Firefox Desktop Sync v3 sign in', () => {
     await login.submit();
     await login.fillOutSignInCode(email);
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+  });
+});
+
+test.describe('OAuth and Fx Desktop handshake', () => {
+  test('user signed into browser and OAuth login', async ({
+    target,
+    credentials,
+  }) => {
+    const { page, login, settings, relier } = await newPagesForSync(target);
+    await page.goto(
+      target.contentServerUrl +
+        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
+    );
+    await login.login(credentials.email, credentials.password);
+    expect(await login.isSyncConnectedHeader()).toBe(true);
+
+    // Normally we wouldn't need this delay, but because we are
+    // disconnecting the sync service, we need to ensure that the device
+    // record and web channels have been sent and created.
+    await page.waitForTimeout(1000);
+
+    await relier.goto();
+    await relier.clickEmailFirst();
+
+    // User can sign in with cached credentials, no password needed.
+    await expect(await login.getPrefilledEmail()).toContain(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    await relier.signOut();
+
+    // Attempt to sign back in
+    await relier.clickEmailFirst();
+
+    await expect(await login.getPrefilledEmail()).toContain(credentials.email);
+    await expect(await login.isCachedLogin()).toBe(true);
+
+    await login.submit();
+    expect(await relier.isLoggedIn()).toBe(true);
+
+    // Disconnect sync otherwise we can have flaky tests.
+    await settings.disconnectSync(credentials);
+
+    expect(page.url()).toContain(login.url);
   });
 });

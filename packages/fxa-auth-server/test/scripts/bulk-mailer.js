@@ -76,7 +76,7 @@ const execOptions = {
   },
 };
 
-describe.skip('#integration - scripts/bulk-mailer', function () {
+describe('#integration - scripts/bulk-mailer', function () {
   this.timeout(10000);
 
   let db, server;

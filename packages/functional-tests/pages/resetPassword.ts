@@ -53,8 +53,8 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async resetNewPassword(password: string) {
-    await this.page.fill(selectors.PASSWORD, password);
-    await this.page.fill(selectors.VPASSWORD, password);
+    await this.page.locator(selectors.PASSWORD).fill(password);
+    await this.page.locator(selectors.VPASSWORD).fill(password);
     await this.page.locator(selectors.SUBMIT).click();
   }
 

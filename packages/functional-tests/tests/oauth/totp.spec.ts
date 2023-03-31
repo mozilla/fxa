@@ -1,6 +1,10 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('OAuth totp', () => {
+  test.beforeEach(async ({}, { project }) => {
+    test.slow();
+  });
+
   test('can add TOTP to account and confirm oauth signin', async ({
     credentials,
     pages: { login, relier, settings, totp },

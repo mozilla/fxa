@@ -13,7 +13,7 @@ test.describe('coupon test', () => {
     await subscribe.addCouponCode('autoexpired');
 
     // Verifying the correct error message
-    expect(await subscribe.couponErrorMessageText()).toMatch(
+    expect(await subscribe.couponErrorMessageText()).toContain(
       'The code you entered has expired'
     );
   });
@@ -27,7 +27,7 @@ test.describe('coupon test', () => {
     await subscribe.addCouponCode('autoinvalid');
 
     // Asserting that the code is invalid for a 6mo plan
-    expect(await subscribe.couponErrorMessageText()).toMatch(
+    expect(await subscribe.couponErrorMessageText()).toContain(
       'The code you entered is invalid'
     );
 
@@ -53,7 +53,7 @@ test.describe('coupon test', () => {
     await subscribe.addCouponCode('autoinvalid');
 
     // Asserting that the code is invalid for a 6m plan
-    expect(await subscribe.couponErrorMessageText()).toMatch(
+    expect(await subscribe.couponErrorMessageText()).toContain(
       'The code you entered is invalid'
     );
 

@@ -38,10 +38,11 @@ export class SubscribePage extends BaseLayout {
       '[data-testid="paypal-button-container"]'
     );
     await paypalButton.waitFor({ state: 'visible' });
-    const [paypalWindow] = await Promise.all([
-      this.page.waitForEvent('popup'),
-      this.page.locator('[data-testid="paypal-button-container"]').click(),
-    ]);
+
+    const paypalWindowPromise = this.page.waitForEvent('popup');
+    await this.page.locator('[data-testid="paypal-button-container"]').click();
+    const paypalWindow = await paypalWindowPromise;
+
     await paypalWindow.waitForLoadState('load');
     await paypalWindow.waitForNavigation({
       url: /checkoutnow/,
