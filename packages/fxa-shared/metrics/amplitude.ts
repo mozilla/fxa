@@ -41,7 +41,7 @@ const GROUPS = {
   subPayManage: 'fxa_pay_manage',
   subPaySetup: 'fxa_pay_setup',
   subPayAccountSetup: 'fxa_pay_account_setup',
-  subPayUpgrade: 'fxa_pay_upgrade',
+  subPaySubChange: 'fxa_pay_subscription_change',
   subSupport: 'fxa_subscribe_support',
   subCoupon: 'fxa_subscribe_coupon',
   thirdPartyAuth: 'fxa_third_party_auth',
@@ -73,7 +73,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subPayManage]: NOP,
   [GROUPS.subPaySetup]: mapSubscriptionPaymentEventProperties,
   [GROUPS.subPayAccountSetup]: mapSubscriptionPaymentEventProperties,
-  [GROUPS.subPayUpgrade]: mapSubscriptionUpgradeEventProperties,
+  [GROUPS.subPaySubChange]: mapSubscriptionChangeEventProperties,
   [GROUPS.subSupport]: NOP,
   [GROUPS.subCoupon]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
@@ -159,7 +159,7 @@ function mapDomainValidationResult(
   return;
 }
 
-function mapSubscriptionUpgradeEventProperties(
+function mapSubscriptionChangeEventProperties(
   eventType: string,
   eventCategory: string,
   eventTarget: string,
