@@ -38,7 +38,7 @@ async function deleteQueryBatch(db, query, resolve) {
   });
 }
 
-export async function deleteCollection(db, collectionRef, batchSize) {
+async function deleteCollection(db, collectionRef, batchSize) {
   const query = collectionRef.orderBy('__name__').limit(batchSize);
 
   return new Promise((resolve, reject) => {
@@ -46,4 +46,4 @@ export async function deleteCollection(db, collectionRef, batchSize) {
   });
 }
 
-module.exports.deepCopy = deepCopy;
+module.exports = { deepCopy, deleteCollection };

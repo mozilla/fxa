@@ -12,7 +12,7 @@ const EXPECTED_CREATE_DELETE_RESULT = REMINDERS.reduce((expected, reminder) => {
 }, {});
 
 const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const mocks = require('../mocks');
 
 describe('lib/cad-reminders', () => {

@@ -26,10 +26,12 @@ describe('notifier', () => {
 
     beforeEach(() => {
       config = {
-        get: (key) => {
-          if (key === 'snsTopicArn') {
-            return 'arn:aws:sns:us-west-2:927034868275:foo';
-          }
+        config: {
+          get: (key) => {
+            if (key === 'snsTopicArn') {
+              return 'arn:aws:sns:us-west-2:927034868275:foo';
+            }
+          },
         },
       };
 
@@ -146,10 +148,12 @@ describe('notifier', () => {
 
   it('works with disabled configuration', () => {
     const config = {
-      get: (key) => {
-        if (key === 'snsTopicArn') {
-          return 'disabled';
-        }
+      config: {
+        get: (key) => {
+          if (key === 'snsTopicArn') {
+            return 'disabled';
+          }
+        },
       },
     };
     const notifier = proxyquire(`${ROOT_DIR}/lib/notifier`, {

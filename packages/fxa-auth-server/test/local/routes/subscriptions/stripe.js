@@ -25,10 +25,14 @@ const {
   handleAuth,
 } = require('../../../../lib/routes/subscriptions');
 
+const deleteAccountIfUnverifiedStub = sinon.stub();
 const { StripeHandler: DirectStripeRoutes } = proxyquire(
   '../../../../lib/routes/subscriptions/stripe',
   {
     'fxa-shared/db/models/auth': dbStub,
+    '../utils/account': {
+      deleteAccountIfUnverified: deleteAccountIfUnverifiedStub,
+    },
   }
 );
 
@@ -1315,9 +1319,8 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .returns(null);
+      deleteAccountIfUnverifiedStub.reset();
+      deleteAccountIfUnverifiedStub.returns(null);
 
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1342,9 +1345,8 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .throws(error.accountExists(null));
+      deleteAccountIfUnverifiedStub.reset();
+      deleteAccountIfUnverifiedStub.throws(error.accountExists(null));
 
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(
@@ -1369,9 +1371,10 @@ describe('DirectStripeRoutes', () => {
         idempotencyKey: uuidv4(),
       };
 
-      const deleteAccountIfUnverifiedStub = sandbox
-        .stub(accountUtils, 'deleteAccountIfUnverified')
-        .throws(error.verifiedSecondaryEmailAlreadyExists());
+      deleteAccountIfUnverifiedStub.reset();
+      deleteAccountIfUnverifiedStub.throws(
+        error.verifiedSecondaryEmailAlreadyExists()
+      );
 
       try {
         await directStripeRoutesInstance.createSubscriptionWithPMI(

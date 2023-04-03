@@ -6,7 +6,7 @@
 
 const ROOT_DIR = '../../..';
 
-const config = require(`${ROOT_DIR}/config`);
+const { config } = require(`${ROOT_DIR}/config`);
 const emailDomains = require(`${ROOT_DIR}/config/popular-email-domains`);
 const { default: Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');

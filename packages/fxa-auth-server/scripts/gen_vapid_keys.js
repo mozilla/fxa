@@ -28,7 +28,7 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
-const config = require('../config');
+const { config } = require('../config');
 const vapidKeysFile = config.get('vapidKeysFile');
 
 const fileExists = fs.existsSync(vapidKeysFile);

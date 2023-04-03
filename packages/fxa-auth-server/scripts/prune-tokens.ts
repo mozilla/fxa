@@ -23,7 +23,7 @@ function parseDuration(duration: string | number) {
   return moment.duration(...duration.split(/\s|-/)).asMilliseconds();
 }
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
 

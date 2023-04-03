@@ -5,7 +5,7 @@
 const Joi = require('joi');
 const OauthError = require('../../oauth/error');
 const AuthError = require('../../error');
-const config = require('../../../config').getProperties();
+const config = require('../../../config').default.getProperties();
 const validators = require('../../oauth/validators');
 const verifyAssertion = require('../../oauth/assertion');
 const { validateRequestedGrant } = require('../../oauth/grant');

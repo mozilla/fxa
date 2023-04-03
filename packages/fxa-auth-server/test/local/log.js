@@ -59,23 +59,25 @@ describe('log', () => {
     mockAmplitudeConfig.schemaValidation = true;
     mocks = {
       '../config': {
-        get(name) {
-          switch (name) {
-            case 'log':
-              return {
-                fmt: 'mozlog',
-              };
-            case 'amplitude':
-              return mockAmplitudeConfig;
-            case 'domain':
-              return 'example.com';
-            case 'oauth.clientIds':
-              return {
-                clientid: 'human readable name',
-              };
-            default:
-              throw new Error(`unexpected config get: ${name}`);
-          }
+        config: {
+          get(name) {
+            switch (name) {
+              case 'log':
+                return {
+                  fmt: 'mozlog',
+                };
+              case 'amplitude':
+                return mockAmplitudeConfig;
+              case 'domain':
+                return 'example.com';
+              case 'oauth.clientIds':
+                return {
+                  clientid: 'human readable name',
+                };
+              default:
+                throw new Error(`unexpected config get: ${name}`);
+            }
+          },
         },
       },
       // These need to be `function` functions, not arrow functions,

@@ -18,7 +18,7 @@ const cwd = path.resolve(__dirname, ROOT_DIR);
 cp.execAsync = promisify(cp.exec);
 
 const log = mocks.mockLog();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const Token = require('../../lib/tokens')(log, config);
 const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength

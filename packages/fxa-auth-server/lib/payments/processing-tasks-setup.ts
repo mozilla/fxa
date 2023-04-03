@@ -11,7 +11,8 @@ import { configureSentry } from '../sentry';
 import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
 import { StripeHelper } from './stripe';
 
-const config = require('../../config').getProperties();
+import convictConf from '../../config';
+const config = convictConf.getProperties();
 
 export async function setupProcessingTaskObjects(processName: string) {
   configureSentry(undefined, config, processName);

@@ -57,7 +57,3 @@ export const deleteAccountIfUnverified = async (
     }
   }
 };
-
-module.exports = {
-  deleteAccountIfUnverified,
-};

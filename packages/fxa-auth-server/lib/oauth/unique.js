@@ -4,7 +4,7 @@
 
 const crypto = require('crypto');
 
-const config = require('../../config');
+const { config } = require('../../config');
 
 function unique(length) {
   return crypto.randomBytes(length); // eslint-disable-line fxa/async-crypto-random

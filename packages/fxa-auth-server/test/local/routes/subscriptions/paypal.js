@@ -4,6 +4,7 @@
 
 'use strict';
 
+const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { Container } = require('typedi');
 const assert = { ...sinon.assert, ...require('chai').assert };
@@ -22,7 +23,14 @@ const openInvoice = require('../../payments/fixtures/stripe/invoice_open.json');
 const { filterSubscription } = require('fxa-shared/subscriptions/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
-const buildRoutes = require('../../../../lib/routes/subscriptions');
+const deleteAccountIfUnverifiedStub = sinon.stub();
+const buildRoutes = proxyquire('../../../../lib/routes/subscriptions', {
+  './paypal': proxyquire('../../../../lib/routes/subscriptions/paypal', {
+    '../utils/account': {
+      deleteAccountIfUnverified: deleteAccountIfUnverifiedStub,
+    },
+  }),
+}).default;
 
 const ACCOUNT_LOCALE = 'en-US';
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
@@ -37,7 +45,6 @@ const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-const accountUtils = require('../../../../lib/routes/utils/account.ts');
 const {
   SubscriptionEligibilityResult,
 } = require('fxa-shared/subscriptions/types');
@@ -282,9 +289,8 @@ describe('subscriptions payPalRoutes', () => {
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
-            .returns(null);
+          deleteAccountIfUnverifiedStub.reset();
+          deleteAccountIfUnverifiedStub.returns(null);
 
           try {
             await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -306,9 +312,8 @@ describe('subscriptions payPalRoutes', () => {
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
-            .throws(error.accountExists(null));
+          deleteAccountIfUnverifiedStub.reset();
+          deleteAccountIfUnverifiedStub.throws(error.accountExists(null));
 
           try {
             await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -330,9 +335,10 @@ describe('subscriptions payPalRoutes', () => {
           stripeHelper.fetchCustomer = sinon.fake.throws(
             error.backendServiceFailure()
           );
-          const deleteAccountIfUnverifiedStub = sandbox
-            .stub(accountUtils, 'deleteAccountIfUnverified')
-            .throws(error.verifiedSecondaryEmailAlreadyExists());
+          deleteAccountIfUnverifiedStub.reset();
+          deleteAccountIfUnverifiedStub.throws(
+            error.verifiedSecondaryEmailAlreadyExists()
+          );
 
           try {
             await runTest('/oauth/subscriptions/active/new-paypal', {
@@ -343,6 +349,7 @@ describe('subscriptions payPalRoutes', () => {
               'Create subscription with wrong planCurrency should fail.'
             );
           } catch (err) {
+            console.log('>>>>>>>>>>>', err);
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
             assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
           }

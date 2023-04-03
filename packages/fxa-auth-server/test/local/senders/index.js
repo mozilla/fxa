@@ -7,7 +7,7 @@
 const ROOT_DIR = '../../..';
 
 const { assert } = require('chai');
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const crypto = require('crypto');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
 const senders = require(`${ROOT_DIR}/lib/senders`);

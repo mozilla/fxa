@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const config = require('../../../config').getProperties();
+const config = require('../../../config').default.getProperties();
 const mocks = require('../../mocks');
 const log = mocks.mockLog();
 const modulePath = '../../../lib/tokens/token';

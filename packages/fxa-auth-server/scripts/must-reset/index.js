@@ -6,7 +6,7 @@
 
 module.exports = async function main(items, dbFunction) {
   const butil = require('../../lib/crypto/butil');
-  const config = require('../../config').getProperties();
+  const config = require('../../config').default.getProperties();
   const crypto = require('crypto');
   const log = require('../../lib/log')({});
   const Token = require('../../lib/tokens')(log, config);

@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const tokens = require('../../lib/tokens')({ trace: () => {} }, config);
 const testUtils = require('../lib/util');
 const ScopeSet = require('fxa-shared').oauth.scopes;

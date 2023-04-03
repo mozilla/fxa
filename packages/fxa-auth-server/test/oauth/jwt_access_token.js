@@ -8,7 +8,8 @@ const proxyquire = require('proxyquire');
 const AppError = require('../../lib/oauth/error');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const TOKEN_SERVER_URL = require('../../config').get('syncTokenserverUrl');
+const TOKEN_SERVER_URL =
+  require('../../config').default.get('syncTokenserverUrl');
 
 describe('lib/jwt_access_token', () => {
   let JWTAccessToken;

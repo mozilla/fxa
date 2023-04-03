@@ -6,7 +6,7 @@
 
 const program = require('commander');
 const pckg = require('../package.json');
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const { Container } = require('typedi');
 const { AppConfig, AuthLogger } = require('../lib/types');

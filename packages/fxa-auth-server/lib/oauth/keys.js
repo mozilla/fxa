@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const assert = require('assert');
-const config = require('../../config');
+const { config } = require('../../config');
 const { jwk2pem, pem2jwk } = require('pem-jwk');
 const crypto = require('crypto');
 const Joi = require('joi');

@@ -14,7 +14,7 @@ import { PaypalProcessor } from '../lib/payments/paypal/processor';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 
 const pckg = require('../package.json');
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const PAYPAL_PROCESSOR_LOCK = 'fxa-paypal-processor-lock';
 const DEFAULT_LOCK_DURATION_MS = 300000;
 

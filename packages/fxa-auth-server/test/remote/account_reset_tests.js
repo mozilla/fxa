@@ -10,7 +10,7 @@ const Client = require('../client')();
 const TestServer = require('../test_server');
 const jwtool = require('fxa-jwtool');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 describe('#integration - remote account reset', function () {
   this.timeout(15000);

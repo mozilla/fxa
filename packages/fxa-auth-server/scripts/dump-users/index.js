@@ -7,7 +7,7 @@
 const pick = require('lodash.pick');
 
 module.exports = function dumpUsers(keys, dbFunc, usePretty) {
-  const config = require('../../config').getProperties();
+  const config = require('../../config').default.getProperties();
   const log = {
     error: (msg) => {},
     info: (msg) => {},

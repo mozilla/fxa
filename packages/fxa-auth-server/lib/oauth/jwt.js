@@ -5,7 +5,7 @@
 const jsonwebtoken = require('jsonwebtoken');
 const { publicPEM, SIGNING_PEM, SIGNING_KID, SIGNING_ALG } = require('./keys');
 
-const config = require('../../config');
+const { config } = require('../../config');
 const ISSUER = config.get('oauthServer.openid.issuer');
 
 const jwtverify = require('util').promisify(jsonwebtoken.verify);

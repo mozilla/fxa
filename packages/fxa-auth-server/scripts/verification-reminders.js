@@ -18,7 +18,7 @@
 const ROOT_DIR = '..';
 const LIB_DIR = `${ROOT_DIR}/lib`;
 
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 
 const error = require(`${LIB_DIR}/error`);
 const log = require(`${LIB_DIR}/log`)(config.log);

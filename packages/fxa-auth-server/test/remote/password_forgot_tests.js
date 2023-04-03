@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 const crypto = require('crypto');
 const base64url = require('base64url');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
 
 describe('#integration - remote password forgot', function () {

@@ -7,7 +7,7 @@
 const EventEmitter = require('events').EventEmitter;
 const util = require('util');
 const mozlog = require('mozlog');
-const config = require('../config');
+const { config } = require('../config');
 const logConfig = config.get('log');
 const amplitudeConfig = config.get('amplitude');
 const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;

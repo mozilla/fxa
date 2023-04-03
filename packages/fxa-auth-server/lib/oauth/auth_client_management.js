@@ -9,7 +9,7 @@ const token = require('./token');
 const validators = require('./validators');
 
 const WHITELIST = require('../../config')
-  .get('oauthServer.admin.whitelist')
+  .default.get('oauthServer.admin.whitelist')
   .map(function (re) {
     return new RegExp(re);
   });

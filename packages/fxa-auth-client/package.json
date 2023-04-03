@@ -38,7 +38,7 @@
     "@types/node-fetch": "^2.5.7",
     "@types/prettier": "^2",
     "asmcrypto.js": "^0.22.0",
-    "esbuild": "^0.14.2",
+    "esbuild": "^0.17.15",
     "esbuild-register": "^3.2.0",
     "fast-text-encoding": "^1.0.4",
     "mocha": "^10.0.0",

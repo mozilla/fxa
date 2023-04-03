@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 const CLIENT_ID = config.oauthServer.clients.find(
   (client) => client.trusted && client.canGrant && client.publicClient

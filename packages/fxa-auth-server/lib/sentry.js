@@ -4,7 +4,7 @@
 
 'use strict';
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 const { ExtraErrorData } = require('@sentry/integrations');

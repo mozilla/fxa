@@ -9,7 +9,7 @@
  * to send notifications to Amazon SNS/SQS.
  */
 const AWS = require('aws-sdk');
-const config = require('../config');
+const { config } = require('../config');
 
 const notifierSnsTopicArn = config.get('snsTopicArn');
 const notifierSnsTopicEndpoint = config.get('snsTopicEndpoint');

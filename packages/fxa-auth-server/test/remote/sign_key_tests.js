@@ -13,7 +13,7 @@ describe('remote sign key', function () {
   this.timeout(15000);
   let server;
   before(() => {
-    const config = require('../../config').getProperties();
+    const config = require('../../config').default.getProperties();
     config.oldPublicKeyFile = path.resolve(
       __dirname,
       '../../config/public-key.json'

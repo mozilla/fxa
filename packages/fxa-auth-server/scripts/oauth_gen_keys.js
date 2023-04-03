@@ -32,7 +32,7 @@ process.env.FXA_OPENID_UNSAFELY_ALLOW_MISSING_ACTIVE_KEY = true;
 const fs = require('fs');
 const path = require('path');
 const keys = require('../lib/oauth/keys');
-const config = require('../config');
+const { config } = require('../config');
 
 function writeJSONFile(filePath, data) {
   try {

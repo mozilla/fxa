@@ -12,7 +12,7 @@ const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
 const error = require('../../lib/error');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const {
   configureSentry,
   formatMetadataValidationErrorMessage,

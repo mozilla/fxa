@@ -8,7 +8,7 @@
 const assert = require('../assert');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const otplib = require('otplib');
 
 describe('#integration - remote account create with sign-up code', function () {

@@ -62,7 +62,7 @@ async function init() {
   // Use local firestore
   process.env.AUTH_FIRESTORE_EMULATOR_HOST = 'localhost:9090';
 
-  const config = require('../config').getProperties();
+  const config = require('../config').default.getProperties();
   const log = require('../lib/log')(config.log.level);
 
   Container.set(AppConfig, config);

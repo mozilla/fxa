@@ -12,7 +12,7 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const encrypt = require('fxa-shared/auth/encrypt');
 const db = require('../../../lib/oauth/db');
 
-const config = require('../../../config');
+const { config } = require('../../../config');
 
 function randomString(len) {
   return crypto.randomBytes(Math.ceil(len)).toString('hex');

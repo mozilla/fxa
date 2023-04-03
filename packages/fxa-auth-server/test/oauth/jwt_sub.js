@@ -4,7 +4,7 @@
 
 const { assert } = require('chai');
 const proxyquire = require('proxyquire');
-const config = require('../../config');
+const { config } = require('../../config');
 
 describe('lib/jwt_sub', () => {
   let mockConfig;
@@ -24,21 +24,23 @@ describe('lib/jwt_sub', () => {
 
   function initialize(isEnabled) {
     mockConfig = {
-      get(key) {
-        switch (key) {
-          case 'oauthServer.ppid.salt':
-            return 'salt';
-          case 'oauthServer.ppid.enabled':
-            return isEnabled;
-          case 'oauthServer.ppid.enabledClientIds':
-            return [ENABLED_CLIENT_ID_HEX, ROTATING_CLIENT_ID_HEX];
-          case 'oauthServer.ppid.rotatingClientIds':
-            return [ROTATING_CLIENT_ID_HEX];
-          case 'oauthServer.ppid.rotationPeriodMS':
-            return 1;
-          default:
-            return config.get(key);
-        }
+      config: {
+        get(key) {
+          switch (key) {
+            case 'oauthServer.ppid.salt':
+              return 'salt';
+            case 'oauthServer.ppid.enabled':
+              return isEnabled;
+            case 'oauthServer.ppid.enabledClientIds':
+              return [ENABLED_CLIENT_ID_HEX, ROTATING_CLIENT_ID_HEX];
+            case 'oauthServer.ppid.rotatingClientIds':
+              return [ROTATING_CLIENT_ID_HEX];
+            case 'oauthServer.ppid.rotationPeriodMS':
+              return 1;
+            default:
+              return config.get(key);
+          }
+        },
       },
     };
 

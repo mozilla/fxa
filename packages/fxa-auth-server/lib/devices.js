@@ -12,7 +12,9 @@ const error = require('./error');
 const oauthDB = require('./oauth/db');
 const { DISPLAY_SAFE_UNICODE_WITH_NON_BMP, HEX_STRING, URL_SAFE_BASE_64 } =
   validators;
-const PUSH_SERVER_REGEX = require('../config').get('push.allowedServerRegex');
+const PUSH_SERVER_REGEX = require('../config').default.get(
+  'push.allowedServerRegex'
+);
 const { synthesizeClientName } = require('fxa-shared/connected-services');
 
 const SCHEMA = {

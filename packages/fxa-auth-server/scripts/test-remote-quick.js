@@ -8,7 +8,7 @@
 
 const path = require('path');
 const spawn = require('child_process').spawn;
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const TestServer = require('../test/test_server');
 
 TestServer.start(config, false).then((server) => {

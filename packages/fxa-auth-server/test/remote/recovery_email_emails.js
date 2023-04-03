@@ -16,7 +16,7 @@ describe('#integration - remote emails', function () {
   this.timeout(30000);
 
   before(() => {
-    config = require('../../config').getProperties();
+    config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
     config.signinConfirmation.skipForNewAccounts.enabled = false;
 

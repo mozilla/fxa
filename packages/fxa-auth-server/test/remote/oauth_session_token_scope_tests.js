@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const {
   OAUTH_SCOPE_SESSION_TOKEN,
   OAUTH_SCOPE_OLD_SYNC,

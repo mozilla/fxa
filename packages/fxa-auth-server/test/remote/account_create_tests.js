@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const crypto = require('crypto');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
 const { default: Container } = require('typedi');
 const {

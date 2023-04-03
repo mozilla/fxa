@@ -25,7 +25,7 @@ const Joi = require('joi');
 const validators = require('./validators');
 
 const OauthError = require('./error');
-const config = require('../../config');
+const { config } = require('../../config');
 const { verifyJWT } = require('../../lib/serverJWT');
 
 const HEX_STRING = /^[0-9a-f]+$/;

@@ -7,7 +7,7 @@ const OauthError = require('./error');
 const jwt = require('./jwt');
 const sub = require('./jwt_sub');
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
-const config = require('../../config');
+const { config } = require('../../config');
 const TOKEN_SERVER_URL = config.get('syncTokenserverUrl');
 
 const HEADER_TYP = 'at+JWT';

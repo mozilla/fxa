@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const jwtool = require('fxa-jwtool');
 const Client = require('../client')();
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const url = require('url');
 
