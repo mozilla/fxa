@@ -112,9 +112,9 @@ export class SubscriptionsService {
 
     for (const subscription of customer?.subscriptions?.data || []) {
       // Inspired by code in auth-server payments ;]
-      const plan = await plans.find(
+      const plan = plans.find(
         // @ts-ignore
-        (p) => p.product_id === subscription.plan.product
+        (p) => p.plan_id === subscription.plan.id
       );
 
       let invoice = subscription.latest_invoice;
