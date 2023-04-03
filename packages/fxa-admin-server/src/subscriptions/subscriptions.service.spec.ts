@@ -196,7 +196,9 @@ describe('Subscription Service', () => {
     mockPlayStoreGetSubscriptions.mockImplementation(
       async (_uid: string) => []
     );
-    mockAllAbbrevPlans.mockImplementation(async () => [plan]);
+    // Ensure we match on plan ID rather than product ID
+    const planOther = { ...plan, plan_id: 'plan_456' };
+    mockAllAbbrevPlans.mockImplementation(async () => [planOther, plan]);
     mockCreateManageSubscriptionLink.mockImplementation(
       async () => manageSubscriptionLink
     );
