@@ -2,7 +2,7 @@
   "contentServer": {
     "url": "http://localhost:3030"
   },
-  "customsUrl": "none",
+  "customsUrl": "http://localhost:7000",
   "lockoutEnabled": true,
   "log": {
     "fmt": "pretty",

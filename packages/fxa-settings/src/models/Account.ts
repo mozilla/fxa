@@ -4,6 +4,7 @@
 
 import base32Decode from 'base32-decode';
 import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
+import { ThrottledError } from 'fxa-graphql-api/src/gql/lib/error';
 import config from '../lib/config';
 import AuthClient, {
   generateRecoveryKey,
@@ -550,11 +551,27 @@ export class Account implements AccountData {
         `,
         variables: { input: { email } },
       });
-
       return result.data.passwordForgotSendCode;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
-      if (errno && AuthUiErrorNos[errno]) {
+      const graphQlError = ((err as ApolloError) || (err as ThrottledError))
+        .graphQLErrors[0];
+      const errno = graphQlError.extensions?.errno;
+      if (
+        errno &&
+        AuthUiErrorNos[errno] &&
+        errno === AuthUiErrors.THROTTLED.errno
+      ) {
+        const throttledErrorWithRetryAfter = {
+          ...AuthUiErrorNos[errno],
+          retryAfter: graphQlError.extensions?.retryAfter,
+          retryAfterLocalized: graphQlError.extensions?.retryAfterLocalized,
+        };
+        throw throttledErrorWithRetryAfter;
+      } else if (
+        errno &&
+        AuthUiErrorNos[errno] &&
+        errno !== AuthUiErrors.THROTTLED.errno
+      ) {
         throw AuthUiErrorNos[errno];
       }
       throw AuthUiErrors.UNEXPECTED_ERROR;
@@ -613,11 +630,28 @@ export class Account implements AccountData {
         `,
         variables: { input: { email } },
       });
-
       return result.data.passwordForgotSendCode;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
-      if (errno && AuthUiErrorNos[errno]) {
+      const graphQlError = ((err as ApolloError) || (err as ThrottledError))
+        .graphQLErrors[0];
+      const errno = graphQlError.extensions?.errno;
+      if (
+        (err as ThrottledError) &&
+        errno &&
+        AuthUiErrorNos[errno] &&
+        errno === AuthUiErrors.THROTTLED.errno
+      ) {
+        const throttledErrorWithRetryAfter = {
+          ...AuthUiErrorNos[errno],
+          retryAfter: graphQlError.extensions?.retryAfter,
+          retryAfterLocalized: graphQlError.extensions?.retryAfterLocalized,
+        };
+        throw throttledErrorWithRetryAfter;
+      } else if (
+        errno &&
+        AuthUiErrorNos[errno] &&
+        errno !== AuthUiErrors.THROTTLED.errno
+      ) {
         throw AuthUiErrorNos[errno];
       }
       throw AuthUiErrors.UNEXPECTED_ERROR;

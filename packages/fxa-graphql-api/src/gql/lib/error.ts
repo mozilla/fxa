@@ -4,6 +4,21 @@
 
 import { ApolloError } from 'apollo-server';
 
+export class ThrottledError extends ApolloError {
+  constructor(
+    message: string,
+    code: string,
+    extensions: {
+      errno: number;
+      info: string;
+      retryAfter: number;
+      retryAfterLocalized: string;
+    }
+  ) {
+    super(message, code, extensions);
+  }
+}
+
 export const PROFILE_INFO_URL =
   'https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#errors';
 
@@ -17,8 +32,22 @@ export function CatchGatewayError(
     try {
       return await originalMethod.apply(this, args);
     } catch (err) {
-      if (err.code && err.errno && err.message) {
-        // Auth Server error
+      if (
+        err.code &&
+        err.errno &&
+        err.message &&
+        err.retryAfter &&
+        err.retryAfterLocalized
+      ) {
+        // Auth Server error when throttled (too many requests error)
+        throw new ThrottledError(err.message, err.code, {
+          errno: err.errno,
+          info: err.info,
+          retryAfter: err.retryAfter,
+          retryAfterLocalized: err.retryAfterLocalized,
+        });
+      } else if (err.code && err.errno && err.message) {
+        // Auth Server error (general)
         throw new ApolloError(err.message, err.code, {
           errno: err.errno,
           info: err.info,

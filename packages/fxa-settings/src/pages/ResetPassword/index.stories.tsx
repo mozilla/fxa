@@ -9,6 +9,12 @@ import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
 import { withLocalization } from '../../../.storybook/decorators';
+import { Account, AppContext } from '../../models';
+import {
+  mockAccountWithThrottledError,
+  mockAccountWithUnexpectedError,
+  mockDefaultAccount,
+} from './mocks';
 
 export default {
   title: 'Pages/ResetPassword',
@@ -16,22 +22,35 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (props?: Partial<ResetPasswordProps>) => {
+const storyWithProps = (
+  account: Account,
+  props?: Partial<ResetPasswordProps>
+) => {
   const story = () => (
-    <LocationProvider>
-      <ResetPassword {...props} />
-    </LocationProvider>
+    <AppContext.Provider value={{ account }}>
+      <LocationProvider>
+        <ResetPassword {...props} />
+      </LocationProvider>
+    </AppContext.Provider>
   );
   return story;
 };
 
-export const Default = storyWithProps();
+export const Default = storyWithProps(mockDefaultAccount);
 
-export const WithServiceName = storyWithProps({
+export const WithServiceName = storyWithProps(mockDefaultAccount, {
   serviceName: MozServices.MozillaVPN,
 });
 
-export const WithForceAuth = storyWithProps({
+export const WithForceAuth = storyWithProps(mockDefaultAccount, {
   prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
   forceAuth: true,
 });
+
+export const WithThrottledErrorOnSubmit = storyWithProps(
+  mockAccountWithThrottledError
+);
+
+export const WithUnexpectedErrorOnSubmit = storyWithProps(
+  mockAccountWithUnexpectedError
+);
