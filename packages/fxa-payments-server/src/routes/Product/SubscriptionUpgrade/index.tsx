@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { Plan, Customer, Profile } from '../../../store/types';
@@ -56,6 +56,8 @@ export const SubscriptionUpgrade = ({
   const ariaLabelledBy = 'error-plan-change-failed-header';
   const ariaDescribedBy = 'error-plan-change-failed-description';
   const validator = useValidatorState();
+  const [showTooltip, setShowTooltip] = useState(false);
+  const [checkboxSet, setCheckboxSet] = useState(false);
 
   const inProgress = updateSubscriptionPlanStatus.loading;
 
@@ -70,6 +72,12 @@ export const SubscriptionUpgrade = ({
     Amplitude.updateSubscriptionPlanEngaged(selectedPlan);
   }, [selectedPlan]);
 
+  const handleClick = () => {
+    engageOnce();
+    setShowTooltip(false);
+    setCheckboxSet(!checkboxSet);
+  };
+
   const onSubmit = useCallback(
     (ev) => {
       ev.preventDefault();
@@ -81,6 +89,10 @@ export const SubscriptionUpgrade = ({
           paymentProvider
         );
       }
+
+      if (!checkboxSet) {
+        setShowTooltip(true);
+      }
     },
     [
       validator,
@@ -89,6 +101,7 @@ export const SubscriptionUpgrade = ({
       upgradeFromPlan,
       selectedPlan,
       paymentProvider,
+      checkboxSet,
     ]
   );
 
@@ -171,7 +184,11 @@ export const SubscriptionUpgrade = ({
 
             <hr className="my-6" />
 
-            <PaymentConsentCheckbox plan={selectedPlan} onClick={engageOnce} />
+            <PaymentConsentCheckbox
+              plan={selectedPlan}
+              onClick={handleClick}
+              showTooltip={showTooltip}
+            />
 
             <hr className="my-6" />
 

@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useState,
   useCallback,
-  Suspense,
 } from 'react';
 import { connect } from 'react-redux';
 import { Localized, useLocalization } from '@fluent/react';
@@ -65,7 +64,6 @@ import {
 import CouponForm from '../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
-import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -118,6 +116,7 @@ export const Checkout = ({
   );
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const [validEmail, setValidEmail] = useState<string>('');
   const [accountExists, setAccountExists] = useState(false);
   const [invalidEmailDomain, setInvalidEmailDomain] = useState(false);
@@ -145,7 +144,6 @@ export const Checkout = ({
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]
   );
-  const [invoice, setInvoice] = useState<FirstInvoicePreview>();
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -215,6 +213,20 @@ export const Checkout = ({
       subscribeToNewsletter,
     ]
   );
+
+  const handleClick = () => {
+    if (!checkboxSet) {
+      setShowTooltip(true);
+    }
+  };
+
+  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!checkboxSet && ev.key !== 'Tab') {
+      ev.preventDefault();
+
+      setShowTooltip(true);
+    }
+  };
 
   const postSubscriptionAttemptPaypalCallback = useCallback(async () => {
     await fetchProfileAndCustomer();
@@ -358,7 +370,6 @@ export const Checkout = ({
                 isMobile,
                 showExpandButton: isMobile,
                 coupon,
-                setInvoice,
               }}
             />
 
@@ -384,7 +395,7 @@ export const Checkout = ({
           data-testid="subscription-create"
         >
           <Localized id="new-user-step-1">
-            <h2 className="step-header">1. Create a Firefox account</h2>
+            <h2 className="mt-10 text-lg">1. Create a Firefox account</h2>
           </Localized>
 
           <NewUserEmailForm
@@ -405,93 +416,85 @@ export const Checkout = ({
 
           <PaymentMethodHeader
             plan={selectedPlan}
-            onClick={() => setCheckboxSet(!checkboxSet)}
+            onClick={() => {
+              setCheckboxSet(!checkboxSet);
+              setShowTooltip(false);
+            }}
             type={PaymentMethodHeaderType.SecondStep}
-            invoice={invoice}
+            showTooltip={showTooltip}
           />
 
-          <>
+          <div
+            data-testid="payment-form-container"
+            className={`mt-8${!checkboxSet ? ' payment-form-disabled' : ''}`}
+            tabIndex={!checkboxSet ? 0 : undefined}
+            aria-disabled={!checkboxSet}
+            onClick={handleClick}
+            onKeyPress={handleKeyPress}
+          >
             {paypalScriptLoaded && (
-              <>
-                <Localized id="pay-with-heading-paypal">
-                  <p className="pay-with-heading">Pay with PayPal</p>
-                </Localized>
-                <div data-testid="pay-with-other">
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <PaypalButton
-                      beforeCreateOrder={beforePaypalCreateOrder}
-                      customer={null}
-                      disabled={
-                        !checkboxSet ||
-                        validEmail === '' ||
-                        accountExists ||
-                        invalidEmailDomain ||
-                        !emailsMatch
-                      }
-                      idempotencyKey={submitNonce}
-                      newPaypalAgreement={true}
-                      selectedPlan={selectedPlan}
-                      refreshSubmitNonce={refreshSubmitNonce}
-                      postSubscriptionAttemptPaypalCallback={
-                        postSubscriptionAttemptPaypalCallback
-                      }
-                      setSubscriptionError={setSubscriptionError}
-                      setTransactionInProgress={setTransactionInProgress}
-                      ButtonBase={paypalButtonBase}
-                      promotionCode={coupon?.promotionCode}
-                    />
-                  </Suspense>
-                </div>
-
-                <>
-                  <Localized id="pay-with-heading-card-or">
-                    <p className="pay-with-heading">Or pay with card</p>
-                  </Localized>
-                  <AcceptedCards />
-                </>
-              </>
+              <PaypalButton
+                beforeCreateOrder={beforePaypalCreateOrder}
+                customer={null}
+                disabled={
+                  !checkboxSet ||
+                  validEmail === '' ||
+                  accountExists ||
+                  invalidEmailDomain ||
+                  !emailsMatch
+                }
+                idempotencyKey={submitNonce}
+                newPaypalAgreement={true}
+                selectedPlan={selectedPlan}
+                refreshSubmitNonce={refreshSubmitNonce}
+                postSubscriptionAttemptPaypalCallback={
+                  postSubscriptionAttemptPaypalCallback
+                }
+                setSubscriptionError={setSubscriptionError}
+                setTransactionInProgress={setTransactionInProgress}
+                ButtonBase={paypalButtonBase}
+                promotionCode={coupon?.promotionCode}
+              />
             )}
 
-            {!paypalScriptLoaded && (
-              <>
-                <Localized id="pay-with-heading-card-only">
-                  <p className="pay-with-heading">Pay with card</p>
-                </Localized>
+            <AcceptedCards />
 
-                <AcceptedCards />
-              </>
-            )}
-          </>
+            <div>
+              <Localized id="new-user-card-title">
+                <div className="label-title">Enter your card information</div>
+              </Localized>
 
-          <div>
-            <Localized id="new-user-card-title">
-              <div className="label-title">Enter your card information</div>
-            </Localized>
+              <PaymentForm
+                {...{
+                  submitNonce,
+                  onSubmit: onStripeSubmit,
+                  onChange,
+                  submitButtonL10nId: 'new-user-submit',
+                  submitButtonCopy: 'Subscribe Now',
+                  shouldAllowSubmit:
+                    checkboxSet &&
+                    validEmail !== '' &&
+                    !accountExists &&
+                    !invalidEmailDomain &&
+                    emailsMatch,
 
-            <PaymentForm
-              {...{
-                submitNonce,
-                onSubmit: onStripeSubmit,
-                onChange,
-                submitButtonL10nId: 'new-user-submit',
-                submitButtonCopy: 'Subscribe Now',
-                shouldAllowSubmit:
-                  checkboxSet &&
-                  validEmail !== '' &&
-                  !accountExists &&
-                  !invalidEmailDomain &&
-                  emailsMatch,
-
-                inProgress,
-                validatorInitialState,
-                confirm: false,
-                submit: true,
-                plan: selectedPlan,
-                onMounted: onFormMounted,
-                onEngaged: onFormEngaged,
-                promotionCode: coupon?.promotionCode,
-              }}
-            />
+                  inProgress,
+                  validatorInitialState,
+                  confirm: false,
+                  submit: true,
+                  plan: selectedPlan,
+                  onMounted: onFormMounted,
+                  onEngaged: onFormEngaged,
+                  promotionCode: coupon?.promotionCode,
+                  disabled:
+                    !checkboxSet ||
+                    validEmail === '' ||
+                    accountExists ||
+                    invalidEmailDomain ||
+                    !emailsMatch,
+                }}
+              />
+            </div>
           </div>
 
           <div className="payment-footer" data-testid="footer">

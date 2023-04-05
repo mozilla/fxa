@@ -75,7 +75,7 @@ it('renders all expected default fields and elements', () => {
   expect(container.querySelector('button.cancel')).not.toBeInTheDocument();
   expect(container.querySelector('span.spinner')).not.toBeInTheDocument();
   expect(queryByTestId(container, 'loading-spinner')).not.toBeInTheDocument();
-  expect(getByTestId('submit')).toHaveAttribute('disabled');
+  expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
 
   for (let testid of ['name', 'cardElement']) {
     expect(queryAllByTestId(testid).length).toEqual(1);
@@ -114,7 +114,7 @@ const renderWithValidFields = (props?: SubjectProps) => {
   const renderResult = render(<Subject {...props} />);
   const { getByTestId } = renderResult;
 
-  expect(getByTestId('submit')).toHaveAttribute('disabled');
+  expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
   fireEvent.change(getByTestId('name'), { target: { value: 'Foo Barson' } });
   fireEvent.blur(getByTestId('name'));
 
@@ -133,7 +133,7 @@ const renderWithValidFields = (props?: SubjectProps) => {
 
 it('enables submit button when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
-  expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+  expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
 });
 
 it('calls onMounted and onEngaged', () => {
@@ -151,9 +151,9 @@ it('when confirm = true, enables submit button when all fields are valid and che
     confirm: true,
     plan: MOCK_PLAN,
   });
-  expect(getByTestId('submit')).toHaveAttribute('disabled');
+  expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
   fireEvent.click(getByTestId('confirm'));
-  expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+  expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
 });
 
 it('omits the confirmation checkbox when confirm = false', () => {
@@ -175,7 +175,7 @@ it('calls onSubmit when all fields valid and submitted', async () => {
     onChange: () => {},
   });
   const submitButton = getByTestId('submit');
-  expect(submitButton).not.toHaveAttribute('disabled');
+  expect(submitButton).not.toHaveClass('payment-button-disabled');
   fireEvent.click(submitButton);
   expect(onSubmit).toHaveBeenCalled();
 });
@@ -194,7 +194,9 @@ it('renders a progress spinner when submitted, disables further submission (issu
   await waitForExpect(() => expect(onSubmit).toHaveBeenCalled());
 
   expect(queryByTestId('loading-spinner')).toBeInTheDocument();
-  expect(getByTestId('submit')).toHaveAttribute('disabled');
+  expect(getByTestId('submit')).toHaveClass(
+    'payment-button cta-primary !font-bold w-full mt-8 h-12 cursor-pointer'
+  );
 
   fireEvent.submit(getByTestId('paymentForm'));
   fireEvent.click(submitButton);
@@ -230,7 +232,7 @@ it('displays an error for empty name', () => {
 
 it('submit button should still be enabled when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
-  expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+  expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
 });
 
 it('does not call onSubmit if somehow submitted without confirm checked', async () => {
@@ -244,7 +246,7 @@ it('does not call onSubmit if somehow submitted without confirm checked', async 
   });
   // The user shouldn't be able to click a disabled submit button...
   const submitButton = getByTestId('submit');
-  expect(submitButton).toHaveAttribute('disabled');
+  expect(submitButton).toHaveClass('payment-button-disabled');
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
   expect(onSubmit).not.toHaveBeenCalled();
@@ -259,7 +261,9 @@ it('does not call onSubmit if somehow submitted while in progress', async () => 
   });
   // The user shouldn't be able to click a disabled submit button...
   const submitButton = getByTestId('submit');
-  expect(submitButton).toHaveAttribute('disabled');
+  expect(submitButton).toHaveClass(
+    'payment-button cta-primary !font-bold w-full mt-8 h-12 cursor-pointer'
+  );
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
   expect(onSubmit).not.toHaveBeenCalled();

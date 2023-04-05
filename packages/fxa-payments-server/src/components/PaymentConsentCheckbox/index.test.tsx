@@ -73,32 +73,24 @@ describe('components/PaymentConsentCheckbox', () => {
         const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
 
         expect(legalCheckbox.props.children.props.children[0]).toBe(
-          'I authorize Mozilla, maker of Firefox products, to charge my payment method '
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method for the amount shown, according to'
         );
-        expect(legalCheckbox.props.children.props.children[1]).toBe(
-          '$5.00 daily'
-        );
-        expect(legalCheckbox.props.children.props.children[2]).toBe(' for ');
-        expect(legalCheckbox.props.children.props.children[3]).toBe('FPN');
-        expect(legalCheckbox.props.children.props.children[4]).toBe(
-          ', according to'
-        );
-        expect(legalCheckbox.props.children.props.children[5]).toBe(' ');
-        expect(legalCheckbox.props.children.props.children[6].props.href).toBe(
+        expect(legalCheckbox.props.children.props.children[1]).toBe(' ');
+        expect(legalCheckbox.props.children.props.children[2].props.href).toBe(
           'https://www.mozilla.org/about/legal/terms/firefox-private-network'
         );
         expect(
-          legalCheckbox.props.children.props.children[6].props.children
+          legalCheckbox.props.children.props.children[2].props.children
         ).toBe('Terms of Service');
-        expect(legalCheckbox.props.children.props.children[7]).toBe(' and');
-        expect(legalCheckbox.props.children.props.children[8]).toBe(' ');
-        expect(legalCheckbox.props.children.props.children[9].props.href).toBe(
+        expect(legalCheckbox.props.children.props.children[3]).toBe(' and');
+        expect(legalCheckbox.props.children.props.children[4]).toBe(' ');
+        expect(legalCheckbox.props.children.props.children[5].props.href).toBe(
           'https://www.mozilla.org/privacy/firefox-private-network'
         );
         expect(
-          legalCheckbox.props.children.props.children[9].props.children
+          legalCheckbox.props.children.props.children[5].props.children
         ).toBe('Privacy Notice');
-        expect(legalCheckbox.props.children.props.children[10]).toBe(
+        expect(legalCheckbox.props.children.props.children[6]).toBe(
           ', until I cancel my subscription.'
         );
       }
@@ -106,7 +98,7 @@ describe('components/PaymentConsentCheckbox', () => {
       it('renders Localized for a plan with correct props and displays correct default string', async () => {
         const plan_id = 'plan_daily';
         const plan = findMockPlan(plan_id);
-        const expectedMsgId = 'payment-confirm-with-legal-links';
+        const expectedMsgId = 'payment-confirm-with-legal-links-static';
 
         runTests(plan, expectedMsgId);
       });

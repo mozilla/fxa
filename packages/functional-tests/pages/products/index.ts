@@ -7,23 +7,25 @@ export class SubscribePage extends BaseLayout {
     return input.fill(name);
   }
 
+  async setConfirmPaymentCheckbox() {
+    await this.page.check('[data-testid="confirm"]');
+  }
+
   async setCreditCardInfo() {
     const frame = this.page.frame({ url: /elements-inner-card/ });
-    await frame.fill('.InputElement[name=cardnumber]', '');
-    await frame.fill('.InputElement[name=cardnumber]', '4242424242424242');
-    await frame.fill('.InputElement[name=exp-date]', '555');
-    await frame.fill('.InputElement[name=cvc]', '333');
-    await frame.fill('.InputElement[name=postal]', '66666');
-    await this.page.check('input[type=checkbox]');
+    await frame!.fill('.InputElement[name=cardnumber]', '');
+    await frame!.fill('.InputElement[name=cardnumber]', '4242424242424242');
+    await frame!.fill('.InputElement[name=exp-date]', '555');
+    await frame!.fill('.InputElement[name=cvc]', '333');
+    await frame!.fill('.InputElement[name=postal]', '66666');
   }
 
   async setFailedCreditCardInfo() {
     const frame = this.page.frame({ url: /elements-inner-card/ });
-    await frame.fill('.InputElement[name=cardnumber]', '4000000000000341');
-    await frame.fill('.InputElement[name=exp-date]', '666');
-    await frame.fill('.InputElement[name=cvc]', '444');
-    await frame.fill('.InputElement[name=postal]', '77777');
-    await this.page.check('input[type=checkbox]');
+    await frame!.fill('.InputElement[name=cardnumber]', '4000000000000341');
+    await frame!.fill('.InputElement[name=exp-date]', '666');
+    await frame!.fill('.InputElement[name=cvc]', '444');
+    await frame!.fill('.InputElement[name=postal]', '77777');
   }
 
   async clickPayNow() {
@@ -33,7 +35,6 @@ export class SubscribePage extends BaseLayout {
   }
 
   async setPayPalInfo() {
-    await this.page.check('[data-testid="confirm"]');
     const paypalButton = this.page.locator(
       '[data-testid="paypal-button-container"]'
     );

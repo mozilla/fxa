@@ -39,6 +39,7 @@ test.describe('support form with active subscriptions', () => {
   }) => {
     await relier.goto();
     await relier.clickSubscribe();
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -62,6 +63,7 @@ test.describe('support form with active subscriptions', () => {
   }) => {
     await relier.goto();
     await relier.clickSubscribe();
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();

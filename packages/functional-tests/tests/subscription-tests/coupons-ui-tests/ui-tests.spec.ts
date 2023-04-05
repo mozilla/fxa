@@ -22,6 +22,7 @@ test.describe('ui functionality', () => {
     expect(await subscribe.discountAppliedSuccess()).toBe(true);
 
     //Subscribe successfully with Stripe
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();

@@ -72,7 +72,12 @@ export const Tooltip = ({
   ];
 
   return (
-    <aside ref={tooltipRef} id={id} className={classNames(...asideClassNames)}>
+    <aside
+      ref={tooltipRef}
+      id={id}
+      className={classNames(...asideClassNames)}
+      role="alert"
+    >
       {children}
       {dismissible && (
         <span

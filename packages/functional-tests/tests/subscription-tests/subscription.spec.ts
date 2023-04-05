@@ -12,6 +12,7 @@ test.describe('subscription test with cc and paypal', () => {
   }) => {
     await relier.goto();
     await relier.clickSubscribe();
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -27,6 +28,7 @@ test.describe('subscription test with cc and paypal', () => {
   }) => {
     await relier.goto();
     await relier.clickSubscribe();
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setFailedCreditCardInfo();
     await subscribe.clickPayNow();
@@ -45,6 +47,7 @@ test.describe('subscription test with cc and paypal', () => {
   }) => {
     await relier.goto();
     await relier.clickSubscribe();
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setPayPalInfo();
     await subscribe.submit();
     await relier.goto();

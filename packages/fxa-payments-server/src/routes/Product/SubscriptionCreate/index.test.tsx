@@ -60,6 +60,7 @@ type SubjectProps = PickPartial<
   | 'selectedPlan'
   | 'refreshSubscriptions'
   | 'paypalButtonBase'
+  | 'setCoupon'
 >;
 
 const Subject = ({
@@ -70,6 +71,7 @@ const Subject = ({
   apiClientOverrides = defaultApiClientOverrides(),
   stripeOverride = defaultStripeOverride(),
   refreshSubscriptions = jest.fn(),
+  setCoupon = jest.fn(),
   ...props
 }: SubjectProps) => {
   return (
@@ -88,6 +90,7 @@ const Subject = ({
             refreshSubscriptions,
             apiClientOverrides,
             stripeOverride,
+            setCoupon,
             ...props,
           }}
         />
@@ -137,8 +140,10 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(subscriptionProcessingTitle).toBeInTheDocument();
     expect(subscriptionProcessingTitle).toHaveClass('hidden');
     expect(queryByTestId('subscription-create')).toBeInTheDocument();
-    expect(queryByText('Payment information')).toBeInTheDocument();
-    expect(queryByTestId('paypal-button')).not.toBeInTheDocument();
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
     expect(queryByTestId('terms')).toBeInTheDocument();
     expect(queryByTestId('privacy')).toBeInTheDocument();
     expect(
@@ -149,7 +154,48 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(queryByTestId('coupon-component')).toBeInTheDocument();
   });
 
-  it('renders as expected with PayPal UI enabled', async () => {
+  it('displays checkbox tooltip error when unchecking checkbox', async () => {
+    render(<Subject />);
+    const { queryByTestId, findByTestId, queryByText } = screen;
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
+
+    const checkbox = await findByTestId('confirm');
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    expect(
+      queryByText('You need to complete this before moving forward')
+    ).toBeInTheDocument();
+  });
+
+  it('displays checkbox tooltip error when unchecked and clicking on disabled form', async () => {
+    render(<Subject />);
+    const { queryByTestId, queryByText } = screen;
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
+
+    if (paymentFormContainer) {
+      await act(async () => {
+        fireEvent.click(paymentFormContainer);
+      });
+    }
+
+    expect(
+      queryByText('You need to complete this before moving forward')
+    ).toBeInTheDocument();
+  });
+
+  it('renders as expected with payment form enabled', async () => {
     const { queryByTestId, findByTestId } = screen;
     const MockedButtonBase = () => {
       return <button data-testid="paypal-button" />;
@@ -163,20 +209,17 @@ describe('routes/Product/SubscriptionCreate', () => {
         />
       );
     });
-    await waitForExpect(() => {
-      expect(queryByTestId('paypal-button')).toBeInTheDocument();
-    });
-
-    expect(queryByTestId('paypal-button-container')?.className).toEqual(
-      "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
-    );
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
 
     const checkbox = await findByTestId('confirm');
     await act(async () => {
       fireEvent.click(checkbox);
     });
 
-    expect(queryByTestId('paypal-button-container')?.className).toBeFalsy();
+    expect(paymentFormContainer).not.toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'false');
   });
 
   it('renders as expected with PayPal UI enabled and an existing Stripe customer', async () => {
