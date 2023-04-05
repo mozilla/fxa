@@ -71,6 +71,7 @@ describe('PageDeleteAccount', () => {
         "Firefox Monitor",
         "MDN Plus",
         "Mozilla Hubs",
+        "Pocket",
       ]
     `);
   });

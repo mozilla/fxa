@@ -15,6 +15,7 @@ import {
   HubsLink,
   MDNLink,
   MonitorLink,
+  PocketLink,
   RelayLink,
   ROOTPATH,
   SyncLink,
@@ -80,6 +81,11 @@ const deleteProducts = [
     localizationId: 'delete-account-product-mozilla-hubs',
     productName: 'Mozilla Hubs',
     href: HubsLink,
+  },
+  {
+    localizationId: 'delete-account-product-pocket',
+    productName: 'Pocket',
+    href: PocketLink,
   },
 ];
 
