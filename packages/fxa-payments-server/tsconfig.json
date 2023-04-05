@@ -20,6 +20,10 @@
   "include": [
     "src"
   ],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ],
   "references": [
     {
       "path": "../fxa-react"
