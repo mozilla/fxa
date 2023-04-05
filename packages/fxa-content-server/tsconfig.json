@@ -4,7 +4,7 @@
   "exclude": ["node_modules", "**/*.spec.ts"],
   "compilerOptions": {
     "outDir": "./.tscompiled/",
-    "rootDir": "./app/scripts/",
+    "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],
     "baseUrl": "./app/scripts",
     "noImplicitAny": false
   },

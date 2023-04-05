@@ -27,7 +27,11 @@ interface IResumeTokenMixin {
 }
 
 const RESUME_TOKEN_FIELDS = ['planId', 'productId'];
-class SubscriptionModel extends Backbone.Model {
+class SubscriptionModel extends Backbone.Model<
+  Record<string, unknown>,
+  Record<string, unknown>,
+  { window?: Window }
+> {
   window?: Window;
   resumeTokenFields?: string[];
 
@@ -42,7 +46,7 @@ class SubscriptionModel extends Backbone.Model {
     );
   }
 
-  initialize(attrs = {}, options: { window?: Window } = {}) {
+  initialize(_attrs = {}, options: { window?: Window } = {}) {
     if (this.get('planId') && this.get('productId')) {
       // already set, no need to look anywhere else for the values.
       return;
