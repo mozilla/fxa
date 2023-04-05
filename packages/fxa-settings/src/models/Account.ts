@@ -14,6 +14,7 @@ import firefox from '../lib/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
+import { GET_SESSION_VERIFIED } from './Session';
 
 export interface DeviceLocation {
   city: string | null;
@@ -92,6 +93,17 @@ export interface AccountData {
     productName: string;
   }[];
   securityEvents: SecurityEvent[];
+}
+
+export interface ProfileInfo {
+  uid: hexstring;
+  displayName: string | null;
+  avatar: {
+    id: string | null;
+    url: string | null;
+  };
+  primaryEmail: Email;
+  emails: Email[];
 }
 
 const ATTACHED_CLIENTS_FIELDS = `
@@ -407,6 +419,23 @@ export class Account implements AccountData {
     });
     const { account } = data;
     return account.securityEvents;
+  }
+
+  async getProfileInfo() {
+    try {
+      const { data } = await this.apolloClient.query({
+        fetchPolicy: 'network-only',
+        query: GET_PROFILE_INFO,
+      });
+      const { account } = data;
+      return account as ProfileInfo;
+    } catch (err) {
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      if (errno && AuthUiErrorNos[errno]) {
+        throw AuthUiErrorNos[errno];
+      }
+      throw AuthUiErrors.UNEXPECTED_ERROR;
+    }
   }
 
   async getRecoveryKeyBundle(
@@ -792,6 +821,20 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  // TODO: Move this method to the Session model - this method was temporarily added to the Account model
+  // because the useSession hook can currently only be used behind a VerifiedSessionGuard and will error
+  // if used in a unverified page.
+  async isSessionVerified() {
+    const query = GET_SESSION_VERIFIED;
+    const { data } = await this.apolloClient.query({
+      fetchPolicy: 'network-only',
+      query,
+    });
+    const { session } = data;
+    const sessionStatus: boolean = session.verified;
+    return sessionStatus;
   }
 
   async replaceRecoveryCodes() {

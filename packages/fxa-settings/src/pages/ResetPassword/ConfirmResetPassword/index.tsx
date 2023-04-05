@@ -4,7 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import { REACT_ENTRYPOINT } from '../../../constants';
+import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
 import { useAccount, useInterval } from '../../../models';
@@ -20,8 +20,6 @@ export type ConfirmResetPasswordLocationState = {
   email: string;
   passwordForgotToken: string;
 };
-
-const POLLING_INTERVAL_MS = 2000;
 
 const ConfirmResetPassword = (_: RouteComponentProps) => {
   logPageViewEvent(viewName, REACT_ENTRYPOINT);

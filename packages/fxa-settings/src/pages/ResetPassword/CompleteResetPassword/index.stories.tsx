@@ -7,11 +7,7 @@ import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { Account } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
-import {
-  mockCompleteResetPasswordParams,
-  paramsWithMissingEmail,
-  Subject,
-} from './mocks';
+import { paramsWithMissingEmail, Subject } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/CompleteResetPassword',

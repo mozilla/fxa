@@ -5,6 +5,7 @@
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, Router } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
+import { sessionToken } from '../../lib/cache';
 import { useInitialState, useAccount, useConfig } from '../../models';
 import * as Metrics from '../../lib/metrics';
 
@@ -38,6 +39,7 @@ import SigninReported from '../../pages/Signin/SigninReported';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 import LinkValidator from '../LinkValidator';
 import { LinkType } from 'fxa-settings/src/lib/types';
+import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import WebChannelExample from '../../pages/WebChannelExample';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
@@ -50,6 +52,7 @@ export const App = ({
   const { loading, error } = useInitialState();
   const { metricsEnabled } = useAccount();
   const config = useConfig();
+  const sessionTokenId = sessionToken();
 
   useEffect(() => {
     Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
@@ -164,6 +167,7 @@ export const App = ({
                 path="/signin_confirmed/*"
               />
 
+              <Confirm path="/confirm/*" {...{ sessionTokenId }} />
               <ConfirmSignupCode path="/confirm_signup_code/*" />
             </>
           )}
