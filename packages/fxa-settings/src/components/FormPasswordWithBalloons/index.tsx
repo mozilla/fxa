@@ -86,8 +86,6 @@ export const FormPasswordWithBalloons = ({
     useState<boolean>(false);
   const [isConfirmPwdBalloonVisible, setIsConfirmPwdBalloonVisible] =
     useState<boolean>(false);
-  const [areBothPasswordsVisible, setAreBothPasswordsVisible] =
-    useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -210,7 +208,6 @@ export const FormPasswordWithBalloons = ({
                 },
               })}
               prefixDataTestId="new-password"
-              {...{ areBothPasswordsVisible, setAreBothPasswordsVisible }}
             />
           </FtlMsg>
           {isNewPwdBalloonVisible && (
@@ -259,7 +256,6 @@ export const FormPasswordWithBalloons = ({
               anchorStart
               tooltipPosition="bottom"
               prefixDataTestId="verify-password"
-              {...{ areBothPasswordsVisible, setAreBothPasswordsVisible }}
             />
           </FtlMsg>
 

@@ -8,17 +8,7 @@ import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
 import { useLocalization } from '@fluent/react';
 
-type OptionalSyncedVisibilityProps =
-  | {
-      areBothPasswordsVisible?: boolean;
-      setAreBothPasswordsVisible?: React.Dispatch<
-        React.SetStateAction<boolean>
-      >;
-    }
-  | { areBothPasswordsVisible?: never; setAreBothPasswordsVisible?: never };
-
-export type InputPasswordProps = Omit<InputTextProps, 'type'> &
-  OptionalSyncedVisibilityProps;
+export type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
 export const InputPassword = ({
   defaultValue,
@@ -36,8 +26,6 @@ export const InputPassword = ({
   prefixDataTestId = '',
   tooltipPosition,
   anchorStart,
-  areBothPasswordsVisible,
-  setAreBothPasswordsVisible,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
@@ -57,11 +45,7 @@ export const InputPassword = ({
 
   return (
     <InputText
-      type={
-        (areBothPasswordsVisible ? areBothPasswordsVisible : visible)
-          ? 'text'
-          : 'password'
-      }
+      type={visible ? 'text' : 'password'}
       {...{
         defaultValue,
         disabled,
@@ -89,17 +73,14 @@ export const InputPassword = ({
         tabIndex={-1}
         onClick={() => {
           setVisible(!visible);
-          if (setAreBothPasswordsVisible) {
-            setAreBothPasswordsVisible(!visible);
-          }
         }}
         title={
-          (areBothPasswordsVisible ? areBothPasswordsVisible : visible)
+          visible
             ? l10n.getString('input-password-hide', null, 'Hide password')
             : l10n.getString('input-password-show', null, 'Show password')
         }
         aria-label={
-          (areBothPasswordsVisible ? areBothPasswordsVisible : visible)
+          visible
             ? l10n.getString(
                 'input-password-hide-aria',
                 null,
@@ -112,7 +93,7 @@ export const InputPassword = ({
               )
         }
       >
-        {(areBothPasswordsVisible ? areBothPasswordsVisible : visible) ? (
+        {visible ? (
           <ClosedEye
             width="24"
             height="24"
