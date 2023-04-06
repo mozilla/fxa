@@ -651,7 +651,7 @@ jobs:
         default: large
       parallelism:
         type: integer
-        default: 4
+        default: 8
     executor: functional-test-executor
     resource_class: << parameters.resource_class >>
     parallelism: << parameters.parallelism >>
@@ -804,7 +804,7 @@ workflows:
             - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
-          resource_class: xlarge
+          resource_class: large
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:
