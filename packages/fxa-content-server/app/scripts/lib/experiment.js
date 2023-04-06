@@ -13,7 +13,9 @@ const UA_OVERRIDE = 'FxATester';
 /**
  * Experiments that are created on startup in `chooseExperiments`.
  */
-const STARTUP_EXPERIMENTS = {};
+const STARTUP_EXPERIMENTS = {
+  generalizeReactApp: BaseExperiment,
+};
 
 /**
  * Experiments created manually by calling `getAndReportExperimentGroup`
@@ -24,7 +26,6 @@ const MANUAL_EXPERIMENTS = {
   qrCodeCad: BaseExperiment,
   pushLogin: BaseExperiment,
   pocketMigration: BaseExperiment,
-  generalizeReactApp: BaseExperiment,
 };
 
 const ALL_EXPERIMENTS = _.extend({}, STARTUP_EXPERIMENTS, MANUAL_EXPERIMENTS);
