@@ -58,7 +58,7 @@ const account2Mock = createAccount(
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
-describe.skip('#integration - scripts/must-reset', async function () {
+describe('#integration - scripts/must-reset', async function () {
   this.timeout(30000);
 
   let db, server;

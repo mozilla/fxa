@@ -25,7 +25,7 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
       EmailType.recovery,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'load' });
+    await page.goto(link);
 
     // Enter a short password
     await resetPassword.resetNewPassword('pass');

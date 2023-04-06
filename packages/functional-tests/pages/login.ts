@@ -282,7 +282,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async getTooltipError() {
-    return this.page.innerText(selectors.TOOLTIP);
+    return this.page.locator(selectors.TOOLTIP).innerText();
   }
 
   async unblock(email: string) {
@@ -296,17 +296,14 @@ export class LoginPage extends BaseLayout {
   }
 
   async submit() {
-    return Promise.all([
-      this.page.locator(selectors.SUBMIT).click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator(selectors.SUBMIT).click();
+    return waitForNavigation;
   }
 
   async clickForgotPassword() {
-    return Promise.all([
-      this.page.locator(selectors.LINK_RESET_PASSWORD).click(),
-      this.page.waitForNavigation({ waitUntil: 'networkidle' }),
-    ]);
+    await this.page.locator(selectors.LINK_RESET_PASSWORD).click();
+    await this.page.waitForURL(/reset_password/);
   }
 
   async isSigninHeader() {
@@ -360,10 +357,8 @@ export class LoginPage extends BaseLayout {
   }
 
   async clickDontHaveRecoveryKey() {
-    return Promise.all([
-      this.page.locator(selectors.LINK_LOST_RECOVERY_KEY).click(),
-      this.page.waitForNavigation(),
-    ]);
+    await this.page.locator(selectors.LINK_LOST_RECOVERY_KEY).click();
+    await this.page.waitForURL(/complete_reset_password/);
   }
 
   setRecoveryKey(key: string) {
@@ -375,19 +370,19 @@ export class LoginPage extends BaseLayout {
   }
 
   async setNewPassword(password: string) {
-    await this.page.fill(selectors.PASSWORD, password);
-    await this.page.fill(selectors.VPASSWORD, password);
+    await this.page.locator(selectors.PASSWORD).fill(password);
+    await this.page.locator(selectors.VPASSWORD).fill(password);
     await this.submit();
   }
 
   async setTotp(secret: string) {
     const code = await getCode(secret);
-    await this.page.fill(selectors.NUMBER_INPUT, code);
+    await this.page.locator(selectors.NUMBER_INPUT).fill(code);
     await this.submit();
   }
 
   async getPrefilledEmail() {
-    return this.page.innerText(selectors.EMAIL_PREFILLED);
+    return this.page.locator(selectors.EMAIL_PREFILLED).innerText();
   }
 
   async getEmailInputElement() {
@@ -395,11 +390,11 @@ export class LoginPage extends BaseLayout {
   }
 
   async getEmailInput() {
-    return this.page.inputValue(selectors.EMAIL);
+    return this.page.locator(selectors.EMAIL).inputValue();
   }
 
   async getPasswordInput() {
-    return this.page.inputValue(selectors.PASSWORD);
+    return this.page.locator(selectors.PASSWORD).inputValue();
   }
 
   async isCachedLogin() {
@@ -416,7 +411,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async getErrorMessage() {
-    return this.page.innerText(selectors.ERROR);
+    return this.page.locator(selectors.ERROR).innerText();
   }
 
   createEmail(template?: string) {

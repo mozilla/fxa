@@ -2,6 +2,11 @@ import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('two step auth', () => {
+  test.beforeEach(async ({}, { project }) => {
+    // 2FA test can be slow because of time to generate recovery keys
+    test.slow();
+  });
+
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293446
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
   test('add and remove totp', async ({
@@ -108,7 +113,7 @@ test.describe('two step auth', () => {
     await login.setCode(newCodes[0]);
     await login.submit();
 
-    expect(page.url()).toMatch(settings.url);
+    expect(page.url()).toContain(settings.url);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293460
@@ -117,7 +122,6 @@ test.describe('two step auth', () => {
     credentials,
     pages: { page, login, settings, totp },
   }, { project }) => {
-    test.slow(project.name !== 'local', 'non-local use more codes');
     await settings.goto();
     await settings.totp.clickAdd();
     const { recoveryCodes } = await totp.enable(credentials);
@@ -128,6 +132,7 @@ test.describe('two step auth', () => {
         credentials.password,
         recoveryCodes[i]
       );
+      await login.page.waitForURL(/settings/);
       await settings.signOut();
     }
     await login.login(
@@ -135,12 +140,13 @@ test.describe('two step auth', () => {
       credentials.password,
       recoveryCodes[recoveryCodes.length - 1]
     );
+    await login.page.waitForURL(/settings/);
     const link = await target.email.waitForEmail(
       credentials.email,
       EmailType.lowRecoveryCodes,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'load' });
+    await page.goto(link);
     const newCodes = await totp.getRecoveryCodes();
     expect(newCodes.length).toEqual(recoveryCodes.length);
   });

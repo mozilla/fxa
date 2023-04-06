@@ -9,7 +9,7 @@ test.describe('recovery key test', () => {
     async ({ credentials, page, pages: { settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
-      
+
       await settings.goto();
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
@@ -43,8 +43,6 @@ test.describe('recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
-    // Generating and consuming recovery keys is a slow process
-    test.slow();
     let secondKey;
 
     // Create new recovery key
@@ -76,7 +74,9 @@ test.describe('recovery key test', () => {
     await recoveryKey.confirmRecoveryKey();
 
     // Verify the error
-    expect(await recoveryKey.invalidRecoveryKeyError()).toContain('Invalid account recovery key');
+    expect(await recoveryKey.invalidRecoveryKeyError()).toContain(
+      'Invalid account recovery key'
+    );
 
     // Enter new recovery key
     await login.setRecoveryKey(secondKey);
@@ -149,7 +149,7 @@ test.describe('recovery key test', () => {
       EmailType.recovery,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link);
     await login.setRecoveryKey(key);
     await recoveryKey.confirmRecoveryKey();
 

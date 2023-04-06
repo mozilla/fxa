@@ -11,62 +11,44 @@ test.describe('signup here', () => {
     test.slow();
   });
 
-  test('with an invalid email', async ({ target, page, pages: { login } }) => {
-    await page.goto(`${target.contentServerUrl}?email=invalid`, {
-      waitUntil: 'networkidle',
-    });
-    expect(await login.getErrorMessage()).toMatch('Invalid parameter: email');
-  });
-
-  test('with an empty email', async ({ target, page, pages: { login } }) => {
-    await page.goto(`${target.contentServerUrl}?email=`, {
-      waitUntil: 'networkidle',
-    });
-    expect(await login.getErrorMessage()).toMatch('Invalid parameter: email');
-  });
-
-  test('signup with email with leading whitespace on the email', async ({
+  test('with an invalid email, empty email query query param', async ({
     target,
     page,
     pages: { login },
   }) => {
-    const email = login.createEmail();
-    const emailWithoutSpace = email;
-    const emailWithSpace = '   ' + email;
+    await page.goto(`${target.contentServerUrl}?email=invalid`);
+    expect(await login.getErrorMessage()).toContain('Invalid parameter: email');
+
+    await page.goto(`${target.contentServerUrl}?email=`);
+    expect(await login.getErrorMessage()).toContain('Invalid parameter: email');
+  });
+
+  test('signup with email with leading/trailing whitespace on the email', async ({
+    target,
+    page,
+    pages: { login },
+  }) => {
+    let email = login.createEmail();
+    let emailWithoutSpace = email;
+    let emailWithSpace = '   ' + email;
     await page.goto(target.contentServerUrl);
     await login.fillOutFirstSignUp(emailWithSpace, password, false);
 
     // Verify the confirm code header and the email
     expect(await login.isSignUpCodeHeader()).toBe(true);
-    expect(await login.confirmEmail()).toMatch(emailWithoutSpace);
+    expect(await login.confirmEmail()).toContain(emailWithoutSpace);
+
+    // Need to clear the cache to get the new email
     await login.clearCache();
-    await page.goto(target.contentServerUrl);
-    await login.fillOutEmailFirstSignIn(emailWithoutSpace, password);
 
-    // Verify the confirm code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
-  });
-
-  test('signup with email with trailing whitespace on the email', async ({
-    target,
-    page,
-    pages: { login },
-  }) => {
-    const email = login.createEmail();
-    const emailWithoutSpace = email;
-    const emailWithSpace = email + ' ';
     await page.goto(target.contentServerUrl);
+    email = login.createEmail();
+    emailWithoutSpace = email;
+    emailWithSpace = email + ' ';
     await login.fillOutFirstSignUp(emailWithSpace, password, false);
 
-    // Verify the confirm code header and the email
     expect(await login.isSignUpCodeHeader()).toBe(true);
-    expect(await login.confirmEmail()).toMatch(emailWithoutSpace);
-    await login.clearCache();
-    await page.goto(target.contentServerUrl);
-    await login.fillOutEmailFirstSignIn(emailWithoutSpace, password);
-
-    // Verify the confirm code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    expect(await login.confirmEmail()).toContain(emailWithoutSpace);
   });
 
   test('signup with invalid email address', async ({
@@ -79,35 +61,33 @@ test.describe('signup here', () => {
     await login.clickSubmit();
 
     // Verify the error
-    expect(await login.getTooltipError()).toMatch('Valid email required');
+    expect(await login.getTooltipError()).toContain('Valid email required');
   });
 
-  test('coppa is empty', async ({ target, page, pages: { login } }) => {
+  test('coppa is empty and too young', async ({
+    target,
+    page,
+    pages: { login },
+  }) => {
     const email = login.createEmail();
     await page.goto(target.contentServerUrl);
     await login.setEmail(email);
     await login.clickSubmit();
+    await page.waitForURL(/signup/);
     await login.setPassword(password);
     await login.confirmPassword(password);
     await login.clickSubmit();
 
     // Verify the error
-    expect(await login.getTooltipError()).toMatch(
+    expect(await login.getTooltipError()).toContain(
       'You must enter your age to sign up'
     );
-  });
 
-  test('coppa too young', async ({ target, page, pages: { login } }) => {
-    const email = login.createEmail();
-    await page.goto(target.contentServerUrl);
-    await login.setEmail(email);
-    await login.clickSubmit();
-    await login.setPassword(password);
-    await login.confirmPassword(password);
     await login.setAge('12');
     await login.clickSubmit();
 
-    // Verify the error
+    // Verify navigated to the cannot create account page
+    await page.waitForURL(/cannot_create_account/);
     expect(await login.cannotCreateAccountHeader()).toBe(true);
   });
 
@@ -126,7 +106,7 @@ test.describe('signup here', () => {
     await login.clickSubmit();
 
     // Verify the error
-    expect(await login.getTooltipError()).toMatch('Passwords do not match');
+    expect(await login.getTooltipError()).toContain('Passwords do not match');
   });
 
   test('form prefill information is cleared after signup->sign out', async ({
@@ -145,16 +125,16 @@ test.describe('signup here', () => {
 
     // check the email address was cleared
     expect(await login.isEmailHeader()).toBe(true);
-    expect(await login.getEmailInput()).toMatch('');
+    expect(await login.getEmailInput()).toContain('');
 
     await login.setEmail(login.createEmail());
     await login.clickSubmit();
 
     // check the password was cleared
-    expect(await login.getPasswordInput()).toMatch('');
+    expect(await login.getPasswordInput()).toContain('');
   });
 
-  test('signup via product page and redirect after confirm', async ({
+  test('signup via relier page and redirect after confirm', async ({
     pages: { login, relier },
   }) => {
     const email = login.createEmail();

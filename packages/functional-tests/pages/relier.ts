@@ -1,4 +1,5 @@
 import { BaseLayout } from './layout';
+import { selectors } from './login';
 
 export class RelierPage extends BaseLayout {
   goto(query?: string) {
@@ -27,25 +28,22 @@ export class RelierPage extends BaseLayout {
     ]);
   }
 
-  clickEmailFirst() {
-    return Promise.all([
-      this.page.locator('button.email-first-button').click(),
-      this.page.waitForNavigation(),
-    ]);
+  async clickEmailFirst() {
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator('button.email-first-button').click();
+    return waitForNavigation;
   }
 
-  clickSignIn() {
-    return Promise.all([
-      this.page.locator('button.sign-in-button.signin').click(),
-      this.page.waitForNavigation(),
-    ]);
+  async clickSignIn() {
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator('button.sign-in-button.signin').click();
+    return waitForNavigation;
   }
 
-  clickForceAuth() {
-    return Promise.all([
-      this.page.locator('button.force-auth').click(),
-      this.page.waitForNavigation(),
-    ]);
+  async clickForceAuth() {
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator('button.force-auth').click();
+    return waitForNavigation;
   }
 
   clickChooseFlow() {
@@ -53,27 +51,26 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickSubscribe() {
-    await Promise.all([
-      this.page.getByRole('link', { name: 'Subscribe to Pro (USD)' }).click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page
+      .getByRole('link', { name: 'Subscribe to Pro (USD)' })
+      .click();
+    return waitForNavigation;
   }
 
   async clickSubscribe6Month() {
-    await Promise.all([
-      this.page
-        .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
-        .click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page
+      .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
+      .click();
+    return waitForNavigation;
   }
 
   async clickSubscribe12Month() {
-    await Promise.all([
-      this.page
-        .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
-        .click(),
-      this.page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page
+      .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
+      .click();
+    return waitForNavigation;
   }
 }

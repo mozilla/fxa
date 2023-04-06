@@ -22,7 +22,7 @@ test.describe('severity-1 #smoke', () => {
     );
     await page.goto(link, { waitUntil: 'networkidle' });
     await login.setNewPassword(credentials.password);
-    expect(page.url()).toMatch(settings.url);
+    expect(page.url()).toContain(settings.url);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293431

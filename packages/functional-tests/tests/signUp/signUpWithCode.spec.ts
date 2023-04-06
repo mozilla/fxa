@@ -50,7 +50,7 @@ test.describe('Sign up with code ', () => {
     await login.fillOutFirstSignUp(email, PASSWORD, false);
     await login.setCode('1234');
     await signinTokenCode.clickSubmitButton();
-    expect(await login.getTooltipError()).toMatch(
+    expect(await login.getTooltipError()).toContain(
       'Invalid or expired confirmation code'
     );
   });

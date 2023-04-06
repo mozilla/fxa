@@ -9,7 +9,7 @@ test.describe('OAuth force auth', () => {
     await relier.clickForceAuth();
 
     // Email is prefilled
-    await expect(await login.page.innerText('#prefillEmail')).toMatch(
+    await expect(await login.page.innerText('#prefillEmail')).toContain(
       credentials.email
     );
     await login.setPassword(credentials.password);

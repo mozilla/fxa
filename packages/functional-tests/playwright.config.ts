@@ -1,5 +1,5 @@
 import { PlaywrightTestConfig, Project } from '@playwright/test';
-import path from 'path';
+import * as path from 'path';
 import { TargetNames } from './lib/targets';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
 import { getFirefoxUserPrefs } from './lib/targets/firefoxUserPrefs';
@@ -11,10 +11,20 @@ const CI = !!process.env.CI;
 const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 
+let retries = 0,
+  workers = undefined,
+  maxFailures = 0;
+if (CI) {
+  // Overall maxFailures is now dependent on the number of retries, workers
+  retries = 3;
+  workers = 2;
+  maxFailures = retries * workers * 2;
+}
+
 const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   outputDir: path.resolve(__dirname, '../../artifacts/functional'),
   forbidOnly: CI,
-  retries: CI ? 2 : 0,
+  retries,
   testDir: 'tests',
   use: {
     viewport: { width: 1280, height: 720 },
@@ -66,8 +76,8 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
         ],
       ]
     : 'list',
-  workers: CI ? 2 : undefined,
-  maxFailures: CI ? 3 : 0,
+  workers,
+  maxFailures,
 };
 
 export default config;

@@ -13,10 +13,7 @@ test.describe('redirect_to', () => {
 
   async function engageRedirect(page, target, redirectTo) {
     await page.goto(
-      `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`,
-      {
-        waitUntil: 'networkidle',
-      }
+      `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
     );
     await page.click('button[type=submit]');
   }
@@ -51,8 +48,13 @@ test.describe('redirect_to', () => {
     pages: { page },
   }) => {
     const redirectTo = `${target.contentServerUrl}/settings`;
-    await engageRedirect(page, target, redirectTo);
-    await page.waitForNavigation();
+    await page.goto(
+      `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
+    );
+    await page.click('button[type=submit]');
+
+    await page.waitForURL(/settings\?/);
+
     expect(page.url().startsWith(redirectTo)).toBeTruthy();
   });
 });

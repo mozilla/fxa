@@ -62,9 +62,8 @@ export abstract class SettingsLayout extends BaseLayout {
 
   async signOut() {
     await this.clickAvatarIcon();
-    await Promise.all([
-      this.clickSignOut(),
-      this.page.waitForURL(this.target.baseUrl, { waitUntil: 'load' }),
-    ]);
+    const waitForURL = this.page.waitForURL(this.target.baseUrl);
+    await this.clickSignOut();
+    return waitForURL;
   }
 }

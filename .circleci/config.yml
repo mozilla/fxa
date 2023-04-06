@@ -651,7 +651,7 @@ jobs:
         default: large
       parallelism:
         type: integer
-        default: 8
+        default: 4
     executor: functional-test-executor
     resource_class: << parameters.resource_class >>
     parallelism: << parameters.parallelism >>
