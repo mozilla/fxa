@@ -11,7 +11,7 @@ import { Store } from '../store';
 const eventGroupNames = {
   createAccount: 'subPayAccountSetup',
   createSubscription: 'subPaySetup',
-  upgradeSubscription: 'subPayUpgrade',
+  changeSubscription: 'subPaySubChange',
   updatePayment: 'subPayManage',
   cancelSubscription: 'subCancel',
   manageSubscriptions: 'subManage',
@@ -340,7 +340,7 @@ export function updateSubscriptionPlanMounted(
   eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
-    eventGroupNames.upgradeSubscription,
+    eventGroupNames.changeSubscription,
     eventTypeNames.view,
     eventProperties
   );
@@ -350,7 +350,7 @@ export function updateSubscriptionPlanEngaged(
   eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
-    eventGroupNames.upgradeSubscription,
+    eventGroupNames.changeSubscription,
     eventTypeNames.engage,
     eventProperties
   );
@@ -360,7 +360,7 @@ export function updateSubscriptionPlan_PENDING(
   eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
-    eventGroupNames.upgradeSubscription,
+    eventGroupNames.changeSubscription,
     eventTypeNames.submit,
     eventProperties
   );
@@ -370,7 +370,7 @@ export function updateSubscriptionPlan_FULFILLED(
   eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
-    eventGroupNames.upgradeSubscription,
+    eventGroupNames.changeSubscription,
     eventTypeNames.success,
     eventProperties
   );
@@ -380,7 +380,7 @@ export function updateSubscriptionPlan_REJECTED(
   eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
-    eventGroupNames.upgradeSubscription,
+    eventGroupNames.changeSubscription,
     eventTypeNames.fail,
     eventProperties
   );
