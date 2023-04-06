@@ -38,7 +38,7 @@ export const LinkExpired = ({
       </FtlMsg>
       {/* TODO Extract for reuse into ButtonResendResetPasswordLink */}
       <FtlMsg id="reset-pwd-resend-link">
-        <button onClick={() => resendLinkHandler} className="link-blue mt-4">
+        <button onClick={resendLinkHandler} className="link-blue mt-4">
           Receive new link
         </button>
       </FtlMsg>

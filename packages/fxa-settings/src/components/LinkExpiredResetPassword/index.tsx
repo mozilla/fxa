@@ -3,31 +3,30 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useLocation } from '@reach/router';
 import { useAccount } from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { logViewEvent } from 'fxa-settings/src/lib/metrics';
 import { REACT_ENTRYPOINT } from 'fxa-settings/src/constants';
 import { LinkExpired } from '../LinkExpired';
 
-type LocationState = { email: string };
-
-type SubComponentProps = {
+type LinkExpiredResetPasswordProps = {
+  email: string;
   viewName: string;
 };
 
-export const LinkExpiredResetPassword = ({ viewName }: SubComponentProps) => {
+export const LinkExpiredResetPassword = ({
+  email,
+  viewName,
+}: LinkExpiredResetPasswordProps) => {
   const account = useAccount();
-  const location = useLocation() as ReturnType<typeof useLocation> & {
-    state: LocationState;
-  };
+
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
 
   const resendResetPasswordLink = async () => {
     try {
-      await account.resendResetPassword(location.state.email);
+      await account.resendResetPassword(email);
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
       setResendStatus(ResendStatus['sent']);
     } catch (e) {

@@ -122,7 +122,7 @@ const AccountRecoveryResetPassword = ({
   }
 
   if (linkStatus === 'expired') {
-    return <LinkExpiredResetPassword {...{ viewName }} />;
+    return <LinkExpiredResetPassword email={state.email} {...{ viewName }} />;
   }
 
   return (

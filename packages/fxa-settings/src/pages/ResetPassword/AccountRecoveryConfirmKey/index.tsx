@@ -39,8 +39,6 @@ type SubmitData = {
   recoveryKey: string;
 } & RequiredParamsAccountRecoveryConfirmKey;
 
-type LocationState = { email: string };
-
 export const viewName = 'account-recovery-confirm-key';
 
 const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
@@ -58,9 +56,7 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const { linkStatus, setLinkStatus, requiredParams } =
     useAccountRecoveryConfirmKeyLinkStatus();
-  const location = useLocation() as ReturnType<typeof useLocation> & {
-    state: LocationState;
-  };
+  const location = useLocation();
 
   const { handleSubmit, register } = useForm<FormData>({
     mode: 'onBlur',
@@ -94,12 +90,16 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
 
       logViewEvent('flow', `${viewName}.success`, REACT_ENTRYPOINT);
 
-
       const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
       const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
 
-      const decryptedData = await decryptRecoveryKeyData(uint8RecoveryKey, recoveryKeyId, recoveryData, uid);
-      
+      const decryptedData = await decryptRecoveryKeyData(
+        uint8RecoveryKey,
+        recoveryKeyId,
+        recoveryData,
+        uid
+      );
+
       navigate(`/account_recovery_reset_password${window.location.search}`, {
         state: {
           accountResetToken,
@@ -179,7 +179,12 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   }
 
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpiredResetPassword {...{ viewName }} />;
+    return (
+      <LinkExpiredResetPassword
+        email={requiredParams.email}
+        {...{ viewName }}
+      />
+    );
   }
 
   return (

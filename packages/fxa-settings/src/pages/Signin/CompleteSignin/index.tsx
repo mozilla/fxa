@@ -15,7 +15,9 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 
 // We will probably grab `isSignedIn` off of the Account model in the long run.
+// and email from validated query params
 export type CompleteSigninProps = {
+  email: string;
   brokerNextAction?: Function;
   isForPrimaryEmail: boolean;
   linkStatus: LinkStatus;
@@ -24,6 +26,7 @@ export type CompleteSigninProps = {
 export const viewName = 'complete-signin';
 
 const CompleteSignin = ({
+  email,
   brokerNextAction,
   isForPrimaryEmail,
   linkStatus,
@@ -51,7 +54,7 @@ const CompleteSignin = ({
     return <SigninLinkDamaged />;
   }
   if (linkStatus === LinkStatus.expired) {
-    return <LinkExpiredSignin {...{ viewName }} />;
+    return <LinkExpiredSignin {...{ email, viewName }} />;
   }
   if (linkStatus === LinkStatus.used) {
     return <LinkUsed {...{ isForPrimaryEmail }} />;

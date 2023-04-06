@@ -10,27 +10,21 @@ import { mockAppContext, MOCK_ACCOUNT } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
 
 const viewName = 'example-view-name';
+const email = MOCK_ACCOUNT.primaryEmail.email;
+
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+}));
 
 function renderLinkExpiredSigninWithAccount(account: Account) {
   render(
     <AppContext.Provider value={mockAppContext({ account })}>
       <LocationProvider>
-        <LinkExpiredSignin {...{ viewName }} />
+        <LinkExpiredSignin {...{ email, viewName }} />
       </LocationProvider>
     </AppContext.Provider>
   );
 }
-
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useLocation: () => {
-    return {
-      state: {
-        email: MOCK_ACCOUNT.primaryEmail.email,
-      },
-    };
-  },
-}));
 
 describe('LinkExpiredSignin', () => {
   const account = {} as unknown as Account;
