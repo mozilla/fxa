@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import FormPasswordWithBalloons, { PasswordFormType } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
@@ -21,9 +21,6 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
     // this alert is for Storybook
     alert('Form submitted! (onFormSubmit called)');
   };
-
-  const [passwordMatchErrorText, setPasswordMatchErrorText] =
-    useState<string>('');
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
@@ -44,8 +41,6 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
         register,
         getValues,
         passwordFormType,
-        passwordMatchErrorText,
-        setPasswordMatchErrorText,
       }}
       onSubmit={handleSubmit(onFormSubmit)}
       email={MOCK_ACCOUNT.primaryEmail.email}

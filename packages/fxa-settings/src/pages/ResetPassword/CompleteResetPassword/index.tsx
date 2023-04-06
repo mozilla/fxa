@@ -5,7 +5,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { logPageViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import {
   CreateIntegration,
   IntegrationType,
@@ -71,10 +71,8 @@ const CompleteResetPassword = ({
   params: CompleteResetPasswordLink;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
 }) => {
-  logPageViewEvent(viewName, REACT_ENTRYPOINT);
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [passwordMatchErrorText, setPasswordMatchErrorText] =
-    useState<string>('');
   const [errorType, setErrorType] = useState(ErrorType.none);
   /* Show a loading spinner until all checks complete. Without this, users with a
    * recovery key set or with an expired or damaged link will experience some jank due
@@ -87,6 +85,16 @@ const CompleteResetPassword = ({
     state: LocationState;
   };
   const integration = CreateIntegration();
+
+  const { handleSubmit, register, getValues, errors, formState, trigger } =
+    useForm<FormData>({
+      mode: 'onTouched',
+      criteriaMode: 'all',
+      defaultValues: {
+        newPassword: '',
+        confirmPassword: '',
+      },
+    });
 
   /* When the user clicks the confirm password reset link from their email, we check
    * to see if they have an account recovery key set. If they do, we navigate to the
@@ -137,16 +145,6 @@ const CompleteResetPassword = ({
 
     setShowLoadingSpinner(false);
   }, [params.token, account, setLinkStatus]);
-
-  const { handleSubmit, register, getValues, errors, formState, trigger } =
-    useForm<FormData>({
-      mode: 'onTouched',
-      criteriaMode: 'all',
-      defaultValues: {
-        newPassword: '',
-        confirmPassword: '',
-      },
-    });
 
   const alertSuccessAndNavigate = useCallback(() => {
     setErrorType(ErrorType.none);
@@ -299,8 +297,6 @@ const CompleteResetPassword = ({
             trigger,
             register,
             getValues,
-            passwordMatchErrorText,
-            setPasswordMatchErrorText,
           }}
           email={params.email}
           passwordFormType="reset"

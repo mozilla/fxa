@@ -4,28 +4,26 @@
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { logViewEvent, logPageViewEvent } from '../../lib/metrics';
-import { useAccount, useFtlMsgResolver } from '../../models';
-
-import { FtlMsg } from 'fxa-react/lib/utils';
-
-import { InputText } from '../../components/InputText';
-import CardHeader from '../../components/CardHeader';
-import WarningMessage from '../../components/WarningMessage';
-import LinkRememberPassword from '../../components/LinkRememberPassword';
-
-import { MozServices } from '../../lib/types';
+import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
-
-import AppLayout from '../../components/AppLayout';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
   composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
+import { usePageViewEvent, useMetrics } from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
+import { useAccount, useFtlMsgResolver } from '../../models';
+
+import { FtlMsg } from 'fxa-react/lib/utils';
+
+import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
+import CardHeader from '../../components/CardHeader';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword';
+import { InputText } from '../../components/InputText';
+import LinkRememberPassword from '../../components/LinkRememberPassword';
+import WarningMessage from '../../components/WarningMessage';
 
 export const viewName = 'reset-password';
 
@@ -46,18 +44,17 @@ const ResetPassword = ({
   prefillEmail,
   forceAuth,
 }: ResetPasswordProps & RouteComponentProps) => {
-  logPageViewEvent(viewName, REACT_ENTRYPOINT);
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [email, setEmail] = useState<string>(prefillEmail || '');
   const [errorText, setErrorText] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [hasFocused, setHasFocused] = useState<boolean>(false);
   const account = useAccount();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const { handleSubmit } = useForm<FormData>({
-    mode: 'onBlur',
+  const { control, getValues, handleSubmit, register } = useForm<FormData>({
+    mode: 'onTouched',
     criteriaMode: 'all',
     // The email field is not pre-filled for the reset_password page,
     // but if the user enters an email address, the entered email
@@ -70,12 +67,14 @@ const ResetPassword = ({
     },
   });
 
-  const onFocus = () => {
-    if (!isFocused) {
-      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
-      setIsFocused(true);
+  // Log a metrics event when a user first engages with the form
+  const { logViewEventOnce: logEngageEvent } = useMetrics();
+  const onFocus = useCallback(() => {
+    if (!hasFocused) {
+      logEngageEvent(viewName, 'engage', REACT_ENTRYPOINT);
+      setHasFocused(true);
     }
-  };
+  }, [hasFocused, logEngageEvent]);
 
   const navigateToConfirmPwReset = useCallback(
     (stateData: ConfirmResetPasswordLocationState) => {
@@ -87,10 +86,26 @@ const ResetPassword = ({
     [navigate]
   );
 
-  const onSubmit = async () => {
-    try {
+  const clearError = useCallback(() => {
+    if (errorText !== '') {
+      setErrorText('');
       setErrorMessage('');
-      const sanitizedEmail = email.trim();
+    }
+  }, [errorText, setErrorText]);
+
+  const localizedEmailRequiredMessage = ftlMsgResolver.getMsg(
+    'reset-password-email-required-error',
+    'Email required'
+  );
+
+  const onSubmit = useCallback(async () => {
+    const sanitizedEmail = getValues('email').trim();
+    if (sanitizedEmail === '') {
+      setErrorText(localizedEmailRequiredMessage);
+      return;
+    }
+    try {
+      clearError();
       const result = await account.resetPassword(sanitizedEmail);
       navigateToConfirmPwReset({
         passwordForgotToken: result.passwordForgotToken,
@@ -123,6 +138,26 @@ const ResetPassword = ({
       }
       setErrorMessage(localizedError);
     }
+  }, [
+    account,
+    clearError,
+    ftlMsgResolver,
+    getValues,
+    localizedEmailRequiredMessage,
+    navigateToConfirmPwReset,
+  ]);
+
+  const ControlledLinkRememberPassword = ({
+    control,
+  }: {
+    control: Control<FormData>;
+  }) => {
+    const email: string = useWatch({
+      control,
+      name: 'email',
+      defaultValue: '',
+    });
+    return <LinkRememberPassword {...{ email }} />;
   };
 
   return (
@@ -150,7 +185,6 @@ const ResetPassword = ({
         protect your privacy. You’ll still keep any subscriptions you may have
         and Pocket data will not be affected.
       </WarningMessage>
-
       <form
         noValidate
         className="flex flex-col gap-4"
@@ -175,13 +209,7 @@ const ResetPassword = ({
               type="email"
               label="Email"
               name="email"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                setEmail(e.target.value);
-                // clear error tooltip if user types in the field
-                if (errorText) {
-                  setErrorText('');
-                }
-              }}
+              onChange={clearError}
               onFocusCb={onFocus}
               autoFocus
               errorText={errorText}
@@ -190,6 +218,7 @@ const ResetPassword = ({
               autoComplete="off"
               spellCheck={false}
               prefixDataTestId="reset-password"
+              inputRef={register}
             />
           </FtlMsg>
         )}
@@ -205,7 +234,7 @@ const ResetPassword = ({
         </FtlMsg>
       </form>
 
-      <LinkRememberPassword {...{ email }} />
+      <ControlledLinkRememberPassword {...{ control }} />
     </AppLayout>
   );
 };

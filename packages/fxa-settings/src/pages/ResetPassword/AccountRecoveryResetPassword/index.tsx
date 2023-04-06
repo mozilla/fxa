@@ -95,8 +95,6 @@ const AccountRecoveryResetPassword = ({
 
   const [bannerState, setBannerState] = useState<BannerState>(BannerState.None);
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(state.linkStatus);
-  const [passwordMatchErrorText, setPasswordMatchErrorText] =
-    useState<string>('');
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<FormData>({
       mode: 'onTouched',
@@ -183,8 +181,6 @@ const AccountRecoveryResetPassword = ({
             trigger,
             register,
             getValues,
-            passwordMatchErrorText,
-            setPasswordMatchErrorText,
           }}
           passwordFormType="reset"
           onSubmit={handleSubmit(
