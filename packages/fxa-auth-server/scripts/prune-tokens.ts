@@ -57,20 +57,20 @@ export async function init() {
     )
     .option(
       '--maxSessionsMaxAccounts <number>',
-      'When maxSessions is greater than 0, this value allows us to limit scope of the delete by restricting the number of accounts processed on any given run. This generally be an order of magnitude smaller than maxAccountsConsidered.',
+      'When maxSessions is greater than 0, this value allows us to limit scope of the delete by restricting the number of accounts processed on any given run.',
       100
     )
     .option(
       '--maxSessionsMaxDeletions <number>',
-      'When maxSessions is greater than 0, this value restricts the total number of sessions that can be deleted.',
+      'When maxSessions is greater than 0, this value restricts the total number of sessions that can be deleted per account.',
       100e3
     )
     .option(
       '--maxSessionsBatchSize <number>',
-      'When maxSessions is greater than 0, this value controls the number of deletions that are batched together. By default, no more than 1000 session tokens will be deleted by anyone query.',
+      'When maxSessions is greater than 0, this value controls the number of deletions that are batched together at one time. e.g. A batch size of 1 would delete one token at a time.',
       1e3
     )
-    .option('--wait', 'Amount of time to sleep between delete operations.', 5e3)
+    .option('--wait', 'Amount of time to sleep in milliseconds between delete operations (ie between batches).', 5e3)
     .on('--help', function () {
       console.log(`
 Example:
