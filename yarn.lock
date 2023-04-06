@@ -14,7 +14,6 @@ __metadata:
     convict: ^6.2.4
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-jwtool: ^0.7.2
     ioredis: ^5.0.6
@@ -17890,7 +17889,6 @@ __metadata:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-shared: "workspace:*"
     intel: 1.2.0
@@ -23394,18 +23392,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-plugin-fxa@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "eslint-plugin-fxa@npm:2.0.2"
+"eslint-plugin-fxa@workspace:*, eslint-plugin-fxa@workspace:packages/eslint-plugin-fxa":
+  version: 0.0.0-use.local
+  resolution: "eslint-plugin-fxa@workspace:packages/eslint-plugin-fxa"
   dependencies:
     eslint: 6.6.0
     eslint-config-prettier: 6.5.0
+    mocha: 6.2.2
     ramda: ^0.26.1
   peerDependencies:
     eslint: ">=6.6.0"
-  checksum: cb4c8ac7079d2c9d6940da381d92e041dc51706b89bc55e41f19ff7f680245348ce4fc41f6045ac6a64975b4564036df49415fa2e73dcb6e719b1c36fb650542
-  languageName: node
-  linkType: hard
+  languageName: unknown
+  linkType: soft
 
 "eslint-plugin-import@npm:^2.25.2":
   version: 2.25.3
@@ -25407,7 +25405,6 @@ __metadata:
     client-sessions: 0.8.x
     ejs: ^3.1.6
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
@@ -26021,7 +26018,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-customs-server: "workspace:*"
     fxa-geodb: "workspace:*"
     fxa-jwtool: ^0.7.2
@@ -26169,7 +26165,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     expose-loader: 1.0.3
     express: ^4.17.3
     extract-loader: 5.1.0
@@ -26311,7 +26306,6 @@ fsevents@~2.1.1:
     dedent: ^0.7.0
     deep-equal: 2.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
@@ -26435,7 +26429,6 @@ fsevents@~2.1.1:
     chai: ^4.3.6
     cron: 2.2.0
     eslint: ^8.19.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     maxmind: ^4.3.6
     mocha: ^10.0.0
@@ -26608,7 +26601,6 @@ fsevents@~2.1.1:
     dayjs: ^1.11.5
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     express: ^4.17.3
@@ -26690,7 +26682,6 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^8.18.0
-    eslint-plugin-fxa: ^2.0.2
     fxa-shared: "workspace:*"
     insist: 1.0.1
     joi: ^17.8.3
@@ -26827,7 +26818,6 @@ fsevents@~2.1.1:
     css-loader: ^3.6.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
-    eslint-plugin-fxa: ^2.0.2
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     fxa-auth-client: "workspace:*"
@@ -26936,7 +26926,6 @@ fsevents@~2.1.1:
     esbuild: ^0.14.2
     esbuild-register: ^3.2.0
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
     express: ^4.17.3
     find-up: ^5.0.0
     generic-pool: ^3.8.2
@@ -26984,7 +26973,7 @@ fsevents@~2.1.1:
   dependencies:
     diffparser: ^2.0.1
     eslint: ^7.32.0
-    eslint-plugin-fxa: ^2.0.2
+    eslint-plugin-fxa: "workspace:*"
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     husky: ^4.2.5
@@ -34753,6 +34742,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"log-symbols@npm:2.2.0, log-symbols@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "log-symbols@npm:2.2.0"
+  dependencies:
+    chalk: ^2.0.1
+  checksum: 4c95e3b65f0352dbe91dc4989c10baf7a44e2ef5b0db7e6721e1476268e2b6f7090c3aa880d4f833a05c5c3ff18f4ec5215a09bd0099986d64a8186cfeb48ac8
+  languageName: node
+  linkType: hard
+
 "log-symbols@npm:3.0.0":
   version: 3.0.0
   resolution: "log-symbols@npm:3.0.0"
@@ -34769,15 +34767,6 @@ fsevents@~2.1.1:
     chalk: ^4.1.0
     is-unicode-supported: ^0.1.0
   checksum: fce1497b3135a0198803f9f07464165e9eb83ed02ceb2273930a6f8a508951178d8cf4f0378e9d28300a2ed2bc49050995d2bd5f53ab716bb15ac84d58c6ef74
-  languageName: node
-  linkType: hard
-
-"log-symbols@npm:^2.2.0":
-  version: 2.2.0
-  resolution: "log-symbols@npm:2.2.0"
-  dependencies:
-    chalk: ^2.0.1
-  checksum: 4c95e3b65f0352dbe91dc4989c10baf7a44e2ef5b0db7e6721e1476268e2b6f7090c3aa880d4f833a05c5c3ff18f4ec5215a09bd0099986d64a8186cfeb48ac8
   languageName: node
   linkType: hard
 
@@ -36786,6 +36775,40 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"mocha@npm:6.2.2":
+  version: 6.2.2
+  resolution: "mocha@npm:6.2.2"
+  dependencies:
+    ansi-colors: 3.2.3
+    browser-stdout: 1.3.1
+    debug: 3.2.6
+    diff: 3.5.0
+    escape-string-regexp: 1.0.5
+    find-up: 3.0.0
+    glob: 7.1.3
+    growl: 1.10.5
+    he: 1.2.0
+    js-yaml: 3.13.1
+    log-symbols: 2.2.0
+    minimatch: 3.0.4
+    mkdirp: 0.5.1
+    ms: 2.1.1
+    node-environment-flags: 1.0.5
+    object.assign: 4.1.0
+    strip-json-comments: 2.0.1
+    supports-color: 6.0.0
+    which: 1.3.1
+    wide-align: 1.1.3
+    yargs: 13.3.0
+    yargs-parser: 13.1.1
+    yargs-unparser: 1.6.0
+  bin:
+    _mocha: ./bin/_mocha
+    mocha: ./bin/mocha
+  checksum: 0f05f3f19408d9b4d594ea789bc5f7f348a8e2b1f7589fc6da37e080a4c299b7888efefb91159d6aa09fbc4deca609d6e9ee81b23ed3f18ba1e1cc3a90ba3e45
+  languageName: node
+  linkType: hard
+
 "mocha@npm:^10.0.0":
   version: 10.0.0
   resolution: "mocha@npm:10.0.0"
@@ -37427,6 +37450,16 @@ fsevents@~2.1.1:
   dependencies:
     lodash: ^4.17.21
   checksum: e8c856c04a1645062112a72e59a98b203505ed5111ff84a3a5f40611afa229b578c7d50f1e6a7f17aa62baeea4a640d2e2f61f63afc05423aa267af10977fb2b
+  languageName: node
+  linkType: hard
+
+"node-environment-flags@npm:1.0.5":
+  version: 1.0.5
+  resolution: "node-environment-flags@npm:1.0.5"
+  dependencies:
+    object.getownpropertydescriptors: ^2.0.3
+    semver: ^5.7.0
+  checksum: 8c7ea6b693ca83cf5dc2d23660bfdb8bb06c2b7c0ce9226774ba9cd2d370d6977ca004577dcb9df6bd334f22ef9ab0882fb7e4e7fb0645ccd27967d7d93a62cd
   languageName: node
   linkType: hard
 
@@ -51298,7 +51331,17 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.1.2":
+"yargs-parser@npm:13.1.1":
+  version: 13.1.1
+  resolution: "yargs-parser@npm:13.1.1"
+  dependencies:
+    camelcase: ^5.0.0
+    decamelize: ^1.2.0
+  checksum: fa5fd27736aa423dc9a114d160dae94625f7faf19c252b8c91ac0197be9715d1dbc9b98fda893f75f182111fb6c3c0ce60c631b73859dd1a06bec07cddfb98f4
+  languageName: node
+  linkType: hard
+
+"yargs-parser@npm:13.1.2, yargs-parser@npm:^13.1.1, yargs-parser@npm:^13.1.2":
   version: 13.1.2
   resolution: "yargs-parser@npm:13.1.2"
   dependencies:
@@ -51383,6 +51426,24 @@ resolve@^2.0.0-next.3:
     flat: ^5.0.2
     is-plain-obj: ^2.1.0
   checksum: 68f9a542c6927c3768c2f16c28f71b19008710abd6b8f8efbac6dcce26bbb68ab6503bed1d5994bdbc2df9a5c87c161110c1dfe04c6a3fe5c6ad1b0e15d9a8a3
+  languageName: node
+  linkType: hard
+
+"yargs@npm:13.3.0":
+  version: 13.3.0
+  resolution: "yargs@npm:13.3.0"
+  dependencies:
+    cliui: ^5.0.0
+    find-up: ^3.0.0
+    get-caller-file: ^2.0.1
+    require-directory: ^2.1.1
+    require-main-filename: ^2.0.0
+    set-blocking: ^2.0.0
+    string-width: ^3.0.0
+    which-module: ^2.0.0
+    y18n: ^4.0.0
+    yargs-parser: ^13.1.1
+  checksum: 50aac9a7248ecbd9b5a6dd93010696e4847a3c9e23ae162d6e0caf10b236a0a90b461abaeab7678ded83dbd118538a331b4ac6fc7f5d22ec650b2e77e6403d5c
   languageName: node
   linkType: hard
 
