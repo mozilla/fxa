@@ -12,11 +12,11 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import { LocationProvider } from '@reach/router';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
-import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
 }));
 
 const account = MOCK_ACCOUNT as unknown as Account;
@@ -91,7 +91,7 @@ describe('ConfirmResetPassword page', () => {
 
   it('emits the expected metrics on render', async () => {
     render(<ConfirmResetPassword />);
-    expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('renders a "Remember your password?" link', () => {

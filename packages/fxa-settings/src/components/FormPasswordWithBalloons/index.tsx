@@ -25,8 +25,6 @@ export type FormPasswordWithBalloonsProps = {
   getValues: UseFormMethods['getValues'];
   email: string;
   onFocusMetricsEvent?: string;
-  passwordMatchErrorText: string;
-  setPasswordMatchErrorText: React.Dispatch<React.SetStateAction<string>>;
   loading: boolean;
   children?: React.ReactNode;
 };
@@ -74,12 +72,12 @@ export const FormPasswordWithBalloons = ({
   register,
   getValues,
   onFocusMetricsEvent,
-  passwordMatchErrorText,
-  setPasswordMatchErrorText,
   loading,
   children,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
+  const [passwordMatchErrorText, setPasswordMatchErrorText] =
+    useState<string>('');
   const [hasNewPwdFocused, setHasNewPwdFocused] = useState<boolean>(false);
   const [hasUserTakenAction, setHasUserTakenAction] = useState<boolean>(false);
   const [isNewPwdBalloonVisible, setIsNewPwdBalloonVisible] =
@@ -155,14 +153,21 @@ export const FormPasswordWithBalloons = ({
     }
   };
 
-  const onBlurConfirmPassword = () => {
+  const onBlurConfirmPassword = useCallback(() => {
     passwordFormType === 'signup' &&
       isConfirmPwdBalloonVisible &&
       hideConfirmPwdBalloon();
 
     getValues('confirmPassword') !== getValues('newPassword') &&
       setPasswordMatchErrorText(localizedPasswordMatchError);
-  };
+  }, [
+    getValues,
+    hideConfirmPwdBalloon,
+    isConfirmPwdBalloonVisible,
+    localizedPasswordMatchError,
+    passwordFormType,
+    setPasswordMatchErrorText,
+  ]);
 
   return (
     <>
@@ -181,7 +186,6 @@ export const FormPasswordWithBalloons = ({
               onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}
               onBlurCb={onNewPwdBlur}
               onChange={() => {
-                trigger(['newPassword', 'confirmPassword']);
                 getValues('confirmPassword') === getValues('newPassword') &&
                   setPasswordMatchErrorText('');
               }}
@@ -242,10 +246,8 @@ export const FormPasswordWithBalloons = ({
               }
               onBlurCb={() => onBlurConfirmPassword()}
               onChange={() => {
-                if (passwordMatchErrorText) {
+                getValues('confirmPassword') === getValues('newPassword') &&
                   setPasswordMatchErrorText('');
-                }
-                trigger(['newPassword', 'confirmPassword']);
               }}
               hasErrors={errors.confirmPassword && passwordMatchErrorText}
               errorText={passwordMatchErrorText}

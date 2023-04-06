@@ -68,8 +68,6 @@ const Signup = ({
 
   const [ageCheckErrorText, setAgeCheckErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
-  const [passwordMatchErrorText, setPasswordMatchErrorText] =
-    useState<string>('');
   const [
     isAccountSuggestionBannerVisible,
     setIsAccountSuggestionBannerVisible,
@@ -206,8 +204,6 @@ const Signup = ({
           onFocus,
           email,
           onFocusMetricsEvent,
-          passwordMatchErrorText,
-          setPasswordMatchErrorText,
         }}
         passwordFormType="signup"
         onSubmit={handleSubmit(onSubmit)}

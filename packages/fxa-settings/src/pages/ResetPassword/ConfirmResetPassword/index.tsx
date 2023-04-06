@@ -5,7 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
-import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
 import { useAccount, useInterval } from '../../../models';
 import AppLayout from '../../../components/AppLayout';
@@ -23,7 +23,7 @@ export type ConfirmResetPasswordLocationState = {
 };
 
 const ConfirmResetPassword = (_: RouteComponentProps) => {
-  logPageViewEvent(viewName, REACT_ENTRYPOINT);
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const navigate = useNavigate();
   let { state } = useLocation();
