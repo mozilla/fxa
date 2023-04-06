@@ -26,12 +26,9 @@ const eventTypeNames = {
   submit: 'submit',
   success: 'success',
   fail: 'fail',
-  complete: 'complete',
   other: 'other',
 
   submit3DS: '3ds-submit',
-  success3DS: '3ds-success',
-  complete3DS: '3ds-complete',
 } as const;
 
 type GlobalEventProperties = {
@@ -206,11 +203,6 @@ export function updatePayment_FULFILLED(eventProperties: EventProperties) {
     eventTypeNames.success,
     eventProperties
   );
-  safeLogAmplitudeEvent(
-    eventGroupNames.updatePayment,
-    eventTypeNames.complete,
-    eventProperties
-  );
 }
 
 export function updatePayment_REJECTED(eventProperties: EventProperties) {
@@ -236,12 +228,7 @@ export function createSubscriptionWithPaymentMethod_FULFILLED(
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.createSubscriptionWithPaymentMethod,
-    eventTypeNames.success3DS,
-    eventProperties
-  );
-  safeLogAmplitudeEvent(
-    eventGroupNames.createSubscriptionWithPaymentMethod,
-    eventTypeNames.complete3DS,
+    eventTypeNames.success,
     eventProperties
   );
 }
@@ -271,12 +258,7 @@ export function updateDefaultPaymentMethod_FULFILLED(
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
-    eventTypeNames.success3DS,
-    eventProperties
-  );
-  safeLogAmplitudeEvent(
-    eventGroupNames.updateDefaultPaymentMethod,
-    eventTypeNames.complete3DS,
+    eventTypeNames.success,
     eventProperties
   );
 }
@@ -319,11 +301,6 @@ export function cancelSubscription_FULFILLED(eventProperties: EventProperties) {
   safeLogAmplitudeEvent(
     eventGroupNames.cancelSubscription,
     eventTypeNames.success,
-    eventProperties
-  );
-  safeLogAmplitudeEvent(
-    eventGroupNames.cancelSubscription,
-    eventTypeNames.complete,
     eventProperties
   );
 }
