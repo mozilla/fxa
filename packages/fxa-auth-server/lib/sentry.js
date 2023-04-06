@@ -19,6 +19,7 @@ const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
+const AppError = require('./error');
 const getVersion = require('./version').getVersion;
 const logger = require('./log')(config.log.level, 'sentry');
 
@@ -256,18 +257,56 @@ async function configureSentry(server, config, processName = 'key_server') {
  *                use the underlying jse_cause error if possible.
  */
 function ignoreErrors(error) {
-  if (!error) {
-    return;
+  // Short circuit for null / undefined errors.
+  if (error == null) {
+    return true;
   }
 
-  // Prefer jse_cause, but fallback to top level error if needed
-  const statusCode =
-    determineStatusCode(error.jse_cause) || determineStatusCode(error);
+  // Check if the error has an underlying cause. This will drill down until we
+  // leave the vError chain, and return the underlying error.
+  const cause = getRootCause(error);
 
-  const errno = error.jse_cause?.errno || error.errno;
+  // If the cause was an AppError, check if it is ignorable.
+  if (cause instanceof AppError) {
+    return (
+      IGNORED_ERROR_NUMBERS.includes(cause.errno) ||
+      determineStatusCode(cause) < 500
+    );
+  }
 
-  // Ignore non 500 status codes and specific error numbers
-  return statusCode < 500 || IGNORED_ERROR_NUMBERS.includes(errno);
+  // If the cause was null, but the top level error was an AppError, check if the top level error
+  // can be ignored.
+  if (cause == null && error instanceof AppError) {
+    return (
+      IGNORED_ERROR_NUMBERS.includes(error.errno) ||
+      determineStatusCode(error) < 500
+    );
+  }
+
+  // Otherwise, don't ignore the error. Either the cause wasn't an AppError,
+  // or the cause was null and the top level error wasn't an AppError.
+  return false;
+}
+
+/**
+ * Drill down the vError chain to find the underlying error.
+ * @param {Error} error
+ * @returns {Error|null}
+ */
+function getRootCause(error) {
+  const cause =
+    error?.jse_cause != null
+      ? error.jse_cause
+      : typeof error?.cause === 'function'
+      ? error.cause()
+      : null;
+
+  // We hit the end of the chain. Return the current error.
+  if (cause == null) {
+    return error;
+  }
+
+  return getRootCause(cause);
 }
 
 /**
@@ -287,5 +326,7 @@ module.exports = {
   configureSentry,
   reportSentryError,
   reportValidationError,
+  getRootCause,
+  ignoreErrors,
   formatMetadataValidationErrorMessage,
 };
