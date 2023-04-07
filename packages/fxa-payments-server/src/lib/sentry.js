@@ -166,6 +166,21 @@ SentryMetrics.prototype = {
     });
   },
 
+  /**
+   * Capture message to report to sentry.
+   *
+   * @param {*} message Passed to Sentry.captureMessage
+   * @param {*} contextKey Sentry.setContext key
+   * @param {*} context Sentry.setContext context object
+   * @param {*} severity Enum passed to Sentry.captureMessage to set severity level
+   */
+  captureMessage(message, contextKey, context, severity) {
+    Sentry.withScope(function(scope) {
+      scope.setContext(contextKey, context);
+      Sentry.captureMessage(message, severity);
+    });
+  },
+
   // Private functions, exposed for testing
   __beforeSend: beforeSend,
   __cleanUpQueryParam: cleanUpQueryParam,
