@@ -34,7 +34,7 @@ if (!program.input) {
 }
 
 const log = require('../lib/log')({});
-const config = require('../config').getProperties();
+const config = require('../config').config.getProperties();
 const Token = require('../lib/tokens')(log, config);
 const AuthDB = require('../lib/db')(config, log, Token);
 const Password = require('../lib/crypto/password')(log, config);
