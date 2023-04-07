@@ -12,7 +12,7 @@ const path = require('path');
 const TestServer = require('../test_server');
 
 const execAsync = util.promisify(cp.exec);
-const config = require('../../config').getProperties();
+const config = require('../../config').config.getProperties();
 const fs = require('fs');
 
 const mocks = require(`${ROOT_DIR}/test/mocks`);
@@ -87,13 +87,14 @@ describe('#integration - scripts/check-users:', async function () {
   });
 
   it('creates csv file with user stats', async () => {
+    const outfile = `./test/scripts/fixtures/${Math.random()}_stats.csv`;
     await execAsync(
-      `node -r esbuild-register scripts/check-users -i ${filename} -o ./test/scripts/fixtures/stats.csv`,
+      `node -r esbuild-register scripts/check-users -i ${filename} -o ${outfile}`,
       execOptions
     );
 
     // Verify the output file was created and its content are correct
-    const data = fs.readFileSync('./test/scripts/fixtures/stats.csv', 'utf8');
+    const data = fs.readFileSync(outfile, 'utf8');
     const usersStats = data.split('\n');
 
     assert.equal(usersStats.length, 4);
