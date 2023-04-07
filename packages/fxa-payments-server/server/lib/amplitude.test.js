@@ -95,6 +95,7 @@ const mocks = {
     headers: {
       'user-agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0',
+      'accept-language': 'en-US,en;q=0.7,de-DE;q=0.3'
     },
   },
 };
@@ -145,13 +146,12 @@ describe('lib/amplitude', () => {
       flowBeginTime: 1570000000000,
       flowId:
         '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
-      lang: 'gd',
+      lang: 'en-US',
     };
     mockAmplitudeConfig.rawEvents = true;
     amplitude(mocks.event, mocks.request, {
       ...mocks.data,
       useless: 'junk',
-      lang: 'gd',
     });
     expect(log.info).toHaveBeenCalledTimes(2);
     expect(log.info.mock.calls[0][0]).toMatch('rawAmplitudeData');
@@ -212,6 +212,7 @@ describe('lib/amplitude', () => {
         app_version: '148.8',
         os_name: 'Mac OS X',
         os_version: '10.14',
+        language: 'en-US',
         event_properties: {},
         user_properties: {
           flow_id:

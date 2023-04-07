@@ -179,5 +179,17 @@
     "event_properties",
     "user_properties"
   ],
-  "anyOf": [{ "required": ["user_id"] }, { "required": ["device_id"] }]
+  "anyOf": [{ "required": ["user_id"] }, { "required": ["device_id"] }],
+  "if": {
+    "$comment": "For event_type's matching the pattern below, make language a required field",
+    "properties": {
+      "event_type": {
+        "type": "string",
+        "pattern": "^fxa_pay_setup -|fxa_pay_subscription_change -"
+      }
+    }
+  },
+  "then": {
+    "required": ["language"]
+  }
 }
