@@ -18,7 +18,7 @@ enum tokenType {
   passwordChangeToken = 'passwordChangeToken',
 }
 
-enum AUTH_PROVIDER {
+export enum AUTH_PROVIDER {
   GOOGLE = 'google',
   APPLE = 'apple',
 }

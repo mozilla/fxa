@@ -44,6 +44,7 @@ import { LinkType } from 'fxa-settings/src/lib/types';
 import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import WebChannelExample from '../../pages/WebChannelExample';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
+import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 
 export const App = ({
   flowQueryParams,
@@ -200,6 +201,8 @@ export const App = ({
 
               <Confirm path="/confirm/*" {...{ sessionTokenId }} />
               <ConfirmSignupCode path="/confirm_signup_code/*" />
+
+              <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
             </>
           )}
           <Settings path="/settings/*" />

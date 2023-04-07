@@ -7,6 +7,7 @@ import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
 import { ThrottledError } from 'fxa-graphql-api/src/gql/lib/error';
 import config from '../lib/config';
 import AuthClient, {
+  AUTH_PROVIDER,
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/browser';
@@ -861,6 +862,19 @@ export class Account implements AccountData {
         },
       },
     });
+  }
+
+  async verifyAccountThirdParty(
+    code: string,
+    provider: AUTH_PROVIDER
+  ): Promise<{
+    uid: hexstring;
+    sessionToken: hexstring;
+    verified: boolean;
+  }> {
+    return this.withLoadingStatus(
+      this.authClient.verifyAccountThirdParty(code, provider)
+    );
   }
 
   // TODO: Move this method to the Session model - this method was temporarily added to the Account model

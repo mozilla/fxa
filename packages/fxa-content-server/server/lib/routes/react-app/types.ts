@@ -55,6 +55,7 @@ type ShowReactApp = {
   postVerifyAddRecoveryKeyRoutes: boolean;
   postVerifyCADViaQRRoutes: boolean;
   signInVerificationViaPushRoutes: boolean;
+  postVerifyThirdPartyAuthRoutes: boolean;
   webChannelExampleRoutes: boolean;
 };
 

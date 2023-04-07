@@ -4,7 +4,16 @@
 
 import React from 'react';
 import ThirdPartyAuth, { ThirdPartyAuthProps } from '.';
+import { AppContext } from '../../models';
+import { mockAppContext } from '../../models/mocks';
+import { LocationProvider } from '@reach/router';
 
 export const Subject = (props: ThirdPartyAuthProps) => {
-  return <ThirdPartyAuth {...props} />;
+  return (
+    <AppContext.Provider value={mockAppContext()}>
+      <LocationProvider>
+        <ThirdPartyAuth {...props} />;
+      </LocationProvider>
+    </AppContext.Provider>
+  );
 };

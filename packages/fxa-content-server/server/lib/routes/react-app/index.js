@@ -85,6 +85,11 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: [],
     },
 
+    postVerifyThirdPartyAuthRoutes: {
+      featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
+      routes: reactRoute.getRoutes(['post_verify/third_party_auth/callback']),
+    },
+
     signInVerificationViaPushRoutes: {
       featureFlagOn: showReactApp.signInVerificationViaPushRoutes,
       routes: [],

@@ -49,6 +49,18 @@ export interface Config {
   };
   showRecoveryKeyV2: boolean;
   version: string;
+  googleAuthConfig: {
+    enabled: boolean;
+    clientId: string;
+    redirectUri: string;
+    authorizationEndpoint: string;
+  };
+  appleAuthConfig: {
+    enabled: boolean;
+    clientId: string;
+    redirectUri: string;
+    authorizationEndpoint: string;
+  };
 }
 
 export function getDefault() {
@@ -90,6 +102,18 @@ export function getDefault() {
       length: 10,
     },
     showRecoveryKeyV2: false,
+    googleAuthConfig: {
+      enabled: false,
+      clientId: '',
+      redirectUri: '',
+      authorizationEndpoint: '',
+    },
+    appleAuthConfig: {
+      enabled: false,
+      clientId: '',
+      redirectUri: '',
+      authorizationEndpoint: '',
+    }
   } as Config;
 }
 
@@ -103,6 +127,7 @@ export function readConfigMeta(
   }
 
   const metaConfig = decode(metaEl.getAttribute('content'));
+
   update(metaConfig);
 }
 

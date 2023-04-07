@@ -5,7 +5,7 @@
 const { getServerReactRouteGroups } = require('./route-groups-server');
 const config = require('../../configuration');
 
-/** Add all routes routes from all route objects for fxa-settings or fxa-content-server to serve.
+/** Add all routes from all route objects for fxa-settings or fxa-content-server to serve.
  * @type {import("./types").AddRoutes}
  */
 function addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n) {
