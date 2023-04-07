@@ -12,6 +12,7 @@ import InputPassword from '../../components/InputPassword';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
 import CardHeader from '../../components/CardHeader';
+import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 
 export type SigninProps = {
   email: string;
@@ -129,6 +130,10 @@ const Signin = ({
             </FtlMsg>
           </div>
         </form>
+
+        {/* TODO: We will need to pull the enabled flag from feature flags or experiment data
+         */}
+        <ThirdPartyAuth {...{ enabled: false }} />
 
         <TermsPrivacyAgreement {...{ isPocketClient }} />
 
