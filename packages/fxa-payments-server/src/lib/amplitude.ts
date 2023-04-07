@@ -27,8 +27,6 @@ const eventTypeNames = {
   success: 'success',
   fail: 'fail',
   other: 'other',
-
-  submit3DS: '3ds-submit',
 } as const;
 
 type GlobalEventProperties = {
@@ -248,7 +246,7 @@ export function updateDefaultPaymentMethod_PENDING(
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.updateDefaultPaymentMethod,
-    eventTypeNames.submit3DS,
+    eventTypeNames.submit,
     eventProperties
   );
 }
