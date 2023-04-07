@@ -11,7 +11,7 @@ const base64url = require('base64url');
 const proxyquire = require('proxyquire');
 const log = { trace() {}, info() {}, error() {}, debug() {}, warn() {} };
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const Token = require('../../lib/tokens')(log);
 const DB = require('../../lib/db')(config, log, Token);

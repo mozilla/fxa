@@ -33,7 +33,7 @@ function isLocalHost(url) {
 
 module.exports = ({ log, oauthDB, config }) => {
   if (!config) {
-    config = require('../../../config').getProperties();
+    config = require('../../../config').default.getProperties();
   }
   const MAX_TTL_S = config.oauthServer.expiration.accessToken / 1000;
 

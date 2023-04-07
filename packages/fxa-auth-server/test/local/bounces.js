@@ -7,7 +7,7 @@
 const ROOT_DIR = '../..';
 
 const assert = require('assert');
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const createBounces = require(`${ROOT_DIR}/lib/bounces`);
 const error = require(`${ROOT_DIR}/lib/error`);
 const sinon = require('sinon');

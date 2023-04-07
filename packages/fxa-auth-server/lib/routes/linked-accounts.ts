@@ -347,7 +347,7 @@ export const linkedAccountRoutes = (
   ];
 };
 
-module.exports = {
+export default {
   linkedAccountRoutes,
   LinkedAccountHandler,
 };

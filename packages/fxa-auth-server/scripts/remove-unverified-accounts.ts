@@ -12,7 +12,7 @@
 //import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 //import { StripeHelper } from '../lib/payments/stripe';
 //import { reportSentryError } from '../lib/sentry';
-//const config = require('../config').getProperties();
+//const config = require('../config').default.getProperties();
 
 // export async function retreiveUnverifiedAccounts(
 //   database: any

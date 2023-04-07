@@ -16,7 +16,7 @@ describe('#integration - remote change email', function () {
   this.timeout(30000);
 
   before(() => {
-    config = require('../../config').getProperties();
+    config = require('../../config').default.getProperties();
     config.securityHistory.ipProfiling = {};
     return TestServer.start(config).then((s) => {
       server = s;

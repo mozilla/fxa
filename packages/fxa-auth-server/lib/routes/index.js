@@ -161,7 +161,7 @@ module.exports = function (
     customs,
     mailer
   );
-  const subscriptions = require('./subscriptions')(
+  const subscriptions = require('./subscriptions').default(
     log,
     db,
     config,

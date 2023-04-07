@@ -10,7 +10,7 @@ import sinon from 'sinon';
 import PushboxDB from '../../../lib/pushbox/db';
 
 const sandbox = sinon.createSandbox();
-const config = require('../../../config').getProperties();
+const config = require('../../../config').default.getProperties();
 const statsd = {
   increment: sandbox.stub(),
   timing: sandbox.stub(),

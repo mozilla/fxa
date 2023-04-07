@@ -11,7 +11,7 @@ const Client = require('../client')();
 const superagent = require('superagent');
 const hawk = require('@hapi/hawk');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 describe('remote misc', function () {
   this.timeout(15000);

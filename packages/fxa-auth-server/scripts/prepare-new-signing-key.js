@@ -18,7 +18,7 @@
 const fs = require('fs');
 const assert = require('assert');
 const keys = require('../lib/oauth/keys');
-const config = require('../config');
+const { config } = require('../config');
 
 function main(cb) {
   cb = cb || (() => {});

@@ -4,7 +4,7 @@
 
 'use strict';
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const hapi = require('@hapi/hapi');
 const url = require('url');
 

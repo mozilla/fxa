@@ -155,7 +155,9 @@ describe('support', () => {
       email: TEST_EMAIL,
     });
 
-    zendeskClient = require('../../../lib/zendesk-client')(config);
+    zendeskClient = require('../../../lib/zendesk-client').createZendeskClient(
+      config
+    );
   });
 
   requestOptions = {

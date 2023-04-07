@@ -10,7 +10,7 @@ const DEFAULT_TTL_MS = 900000;
 
 export async function init() {
   // Setup utilities
-  const config = require('../config').getProperties();
+  const config = require('../config').default.getProperties();
   const statsd = new StatsD({ ...config.statsd, maxBufferSize: 0 });
   const log = require('../lib/log')(
     config.log.level,

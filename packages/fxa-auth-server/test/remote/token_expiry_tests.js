@@ -23,7 +23,7 @@ describe('#integration - remote token expiry', function () {
   this.timeout(15000);
   let server, config;
   before(() => {
-    config = require('../../config').getProperties();
+    config = require('../../config').default.getProperties();
     config.tokenLifetimes.passwordChangeToken = 1;
     config.tokenLifetimes.sessionTokenWithoutDevice = 1;
 

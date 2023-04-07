@@ -8,7 +8,7 @@
 const MailParser = require('mailparser').MailParser;
 const simplesmtp = require('simplesmtp');
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 
 const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 

@@ -7,7 +7,7 @@ const Joi = require('joi');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const authServerValidators = require('../routes/validators');
 
-const config = require('../../config');
+const { config } = require('../../config');
 
 exports.HEX_STRING = /^(?:[0-9a-f]{2})+$/;
 exports.B64URL_STRING = /^[A-Za-z0-9-_]+$/;

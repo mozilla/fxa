@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const retry = require('async-retry');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 config.redis.sessionTokens.enabled = false;
 const key = {
   algorithm: 'RS',

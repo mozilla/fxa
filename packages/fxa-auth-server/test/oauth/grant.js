@@ -7,7 +7,7 @@ const sinon = require('sinon');
 const proxyquire = require('proxyquire');
 const { default: Container } = require('typedi');
 
-const config = require('../../config');
+const { config } = require('../../config');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const AppError = require('../../lib/oauth/error');
 const { decodeJWT } = require('../lib/util');
@@ -274,18 +274,20 @@ describe('generateTokens', () => {
     mockCapabilityService = {};
 
     mockConfig = {
-      get(key) {
-        switch (key) {
-          case 'oauthServer.jwtAccessTokens.enabled': {
-            return true;
+      config: {
+        get(key) {
+          switch (key) {
+            case 'oauthServer.jwtAccessTokens.enabled': {
+              return true;
+            }
+            case 'oauthServer.jwtAccessTokens.enabledClientIds': {
+              return ['9876543210'];
+            }
+            default: {
+              return config.get(key);
+            }
           }
-          case 'oauthServer.jwtAccessTokens.enabledClientIds': {
-            return ['9876543210'];
-          }
-          default: {
-            return config.get(key);
-          }
-        }
+        },
       },
     };
 

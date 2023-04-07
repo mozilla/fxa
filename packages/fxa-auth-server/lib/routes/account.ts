@@ -2074,8 +2074,3 @@ export const accountRoutes = (
 
   return routes;
 };
-
-module.exports = {
-  accountRoutes,
-  AccountHandler,
-};

@@ -4,7 +4,7 @@
 
 const unique = require('../unique');
 const encrypt = require('fxa-shared/auth/encrypt');
-const config = require('../../../config');
+const { config } = require('../../../config');
 const MAX_TTL = config.get('oauthServer.expiration.accessToken');
 
 const { AccessToken } = require('fxa-shared/db/models/auth/access-token');

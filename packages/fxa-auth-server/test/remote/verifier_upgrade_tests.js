@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const log = { trace() {}, info() {}, debug() {}, warn() {}, error() {} };
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 const Token = require('../../lib/tokens')(log);
 const DB = require('../../lib/db')(

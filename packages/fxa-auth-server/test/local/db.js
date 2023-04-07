@@ -10,7 +10,7 @@ const { assert } = require('chai');
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 const models = {
   Device: {

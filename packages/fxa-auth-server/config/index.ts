@@ -2106,4 +2106,5 @@ if (convictConf.get('isProduction')) {
 export type conf = typeof convictConf;
 export type ConfigType = ReturnType<conf['getProperties']>;
 
-module.exports = convictConf;
+export { convictConf as config };
+export default convictConf;

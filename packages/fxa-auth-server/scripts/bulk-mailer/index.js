@@ -5,7 +5,7 @@
 'use strict';
 
 const chunk = require('lodash.chunk');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const readUserRecords = require('./read-user-records');
 const sendEmailBatches = require('./send-email-batches');
 const Senders = require('../../lib/senders');

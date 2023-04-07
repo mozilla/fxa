@@ -4,7 +4,7 @@
 
 const hex = require('buf').to.hex;
 const hkdf = require('../../lib/crypto/hkdf');
-const config = require('../../config');
+const { config } = require('../../config');
 const validators = require('./validators');
 
 const PPID_ENABLED = config.get('oauthServer.ppid.enabled');

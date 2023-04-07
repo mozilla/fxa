@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const jwtool = require('fxa-jwtool');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 config.redis.sessionTokens.enabled = false;
 const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 

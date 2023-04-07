@@ -13,7 +13,7 @@ import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { STRIPE_INVOICE_METADATA, StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 
 class PayPalFixer {
   private stripe: stripe;

@@ -12,7 +12,7 @@ const path = require('path');
 const mocks = require(`../../test/mocks`);
 const crypto = require('crypto');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );

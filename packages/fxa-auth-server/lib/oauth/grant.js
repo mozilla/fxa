@@ -7,7 +7,7 @@ const hex = require('buf').to.hex;
 const { Container } = require('typedi');
 
 const { CapabilityService } = require('../payments/capability');
-const config = require('../../config');
+const { config } = require('../../config');
 const OauthError = require('./error');
 const db = require('./db');
 const util = require('./util');

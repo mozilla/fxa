@@ -4,7 +4,7 @@
 
 'use strict';
 
-const config = require('../config');
+const { config } = require('../config');
 
 // Must be required and initialized right away
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
@@ -155,7 +155,9 @@ async function run(config) {
   const Password = require('../lib/crypto/password')(log, config);
   const Customs = require('../lib/customs')(log, error, statsd);
   const customs = new Customs(config.customsUrl);
-  const zendeskClient = require('../lib/zendesk-client')(config);
+  const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
+    config
+  );
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,

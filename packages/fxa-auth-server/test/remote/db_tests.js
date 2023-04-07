@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 const base64url = require('base64url');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const crypto = require('crypto');
 const sinon = require('sinon');
 const TestServer = require('../test_server');

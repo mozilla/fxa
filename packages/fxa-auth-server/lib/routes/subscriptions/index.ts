@@ -18,7 +18,7 @@ import { stripeWebhookRoutes } from './stripe-webhook';
 import { supportRoutes } from './support';
 import { handleAuth } from './utils';
 
-const createRoutes = (
+export const createRoutes = (
   log: AuthLogger,
   db: any,
   config: ConfigType,
@@ -104,7 +104,5 @@ const createRoutes = (
   return routes;
 };
 
-module.exports = createRoutes;
-module.exports.DirectStripeRoutes = StripeHandler;
-module.exports.handleAuth = handleAuth;
-module.exports.sanitizePlans = sanitizePlans;
+export default createRoutes;
+export { handleAuth, sanitizePlans, StripeHandler as DirectStripeRoutes };

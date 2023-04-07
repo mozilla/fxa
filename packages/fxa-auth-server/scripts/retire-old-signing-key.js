@@ -16,7 +16,7 @@
 //eslint-disable no-console
 
 const fs = require('fs');
-const config = require('../config');
+const { config } = require('../config');
 
 // We don't use this, but we load it to check key config.
 require('../lib/oauth/keys');

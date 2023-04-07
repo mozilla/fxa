@@ -4,7 +4,7 @@
 
 const hex = require('buf').to.hex;
 
-const config = require('../../../config');
+const { config } = require('../../../config');
 const encrypt = require('fxa-shared/auth/encrypt');
 const mysql = require('./mysql');
 const redis = require('./redis');

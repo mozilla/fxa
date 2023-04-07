@@ -32,5 +32,3 @@ export const createZendeskClient = (config: Record<string, any>) => {
 
   return zendeskClient;
 };
-
-module.exports = createZendeskClient;

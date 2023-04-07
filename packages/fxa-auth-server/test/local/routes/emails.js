@@ -216,7 +216,9 @@ describe('update zendesk primary email', () => {
         productNameFieldId: '192837465',
       },
     };
-    zendeskClient = require('../../../lib/zendesk-client')(config);
+    zendeskClient = require('../../../lib/zendesk-client').createZendeskClient(
+      config
+    );
     searchSpy = sinon.spy(zendeskClient.search, 'queryAll');
     listSpy = sinon.spy(zendeskClient.useridentities, 'list');
     updateSpy = sinon.spy(zendeskClient, 'updateIdentity');

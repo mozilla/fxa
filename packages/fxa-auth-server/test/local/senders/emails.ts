@@ -25,7 +25,7 @@ import {
 } from '../../../lib/senders/emails/partials/userDevice/mocks';
 
 const moment = require('moment-timezone');
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const { assert } = chai;
 if (!config.smtp.prependVerificationSubdomain.enabled) {
   config.smtp.prependVerificationSubdomain.enabled = true;

@@ -9,7 +9,7 @@
 'use strict';
 
 const assert = require('assert');
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const crypto = require('crypto');
 const error = require('../lib/error');
 const knownIpLocation = require('./known-ip-location');
@@ -230,7 +230,7 @@ module.exports = {
   mockPlaySubscriptions,
   mockAppStoreSubscriptions,
   mockAccountEventsManager,
-  unMockAccountEventsManager
+  unMockAccountEventsManager,
 };
 
 function mockCustoms(errors) {
@@ -877,12 +877,12 @@ function mockAppStoreSubscriptions(methods) {
 function mockAccountEventsManager() {
   const mgr = {
     recordSecurityEvent: sinon.stub(),
-    recordEmailEvent: sinon.stub()
+    recordEmailEvent: sinon.stub(),
   };
-  Container.set(AccountEventsManager, mgr)
+  Container.set(AccountEventsManager, mgr);
   return mgr;
 }
 
 function unMockAccountEventsManager() {
-  Container.remove(AccountEventsManager)
+  Container.remove(AccountEventsManager);
 }

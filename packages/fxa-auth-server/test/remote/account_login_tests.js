@@ -9,7 +9,7 @@ const Client = require('../client')();
 const crypto = require('crypto');
 const TestServer = require('../test_server');
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 describe('remote account login', () => {
   let server;

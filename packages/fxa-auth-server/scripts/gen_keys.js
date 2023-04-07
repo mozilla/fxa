@@ -32,7 +32,7 @@ if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
 }
 
-const config = require('../config');
+const { config } = require('../config');
 const pubKeyFile = config.get('publicKeyFile');
 const secretKeyFile = config.get('secretKeyFile');
 

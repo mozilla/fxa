@@ -11,7 +11,7 @@ const util = require('util');
 const jwt = require('jsonwebtoken');
 const jwtSign = util.promisify(jwt.sign);
 
-const config = require('../../config');
+const { config } = require('../../config');
 const unique = require('../../lib/oauth/unique');
 
 const verifyAssertion = require('../../lib/oauth/assertion');

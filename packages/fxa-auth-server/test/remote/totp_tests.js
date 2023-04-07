@@ -6,7 +6,7 @@
 
 const { assert } = require('chai');
 const crypto = require('crypto');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const TestServer = require('../test_server');
 const Client = require('../client')();
 const otplib = require('otplib');

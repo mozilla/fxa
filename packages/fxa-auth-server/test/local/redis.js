@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const AccessToken = require('../../lib/oauth/db/accessToken');
 const RefreshTokenMetadata = require('../../lib/oauth/db/refreshTokenMetadata');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
 
 const recordLimit = 20;

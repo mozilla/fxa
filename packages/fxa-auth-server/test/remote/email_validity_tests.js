@@ -8,7 +8,7 @@ const { assert } = require('chai');
 const TestServer = require('../test_server');
 const Client = require('../client')();
 
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 describe('remote email validity', function () {
   this.timeout(15000);

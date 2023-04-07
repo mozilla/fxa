@@ -6,7 +6,7 @@ const { assert } = require('chai');
 const jsonwebtoken = require('jsonwebtoken');
 
 const AppError = require('../../lib/oauth/error');
-const config = require('../../config');
+const { config } = require('../../config');
 const JWTIdToken = require('../../lib/oauth/jwt_id_token');
 const {
   SIGNING_PEM,

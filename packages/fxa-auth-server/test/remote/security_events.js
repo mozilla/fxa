@@ -7,7 +7,7 @@
 const { assert } = require('chai');
 const Client = require('../client')();
 const TestServer = require('../test_server');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 
 function resetPassword(client, code, newPassword, options) {
   return client.verifyPasswordResetCode(code).then(() => {

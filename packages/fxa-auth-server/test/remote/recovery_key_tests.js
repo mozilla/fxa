@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const crypto = require('crypto');
 const TestServer = require('../test_server');
 const Client = require('../client')();

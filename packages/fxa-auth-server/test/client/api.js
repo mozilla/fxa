@@ -86,7 +86,7 @@ module.exports = (config) => {
         if (!ignoreCors && allowedOrigin) {
           // Requiring config outside this condition causes the local tests to fail
           // because tokenLifetimes.passwordChangeToken is -1
-          const config = require('../../config');
+          const { config } = require('../../config');
           const corsOrigin = config.get('corsOrigin');
           if (corsOrigin.indexOf(allowedOrigin) < 0) {
             return reject(

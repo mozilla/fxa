@@ -15,7 +15,7 @@ const path = require('path');
 
 cp.execAsync = promisify(cp.exec);
 
-const config = require(`${ROOT_DIR}/config`).getProperties();
+const config = require(`${ROOT_DIR}/config`).default.getProperties();
 const redis = require(`${LIB_DIR}/redis`)(
   {
     ...config.redis,

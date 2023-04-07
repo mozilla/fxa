@@ -10,7 +10,7 @@ import { FirestorePopulator } from './populate-firestore-customers/firestore-pop
 const pckg = require('../package.json');
 
 export async function init() {
-  const config = require('../config').getProperties();
+  const config = require('../config').default.getProperties();
 
   program
     .version(pckg.version)

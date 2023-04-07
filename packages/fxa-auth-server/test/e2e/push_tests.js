@@ -5,7 +5,7 @@
 'use strict';
 
 const { assert } = require('chai');
-const config = require('../../config').getProperties();
+const config = require('../../config').default.getProperties();
 const { mockDB, mockLog } = require('../mocks');
 const { PushManager } = require('../push_helper');
 
