@@ -1180,6 +1180,7 @@ workflows:
             - fail-fast
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
+          resource_class: xlarge
           requires:
             - Build (nightly)
       - on-complete:
