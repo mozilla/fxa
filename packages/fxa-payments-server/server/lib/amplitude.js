@@ -31,6 +31,7 @@ const remoteAddress =
 const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
   remoteAddress
 )(log);
+const {determineLocale} = require('fxa-shared/l10n/determineLocale')
 
 const FUZZY_EVENTS = new Map([
   [
@@ -69,10 +70,18 @@ function getCountryCode(location) {
   return null;
 }
 
+function getLanguage(request) {
+  return determineLocale(request.headers['accept-language']);
+}
+
 const amplitude = (event, request, data) => {
   const statsd = Container.get(StatsD);
   if (!amplitudeConfig.enabled || !event || !request || !data) {
     return;
+  }
+
+  const additionalData = {
+    lang: getLanguage(request),
   }
 
   if (amplitudeConfig.rawEvents) {
@@ -107,6 +116,9 @@ const amplitude = (event, request, data) => {
       if (data[v] !== undefined) {
         acc[v] = data[v];
       }
+      if (additionalData[v] !== undefined) {
+        acc[v] = additionalData[v];
+      }
       return acc;
     }, {});
     const rawEvent = {
@@ -133,6 +145,7 @@ const amplitude = (event, request, data) => {
     ...mapFormFactor(userAgent),
     ...mapLocation(data.location),
     ...data,
+    ...additionalData,
   });
 
   if (amplitudeEvent) {

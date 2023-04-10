@@ -467,4 +467,199 @@ describe('metrics/amplitude:', () => {
       });
     });
   });
+
+  describe('validate', () => {
+    const minimumEvent = {
+      device_id: '9ce8626e11ab4238981287fb95c8545e',
+      event_properties: {
+        service: 'qux',
+      },
+      event_type: 'fxa_connect_device - blee',
+      op: 'amplitudeEvent',
+      time: 1680884839890,
+      user_id: '9ce8626e11ab4238981287fb95c8545e',
+      user_properties: {
+        flow_id:
+          'aed8442f52e9af1694ff13bf1f4523815e651e0c0e7242c72fb46069fa9adaee',
+      },
+    };
+    it('success', () => {
+      const result = amplitude.validate(minimumEvent);
+      assert.isTrue(result);
+    });
+
+    it('success - if event_type is `fxa_pay_setup - *` and language is provided', () => {
+      const event = {
+        ...minimumEvent,
+        event_type: 'fxa_pay_setup - view',
+        language: 'en',
+      };
+      const result = amplitude.validate(event);
+      assert.isTrue(result);
+    });
+
+    it('success - if event_type is `fxa_pay_subscription_change - *` and language is provided', () => {
+      const event = {
+        ...minimumEvent,
+        event_type: 'fxa_pay_subscription_change - view',
+        language: 'en',
+      };
+      const result = amplitude.validate(event);
+      assert.isTrue(result);
+    });
+
+    it('errors - op required', () => {
+      const event = {
+        ...minimumEvent,
+      };
+      delete event.op;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'op'`
+        );
+      }
+    });
+
+    it('errors - event_type required', () => {
+      const event = {
+        ...minimumEvent,
+      };
+      delete event.event_type;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type'`
+        );
+      }
+    });
+
+    it('errors - event_type required and language is provided', () => {
+      const event = {
+        ...minimumEvent,
+        language: 'en-US',
+      };
+      delete event.event_type;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'event_type'`
+        );
+      }
+    });
+
+    it('errors - time required', () => {
+      const event = {
+        ...minimumEvent,
+      };
+      delete event.time;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'time'`
+        );
+      }
+    });
+    it('errors - event_properties required', () => {
+      const event = {
+        ...minimumEvent,
+      };
+      delete event.event_properties;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'event_properties'`
+        );
+      }
+    });
+
+    it('errors - user_properties required', () => {
+      const event = {
+        ...minimumEvent,
+      };
+      delete event.user_properties;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'user_properties'`
+        );
+      }
+    });
+
+    it('errors - if event_type is `fxa_pay_setup - *` and language is undefined', () => {
+      const event = {
+        ...minimumEvent,
+        event_type: 'fxa_pay_setup - view',
+      };
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'language', event must match "then" schema`
+        );
+      }
+    });
+
+    it('errors - if event_type is `fxa_pay_subscription_change - *` and language is undefined', () => {
+      const event = {
+        ...minimumEvent,
+        event_type: 'fxa_pay_subscription_change - view',
+      };
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'language', event must match "then" schema`
+        );
+      }
+    });
+
+    it('errors - if event_type is `fxa_pay_setup - *` and language and op are undefined', () => {
+      const event = {
+        ...minimumEvent,
+        event_type: 'fxa_pay_setup - view',
+      };
+      delete event.op;
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'op'`
+        );
+      }
+    });
+  });
 });
