@@ -111,6 +111,12 @@ const conf = convict({
       env: 'GEODB_ENABLED',
       format: Boolean,
     },
+    locationOverride: {
+      doc: 'override for forcing location',
+      format: Object,
+      default: {},
+      env: 'GEODB_LOCATION_OVERRIDE',
+    },
   },
   hstsEnabled: {
     default: true,

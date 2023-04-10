@@ -360,6 +360,7 @@ export const amplitude = {
           session_id: data.flowBeginTime,
           app_version: version,
           language: data.lang,
+          countryCode: data.countryCode,
           country: data.country,
           region: data.region,
           os_name: data.os,

@@ -508,6 +508,15 @@ describe('metrics/amplitude:', () => {
       assert.isTrue(result);
     });
 
+    it('success if countryCode is 2 characters code', () => {
+      const event = {
+        ...minimumEvent,
+        countryCode: 'US',
+      };
+      const result = amplitude.validate(event);
+      assert.isTrue(result);
+    });
+
     it('errors - op required', () => {
       const event = {
         ...minimumEvent,
@@ -640,6 +649,40 @@ describe('metrics/amplitude:', () => {
         assert.equal(
           err.message,
           `Invalid data: event must have required property 'language', event must match "then" schema`
+        );
+      }
+    });
+
+    it('errors if countryCode is more than 2 characters', () => {
+      const event = {
+        ...minimumEvent,
+        countryCode: 'USA',
+      };
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event/countryCode must match pattern "^[A-Z]{2}$"`
+        );
+      }
+    });
+
+    it('errors if countryCode less than 2 characters', () => {
+      const event = {
+        ...minimumEvent,
+        countryCode: 'U',
+      };
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event/countryCode must match pattern "^[A-Z]{2}$"`
         );
       }
     });

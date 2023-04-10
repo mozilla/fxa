@@ -210,6 +210,7 @@ describe('lib/amplitude', () => {
         device_id: 'QUUX',
         session_id: 1570000000000,
         app_version: '148.8',
+        countryCode: "DE",
         os_name: 'Mac OS X',
         os_version: '10.14',
         language: 'en-US',
@@ -285,6 +286,24 @@ describe('lib/amplitude', () => {
   describe('geoDB location helpers', () => {
     describe('getLocation', () => {
       it('geolocates when geoDB is enabled', () => {
+        const expected = { ...mockLocation };
+        const actual = getLocation(mocks.request);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('uses locationOverride if present', () => {
+        mockGeoDBConfig.locationOverride = { location: {}};
+        const expected = {};
+        const actual = getLocation(mocks.request);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('returns the countryCode specified in locationOverride', () => {
+        mockGeoDBConfig.locationOverride = { location: { countryCode: 'US'}};
+        const expected = { countryCode: 'US' };
+        const actual = getLocation(mocks.request);
+        expect(actual).toStrictEqual(expected);
+      });
+      it('does not use locationOverride with default value', () => {
+        mockGeoDBConfig.locationOverride = {};
         const expected = { ...mockLocation };
         const actual = getLocation(mocks.request);
         expect(actual).toStrictEqual(expected);
