@@ -41,7 +41,7 @@ describe('metrics', () => {
   });
 
   it('Initializes metrics flow data when present', async () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
+    (useInitialState as jest.Mock).mockReturnValue({ loading: true });
     const DEVICE_ID = 'yoyo';
     const BEGIN_TIME = 123456;
     const FLOW_ID = 'abc123';

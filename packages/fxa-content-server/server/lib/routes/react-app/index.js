@@ -55,6 +55,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_reported',
         'signin_confirmed',
         'signin_verified',
+        'signin_bounced',
       ]),
     },
 

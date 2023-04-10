@@ -8,6 +8,7 @@ import { ScrollToTop } from '../Settings/ScrollToTop';
 import { sessionToken } from '../../lib/cache';
 import { useInitialState, useAccount, useConfig } from '../../models';
 import * as Metrics from '../../lib/metrics';
+import Storage from '../../lib/storage';
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
 
@@ -36,6 +37,7 @@ import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
 import SigninReported from '../../pages/Signin/SigninReported';
+import SigninBounced from '../../pages/Signin/SigninBounced';
 import AccountRecoveryResetPassword from '../../pages/ResetPassword/AccountRecoveryResetPassword';
 import LinkValidator from '../LinkValidator';
 import { LinkType } from 'fxa-settings/src/lib/types';
@@ -51,6 +53,10 @@ export const App = ({
   const { showReactApp } = flowQueryParams;
   const { loading, error } = useInitialState();
   const { metricsEnabled } = useAccount();
+  const [email, setEmail] = useState<string>();
+  const [emailLookupComplete, setEmailLookupComplete] =
+    useState<boolean>(false);
+
   const config = useConfig();
   const sessionTokenId = sessionToken();
 
@@ -87,6 +93,27 @@ export const App = ({
       }
     }
   }, [metricsEnabled, config.sentry, config.version, loading, isSignedIn]);
+
+  useEffect(() => {
+    if (Storage.isLocalStorageEnabled(window)) {
+      let uniqueUserId = JSON.parse(
+        localStorage.getItem('__fxa_storage.currentAccountUid') || '{}'
+      );
+
+      const accounts: Array<{ email: string; uid: string }> = JSON.parse(
+        localStorage.getItem('__fxa_storage.accounts') || '{}'
+      );
+
+      const currentUser = Object.values(accounts).find(
+        (x) => x.uid === uniqueUserId
+      );
+
+      if (currentUser) {
+        setEmail(currentUser.email);
+      }
+      setEmailLookupComplete(true);
+    }
+  }, [setEmail, email, setEmailLookupComplete]);
 
   return (
     <>
@@ -134,6 +161,10 @@ export const App = ({
               <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
 
               <SigninReported path="/signin_reported/*" />
+              <SigninBounced
+                {...{ emailLookupComplete, email }}
+                path="/signin_bounced/*"
+              />
               {/* Pages using the Ready view need to be accessible to logged out viewers,
                * but need to be able to check if the user is logged in or logged out,
                * so they are wrapped in this component.

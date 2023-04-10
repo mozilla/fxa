@@ -412,6 +412,12 @@ export class Account implements AccountData {
     );
   }
 
+  async getAccountStatusByEmail(email: string): Promise<boolean> {
+    return this.withLoadingStatus(
+      (await this.authClient.accountStatusByEmail(email)).exists
+    );
+  }
+
   async getSecurityEvents() {
     const { data } = await this.apolloClient.query({
       fetchPolicy: 'network-only',

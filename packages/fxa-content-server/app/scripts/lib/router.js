@@ -353,7 +353,12 @@ Router = Router.extend({
       this.navigateAway(settingsLink);
     },
     'signin(/)': createViewHandler(SignInPasswordView),
-    'signin_bounced(/)': createViewHandler(SignInBouncedView),
+    'signin_bounced(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_bounced',
+        SignInBouncedView
+      );
+    },
     'signin_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_confirmed',
