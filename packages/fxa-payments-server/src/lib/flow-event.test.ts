@@ -1,3 +1,4 @@
+import { Severity } from '@sentry/browser';
 import FlowEvent from './flow-event';
 
 import sentryMetrics from './sentry';
@@ -34,6 +35,24 @@ it('remains uninitialized when any flow param is empty', () => {
   expect(window.navigator.sendBeacon).not.toHaveBeenCalled();
 });
 
+it('captures a warning to sentry if flow metrics fails to initialize', () => {
+  const mockCapture = jest
+    .spyOn(sentryMetrics, 'captureMessage')
+    .mockImplementation();
+  FlowEvent.init({
+    device_id: 'testDevice',
+    flow_id: 'flowId',
+  });
+
+  FlowEvent.logAmplitudeEvent(eventGroup, eventType, {});
+  expect(mockCapture).toBeCalledWith(
+    'Flow events not initialized - Metrics not captured for checkout flow',
+    'flowEvents.initializationError',
+    { referrer: '', url: 'http://localhost/' },
+    Severity.Warning
+  );
+});
+
 it('logs and captures an exception from postMetrics', () => {
   const mockCapture = jest
     .spyOn(sentryMetrics, 'captureException')
@@ -67,8 +86,8 @@ it('sends the correct Amplitude metric payload', () => {
   FlowEvent.logAmplitudeEvent(eventGroup, eventType, {
     quuz: 'quux',
   });
-  const [metricsPath, payload] = (window.navigator
-    .sendBeacon as jest.Mock).mock.calls[0];
+  const [metricsPath, payload] = (window.navigator.sendBeacon as jest.Mock).mock
+    .calls[0];
   expect(metricsPath).toEqual(`/metrics`);
   expect(JSON.parse(payload)).toMatchObject({
     events: [

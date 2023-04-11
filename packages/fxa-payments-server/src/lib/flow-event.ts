@@ -1,4 +1,5 @@
 import sentryMetrics from './sentry';
+import { Severity } from '@sentry/browser';
 
 interface FlowEventParams {
   device_id?: string;
@@ -15,6 +16,14 @@ let initialized = false;
 let optEventData: FlowEventData;
 
 function shouldSend() {
+  if (!initialized) {
+    sentryMetrics.captureMessage(
+      'Flow events not initialized - Metrics not captured for checkout flow',
+      'flowEvents.initializationError',
+      { referrer: document.referrer, url: document.URL },
+      Severity.Warning
+    );
+  }
   return initialized && window.navigator.sendBeacon;
 }
 
