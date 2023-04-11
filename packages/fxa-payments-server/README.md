@@ -72,6 +72,40 @@ Note that prior to testing you may need to create a build of the React App. You 
 
 Refer to Jest's [CLI documentation](https://jestjs.io/docs/en/cli) for more advanced test configuration.
 
+### Location Override
+
+When running the FxA stack locally, our geodb service needs an override to resolve a location. This override object takes the form of:
+
+```json
+{
+  "location": {
+    "countryCode": <2 letter country code string>,
+    "postalCode": <corresponding postal code string>
+  }
+}
+```
+
+and can be passed in either through your `secrets.json` or through your environment variables.
+
+Example using `secrets.json`:
+
+```json
+  "geodb": {
+    "locationOverride": {
+      "location": {
+        "countryCode": "US",
+        "postalCode": "98332"
+      }
+    }
+  },
+```
+
+or with a `.env` file using `dotenv`
+
+```
+GEODB_LOCATION_OVERRIDE= { "location": { "countryCode": "US", "postalCode": "85001"} }
+```
+
 ### Debugging Tests
 
 Launch configs for Visual Studio Code are provided to help debug tests. In order to use the launch config, open the `fxa-payments-server` folder in Visual Studio Code, then add a `debugger` statement in the body of the test you plan to debug. In the Visual Studio Code sidebar navigate to the Run and Debug tab, and select the "Debug FxA-Payments Frontend Tests" or "Debug FxA-Payments Server Tests." Click the run button and the tests will begin to run and a debugger will be attached to the process. You can now add further breakpoints to the test source code by clicking near the line number.

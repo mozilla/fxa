@@ -57,6 +57,10 @@ function getLocation(request) {
     return {};
   }
 
+  if(geodbConfig?.locationOverride?.location) {
+    return geodbConfig.locationOverride.location;
+  }
+
   return geolocate(request);
 }
 
@@ -82,6 +86,7 @@ const amplitude = (event, request, data) => {
 
   const additionalData = {
     lang: getLanguage(request),
+    countryCode: getCountryCode(getLocation(request)),
   }
 
   if (amplitudeConfig.rawEvents) {

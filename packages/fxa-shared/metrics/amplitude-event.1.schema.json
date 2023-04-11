@@ -56,6 +56,11 @@
       "type": "string",
       "pattern": "^[a-z]{1,}(-[a-zA-Z0-9]{1,})*$"
     },
+    "countryCode": {
+      "description": "The 2 character country ISO code",
+      "type": "string",
+      "pattern": "^[A-Z]{2}$"
+    },
     "country": {
       "description": "The localized full country name where the locale is based (indirectly) on a request's `Accept-Language` header.",
       "type": "string"
@@ -180,16 +185,20 @@
     "user_properties"
   ],
   "anyOf": [{ "required": ["user_id"] }, { "required": ["device_id"] }],
-  "if": {
-    "$comment": "For event_type's matching the pattern below, make language a required field",
-    "properties": {
-      "event_type": {
-        "type": "string",
-        "pattern": "^fxa_pay_setup -|fxa_pay_subscription_change -"
+  "allOf": [
+    {
+      "if": {
+        "$comment": "For event_type's matching the pattern below, make language a required field",
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "^fxa_pay_setup -|fxa_pay_subscription_change -"
+          }
+        }
+      },
+      "then": {
+        "required": ["language"]
       }
     }
-  },
-  "then": {
-    "required": ["language"]
-  }
+  ]
 }
