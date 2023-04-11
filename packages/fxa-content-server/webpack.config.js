@@ -41,6 +41,9 @@ const webpackConfig = {
 
   resolve: {
     extensions: ['.ts', '.js', '.jsx'],
+    fallback: {
+      buffer: require.resolve('buffer/'),
+    },
     modules: [
       path.resolve(__dirname, 'app/scripts'),
       path.resolve(__dirname, 'app/scripts/templates'),
@@ -116,12 +119,12 @@ const webpackConfig = {
       },
       {
         test: /\.mustache$/,
-        loader: ['cache-loader', 'fxa-mustache-loader'],
+        use: [{ loader: 'cache-loader' }, { loader: 'fxa-mustache-loader' }],
       },
       {
         test: /\.tsx?$/,
-        loader: [
-          'cache-loader',
+        use: [
+          { loader: 'cache-loader' },
           {
             loader: 'ts-loader',
             options: {
@@ -188,7 +191,7 @@ const webpackConfig = {
       },
       {
         test: /\.svg(\?v=\d+\.\d+\.\d+)?$/,
-        loader: 'url-loader',
+        type: 'asset/inline',
       },
       {
         test: /\.scss$/,
@@ -210,39 +213,28 @@ const webpackConfig = {
             loader: 'sass-loader',
           },
         ],
+        type: 'javascript/auto',
       },
     ],
   },
-  optimization: {
-    splitChunks: {
-      // CommonsChunkPlugin()
-      cacheGroups: {
-        appDependencies: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'appDependencies',
-          chunks: 'initial',
-        },
-      },
-    },
-  },
+
   plugins: [
     // dynamically loaded routes cause the .md file to be read and a
     // warning to be displayed on the console. Just ignore them.
-    new webpack.IgnorePlugin(/\.md$/),
-    new CopyPlugin([
-      {
-        context: path.resolve(__dirname, '../fxa-settings/build'),
-        from: '**',
-        to: '../settings',
-      },
-    ]),
+    new webpack.IgnorePlugin({ resourceRegExp: /\.md$/ }),
+    new CopyPlugin({
+      patterns: [
+        {
+          context: path.resolve(__dirname, '../fxa-settings/build'),
+          from: '**',
+          to: '../settings',
+        },
+      ],
+    }),
+    new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
   ],
 
   stats: { colors: true },
-
-  node: {
-    crypto: 'empty',
-  },
 
   devtool: config.sourceMapType,
 };
@@ -252,6 +244,12 @@ if (ENV === 'development') {
     test: '../tests/webpack.js',
     testDependencies: ['jquery', 'chai', 'jquery-simulate', 'mocha', 'sinon'],
   });
+}
+
+if (ENV === 'production') {
+  webpackConfig.cache = {
+    type: 'filesystem',
+  };
 }
 
 module.exports = webpackConfig;
