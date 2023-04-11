@@ -10,12 +10,14 @@ const sinon = require('sinon');
 const verror = require('verror');
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
-const error = require('../../lib/error');
+const AppError = require('../../lib/error');
 
 const config = require('../../config').default.getProperties();
 const {
   configureSentry,
   formatMetadataValidationErrorMessage,
+  getRootCause,
+  ignoreErrors,
 } = require('../../lib/sentry');
 
 const sandbox = sinon.createSandbox();
@@ -59,7 +61,7 @@ describe('Sentry', () => {
 
   const _testError = (code, errno, innerError) => {
     const extra = innerError ? [{}, undefined, innerError] : [];
-    return new error(
+    return new AppError(
       {
         code,
         error: 'TEST',
@@ -92,7 +94,7 @@ describe('Sentry', () => {
 
   it('adds payload details to an internal validation error', async () => {
     await configureSentry(server, config);
-    const err = error.internalValidationError(
+    const err = AppError.internalValidationError(
       'internalError',
       { extra: 'data' },
       'Missing data'
@@ -163,74 +165,156 @@ describe('Sentry', () => {
     assert.equal(ctx.reason, endError.reason);
   });
 
+  describe('determines root cause of error', () => {
+    it('returns generic error', () => {
+      const error1 = new Error('BOOM');
+      const cause = getRootCause(error1);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('returns nested generic error', () => {
+      const error1 = new Error('BOOM');
+      const error2 = _testError(500, 0, error1);
+      const cause = getRootCause(error2);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('returns deeply nested generic error', () => {
+      const error1 = new Error('BOOM');
+      const error2 = _testError(500, 0, error1);
+      const error3 = _testError(500, 0, error2);
+      const cause = getRootCause(error3);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('returns generic error', () => {
+      const error1 = new Error('BOOM');
+      const cause = getRootCause(error1);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('returns app error', () => {
+      const error1 = _testError(500, 0);
+      const cause = getRootCause(error1);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('return nested AppError', () => {
+      const error1 = _testError(500, 0);
+      const error2 = _testError(500, 0, error1);
+      const cause = getRootCause(error2);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('return deeply nested AppError', () => {
+      const error1 = _testError(500, 0);
+      const error2 = _testError(500, 0, error1);
+      const error3 = _testError(500, 0, error2);
+      const cause = getRootCause(error3);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('determines cause of nested Error', async () => {
+      const error1 = new Error('BOOM');
+      const error2 = _testError(
+        500,
+        AppError.ERRNO.INTERNAL_VALIDATION_ERROR,
+        error1
+      );
+      const cause = getRootCause(error2);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('determines cause of deeply nested AppError', async () => {
+      const error1 = new Error('BOOM');
+      const error2 = _testError(
+        500,
+        AppError.ERRNO.INTERNAL_VALIDATION_ERROR,
+        error1
+      );
+      const error3 = _testError(
+        500,
+        AppError.ERRNO.INTERNAL_VALIDATION_ERROR,
+        error2
+      );
+      const cause = getRootCause(error3);
+      assert.strictEqual(error1, cause);
+    });
+
+    it('determines cause of nested WError', async () => {
+      const error1 = new Error('BOOM');
+      const error2 = new verror.WError(error1);
+      const error3 = new verror.WError(error2);
+      const cause = getRootCause(error3);
+      assert.strictEqual(error1, cause);
+    });
+  });
+
   describe('ignores errors', () => {
     beforeEach(async () => {
       await configureSentry(server, config);
     });
 
-    describe('by error code', () => {
+    describe('ignores by error code', () => {
       // ACCOUNT_CREATION_REJECTED should not be ignored
-      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+      const errno = AppError.ERRNO.ACCOUNT_CREATION_REJECTED;
 
       // But, anything below 500 should be ignored
       const errorCode = 400;
 
-      it('ignores standard error', async () => {
-        await emitError(_testError(errorCode, errno));
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores AppError', async () => {
+        const error1 = _testError(errorCode, errno);
+        assert.isTrue(ignoreErrors(error1));
       });
 
-      it('ignores standard error with inner error', async () => {
-        await emitError(_testError(errorCode, errno, new Error('BOOM')));
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores nested AppError', async () => {
+        const error1 = _testError(errorCode, errno);
+        const error2 = _testError(errorCode, errno, error1);
+        assert.isTrue(ignoreErrors(error2));
       });
 
-      it('ignores WError', async () => {
-        await emitError(new verror.WError(_testError(errorCode, errno)));
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores WError with nested AppError', async () => {
+        const error1 = _testError(errorCode, errno);
+        const error2 = new verror.WError(error1);
+        assert.isTrue(ignoreErrors(error2));
       });
 
-      it('ignores WError inner error', async () => {
-        await emitError(
-          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores WError with deeply nested AppError', async () => {
+        const error1 = _testError(errorCode, errno);
+        const error2 = _testError(errorCode, errno, error1);
+        const error3 = new verror.WError(error2);
+        assert.isTrue(ignoreErrors(error3));
       });
     });
 
     describe('by error number', () => {
-      // Anything 500 above should not be ignored.
+      // A 500 error could would not be ignored
       const errorCode = 500;
+      // BOUNCE_HARD should be ignored
+      const errno = AppError.ERRNO.BOUNCE_HARD;
 
-      // But, BOUNCE_HARD should be ignored
-      const errno = error.ERRNO.BOUNCE_HARD;
-
-      it('ignores standard error', async () => {
-        await emitError(_testError(errorCode, errno));
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores app error', async () => {
+        const error1 = _testError(errorCode, errno);
+        assert.isTrue(ignoreErrors(error1));
       });
 
-      it('ignores standard error with inner error', async () => {
-        await emitError(_testError(errorCode, errno, new Error('BOOM')));
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores nested app error', async () => {
+        const error1 = _testError(errorCode, errno);
+        const error2 = _testError(errorCode, errno, error1);
+        assert.isTrue(ignoreErrors(error2));
       });
 
-      it('ignores WError', async () => {
-        await emitError(new verror.WError(_testError(errorCode, errno)));
-        sandbox.assert.notCalled(sentryCaptureSpy);
-      });
-
-      it('ignores WError inner error', async () => {
-        await emitError(
-          new verror.WError(_testError(errorCode, errno, new Error('BOOM')))
-        );
-        sandbox.assert.notCalled(sentryCaptureSpy);
+      it('ignores deeply nested app error', async () => {
+        const error1 = _testError(errorCode, errno);
+        const error2 = _testError(errorCode, errno, error1);
+        const error3 = _testError(errorCode, errno, error2);
+        assert.isTrue(ignoreErrors(error3));
       });
     });
 
     describe('by event state', () => {
       // ACCOUNT_CREATION_REJECTED should not be ignored
-      const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+      const errno = AppError.ERRNO.ACCOUNT_CREATION_REJECTED;
 
       // And, anything above 500 should be reported
       const errorCode = 500;
@@ -271,7 +355,7 @@ describe('Sentry', () => {
 
   describe('reports errors', () => {
     // ACCOUNT_CREATION_REJECTED should not be ignored
-    const errno = error.ERRNO.ACCOUNT_CREATION_REJECTED;
+    const errno = AppError.ERRNO.ACCOUNT_CREATION_REJECTED;
 
     // And, anything above 500 should be reported
     const errorCode = 500;
@@ -310,6 +394,62 @@ describe('Sentry', () => {
       await emitError(_testError(errorCode, errno, new Error('BOOM')));
       await new Promise((resolve) => setTimeout(resolve, 1));
       sandbox.assert.calledOnce(sentryCaptureSpy);
+    });
+
+    it('reports a generic error with 400 statusCode', async () => {
+      // Typically status codes less than 500 are not reported to sentry; however,
+      // if the call result of an unhandled error in an API call, we would want to
+      // report it to sentry.
+
+      const error = new Error('BOOM');
+      error.statusCode = 400; // Status code less than 500 typically ignored.
+      error.errno = 134; // Commonly ignored AppError
+
+      await emitError(error);
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, error);
+    });
+
+    it('reports an inner error with 400 status code', async () => {
+      // Typically status codes less than 500 are not reported to sentry; however,
+      // if the call result of an unhandled error in an API call, we would want to
+      // report it to sentry.
+
+      const error = new Error('BOOM');
+      error.statusCode = 400;
+
+      const wrappedError = new verror.WError(
+        _testError(400, errno, error),
+        'Something bad happened'
+      );
+
+      await emitError(wrappedError);
+
+      await new Promise((resolve) => setTimeout(resolve, 1));
+      sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, wrappedError);
+    });
+
+    it('reports general error', () => {
+      const error1 = new Error('BOOM!');
+      emitError(error1);
+      sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, error1);
+    });
+
+    it('reports AppError nested general inner error', () => {
+      // Generally these states would be ignored
+      const error1 = new Error('BOOM!');
+      const error2 = _testError(400, 0, error1);
+      emitError(error2);
+      sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, error2);
+    });
+
+    it('reports AppError deeply nested general inner error', () => {
+      // Generally these states would be ignored
+      const error1 = new Error('BOOM!');
+      const error2 = _testError(400, 0, error1);
+      const error3 = _testError(400, 0, error2);
+      emitError(error3);
+      sandbox.assert.calledOnceWithExactly(sentryCaptureSpy, error3);
     });
   });
 
