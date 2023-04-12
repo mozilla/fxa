@@ -14,7 +14,7 @@ const UA_OVERRIDE = 'FxATester';
  * Experiments that are created on startup in `chooseExperiments`.
  */
 const STARTUP_EXPERIMENTS = {
-  generalizeReactApp: BaseExperiment,
+  generalizedReactApp: BaseExperiment,
 };
 
 /**
