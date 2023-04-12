@@ -1,4 +1,4 @@
-# Payments standalone configuration solution
+# Payments standalone configuration solution with Contentful
 
 - Status: accepted
 - Deciders: Reino Muhl, Ben Bangert, Julian Poyourow, Bianca Danforth, Lisa Chan
