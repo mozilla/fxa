@@ -37,3 +37,4 @@
 -app-store = App Store
 -brand-google = Google
 -google-play = Google Play
+-brand-apple = Apple
