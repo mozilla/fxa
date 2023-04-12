@@ -1095,6 +1095,7 @@ workflows:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
+          resource_class: xlarge
           filters:
             branches:
               ignore: /.*/
