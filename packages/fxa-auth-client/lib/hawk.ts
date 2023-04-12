@@ -46,7 +46,7 @@ export async function deriveHawkCredentials(token: hexstring, context: string) {
 
 function parseUri(input: string) {
   const parts = input.match(
-    /^([^:]+)\:\/\/(?:[^@/]*@)?([^\/:]+)(?:\:(\d+))?([^#]*)(?:#.*)?$/
+    /^([^:]+):\/\/(?:[^@/]*@)?([^/:]+)(?::(\d+))?([^#]*)(?:#.*)?$/
   );
   if (!parts) {
     return { host: '', port: '', resource: '' };

@@ -64,26 +64,29 @@ describe('JwtsetService', () => {
       delete: [DELETE_EVENT, 'generateDeleteSET'],
     };
 
+
+    async function checkSet(event: string, method: string) {
+      const evt = {
+        clientId: TEST_CLIENT_ID,
+        changeTime: CHANGE_TIME,
+        event,
+        uid: 'uid1234',
+        email: 'test@mozilla.com',
+      };
+      const token = await (service as any)[method](evt);
+      const payload = await PUBLIC_JWT.verify(token);
+      expect(payload.aud).toBe(TEST_CLIENT_ID);
+      expect(payload.sub).toBe('uid1234');
+      expect(payload.iss).toBe('test');
+      if (event === PROFILE_CHANGE_EVENT) {
+        expect(payload.events[PROFILE_EVENT_ID].email).toBe('test@mozilla.com');
+      }
+    }
+
     for (const [key, value] of Object.entries(eventTypes)) {
       const [event, method] = value;
       it(key + ' SET', async () => {
-        const evt = {
-          clientId: TEST_CLIENT_ID,
-          changeTime: CHANGE_TIME,
-          event,
-          uid: 'uid1234',
-          email: 'test@mozilla.com',
-        };
-        const token = await (service as any)[method](evt);
-        const payload = await PUBLIC_JWT.verify(token);
-        expect(payload.aud).toBe(TEST_CLIENT_ID);
-        expect(payload.sub).toBe('uid1234');
-        expect(payload.iss).toBe('test');
-        if (event === PROFILE_CHANGE_EVENT) {
-          expect(payload.events[PROFILE_EVENT_ID].email).toBe(
-            'test@mozilla.com'
-          );
-        }
+        await checkSet(event, method);
       });
     }
 

@@ -21,7 +21,7 @@ import { ServiceNotification } from './service-notification.interface';
 import * as dto from './sqs.dto';
 
 function extractRegionFromUrl(url: string) {
-  const matchResult = url.match(/(?:.*\/sqs\.)([^\.]+)/i);
+  const matchResult = url.match(/(?:.*\/sqs\.)([^.]+)/i);
   if (!matchResult || matchResult.length !== 2) {
     return undefined;
   } else {
@@ -49,7 +49,6 @@ export class QueueworkerService
     private firestore: FirestoreService,
     private clientCapability: ClientCapabilityService
   ) {
-    const env = this.configService.get<string>('env');
     this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
       this.configService.get<boolean>('disableQueueWorker') ?? false;
@@ -84,7 +83,6 @@ export class QueueworkerService
   }
 
   async onApplicationBootstrap(): Promise<void> {
-    const env = this.configService.get<string>('env');
     if (this.queueName.includes('localhost:4100')) {
       // Verify that the queue exists
       const queueParts = this.queueName.split('/');

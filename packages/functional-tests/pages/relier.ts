@@ -1,5 +1,4 @@
 import { BaseLayout } from './layout';
-import { selectors } from './login';
 
 export class RelierPage extends BaseLayout {
   goto(query?: string) {

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { UnauthorizedException } from '@nestjs/common';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
+import { SessionTokenStrategy } from './session-token.strategy';
 
 let mockSession = {
   SessionToken: {
@@ -15,7 +16,6 @@ let mockAuthClient = {
 jest.mock('fxa-auth-client', () => mockAuthClient);
 jest.mock('fxa-shared/db/models/auth/session-token', () => mockSession);
 
-import { SessionTokenStrategy } from './session-token.strategy';
 
 describe('SessionTokenStrategy', () => {
   let strategy: SessionTokenStrategy;

@@ -28,12 +28,14 @@ P.promisifyAll(Memcached.prototype);
 
 if (process.argv.length < 3) {
   var usage = 'Usage: cat settings.json | config-set.js <memcacheHost:port>';
-  return console.error(usage);
+  console.error(usage);
+  process.exit(1);
 }
 
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'";
-  return console.error(x);
+  console.error(x);
+  process.exit(1);
 }
 
 function writeMergedSettings(mc, key, newSettings) {

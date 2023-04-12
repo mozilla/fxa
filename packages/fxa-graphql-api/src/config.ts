@@ -16,29 +16,6 @@ export interface RedisConfig {
   port: number;
 }
 
-function makeRedisConfig(envPrefix: string, prefix: string) {
-  return {
-    host: {
-      default: 'localhost',
-      env: envPrefix + '_REDIS_HOST',
-      format: String,
-      doc: 'Url for redis host',
-    },
-    keyPrefix: {
-      default: prefix,
-      env: envPrefix + '_REDIS_KEY_PREFIX',
-      format: String,
-      doc: 'Redis key prefix to use',
-    },
-    port: {
-      default: 6379,
-      env: envPrefix + '_REDIS_PORT',
-      format: 'port',
-      doc: 'Port for redis server',
-    },
-  };
-}
-
 const conf = convict({
   authServer: {
     url: {

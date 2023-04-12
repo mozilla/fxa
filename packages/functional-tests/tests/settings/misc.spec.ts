@@ -1,4 +1,4 @@
-import { test, expect, newPages } from '../../lib/fixtures/standard';
+import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293407

@@ -13,7 +13,7 @@ function getReactFeatureFlagUrl(target: BaseTarget, path: string) {
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
 test.describe('reset password', () => {
-  test.beforeEach(async ({}, { project }) => {
+  test.beforeEach(async () => {
     test.slow();
   });
 

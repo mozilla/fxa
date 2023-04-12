@@ -1,5 +1,4 @@
 import { BaseLayout } from './layout';
-import { LoginPage } from './login';
 
 export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',

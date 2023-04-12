@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Field, InputType } from '@nestjs/graphql';
 import { MetricsContext } from './metrics-context';
 
 @InputType()
@@ -28,7 +28,7 @@ export class SignInOptionsInput {
   @Field({ nullable: true })
   public unblockCode?: string;
 
-  @Field((type) => MetricsContext, { nullable: true })
+  @Field(() => MetricsContext, { nullable: true })
   public metricsContext?: MetricsContext;
 }
 

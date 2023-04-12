@@ -16,7 +16,7 @@
     "bump-template-versions": "node scripts/template-version-bump",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "l10n-prime": "yarn l10n:prime fxa-auth-server",
-    "lint": "eslint . .storybook --ignore-pattern 'dist' --ext .js,.ts",
+    "lint": "eslint . .storybook --ext .js,.ts",
     "start": "yarn merge-ftl && yarn emails-scss && scripts/start-local.sh",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",

@@ -1,5 +1,4 @@
 import { SettingsLayout } from './layout';
-import { selectors } from '../login';
 
 export class DeleteAccountPage extends SettingsLayout {
   readonly path = 'settings/delete_account';

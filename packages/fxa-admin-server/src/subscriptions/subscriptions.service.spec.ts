@@ -441,7 +441,9 @@ describe('Subscription Service', () => {
     const result = service.getSubscriptions(uid);
 
     // Assert
-    expect(result).rejects.toThrow(
+    expect(async () => {
+      await result;
+    }).toThrow(
       `No matching plan for IAP play subscription sku: ${playStorePurchase.sku}`
     );
   });

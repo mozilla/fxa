@@ -10,7 +10,7 @@ const makeUid = () =>
     .join('');
 
 test.describe('Desktop Sync V3 force auth', () => {
-  test.beforeEach(async ({}) => {
+  test.beforeEach(async () => {
     test.slow();
   });
 

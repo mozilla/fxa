@@ -3,6 +3,7 @@
   "version": "1.218.5",
   "private": true,
   "scripts": {
+    "lint": "eslint . --ext .ts",
     "record": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stub --debug",
     "test": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
     "test-local": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=local",
@@ -11,7 +12,9 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.31.2",
+    "@types/eslint": "^8",
     "@types/upng-js": "^2",
+    "eslint": "^8.38.0",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",
     "fxa-payments-server": "workspace:*",

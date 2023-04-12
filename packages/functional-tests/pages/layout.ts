@@ -94,6 +94,7 @@ export abstract class BaseLayout {
         });
         sessionStorage.setItem('webChannelEvents', JSON.stringify(events));
       }
+      // eslint-disable-next-line no-restricted-globals
       addEventListener('WebChannelMessageToChrome', listener);
     });
   }

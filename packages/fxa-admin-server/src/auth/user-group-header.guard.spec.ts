@@ -39,9 +39,10 @@ describe('UserGroupGuard for graphql', () => {
     // getArgs() return value.
     const context = createMock<ExecutionContext>();
     context.getArgs.mockImplementation(() => [
-      ,
-      ,
+      undefined,
+      undefined,
       { req: buildRequest(group) },
+      undefined,
     ]);
     context.getType.mockImplementation(() => 'graphql');
     return context;

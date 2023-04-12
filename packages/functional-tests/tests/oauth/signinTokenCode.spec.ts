@@ -57,9 +57,10 @@ test.describe('OAuth signin token code', () => {
     // This will cause the token become 'invalid' and ultimately cause an
     // INVALID_TOKEN error to be thrown.
     await login.destroySession(email);
-    await page.waitForNavigation({ waitUntil: 'networkidle' }),
-      // Destroying the session should direct user back to sign in page
-      expect(await login.passwordHeader.isVisible()).toBeTruthy();
+    await page.waitForNavigation({ waitUntil: 'networkidle' });
+
+    // Destroying the session should direct user back to sign in page
+    expect(await login.passwordHeader.isVisible()).toBeTruthy();
   });
 
   test('verified - valid code', async ({

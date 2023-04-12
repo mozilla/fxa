@@ -54,4 +54,6 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-return init();
+const initPromise = init();
+
+export default initPromise;

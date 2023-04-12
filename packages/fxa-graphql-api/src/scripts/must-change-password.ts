@@ -34,7 +34,6 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 const config = Config.getProperties();
 const logger = mozlog(config.log)('must-change-password');
-const requiredOptions = ['input'];
 
 const metrics = config.metrics?.host
   ? new StatsD({

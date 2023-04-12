@@ -20,12 +20,14 @@ var Memcached = require('memcached');
 
 if (process.argv.length < 4) {
   var usage = 'Usage: customs-info.js <memcacheHost:port> <key>';
-  return console.error(usage);
+  console.error(usage);
+  process.exit(1);
 }
 
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'";
-  return console.error(x);
+  console.error(x);
+  process.exit(1);
 }
 
 var mc = new Memcached(process.argv[2], { namespace: 'fxa~' });
@@ -33,11 +35,12 @@ var mc = new Memcached(process.argv[2], { namespace: 'fxa~' });
 mc.get(process.argv[3], function (err, data) {
   if (err) {
     console.error(err);
-    return process.exit(1);
+    process.exit(1);
   }
   if (!data) {
     mc.end();
-    return console.error('no record');
+    console.error('no record');
+    process.exit(1);
   }
   if (data.bk) {
     console.error('blocked at %s', new Date(data.bk));

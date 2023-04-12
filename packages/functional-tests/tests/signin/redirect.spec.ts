@@ -35,6 +35,7 @@ test.describe('redirect_to', () => {
     target,
     pages: { page },
   }) => {
+    // eslint-disable-next-line no-script-url
     const redirectTo = 'javascript:alert(1)';
     await engageRedirect(page, target, redirectTo);
 

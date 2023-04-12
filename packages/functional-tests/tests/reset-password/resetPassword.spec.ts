@@ -1,9 +1,7 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
-const PASSWORD = 'passwordzxcv';
-
 test.describe('Reset password current', () => {
-  test.beforeEach(async ({ target, credentials, pages: { login } }) => {
+  test.beforeEach(async () => {
     test.slow();
   });
 
@@ -29,7 +27,7 @@ test.describe('Reset password current', () => {
   });
 
   test('enter an email with leading/trailing whitespace', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { login, resetPassword },
@@ -44,7 +42,7 @@ test.describe('Reset password current', () => {
   });
 
   test('open confirm_reset_password page, click resend', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { resetPassword },
@@ -65,11 +63,13 @@ test.describe('Reset password current', () => {
     await page.goto(`${target.contentServerUrl}/reset_password`);
     await login.setEmail('email@restmail.com');
     await resetPassword.clickBeginReset();
-    expect(await resetPassword.unknownAccountError()).toContain('Unknown account.');
+    expect(await resetPassword.unknownAccountError()).toContain(
+      'Unknown account.'
+    );
   });
 
   test('browse directly to page with email on query params', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { resetPassword },

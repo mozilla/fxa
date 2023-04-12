@@ -1,0 +1,5 @@
+{
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "root": true
+}

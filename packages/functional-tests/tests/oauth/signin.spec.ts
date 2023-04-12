@@ -4,7 +4,7 @@ let email = '';
 const PASSWORD = 'passwordzxcv';
 
 test.describe('OAuth signin', () => {
-  test.beforeEach(({}, testInfo) => {
+  test.beforeEach((_, testInfo) => {
     test.slow(testInfo.project.name !== 'local', 'email delivery can be slow');
   });
 
