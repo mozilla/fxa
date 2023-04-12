@@ -52,6 +52,8 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   // so we set its value after the first request for subsequent requests.
   const [fetchedResetToken, setFetchedResetToken] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  // We use this to debounce the submit button
+  const [isLoading, setIsLoading] = useState(false);
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const { linkStatus, setLinkStatus, requiredParams } =
@@ -149,6 +151,8 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
           );
           setRecoveryKeyErrorText(errorAccountRecoveryConfirmKey);
         }
+      } finally {
+        setIsLoading(false);
       }
     },
     [
@@ -161,6 +165,7 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   );
 
   const onSubmit = ({ recoveryKey, token, code, email, uid }: SubmitData) => {
+    setIsLoading(true);
     logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
     if (recoveryKey === '') {
       const errorEmptyRecoveryKeyInput = ftlMsgResolver.getMsg(
@@ -168,6 +173,7 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
         'Account recovery key required'
       );
       setRecoveryKeyErrorText(errorEmptyRecoveryKeyInput);
+      setIsLoading(false);
       return;
     }
 
@@ -251,7 +257,11 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
         </FtlMsg>
 
         <FtlMsg id="account-recovery-confirm-key-button">
-          <button type="submit" className="cta-primary cta-xl mb-6">
+          <button
+            type="submit"
+            className="cta-primary cta-xl mb-6"
+            disabled={isLoading}
+          >
             Confirm account recovery key
           </button>
         </FtlMsg>
