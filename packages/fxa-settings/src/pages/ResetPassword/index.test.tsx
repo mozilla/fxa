@@ -125,7 +125,7 @@ describe('PageResetPassword', () => {
     );
   });
 
-  it('displays errors', async () => {
+  it('displays unknown account error', async () => {
     const gqlError: any = AuthUiErrorNos[102]; // Unknown account error
     const account = {
       resetPassword: jest.fn().mockRejectedValue(gqlError),
@@ -138,5 +138,48 @@ describe('PageResetPassword', () => {
     });
 
     await screen.findByText('Unknown account');
+  });
+
+  it('displays an error when rate limiting kicks in', async () => {
+    // mocks an error that contains the required values to localize the message
+    // does not test if the Account model passes in the correct information
+    // does not test if the message is localized
+    // does not test if the lang of localizedRetryAfter matches the lang used for the rest of the string
+    const gqlThrottledErrorWithRetryAfter: any = {
+      errno: 114,
+      message: AuthUiErrorNos[114].message,
+      retryAfter: 500,
+      retryAfterLocalized: 'in 15 minutes',
+    }; // Throttled error
+    const account = {
+      resetPassword: jest
+        .fn()
+        .mockRejectedValue(gqlThrottledErrorWithRetryAfter),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Begin Reset'));
+    });
+
+    await screen.findByText(
+      'You’ve tried too many times. Please try again in 15 minutes.'
+    );
+  });
+
+  it('handles unexpected errors on submit', async () => {
+    const unknownError = 'some error'; // for example if the error is not a GQLError
+    const account = {
+      resetPassword: jest.fn().mockRejectedValue(unknownError),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('Begin Reset'));
+    });
+
+    await screen.findByText('Unexpected error');
   });
 });

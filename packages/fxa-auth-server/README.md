@@ -271,6 +271,12 @@ can be overridden in two ways:
    export CONFIG_FILES="~/fxa-content-server.json,~/fxa-db.json"
    ```
 
+### Rate-limiting config
+
+Rate-limiting and blocking is handled by fxa-customs-server. By default, these policies are _enabled_ in dev environment via `"customsUrl":"http://localhost:7000"` in `fxa-auth-server/config/dev.json`, but disabled for circleCI. Enabling the customs server allows error messages to be displayed when rate limiting occurs. Default rate-limiting values are found in `fxa-customs-server/lib/config/config.js` and can be modified with environment variables or by adding a `dev.json` file to `fxa-customs-server/config/`.
+
+The customs-server can be disabled for testing by changing the dev config to `"customsUrl":"none"`.
+
 ### Email config
 
 There is also some live config

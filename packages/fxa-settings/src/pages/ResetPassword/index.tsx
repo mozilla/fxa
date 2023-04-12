@@ -97,16 +97,27 @@ const ResetPassword = ({
       });
     } catch (err) {
       let localizedError;
-      if (err.errno === AuthUiErrors.THROTTLED.errno) {
-        localizedError = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(err),
-          AuthUiErrorNos[err.errno].message,
-          { retryAfter: err.retryAfterLocalized }
-        );
+      if (err.errno && AuthUiErrorNos[err.errno]) {
+        if (
+          err.errno === AuthUiErrors.THROTTLED.errno &&
+          err.retryAfterLocalized
+        ) {
+          localizedError = ftlMsgResolver.getMsg(
+            composeAuthUiErrorTranslationId(err),
+            AuthUiErrorNos[err.errno].message,
+            { retryAfter: err.retryAfterLocalized }
+          );
+        } else {
+          localizedError = ftlMsgResolver.getMsg(
+            composeAuthUiErrorTranslationId(err),
+            AuthUiErrorNos[err.errno].message
+          );
+        }
       } else {
+        const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
         localizedError = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(err),
-          err.message
+          composeAuthUiErrorTranslationId(unexpectedError),
+          unexpectedError.message
         );
       }
       setErrorMessage(localizedError);

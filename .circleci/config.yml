@@ -71,6 +71,7 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
+      CUSTOMS_SERVER_URL: none
 
   # Contains minimal image for running common jobs like linting or unit tests.
   # This image requires a restored workspace state.
@@ -85,6 +86,7 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
+      CUSTOMS_SERVER_URL: none
 
   # A minimal image for anything job needs infrastructure. Perfect for integration tests.
   # This image requires a restored workspace state.
@@ -104,6 +106,7 @@ executors:
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
+      CUSTOMS_SERVER_URL: none
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -141,6 +144,7 @@ executors:
       REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES: true
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES: true
+      CUSTOMS_SERVER_URL: none
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.
@@ -154,6 +158,7 @@ executors:
       - image: mozilla/fxa-circleci:ci-functional-test-runner
     environment:
       NODE_ENV: development
+      CUSTOMS_SERVER_URL: none
 
 
 commands:

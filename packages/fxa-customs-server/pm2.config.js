@@ -15,6 +15,8 @@ module.exports = {
       max_restarts: '1',
       env: {
         NODE_ENV: 'dev',
+        // By default, Node18 favours ipv6 for localhost
+        NODE_OPTIONS: '--dns-result-order=ipv4first',
         PORT: 7000,
         PATH,
         SENTRY_ENV: 'local',
