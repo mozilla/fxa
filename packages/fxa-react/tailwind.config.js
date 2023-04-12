@@ -4,6 +4,6 @@
 
 const config = require('./configs/tailwind');
 
-config.content = ['./components/**/*.tsx'];
+config.content = ['./components/**/*.{tsx,svg}'];
 
 module.exports = config;
