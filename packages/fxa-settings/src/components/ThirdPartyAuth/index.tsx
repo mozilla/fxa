@@ -21,7 +21,7 @@ const ThirdPartyAuth = ({ enabled = false }: ThirdPartyAuthProps) => {
       <div className="flex flex-col">
         <div className="text-sm flex items-center justify-center my-6">
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
-          <FtlMsg id="options-or">
+          <FtlMsg id="third-party-auth-options-or">
             <div className="mx-4">Or</div>
           </FtlMsg>
           <div className="flex-1 h-px bg-grey-300 divide-x"></div>
