@@ -33,20 +33,39 @@ module.exports = {
     // ignore errors and default to 'unknown' if not found
     var gitDir = path.resolve(__dirname, '..', '..', '..', '.git');
     cp.exec('git rev-parse HEAD', { cwd: gitDir }, function (err, stdout1) {
-      var configPath = path.join(gitDir, 'config');
-      var cmd = 'git config --get remote.origin.url';
-      cp.exec(cmd, { env: { GIT_CONFIG: configPath } }, function (
-        err,
-        stdout2
-      ) {
-        commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
-        sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
+      if (err != null) {
+        console.error('Error getting git commit hash: ' + err.message);
         return cb({
           version: version,
-          commit: commitHash,
-          source: sourceRepo,
+          commit: UNKNOWN,
+          source: UNKNOWN,
         });
-      });
+      }
+
+      var configPath = path.join(gitDir, 'config');
+      var cmd = 'git config --get remote.origin.url';
+      cp.exec(
+        cmd,
+        { env: { GIT_CONFIG: configPath } },
+        function (err, stdout2) {
+          if (err != null) {
+            console.error('Error getting git config: ' + err.message);
+            return cb({
+              version: version,
+              commit: UNKNOWN,
+              source: UNKNOWN,
+            });
+          }
+
+          commitHash = (stdout1 && stdout1.trim()) || UNKNOWN;
+          sourceRepo = (stdout2 && stdout2.trim()) || UNKNOWN;
+          return cb({
+            version: version,
+            commit: commitHash,
+            source: sourceRepo,
+          });
+        }
+      );
     });
   },
 };

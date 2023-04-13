@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Logger, Provider } from '@nestjs/common';
+import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Path } from 'convict';
@@ -14,7 +14,6 @@ import { Knex } from 'knex';
 
 describe('#integration - DatabaseService', () => {
   let service: DatabaseService;
-  let logger: any;
   let knex: Knex;
 
   beforeAll(async () => {

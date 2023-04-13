@@ -30,7 +30,6 @@ export function uint8ToBase64Url(array: Uint8Array) {
 }
 
 export function base64UrlToUint8(value: string): Uint8Array {
-  const m = value.length % 4;
   return Uint8Array.from(
     atob(value.replace(/-/g, '+').replace(/_/g, '/')),
     (c) => c.charCodeAt(0)

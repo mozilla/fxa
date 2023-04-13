@@ -31,7 +31,7 @@ const init = async () => {
     const server_shutdown = async () => {
       await api.stop().then(function (err) {
         if (err) {
-          log.warn({ op: 'shutdown', err: err}, 'graceful shutdown failed');
+          log.warn({ op: 'shutdown', err: err }, 'graceful shutdown failed');
           shutdown(1);
         } else {
           log.info({ op: 'shutdown' }, 'graceful shutdown complete');
@@ -54,4 +54,6 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-return init();
+const initPromise = init();
+
+export default initPromise;

@@ -5,7 +5,6 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseService } from 'fxa-admin-server/src/database/database.service';
-import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { RelyingParty } from 'fxa-shared/db/models/auth';
 import { RelyingPartyResolver } from './relying-party.resolver';

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
+    "lint": "eslint . --ext .mjs",
     "start": "./bin/fxa-dev-launcher.mjs"
   },
   "bin": "./bin/fxa-dev-launcher.mjs",
@@ -15,5 +16,9 @@
   "dependencies": {
     "chalk": "^5.1.2",
     "foxfire": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/eslint": "^8",
+    "eslint": "^8.38.0"
   }
 }

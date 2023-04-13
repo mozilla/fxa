@@ -21,21 +21,25 @@ P.promisifyAll(Memcached.prototype);
 
 if (process.argv.length < 5) {
   var usage = 'Usage: block-ip.js <memcacheHost:port> <ip> <seconds>';
-  return console.error(usage);
+  console.error(usage);
+  process.exit(1);
 }
 
 if (!/.+:\d+/.test(process.argv[2])) {
   var x = "use a host:port like 'localhost:11211'";
-  return console.error(x);
+  console.error(x);
+  process.exit(1);
 }
 
 if (!net.isIPv4(process.argv[3])) {
-  return console.error('second argument must be an IPv4');
+  console.error('second argument must be an IPv4');
+  process.exit(1);
 }
 
 var lifetime = parseInt(process.argv[4], 10);
 if (!lifetime || lifetime < 0) {
-  return console.error('third argument must be a positive integer of seconds');
+  console.error('third argument must be a positive integer of seconds');
+  process.exit(1);
 }
 
 var mc = new Memcached(process.argv[2], { namespace: 'fxa~' });

@@ -282,7 +282,7 @@ describe('#integration - AccountResolver', () => {
     describe('deleteAvatar', () => {
       it('succeeds', async () => {
         profileClient.avatarDelete = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteAvatar('token', {
+        await resolver.deleteAvatar('token', {
           clientMutationId: 'testid',
           id: 'blah',
         });
@@ -501,9 +501,6 @@ describe('#integration - AccountResolver', () => {
 
     describe('passwordForgotCodeStatus', () => {
       it('succeeds', async () => {
-        const headers = new Headers({
-          'x-forwarded-for': '123.123.123.123',
-        });
         authClient.passwordForgotStatus = jest.fn().mockResolvedValue({
           clientMutationId: 'testid',
           tries: 1,

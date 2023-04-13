@@ -222,7 +222,7 @@ export async function jweDecrypt(
   jwe: string
 ): Promise<string> {
   const encoder = new TextEncoder();
-  const [header, empty, iv, ciphertext, authenticationTag] = jwe.split('.');
+  const [header, , iv, ciphertext, authenticationTag] = jwe.split('.');
   const key = await crypto.subtle.importKey(
     'raw',
     keyMaterial,

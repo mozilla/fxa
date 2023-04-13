@@ -168,7 +168,7 @@ export class PlayStoreFormatter {
       return 'trialing';
     } else if (
       PaymentState.PENDING_DEFERRED === subscription.paymentState ||
-      PaymentState.PENDING == subscription.paymentState
+      PaymentState.PENDING === subscription.paymentState
     ) {
       return 'unpaid';
     } else if (PaymentState.RECEIVED === subscription.paymentState) {

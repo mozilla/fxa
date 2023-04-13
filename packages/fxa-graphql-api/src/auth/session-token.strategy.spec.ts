@@ -4,17 +4,19 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 
-let mockSession = {
+const mockSession = {
   SessionToken: {
     findByTokenId: jest.fn(),
   },
 };
-let mockAuthClient = {
+const mockAuthClient = {
   deriveHawkCredentials: jest.fn(),
 };
+
 jest.mock('fxa-auth-client', () => mockAuthClient);
 jest.mock('fxa-shared/db/models/auth/session-token', () => mockSession);
 
+// eslint-disable-next-line import/first
 import { SessionTokenStrategy } from './session-token.strategy';
 
 describe('SessionTokenStrategy', () => {

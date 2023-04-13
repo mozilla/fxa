@@ -45,7 +45,6 @@ import {
   DeleteTotpInput,
   EmailInput,
   SendSessionVerificationInput,
-  UpdateAvatarInput,
   UpdateDisplayNameInput,
   VerifyEmailInput,
   VerifyEmailCodeInput,
