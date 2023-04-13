@@ -41,7 +41,7 @@ export type ButtonBaseProps = {
   onClick?: (...args: any[]) => void;
 };
 
-export const GENERAL_PAYPAL_ERROR_ID = 'general-paypal-error';
+export const GENERAL_PAYPAL_ERROR_ID = 'general_paypal_error';
 
 /* istanbul ignore next */
 export const PaypalButtonBase =

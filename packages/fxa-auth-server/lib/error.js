@@ -37,6 +37,7 @@ const ERRNO = {
   // MISSING_TOKEN: 128,
   INVALID_PHONE_NUMBER: 129,
   INVALID_REGION: 130,
+  INVALID_CURRENCY: 211,
   INVALID_MESSAGE_ID: 131,
   MESSAGE_REJECTED: 132,
   BOUNCE_COMPLAINT: 133,
@@ -713,7 +714,7 @@ AppError.currencyCurrencyMismatch = (currencyA, currencyB) => {
     {
       code: 400,
       error: 'Bad Request',
-      errno: ERRNO.INVALID_REGION,
+      errno: ERRNO.INVALID_CURRENCY,
       message: `Changing currencies is not permitted.`,
     },
     {

@@ -30,7 +30,7 @@ describe('PaymentErrorView test with l10n', () => {
     const { queryByTestId } = render(
       <PaymentErrorView
         actionFn={() => {}}
-        error={{ code: 'general-paypal-error' }}
+        error={{ code: 'general_paypal_error' }}
         plan={SELECTED_PLAN}
       />
     );
@@ -57,7 +57,7 @@ describe('PaymentErrorView test with l10n', () => {
     const { getByTestId } = render(
       <PaymentErrorView
         actionFn={onRetry}
-        error={{ code: 'general-paypal-error' }}
+        error={{ code: 'general_paypal_error' }}
         plan={SELECTED_PLAN}
       />
     );
@@ -132,7 +132,7 @@ describe('PaymentErrorView test with l10n', () => {
     const { queryByTestId } = render(
       <PaymentErrorView
         actionFn={() => {}}
-        error={{ code: 'general-paypal-error' }}
+        error={{ code: 'general_paypal_error' }}
         plan={SELECTED_PLAN}
         showFxaLegalFooterLinks={true}
       />
