@@ -1,6 +1,11 @@
 #!/bin/bash -e
 
 MODULE=$1
+TAG=$2
+
+DOCKER_USER=DOCKER_USER_${MODULE//-/_}
+DOCKER_PASS=DOCKER_PASS_${MODULE//-/_}
+DOCKERHUB_REPO=mozilla/${MODULE}
 
 if [[ "$(docker images -q "$MODULE")" == "" ]]; then
   # not all packages create docker images
@@ -28,16 +33,19 @@ else
   MODULE_QUALIFIED="${MODULE}-${MODULE_SUFFIX}"
 fi
 
-REPO="${MODULE//-/_}"
-DOCKER_USER=DOCKER_USER_${REPO}
-DOCKER_PASS=DOCKER_PASS_${REPO}
-DOCKERHUB_REPO=mozilla/${MODULE_QUALIFIED}
-
 if [ -n "${DOCKER_TAG}" ] && [ -n "${!DOCKER_PASS}" ] && [ -n "${!DOCKER_USER}" ]; then
   echo -e "\n##################################################"
   echo "# pushing ${DOCKERHUB_REPO}:${DOCKER_TAG}"
   echo -e "##################################################\n"
   echo "${!DOCKER_PASS}" | docker login -u "${!DOCKER_USER}" --password-stdin
-  docker tag "${MODULE}:build" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+
+  echo "pulling ${DOCKERHUB_REPO}:${TAG}"
+  time docker pull "${DOCKERHUB_REPO}:${TAG}"
+
+  echo "pushing ${DOCKERHUB_REPO}:${DOCKER_TAG} "
+  docker tag "${DOCKERHUB_REPO}:${TAG}" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
   time docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+
+  echo "removing  ${DOCKERHUB_REPO}:${TAG}"
+  docker rmi "${DOCKERHUB_REPO}:${TAG}"
 fi
