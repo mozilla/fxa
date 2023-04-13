@@ -13,6 +13,10 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+export const SingleCodeInlineCopy = () => (
+  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" isInline />
+);
+
 export const SingleCode = () => (
   <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" />
 );

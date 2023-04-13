@@ -8,6 +8,8 @@ import { LocationProvider } from '@reach/router';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { Account, AppContext } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 
 export default {
   title: 'Pages/Settings/RecoveryKeyAdd',
@@ -15,10 +17,19 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
+const randomKey = crypto.getRandomValues(new Uint8Array(20));
+
+const account = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => Promise.resolve(randomKey),
+} as unknown as Account;
+
+export const DefaultWithAnyPassword = () => (
   <LocationProvider>
-    <AppLayout>
-      <PageRecoveryKeyAdd />
-    </AppLayout>
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <AppLayout>
+        <PageRecoveryKeyAdd />
+      </AppLayout>
+    </AppContext.Provider>
   </LocationProvider>
 );

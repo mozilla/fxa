@@ -6,16 +6,13 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 
 const contentType = 'Firefox account recovery key';
 const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
-const account = {
-  primaryEmail: {
-    email: 'pbooth@mozilla.com',
-  },
-} as unknown as Account;
+const account = { ...MOCK_ACCOUNT } as unknown as Account;
 
 it('renders Trio as expected', () => {
   window.URL.createObjectURL = jest.fn();

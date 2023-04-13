@@ -9,21 +9,24 @@ import { Account, AppContext } from '../../../models';
 import { Config } from '../../../lib/config';
 import { HomePath } from '../../../constants';
 import { typeByTestIdFn } from '../../../lib/test-utils';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  MOCK_ACCOUNT,
+  mockAppContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 
 import { Page2faReplaceRecoveryCodes } from '.';
 
 jest.mock('../../../models/AlertBarInfo');
 const recoveryCodes = ['0123456789'];
 const account = {
-  primaryEmail: {
-    email: 'pbooth@mozilla.com',
-  },
-  generateRecoveryCodes: jest.fn().mockResolvedValue(recoveryCodes),
+  ...MOCK_ACCOUNT,
+  generateRecoveryCodes: jest.fn().mockReturnValue(recoveryCodes),
   updateRecoveryCodes: jest.fn().mockResolvedValue({ success: true }),
 } as unknown as Account;
 
 const config = {
+  l10n: { strict: false },
   recoveryCodes: {
     count: 1,
     length: 10,
@@ -50,6 +53,7 @@ async function renderPage2faReplaceRecoveryCodes() {
 
 it('renders', async () => {
   await renderPage2faReplaceRecoveryCodes();
+  const context = mockAppContext({ account, config });
 
   expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
 
@@ -63,13 +67,15 @@ it('renders', async () => {
     'download',
     expect.stringContaining('Firefox backup authentication codes')
   );
+  expect(context.alertBarInfo?.error).not.toBeCalled();
 });
 
 it('displays an error when fails to fetch new backup authentication codes', async () => {
   const account = {
-    replaceRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
+    ...MOCK_ACCOUNT,
+    generateRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
   } as unknown as Account;
-  const context = mockAppContext({ account });
+  const context = mockAppContext({ account, config });
   await act(async () => {
     renderWithRouter(
       <AppContext.Provider value={context}>
@@ -78,6 +84,35 @@ it('displays an error when fails to fetch new backup authentication codes', asyn
     );
   });
   expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+  expect(context.alertBarInfo?.error).toHaveBeenCalledWith(
+    'There was a problem creating your backup authentication codes'
+  );
+});
+
+it('displays an error when fails to update backup authentication codes', async () => {
+  const account = {
+    ...MOCK_ACCOUNT,
+    generateRecoveryCodes: jest.fn().mockReturnValue(recoveryCodes),
+    updateRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
+  } as unknown as Account;
+  const context = mockAppContext({ account, config });
+  await act(async () => {
+    renderWithRouter(
+      <AppContext.Provider value={context}>
+        <Page2faReplaceRecoveryCodes />
+      </AppContext.Provider>
+    );
+  });
+  fireEvent.click(screen.getByTestId('ack-recovery-code'));
+  await typeByTestIdFn('recovery-code-input-field')(recoveryCodes[0]);
+  fireEvent.click(screen.getByTestId('submit-recovery-code'));
+
+  await waitFor(() => {
+    expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+    expect(context.alertBarInfo?.error).toHaveBeenCalledWith(
+      'There was a problem replacing your backup authentication codes'
+    );
+  });
 });
 
 it('forces users to validate backup authentication code', async () => {

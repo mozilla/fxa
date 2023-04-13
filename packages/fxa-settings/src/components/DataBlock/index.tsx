@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Localized } from '@fluent/react';
 import React, { useState } from 'react';
 import GetDataTrio, {
   DownloadContentType,
   GetDataCopySingleton,
+  GetDataCopySingletonInline,
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
+import { FtlMsg } from 'fxa-react/lib/utils';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',
@@ -26,6 +27,7 @@ export type DataBlockProps = {
   onCopy?: (event: React.ClipboardEvent<HTMLDivElement>) => void;
   onAction?: actionFn;
   isIOS?: boolean;
+  isInline?: boolean;
 };
 
 export const DataBlock = ({
@@ -36,6 +38,7 @@ export const DataBlock = ({
   onCopy,
   onAction = () => {},
   isIOS = false,
+  isInline = false,
 }: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
   const [performedAction, setPerformedAction] = useState<actions>();
@@ -53,8 +56,9 @@ export const DataBlock = ({
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`flex rounded-xl px-7 font-mono text-center text-sm text-green-900 bg-green-800/10 flex-wrap relative mb-6 ${
+        className={`flex rounded-xl px-7 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 flex-wrap relative mb-6 ${
           valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5'
+        } ${isInline ? 'gap-6 items-center' : ''}
         }`}
         data-testid={dataTestId}
         {...{ onCopy }}
@@ -70,22 +74,23 @@ export const DataBlock = ({
           <span>{value}</span>
         )}
         {performedAction && (
-          <Localized
-            id={`datablock-${performedAction}`}
-            attrs={{ message: true }}
-          >
+          <FtlMsg id={`datablock-${performedAction}`} attrs={{ message: true }}>
             <Tooltip
               prefixDataTestId={`datablock-${performedAction}`}
               message={actionTypeToNotification[performedAction]}
               position="bottom"
               className="mt-1"
             ></Tooltip>
-          </Localized>
+          </FtlMsg>
+        )}
+        {isInline && (
+          <GetDataCopySingletonInline {...{ value, onAction: actionCb }} />
         )}
       </div>
-      {isIOS ? (
+      {isIOS && !isInline && (
         <GetDataCopySingleton {...{ value, onAction: actionCb }} />
-      ) : (
+      )}
+      {!isIOS && !isInline && (
         <GetDataTrio {...{ value, contentType, onAction: actionCb }} />
       )}
     </div>
