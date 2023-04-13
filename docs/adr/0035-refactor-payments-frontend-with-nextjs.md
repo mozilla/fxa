@@ -1,7 +1,7 @@
 # Refactor Subscription Platform frontend - with Next.js
 
 - Status: accepted
-- Deciders: Reino Muhl, Ben Bangert, Lisa Chan
+- Deciders: Reino Muhl, Ben Bangert, Lisa Chan, Lauren Zugai, Bianca Danforth
 - Date: 2023-03-07
 
 ## Context and Problem Statement
