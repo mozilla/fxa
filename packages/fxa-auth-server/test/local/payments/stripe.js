@@ -392,7 +392,7 @@ describe('#integration - StripeHelper', () => {
             },
           },
         },
-        { idempotency_key: idempotencyKey }
+        { idempotencyKey }
       );
       sinon.assert.calledWithExactly(
         stripeHelper.stripeFirestore.insertCustomerRecord,
@@ -3122,7 +3122,7 @@ describe('#integration - StripeHelper', () => {
 
       const latest_invoice = {
         ...subscriptionCreatedInvoice,
-        payment_intent: { charges: { data: [] } },
+        payment_intent: { latest_charge: null },
       };
       const subscription = { ...subscription2, latest_invoice };
       const result =
@@ -3131,11 +3131,11 @@ describe('#integration - StripeHelper', () => {
 
       assert.isTrue(
         scopeContextSpy.calledOnce,
-        'Set a message scope when "charges" is missing'
+        'Set a message scope when "latest_charge" is missing'
       );
       assert.isTrue(
         Sentry.captureMessage.calledOnce,
-        'Capture a message with Sentry when "charges" is missing'
+        'Capture a message with Sentry when "latest_charge" is missing'
       );
     });
   });

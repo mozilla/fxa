@@ -8,7 +8,7 @@ import { Stripe } from 'stripe';
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
  */
 export function stripeInvoiceToFirstInvoicePreviewDTO(
-  invoice: Stripe.Invoice
+  invoice: Stripe.UpcomingInvoice
 ): invoiceDTO.FirstInvoicePreview {
   const invoicePreview: invoiceDTO.firstInvoicePreviewSchema = {
     subtotal: invoice.subtotal,
@@ -51,7 +51,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
  * Formats an array of Stripe Invoice to the SubsequentInvoicePreview DTO format.
  */
 export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
-  invoices: Stripe.Invoice[]
+  invoices: Stripe.UpcomingInvoice[]
 ): invoiceDTO.SubsequentInvoicePreview[] {
   return invoices.map((invoice) => {
     const invoicePreview: invoiceDTO.subsequentInvoicePreview = {
