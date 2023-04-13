@@ -191,7 +191,7 @@
     "rxjs": "^7.8.0",
     "stripe": "^10.7.0",
     "superagent": "^8.0.0",
-    "typesafe-node-firestore": "^1.4.0"
+    "typesafe-node-firestore": "^1.4.1"
   },
   "jest": {
     "moduleFileExtensions": [

@@ -4598,15 +4598,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/firestore@npm:^6.4.0":
-  version: 6.4.0
-  resolution: "@google-cloud/firestore@npm:6.4.0"
+"@google-cloud/firestore@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@google-cloud/firestore@npm:6.5.0"
   dependencies:
     fast-deep-equal: ^3.1.1
     functional-red-black-tree: ^1.0.1
-    google-gax: ^3.5.1
+    google-gax: ^3.5.7
     protobufjs: ^7.0.0
-  checksum: 7503e56f85c20aad4fa01b5de0b97e5108fe44c87db3423cb53bcdb083e053c6458c7a690820dc7db9ead384ce28da66142c1781d8cc406d4e7056374b29d23d
+  checksum: dd9cf4eee263a976239232143d5caf213c34850a352c6b6cb15b7b17cfddc2c6bee5e72eed0d188f4317eb5cb6a898372d02c54be8a30bbdc7ffbd360e138cb7
   languageName: node
   linkType: hard
 
@@ -25921,7 +25921,7 @@ fsevents@~2.1.1:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@golevelup/ts-jest": ^0.3.2
-    "@google-cloud/firestore": ^6.4.0
+    "@google-cloud/firestore": ^6.5.0
     "@nestjs/cli": ^9.2.0
     "@nestjs/common": ^9.1.2
     "@nestjs/config": ^2.3.1
@@ -26002,7 +26002,7 @@ fsevents@~2.1.1:
     "@fluent/dom": ^0.8.1
     "@fluent/langneg": ^0.6.2
     "@google-cloud/bigquery": ^6.1.0
-    "@google-cloud/firestore": ^6.4.0
+    "@google-cloud/firestore": ^6.5.0
     "@google-cloud/translate": ^6.3.1
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
@@ -26146,7 +26146,7 @@ fsevents@~2.1.1:
     through: 2.3.8
     type-fest: ^3.7.1
     typedi: ^0.8.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     uuid: ^9.0.0
     verror: ^1.10.1
@@ -26395,7 +26395,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-event-broker@workspace:packages/fxa-event-broker"
   dependencies:
-    "@google-cloud/firestore": ^6.4.0
+    "@google-cloud/firestore": ^6.5.0
     "@google-cloud/pubsub": ^2.19.4
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^11.0.2
@@ -26464,7 +26464,7 @@ fsevents@~2.1.1:
     ts-jest: ^29.0.0
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.1.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     uuid: ^9.0.0
   languageName: unknown
@@ -27010,7 +27010,7 @@ fsevents@~2.1.1:
     ts-jest: ^29.0.0
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.1.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     underscore: ^1.13.1
     uuid: ^9.0.0
@@ -48644,12 +48644,12 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"typesafe-node-firestore@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "typesafe-node-firestore@npm:1.4.0"
+"typesafe-node-firestore@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "typesafe-node-firestore@npm:1.4.1"
   peerDependencies:
-    "@google-cloud/firestore": "*"
-  checksum: d6932d2bb0bc3b764b23ac2cba9a915a2c8d0f6e2f06fb06020d0cf734b76fe66c8482853f9dd4003a9bd8326ea023b13f0b98cf2c1ea3a1900e25675921b18a
+    "@google-cloud/firestore": ^6.5.0
+  checksum: 38f6013d5e6b7bb76e9901f22b31b35132c48f57b3ecf01bb8d91fb5fb0b48c227bd8850b99db40ab70fe2ab029211e4501cd979b07b42eca2f23721fc5b8251
   languageName: node
   linkType: hard
 
