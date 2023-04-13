@@ -151,6 +151,20 @@ function cleanStringify(value: any) {
   return JSON.stringify(value, (_, v) => (v == null ? undefined : v));
 }
 
+export class AuthClientError extends Error {
+  code: number;
+  errno: number;
+  error: string;
+
+  constructor(error: string, message: string, errno: number, code: number) {
+    super(message);
+
+    this.code = code;
+    this.errno = errno;
+    this.error = error;
+  }
+}
+
 export default class AuthClient {
   static VERSION = 'v1';
   private uri: string;
@@ -206,12 +220,7 @@ export default class AuthClient {
       throw result;
     }
     if (!response.ok) {
-      throw {
-        error: 'Unknown error',
-        message: result,
-        errno: 999,
-        code: response.status,
-      };
+      throw new AuthClientError('Unknown error', result, 999, response.status);
     }
     return result;
   }

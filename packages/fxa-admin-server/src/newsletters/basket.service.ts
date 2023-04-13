@@ -84,7 +84,7 @@ export class BasketService {
   }
 }
 
-function getUrl<T>(baseUrl: string, path: string, params: Record<string, any>) {
+function getUrl(baseUrl: string, path: string, params: Record<string, any>) {
   const q = Object.entries(params)
     .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
     .join('&');

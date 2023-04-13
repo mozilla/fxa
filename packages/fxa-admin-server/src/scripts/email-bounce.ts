@@ -1,4 +1,4 @@
-import { knex, Knex } from 'knex';
+import { knex } from 'knex';
 import { Model } from 'objection';
 import yargs from 'yargs';
 

@@ -10,7 +10,6 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
-import { buildSentryConfig } from 'fxa-shared/sentry';
 
 import { AuthModule } from './auth/auth.module';
 import { ClientCapabilityModule } from './client-capability/client-capability.module';

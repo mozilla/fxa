@@ -234,12 +234,15 @@ describe('QueueworkerService', () => {
     };
 
     // Ensure that all our message types can be handled without error.
+    async function checkFetchesOnValid(value: any) {
+      const msg = updateStubMessage(value);
+      await (service as any).handleMessage(msg);
+      expect(firestore.fetchClientIds).toBeCalledTimes(1);
+      expect(logger.debug).toBeCalledTimes(2);
+    }
     for (const [key, value] of Object.entries(fetchOnValidMessage)) {
       it(`fetches on valid ${key}`, async () => {
-        const msg = updateStubMessage(value);
-        await (service as any).handleMessage(msg);
-        expect(firestore.fetchClientIds).toBeCalledTimes(1);
-        expect(logger.debug).toBeCalledTimes(2);
+        await checkFetchesOnValid(value);
       });
     }
 
@@ -251,12 +254,15 @@ describe('QueueworkerService', () => {
       'profile change': { ...baseProfileMessage, ts: false },
       subscription: { ...baseSubscriptionUpdateMessage, eventCreatedAt: false },
     };
+    async function logsErrorOnInvalid(value: any) {
+      const msg = updateStubMessage(value);
+      await (service as any).handleMessage(msg);
+      expect(logger.error).toBeCalledTimes(1);
+      expect(logger.error.mock.calls[0][0]).toBe('from.sqsMessage');
+    }
     for (const [key, value] of Object.entries(invalidMessages)) {
       it(`logs an error on invalid ${key} message`, async () => {
-        const msg = updateStubMessage(value);
-        await (service as any).handleMessage(msg);
-        expect(logger.error).toBeCalledTimes(1);
-        expect(logger.error.mock.calls[0][0]).toBe('from.sqsMessage');
+        await logsErrorOnInvalid(value);
       });
     }
 

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
-
 import { assert } from 'chai';
 import util from 'node:util';
 import path from 'node:path';
@@ -11,31 +9,7 @@ import { auditRowCounts, auditAge, auditOrphanedRows } from './audit-tokens';
 import Config from '../config';
 import { clearDb, bindKnex, scaffoldDb } from './db-helpers';
 
-import sinon from 'sinon';
 import { Account } from 'fxa-shared/db/models/auth';
-
-const LOG_METHOD_NAMES = [
-  'activityEvent',
-  'amplitudeEvent',
-  'begin',
-  'error',
-  'flowEvent',
-  'info',
-  'notifyAttachedServices',
-  'warn',
-  'summary',
-  'trace',
-  'debug',
-];
-function mockObject(methodNames: string[], baseObj?: any) {
-  return (methods?: any) => {
-    methods = methods || {};
-    return methodNames.reduce((object, name) => {
-      object[name] = methods[name] || sinon.spy(() => Promise.resolve());
-      return object;
-    }, baseObj || {});
-  };
-}
 
 const config = Config.getProperties();
 const exec = util.promisify(require('node:child_process').exec);
@@ -46,10 +20,8 @@ describe('#integration - scripts/audit-tokens', () => {
   const email = 'user1@test.com';
   const createdAt = new Date('2022-10').getTime();
   const lastAccessTime = new Date('2022-11').getTime();
-  let log: any = null;
 
   beforeAll(async () => {
-    log = mockObject(LOG_METHOD_NAMES)();
     bindKnex(config.database.fxa);
     await scaffoldDb(uid, email, createdAt, lastAccessTime);
 

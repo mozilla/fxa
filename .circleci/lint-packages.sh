@@ -12,15 +12,7 @@ fi
 
 yarn workspaces foreach \
   -piv \
-  $(cat $LIST) \
-  --exclude=browserid-verifier  \
-  --exclude=functional-tests\
-  --exclude=fxa-admin-panel  \
-  --exclude=fxa-admin-server \
-  --exclude=fxa-auth-client \
-  --exclude=fxa-customs-server  \
-  --exclude=fxa-event-broker  \
-  --exclude=fxa-graphql-api \
+  --exclude=functional-tests  \
   --exclude=fxa-payments-server  \
   --exclude=fxa-settings  \
   run lint;

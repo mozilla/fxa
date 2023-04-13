@@ -61,7 +61,7 @@ test('too many failed logins from the same IP', function (t) {
         ip: TEST_IP,
       });
     })
-    .spread(function (req, res, obj) {
+    .spread(function (_req, res, _obj) {
       t.equal(res.statusCode, 200, 'third login attempt noted');
 
       return mcHelper.badLoginCheck();
@@ -107,49 +107,48 @@ test('too many failed logins from the same email', async (t) => {
   const IP2 = '192.0.2.12';
   const IP3 = '192.0.2.13';
 
-  // eslint-disable-next-line no-unused-vars
-  let [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+  let [, res, obj] = await client.postAsync('/failedLoginAttempt', {
     email: TEST_EMAIL,
     ip: IP0,
   });
   t.equal(res.statusCode, 200, 'login attempt noted');
-  [req, res, obj] = await client.postAsync('/check', {
+  [, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP0,
     action: 'accountLogin',
   });
   t.equal(obj.block, false, 'not blocked');
 
-  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+  [, res, obj] = await client.postAsync('/failedLoginAttempt', {
     email: TEST_EMAIL,
     ip: IP1,
   });
   t.equal(res.statusCode, 200, 'login attempt noted');
-  [req, res, obj] = await client.postAsync('/check', {
+  [, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP1,
     action: 'accountLogin',
   });
   t.equal(obj.block, false, 'not blocked');
 
-  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+  [, res, obj] = await client.postAsync('/failedLoginAttempt', {
     email: TEST_EMAIL,
     ip: IP2,
   });
   t.equal(res.statusCode, 200, 'login attempt noted');
-  [req, res, obj] = await client.postAsync('/check', {
+  [, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP2,
     action: 'accountLogin',
   });
   t.equal(obj.block, false, 'not blocked');
 
-  [req, res, obj] = await client.postAsync('/failedLoginAttempt', {
+  [, res, obj] = await client.postAsync('/failedLoginAttempt', {
     email: TEST_EMAIL,
     ip: IP3,
   });
   t.equal(res.statusCode, 200, 'login attempt noted');
-  [req, res, obj] = await client.postAsync('/check', {
+  [, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP3,
     action: 'accountLogin',
@@ -162,7 +161,7 @@ test('too many failed logins from the same email', async (t) => {
   await Promise.delay(1000);
 
   // Attempt to login again, not rate limited
-  [req, res, obj] = await client.postAsync('/check', {
+  [, res, obj] = await client.postAsync('/check', {
     email: TEST_EMAIL,
     ip: IP0,
     action: 'accountLogin',

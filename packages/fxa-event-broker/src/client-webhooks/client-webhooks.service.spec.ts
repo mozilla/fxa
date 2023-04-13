@@ -8,14 +8,6 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { FirestoreService } from '../firestore/firestore.service';
 import { ClientWebhooksService } from './client-webhooks.service';
 
-const baseClients = [
-  { capabilities: ['testCapability1'], clientId: 'testClient1' },
-  {
-    clientId: 'testClient2',
-    capabilities: ['testCapability2', 'testCapability3'],
-  },
-];
-
 describe('ClientWebhooksService', () => {
   let service: ClientWebhooksService;
   let triggerChange: any;

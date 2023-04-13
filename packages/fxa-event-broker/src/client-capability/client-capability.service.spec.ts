@@ -91,11 +91,14 @@ describe('ClientCapabilityService', () => {
       const mockUpdate = jest.fn().mockRejectedValue({});
       (service as any).axiosInstance = { get: mockUpdate };
       expect.assertions(1);
+      let error: Error | undefined = undefined;
       try {
         await service.updateCapabilities({ throwOnError: true });
       } catch (err) {
-        expect(err).toBeDefined();
+        error = err;
       }
+
+      expect(error).toBeDefined();
     });
 
     it('logs on error', async () => {

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Provider, HttpException } from '@nestjs/common';
+import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -138,6 +138,8 @@ describe('PubsubProxy Controller', () => {
     const message = createValidSubscriptionMessage();
     (controller as any).generateSET = jest.fn().mockResolvedValue(TEST_TOKEN);
     expect.assertions(2);
+    let err: any = undefined;
+
     try {
       await controller.proxy(
         {
@@ -146,53 +148,74 @@ describe('PubsubProxy Controller', () => {
         },
         'abc1234'
       );
-    } catch (err) {
-      const status = err.getStatus();
-      const body = err.getResponse();
-      expect(status).toBe(200);
-      expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+    } catch (error) {
+      err = error;
     }
+
+    expect(err?.getStatus()).toBe(200);
+    expect(err?.getResponse()).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
   });
 
   it('throws 404 with invalid clientid', () => {
     expect.assertions(2);
+    let err: { getStatus: () => number } | undefined = undefined;
     try {
       (controller as any).lookupWebhookEndpoint('test1234');
-    } catch (err) {
-      const status = err.getStatus();
-      expect(status).toBe(404);
+    } catch (error) {
+      err = error;
     }
+    expect(err?.getStatus()).toBe(404);
     expect(logger.debug).toBeCalledTimes(1);
   });
 
-  describe('handles common RP events: ', () => {
+  describe('handles common RP events:', () => {
     const eventTypes: { [key: string]: [() => string, string] } = {
       update: [createValidUpdateMessage, 'generateSubscriptionSET'],
       delete: [createValidDeleteMessage, 'generateDeleteSET'],
       password: [createValidPasswordMessage, 'generatePasswordSET'],
       profile: [createValidProfileMessage, 'generateProfileSET'],
     };
+
+    async function notifiesSuccessfully(
+      creatFunc: () => string,
+      generateFunc: string
+    ) {
+      let err:
+        | {
+            getStatus: () => number;
+            getResponse: () => { token: string };
+          }
+        | undefined = undefined;
+
+      mockWebhook();
+      const message = creatFunc();
+      expect.assertions(3);
+
+      try {
+        await controller.proxy(
+          {
+            message: { data: message, messageId: 'test-message' },
+            subscription: 'test-sub',
+          },
+          'abc1234'
+        );
+      } catch (error) {
+        err = error;
+      }
+
+      if (err) {
+        const status = err?.getStatus();
+        const body = err?.getResponse();
+        expect(status).toBe(200);
+        expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
+      }
+
+      expect(jwtset[generateFunc]).toBeCalledTimes(1);
+    }
     for (const [key, value] of Object.entries(eventTypes)) {
       const [creatFunc, generateFunc] = value;
       it(`notifies successfully on ${key}`, async () => {
-        mockWebhook();
-        const message = creatFunc();
-        expect.assertions(3);
-        try {
-          await controller.proxy(
-            {
-              message: { data: message, messageId: 'test-message' },
-              subscription: 'test-sub',
-            },
-            'abc1234'
-          );
-        } catch (err) {
-          const status = err.getStatus();
-          const body = err.getResponse();
-          expect(status).toBe(200);
-          expect(body).toStrictEqual({ token: 'Bearer ' + TEST_TOKEN });
-        }
-        expect(jwtset[generateFunc]).toBeCalledTimes(1);
+        await notifiesSuccessfully(creatFunc, generateFunc);
       });
     }
   });
@@ -200,6 +223,7 @@ describe('PubsubProxy Controller', () => {
   it('logs an error on invalid message payloads', async () => {
     const message = Buffer.from('invalid payload').toString('base64');
     expect.assertions(2);
+    let err: { getStatus: () => number } | undefined = undefined;
     try {
       await controller.proxy(
         {
@@ -208,10 +232,11 @@ describe('PubsubProxy Controller', () => {
         },
         'abc1234'
       );
-    } catch (err) {
-      const status = err.getStatus();
-      expect(status).toBe(400);
+    } catch (error) {
+      err = error;
     }
+
+    expect(err?.getStatus()).toBe(400);
     expect(logger.error).toBeCalledTimes(1);
   });
 
@@ -219,6 +244,9 @@ describe('PubsubProxy Controller', () => {
     nock('http://accounts.firefox.com').post('/webhook').reply(400, 'Error123');
     const message = createValidSubscriptionMessage();
     expect.assertions(2);
+    let err:
+      | { getStatus: () => number; getResponse: () => string }
+      | undefined = undefined;
     try {
       await controller.proxy(
         {
@@ -227,11 +255,11 @@ describe('PubsubProxy Controller', () => {
         },
         'abc1234'
       );
-    } catch (err) {
-      const status = err.getStatus();
-      const body = err.getResponse();
-      expect(status).toBe(400);
-      expect(body).toStrictEqual('Error123');
+    } catch (error) {
+      err = error;
     }
+
+    expect(err?.getStatus()).toBe(400);
+    expect(err?.getResponse()).toStrictEqual('Error123');
   });
 });

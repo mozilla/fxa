@@ -94,7 +94,6 @@ describe('AccountResolver', () => {
   it('resends a verify code through the auth-client', async () => {
     const sessionToken = 'goodtoken';
     const headers = new Headers();
-    const now = Date.now();
     authClient.sessionResendVerifyCode = jest.fn().mockResolvedValue({});
     const result = await resolver.resendVerifyCode(sessionToken, headers, {
       clientMutationId: 'testid',
