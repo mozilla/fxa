@@ -1,5 +1,6 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { BaseTarget } from '../../lib/targets/base';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293389
@@ -44,11 +45,12 @@ test.describe('severity-1 #smoke', () => {
     });
     await login.setEmail(credentials.email);
     await login.submit();
-    const link = await target.email.waitForEmail(
+    let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link = `${link}&showReactApp=false`;
     await page.goto(link, { waitUntil: 'networkidle' });
     await login.clickDontHaveRecoveryKey();
     await login.setNewPassword(credentials.password);

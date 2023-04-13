@@ -7,6 +7,7 @@ test.describe('severity-1', () => {
     await page.goto(`${target.contentServerUrl}/tests/index.html`, {
       waitUntil: 'networkidle',
     });
+    await page.waitForTimeout(2000); // wait for mocha to load
     await page.evaluate(() =>
       globalThis.runner.on('end', () => (globalThis.done = true))
     );

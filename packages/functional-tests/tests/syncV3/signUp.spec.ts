@@ -6,17 +6,23 @@ import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 const password = 'passwordzxcv';
 const incorrectPassword = 'password123';
-let email;
+let email, syncBrowserPages;
 
 test.describe('Firefox Desktop Sync v3 sign up', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
+  test.beforeEach(async ({ target, pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
+    syncBrowserPages = await newPagesForSync(target);
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('sync sign up', async ({ target }) => {
-    const { login, signinTokenCode, page, connectAnotherDevice } =
-      await newPagesForSync(target);
+    const { page, login, connectAnotherDevice, signinTokenCode } =
+      syncBrowserPages;
+
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'networkidle' }
@@ -41,16 +47,10 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     await login.submit();
     await login.fillOutSignUpCode(email);
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
-
-    // Close older pages
-    await login.page.close();
-    await signinTokenCode.page.close();
-    await page.close();
-    await connectAnotherDevice.page.close();
   });
 
   test('coppa disabled', async ({ target }) => {
-    const { login, page, connectAnotherDevice } = await newPagesForSync(target);
+    const { page, login, connectAnotherDevice } = syncBrowserPages;
     const query = { coppa: 'false' };
     const queryParam = new URLSearchParams(query);
     await page.goto(
@@ -68,14 +68,10 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     await login.submit();
     await login.fillOutSignUpCode(email);
     expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
-
-    await login.page.close();
-    await page.close();
-    await connectAnotherDevice.page.close();
   });
 
   test('email specified by relier, invalid', async ({ target }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     const invalidEmail = 'invalid@@';
     const query = { email: invalidEmail };
     const queryParam = new URLSearchParams(query);
@@ -85,13 +81,10 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
     expect(await login.getTooltipError()).toContain('Valid email required');
-
-    await login.page.close();
-    await page.close();
   });
 
   test('email specified by relier, empty string', async ({ target }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     const emptyEmail = '';
     const query = { email: emptyEmail };
     const queryParam = new URLSearchParams(query);
@@ -101,13 +94,10 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
     );
     expect(await login.getTooltipError()).toContain('Valid email required');
-
-    await login.page.close();
-    await page.close();
   });
 
   test('email specified by relier, not registered', async ({ target }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     const query = { email };
     const queryParam = new URLSearchParams(query);
     await page.goto(
@@ -121,16 +111,13 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
 
     // Verify the correct email is displayed
     expect(await login.getPrefilledEmail()).toMatch(email);
-
-    await login.page.close();
-    await page.close();
   });
 
   test('email specified by relier, registered', async ({
     credentials,
     target,
   }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     const query = { email: credentials.email };
     const queryParam = new URLSearchParams(query);
     await page.goto(
@@ -144,8 +131,5 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
 
     // Verify the correct email is displayed
     expect(await login.getPrefilledEmail()).toContain(credentials.email);
-
-    await login.page.close();
-    await page.close();
   });
 });

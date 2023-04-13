@@ -97,6 +97,10 @@ export const test = base.extend<TestOptions, WorkerOptions>({
               value: JSON.stringify(credentials.uid),
             },
             {
+              name: '__fxa_storage.experiment.generalizedReactApp',
+              value: JSON.stringify({ enrolled: false }),
+            },
+            {
               name: '__fxa_storage.accounts',
               value: JSON.stringify({
                 [credentials.uid]: {
@@ -130,5 +134,8 @@ export async function newPagesForSync(target: BaseTarget) {
     firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG),
     headless: !DEBUG,
   });
-  return newPages(browser, target);
+  return {
+    ...(await newPages(browser, target)),
+    browser: browser,
+  };
 }

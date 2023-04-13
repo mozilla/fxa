@@ -5,18 +5,23 @@
 import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 const PASSWORD = 'passwordzxcv';
-let email;
+let email, syncBrowserPages;
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
+  test.beforeEach(async ({ target, pages: { login } }) => {
     test.slow();
     email = login.createEmail('sync{id}');
+    syncBrowserPages = await newPagesForSync(target);
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('open directly to /signup page, refresh on the /signup page', async ({
     target,
   }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'networkidle' }
@@ -38,7 +43,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
   test('open directly to /signin page, refresh on the /signin page', async ({
     target,
   }) => {
-    const { page, login } = await newPagesForSync(target);
+    const { page, login } = syncBrowserPages;
     await target.auth.signUp(email, PASSWORD, {
       lang: 'en',
       preVerified: 'true',
@@ -62,7 +67,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
   });
 
   test('enter a firefox.com address', async ({ target }) => {
-    const { page, login, signinTokenCode } = await newPagesForSync(target);
+    const { page, login, signinTokenCode } = syncBrowserPages;
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'networkidle' }
@@ -71,7 +76,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await signinTokenCode.clickSubmitButton();
 
     // Verify the error
-    expect(await login.getTooltipError()).toMatch(
+    expect(await login.getTooltipError()).toContain(
       'Enter a valid email address. firefox.com does not offer email.'
     );
   });

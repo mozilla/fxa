@@ -809,7 +809,7 @@ workflows:
             - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
-          resource_class: xlarge
+          resource_class: large
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:

@@ -18,7 +18,7 @@ test.describe('change password tests', () => {
       newPassword
     );
     await changePassword.clickSignIn();
-    expect(await changePassword.changePasswordTooltip()).toMatch(
+    expect(await changePassword.changePasswordTooltip()).toContain(
       'Incorrect password'
     );
   });

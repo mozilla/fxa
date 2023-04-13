@@ -30,7 +30,7 @@ test.describe('OAuth signin', () => {
     await relier.clickEmailFirst();
 
     // Email is prefilled
-    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.getPrefilledEmail()).toContain(credentials.email);
     expect(await login.isCachedLogin()).toBe(true);
     await login.submit();
 

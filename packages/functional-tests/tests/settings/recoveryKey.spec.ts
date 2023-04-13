@@ -64,11 +64,12 @@ test.describe('recovery key test', () => {
     await login.clickForgotPassword();
     await login.setEmail(credentials.email);
     await login.submit();
-    const link = await target.email.waitForEmail(
+    let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
     await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await recoveryKey.confirmRecoveryKey();
@@ -109,11 +110,12 @@ test.describe('recovery key test', () => {
     await login.clickForgotPassword();
     await login.setEmail(credentials.email);
     await login.submit();
-    const link = await target.email.waitForEmail(
+    let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
     await page.goto(link, { waitUntil: 'networkidle' });
     await recoveryKey.clickLostRecoveryKey();
 
@@ -144,11 +146,12 @@ test.describe('recovery key test', () => {
     await login.clickForgotPassword();
     await login.setEmail(credentials.email);
     await login.submit();
-    const link = await target.email.waitForEmail(
+    let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
     await page.goto(link);
     await login.setRecoveryKey(key);
     await recoveryKey.confirmRecoveryKey();
@@ -163,11 +166,12 @@ test.describe('recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Attempt to reuse reset link,
-    const link2 = await target.email.waitForEmail(
+    let link2 = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link2 = `${link2}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
     await page.goto(link2, { waitUntil: 'load' });
 
     // Verify reset link expired
@@ -186,11 +190,12 @@ test.describe('recovery key test', () => {
     await login.clickForgotPassword();
     await login.setEmail(credentials.email);
     await login.submit();
-    const link = await target.email.waitForEmail(
+    let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
       EmailHeader.link
     );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
     await page.goto(link, { waitUntil: 'networkidle' });
     await login.setRecoveryKey(key);
     await login.submit();

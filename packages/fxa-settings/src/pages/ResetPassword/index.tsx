@@ -90,10 +90,11 @@ const ResetPassword = ({
   const onSubmit = async () => {
     try {
       setErrorMessage('');
-      const result = await account.resetPassword(email);
+      const sanitizedEmail = email.trim();
+      const result = await account.resetPassword(sanitizedEmail);
       navigateToConfirmPwReset({
         passwordForgotToken: result.passwordForgotToken,
-        email,
+        email: sanitizedEmail,
       });
     } catch (err) {
       let localizedError;
