@@ -26096,7 +26096,7 @@ fsevents@~2.1.1:
     through: 2.3.8
     type-fest: ^3.7.1
     typedi: ^0.8.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     uuid: ^9.0.0
     verror: ^1.10.1
@@ -26414,7 +26414,7 @@ fsevents@~2.1.1:
     ts-jest: ^29.0.0
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.1.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     uuid: ^9.0.0
   languageName: unknown
@@ -26960,7 +26960,7 @@ fsevents@~2.1.1:
     ts-jest: ^29.0.0
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.1.0
-    typesafe-node-firestore: ^1.4.0
+    typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
     underscore: ^1.13.1
     uuid: ^9.0.0
@@ -48594,12 +48594,12 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"typesafe-node-firestore@npm:^1.4.0":
-  version: 1.4.0
-  resolution: "typesafe-node-firestore@npm:1.4.0"
+"typesafe-node-firestore@npm:^1.4.1":
+  version: 1.4.1
+  resolution: "typesafe-node-firestore@npm:1.4.1"
   peerDependencies:
-    "@google-cloud/firestore": "*"
-  checksum: d6932d2bb0bc3b764b23ac2cba9a915a2c8d0f6e2f06fb06020d0cf734b76fe66c8482853f9dd4003a9bd8326ea023b13f0b98cf2c1ea3a1900e25675921b18a
+    "@google-cloud/firestore": ^6.5.0
+  checksum: 38f6013d5e6b7bb76e9901f22b31b35132c48f57b3ecf01bb8d91fb5fb0b48c227bd8850b99db40ab70fe2ab029211e4501cd979b07b42eca2f23721fc5b8251
   languageName: node
   linkType: hard
 
