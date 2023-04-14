@@ -1,12 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import { AUTH_SERVER_ERRNOS_REVERSE_MAP } from 'fxa-shared/lib/errors';
 
-import sentryMetrics from './sentry';
-import { logAmplitudeEvent } from './flow-event';
 import { PaymentProvider } from '../lib/PaymentProvider';
-import { selectors } from '../store/selectors';
 import { Store } from '../store';
+import { selectors } from '../store/selectors';
+import { logAmplitudeEvent } from './flow-event';
+import sentryMetrics from './sentry';
 
 const eventGroupNames = {
   createAccount: 'subPayAccountSetup',
@@ -60,6 +61,20 @@ type SuccessfulSubscriptionEventProperties = EventProperties & {
 };
 
 type Error = { message?: string } | null;
+
+// Remove eslint disable after FXA-6953 & FXA-6954 are closed.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getErrorId(error: any) {
+  let errorId = 'unknown_error';
+  // Auth server AppErrors have an errno
+  if (error && error.errno && AUTH_SERVER_ERRNOS_REVERSE_MAP[error.errno]) {
+    errorId = AUTH_SERVER_ERRNOS_REVERSE_MAP[error.errno];
+    // Stripe API errors don't have an errno
+  } else if (error && error.code && typeof error.code === 'string') {
+    errorId = error.code;
+  }
+  return errorId.toLowerCase();
+}
 
 // These can still be overwritten in the event logging function.
 let globalEventProperties = {};
