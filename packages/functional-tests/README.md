@@ -121,3 +121,107 @@ There's a `Functional Tests` launch target in the root `.vscode/launch.json`. Se
 ### Traces
 
 We record traces for failed tests locally and in CI. On CircleCI they are in the test artifacts. For more read the [Trace Viewer docs](https://playwright.dev/docs/trace-viewer).
+
+## Avoiding Race condition while writing tests
+
+1. Use `waitFor` functions: Playwright provides `waitFor` functions to wait for specific conditions to be met, such as an element to appear or be visible, or an attribute to change. Use these functions instead of hard-coding time delays in your tests.
+
+Example:
+
+```ts
+async showError() {
+  const error = this.page.locator('#error');
+  await error.waitFor({ state: 'visible' });
+  return error.isVisible();
+}
+```
+
+2. Use `waitForUrl` and/or `waitForNavigation`: Use the `waitForUrl` or `waitForNavigation` function to wait for page navigation to complete before continuing with the test.
+
+Example:
+
+```ts
+async clickForgotPassword() {
+  await this.page.locator(selectors.LINK_RESET_PASSWORD).click();
+  await this.page.waitForURL(/reset_password/);
+}
+```
+
+```ts
+async performNavigation() {
+  const waitForNavigation = this.page.waitForNavigation();
+  await this.page.locator('button[id=navigate]').click();
+  return waitForNavigation;
+}
+```
+
+3. Use unique selectors: Use unique selectors to identify elements on the page to avoid confusion or ambiguity in selecting the correct element.
+
+Example:
+
+```ts
+this.page.getByRole('link', { name: 'name1' });
+```
+
+```ts
+this.page.locator('[data-testid="change"]');
+```
+
+```ts
+this.page.locator('#id');
+```
+
+```ts
+this.page.locator('.class');
+```
+
+4. Use `locator().action()` : Use `page.locator().click()` to wait for an element to appear before interacting with it.
+
+Example:
+
+```ts
+performClick() {
+  return this.page.locator('button[id=Save]').click();
+}
+```
+
+5. Use `Promise.all`: Use `Promise.all` to execute multiple asynchronous tasks simultaneously and wait for them to complete before continuing with the test.
+
+Example:
+
+```ts
+async signOut() {
+  await Promise.all([
+    this.page.locator('#logout').click(),
+    this.page.waitForResponse(/\/api\/logout/),
+  ]);
+}
+```
+
+6. Use `beforeEach` and `afterEach`: Use `beforeEach` and `afterEach` hooks to set up and tear down the test environment, or using `test.slow()` to mark the test as slow and tripling the test timeout, or running a test in a particular environment etc.
+
+7. When writing any test that use Firefox Sync, use the `newPagesForSync` helper function. This function creates a new browser and a new browser context to avoid any Sync data being shared between tests. After your test is complete, ensure that the browser is closed to free up memory.
+
+Example:
+
+```ts
+let syncBrowserPages;
+test.beforeEach(async ({ target, pages: { login } }) => {
+  test.slow();
+  syncBrowserPages = await newPagesForSync(target);
+});
+
+test.afterEach(async () => {
+  await syncBrowserPages.browser?.close();
+});
+
+test('open directly to /signup page, refresh on the /signup page', async ({
+  target,
+}) => {
+  // Open new pages in browser specifcally for Sync
+  const { page, login } = syncBrowserPages;
+  // ... The rest of your test
+});
+```
+
+By following these best practices, you can minimize the likelihood of race conditions in your Playwright tests and ensure more reliable and consistent test results.

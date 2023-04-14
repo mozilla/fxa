@@ -1,5 +1,7 @@
 import { test, expect } from '../../../lib/fixtures/standard';
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('coupon test', () => {
   test.beforeEach(() => {
     test.slow();
@@ -123,9 +125,7 @@ test.describe('coupon test', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  // Disabling the test as this is being flaky
-  // FXA - 6786, FXA - 6788
-  test.skip('subscribe with credit card and use coupon', async ({
+  test('subscribe with credit card and use coupon', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();
@@ -143,9 +143,7 @@ test.describe('coupon test', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  // Disabling the test as this is being flaky because Paypal Sandbox is being finicky
-  // FXA - 6786, FXA - 6788
-  test.skip('subscribe with paypal and use coupon', async ({
+  test('subscribe with paypal and use coupon', async ({
     pages: { relier, login, subscribe },
   }) => {
     await relier.goto();

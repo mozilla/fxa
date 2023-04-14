@@ -9,6 +9,8 @@ const password = 'passwordzxcv';
 let email;
 let syncBrowserPages;
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Firefox Desktop Sync v3 sign in', () => {
   test.beforeEach(async ({ target }) => {
     test.slow();
