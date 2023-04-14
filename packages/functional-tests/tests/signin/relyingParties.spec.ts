@@ -6,7 +6,7 @@ test.describe('severity-1 #smoke', () => {
     target,
     credentials,
   }) => {
-    const { page, login, settings } = await newPagesForSync(target);
+    const { browser, page, login, settings } = await newPagesForSync(target);
 
     await page.goto(
       target.contentServerUrl +
@@ -27,6 +27,8 @@ test.describe('severity-1 #smoke', () => {
     await settings.disconnectSync(credentials);
 
     expect(page.url()).toContain(login.url);
+
+    await browser.close();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475

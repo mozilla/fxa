@@ -5,16 +5,21 @@
 import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 const password = 'passwordzxcv';
+let syncBrowserPages;
 
 test.describe('signin with OAuth after Sync', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ target }) => {
     test.slow();
+    syncBrowserPages = await newPagesForSync(target);
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('signin to OAuth with Sync creds', async ({ target }) => {
-    const { page, login, connectAnotherDevice, relier } = await newPagesForSync(
-      target
-    );
+    const { page, login, connectAnotherDevice, relier } = syncBrowserPages;
+
     const email = login.createEmail('sync{id}');
     const email2 = login.createEmail();
     await target.createAccount(email, password);
@@ -39,21 +44,25 @@ test.describe('signin with OAuth after Sync', () => {
     await relier.clickSignIn();
 
     // By default, we should see the email we signed up for Sync with
-    expect(await login.getPrefilledEmail()).toMatch(email);
+    expect(await login.getPrefilledEmail()).toContain(email);
     await login.clickSignIn();
     expect(await relier.isLoggedIn()).toBe(true);
   });
 });
 
 test.describe('signin to Sync after OAuth', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ target }) => {
     test.slow();
+    syncBrowserPages = await newPagesForSync(target);
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('email-first Sync signin', async ({ target }) => {
-    const { page, login, connectAnotherDevice, relier } = await newPagesForSync(
-      target
-    );
+    const { page, login, connectAnotherDevice, relier } = syncBrowserPages;
+
     const email = login.createEmail('sync{id}');
     await relier.goto();
     await relier.clickEmailFirst();
@@ -62,7 +71,7 @@ test.describe('signin to Sync after OAuth', () => {
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
     );
-    expect(await login.getPrefilledEmail()).toMatch(email);
+    expect(await login.getPrefilledEmail()).toContain(email);
     await login.setPassword(password);
     await login.submit();
     await login.fillOutSignInCode(email);

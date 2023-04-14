@@ -12,7 +12,9 @@ test.describe('Reset password current', () => {
     page,
     pages: { resetPassword },
   }) => {
-    await page.goto(`${target.contentServerUrl}/confirm_reset_password`);
+    await page.goto(
+      `${target.contentServerUrl}/confirm_reset_password?showReactApp=false`
+    );
 
     // Verify its redirected to reset password page
     expect(await resetPassword.resetPasswordHeader()).toBe(true);
@@ -29,7 +31,7 @@ test.describe('Reset password current', () => {
   });
 
   test('enter an email with leading/trailing whitespace', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { login, resetPassword },
@@ -44,7 +46,7 @@ test.describe('Reset password current', () => {
   });
 
   test('open confirm_reset_password page, click resend', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { resetPassword },
@@ -65,11 +67,13 @@ test.describe('Reset password current', () => {
     await page.goto(`${target.contentServerUrl}/reset_password`);
     await login.setEmail('email@restmail.com');
     await resetPassword.clickBeginReset();
-    expect(await resetPassword.unknownAccountError()).toContain('Unknown account.');
+    expect(await resetPassword.unknownAccountError()).toContain(
+      'Unknown account.'
+    );
   });
 
   test('browse directly to page with email on query params', async ({
-   credentials,
+    credentials,
     target,
     page,
     pages: { resetPassword },

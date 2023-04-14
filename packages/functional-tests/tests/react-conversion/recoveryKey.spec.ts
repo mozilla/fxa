@@ -7,11 +7,15 @@ let originalEncryptionKeys;
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
-function getReactFeatureFlagUrl(target: BaseTarget, path: string) {
-  return `${target.contentServerUrl}${path}?showReactApp=true`;
+function getReactFeatureFlagUrl(
+  target: BaseTarget,
+  path: string,
+  showReactApp: boolean = true
+) {
+  return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }
 
-test.describe('recovery key', () => {
+test.describe('recovery key react', () => {
   test.beforeEach(
     async ({ target, credentials, pages: { settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
@@ -33,16 +37,19 @@ test.describe('recovery key', () => {
       expect(status).toEqual('Enabled');
 
       // Stash original encryption keys to be verified later
-     const res = await target.auth.sessionReauth(
-      credentials.sessionToken,
-      credentials.email,
-      credentials.password,
-      {
-       keys: true,
-       reason: 'recovery_key',
-      }
-     )
-     originalEncryptionKeys = await target.auth.accountKeys(res.keyFetchToken, res.unwrapBKey);
+      const res = await target.auth.sessionReauth(
+        credentials.sessionToken,
+        credentials.email,
+        credentials.password,
+        {
+          keys: true,
+          reason: 'recovery_key',
+        }
+      );
+      originalEncryptionKeys = await target.auth.accountKeys(
+        res.keyFetchToken,
+        res.unwrapBKey
+      );
     }
   );
 
@@ -73,7 +80,7 @@ test.describe('recovery key', () => {
     expect(await page.locator('#root').isEnabled()).toBeTruthy();
 
     expect(
-      await page.locator('text="Enter account recovery key"').isVisible()
+      await page.locator('text="Enter account recovery key"').isEnabled()
     ).toBeTruthy();
     await page.locator('input').fill(key);
     await page.locator('text="Confirm account recovery key"').click();
@@ -86,24 +93,27 @@ test.describe('recovery key', () => {
     await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
     // Attempt to login with new password
-   const { sessionToken } = await target.auth.signIn(
-    credentials.email,
-    NEW_PASSWORD
-   );
+    const { sessionToken } = await target.auth.signIn(
+      credentials.email,
+      NEW_PASSWORD
+    );
 
-   const res = await target.auth.sessionReauth(
-    sessionToken,
-    credentials.email,
-    NEW_PASSWORD,
-    {
-     keys: true,
-     reason: 'recovery_key',
-    }
-   )
-   const newEncryptionKeys = await target.auth.accountKeys(res.keyFetchToken, res.unwrapBKey);
-   expect(originalEncryptionKeys).toEqual(newEncryptionKeys);
+    const res = await target.auth.sessionReauth(
+      sessionToken,
+      credentials.email,
+      NEW_PASSWORD,
+      {
+        keys: true,
+        reason: 'recovery_key',
+      }
+    );
+    const newEncryptionKeys = await target.auth.accountKeys(
+      res.keyFetchToken,
+      res.unwrapBKey
+    );
+    expect(originalEncryptionKeys).toEqual(newEncryptionKeys);
 
-   // Cleanup requires setting this value to correct password
-   credentials.password = NEW_PASSWORD;
+    // Cleanup requires setting this value to correct password
+    credentials.password = NEW_PASSWORD;
   });
 });

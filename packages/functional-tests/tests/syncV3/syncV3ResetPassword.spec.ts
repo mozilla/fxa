@@ -14,9 +14,11 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
     credentials,
     target,
   }) => {
-    const { page, login, resetPassword } = await newPagesForSync(target);
+    const { browser, page, login, resetPassword } = await newPagesForSync(
+      target
+    );
     await page.goto(
-      `${target.contentServerUrl}/reset_password?context=fx_desktop_v3&service=sync`
+      `${target.contentServerUrl}/reset_password?context=fx_desktop_v3&service=sync&forceExperiment=generalizedReactApp&forceExperimentGroup=control`
     );
     await resetPassword.fillOutResetPassword(credentials.email);
 
@@ -57,8 +59,6 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
     // Update credentials file so that account can be deleted as part of test cleanup
     credentials.password = 'Newpassword@';
 
-    await login.page.close();
-    await page.close();
-    await resetPassword.page.close();
+    await browser?.close();
   });
 });

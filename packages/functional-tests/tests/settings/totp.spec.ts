@@ -1,4 +1,4 @@
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('two step auth', () => {
@@ -61,24 +61,6 @@ test.describe('two step auth', () => {
     await login.setTotp(credentials.secret);
     const status = await settings.totp.statusText();
     expect(status).toEqual('Enabled');
-  });
-
-  test('add TOTP and confirm sync signin', async ({ credentials, target }) => {
-    const { login, settings, totp, page, connectAnotherDevice } =
-      await newPagesForSync(target);
-    await settings.goto();
-    await settings.totp.clickAdd();
-    await totp.enable(credentials);
-    await settings.signOut();
-
-    // Sync sign in
-    await page.goto(
-      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
-      { waitUntil: 'networkidle' }
-    );
-    await login.login(credentials.email, credentials.password);
-    await login.setTotp(credentials.secret);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293450

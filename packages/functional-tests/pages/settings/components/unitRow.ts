@@ -4,29 +4,30 @@ import { ConnectedService } from './connectedService';
 export class UnitRow {
   constructor(readonly page: Page, readonly id: string) {}
 
-  protected clickCta() {
-    return Promise.all([
-      this.page.locator(`[data-testid=${this.id}-unit-row-route]`).click(),
-      this.page.waitForNavigation(),
-    ]);
+  protected async clickCta() {
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator(`[data-testid=${this.id}-unit-row-route]`).click();
+    return waitForNavigation;
   }
 
   protected clickShowModal() {
-    return this.page.click(`[data-testid=${this.id}-unit-row-modal]`);
+    return this.page.locator(`[data-testid=${this.id}-unit-row-modal]`).click();
   }
 
   protected clickShowSecondaryModal() {
-    return this.page.click(`[data-testid=${this.id}-secondary-unit-row-modal]`);
+    return this.page
+      .locator(`[data-testid=${this.id}-secondary-unit-row-modal]`)
+      .click();
   }
 
   statusText() {
-    return this.page.innerText(
-      `[data-testid=${this.id}-unit-row-header-value]`
-    );
+    return this.page
+      .locator(`[data-testid=${this.id}-unit-row-header-value]`)
+      .innerText();
   }
 
   clickRefresh() {
-    return this.page.click(`[data-testid=${this.id}-refresh]`);
+    return this.page.locator(`[data-testid=${this.id}-refresh]`).click();
   }
 
   async screenshot() {
@@ -75,10 +76,12 @@ export class SecondaryEmailRow extends UnitRow {
     return this.clickCta();
   }
   clickMakePrimary() {
-    return this.page.click('[data-testid=secondary-email-make-primary]');
+    return this.page
+      .locator('[data-testid=secondary-email-make-primary]')
+      .click();
   }
   clickDelete() {
-    return this.page.click('[data-testid=secondary-email-delete]');
+    return this.page.locator('[data-testid=secondary-email-delete]').click();
   }
 }
 
@@ -99,9 +102,9 @@ export class TotpRow extends UnitRow {
     return this.clickShowModal();
   }
   clickDisable() {
-    return this.page.click(
-      `[data-testid=two-step-disable-button-unit-row-modal]`
-    );
+    return this.page
+      .locator(`[data-testid=two-step-disable-button-unit-row-modal]`)
+      .click();
   }
 }
 

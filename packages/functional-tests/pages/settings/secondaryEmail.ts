@@ -5,18 +5,17 @@ export class SecondaryEmailPage extends SettingsLayout {
   readonly path = 'settings/emails';
 
   setEmail(email: string) {
-    return this.page.fill('input[type=email]', email);
+    return this.page.locator('input[type=email]').fill(email);
   }
 
   setVerificationCode(code: string) {
-    return this.page.fill('input[type=text]', code);
+    return this.page.locator('input[type=text]').fill(code);
   }
 
-  submit() {
-    return Promise.all([
-      this.page.locator('button[type=submit]').click(),
-      this.page.waitForNavigation(),
-    ]);
+  async submit() {
+    const waitForNavigation = this.page.waitForNavigation();
+    await this.page.locator('button[type=submit]').click();
+    return waitForNavigation;
   }
 
   async addAndVerify(email: string) {

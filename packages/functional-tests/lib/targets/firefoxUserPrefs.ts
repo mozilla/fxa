@@ -22,6 +22,9 @@ const CONFIGS = {
   },
 } as const;
 
+const UA_OVERRIDE =
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:71.0) Gecko/20100101 Firefox/71.0 FxATester/1.0';
+
 export function getFirefoxUserPrefs(
   target: 'local' | 'stage' | 'production',
   debug?: boolean
@@ -66,5 +69,7 @@ export function getFirefoxUserPrefs(
     // allow webchannel url, strips slash from content-server origin.
     'webchannel.allowObject.urlWhitelist': fxaEnv.content.slice(0, -1),
     ...(debug ? debugOptions : {}),
+    // Override the user agent so that feature flags and experiments are not set
+    'general.useragent.override': UA_OVERRIDE,
   };
 }

@@ -9,9 +9,16 @@ const makeUid = () =>
     .map(() => Math.floor(Math.random() * 16).toString(16))
     .join('');
 
+let syncBrowserPages;
+
 test.describe('Desktop Sync V3 force auth', () => {
-  test.beforeEach(async ({}) => {
+  test.beforeEach(async ({ target }) => {
     test.slow();
+    syncBrowserPages = await newPagesForSync(target);
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('sync v3 with a registered email, no uid', async ({
@@ -21,9 +28,10 @@ test.describe('Desktop Sync V3 force auth', () => {
     const {
       fxDesktopV3ForceAuth,
       login,
-      signinTokenCode,
       connectAnotherDevice,
-    } = await newPagesForSync(target);
+      signinTokenCode,
+    } = syncBrowserPages;
+
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       uid: undefined,
     });
@@ -45,9 +53,10 @@ test.describe('Desktop Sync V3 force auth', () => {
     const {
       fxDesktopV3ForceAuth,
       login,
-      signinTokenCode,
       connectAnotherDevice,
-    } = await newPagesForSync(target);
+      signinTokenCode,
+    } = syncBrowserPages;
+
     await fxDesktopV3ForceAuth.open(credentials);
     await login.setPassword(credentials.password);
     await login.submit();
@@ -67,9 +76,10 @@ test.describe('Desktop Sync V3 force auth', () => {
     const {
       fxDesktopV3ForceAuth,
       login,
-      signinTokenCode,
       connectAnotherDevice,
-    } = await newPagesForSync(target);
+      signinTokenCode,
+    } = syncBrowserPages;
+
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, { uid });
     await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
@@ -88,7 +98,8 @@ test.describe('Desktop Sync V3 force auth', () => {
     credentials,
     target,
   }) => {
-    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
+    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+
     const email = `sync${Math.random()}@restmail.net`;
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       email,
@@ -114,7 +125,8 @@ test.describe('Desktop Sync V3 force auth', () => {
     credentials,
     target,
   }) => {
-    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
+    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+
     const email = `sync${Math.random()}@restmail.net`;
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       email,
@@ -134,7 +146,8 @@ test.describe('Desktop Sync V3 force auth', () => {
     credentials,
     target,
   }) => {
-    const { fxDesktopV3ForceAuth, login } = await newPagesForSync(target);
+    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+
     const email = `sync${Math.random()}@restmail.net`;
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -157,7 +170,8 @@ test.describe('Desktop Sync V3 force auth', () => {
     target,
   }) => {
     const { fxDesktopV3ForceAuth, login, connectAnotherDevice } =
-      await newPagesForSync(target);
+      syncBrowserPages;
+
     const uid = makeUid();
     await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
       uid,

@@ -7,16 +7,23 @@ import { EmailHeader, EmailType } from '../../lib/email';
 
 const password = 'passwordzxcv';
 let email;
+let syncBrowserPages;
 
 test.describe('Firefox Desktop Sync v3 sign in', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
+  test.beforeEach(async ({ target }) => {
     test.slow();
+    syncBrowserPages = await newPagesForSync(target);
+    const { login } = syncBrowserPages;
     email = login.createEmail('sync{id}');
+  });
+
+  test.afterEach(async () => {
+    await syncBrowserPages.browser?.close();
   });
 
   test('verified, does not need to confirm', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
-      await newPagesForSync(target);
+      syncBrowserPages;
     const email = login.createEmail();
     await target.auth.signUp(email, password, {
       lang: 'en',
@@ -29,12 +36,13 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     await signinTokenCode.clickSubmitButton();
     await login.setPassword(password);
     await login.submit();
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+    expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
   });
 
   test('verified, resend', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
-      await newPagesForSync(target);
+      syncBrowserPages;
+
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
@@ -62,7 +70,8 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
 
   test('verified - invalid code', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
-      await newPagesForSync(target);
+      syncBrowserPages;
+
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
     );
@@ -85,7 +94,8 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
 
   test('verified, blocked', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
-      await newPagesForSync(target);
+      syncBrowserPages;
+
     const blockedEmail = login.createEmail('blocked{id}');
     await target.auth.signUp(blockedEmail, password, {
       lang: 'en',
@@ -104,7 +114,8 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
 
   test('unverified', async ({ target }) => {
     const { page, login, connectAnotherDevice, signinTokenCode } =
-      await newPagesForSync(target);
+      syncBrowserPages;
+
     await target.auth.signUp(email, password, {
       lang: 'en',
       preVerified: 'false',
@@ -119,6 +130,25 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     await login.fillOutSignInCode(email);
     expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
   });
+
+  test('add TOTP and confirm sync signin', async ({ credentials, target }) => {
+    const { page, login, connectAnotherDevice, settings, totp } =
+      syncBrowserPages;
+
+    await settings.goto();
+    await settings.totp.clickAdd();
+    await totp.enable(credentials);
+    await settings.signOut();
+
+    // Sync sign in
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
+      { waitUntil: 'networkidle' }
+    );
+    await login.login(credentials.email, credentials.password);
+    await login.setTotp(credentials.secret);
+    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+  });
 });
 
 test.describe('OAuth and Fx Desktop handshake', () => {
@@ -126,7 +156,9 @@ test.describe('OAuth and Fx Desktop handshake', () => {
     target,
     credentials,
   }) => {
-    const { page, login, settings, relier } = await newPagesForSync(target);
+    const { browser, page, login, relier, settings } = await newPagesForSync(
+      target
+    );
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
@@ -164,5 +196,7 @@ test.describe('OAuth and Fx Desktop handshake', () => {
     await settings.disconnectSync(credentials);
 
     expect(page.url()).toContain(login.url);
+
+    await browser?.close();
   });
 });

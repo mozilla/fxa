@@ -5,7 +5,8 @@ test.describe('connect_another_device', () => {
     credentials,
     target,
   }) => {
-    const { page, login, connectAnotherDevice } = await newPagesForSync(target);
+    const { browser, page, login, connectAnotherDevice } =
+      await newPagesForSync(target);
     await target.auth.accountDestroy(credentials.email, credentials.password);
 
     await page.goto(
@@ -20,5 +21,7 @@ test.describe('connect_another_device', () => {
     await expect(connectAnotherDevice.signInButton).toHaveCount(0);
     await expect(connectAnotherDevice.installFxDesktop).toHaveCount(1);
     await expect(connectAnotherDevice.success).toHaveCount(0);
+
+    await browser?.close();
   });
 });

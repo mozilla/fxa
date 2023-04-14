@@ -5,8 +5,12 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { BaseTarget } from '../../lib/targets/base';
 
-function getReactFeatureFlagUrl(target: BaseTarget, path: string) {
-  return `${target.contentServerUrl}${path}?showReactApp=true`;
+function getReactFeatureFlagUrl(
+  target: BaseTarget,
+  path: string,
+  showReactApp: boolean = true
+) {
+  return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }
 
 test.describe('legal', () => {
