@@ -36,10 +36,9 @@ IFS=$'\n'
 #      8.4. If package.json exists, update the version string in package.json.
 #      8.5. If package-lock.json exists, update the version string in package-lock.json.
 #      8.6. If npm-shrinkwrap.json exists, update the version string in npm-shrinkwrap.json.
-#   9. Update the AUTHORS file
-#   10. Commit changes.
-#   11. Create a tag.
-#   12. Tell the user what we did.
+#   9. Commit changes.
+#   10. Create a tag.
+#   11. Tell the user what we did.
 
 SCRIPT_DIR=`dirname "$0"`/_scripts
 CURRENT_BRANCH=`git branch --no-color | grep '^\*' | cut -d ' ' -f 2`
@@ -178,13 +177,10 @@ for TARGET in $TARGETS; do
   bump "$TARGET"
 done
 
-# 9. Update the AUTHORS file
-npm run authors > /dev/null
-
-# 10. Commit changes.
+# 9. Commit changes.
 git commit -a -m "Release $NEW_VERSION"
 
-# 11. Create a tag.
+# 10. Create a tag.
 git tag -a "$NEW_TAG" -m "$BUILD_TYPE release $NEW_VERSION"
 
 
@@ -193,7 +189,7 @@ if [ -f "$SCRIPT_DIR/create-deploy-bug.url" ]; then
 fi
 
 
-# 12. Tell the user what we did.
+# 11. Tell the user what we did.
 echo
 echo "Success! The release has been tagged locally but it hasn't been pushed."
 echo "Before pushing, you should check that the changes appear to be sane."
