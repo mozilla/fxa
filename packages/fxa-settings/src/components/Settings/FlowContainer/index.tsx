@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { useFtlMsgResolver } from '../../../models';
 import { RouteComponentProps } from '@reach/router';
 import { ReactComponent as BackArrow } from './back-arrow.svg';
 import Head from 'fxa-react/components/Head';
-import { useLocalization } from '@fluent/react';
 
 type FlowContainerProps = {
   title?: string;
@@ -14,6 +14,8 @@ type FlowContainerProps = {
   onBackButtonClick?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
+  customBackButtonTitle?: string;
+  customBackButtonLocalizationId?: string;
   children?: React.ReactNode;
 };
 
@@ -21,9 +23,18 @@ export const FlowContainer = ({
   title,
   subtitle,
   onBackButtonClick = () => window.history.back(),
+  customBackButtonTitle,
+  customBackButtonLocalizationId,
   children,
 }: FlowContainerProps & RouteComponentProps) => {
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const backButtonTitle =
+    customBackButtonTitle && customBackButtonLocalizationId
+      ? ftlMsgResolver.getMsg(
+          customBackButtonLocalizationId,
+          customBackButtonTitle
+        )
+      : ftlMsgResolver.getMsg('flow-container-back', 'Back');
   return (
     <div
       className={`max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl`}
@@ -35,7 +46,7 @@ export const FlowContainer = ({
         <button
           onClick={onBackButtonClick}
           data-testid="flow-container-back-btn"
-          title={l10n.getString('flow-container-back', null, 'Back')}
+          title={backButtonTitle}
           className="relative w-8 h-8 ltr:-ml-2 rtl:-mr-2 ltr:mr-2 rtl:ml-2 tablet:ltr:mr-10 tablet:rtl:ml-10 tablet:ltr:-ml-18 tablet:rtl:-mr-18"
         >
           <BackArrow
