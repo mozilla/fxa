@@ -43,30 +43,4 @@ suite.tests['eventFilter'] = function () {
   assert.equal(response.exception[0].stacktrace.frames.length, 10);
 };
 
-suite.tests['captures validation errors'] = function () {
-  var err = {
-    details: new Map([
-      [
-        'body',
-        {
-          details: [
-            {
-              message: 'test1',
-              type: 'test2',
-              path: ['test3'],
-            },
-          ],
-        },
-      ],
-    ]),
-  };
-  assert.ok(sentry.tryCaptureValidationError(err));
-};
-
-suite.tests['it ignores errors that are not validation based'] = function () {
-  assert.isFalse(sentry.tryCaptureValidationError(new Error('BOOM')));
-  assert.isFalse(sentry.tryCaptureValidationError({}));
-  assert.isFalse(sentry.tryCaptureValidationError('BOOM'));
-};
-
 registerSuite('sentry', suite);

@@ -65,7 +65,6 @@ const fourOhFour = require('../lib/404');
 const serverErrorHandler = require('../lib/500');
 const localizedRender = require('../lib/localized-render');
 const csp = require('../lib/csp');
-const { tryCaptureValidationError } = require('../lib/sentry');
 const cspRulesBlocking = require('../lib/csp/blocking')(config);
 const cspRulesReportOnly = require('../lib/csp/report-only')(config);
 
@@ -235,19 +234,6 @@ function makeApp() {
       next(err);
     }
   });
-
-  // The sentry error handler must be before any other error middleware
-  app.use(
-    sentry.sentryModule.Handlers.errorHandler({
-      shouldHandleError(error) {
-        const success = tryCaptureValidationError(error);
-
-        // If the validation was explicitly captured, we return false. Otherwise the
-        // error is reported twice.
-        return !success;
-      },
-    })
-  );
 
   // log and capture any errors
   app.use((err, req, res, next) => {

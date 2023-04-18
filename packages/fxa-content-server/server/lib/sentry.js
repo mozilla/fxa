@@ -72,62 +72,11 @@ if (config.get('sentry.dsn')) {
       event = tagFxaName(event, opts.serverName);
       return event;
     },
-    integrations: [
-      new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-    ],
+    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
   });
-}
-
-/**
- * Attempts to capture an error and report it to sentry. If the error is a
- * validation error special steps are taking to capture the reasons validation failed.
- * @param {*} err
- * @returns true if error was reported, false otherwise
- */
-function tryCaptureValidationError(err) {
-  try {
-    // Try to get error details. This might not be present.
-    let errorDetails = null;
-    if (err != null && err.details instanceof Map) {
-      errorDetails = err.details.get('body');
-    }
-
-    if (errorDetails) {
-      const message = `${errorDetails}`;
-      const validationError = errorDetails.details.reduce((a, v) => {
-        // Try to get the key for the field that failed validation and update
-        // the error state
-        if (v && Array.isArray(v.path)) {
-          const key = v.path.join('.');
-
-          if (key) {
-            return {
-              ...a,
-              [key]: `reason: ${v.type} - ${v.message}`,
-            };
-          }
-        }
-
-        return a;
-      }, {});
-
-      Sentry.withScope((scope) => {
-        scope.setTag('error_type', 'validation_error');
-        scope.setContext('validationError', { validationError });
-        Sentry.captureMessage(message, Sentry.Severity.Error);
-      });
-
-      return true;
-    }
-  } catch (err) {
-    logger.error(err);
-  }
-
-  return false;
 }
 
 module.exports = {
   _eventFilter: eventFilter, // exported for testing purposes
   sentryModule: Sentry,
-  tryCaptureValidationError,
 };
