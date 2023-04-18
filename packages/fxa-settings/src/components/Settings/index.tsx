@@ -27,6 +27,7 @@ import PageRecentActivity from './PageRecentActivity';
 
 export const Settings = (props: RouteComponentProps) => {
   const config = useConfig();
+  console.log(config);
   const { metricsEnabled, hasPassword } = useAccount();
 
   useEffect(() => {

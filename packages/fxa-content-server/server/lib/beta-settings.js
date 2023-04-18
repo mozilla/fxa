@@ -59,6 +59,7 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
+  recoveryKeyV2: { enabled: config.get('recovery_key_v2.enabled') },
 };
 
 // Inject Beta Settings meta content

@@ -601,6 +601,14 @@ const conf = (module.exports = convict({
       format: 'nat',
     },
   },
+  recovery_key_v2: {
+    enabled: {
+      default: false,
+      doc: 'Enable users to see the new recovery key flow in settings',
+      format: Boolean,
+      env: 'RECOVERY_KEY_FLOW_V2_ENABLED',
+    },
+  },
   redirect_port: {
     default: 80,
     doc: 'Redirect port for HTTPS',

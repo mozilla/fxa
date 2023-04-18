@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Localized, useLocalization } from '@fluent/react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import base32encode from 'base32-encode';
@@ -10,11 +14,12 @@ import {
   composeAuthUiErrorTranslationId,
 } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { useAccount, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar, useConfig } from '../../../models';
 import DataBlock from '../../DataBlock';
 import FlowContainer from '../FlowContainer';
 import InputPassword from '../../InputPassword';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import PageRecoveryKeyCreate from '../PageRecoveryKeyCreate';
 
 type FormData = {
   password: string;
@@ -22,6 +27,9 @@ type FormData = {
 
 export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
   usePageViewEvent('settings.account-recovery');
+  const config = useConfig();
+  const { recoveryKeyV2 } = config;
+
   const { handleSubmit, register, formState, setValue } = useForm<FormData>({
     mode: 'all',
     defaultValues: {
@@ -114,7 +122,9 @@ export const PageRecoveryKeyAdd = (_: RouteComponentProps) => {
     }
   }, [account, formattedRecoveryKey, navigate]);
 
-  return (
+  return recoveryKeyV2.enabled ? (
+    <PageRecoveryKeyCreate />
+  ) : (
     <Localized id="recovery-key-page-title-1" attrs={{ title: true }}>
       <FlowContainer title="Account recovery key" subtitle={subtitleText}>
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />

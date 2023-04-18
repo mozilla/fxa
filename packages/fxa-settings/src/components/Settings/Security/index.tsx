@@ -5,9 +5,10 @@
 import { Localized, useLocalization } from '@fluent/react';
 import React from 'react';
 import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
+import UnitRowRecoveryKeyV2 from '../UnitRowRecoveryKeyV2';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
-import { useAccount } from '../../../models';
+import { useAccount, useConfig } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 
@@ -31,6 +32,8 @@ export const Security = () => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
+  const config = useConfig();
+  const { recoveryKeyV2 } = config;
 
   return (
     <section className="mt-11" data-testid="settings-security">
@@ -73,7 +76,12 @@ export const Security = () => {
         </Localized>
         <hr className="unit-row-hr" />
 
-        <UnitRowRecoveryKey />
+        {recoveryKeyV2.enabled ? (
+          <UnitRowRecoveryKeyV2 />
+        ) : (
+          <UnitRowRecoveryKey />
+        )}
+
         <hr className="unit-row-hr" />
         <UnitRowTwoStepAuth />
 
