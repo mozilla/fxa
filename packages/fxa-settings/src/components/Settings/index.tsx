@@ -24,9 +24,11 @@ import { HomePath } from '../../constants';
 import { observeNavigationTiming } from 'fxa-shared/metrics/navigation-timing';
 import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
+import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 
 export const Settings = (props: RouteComponentProps) => {
   const config = useConfig();
+  const { showRecoveryKeyV2 } = config;
   const { metricsEnabled, hasPassword } = useAccount();
 
   useEffect(() => {
@@ -63,6 +65,15 @@ export const Settings = (props: RouteComponentProps) => {
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {hasPassword ? (
+            showRecoveryKeyV2 ? (
+              <PageRecoveryKeyCreate path="/account_recovery" />
+            ) : (
+              <PageRecoveryKeyAdd path="/account_recovery" />
+            )
+          ) : (
+            <Redirect from="/account_recovery" to="/settings" noThrow />
+          )}
+          {hasPassword ? (
             <>
               <PageChangePassword path="/change_password" />
               <Redirect
@@ -70,7 +81,6 @@ export const Settings = (props: RouteComponentProps) => {
                 to="/settings/change_password"
                 noThrow
               />
-              <PageRecoveryKeyAdd path="/account_recovery" />
               <PageTwoStepAuthentication path="/two_step_authentication" />
               <Page2faReplaceRecoveryCodes path="/two_step_authentication/replace_codes" />
             </>
