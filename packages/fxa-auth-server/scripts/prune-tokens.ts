@@ -42,7 +42,7 @@ export async function init() {
     .version(pckg.version)
     .option(
       '--maxTokenAge <duration>',
-      'Max age of token. Any tokens older than this value will be pruned. A value of 0 results in a no-op.',
+      'Max age of token. Any tokens older than this value will be pruned, except session tokens with associated devices. A value of 0 results in a no-op.',
       '0'
     )
     .option(
@@ -57,12 +57,12 @@ export async function init() {
     )
     .option(
       '--maxSessionsMaxAccounts <number>',
-      'When maxSessions is greater than 0, this value allows us to limit scope of the delete by restricting the number of accounts processed on any given run.',
+      'When maxSessions is greater than 0 this is the upper limit of accounts processed per run.',
       100
     )
     .option(
       '--maxSessionsMaxDeletions <number>',
-      'When maxSessions is greater than 0, this value restricts the total number of sessions that can be deleted per account.',
+      'When maxSessions is greater than 0, this is the upper limit of tokens deleted per account before moving to the next account.',
       100e3
     )
     .option(
@@ -70,7 +70,7 @@ export async function init() {
       'When maxSessions is greater than 0, this value controls the number of deletions that are batched together at one time. e.g. A batch size of 1 would delete one token at a time.',
       1e3
     )
-    .option('--wait', 'Amount of time to sleep in milliseconds between delete operations (ie between batches).', 5e3)
+    .option('--wait', 'Amount of time to sleep in milliseconds between batches (i.e. between deletions).', 5e3)
     .on('--help', function () {
       console.log(`
 Example:
