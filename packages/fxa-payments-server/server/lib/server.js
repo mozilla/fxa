@@ -309,7 +309,7 @@ module.exports = () => {
   // it's a four-oh-four not found.
   app.use(require('./404'));
 
-  app.use(routeHelpers.validationErrorHandler);
+  app.use((error, request, response, next) => routeHelpers.validationErrorHandler(error, request, response, next, true));
 
   if (sentryConfig.dsn) {
     // Send errors to sentry.

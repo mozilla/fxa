@@ -100,7 +100,8 @@ export const routing = (app: express.Express, logger: Logger) => {
       err: Error,
       req: express.Request,
       res: express.Response,
-      next: express.NextFunction
+      next: express.NextFunction,
+      shouldReportError?: boolean
     ) {
       if (err && isValidationError(err)) {
         logger.error('validation.failed', {
@@ -109,22 +110,24 @@ export const routing = (app: express.Express, logger: Logger) => {
           path: req.url,
         });
 
-        const validationError = err as CelebrateError;
-        if (validationError.details && validationError.details.get('body')) {
-          logger.error('joi.validationError', {
-            err,
-            joiErrors: validationError.details.get('body')?.message,
-          });
-
-          Sentry.withScope((scope) => {
-            scope.setContext('joi.validationError', {
-              error: validationError.details.get('body')?.message,
+        if (shouldReportError) {
+          const validationError = err as CelebrateError;
+          if (validationError.details && validationError.details.get('body')) {
+            logger.error('joi.validationError', {
+              err,
+              joiErrors: validationError.details.get('body')?.message,
             });
-            Sentry.captureMessage(
-              'Joi validation error',
-              Sentry.Severity.Error
-            );
-          });
+
+            Sentry.withScope((scope) => {
+              scope.setContext('joi.validationError', {
+                error: validationError.details.get('body')?.message,
+              });
+              Sentry.captureMessage(
+                'Joi validation error',
+                Sentry.Severity.Error
+              );
+            });
+          }
         }
 
         validationErrorHandler(err, req, res, next);
