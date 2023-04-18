@@ -527,7 +527,7 @@ jobs:
   # Runs linter on packages that have changes.
   lint:
     executor: default-executor
-    resource_class: small
+    resource_class: medium
     steps:
       - git-checkout
       - restore-workspace
