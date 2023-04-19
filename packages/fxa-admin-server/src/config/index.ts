@@ -42,6 +42,7 @@ const conf = convict({
   },
   database: {
     fxa: makeMySQLConfig('AUTH', 'fxa'),
+    profile: makeMySQLConfig('PROFILE', 'fxa_profile'),
     fxa_oauth: makeMySQLConfig('OAUTH', 'fxa_oauth'),
   },
   redis: makeRedisConfig(),
