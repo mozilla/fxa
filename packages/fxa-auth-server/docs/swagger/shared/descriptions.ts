@@ -183,6 +183,8 @@ const DESCRIPTIONS = {
   reason:
     'Alphanumeric string indicating the reason for establishing a new session; may be "login" (the default) or "reconnect".',
   recoveryData: "An encrypted bundle containing the user's kB.",
+  recoveryKeyHint:
+    'A string containing a user-defined hint to help them remember where they stored their account recovery key.',
   recoveryKeyId:
     'A unique identifier for this account recovery key, derived from the key via HKDF.',
   redirectTo:

@@ -5,5 +5,6 @@ CREATE TABLE `recoveryKeys` (
   `createdAt` bigint(20) unsigned NOT NULL,
   `verifiedAt` bigint(20) unsigned DEFAULT NULL,
   `enabled` tinyint(1) DEFAULT '1',
+  `hint` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`uid`)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COLLATE = utf8mb4_bin

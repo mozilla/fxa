@@ -293,6 +293,11 @@ module.exports.recoveryData = isA
   .max(1024)
   .required();
 
+module.exports.recoveryKeyHint = isA
+  .string()
+  .max(255)
+  .regex(DISPLAY_SAFE_UNICODE);
+
 module.exports.recoveryCode = function (len, base) {
   const regex = base || module.exports.BASE_36;
   return isA.string().regex(regex).min(8).max(len);

@@ -20,6 +20,7 @@ export class RecoveryKey extends BaseAuthModel {
   createdAt!: number;
   verifiedAt!: number;
   enabled!: boolean;
+  hint!: string | null;
 
   static async create({
     uid,
@@ -63,6 +64,21 @@ export class RecoveryKey extends BaseAuthModel {
     }
   }
 
+  static async updateRecoveryKeyHint({
+    uid,
+    hint,
+  }: Pick<RecoveryKey, 'uid' | 'hint'>) {
+    try {
+      const uidBuffer = uuidTransformer.to(uid);
+      const result = await RecoveryKey.query()
+        .where(uid, uidBuffer)
+        .update({ hint });
+      return !!result;
+    } catch (e) {
+      throw convertError(e);
+    }
+  }
+
   static async delete(uid: string) {
     return RecoveryKey.callProcedure(
       Proc.DeleteRecoveryKey,
@@ -79,6 +95,13 @@ export class RecoveryKey extends BaseAuthModel {
       return null;
     }
     return RecoveryKey.fromDatabaseJson(rows[0]);
+  }
+
+  static async findHintByUid(uid: string) {
+    const recoveryKey = await RecoveryKey.query()
+      .select('hint')
+      .where('uid', uuidTransformer.to(uid));
+    return recoveryKey[0].hint;
   }
 
   static async exists(uid: string) {

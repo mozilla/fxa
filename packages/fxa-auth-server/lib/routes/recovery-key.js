@@ -97,7 +97,11 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           );
         }
 
-        recordSecurityEvent('account.recovery_key_added', { db, request, account: {uid} });
+        recordSecurityEvent('account.recovery_key_added', {
+          db,
+          request,
+          account: { uid },
+        });
 
         return {};
       },
@@ -164,10 +168,17 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
               emailOptions
             );
           }
-          recordSecurityEvent('account.recovery_key_challenge_success', { db, request, account: {uid} } )
-
+          recordSecurityEvent('account.recovery_key_challenge_success', {
+            db,
+            request,
+            account: { uid },
+          });
         } catch (err) {
-          recordSecurityEvent('account.recovery_key_challenge_failure', { db, request, account: {uid} }  )
+          recordSecurityEvent('account.recovery_key_challenge_failure', {
+            db,
+            request,
+            account: { uid },
+          });
           throw err;
         }
 
@@ -249,6 +260,98 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         return db.recoveryKeyExists(uid);
       },
     },
+    // TODO : Refactor API method to use POST and pass email as payload instead of query param in FXA-7400
+    {
+      method: 'GET',
+      path: '/recoveryKey/hint',
+      options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_GET,
+        auth: {
+          mode: 'optional',
+          strategy: 'sessionToken',
+        },
+        validate: {
+          query: {
+            email: validators.email().optional(),
+          },
+        },
+      },
+      handler: async function (request) {
+        log.begin('getRecoveryKeyHint', request);
+
+        const { email } = request.query;
+
+        let uid;
+        if (request.auth.credentials) {
+          uid = request.auth.credentials.uid;
+        }
+
+        if (!uid) {
+          // If not using a sessionToken, an email is required to check
+          // for an account recovery key.
+          if (!email) {
+            throw errors.missingRequestParameter('email');
+          }
+
+          // When this request is unauthenticated, we rate-limit
+          await customs.check(request, email, 'recoveryKeyExists');
+          try {
+            const result = await db.accountRecord(email);
+            uid = result.uid;
+          } catch (err) {
+            throw errors.unknownAccount();
+          }
+        }
+
+        const result = await db.recoveryKeyExists(uid);
+        if (!result.exists) {
+          throw errors.recoveryKeyNotFound();
+        }
+
+        const { hint } = await db.getRecoveryKeyHint(uid);
+
+        return hint;
+      },
+    },
+    {
+      method: 'POST',
+      path: '/recoveryKey/hint',
+      options: {
+        ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_POST,
+        auth: {
+          // hint update is only possible when authenticated
+          // from /settings or (eventually) after signup, signin or successful password reset
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            hint: validators.recoveryKeyHint.description(
+              DESCRIPTION.recoveryKeyHint
+            ),
+          }),
+        },
+      },
+      handler: async function (request) {
+        log.begin('updateRecoveryKeyHint', request);
+
+        const { uid, tokenVerificationId } = request.auth.credentials;
+
+        const { hint } = request.payload;
+
+        if (tokenVerificationId) {
+          throw errors.unverifiedSession();
+        }
+
+        const result = await db.recoveryKeyExists(uid);
+        if (!result.exists) {
+          throw errors.recoveryKeyNotFound();
+        }
+
+        await db.updateRecoveryKeyHint(uid, hint);
+
+        return {};
+      },
+    },
     {
       method: 'DELETE',
       path: '/recoveryKey',
@@ -268,7 +371,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
 
         await db.deleteRecoveryKey(uid);
-        recordSecurityEvent('account.recovery_key_removed', { db, request } )
+        recordSecurityEvent('account.recovery_key_removed', { db, request });
 
         const account = await db.account(uid);
 
@@ -291,7 +394,6 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           account,
           emailOptions
         );
-
 
         return {};
       },

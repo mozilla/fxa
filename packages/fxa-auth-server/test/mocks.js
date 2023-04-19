@@ -73,6 +73,7 @@ const DB_METHOD_NAMES = [
   'emailRecord',
   'forgotPasswordVerified',
   'getRecoveryKey',
+  'getRecoveryKeyHint',
   'getSecondaryEmail',
   'keyFetchToken',
   'keyFetchTokenWithVerificationStatus',
@@ -95,6 +96,7 @@ const DB_METHOD_NAMES = [
   'updateLocale',
   'updateRecoveryCodes',
   'updateRecoveryKey',
+  'updateRecoveryKeyHint',
   'updateSessionToken',
   'updateTotpToken',
   'verifyEmail',
@@ -492,6 +494,9 @@ function mockDB(data, errors) {
       return Promise.resolve({
         recoveryData: data.recoveryData,
       });
+    }),
+    getRecoveryKeyHint: sinon.spy(() => {
+      return Promise.resolve({ hint: data.hint });
     }),
     recoveryKeyExists: sinon.spy(() => {
       return Promise.resolve({

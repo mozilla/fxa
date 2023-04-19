@@ -1147,6 +1147,12 @@ export class Account implements AccountData {
     return recoveryKey;
   }
 
+  async updateRecoveryKeyHint(hint: string) {
+    await this.withLoadingStatus(
+      this.authClient.updateRecoveryKeyHint(sessionToken()!, hint)
+    );
+  }
+
   async metricsOpt(state: 'in' | 'out') {
     await this.withLoadingStatus(
       this.apolloClient.mutate({
