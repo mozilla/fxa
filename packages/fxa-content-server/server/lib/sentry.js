@@ -72,15 +72,13 @@ if (config.get('sentry.dsn')) {
       event = tagFxaName(event, opts.serverName);
       return event;
     },
-    integrations: [
-      new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-    ],
+    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
   });
 }
 
 /**
  * Attempts to capture an error and report it to sentry. If the error is a
- * validation error special steps are taking to capture the reasons validation failed.
+ * validation error special steps are taken to capture the reasons validation failed.
  * @param {*} err
  * @returns true if error was reported, false otherwise
  */

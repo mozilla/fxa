@@ -4,7 +4,11 @@
 
 import program from 'commander';
 import { StatsD } from 'hot-shots';
-import { setupDatabase } from 'fxa-shared/db';
+import {
+  setupAuthDatabase,
+  setupDatabase,
+  setupProfileDatabase,
+} from 'fxa-shared/db';
 import packageJson from '../../package.json';
 import Config from '../config';
 import mozlog from 'mozlog';
@@ -13,9 +17,29 @@ import { ILogger } from 'fxa-shared/log';
 const config = Config.getProperties();
 
 const statsd = new StatsD(config.metrics);
-const knex = setupDatabase({
+const knexForFxa = setupAuthDatabase({
   ...config.database.fxa,
 });
+
+const knexForProfile = setupProfileDatabase({
+  ...config.database.fxa_oauth,
+});
+
+const knexForOAuth = setupDatabase({
+  ...config.database.profile,
+});
+
+function getKnex(table: string) {
+  if (table.startsWith('fxa.')) {
+    return knexForFxa;
+  } else if (table.startsWith('fxa_oauth.')) {
+    return knexForOAuth;
+  } else if (table.startsWith('fxa_profile.')) {
+    return knexForProfile;
+  } else {
+    throw new Error(`Unsupported table! ${table}.`);
+  }
+}
 
 const logFactory = mozlog(config.log);
 let log: ILogger = logFactory('default');
@@ -38,6 +62,7 @@ const tables = {
   devices: toTable('devices'),
   deviceCommands: toTable('deviceCommands'),
   emails: toTable('emails'),
+  emailBounces: toTable('emailBounces'),
   keyFetchTokens: toTable('keyFetchTokens'),
   linkedAccounts: toTable('linkedAccounts'),
   passwordChangeTokens: toTable('passwordChangeTokens'),
@@ -53,6 +78,15 @@ const tables = {
   unblockCodes: toTable('unblockCodes'),
   unverifiedTokens: toTable('unverifiedTokens'),
   verificationReminders: toTable('verificationReminders'),
+
+  // OAuth tables
+  oauthCodes: toTable('codes', 'fxa_oauth'),
+  oauthRefreshTokens: toTable('refreshTokens', 'fxa_oauth'),
+  oauthTokens: toTable('tokens', 'fxa_oauth'),
+
+  // Profile tables
+  profile: toTable('profile', 'fxa_profile'),
+  avatars: toTable('avatars', 'fxa_profile'),
 };
 
 //#endregion
@@ -184,6 +218,7 @@ async function audit(name: string, raw: string) {
   }
 
   try {
+    const knex = getKnex(name);
     const isolationLevel = 'read uncommitted';
     const trx = await knex.transaction({ isolationLevel });
     const rawResult = await trx.raw(raw);
@@ -317,6 +352,9 @@ async function auditAll() {
       [tables.unblockCodes, 'createdAt', 'unblockCodeHash'],
       [tables.unverifiedTokens, 'tokenVerificationCodeExpiresAt', 'tokenId'],
       [tables.verificationReminders, 'createdAt', 'uid'],
+      [tables.oauthCodes, 'createdAt', 'token'],
+      [tables.oauthRefreshTokens, 'createdAt', 'token'],
+      [tables.oauthTokens, 'createdAt', 'token'],
     ];
     for (const [table, colName, colSort] of set) {
       await auditAge(table, colName, colSort);
@@ -324,7 +362,9 @@ async function auditAll() {
   }
 
   // If requested look for potentially orphaned rows. These are rows
-  // were an implied parent key is missing.
+  // where an implied parent key is missing. Note that we cannot audit
+  // across databases... So oauth and profile tables can't be audited
+  // against fxa tables.
   if (program.auditOrphanedRows) {
     let set = [
       tables.accountCustomers,
