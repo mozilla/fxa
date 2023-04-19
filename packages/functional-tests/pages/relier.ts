@@ -51,26 +51,58 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickSubscribe() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro (USD)' })
       .click();
-    return waitForNavigation;
+    // We need to add a `waitUntil` option here because the page gets redirected from
+    // content-server to payments-server, and the URL changes before the page is fully loaded.
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
+      waitUntil: 'load',
+    });
   }
 
   async clickSubscribe6Month() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
       .click();
-    return waitForNavigation;
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
+      waitUntil: 'load',
+    });
   }
 
   async clickSubscribe12Month() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
       .click();
-    return waitForNavigation;
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
+      waitUntil: 'load',
+    });
+  }
+
+  async clickSubscribeRPFlowMetrics() {
+    await this.page
+      .getByRole('link', { name: 'Subscribe to Pro (RP flow metrics)' })
+      .click();
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
+      waitUntil: 'load',
+    });
+  }
+
+  getUrl() {
+    return this.page
+      .locator('[data-testid=rp-flow-metrics]')
+      .getAttribute('href');
+  }
+
+  async getRpFlowParams(searchParams) {
+    return {
+      flow_id: searchParams.get('flow_id'),
+      device_id: searchParams.get('device_id'),
+      flow_begin_time: searchParams.get('flow_begin_time'),
+    };
+  }
+
+  async getRpSearchParams(url) {
+    return new URL(url).searchParams;
   }
 }

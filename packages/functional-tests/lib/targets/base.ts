@@ -12,6 +12,7 @@ export abstract class BaseTarget {
   readonly auth: AuthClient;
   readonly email: EmailClient;
   abstract readonly contentServerUrl: string;
+  abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
   abstract readonly name: TargetName;
 

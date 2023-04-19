@@ -15,21 +15,21 @@ $(document).ready(function () {
   window.loggedInSubscriptions = [];
 
   const paymentURL = {
-    local: '//localhost:3030/subscriptions/products/',
+    local: 'http://localhost:3030/subscriptions/products/',
     dev: 'https://latest.dev.lcip.org/subscriptions/products/',
     stage: 'https://accounts.stage.mozaws.net/subscriptions/products/',
     prod: 'https://accounts.firefox.com/subscriptions/products',
   };
 
   const contentURL = {
-    local: '//localhost:3030/',
+    local: 'http://localhost:3030/',
     dev: 'https://latest.dev.lcip.org/',
     stage: 'https://accounts.stage.mozaws.net/',
     prod: 'https://accounts.firefox.com/',
   };
 
   const pwdlessPaymentURL = {
-    local: '//localhost:3031/checkout/',
+    local: 'http://localhost:3031/checkout/',
     stage: 'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/checkout/',
   };
 
@@ -95,7 +95,8 @@ $(document).ready(function () {
   $.getJSON(
     `${paymentConfig.contentEnv}metrics-flow?form_type=button&utm_campaign=123done`
   ).done(function (data) {
-    $('.btn-subscribe-pwdless').each(function (index) {
+    // Because this is an async request, this happens AFTER we update the href on this button below
+    $('.btn-subscribe-rp-provided-flow-metrics').each(function (index) {
       let currencyMappedURL = $(this).attr('href');
 
       if (data) {
@@ -114,17 +115,12 @@ $(document).ready(function () {
   if (paymentConfig.env === 'prod') {
     $('.btn-subscribe').hide();
   } else {
-    $('.btn-subscribe').each(function (index) {
+    $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(function (
+      index
+    ) {
       const { env, plans, product } = paymentConfig;
       const currency = $(this).attr('data-currency');
       const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
-      $(this).attr('href', currencyMappedURL);
-    });
-
-    $('.btn-subscribe-pwdless').each(function (index) {
-      const { plans, product, pwdlessURL } = paymentConfig;
-      const currency = $(this).attr('data-currency');
-      const currencyMappedURL = `${pwdlessURL}${product}?plan=${plans[currency]}`;
       $(this).attr('href', currencyMappedURL);
     });
   }
