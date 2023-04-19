@@ -51,6 +51,11 @@ export class SubscriptionManagementPage extends BaseLayout {
     return paypalWindow;
   }
 
+  async loginPaypal() {
+    await this.page.locator('input[type=password]').fill('Ah4SboP6UDZx95I');
+    await this.page.locator('button[id=btnLogin]').click();
+  }
+
   async updatePaypalAccount() {
     await this.page.locator('#fundingLink').click();
     await this.page.waitForLoadState();

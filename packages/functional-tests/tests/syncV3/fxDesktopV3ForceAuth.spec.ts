@@ -11,6 +11,8 @@ const makeUid = () =>
 
 let syncBrowserPages;
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Desktop Sync V3 force auth', () => {
   test.beforeEach(async ({ target }) => {
     test.slow();

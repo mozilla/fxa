@@ -1,5 +1,7 @@
 import { test, expect } from '../../../lib/fixtures/standard';
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('resubscription test', () => {
   test.beforeEach(() => {
     test.slow();
@@ -52,7 +54,7 @@ test.describe('resubscription test', () => {
     );
   });
 
-  test.skip('resubscribe successfully with the same coupon after canceling for paypal', async ({
+  test('resubscribe successfully with the same coupon after canceling for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }) => {
@@ -126,9 +128,7 @@ test.describe('resubscription test', () => {
     expect(await subscriptionManagement.getCardInfo()).toContain('4444');
   });
 
-  //Diabling the test as this is being flaky because Paypal Sandbox is being finicky
-  // FXA - 6786, FXA - 6788
-  /*test('update mode of payment for paypal', async ({
+  test('update mode of payment for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }) => {
@@ -152,8 +152,11 @@ test.describe('resubscription test', () => {
     const paypalPage = await subscriptionManagement.clickPaypalChange();
     subscriptionManagement.page = paypalPage;
 
+    //Login to Paypal sandbox
+    await subscriptionManagement.loginPaypal();
+
     //Verify the account as 'CREDIT UNION'
-    expect(await subscriptionManagement.checkPaypalAccount()).toMatch(
+    expect(await subscriptionManagement.checkPaypalAccount()).toContain(
       'CREDIT UNION'
     );
 
@@ -164,6 +167,6 @@ test.describe('resubscription test', () => {
     await page.waitForTimeout(2000);
 
     //Verify that the payment info is updated
-    expect(await subscriptionManagement.checkPaypalAccount()).toMatch('Visa');
-  });*/
+    expect(await subscriptionManagement.checkPaypalAccount()).toContain('Visa');
+  });
 });

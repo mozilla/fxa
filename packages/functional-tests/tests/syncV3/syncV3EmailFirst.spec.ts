@@ -7,6 +7,8 @@ import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 const PASSWORD = 'passwordzxcv';
 let email, syncBrowserPages;
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Firefox Desktop Sync v3 email first', () => {
   test.beforeEach(async ({ target, pages: { login } }) => {
     test.slow();

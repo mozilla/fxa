@@ -5,6 +5,8 @@
 import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
+test.describe.configure({ mode: 'parallel' });
+
 test.describe('Firefox Desktop Sync v3 reset password', () => {
   test.beforeEach(() => {
     test.slow();
