@@ -112,6 +112,15 @@ export function setupAuthDatabase(
   return knex;
 }
 
+export function setupOAuthDatabase(
+  opts: MySQLConfig,
+  log?: ILogger,
+  metrics?: StatsD
+) {
+  const knex = setupDatabase(opts, log, metrics);
+  return knex;
+}
+
 export function setupProfileDatabase(
   opts: MySQLConfig,
   log?: ILogger,

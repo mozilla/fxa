@@ -11,7 +11,13 @@ import {
   SignInCodes,
 } from 'fxa-shared/db/models/auth';
 import crypto from 'crypto';
-import { setupAuthDatabase } from 'fxa-shared/db';
+import {
+  setupAuthDatabase,
+  setupDatabase,
+  setupOAuthDatabase,
+  setupProfileDatabase,
+} from 'fxa-shared/db';
+import { Profile } from 'fxa-shared/db/models/profile';
 
 const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));
@@ -120,6 +126,20 @@ export async function clearDb() {
   await SignInCodes.knexQuery().del();
 }
 
-export function bindKnex(dbConfig: any) {
-  return setupAuthDatabase(dbConfig);
+export enum TargetDB {
+  auth,
+  oauth,
+  profile,
+}
+
+export function bindKnex(dbConfig: any, db: TargetDB = TargetDB.auth) {
+  switch (db) {
+    case TargetDB.oauth:
+      return setupDatabase(dbConfig);
+    case TargetDB.profile:
+      return setupProfileDatabase(dbConfig);
+    case TargetDB.auth:
+    default:
+      return setupAuthDatabase(dbConfig);
+  }
 }
