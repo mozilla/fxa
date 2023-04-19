@@ -16,6 +16,8 @@ import {
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import customer from './customer';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 // TODO: Use a better type here
 export interface APIFetchOptions {
@@ -187,6 +189,7 @@ export async function apiUpdateSubscriptionPlan(params: {
     paymentProvider,
     previousPlanId,
     previousProductId,
+    subscriptionId,
   };
   try {
     Amplitude.updateSubscriptionPlan_PENDING(metricsOptions);
@@ -295,6 +298,7 @@ export async function apiCapturePaypalPayment(params: {
   idempotencyKey: string;
   priceId: string;
   productId: string;
+  checkoutType: CheckoutType;
   token?: string;
   promotionCode?: string;
 }): Promise<{
@@ -306,6 +310,7 @@ export async function apiCapturePaypalPayment(params: {
     productId: params.productId,
     paymentProvider: 'paypal',
     promotionCode: params.promotionCode,
+    checkoutType: params.checkoutType,
   };
   Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
   try {
@@ -320,7 +325,7 @@ export async function apiCapturePaypalPayment(params: {
     );
     Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
       ...metricsOptions,
-      sourceCountry: response.sourceCountry,
+      country_code_source: response.sourceCountry,
     });
 
     return response;
@@ -336,8 +341,10 @@ export async function apiCapturePaypalPayment(params: {
 export async function apiCreateSubscriptionWithPaymentMethod(params: {
   priceId: string;
   productId: string;
+  checkoutType: CheckoutType;
   paymentMethodId?: string;
   promotionCode?: string;
+  profile?: Profile;
 }): Promise<{
   id: string;
   latest_invoice: {
@@ -358,6 +365,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     productId: params.productId,
     paymentProvider: 'stripe',
     promotionCode: params.promotionCode,
+    checkoutType: params.checkoutType,
   };
   try {
     Amplitude.createSubscriptionWithPaymentMethod_PENDING(metricsOptions);
@@ -375,7 +383,7 @@ export async function apiCreateSubscriptionWithPaymentMethod(params: {
     );
     Amplitude.createSubscriptionWithPaymentMethod_FULFILLED({
       ...metricsOptions,
-      sourceCountry: result.sourceCountry,
+      country_code_source: result.sourceCountry,
     });
     return result.subscription;
   } catch (error) {

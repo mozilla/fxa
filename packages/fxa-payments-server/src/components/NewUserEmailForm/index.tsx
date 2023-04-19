@@ -14,6 +14,7 @@ import './index.scss';
 import * as Amplitude from '../../lib/amplitude';
 import { useCallbackOnce } from '../../lib/hooks';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 export type NewUserEmailFormProps = {
   getString?: (id: string) => string;
@@ -51,10 +52,14 @@ export const NewUserEmailForm = ({
 
   const [emailInputState, setEmailInputState] = useState<string>();
 
-  selectedPlan.checkoutType = 'without-account';
+  const checkoutType = CheckoutType.WITHOUT_ACCOUNT;
 
   const onFormMounted = useCallback(
-    () => Amplitude.createAccountMounted(selectedPlan),
+    () =>
+      Amplitude.createAccountMounted({
+        ...selectedPlan,
+        checkoutType: checkoutType,
+      }),
     [selectedPlan]
   );
   useEffect(() => {
@@ -62,7 +67,11 @@ export const NewUserEmailForm = ({
   }, [onFormMounted, selectedPlan]);
 
   const onFormEngaged = useCallbackOnce(
-    () => Amplitude.createAccountEngaged(selectedPlan),
+    () =>
+      Amplitude.createAccountEngaged({
+        ...selectedPlan,
+        checkoutType: checkoutType,
+      }),
     [selectedPlan]
   );
   const onChange = useCallback(() => {
@@ -71,7 +80,10 @@ export const NewUserEmailForm = ({
 
   const onClickSignInButton = () => {
     selectedPlan.other = 'click-signnin';
-    Amplitude.createAccountSignIn(selectedPlan);
+    Amplitude.createAccountSignIn({
+      ...selectedPlan,
+      checkoutType: checkoutType,
+    });
   };
 
   return (

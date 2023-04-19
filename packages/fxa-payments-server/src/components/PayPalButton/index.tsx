@@ -5,11 +5,12 @@ import ReactDOM from 'react-dom';
 
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../lib/apiClient';
-import { Customer, Plan } from '../../store/types';
+import { Customer, Plan, Profile } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
 
 import { needsCustomer } from '../../lib/customer';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 declare var paypal: {
   Buttons: {
@@ -19,6 +20,7 @@ declare var paypal: {
 
 export type PaypalButtonProps = {
   customer: Customer | null;
+  checkoutType: CheckoutType;
   disabled: boolean;
   idempotencyKey: string;
   refreshSubmitNonce: () => void;
@@ -55,6 +57,7 @@ export const PaypalButtonBase =
 
 export const PaypalButton = ({
   customer,
+  checkoutType,
   disabled,
   idempotencyKey,
   refreshSubmitNonce,
@@ -129,6 +132,7 @@ export const PaypalButton = ({
             productId,
             token,
             promotionCode,
+            checkoutType,
           });
         } else {
           await apiUpdateBillingAgreement({

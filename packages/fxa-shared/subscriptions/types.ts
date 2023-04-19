@@ -32,6 +32,11 @@ export interface Plan {
   configuration?: PlanConfigurationDtoT | null;
 }
 
+export enum CheckoutType {
+  WITH_ACCOUNT = 'with-account',
+  WITHOUT_ACCOUNT = 'without-account',
+}
+
 export type ConfiguredPlan = Stripe.Plan & {
   configuration: PlanConfigurationDtoT | null;
 };

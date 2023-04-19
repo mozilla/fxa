@@ -5,6 +5,7 @@ import { linkTo } from '@storybook/addon-links';
 import { CUSTOMER, PLAN } from '../../lib/mock-data';
 import { PickPartial } from '../../lib/types';
 import { Meta } from '@storybook/react';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 export default {
   title: 'Routes/Product/PaypalButton',
@@ -58,22 +59,14 @@ const Subject = ({
   );
 };
 
-const storyWithContext = (
-  storyName?: string,
-  disabled?: boolean,
-) => {
+const storyWithContext = (storyName?: string, disabled?: boolean) => {
   const story = () => (
-    <Subject disabled={disabled} />
+    <Subject disabled={disabled} checkoutType={CheckoutType.WITHOUT_ACCOUNT} />
   );
   if (storyName) story.storyName = storyName;
   return story;
-}
+};
 
-export const Default = storyWithContext(
-  'default'
-)
+export const Default = storyWithContext('default');
 
-export const Disabled = storyWithContext(
-  'disabled',
-  true
-)
+export const Disabled = storyWithContext('disabled', true);

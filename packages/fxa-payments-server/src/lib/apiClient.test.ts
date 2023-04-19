@@ -65,6 +65,7 @@ import {
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 function nock(it: any) {
   //@ts-ignore
@@ -266,6 +267,7 @@ describe('API requests', () => {
       paymentProvider: params.paymentProvider,
       previousPlanId: params.previousPlanId,
       previousProductId: params.previousProductId,
+      subscriptionId: params.subscriptionId,
     };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
@@ -400,8 +402,10 @@ describe('API requests', () => {
       priceId: 'price_12345',
       productId: 'prod_abdce',
       paymentMethodId: 'pm_test',
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
     };
     const metricsOptions: EventProperties = {
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
       planId: params.priceId,
       productId: params.productId,
       paymentProvider: 'stripe',
@@ -422,7 +426,7 @@ describe('API requests', () => {
         createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
-        sourceCountry: expected.sourceCountry,
+        country_code_source: expected.sourceCountry,
       });
       requestMock.done();
     });
@@ -472,7 +476,7 @@ describe('API requests', () => {
         createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
-        sourceCountry: expected.sourceCountry,
+        country_code_source: expected.sourceCountry,
         promotionCode,
       });
       requestMock.done();
@@ -691,12 +695,15 @@ describe('API requests', () => {
       idempotencyKey: '',
       priceId: 'price_12345',
       productId: 'product_2a',
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
       ...MOCK_CHECKOUT_TOKEN,
     };
     const metricsOptions = {
       planId: params.priceId,
       productId: params.productId,
       paymentProvider: 'paypal',
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
+      promotionCode: undefined,
     };
 
     it('POST {auth-server}/v1/oauth/subscriptions/active/new-paypal', async () => {
@@ -714,7 +721,7 @@ describe('API requests', () => {
         createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
-        sourceCountry: 'FR',
+        country_code_source: 'FR',
       });
 
       requestMock.done();
@@ -764,7 +771,7 @@ describe('API requests', () => {
         createSubscriptionWithPaymentMethod_FULFILLED as jest.Mock
       ).toBeCalledWith({
         ...metricsOptions,
-        sourceCountry: 'FR',
+        country_code_source: 'FR',
         promotionCode,
       });
 

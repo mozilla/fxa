@@ -8,6 +8,7 @@ import {
   checkAccountExists,
 } from './index';
 import { Localized } from '@fluent/react';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 jest.mock('../../lib/apiClient', () => ({
   apiFetchAccountStatus: jest.fn(),
@@ -27,7 +28,7 @@ const selectedPlan = {
     'product:details:2': 'Detail 2',
     'product:details:3': 'Detail 3',
   },
-  checkout_type: 'without-account',
+  checkout_type: CheckoutType.WITHOUT_ACCOUNT,
 };
 
 const WrapNewUserEmailForm = ({

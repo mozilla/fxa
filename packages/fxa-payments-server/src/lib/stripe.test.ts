@@ -5,6 +5,7 @@
 import { FXA_SIGNUP_ERROR, handlePasswordlessSignUp } from './account';
 import { handlePasswordlessSubscription, localeToStripeLocale } from './stripe';
 import { NEW_CUSTOMER, PLAN } from './mock-data';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 jest.mock('./account', () => ({
   handlePasswordlessSignUp: jest.fn(),
@@ -59,6 +60,7 @@ describe('handlePasswordlessSubscription', () => {
       name: 'BMO',
       card: null,
       idempotencyKey: 'dontrepeat',
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
       selectedPlan: PLAN,
       customer: null,
       retryStatus: undefined,
@@ -84,6 +86,7 @@ describe('handlePasswordlessSubscription', () => {
       name: 'BMO',
       card: null,
       idempotencyKey: 'dontrepeat',
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
       selectedPlan: PLAN,
       customer: null,
       retryStatus: undefined,

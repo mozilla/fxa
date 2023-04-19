@@ -210,7 +210,7 @@ describe('lib/amplitude', () => {
         device_id: 'QUUX',
         session_id: 1570000000000,
         app_version: '148.8',
-        countryCode: "DE",
+        country_code: "DE",
         os_name: 'Mac OS X',
         os_version: '10.14',
         language: 'en-US',
