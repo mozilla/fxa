@@ -58,9 +58,11 @@ const tables = {
 //#endregion
 
 //#region Result Handling
-function formatStatLabel(label: string) {
+export function formatStatLabel(label: string) {
   let cleaned = label;
+  cleaned = cleaned.replace(/^\.|\.$/g, '');
   cleaned = cleaned.replace(/(fxa|fxa_profile|fxa_oauth)\./g, '$1_');
+  cleaned = cleaned.replace(/\.+/g, '.');
   return cleaned;
 }
 

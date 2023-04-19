@@ -7,7 +7,12 @@
 import { assert } from 'chai';
 import util from 'node:util';
 import path from 'node:path';
-import { auditRowCounts, auditAge, auditOrphanedRows } from './audit-tokens';
+import {
+  auditRowCounts,
+  auditAge,
+  auditOrphanedRows,
+  formatStatLabel,
+} from './audit-tokens';
 import Config from '../config';
 import { clearDb, bindKnex, scaffoldDb } from './db-helpers';
 
@@ -168,5 +173,35 @@ describe('#integration - scripts/audit-tokens', () => {
       );
       assert.isTrue(/LIMIT 2/.test(stdout));
     });
+  });
+});
+
+describe('scripts/audit-tokens', () => {
+  it('formats labels with fxa prefixes', () => {
+    assert.equal(formatStatLabel('fxa.table'), 'fxa_table');
+    assert.equal(formatStatLabel('.fxa.table'), 'fxa_table');
+    assert.equal(formatStatLabel('fxa.table.'), 'fxa_table');
+  });
+  it('formats labels with fxa_profile prefixes', () => {
+    assert.equal(formatStatLabel('fxa_profile.table'), 'fxa_profile_table');
+  });
+
+  it('formats labels with fxa_oauth prefixes', () => {
+    assert.equal(formatStatLabel('fxa_oauth.table'), 'fxa_oauth_table');
+  });
+
+  it('prevents ... from being in the label', () => {
+    assert.equal(
+      formatStatLabel('fxa.table.RowCount...table_size'),
+      'fxa_table.RowCount.table_size'
+    );
+    assert.equal(
+      formatStatLabel('fxa.table.RowCount..table_size'),
+      'fxa_table.RowCount.table_size'
+    );
+    assert.equal(
+      formatStatLabel('fxa.table.RowCount.table_size'),
+      'fxa_table.RowCount.table_size'
+    );
   });
 });
