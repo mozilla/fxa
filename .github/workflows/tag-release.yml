@@ -54,12 +54,6 @@ jobs:
           fi
         done
 
-    - name: Update AUTHORS
-      run: |
-        # git shortlog won't output by default with no terminal...
-        git log | git shortlog -s | cut -c8- | sort -f > AUTHORS
-        git add AUTHORS
-
     - name: Commit update to branch
       run: |
         git commit --message "Release ${{ github.event.inputs.versionName }}"
