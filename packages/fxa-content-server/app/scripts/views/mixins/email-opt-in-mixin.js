@@ -8,7 +8,7 @@
 
 import Newsletters from '../../lib/newsletters';
 
-const MARKETING_EMAIL_CHECKBOX_SELECTOR = 'input.marketing-email-optin';
+const MARKETING_EMAIL_CHECKBOX_SELECTOR = '#newsletters-optin input';
 
 /**
  * Newsletters to their slugs
