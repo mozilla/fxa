@@ -3814,8 +3814,8 @@ describe('/account/destroy', () => {
     });
   });
 
-  it('should delete the password less account', () => {
-    mockDB = { ...mocks.mockDB({ email: email, uid: uid, verifierSetAt: 0 }) };
+  it('should delete the passwordless account', () => {
+    mockDB = { ...mocks.mockDB({ email, uid, verifierSetAt: 0 }) };
     mockRequest = mocks.mockRequest({
       log: mockLog,
       payload: {
