@@ -21,7 +21,7 @@ class AddNewsletters extends FormView {
 
   events = assign(this.events, {
     'click #maybe-later-btn': preventDefaultThen('clickMaybeLater'),
-    'click input.marketing-email-optin': 'toggleSubscribeButton',
+    'click #newsletters-optin input': 'toggleSubscribeButton',
   });
 
   beforeRender() {
@@ -76,10 +76,6 @@ class AddNewsletters extends FormView {
   }
 }
 
-Cocktail.mixin(
-  AddNewsletters,
-  EmailOptInMixin,
-  FlowEventsMixin
-);
+Cocktail.mixin(AddNewsletters, EmailOptInMixin, FlowEventsMixin);
 
 export default AddNewsletters;
