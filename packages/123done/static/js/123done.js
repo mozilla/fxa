@@ -95,7 +95,7 @@ $(document).ready(function () {
   $.getJSON(
     `${paymentConfig.contentEnv}metrics-flow?form_type=button&utm_campaign=123done`
   ).done(function (data) {
-    $('.btn-subscribe-pwdless').each(function (index) {
+    $('.btn-subscribe').each(function (index) {
       let currencyMappedURL = $(this).attr('href');
 
       if (data) {

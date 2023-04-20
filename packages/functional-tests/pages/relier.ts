@@ -51,26 +51,32 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickSubscribe() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro (USD)' })
       .click();
-    return waitForNavigation;
+    // Depending on if the user is signed in or not, match /products/ or /checkout/.
+    // We need to add a `waitUntil` option here because the page gets redirected from
+    // content-server to payments-server, and the URL changes before the page is fully loaded.
+    return this.page.waitForURL(/\/(checkout|products)\//, {
+      waitUntil: 'networkidle',
+    });
   }
 
   async clickSubscribe6Month() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
       .click();
-    return waitForNavigation;
+    return this.page.waitForURL(/\/(checkout|products)\//, {
+      waitUntil: 'networkidle',
+    });
   }
 
   async clickSubscribe12Month() {
-    const waitForNavigation = this.page.waitForNavigation();
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
       .click();
-    return waitForNavigation;
+    return this.page.waitForURL(/\/(checkout|products)\//, {
+      waitUntil: 'networkidle',
+    });
   }
 }

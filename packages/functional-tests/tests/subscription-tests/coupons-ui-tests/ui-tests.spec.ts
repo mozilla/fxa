@@ -42,4 +42,13 @@ test.describe('ui functionality', () => {
     //Verify the subscription is successful
     expect(await subscribe.isSubscriptionSuccess()).toBe(true);
   });
+
+  test('not logged in, checkout to have flow params in URL', async ({
+    pages: { settings, relier, page },
+  }) => {
+    await relier.goto();
+    await relier.clickSubscribe6Month();
+    const url = page.url();
+    expect(url).toContain('&flow_begin_time=');
+  });
 });
