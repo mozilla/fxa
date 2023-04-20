@@ -198,7 +198,7 @@ const convictConf = convict({
   googleAuthConfig: {
     clientId: {
       default:
-        '210899493109-gll5587a3bo8huare772alo08734o4kh.apps.googleusercontent.com',
+        '210899493109-u0erdakhegg6b572faenm3mn9hf4mdp8.apps.googleusercontent.com',
       env: 'GOOGLE_AUTH_CLIENT_ID',
       format: String,
       doc: 'Google auth client id',

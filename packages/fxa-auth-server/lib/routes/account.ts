@@ -1477,9 +1477,9 @@ export class AccountHandler {
 
     await this.customs.check(request, emailAddress, 'accountDestroy');
 
-    let emailRecord;
+    let accountRecord;
     try {
-      emailRecord = await this.db.accountRecord(emailAddress);
+      accountRecord = await this.db.accountRecord(emailAddress);
     } catch (err) {
       if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
         await this.customs.flag(request.app.clientAddress, {
@@ -1492,7 +1492,7 @@ export class AccountHandler {
     }
 
     const sessionToken = request.auth && request.auth.credentials;
-    const hasTotpToken = await this.otpUtils.hasTotpToken(emailRecord);
+    const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
 
     // Someone tried to delete an account with TOTP but did not specify a session.
     // This shouldn't happen in practice, but just in case we throw unverified session.
@@ -1512,27 +1512,31 @@ export class AccountHandler {
     }
 
     // In other scenarios, fall back to the default behavior and let the user
-    // delete the account
-    const password = new this.Password(
-      authPW,
-      emailRecord.authSalt,
-      emailRecord.verifierVersion
-    );
+    // delete the account. If they have a password set, we verify it here. Users
+    // that don't have a password set will be able to delete their account without
+    // this step.
+    if (accountRecord.veriferSetAt > 0) {
+      const password = new this.Password(
+        authPW,
+        accountRecord.authSalt,
+        accountRecord.verifierVersion
+      );
 
-    const isMatchingPassword = await this.signinUtils.checkPassword(
-      emailRecord,
-      password,
-      request.app.clientAddress
-    );
-    if (!isMatchingPassword) {
-      throw error.incorrectPassword(emailRecord.email, emailAddress);
+      const isMatchingPassword = await this.signinUtils.checkPassword(
+        accountRecord,
+        password,
+        request.app.clientAddress
+      );
+      if (!isMatchingPassword && accountRecord.veriferSetAt > 0) {
+        throw error.incorrectPassword(accountRecord.email, emailAddress);
+      }
     }
 
-    const { uid } = emailRecord;
+    const { uid } = accountRecord;
 
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
-        await this.stripeHelper.removeCustomer(uid, emailRecord.email);
+        await this.stripeHelper.removeCustomer(uid, accountRecord.email);
       } catch (err) {
         if (err.message === 'Customer not available') {
           // if Stripe didn't know about the customer, no problem.
@@ -1565,8 +1569,8 @@ export class AccountHandler {
     // because obviously we can't retrieve the devices list after!
     const devices = await this.db.devices(uid);
 
-    await this.db.deleteAccount(emailRecord);
-    this.log.info('accountDeleted.byRequest', { ...emailRecord });
+    await this.db.deleteAccount(accountRecord);
+    this.log.info('accountDeleted.byRequest', { ...accountRecord });
 
     await this.oauth.removeUser(uid);
 
