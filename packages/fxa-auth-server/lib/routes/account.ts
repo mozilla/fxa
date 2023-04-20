@@ -1515,7 +1515,7 @@ export class AccountHandler {
     // delete the account. If they have a password set, we verify it here. Users
     // that don't have a password set will be able to delete their account without
     // this step.
-    if (accountRecord.veriferSetAt > 0) {
+    if (accountRecord.verifierSetAt > 0) {
       const password = new this.Password(
         authPW,
         accountRecord.authSalt,
@@ -1527,7 +1527,7 @@ export class AccountHandler {
         password,
         request.app.clientAddress
       );
-      if (!isMatchingPassword && accountRecord.veriferSetAt > 0) {
+      if (!isMatchingPassword) {
         throw error.incorrectPassword(accountRecord.email, emailAddress);
       }
     }
