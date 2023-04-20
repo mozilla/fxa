@@ -266,7 +266,7 @@ export const MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR = {
   code: 'fxa_fetch_profile_customer_error',
 };
 export const MOCK_GENERAL_PAYPAL_ERROR = {
-  code: 'general-paypal-error',
+  code: 'general_paypal_error',
 };
 
 export const MOCK_CURRENCY_ERROR = {

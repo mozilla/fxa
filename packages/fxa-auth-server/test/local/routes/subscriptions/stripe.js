@@ -2180,7 +2180,7 @@ describe('DirectStripeRoutes', () => {
         );
       } catch (err) {
         assert.instanceOf(err, WError);
-        assert.equal(err.errno, error.ERRNO.INVALID_REGION);
+        assert.equal(err.errno, error.ERRNO.INVALID_CURRENCY);
         assert.equal(err.message, 'Changing currencies is not permitted.');
       }
     });

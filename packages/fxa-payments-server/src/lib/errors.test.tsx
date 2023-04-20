@@ -4,6 +4,7 @@ import {
   getErrorMessageId,
   BASIC_ERROR,
   PAYMENT_ERROR_1,
+  COUNTRY_CURRENCY_MISMATCH,
 } from './errors';
 
 describe('lib/errors', () => {
@@ -29,10 +30,10 @@ describe('lib/errors', () => {
     ).toEqual(PAYMENT_ERROR_1);
   });
 
-  it('returns payment error id based on message if that is what is available in error map', () => {
-    expect(
-      getErrorMessageId({ code: 'test', message: 'approve_with_id' })
-    ).toEqual(PAYMENT_ERROR_1);
+  it('returns payment error id based on error number if that is what is available in error map', () => {
+    expect(getErrorMessageId({ code: 'test', errno: 130 })).toEqual(
+      COUNTRY_CURRENCY_MISMATCH
+    );
   });
 
   it('returns generic error message if provided error id is undefined', () => {

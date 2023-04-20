@@ -360,7 +360,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
         ...defaultApiClientOverrides(),
         apiCreateSetupIntent: jest
           .fn()
-          .mockRejectedValue('barf apiCreateSetupIntent'),
+          .mockRejectedValue({ message: 'barf apiCreateSetupIntent' }),
       },
     });
 
@@ -386,7 +386,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
           ...defaultApiClientOverrides(),
           apiCreateSetupIntent: jest
             .fn()
-            .mockRejectedValue('barf apiCreateSetupIntent'),
+            .mockRejectedValue({ message: 'barf apiCreateSetupIntent' }),
         },
       });
 
@@ -410,7 +410,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
           ...defaultStripeOverride(),
           confirmCardSetup: jest
             .fn()
-            .mockRejectedValue('barf confirmCardSetup'),
+            .mockRejectedValue({ message: 'barf confirmCardSetup' }),
         },
       });
 
@@ -512,7 +512,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
           ...defaultApiClientOverrides(),
           apiUpdateDefaultPaymentMethod: jest
             .fn()
-            .mockRejectedValue('barf apiUpdateDefaultPaymentMethod'),
+            .mockRejectedValue({
+              message: 'barf apiUpdateDefaultPaymentMethod',
+            }),
         },
       });
 

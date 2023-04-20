@@ -17,7 +17,7 @@ const storyWithProps = () => {
           path="*"
           element={
             <PaymentErrorView
-              error={{ code: 'general-paypal-error' }}
+              error={{ code: 'general_paypal_error' }}
               actionFn={() => {}}
               plan={SELECTED_PLAN}
             />

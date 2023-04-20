@@ -532,7 +532,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       shouldSucceed: false,
       confirmCardPayment: jest.fn().mockResolvedValue({
         paymentIntent: undefined,
-        error: 'rejected',
+        error: { message: 'rejected' },
       }),
     })
   );
@@ -670,7 +670,9 @@ describe('routes/Product/SubscriptionCreate', () => {
       'displays apiRetryInvoice failure',
       commonRetryPaymentTest({
         shouldSucceed: false,
-        apiRetryInvoice: jest.fn().mockRejectedValue('barf apiRetryInvoice'),
+        apiRetryInvoice: jest
+          .fn()
+          .mockRejectedValue({ message: 'barf apiRetryInvoice' }),
       })
     );
 
@@ -683,7 +685,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       ({
         createPaymentMethod = jest
           .fn()
-          .mockRejectedValue('barf createPaymentMethod'),
+          .mockRejectedValue({ message: 'barf createPaymentMethod' }),
       } = {}) =>
       async () => {
         const stripeOverride = {
@@ -711,7 +713,9 @@ describe('routes/Product/SubscriptionCreate', () => {
     it(
       'displays createPaymentMethod failure (error)',
       commonCreatePaymentMethodFailureTest({
-        createPaymentMethod: jest.fn().mockResolvedValue({ error: 'barf' }),
+        createPaymentMethod: jest
+          .fn()
+          .mockResolvedValue({ error: { message: 'barf' } }),
       })
     );
 
@@ -729,7 +733,7 @@ describe('routes/Product/SubscriptionCreate', () => {
         ...defaultApiClientOverrides(),
         apiCreateCustomer: jest
           .fn()
-          .mockRejectedValue('barf apiCreateCustomer'),
+          .mockRejectedValue({ message: 'barf apiCreateCustomer' }),
       };
       const { refreshSubscriptions } = await commonSubmitSetup({
         customer: null,
