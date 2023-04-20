@@ -4,7 +4,7 @@
 
 'use strict';
 
-const config = require('../config').getProperties();
+const config = require('../config').default.getProperties();
 const StatsD = require('hot-shots');
 const { CurrencyHelper } = require('../lib/payments/currencies');
 
