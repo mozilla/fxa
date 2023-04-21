@@ -121,7 +121,6 @@ describe('subscriptions payPalRoutes', () => {
         paypalNvpSigCredentials: {
           enabled: true,
         },
-        stripeAutomaticTax: { enabled: false },
       },
       currenciesToCountries: {
         USD: ['US', 'CA', 'GB'],
@@ -209,9 +208,6 @@ describe('subscriptions payPalRoutes', () => {
         SubscriptionEligibilityResult.CREATE
       );
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
-      stripeHelper.taxRateByCountryCode = sinon.fake.resolves({
-        id: 'tr-1234',
-      });
       payPalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       profile.deleteCache = sinon.fake.resolves({});
       push.notifyProfileUpdated = sinon.fake.resolves({});
@@ -438,6 +434,7 @@ describe('subscriptions payPalRoutes', () => {
         authDbModule.getAccountCustomerByUid =
           sinon.fake.resolves(accountCustomer);
         stripeHelper.updateCustomerPaypalAgreement = sinon.fake.resolves({});
+        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(true);
         payPalHelper.processInvoice = sinon.fake.resolves({});
         payPalHelper.processZeroInvoice = sinon.fake.resolves({});
       });
@@ -455,45 +452,6 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(payPalHelper.processInvoice);
       }
 
-      function assertBillingUpdate() {
-        sinon.assert.calledOnceWithExactly(
-          authDbModule.getAccountCustomerByUid,
-          UID
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateCustomerBillingAddress,
-          {
-            customerId: accountCustomer.stripeCustomerId,
-            options: {
-              city: undefined,
-              country: 'CA',
-              line1: undefined,
-              line2: undefined,
-              postalCode: undefined,
-              state: 'ON',
-            },
-            name: 'Test User',
-          }
-        );
-      }
-
-      function assertNoBillingUpdate() {
-        sinon.assert.notCalled(authDbModule.getAccountCustomerByUid);
-        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
-      }
-
-      function assertTaxId() {
-        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
-        sinon.assert.calledOnce(stripeHelper.customerTaxId);
-        sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
-      }
-
-      function assertAutomaticTax() {
-        sinon.assert.notCalled(stripeHelper.taxRateByCountryCode);
-        sinon.assert.notCalled(stripeHelper.customerTaxId);
-        sinon.assert.notCalled(stripeHelper.addTaxIdToCustomer);
-      }
-
       it('should run a charge successfully', async () => {
         const requestOptions = deepCopy(defaultRequestOptions);
         requestOptions.geo = {
@@ -507,42 +465,6 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token },
         });
         assertChargedSuccessfully(actual);
-        assertBillingUpdate();
-        assertTaxId();
-        sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledWithExactly(
-          stripeHelper.createSubscriptionWithPaypal,
-          {
-            customer,
-            priceId: undefined,
-            promotionCode: undefined,
-            subIdempotencyKey: undefined,
-            taxRateId: 'tr-1234',
-          }
-        );
-      });
-
-      it('should run a charge with automatic tax successfully', async () => {
-        customer.tax = {
-          automatic_tax: 'supported',
-        };
-        const requestOptions = deepCopy(defaultRequestOptions);
-        requestOptions.geo = {
-          location: {
-            countryCode: 'CA',
-            state: 'Ontario',
-          },
-        };
-        config.subscriptions.stripeAutomaticTax.enabled = true;
-        const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
-          ...requestOptions,
-          payload: { token },
-        });
-        assertChargedSuccessfully(actual);
-        // Billing should not be updated for automatic tax since we use IP address
-        // for taxable location
-        assertNoBillingUpdate();
-        assertAutomaticTax();
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
           stripeHelper.createSubscriptionWithPaypal,
@@ -569,7 +491,6 @@ describe('subscriptions payPalRoutes', () => {
           payload: { token, promotionCode: 'test-promo' },
         });
         assertChargedSuccessfully(actual);
-        assertBillingUpdate();
         sinon.assert.calledWithExactly(
           stripeHelper.findValidPromoCode,
           'test-promo',
@@ -582,15 +503,12 @@ describe('subscriptions payPalRoutes', () => {
             priceId: undefined,
             promotionCode,
             subIdempotencyKey: undefined,
-            taxRateId: 'tr-1234',
+            automaticTax: true,
           }
         );
       });
 
       it('should run a charge with automatic tax in unsupported region successfully', async () => {
-        customer.tax = {
-          automatic_tax: 'unrecognized_location',
-        };
         const requestOptions = deepCopy(defaultRequestOptions);
         requestOptions.geo = {
           location: {
@@ -598,14 +516,12 @@ describe('subscriptions payPalRoutes', () => {
             state: 'Ontario',
           },
         };
-        config.subscriptions.stripeAutomaticTax.enabled = true;
+        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(false);
         const actual = await runTest('/oauth/subscriptions/active/new-paypal', {
           ...requestOptions,
           payload: { token },
         });
         assertChargedSuccessfully(actual);
-        assertBillingUpdate();
-        assertAutomaticTax();
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
         sinon.assert.calledWithExactly(
           stripeHelper.createSubscriptionWithPaypal,
@@ -635,25 +551,6 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.calledOnce(stripeHelper.createSubscriptionWithPaypal);
         sinon.assert.calledOnce(stripeHelper.updateCustomerPaypalAgreement);
         sinon.assert.calledOnce(payPalHelper.processZeroInvoice);
-        sinon.assert.calledOnceWithExactly(
-          authDbModule.getAccountCustomerByUid,
-          UID
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateCustomerBillingAddress,
-          {
-            customerId: accountCustomer.stripeCustomerId,
-            options: {
-              city: undefined,
-              country: 'CA',
-              line1: undefined,
-              line2: undefined,
-              postalCode: undefined,
-              state: undefined,
-            },
-            name: 'Test User',
-          }
-        );
       });
 
       it('should throw an error if invalid promotion code', async () => {
@@ -694,25 +591,6 @@ describe('subscriptions payPalRoutes', () => {
             'Funding source country does not match plan currency.'
           );
         }
-        sinon.assert.calledOnceWithExactly(
-          authDbModule.getAccountCustomerByUid,
-          UID
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateCustomerBillingAddress,
-          {
-            customerId: accountCustomer.stripeCustomerId,
-            options: {
-              city: undefined,
-              country: 'AS',
-              line1: undefined,
-              line2: undefined,
-              postalCode: undefined,
-              state: undefined,
-            },
-            name: 'Test User',
-          }
-        );
       });
 
       it('should throw an error if billingAgreement country does not match planCurrency', async () => {
@@ -730,25 +608,6 @@ describe('subscriptions payPalRoutes', () => {
             'Funding source country does not match plan currency.'
           );
         }
-        sinon.assert.calledOnceWithExactly(
-          authDbModule.getAccountCustomerByUid,
-          UID
-        );
-        sinon.assert.calledOnceWithExactly(
-          stripeHelper.updateCustomerBillingAddress,
-          {
-            customerId: accountCustomer.stripeCustomerId,
-            options: {
-              city: undefined,
-              country: 'CA',
-              line1: undefined,
-              line2: undefined,
-              postalCode: undefined,
-              state: undefined,
-            },
-            name: 'Test User',
-          }
-        );
       });
 
       it('should throw an error if the invoice processing fails', async () => {
@@ -781,6 +640,7 @@ describe('subscriptions payPalRoutes', () => {
         };
         c.subscriptions.data[0].collection_method = 'send_invoice';
         stripeHelper.fetchCustomer = sinon.fake.resolves(c);
+        stripeHelper.isCustomerStripeTaxEligible = sinon.fake.returns(true);
         stripeHelper.getCustomerPaypalAgreement =
           sinon.fake.returns(paypalAgreementId);
         payPalHelper.processInvoice = sinon.fake.resolves({});
@@ -796,9 +656,7 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.notCalled(payPalHelper.createBillingAgreement);
         sinon.assert.notCalled(payPalHelper.agreementDetails);
         sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
         sinon.assert.notCalled(stripeHelper.findValidPromoCode);
-        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
         sinon.assert.calledWithExactly(
@@ -817,7 +675,7 @@ describe('subscriptions payPalRoutes', () => {
             priceId: undefined,
             promotionCode: undefined,
             subIdempotencyKey: undefined,
-            taxRateId: 'tr-1234',
+            automaticTax: true,
           }
         );
 
@@ -841,13 +699,11 @@ describe('subscriptions payPalRoutes', () => {
         sinon.assert.notCalled(payPalHelper.createBillingAgreement);
         sinon.assert.notCalled(payPalHelper.agreementDetails);
         sinon.assert.notCalled(stripeHelper.updateCustomerPaypalAgreement);
-        sinon.assert.notCalled(stripeHelper.updateCustomerBillingAddress);
         sinon.assert.calledWithExactly(
           stripeHelper.findValidPromoCode,
           'test-promo',
           undefined
         );
-        sinon.assert.calledOnce(stripeHelper.taxRateByCountryCode);
         sinon.assert.calledOnce(stripeHelper.customerTaxId);
         sinon.assert.calledOnce(stripeHelper.addTaxIdToCustomer);
         sinon.assert.calledWithExactly(
@@ -866,7 +722,7 @@ describe('subscriptions payPalRoutes', () => {
             priceId: undefined,
             promotionCode,
             subIdempotencyKey: undefined,
-            taxRateId: 'tr-1234',
+            automaticTax: true,
           }
         );
 
@@ -968,21 +824,6 @@ describe('subscriptions payPalRoutes', () => {
       sinon.assert.calledOnce(stripeHelper.fetchOpenInvoices);
       sinon.assert.calledOnce(stripeHelper.getCustomerPaypalAgreement);
       sinon.assert.calledOnce(payPalHelper.processInvoice);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.updateCustomerBillingAddress,
-        {
-          customerId: accountCustomer.stripeCustomerId,
-          options: {
-            city: undefined,
-            country: 'CA',
-            line1: undefined,
-            line2: undefined,
-            postalCode: undefined,
-            state: 'ON',
-          },
-          name: 'Test User',
-        }
-      );
     });
 
     it('should update the billing agreement and process zero invoice', async () => {

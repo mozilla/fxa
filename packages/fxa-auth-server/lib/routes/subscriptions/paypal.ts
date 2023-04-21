@@ -3,10 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
-import {
-  createPayPalBA,
-  getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+import { createPayPalBA } from 'fxa-shared/db/models/auth';
 import {
   filterCustomer,
   filterSubscription,
@@ -19,11 +16,7 @@ import Container from 'typedi';
 import { ConfigType } from '../../../config';
 import error from '../../error';
 import { PayPalHelper } from '../../payments/paypal/helper';
-import STATES_LONG_NAME_TO_SHORT_NAME_MAP from '../../payments/states-long-name-to-short-name-map.json';
-import {
-  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
-  StripeHelper,
-} from '../../payments/stripe';
+import { StripeHelper } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { msToSec } from '../../time';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -38,14 +31,9 @@ import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
 
 const METRICS_CONTEXT_SCHEMA = require('../../metrics/context').schema;
 
-const stateNames = STATES_LONG_NAME_TO_SHORT_NAME_MAP as {
-  [key: string]: { [key: string]: string };
-};
-
 export class PayPalHandler extends StripeWebhookHandler {
   protected paypalHelper: PayPalHelper;
   subscriptionAccountReminders: any;
-  automaticTax: boolean;
 
   constructor(
     log: AuthLogger,
@@ -61,7 +49,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     this.paypalHelper = Container.get(PayPalHelper);
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
-    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -108,10 +95,8 @@ export class PayPalHandler extends StripeWebhookHandler {
         throw error.unknownCustomer(uid);
       }
 
-      // Creating a subscription with automatic_tax enabled requires a customer with an address
-      // that is in a recognized location with an active tax registration.
-      const taxSubscription =
-        this.automaticTax && customer.tax?.automatic_tax === 'supported';
+      const automaticTax =
+        this.stripeHelper.isCustomerStripeTaxEligible(customer);
 
       const { priceId } = request.payload as Record<string, string>;
 
@@ -160,12 +145,12 @@ export class PayPalHandler extends StripeWebhookHandler {
             request,
             uid,
             customer,
-            taxSubscription,
+            automaticTax,
           })
         : await this._createPaypalSubscription({
             request,
             customer,
-            taxSubscription,
+            automaticTax,
           });
 
       await this.customerChanged(request, uid, email);
@@ -217,12 +202,12 @@ export class PayPalHandler extends StripeWebhookHandler {
     request,
     uid,
     customer,
-    taxSubscription,
+    automaticTax,
   }: {
     request: AuthRequest;
     uid: string;
     customer: Stripe.Customer;
-    taxSubscription: boolean;
+    automaticTax: boolean;
   }) {
     const {
       priceId,
@@ -239,25 +224,11 @@ export class PayPalHandler extends StripeWebhookHandler {
         uid,
         token,
         currency,
-        location: request.app.geo.location,
-        taxSubscription,
       });
 
-    // TODO: Remove the following in FXA-6091
-    let taxRateId: string | undefined;
-    if (!this.automaticTax && agreementDetails.countryCode) {
-      if (!this.stripeHelper.customerTaxId(customer)) {
-        await this.stripeHelper.addTaxIdToCustomer(customer, currency);
-      }
-      const taxRate = await this.stripeHelper.taxRateByCountryCode(
-        agreementDetails.countryCode
-      );
-      taxRateId = taxRate?.id;
+    if (!this.stripeHelper.customerTaxId(customer)) {
+      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
     }
-
-    const taxOptions = this.automaticTax
-      ? { automaticTax: taxSubscription }
-      : { taxRateId };
 
     let subscription;
     [subscription, customer] = await Promise.all([
@@ -266,12 +237,12 @@ export class PayPalHandler extends StripeWebhookHandler {
         priceId,
         promotionCode,
         subIdempotencyKey: idempotencyKey,
-        ...taxOptions,
+        automaticTax,
       }),
       this.stripeHelper.updateCustomerPaypalAgreement(customer, agreementId),
     ]);
 
-    if (this.automaticTax && !taxSubscription) {
+    if (!automaticTax) {
       this.log.warn(
         'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
         {
@@ -312,11 +283,11 @@ export class PayPalHandler extends StripeWebhookHandler {
   async _createPaypalSubscription({
     request,
     customer,
-    taxSubscription,
+    automaticTax,
   }: {
     request: AuthRequest;
     customer: Stripe.Customer;
-    taxSubscription: boolean;
+    automaticTax: boolean;
   }) {
     const {
       priceId,
@@ -329,28 +300,16 @@ export class PayPalHandler extends StripeWebhookHandler {
     const currency = (await this.stripeHelper.findAbbrevPlanById(priceId))
       .currency;
 
-    // TODO: Remove the following in FXA-6091
-    let taxRateId: string | undefined;
-    if (!this.automaticTax && customer.address?.country) {
-      if (!this.stripeHelper.customerTaxId(customer)) {
-        await this.stripeHelper.addTaxIdToCustomer(customer, currency);
-      }
-      const taxRate = await this.stripeHelper.taxRateByCountryCode(
-        customer.address.country
-      );
-      taxRateId = taxRate?.id;
+    if (!this.stripeHelper.customerTaxId(customer)) {
+      await this.stripeHelper.addTaxIdToCustomer(customer, currency);
     }
-
-    const taxOptions = this.automaticTax
-      ? { automaticTax: taxSubscription }
-      : { taxRateId };
 
     const subscription = await this.stripeHelper.createSubscriptionWithPaypal({
       customer,
       priceId,
       promotionCode: promotionCode,
       subIdempotencyKey: idempotencyKey,
-      ...taxOptions,
+      automaticTax,
     });
     const latestInvoice = subscription.latest_invoice as Stripe.Invoice;
     if (latestInvoice.amount_due < getMinimumAmount(latestInvoice.currency)) {
@@ -413,16 +372,11 @@ export class PayPalHandler extends StripeWebhookHandler {
       });
     }
 
-    const taxSubscription =
-      this.automaticTax && customer.tax?.automatic_tax === 'supported';
-
     const { token } = request.payload as Record<string, string>;
     const { agreementId } = await this.createAndVerifyBillingAgreement({
       uid,
       token,
       currency: customer.currency,
-      location: request.app.geo.location,
-      taxSubscription,
     });
 
     await this.stripeHelper.updateCustomerPaypalAgreement(
@@ -483,12 +437,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     uid: string;
     token: string;
     currency: string;
-    location?: {
-      state: string;
-      country: string;
-      countryCode: string;
-    };
-    taxSubscription: boolean;
   }) {
     const { uid, token, currency } = options;
     // Create PayPal billing agreement
@@ -499,41 +447,6 @@ export class PayPalHandler extends StripeWebhookHandler {
     const agreementDetails = await this.paypalHelper.agreementDetails({
       billingAgreementId: agreementId,
     });
-
-    // copy bill to address information to Customer
-    if (!options.taxSubscription) {
-      const accountCustomer = await getAccountCustomerByUid(uid);
-      if (accountCustomer.stripeCustomerId) {
-        const locationDetails = {} as any;
-        if (agreementDetails.countryCode === options.location?.countryCode) {
-          // Record the state (short name) if needed
-          const state = options.location?.state;
-          const country = Object.keys(
-            COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP
-          ).find(
-            (key) =>
-              COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP[key] ===
-              agreementDetails.countryCode
-          );
-          if (country && stateNames[country][state]) {
-            locationDetails.state = stateNames[country][state];
-          }
-        }
-        this.stripeHelper.updateCustomerBillingAddress({
-          customerId: accountCustomer.stripeCustomerId,
-          options: {
-            city: agreementDetails.city,
-            country: agreementDetails.countryCode,
-            line1: agreementDetails.street,
-            line2: agreementDetails.street2,
-            postalCode: agreementDetails.zip,
-            state: agreementDetails.state,
-            ...locationDetails,
-          },
-          name: `${agreementDetails.firstName} ${agreementDetails.lastName}`,
-        });
-      }
-    }
 
     // Verify sourceCountry and plan currency are a valid combination.
     const country = agreementDetails.countryCode;

@@ -130,7 +130,6 @@ const mockConfig = {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
-    stripeAutomaticTax: { enabled: false },
   },
   subhub: {
     enabled: true,
@@ -910,63 +909,6 @@ describe('#integration - StripeHelper', () => {
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        taxRateId: 'tr_asdf',
-      });
-
-      assert.deepEqual(actual, subscriptionPMIExpanded);
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
-        {
-          customer: 'customerId',
-          items: [{ price: 'priceId' }],
-          expand: ['latest_invoice.payment_intent'],
-          default_tax_rates: ['tr_asdf'],
-          promotion_code: undefined,
-        },
-        { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subscriptionPMIExpanded,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
-      sinon.assert.callCount(mockStatsd.increment, 1);
-    });
-
-    it('creates a subscription with automatic tax successfully', async () => {
-      const attachExpected = deepCopy(paymentMethodAttach);
-      const customerExpected = deepCopy(newCustomerPM);
-      sandbox
-        .stub(stripeHelper.stripe.paymentMethods, 'attach')
-        .resolves(attachExpected);
-      sandbox
-        .stub(stripeHelper.stripe.customers, 'update')
-        .resolves(customerExpected);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscriptionPMIExpanded);
-      stripeFirestore.insertCustomerRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      stripeFirestore.insertPaymentMethodRecord = sandbox.stub().resolves({});
-      const expectedIdempotencyKey = generateIdempotencyKey([
-        'customerId',
-        'priceId',
-        attachExpected.card.fingerprint,
-        roundTime(),
-      ]);
-
-      const actual = await stripeHelper.createSubscriptionWithPMI({
-        customerId: 'customerId',
-        priceId: 'priceId',
-        paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
         automaticTax: true,
       });
 
@@ -978,7 +920,9 @@ describe('#integration - StripeHelper', () => {
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
           promotion_code: undefined,
-          automatic_tax: { enabled: true },
+          automatic_tax: {
+            enabled: true,
+          },
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
@@ -1028,8 +972,8 @@ describe('#integration - StripeHelper', () => {
         customerId: 'customerId',
         priceId: 'priceId',
         paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-        taxRateId: 'tr_asdf',
         promotionCode,
+        automaticTax: false,
       });
 
       const subWithPromotionCodeMetadata = {
@@ -1046,8 +990,10 @@ describe('#integration - StripeHelper', () => {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
-          default_tax_rates: ['tr_asdf'],
           promotion_code: promotionCode.id,
+          automatic_tax: {
+            enabled: false,
+          },
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
@@ -1104,7 +1050,7 @@ describe('#integration - StripeHelper', () => {
           customerId: 'customerId',
           priceId: 'priceId',
           paymentMethodId: 'pm_1H0FRp2eZvKYlo2CeIZoc0wj',
-          taxRateId: 'tr_asdf',
+          automaticTax: true,
         });
         sinon.assert.fail();
       } catch (err) {
@@ -1119,8 +1065,10 @@ describe('#integration - StripeHelper', () => {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
           expand: ['latest_invoice.payment_intent'],
-          default_tax_rates: ['tr_asdf'],
           promotion_code: undefined,
+          automatic_tax: {
+            enabled: true,
+          },
         },
         { idempotencyKey: `ssc-${expectedIdempotencyKey}` }
       );
@@ -1194,50 +1142,6 @@ describe('#integration - StripeHelper', () => {
         customer: customer1,
         priceId: 'priceId',
         subIdempotencyKey,
-        taxRateId: 'tr_asdf',
-      });
-
-      assert.deepEqual(actual, subscriptionPMIExpanded);
-      sinon.assert.calledOnceWithExactly(
-        stripeFirestore.insertSubscriptionRecordWithBackfill,
-        {
-          ...subscriptionPMIExpanded,
-          latest_invoice: subscriptionPMIExpanded.latest_invoice
-            ? subscriptionPMIExpanded.latest_invoice.id
-            : null,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.create,
-        {
-          customer: customer1.id,
-          items: [{ price: 'priceId' }],
-          expand: ['latest_invoice'],
-          collection_method: 'send_invoice',
-          days_until_due: 1,
-          promotion_code: undefined,
-          default_tax_rates: ['tr_asdf'],
-        },
-        { idempotencyKey: `ssc-${subIdempotencyKey}` }
-      );
-      sinon.assert.callCount(mockStatsd.increment, 1);
-    });
-
-    it('creates a subscription with automatic tax successfully', async () => {
-      sandbox
-        .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
-        .returns(undefined);
-      sandbox
-        .stub(stripeHelper.stripe.subscriptions, 'create')
-        .resolves(subscriptionPMIExpanded);
-      const subIdempotencyKey = uuidv4();
-      stripeFirestore.insertSubscriptionRecordWithBackfill = sandbox
-        .stub()
-        .resolves({});
-      const actual = await stripeHelper.createSubscriptionWithPaypal({
-        customer: customer1,
-        priceId: 'priceId',
-        subIdempotencyKey,
         automaticTax: true,
       });
 
@@ -1260,7 +1164,9 @@ describe('#integration - StripeHelper', () => {
           collection_method: 'send_invoice',
           days_until_due: 1,
           promotion_code: undefined,
-          automatic_tax: { enabled: true },
+          automatic_tax: {
+            enabled: true,
+          },
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -1286,8 +1192,8 @@ describe('#integration - StripeHelper', () => {
         customer: customer1,
         priceId: 'priceId',
         subIdempotencyKey,
-        taxRateId: 'tr_asdf',
         promotionCode,
+        automaticTax: false,
       });
 
       const subWithPromotionCodeMetadata = {
@@ -1316,7 +1222,9 @@ describe('#integration - StripeHelper', () => {
           collection_method: 'send_invoice',
           days_until_due: 1,
           promotion_code: promotionCode.id,
-          default_tax_rates: ['tr_asdf'],
+          automatic_tax: {
+            enabled: false,
+          },
         },
         { idempotencyKey: `ssc-${subIdempotencyKey}` }
       );
@@ -1813,8 +1721,6 @@ describe('#integration - StripeHelper', () => {
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
-        automaticTax: false,
-        country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
         taxAddress: {
@@ -1847,8 +1753,6 @@ describe('#integration - StripeHelper', () => {
       });
 
       const actual = await stripeHelper.retrieveCouponDetails({
-        automaticTax: false,
-        country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
         taxAddress: {
@@ -1858,8 +1762,6 @@ describe('#integration - StripeHelper', () => {
       });
 
       sinon.assert.calledOnceWithExactly(stripeHelper.previewInvoice, {
-        automaticTax: false,
-        country: 'US',
         priceId: 'planId',
         promotionCode: 'promo',
         taxAddress: {
@@ -2105,15 +2007,12 @@ describe('#integration - StripeHelper', () => {
   });
 
   describe('previewInvoice', () => {
-    it('uses country when automatic tax is not enabled', async () => {
+    it('uses shipping address when present and no customer is provided', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
-      sandbox.stub(stripeHelper, 'taxRateByCountryCode').resolves();
 
       await stripeHelper.previewInvoice({
-        automaticTax: false,
-        country: 'US',
         priceId: 'priceId',
         taxAddress: {
           countryCode: 'US',
@@ -2122,35 +2021,7 @@ describe('#integration - StripeHelper', () => {
       });
 
       sinon.assert.calledOnceWithExactly(stripeStub, {
-        customer_details: {
-          address: {
-            country: 'US',
-          },
-        },
-        subscription_items: [
-          {
-            price: 'priceId',
-          },
-        ],
-      });
-    });
-
-    it('uses shipping address when automatic tax is enabled', async () => {
-      const stripeStub = sandbox
-        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
-        .resolves();
-
-      await stripeHelper.previewInvoice({
-        automaticTax: true,
-        country: 'US',
-        priceId: 'priceId',
-        taxAddress: {
-          countryCode: 'US',
-          postalCode: '92841',
-        },
-      });
-
-      sinon.assert.calledOnceWithExactly(stripeStub, {
+        customer: undefined,
         automatic_tax: {
           enabled: true,
         },
@@ -2173,21 +2044,20 @@ describe('#integration - StripeHelper', () => {
       });
     });
 
-    it('excludes shipping address when automatic tax is enabled but shipping address not available', async () => {
+    it('excludes shipping address when shipping address not passed', async () => {
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
 
       await stripeHelper.previewInvoice({
-        automaticTax: true,
-        country: 'US',
         priceId: 'priceId',
         taxAddress: undefined,
       });
 
       sinon.assert.calledOnceWithExactly(stripeStub, {
+        customer: undefined,
         automatic_tax: {
-          enabled: true,
+          enabled: false,
         },
         customer_details: {
           tax_exempt: 'none',
@@ -2202,15 +2072,13 @@ describe('#integration - StripeHelper', () => {
       });
     });
 
-    it('logs when there is an error when automatic tax is enabled', async () => {
+    it('logs when there is an error', async () => {
       sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .throws(new Error());
 
       try {
         await stripeHelper.previewInvoice({
-          automaticTax: true,
-          country: 'US',
           priceId: 'priceId',
           taxAddress: {
             countryCode: 'US',
@@ -3195,51 +3063,6 @@ describe('#integration - StripeHelper', () => {
       const result = await stripeHelper.taxRateByCountryCode('fr');
       assert.isDefined(result);
       assert.deepEqual(result, taxRateFr);
-    });
-  });
-
-  describe('updateCustomerPaymentMethodTaxRates', () => {
-    it('ignores deleted customers or with no country or no subscriptions', async () => {
-      let customer = deepCopy(customer1);
-      customer.deleted = true;
-      const paymentMethod = deepCopy(paymentMethodAttach);
-      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
-        customer,
-        paymentMethod
-      );
-      assert.deepEqual(result, undefined);
-      customer = deepCopy(customer1);
-      customer.subscriptions = undefined;
-      const result2 = await stripeHelper.updateCustomerPaymentMethodTaxRates(
-        customer,
-        paymentMethod
-      );
-      assert.deepEqual(result2, undefined);
-    });
-
-    it('ignores subscriptions where automatic tax is enabled', async () => {
-      const customer = deepCopy(customer1);
-      customer.subscriptions.data[0].automatic_tax = true;
-      const paymentMethod = deepCopy(paymentMethodAttach);
-      sinon.stub(stripeHelper.stripe.subscriptions, 'update');
-      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
-        customer,
-        paymentMethod
-      );
-      assert.deepEqual(result, []);
-      assert(stripeHelper.stripe.subscriptions.update.notCalled);
-    });
-
-    it('updates the subscription tax rates from one rate to a different one', async () => {
-      const customer = deepCopy(customer1);
-      const paymentMethod = deepCopy(paymentMethodAttach);
-      sinon.stub(stripeHelper.stripe.subscriptions, 'update').resolves({});
-      const result = await stripeHelper.updateCustomerPaymentMethodTaxRates(
-        customer,
-        paymentMethod
-      );
-      assert.deepEqual(result, [{}]);
-      assert(stripeHelper.stripe.subscriptions.update.calledOnce);
     });
   });
 
@@ -7524,6 +7347,38 @@ describe('#integration - StripeHelper', () => {
       };
       const actual = await stripeHelper.maybeGetPlanConfig('testo');
       assert.deepEqual(actual, planConfig);
+    });
+  });
+
+  describe('isCustomerStripeTaxEligible', () => {
+    it('returns true for a taxable customer', () => {
+      const actual = stripeHelper.isCustomerStripeTaxEligible({
+        tax: {
+          automatic_tax: 'supported',
+        },
+      });
+
+      assert.equal(actual, true);
+    });
+
+    it('returns true for a customer in a not-collecting location', () => {
+      const actual = stripeHelper.isCustomerStripeTaxEligible({
+        tax: {
+          automatic_tax: 'not_collecting',
+        },
+      });
+
+      assert.equal(actual, true);
+    });
+
+    it('returns false for a customer in a unrecognized location', () => {
+      const actual = stripeHelper.isCustomerStripeTaxEligible({
+        tax: {
+          automatic_tax: 'unrecognized_location',
+        },
+      });
+
+      assert.equal(actual, false);
     });
   });
 });

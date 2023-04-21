@@ -331,43 +331,6 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
-   * Handles updating a Stripe customer appropriately for a new payment methods tax rates.
-   *
-   */
-  async updateCustomerPaymentMethodTaxRates(
-    customer: Stripe.Customer,
-    paymentMethod: Stripe.PaymentMethod
-  ) {
-    const paymentMethodCountry = paymentMethod.card?.country;
-    if (!paymentMethodCountry || customer.deleted || !customer.subscriptions) {
-      return;
-    }
-
-    // Check if the customers tax rate id is the same as the payment method's
-    const taxRateId = (await this.taxRateByCountryCode(paymentMethodCountry))
-      ?.id;
-    const taxRates = new Set(taxRateId ? [taxRateId] : []);
-
-    const subUpdates = customer.subscriptions.data
-      .filter((sub) => {
-        // If subscription automatic_tax enabled, do not set tax rates
-        if (sub.automatic_tax) {
-          return false;
-        }
-        const subTaxRates = new Set(
-          (sub.default_tax_rates ?? []).map((tr) => tr.id)
-        );
-        return taxRates !== subTaxRates;
-      })
-      .map((sub) =>
-        this.stripe.subscriptions.update(sub.id, {
-          default_tax_rates: [...taxRates],
-        })
-      );
-    return Promise.all(subUpdates);
-  }
-
-  /**
    * Create a stripe customer.
    */
   async createPlainCustomer(args: {
@@ -466,18 +429,15 @@ export class StripeHelper extends StripeHelperBase {
     priceId: string;
     paymentMethodId?: string;
     promotionCode?: Stripe.PromotionCode;
-    taxRateId?: string;
-    automaticTax?: boolean;
+    automaticTax: boolean;
   }) {
     const {
       customerId,
       priceId,
       paymentMethodId,
       promotionCode,
-      taxRateId,
       automaticTax,
     } = opts;
-    const taxRates = taxRateId ? [taxRateId] : [];
 
     let paymentMethod;
     if (paymentMethodId) {
@@ -526,13 +486,10 @@ export class StripeHelper extends StripeHelperBase {
       items: [{ price: priceId }],
       expand: ['latest_invoice.payment_intent'],
       promotion_code: promotionCode?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
     };
-
-    if (automaticTax) {
-      createParams.automatic_tax = { enabled: true };
-    } else if (taxRates.length > 0) {
-      createParams.default_tax_rates = taxRates;
-    }
 
     const subscription = await this.stripe.subscriptions.create(createParams, {
       idempotencyKey: `ssc-${subIdempotencyKey}`,
@@ -575,18 +532,15 @@ export class StripeHelper extends StripeHelperBase {
     priceId: string;
     promotionCode?: Stripe.PromotionCode;
     subIdempotencyKey: string;
-    taxRateId?: string;
-    automaticTax?: boolean;
+    automaticTax: boolean;
   }) {
     const {
       customer,
       priceId,
       promotionCode,
       subIdempotencyKey,
-      taxRateId,
       automaticTax,
     } = opts;
-    const taxRates = taxRateId ? [taxRateId] : [];
 
     const sub = this.findCustomerSubscriptionByPlanId(customer, priceId);
     if (sub && ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)) {
@@ -614,13 +568,10 @@ export class StripeHelper extends StripeHelperBase {
       collection_method: 'send_invoice',
       days_until_due: 1,
       promotion_code: promotionCode?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
     };
-
-    if (automaticTax) {
-      createParams.automatic_tax = { enabled: true };
-    } else if (taxRates.length > 0) {
-      createParams.default_tax_rates = taxRates;
-    }
 
     const subscription = await this.stripe.subscriptions.create(createParams, {
       idempotencyKey: `ssc-${subIdempotencyKey}`,
@@ -675,14 +626,12 @@ export class StripeHelper extends StripeHelperBase {
    * a promotion code.
    */
   async previewInvoice({
-    automaticTax,
-    country,
+    customer,
     priceId,
     promotionCode,
     taxAddress,
   }: {
-    automaticTax: boolean;
-    country: string;
+    customer?: Stripe.Customer;
     priceId: string;
     promotionCode?: string;
     taxAddress?: TaxAddress;
@@ -699,8 +648,13 @@ export class StripeHelper extends StripeHelperBase {
       }
     }
 
-    if (automaticTax) {
-      const shipping = taxAddress
+    const automaticTax = !!(
+      (customer && this.isCustomerStripeTaxEligible(customer)) ||
+      (!customer && taxAddress)
+    );
+
+    const shipping =
+      !customer && taxAddress
         ? {
             name: '',
             address: {
@@ -710,52 +664,33 @@ export class StripeHelper extends StripeHelperBase {
           }
         : undefined;
 
-      try {
-        return await this.stripe.invoices.retrieveUpcoming({
-          automatic_tax: {
-            enabled: true,
-          },
-          customer_details: {
-            tax_exempt: 'none', // Param required when shipping address not present
-            shipping,
-          },
-          subscription_items: [
-            {
-              price: priceId,
-            },
-          ],
-          expand: ['total_tax_amounts.tax_rate'],
-          ...params,
-        });
-      } catch (e: any) {
-        this.log.warn('stripe.previewInvoice.automatic_tax', {
-          postalCode: taxAddress?.postalCode,
-          countryCode: taxAddress?.countryCode,
-          priceId,
-          promotionCode,
-        });
-
-        throw e;
-      }
-    } else {
-      const taxRate = await this.taxRateByCountryCode(country);
-      if (taxRate) {
-        params.subscription_default_tax_rates = [taxRate.id];
-      }
-
+    try {
       return await this.stripe.invoices.retrieveUpcoming({
+        customer: customer?.id,
+        automatic_tax: {
+          enabled: automaticTax,
+        },
         customer_details: {
-          address: {
-            country,
-          },
+          tax_exempt: 'none', // Param required when shipping address not present
+          shipping,
         },
         subscription_items: [
           {
             price: priceId,
           },
         ],
+        expand: ['total_tax_amounts.tax_rate'],
         ...params,
       });
+    } catch (e: any) {
+      this.log.warn('stripe.previewInvoice.automatic_tax', {
+        postalCode: taxAddress?.postalCode,
+        countryCode: taxAddress?.countryCode,
+        priceId,
+        promotionCode,
+      });
+
+      throw e;
     }
   }
 
@@ -964,14 +899,10 @@ export class StripeHelper extends StripeHelperBase {
    * exist for the provided priceId.
    */
   async retrieveCouponDetails({
-    automaticTax,
-    country,
     priceId,
     promotionCode,
     taxAddress,
   }: {
-    automaticTax: boolean;
-    country: string;
     priceId: string;
     promotionCode: string;
     taxAddress?: TaxAddress;
@@ -1002,8 +933,6 @@ export class StripeHelper extends StripeHelperBase {
         try {
           const { currency, discount, total, total_discount_amounts } =
             await this.previewInvoice({
-              automaticTax,
-              country,
               priceId,
               promotionCode,
               taxAddress,
@@ -1886,6 +1815,18 @@ export class StripeHelper extends StripeHelperBase {
       throw error.unknownSubscriptionPlan(planId);
     }
     return selectedPlan;
+  }
+
+  /**
+   * Check if customer's automatic tax status indicates that they're eligible for automatic tax.
+   * Creating a subscription with automatic_tax enabled requires a customer with an address
+   * that is in a recognized location with an active tax registration.
+   */
+  isCustomerStripeTaxEligible(customer: Stripe.Customer) {
+    return (
+      customer.tax?.automatic_tax === 'supported' ||
+      customer.tax?.automatic_tax === 'not_collecting'
+    );
   }
 
   /**

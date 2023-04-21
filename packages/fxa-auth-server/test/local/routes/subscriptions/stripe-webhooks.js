@@ -41,7 +41,6 @@ const eventPlanUpdated = require('../../payments/fixtures/stripe/plan_updated_ev
 const eventCreditNoteCreated = require('../../payments/fixtures/stripe/event_credit_note_created.json');
 const eventTaxRateCreated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
 const eventTaxRateUpdated = require('../../payments/fixtures/stripe/event_tax_rate_created.json');
-const eventPaymentMethodUpdated = require('../../payments/fixtures/stripe/event_payment_method_updated.json');
 const { default: Container } = require('typedi');
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
@@ -89,7 +88,6 @@ describe('StripeWebhookHandler', () => {
         managementClientId: MOCK_CLIENT_ID,
         managementTokenTTL: MOCK_TTL,
         stripeApiKey: 'sk_test_1234',
-        stripeAutomaticTax: { enabled: false },
         paypalNvpSigCredentials: {
           enabled: true,
         },
@@ -178,7 +176,6 @@ describe('StripeWebhookHandler', () => {
         'handleSubscriptionDeletedEvent',
         'handleCustomerUpdatedEvent',
         'handleCustomerSourceExpiringEvent',
-        'handlePaymentMethodUpdated',
         'handleProductWebhookEvent',
         'handlePlanCreatedOrUpdatedEvent',
         'handlePlanDeletedEvent',
@@ -356,13 +353,6 @@ describe('StripeWebhookHandler', () => {
         itOnlyCallsThisHandler(
           'handleCustomerSourceExpiringEvent',
           eventCustomerSourceExpiring
-        );
-      });
-
-      describe('when the event.type is payment_method.updated', () => {
-        itOnlyCallsThisHandler(
-          'handlePaymentMethodUpdated',
-          eventPaymentMethodUpdated
         );
       });
 
@@ -1260,71 +1250,6 @@ describe('StripeWebhookHandler', () => {
         assert.calledWith(
           StripeWebhookHandlerInstance.stripeHelper.getCustomerPaypalAgreement,
           {}
-        );
-      });
-    });
-
-    describe('handlePaymentMethodUpdated', () => {
-      it('returns with no customer', async () => {
-        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
-        paymentMethodUpdatedEvent.data.object.customer = null;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves();
-        const result =
-          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
-            {},
-            paymentMethodUpdatedEvent
-          );
-        assert.isUndefined(result);
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource
-        );
-      });
-
-      it('returns with customer.deleted', async () => {
-        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
-        const customer = deepCopy(customerFixture);
-        customer.deleted = true;
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
-          customer
-        );
-        const result =
-          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
-            {},
-            paymentMethodUpdatedEvent
-          );
-        assert.isUndefined(result);
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          paymentMethodUpdatedEvent.data.object.customer,
-          CUSTOMER_RESOURCE
-        );
-        assert.notCalled(
-          StripeWebhookHandlerInstance.stripeHelper
-            .updateCustomerPaymentMethodTaxRates
-        );
-      });
-
-      it('updates tax rates', async () => {
-        const paymentMethodUpdatedEvent = deepCopy(eventPaymentMethodUpdated);
-        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
-          customerFixture
-        );
-        StripeWebhookHandlerInstance.stripeHelper.updateCustomerPaymentMethodTaxRates.resolves();
-        const result =
-          await StripeWebhookHandlerInstance.handlePaymentMethodUpdated(
-            {},
-            paymentMethodUpdatedEvent
-          );
-        assert.equal(result, undefined);
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper.expandResource,
-          paymentMethodUpdatedEvent.data.object.customer,
-          CUSTOMER_RESOURCE
-        );
-        assert.calledWith(
-          StripeWebhookHandlerInstance.stripeHelper
-            .updateCustomerPaymentMethodTaxRates,
-          customerFixture
         );
       });
     });
