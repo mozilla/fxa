@@ -14,11 +14,12 @@ import {
   useAccount,
   useAlertBar,
   useConfig,
+  useFtlMsgResolver,
   useSession,
 } from '../../../models';
-import { useLocalization, Localized } from '@fluent/react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { copyRecoveryCodes } from '../../../lib/totp';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const alertBar = useAlertBar();
@@ -26,13 +27,13 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
   const session = useSession();
   const account = useAccount();
   const config = useConfig();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const goHome = () =>
     navigate(HomePath + '#two-step-authentication', { replace: true });
 
   const [subtitle, setSubtitle] = useState<string>(
-    l10n.getString('tfa-replace-code-1-2', null, 'Step 1 of 2')
+    ftlMsgResolver.getMsg('tfa-replace-code-1-2', 'Step 1 of 2')
   );
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
   const [recoveryCodesAcknowledged, setRecoveryCodesAcknowledged] =
@@ -40,9 +41,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
 
   const alertSuccessAndGoHome = () => {
     alertBar.success(
-      l10n.getString(
+      ftlMsgResolver.getMsg(
         'tfa-replace-code-success-alert-3',
-        null,
         'Account backup authentication codes updated'
       )
     );
@@ -59,9 +59,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       alertSuccessAndGoHome();
     } catch (e) {
       alertBar.error(
-        l10n.getString(
+        ftlMsgResolver.getMsg(
           'tfa-replace-code-error-3',
-          null,
           'There was a problem replacing your backup authentication codes'
         )
       );
@@ -85,27 +84,26 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       setRecoveryCodes(recoveryCodes);
     } catch (e) {
       alertBar.error(
-        l10n.getString(
-          'tfa-replace-code-error-3',
-          null,
+        ftlMsgResolver.getMsg(
+          'tfa-create-code-error',
           'There was a problem creating your backup authentication codes'
         )
       );
     }
-  }, [config, account, alertBar, l10n]);
+  }, [config, account, alertBar, ftlMsgResolver]);
 
   const activateStep = (step: number) => {
     switch (step) {
       case 1:
         setSubtitle(
-          l10n.getString('tfa-replace-code-1-2', null, 'Step 1 of 2')
+          ftlMsgResolver.getMsg('tfa-replace-code-1-2', 'Step 1 of 2')
         );
         setRecoveryCodesAcknowledged(false);
         break;
 
       case 2:
         setSubtitle(
-          l10n.getString('tfa-replace-code-2-2', null, 'Step 2 of 2')
+          ftlMsgResolver.getMsg('tfa-replace-code-2-2', 'Step 2 of 2')
         );
         setRecoveryCodesAcknowledged(true);
         break;
@@ -128,7 +126,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
 
   return (
     <FlowContainer
-      title={l10n.getString('tfa-title', null, 'Two-step authentication')}
+      title={ftlMsgResolver.getMsg('tfa-title', 'Two-step authentication')}
       {...{ subtitle, onBackButtonClick: moveBack }}
     >
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
@@ -136,11 +134,11 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
       {!recoveryCodesAcknowledged && (
         <>
           <div className="my-2" data-testid="2fa-recovery-codes">
-            <Localized id="tfa-replace-code-success">
+            <FtlMsg id="tfa-replace-code-success-1">
               New codes have been created. Save these one-time use backup
               authentication codes in a safe place — you’ll need them to access
               your account if you don’t have your mobile device.
-            </Localized>
+            </FtlMsg>
             <div className="mt-6 flex flex-col items-center h-auto justify-between">
               {recoveryCodes.length > 0 ? (
                 <DataBlock
@@ -155,7 +153,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
-            <Localized id="tfa-button-cancel">
+            <FtlMsg id="tfa-button-cancel">
               <button
                 type="button"
                 className="cta-neutral cta-base-p mx-2 flex-1"
@@ -163,8 +161,8 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
               >
                 Cancel
               </button>
-            </Localized>
-            <Localized id="recovery-key-continue-button">
+            </FtlMsg>
+            <FtlMsg id="recovery-key-continue-button">
               <button
                 type="submit"
                 className="cta-neutral mx-2 px-10 py-2"
@@ -175,7 +173,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
               >
                 Continue
               </button>
-            </Localized>
+            </FtlMsg>
           </div>
         </>
       )}
@@ -206,7 +204,7 @@ const RecoveryCodeCheck = ({
   goHome,
   onRecoveryCodeSubmit,
 }: RecoverCodeCheckType) => {
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const [recoveryCodeError, setRecoveryCodeError] = useState<string>('');
 
@@ -217,9 +215,8 @@ const RecoveryCodeCheck = ({
   const onSubmit = async ({ recoveryCode }: RecoveryCodeForm) => {
     if (!recoveryCodes.includes(recoveryCode)) {
       setRecoveryCodeError(
-        l10n.getString(
+        ftlMsgResolver.getMsg(
           'tfa-incorrect-recovery-code-1',
-          null,
           'Incorrect backup authentication code'
         )
       );
@@ -234,15 +231,15 @@ const RecoveryCodeCheck = ({
 
   return (
     <form onSubmit={recoveryCodeForm.handleSubmit(onSubmit)}>
-      <Localized id="tfa-enter-code-to-confirm-1">
+      <FtlMsg id="tfa-enter-code-to-confirm-1">
         <p className="mt-4 mb-4">
           Please enter one of your backup authentication codes now to confirm
           you've saved it. You’ll need a code to login if you don’t have access
           to your mobile device.
         </p>
-      </Localized>
+      </FtlMsg>
       <div className="mt-4 mb-6" data-testid="recovery-code-input">
-        <Localized id="tfa-enter-recovery-code-1" attrs={{ label: true }}>
+        <FtlMsg id="tfa-enter-recovery-code-1" attrs={{ label: true }}>
           <InputText
             name="recoveryCode"
             label="Enter a backup authentication code"
@@ -257,11 +254,11 @@ const RecoveryCodeCheck = ({
             })}
             {...{ errorText: recoveryCodeError }}
           />
-        </Localized>
+        </FtlMsg>
       </div>
       <div className="flex justify-center mb-4 mx-auto max-w-64">
         {cancellable && (
-          <Localized id="tfa-button-cancel">
+          <FtlMsg id="tfa-button-cancel">
             <button
               type="button"
               className="cta-neutral cta-base-p mx-2 flex-1"
@@ -269,9 +266,9 @@ const RecoveryCodeCheck = ({
             >
               Cancel
             </button>
-          </Localized>
+          </FtlMsg>
         )}
-        <Localized id="tfa-button-finish">
+        <FtlMsg id="tfa-button-finish">
           <button
             type="submit"
             data-testid="submit-recovery-code"
@@ -283,7 +280,7 @@ const RecoveryCodeCheck = ({
           >
             Finish
           </button>
-        </Localized>
+        </FtlMsg>
       </div>
     </form>
   );

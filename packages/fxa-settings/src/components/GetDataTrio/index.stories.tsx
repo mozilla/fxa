@@ -4,7 +4,10 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import GetDataTrio, { GetDataCopySingleton } from './index';
+import GetDataTrio, {
+  GetDataCopySingleton,
+  GetDataCopySingletonInline,
+} from './index';
 import { withLocalization } from '../../../.storybook/decorators';
 
 export default {
@@ -22,5 +25,11 @@ export const Default = () => (
 export const SingleCopyButton = () => (
   <div className="p-10 max-w-xs">
     <GetDataCopySingleton value="Copy that" />
+  </div>
+);
+
+export const SingleCopyButtonInline = () => (
+  <div className="p-10 max-w-xs">
+    <GetDataCopySingletonInline value="Copy that" />
   </div>
 );

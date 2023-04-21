@@ -7,6 +7,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { Account, AppContext } from '../../models';
 import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
+import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 
 const singleValue = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 
@@ -22,9 +23,7 @@ const multiValue = [
 ];
 
 const account = {
-  primaryEmail: {
-    email: 'pbooth@mozilla.com',
-  },
+  ...MOCK_ACCOUNT,
 } as unknown as Account;
 
 Object.defineProperty(window.navigator, 'clipboard', {
@@ -34,7 +33,7 @@ window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={singleValue} />
     </AppContext.Provider>
   );
@@ -43,7 +42,7 @@ it('can render single values', () => {
 
 it('can render multiple values', () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>
   );
@@ -54,7 +53,7 @@ it('can render multiple values', () => {
 
 it('can apply spacing to multiple values', () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} separator=" " />
     </AppContext.Provider>
   );
@@ -66,7 +65,7 @@ it('can apply spacing to multiple values', () => {
 
 it('displays only Copy icon in iOS', () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} separator=" " isIOS />
     </AppContext.Provider>
   );
@@ -82,7 +81,7 @@ it('displays only Copy icon in iOS', () => {
 
 it('displays a tooltip on action', async () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>
   );
@@ -96,7 +95,7 @@ it('displays a tooltip on action', async () => {
 
 it('sets download file name', async () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock
         value={multiValue}
         contentType="Firefox account recovery key"
@@ -112,7 +111,7 @@ it('sets download file name', async () => {
 
 it('sets has fallback download file name', async () => {
   render(
-    <AppContext.Provider value={{ account }}>
+    <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>
   );

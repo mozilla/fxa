@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback } from 'react';
-import { Localized, useLocalization } from '@fluent/react';
 import { copy } from '../../lib/clipboard';
 import { ReactComponent as CopyIcon } from './copy.svg';
+import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
 import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
-import { useAccount } from '../../models';
+import { useAccount, useFtlMsgResolver } from '../../models';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
@@ -18,9 +19,8 @@ export type DownloadContentType =
 const DownloadContentTypeL10nMapping: Record<DownloadContentType, string> = {
   Firefox: 'get-data-trio-title-firefox',
   'Firefox backup authentication codes':
-    'get-data-trio-title-firefox-backup-authentication-codes',
-  'Firefox account recovery key':
-    'get-data-trio-title-firefox-account-recovery-key',
+    'get-data-trio-title-firefox-backup-verification-codes',
+  'Firefox account recovery key': 'get-data-trio-title-firefox-recovery-key',
 };
 
 export type GetDataTrioProps = {
@@ -31,7 +31,7 @@ export type GetDataTrioProps = {
 
 export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
   return (
-    <Localized id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
+    <FtlMsg id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
       <button
         title="Copy"
         type="button"
@@ -50,7 +50,33 @@ export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
           className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
         />
       </button>
-    </Localized>
+    </FtlMsg>
+  );
+};
+
+export const GetDataCopySingletonInline = ({
+  value,
+  onAction,
+}: GetDataTrioProps) => {
+  return (
+    <FtlMsg id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
+      <button
+        title="Copy"
+        type="button"
+        onClick={async () => {
+          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
+          await copy(copyValue);
+          onAction?.('copy');
+        }}
+        data-testid="databutton-copy"
+        className="-m-3 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
+      >
+        <InlineCopyIcon
+          aria-label="Copy"
+          className="w-6 h-6 items-center justify-center stroke-current"
+        />
+      </button>
+    </FtlMsg>
   );
 };
 
@@ -74,18 +100,16 @@ export const GetDataTrio = ({
   contentType,
   onAction,
 }: GetDataTrioProps) => {
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   // Fall back to 'Firefox' just in case.
   if (contentType == null) {
     contentType = 'Firefox';
   }
 
-  const pageTitle = l10n.getString(
-    DownloadContentTypeL10nMapping[contentType],
-    null,
-    contentType
-  );
+  const pageTitleId = DownloadContentTypeL10nMapping[contentType];
+
+  const pageTitle = ftlMsgResolver.getMsg(pageTitleId, contentType);
 
   const print = useCallback(() => {
     const printWindow = window.open('', 'Print', 'height=600,width=800')!;
@@ -99,7 +123,7 @@ export const GetDataTrio = ({
 
   return (
     <div className="flex justify-between w-4/5 max-w-48">
-      <Localized
+      <FtlMsg
         id="get-data-trio-download-2"
         attrs={{ title: true, ariaLabel: true }}
       >
@@ -122,14 +146,14 @@ export const GetDataTrio = ({
             className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
           />
         </a>
-      </Localized>
+      </FtlMsg>
 
       <GetDataCopySingleton {...{ onAction, value }} />
 
       {/** This only opens the page that is responsible
        *   for triggering the print screen.
        **/}
-      <Localized
+      <FtlMsg
         id="get-data-trio-print-2"
         attrs={{ title: true, ariaLabel: true }}
       >
@@ -150,7 +174,7 @@ export const GetDataTrio = ({
             className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
           />
         </button>
-      </Localized>
+      </FtlMsg>
     </div>
   );
 };
