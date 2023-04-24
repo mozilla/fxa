@@ -12,3 +12,5 @@ reset-password-warning-message-2 = <span>Note:</span> When you reset your passwo
 reset-password-password-input =
   .label = Email
 reset-password-button = Begin reset
+# Error message displayed in a tooltip when a user attempts to submit a password reset form without entering an email address
+reset-password-email-required-error = Email required

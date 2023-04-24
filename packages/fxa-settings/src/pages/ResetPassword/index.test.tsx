@@ -4,11 +4,17 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
-import { logPageViewEvent } from '../../lib/metrics';
+import { usePageViewEvent } from '../../lib/metrics';
 import ResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
 
@@ -17,9 +23,16 @@ import { MozServices } from '../../lib/types';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 
+const mockLogViewEvent = jest.fn();
+const mockLogPageViewEvent = jest.fn();
+
 jest.mock('../../lib/metrics', () => ({
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  useMetrics: jest.fn(() => ({
+    logViewEventOnce: mockLogViewEvent,
+    logPageViewEventOnce: mockLogPageViewEvent,
+  })),
 }));
 
 const mockNavigate = jest.fn();
@@ -88,7 +101,7 @@ describe('PageResetPassword', () => {
 
   it('emits a metrics event on render', () => {
     render(<ResetPassword />);
-    expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('submit success', async () => {
@@ -113,6 +126,7 @@ describe('PageResetPassword', () => {
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email
     );
+
     expect(mockNavigate).toHaveBeenCalledWith(
       'confirm_reset_password?showReactApp=true',
       {
@@ -125,7 +139,7 @@ describe('PageResetPassword', () => {
     );
   });
 
-  it('displays unknown account error', async () => {
+  it('displays an error when the account is unknown', async () => {
     const gqlError: any = AuthUiErrorNos[102]; // Unknown account error
     const account = {
       resetPassword: jest.fn().mockRejectedValue(gqlError),
@@ -133,11 +147,13 @@ describe('PageResetPassword', () => {
 
     renderWithAccount(account);
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Begin Reset'));
+    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+      target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    await screen.findByText('Unknown account');
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => screen.findByText('Unknown account'));
   });
 
   it('displays an error when rate limiting kicks in', async () => {
@@ -159,27 +175,33 @@ describe('PageResetPassword', () => {
 
     renderWithAccount(account);
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Begin Reset'));
+    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+      target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    await screen.findByText(
-      'You’ve tried too many times. Please try again in 15 minutes.'
+    fireEvent.click(screen.getByText('Begin Reset'));
+
+    await waitFor(() =>
+      screen.findByText(
+        'You’ve tried too many times. Please try again in 15 minutes.'
+      )
     );
   });
 
   it('handles unexpected errors on submit', async () => {
-    const unknownError = 'some error'; // for example if the error is not a GQLError
+    const unexpectedError: any = 'some error'; // Unknown account error
     const account = {
-      resetPassword: jest.fn().mockRejectedValue(unknownError),
+      resetPassword: jest.fn().mockRejectedValue(unexpectedError),
     } as unknown as Account;
 
     renderWithAccount(account);
 
-    await act(async () => {
-      fireEvent.click(screen.getByText('Begin Reset'));
+    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+      target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    await screen.findByText('Unexpected error');
+    fireEvent.click(screen.getByText('Begin Reset'));
+
+    await waitFor(() => screen.findByText('Unexpected error'));
   });
 });

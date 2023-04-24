@@ -11,7 +11,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { Account } from '../../../models';
-import { logPageViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import {
   mockCompleteResetPasswordParams,
@@ -37,7 +37,7 @@ const PASSWORD = 'passwordzxcv';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
-  logPageViewEvent: jest.fn(),
+  usePageViewEvent: jest.fn(),
 }));
 
 let account: Account;
@@ -174,7 +174,7 @@ describe('CompleteResetPassword page', () => {
   it('emits the expected metrics on render', () => {
     renderSubject(account);
 
-    expect(logPageViewEvent).toHaveBeenCalledWith(
+    expect(usePageViewEvent).toHaveBeenCalledWith(
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
@@ -288,7 +288,6 @@ describe('CompleteResetPassword page', () => {
       fireEvent.input(screen.getByTestId('new-password-input-field'), {
         target: { value: PASSWORD },
       });
-
       fireEvent.input(screen.getByTestId('verify-password-input-field'), {
         target: { value: PASSWORD },
       });
