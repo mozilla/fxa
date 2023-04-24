@@ -5,7 +5,7 @@
 import { Localized, useLocalization } from '@fluent/react';
 import React from 'react';
 import LinkExternal from '../LinkExternal';
-import { ReactComponent as MozLogo } from '../../images/moz-logo.svg';
+import { ReactComponent as MozLogo } from '../../images/moz-logo-bw-rgb.svg';
 
 export const Footer = () => {
   const { l10n } = useLocalization();
