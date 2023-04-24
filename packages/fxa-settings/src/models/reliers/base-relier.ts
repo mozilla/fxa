@@ -28,7 +28,6 @@ export interface RelierClientInfo {
  */
 export interface RelierData {
   name: string;
-
   context: string | undefined;
   email: string | undefined;
   entrypoint: string | undefined;

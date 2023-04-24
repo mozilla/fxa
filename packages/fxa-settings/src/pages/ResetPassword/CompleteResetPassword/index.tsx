@@ -6,7 +6,11 @@ import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
-import { useAccount } from '../../../models';
+import {
+  CreateIntegration,
+  IntegrationType,
+  useAccount,
+} from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import FormPasswordWithBalloons from '../../../components/FormPasswordWithBalloons';
@@ -14,11 +18,13 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { LinkStatus } from '../../../lib/types';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import useNavigateWithoutRerender from '../../../lib/hooks/useNavigateWithoutRerender';
+import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import { isOriginalTab } from '../../../lib/storage-utils';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -80,6 +86,7 @@ const CompleteResetPassword = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
+  const integration = CreateIntegration();
 
   /* When the user clicks the confirm password reset link from their email, we check
    * to see if they have an account recovery key set. If they do, we navigate to the
@@ -161,18 +168,56 @@ const CompleteResetPassword = ({
         // account's original email because this will maintain backwards compatibility with
         // how account password hashing works previously.
         const emailToUse = emailToHashWith || email;
-        await account.completeResetPassword(
-          token,
-          code,
-          emailToUse,
-          newPassword
-        );
+        const [sessionisVerified] = await Promise.all([
+          account.isSessionVerified(),
+          account.completeResetPassword(token, code, emailToUse, newPassword),
+        ]);
+
+        switch (integration.type) {
+          case IntegrationType.SyncDesktop:
+            notifyFirefoxOfLogin(account, sessionisVerified);
+            break;
+          case IntegrationType.OAuth:
+            if (
+              sessionisVerified &&
+              // only allow this redirect if 2FA is not enabled, otherwise users must enter
+              // their TOTP code first
+              !account.totp.verified &&
+              // a user can only redirect back to the relier from the original tab
+              // to avoid two tabs redirecting.
+              isOriginalTab()
+            ) {
+              // TODO: this.finishOAuthSignInFlow(account)) in FXA-6518 and possibly
+              // remove the !OAuth check from the React experiment in router.js
+              return;
+            } else if (!isOriginalTab()) {
+              // allows a navigation to a "complete" screen or TOTP screen if it is setup
+              // TODO: check if relier has state
+              if (account.totp.verified) {
+                // finishing OAuth flow occurs on this page after entering TOTP
+                // TODO: probably need to pass some params
+                hardNavigateToContentServer('/signin_totp_code');
+              }
+            }
+            break;
+          case IntegrationType.Web:
+            if (account.totp.verified) {
+              // take users to Settings after entering TOTP
+              hardNavigateToContentServer('/signin_totp_code');
+            }
+            // TODO: if no TOTP, navigate users to /settings with the alert bar message
+            // for now, just navigate to reset_password_verified
+            break;
+          default:
+          // TODO: run unpersistVerificationData in FXA-7308
+        }
+
         alertSuccessAndNavigate();
       } catch (e) {
         setErrorType(ErrorType['complete-reset']);
       }
     },
-    [account, alertSuccessAndNavigate]
+    [account, alertSuccessAndNavigate, integration.type]
   );
 
   if (showLoadingSpinner) {

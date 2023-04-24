@@ -26,7 +26,7 @@ export class DefaultRelierFlags implements RelierFlags {
 
   isDevicePairingAsAuthority() {
     return (
-      this._searchParam('redirect_uri') ===
+      this.searchParam('redirect_uri') ===
       Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
     );
   }
@@ -38,7 +38,7 @@ export class DefaultRelierFlags implements RelierFlags {
   isOAuth() {
     return (
       !!(
-        this._searchParam('client_id') ||
+        this.searchParam('client_id') ||
         // verification
         this._isOAuthVerificationSameBrowser()
       ) ||
@@ -53,7 +53,7 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   isV3DesktopContext() {
-    return this._searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
+    return this.searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
   }
 
   isOAuthSuccessFlow() {
@@ -72,26 +72,27 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   isOAuthVerificationFlow(): boolean {
-    return !!this._searchParam('code');
+    return !!this.searchParam('code');
   }
 
   getOAuthResumeObj(): Record<string, unknown> {
     let resumeObj = this.storageData.get('oauth');
     if (resumeObj == null || typeof resumeObj !== 'object') {
       resumeObj = {
-        client_id: this._searchParam('service'), //eslint-disable-line camelcase
-        service: this._searchParam('service'),
+        client_id: this.searchParam('service'), //eslint-disable-line camelcase
+        service: this.searchParam('service'),
       };
     }
     return Object.assign({}, resumeObj);
   }
 
   private _isOAuthVerificationSameBrowser() {
-    return this._isVerification() && this._isService(this._getSavedClientId());
+    return this.isVerification() && this._isService(this._getSavedClientId());
   }
 
-  private _isVerification() {
-    return (
+  isVerification() {
+    // TODO: fix type returned from `searchParam`, forces this boolean check
+    return !!(
       this._isSignUpVerification() ||
       this._isPasswordResetVerification() ||
       this._isReportSignIn()
@@ -99,7 +100,7 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   private _isPasswordResetVerification() {
-    return this._searchParam('code') && this._searchParam('token');
+    return this.searchParam('code') && this.searchParam('token');
   }
 
   private _isReportSignIn() {
@@ -107,29 +108,31 @@ export class DefaultRelierFlags implements RelierFlags {
   }
 
   private _isSignUpVerification() {
-    return this._searchParam('code') && this._searchParam('uid');
+    return this.searchParam('code') && this.searchParam('uid');
   }
 
-  private _searchParam(key: string) {
+  // TODO: fix type, return type is `unknown`
+  searchParam(key: string) {
     return this.urlQueryData.get(key);
   }
 
-  private _isServiceSync() {
+  isServiceSync() {
     return this._isService(Constants.SYNC_SERVICE);
   }
 
   private _isService(compareToService: string) {
-    const service = this._searchParam('service');
+    const service = this.searchParam('service');
     return !!(service && compareToService && service === compareToService);
   }
 
   private _isOAuthVerificationDifferentBrowser() {
-    return this._isVerification() && this._isServiceOAuth();
+    return this.isVerification() && this.isServiceOAuth();
   }
 
-  private _isServiceOAuth() {
-    const service = this._searchParam('service');
-    return service && !this._isServiceSync();
+  isServiceOAuth() {
+    const service = this.searchParam('service');
+    // TODO: fix type returned from `_searchParam`, forces this boolean check
+    return !!(service && !this.isServiceSync());
   }
 
   private _getSavedClientId() {

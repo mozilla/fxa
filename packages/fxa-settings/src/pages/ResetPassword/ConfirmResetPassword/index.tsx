@@ -13,6 +13,7 @@ import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
+import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 
 export const viewName = 'confirm-reset-password';
 
@@ -60,10 +61,7 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
         currentPasswordForgotToken
       );
       if (!isValid) {
-        // TODO: Going from react page to non-react page will require a hard
-        // navigate. When signin flow have been converted we should be able
-        // to use `navigate`
-        window.location.href = '/signin';
+        hardNavigateToContentServer('/signin');
       }
     } catch (err) {
       setIsPolling(null);

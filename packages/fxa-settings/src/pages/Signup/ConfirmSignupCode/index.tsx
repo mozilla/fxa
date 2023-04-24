@@ -14,7 +14,7 @@ import {
   composeAuthUiErrorTranslationId,
 } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import {
   useAccount,
   useAlertBar,
@@ -62,10 +62,7 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
   const email = location.state?.email || 'potato@potatoes.com';
 
   const navigateToSignup = () => {
-    // TODO: Going from react page to non-react page will require a hard
-    // navigate. When signup flow has been fully converted we should be able
-    // to use `navigate`.
-    window.location.href = '/';
+    hardNavigateToContentServer('/');
   };
 
   const [banner, setBanner] = useState<Partial<BannerProps>>({

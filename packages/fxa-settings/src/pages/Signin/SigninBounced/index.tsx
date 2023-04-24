@@ -6,10 +6,9 @@ import React, { useEffect } from 'react';
 import { RouteComponentProps /*useNavigate*/ } from '@reach/router';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ReactComponent as EmailBounced } from './graphic_email_bounced.svg';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { useFtlMsgResolver, useWindowWrapper } from '../../../models/hooks';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { useFtlMsgResolver } from '../../../models/hooks';
 
-import LinkExternal from 'fxa-react/components/LinkExternal';
 import AppLayout from '../../../components/AppLayout';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
@@ -35,7 +34,6 @@ const SigninBounced = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const ftlMessageResolver = useFtlMsgResolver();
   const backText = ftlMessageResolver.getMsg('back', 'Back');
-  // const navigate = useNavigate();
 
   const handleNavigationBack = (event: any) => {
     logViewEvent(viewName, 'link.back', REACT_ENTRYPOINT);
@@ -48,11 +46,7 @@ const SigninBounced = ({
 
   useEffect(() => {
     if (emailLookupComplete && !email) {
-      // TODO: Going from react page to non-react page will require a hard
-      // navigate. When signin flow has been converted we should be able
-      // to use `navigate`
-      // navigate('/signin?showReactApp=true', { replace: true });
-      window.location.replace('/signin');
+      hardNavigateToContentServer('/signin');
     }
   }, [email, emailLookupComplete /*, navigate*/]);
 
@@ -60,11 +54,7 @@ const SigninBounced = ({
     logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);
     localStorage.removeItem('__fxa_storage.accounts');
     sessionStorage.clear();
-    // TODO: Going from react page to non-react page will require a hard
-    // navigate. When signup flow has been converted we should be able
-    // to use `navigate`
-    // navigate('/signup?showReactApp=true', { replace: true });
-    window.location.replace('/signup');
+    hardNavigateToContentServer('/signup');
   };
 
   return (
