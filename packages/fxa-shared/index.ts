@@ -21,6 +21,7 @@ import {
 } from './subscriptions/metadata';
 import * as stripe from './subscriptions/stripe';
 import * as subscriptions from './subscriptions/type-guards';
+import * as errors from './lib/errors';
 
 module.exports = {
   email: {
@@ -44,6 +45,9 @@ module.exports = {
   },
   oauth: {
     scopes,
+  },
+  lib: {
+    errors,
   },
   subscriptions: {
     metadata: {
