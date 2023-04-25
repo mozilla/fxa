@@ -397,6 +397,18 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_view',
   },
+  'screen.settings.account-recovery.info': {
+    group: GROUPS.settings,
+    event: 'account_recovery_info_view',
+  },
+  'flow.settings.account-recovery.info.navigate-backward': {
+    group: GROUPS.settings,
+    event: 'account_recovery_info_navigate_backward',
+  },
+  'flow.settings.account-recovery.info.navigate-forward': {
+    group: GROUPS.settings,
+    event: 'account_recovery_info_navigate_forward',
+  },
   // Revoke
   'flow.settings.account-recovery.confirm-revoke.submit': {
     group: GROUPS.settings,

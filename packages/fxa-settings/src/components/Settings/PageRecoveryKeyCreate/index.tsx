@@ -4,15 +4,22 @@
 
 import React, { useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
+import { useFtlMsgResolver } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { HomePath } from '../../../constants';
+import FlowRecoveryKeyInfo from '../FlowRecoveryKeyInfo';
 
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   const navigate = useNavigate();
+  const ftlMsgResolver = useFtlMsgResolver();
   const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
   const [currentStep, setCurrentStep] = useState(1);
   usePageViewEvent('settings.account-recovery');
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'recovery-key-create-page-title',
+    'Account Recovery Key'
+  );
 
   /*
     The content here will obviously be replaced as we complete the separate views for this flow. This page will use the same pattern as the example wizard in storybook for `FlowContainer`. All steps will be separate components which use the `FlowContainer` and accept `currentStep` and `setCurrentStep` as the props necessary to move the user through the flow.
@@ -23,18 +30,15 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       {
         // Create an account recovery key
         currentStep === 1 && (
-          <>
-            <p>first step</p>
-            <button
-              className="cta-primary cta-base-p mx-2 flex-1"
-              type="button"
-              onClick={() => {
-                setCurrentStep(currentStep + 1);
-              }}
-            >
-              click to move to next view
-            </button>
-          </>
+          <FlowRecoveryKeyInfo
+            {...{ localizedPageTitle }}
+            navigateForward={() => {
+              setCurrentStep(2);
+            }}
+            navigateBackward={() => {
+              navigate('/settings');
+            }}
+          />
         )
       }
       {
