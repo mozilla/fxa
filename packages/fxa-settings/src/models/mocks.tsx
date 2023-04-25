@@ -66,6 +66,15 @@ export function mockSession(verified: boolean = true) {
   } as Session;
 }
 
+export function mockStorage() {
+  return {
+    get: () => 'deadc0de',
+    setItem(key: string, value: string) {
+      return;
+    },
+  };
+}
+
 export const mockEmail = (
   email = 'johndope@example.com',
   isPrimary = true,
@@ -94,6 +103,7 @@ export function mockAppContext(context?: AppContextValue) {
       session: mockSession(),
       config: getDefault(),
       alertBarInfo: new AlertBarInfo(),
+      storageData: mockStorage(),
     },
     context
   ) as AppContextValue;

@@ -60,6 +60,8 @@ const settingsConfig = {
     length: config.get('recovery_codes.length'),
   },
   showRecoveryKeyV2: config.get('showRecoveryKeyV2'),
+  googleAuthConfig: config.get('googleAuthConfig'),
+  appleAuthConfig: config.get('appleAuthConfig')
 };
 
 // Inject Beta Settings meta content

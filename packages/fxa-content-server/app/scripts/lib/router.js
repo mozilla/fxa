@@ -35,6 +35,7 @@ import SignInTokenCodeView from '../views/sign_in_token_code';
 import SignInTotpCodeView from '../views/sign_in_totp_code';
 import SignInUnblockView from '../views/sign_in_unblock';
 import SignUpPasswordView from '../views/sign_up_password';
+import ThirdPartyAuthCallbackView from '../views/post_verify/third_party_auth/callback';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
@@ -263,9 +264,13 @@ Router = Router.extend({
         type: VerificationReasons.SECONDARY_EMAIL_VERIFIED,
       }
     ),
-    'post_verify/third_party_auth/callback': createViewHandler(
-      'post_verify/third_party_auth/callback'
-    ),
+    'post_verify/third_party_auth/callback(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'post_verify/third_party_auth/callback',
+        ThirdPartyAuthCallbackView
+      );
+    },
+
     'push/confirm_login(/)': createViewHandler('push/confirm_login'),
     'push/send_login(/)': createViewHandler('push/send_login'),
     'push/completed(/)': createViewHandler('push/completed'),

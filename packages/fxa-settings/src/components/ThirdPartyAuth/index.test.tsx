@@ -5,9 +5,13 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
+
+function renderWith(props?: any) {
+  return render(<Subject {...props} />);
+}
 
 describe('ThirdPartyAuth component', () => {
   let bundle: FluentBundle;
@@ -15,7 +19,7 @@ describe('ThirdPartyAuth component', () => {
     bundle = await getFtlBundle('settings');
   });
   it('renders as expected', async () => {
-    render(<Subject enabled />);
+    renderWith({ enabled: true });
     expect(screen.getByText('Continue with Google')).toBeInTheDocument();
     expect(screen.getByText('Continue with Apple')).toBeInTheDocument();
   });
