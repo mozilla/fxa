@@ -17,10 +17,17 @@ function getReactFeatureFlagUrl(
 
 test.describe('recovery key react', () => {
   test.beforeEach(
-    async ({ target, credentials, pages: { settings, recoveryKey } }) => {
+    async ({
+      target,
+      credentials,
+      pages: { login, settings, recoveryKey },
+    }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
+      // Ensure that the feature flag is enabled
+      const config = await login.getConfig();
+      test.skip(config.showReactApp.resetPasswordRoutes !== true);
       await settings.goto();
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
