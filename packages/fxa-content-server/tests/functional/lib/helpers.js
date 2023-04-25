@@ -387,10 +387,16 @@ const clearContentServerState = thenify(function (options) {
         // only load up the content server if we aren't
         // already at the content server.
         if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
-          return this.parent
-            .get(CONTENT_SERVER + 'clear')
-            .setFindTimeout(config.pageLoadTimeout)
-            .findById('fxa-clear-storage-header');
+          return (
+            this.parent
+              .get(CONTENT_SERVER + 'clear')
+              .setFindTimeout(config.pageLoadTimeout)
+              // TODO: intern doesn't have a "findByText" option so we've temporarily
+              // added this ID on the React 'clear' page because this page has been
+              // rolled out to 100% in prod. Remove this ID from the page once intern
+              // tests referring to this header are fully converted to Playwright.
+              .findById('clear-storage')
+          );
         }
       })
 

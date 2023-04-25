@@ -189,6 +189,9 @@ registerSuite('signup here', {
     },
 
     'visiting the pp links saves information for return': function () {
+      // Skip for now, we'll need to account for this in the React signup epic
+      // if we want to keep this functionality
+      this.skip();
       return testRepopulateFields.call(
         this,
         '/legal/terms',
@@ -197,6 +200,9 @@ registerSuite('signup here', {
     },
 
     'visiting the tos links saves information for return': function () {
+      // Skip for now, we'll need to account for this in the React signup epic
+      // if we want to keep this functionality
+      this.skip();
       return testRepopulateFields.call(
         this,
         '/legal/privacy',

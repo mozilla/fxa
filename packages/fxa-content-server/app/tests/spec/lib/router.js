@@ -514,16 +514,71 @@ describe('lib/router', () => {
   });
 
   describe('React-related methods', () => {
+    beforeEach(() => {
+      const mockAlwaysShownReactGroups = ['simpleRoutes'];
+      sinon
+        .stub(router, 'ALWAYS_SHOWN_REACT_GROUPS')
+        .value(mockAlwaysShownReactGroups);
+    });
     describe('showReactApp', () => {
       beforeEach(() => {
         sinon.spy(router, 'showReactApp');
       });
-      it('returns true when routeName is included in react group route', () => {
-        assert.isTrue(router.showReactApp('cannot_create_account'));
+
+      describe('returns true', () => {
+        it('when routeName is included in react group route and user is in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          assert.isTrue(router.showReactApp('cannot_create_account'));
+        });
+
+        it('when routeName is in ALWAYS_SHOWN_REACT_GROUPS and user is not in experiment', () => {
+          assert.isTrue(router.showReactApp('legal'));
+        });
+
+        it('when routeName is a simpleRoute, relier is OAuth, and user is in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          const modifiedRelier = relier;
+          modifiedRelier.isOAuth = () => true;
+          router = new Router({
+            broker,
+            metrics,
+            notifier,
+            relier: modifiedRelier,
+            user,
+            window: windowMock,
+            config,
+          });
+
+          assert.isTrue(router.showReactApp('legal'));
+        });
       });
 
-      it('returns false when routeName is not included in react group route', () => {
-        assert.isFalse(router.showReactApp('whatever'));
+      describe('returns false', () => {
+        it('when routeName is not included in react group route and user is in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          assert.isFalse(router.showReactApp('whatever'));
+        });
+
+        it('when user is not in experiment', () => {
+          assert.isFalse(router.showReactApp('reset_password'));
+        });
+
+        it('when routeName is not a simpleRoute, relier is OAuth, and user is in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          const modifiedRelier = relier;
+          modifiedRelier.isOAuth = () => true;
+          router = new Router({
+            broker,
+            metrics,
+            notifier,
+            relier: modifiedRelier,
+            user,
+            window: windowMock,
+            config,
+          });
+
+          assert.isFalse(router.showReactApp('reset_password'));
+        });
       });
     });
     describe('createReactOrBackboneViewHandler', () => {
@@ -553,7 +608,7 @@ describe('lib/router', () => {
       });
       it('renders Backbone view when React conditions are not met', () => {
         routeHandler = router.createReactOrBackboneViewHandler(
-          'cannot_create_account',
+          'reset_password',
           CannotCreateAccountView,
           additionalParams,
           viewConstructorOptions
