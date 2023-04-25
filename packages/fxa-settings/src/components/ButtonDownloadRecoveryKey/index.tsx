@@ -42,13 +42,13 @@ export const ButtonDownloadRecoveryKey = ({
 
   const fileUserEmail = ftlMsgResolver.getMsg(
     'recovery-key-file-user-email',
-    `➤ Firefox account: ${primaryEmail.email}`,
+    `• Firefox account: ${primaryEmail.email}`,
     { email: primaryEmail.email }
   );
 
   const fileDate = ftlMsgResolver.getMsg(
     'recovery-key-file-download-date',
-    `➤ Key generated: ${downloadDateInLocale}`,
+    `• Key generated: ${downloadDateInLocale}`,
     { downloadDate: downloadDateInLocale }
   );
 
@@ -56,7 +56,7 @@ export const ButtonDownloadRecoveryKey = ({
 
   const fileSupport = ftlMsgResolver.getMsg(
     'recovery-key-file-support',
-    `➤ Learn more about your account recovery key: ${supportURL}`,
+    `• Learn more about your account recovery key: ${supportURL}`,
     { supportURL }
   );
 

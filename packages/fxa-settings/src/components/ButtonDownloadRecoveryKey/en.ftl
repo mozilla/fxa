@@ -19,14 +19,14 @@ recovery-key-file-instructions = Store this file containing your account recover
 recovery-key-file-key-value = 🔑 Key:  { $recoveryKeyValue }
 
 # { $email }  - The primary email associated with the account
-recovery-key-file-user-email = ➤ { -product-firefox-account }: { $email }
+recovery-key-file-user-email = • { -product-firefox-account }: { $email }
 
 # Date when the recovery key was created and this file was downloaded
 # { $downloadDate } is a formatted date in the user's preferred locale
 # e.g., "12/11/2012" if run in en-US locale with time zone America/Los_Angeles
-recovery-key-file-download-date = ➤ Key generated: { $downloadDate }
+recovery-key-file-download-date = • Key generated: { $downloadDate }
 
 # Link to get more information and support
 # { $supportUrl } will be a URL such as https://mzl.la/3bNrM1I
 # The URL will not be hyperlinked and will be presented as plain text in the downloaded file
-recovery-key-file-support = ➤ Learn more about your account recovery key: { $supportURL }
+recovery-key-file-support = • Learn more about your account recovery key: { $supportURL }
