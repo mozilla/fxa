@@ -36,7 +36,6 @@ export const WizardExample = () => {
       {currentStep === 1 && (
         <FlowContainer
           title="Example wizard flow"
-          {...{ currentStep, setCurrentStep }}
           customBackButtonTitle="Previous page title"
           customBackButtonLocalizationId="wizard-flow-back-button-title-first-step"
           onBackButtonClick={() => {
@@ -60,7 +59,6 @@ export const WizardExample = () => {
       {currentStep === 2 && (
         <FlowContainer
           title="Example wizard flow"
-          {...{ currentStep, setCurrentStep }}
           customBackButtonTitle="Example wizard flow"
           customBackButtonLocalizationId="wizard-flow-back-button-title-wizard-step"
           onBackButtonClick={() => {
@@ -86,7 +84,6 @@ export const WizardExample = () => {
         currentStep === 3 && (
           <FlowContainer
             title="Example wizard flow"
-            {...{ currentStep, setCurrentStep }}
             onBackButtonClick={() => {
               setCurrentStep(currentStep - 1);
             }}

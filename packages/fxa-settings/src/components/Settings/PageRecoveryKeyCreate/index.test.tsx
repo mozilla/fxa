@@ -18,11 +18,19 @@ describe('PageRecoveryKeyCreate', () => {
   it('renders as expected', () => {
     // Content will be updated as views are completed.
     render(<PageRecoveryKeyCreate />);
-    expect(screen.getByText('first step')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Create an account recovery key in case you forget your password'
+      )
+    ).toBeInTheDocument();
   });
   it('shifts views when the user clicks through the flow steps', () => {
     render(<PageRecoveryKeyCreate />);
-    expect(screen.getByText('first step')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Create an account recovery key in case you forget your password'
+      )
+    ).toBeInTheDocument();
     // TODO: We'll have to update this as the views are completed.
     const nextButton = screen.getByText('click to move to next view');
     fireEvent.click(nextButton);

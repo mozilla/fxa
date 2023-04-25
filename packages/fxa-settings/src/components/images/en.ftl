@@ -10,3 +10,5 @@ signin-totp-code-image-label =
   .aria-label = A device with a hidden 6-digit code.
 confirm-signup-aria-label =
   .aria-label = An envelope containing a link
+security-shield-aria-label =
+  .aria-label = A key on the face of a shield, surrounded by smaller icons of a clock, a cog, a star, a padlock, and a magnifying glass

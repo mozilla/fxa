@@ -5,6 +5,7 @@
 import React, { useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { usePageViewEvent } from '../../../lib/metrics';
+import RecoveryKeyAddWizardViewOne from '../RecoveryKeyAddWizardViewOne';
 
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -18,18 +19,14 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       {
         // Create an account recovery key
         currentStep === 1 && (
-          <>
-            <p>first step</p>
-            <button
-              className="cta-primary cta-base-p mx-2 flex-1"
-              type="button"
-              onClick={() => {
-                setCurrentStep(currentStep + 1);
-              }}
-            >
-              click to move to next view
-            </button>
-          </>
+          <RecoveryKeyAddWizardViewOne
+            navigateForward={() => {
+              setCurrentStep(2);
+            }}
+            navigateBackward={() => {
+              window.history.back();
+            }}
+          />
         )
       }
       {
