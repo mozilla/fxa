@@ -3,7 +3,7 @@
   "version": "1.256.3",
   "description": "Firefox Accounts Content Server",
   "scripts": {
-    "build": "tsc --build ../fxa-react && yarn l10n-prime && npm run build-css && NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider grunt build",
+    "build": "tsc --build ../fxa-react && yarn l10n-prime && npm run build-css && NODE_ENV=production grunt build",
     "build-css": "tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
     "compile": "tsc --noEmit",
     "clean": "git clean -fXd",
@@ -15,7 +15,7 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js && npm run build-css",
     "delete": "pm2 delete pm2.config.js",
-    "start-production": "NODE_ENV=production NODE_OPTIONS=--openssl-legacy-provider grunt build && npm run build-css && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
+    "start-production": "NODE_ENV=production grunt build && npm run build-css && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
     "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
@@ -56,6 +56,7 @@
     "base32-decode": "1.0.0",
     "base64url": "3.0.1",
     "body-parser": "^1.20.1",
+    "buffer": "^6.0.3",
     "cache-loader": "^4.1.0",
     "chosen-js": "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0",
     "connect-cachify": "0.0.17",
@@ -140,8 +141,8 @@
     "underscore": "^1.13.1",
     "verror": "1.10.1",
     "webcrypto-liner": "1.4.0",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^4.10.0"
+    "webpack": "^5.78.0",
+    "webpack-cli": "^5.0.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.10",
@@ -154,7 +155,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-dynamic-import-webpack": "1.1.0",
     "chai": "^4.3.6",
-    "copy-webpack-plugin": "^5.1.1",
+    "copy-webpack-plugin": "11.0.0",
     "core-js": "^3.29.0",
     "css": "3.0.0",
     "esbuild": "^0.17.15",
@@ -188,7 +189,7 @@
     "ts-loader": "^8.4.0",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
-    "webpack-dev-middleware": "^5.3.3",
+    "webpack-dev-middleware": "^6.0.2",
     "xmlhttprequest": "^1.8.0",
     "yargs": "^17.0.1"
   },
