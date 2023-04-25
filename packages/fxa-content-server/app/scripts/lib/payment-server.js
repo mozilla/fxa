@@ -18,13 +18,13 @@ const PaymentServer = {
    * @param {Object} view
    * @param {Object} subscriptionsConfig
    * @param {String} redirectPath
-   * @param {Object} [queryParams={}]
+   * @param {Object} [rpQueryParams={}]
    */
   async navigateToPaymentServer(
     view,
     subscriptionsConfig,
     redirectPath,
-    queryParams = {}
+    rpQueryParams = {}
   ) {
     const {
       managementClientId,
@@ -41,10 +41,17 @@ const PaymentServer = {
       ? account.pick('metricsEnabled').metricsEnabled
       : true;
 
+    if (metricsEnabled === false) {
+      // Strip out the flow params from the query params. We don't want to propagate them.
+      delete rpQueryParams.device_id;
+      delete rpQueryParams.flow_begin_time;
+      delete rpQueryParams.flow_id;
+    }
+
     // explicitly check for `false` because `undefined` means the user isn't logged in
     const queryString =
       metricsEnabled === false
-        ? Url.objToSearchString(queryParams)
+        ? Url.objToSearchString(rpQueryParams)
         : Url.objToSearchString({
             // device_id, flow_begin_time, and flow_id need to be propagated to
             // the payments server so that the user funnel can be traced from the RP,
@@ -54,7 +61,7 @@ const PaymentServer = {
             device_id: deviceId,
             flow_begin_time: flowBeginTime,
             flow_id: flowId,
-            ...queryParams,
+            ...rpQueryParams,
           });
     const url = `${managementUrl}/${redirectPath}${queryString}`;
 

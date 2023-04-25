@@ -45,7 +45,7 @@ export class AvatarRow extends UnitRow {
       return true;
     }
     const src = await el.getAttribute('src');
-    return src.includes('/avatar/');
+    return src?.includes('/avatar/');
   }
 
   clickAdd() {
@@ -117,5 +117,29 @@ export class ConnectedServicesRow extends UnitRow {
     return Promise.all(
       elements.map((el) => ConnectedService.create(el, this.page))
     );
+  }
+}
+
+export class DataCollectionRow extends UnitRow {
+  getToggleStatus() {
+    return this.page
+      .locator('[data-testid=metrics-opt-out]')
+      .getAttribute('aria-checked');
+  }
+
+  async toggleShareData(action: 'on' | 'off') {
+    const toggle = this.page.locator('[data-testid=metrics-opt-out]');
+    const checked: string | null = await toggle.getAttribute('aria-checked');
+    if (
+      (checked === 'true' && action === 'on') ||
+      (checked === 'false' && action === 'off')
+    ) {
+      return;
+    }
+    await toggle.waitFor();
+    await toggle.click();
+    return await this.page
+      .locator('[data-testid=metrics-opt-out]')
+      .getAttribute('aria-checked');
   }
 }

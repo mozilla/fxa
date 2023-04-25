@@ -5,6 +5,7 @@ export class LocalTarget extends BaseTarget {
   static readonly target = 'local';
   readonly name: TargetName = LocalTarget.target;
   readonly contentServerUrl = 'http://localhost:3030';
+  readonly paymentsServerUrl = 'http://localhost:3031';
   readonly relierUrl = 'http://localhost:8080';
 
   constructor() {

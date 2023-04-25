@@ -2,6 +2,7 @@ import { Page } from '@playwright/test';
 import {
   AvatarRow,
   ConnectedServicesRow,
+  DataCollectionRow,
   DisplayNameRow,
   PasswordRow,
   PrimaryEmailRow,
@@ -58,6 +59,10 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('connected-services', ConnectedServicesRow);
   }
 
+  get dataCollection() {
+    return this.lazyRow('data-collection', DataCollectionRow);
+  }
+
   clickDeleteAccount() {
     return Promise.all([
       this.page.locator('[data-testid=settings-delete-account]').click(),
@@ -70,7 +75,7 @@ export class SettingsPage extends SettingsLayout {
     const services = await this.connectedServices.services();
     const sync = services.find((s) => s.name.includes(' on '));
 
-    await sync.signout();
+    await sync?.signout();
     await this.page.click('text=Rather not say >> input[name="reason"]');
     await this.clickModalConfirm();
 

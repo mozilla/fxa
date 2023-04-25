@@ -5,6 +5,8 @@ export class StageTarget extends RemoteTarget {
   static readonly target = 'stage';
   readonly name: TargetName = StageTarget.target;
   readonly contentServerUrl = 'https://accounts.stage.mozaws.net';
+  readonly paymentsServerUrl =
+    'https://payments-stage.fxa.nonprod.cloudops.mozgcp.net';
   readonly relierUrl = 'https://stage-123done.herokuapp.com';
 
   constructor() {
