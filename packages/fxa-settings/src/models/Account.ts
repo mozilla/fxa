@@ -1222,5 +1222,14 @@ export class Account implements AccountData {
       { kB: opts.kB }
     );
     currentAccount(data);
+    const cache = this.apolloClient.cache;
+    cache.modify({
+      id: cache.identify({ __typename: 'Account' }),
+      fields: {
+        recoveryKey() {
+          return false;
+        },
+      },
+    });
   }
 }
