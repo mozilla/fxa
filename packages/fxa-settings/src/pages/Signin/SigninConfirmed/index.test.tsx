@@ -15,6 +15,8 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+const continueHandler = jest.fn();
+
 describe('SigninConfirmed', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
@@ -43,13 +45,7 @@ describe('SigninConfirmed', () => {
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
     render(
-      <SigninConfirmed
-        isSignedIn
-        isSync={false}
-        continueHandler={() => {
-          console.log('beepboop');
-        }}
-      />
+      <SigninConfirmed isSignedIn isSync={false} {...{ continueHandler }} />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
 

@@ -69,7 +69,7 @@ export const GetDataCopySingletonInline = ({
           onAction?.('copy');
         }}
         data-testid="databutton-copy"
-        className="-m-3 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
+        className="-m-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
       >
         <InlineCopyIcon
           aria-label="Copy"

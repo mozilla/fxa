@@ -8,11 +8,13 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 
 interface ButtonDownloadRecoveryKeyProps {
+  navigateForward?: () => void;
   recoveryKeyValue: string;
   viewName: string;
 }
 
 export const ButtonDownloadRecoveryKey = ({
+  navigateForward,
   recoveryKeyValue,
   viewName,
 }: ButtonDownloadRecoveryKeyProps) => {
@@ -86,31 +88,30 @@ export const ButtonDownloadRecoveryKey = ({
     const maxLength = 70;
     const prefix = 'Firefox-Recovery-Key';
     let email = primaryEmail.email;
-    let filename = `${prefix}_${date}_${email}`;
+    let filename = `${prefix}_${date}_${email}.txt`;
 
     if (filename.length > maxLength) {
       const lengthWithoutEmail = filename.length - email.length;
       email = email.slice(0, maxLength - lengthWithoutEmail);
-      filename = `${prefix}_${date}_${email}`;
+      filename = `${prefix}_${date}_${email}.txt`;
     }
     return filename;
   };
 
-  const onClickLogMetrics = () => {
-    logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
-  };
-
   return (
-    <FtlMsg id="recovery-key-download-button" attrs={{ title: true }}>
+    <FtlMsg id="recovery-key-download-button-v2" attrs={{ title: true }}>
       <a
         title="Download"
         href={URL.createObjectURL(fileContent)}
         download={getFilename()}
         data-testid="recovery-key-download"
         className="cta-primary cta-xl w-full"
-        onClick={onClickLogMetrics}
+        onClick={() => {
+          logViewEvent(`flow.${viewName}`, `download-option`);
+          navigateForward && navigateForward();
+        }}
       >
-        Download your recovery key
+        Download your account recovery key
       </a>
     </FtlMsg>
   );

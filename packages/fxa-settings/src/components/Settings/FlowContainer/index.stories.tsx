@@ -45,7 +45,7 @@ export const WizardExample = () => {
           <h2 className="font-bold text-xl mb-2">This is your first step.</h2>
           <p>You should click the button below to proceed to the next step.</p>
           <button
-            className="cta-primary cta-base-p m-2 flex-1"
+            className="cta-primary cta-base-p w-full"
             type="button"
             onClick={() => {
               setCurrentStep(currentStep + 1);
@@ -58,7 +58,7 @@ export const WizardExample = () => {
       {currentStep === 2 && (
         <FlowContainer
           title="Example wizard flow"
-          localizedBackButtonTitle="Example wizard flow"
+          localizedBackButtonTitle="Previous page title"
           onBackButtonClick={() => {
             setCurrentStep(currentStep - 1);
           }}
@@ -82,10 +82,10 @@ export const WizardExample = () => {
         currentStep === 3 && (
           <FlowContainer
             title="Example wizard flow"
+            localizedBackButtonTitle="Previous page title"
             onBackButtonClick={() => {
               setCurrentStep(currentStep - 1);
             }}
-            localizedBackButtonTitle="Example wizard flow"
           >
             <ProgressBar currentStep={3} numberOfSteps={3} />
             <h2 className="font-bold text-xl mb-2">This is the end! </h2>

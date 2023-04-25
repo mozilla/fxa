@@ -10,6 +10,7 @@ import GetDataTrio, {
 } from '../GetDataTrio';
 import { Tooltip } from '../Tooltip';
 import { FtlMsg } from 'fxa-react/lib/utils';
+import classNames from 'classnames';
 const actionTypeToNotification = {
   download: 'Downloaded',
   copy: 'Copied',
@@ -56,10 +57,11 @@ export const DataBlock = ({
   return (
     <div className="flex flex-col items-center">
       <div
-        className={`flex rounded-xl px-7 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 flex-wrap relative mb-6 ${
-          valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5'
-        } ${isInline ? 'gap-6 items-center' : ''}
-        }`}
+        className={classNames(
+          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 mb-2',
+          valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5',
+          isInline ? 'flex-nowrap w-full mb-4' : 'flex-wrap mb-8'
+        )}
         data-testid={dataTestId}
         {...{ onCopy }}
       >
@@ -71,7 +73,13 @@ export const DataBlock = ({
             </span>
           ))
         ) : (
-          <span>{value}</span>
+          <span
+            className={classNames({
+              'flex flex-col self-center align-middle grow pe-5': isInline,
+            })}
+          >
+            {value}
+          </span>
         )}
         {performedAction && (
           <FtlMsg id={`datablock-${performedAction}`} attrs={{ message: true }}>

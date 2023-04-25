@@ -3,22 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import FlowRecoveryKeyInfo from '.';
+import FlowRecoveryKeyDownload from '.';
 import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
 
 export default {
-  title: 'Components/Settings/FlowRecoveryKeyInfo',
-  component: FlowRecoveryKeyInfo,
+  title: 'Components/Settings/FlowRecoveryKeyDownload',
+  component: FlowRecoveryKeyDownload,
   decorators: [withLocalization],
 } as Meta;
 
-const viewName = 'viewname';
+const viewName = 'example-view-name';
 
 export const Default = () => {
   const ftlMsgResolver = useFtlMsgResolver();
-
   const localizedBackButtonTitle = ftlMsgResolver.getMsg(
     'recovery-key-create-back-button',
     'Back to settings'
@@ -37,7 +37,7 @@ export const Default = () => {
   };
 
   return (
-    <FlowRecoveryKeyInfo
+    <FlowRecoveryKeyDownload
       {...{
         localizedBackButtonTitle,
         localizedPageTitle,
@@ -45,6 +45,7 @@ export const Default = () => {
         navigateForward,
         viewName,
       }}
+      recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
     />
   );
 };

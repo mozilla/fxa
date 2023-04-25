@@ -16,8 +16,8 @@ export const ProgressBar = ({
 }: ProgressBarProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedProgressBarAriaLabel = ftlMsgResolver.getMsg(
-    'progress-bar-aria-label',
-    `A progress bar showing that the user is on step ${currentStep} of ${numberOfSteps}.`,
+    'progress-bar-aria-label-v2',
+    `Step ${currentStep} of ${numberOfSteps}.`,
     { currentStep, numberOfSteps }
   );
   if (currentStep > numberOfSteps) {

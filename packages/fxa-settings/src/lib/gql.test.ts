@@ -88,7 +88,6 @@ describe('errorHandler', () => {
         pathname: pageWhichDoesNotRequireAuthentication,
       },
     });
-    console.log(window.location);
 
     let networkError: any;
     networkError = new Error('Network error') as ServerError;

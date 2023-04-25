@@ -4,8 +4,14 @@
 
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent } from '../../../lib/metrics';
 import PageRecoveryKeyCreate from '.';
+import {
+  mockAppContext,
+  MOCK_ACCOUNT,
+  renderWithRouter,
+} from '../../../models/mocks';
+import { Account, AppContext } from '../../../models';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -18,30 +24,80 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+jest.mock('base32-encode', () =>
+  jest.fn().mockReturnValue('00000000000000000000000000000000')
+);
+
+window.URL.createObjectURL = jest.fn();
+
+const accountWithSuccess = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
+} as unknown as Account;
+
+const renderPageWithContext = (account: Account) => {
+  renderWithRouter(
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <PageRecoveryKeyCreate />
+    </AppContext.Provider>
+  );
+};
+
 describe('PageRecoveryKeyCreate', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it('renders as expected', () => {
-    // Content will be updated as views are completed.
-    render(<PageRecoveryKeyCreate />);
-    expect(
-      screen.getByText(
-        'Create an account recovery key in case you forget your password'
-      )
-    ).toBeInTheDocument();
+  it('renders initial flow page as expected', () => {
+    renderPageWithContext(accountWithSuccess);
+
+    screen.getByText(
+      'Create an account recovery key in case you forget your password'
+    );
   });
-  it('shifts views when the user clicks through the flow steps', () => {
-    render(<PageRecoveryKeyCreate />);
-    expect(
-      screen.getByText(
-        'Create an account recovery key in case you forget your password'
-      )
-    ).toBeInTheDocument();
-    const nextButton = screen.getByText('Start creating your recovery key');
-    fireEvent.click(nextButton);
-    expect(screen.getByText('second step')).toBeInTheDocument();
+  it('shifts views when the user clicks through the flow steps', async () => {
+    renderPageWithContext(accountWithSuccess);
+
+    // Go to page 2
+    const flowPage1Button = screen.getByRole('button', {
+      name: 'Start creating your account recovery key',
+    });
+    fireEvent.click(flowPage1Button);
+    await waitFor(() =>
+      screen.getByRole('heading', {
+        name: 'Enter your password again to get started',
+      })
+    );
+
+    // Go to page 3
+    const flowPage2Button = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    // input a password to enable form submission
+    fireEvent.input(screen.getByLabelText('Enter your password'), {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() => {
+      expect(flowPage2Button).not.toHaveAttribute('disabled');
+    });
+    fireEvent.click(flowPage2Button);
+    await waitFor(() => {
+      screen.getByRole('heading', {
+        name: 'Account recovery key generated — store it in a place you’ll remember',
+      });
+    });
+
+    // Go to page 4
+    const flowPage3Button = screen.getByText(
+      'Download your account recovery key'
+    );
+    fireEvent.click(flowPage3Button);
+    await waitFor(() =>
+      screen.getByRole('heading', {
+        name: 'Fourth step',
+      })
+    );
   });
+
   it('emits expected page view metrics on load', async () => {
     render(<PageRecoveryKeyCreate />);
     await waitFor(() => {
