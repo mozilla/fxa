@@ -336,6 +336,7 @@ function mockDB(data, errors) {
         },
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32),
+        verifierSetAt: data.verifierSetAt ?? Date.now(),
       });
     }),
     consumeSigninCode: sinon.spy(() => {

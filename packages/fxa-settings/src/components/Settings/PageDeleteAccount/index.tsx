@@ -112,12 +112,17 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const account = useAccount();
 
   const advanceStep = () => {
-    setSubtitleText(
-      l10n.getString('delete-account-step-2-2', null, 'Step 2 of 2')
-    );
-    setConfirmed(true);
+    // Accounts that do not have a password set, will delete immediately
+    if (!account.hasPassword) {
+      deleteAccount('');
+    } else {
+      setSubtitleText(
+        l10n.getString('delete-account-step-2-2', null, 'Step 2 of 2')
+      );
+      setConfirmed(true);
 
-    logViewEvent('flow.settings.account-delete', 'terms-checked.success');
+      logViewEvent('flow.settings.account-delete', 'terms-checked.success');
+    }
   };
 
   const deleteAccount = useCallback(

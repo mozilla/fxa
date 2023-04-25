@@ -3814,6 +3814,25 @@ describe('/account/destroy', () => {
     });
   });
 
+  it('should delete the passwordless account', () => {
+    mockDB = { ...mocks.mockDB({ email, uid, verifierSetAt: 0 }) };
+    mockRequest = mocks.mockRequest({
+      log: mockLog,
+      payload: {
+        email: email,
+      },
+    });
+    const route = buildRoute();
+
+    return runTest(route, mockRequest, () => {
+      sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
+      sinon.assert.calledWithMatch(mockDB.deleteAccount, {
+        uid,
+        email,
+      });
+    });
+  });
+
   it('does not fail if pushbox fails to delete', async () => {
     mockPushbox = { deleteAccount: sinon.fake.rejects() };
     try {

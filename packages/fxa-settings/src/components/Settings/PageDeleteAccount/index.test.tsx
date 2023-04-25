@@ -23,6 +23,7 @@ const account = {
   },
   uid: '0123456789abcdef',
   metricsEnabled: true,
+  hasPassword: true,
 } as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
@@ -142,5 +143,30 @@ describe('PageDeleteAccount', () => {
     expect(deleteAccountButton).toBeEnabled();
 
     expect(location.pathname).toContainEqual('/');
+  });
+
+  it('deletes account if no password set', async () => {
+    const pwdlessAccount = {
+      primaryEmail: {
+        email: 'rfeeley@mozilla.com',
+      },
+      uid: '0123456789abcdef',
+      metricsEnabled: true,
+      hasPassword: false,
+      destroy: jest.fn().mockResolvedValue({}),
+    } as unknown as Account;
+
+    renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ account: pwdlessAccount })}>
+        <PageDeleteAccount />
+      </AppContext.Provider>
+    );
+
+    await advanceStep();
+
+    expect(logViewEvent).toHaveBeenCalledWith(
+      'flow.settings.account-delete',
+      'confirm-password.success'
+    );
   });
 });
