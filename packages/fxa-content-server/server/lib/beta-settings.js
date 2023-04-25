@@ -59,6 +59,7 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
+  showRecoveryKeyV2: config.get('showRecoveryKeyV2'),
 };
 
 // Inject Beta Settings meta content

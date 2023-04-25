@@ -47,6 +47,7 @@ export interface Config {
     count: number;
     length: number;
   };
+  showRecoveryKeyV2: boolean;
   version: string;
 }
 
@@ -88,6 +89,7 @@ export function getDefault() {
       count: 8,
       length: 10,
     },
+    showRecoveryKeyV2: false,
   } as Config;
 }
 
