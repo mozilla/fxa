@@ -99,7 +99,6 @@ export type BasePaymentFormProps = {
   submitNonce: string;
   promotionCode?: string;
   invoicePreview?: FirstInvoicePreview;
-  disabled?: boolean;
 } & WithLocalizationProps;
 
 export const PaymentForm = ({
@@ -121,7 +120,6 @@ export const PaymentForm = ({
   submitNonce,
   promotionCode,
   invoicePreview,
-  disabled = false,
 }: BasePaymentFormProps) => {
   const isStripeCustomer = isExistingStripeCustomer(customer);
 
@@ -278,7 +276,6 @@ export const PaymentForm = ({
             onValidate={(value, focused, props) =>
               validateName(value, focused, props, getString)
             }
-            disabled={disabled}
           />
         </Localized>
 
@@ -291,7 +288,6 @@ export const PaymentForm = ({
             options={STRIPE_ELEMENT_STYLES}
             getString={getString}
             required
-            disabled={disabled}
           />
         </Localized>
       </>

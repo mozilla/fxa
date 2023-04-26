@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from 'react';
+import React, { useState, useCallback, useContext, useEffect } from 'react';
 import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
@@ -89,10 +89,68 @@ export const SubscriptionCreate = ({
   coupon,
   setCoupon,
 }: SubscriptionCreateProps) => {
+  const { config } = useContext(AppContext);
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
+  const [inProgress, setInProgress] = useState(false);
+  const [subscriptionError, setSubscriptionError] = useState<
+    PaymentError | GeneralError
+  >(subscriptionErrorInitialState);
+  const [retryStatus, setRetryStatus] = useState<RetryStatus>();
+
+  // The Stripe customer isn't created until payment is submitted, so
+  // customer can be null and customer.payment_provider can be undefined.
+  const paymentProvider: PaymentProvider | undefined =
+    customer?.payment_provider;
+
+  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
+
+  useEffect(() => {
+    if (document.readyState === 'complete') {
+      const container = document.getElementById('payment-form-container');
+
+      // get interactive child elements
+      if (container) {
+        // paypal button
+        // const paypalButton = container.querySelector(
+        //   'div[data-testid="paypal-button-container"]'
+        // );
+
+        // if (paypalButton) {
+        //   !checkboxSet
+        //     ? paypalButton.setAttribute('tabIndex', -1)
+        //     : paypalButton.removeAttribute('tabIndex');
+        // }
+
+        const inputs = container.querySelectorAll('input');
+        const iframes = container.querySelectorAll('iframe');
+        const submitButton = container.querySelector(
+          'button[data-testid="submit"]'
+        );
+
+        const children = [] as any[];
+
+        if (inputs.length > 0) {
+          children.concat(Array.from(inputs));
+        }
+        if (iframes.length > 0) {
+          children.concat(Array.from(iframes));
+        }
+        if (submitButton) {
+          children.concat(submitButton);
+        }
+
+        children.forEach((childEl) => {
+          !checkboxSet
+            ? childEl.setAttribute('tabIndex', -1)
+            : childEl.removeAttribute('tabIndex');
+        });
+      }
+    }
+  }, [checkboxSet]);
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -104,23 +162,19 @@ export const SubscriptionCreate = ({
     [selectedPlan]
   );
 
-  const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
+  const handleClick = () => {
+    if (!checkboxSet) {
+      setShowTooltip(true);
+    }
+  };
 
-  // The Stripe customer isn't created until payment is submitted, so
-  // customer can be null and customer.payment_provider can be undefined.
-  const paymentProvider: PaymentProvider | undefined =
-    customer?.payment_provider;
+  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!checkboxSet && ev.key !== 'Tab') {
+      ev.preventDefault();
 
-  const { config } = useContext(AppContext);
-
-  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
-
-  const [inProgress, setInProgress] = useState(false);
-
-  const [subscriptionError, setSubscriptionError] = useState<
-    PaymentError | GeneralError
-  >(subscriptionErrorInitialState);
-  const [retryStatus, setRetryStatus] = useState<RetryStatus>();
+      setShowTooltip(true);
+    }
+  };
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
@@ -206,20 +260,6 @@ export const SubscriptionCreate = ({
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
 
-  const handleClick = () => {
-    if (!checkboxSet) {
-      setShowTooltip(true);
-    }
-  };
-
-  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!checkboxSet && ev.key !== 'Tab') {
-      ev.preventDefault();
-
-      setShowTooltip(true);
-    }
-  };
-
   return (
     <>
       <Header {...{ profile }} />
@@ -289,6 +329,7 @@ export const SubscriptionCreate = ({
             showTooltip={showTooltip}
           />
           <div
+            id="payment-form-container"
             data-testid="payment-form-container"
             className={`mt-8${!checkboxSet ? ' payment-form-disabled' : ''}`}
             tabIndex={!checkboxSet ? 0 : undefined}
@@ -344,7 +385,6 @@ export const SubscriptionCreate = ({
                   onMounted: onFormMounted,
                   onEngaged: onFormEngaged,
                   promotionCode: coupon?.promotionCode,
-                  disabled: !checkboxSet,
                 }}
               />
             </div>

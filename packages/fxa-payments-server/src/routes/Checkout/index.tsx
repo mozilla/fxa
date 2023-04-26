@@ -124,7 +124,6 @@ export const Checkout = ({
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
   const [subscribeToNewsletter, toggleSubscribeToNewsletter] = useState(false);
   const [newsletterSignupError, setNewsletterSignupError] = useState(false);
-
   const [coupon, setCoupon] = useState<CouponDetails>();
 
   // Fetch plans on initial render or change in product ID
@@ -133,9 +132,15 @@ export const Checkout = ({
   }, [fetchCheckoutRouteResources]);
 
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
-  
-  const redirectUrl = encodeURIComponent(window.location.href.replace('/checkout/', '/products/'));
-  const signInQueryParams = { ...queryParams, signin: 'yes', redirect_to: redirectUrl };
+
+  const redirectUrl = encodeURIComponent(
+    window.location.href.replace('/checkout/', '/products/')
+  );
+  const signInQueryParams = {
+    ...queryParams,
+    signin: 'yes',
+    redirect_to: redirectUrl,
+  };
   const signInQueryParamString = Object.entries(signInQueryParams)
     .map(([k, v]) => `${k}=${v}`)
     .join('&');
@@ -145,6 +150,27 @@ export const Checkout = ({
     () => getSelectedPlan(productId, planId, plansByProductId),
     [productId, planId, plansByProductId]
   );
+
+  // Fetch plans on initial render or change in product ID
+  useEffect(() => {
+    fetchCheckoutRouteResources();
+  }, [fetchCheckoutRouteResources]);
+
+  usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
+
+  const handleClick = () => {
+    if (!checkboxSet) {
+      setShowTooltip(true);
+    }
+  };
+
+  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!checkboxSet && ev.key !== 'Tab') {
+      ev.preventDefault();
+
+      setShowTooltip(true);
+    }
+  };
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -214,20 +240,6 @@ export const Checkout = ({
       subscribeToNewsletter,
     ]
   );
-
-  const handleClick = () => {
-    if (!checkboxSet) {
-      setShowTooltip(true);
-    }
-  };
-
-  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!checkboxSet && ev.key !== 'Tab') {
-      ev.preventDefault();
-
-      setShowTooltip(true);
-    }
-  };
 
   const postSubscriptionAttemptPaypalCallback = useCallback(async () => {
     await fetchProfileAndCustomer();
@@ -426,6 +438,7 @@ export const Checkout = ({
           />
 
           <div
+            id="checkout-form-container"
             data-testid="payment-form-container"
             className={`mt-8${!checkboxSet ? ' payment-form-disabled' : ''}`}
             tabIndex={!checkboxSet ? 0 : undefined}
@@ -487,12 +500,6 @@ export const Checkout = ({
                   onMounted: onFormMounted,
                   onEngaged: onFormEngaged,
                   promotionCode: coupon?.promotionCode,
-                  disabled:
-                    !checkboxSet ||
-                    validEmail === '' ||
-                    accountExists ||
-                    invalidEmailDomain ||
-                    !emailsMatch,
                 }}
               />
             </div>

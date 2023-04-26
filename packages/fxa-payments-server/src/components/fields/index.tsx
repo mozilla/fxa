@@ -167,7 +167,6 @@ const UnwrappedInput = (props: InputProps) => {
     required = false,
     className,
     getString,
-    disabled = false,
     ...childProps
   } = props;
 
@@ -251,7 +250,6 @@ const UnwrappedInput = (props: InputProps) => {
           value: validator.getValue(name, ''),
           onBlur,
           onChange,
-          disabled,
         }}
       />
     </Field>
@@ -298,7 +296,6 @@ type StripeElementWrapperProps = FieldProps & {
   onValidate?: OnValidateFunction;
   component: any;
   getString?: Function;
-  disabled?: boolean;
 };
 
 type WrappedStripeElementProps = StripeElementWrapperProps & CardElementProps;
@@ -314,7 +311,6 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
     className,
     autoFocus,
     getString,
-    disabled = false,
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
@@ -361,7 +357,6 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
             ...childProps,
             onChange,
             onBlur,
-            disabled,
           }}
         />
       </div>
