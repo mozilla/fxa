@@ -79,7 +79,6 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
-  automaticTax: boolean;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -97,7 +96,6 @@ export class StripeHandler {
       require('../../subscription-account-reminders')(log, config);
 
     this.capabilityService = Container.get(CapabilityService);
-    this.automaticTax = !!config.subscriptions.stripeAutomaticTax.enabled;
   }
 
   /**
@@ -425,7 +423,7 @@ export class StripeHandler {
       string
     >;
 
-    let customer;
+    let customer = undefined;
     if (request.auth.credentials) {
       const { uid, email } = await handleAuth(this.db, request.auth, true);
       await this.customs.check(request, email, 'previewInvoice');
@@ -438,22 +436,14 @@ export class StripeHandler {
       await this.customs.checkIpOnly(request, 'previewInvoice');
     }
 
-    const country = request.app.geo.location?.country || 'US';
-
     const taxAddress = this.buildTaxAddress(
       request.app.clientAddress,
-      request.app.geo.location,
-      customer || undefined
+      request.app.geo.location
     );
-
-    const isCustomerTaxed =
-      !customer || customer.tax?.automatic_tax === 'supported';
-    const automaticTax = this.automaticTax && isCustomerTaxed;
 
     try {
       const previewInvoice = await this.stripeHelper.previewInvoice({
-        automaticTax,
-        country,
+        customer: customer || undefined,
         promotionCode,
         priceId,
         taxAddress,
@@ -516,18 +506,13 @@ export class StripeHandler {
       string,
       string
     >;
-    const country = request.app.geo.location?.country || 'US';
 
     const taxAddress = this.buildTaxAddress(
       request.app.clientAddress,
       request.app.geo.location
     );
 
-    const automaticTax = this.automaticTax;
-
     const couponDetails = this.stripeHelper.retrieveCouponDetails({
-      automaticTax,
-      country,
       priceId,
       promotionCode,
       taxAddress,
@@ -557,10 +542,8 @@ export class StripeHandler {
         throw error.unknownCustomer(uid);
       }
 
-      // Creating a subscription with automatic_tax enabled requires a customer with an address
-      // that is in a recognized location with an active tax registration.
-      const taxSubscription =
-        this.automaticTax && customer.tax?.automatic_tax === 'supported';
+      const automaticTax =
+        this.stripeHelper.isCustomerStripeTaxEligible(customer);
 
       const {
         priceId,
@@ -588,7 +571,6 @@ export class StripeHandler {
       const promotionCode: Stripe.PromotionCode | undefined =
         await this.extractPromotionCode(promotionCodeFromRequest, priceId);
 
-      let taxRateId: string | undefined;
       let paymentMethod: Stripe.PaymentMethod | undefined;
 
       // Skip the payment source check if there's no payment method id.
@@ -614,17 +596,7 @@ export class StripeHandler {
         if (!this.stripeHelper.customerTaxId(customer)) {
           await this.stripeHelper.addTaxIdToCustomer(customer, planCurrency);
         }
-
-        if (!this.automaticTax && paymentMethodCountry) {
-          taxRateId = (
-            await this.stripeHelper.taxRateByCountryCode(paymentMethodCountry)
-          )?.id;
-        }
       }
-
-      const taxOptions = this.automaticTax
-        ? { automaticTax: taxSubscription }
-        : { taxRateId };
 
       const subscription: any =
         await this.stripeHelper.createSubscriptionWithPMI({
@@ -632,10 +604,10 @@ export class StripeHandler {
           priceId,
           paymentMethodId,
           promotionCode: promotionCode,
-          ...taxOptions,
+          automaticTax,
         });
 
-      if (this.automaticTax && !taxSubscription) {
+      if (!automaticTax) {
         this.log.warn(
           'subscriptions.createSubscriptionWithPMI.automatic_tax_failed',
           {
@@ -647,34 +619,6 @@ export class StripeHandler {
 
       const sourceCountry =
         this.stripeHelper.extractSourceCountryFromSubscription(subscription);
-
-      if (
-        !this.automaticTax &&
-        sourceCountry &&
-        addressLookupCountries.includes(sourceCountry)
-      ) {
-        if (paymentMethod?.billing_details?.address?.postal_code) {
-          this.stripeHelper.setCustomerLocation({
-            customerId: customer.id,
-            postalCode: paymentMethod.billing_details.address.postal_code,
-            country: sourceCountry,
-          });
-        } else if (paymentMethod) {
-          // Only report this if we have a payment method.
-          // Note: Payment method is already on the user if its a returning customer.
-          Sentry.withScope((scope) => {
-            scope.setContext('createSubscriptionWithPMI', {
-              customerId: customer.id,
-              subscriptionId: subscription.id,
-              paymentMethodId: paymentMethod?.id,
-            });
-            Sentry.captureMessage(
-              `Cannot find a postal code for customer.`,
-              Sentry.Severity.Error
-            );
-          });
-        }
-      }
 
       await this.customerChanged(request, uid, email);
 
@@ -878,17 +822,8 @@ export class StripeHandler {
     location?: {
       countryCode?: string;
       postalCode?: string;
-    },
-    customer?: Stripe.Customer
-  ): TaxAddress | undefined {
-    const customerAddress = customer?.shipping?.address;
-    if (customerAddress?.country && customerAddress.postal_code) {
-      return {
-        countryCode: customerAddress.country,
-        postalCode: customerAddress.postal_code,
-      };
     }
-
+  ): TaxAddress | undefined {
     if (location?.countryCode && location?.postalCode) {
       return {
         countryCode: location.countryCode,
@@ -899,7 +834,6 @@ export class StripeHandler {
     this.log.warn('stripe.buildTaxAddress', {
       ipAddress,
       location,
-      customerId: customer?.id,
     });
 
     return;
