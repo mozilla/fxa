@@ -201,8 +201,10 @@ describe('routes/Checkout', () => {
     const formEl = await findByTestId('new-user-email-form');
     expect(formEl).toBeInTheDocument();
 
-    const paymentForm = getByTestId('paymentForm');
-    expect(paymentForm).toBeInTheDocument();
+    const paymentFormContainer = getByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
 
     const planDetailsEl = getByTestId('plan-details-component');
     expect(planDetailsEl).toBeInTheDocument();
@@ -215,6 +217,51 @@ describe('routes/Checkout', () => {
 
     const couponEl = getByTestId('coupon-component');
     expect(couponEl).toBeInTheDocument();
+  });
+
+  it('displays checkbox tooltip error when unchecking checkbox', async () => {
+    await act(async () => {
+      render(<Subject planId="testo" />);
+    });
+    const { queryByTestId, findByTestId, queryByText } = screen;
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
+
+    const checkbox = await findByTestId('confirm');
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+
+    expect(
+      queryByText('You need to complete this before moving forward')
+    ).toBeInTheDocument();
+  });
+
+  it('displays checkbox tooltip error when unchecked and clicking on disabled form', async () => {
+    await act(async () => {
+      render(<Subject planId="testo" />);
+    });
+    const { queryByTestId, queryByText } = screen;
+    const paymentFormContainer = queryByTestId('payment-form-container');
+    expect(paymentFormContainer).toBeInTheDocument();
+    expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+    expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
+
+    if (paymentFormContainer) {
+      await act(async () => {
+        fireEvent.click(paymentFormContainer);
+      });
+    }
+
+    expect(
+      queryByText('You need to complete this before moving forward')
+    ).toBeInTheDocument();
   });
 
   it('displays an error with invalid product ID', async () => {
@@ -252,12 +299,17 @@ describe('routes/Checkout', () => {
           'new-user-subscribe-product-updates'
         );
         fireEvent.click(newsletterCheckbox);
-        expect(newsletterCheckbox.checked).toEqual(true);
+        expect(newsletterCheckbox).toBeChecked();
       }
       fireEvent.change(getByTestId('name'), {
         target: { value: 'BMO' },
       });
+      const paymentFormContainer = getByTestId('payment-form-container');
+      expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+      expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
       fireEvent.click(getByTestId('confirm'));
+      expect(paymentFormContainer).not.toHaveClass('payment-form-disabled');
+      expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'false');
       await act(async () => {
         mockStripeElementOnChangeFns.cardElement(
           elementChangeResponse({ complete: true, value: 'testo' })
@@ -529,9 +581,14 @@ describe('routes/Checkout', () => {
         );
         fireEvent.click(newsletterCheckbox);
       }
+      const paymentFormContainer = getByTestId('payment-form-container');
+      expect(paymentFormContainer).toHaveClass('payment-form-disabled');
+      expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'true');
       await act(async () => {
         fireEvent.click(getByTestId('confirm'));
       });
+      expect(paymentFormContainer).not.toHaveClass('payment-form-disabled');
+      expect(paymentFormContainer).toHaveAttribute('aria-disabled', 'false');
       await act(async () => {
         fireEvent.click(getByTestId('paypal-button'));
       });

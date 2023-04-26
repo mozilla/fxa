@@ -60,6 +60,7 @@ test.describe('coupon test', () => {
     );
 
     // Successfully subscribe
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -87,6 +88,7 @@ test.describe('coupon test', () => {
     expect(await subscribe.discountLineItem()).toBe(true);
 
     // Successfully subscribe
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -115,6 +117,7 @@ test.describe('coupon test', () => {
     expect(await subscribe.discountLineItem()).toBe(true);
 
     // Successfully subscribe
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -133,6 +136,7 @@ test.describe('coupon test', () => {
 
     // 'auto10pforever' is a 10% forever discount coupon for a 6mo plan
     await subscribe.addCouponCode('auto10pforever');
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -151,6 +155,7 @@ test.describe('coupon test', () => {
 
     // 'auto50ponetime' is a one time 50% discount coupon for a 12mo plan
     await subscribe.addCouponCode('auto50ponetime');
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setPayPalInfo();
     await subscribe.submit();
     await relier.goto();

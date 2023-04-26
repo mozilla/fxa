@@ -23,6 +23,7 @@ test.describe('resubscription test', () => {
     const total = await subscribe.getTotalPrice();
 
     //Subscribe successfully with Stripe
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -70,6 +71,7 @@ test.describe('resubscription test', () => {
     const total = await subscribe.getTotalPrice();
 
     //Subscribe successfully using Paypal
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setPayPalInfo();
     await subscribe.submit();
 
@@ -110,6 +112,7 @@ test.describe('resubscription test', () => {
     await subscribe.addCouponCode('auto10pforever');
 
     //Subscribe successfully
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setFullName();
     await subscribe.setCreditCardInfo();
     await subscribe.clickPayNow();
@@ -139,6 +142,7 @@ test.describe('resubscription test', () => {
     await subscribe.addCouponCode('auto10pforever');
 
     //Subscribe successfully
+    await subscribe.setConfirmPaymentCheckbox();
     await subscribe.setPayPalInfo();
     await subscribe.submit();
 

@@ -430,7 +430,7 @@ describe('StripeElement', () => {
           name="input-1"
           required={true}
           // Basic mock of getString, real version is more in depth, but has test coverage within the library
-          getString={(msg, value) => {
+          getString={(msg: string, value: any) => {
             return value.label + ' ' + translatedIsRequired;
           }}
           component={MockStripeElement}
@@ -637,10 +637,10 @@ describe('SubmitButton', () => {
     const validatorFns = queryAllByTestId('execute');
 
     fireEvent.click(validatorFns[0]);
-    expect(getByTestId('submit')).toHaveAttribute('disabled');
+    expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
 
     fireEvent.click(validatorFns[1]);
-    expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+    expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
   });
 });
 

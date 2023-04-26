@@ -1,8 +1,9 @@
 // This file must be lazy loaded. Otherwise we have a race condition with
 // usePaypalButton hook (script loading) and the button will not render.
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, Suspense } from 'react';
 import ReactDOM from 'react-dom';
 
+import { Localized } from '@fluent/react';
 import * as apiClient from '../../lib/apiClient';
 import { Customer, Plan } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
@@ -210,27 +211,33 @@ export const PaypalButton = ({
     tagline: 'false',
   };
 
+  const disabledStyles =
+    ' payment-button-disabled after:bg-white after:opacity-40 after:z-[100]';
+
   return (
-    <div className="w-60 h-24 m-auto relative z-0">
-      <div
-        className={
-          disabled
-            ? "relative after:absolute after:bg-white after:content-[''] after:opacity-60 after:top-0 after:left-0 after:w-full after:h-full after:z-[1000]"
-            : undefined
-        }
-        data-testid="paypal-button-container"
-      >
-        {ButtonBase && (
-          <ButtonBase
-            style={styleOptions}
-            data-testid="paypal-button"
-            createOrder={createOrder}
-            onInit={onInit}
-            onApprove={onApprove}
-            onError={onError}
-          />
-        )}
-      </div>
+    <div data-testid="pay-with-other">
+      <Localized id="pay-with-heading-paypal">
+        <p className="pay-with-heading mt-14">Pay with PayPal</p>
+      </Localized>
+      <Suspense fallback={<div>Loading...</div>}>
+        <div
+          className={`paypal-button w-60 m-auto mt-14 mb-16 relative z-0${
+            disabled ? disabledStyles : ''
+          }`}
+          data-testid="paypal-button-container"
+        >
+          {ButtonBase && (
+            <ButtonBase
+              style={styleOptions}
+              data-testid="paypal-button"
+              createOrder={createOrder}
+              onInit={onInit}
+              onApprove={onApprove}
+              onError={onError}
+            />
+          )}
+        </div>
+      </Suspense>
     </div>
   );
 };

@@ -135,6 +135,7 @@ hr {
     input[type='checkbox'] {
       flex: 0 0 18px;
       transform: scale(1.5);
+      cursor: pointer;
 
       &:checked {
         background-image: url('images/check.svg');

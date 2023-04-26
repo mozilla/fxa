@@ -1,4 +1,4 @@
-import React, { useState, useCallback, Suspense, useContext } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
@@ -92,6 +92,7 @@ export const SubscriptionCreate = ({
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const onFormMounted = useCallback(
     () => Amplitude.createSubscriptionMounted(selectedPlan),
@@ -203,6 +204,20 @@ export const SubscriptionCreate = ({
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
 
+  const handleClick = () => {
+    if (!checkboxSet) {
+      setShowTooltip(true);
+    }
+  };
+
+  const handleKeyPress = (ev: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!checkboxSet && ev.key !== 'Tab') {
+      ev.preventDefault();
+
+      setShowTooltip(true);
+    }
+  };
+
   return (
     <>
       <Header {...{ profile }} />
@@ -265,88 +280,72 @@ export const SubscriptionCreate = ({
         >
           <PaymentMethodHeader
             plan={selectedPlan}
-            onClick={() => setCheckboxSet(!checkboxSet)}
+            onClick={() => {
+              setCheckboxSet(!checkboxSet);
+              setShowTooltip(false);
+            }}
+            showTooltip={showTooltip}
           />
-          {!hasPaymentProvider(customer) && (
-            <>
-              {paypalScriptLoaded && (
-                <>
-                  <div
-                    className="subscription-create-pay-with-other"
-                    data-testid="pay-with-other"
-                  >
-                    <Localized id="pay-with-heading-paypal">
-                      <p className="pay-with-heading">Pay with PayPal</p>
-                    </Localized>
-                    <Suspense fallback={<div>Loading...</div>}>
-                      <div className="paypal-button">
-                        <PaypalButton
-                          disabled={!checkboxSet}
-                          apiClientOverrides={apiClientOverrides}
-                          customer={customer}
-                          idempotencyKey={submitNonce}
-                          refreshSubmitNonce={refreshSubmitNonce}
-                          selectedPlan={selectedPlan}
-                          newPaypalAgreement={true}
-                          postSubscriptionAttemptPaypalCallback={
-                            refreshSubscriptions
-                          }
-                          setSubscriptionError={setSubscriptionError}
-                          ButtonBase={paypalButtonBase}
-                          setTransactionInProgress={setTransactionInProgress}
-                          promotionCode={coupon?.promotionCode}
-                        />
-                      </div>
-                    </Suspense>
-                  </div>
-                  <div>
-                    <Localized id="pay-with-heading-card-or">
-                      <p className="pay-with-heading">Or pay with card</p>
-                    </Localized>
-                    <AcceptedCards />
-                  </div>
-                </>
-              )}
-              {!paypalScriptLoaded && (
-                <div>
-                  <Localized id="pay-with-heading-card-only">
-                    <p className="pay-with-heading">Pay with card</p>
-                  </Localized>
-                  <AcceptedCards />
-                </div>
-              )}
-            </>
-          )}
+          <div
+            data-testid="payment-form-container"
+            className={`mt-8${!checkboxSet ? ' payment-form-disabled' : ''}`}
+            tabIndex={!checkboxSet ? 0 : undefined}
+            aria-disabled={!checkboxSet}
+            onClick={handleClick}
+            onKeyPress={handleKeyPress}
+          >
+            {!hasPaymentProvider(customer) && (
+              <>
+                {paypalScriptLoaded && (
+                  <PaypalButton
+                    disabled={!checkboxSet}
+                    apiClientOverrides={apiClientOverrides}
+                    customer={customer}
+                    idempotencyKey={submitNonce}
+                    refreshSubmitNonce={refreshSubmitNonce}
+                    selectedPlan={selectedPlan}
+                    newPaypalAgreement={true}
+                    postSubscriptionAttemptPaypalCallback={refreshSubscriptions}
+                    setSubscriptionError={setSubscriptionError}
+                    ButtonBase={paypalButtonBase}
+                    setTransactionInProgress={setTransactionInProgress}
+                    promotionCode={coupon?.promotionCode}
+                  />
+                )}
 
-          {hasPaymentProvider(customer) && (
-            <Localized id="pay-with-heading-saved">
-              <p className="pay-with-heading">Use saved payment option</p>
-            </Localized>
-          )}
+                <AcceptedCards />
+              </>
+            )}
 
-          <div>
-            <h3 className="billing-title">
-              <Localized id="sub-update-payment-title">
-                <span className="title">Payment information</span>
+            {hasPaymentProvider(customer) && (
+              <Localized id="pay-with-heading-saved">
+                <p className="pay-with-heading">Use saved payment option</p>
               </Localized>
-            </h3>
+            )}
 
-            <PaymentForm
-              {...{
-                customer,
-                submitNonce,
-                onSubmit,
-                onChange,
-                shouldAllowSubmit: checkboxSet,
-                inProgress,
-                validatorInitialState,
-                confirm: false,
-                plan: selectedPlan,
-                onMounted: onFormMounted,
-                onEngaged: onFormEngaged,
-                promotionCode: coupon?.promotionCode,
-              }}
-            />
+            <div>
+              <Localized id="sub-update-payment-title">
+                <span className="label-title">Payment information</span>
+              </Localized>
+
+              <PaymentForm
+                {...{
+                  customer,
+                  submitNonce,
+                  onSubmit,
+                  onChange,
+                  shouldAllowSubmit: checkboxSet,
+                  inProgress,
+                  validatorInitialState,
+                  confirm: false,
+                  plan: selectedPlan,
+                  onMounted: onFormMounted,
+                  onEngaged: onFormEngaged,
+                  promotionCode: coupon?.promotionCode,
+                  disabled: !checkboxSet,
+                }}
+              />
+            </div>
           </div>
 
           <div className="payment-footer" data-testid="footer">

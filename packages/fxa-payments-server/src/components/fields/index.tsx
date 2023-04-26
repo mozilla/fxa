@@ -167,6 +167,7 @@ const UnwrappedInput = (props: InputProps) => {
     required = false,
     className,
     getString,
+    disabled = false,
     ...childProps
   } = props;
 
@@ -250,6 +251,7 @@ const UnwrappedInput = (props: InputProps) => {
           value: validator.getValue(name, ''),
           onBlur,
           onChange,
+          disabled,
         }}
       />
     </Field>
@@ -296,6 +298,7 @@ type StripeElementWrapperProps = FieldProps & {
   onValidate?: OnValidateFunction;
   component: any;
   getString?: Function;
+  disabled?: boolean;
 };
 
 type WrappedStripeElementProps = StripeElementWrapperProps & CardElementProps;
@@ -311,6 +314,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
     className,
     autoFocus,
     getString,
+    disabled = false,
     ...childProps
   } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
@@ -357,6 +361,7 @@ export const StripeElement = (props: WrappedStripeElementProps) => {
             ...childProps,
             onChange,
             onBlur,
+            disabled,
           }}
         />
       </div>
@@ -388,6 +393,7 @@ export const Checkbox = (props: CheckboxProps) => {
     onValidate = defaultCheckboxValidator,
     required = false,
     className = 'input-row input-row--checkbox',
+    tooltip = false,
     ...childProps
   } = props;
 
@@ -404,9 +410,18 @@ export const Checkbox = (props: CheckboxProps) => {
     [name, props, validator, onValidate]
   );
 
+  const tooltipParentRef = useRef<HTMLInputElement>(null);
+
   return (
     <Field
-      {...{ fieldType: 'input', name, className, required, tooltip: false }}
+      {...{
+        tooltipParentRef: tooltip ? tooltipParentRef : undefined,
+        fieldType: 'input',
+        name,
+        className,
+        required,
+        tooltip,
+      }}
     >
       <input
         {...{
@@ -414,6 +429,7 @@ export const Checkbox = (props: CheckboxProps) => {
           type: 'checkbox',
           name,
           onChange,
+          ref: tooltipParentRef,
         }}
       />
       <span className="label-text checkbox">{children ? children : label}</span>
@@ -428,19 +444,14 @@ type SubmitButtonProps = { children: React.ReactNode } & FieldProps &
   >;
 
 export const SubmitButton = (props: SubmitButtonProps) => {
-  const {
-    name,
-    label,
-    children,
-    className,
-    disabled = false,
-    ...childProps
-  } = props;
+  const { name, label, children, className, ...childProps } = props;
   const { validator } = useContext(FormContext) as FormContextValue;
   const buttonProps = {
-    className,
+    className: !validator.allValid()
+      ? className +
+        ' payment-button-disabled cursor-not-allowed after:bg-white after:opacity-50 z-[5] border-none focus:border-solid focus:border-2 focus:border-offset-2 focus:border-blue-400'
+      : className,
     name,
-    disabled: disabled || !validator.allValid(),
   };
   return (
     <button {...{ ...childProps, ...buttonProps, type: 'submit' }}>

@@ -58,7 +58,7 @@
 }
 
 .step-header {
-  @apply mt-10 text-lg;
+  @apply mt-14 mb-5 text-lg;
 }
 
 /* shared styles used in PlanDetails and PlanUpgradeDetails */
@@ -135,4 +135,37 @@
 
 .payment-button {
   @apply cta-base-p flex-1 font-semibold rounded-md text-base;
+}
+
+/* disabled styles */
+.payment-button-disabled {
+  @apply relative after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full;
+}
+
+.payment-form-disabled {
+  @apply payment-button-disabled cursor-not-allowed after:bg-white after:opacity-50 after:z-[5];
+  @apply focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus;
+}
+
+/* confirm payment checkbox tooltip styles */
+.input-row--checkbox[data-field-name='confirm'] .tooltip {
+  @apply z-[6] px-4 py-1.5 left-0 -mt-12;
+}
+
+.input-row--checkbox[data-field-name='confirm'] .tooltip::before {
+  @apply left-7;
+}
+
+html[dir='rtl'] .input-row--checkbox[data-field-name='confirm'] .tooltip {
+  @apply left-auto right-0;
+}
+
+html[dir='rtl']
+  .input-row--checkbox[data-field-name='confirm']
+  .tooltip::before {
+  @apply left-auto right-7;
+}
+
+.input-row--checkbox[data-field-name='confirm'] .tooltip-below {
+  @apply mt-11;
 }

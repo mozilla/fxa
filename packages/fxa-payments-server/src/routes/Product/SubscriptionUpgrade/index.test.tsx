@@ -144,12 +144,12 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     );
     await findByTestId('subscription-upgrade');
 
-    expect(getByTestId('submit')).toHaveAttribute('disabled');
+    expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
     fireEvent.submit(getByTestId('upgrade-form'));
     expect(updateSubscriptionPlanAndRefresh).not.toBeCalled();
 
     fireEvent.click(getByTestId('confirm'));
-    expect(getByTestId('submit')).not.toHaveAttribute('disabled');
+    expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
     fireEvent.click(getByTestId('submit'));
     expect(updateSubscriptionPlanAndRefresh).toBeCalledWith(
       customerWebSubscription.subscription_id,
