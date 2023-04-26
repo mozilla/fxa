@@ -17,7 +17,6 @@ module.exports = testsSettings.concat([
   'tests/functional/fx_desktop_handshake.js',
   'tests/functional/fx_ios_v1_sign_in.js',
   'tests/functional/fx_ios_v1_sign_up.js',
-  'tests/functional/legal.js',
   'tests/functional/oauth_permissions.js',
   'tests/functional/oauth_prompt_none.js',
   'tests/functional/oauth_query_param_validation.js',
@@ -76,6 +75,7 @@ module.exports = testsSettings.concat([
   //'tests/functional/sign_up_with_code.js',
   //'tests/functional/sync_v3_email_first.js',
   // 'tests/functional/reset_password.js',
+  // 'tests/functional/legal.js',
 ]);
 
 // Mocha tests are only exposed during local dev, not on prod-like

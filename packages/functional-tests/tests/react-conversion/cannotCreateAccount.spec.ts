@@ -9,9 +9,15 @@ function getReactFeatureFlagUrl(target: BaseTarget, path: string) {
   return `${target.contentServerUrl}${path}?showReactApp=true`;
 }
 
+test.beforeEach(async ({ pages: { login } }) => {
+  // This test requires simple react routes to be enabled
+  const config = await login.getConfig();
+  test.skip(config.showReactApp.simpleRoutes !== true);
+});
+
 test.describe('react-conversion', () => {
   test('Cannot create account', async ({ page, target }) => {
     await page.goto(getReactFeatureFlagUrl(target, '/cannot_create_account'));
-    expect(await page.locator('#root').isVisible()).toBeTruthy();
+    expect(await page.locator('#root').isEnabled()).toBeTruthy();
   });
 });

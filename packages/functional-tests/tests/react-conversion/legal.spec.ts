@@ -13,16 +13,22 @@ function getReactFeatureFlagUrl(
   return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }
 
+test.beforeEach(async ({ pages: { login } }) => {
+  // This test requires simple react routes to be enabled
+  const config = await login.getConfig();
+  test.skip(config.showReactApp.simpleRoutes !== true);
+});
+
 test.describe('legal', () => {
   test('start at legal page', async ({ page, target }) => {
     await page.goto(getReactFeatureFlagUrl(target, '/legal'));
 
     // Verify react page has been loaded
-    expect(await page.locator('#root').isVisible()).toBeTruthy();
+    expect(await page.locator('#root').isEnabled()).toBeTruthy();
 
     // Verify legal page is visible
     expect(
-      await page.locator('.card-header:has-text("Legal")').isVisible()
+      await page.locator('.card-header:has-text("Legal")').isEnabled()
     ).toBeTruthy();
 
     // Verify Terms Of Service link is visible

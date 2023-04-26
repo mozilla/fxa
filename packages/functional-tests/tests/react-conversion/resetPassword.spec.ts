@@ -13,8 +13,11 @@ function getReactFeatureFlagUrl(target: BaseTarget, path: string) {
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
 test.describe('reset password', () => {
-  test.beforeEach(async ({}, { project }) => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
+    // Ensure that the feature flag is enabled
+    const config = await login.getConfig();
+    test.skip(config.showReactApp.resetPasswordRoutes !== true);
   });
 
   test('can reset password', async ({ page, target, credentials, context }) => {
