@@ -49,6 +49,11 @@ import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 
+// React route groups specified here will effectively be set to
+// 100% roll out in production. Only add group names here once they've
+// been verified in production at the 15% experiment roll out.
+const ALWAYS_SHOWN_REACT_GROUPS = ['simpleRoutes'];
+
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
     return import(`../views/${ViewOrPath}`).then((result) => {
@@ -447,7 +452,21 @@ Router = Router.extend({
           (route) => routeName === route
         )
       ) {
-        return this.reactRouteGroups[routeGroup].featureFlagOn;
+        // Relier OAuth check is temporary until we work on OAuth flows; at the time of writing
+        // we don't want to show the React version of reset password for example if users are
+        // trying to reset through a relying party, e.g. going to Firefox Monitor > sign in >
+        // reset PW, since there is a lot of logic we must port over for that to function
+        // correctly. However, the relier for simple routes doesn't matter since the simple
+        // routes don't contain any oauth logic.
+        if (routeGroup !== 'simpleRoutes' && this.relier.isOAuth()) {
+          return false;
+        }
+
+        return (
+          this.reactRouteGroups[routeGroup].featureFlagOn &&
+          (this.isInReactExperiment() ||
+            ALWAYS_SHOWN_REACT_GROUPS.includes(routeGroup))
+        );
       }
     }
     return false;
@@ -461,11 +480,7 @@ Router = Router.extend({
   ) {
     const showReactApp = this.showReactApp(routeName);
 
-    // Relier OAuth check is temporary until we work on OAuth flows; at the time of writing we
-    // don't want to show the React version of reset password if users are trying to reset
-    // through a relying party, e.g. going to Firefox Monitor > sign in > reset PW, since there
-    // is a lot of logic we must port over for that to function correctly.
-    if (!this.relier.isOAuth() && showReactApp && this.isInReactExperiment()) {
+    if (showReactApp) {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();
 
@@ -754,6 +769,9 @@ Router = Router.extend({
    * @returns {Function} - a function that can be given to the router.
    */
   createChildViewHandler: createChildViewHandler,
+
+  // export this on 'router' for testing
+  ALWAYS_SHOWN_REACT_GROUPS,
 });
 
 export default Router;

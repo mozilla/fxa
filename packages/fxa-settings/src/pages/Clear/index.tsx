@@ -18,7 +18,13 @@ const Clear = (_: RouteComponentProps) => {
 
   return (
     <AppLayout>
-      <h1 className="card-header">Browser storage is cleared</h1>
+      {/* TODO: intern doesn't have a "findByText" option so we've
+        temporarily added this ID because intern tests still refer to this page
+        and it's been rolled out to 100% in prod. Remove this ID once intern tests
+        referring to this header are fully converted to Playwright. */}
+      <h1 className="card-header" id="clear-storage">
+        Browser storage is cleared
+      </h1>
     </AppLayout>
   );
 };

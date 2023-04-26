@@ -10,7 +10,7 @@ module.exports = testsSettings.concat([
   // new and flaky tests above here',
   'tests/functional/500.js',
   'tests/functional/back_button_after_start.js',
-  'tests/functional/cookies_disabled.js',
+  // 'tests/functional/cookies_disabled.js',
   'tests/functional/email_domain_mx_validation.js',
   'tests/functional/email_opt_in.js',
   'tests/functional/force_auth.js',

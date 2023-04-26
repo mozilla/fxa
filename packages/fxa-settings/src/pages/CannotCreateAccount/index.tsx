@@ -23,10 +23,13 @@ const CannotCreateAccount = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   return (
     <AppLayout>
-      <CardHeader
-        headingText="Cannot create account"
-        headingTextFtlId="cannot-create-account-header"
-      />
+      {/* Span is temporary until sign up tests are converted to playwright */}
+      <span id="fxa-cannot-create-account-header">
+        <CardHeader
+          headingText="Cannot create account"
+          headingTextFtlId="cannot-create-account-header"
+        />
+      </span>
       <FtlMsg id="cannot-create-account-requirements">
         <p className="text-sm mb-9">
           You must meet certain age requirements to create a Firefox account.
