@@ -115,5 +115,8 @@ test.describe('recovery key react', () => {
 
     // Cleanup requires setting this value to correct password
     credentials.password = NEW_PASSWORD;
+
+    await page.locator('text="Generate a new account recovery key"').click();
+    await page.waitForURL(/settings\/account_recovery/);
   });
 });
