@@ -30,13 +30,18 @@ test.describe('OAuth signin token code', () => {
   /* eslint-enable camelcase */
 
   test.beforeEach(async ({ target }, { project }) => {
-    test.skip(project.name === 'production', 'doesnt work in prod currently');
     // The `sync` prefix is needed to force confirmation.
     email = `sync${Math.random()}@restmail.net`;
-    await target.createAccount(email, password, {
-      // Important, must set this to be directed to /sign_in_token_code page
-      verificationMethod: 'email-otp',
-    });
+    await target.createAccount(email, password);
+  });
+
+  test.afterEach(async ({ target }) => {
+    if (email) {
+      // Cleanup any accounts created during the test
+      try {
+        await target.auth.accountDestroy(email, password);
+      } catch (e) {}
+    }
   });
 
   test('verified - invalid token', async ({
