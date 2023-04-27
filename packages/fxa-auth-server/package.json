@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "yarn merge-ftl && yarn emails-scss && tsc --build && cp -R config public lib scripts dist/fxa-auth-server",
+    "build": "yarn merge-ftl && yarn emails-scss && tsc --build && cp -R config public lib scripts dist/packages/fxa-auth-server",
     "clean": "git clean -fXd",
     "compile": "tsc --noEmit",
     "create-mock-iap": "NODE_ENV=dev FIRESTORE_EMULATOR_HOST=localhost:9090 node -r esbuild-register ./scripts/create-mock-iap-subscriptions.ts",
