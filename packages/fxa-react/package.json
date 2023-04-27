@@ -3,13 +3,13 @@
   "version": "0.0.0",
   "description": "Shared components for FxA React Apps",
   "exports": {
-    "./components/": "./dist/components/",
+    "./components/": "./dist/packages/fxa-react/components/",
     "./configs/tailwind": "./configs/tailwind.js",
     "./configs/rescripts": "./configs/rescripts.js",
     "./configs/storybooks": "./configs/storybooks.js",
     "./images/": "./images/",
     "./extract-imported-components": "./extract-imported-components.js",
-    "./lib/": "./dist/lib/"
+    "./lib/": "./dist/packages/fxa-react/lib/"
   },
   "scripts": {
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
@@ -40,6 +40,7 @@
     "classnames": "^2.3.1",
     "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
+    "postcss": "^8.4.23",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-helmet": "^6.1.0",

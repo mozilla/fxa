@@ -1,21 +1,17 @@
 {
-  "extends": "../../_dev/tsconfig.browser.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "noEmit": true,
     "lib": [
       "dom",
       "dom.iterable",
       "esnext"
     ],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "isolatedModules": true,
     "types": [
       "jest",
       "@testing-library/jest-dom"
     ],
-    "jsx": "react-jsx"
+    "isolatedModules": true,
+    "noEmit": true
   },
   "include": [
     "src"
@@ -26,9 +22,6 @@
     },
     {
       "path": "../fxa-shared"
-    },
-    {
-      "path": "../fxa-auth-client/tsconfig.browser.json"
     }
   ]
 }

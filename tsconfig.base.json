@@ -1,0 +1,40 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "allowJs": false,
+    "incremental": true,
+    "inlineSources": true,
+    "inlineSourceMap": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2019",
+    "module": "esnext",
+    "strict": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "noImplicitReturns": true,
+    "noEmitOnError": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": ".",
+    "paths": {
+    },
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types",
+      "./packages/*/node_modules/@types"
+    ],
+    "jsx": "react-jsx"
+  },
+  "exclude": [
+    "packages/*/node_modules",
+    "node_modules",
+    "tmp"
+  ]
+}

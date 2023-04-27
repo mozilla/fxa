@@ -1,5 +1,5 @@
 {
-  "extends": "../../_dev/tsconfig.browser.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "composite": true,
     "outDir": "./dist/browser",

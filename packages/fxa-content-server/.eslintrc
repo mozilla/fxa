@@ -1,15 +1,27 @@
 {
-  "extends": ["plugin:fxa/client"],
+  "extends": ["plugin:fxa/client", "plugin:fxa/recommended"],
   "plugins": ["fxa"],
   "parser": "babel-eslint",
   "parserOptions": {
+    "ecmaVersion": "2020",
     "sourceType": "module"
   },
+  "env": {
+    "mocha": true
+  },
   "rules": {
+    "require-atomic-updates": "off",
+    "space-unary-ops": "off",
+    "no-useless-escape": "off",
     "no-console": "off",
     "camelCase": "off",
     "strict": "off",
-    "no-useless-escape": "off",
     "handle-callback-err": "off"
-  }
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "pm2.config.js"
+  ],
+  "root": true
 }
