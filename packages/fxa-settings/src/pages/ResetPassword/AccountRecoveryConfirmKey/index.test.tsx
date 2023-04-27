@@ -9,7 +9,13 @@ import { fireEvent, render, screen } from '@testing-library/react';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
-import { Subject } from './mocks';
+import {
+  Subject,
+  MOCK_RECOVERY_KEY,
+  MOCK_RESET_TOKEN,
+  MOCK_RECOVERY_KEY_ID,
+  MOCK_KB,
+} from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account } from '../../../models';
 import { getSearchWithParams, typeByLabelText } from '../../../lib/test-utils';
@@ -49,6 +55,12 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
+jest.mock('fxa-auth-client/lib/recoveryKey', () => ({
+  decryptRecoveryKeyData: jest.fn(() => ({
+    kB: MOCK_KB,
+  })),
+}));
+
 describe('PageAccountRecoveryConfirmKey', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -66,11 +78,11 @@ describe('PageAccountRecoveryConfirmKey', () => {
     account = {
       getRecoveryKeyBundle: jest.fn().mockResolvedValue({
         recoveryData: 'mockRecoveryData',
-        recoveryKeyId: 'mockRecoveryKeyId',
+        recoveryKeyId: MOCK_RECOVERY_KEY_ID,
       }),
       verifyPasswordForgotToken: jest
         .fn()
-        .mockResolvedValue({ accountResetToken: 'mockResetToken' }),
+        .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
     } as unknown as Account;
   });
 
@@ -105,7 +117,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
     } as unknown as Account;
     render(<Subject {...{ account: accountWithTokenError }} />);
 
-    await typeByLabelText('Enter account recovery key')('zzz');
+    await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
     fireEvent.click(
       screen.getByRole('button', { name: 'Confirm account recovery key' })
     );
@@ -157,13 +169,103 @@ describe('PageAccountRecoveryConfirmKey', () => {
     });
   });
 
+  describe('submit', () => {
+    describe('displays error and does not allow submission', () => {
+      it('with an empty recovery key', async () => {
+        render(<Subject {...{ account }} />);
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Confirm account recovery key' })
+        );
+        await screen.findByText('Account recovery key required');
+        expect(account.getRecoveryKeyBundle).not.toHaveBeenCalled();
+
+        // clears the error onchange
+        await typeByLabelText('Enter account recovery key')('a');
+        expect(
+          screen.queryByText('Account recovery key required')
+        ).not.toBeInTheDocument();
+      });
+
+      it('with less than 32 characters', async () => {
+        render(<Subject {...{ account }} />);
+        await typeByLabelText('Enter account recovery key')(
+          MOCK_RECOVERY_KEY.slice(0, -1)
+        );
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Confirm account recovery key' })
+        );
+        await screen.findByText('Invalid account recovery key');
+        expect(account.getRecoveryKeyBundle).not.toHaveBeenCalled();
+
+        // clears the error onchange
+        await typeByLabelText('Enter account recovery key')('');
+        expect(
+          screen.queryByText('Invalid account recovery key')
+        ).not.toBeInTheDocument();
+      });
+
+      it('with more than 32 characters', async () => {
+        render(<Subject {...{ account }} />);
+        await typeByLabelText('Enter account recovery key')(
+          `${MOCK_RECOVERY_KEY}V`
+        );
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Confirm account recovery key' })
+        );
+        await screen.findByText('Invalid account recovery key');
+        expect(account.getRecoveryKeyBundle).not.toHaveBeenCalled();
+      });
+
+      it('with invalid Crockford base32', async () => {
+        render(<Subject {...{ account }} />);
+        await typeByLabelText('Enter account recovery key')(
+          `${MOCK_RECOVERY_KEY}L`.slice(1)
+        );
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Confirm account recovery key' })
+        );
+        await screen.findByText('Invalid account recovery key');
+        expect(account.getRecoveryKeyBundle).not.toHaveBeenCalled();
+      });
+    });
+
+    it('submits successfully with spaces in recovery key', async () => {
+      render(<Subject {...{ account }} />);
+
+      await typeByLabelText('Enter account recovery key')(
+        MOCK_RECOVERY_KEY.replace(/(.{4})/g, '$1 ')
+      );
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole('button', { name: 'Confirm account recovery key' })
+        );
+      });
+
+      expect(account.getRecoveryKeyBundle).toHaveBeenCalledWith(
+        MOCK_RESET_TOKEN,
+        MOCK_RECOVERY_KEY,
+        mockUid
+      );
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/account_recovery_reset_password',
+        {
+          state: {
+            accountResetToken: MOCK_RESET_TOKEN,
+            recoveryKeyId: MOCK_RECOVERY_KEY_ID,
+            kB: MOCK_KB,
+          },
+        }
+      );
+    });
+  });
+
   describe('emits metrics events', () => {
     it('on engage, submit, success', async () => {
       render(<Subject {...{ account }} />);
       expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
 
       await act(async () => {
-        await typeByLabelText('Enter account recovery key')('zzz');
+        await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
       });
 
       expect(logViewEvent).toHaveBeenCalledWith(

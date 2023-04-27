@@ -10,6 +10,10 @@ import { mockAppContext } from '../../../models/mocks';
 import AccountRecoveryConfirmKey from '.';
 
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
+export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
+export const MOCK_RESET_TOKEN = 'mockResetToken';
+export const MOCK_RECOVERY_KEY_ID = 'mockRecoveryKeyId';
+export const MOCK_KB = 'mockkB';
 
 export const Subject = ({
   account,

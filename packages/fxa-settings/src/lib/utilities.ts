@@ -100,3 +100,9 @@ export function isMobileDevice(client?: AttachedClient) {
   }
   return /mobi/i.test(navigator.userAgent);
 }
+
+// Crockford base32 Regex. Case insensitive and excludes I, L, O, U
+const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
+export function isBase32Crockford(value: string) {
+  return B32_STRING.test(value);
+}
