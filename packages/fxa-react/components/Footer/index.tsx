@@ -5,7 +5,7 @@
 import { Localized, useLocalization } from '@fluent/react';
 import React from 'react';
 import LinkExternal from '../LinkExternal';
-import { ReactComponent as MozLogo } from '../../images/moz-logo-bw-rgb.svg';
+import mozLogo from '../../images/moz-logo-bw-rgb.svg';
 
 export const Footer = () => {
   const { l10n } = useLocalization();
@@ -18,13 +18,13 @@ export const Footer = () => {
         href="https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral"
         data-testid="link-mozilla"
       >
-        <MozLogo
-          aria-label={l10n.getString(
+        <img
+          src={mozLogo}
+          alt={l10n.getString(
             'app-footer-mozilla-logo-label',
             null,
             'Mozilla logo'
           )}
-          role="img"
           className="transition-standard w-18 h-auto opacity-75 hover:opacity-100"
         />
       </LinkExternal>
