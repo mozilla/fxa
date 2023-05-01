@@ -16,9 +16,8 @@ describe('Footer', () => {
       'href',
       'https://www.mozilla.org/about/?utm_source=firefox-accounts&utm_medium=Referral'
     );
-    expect(linkMozilla.firstElementChild).toHaveAttribute('role', 'img');
     expect(linkMozilla.firstElementChild).toHaveAttribute(
-      'aria-label',
+      'alt',
       'Mozilla logo'
     );
     expect(screen.getByTestId('link-privacy')).toHaveAttribute(
