@@ -21,6 +21,9 @@ const mockRemoteAddress = {
 const mockLocation = {
   countryCode: 'DE',
 };
+const mockOAuthClientIdMap = {
+  dcdb5ae7add825d2: '123done',
+};
 jest.mock('fxa-shared/metrics/amplitude', () => ({
   amplitude: {
     ...jest.requireActual('fxa-shared/metrics/amplitude').amplitude,
@@ -52,6 +55,8 @@ jest.mock('../config', () => ({
         return mockGeoDBConfig;
       case 'clientAddressDepth':
         return mockClientAddressDepthConfig;
+      case 'oauth_client_id_map':
+        return mockOAuthClientIdMap;
       default:
     }
   },
@@ -74,6 +79,75 @@ const log = require('./logging/log')();
 jest.spyOn(log, 'info').mockImplementation(() => {});
 jest.spyOn(log, 'error').mockImplementation(() => {});
 
+const mockRequest = {
+  body: {
+    events: [
+      {
+        offset: 182161,
+        type: 'amplitude.subPaySetup.view',
+        time: 1682959697295,
+      },
+    ],
+    data: {
+      flushTime: 1682959697295,
+      deviceId: '4bd85d4d2b2d4dbf8d8008731300d08b',
+      flowBeginTime: 1682959515134,
+      flowId:
+        '513dce8ac5b03b04e1af1a2c2f07e8a53e70064950b8a664327e6791b6273eb2',
+      planId: 'plan_GqM9N6qyhvxaVk',
+      productId: 'prod_GqM9ToKK62qjkK',
+      device_id: '4bd85d4d2b2d4dbf8d8008731300d08b',
+      flow_begin_time: '1682959515134',
+      flow_id:
+        '513dce8ac5b03b04e1af1a2c2f07e8a53e70064950b8a664327e6791b6273eb2',
+      plan: 'plan_GqM9N6qyhvxaVk',
+      service: 'dcdb5ae7add825d2',
+      entrypoint: 'www.mozilla.org-vpn-product-page',
+      form_type: 'button',
+      utm_campaign: 'vpn-product-page',
+      utm_medium: 'referral',
+      utm_source: 'www.mozilla.org-vpn-product-page',
+      data_cta_position: 'pricing',
+      amount: 500,
+      currency: 'usd',
+      interval_count: 1,
+      interval: 'month',
+      plan_metadata: {
+        productOrder: '1',
+      },
+      plan_name: '123Done Pro Monthly',
+      product_metadata: {
+        emailIconURL:
+          'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
+        playSkuIds:
+          'org.mozilla.sarah.vpn.yearly,org.mozilla.sarah.vpn.monthly',
+        'product:privacyNoticeDownloadURL':
+          'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_privacy_notice',
+        'product:privacyNoticeURL':
+          'https://www.mozilla.org/privacy/mozilla-vpn/',
+        'product:successActionButtonLabel': 'Do somethin',
+        'product:successActionButtonLabel:fr-FR':
+          'French version of do something',
+        'product:termsOfServiceDownloadURL':
+          'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_tos',
+        'product:termsOfServiceURL':
+          'https://www.mozilla.org/about/legal/terms/mozilla-vpn',
+        productOrder: '0',
+        productSet: '123Done',
+        successActionButtonURL: 'https://123done-stage.dev.lcip.org',
+        'support:app:abc': 'Desktop',
+        'support:app:xyz': 'Mobile',
+        webIconURL:
+          'https://123done-stage.dev.lcip.org/img/transparent-logo.png',
+      },
+      product_name: '123Done Pro',
+      active: true,
+      configuration: null,
+      checkoutType: 'without-account',
+    },
+  },
+};
+
 const mocks = {
   event: {
     offset: 150,
@@ -90,12 +164,27 @@ const mocks = {
     flowId: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
     flushTime: 9002,
     view: 'product',
+    // acquisition query parameters
+    // see https://mozilla.github.io/ecosystem-platform/relying-parties/reference/metrics-for-relying-parties#metrics-related-query-parameters
+    // and https://mozilla-hub.atlassian.net/browse/FXA-7010?focusedCommentId=675937
+    context: '123abc-_',
+    data_cta_position: 'pricing',
+    entrypoint: 'www.mozilla.org-vpn-product-page',
+    entrypoint_experiment: 'entrypoint-experiment',
+    entrypoint_variation: 'entrypoint-variation',
+    form_type: 'button',
+    service: 'dcdb5ae7add825d2',
+    utm_campaign: 'vpn-product-page',
+    utm_content: 'things-go-here',
+    utm_medium: 'referral',
+    utm_source: 'www.mozilla.org-vpn-product-page',
+    utm_term: 'cohort-a',
   },
   request: {
     headers: {
       'user-agent':
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:72.0) Gecko/20100101 Firefox/72.0',
-      'accept-language': 'en-US,en;q=0.7,de-DE;q=0.3'
+      'accept-language': 'en-US,en;q=0.7,de-DE;q=0.3',
     },
   },
 };
@@ -103,7 +192,9 @@ const mocks = {
 const expectedOutput = {
   app_version: '148.8',
   device_id: '0123456789abcdef0123456789abcdef',
-  event_properties: {},
+  event_properties: {
+    service: '123done',
+  },
   event_type: 'fxa_pay_setup - view',
   op: 'amplitudeEvent',
   os_name: 'Mac OS X',
@@ -127,7 +218,7 @@ describe('lib/amplitude', () => {
     mockAmplitudeConfig.rawEvents = false;
     Container.set(StatsD, { increment: jest.fn() });
   });
-  it('logs a correctly formatted message', () => {
+  it.only('logs a correctly formatted message', () => {
     const statsd = Container.get(StatsD);
     amplitude(mocks.event, mocks.request, mocks.data);
     expect(log.info).toHaveBeenCalledTimes(1);
@@ -165,7 +256,6 @@ describe('lib/amplitude', () => {
   });
 
   describe('validates inputs', () => {
-
     it('returns if `event` is missing', () => {
       amplitude(undefined, mocks.request, mocks.data);
       expect(log.info).not.toHaveBeenCalled();
@@ -210,7 +300,7 @@ describe('lib/amplitude', () => {
         device_id: 'QUUX',
         session_id: 1570000000000,
         app_version: '148.8',
-        countryCode: "DE",
+        countryCode: 'DE',
         os_name: 'Mac OS X',
         os_version: '10.14',
         language: 'en-US',
@@ -249,7 +339,9 @@ describe('lib/amplitude', () => {
 
     it('logs/reports all validation errors', () => {
       mockSchemaValidatorFn.mockImplementation(() => {
-        throw new Error('Invalid data: event must have required property \'event_type\', event must have required property \'time\'');
+        throw new Error(
+          "Invalid data: event must have required property 'event_type', event must have required property 'time'"
+        );
       });
       amplitude(mocks.event, mocks.request, {
         ...mocks.data,
@@ -258,7 +350,7 @@ describe('lib/amplitude', () => {
       expect(log.error).toHaveBeenCalledTimes(1);
       expect(log.error.mock.calls[0][0]).toBe('amplitude.validationError');
       expect(log.error.mock.calls[0][1]['err']['message']).toBe(
-        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
+        "Invalid data: event must have required property 'event_type', event must have required property 'time'"
       );
       expect(mockSentry.withScope).toHaveBeenCalledTimes(1);
       expect(scope.setContext).toHaveBeenCalledTimes(1);
@@ -266,7 +358,7 @@ describe('lib/amplitude', () => {
         'amplitude.validationError'
       );
       expect(scope.setContext.mock.calls[0][1]['error']).toBe(
-        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
+        "Invalid data: event must have required property 'event_type', event must have required property 'time'"
       );
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
@@ -291,13 +383,13 @@ describe('lib/amplitude', () => {
         expect(actual).toStrictEqual(expected);
       });
       it('uses locationOverride if present', () => {
-        mockGeoDBConfig.locationOverride = { location: {}};
+        mockGeoDBConfig.locationOverride = { location: {} };
         const expected = {};
         const actual = getLocation(mocks.request);
         expect(actual).toStrictEqual(expected);
       });
       it('returns the countryCode specified in locationOverride', () => {
-        mockGeoDBConfig.locationOverride = { location: { countryCode: 'US'}};
+        mockGeoDBConfig.locationOverride = { location: { countryCode: 'US' } };
         const expected = { countryCode: 'US' };
         const actual = getLocation(mocks.request);
         expect(actual).toStrictEqual(expected);
