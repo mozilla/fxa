@@ -56,4 +56,4 @@ process.on('unhandledRejection', (err) => {
 
 const initPromise = init();
 
-export default initPromise;
+module.exports = initPromise;
