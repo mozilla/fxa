@@ -713,7 +713,7 @@ describe('GET /recoveryKey/hint', () => {
     });
 
     it('returned the correct response', () => {
-      assert.deepEqual(response, hint);
+      assert.deepEqual(response.hint, hint);
       sinon.assert.calledOnceWithExactly(db.getRecoveryKeyHint, uid);
     });
 
@@ -742,7 +742,7 @@ describe('GET /recoveryKey/hint', () => {
     });
 
     it('returned the correct response', () => {
-      assert.deepEqual(response, hint);
+      assert.deepEqual(response.hint, hint);
       sinon.assert.calledOnceWithExactly(db.getRecoveryKeyHint, uid);
     });
 

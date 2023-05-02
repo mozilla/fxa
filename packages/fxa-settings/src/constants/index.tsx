@@ -31,3 +31,26 @@ export enum ENTRYPOINTS {
   FIREFOX_TABS_SIDEBAR_ENTRYPOINT = 'tabs-sidebar',
   FIREFOX_FX_VIEW_ENTRYPOINT = 'fx-view',
 }
+
+// DISPLAY_SAFE_UNICODE regex matches validation used for auth_server
+// Match display-safe unicode characters.
+// We're pretty liberal with what's allowed in a unicode string,
+// but we exclude the following classes of characters:
+//
+//   \u0000-\u001F  - C0 (ascii) control characters
+//   \u007F         - ascii DEL character
+//   \u0080-\u009F  - C1 (ansi escape) control characters
+//   \u2028-\u2029  - unicode line/paragraph separator
+//   \uD800-\uDFFF  - non-BMP surrogate pairs
+//   \uE000-\uF8FF  - BMP private use area
+//   \uFFF9-\uFFFC  - unicode specials prior to the replacement character
+//   \uFFFE-\uFFFF  - unicode this-is-not-a-character specials
+//
+// Note that the unicode replacement character \uFFFD is explicitly allowed,
+// and clients may use it to replace other disallowed characters.
+//
+// We might tweak this list in future.
+
+export const DISPLAY_SAFE_UNICODE: RegExp =
+  // eslint-disable-next-line no-control-regex
+  /^(?:[^\u0000-\u001F\u007F\u0080-\u009F\u2028-\u2029\uD800-\uDFFF\uE000-\uF8FF\uFFF9-\uFFFC\uFFFE-\uFFFF])*$/;

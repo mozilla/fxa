@@ -20,3 +20,5 @@ recovery-key-image-aria-label =
   .aria-label = Illustration to represent an account recovery key.
 lock-image-aria-label =
   .aria-label = An illustration of a lock
+lightbulb-aria-label =
+  .aria-label = Illustration to represent creating a storage hint.

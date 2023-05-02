@@ -1073,7 +1073,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.updateRecoveryKeyHint = async function (uid, hint) {
     log.trace('DB.updateRecoveryKeyHint', { uid, hint });
 
-    return RecoveryKey.updateRecoveryKeyHint({ uid, hint });
+    return RecoveryKey.updateRecoveryKeyHint(uid, hint);
   };
 
   DB.prototype.deleteSessionTokenFromRedis = async function (uid, id) {

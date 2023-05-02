@@ -71,7 +71,13 @@ const EMAIL_BOUNCE_COLUMNS = [
   'diagnosticCode',
 ];
 const TOTP_COLUMNS = ['uid', 'epoch', 'createdAt', 'verified', 'enabled'];
-const RECOVERYKEY_COLUMNS = ['uid', 'createdAt', 'verifiedAt', 'enabled'];
+const RECOVERYKEY_COLUMNS = [
+  'uid',
+  'createdAt',
+  'verifiedAt',
+  'enabled',
+  'hint',
+];
 const LINKEDACCOUNT_COLUMNS = ['uid', 'authAt', 'providerId', 'enabled'];
 
 @UseGuards(GqlAuthHeaderGuard)

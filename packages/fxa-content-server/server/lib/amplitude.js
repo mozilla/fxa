@@ -447,6 +447,26 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_option_print',
   },
+  'flow.settings.account-recovery.hint-step-view': {
+    group: GROUPS.settings,
+    event: 'account_recovery_hint_view',
+  },
+  'flow.settings.account-recovery.hint-submit': {
+    group: GROUPS.settings,
+    event: 'account_recovery_hint_submit',
+  },
+  'flow.settings.account-recovery.hint-success': {
+    group: GROUPS.settings,
+    event: 'account_recovery_hint_success',
+  },
+  'flow.settings.account-recovery.hint-fail': {
+    group: GROUPS.settings,
+    event: 'account_recovery_hint_fail',
+  },
+  'flow.settings.account-recovery.hint-skip': {
+    group: GROUPS.settings,
+    event: 'account_recovery_hint_skip',
+  },
   // Avatar
   'screen.settings.avatar.change': {
     group: GROUPS.settings,
