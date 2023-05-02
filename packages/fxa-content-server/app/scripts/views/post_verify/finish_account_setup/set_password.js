@@ -115,7 +115,7 @@ Cocktail.mixin(
   SetPassword,
   PasswordMixin,
   PasswordStrengthMixin({
-    balloonEl: '#password-strength-balloon',
+    balloonEl: '#password-strength-balloon-container',
     passwordEl: '#password',
   }),
   FlowEventsMixin
