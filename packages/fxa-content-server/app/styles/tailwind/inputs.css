@@ -48,7 +48,8 @@
   }
 }
 
-.input-password-toggle {
+/* doubling up this selector lets us override some tricky checkbox styles showing up in password inputs and hiding the toggle */
+.input-password-toggle, #main-content input[type="checkbox"] ~ label.input-password-toggle {
   @apply opacity-0 absolute w-1;
 
   &-label {
@@ -67,6 +68,7 @@
     }
   }
 }
+
 
 @media (hover: hover) {
   .input-checkbox {
