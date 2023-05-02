@@ -47,6 +47,14 @@ const ConnectAnotherDeviceView = FormView.extend({
     if (this.isEligibleForPairing()) {
       return this.replaceCurrentPageWithPairScreen();
     }
+
+    // Some RPs specify a `redirect_to` query param, check to see if this should
+    // be automatically navigated via the `redirect_immediately` param. Note that 
+    // the user is redirected to `settings` page because it performs extra validation 
+    // on whether the url is allowed to be redirected to.
+    if (this.getSearchParam('redirect_immediately') === 'true') {
+      this.navigate('/settings');
+    }
   },
 
   afterRender() {
