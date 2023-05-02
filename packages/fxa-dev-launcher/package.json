@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "lint": "eslint . --ext .mjs",
     "start": "./bin/fxa-dev-launcher.mjs"
   },
   "bin": "./bin/fxa-dev-launcher.mjs",

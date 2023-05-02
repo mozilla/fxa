@@ -13,7 +13,6 @@
     "./lib/": "./lib/"
   },
   "scripts": {
-    "lint": "eslint . --ext .ts",
     "postinstall": "(tsc --build tsconfig.browser.json && tsc --build) || true",
     "build": "tsc --build tsconfig.browser.json && tsc --build",
     "compile": "tsc --noEmit",

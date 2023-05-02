@@ -13,8 +13,6 @@
     "l10n-prime": "yarn l10n:prime fxa-settings",
     "l10n-bundle": "yarn l10n:bundle fxa-settings branding,react,settings",
     "legal-clone": "yarn legal:clone fxa-settings",
-    "lint-eslint": "eslint . .storybook",
-    "lint": "npm-run-all --parallel lint-eslint",
     "restart": "npm run build-css && pm2 restart pm2.config.js",
     "start": "yarn merge-ftl && npm run build-css && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3000/settings/static/js/bundle.js",
     "stop": "pm2 stop pm2.config.js",
