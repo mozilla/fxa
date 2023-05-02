@@ -7,14 +7,6 @@ DOCKER_USER=DOCKER_USER_${MODULE//-/_}
 DOCKER_PASS=DOCKER_PASS_${MODULE//-/_}
 DOCKERHUB_REPO=mozilla/${MODULE}
 
-if [[ "$(docker images -q "$MODULE")" == "" ]]; then
-  # not all packages create docker images
-  echo -e "\n--------------------------------------------------"
-  echo "- skipping $MODULE"
-  echo -e "--------------------------------------------------\n"
-  exit 0
-fi
-
 if [ "${CIRCLE_BRANCH}" == "main" ]; then
   DOCKER_TAG="latest"
 fi
@@ -34,18 +26,26 @@ else
 fi
 
 if [ -n "${DOCKER_TAG}" ] && [ -n "${!DOCKER_PASS}" ] && [ -n "${!DOCKER_USER}" ]; then
-  echo -e "\n##################################################"
-  echo "# pushing ${DOCKERHUB_REPO}:${DOCKER_TAG}"
-  echo -e "##################################################\n"
+
   echo "${!DOCKER_PASS}" | docker login -u "${!DOCKER_USER}" --password-stdin
 
-  echo "pulling ${DOCKERHUB_REPO}:${TAG}"
-  time docker pull "${DOCKERHUB_REPO}:${TAG}"
+  # see if tag was pushed, not all packages create docker images
+  if docker manifest inspect $DOCKERHUB_REPO:$TAG > /dev/null ; then
+    echo "##################################################"
+    echo "pulling ${DOCKERHUB_REPO}:${TAG}"
+    echo "pushing to ${DOCKERHUB_REPO}:${DOCKER_TAG}"
+    echo "##################################################"
+    echo ""
 
-  echo "pushing ${DOCKERHUB_REPO}:${DOCKER_TAG} "
-  docker tag "${DOCKERHUB_REPO}:${TAG}" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
-  time docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
-
-  echo "removing  ${DOCKERHUB_REPO}:${TAG}"
-  docker rmi "${DOCKERHUB_REPO}:${TAG}"
+    docker pull "${DOCKERHUB_REPO}:${TAG}"
+    docker tag "${DOCKERHUB_REPO}:${TAG}" "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+    docker push "${DOCKERHUB_REPO}:${DOCKER_TAG}"
+    docker rmi "${DOCKERHUB_REPO}:${TAG}"
+  else
+    echo "--------------------------------------------------"
+    echo "skipping $MODULE ($DOCKERHUB_REPO:$TAG not found)"
+    echo "--------------------------------------------------"
+    echo ""
+    exit 0
+  fi
 fi
