@@ -7,6 +7,7 @@ import {
   InvalidNavigationTimingError,
 } from './metric-errors';
 import * as Sentry from '@sentry/browser';
+import { InvalidL1Val } from '../speed-trap/navigation-timing';
 
 export const UTM_REGEX = /^[\w\/.%-]{1,128}$/;
 export const DEVICE_ID_REGEX = /^[0-9a-f]{32}$|^none$/;
@@ -67,7 +68,7 @@ export class MetricErrorReporter {
   /**
    * Reports an error to sentry.
    * @param error - Error to report
-   * @param capture - Flag indication whether or not to count the error.
+   * @param capture - Flag indicating whether or not to count the error.
    *
    * Note: The error.critical and capture flags operate independently. There might be situations where
    * you want to report the error, but it is not critical... or vice versa.
@@ -173,6 +174,18 @@ export class MetricValidator {
       0,
       MAX_SAFE_INTEGER,
       0
+    );
+  }
+
+  /**
+   * Check for bad potentially bad L1 navigation timing values.
+   */
+  public hasInvalidL1TimingData(
+    data: Pick<CheckedMetrics, 'navigationTiming'>
+  ) {
+    // Check for magic numbers that indicate bad l1 navigation timing data.
+    return Object.values(data.navigationTiming || []).some(
+      (x) => x === InvalidL1Val
     );
   }
 

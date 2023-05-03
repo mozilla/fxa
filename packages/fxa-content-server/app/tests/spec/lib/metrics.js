@@ -15,7 +15,10 @@ import Notifier from 'lib/channels/notifier';
 import sinon from 'sinon';
 import SubscriptionModel from 'models/subscription';
 import WindowMock from '../../mocks/window';
-import { getFallbackPerformanceApi, getRealPerformanceApi } from 'fxa-shared/speed-trap/performance-factory';
+import {
+  getFallbackPerformanceApi,
+  getRealPerformanceApi,
+} from 'fxa-shared/speed-trap/performance-factory';
 
 const FLOW_ID =
   '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef';
@@ -24,15 +27,13 @@ const MARKETING_CAMPAIGN = 'campaign1';
 const MARKETING_CAMPAIGN_URL = 'https://accounts.firefox.com';
 const BAD_METRIC_ERROR_PREFIX = 'Bad metric encountered:';
 
-
 const performanceApis = [
   { name: 'real - L2', api: getRealPerformanceApi(), useL1Timings: false },
   { name: 'real - L1', api: getRealPerformanceApi(), useL1Timings: true },
-  { name: 'fallback', api: getFallbackPerformanceApi() }
-]
+  { name: 'fallback', api: getFallbackPerformanceApi() },
+];
 
 for (const performanceApi of performanceApis) {
-
   describe('lib/metrics/' + performanceApi.name, () => {
     let environment;
     let metrics;
@@ -223,7 +224,10 @@ for (const performanceApi of performanceApis) {
 
         it('observable flow state is correct', () => {
           assert.equal(metrics.getFlowModel().get('flowId'), FLOW_ID);
-          assert.equal(metrics.getFlowModel().get('flowBegin'), FLOW_BEGIN_TIME);
+          assert.equal(
+            metrics.getFlowModel().get('flowBegin'),
+            FLOW_BEGIN_TIME
+          );
           const metadata = metrics.getFlowEventMetadata();
           assert.match(metadata.deviceId, /^[0-9a-f]{32}$/);
           assert.equal(metadata.flowBeginTime, FLOW_BEGIN_TIME);
@@ -722,7 +726,9 @@ for (const performanceApi of performanceApis) {
       it('adds the viewName prefix', () => {
         metrics.setViewNamePrefix('signup');
         metrics.logViewEvent('view-name', 'event1');
-        assert.isTrue(metrics.logEvent.calledOnceWith('signup.view-name.event1'));
+        assert.isTrue(
+          metrics.logEvent.calledOnceWith('signup.view-name.event1')
+        );
       });
     });
 
@@ -1068,6 +1074,73 @@ for (const performanceApi of performanceApis) {
       });
     });
 
+    describe('Handles invalid navigation timings values', () => {
+      // Make up some bad timing data
+      const timing = {
+        navigationStart: -111,
+        unloadEventStart: -111,
+        unloadEventEnd: -111,
+        redirectStart: -111,
+        redirectEnd: -111,
+        fetchStart: -111,
+        domainLookupStart: -111,
+        domainLookupEnd: -111,
+        connectStart: -111,
+        connectEnd: -111,
+        secureConnectionStart: -111,
+        requestStart: -111,
+        responseStart: -111,
+        responseEnd: -111,
+        domLoading: -111,
+        domInteractive: -111,
+        domContentLoadedEventStart: -111,
+        domContentLoadedEventEnd: -111,
+        domComplete: -111,
+        loadEventStart: -111,
+        loadEventEnd: -111,
+      };
+
+      const sandbox = sinon.createSandbox();
+
+      beforeEach(() => {
+        // The l2 navigation timing api has a different interface than the legacy
+        // l1 navigation timing api.
+        if (performanceApi.name === 'real - L2') {
+          sandbox
+            .stub(performanceApi.api, 'getEntriesByType')
+            .returns([timing]);
+        } else {
+          sandbox.stub(performanceApi.api, 'timing').value(timing);
+        }
+      });
+
+      afterEach(() => {
+        sandbox.restore();
+      });
+
+      it('Report invalid timings', (done) => {
+        createMetrics({});
+
+        // Log loaded event, which allows for capture of navigation timings.
+        metrics.logEventOnce('loaded');
+
+        setTimeout(() => {
+          try {
+            // We always report l2 issues, for legacy navigation timing apis we will
+            // not report the issues since these apis have known issues.
+            if (performanceApi.name === 'real - L2') {
+              assert.isAbove(sentryMock.captureException.callCount, 0);
+            } else {
+              assert.equal(sentryMock.captureException.callCount, 0);
+            }
+          } catch (err) {
+            return done(err);
+          }
+          done();
+        }, 50);
+      });
+    });
+
     describe('all together now', () => {
       it('flushes as expected', (done) => {
         sinon.stub(metrics, '_send').resolves(true);
@@ -1136,5 +1209,4 @@ for (const performanceApi of performanceApis) {
       });
     });
   });
-
 }

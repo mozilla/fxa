@@ -18,6 +18,12 @@ const TimingVersions = {
   UNKNOWN: '',
 };
 
+// Magic number indicating an invalid L1 navigation timing value came from the browser.
+export const InvalidL1Val = -11111;
+
+// Magic number indicating an invalid L2 navigation timing value came from the browser.
+export const InvalidL2Val = -22222;
+
 class NavigationTiming {
   init(opts) {
     // A performance api must be provided
@@ -62,6 +68,18 @@ class NavigationTiming {
     const l2Timings = this.getL2Timings();
     const l1Timings = this.getL1Timings();
 
+    // Do a little clean up on the values.
+    // - We expect that all values are integer values. Chrome can produce floats though...
+    // - We should never see a negative value, but if we do, set the value to a magic number,
+    //   so it's easy to spot in sentry.
+    const sanitize = (value, magicNumber) => {
+      value = parseInt(value);
+      if (value < 0) {
+        value = magicNumber;
+      }
+      return value;
+    };
+
     const diffL1 = () => {
       // Make navigation timings relative to navigation start.
       for (const key in NAVIGATION_TIMING_FIELDS) {
@@ -78,7 +96,10 @@ class NavigationTiming {
           // ambiguity around what the 'start' or 'baseTime' time is. Since we
           // are sure the current set of navigation timings were created using
           // the same kind of clock, this seems like the safest way to do this.
-          diff[key] = timing - this.performance.timing.navigationStart;
+          diff[key] = sanitize(
+            timing - this.performance.timing.navigationStart,
+            InvalidL1Val
+          );
         }
       }
     };
@@ -88,7 +109,7 @@ class NavigationTiming {
       // a couple fields to keep it backwards compatible.
       for (const key in NAVIGATION_TIMING_FIELDS) {
         const mappedKey = L2TimingsMap[key] || key;
-        diff[key] = l2Timings[mappedKey];
+        diff[key] = sanitize(l2Timings[mappedKey], InvalidL2Val);
       }
     };
 
@@ -101,20 +122,6 @@ class NavigationTiming {
       diffL1();
     }
 
-    for (const key in NAVIGATION_TIMING_FIELDS) {
-      // We expect that all values are integer values, Chrome will produce floating
-      // point values that we must convert.
-      if (typeof diff[key] === 'number') {
-        diff[key] = parseInt(diff[key]);
-      }
-
-      // We shouldn't see any negative values. If we do something went very wrong.
-      // We will use -11111 as a magic number to ensure a sentry error is captured,
-      // and it's easy to spot.
-      if (diff[key] < 0) {
-        diff[key] = -11111;
-      }
-    }
     return diff;
   }
 }
