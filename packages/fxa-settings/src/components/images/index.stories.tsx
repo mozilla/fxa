@@ -11,6 +11,7 @@ import {
   HeartsBrokenImage,
   HeartsVerifiedImage,
   TwoFactorAuthImage,
+  SecurityShieldImage,
 } from '.';
 import { withLocalization } from '../../../.storybook/decorators';
 
@@ -22,16 +23,19 @@ export default {
     HeartsBrokenImage,
     HeartsVerifiedImage,
     TwoFactorAuthImage,
+    SecurityShieldImage,
   },
   decorators: [withLocalization],
 } as Meta;
 
-export const RecoveryCodesIllustration = () => <RecoveryCodesImage />;
+export const RecoveryCodes = () => <RecoveryCodesImage />;
 
-export const MailIllustration = () => <MailImage />;
+export const Mail = () => <MailImage />;
 
-export const HeartsBrokenIllustration = () => <HeartsBrokenImage />;
+export const HeartsBroken = () => <HeartsBrokenImage />;
 
-export const HeartsVerifiedIllustration = () => <HeartsVerifiedImage />;
+export const HeartsVerified = () => <HeartsVerifiedImage />;
 
-export const TwoFactorAuthIllustration = () => <TwoFactorAuthImage />;
+export const TwoFactorAuth = () => <TwoFactorAuthImage />;
+
+export const SecurityShield = () => <SecurityShieldImage />;

@@ -14,8 +14,7 @@ type FlowContainerProps = {
   onBackButtonClick?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
-  customBackButtonTitle?: string;
-  customBackButtonLocalizationId?: string;
+  localizedBackButtonTitle?: string;
   children?: React.ReactNode;
 };
 
@@ -23,18 +22,13 @@ export const FlowContainer = ({
   title,
   subtitle,
   onBackButtonClick = () => window.history.back(),
-  customBackButtonTitle,
-  customBackButtonLocalizationId,
+  localizedBackButtonTitle,
   children,
 }: FlowContainerProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
-  const backButtonTitle =
-    customBackButtonTitle && customBackButtonLocalizationId
-      ? ftlMsgResolver.getMsg(
-          customBackButtonLocalizationId,
-          customBackButtonTitle
-        )
-      : ftlMsgResolver.getMsg('flow-container-back', 'Back');
+  const backButtonTitle = localizedBackButtonTitle
+    ? localizedBackButtonTitle
+    : ftlMsgResolver.getMsg('flow-container-back', 'Back');
   return (
     <div
       className={`max-w-lg mx-auto mt-6 p-6 pb-7 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl`}

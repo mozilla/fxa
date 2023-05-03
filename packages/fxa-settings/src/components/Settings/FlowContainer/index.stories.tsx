@@ -36,9 +36,7 @@ export const WizardExample = () => {
       {currentStep === 1 && (
         <FlowContainer
           title="Example wizard flow"
-          {...{ currentStep, setCurrentStep }}
-          customBackButtonTitle="Previous page title"
-          customBackButtonLocalizationId="wizard-flow-back-button-title-first-step"
+          localizedBackButtonTitle="Previous page title"
           onBackButtonClick={() => {
             window.history.back();
           }}
@@ -60,9 +58,7 @@ export const WizardExample = () => {
       {currentStep === 2 && (
         <FlowContainer
           title="Example wizard flow"
-          {...{ currentStep, setCurrentStep }}
-          customBackButtonTitle="Example wizard flow"
-          customBackButtonLocalizationId="wizard-flow-back-button-title-wizard-step"
+          localizedBackButtonTitle="Example wizard flow"
           onBackButtonClick={() => {
             setCurrentStep(currentStep - 1);
           }}
@@ -86,12 +82,10 @@ export const WizardExample = () => {
         currentStep === 3 && (
           <FlowContainer
             title="Example wizard flow"
-            {...{ currentStep, setCurrentStep }}
             onBackButtonClick={() => {
               setCurrentStep(currentStep - 1);
             }}
-            customBackButtonTitle="Example wizard flow"
-            customBackButtonLocalizationId="wizard-flow-back-button-title-wizard-step"
+            localizedBackButtonTitle="Example wizard flow"
           >
             <ProgressBar currentStep={3} numberOfSteps={3} />
             <h2 className="font-bold text-xl mb-2">This is the end! </h2>

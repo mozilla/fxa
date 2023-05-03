@@ -4,6 +4,7 @@ import { ReactComponent as HeartsVerified } from './graphic_hearts_verified.svg'
 import { ReactComponent as RecoveryCodes } from './graphic_recovery_codes.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
+import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 // Use this component to add your image into the collection of images exported below.
@@ -99,6 +100,15 @@ export const MailImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="An envelope containing a link"
     ariaLabelFtlId="confirm-signup-aria-label"
     Image={Mail}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const SecurityShieldImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration to represent an account recovery key."
+    ariaLabelFtlId="security-shield-aria-label"
+    Image={SecurityShield}
     {...{ className, ariaHidden }}
   />
 );

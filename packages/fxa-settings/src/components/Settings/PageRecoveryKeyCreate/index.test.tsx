@@ -4,11 +4,12 @@
 
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import PageRecoveryKeyCreate from '.';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+  logViewEvent: jest.fn(),
 }));
 
 const mockNavigate = jest.fn();
@@ -24,13 +25,20 @@ describe('PageRecoveryKeyCreate', () => {
   it('renders as expected', () => {
     // Content will be updated as views are completed.
     render(<PageRecoveryKeyCreate />);
-    expect(screen.getByText('first step')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        'Create an account recovery key in case you forget your password'
+      )
+    ).toBeInTheDocument();
   });
   it('shifts views when the user clicks through the flow steps', () => {
     render(<PageRecoveryKeyCreate />);
-    expect(screen.getByText('first step')).toBeInTheDocument();
-    // TODO: We'll have to update this as the views are completed.
-    const nextButton = screen.getByText('click to move to next view');
+    expect(
+      screen.getByText(
+        'Create an account recovery key in case you forget your password'
+      )
+    ).toBeInTheDocument();
+    const nextButton = screen.getByText('Start creating your recovery key');
     fireEvent.click(nextButton);
     expect(screen.getByText('second step')).toBeInTheDocument();
   });
