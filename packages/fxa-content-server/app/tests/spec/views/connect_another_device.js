@@ -463,6 +463,25 @@ describe('views/connect_another_device', () => {
     });
   });
 
+  describe('with `redirect_immediately`', () => {
+    beforeEach(() => {
+      relier.set('context', 'fx_desktop_v3');
+      windowMock.location.search = `?redirect_immediately=true&redirect_to=123`;
+      sinon.spy(view, 'navigate');
+    });
+
+    it('sends the user to /settings when `redirect_immediately` set to true', () => {
+      view.beforeRender();
+      assert.isTrue(view.navigate.calledWith('/settings'));
+    });
+
+    it(`doesn't send the user to /settings if false`, () => {
+      windowMock.location.search = `?redirect_immediately=false&redirect_to=123`;
+      view.beforeRender();
+      assert.isFalse(view.navigate.calledWith('/settings'));
+    });
+  });
+
   describe('_isSignedIn', () => {
     it('returns `true` if the account is signed', () => {
       sinon.stub(user, 'isSignedInAccount').callsFake(() => true);
