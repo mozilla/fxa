@@ -24,7 +24,7 @@ test.describe('severity-1 #smoke', () => {
     await deleteAccount.submit();
 
     // Verifying that the tooltip throws error
-    expect(await deleteAccount.toolTipText()).toMatch('Incorrect password');
+    expect(await deleteAccount.toolTipText()).toContain('Incorrect password');
 
     // Enter correct password
     await deleteAccount.setPassword(credentials.password);

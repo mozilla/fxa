@@ -26,7 +26,7 @@ test.describe('change primary email tests', () => {
     await page.locator('button[type=submit]').click();
     await login.setPassword(credentials.password);
     await page.locator('button[type=submit]').click();
-    expect(await login.signInError()).toMatch(
+    expect(await login.signInError()).toContain(
       'Primary account email required for sign-in'
     );
 
@@ -55,7 +55,7 @@ test.describe('change primary email tests', () => {
     await page.locator('button[type=submit]').click();
     await login.setPassword(credentials.password);
     await page.locator('button[type=submit]').click();
-    expect(await login.getTooltipError()).toMatch('Incorrect password');
+    expect(await login.getTooltipError()).toContain('Incorrect password');
 
     // Sign in with new password
     credentials.password = newPassword;
@@ -107,7 +107,7 @@ test.describe('change primary email tests', () => {
 
     // // Try creating a new account with the same secondary email as previous account and new password
     await login.fillOutFirstSignUp(newEmail, credentials.password);
-    expect(await settings.alertBarText()).toMatch(
+    expect(await settings.alertBarText()).toContain(
       'Account confirmed successfully'
     );
     const primaryEmail = await settings.primaryEmail.statusText();
@@ -142,7 +142,7 @@ test.describe('change primary - unblock', () => {
     await login.unblock(credentials.email);
 
     // Verify the incorrect password error
-    expect(await login.signInError()).toMatch('Incorrect password');
+    expect(await login.signInError()).toContain('Incorrect password');
   });
 
   test('can change primary email, get blocked with valid password, redirect settings page', async ({

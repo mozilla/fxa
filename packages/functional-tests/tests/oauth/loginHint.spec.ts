@@ -10,7 +10,7 @@ test.describe('OAuth `login_hint` and `email` param', () => {
     await relier.goto(`email=${invalidEmail}`);
     await relier.clickEmailFirst();
     const error = await login.getTooltipError();
-    expect(error).toMatch('Valid email required');
+    expect(error).toContain('Valid email required');
   });
 
   test('login_hint specified by relier, not registered', async ({

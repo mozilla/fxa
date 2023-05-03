@@ -19,6 +19,7 @@ import { TotpPage } from './settings/totp';
 import { SubscriptionManagementPage } from './products/subscriptionManagement';
 import { ResetPasswordPage } from './resetPassword';
 import { LegalPage } from './legal';
+import { CookiesDisabledPage } from './cookiesDisabled';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -42,5 +43,6 @@ export function create(page: Page, target: BaseTarget) {
     subscriptionManagement: new SubscriptionManagementPage(page, target),
     resetPassword: new ResetPasswordPage(page, target),
     legal: new LegalPage(page, target),
+    cookiesDisabled: new CookiesDisabledPage(page, target),
   };
 }

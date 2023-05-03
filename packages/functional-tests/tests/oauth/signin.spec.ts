@@ -51,7 +51,7 @@ test.describe('OAuth signin', () => {
     // Attempt to sign back in with cached user
     await relier.clickEmailFirst();
 
-    await expect(await login.getPrefilledEmail()).toMatch(credentials.email);
+    await expect(await login.getPrefilledEmail()).toContain(credentials.email);
     expect(await login.isCachedLogin()).toBe(true);
     await login.submit();
     await relier.signOut();
@@ -104,7 +104,7 @@ test.describe('OAuth signin', () => {
     await relier.clickEmailFirst();
 
     // Cached user detected
-    await expect(await login.getPrefilledEmail()).toMatch(email);
+    await expect(await login.getPrefilledEmail()).toContain(email);
     expect(await login.isCachedLogin()).toBe(true);
     await login.submit();
 

@@ -15,23 +15,23 @@ test.describe('severity-1 #smoke', () => {
     await settings.closeAlertBar();
     await settings.secondaryEmail.clickDelete();
     await settings.waitForAlertBar();
-    expect(await settings.alertBarText()).toMatch('successfully deleted');
+    expect(await settings.alertBarText()).toContain('successfully deleted');
     await settings.secondaryEmail.clickAdd();
     await secondaryEmail.setEmail(newEmail);
     await secondaryEmail.submit();
     // skip verification
     await settings.goto();
-    expect(await settings.secondaryEmail.statusText()).toMatch('UNCONFIRMED');
+    expect(await settings.secondaryEmail.statusText()).toContain('UNCONFIRMED');
     await settings.secondaryEmail.clickDelete();
     await settings.waitForAlertBar();
-    expect(await settings.alertBarText()).toMatch('successfully deleted');
+    expect(await settings.alertBarText()).toContain('successfully deleted');
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293504
   test('settings help link #1293504', async ({ pages: { settings } }) => {
     await settings.goto();
     const helpPage = await settings.clickHelp();
-    expect(helpPage.url()).toMatch('https://support.mozilla.org');
+    expect(helpPage.url()).toContain('https://support.mozilla.org');
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293480
@@ -46,7 +46,9 @@ test.describe('severity-1 #smoke', () => {
     login.page = emailPage;
     await login.setPassword(credentials.password);
     await login.submit();
-    expect(emailPage.url()).toMatch('https://www.mozilla.org/en-US/newsletter');
+    expect(emailPage.url()).toContain(
+      'https://www.mozilla.org/en-US/newsletter'
+    );
     // TODO change prefs and save
   });
 });
