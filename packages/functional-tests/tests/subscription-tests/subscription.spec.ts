@@ -9,7 +9,11 @@ test.describe('subscription test with cc and paypal', () => {
 
   test('subscribe with credit card and login to product', async ({
     pages: { relier, login, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setConfirmPaymentCheckbox();
@@ -25,7 +29,11 @@ test.describe('subscription test with cc and paypal', () => {
 
   test('subscribe with credit card after initial failed subscription', async ({
     pages: { relier, login, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setConfirmPaymentCheckbox();
@@ -44,7 +52,11 @@ test.describe('subscription test with cc and paypal', () => {
 
   test('subscribe with paypal and login to product', async ({
     pages: { relier, login, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setConfirmPaymentCheckbox();

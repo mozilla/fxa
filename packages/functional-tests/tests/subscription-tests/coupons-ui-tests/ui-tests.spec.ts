@@ -8,7 +8,11 @@ test.describe('ui functionality', () => {
   test('verify coupon feature not available when changing plans', async ({
     page,
     pages: { relier, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 

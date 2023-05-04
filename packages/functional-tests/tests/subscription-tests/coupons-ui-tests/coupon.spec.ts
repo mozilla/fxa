@@ -47,7 +47,11 @@ test.describe('coupon test', () => {
 
   test('subscribe successfully with an invalid coupon', async ({
     pages: { relier, subscribe, login },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -73,7 +77,11 @@ test.describe('coupon test', () => {
 
   test('subscribe successfully with a forever discount coupon', async ({
     pages: { relier, subscribe, login },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -101,7 +109,11 @@ test.describe('coupon test', () => {
 
   test('subscribe with a one time discount coupon', async ({
     pages: { relier, subscribe, login },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe12Month();
 
@@ -130,7 +142,11 @@ test.describe('coupon test', () => {
 
   test('subscribe with credit card and use coupon', async ({
     pages: { relier, login, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -149,7 +165,11 @@ test.describe('coupon test', () => {
 
   test('subscribe with paypal and use coupon', async ({
     pages: { relier, login, subscribe },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe12Month();
 

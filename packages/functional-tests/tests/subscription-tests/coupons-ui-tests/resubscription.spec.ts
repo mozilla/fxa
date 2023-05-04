@@ -10,7 +10,11 @@ test.describe('resubscription test', () => {
   test('resubscribe successfully with the same coupon after canceling for stripe', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -58,7 +62,11 @@ test.describe('resubscription test', () => {
   test('resubscribe successfully with the same coupon after canceling for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -104,7 +112,11 @@ test.describe('resubscription test', () => {
   test('update mode of payment for stripe', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -134,7 +146,11 @@ test.describe('resubscription test', () => {
   test('update mode of payment for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
 

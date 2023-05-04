@@ -36,7 +36,11 @@ test.describe('support form with active subscriptions', () => {
 
   test('go to support form, submits the form', async ({
     pages: { login, relier, subscribe, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setConfirmPaymentCheckbox();
@@ -60,7 +64,11 @@ test.describe('support form with active subscriptions', () => {
   test('go to support form, cancel, redirects to subscription management', async ({
     page,
     pages: { login, relier, subscribe, settings, subscriptionManagement },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'no real payment method available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe();
     await subscribe.setConfirmPaymentCheckbox();
