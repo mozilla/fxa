@@ -187,6 +187,16 @@ Router = Router.extend({
           // further if being redirected from content-server. Flow params are not always
           // available to check against, so we explicitly send in an additional param.
           contentRedirect: true,
+          // We pass along `disable_local_storage` for functional-tests that hit another page
+          // with this param (synthetically disabling local storage). Without this, tests will
+          // be redirected to this page, but local storage will appear enabled.
+          /* eslint-disable camelcase */
+          ...(Url.searchParam(
+            'disable_local_storage',
+            this.window.location.search
+          ) === '1' && {
+            disable_local_storage: 1,
+          }),
         }
       );
     },
