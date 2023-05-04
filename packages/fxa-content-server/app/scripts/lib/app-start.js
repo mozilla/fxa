@@ -51,6 +51,7 @@ import Url from './url';
 import User from '../models/user';
 import UserAgentMixin from './user-agent-mixin';
 import WebChannel from './channels/web';
+import GleanMetrics from './glean';
 
 const AUTOMATED_BROWSER_STARTUP_DELAY = 750;
 
@@ -120,6 +121,8 @@ Start.prototype = {
         .then(() => this.initializeNotificationChannel())
         // depends on interTabChannel, web channel
         .then(() => this.initializeNotifier())
+        // glean metrics
+        .then(() => this.initializeGlean())
         // metrics depends on relier and notifier
         .then(() => this.initializeMetrics())
         // profileClient depends on fxaClient
@@ -162,6 +165,10 @@ Start.prototype = {
       this._translator = new Translator();
     }
     return this._translator.fetch();
+  },
+
+  initializeGlean() {
+    GleanMetrics.initialize(this._config.glean);
   },
 
   initializeMetrics() {

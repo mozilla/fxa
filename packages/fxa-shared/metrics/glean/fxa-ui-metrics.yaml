@@ -1,0 +1,37 @@
+---
+# Schema
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
+
+# Category
+registration:
+  # Name
+  view:
+    # Metric Parameters
+    type: event
+    description: |
+      Registration form displayed
+    metadata:
+      tags:
+        - registration
+    notification_emails:
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://bugzilla.mozilla.org/123456789/
+    data_reviews:
+      - http://example.com/path/to/data-review
+    expires: never
+
+  submit:
+    type: event
+    description: |
+      Registration form submission
+    metadata:
+      tags:
+        - registration
+    notification_emails:
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://bugzilla.mozilla.org/123456789/
+    data_reviews:
+      - http://example.com/path/to/data-review
+    expires: never

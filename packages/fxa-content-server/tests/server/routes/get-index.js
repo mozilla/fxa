@@ -78,6 +78,16 @@ registerSuite('routes/get-index', {
                 config.get('fxaccount_url')
               );
               assert.equal(sentConfig.env, config.get('env'));
+              const serversideGleanConfig = config.get('glean');
+              const frontendGleanConfig = {
+                enabled: serversideGleanConfig.enabled,
+                applicationId: serversideGleanConfig.applicationId,
+                uploadEnabled: serversideGleanConfig.uploadEnabled,
+                appDisplayVersion: sentConfig.release,
+                channel: serversideGleanConfig.appChannel,
+                serverEndpoint: serversideGleanConfig.serverEndpoint,
+              };
+              assert.deepEqual(sentConfig.glean, frontendGleanConfig);
               assert.equal(
                 sentConfig.marketingEmailEnabled,
                 config.get('marketing_email.enabled')

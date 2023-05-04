@@ -49,6 +49,7 @@ require('./spec/lib/experiments/grouping-rules/is-sampled-user');
 require('./spec/lib/experiments/grouping-rules/push');
 require('./spec/lib/experiments/grouping-rules/sentry');
 require('./spec/lib/fxa-client');
+require('./spec/lib/glean');
 require('./spec/lib/image-loader');
 require('./spec/lib/logger');
 require('./spec/lib/metrics');

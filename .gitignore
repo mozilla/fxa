@@ -75,7 +75,11 @@ Thumbs.db
 .yarn/install-state.gz
 
 # nektos/act - Github Actions
-bin/
+/bin/
+
+# Glean CLI will install glean_parser into a .venv in the dir from which the
+# command is called
+.venv
 
 ## Package-specific ##
 

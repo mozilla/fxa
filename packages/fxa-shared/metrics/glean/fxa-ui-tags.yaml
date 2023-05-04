@@ -1,0 +1,6 @@
+---
+# Schema
+$schema: moz://mozilla.org/schemas/glean/tags/1-0-0
+
+registration:
+  description: account registration flow

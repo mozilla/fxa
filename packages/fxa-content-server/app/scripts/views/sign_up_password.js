@@ -20,6 +20,7 @@ import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
+import GleanMetrics from '../lib/glean';
 
 const t = (msg) => msg;
 
@@ -57,6 +58,11 @@ const SignUpPasswordView = FormView.extend({
       error.forceMessage = t('Account no longer exists. Recreate it?');
     }
     return proto.beforeRender.call(this);
+  },
+
+  logView() {
+    GleanMetrics.registration.view.record();
+    return proto.logView.call(this);
   },
 
   setInitialContext(context) {
