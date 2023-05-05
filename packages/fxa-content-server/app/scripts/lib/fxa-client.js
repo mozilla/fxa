@@ -111,8 +111,8 @@ function getUpdatedSessionData(email, relier, accountData, options = {}) {
     uid: accountData.uid,
     verificationMethod: accountData.verificationMethod,
     verificationReason: accountData.verificationReason,
-    verified: accountData.verified || false,
-    metricsEnabled: accountData.metricsEnabled || false,
+    verified: accountData.verified ?? false,
+    metricsEnabled: accountData.metricsEnabled ?? true,
     providerUid: accountData.providerUid,
   };
 

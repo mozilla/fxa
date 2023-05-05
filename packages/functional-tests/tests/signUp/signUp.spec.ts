@@ -158,6 +158,27 @@ test.describe('signup here', () => {
     // The original tab should transition to the settings page w/ success
     // message.
     expect(await login.loginHeader()).toBe(true);
+
+    // Verify the account is in local storage and has a correct state
+    const currentAccountUid = await page.evaluate(() => {
+      return JSON.parse(
+        localStorage.getItem('__fxa_storage.currentAccountUid') || ''
+      );
+    });
+    const accounts = await page.evaluate(() => {
+      return JSON.parse(localStorage.getItem('__fxa_storage.accounts') || '{}');
+    });
+    const account = accounts[currentAccountUid];
+    expect(currentAccountUid).toBeDefined();
+    expect(accounts).toBeDefined();
+    expect(accounts[currentAccountUid]).toBeDefined();
+    expect(account.email).toBe(email);
+    expect(account.lastLogin).toBeDefined();
+    expect(account.metricsEnabled).toBe(true);
+    expect(account.sessionToken).toBeDefined();
+    expect(account.uid).toBeDefined();
+    expect(account.verified).toBe(true);
+
     await settings.signOut();
 
     await login.fillOutFirstSignUp(secondEmail, password, true);
