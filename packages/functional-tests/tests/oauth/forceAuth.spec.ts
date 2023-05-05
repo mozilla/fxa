@@ -27,7 +27,7 @@ test.describe('OAuth force auth', () => {
     await relier.clickForceAuth();
 
     // Signup form is shown and email is prefilled
-    await expect(await login.getPrefilledEmail()).toMatch(newEmail);
+    await expect(await login.getPrefilledEmail()).toContain(newEmail);
     await login.setAge('21');
     await login.setNewPassword(credentials.password);
     await login.fillOutSignUpCode(newEmail);
@@ -44,7 +44,7 @@ test.describe('OAuth force auth', () => {
     await relier.goto(`email=${blockedEmail}`);
     await relier.clickForceAuth();
 
-    await expect(await login.getPrefilledEmail()).toMatch(blockedEmail);
+    await expect(await login.getPrefilledEmail()).toContain(blockedEmail);
     await login.setAge('21');
     await login.setNewPassword(credentials.password);
     await login.fillOutSignUpCode(blockedEmail);
