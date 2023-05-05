@@ -28908,6 +28908,7 @@ fsevents@~2.1.1:
     jest: 27.5.1
     jest-environment-jsdom: ^27.5.1
     pm2: ^5.3.0
+    postcss: ^8.4.23
     postcss-import: ^15.1.0
     prettier: ^2.3.1
     react: ^16.13.1
@@ -44346,7 +44347,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.9":
+"postcss@npm:^8.0.9, postcss@npm:^8.4.23":
   version: 8.4.23
   resolution: "postcss@npm:8.4.23"
   dependencies:
