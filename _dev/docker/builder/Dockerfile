@@ -1,5 +1,7 @@
 FROM node:18.14-slim
 
+ARG VERSION
+
 RUN set -x \
     && addgroup --gid 10001 app \
     && adduser --disabled-password \
@@ -21,4 +23,4 @@ RUN apt-get update && apt-get install -y \
 COPY --chown=app:app . /fxa
 USER app
 WORKDIR /fxa
-RUN _scripts/base-docker.sh
+RUN _scripts/base-docker.sh $VERSION

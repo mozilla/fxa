@@ -3,8 +3,33 @@
 DIR=$(dirname "$0")
 cd "$DIR/.."
 
+VERSION=$1
+
+if [[ "${VERSION}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Updating version in package.json to ${VERSION}"
+else
+  echo "Invalid version or no version specified, ${VERSION}. Defaulting to v0.0.0"
+  VERSION="v0.0.0"
+fi
+
+# Trim the prefix "v" from the version
+VERSION=$(echo "${VERSION}" | sed 's/^v//')
+
+function patchVersion() {
+  if [ -f "package.json" ]; then
+    echo "Updating version in $(pwd)/package.json to ${VERSION}"
+    jq ".version = \"$VERSION\"" package.json > tmp && mv tmp package.json
+  else
+    echo "$(pwd)/package.json not found!"
+  fi
+}
+
+# Update the root package.json file.
+patchVersion
+
+# Create version files and update the version field in package.json files.
 for d in ./packages/*/ ; do
-  (cd "$d" && mkdir -p config && cp ../version.json . && cp ../version.json config)
+  (cd "$d" && mkdir -p config && cp ../version.json . && cp ../version.json config && patchVersion)
 done
 
 if [ -f _dev/local-build-env.sh ]; then
