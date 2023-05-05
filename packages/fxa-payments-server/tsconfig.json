@@ -1,8 +1,7 @@
 {
-  "extends": "../../_dev/tsconfig.browser.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "incremental": false,
     "types": [
       "jest",
       "@testing-library/jest-dom"
@@ -12,10 +11,8 @@
       "dom.iterable",
       "esnext"
     ],
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-    "jsx": "react-jsx"
+    "noImplicitAny": false
   },
   "include": [
     "src"
