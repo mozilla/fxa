@@ -302,6 +302,33 @@ const conf = (module.exports = convict({
     env: 'FXA_URL',
     format: 'url',
   },
+  glean: {
+    enabled: {
+      default: false,
+      env: 'GLEAN_ENABLED',
+      format: Boolean,
+    },
+    applicationId: {
+      default: 'accounts_frontend_dev',
+      env: 'GLEAN_APPLICATION_ID',
+      format: String,
+    },
+    uploadEnabled: {
+      default: false,
+      env: 'GLEAN_UPLOAD_ENABLED',
+      format: Boolean,
+    },
+    appChannel: {
+      default: 'development',
+      env: 'GLEAN_APP_CHANNEL',
+      format: String,
+    },
+    serverEndpoint: {
+      default: 'https://incoming.telemetry.mozilla.org',
+      env: 'GLEAN_SERVER_ENDPOINT',
+      format: 'url',
+    },
+  },
   settings_gql_url: {
     default: 'http://localhost:8290',
     doc: 'The URL of the Firefox Account settings GraphQL server',

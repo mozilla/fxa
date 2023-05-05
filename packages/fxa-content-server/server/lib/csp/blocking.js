@@ -23,6 +23,7 @@ module.exports = function (config) {
   const BLOB = 'blob:';
   const CDN_URL = config.get('static_resource_url');
   const DATA = 'data:';
+  const GLEAN_SERVER = getOrigin(config.get('glean.serverEndpoint'));
   const GRAVATAR = 'https://secure.gravatar.com';
   const GQL_SERVER = getOrigin(config.get('settings_gql_url'));
   const OAUTH_SERVER = getOrigin(config.get('oauth_url'));
@@ -56,6 +57,7 @@ module.exports = function (config) {
   const connectSrc = [
     SELF,
     AUTH_SERVER,
+    GLEAN_SERVER,
     GQL_SERVER,
     OAUTH_SERVER,
     PROFILE_SERVER,
@@ -115,6 +117,7 @@ module.exports = function (config) {
       BLOB,
       CDN_URL,
       DATA,
+      GLEAN_SERVER,
       GQL_SERVER,
       GRAVATAR,
       NONE,

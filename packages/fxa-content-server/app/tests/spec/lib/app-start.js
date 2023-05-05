@@ -9,6 +9,7 @@ import Constants from 'lib/constants';
 import ErrorUtils from 'lib/error-utils';
 import ExperimentGroupingRules from 'lib/experiments/grouping-rules';
 import FxiOSV1Broker from 'models/auth_brokers/fx-ios-v1';
+import GleanMetrics from '../../../scripts/lib/glean';
 import HistoryMock from '../../mocks/history';
 import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
@@ -43,6 +44,9 @@ describe('lib/app-start', () => {
       env: 'production',
       featureFlags: {
         foo: 'bar',
+      },
+      glean: {
+        enabled: false,
       },
     };
     notifier = new Notifier();
@@ -447,6 +451,16 @@ describe('lib/app-start', () => {
         assert.isTrue(appStart._updateUserFromSigninCodeAccount.calledOnce);
         assert.isTrue(appStart._updateUserFromBrowserAccount.calledOnce);
       });
+    });
+  });
+
+  describe('initializeGleanMetrics', () => {
+    it('calls GleanMetrics.initialize', () => {
+      const stub = sinon.stub(GleanMetrics, 'initialize');
+      appStart.initializeGlean();
+      sinon.assert.calledOnce(stub);
+      sinon.assert.calledWith(stub, config.glean);
+      stub.restore();
     });
   });
 

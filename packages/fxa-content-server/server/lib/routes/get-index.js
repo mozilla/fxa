@@ -48,6 +48,12 @@ module.exports = function (config) {
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
 
+  const GLEAN_ENABLED = config.get('glean.enabled');
+  const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
+  const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
+  const GLEAN_APP_CHANNEL = config.get('glean.appChannel');
+  const GLEAN_SERVER_ENDPOINT = config.get('glean.serverEndpoint');
+
   // Note that this list is only enforced for clients that use login_hint/email
   // with prompt=none. id_token_hint clients are not subject to this check.
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
@@ -90,6 +96,17 @@ module.exports = function (config) {
     subscriptions: SUBSCRIPTIONS,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
     showReactApp: SHOW_REACT_APP,
+
+    glean: {
+      // feature toggle
+      enabled: GLEAN_ENABLED,
+      // Glean SDK config
+      applicationId: GLEAN_APPLICATION_ID,
+      uploadEnabled: GLEAN_UPLOAD_ENABLED,
+      appDisplayVersion: RELEASE,
+      channel: GLEAN_APP_CHANNEL,
+      serverEndpoint: GLEAN_SERVER_ENDPOINT,
+    },
   };
 
   const NO_LONGER_SUPPORTED_CONTEXTS = new Set([
