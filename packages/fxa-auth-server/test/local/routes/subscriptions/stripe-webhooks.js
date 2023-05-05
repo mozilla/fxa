@@ -23,6 +23,7 @@ const {
 } = require('../../../../lib/routes/subscriptions/stripe-webhook');
 
 const customerFixture = require('../../payments/fixtures/stripe/customer1.json');
+const invoiceFixture = require('../../payments/fixtures/stripe/invoice_paid.json');
 const subscriptionCreated = require('../../payments/fixtures/stripe/subscription_created.json');
 const subscriptionCreatedIncomplete = require('../../payments/fixtures/stripe/subscription_created_incomplete.json');
 const subscriptionDeleted = require('../../payments/fixtures/stripe/subscription_deleted.json');
@@ -1103,6 +1104,72 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper
             .conditionallyRemoveBillingAgreement,
           customerFixture
+        );
+      });
+
+      it('emits metrics event - records expected subscription ended event', async () => {
+        const mockCustomerFixture = deepCopy(customerFixture);
+        mockCustomerFixture.shipping = {
+          address: {
+            country: 'BC',
+          },
+        };
+        const account = { email: mockCustomerFixture.email };
+        const subscriptionEnded = subscriptionDeleted.data.object;
+        const mockSubscriptionEndedEventDetails = {
+          country_code_source: mockCustomerFixture.shipping.address.country,
+          payment_provider: 'stripe',
+          plan_id: subscriptionEnded.items.data[0].plan.id,
+          product_id: subscriptionEnded.items.data[0].plan.product,
+          provider_event_id: subscriptionDeleted.id,
+          subscription_id: subscriptionEnded.id,
+          uid: mockCustomerFixture.metadata.userid,
+          voluntary_cancellation: true,
+        };
+        const req = {
+          auth: { credentials: mockCustomerFixture.uid },
+          payload: mockSubscriptionEndedEventDetails,
+          emitMetricsEvent: sandbox
+            .stub()
+            .resolves(mockSubscriptionEndedEventDetails),
+        };
+        const subscriptionEndedEvent = deepCopy(subscriptionDeleted);
+
+        StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+          mockCustomerFixture
+        );
+
+        sandbox
+          .stub(StripeWebhookHandlerInstance, 'sendSubscriptionDeletedEmail')
+          .resolves({ uid: UID, email: TEST_EMAIL });
+
+        sandbox.stub(authDbModule.Account, 'findByUid').resolves(account);
+
+        const getSubscriptionEndedEventDetailsStub = sandbox
+          .stub(
+            StripeWebhookHandlerInstance,
+            'getSubscriptionEndedEventDetails'
+          )
+          .resolves(mockSubscriptionEndedEventDetails);
+
+        await StripeWebhookHandlerInstance.handleSubscriptionDeletedEvent(
+          req,
+          subscriptionEndedEvent
+        );
+
+        assert.calledOnceWithExactly(
+          getSubscriptionEndedEventDetailsStub,
+          mockSubscriptionEndedEventDetails.uid,
+          mockSubscriptionEndedEventDetails.provider_event_id,
+          mockCustomerFixture,
+          subscriptionEnded
+        );
+
+        assert.isTrue(
+          req.emitMetricsEvent.calledOnceWithExactly(
+            'subscription.ended',
+            mockSubscriptionEndedEventDetails
+          )
         );
       });
     });
@@ -2312,5 +2379,89 @@ describe('StripeWebhookHandler', () => {
         hasOutstandingBalance: true,
       })
     );
+  });
+
+  describe('getSubscriptionEndedEventDetails', async () => {
+    const mockCustomerFixture = deepCopy(customerFixture);
+    mockCustomerFixture.shipping = {
+      address: {
+        country: 'BC',
+      },
+    };
+    const subscriptionEndedEvent = deepCopy(subscriptionDeleted);
+    const subscriptionEnded = subscriptionEndedEvent.data.object;
+    subscriptionEnded.cancellation_details = {
+      reason: 'cancellation_requested',
+    };
+    const mockInvoice = deepCopy(invoiceFixture);
+
+    const mockSubscriptionEndedEventDetails = {
+      country_code_source: mockCustomerFixture.shipping.address.country,
+      payment_provider: 'stripe',
+      plan_id: subscriptionEnded.items.data[0].plan.id,
+      product_id: subscriptionEnded.items.data[0].plan.product,
+      provider_event_id: subscriptionDeleted.id,
+      subscription_id: subscriptionEnded.id,
+      uid: mockCustomerFixture.metadata.userid,
+      voluntary_cancellation: true,
+    };
+
+    beforeEach(() => {
+      StripeWebhookHandlerInstance.stripeHelper.expandResource.resolves(
+        mockInvoice
+      );
+    });
+
+    it('returns voluntary_cancellation as true', async () => {
+      const result =
+        await StripeWebhookHandlerInstance.getSubscriptionEndedEventDetails(
+          mockCustomerFixture.metadata.userid,
+          subscriptionDeleted.id,
+          mockCustomerFixture,
+          subscriptionEnded
+        );
+
+      const expected = mockSubscriptionEndedEventDetails;
+
+      assert.deepEqual(result, expected);
+    });
+
+    it('returns voluntary_cancellation false - Stripe', async () => {
+      subscriptionEnded.cancellation_details = {
+        reason: 'payment_failed',
+      };
+      mockSubscriptionEndedEventDetails.voluntary_cancellation = false;
+
+      const result =
+        await StripeWebhookHandlerInstance.getSubscriptionEndedEventDetails(
+          mockCustomerFixture.metadata.userid,
+          subscriptionDeleted.id,
+          mockCustomerFixture,
+          subscriptionEnded
+        );
+
+      const expected = mockSubscriptionEndedEventDetails;
+
+      assert.deepEqual(result, expected);
+    });
+
+    it('returns voluntary_cancellation false - PayPal', async () => {
+      subscriptionEnded.collection_method = 'send_invoice';
+      mockInvoice.status = 'uncollectible';
+      mockSubscriptionEndedEventDetails.payment_provider = 'paypal';
+      mockSubscriptionEndedEventDetails.voluntary_cancellation = false;
+
+      const result =
+        await StripeWebhookHandlerInstance.getSubscriptionEndedEventDetails(
+          mockCustomerFixture.metadata.userid,
+          subscriptionDeleted.id,
+          mockCustomerFixture,
+          subscriptionEnded
+        );
+
+      const expected = mockSubscriptionEndedEventDetails;
+
+      assert.deepEqual(result, expected);
+    });
   });
 });

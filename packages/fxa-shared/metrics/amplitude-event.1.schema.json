@@ -93,6 +93,16 @@
           "description": "The OAuth client ID for a RP integrated with FxA.",
           "type": "string"
         },
+        "country_code_source": {
+          "description": "The 2 character country ISO code. This value represents the payment method country for the user.",
+          "type": "string",
+          "pattern": "^[A-Z]{2}$"
+        },
+        "payment_provider": {
+          "description": "The third party service ultimately processing a user’s payments (i.e. one of: Stripe, PayPal, Google or Apple at the time of writing).",
+          "type": "string",
+          "maxLength": 128
+        },
         "plan_id": {
           "description": "Plan ID of a subscription.",
           "type": "string",
@@ -102,6 +112,20 @@
           "description": "Product ID of a subscription.",
           "type": "string",
           "maxLength": 128
+        },
+        "provider_event_id": {
+          "description": "A unique identifier for the subscription notification from a payment provider. For Stripe and Stripe-managed providers like PayPal, this is the Stripe webhook event id.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "subscription_id": {
+          "description": "ID of a subscription being canceled.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "voluntary_cancellation": {
+          "description": "True if the cancellation was a Voluntary Cancellation else false for an Involuntary Cancellation.",
+          "type": "boolean"
         }
       }
     },
@@ -198,6 +222,34 @@
       },
       "then": {
         "required": ["language"]
+      }
+    },
+    {
+      "if": {
+        "$comment": "For event_type's matching the pattern below, the required fields are as follows: event_type, language, payment_provider, plan_id, product_id, provider_event_id, subscription_id, time, voluntary_cancellation",
+        "properties": {
+          "event_type": {
+            "type": "string",
+            "pattern": "fxa_subscribe - subscription_ended"
+          }
+        },
+        "required": ["event_type"]
+      },
+      "then": {
+        "required": ["event_type", "language", "time", "event_properties"],
+        "properties": {
+          "event_properties": {
+            "type": "object",
+            "required": [
+              "payment_provider",
+              "plan_id",
+              "product_id",
+              "provider_event_id",
+              "subscription_id",
+              "voluntary_cancellation"
+            ]
+          }
+        }
       }
     }
   ]

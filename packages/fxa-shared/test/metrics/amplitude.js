@@ -585,6 +585,7 @@ describe('metrics/amplitude:', () => {
         );
       }
     });
+
     it('errors - event_properties required', () => {
       const event = {
         ...minimumEvent,
@@ -703,6 +704,125 @@ describe('metrics/amplitude:', () => {
           `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'op'`
         );
       }
+    });
+
+    describe('fxa_subscribe - subscription_ended', () => {
+      const subscriptionEndedEvent = {
+        device_id: '9ce8626e11ab4238981287fb95c8545e',
+        event_type: 'fxa_subscribe - subscription_ended',
+        language: 'piglatin',
+        op: 'amplitudeEvent',
+        time: 1680884839890,
+        user_id: '9ce8626e11ab4238981287fb95c8545e',
+        user_properties: {},
+        event_properties: {
+          country_code_source: 'BC',
+          payment_provider: 'abc',
+          plan_id: 'def',
+          product_id: 'ghi',
+          provider_event_id: 'jkl',
+          subscription_id: 'mno',
+          voluntary_cancellation: true,
+        },
+      };
+
+      it('success - valid with all required and all optional properties', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        const result = amplitude.validate(event);
+        assert.isTrue(result);
+      });
+
+      it('success - valid with only required and none of the optional properties', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        delete event.user_id;
+        delete event.event_properties.country_code_source;
+
+        const result = amplitude.validate(event);
+        assert.isTrue(result);
+      });
+
+      it('error - all fields (required or optional) are missing', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        delete event.event_properties;
+        delete event.event_type;
+        delete event.language;
+        delete event.time;
+        delete event.user_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
+          );
+        }
+      });
+
+      it('error - all required fields are missing', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        delete event.event_type;
+        delete event.language;
+        delete event.time;
+        delete event.event_properties;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
+          );
+        }
+      });
+
+      it('error - one required field is missing', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        delete event.time;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'time', event must match "then" schema, event must have required property 'time'`
+          );
+        }
+      });
+
+      it('error - one required event properties field is missing', () => {
+        const event = {
+          ...subscriptionEndedEvent,
+        };
+        delete event.event_properties.plan_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'plan_id', event must match "then" schema`
+          );
+        }
+      });
     });
   });
 });

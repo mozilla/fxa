@@ -112,6 +112,10 @@ const EVENTS = {
     group: GROUPS.activity,
     event: 'oauth_access_token_created',
   },
+  'subscription.ended': {
+    group: GROUPS.sub,
+    event: 'subscription_ended',
+  },
   'token.created': {
     group: GROUPS.activity,
     event: 'access_token_created',
