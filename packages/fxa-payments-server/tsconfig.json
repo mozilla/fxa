@@ -12,7 +12,8 @@
       "esnext"
     ],
     "isolatedModules": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "paths": null
   },
   "include": [
     "src"

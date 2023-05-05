@@ -28772,6 +28772,7 @@ fsevents@~2.1.1:
     hot-shots: ^10.0.0
     intl: 1.2.5
     jest: 27.5.1
+    jest-watch-typeahead: 0.6.5
     joi: ^17.8.3
     jquery-modal: "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503"
     morgan: ^1.10.0
