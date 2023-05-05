@@ -12,7 +12,7 @@
     "ramda": "^0.26.1"
   },
   "devDependencies": {
-    "mocha": "6.2.2"
+    "mocha": "^10.2.0"
   },
   "peerDependencies": {
     "eslint": ">=6.6.0"
