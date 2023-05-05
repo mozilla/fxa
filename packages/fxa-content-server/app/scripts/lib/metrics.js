@@ -145,7 +145,6 @@ function marshallEmailDomain(email) {
 }
 
 function Metrics(options = {}) {
-
   // Supplying a custom start time is a good way to create invalid metrics. We
   // are deprecating this option.
   if (options.startTime !== undefined) {
@@ -366,6 +365,11 @@ _.extend(Metrics.prototype, Backbone.Events, {
       isDeviceIdValid: Validate.isDeviceIdValid,
     });
 
+    // Short circuit if bad L1 navigation timing data is detected.
+    if (validator.hasInvalidL1TimingData(filteredData)) {
+      return;
+    }
+
     validator.sanitizeDeviceId(filteredData);
     validator.sanitizeDuration(filteredData);
     validator.sanitizeEvents(filteredData);
@@ -541,7 +545,7 @@ _.extend(Metrics.prototype, Backbone.Events, {
     // metrics generated are not reliable and should not be
     // reported.
     if (this._speedTrap.isInSuspectState()) {
-      return Promise.resolve()
+      return Promise.resolve();
     }
 
     const url = `${this._collector}/metrics`;
