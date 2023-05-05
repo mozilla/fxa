@@ -5,6 +5,7 @@
 import {
   Stripe,
   StripeCardElement,
+  StripeElements,
   StripeElementsOptions,
   StripeError,
 } from '@stripe/stripe-js';
@@ -20,9 +21,13 @@ import { GeneralError } from './errors';
 export type RetryStatus = undefined | { invoiceId: string };
 export type PaymentError = undefined | StripeError;
 export type SubscriptionPaymentHandlerParam = {
-  stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
+  stripe: Pick<
+    Stripe,
+    'createPaymentMethod' | 'confirmCardPayment' | 'confirmPayment'
+  >;
   name: string;
   card: StripeCardElement | null;
+  elements: StripeElements | null;
   idempotencyKey: string;
   selectedPlan: Plan;
   customer: Customer | null;
@@ -36,7 +41,7 @@ export type SubscriptionPaymentHandlerParam = {
 
 export type SubscriptionCreateStripeAPIs = Pick<
   Stripe,
-  'createPaymentMethod' | 'confirmCardPayment'
+  'createPaymentMethod' | 'confirmCardPayment' | 'confirmPayment'
 >;
 
 export async function handlePasswordlessSubscription({
@@ -45,6 +50,7 @@ export async function handlePasswordlessSubscription({
   stripe,
   name,
   card,
+  elements,
   idempotencyKey,
   selectedPlan,
   customer,
@@ -70,6 +76,7 @@ export async function handlePasswordlessSubscription({
       stripe,
       name,
       card,
+      elements,
       idempotencyKey,
       selectedPlan,
       customer,
@@ -92,6 +99,7 @@ export async function handleSubscriptionPayment({
   stripe,
   name,
   card,
+  elements,
   idempotencyKey,
   selectedPlan,
   customer,
@@ -107,7 +115,10 @@ export async function handleSubscriptionPayment({
 }: SubscriptionPaymentHandlerParam & SubscriptionCreateAuthServerAPIs) {
   // If there's an existing card on record, GOTO 3
 
+  console.log('REINO 1');
+
   if (isExistingStripeCustomer(customer)) {
+    console.log('REINO 2');
     const createSubscriptionResult =
       await apiCreateSubscriptionWithPaymentMethod({
         priceId: selectedPlan.plan_id,
@@ -125,6 +136,7 @@ export async function handleSubscriptionPayment({
       paymentMethodId:
         createSubscriptionResult.latest_invoice.payment_intent?.payment_method,
       stripe,
+      elements,
       apiDetachFailedPaymentMethod,
       onSuccess,
       onFailure,
@@ -132,18 +144,29 @@ export async function handleSubscriptionPayment({
     });
   }
 
+  const { error: submitError } = await (elements as StripeElements).submit();
+  if (submitError) {
+    console.log(submitError);
+    return;
+  }
+
+  console.log('REINO 3');
+
   // 1. Create the payment method.
   const { paymentMethod, error: paymentError } =
-    await stripe.createPaymentMethod({
-      type: 'card',
-      card: card as StripeCardElement,
-    });
+    // await stripe.createPaymentMethod({
+    //   type: 'card',
+    //   card: card as StripeCardElement,
+    // });
+    await stripe.createPaymentMethod({ elements: elements as StripeElements });
   if (paymentError) {
     return onFailure(paymentError);
   }
   if (!paymentMethod) {
     return onFailure({ type: 'card_error' });
   }
+
+  console.log('REINO 4');
 
   // 2. Create the customer, if necessary.
   if (needsCustomer(customer)) {
@@ -157,11 +180,14 @@ export async function handleSubscriptionPayment({
   const commonPaymentIntentParams = {
     paymentMethodId: paymentMethod.id,
     stripe,
+    elements,
     apiDetachFailedPaymentMethod,
     onSuccess,
     onFailure,
     onRetry,
   };
+
+  console.log('REINO 5');
 
   if (!retryStatus) {
     // 3a. Attempt to create the subscription.
@@ -210,6 +236,7 @@ export async function handlePaymentIntent({
   paymentIntentClientSecret,
   paymentMethodId,
   stripe,
+  elements,
   apiDetachFailedPaymentMethod,
   onSuccess,
   onFailure,
@@ -221,7 +248,8 @@ export async function handlePaymentIntent({
   paymentIntentStatus: string | null | undefined;
   paymentIntentClientSecret: string | null | undefined;
   paymentMethodId: string | undefined;
-  stripe: Pick<Stripe, 'confirmCardPayment'>;
+  stripe: Pick<Stripe, 'confirmCardPayment' | 'confirmPayment'>;
+  elements: StripeElements | null;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError) => void;
   onRetry: (status: RetryStatus) => void;
@@ -253,24 +281,35 @@ export async function handlePaymentIntent({
       if (!paymentIntentClientSecret) {
         return onFailure({ type: 'api_error' });
       }
-      const confirmResult = await stripe.confirmCardPayment(
-        paymentIntentClientSecret,
-        { payment_method: paymentMethodId }
-      );
+      // const confirmResult = await stripe.confirmCardPayment(
+      //   paymentIntentClientSecret,
+      //   { payment_method: paymentMethodId }
+      // );
+      // Confirm the Subscription using the details collected by the Payment Element
+      const confirmResult = await stripe.confirmPayment({
+        elements: elements as StripeElements,
+        clientSecret: paymentIntentClientSecret,
+        confirmParams: {
+          return_url: 'https://example.com/order/123/complete',
+        },
+      });
       if (confirmResult.error) {
         return onFailure(confirmResult.error);
       }
-      if (!confirmResult.paymentIntent) {
-        return onFailure({ type: 'api_error' });
-      }
+      // if (!confirmResult.paymentIntent) {
+      //   return onFailure({ type: 'api_error' });
+      // }
       return handlePaymentIntent({
         customer,
         invoiceId,
         invoiceStatus,
-        paymentIntentStatus: confirmResult.paymentIntent.status,
-        paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
+        // paymentIntentStatus: confirmResult.paymentIntent.status,
+        // paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
+        paymentIntentStatus: 'succeeded',
+        paymentIntentClientSecret: paymentIntentClientSecret,
         paymentMethodId,
         stripe,
+        elements,
         apiDetachFailedPaymentMethod,
         onSuccess,
         onFailure,

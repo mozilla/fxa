@@ -10,12 +10,18 @@ import {
   withLocalization,
   WithLocalizationProps,
 } from '@fluent/react';
-import { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
 import {
-  CardElement,
+  Stripe,
+  StripeCardElement,
+  StripeElements,
+  StripeElementsOptions,
+} from '@stripe/stripe-js';
+import {
   Elements,
   useStripe,
   useElements,
+  PaymentElement,
+  CardElement,
 } from '@stripe/react-stripe-js';
 import {
   Form,
@@ -215,17 +221,17 @@ export const PaymentForm = ({
   const onStripeFormSubmit = useCallback(
     async (ev: React.FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
-      if (!stripe || !elements || !allowSubmit) {
+      if (!stripe || !allowSubmit) {
         return;
       }
       setLastSubmitNonce(submitNonce);
       const { name } = validator.getValues();
-      const card = elements.getElement(CardElement);
+      const card = (elements as StripeElements).getElement(CardElement);
       /* istanbul ignore next - card should exist unless there was an external stripe loading error, handled above */
-      if (isStripeCustomer || card) {
+      if (isStripeCustomer || elements) {
         (onSubmitForParent as StripeSubmitHandler & StripeUpdateHandler)({
           stripe,
-          elements,
+          elements: elements as StripeElements,
           name,
           card,
           idempotencyKey: submitNonce,
@@ -281,19 +287,22 @@ export const PaymentForm = ({
             disabled={disabled}
           />
         </Localized>
+        <div id="reino-test" className="my-8 py-8">
+          <PaymentElement />
+        </div>
 
-        <Localized id="payment-cc" attrs={{ label: true }}>
-          <StripeElement
-            component={CardElement}
-            name="creditCard"
-            label="Your card"
-            className="input-row input-row--xl"
-            options={STRIPE_ELEMENT_STYLES}
-            getString={getString}
-            required
-            disabled={disabled}
-          />
-        </Localized>
+        {/* <Localized id="payment-cc" attrs={{ label: true }}> */}
+        {/* <StripeElement
+          component={PaymentElement}
+          name="creditCard"
+          label="Your card"
+          className="input-row input-row--xl"
+          options={STRIPE_ELEMENT_STYLES}
+          getString={getString}
+          required
+          disabled={disabled}
+        /> */}
+        {/* </Localized> */}
       </>
     );
 
@@ -389,11 +398,15 @@ export type PaymentFormProps = {
 const WrappedPaymentForm = (props: PaymentFormProps) => {
   const { locale, ...otherProps } = props;
   const { stripePromise } = useContext(AppContext);
+  const options: StripeElementsOptions = {
+    locale: localeToStripeLocale(locale),
+    mode: 'subscription',
+    amount: 6000,
+    currency: 'usd',
+    paymentMethodCreation: 'manual',
+  };
   return (
-    <Elements
-      options={{ locale: localeToStripeLocale(locale) }}
-      stripe={stripePromise}
-    >
+    <Elements options={options} stripe={stripePromise}>
       <PaymentForm {...otherProps} />
     </Elements>
   );

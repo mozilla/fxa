@@ -11355,10 +11355,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@stripe/stripe-js@npm:^1.37.0":
-  version: 1.37.0
-  resolution: "@stripe/stripe-js@npm:1.37.0"
-  checksum: 78eaa907c2d3b08f538da42e7851b19fe706ec2ff9002fa49da070bbf171676b7a065f531ef3a80a08e2ec63d6eff6bcd0e041cc046a293af3a42b22cea6c309
+"@stripe/stripe-js@npm:^1.52.1":
+  version: 1.52.1
+  resolution: "@stripe/stripe-js@npm:1.52.1"
+  checksum: db1971b064d3c8c6f79da01e9f49d6bb8084bfa5282efc46570508059423ed148bfa71aa1f21d17a259fad2597a832840fdf59a64311b0703f045599cd6bb0f0
   languageName: node
   linkType: hard
 
@@ -13214,13 +13214,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-stripe-elements@npm:^6.0.5":
-  version: 6.0.5
-  resolution: "@types/react-stripe-elements@npm:6.0.5"
+"@types/react-stripe-elements@npm:^6.0.6":
+  version: 6.0.6
+  resolution: "@types/react-stripe-elements@npm:6.0.6"
   dependencies:
     "@types/react": "*"
     "@types/stripe-v3": "*"
-  checksum: 4fd8097e9c955f1d6e25f97283c5431c9bb74c44202770ad91aa68f2a1fcb45c4732bc5470da440d68527b5b34d2e1d9e21615e30cdb3391b9740bf5f6f9ba0c
+  checksum: c5b35e3b644b68a935d77038d0b0d7e702f6aec5e1618db1c24a2dc2b339f0f01fc81c80867e16be84c8b3f754b561b10848e44cd3e6ebe4e7c408d44b039101
   languageName: node
   linkType: hard
 
@@ -26752,7 +26752,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^6.5.9
     "@storybook/react": ^6.5.9
     "@stripe/react-stripe-js": ^2.1.0
-    "@stripe/stripe-js": ^1.37.0
+    "@stripe/stripe-js": ^1.52.1
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^12.1.5
     "@types/accept-language-parser": ^1.5.1
@@ -26765,7 +26765,7 @@ fsevents@~2.1.1:
     "@types/react": ^17.0.14
     "@types/react-dom": ^17.0.9
     "@types/react-redux": ^7.1.18
-    "@types/react-stripe-elements": ^6.0.5
+    "@types/react-stripe-elements": ^6.0.6
     "@types/react-transition-group": ^4.4.2
     "@types/sinon": 10.0.1
     "@types/storybook__addon-actions": ^5.2.1
