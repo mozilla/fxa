@@ -1249,6 +1249,26 @@ export default class AuthClient {
     );
   }
 
+  // TODO: Update to POST in FXA-7400
+  async getRecoveryKeyHint(
+    sessionToken: hexstring | undefined,
+    email?: string
+  ) {
+    if (sessionToken) {
+      return this.sessionGet('/recoveryKey/hint', sessionToken);
+    }
+    return this.request('GET', `/recoveryKey/hint?email=${email}`);
+  }
+
+  async updateRecoveryKeyHint(
+    sessionToken: hexstring,
+    hint: string
+  ): Promise<{}> {
+    return this.sessionPost('/recoveryKey/hint', sessionToken, {
+      hint,
+    });
+  }
+
   async resetPasswordWithRecoveryKey(
     accountResetToken: hexstring,
     email: string,

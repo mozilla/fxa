@@ -69,7 +69,7 @@ const tables = {
   passwordForgotTokens: toTable('passwordForgotTokens'),
   paypalCustomers: toTable('paypalCustomers'),
   recoveryCodes: toTable('recoveryCodes'),
-  recoveryKeys: toTable('recoveryCodes'),
+  recoveryKeys: toTable('recoveryKeys'),
   securityEvents: toTable('securityEvents'),
   sentEmails: toTable('sentEmails'),
   sessionTokens: toTable('sessionTokens'),

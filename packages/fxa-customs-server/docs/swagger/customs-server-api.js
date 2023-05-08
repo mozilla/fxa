@@ -162,7 +162,7 @@ const CHECK_AUTHENTICATED_POST = {
                 }
             \`\`\`
 
-            - \`block\` indicates whether or not the action should be blocked and \`retyAfter\` tells the client how long it should wait (in seconds) before attempting this action again.
+            - \`block\` indicates whether or not the action should be blocked and \`retryAfter\` tells the client how long it should wait (in seconds) before attempting this action again.
           `,
         },
         400: {

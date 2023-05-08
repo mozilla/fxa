@@ -54,12 +54,33 @@ const RECOVERYKEY_VERIFY_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
+// TODO: Update to POST in FXA-7400
+const RECOVERYKEY_HINT_GET = {
+  ...TAGS_RECOVERY_KEY,
+  description: '/recoveryKey/hint',
+  notes: [
+    '🔒🔓 Optionally authenticated with session token',
+    'Retrieves the hint (if any) for a userʼs recovery key.',
+  ],
+};
+
+const RECOVERYKEY_HINT_POST = {
+  ...TAGS_RECOVERY_KEY,
+  description: '/recoveryKey/hint',
+  notes: [
+    '🔒 Authenticated with session token',
+    'This route updates the hint associated with a userʼs recovery key.',
+  ],
+};
+
 const API_DOCS = {
   RECOVERYKEY_DELETE,
   RECOVERYKEY_EXISTS_POST,
   RECOVERYKEY_POST,
   RECOVERYKEY_RECOVERYKEYID_GET,
   RECOVERYKEY_VERIFY_POST,
+  RECOVERYKEY_HINT_GET,
+  RECOVERYKEY_HINT_POST,
 };
 
 export default API_DOCS;
