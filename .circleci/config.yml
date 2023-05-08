@@ -298,13 +298,14 @@ commands:
     steps:
       - run:
           name: Linting
-          command: ./.circleci/lint-packages.sh
+          command: nx run-many --target=lint --all
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t lint
 
   compile:
     steps:
       - run:
           name: Compiling TypeScript
-          command: yarn workspaces foreach --topological-dev --verbose run compile
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
 
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
