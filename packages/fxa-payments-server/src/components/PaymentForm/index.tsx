@@ -288,7 +288,15 @@ export const PaymentForm = ({
           />
         </Localized>
         <div id="reino-test" className="my-8 py-8">
-          <PaymentElement />
+          <PaymentElement
+            options={{
+              fields: {
+                billingDetails: {
+                  address: 'never',
+                },
+              },
+            }}
+          />
         </div>
 
         {/* <Localized id="payment-cc" attrs={{ label: true }}> */}
