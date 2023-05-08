@@ -11,7 +11,8 @@
       "dom.iterable",
       "esnext"
     ],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "noEmit": true
   },
   "include": [
     "src"
