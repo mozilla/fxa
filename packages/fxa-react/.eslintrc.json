@@ -17,7 +17,8 @@
   "ignorePatterns": [
     "dist",
     "node_modules",
-    "pm2.config.js"
+    "pm2.config.js",
+    "storybook-static"
   ],
   "root": true
 }
