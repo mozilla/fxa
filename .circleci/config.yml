@@ -232,17 +232,39 @@ commands:
   cache-save-yarn:
     steps:
       - save_cache:
-          key: fxa-yarn-001-{{ checksum "yarn.lock" }}
+          key: fxa-yarn-002-{{ checksum "yarn.lock" }}
           paths:
             - /home/circleci/.yarn
             - /home/circleci/project/.yarn
+            - node_modules
+            - packages/123done/node_modules
+            - packages/browserid-verifier/node_modules
+            - packages/db-migrations/node_modules
+            - packages/eslint-plugin-fxa/node_modules
+            - packages/fortress/node_modules
+            - packages/functional-tests/node_modules
+            - packages/fxa-admin-panel/node_modules
+            - packages/fxa-admin-server/node_modules
+            - packages/fxa-auth-client/node_modules
+            - packages/fxa-auth-server/node_modules
+            - packages/fxa-content-server/node_modules
+            - packages/fxa-customs-server/node_modules
+            - packages/fxa-dev-launcher/node_modules
+            - packages/fxa-event-broker/node_modules
+            - packages/fxa-geodb/node_modules
+            - packages/fxa-graphql-api/node_modules
+            - packages/fxa-payments-server/node_modules
+            - packages/fxa-profile-server/node_modules
+            - packages/fxa-react/node_modules
+            - packages/fxa-settings/node_modules
+            - packages/fxa-shared/node_modules
 
   cache-restore-yarn:
     steps:
       - restore_cache:
           keys:
-            - fxa-yarn-001-{{ checksum "yarn.lock" }}
-            - fxa-yarn-001-
+            - fxa-yarn-002-{{ checksum "yarn.lock" }}
+            - fxa-yarn-002-
 
   test-content-server-part:
     parameters:
