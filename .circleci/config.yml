@@ -304,7 +304,7 @@ commands:
     steps:
       - run:
           name: Compiling TypeScript
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t compile
 
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
