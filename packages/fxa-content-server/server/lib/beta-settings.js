@@ -59,9 +59,9 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
-  showRecoveryKeyV2: config.get('showRecoveryKeyV2'),
+  showRecoveryKeyV2: config.get('featureFlags.showRecoveryKeyV2'),
   googleAuthConfig: config.get('googleAuthConfig'),
-  appleAuthConfig: config.get('appleAuthConfig')
+  appleAuthConfig: config.get('appleAuthConfig'),
 };
 
 // Inject Beta Settings meta content

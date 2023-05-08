@@ -49,7 +49,8 @@ export const DataBlock = ({
   const actionCb: actionFn = (action) => {
     onAction(action);
 
-    if (actionTypeToNotification[action]) {
+    // No feedback tooltip displayed for inline copy button
+    if (actionTypeToNotification[action] && !isInline) {
       setPerformedAction(action);
     }
   };
@@ -58,9 +59,9 @@ export const DataBlock = ({
     <div className="flex flex-col items-center">
       <div
         className={classNames(
-          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 mb-2',
+          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10',
           valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5',
-          isInline ? 'flex-nowrap w-full mb-4' : 'flex-wrap mb-8'
+          isInline ? 'flex-nowrap w-full my-2' : 'flex-wrap mb-8'
         )}
         data-testid={dataTestId}
         {...{ onCopy }}

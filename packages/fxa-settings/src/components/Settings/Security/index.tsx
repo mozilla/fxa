@@ -57,7 +57,6 @@ export const Security = () => {
                 : '/settings/create_password'
             }
             prefixDataTestId="password"
-            isLevelWithRefreshButton={true}
           >
             {hasPassword ? (
               <PwdDate {...{ passwordCreated }} />

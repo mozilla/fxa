@@ -104,7 +104,7 @@ describe('ButtonDownloadRecoveryKey', () => {
 
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
-      'download-option'
+      'recovery-key.download-option'
     );
   });
 });

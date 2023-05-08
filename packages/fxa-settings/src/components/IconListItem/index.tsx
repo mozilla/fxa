@@ -97,7 +97,9 @@ export const ShieldIconListItem = ({
 }: Omit<IconListItemProps, 'icon'>) => {
   return (
     <IconListItem
-      icon={<IconShield className="w-5 h-5 items-center justify-center" />}
+      icon={
+        <IconShield className="w-5 h-5 translate-y-0.5 px-[1.75px] items-center justify-center" />
+      }
     >
       {children}
     </IconListItem>

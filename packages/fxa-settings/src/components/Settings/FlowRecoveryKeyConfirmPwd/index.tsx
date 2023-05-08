@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -18,12 +18,16 @@ import {
 import InputPassword from '../../InputPassword';
 import { LockImage } from '../../images';
 import Banner, { BannerType } from '../../Banner';
+import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
+import { Link } from '@reach/router';
+import { HomePath } from '../../../constants';
 
 type FormData = {
   password: string;
 };
 
 export type FlowRecoveryKeyConfirmPwdProps = {
+  action?: RecoveryKeyAction;
   localizedBackButtonTitle: string;
   localizedPageTitle: string;
   navigateBackward: () => void;
@@ -33,6 +37,7 @@ export type FlowRecoveryKeyConfirmPwdProps = {
 };
 
 export const FlowRecoveryKeyConfirmPwd = ({
+  action = RecoveryKeyAction.Create,
   localizedBackButtonTitle,
   localizedPageTitle,
   navigateBackward,
@@ -57,6 +62,9 @@ export const FlowRecoveryKeyConfirmPwd = ({
     const password = getValues('password');
     logViewEvent(`flow.${viewName}`, 'confirm-password.submit');
     try {
+      if (action === RecoveryKeyAction.Change && account.recoveryKey) {
+        account.deleteRecoveryKey();
+      }
       const recoveryKey = await account.createRecoveryKey(password);
       setFormattedRecoveryKey(
         base32Encode(recoveryKey.buffer, 'Crockford').match(/.{4}/g)!.join(' ')
@@ -87,6 +95,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     }
   }, [
     account,
+    action,
     ftlMsgResolver,
     getValues,
     navigateForward,
@@ -99,7 +108,12 @@ export const FlowRecoveryKeyConfirmPwd = ({
   return (
     <FlowContainer
       title={localizedPageTitle}
-      onBackButtonClick={navigateBackward}
+      onBackButtonClick={() => {
+        navigateBackward();
+        action === RecoveryKeyAction.Create
+          ? logViewEvent(`flow.${viewName}`, 'create-key.cancel')
+          : logViewEvent(`flow.${viewName}`, 'change-key.cancel');
+      }}
       {...{ localizedBackButtonTitle }}
     >
       <div className="w-full flex flex-col gap-4">
@@ -149,6 +163,20 @@ export const FlowRecoveryKeyConfirmPwd = ({
             </button>
           </FtlMsg>
         </form>
+        {action === RecoveryKeyAction.Change && (
+          <FtlMsg id="flow-recovery-key-info-cancel-link">
+            {/* TODO: Remove feature flag param in FXA-7419 */}
+            <Link
+              className="link-blue text-sm mx-auto"
+              to={HomePath}
+              onClick={() => {
+                logViewEvent(`flow.${viewName}`, 'change-key.cancel');
+              }}
+            >
+              Cancel
+            </Link>
+          </FtlMsg>
+        )}
       </div>
     </FlowContainer>
   );

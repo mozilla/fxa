@@ -107,7 +107,7 @@ export const ButtonDownloadRecoveryKey = ({
         data-testid="recovery-key-download"
         className="cta-primary cta-xl w-full"
         onClick={() => {
-          logViewEvent(`flow.${viewName}`, `download-option`);
+          logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
           navigateForward && navigateForward();
         }}
       >

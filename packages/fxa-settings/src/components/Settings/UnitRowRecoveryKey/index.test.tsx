@@ -14,20 +14,51 @@ import UnitRowRecoveryKey from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import * as Metrics from '../../../lib/metrics';
+import { Config, getDefault } from '../../../lib/config';
 
-const account = {
+jest.mock('../../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
+}));
+
+const accountHasRecoveryKey = {
   hasPassword: true,
   recoveryKey: true,
-  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
+const accountWithoutRecoveryKey = {
+  hasPassword: true,
+  recoveryKey: false,
+} as unknown as Account;
+
+const accountWithoutPassword = {
+  hasPassword: false,
+  recoveryKey: false,
+} as unknown as Account;
+
+// Remove feature flag config in FXA-7419
+const featureFlagConfig = {
+  ...getDefault(),
+  showRecoveryKeyV2: true,
+} as unknown as Config;
+
+const renderWithContext = (
+  account: Partial<Account>,
+  config?: Partial<Config>
+) => {
+  const context = { account: account as Account, config: config as Config };
+
+  renderWithRouter(
+    <AppContext.Provider value={mockAppContext(context)}>
+      <UnitRowRecoveryKey />
+    </AppContext.Provider>
+  );
+};
+
 describe('UnitRowRecoveryKey', () => {
+  // TESTS FOR PREVIOUS FLOW
+  // TODO Remove old tests in FXA-7419
   it('renders when account recovery key is set', () => {
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <UnitRowRecoveryKey />
-      </AppContext.Provider>
-    );
+    renderWithContext(accountHasRecoveryKey);
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
     ).toContain('Account recovery key');
@@ -44,15 +75,7 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('renders when account recovery key is not set', () => {
-    const account = {
-      hasPassword: true,
-      recoveryKey: false,
-    } as unknown as Account;
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <UnitRowRecoveryKey />
-      </AppContext.Provider>
-    );
+    renderWithContext(accountWithoutRecoveryKey);
     expect(
       screen.getByTestId('recovery-key-unit-row-header').textContent
     ).toContain('Account recovery key');
@@ -65,17 +88,7 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('renders disabled state when account has no password', () => {
-    const account = {
-      hasPassword: false,
-      recoveryKey: false,
-    } as unknown as Account;
-
-    renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
-        <UnitRowRecoveryKey />
-      </AppContext.Provider>
-    );
-
+    renderWithContext(accountWithoutPassword);
     expect(
       screen.getByTestId('recovery-key-unit-row-route').textContent
     ).toContain('Create');
@@ -171,6 +184,113 @@ describe('UnitRowRecoveryKey', () => {
       expect(logViewEventSpy).toBeCalledTimes(2);
       expectRevokeEvent('submit');
       expectRevokeEvent('fail');
+    });
+  });
+
+  // NEW TESTS FOR VERSION 2
+  it('renders version 2 as expected when account recovery key is set', () => {
+    renderWithContext(accountHasRecoveryKey, featureFlagConfig);
+    screen.getByRole('heading', { name: 'Account recovery key' });
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value').textContent
+    ).toContain('Enabled');
+    screen.getByRole('link', { name: 'Change' });
+    const deleteButtons = screen.getAllByRole('button');
+    deleteButtons.forEach((button) => {
+      expect(button).toHaveAttribute('title', 'Delete account recovery key');
+      expect(button.firstElementChild).toHaveAttribute(
+        'aria-label',
+        'Delete account recovery key'
+      );
+    });
+    // TODO Only one delete button should be visible
+  });
+
+  it('renders version 2 as expected when account recovery key is not set', () => {
+    renderWithContext(accountWithoutRecoveryKey, featureFlagConfig);
+    screen.getByRole('heading', { name: 'Account recovery key' });
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value').textContent
+    ).toContain('Not Set');
+    const createRKLink = screen.getByRole('link', { name: 'Create' });
+    expect(createRKLink).toHaveAttribute('href', '/settings/account_recovery');
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('disables key creation in version 2 when account has no password', () => {
+    renderWithContext(accountWithoutPassword, featureFlagConfig);
+    screen.getByRole('heading', { name: 'Account recovery key' });
+    expect(
+      screen.getByTestId('recovery-key-unit-row-header-value').textContent
+    ).toContain('Not Set');
+    const createRKButton = screen.getByTestId('recovery-key-unit-row-route');
+    expect(createRKButton).toBeDisabled();
+    expect(createRKButton).toHaveAttribute(
+      'title',
+      'Set a password to sync and use certain account security features.'
+    );
+    const deleteButtons = screen.getAllByRole('button');
+    deleteButtons.forEach((button) => {
+      expect(button).toBeDisabled();
+    });
+  });
+
+  describe('delete account recovery key in version 2', () => {
+    const expectRevokeEvent = (event: string) => {
+      expect(Metrics.logViewEvent).toHaveBeenCalledWith(
+        'flow.settings.account-recovery',
+        `confirm-revoke.${event}`
+      );
+    };
+
+    afterEach(() => jest.clearAllMocks());
+
+    it('emits correct submit and success metrics on successful deletion', async () => {
+      const accountHasRecoveryKeyWithDeleteSuccess = {
+        hasPassword: true,
+        recoveryKey: true,
+        deleteRecoveryKey: jest.fn().mockResolvedValue(true),
+      } as unknown as Account;
+
+      renderWithContext(
+        accountHasRecoveryKeyWithDeleteSuccess,
+        featureFlagConfig
+      );
+
+      const deleteButtons = screen.getAllByRole('button', { hidden: false });
+
+      fireEvent.click(deleteButtons[0]);
+      await waitFor(() =>
+        screen.findByLabelText('Remove account recovery key?')
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
+      await waitFor(() => expectRevokeEvent('submit'));
+      await waitFor(() => expectRevokeEvent('success'));
+    });
+
+    it('emits expected submit and failure metrics on failed deletion', async () => {
+      const accountHasRecoveryKeyWithDeleteFailure = {
+        hasPassword: true,
+        recoveryKey: true,
+        deleteRecoveryKey: jest.fn().mockRejectedValue(false),
+      } as unknown as Account;
+
+      renderWithContext(
+        accountHasRecoveryKeyWithDeleteFailure,
+        featureFlagConfig
+      );
+
+      const deleteButtons = screen.getAllByRole('button', { hidden: false });
+
+      fireEvent.click(deleteButtons[0]);
+      await waitFor(() =>
+        screen.findByLabelText('Remove account recovery key?')
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+
+      await waitFor(() => expectRevokeEvent('submit'));
+      await waitFor(() => expectRevokeEvent('fail'));
     });
   });
 });

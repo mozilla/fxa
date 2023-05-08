@@ -38,7 +38,10 @@ export const FlowRecoveryKeyDownload = ({
   return (
     <FlowContainer
       title={localizedPageTitle}
-      onBackButtonClick={navigateBackward}
+      onBackButtonClick={() => {
+        navigateBackward();
+        logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
+      }}
       {...{ localizedBackButtonTitle }}
     >
       <div className="w-full flex flex-col gap-4">
@@ -56,8 +59,16 @@ export const FlowRecoveryKeyDownload = ({
             This key will help recover your data if you forget your password.
           </p>
         </FtlMsg>
-        {/* TODO Add copy metric flow.settings.account-recovery.copy-option */}
-        <DataBlock value={recoveryKeyValue} isInline />
+        <DataBlock
+          value={recoveryKeyValue}
+          onCopy={() =>
+            logViewEvent(
+              'flow.settings.account-recovery',
+              `recovery-key.copy-option`
+            )
+          }
+          isInline
+        />
         <FtlMsg id="flow-recovery-key-download-storage-ideas-heading">
           <h3 id="key-storage-ideas" className="font-semibold -mb-4">
             Some ideas for storing your account recovery key:
@@ -93,7 +104,7 @@ export const FlowRecoveryKeyDownload = ({
             to=""
             className="text-sm link-blue text-center py-2 mx-auto"
             onClick={() => {
-              logViewEvent(`flow.${viewName}`, 'skip-download');
+              logViewEvent(`flow.${viewName}`, 'recovery-key.skip-download');
               navigateForward();
             }}
           >
