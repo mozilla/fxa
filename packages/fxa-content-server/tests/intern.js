@@ -95,7 +95,7 @@ const config = {
   tunnelOptions: {
     drivers: [
       {
-        name: 'firefox'
+        name: 'firefox',
       },
     ],
   },
@@ -148,10 +148,6 @@ if (args.suites) {
   }
 }
 
-if (args.useTeamCityReporter) {
-  config.reporters = 'teamcity';
-}
-
 if (args.unit) {
   config.functionalSuites.unshift('tests/functional/mocha.js');
 }
@@ -161,10 +157,12 @@ if (args.groups !== undefined && args.groupIndex !== undefined) {
   const groups = args.groups;
   const groupSize = Math.ceil(config.functionalSuites.length / groups);
   const originalSuiteSize = config.functionalSuites.length;
-  const targeted = config.functionalSuites.splice(groupSize*index, groupSize);
+  const targeted = config.functionalSuites.splice(groupSize * index, groupSize);
 
-  console.log(`Running group ${args.groupIndex+1} of ${args.groups}.`);
-  console.log(`Running ${targeted.length} of ${originalSuiteSize} tests suites.`);
+  console.log(`Running group ${args.groupIndex + 1} of ${args.groups}.`);
+  console.log(
+    `Running ${targeted.length} of ${originalSuiteSize} tests suites.`
+  );
 
   // Target a 'block' of tests to run
   config.functionalSuites = targeted;
