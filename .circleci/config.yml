@@ -334,7 +334,7 @@ commands:
     steps:
       - run:
           name: Build Common Typescript Packages
-          command: ./.circleci/build-ts-packages.sh
+          command: npx nx run-many --parallel=1 --all -t build
 
   save-workspace:
     steps:
@@ -548,9 +548,9 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - run-tests:
-          test_name: Unit Test
-          list: unit-test.list
+      - run:
+        name: "Run unit tests"
+        command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t test
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
