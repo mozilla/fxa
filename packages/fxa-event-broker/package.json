@@ -9,7 +9,7 @@
     "compile": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "../../_scripts/check-url.sh localhost:9000/__heartbeat__ && pm2 start pm2.config.js",
-    "start-prod": "node dist/main",
+    "start-prod": "node dist/packages/fxa-event-broker/src/main",
     "test": "jest",
     "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --forceExit --detectOpenHandles --logHeapUsage -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
     "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --coverage --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit ",
