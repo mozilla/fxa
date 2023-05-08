@@ -1,6 +1,6 @@
 {
   "name": "fxa-content-server",
-  "version": "1.257.1",
+  "version": "0.0.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
     "build": "tsc --build ../fxa-react && yarn l10n-prime && npm run build-css && NODE_ENV=production grunt build",

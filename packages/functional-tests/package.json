@@ -1,6 +1,6 @@
 {
   "name": "functional-tests",
-  "version": "1.218.5",
+  "version": "0.0.0",
   "private": true,
   "scripts": {
     "record": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=stub --debug",
