@@ -349,18 +349,23 @@ Router = Router.extend({
         service,
         uniqueUserId,
       } = this.metrics.getFilteredData();
-      // Our GQL client sets the `redirect_to` param if a user attempts
-      // to navigate directly to a section in settings
+      
+      // Some flows can specify a redirect url after a client has logged in. This is
+      // useful when you want to ensure the user has authenticated. Our GQL client 
+      // also sets the `redirect_to` param if a user attempts to navigate directly 
+      // to a section in settings
       const searchParams = new URLSearchParams(this.window.location.search);
-      let endpoint = searchParams.get('redirect_to');
-      if (!endpoint) {
-        endpoint = `/settings`;
-      } else if (
-        !this.isValidRedirect(endpoint, this.config.redirectAllowlist)
-      ) {
-        throw new Error('Invalid redirect!');
-      }
-      const settingsLink = `${endpoint}${Url.objToSearchString({
+      const redirectUrl = searchParams.get('redirect_to');
+      if (redirectUrl) {
+        if (!this.isValidRedirect(redirectUrl, this.config.redirectAllowlist)) {
+          throw new Error('Invalid redirect!');
+        }
+        return this.navigateAway(redirectUrl);
+      } 
+      
+      // All other flows should redirect to the settings page
+      const settingsEndpoint = '/settings';
+      const settingsLink = `${settingsEndpoint}${Url.objToSearchString({
         deviceId,
         flowBeginTime,
         flowId,

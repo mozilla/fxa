@@ -133,8 +133,9 @@ export const Checkout = ({
   }, [fetchCheckoutRouteResources]);
 
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
-
-  const signInQueryParams = { ...queryParams, signin: 'yes' };
+  
+  const redirectUrl = encodeURIComponent(window.location.href.replace('/checkout/', '/products/'));
+  const signInQueryParams = { ...queryParams, signin: 'yes', redirect_to: redirectUrl };
   const signInQueryParamString = Object.entries(signInQueryParams)
     .map(([k, v]) => `${k}=${v}`)
     .join('&');
