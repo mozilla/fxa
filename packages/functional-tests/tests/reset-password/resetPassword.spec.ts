@@ -65,7 +65,7 @@ test.describe('Reset password current', () => {
     pages: { login, resetPassword },
   }) => {
     await page.goto(`${target.contentServerUrl}/reset_password`);
-    await login.setEmail('email@restmail.com');
+    await login.setEmail('email@restmail.net');
     await resetPassword.clickBeginReset();
     expect(await resetPassword.unknownAccountError()).toContain(
       'Unknown account.'
