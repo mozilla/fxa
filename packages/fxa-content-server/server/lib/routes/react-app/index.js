@@ -75,8 +75,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: [],
     },
 
-    postVerifyAddRecoveryKeyRoutes: {
-      featureFlagOn: showReactApp.postVerifyAddRecoveryKeyRoutes,
+    postVerifyOtherRoutes: {
+      featureFlagOn: showReactApp.postVerifyOtherRoutes,
       routes: [],
     },
 
@@ -88,11 +88,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     postVerifyThirdPartyAuthRoutes: {
       featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
       routes: reactRoute.getRoutes(['post_verify/third_party_auth/callback']),
-    },
-
-    signInVerificationViaPushRoutes: {
-      featureFlagOn: showReactApp.signInVerificationViaPushRoutes,
-      routes: [],
     },
 
     webChannelExampleRoutes: {

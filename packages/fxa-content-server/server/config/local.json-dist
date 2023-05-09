@@ -48,5 +48,8 @@
   },
   "recovery_codes": {
     "count": 3
+  },
+  "showReactApp": {
+    "simpleRoutes": true
   }
 }

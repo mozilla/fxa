@@ -38,9 +38,8 @@ const showReactAppAll = {
   signInRoutes: true,
   signUpRoutes: true,
   pairRoutes: true,
-  postVerifyAddRecoveryKeyRoutes: true,
+  postVerifyOtherRoutes: true,
   postVerifyCADViaQRRoutes: true,
-  signInVerificationViaPushRoutes: true,
 };
 
 function getEmptyClientReactRouteGroups(showReactApp = showReactAppAll) {
