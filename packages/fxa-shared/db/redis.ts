@@ -10,10 +10,14 @@ import { ILogger } from '../log';
 import { AccessToken as AccessToken } from './models/auth/access-token';
 import { RefreshTokenMetadata } from './models/auth/refresh-token-meta-data';
 
+import opentelemetry from '@opentelemetry/api';
+const tracer = opentelemetry.trace.getTracer('redis-tracer');
+
 const hex = require('buf').to.hex;
 
 export type Config = {
   enabled?: boolean;
+  enableMetrics?: boolean;
   prefix?: string;
   recordLimit?: number;
   maxttl?: number | string;
@@ -188,66 +192,114 @@ export class RedisShared {
   }
 
   async del(key: string) {
-    return await this.redis.del(key);
+    const result = await this.redis.del(key);
+    return result;
   }
 
   async getRefreshTokens(uid: Buffer | string) {
+    this.metrics?.increment('redis.getRefreshTokens');
+    const span = tracer.startSpan('redis.getRefreshTokens');
     try {
       const p1 = this.redis.hgetall(hex(uid));
       const p2 = this.resolveInMs(p1, this.timeoutMs, {});
       const tokens = await Promise.race([p1, p2]);
+      span.setAttribute(
+        'redis.getRefreshTokens.tokens.length',
+        Object.keys(tokens).length
+      );
+      this.metrics?.histogram(
+        'redis.getRefreshTokens.tokens.length',
+        Object.keys(tokens).length
+      );
       for (const id of Object.keys(tokens)) {
         tokens[id] = RefreshTokenMetadata.parse(tokens[id]);
       }
       return tokens;
     } catch (e) {
+      this.metrics?.increment('redis.getRefreshTokens.error');
       this.log?.error('RedisShared', { error: e });
       return {};
+    } finally {
+      span.end();
     }
   }
 
   async pruneSessionTokens(uid: string, tokenIds: string[] = []) {
+    this.metrics?.increment('redis.pruneSessionTokens');
+    const span = tracer.startSpan('redis.pruneSessionTokens');
     const p1 = this.redis.pruneSessionTokens(uid, JSON.stringify(tokenIds));
     const p2 = this.rejectInMs(p1, this.timeoutMs);
-    return Promise.race([p1, p2]);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
   async pruneRefreshTokens(
     uid: Buffer | String,
     tokenIdsToPrune: Buffer[] | string[]
   ) {
+    this.metrics?.increment('redis.pruneRefreshTokens');
+    const span = tracer.startSpan('redis.pruneRefreshTokens');
     const p1 = this.redis.hdel(hex(uid), ...tokenIdsToPrune.map((v) => hex(v)));
     const p2 = this.resolveInMs(p1, this.timeoutMs);
-    return await Promise.race([p1, p2]);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
   async getSessionTokens(uid: string) {
+    this.metrics?.increment('redis.getSessionTokens');
+    const span = tracer.startSpan('redis.getSessionTokens');
     try {
       const p1 = this.redis.getSessionTokens(uid);
       const p2 = this.rejectInMs(p1, this.timeoutMs);
       const value = await Promise.race([p1, p2]);
+
+      if (value?.length > 0) {
+        span.setAttribute('redis.getSessionTokens.tokens.length', value.length);
+        this.metrics?.histogram(
+          'redis.getSessionTokens.tokens.length',
+          value.length
+        );
+      }
       return JSON.parse(value as string);
     } catch (e) {
       this.log?.error('RedisShared', {
         error: e,
       });
       return {};
+    } finally {
+      span.end();
     }
   }
 
   async getAccessTokens(uid: Buffer | String) {
+    this.metrics?.increment('redis.getAccessTokens');
+    const span = tracer.startSpan('redis.getAccessTokens');
     try {
       const values = await this.redis.getAccessTokens(hex(uid));
+
+      if (values?.length) {
+        span.setAttribute('redis.getAccessTokens.tokens.length', values.length);
+        this.metrics?.histogram(
+          'redis.getAccessTokens.tokens.length',
+          values.length
+        );
+      }
       return values.map((v: string) => AccessToken.parse(v));
     } catch (e) {
       this.log?.error('RedisShared', {
         error: e,
       });
       return [];
+    } finally {
+      span.end();
     }
   }
 
   async getAccessToken(uid: Buffer | String) {
+    this.metrics?.increment('redis.getAccessToken');
+    const span = tracer.startSpan('redis.getAccessToken');
     try {
       const value = await this.redis.getAccessToken(hex(uid));
       if (value) return AccessToken.parse(value);
@@ -255,16 +307,23 @@ export class RedisShared {
       this.log?.error('RedisShared', {
         error: e,
       });
+    } finally {
+      span.end();
     }
 
     return null;
   }
 
   async touchSessionToken(uid: string, token: any) {
+    this.metrics?.increment('redis.touchSessionToken');
+    const span = tracer.startSpan('redis.touchSessionToken');
     // remove keys with null values
     const json = JSON.stringify(token, (k, v) => (v == null ? undefined : v));
+    span.setAttribute('redis.touchSessionToken.json.size', json.length);
     const p1 = this.redis.touchSessionToken(uid, json);
     const p2 = this.resolveInMs(p1, this.timeoutMs);
-    return await Promise.race([p1, p2]);
+    const value = await Promise.race([p1, p2]);
+    span.end();
+    return value;
   }
 }
