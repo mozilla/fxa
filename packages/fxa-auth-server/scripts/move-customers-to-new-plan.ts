@@ -51,6 +51,10 @@ async function init() {
       'Do not sign customers up for the destination plan if they have a subscription to a price in this list',
       ''
     )
+    .option(
+      '--dry-run',
+      'List the customers that would be deleted without actually deleting'
+    )
     .parse(process.argv);
 
   const { stripeHelper, database } = await setupProcessingTaskObjects(
@@ -61,6 +65,7 @@ async function init() {
   const rateLimit = parseRateLimit(program.rateLimit);
   const excludePlanIds = parseExcludePlanIds(program.exclude);
 
+  const dryRun = !!program.dryRun;
   if (!program.source) throw new Error('--source must be provided');
   if (!program.destination) throw new Error('--destination must be provided');
 
@@ -72,6 +77,7 @@ async function init() {
     program.outputFile,
     stripeHelper,
     database,
+    dryRun,
     rateLimit
   );
 
