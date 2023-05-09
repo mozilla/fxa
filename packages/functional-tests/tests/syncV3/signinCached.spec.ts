@@ -1,0 +1,116 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+const password = 'passwordzxcv';
+let email;
+let email2;
+let syncBrowserPages;
+
+test.describe('sync signin cached', () => {
+  test.beforeEach(async ({ target }) => {
+    syncBrowserPages = await newPagesForSync(target);
+    const { login } = syncBrowserPages;
+    email = login.createEmail('sync{id}');
+    email2 = login.createEmail();
+    await target.auth.signUp(email, password, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+    await target.auth.signUp(email2, password, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+  });
+
+  test.afterEach(async ({ target }) => {
+    await syncBrowserPages.browser?.close();
+    const emails = [email, email2];
+    for (const email of emails) {
+      if (email) {
+        try {
+          await target.auth.accountDestroy(email, password);
+        } catch (e) {
+          // Handle any errors if needed
+        }
+      }
+    }
+  });
+
+  test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
+    target,
+  }) => {
+    const { page, login, connectAnotherDevice } = syncBrowserPages;
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+    );
+    await login.fillOutEmailFirstSignIn(email, password);
+
+    //Verify sign up code header is visible
+    expect(await login.isSignInCodeHeader()).toBe(true);
+
+    const query = { email: email2 };
+    const queryParam = new URLSearchParams(query);
+    await page.goto(
+      `${
+        target.contentServerUrl
+      }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
+    );
+
+    //Check prefilled email
+    expect(await login.getPrefilledEmail()).toContain(email2);
+    await login.setPassword(password);
+    await login.clickSubmit();
+    await connectAnotherDevice.clickNotNow();
+
+    //Verify logged in on Settings page
+    expect(await login.loginHeader()).toBe(true);
+
+    //Reset prefill and context
+    await login.clearSessionStorage();
+
+    //Testing to make sure cached signin comes back after a refresh
+    await page.goto(target.contentServerUrl, {
+      waitUntil: 'load',
+    });
+    expect(await login.getPrefilledEmail()).toContain(email);
+    await login.useDifferentAccountLink();
+    expect(await login.isEmailHeader()).toBe(true);
+  });
+
+  test('sign in with desktop context then no context, desktop credentials should persist', async ({
+    target,
+  }) => {
+    const { page, login } = syncBrowserPages;
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+    );
+    await login.fillOutEmailFirstSignIn(email, password);
+
+    //Verify sign up code header is visible
+    expect(await login.isSignInCodeHeader()).toBe(true);
+
+    await page.goto(target.contentServerUrl, {
+      waitUntil: 'load',
+    });
+    expect(await login.getPrefilledEmail()).toContain(email);
+    await login.useDifferentAccountLink();
+    expect(await login.isEmailHeader()).toBe(true);
+    await login.fillOutEmailFirstSignIn(email2, password);
+
+    //Verify logged in on Settings page
+    expect(await login.loginHeader()).toBe(true);
+
+    //Reset prefill and context
+    await login.clearSessionStorage();
+
+    //Testing to make sure cached signin comes back after a refresh
+    await page.goto(target.contentServerUrl, {
+      waitUntil: 'load',
+    });
+    expect(await login.getPrefilledEmail()).toContain(email);
+    await login.useDifferentAccountLink();
+    expect(await login.isEmailHeader()).toBe(true);
+  });
+});
