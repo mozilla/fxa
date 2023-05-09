@@ -424,7 +424,7 @@ commands:
                 --target << parameters.target >> \
                 -t mozilla/fxa-circleci:ci-<< parameters.target >>
 
-  create-ci-images:
+  create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
     steps:
       - run:
@@ -451,14 +451,14 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/copy-docker-cache.sh mozilla/fxa-circleci:ci-builder
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder
             docker push mozilla/fxa-circleci:ci-test-runner
             docker push mozilla/fxa-circleci:ci-functional-test-runner
             docker push mozilla/fxa-circleci:ci-builder
             wait
 
 jobs:
-  create-fxa-images:
+  create-fxa-image:
     executor: docker-build-executor
     steps:
       - checkout
@@ -468,10 +468,10 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Build docker images
-          command: ./.circleci/build-all.sh  << pipeline.id >>
+          command: ./.circleci/docker-build-fxa.sh  << pipeline.id >>
           no_output_timeout: 1h
 
-  deploy-fxa-images:
+  deploy-fxa-image:
     executor: docker-build-executor
     steps:
       - checkout
@@ -479,7 +479,7 @@ jobs:
           docker_layer_caching: true
       - run:
           name: Push to docker hub
-          command: ./.circleci/deploy-all.sh << pipeline.id >>
+          command: ./.circleci/docker-deploy-fxa.sh << pipeline.id >>
       - store-artifacts
 
   # This deploys docker images that are useful for CI testing. Think of this image as
@@ -502,7 +502,7 @@ jobs:
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
       - install-test-browsers
       - cache-restore-yarn
-      - create-ci-images
+      - create-fxa-ci-images
       - cache-save-yarn
 
   # The initial step for many pipelines, this step installs packages and does a build on
@@ -880,14 +880,14 @@ workflows:
             tags:
               only: /.*/
 
-  deploy_fxa_images:
+  deploy_fxa_image:
     # This workflow can be triggered after a PR lands on main. It requires approval.
     # The same operation will eventually run nightly. The same operation will run nightly.
     when: << pipeline.parameters.enable_deploy_packages >>
     jobs:
       # Builds the monorepo for a production / stage deploy
-      - request-deploy-images:
-          name: Request Deploy FxA Images
+      - request-deploy-image:
+          name: Request Deploy FxA Image
           type: approval
           filters:
             branches:
@@ -897,14 +897,14 @@ workflows:
                 - /^dockerpush.*/
             tags:
               ignore: /.*/
-      - create-fxa-images:
-          name: Create FxA Images (requested)
+      - create-fxa-image:
+          name: Create FxA Image (requested)
           requires:
-            - Request Deploy FxA Images
-      - deploy-fxa-images:
-          name: Deploy FxA Images (requested)
+            - Request Deploy FxA Image
+      - deploy-fxa-image:
+          name: Deploy FxA Image (requested)
           requires:
-            - Create FxA Images (requested)
+            - Create FxA Image (requested)
 
   deploy_ci_images:
     # This workflow is triggered after a PR lands on main. The workflow will
@@ -1079,8 +1079,8 @@ workflows:
               only: /.*/
           requires:
             - Build
-      - create-fxa-images:
-          name: Create FxA Images
+      - create-fxa-image:
+          name: Create FxA Image
           filters:
             branches:
               ignore: /.*/
@@ -1088,8 +1088,8 @@ workflows:
               only: /.*/
           requires:
             - Build
-      - deploy-fxa-images:
-          name: Deploy Fxa Images
+      - deploy-fxa-image:
+          name: Deploy Fxa Image
           filters:
             branches:
               ignore: /.*/
@@ -1108,7 +1108,7 @@ workflows:
             - Functional Test - Content 4
             - Functional Test - Content 5
             - Functional Tests - Playwright
-            - Create FxA Images
+            - Create FxA Image
 
   nightly:
     # This work flow runs a full build, test suite, and deployment of docker images nightly
@@ -1186,14 +1186,14 @@ workflows:
           name: Deploy Storybooks (nightly)
           requires:
             - Tests Complete (nightly)
-      - create-fxa-images:
-          name: Create FxA Images (nightly)
+      - create-fxa-image:
+          name: Create FxA Image (nightly)
           requires:
             - Tests Complete (nightly)
-      - deploy-fxa-images:
-          name: Deploy FxA Images (nightly)
+      - deploy-fxa-image:
+          name: Deploy FxA Image (nightly)
           requires:
-            - Create FxA Images (nightly)
+            - Create FxA Image (nightly)
       - deploy-fxa-ci-images:
           name: Deploy CI Images (nightly)
           executor:
