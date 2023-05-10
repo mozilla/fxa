@@ -8,6 +8,8 @@ on:
 permissions: {}
 jobs:
   tagrelease:
+    permissions: 
+        contents: write # To create a branch and tags
     runs-on: ubuntu-latest
 
     steps:
