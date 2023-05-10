@@ -29,11 +29,9 @@ parameters:
     type: boolean
     default: false
 
-
 orbs:
   browser-tools: circleci/browser-tools@1.2.3
   jira: circleci/jira@1.3.1
-
 
 executors:
   # Default node executor with low resources. Useful for running quick / small tasks
@@ -141,9 +139,8 @@ executors:
       REACT_CONVERSION_SIGNIN_ROUTES: true
       REACT_CONVERSION_SIGNUP_ROUTES: true
       REACT_CONVERSION_PAIR_ROUTES: true
-      REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES: true
+      REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES: true
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
-      REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES: true
       CUSTOMS_SERVER_URL: none
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
@@ -160,9 +157,7 @@ executors:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
 
-
 commands:
-
   git-clone:
     # Note: Cloning this way allows us to run a git fetch & checkout later on download the road. This type of
     # clone operation will result in a .git/config with no user attached that is using
@@ -364,7 +359,7 @@ commands:
       #   https://www.gnu.org/software/parallel/parallel_tutorial.html#number-of-simultaneous-jobs
       max_jobs:
         type: string
-        default: "NONE"
+        default: 'NONE'
       index:
         type: integer
         default: 0
@@ -462,9 +457,7 @@ commands:
             docker push mozilla/fxa-circleci:ci-builder
             wait
 
-
 jobs:
-
   create-fxa-images:
     executor: docker-build-executor
     steps:
@@ -571,7 +564,7 @@ jobs:
       - run-tests:
           test_name: Integration Test (many)
           list: integration-test.list
-          max_jobs: "1"
+          max_jobs: '1'
           index: << parameters.index >>
           total: << parameters.total >>
 
@@ -703,14 +696,12 @@ jobs:
     executor: tiny-executor
     steps:
       - run:
-          name: "Stage completed"
+          name: 'Stage completed'
           command: echo "<< parameters.stage >> completed!"
       - jira/notify:
           job_type: << parameters.job_type >>
 
-
 workflows:
-
   test_pull_request:
     # This workflow is executed whenever a pull request is issued. It will also
     # run on PR drafts.
@@ -945,7 +936,6 @@ workflows:
           requires:
             - Create FxA Images (requested)
 
-
   deploy_ci_images:
     # This workflow is triggered after a PR lands on main. The workflow will
     # short circuit if incoming PR doesn't modify any npm packages. The same
@@ -1155,7 +1145,7 @@ workflows:
     when: << pipeline.parameters.enable_nightly >>
     triggers:
       - schedule:
-          cron: "0 0 * * *"
+          cron: '0 0 * * *'
           filters:
             branches:
               only: main

@@ -36,9 +36,8 @@ describe('lib/router', () => {
     signInRoutes: true,
     signUpRoutes: true,
     pairRoutes: true,
-    postVerifyAddRecoveryKeyRoutes: true,
+    postVerifyOtherRoutes: true,
     postVerifyCADViaQRRoutes: true,
-    signInVerificationViaPushRoutes: true,
     webChannelExampleRoutes: true,
   };
 

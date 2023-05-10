@@ -246,23 +246,17 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_PAIR_ROUTES',
     },
-    postVerifyAddRecoveryKeyRoutes: {
+    postVerifyOtherRoutes: {
       default: false,
-      doc: 'Enable users to visit the React version of "post-verify add recovery key" routes',
+      doc: 'Enable users to visit the React version of any other "post verify" routes',
       format: Boolean,
-      env: 'REACT_CONVERSION_POST_VERIFY_ADD_RECOVERY_KEY_ROUTES',
+      env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
     },
     postVerifyCADViaQRRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of "post verify CAD via QR code" routes',
       format: Boolean,
       env: 'REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES',
-    },
-    signInVerificationViaPushRoutes: {
-      default: false,
-      doc: 'Enable users to visit the React version of "signin verification via push" routes',
-      format: Boolean,
-      env: 'REACT_CONVERSION_SIGNIN_VERIFICATION_VIA_PUSH_ROUTES',
     },
     webChannelExampleRoutes: {
       default: false,
