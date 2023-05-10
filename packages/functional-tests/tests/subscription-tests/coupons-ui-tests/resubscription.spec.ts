@@ -148,7 +148,7 @@ test.describe('resubscription test', () => {
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }, { project }) => {
     test.skip(
-      project.name === 'production',
+      project.name !== 'local',
       'no real payment method available in prod'
     );
     await relier.goto();
