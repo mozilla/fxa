@@ -22,6 +22,7 @@ import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
+import { typeByLabelText } from '../../lib/test-utils';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -139,6 +140,43 @@ describe('PageResetPassword', () => {
     );
   });
 
+  describe('displays error and does not allow submission', () => {
+    const account = {
+      resetPassword: jest.fn().mockResolvedValue({
+        passwordForgotToken: '123',
+      }),
+    } as unknown as Account;
+
+    it('with an empty email', async () => {
+      renderWithAccount(account);
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Begin Reset' }));
+      });
+      await screen.findByText('Email required');
+      expect(account.resetPassword).not.toHaveBeenCalled();
+
+      // clears the error onchange
+      await typeByLabelText('Email')('a');
+      expect(screen.queryByText('Email required')).not.toBeInTheDocument();
+    });
+
+    it('with an invalid email', async () => {
+      renderWithAccount(account);
+      await typeByLabelText('Email')('foxy@gmail.');
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'Begin Reset' }));
+      });
+      await screen.findByText('Valid email required');
+      expect(account.resetPassword).not.toHaveBeenCalled();
+
+      // clears the error onchange
+      await typeByLabelText('Email')('a');
+      expect(
+        screen.queryByText('Valid email required')
+      ).not.toBeInTheDocument();
+    });
+  });
+
   it('displays an error when the account is unknown', async () => {
     const gqlError: any = AuthUiErrorNos[102]; // Unknown account error
     const account = {
@@ -189,7 +227,7 @@ describe('PageResetPassword', () => {
   });
 
   it('handles unexpected errors on submit', async () => {
-    const unexpectedError: any = 'some error'; // Unknown account error
+    const unexpectedError: Error = { name: 'fake', message: 'error' }; // Unknown account error
     const account = {
       resetPassword: jest.fn().mockRejectedValue(unexpectedError),
     } as unknown as Account;
