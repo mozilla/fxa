@@ -104,7 +104,7 @@
     "@rescripts/cli": "0.0.16",
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
-    "@storybook/addon-actions": "^6.5.9",
+    "@storybook/addon-actions": "^7.0.10",
     "@storybook/addon-links": "^6.5.9",
     "@storybook/addon-postcss": "^2.0.0",
     "@storybook/addons": "^6.5.9",

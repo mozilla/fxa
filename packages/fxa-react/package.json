@@ -49,7 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
-    "@storybook/addon-actions": "^6.5.9",
+    "@storybook/addon-actions": "^7.0.10",
     "@storybook/addon-links": "^6.5.9",
     "@storybook/addon-postcss": "^2.0.0",
     "@storybook/addons": "^6.5.9",
