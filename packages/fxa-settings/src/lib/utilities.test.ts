@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { deepMerge, searchParam, searchParams } from './utilities';
+import {
+  deepMerge,
+  isBase32Crockford,
+  searchParam,
+  searchParams,
+} from './utilities';
 
 describe('deepMerge', () => {
   it('recursively merges multiple objects', () => {
@@ -91,5 +96,22 @@ describe('searchParams', () => {
 
     params = searchParams('', ['blue']);
     expect(Object.keys(params)).toHaveLength(0);
+  });
+});
+
+describe('isBase32Crockford', () => {
+  it('is case insensitive', () => {
+    expect(isBase32Crockford('ADF2EGK4HJJ4BTKF')).toBe(true);
+    expect(isBase32Crockford('adf2egk4hjj4btkf')).toBe(true);
+    expect(isBase32Crockford('Adf2eGk4hjJ4BtKF')).toBe(true);
+  });
+
+  it('rejects I, L, O, U', () => {
+    expect(isBase32Crockford('0123456789ABCDEFGHJKMNPQRSTVWXYZ')).toBe(true);
+
+    expect(isBase32Crockford('I')).toBe(false);
+    expect(isBase32Crockford('L')).toBe(false);
+    expect(isBase32Crockford('O')).toBe(false);
+    expect(isBase32Crockford('U')).toBe(false);
   });
 });

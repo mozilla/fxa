@@ -56,7 +56,6 @@ export function mockUrlQueryData(
   for (const param of Object.keys(params)) {
     data.set(param, params[param]);
   }
-  console.log('data!!!!', data);
   return data;
 }
 
