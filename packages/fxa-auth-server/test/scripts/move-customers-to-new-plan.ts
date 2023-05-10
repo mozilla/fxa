@@ -123,6 +123,7 @@ describe('CustomerPlanMover', () => {
       './move-customers-to-new-plan.tmp.csv',
       stripeHelperStub,
       dbStub,
+      false,
       20
     );
   });
@@ -184,6 +185,7 @@ describe('CustomerPlanMover', () => {
       plan: {
         product: 'example-product',
       },
+      status: 'active',
     } as FirestoreSubscription;
     const mockReport = ['mock-report'];
     let logStub: sinon.SinonStub;
@@ -234,6 +236,25 @@ describe('CustomerPlanMover', () => {
       });
     });
 
+    describe('dry run', () => {
+      beforeEach(async () => {
+        customerPlanMover.dryRun = true;
+        await customerPlanMover.convertSubscription(mockFirestoreSub);
+      });
+
+      it('does not cancel old subscription', () => {
+        expect(cancelSubscriptionStub.calledWith(mockFirestoreSub)).false;
+      });
+
+      it('does not create new subscription', () => {
+        expect(createSubscriptionStub.calledWith(mockCustomer.id)).false;
+      });
+
+      it('writes the report to disk', () => {
+        expect(writeReportStub.calledWith(mockReport)).true;
+      });
+    });
+
     describe('invalid', () => {
       it('aborts if customer does not exist', async () => {
         customerPlanMover.fetchCustomer = sinon.stub().resolves(null);
@@ -254,6 +275,17 @@ describe('CustomerPlanMover', () => {
         await customerPlanMover.convertSubscription(mockFirestoreSub);
 
         expect(createSubscriptionStub.notCalled).true;
+      });
+
+      it('does not move subscription if subscription is not in active state', async () => {
+        await customerPlanMover.convertSubscription({
+          ...mockFirestoreSub,
+          status: 'canceled',
+        });
+
+        expect(cancelSubscriptionStub.notCalled).true;
+        expect(createSubscriptionStub.notCalled).true;
+        expect(writeReportStub.notCalled).true;
       });
     });
   });

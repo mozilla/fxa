@@ -11,6 +11,7 @@ import PQueue from 'p-queue';
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
 import { StripeHelper } from '../../lib/payments/stripe';
+import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 
 /**
  * Firestore subscriptions contain additional expanded information
@@ -47,6 +48,7 @@ export class CustomerPlanMover {
     private outputFile: string,
     private stripeHelper: StripeHelper,
     private database: any,
+    public dryRun: boolean,
     rateLimit: number
   ) {
     this.stripe = stripeHelper.stripe;
@@ -112,7 +114,11 @@ export class CustomerPlanMover {
    * @param firestoreSubscription The subscription to convert
    */
   async convertSubscription(firestoreSubscription: FirestoreSubscription) {
-    const { id: subscriptionId, customer: customerId } = firestoreSubscription;
+    const {
+      id: subscriptionId,
+      customer: customerId,
+      status,
+    } = firestoreSubscription;
 
     try {
       const customer = await this.fetchCustomer(customerId);
@@ -127,10 +133,18 @@ export class CustomerPlanMover {
         return;
       }
 
-      await this.cancelSubscription(firestoreSubscription);
+      if (!ACTIVE_SUBSCRIPTION_STATUSES.includes(status)) {
+        console.log(`Sub is not in active state: ${status},${subscriptionId}`);
+        return;
+      }
 
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
-      if (!isExcluded) await this.createSubscription(customer.id);
+
+      if (!this.dryRun) {
+        await this.cancelSubscription(firestoreSubscription);
+
+        if (!isExcluded) await this.createSubscription(customer.id);
+      }
 
       const report = this.buildReport(customer, account, isExcluded);
 
