@@ -845,29 +845,7 @@ workflows:
   production_smoke_tests:
     when: << pipeline.parameters.enable_production_smoke_tests >>
     jobs:
-    # Note that these target stage too! This might seem odd, but having tests pass on staging is currently
-      # a requirement for all production deploys.
-      - test-content-server-remote-part-0:
-          name: Smoke Stage - Content Server Part 1
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - test-content-server-remote-part-1:
-          name: Smoke Stage - Content Server Part 2
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - test-content-server-remote-part-2:
-          name: Smoke Stage - Content Server Part 3
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
+    # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
           target: test-production
