@@ -15,8 +15,6 @@ import { Plan, ProductMetadata } from '../../store/types';
 import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { getSubscriptionUpdateEligibility } from 'fxa-shared/subscriptions/stripe';
 
-import '../Product/index.scss';
-
 import FetchErrorDialogMessage from '../../components/FetchErrorDialogMessage';
 import PlanErrorDialog from '../../components/PlanErrorDialog';
 

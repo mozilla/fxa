@@ -95,6 +95,10 @@
   @apply rounded-t-lg;
 }
 
+.page-title {
+  @apply font-semibold leading-8 mb-2 text-grey-600 text-xl;
+}
+
 .plan-details-description {
   @apply text-grey-400 mt-1 mb-0;
 }

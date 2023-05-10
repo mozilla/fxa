@@ -39,9 +39,7 @@ export const SubscriptionTitle = ({
       data-testid={`subscription-${screenType}-title`}
     >
       <Localized id={`subscription-${screenType}-title`}>
-        <h3 className="font-semibold leading-8 mb-2 text-grey-600 text-xl">
-          {titles[screenType]}
-        </h3>
+        <h3 className="page-title">{titles[screenType]}</h3>
       </Localized>
 
       {subtitleElement}
