@@ -144,6 +144,7 @@ export const SubscriptionCreate = ({
             stripe:
               stripeOverride /* istanbul ignore next - used for testing */ ||
               stripeFromParams,
+            email: profile.email,
             selectedPlan,
             customer,
             retryStatus,
@@ -166,6 +167,7 @@ export const SubscriptionCreate = ({
       },
       [
         selectedPlan,
+        profile,
         customer,
         retryStatus,
         apiClientOverrides,

@@ -22,6 +22,7 @@ export type PaymentError = undefined | StripeError;
 export type SubscriptionPaymentHandlerParam = {
   stripe: Pick<Stripe, 'createPaymentMethod' | 'confirmCardPayment'>;
   name: string;
+  email: string;
   card: StripeCardElement | null;
   idempotencyKey: string;
   selectedPlan: Plan;
@@ -69,6 +70,7 @@ export async function handlePasswordlessSubscription({
     return handleSubscriptionPayment({
       stripe,
       name,
+      email,
       card,
       idempotencyKey,
       selectedPlan,
@@ -92,6 +94,7 @@ export async function handleSubscriptionPayment({
   stripe,
   name,
   card,
+  email,
   idempotencyKey,
   selectedPlan,
   customer,
@@ -137,6 +140,10 @@ export async function handleSubscriptionPayment({
     await stripe.createPaymentMethod({
       type: 'card',
       card: card as StripeCardElement,
+      billing_details: {
+        name,
+        email,
+      },
     });
   if (paymentError) {
     return onFailure(paymentError);

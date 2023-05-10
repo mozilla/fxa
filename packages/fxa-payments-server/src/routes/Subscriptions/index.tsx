@@ -352,6 +352,7 @@ export const Subscriptions = ({
               {...{
                 plan: planForId(planId!, plans.result),
                 customer: customer.result,
+                profile: profile.result,
                 refreshSubscriptions: fetchSubscriptionsRouteResources,
                 setUpdatePaymentIsSuccess,
                 resetUpdatePaymentIsSuccess:
