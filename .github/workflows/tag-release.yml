@@ -8,10 +8,6 @@ on:
 permissions: {}
 jobs:
   tagrelease:
-    permissions:
-      contents: write      # To make changes to files
-      pull-requests: write # To make PR
-
     runs-on: ubuntu-latest
 
     steps:
@@ -28,43 +24,12 @@ jobs:
       run: |
         git config user.name "${{ github.triggering_actor }}"
         git config user.email "noreply@github.com"
-    - name: Update package versions
-      run: |
-        IFS=$'\n'
-        TARGETS="packages/fxa-auth-server
-        packages/fxa-admin-server
-        packages/fxa-admin-panel
-        packages/fxa-content-server
-        packages/fxa-customs-server
-        packages/fxa-event-broker
-        packages/fxa-geodb
-        packages/fxa-graphql-api
-        packages/fxa-payments-server
-        packages/fxa-profile-server
-        packages/fxa-react
-        packages/fxa-settings
-        packages/fxa-shared
-        packages/fxa-support-panel"
-
-        for TARGET in $TARGETS; do
-          if [ -f "$TARGET/package.json" ]; then
-            jq '.version="1.${{ github.event.inputs.versionName }}.0"' $TARGET/package.json > $TARGET/pacakage.json.new
-            mv $TARGET/pacakage.json.new $TARGET/package.json
-            git add $TARGET/package.json
-          fi
-        done
 
     - name: Commit update to branch
       run: |
-        git commit --message "Release ${{ github.event.inputs.versionName }}"
         git push origin train-${{ github.event.inputs.versionName }}
 
     - name: Make a new tag
       run: |
         git tag -a "v1.${{ github.event.inputs.versionName }}.0" -m "Train release ${{ github.event.inputs.versionName }}"
         git push origin v1.${{ github.event.inputs.versionName }}.0
-
-    - name: Create pull request into main
-      run: gh pr create -B main -H train-${{ github.event.inputs.versionName }} --fill
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
