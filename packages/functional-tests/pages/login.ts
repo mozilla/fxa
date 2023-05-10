@@ -9,7 +9,7 @@ import AuthClient from 'fxa-auth-client';
 
 export const selectors = {
   AGE: '#age',
-  DATA_TESTID: '[data-testid=logo]',
+  FIREFOX_HEADER: '[data-testid=logo]',
   EMAIL: 'input[type=email]',
   EMAIL_PREFILLED: '#prefillEmail',
   EMAIL_HEADER: '#fxa-enter-email-header',
@@ -28,6 +28,7 @@ export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   SIGN_UP_CODE_HEADER: '#fxa-confirm-signup-code-header',
+  SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
   CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
   COPPA_HEADER: '#fxa-cannot-create-account-header',
@@ -207,6 +208,12 @@ export class LoginPage extends BaseLayout {
     return header.isVisible();
   }
 
+  async isSignInCodeHeader() {
+    const header = this.page.locator(selectors.SIGN_IN_CODE_HEADER);
+    await header.waitFor({ state: 'visible' });
+    return header.isVisible();
+  }
+
   async confirmEmail() {
     return this.page.innerText(selectors.CONFIRM_EMAIL);
   }
@@ -232,7 +239,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async loginHeader() {
-    const header = this.page.locator(selectors.DATA_TESTID);
+    const header = this.page.locator(selectors.FIREFOX_HEADER);
     await header.waitFor();
     return header.isVisible();
   }
@@ -428,6 +435,12 @@ export class LoginPage extends BaseLayout {
     });
   }
 
+  async clearSessionStorage() {
+    await this.page.evaluate(() => {
+      sessionStorage.clear();
+    });
+  }
+
   async useCredentials(credentials: any) {
     await this.goto();
     return this.page.evaluate((creds) => {
@@ -449,8 +462,11 @@ export class LoginPage extends BaseLayout {
 
   async getAccountFromFromLocalStorage(email: string) {
     return await this.page.evaluate((email) => {
-      const accounts: Array<{ email: string; sessionToken: string }> =
-        JSON.parse(localStorage.getItem('__fxa_storage.accounts') || '{}');
+      const accounts: Array<{
+        email: string;
+        sessionToken: string;
+        uid: string;
+      }> = JSON.parse(localStorage.getItem('__fxa_storage.accounts') || '{}');
       return Object.values(accounts).find((x) => x.email === email);
     }, email);
   }
@@ -460,6 +476,28 @@ export class LoginPage extends BaseLayout {
     if (account?.sessionToken) {
       return await this.target.auth.sessionDestroy(account.sessionToken);
     }
+  }
+
+  async denormalizeStoredEmail(email: string) {
+    const account = await this.getAccountFromFromLocalStorage(email);
+
+    return this.page.evaluate((uid) => {
+      const accounts = JSON.parse(
+        localStorage.getItem('__fxa_storage.accounts') || '{}'
+      );
+
+      for (const accountId in accounts) {
+        if (accountId === uid) {
+          const account = accounts[accountId];
+
+          if (account.email === email) {
+            account.email = email.toUpperCase();
+          }
+        }
+      }
+
+      localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
+    }, email);
   }
 
   async getConfig() {

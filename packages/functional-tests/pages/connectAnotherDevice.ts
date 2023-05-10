@@ -13,6 +13,7 @@ export class ConnectAnotherDevicePage extends BaseLayout {
     FXA_CONNECTED_HEADER: '#fxa-connected-heading',
     TEXT_INSTALL_FX_DESKTOP: '#install-mobile-firefox-desktop',
     SUCCESS: '.success',
+    NOT_NOW: '#cad-not-now',
   };
 
   get header() {
@@ -35,5 +36,9 @@ export class ConnectAnotherDevicePage extends BaseLayout {
 
   get success() {
     return this.page.locator(this.selectors.SUCCESS);
+  }
+
+  async clickNotNow() {
+    return this.page.locator(this.selectors.NOT_NOW).click();
   }
 }
