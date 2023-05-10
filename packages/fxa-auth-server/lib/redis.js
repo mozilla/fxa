@@ -6,9 +6,11 @@ const { resolve } = require('path');
 const { AuthLogger } = require('./types');
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
+const opentelemetry = require('@opentelemetry/api');
 
 ('use strict');
 
+const tracer = opentelemetry.trace.getTracer('redis-tracer');
 const hex = require('buf').to.hex;
 
 function resolveLogger() {
@@ -34,19 +36,24 @@ class FxaRedis extends RedisShared {
    *
    * @param {AccessToken} token
    */
-  setAccessToken(token) {
+  async setAccessToken(token) {
     if (token.ttl < 1) {
       this.log.error('redis', new Error('invalid ttl on access token'));
       return;
     }
-    return this.redis.setAccessToken(
+    this.metrics?.increment('redis.setAccessToken');
+    const span = tracer.startSpan('redis.setAccessToken');
+    const value = JSON.stringify(token);
+    const result = await this.redis.setAccessToken(
       token.userId.toString('hex'),
       token.tokenId.toString('hex'),
-      JSON.stringify(token),
+      value,
       this.recordLimit,
       token.ttl,
       this.maxttl
     );
+    span.end();
+    return result;
   }
 
   /**
@@ -55,9 +62,12 @@ class FxaRedis extends RedisShared {
    * @returns {Promise<boolean>} done
    */
   async removeAccessToken(id) {
+    this.metrics?.increment('redis.removeAccessToken');
+    const span = tracer.startSpan('redis.removeAccessToken');
     // This does not remove the id from the user's index
     // because getAccessTokens cleans up expired/missing tokens
     const done = await this.redis.removeAccessToken(hex(id));
+    span.end();
     return !!done;
   }
 
@@ -65,8 +75,14 @@ class FxaRedis extends RedisShared {
    *
    * @param {Buffer | string} uid
    */
-  removeAccessTokensForPublicClients(uid) {
-    return this.redis.removeAccessTokensForPublicClients(hex(uid));
+  async removeAccessTokensForPublicClients(uid) {
+    this.metrics?.increment('redis.removeAccessTokensForPublicClients');
+    const span = tracer.startSpan('redis.removeAccessTokensForPublicClients');
+    const result = await this.redis.removeAccessTokensForPublicClients(
+      hex(uid)
+    );
+    span.end();
+    return result;
   }
 
   /**
@@ -74,19 +90,27 @@ class FxaRedis extends RedisShared {
    * @param {Buffer | string} uid
    * @param {Buffer | string} clientId
    */
-  removeAccessTokensForUserAndClient(uid, clientId) {
-    return this.redis.removeAccessTokensForUserAndClient(
+  async removeAccessTokensForUserAndClient(uid, clientId) {
+    this.metrics?.increment('redis.removeAccessTokensForUserAndClient');
+    const span = tracer.startSpan('redis.removeAccessTokensForUserAndClient');
+    const result = await this.redis.removeAccessTokensForUserAndClient(
       hex(uid),
       hex(clientId)
     );
+    span.end();
+    return result;
   }
 
   /**
    *
    * @param {Buffer | string} uid
    */
-  removeAccessTokensForUser(uid) {
-    return this.redis.removeAccessTokensForUser(hex(uid));
+  async removeAccessTokensForUser(uid) {
+    this.metrics?.increment('redis.removeAccessTokensForUser');
+    const span = tracer.startSpan('redis.removeAccessTokensForUser');
+    const result = await this.redis.removeAccessTokensForUser(hex(uid));
+    span.end();
+    return result;
   }
 
   /**
@@ -94,7 +118,9 @@ class FxaRedis extends RedisShared {
    * @param {Buffer | string} tokenId
    * @param {RefreshTokenMetadata} token
    */
-  setRefreshToken(uid, tokenId, token) {
+  async setRefreshToken(uid, tokenId, token) {
+    this.metrics?.increment('redis.setRefreshToken');
+    const span = tracer.startSpan('redis.setRefreshToken');
     const p1 = this.redis.setRefreshToken(
       hex(uid),
       hex(tokenId),
@@ -103,7 +129,9 @@ class FxaRedis extends RedisShared {
       this.maxttl
     );
     const p2 = this.resolveInMs(p1, this.timeoutMs);
-    return Promise.race([p1, p2]);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
   /**
@@ -112,23 +140,40 @@ class FxaRedis extends RedisShared {
    * @param {Buffer | string} tokenId
    */
   async removeRefreshToken(uid, tokenId) {
+    this.metrics?.increment('redis.removeRefreshToken');
+    const span = await tracer.startSpan('redis.removeRefreshToken');
     const p1 = this.redis.hdel(hex(uid), hex(tokenId));
     const p2 = this.resolveInMs(p1, this.timeoutMs);
-    return Promise.race([p1, p2]);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
   /**
    *
    * @param {Buffer | string} uid
    */
-  removeRefreshTokensForUser(uid) {
+  async removeRefreshTokensForUser(uid) {
+    this.metrics?.increment('redis.removeRefreshTokensForUser');
+    const span = tracer.startSpan('redis.removeRefreshTokensForUser');
     const p1 = this.redis.unlink(hex(uid));
     const p2 = this.resolveInMs(p1, this.timeoutMs);
-    return Promise.race([p1, p2]);
+    const result = await Promise.race([p1, p2]);
+    span.end();
+    return result;
   }
 
-  get(key) {
-    return this.redis.get(key);
+  async get(key) {
+    this.metrics?.increment('redis.get');
+    const span = tracer.startSpan('redis.get');
+    const result = await this.redis.get(key);
+
+    if (result?.length > 0) {
+      span.setAttribute('redis.get.size', result.length);
+      this.metrics?.histogram('redis.get.size', result.length);
+    }
+    span.end();
+    return result;
   }
 
   set(key, val, ...args) {

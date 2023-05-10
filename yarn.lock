@@ -7398,6 +7398,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/instrumentation-ioredis@npm:^0.34.1":
+  version: 0.34.1
+  resolution: "@opentelemetry/instrumentation-ioredis@npm:0.34.1"
+  dependencies:
+    "@opentelemetry/instrumentation": ^0.38.0
+    "@opentelemetry/redis-common": ^0.35.0
+    "@opentelemetry/semantic-conventions": ^1.0.0
+    "@types/ioredis4": "npm:@types/ioredis@^4.28.10"
+  peerDependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: 64cf7f96f456b06424918e7fdb0c96081ba3a291aa99e6dcf14e7e3834789f344b17139c4572af3244f9116d5826144661d8ead2aaae6748014810f87f0cceea
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/instrumentation-knex@npm:^0.31.1":
   version: 0.31.1
   resolution: "@opentelemetry/instrumentation-knex@npm:0.31.1"
@@ -7705,6 +7719,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@opentelemetry/instrumentation@npm:^0.38.0":
+  version: 0.38.0
+  resolution: "@opentelemetry/instrumentation@npm:0.38.0"
+  dependencies:
+    require-in-the-middle: ^6.0.0
+    semver: ^7.3.2
+    shimmer: ^1.2.1
+  peerDependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: 34c240fe8e37761eda1c55f43c94b7cfd5958b66fe5c176c69a41ee61e49cf4f3e595ae6320eb2fe0e310cac632a51794150165523f9bc4a0c33913cf0ea573d
+  languageName: node
+  linkType: hard
+
 "@opentelemetry/otlp-exporter-base@npm:0.34.0":
   version: 0.34.0
   resolution: "@opentelemetry/otlp-exporter-base@npm:0.34.0"
@@ -7793,6 +7820,13 @@ __metadata:
   version: 0.34.0
   resolution: "@opentelemetry/redis-common@npm:0.34.0"
   checksum: e618481aaf996442f2dbb89d9d150dfc34c12ceac9a9e556c219da56dc51deb33c2a2d20375eb12591e0a48a88487ac166befcfe264538eaec5e3a779b3a63b5
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/redis-common@npm:^0.35.0":
+  version: 0.35.0
+  resolution: "@opentelemetry/redis-common@npm:0.35.0"
+  checksum: 9a59631d9a2cdf4c1b173619eb6a3ac912f9fa4f21debd77a3ca0a3b7c2adb7edcecb004cbaf79a339cd4ad07fe5f8887211ee88ccb22bf55f89825f0b8eba19
   languageName: node
   linkType: hard
 
@@ -12454,6 +12488,15 @@ __metadata:
   dependencies:
     "@types/express": "*"
   checksum: 5fbdd033bdd183e5e54bbfd470a51512a11297d58f5debfe2b3fa3cd92b2c7de9a04c4fc10523bc4381a75fa0a2602b0d8b6819d5eb060de61c99842a6951587
+  languageName: node
+  linkType: hard
+
+"@types/ioredis4@npm:@types/ioredis@^4.28.10":
+  version: 4.28.10
+  resolution: "@types/ioredis@npm:4.28.10"
+  dependencies:
+    "@types/node": "*"
+  checksum: 0f2788cf25f490d3b345db8c5f8b8ce3f6c92cc99abcf744c8f974f02b9b3875233b3d22098614c462a0d6c41c523bd655509418ea88eb6249db6652290ce7cf
   languageName: node
   linkType: hard
 
@@ -27088,6 +27131,7 @@ fsevents@~2.1.1:
     "@opentelemetry/exporter-trace-otlp-http": ~0.34.0
     "@opentelemetry/instrumentation-document-load": ~0.31.0
     "@opentelemetry/instrumentation-fetch": ~0.36.1
+    "@opentelemetry/instrumentation-ioredis": ^0.34.1
     "@opentelemetry/instrumentation-user-interaction": ~0.32.1
     "@opentelemetry/instrumentation-xml-http-request": ~0.37.0
     "@opentelemetry/plugin-react-load": ~0.28.0

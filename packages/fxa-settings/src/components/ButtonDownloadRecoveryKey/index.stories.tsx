@@ -22,7 +22,6 @@ const viewName = 'settings.recovery-key';
 const account = MOCK_ACCOUNT as unknown as Account;
 
 const accountWithLongEmail = {
-  ...MOCK_ACCOUNT,
   primaryEmail: {
     email:
       'supercalifragilisticexpialidocious@marypoppins.superfan.conference.com',

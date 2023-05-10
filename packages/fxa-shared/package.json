@@ -150,6 +150,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "~0.34.0",
     "@opentelemetry/instrumentation-document-load": "~0.31.0",
     "@opentelemetry/instrumentation-fetch": "~0.36.1",
+    "@opentelemetry/instrumentation-ioredis": "^0.34.1",
     "@opentelemetry/instrumentation-user-interaction": "~0.32.1",
     "@opentelemetry/instrumentation-xml-http-request": "~0.37.0",
     "@opentelemetry/plugin-react-load": "~0.28.0",
