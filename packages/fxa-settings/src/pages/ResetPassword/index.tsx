@@ -24,6 +24,8 @@ import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword';
 import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
+import { isEmailValid } from 'fxa-shared/email/helpers';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
 export const viewName = 'reset-password';
 
@@ -93,59 +95,67 @@ const ResetPassword = ({
     }
   }, [errorText, setErrorText]);
 
-  const localizedEmailRequiredMessage = ftlMsgResolver.getMsg(
-    'reset-password-email-required-error',
-    'Email required'
+  const submitEmail = useCallback(
+    async (email: string) => {
+      try {
+        clearError();
+        const result = await account.resetPassword(email);
+        navigateToConfirmPwReset({
+          passwordForgotToken: result.passwordForgotToken,
+          email,
+        });
+      } catch (err) {
+        let localizedError;
+        if (err.errno && AuthUiErrorNos[err.errno]) {
+          if (
+            err.errno === AuthUiErrors.THROTTLED.errno &&
+            err.retryAfterLocalized
+          ) {
+            localizedError = ftlMsgResolver.getMsg(
+              composeAuthUiErrorTranslationId(err),
+              AuthUiErrorNos[err.errno].message,
+              { retryAfter: err.retryAfterLocalized }
+            );
+          } else {
+            localizedError = ftlMsgResolver.getMsg(
+              composeAuthUiErrorTranslationId(err),
+              AuthUiErrorNos[err.errno].message
+            );
+          }
+        } else {
+          // TEMPORARY deliberate log to help debug FXA-7347, this should be captured server-side
+          // but for some reason isn't logging to Sentry
+          sentryMetrics.captureException(err);
+          const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
+          localizedError = ftlMsgResolver.getMsg(
+            composeAuthUiErrorTranslationId(unexpectedError),
+            unexpectedError.message
+          );
+        }
+        setErrorMessage(localizedError);
+      }
+    },
+    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset]
   );
 
   const onSubmit = useCallback(async () => {
     const sanitizedEmail = getValues('email').trim();
     if (sanitizedEmail === '') {
-      setErrorText(localizedEmailRequiredMessage);
+      setErrorText(
+        ftlMsgResolver.getMsg(
+          'reset-password-email-required-error',
+          'Email required'
+        )
+      );
       return;
+    } else if (!isEmailValid(sanitizedEmail)) {
+      setErrorText(
+        ftlMsgResolver.getMsg('auth-error-1011', 'Valid email required')
+      );
+    } else {
+      submitEmail(sanitizedEmail);
     }
-    try {
-      clearError();
-      const result = await account.resetPassword(sanitizedEmail);
-      navigateToConfirmPwReset({
-        passwordForgotToken: result.passwordForgotToken,
-        email: sanitizedEmail,
-      });
-    } catch (err) {
-      let localizedError;
-      if (err.errno && AuthUiErrorNos[err.errno]) {
-        if (
-          err.errno === AuthUiErrors.THROTTLED.errno &&
-          err.retryAfterLocalized
-        ) {
-          localizedError = ftlMsgResolver.getMsg(
-            composeAuthUiErrorTranslationId(err),
-            AuthUiErrorNos[err.errno].message,
-            { retryAfter: err.retryAfterLocalized }
-          );
-        } else {
-          localizedError = ftlMsgResolver.getMsg(
-            composeAuthUiErrorTranslationId(err),
-            AuthUiErrorNos[err.errno].message
-          );
-        }
-      } else {
-        const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-        localizedError = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(unexpectedError),
-          unexpectedError.message
-        );
-      }
-      setErrorMessage(localizedError);
-    }
-  }, [
-    account,
-    clearError,
-    ftlMsgResolver,
-    getValues,
-    localizedEmailRequiredMessage,
-    navigateToConfirmPwReset,
-  ]);
+  }, [ftlMsgResolver, getValues, submitEmail]);
 
   const ControlledLinkRememberPassword = ({
     control,

@@ -17,3 +17,4 @@ auth-error-183-2 = Invalid or expired confirmation code
 auth-error-999 = Unexpected error
 auth-error-1003 = Local storage or cookies are still disabled
 auth-error-1008 = Your new password must be different
+auth-error-1011 = Valid email required
