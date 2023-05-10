@@ -12,7 +12,7 @@ import { useBooleanState } from 'fxa-react/lib/hooks';
 import { useNonce, usePaypalButtonSetup } from '../../lib/hooks';
 import { getFallbackTextByFluentId, getErrorMessageId } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
-import { Customer, Plan } from '../../store/types';
+import { Customer, Plan, Profile } from '../../store/types';
 
 import * as Amplitude from '../../lib/amplitude';
 import * as apiClient from '../../lib/apiClient';
@@ -48,6 +48,7 @@ export type PaymentUpdateAuthServerAPIs = Pick<
 export type PaymentUpdateFormProps = {
   plan: Plan | null;
   customer: Customer;
+  profile: Profile;
   refreshSubscriptions: () => void;
   setUpdatePaymentIsSuccess: () => void;
   resetUpdatePaymentIsSuccess: () => void;
@@ -60,6 +61,7 @@ export type PaymentUpdateFormProps = {
 export const PaymentUpdateForm = ({
   plan,
   customer,
+  profile,
   refreshSubscriptions,
   setUpdatePaymentIsSuccess,
   resetUpdatePaymentIsSuccess,
@@ -169,6 +171,7 @@ export const PaymentUpdateForm = ({
           ...params,
           ...apiClient,
           ...apiClientOverrides,
+          email: profile.email,
           stripe:
             stripeOverride /* istanbul ignore next - used for testing */ ||
             stripeFromParams,
@@ -187,6 +190,7 @@ export const PaymentUpdateForm = ({
       refreshSubmitNonce();
     },
     [
+      profile,
       stripeSubmitSetInProgress,
       resetUpdatePaymentIsSuccess,
       setPaymentError,
@@ -331,6 +335,7 @@ export const PaymentUpdateForm = ({
 async function handlePaymentUpdate({
   stripe,
   name,
+  email,
   card,
   apiCreateSetupIntent,
   apiUpdateDefaultPaymentMethod,
@@ -339,6 +344,7 @@ async function handlePaymentUpdate({
 }: {
   stripe: PaymentUpdateStripeAPIs;
   name: string;
+  email: string;
   card: StripeCardElement;
   onFailure: (error: PaymentUpdateError) => void;
   onSuccess: () => void;
@@ -353,7 +359,7 @@ async function handlePaymentUpdate({
     {
       payment_method: {
         card,
-        billing_details: { name },
+        billing_details: { name, email },
       },
     }
   );
