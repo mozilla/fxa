@@ -143,7 +143,8 @@ test.describe('resubscription test', () => {
     expect(await subscriptionManagement.getCardInfo()).toContain('4444');
   });
 
-  test('update mode of payment for paypal', async ({
+  //Disable as paypal sandbox is taking a long time to load
+  /*test('update mode of payment for paypal', async ({
     page,
     pages: { relier, subscribe, login, settings, subscriptionManagement },
   }, { project }) => {
@@ -188,5 +189,5 @@ test.describe('resubscription test', () => {
 
     //Verify that the payment info is updated
     expect(await subscriptionManagement.checkPaypalAccount()).toContain('Visa');
-  });
+  });*/
 });
