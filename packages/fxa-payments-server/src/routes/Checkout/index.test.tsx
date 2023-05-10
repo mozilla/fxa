@@ -195,7 +195,7 @@ describe('routes/Checkout', () => {
     const signInLink = getByTestId('sign-in-link');
     expect(signInLink).toHaveAttribute(
       'href',
-      `${mockConfig.servers.content.url}/subscriptions/products/${PRODUCT_ID}?plan=testo&extra=goodstuff&signin=yes`
+      `${mockConfig.servers.content.url}/subscriptions/products/${PRODUCT_ID}?plan=testo&extra=goodstuff&signin=yes&redirect_to=http%3A%2F%2Flocalhost%2F`
     );
 
     const formEl = await findByTestId('new-user-email-form');
