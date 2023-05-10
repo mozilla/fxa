@@ -533,6 +533,22 @@ describe('metrics/amplitude', () => {
       });
     });
 
+    describe('subscription.ended', () => {
+      beforeEach(() => {
+        return amplitude('subscription.ended', mocks.mockRequest({}));
+      });
+
+      it('did not call log.error', () => {
+        assert.equal(log.error.callCount, 0);
+      });
+
+      it('called log.amplitudeEvent correctly', () => {
+        assert.equal(log.amplitudeEvent.callCount, 1);
+        const args = log.amplitudeEvent.args[0];
+        assert.equal(args[0].event_type, 'fxa_subscribe - subscription_ended');
+      });
+    });
+
     describe('flow.complete (sign-up)', () => {
       beforeEach(() => {
         return amplitude(

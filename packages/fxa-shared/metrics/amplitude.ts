@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Ajv from 'ajv';
+import pick from 'lodash.pick';
 import { ParsedUserAgentProperties, ParsedUa, ParsedOs } from './user-agent';
 import { Location } from '../connected-services/models/Location';
 
@@ -67,7 +68,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.registration]: mapDomainValidationResult,
   [GROUPS.rp]: NOP,
   [GROUPS.settings]: mapSettingsEventProperties,
-  [GROUPS.sub]: NOP,
+  [GROUPS.sub]: mapSubscriptionEventProperties,
   [GROUPS.subCancel]: NOP,
   [GROUPS.subManage]: NOP,
   [GROUPS.subPayManage]: NOP,
@@ -154,6 +155,28 @@ function mapDomainValidationResult(
   // properties for the results pertaining to domain_validation_result.
   if (eventType === 'domain_validation_result' && eventCategory) {
     return { validation_result: eventCategory };
+  }
+
+  return;
+}
+
+function mapSubscriptionEventProperties(
+  eventType: string,
+  eventCategory: string,
+  eventTarget: string,
+  data: EventData
+) {
+  if (data) {
+    const keys = [
+      'country_code_source',
+      'payment_provider',
+      'plan_id',
+      'product_id',
+      'provider_event_id',
+      'subscription_id',
+      'voluntary_cancellation',
+    ];
+    return pick(data, keys);
   }
 
   return;
@@ -397,12 +420,16 @@ export const amplitude = {
         pruneUnsetValues({
           service: serviceName,
           oauth_client_id: clientId,
+          country_code_source: data.country_code_source,
           // TODO: Delete data.plan_id and data.product_id after the camel-cased
           //       equivalents have been in place for at least one train.
           plan_id: data.planId || data.plan_id,
           product_id: data.productId || data.product_id,
-          payment_provider: data.paymentProvider,
+          payment_provider: data.paymentProvider || data.payment_provider,
           promotionCode: data.promotionCode,
+          provider_event_id: data.provider_event_id,
+          subscription_id: data.subscription_id,
+          voluntary_cancellation: data.voluntary_cancellation,
         }),
         EVENT_PROPERTIES[eventGroup](
           eventType,

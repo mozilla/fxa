@@ -429,14 +429,14 @@ export class StripeWebhookHandler extends StripeHandler {
     event: Stripe.Event
   ) {
     try {
-      const sub = event.data.object as Stripe.Subscription;
+      const subscription = event.data.object as Stripe.Subscription;
       const customer = await this.stripeHelper.expandResource(
-        sub.customer,
+        subscription.customer,
         CUSTOMER_RESOURCE
       );
 
       if (!customer || customer.deleted) {
-        throw error.unknownCustomer(sub.customer);
+        throw error.unknownCustomer(subscription.customer);
       }
 
       const uid = customer.metadata.userid;
@@ -454,17 +454,26 @@ export class StripeWebhookHandler extends StripeHandler {
         // account which subsequently deletes their subscription from stripe.
         !account ||
         !(
-          sub.collection_method === 'send_invoice' && account.verifierSetAt <= 0
+          subscription.collection_method === 'send_invoice' &&
+          account.verifierSetAt <= 0
         )
       ) {
-        await this.sendSubscriptionDeletedEmail(sub);
+        await this.sendSubscriptionDeletedEmail(subscription);
       }
 
-      await this.capabilityService.stripeUpdate({ sub, uid });
+      await this.capabilityService.stripeUpdate({ sub: subscription, uid });
 
       if (this.paypalHelper) {
         await this.paypalHelper.conditionallyRemoveBillingAgreement(customer);
       }
+
+      const eventDetails = await this.getSubscriptionEndedEventDetails(
+        uid,
+        event.id,
+        customer,
+        subscription
+      );
+      await request.emitMetricsEvent('subscription.ended', eventDetails);
     } catch (err) {
       // FIXME: If the customer was deleted, we don't send an email that their subscription
       //        was cancelled. This is because the email requires a bunch of details that
@@ -1064,6 +1073,60 @@ export class StripeWebhookHandler extends StripeHandler {
     }
 
     return invoiceDetails;
+  }
+
+  async getSubscriptionEndedEventDetails(
+    userId: string,
+    eventId: string,
+    customer: Stripe.Customer,
+    subscription: Stripe.Subscription
+  ) {
+    // We can't use the getPaymentProvider helper, since the subscription is no longer active
+    const paymentProvider: 'paypal' | 'stripe' | 'not_chosen' =
+      subscription.collection_method === 'send_invoice'
+        ? 'paypal'
+        : subscription.collection_method === 'charge_automatically'
+        ? 'stripe'
+        : 'not_chosen';
+    const countryCodeSource: string | null | undefined =
+      customer.shipping?.address?.country;
+    const { id: planId, product: productId } = subscription.items.data[0].plan;
+    // It is considered a voluntary cancellation when the customer cancels their subscription
+    // via Subscription Management, when a FxA account is deleted, or when Support cancels a
+    // subscription immediately.
+    // It is an involuntary cancellation when payment has failed or the latest invoice
+    // is marked as uncollectible.
+    // Voluntary cancellation is undefined if the payment provider is undefined.
+    let voluntaryCancellation: boolean | undefined;
+    if (paymentProvider === 'stripe') {
+      voluntaryCancellation =
+        subscription.cancellation_details?.reason === 'cancellation_requested';
+    } else if (paymentProvider === 'paypal') {
+      // Unfortunately when we cancel a PayPal subscription due to failed payment, it has
+      // a cancellation_details.reason of 'cancellation_requested'.
+      // Check if the latest invoice was marked as uncollectible; if so, we know the PayPal
+      // subscription was canceled due to failed payment.
+      const latestInvoiceId = subscription.latest_invoice;
+      if (typeof latestInvoiceId === 'string') {
+        const latestInvoice =
+          await this.stripeHelper.expandResource<Stripe.Invoice>(
+            latestInvoiceId,
+            INVOICES_RESOURCE
+          );
+        voluntaryCancellation = latestInvoice.status !== 'uncollectible';
+      }
+    }
+
+    return {
+      country_code_source: countryCodeSource,
+      payment_provider: paymentProvider,
+      plan_id: planId,
+      product_id: productId,
+      provider_event_id: eventId,
+      subscription_id: subscription.id,
+      uid: userId,
+      voluntary_cancellation: voluntaryCancellation,
+    };
   }
 }
 
