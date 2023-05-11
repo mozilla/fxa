@@ -22,6 +22,7 @@ import {
   FILTERED_SETUP_INTENT,
   INACTIVE_PLAN,
   PLAN,
+  PROFILE,
 } from '../../lib/mock-data';
 
 import { PickPartial } from '../../lib/types';
@@ -39,6 +40,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     PaymentUpdateFormProps,
     | 'plan'
     | 'customer'
+    | 'profile'
     | 'refreshSubscriptions'
     | 'setUpdatePaymentIsSuccess'
     | 'resetUpdatePaymentIsSuccess'
@@ -47,6 +49,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   const Subject = ({
     plan = PLAN,
     customer = CUSTOMER,
+    profile = PROFILE,
     paymentErrorInitialState,
     apiClientOverrides = defaultApiClientOverrides(),
     stripeOverride = defaultStripeOverride(),
@@ -60,6 +63,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
         {...{
           plan,
           customer,
+          profile,
           refreshSubscriptions,
           setUpdatePaymentIsSuccess,
           resetUpdatePaymentIsSuccess,
@@ -78,6 +82,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   const DISPLAY_NAME = 'Foo Barson';
+  const PROFILE_EMAIL = 'foo@example.com';
 
   const CONFIRM_CARD_SETUP_RESULT = {
     setupIntent: {
@@ -329,7 +334,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     {
       payment_method: {
         card: { isMockElement: true, testid: 'cardElement' },
-        billing_details: { name: DISPLAY_NAME },
+        billing_details: { name: DISPLAY_NAME, email: PROFILE_EMAIL },
       },
     },
   ];
@@ -510,11 +515,9 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
       await commonSubmitSetup({
         apiClientOverrides: {
           ...defaultApiClientOverrides(),
-          apiUpdateDefaultPaymentMethod: jest
-            .fn()
-            .mockRejectedValue({
-              message: 'barf apiUpdateDefaultPaymentMethod',
-            }),
+          apiUpdateDefaultPaymentMethod: jest.fn().mockRejectedValue({
+            message: 'barf apiUpdateDefaultPaymentMethod',
+          }),
         },
       });
 
