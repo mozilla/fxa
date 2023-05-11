@@ -174,6 +174,11 @@ const baseProps: SubscriptionsProps = {
   },
 };
 
+const latestInvoiceLineItemPeriod = {
+  end: (Date.now() + 86400) / 1000,
+  start: (Date.now() + 86400) / 1000,
+};
+
 const INVOICE_NO_TAX: LatestInvoiceItems = {
   total: 2000,
   total_excluding_tax: null,
@@ -185,6 +190,7 @@ const INVOICE_NO_TAX: LatestInvoiceItems = {
       currency: 'USD',
       id: PLAN_ID,
       name: 'first invoice',
+      period: latestInvoiceLineItemPeriod,
     },
   ],
 };
@@ -200,6 +206,7 @@ const INVOICE_WITH_TAX_EXCLUSIVE: LatestInvoiceItems = {
       currency: 'USD',
       id: PLAN_ID,
       name: 'first invoice',
+      period: latestInvoiceLineItemPeriod,
     },
   ],
   tax: [
@@ -222,6 +229,7 @@ const INVOICE_WITH_TAX_INCLUSIVE: LatestInvoiceItems = {
       currency: 'USD',
       id: PLAN_ID,
       name: 'first invoice',
+      period: latestInvoiceLineItemPeriod,
     },
   ],
   tax: [

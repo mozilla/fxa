@@ -8,6 +8,10 @@ export interface InvoiceLineItem {
   currency: string;
   id: string;
   name: string;
+  period: {
+    end: number;
+    start: number;
+  };
 }
 
 export interface InvoiceTax {
@@ -46,6 +50,12 @@ export const firstInvoicePreviewSchema = joi.object({
           currency: joi.string().required(),
           id: joi.string().required(),
           name: joi.string().required(),
+          period: joi
+            .object({
+              end: joi.number().required(),
+              start: joi.number().required(),
+            })
+            .required(),
         })
         .required()
     )
@@ -71,6 +81,10 @@ type line_item = {
   currency: string;
   id: string;
   name: string;
+  period: {
+    end: number;
+    start: number;
+  };
 };
 
 export type firstInvoicePreviewSchema = {

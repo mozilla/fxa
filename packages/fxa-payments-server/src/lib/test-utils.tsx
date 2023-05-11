@@ -880,6 +880,10 @@ export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
       currency: 'USD',
       id: customerWebSubscriptionPlanId,
       name: 'first invoice',
+      period: {
+        end: 1565816388,
+        start: 1565816388,
+      },
     },
   ],
 };
@@ -895,6 +899,10 @@ export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
       currency: 'USD',
       id: PLAN_ID,
       name: 'first invoice',
+      period: {
+        end: 1565816388,
+        start: 1565816388,
+      },
     },
   ],
 };
@@ -910,6 +918,10 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
       currency: 'USD',
       id: customerWebSubscriptionPlanId,
       name: 'first invoice',
+      period: {
+        end: 1565816388,
+        start: 1565816388,
+      },
     },
   ],
   tax: [
@@ -932,6 +944,10 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
       currency: 'USD',
       id: customerWebSubscriptionPlanId,
       name: 'first invoice',
+      period: {
+        end: 1565816388,
+        start: 1565816388,
+      },
     },
   ],
   tax: [
@@ -955,6 +971,10 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePrevi
         currency: 'USD',
         id: customerWebSubscriptionPlanId,
         name: 'first invoice',
+        period: {
+          end: 1565816388,
+          start: 1565816388,
+        },
       },
     ],
     tax: [
@@ -983,6 +1003,10 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePrevi
         currency: 'USD',
         id: customerWebSubscriptionPlanId,
         name: 'first invoice',
+        period: {
+          end: 1565816388,
+          start: 1565816388,
+        },
       },
     ],
     tax: [

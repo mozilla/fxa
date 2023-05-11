@@ -43,6 +43,11 @@ const invoicePreviewNoTax: FirstInvoicePreview = {
       currency: 'USD',
       id: SELECTED_PLAN.plan_id,
       name: 'first invoice',
+      period: {
+        end: (CUSTOMER.subscriptions[0] as WebSubscription).current_period_end,
+        start: (CUSTOMER.subscriptions[0] as WebSubscription)
+          .current_period_start,
+      },
     },
   ],
 };

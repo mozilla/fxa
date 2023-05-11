@@ -50,6 +50,7 @@ const LATEST_INVOICE_ITEMS: LatestInvoiceItems = {
       currency: 'usd',
       id: 'plan_8675309',
       name: 'Example product',
+      period: { end: 1600208907, start: 1600208907 },
     },
   ],
   subtotal: 599,

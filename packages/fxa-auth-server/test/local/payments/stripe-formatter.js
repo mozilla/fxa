@@ -15,11 +15,27 @@ const previewInvoiceWithTax = require('./fixtures/stripe/invoice_preview_tax.jso
 const previewInvoiceWithDiscountAndTax = require('./fixtures/stripe/invoice_preview_tax_discount.json');
 const { deepCopy } = require('./util');
 
+function buildExpectedLineItems(invoice) {
+  return invoice.line_items.map((item) => ({
+    amount: item.amount,
+    currency: item.currency,
+    id: item.id,
+    name: item.name,
+    period: {
+      end: item.period.end,
+      start: item.period.start,
+    },
+  }));
+}
+
 describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats an invoice with tax', () => {
     const invoice = stripeInvoiceToFirstInvoicePreviewDTO(
       deepCopy(previewInvoiceWithTax)
     );
+    const expectedLineItems = buildExpectedLineItems(invoice);
+
+    assert.deepEqual(invoice.line_items, expectedLineItems);
     assert.equal(invoice.total, previewInvoiceWithTax.total);
     assert.equal(invoice.subtotal, previewInvoiceWithTax.subtotal);
     assert.equal(
@@ -97,6 +113,9 @@ describe('stripeInvoiceToLatestInvoiceItemsDTO', () => {
     const invoice = stripeInvoiceToLatestInvoiceItemsDTO(
       deepCopy(previewInvoiceWithTax)
     );
+    const expectedLineItems = buildExpectedLineItems(invoice);
+
+    assert.deepEqual(invoice.line_items, expectedLineItems);
     assert.equal(invoice.total, previewInvoiceWithTax.total);
     assert.equal(invoice.subtotal, previewInvoiceWithTax.subtotal);
     assert.equal(

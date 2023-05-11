@@ -505,13 +505,19 @@ describe('API requests', () => {
       const promotionCode = 'VALID';
       const expected: FirstInvoicePreview = {
         subtotal: 200,
+        subtotal_excluding_tax: 200,
         total: 170,
+        total_excluding_tax: 170,
         line_items: [
           {
             amount: 200,
             currency: 'usd',
             id: priceId,
             name: 'Plan name',
+            period: {
+              end: 1715457345,
+              start: 1715457345,
+            },
           },
         ],
         discount: {

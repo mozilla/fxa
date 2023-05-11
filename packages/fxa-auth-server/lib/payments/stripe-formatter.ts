@@ -21,6 +21,10 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       id: line.price!.id,
       name: line.description || '',
+      period: {
+        end: line.period.end,
+        start: line.period.start,
+      },
     })),
   };
 
