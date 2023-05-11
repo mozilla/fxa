@@ -61,7 +61,7 @@ const SignUpPasswordView = FormView.extend({
   },
 
   logView() {
-    GleanMetrics.registration.view.record();
+    GleanMetrics.registration.view();
     return proto.logView.call(this);
   },
 

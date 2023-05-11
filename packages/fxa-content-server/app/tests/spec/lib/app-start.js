@@ -456,10 +456,21 @@ describe('lib/app-start', () => {
 
   describe('initializeGleanMetrics', () => {
     it('calls GleanMetrics.initialize', () => {
+      const metrics = { m: Date.now() };
+      const relier = { r: Date.now() };
+      const user = { u: Date.now() };
+      const userAgent = { ua: Date.now() };
+      const appStart = new AppStart({ config, metrics, relier, user });
+      sinon.stub(appStart, 'getUserAgent').returns(userAgent);
       const stub = sinon.stub(GleanMetrics, 'initialize');
       appStart.initializeGlean();
       sinon.assert.calledOnce(stub);
-      sinon.assert.calledWith(stub, config.glean);
+      sinon.assert.calledWith(stub, config.glean, {
+        metrics,
+        relier,
+        user,
+        userAgent,
+      });
       stub.restore();
     });
   });

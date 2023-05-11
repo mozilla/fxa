@@ -335,6 +335,20 @@ const conf = (module.exports = convict({
       env: 'GLEAN_SERVER_ENDPOINT',
       format: 'url',
     },
+
+    // debug configs
+    logPings: {
+      default: false,
+      doc: 'log pings to the console',
+      env: 'GLEAN_LOG_PINGS',
+      format: Boolean,
+    },
+    debugViewTag: {
+      default: '',
+      doc: 'the tag with which to log pings to The Glean Debug View (https://mozilla.github.io/glean/book/user/debugging/index.html#glean-debug-view)',
+      env: 'GLEAN_DEBUG_VIEW_TAG',
+      format: String,
+    },
   },
   settings_gql_url: {
     default: 'http://localhost:8290',

@@ -53,6 +53,8 @@ module.exports = function (config) {
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
   const GLEAN_APP_CHANNEL = config.get('glean.appChannel');
   const GLEAN_SERVER_ENDPOINT = config.get('glean.serverEndpoint');
+  const GLEAN_LOG_PINGS = config.get('glean.logPings');
+  const GLEAN_DEBUG_VIEW_TAG = config.get('glean.debugViewTag');
 
   // Note that this list is only enforced for clients that use login_hint/email
   // with prompt=none. id_token_hint clients are not subject to this check.
@@ -106,6 +108,8 @@ module.exports = function (config) {
       appDisplayVersion: RELEASE,
       channel: GLEAN_APP_CHANNEL,
       serverEndpoint: GLEAN_SERVER_ENDPOINT,
+      logPings: GLEAN_LOG_PINGS,
+      debugViewTag: GLEAN_DEBUG_VIEW_TAG,
     },
   };
 

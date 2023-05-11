@@ -19,6 +19,7 @@
     "handle-callback-err": "off"
   },
   "ignorePatterns": [
+    "app/scripts/lib/glean/*.js",
     "dist",
     "node_modules",
     "pm2.config.js"

@@ -78,14 +78,16 @@ registerSuite('routes/get-index', {
                 config.get('fxaccount_url')
               );
               assert.equal(sentConfig.env, config.get('env'));
-              const serversideGleanConfig = config.get('glean');
+              const serverSideGleanConfig = config.get('glean');
               const frontendGleanConfig = {
-                enabled: serversideGleanConfig.enabled,
-                applicationId: serversideGleanConfig.applicationId,
-                uploadEnabled: serversideGleanConfig.uploadEnabled,
+                enabled: serverSideGleanConfig.enabled,
+                applicationId: serverSideGleanConfig.applicationId,
+                uploadEnabled: serverSideGleanConfig.uploadEnabled,
                 appDisplayVersion: sentConfig.release,
-                channel: serversideGleanConfig.appChannel,
-                serverEndpoint: serversideGleanConfig.serverEndpoint,
+                channel: serverSideGleanConfig.appChannel,
+                serverEndpoint: serverSideGleanConfig.serverEndpoint,
+                logPings: serverSideGleanConfig.logPings,
+                debugViewTag: serverSideGleanConfig.debugViewTag,
               };
               assert.deepEqual(sentConfig.glean, frontendGleanConfig);
               assert.equal(
