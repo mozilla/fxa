@@ -48,7 +48,7 @@ async function init() {
     )
     .option(
       '-e, --exclude [string]',
-      'Do not sign customers up for the destination plan if they have a subscription to a price in this list',
+      'Do not touch customers if they have a subscription to a price in this list',
       ''
     )
     .option(
