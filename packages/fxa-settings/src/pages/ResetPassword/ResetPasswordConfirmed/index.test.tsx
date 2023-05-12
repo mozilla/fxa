@@ -13,6 +13,8 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+const continueHandler = jest.fn();
+
 describe('ResetPasswordConfirmed', () => {
   it('renders Ready component as expected', () => {
     render(<ResetPasswordConfirmed isSignedIn isSync={false} />);
@@ -36,9 +38,7 @@ describe('ResetPasswordConfirmed', () => {
       <ResetPasswordConfirmed
         isSignedIn
         isSync={false}
-        continueHandler={() => {
-          console.log('beepboop');
-        }}
+        {...{ continueHandler }}
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');

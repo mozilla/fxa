@@ -16,32 +16,95 @@ const account = {
   ...MOCK_ACCOUNT,
 } as unknown as Account;
 
+const accountWithLongEmail = {
+  ...MOCK_ACCOUNT,
+  primaryEmail: {
+    email:
+      'supercalifragilisticexpialidocious@marypoppins.superfan.conference.com',
+  },
+} as unknown as Account;
+
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
-it('renders button as expected', () => {
+beforeAll(() => {
   window.URL.createObjectURL = jest.fn();
-  render(
-    <AppContext.Provider value={{ account }}>
-      <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
-    </AppContext.Provider>
-  );
-  expect(screen.getByText('Download your recovery key')).toBeInTheDocument();
 });
 
-it('emits a metrics event when the link is clicked', async () => {
-  window.URL.createObjectURL = jest.fn();
-  render(
-    <AppContext.Provider value={{ account }}>
-      <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
-    </AppContext.Provider>
-  );
-  const downloadButton = screen.getByText('Download your recovery key');
-  fireEvent.click(downloadButton);
+describe('ButtonDownloadRecoveryKey', () => {
+  it('renders button as expected', () => {
+    render(
+      <AppContext.Provider value={{ account }}>
+        <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
+      </AppContext.Provider>
+    );
+    screen.getByText('Download your account recovery key');
+  });
 
-  expect(logViewEvent).toHaveBeenCalledWith(
-    `flow.${viewName}`,
-    'recovery-key.download-option'
-  );
+  it('sets the filename as expected with a reasonably-sized email', () => {
+    render(
+      <AppContext.Provider value={{ account }}>
+        <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
+      </AppContext.Provider>
+    );
+    const downloadButtonDownloadAttribute = screen
+      .getByText('Download your account recovery key')
+      .getAttribute('download');
+
+    // Test the date formatting
+    const mockDateObject = '2023-05-10T17:00:40.722Z';
+    const mockDateFunctionOutput = new Date(mockDateObject)
+      .toISOString()
+      .split('T')[0];
+    const mockExpectedDate = '2023-05-10';
+
+    expect(mockDateFunctionOutput).toEqual(mockExpectedDate);
+
+    // Filename should be created from current date
+    const date = new Date().toISOString().split('T')[0];
+
+    expect(downloadButtonDownloadAttribute).toContain(
+      `Firefox-Recovery-Key_${date}_${account.primaryEmail.email}.txt`
+    );
+    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(70);
+  });
+
+  it('sets the filename with a truncated email as expected when the email is very long', () => {
+    render(
+      <AppContext.Provider value={{ account: accountWithLongEmail }}>
+        <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
+      </AppContext.Provider>
+    );
+    const downloadButtonDownloadAttribute = screen
+      .getByText('Download your account recovery key')
+      .getAttribute('download');
+    const currentDate = new Date();
+    const date = currentDate.toISOString().split('T')[0];
+    const fullFilename = `Firefox-Recovery-Key_${date}_${accountWithLongEmail.primaryEmail.email}.txt`;
+    // Full filene would be longer than 70 char if not truncated
+    expect(fullFilename.length).toBeGreaterThan(70);
+    // actual filename is truncated
+    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(70);
+    // filename still contains full prefix and date
+    expect(downloadButtonDownloadAttribute).toContain('Firefox-Recovery-Key');
+    expect(downloadButtonDownloadAttribute).toContain(date);
+  });
+
+  it('emits a metrics event when the link is clicked', () => {
+    render(
+      <AppContext.Provider value={{ account }}>
+        <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
+      </AppContext.Provider>
+    );
+    const downloadButton = screen.getByText(
+      'Download your account recovery key'
+    );
+    fireEvent.click(downloadButton);
+
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'download-option'
+    );
+  });
 });

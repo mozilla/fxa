@@ -18,7 +18,7 @@ interface IconListItemProps {
 
 export const IconListItem = ({ icon, children }: IconListItemProps) => {
   return (
-    <li className="flex gap-2 items-start text-xs my-2">
+    <li className="flex gap-2 items-start my-2">
       <span
         className="ltr:mr-1 rtl:ml-1 text-grey-400"
         aria-hidden="true"
@@ -27,7 +27,7 @@ export const IconListItem = ({ icon, children }: IconListItemProps) => {
       >
         {icon}
       </span>
-      <span className="flex flex-col gap-4 text-start">{children}</span>
+      <span className="flex flex-col gap-4 text-start text-sm">{children}</span>
     </li>
   );
 };

@@ -5,20 +5,61 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
-import { LocationProvider } from '@reach/router';
 import PageRecoveryKeyCreate from '.';
+import { Account, AppContext } from '../../../models';
+import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { LocationProvider } from '@reach/router';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export default {
-  title: 'Pages/Settings/PageRecoveryKeyCreate',
+  title: 'Pages/Settings/RecoveryKeyCreate',
   component: PageRecoveryKeyCreate,
-  decorators: [
-    withLocalization,
-    (Story) => (
-      <LocationProvider>
-        <Story />
-      </LocationProvider>
-    ),
-  ],
+  decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => <PageRecoveryKeyCreate />;
+const recoveryKeyRaw = new Uint8Array(20);
+
+const accountWithSuccess = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => recoveryKeyRaw,
+} as unknown as Account;
+
+const accountWithPasswordError = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    throw AuthUiErrors.INCORRECT_PASSWORD;
+  },
+} as unknown as Account;
+
+const accountWithThrottledError = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    throw AuthUiErrors.THROTTLED;
+  },
+} as unknown as Account;
+
+const accountWithUnexpectedError = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    throw AuthUiErrors.UNEXPECTED_ERROR;
+  },
+} as unknown as Account;
+
+const storyWithContext = (account: Account) => {
+  const story = () => (
+    <LocationProvider>
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <PageRecoveryKeyCreate />
+      </AppContext.Provider>
+    </LocationProvider>
+  );
+  return story;
+};
+
+export const WithSuccess = storyWithContext(accountWithSuccess);
+
+export const WithPasswordError = storyWithContext(accountWithPasswordError);
+
+export const WithThrottledError = storyWithContext(accountWithThrottledError);
+
+export const WithUnexpectedError = storyWithContext(accountWithUnexpectedError);

@@ -5,9 +5,8 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, screen } from '@testing-library/react';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyInfo, {
-  viewName,
   forwardNavigationEventName,
   backwardNavigationEventName,
 } from './';
@@ -15,12 +14,28 @@ import { renderWithRouter } from '../../../models/mocks';
 
 const navigateForward = jest.fn();
 const navigateBackward = jest.fn();
+const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';
+const viewName = 'settings.account-recovery';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
+
+const renderFlowPage = () => {
+  renderWithRouter(
+    <FlowRecoveryKeyInfo
+      {...{
+        localizedBackButtonTitle,
+        localizedPageTitle,
+        navigateForward,
+        navigateBackward,
+        viewName,
+      }}
+    />
+  );
+};
 
 describe('FlowRecoveryKeyInfo', () => {
   afterEach(() => {
@@ -28,46 +43,33 @@ describe('FlowRecoveryKeyInfo', () => {
   });
 
   it('renders as expected', async () => {
-    renderWithRouter(
-      <FlowRecoveryKeyInfo
-        {...{ localizedPageTitle, navigateForward, navigateBackward }}
-      />
-    );
+    renderFlowPage();
     expect(
-      screen.getByText(
-        'Create an account recovery key in case you forget your password'
-      )
+      screen.getByRole('heading', {
+        name: 'Create an account recovery key in case you forget your password',
+      })
     ).toBeInTheDocument();
   });
 
-  it('emits the expected metrics when the user lands on this step of the flow', () => {
-    renderWithRouter(
-      <FlowRecoveryKeyInfo
-        {...{ localizedPageTitle, navigateForward, navigateBackward }}
-      />
-    );
-    expect(usePageViewEvent).toBeCalledWith(viewName);
-  });
-
   it('emits the expected metrics when user navigates forward', () => {
-    renderWithRouter(
-      <FlowRecoveryKeyInfo
-        {...{ localizedPageTitle, navigateForward, navigateBackward }}
-      />
+    renderFlowPage();
+    fireEvent.click(
+      screen.getByText('Start creating your account recovery key')
     );
-    fireEvent.click(screen.getByText('Start creating your recovery key'));
     expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(viewName, forwardNavigationEventName);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      forwardNavigationEventName
+    );
   });
 
   it('emits the expected metrics when user navigates back', () => {
-    renderWithRouter(
-      <FlowRecoveryKeyInfo
-        {...{ localizedPageTitle, navigateForward, navigateBackward }}
-      />
-    );
+    renderFlowPage();
     fireEvent.click(screen.getByTitle('Back to settings'));
     expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(viewName, backwardNavigationEventName);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      backwardNavigationEventName
+    );
   });
 });

@@ -16,6 +16,8 @@ jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+const continueHandler = jest.fn();
+
 describe('Ready', () => {
   const customServiceName = MozServices.FirefoxSync;
   const viewName = 'reset-password-confirmed';
@@ -92,13 +94,11 @@ describe('Ready', () => {
     render(
       <Ready
         {...{
+          continueHandler,
           viewName,
           isSignedIn,
         }}
         serviceName={customServiceName}
-        continueHandler={() => {
-          console.log('beepboop');
-        }}
       />
     );
 
@@ -124,11 +124,8 @@ describe('Ready', () => {
   it('emits a metrics event when a user clicks `Continue`', () => {
     render(
       <Ready
-        continueHandler={() => {
-          console.log('beepboop');
-        }}
         serviceName={customServiceName}
-        {...{ viewName, isSignedIn }}
+        {...{ continueHandler, viewName, isSignedIn }}
       />
     );
     const passwordResetContinueButton = screen.getByText('Continue');

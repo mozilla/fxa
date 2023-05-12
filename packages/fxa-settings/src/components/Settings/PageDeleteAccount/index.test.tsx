@@ -27,6 +27,7 @@ const account = {
 } as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();
+console.error = jest.fn();
 
 const advanceStep = async () => {
   await act(async () => {

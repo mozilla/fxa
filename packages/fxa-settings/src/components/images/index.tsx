@@ -5,6 +5,8 @@ import { ReactComponent as RecoveryCodes } from './graphic_recovery_codes.svg';
 import { ReactComponent as TwoFactorAuth } from './graphic_two_factor_auth.svg';
 import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
+import { ReactComponent as Key } from './graphic_key.svg';
+import { ReactComponent as Lock } from './graphic_lock.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 // Use this component to add your image into the collection of images exported below.
@@ -109,6 +111,24 @@ export const SecurityShieldImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Illustration to represent an account recovery key."
     ariaLabelFtlId="security-shield-aria-label"
     Image={SecurityShield}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const RecoveryKeyImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration to represent an account recovery key."
+    ariaLabelFtlId="recovery-key-image-aria-label"
+    Image={Key}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const LockImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration of a lock."
+    ariaLabelFtlId="lock-image-aria-label"
+    Image={Lock}
     {...{ className, ariaHidden }}
   />
 );
