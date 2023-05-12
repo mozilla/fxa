@@ -334,7 +334,10 @@ commands:
     steps:
       - run:
           name: Build Common Typescript Packages
-          command: npx nx run-many --parallel=1 --all -t build
+          command: npx nx run-many --parallel=1 -t build --projects=fxa-shared,fxa-auth-client,fxa-react
+      - run:
+          name: Compile Changed Typescript Packages
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
 
   save-workspace:
     steps:
