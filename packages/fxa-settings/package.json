@@ -69,7 +69,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.4.5",
+    "@apollo/client": "^3.6.10",
     "@emotion/react": "^11.10.0",
     "@emotion/styled": "^11.10.4",
     "@fluent/react": "^0.13.1",
