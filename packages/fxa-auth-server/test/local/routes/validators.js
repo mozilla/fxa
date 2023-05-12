@@ -798,6 +798,10 @@ describe('lib/routes/validators:', () => {
             currency: 'usd',
             id: 'plan_G93lTs8hfK7NNG',
             name: 'testo',
+            period: {
+              end: 1576287337,
+              start: 1576287337,
+            },
           },
         ],
         subtotal: 599,

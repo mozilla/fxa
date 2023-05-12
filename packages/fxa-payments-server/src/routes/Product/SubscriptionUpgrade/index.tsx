@@ -115,6 +115,10 @@ export const SubscriptionUpgrade = ({
     </div>
   ) : null;
 
+  const nextInvoiceDate =
+    invoicePreview.line_items.find((item) => item.id === selectedPlan.plan_id)
+      ?.period.end || upgradeFromSubscription.current_period_end;
+
   return (
     <>
       {updateSubscriptionPlanStatus.error && (
@@ -167,18 +171,14 @@ export const SubscriptionUpgrade = ({
             <Localized
               id="sub-update-copy"
               vars={{
-                startingDate: getLocalizedDate(
-                  upgradeFromSubscription.current_period_end
-                ),
+                startingDate: getLocalizedDate(nextInvoiceDate),
               }}
             >
               <p>
                 Your plan will change immediately, and you’ll be charged an
                 adjusted amount for the rest of your billing cycle. Starting
-                {getLocalizedDateString(
-                  upgradeFromSubscription.current_period_end
-                )}{' '}
-                you’ll be charged the full amount.
+                {getLocalizedDateString(nextInvoiceDate)} you’ll be charged the
+                full amount.
               </p>
             </Localized>
 

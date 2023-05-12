@@ -263,6 +263,10 @@ describe('#integration - remote subscriptions:', function () {
                   currency: 'usd',
                   id: 'plan_G93lTs8hfK7NNG',
                   name: 'testo',
+                  period: {
+                    end: date,
+                    start: date,
+                  },
                 },
               ],
               subtotal: 599,

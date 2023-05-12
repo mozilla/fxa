@@ -5,7 +5,10 @@ import {
   FirstInvoicePreview,
   LatestInvoiceItems,
 } from 'fxa-shared/dto/auth/payments/invoice';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
+import {
+  MozillaSubscriptionTypes,
+  WebSubscription,
+} from 'fxa-shared/subscriptions/types';
 
 import { FilteredSetupIntent } from '../lib/apiClient';
 import { Customer, Plan, Profile } from '../store/types';
@@ -304,6 +307,11 @@ export const IAP_CUSTOMER: Customer = {
   subscriptions: [IAP_GOOGLE_SUBSCRIPTION],
 };
 
+const invoicePreviewLinePeriod = {
+  end: (CUSTOMER.subscriptions[0] as WebSubscription).current_period_end,
+  start: (CUSTOMER.subscriptions[0] as WebSubscription).current_period_start,
+};
+
 export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
   line_items: [
     {
@@ -311,6 +319,7 @@ export const INVOICE_PREVIEW_WITHOUT_DISCOUNT: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,
@@ -326,6 +335,7 @@ export const INVOICE_PREVIEW_WITH_VALID_DISCOUNT: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,
@@ -383,6 +393,7 @@ export const INVOICE_PREVIEW_WITH_100_VALID_DISCOUNT: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,
@@ -403,6 +414,7 @@ export const INVOICE_PREVIEW_WITH_INVALID_DISCOUNT: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,
@@ -423,6 +435,7 @@ export const INVOICE_PREVIEW_INCLUSIVE_TAX: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,
@@ -445,6 +458,7 @@ export const INVOICE_PREVIEW_EXCLUSIVE_TAX: FirstInvoicePreview = {
       currency: 'usd',
       id: 'plan_GqM9N64ksvxaVk',
       name: '1 x 123Done Pro (at $5.00 / month)',
+      period: invoicePreviewLinePeriod,
     },
   ],
   subtotal: 500,

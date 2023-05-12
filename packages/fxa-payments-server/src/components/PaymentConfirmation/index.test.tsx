@@ -37,7 +37,8 @@ const userProfileNoDisplayName = {
 const productUrl = 'https://www.example.com';
 const defaultButtonLabel = 'Continue to download';
 
-const selectedPlan = {
+const selectedPlan: Plan = {
+  active: true,
   plan_id: 'planId',
   plan_name: 'Pro level',
   product_id: 'fpnID',
