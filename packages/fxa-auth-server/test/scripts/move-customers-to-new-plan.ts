@@ -277,6 +277,13 @@ describe('CustomerPlanMover', () => {
         expect(createSubscriptionStub.notCalled).true;
       });
 
+      it('does not cancel subscription if customer is excluded', async () => {
+        customerPlanMover.isCustomerExcluded = sinon.stub().resolves(true);
+        await customerPlanMover.convertSubscription(mockFirestoreSub);
+
+        expect(cancelSubscriptionStub.notCalled).true;
+      });
+
       it('does not move subscription if subscription is not in active state', async () => {
         await customerPlanMover.convertSubscription({
           ...mockFirestoreSub,

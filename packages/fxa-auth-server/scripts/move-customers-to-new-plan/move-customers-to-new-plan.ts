@@ -140,10 +140,10 @@ export class CustomerPlanMover {
 
       const isExcluded = this.isCustomerExcluded(customer.subscriptions.data);
 
-      if (!this.dryRun) {
+      if (!this.dryRun && !isExcluded) {
         await this.cancelSubscription(firestoreSubscription);
 
-        if (!isExcluded) await this.createSubscription(customer.id);
+        await this.createSubscription(customer.id);
       }
 
       const report = this.buildReport(customer, account, isExcluded);
