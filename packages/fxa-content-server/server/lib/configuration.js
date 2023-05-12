@@ -171,6 +171,13 @@ const conf = (module.exports = convict({
         env: 'FEATURE_FLAGS_REDIS_HOST',
         format: String,
       },
+      password: {
+        default: 'fxa123',
+        doc: 'Redis password',
+        env: 'REDIS_PASSWORD',
+        sensitive: true,
+        format: String,
+      },
       initialBackoff: {
         default: '100 milliseconds',
         doc: 'Initial backoff for feature-flagging Redis connection retries, increases exponentially with each attempt',

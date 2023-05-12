@@ -37,6 +37,7 @@ describe('#integration - scripts/feature-flags:', function () {
 
   before(async () => {
     redis = new Redis({
+      password: process.env.REDIS_PASSWORD || 'fxa123',
       host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
       keyPrefix: 'featureFlags:',

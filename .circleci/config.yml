@@ -101,10 +101,12 @@ executors:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
+        command: --requirepass fxa123
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
+      REDIS_PASSWORD: fxa123
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -117,6 +119,7 @@ executors:
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner
       - image: redis
+        command: --requirepass fxa123
       - image: memcached
       - image: pafortin/goaws
       - image: cimg/mysql:8.0.28
@@ -142,6 +145,7 @@ executors:
       REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES: true
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       CUSTOMS_SERVER_URL: none
+      REDIS_PASSWORD: fxa123
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.

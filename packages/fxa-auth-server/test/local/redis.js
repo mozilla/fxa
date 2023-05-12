@@ -17,6 +17,7 @@ const redis = require('../../lib/redis')(
   {
     ...config.redis.accessTokens,
     ...config.redis.sessionTokens,
+    password: config.redis.password,
     prefix,
     recordLimit,
     maxttl,
