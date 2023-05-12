@@ -2,15 +2,14 @@ import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { MockApp } from '../../../lib/test-utils';
-import { SELECTED_PLAN } from '../../../lib/mock-data';
+import {
+  IAP_APPLE_SUBSCRIPTION,
+  IAP_GOOGLE_SUBSCRIPTION,
+  SELECTED_PLAN,
+} from '../../../lib/mock-data';
 import { SignInLayout } from '../../../components/AppLayout';
 
-import {
-  AppleSubscription,
-  GooglePlaySubscription,
-  IapSubscription,
-  MozillaSubscriptionTypes,
-} from 'fxa-shared/subscriptions/types';
+import { IapSubscription } from 'fxa-shared/subscriptions/types';
 
 import SubscriptionIapItem, {
   SubscriptionIapItemProps,
@@ -19,20 +18,6 @@ import { PickPartial } from '../../../lib/types';
 
 const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
-const appleSubscription: IapSubscription = {
-  _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
-  product_id: SELECTED_PLAN.product_id,
-};
-
-const googleSubscription: IapSubscription = {
-  _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-  product_id: SELECTED_PLAN.product_id,
-  auto_renewing: true,
-  expiry_time_millis: Date.now(),
-  package_name: 'mozilla.cooking.with.foxkeh.monthly',
-  sku: 'mozilla.foxkeh',
-};
-
 type SubjectProps = PickPartial<
   SubscriptionIapItemProps,
   'productName' | 'customerSubscription'
@@ -40,7 +25,7 @@ type SubjectProps = PickPartial<
 
 const Subject = ({
   productName = SELECTED_PLAN.product_name,
-  customerSubscription = googleSubscription,
+  customerSubscription = IAP_GOOGLE_SUBSCRIPTION,
 }: SubjectProps) => {
   return (
     <MockApp>
@@ -73,9 +58,9 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
       <Subject
         customerSubscription={
           {
-            ...googleSubscription,
+            ...IAP_GOOGLE_SUBSCRIPTION,
             auto_renewing: false,
-          } as GooglePlaySubscription
+          } as IapSubscription
         }
       />
     );
@@ -86,7 +71,9 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
   });
   it('renders as expected for an App Store subscription', async () => {
     const { findByTestId, queryByTestId } = render(
-      <Subject customerSubscription={appleSubscription as AppleSubscription} />
+      <Subject
+        customerSubscription={IAP_APPLE_SUBSCRIPTION as IapSubscription}
+      />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
     expect(subscriptionItemEle).toBeInTheDocument();
@@ -98,10 +85,10 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
   });
 
   it('renders an App store subscription with no expiration data', async () => {
-    const subscription = deepCopy(appleSubscription);
+    const subscription = deepCopy(IAP_APPLE_SUBSCRIPTION);
 
     const { findByTestId } = render(
-      <Subject customerSubscription={subscription as AppleSubscription} />
+      <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
     expect(subscriptionItemEle).toBeInTheDocument();
@@ -112,12 +99,12 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
   });
 
   it('renders an App store subscription with expiration data and auto renew', async () => {
-    const subscription = deepCopy(appleSubscription);
+    const subscription = deepCopy(IAP_APPLE_SUBSCRIPTION);
     subscription.expiry_time_millis = 1656759852811;
     subscription.auto_renewing = true;
 
     const { findByTestId } = render(
-      <Subject customerSubscription={subscription as AppleSubscription} />
+      <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
     expect(subscriptionItemEle).toBeInTheDocument();
@@ -129,12 +116,12 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
   });
 
   it('renders an App store subscription with expiration data and no auto renew', async () => {
-    const subscription = deepCopy(appleSubscription);
+    const subscription = deepCopy(IAP_APPLE_SUBSCRIPTION);
     subscription.expiry_time_millis = 1656759852811;
     subscription.auto_renewing = false;
 
     const { findByTestId } = render(
-      <Subject customerSubscription={subscription as AppleSubscription} />
+      <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
     expect(subscriptionItemEle).toBeInTheDocument();

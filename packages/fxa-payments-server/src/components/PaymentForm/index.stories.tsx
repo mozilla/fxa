@@ -4,77 +4,14 @@ import { action } from '@storybook/addon-actions';
 import MockApp from '../../../.storybook/components/MockApp';
 import PaymentForm, { PaymentFormProps } from './index';
 import { State as ValidatorState } from '../../lib/validator';
-import { Customer } from '../../store/types';
 import { useNonce } from '../../lib/hooks';
 import { SignInLayout } from '../AppLayout';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
-import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
+import { CUSTOMER, SELECTED_PLAN } from '../../lib/mock-data';
 
 export default {
   title: 'components/PaymentFormV2',
   component: PaymentForm,
 } as Meta;
-
-const PRODUCT_ID = 'product_8675309';
-const PLAN_ID = 'plan_123';
-const PLAN = {
-  plan_id: PLAN_ID,
-  product_id: PRODUCT_ID,
-  product_name: 'Example Product',
-  currency: 'USD',
-  amount: 1099,
-  interval: 'month' as const,
-  interval_count: 1,
-  active: true,
-  plan_metadata: null,
-  product_metadata: {
-    'product:termsOfServiceURL':
-      'https://www.mozilla.org/en-US/about/legal/terms/services/',
-    'product:termsOfServiceURL:fr':
-      'https://www.mozilla.org/fr/about/legal/terms/services/',
-    'product:privacyNoticeURL':
-      'https://www.mozilla.org/en-US/privacy/websites/',
-    'product:privacyNoticeURL:fr':
-      'https://www.mozilla.org/fr/privacy/websites/',
-  },
-};
-
-const invoice: LatestInvoiceItems = {
-  line_items: [],
-  subtotal: 735,
-  subtotal_excluding_tax: null,
-  total: 735,
-  total_excluding_tax: null,
-};
-
-const CUSTOMER: Customer = {
-  billing_name: 'Foo Barson',
-  payment_provider: 'stripe',
-  payment_type: 'credit',
-  last4: '5309',
-  exp_month: '02',
-  exp_year: '2099',
-  brand: 'Visa',
-  subscriptions: [
-    {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: '123doneProMonthly',
-      product_id: 'prod_123',
-      product_name: '123done Pro',
-      latest_invoice: '628031D-0002',
-      latest_invoice_items: invoice,
-      status: 'active',
-      cancel_at_period_end: false,
-      created: Date.now(),
-      current_period_end: Date.now() / 1000 + 86400 * 31,
-      current_period_start: Date.now() / 1000 - 86400 * 31,
-      end_at: null,
-      promotion_duration: null,
-      promotion_end: null,
-    },
-  ],
-};
 
 const mockValidatorState = (): ValidatorState => ({
   error: null,
@@ -117,7 +54,7 @@ const defaultPaymentFormProps: MostPaymentFormProps = {
   inProgress: false,
   confirm: false,
   customer: undefined,
-  plan: PLAN,
+  plan: SELECTED_PLAN,
   onSubmit: action('onSubmit'),
   onChange: () => {},
   onMounted: () => {},

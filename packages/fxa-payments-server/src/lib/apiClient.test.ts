@@ -546,7 +546,10 @@ describe('API requests', () => {
       const invoicePreview: SubsequentInvoicePreview = {
         subscriptionId: 'test',
         period_start: 0,
+        subtotal: 100,
+        subtotal_excluding_tax: null,
         total: 100,
+        total_excluding_tax: null,
       };
       const expected = [invoicePreview];
       const requestMock = nock(AUTH_BASE_URL).get(path).reply(200, expected);
@@ -685,6 +688,7 @@ describe('API requests', () => {
   describe('apiCapturePaypalPayment', () => {
     const path = '/v1/oauth/subscriptions/active/new-paypal';
     const params = {
+      idempotencyKey: '',
       priceId: 'price_12345',
       productId: 'product_2a',
       ...MOCK_CHECKOUT_TOKEN,

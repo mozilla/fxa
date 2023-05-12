@@ -153,9 +153,12 @@ describe('SubscriptionSuccess', () => {
             customer: MOCK_CUSTOMER,
             isMobile: true,
             coupon: {
+              expired: false,
               promotionCode: 'Test',
               type: 'repeating',
               discountAmount: 10,
+              durationInMonths: 1,
+              maximallyRedeemed: false,
               valid: true,
             },
           }}

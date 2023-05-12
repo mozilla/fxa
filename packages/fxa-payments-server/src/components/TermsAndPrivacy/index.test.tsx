@@ -7,6 +7,7 @@ import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
 import { updateConfig } from '../../lib/config';
+import { Plan } from 'fxa-shared/subscriptions/types';
 
 const enTermsOfServiceURL =
   'https://www.mozilla.org/en-US/about/legal/terms/services/';
@@ -19,7 +20,7 @@ const frTermsOfServiceDownloadURL =
   'https://www.mozilla.org/fr/about/legal/terms/services/download.pdf';
 const frPrivacyNoticeURL = 'https://www.mozilla.org/fr/privacy/websites/';
 
-const plan = {
+const plan: Plan = {
   ...MOCK_PLANS[0],
   plan_metadata: {
     'product:termsOfServiceURL': enTermsOfServiceURL,
@@ -35,13 +36,15 @@ const planWithNoLegalLinks = {
   ...MOCK_PLANS[0],
 };
 
-const planWithConfiguration = {
+const planWithConfiguration: Plan = {
   ...MOCK_PLANS[0],
   configuration: {
     urls: {
       termsOfService: `${enTermsOfServiceURL}/config`,
       termsOfServiceDownload: `${enTermsOfServiceDownloadURL}/config`,
       privacyNotice: `${enPrivacyNoticeURL}/config`,
+      successActionButton: 'https://test/1',
+      webIcon: 'https://webicon',
     },
     locales: {
       fr: {
@@ -52,6 +55,10 @@ const planWithConfiguration = {
         },
       },
     },
+    productSet: ['testSet'],
+    styles: {},
+    support: {},
+    uiContent: {},
   },
 };
 

@@ -7,6 +7,7 @@ import { AppContext, defaultAppContext } from '../../lib/AppContext';
 import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 import { SELECTED_PLAN } from '../../lib/mock-data';
+import { RawMetadata } from 'fxa-shared/subscriptions/types';
 
 afterEach(cleanup);
 
@@ -15,7 +16,7 @@ const {
     'product:termsOfServiceURL': termsOfServiceURL,
     'product:privacyNoticeURL': privacyNoticeURL,
   },
-} = SELECTED_PLAN;
+}: RawMetadata = SELECTED_PLAN;
 
 describe('AppLayout', () => {
   const subject = () => {

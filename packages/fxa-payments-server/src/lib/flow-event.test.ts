@@ -77,7 +77,9 @@ it('initializes when given all flow params', () => {
     flow_begin_time: 9001,
     flow_id: 'ipsoandfacto',
   });
-  FlowEvent.logAmplitudeEvent(eventGroup, eventType, mockNow - 9001, {});
+  FlowEvent.logAmplitudeEvent(eventGroup, eventType, {
+    flowBeginTime: mockNow - 9001,
+  });
 
   expect(window.navigator.sendBeacon).toHaveBeenCalled();
 });

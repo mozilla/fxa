@@ -62,6 +62,7 @@ const WrapNewUserEmailForm = ({
             invalidDomain,
           })
         }
+        onToggleNewsletterCheckbox={() => {}}
         selectedPlan={selectedPlan}
       />
     </div>

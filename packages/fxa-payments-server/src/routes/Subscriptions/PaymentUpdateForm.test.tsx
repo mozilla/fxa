@@ -95,6 +95,17 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     confirmCardSetup: jest.fn().mockResolvedValue(CONFIRM_CARD_SETUP_RESULT),
   });
 
+  const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
+    return (
+      <button
+        data-testid="paypal-button"
+        onClick={async () => {
+          onApprove!({ orderID: 'new-sub' });
+        }}
+      />
+    );
+  };
+
   let consoleSpy: jest.SpyInstance<void, [any?, ...any[]]>;
 
   beforeEach(() => {
@@ -161,11 +172,6 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     };
 
     const refreshSubscriptions = jest.fn();
-
-    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onApprove} />;
-    };
-
     await act(async () => {
       render(
         <Subject
@@ -220,10 +226,6 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     };
 
     const refreshSubscriptions = jest.fn();
-
-    const MockedButtonBase = ({ onApprove }: ButtonBaseProps) => {
-      return <button data-testid="paypal-button" onClick={onApprove} />;
-    };
 
     await act(async () => {
       render(

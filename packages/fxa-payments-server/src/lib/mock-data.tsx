@@ -6,6 +6,7 @@ import {
   LatestInvoiceItems,
 } from 'fxa-shared/dto/auth/payments/invoice';
 import {
+  IapSubscription,
   MozillaSubscriptionTypes,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
@@ -172,7 +173,7 @@ export const PAYPAL_CUSTOMER: Customer = {
   ],
 };
 
-export const PLAN = {
+export const PLAN: Plan = {
   plan_id: 'plan_456',
   product_id: PRODUCT_ID,
   product_name: 'Example Product',
@@ -282,7 +283,7 @@ export const MOCK_CURRENCY_ERROR = {
   country: 'RO',
 };
 
-export const IAP_GOOGLE_SUBSCRIPTION = {
+export const IAP_GOOGLE_SUBSCRIPTION: IapSubscription = {
   _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
   product_id: 'prod_123',
   auto_renewing: true,

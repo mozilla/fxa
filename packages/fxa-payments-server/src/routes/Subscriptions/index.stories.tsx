@@ -19,6 +19,7 @@ import { CUSTOMER, FILTERED_SETUP_INTENT } from '../../lib/mock-data';
 import {
   IapSubscription,
   MozillaSubscriptionTypes,
+  Plan,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import { LatestInvoiceItems } from 'fxa-shared/dto/auth/payments/invoice';
@@ -111,7 +112,7 @@ const PROFILE: Profile = {
   metricsEnabled: true,
 };
 
-const PLANS = [
+const PLANS: Plan[] = [
   {
     plan_id: PLAN_ID,
     product_id: PRODUCT_ID,
