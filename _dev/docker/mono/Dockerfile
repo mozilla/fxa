@@ -1,13 +1,30 @@
-FROM node:18.14-slim
+# Multi stage docker build for fxa-mono repo. Note that stages should be cached due to docker layer caching being
+# turned on in CI.
 
+FROM node:18.14-slim AS fxa-base
 RUN set -x \
     && addgroup --gid 10001 app \
     && adduser --disabled-password \
-        --gecos '' \
-        --gid 10001 \
-        --home /build \
-        --uid 10001 \
-        app
+    --gecos '' \
+    --gid 10001 \
+    --home /build \
+    --uid 10001 \
+    app
+
+# Utilities for fxa build
+FROM fxa-base as fxa-build-utils
+RUN apt-get update && apt-get install -y \
+    git-core \
+    python3-setuptools \
+    python3-dev \
+    build-essential \
+    zip \
+    jq \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Utilities for fxa services
+FROM fxa-base as fxa-utils
 RUN apt-get update && apt-get install -y \
     netcat \
     openssl \
@@ -16,6 +33,15 @@ RUN apt-get update && apt-get install -y \
     iputils-ping \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=fxa-builder:latest --chown=app:app /fxa /fxa
-COPY --from=fxa-builder:latest --chown=app:app /fxa/packages/version.json /app/version.json
+# Build mono repo
+FROM fxa-build-utils as fxa-build
+COPY --chown=app:app . /fxa
+USER app
+WORKDIR /fxa
+RUN _dev/docker/mono/build.sh
+
+# Final image
+FROM fxa-utils as fxa-mono
+COPY --from=fxa-build --chown=app:app /fxa /fxa
+COPY --from=fxa-build --chown=app:app /fxa/packages/version.json /app/version.json
 USER app

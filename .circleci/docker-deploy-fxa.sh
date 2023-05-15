@@ -1,11 +1,18 @@
 #!/bin/bash -e
 
-MODULE=$1
-TAG=$2
+TAG=$1
+if [[ -z "${TAG}" ]]; then
+  echo "No tag specified! Exiting..."
+  exit 1
+fi
 
+MODULE=fxa-mono
 DOCKER_USER=DOCKER_USER_${MODULE//-/_}
 DOCKER_PASS=DOCKER_PASS_${MODULE//-/_}
 DOCKERHUB_REPO=mozilla/${MODULE}
+
+DIR=$(dirname "$0")
+cd "$DIR"
 
 if [ "${CIRCLE_BRANCH}" == "main" ]; then
   DOCKER_TAG="latest"

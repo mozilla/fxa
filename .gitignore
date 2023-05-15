@@ -58,7 +58,6 @@ coverage.html
 test-results.xml
 
 # Local configuration
-/_dev/local-build-env.sh
 /_dev/firebase/.config
 
 # System files
