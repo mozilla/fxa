@@ -15,7 +15,6 @@ import SignInPasswordView from 'views/sign_in_password';
 import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
-import CannotCreateAccountView from '../../../scripts/views/cannot_create_account';
 
 describe('lib/router', () => {
   let broker;
@@ -596,7 +595,7 @@ describe('lib/router', () => {
         sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
         routeHandler = router.createReactOrBackboneViewHandler(
           'cannot_create_account',
-          CannotCreateAccountView
+          SignInPasswordView
         );
 
         assert.equal(router.navigate.callCount, 0);
@@ -608,7 +607,7 @@ describe('lib/router', () => {
       it('renders Backbone view when React conditions are not met', () => {
         routeHandler = router.createReactOrBackboneViewHandler(
           'reset_password',
-          CannotCreateAccountView,
+          SignInPasswordView,
           additionalParams,
           viewConstructorOptions
         );
@@ -616,7 +615,7 @@ describe('lib/router', () => {
         return routeHandler.then(() => {
           assert.isTrue(
             router.showView.calledWith(
-              CannotCreateAccountView,
+              SignInPasswordView,
               viewConstructorOptions
             )
           );

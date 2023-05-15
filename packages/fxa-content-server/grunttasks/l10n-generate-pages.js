@@ -5,9 +5,8 @@
 // grunt task to create a copy of each static page for each locale.
 // Three steps are performed to create the pages:
 //  1. po files for each locale are converted to JSON
-//  2. Terms/Privacy markdown documents are converted to HTML
-//  3. Templates are compiled using the JSON strings and legal doc translations, and with URLs for locale
-// specific resources.
+//  2. Templates are compiled using the JSON strings and with URLs for
+// locale specific resources.
 //
 // They compiled templates are placed in the server's compiled template directory to await further processing
 // (minification, revving).
@@ -16,10 +15,7 @@ module.exports = function (grunt) {
   var path = require('path');
   const versionInfo = require('../server/lib/version');
   var Handlebars = require('handlebars');
-  var Promise = require('bluebird');
-  var getLegalTemplates = require('../server/lib/legal-templates');
 
-  var defaultLegalLang;
   var templateSrc;
   var templateDest;
 
@@ -35,13 +31,6 @@ module.exports = function (grunt) {
     'staticResourceUrl',
   ];
 
-  // Legal templates for each locale, key'ed by languages, e.g.
-  // templates['en'] = { terms: ..., privacy: ... }
-  var legalTemplates = {
-    // The debug language does not have template files, so use an empty object
-    'db-LB': {},
-  };
-
   // Make the 'gettext' function available in the templates.
   Handlebars.registerHelper('t', function (string) {
     if (string.fn) {
@@ -53,7 +42,6 @@ module.exports = function (grunt) {
 
   grunt.registerTask('l10n-generate-pages', [
     'l10n-create-json',
-    'l10n-generate-tos-pp',
     'l10n-compile-templates',
   ]);
 
@@ -69,38 +57,18 @@ module.exports = function (grunt) {
       var supportedLanguages = grunt.config.get(
         'server.i18n.supportedLanguages'
       );
-      defaultLegalLang = grunt.config.get('server.i18n.defaultLegalLang');
-      var legalTemplateLanguages = supportedLanguages.concat(defaultLegalLang);
 
       templateSrc = grunt.config.get('yeoman.page_template_src');
       templateDest = grunt.config.get('yeoman.page_template_dist');
 
-      // Legal templates have already been generated and placed in the template destination directory.
-      var getTemplate = getLegalTemplates(i18n, templateDest);
-
       // Create a cache of the templates so we can reference them synchronously later
-      Promise.settle(
-        legalTemplateLanguages.map(function (lang) {
-          return Promise.all([
-            getTemplate('terms', lang, defaultLegalLang),
-            getTemplate('privacy', lang, defaultLegalLang),
-          ]).then(function (temps) {
-            legalTemplates[lang] = {
-              privacy: temps[1],
-              terms: temps[0],
-            };
-          });
-        })
-      )
-        .then(function () {
-          supportedLanguages.forEach(function (lang) {
-            generatePagesForLanguage(i18n, lang, {
-              versionInfo: versionInfo,
-            });
-          });
-          done();
-        })
-        .then(null, done);
+
+      supportedLanguages.forEach(function (lang) {
+        generatePagesForLanguage(i18n, lang, {
+          versionInfo: versionInfo,
+        });
+      });
+      done();
     }
   );
 
@@ -131,12 +99,6 @@ module.exports = function (grunt) {
 
     grunt.file.copy(srcPath, destPath, {
       process: function (contents) {
-        var terms =
-          legalTemplates[context.lang].terms ||
-          legalTemplates[defaultLegalLang].terms;
-        var privacy =
-          legalTemplates[context.lang].privacy ||
-          legalTemplates[defaultLegalLang].privacy;
         var template = Handlebars.compile(contents);
         var data = {
           bundlePath:
@@ -147,8 +109,6 @@ module.exports = function (grunt) {
           lang: context.lang,
           lang_dir: context.lang_dir, //eslint-disable-line camelcase
           locale: context.locale,
-          privacy: privacy,
-          terms: terms,
         };
         // Propagate any tags that are required for data
         // to be rendered dynamically by the server.
@@ -163,4 +123,3 @@ module.exports = function (grunt) {
     });
   }
 };
-

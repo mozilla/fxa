@@ -30,14 +30,5 @@ module.exports = function (grunt) {
         },
       ],
     },
-    tos_pp: {
-      //eslint-disable-line camelcase
-      files: [
-        {
-          dot: true,
-          src: ['<%= yeoman.pp_html_dest %>', '<%= yeoman.tos_html_dest %>'],
-        },
-      ],
-    },
   });
 };

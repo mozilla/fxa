@@ -16,7 +16,6 @@ const RE_DIR_LTR = /dir="?ltr"?/;
 const RE_DIR_RTL = /dir="?rtl"?/;
 const RE_LANG_EN = /lang="?en"?/;
 const RE_LANG_HE = /lang="?he"?/;
-const RE_LANG_ZH_CN = /lang="?zh-CN"?/;
 
 function testClientJson(acceptLanguageHeader, expectedLanguage) {
   var dfd = this.async(intern._config.asyncTimeout);
@@ -65,32 +64,10 @@ function testClientJson(acceptLanguageHeader, expectedLanguage) {
   return dfd;
 }
 
-function testExpectHTMLResponse(url, acceptHeader) {
-  var dfd = this.async(intern._config.asyncTimeout);
-
-  var headers = {};
-
-  if (acceptHeader) {
-    headers.Accept = acceptHeader;
-  }
-
-  got(url, {
-    headers: headers,
-  })
-    .then(function (res) {
-      assert.equal(res.headers['content-type'], 'text/html; charset=utf-8');
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-  return dfd;
-}
-
 // Test each server template based page
-['/', '/non-existent', '/boom', '/legal/terms', '/legal/privacy'].forEach(
-  function (page) {
-    suite.tests[
-      '#get page ' + page + ' has correct localized resources'
-    ] = function () {
+['/', '/non-existent', '/boom'].forEach(function (page) {
+  suite.tests['#get page ' + page + ' has correct localized resources'] =
+    function () {
       var dfd = this.async(intern._config.asyncTimeout);
 
       got(serverUrl + page, {
@@ -115,8 +92,7 @@ function testExpectHTMLResponse(url, acceptHeader) {
 
       return dfd;
     };
-  }
-);
+});
 
 // Test against Hebrew, a rtl langauge that must use system fonts
 ['/', '/non-existent', '/boom'].forEach(function (page) {
@@ -149,112 +125,23 @@ function testExpectHTMLResponse(url, acceptHeader) {
   };
 });
 
-suite.tests['#get terms page using lang in the URL'] = function () {
-  var dfd = this.async(intern._config.asyncTimeout);
-
-  got(serverUrl + '/zh-CN/legal/terms', {
-    headers: {
-      Accept: 'text/html',
-    },
-  })
-    .then(function (res) {
-      var re = /styles\/main\.css/;
-      if (intern._config.fxaProduction) {
-        re = /styles\/[a-f0-9]{0,8}\.main\.css/;
-      }
-      assert.ok(re);
-      assert.ok(res.body.match(RE_DIR_LTR));
-      assert.ok(res.body.match(RE_LANG_ZH_CN));
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-  return dfd;
-};
-
-suite.tests['#get terms page with `Accept: */*` (IE8)'] = function () {
-  return testExpectHTMLResponse.call(this, serverUrl + '/legal/terms', '*/*');
-};
-
-suite.tests['#get terms page no `Accept` header'] = function () {
-  return testExpectHTMLResponse.call(
-    this,
-    serverUrl + '/legal/terms',
-    undefined
-  );
-};
-
-suite.tests['#get privacy page using lang in the URL'] = function () {
-  var dfd = this.async(intern._config.asyncTimeout);
-
-  got(serverUrl + '/zh-CN/legal/privacy', {
-    headers: {
-      Accept: 'text/html',
-    },
-  })
-    .then(function (res) {
-      var re = /styles\/main\.css/;
-      if (intern._config.fxaProduction) {
-        re = /styles\/[a-f0-9]{0,8}\.main\.css/;
-      }
-      assert.ok(re);
-      assert.ok(res.body.match(RE_DIR_LTR));
-      assert.ok(res.body.match(RE_LANG_ZH_CN));
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-  return dfd;
-};
-
-suite.tests[
-  '#get privacy page with supported lang that has no privacy template should show en'
-] = function () {
-  var dfd = this.async(intern._config.asyncTimeout);
-
-  got(serverUrl + '/legal/privacy', {
-    headers: {
-      Accept: 'text/html',
-      'Accept-Language': 'hsb',
-    },
-  })
-    .then(function (res) {
-      assert.equal(res.url, serverUrl + '/en/legal/privacy');
-    })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
-
-  return dfd;
-};
-
-suite.tests['#get privacy page with `Accept: */*` (IE8)'] = function () {
-  return testExpectHTMLResponse.call(this, serverUrl + '/legal/privacy', '*/*');
-};
-
-suite.tests['#get privacy page with no `Accept` header'] = function () {
-  return testExpectHTMLResponse.call(
-    this,
-    serverUrl + '/legal/privacy',
-    undefined
-  );
-};
-
-suite.tests[
-  '#get /i18n/client.json with multiple supported languages'
-] = function () {
-  return testClientJson.call(
-    this,
-    'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
-    'de'
-  );
-};
+suite.tests['#get /i18n/client.json with multiple supported languages'] =
+  function () {
+    return testClientJson.call(
+      this,
+      'de,en;q=0.8,en;q=0.6,en-gb;q=0.4,chrome://global/locale/intl.properties;q=0.2',
+      'de'
+    );
+  };
 
 suite.tests['#get /i18n/client.json with en,fr should use en'] = function () {
   return testClientJson.call(this, 'en,fr', 'en');
 };
 
-suite.tests[
-  '#get /i18n/client.json with en-US,fr should use en_US'
-] = function () {
-  return testClientJson.call(this, 'en-us,fr', 'en_US');
-};
+suite.tests['#get /i18n/client.json with en-US,fr should use en_US'] =
+  function () {
+    return testClientJson.call(this, 'en-us,fr', 'en_US');
+  };
 
 suite.tests['#get /i18n/client.json with lowercase language'] = function () {
   return testClientJson.call(this, 'es-ar', 'es_AR');
@@ -296,30 +183,28 @@ suite.tests[
   return testClientJson.call(this, 'no-OP', 'en');
 };
 
-suite.tests[
-  '#get /i18n/client.json with no locale returns default locale'
-] = function () {
-  return testClientJson.call(this, null, 'en');
-};
+suite.tests['#get /i18n/client.json with no locale returns default locale'] =
+  function () {
+    return testClientJson.call(this, null, 'en');
+  };
 
 // this is a basic test to ensure the original strings are replaced
 // in dev mode and the templates do not render without text.
-suite.tests[
-  '#get /503.html page - check text is rendered in dev mode'
-] = function () {
-  var dfd = this.async(intern._config.asyncTimeout);
+suite.tests['#get /503.html page - check text is rendered in dev mode'] =
+  function () {
+    var dfd = this.async(intern._config.asyncTimeout);
 
-  got(serverUrl + '/503.html', {
-    headers: {
-      Accept: 'text/html',
-    },
-  })
-    .then(function (res) {
-      assert.ok(res.body.match(/server busy/i));
+    got(serverUrl + '/503.html', {
+      headers: {
+        Accept: 'text/html',
+      },
     })
-    .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+      .then(function (res) {
+        assert.ok(res.body.match(/server busy/i));
+      })
+      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
-  return dfd;
-};
+    return dfd;
+  };
 
 registerSuite('i18n', suite);

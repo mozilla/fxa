@@ -389,7 +389,7 @@ const clearContentServerState = thenify(function (options) {
         if (url.indexOf(CONTENT_SERVER) === -1 || options.force) {
           return (
             this.parent
-              .get(CONTENT_SERVER + 'clear')
+              .get(CONTENT_SERVER + 'clear?showReactApp=true')
               .setFindTimeout(config.pageLoadTimeout)
               // TODO: intern doesn't have a "findByText" option so we've temporarily
               // added this ID on the React 'clear' page because this page has been

@@ -5,10 +5,9 @@
 /**
  * Return version info based on package.json, the git sha, and source repo
  *
- * Try to statically determine commitHash, sourceRepo, l10nVersion, and
- * tosPpVersion at startup.
+ * Try to statically determine commitHash, sourceRepo, and l10nVersion * at startup.
  *
- * If l10nVersion and tosPpVersion cannot be loaded statically from the
+ * If l10nVersion cannot be loaded statically from the
  * content in ../../node_modules, then just show UNKNOWN.
  *
  * If commitHash cannot be found from ./config/version.json (i.e., this is not

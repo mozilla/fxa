@@ -140,16 +140,13 @@ require('./spec/views/behaviors/connect-another-device');
 require('./spec/views/behaviors/halt');
 require('./spec/views/behaviors/navigate');
 require('./spec/views/behaviors/null');
-require('./spec/views/cannot_create_account');
 require('./spec/views/choose_what_to_sync');
-require('./spec/views/clear_storage');
 require('./spec/views/complete_reset_password');
 require('./spec/views/complete_sign_up');
 require('./spec/views/confirm');
 require('./spec/views/confirm_reset_password');
 require('./spec/views/confirm_signup_code');
 require('./spec/views/connect_another_device');
-require('./spec/views/cookies_disabled');
 require('./spec/views/decorators/progress_indicator');
 require('./spec/views/elements/coppa-age-input');
 require('./spec/views/elements/tel-input');
@@ -222,7 +219,6 @@ require('./spec/views/pair/supp_wait_for_auth');
 require('./spec/views/password_strength/password_strength_balloon');
 require('./spec/views/password_strength/password_with_strength_balloon');
 require('./spec/views/permissions');
-require('./spec/views/pp');
 require('./spec/views/post_verify/account_recovery/add_recovery_key');
 require('./spec/views/post_verify/account_recovery/confirm_password');
 require('./spec/views/post_verify/account_recovery/save_recovery_key');
@@ -251,7 +247,6 @@ require('./spec/views/subscriptions_management_redirect');
 require('./spec/views/subscriptions_product_redirect');
 require('./spec/views/support');
 require('./spec/views/tooltip');
-require('./spec/views/tos');
 
 const runTests = function () {
   /**

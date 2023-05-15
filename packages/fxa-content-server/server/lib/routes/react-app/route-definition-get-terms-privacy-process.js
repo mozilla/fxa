@@ -14,7 +14,6 @@ const config = require('../../configuration');
 const templates = require('../../legal-templates');
 
 const DEFAULT_LANG = config.get('i18n.defaultLang');
-const DEFAULT_LEGAL_LANG = config.get('i18n.defaultLegalLang');
 const STATIC_RESOURCE_URL = config.get('static_resource_url');
 
 const PAGE_TEMPLATE_DIRECTORY = path.join(
@@ -57,7 +56,7 @@ function termsPrivacyRouteDefinitionProcess(i18n, req, res, next) {
     return next();
   }
 
-  getTemplate(page, lang, DEFAULT_LANG, DEFAULT_LEGAL_LANG).then(
+  getTemplate(page, lang, DEFAULT_LANG).then(
     function (template) {
       if (!template) {
         logger.warn(
