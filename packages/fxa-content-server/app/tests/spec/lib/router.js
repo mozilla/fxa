@@ -12,10 +12,10 @@ import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
 import SignInPasswordView from 'views/sign_in_password';
+import InlineTotpSetupView from 'views/inline_totp_setup';
 import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
-import CannotCreateAccountView from '../../../scripts/views/cannot_create_account';
 
 describe('lib/router', () => {
   let broker;
@@ -594,10 +594,7 @@ describe('lib/router', () => {
 
       it('navigates away with param when React conditions are met', () => {
         sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
-        routeHandler = router.createReactOrBackboneViewHandler(
-          'cannot_create_account',
-          CannotCreateAccountView
-        );
+        routeHandler = router.createReactViewHandler('cannot_create_account');
 
         assert.equal(router.navigate.callCount, 0);
         assert.equal(router.navigateAway.callCount, 1);
@@ -607,8 +604,8 @@ describe('lib/router', () => {
       });
       it('renders Backbone view when React conditions are not met', () => {
         routeHandler = router.createReactOrBackboneViewHandler(
-          'reset_password',
-          CannotCreateAccountView,
+          'inline_totp_setup',
+          InlineTotpSetupView,
           additionalParams,
           viewConstructorOptions
         );
@@ -616,7 +613,7 @@ describe('lib/router', () => {
         return routeHandler.then(() => {
           assert.isTrue(
             router.showView.calledWith(
-              CannotCreateAccountView,
+              InlineTotpSetupView,
               viewConstructorOptions
             )
           );

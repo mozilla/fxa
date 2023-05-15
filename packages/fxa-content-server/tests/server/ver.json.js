@@ -28,7 +28,6 @@ function versionJson(route) {
           'commit',
           'version',
           'l10n',
-          'tosPp',
           'source',
         ]);
 
@@ -39,9 +38,6 @@ function versionJson(route) {
 
         assert.ok(body.l10n);
         assert.notEqual(body.l10n, 'unknown');
-
-        assert.ok(body.tosPp);
-        assert.notEqual(body.tosPp, 'unknown');
 
         // check that the git hash just looks like a hash
         assert.match(body.commit, /^[0-9a-f]{40}$/);

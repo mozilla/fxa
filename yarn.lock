@@ -20090,7 +20090,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"argparse@npm:^1.0.10, argparse@npm:^1.0.7":
+"argparse@npm:^1.0.7":
   version: 1.0.10
   resolution: "argparse@npm:1.0.10"
   dependencies:
@@ -20729,15 +20729,6 @@ __metadata:
   version: 4.0.0
   resolution: "auto-bind@npm:4.0.0"
   checksum: 00cad71cce5742faccb7dd65c1b55ebc4f45add4b0c9a1547b10b05bab22813230133b0c892c67ba3eb969a4524710c5e43cc45c72898ec84e56f3a596e7a04f
-  languageName: node
-  linkType: hard
-
-"autolinker@npm:~0.28.0":
-  version: 0.28.1
-  resolution: "autolinker@npm:0.28.1"
-  dependencies:
-    gulp-header: ^1.7.1
-  checksum: 2cd1eb34098b62749620fd0f49eb61ff4e0dcc89dda3040c2e67a0d5a2ec688ea52d3747ba9aadf3326063ecdcb7d459ec0f5584ff4850490ca339367ccd7702
   languageName: node
   linkType: hard
 
@@ -24708,15 +24699,6 @@ __metadata:
     readable-stream: ~2.0.0
     typedarray: ~0.0.5
   checksum: 2342c7d6dfce4e1bbfadc99d53bd1b1c337456978170ae7797780cf2790173b950464fd892eecf0dacf29472c508b101002706af68a0454b2bc1625842987043
-  languageName: node
-  linkType: hard
-
-"concat-with-sourcemaps@npm:*":
-  version: 1.1.0
-  resolution: "concat-with-sourcemaps@npm:1.1.0"
-  dependencies:
-    source-map: ^0.6.1
-  checksum: 57faa6f4a6f38a1846a58f96b2745ec8435755e0021f069e89085c651d091b78d9bc20807ea76c38c85021acca80dc2fa4cedda666aade169b602604215d25b9
   languageName: node
   linkType: hard
 
@@ -31130,7 +31112,6 @@ fsevents@~2.1.1:
     grunt-jsonlint: 2.1.3
     grunt-newer: 1.3.0
     grunt-po2json: "https://github.com/mozilla-fxa/grunt-po2json.git#2f415c8ac0435bf8942dc7131c3916ecd1684a46"
-    grunt-remarkable: 1.1.0
     grunt-sri: 0.2.0
     grunt-text-replace: 0.4.0
     grunt-todo: 0.5.0
@@ -33426,15 +33407,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-remarkable@npm:1.1.0":
-  version: 1.1.0
-  resolution: "grunt-remarkable@npm:1.1.0"
-  dependencies:
-    remarkable: 1.7.x
-  checksum: c3d69910cd793968ecb21089dc39eaef6b19f7a3aad636f32690cd48d8dde4f3fcfaccde581300c4230c4469bc041937087cce11418a8454d45c66980b225bbf
-  languageName: node
-  linkType: hard
-
 "grunt-sri@npm:0.2.0":
   version: 0.2.0
   resolution: "grunt-sri@npm:0.2.0"
@@ -33551,17 +33523,6 @@ fsevents@~2.1.1:
   version: 1.0.0
   resolution: "gud@npm:1.0.0"
   checksum: 3e2eb37cf794364077c18f036d6aa259c821c7fd188f2b7935cb00d589d82a41e0ebb1be809e1a93679417f62f1ad0513e745c3cf5329596e489aef8c5e5feae
-  languageName: node
-  linkType: hard
-
-"gulp-header@npm:^1.7.1":
-  version: 1.8.12
-  resolution: "gulp-header@npm:1.8.12"
-  dependencies:
-    concat-with-sourcemaps: "*"
-    lodash.template: ^4.4.0
-    through2: ^2.0.0
-  checksum: 5d11dfae22f720e74ca3b5c107685736de667d7c34f11d364e0515572c02cff715aa765091a090094c4202f186f620f9c2946cc5d33c99a6d14aa0392bb9c162
   languageName: node
   linkType: hard
 
@@ -39682,13 +39643,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash._reinterpolate@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "lodash._reinterpolate@npm:3.0.0"
-  checksum: 06d2d5f33169604fa5e9f27b6067ed9fb85d51a84202a656901e5ffb63b426781a601508466f039c720af111b0c685d12f1a5c14ff8df5d5f27e491e562784b2
-  languageName: node
-  linkType: hard
-
 "lodash.assign@npm:^4.0.8":
   version: 4.2.0
   resolution: "lodash.assign@npm:4.2.0"
@@ -39910,25 +39864,6 @@ fsevents@~2.1.1:
   version: 4.7.0
   resolution: "lodash.sortby@npm:4.7.0"
   checksum: db170c9396d29d11fe9a9f25668c4993e0c1331bcb941ddbd48fb76f492e732add7f2a47cfdf8e9d740fa59ac41bbfaf931d268bc72aab3ab49e9f89354d718c
-  languageName: node
-  linkType: hard
-
-"lodash.template@npm:^4.4.0":
-  version: 4.5.0
-  resolution: "lodash.template@npm:4.5.0"
-  dependencies:
-    lodash._reinterpolate: ^3.0.0
-    lodash.templatesettings: ^4.0.0
-  checksum: ca64e5f07b6646c9d3dbc0fe3aaa995cb227c4918abd1cef7a9024cd9c924f2fa389a0ec4296aa6634667e029bc81d4bbdb8efbfde11df76d66085e6c529b450
-  languageName: node
-  linkType: hard
-
-"lodash.templatesettings@npm:^4.0.0":
-  version: 4.2.0
-  resolution: "lodash.templatesettings@npm:4.2.0"
-  dependencies:
-    lodash._reinterpolate: ^3.0.0
-  checksum: 863e025478b092997e11a04e9d9e735875eeff1ffcd6c61742aa8272e3c2cddc89ce795eb9726c4e74cef5991f722897ff37df7738a125895f23fc7d12a7bb59
   languageName: node
   linkType: hard
 
@@ -49194,18 +49129,6 @@ fsevents@~2.1.1:
     mdast-util-to-string: ^1.0.0
     unist-util-visit: ^2.0.0
   checksum: d85614a0fdd7a6023f5ffae90411532d6715321153b02aab02f5d0165e116edb9719f78b207bfd74934aca6645ed551c42368a7efb6fc3b07d2bda15fe8602fb
-  languageName: node
-  linkType: hard
-
-"remarkable@npm:1.7.x":
-  version: 1.7.4
-  resolution: "remarkable@npm:1.7.4"
-  dependencies:
-    argparse: ^1.0.10
-    autolinker: ~0.28.0
-  bin:
-    remarkable: ./bin/remarkable.js
-  checksum: 0335dc2df9f42f25bcd724c8fb17f4dca2a1f56bc96e4a1d643c1d21cea6915b96bc9ac9e0b8788bb48409a5857f6354495d254fb416ef6e25b8d407f682cbb0
   languageName: node
   linkType: hard
 

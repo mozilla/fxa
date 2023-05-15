@@ -13,29 +13,14 @@ var pages = [
   '',
   'authorization',
   'boom',
-  // 'cannot_create_account',
   'choose_what_to_sync',
-  // 'clear',
   'complete_reset_password',
   'complete_signin',
   'confirm',
   'confirm_reset_password',
   'confirm_signin',
   'connect_another_device',
-  // 'cookies_disabled',
-  // valid locale legal pages
-  // 'en/legal/terms',
-  // 'en/legal/privacy',
   'force_auth',
-  // invalid locale legal pages should be redirected to en-US
-  // 'invalid-locale/legal/terms',
-  // 'invalid-locale/legal/privacy',
-  // 'legal',
-  // legal are all redirected to the language detected
-  // by sniffing headers, barring that, using en-US as
-  // the fallback.
-  // 'legal/terms',
-  // 'legal/privacy',
   'non_existent',
   'oauth',
   'oauth/force_auth',

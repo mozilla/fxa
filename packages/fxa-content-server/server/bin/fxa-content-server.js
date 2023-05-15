@@ -15,7 +15,6 @@ logger.info(`source set to: ${version.source}`);
 logger.info(`version set to: ${version.version}`);
 logger.info(`commit hash set to: ${version.commit}`);
 logger.info(`fxa-content-server-l10n commit hash set to: ${version.l10n}`);
-logger.info(`tos-pp (legal-docs) commit hash set to: ${version.tosPp}`);
 const config = require('../lib/configuration');
 const {
   addAllReactRoutesConditionally,
