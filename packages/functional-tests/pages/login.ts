@@ -31,6 +31,8 @@ export const selectors = {
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
   CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
+  SIGNIN_UNBLOCK_HEADER: '#fxa-signin-unblock-header',
+  SIGNIN_UNBLOCK_VERIFICATION: '.verification-email-message',
   COPPA_HEADER: '#fxa-cannot-create-account-header',
   SUBMIT: 'button[type=submit]',
   SUBMIT_USER_SIGNED_IN: '#use-logged-in',
@@ -71,6 +73,10 @@ export class LoginPage extends BaseLayout {
 
   get submitButton() {
     return this.page.locator(selectors.SUBMIT);
+  }
+
+  async getUnblockEmail() {
+    return this.page.locator(selectors.SIGNIN_UNBLOCK_VERIFICATION).innerText();
   }
 
   async fillOutEmailFirstSignIn(email, password) {
@@ -244,6 +250,12 @@ export class LoginPage extends BaseLayout {
     return header.isVisible();
   }
 
+  async signinUnblockHeader() {
+    const header = this.page.locator(selectors.SIGNIN_UNBLOCK_HEADER);
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async signInError() {
     const error = this.page.locator(selectors.ERROR);
     await error.waitFor();
@@ -327,6 +339,11 @@ export class LoginPage extends BaseLayout {
 
   async clickSignIn() {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
+  }
+
+  async enterUnblockCode(code: string) {
+    await this.setCode(code);
+    await this.clickSubmit();
   }
 
   async clickSubmit() {
