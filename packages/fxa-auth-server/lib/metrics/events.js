@@ -104,8 +104,9 @@ module.exports = (log, config) => {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const request = this;
 
-      if (data && data.uid && request.auth && request.auth.artifacts) {
-        request.auth.artifacts.metricsUid = data.uid;
+      if (data && data.uid) {
+        // Used by request.app.isMetricsEnabled to determine Account.metricsEnabled
+        request.app.metricsEventUid = data.uid;
       }
 
       const isMetricsEnabled = await request.app.isMetricsEnabled;

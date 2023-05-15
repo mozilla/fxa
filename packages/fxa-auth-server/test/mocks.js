@@ -763,6 +763,11 @@ function mockRequest(data, errors) {
     metricsContextData = {};
   }
   const app = data.app || {};
+  const isMetricsEnabledValue =
+    data.isMetricsEnabledValue === undefined ||
+    data.isMetricsEnabledValue === null
+      ? true
+      : false;
   return {
     app: {
       acceptLanguage: data.acceptLanguage || 'en-US',
@@ -780,7 +785,7 @@ function mockRequest(data, errors) {
         deviceType: data.uaDeviceType || null,
         formFactor: data.uaFormFactor || null,
       },
-      isMetricsEnabled: Promise.resolve(true),
+      isMetricsEnabled: Promise.resolve(isMetricsEnabledValue),
       ...app,
     },
     auth: {
