@@ -1,10 +1,15 @@
 import { test, expect } from '../../lib/fixtures/standard';
+import { MetricsObserver } from '../../lib/metrics';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('subscription test with cc and paypal', () => {
-  test.beforeEach(() => {
+  let metricsObserver: MetricsObserver;
+
+  test.beforeEach(({ pages: { subscribe } }) => {
     test.slow();
+    metricsObserver = new MetricsObserver(subscribe);
+    metricsObserver.startTracking();
   });
 
   test('subscribe with credit card and login to product', async ({
@@ -48,6 +53,19 @@ test.describe('subscription test with cc and paypal', () => {
     await relier.clickEmailFirst();
     await login.submit();
     expect(await relier.isPro()).toBe(true);
+
+    const expectedEventTypes = [
+      'amplitude.subPaySetup.view',
+      'amplitude.subPaySetup.engage',
+      'amplitude.subPaySetup.submit',
+      'amplitude.subPaySetup.fail',
+      'amplitude.subPaySetup.submit',
+      'amplitude.subPaySetup.success',
+    ];
+    const actualEventTypes = metricsObserver.rawEvents.map((event) => {
+      return event.type;
+    });
+    expect(actualEventTypes).toMatchObject(expectedEventTypes);
   });
 
   test('subscribe with paypal and login to product', async ({
