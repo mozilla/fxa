@@ -31,6 +31,10 @@ export class ChangePasswordPage extends SettingsLayout {
     return this.page.innerText('[data-testid=tooltip]');
   }
 
+  async changePasswordSuccess() {
+    return this.page.innerText('[data-testid=alert-bar-content]');
+  }
+
   async passwordLengthError() {
     const error = this.page.locator('[data-testid=icon-invalid]');
     error.locator(':scope', { hasText: 'At least 8 characters' });
