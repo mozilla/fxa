@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-fxa",
-  "version": "2.0.2",
+  "version": "0.0.0",
   "description": "eslint plugin for Firefox Accounts",
   "main": "lib/index.js",
   "scripts": {
