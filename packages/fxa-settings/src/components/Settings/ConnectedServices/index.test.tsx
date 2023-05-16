@@ -125,10 +125,7 @@ describe('Connected Services', () => {
   it('should show the pocket icon and link', async () => {
     await getIconAndServiceLink('Pocket', 'pocket-icon').then((result) => {
       expect(result.icon).toBeTruthy();
-      expect(result.link).toHaveAttribute(
-        'href',
-        'https://www.mozilla.org/en-US/firefox/pocket/'
-      );
+      expect(result.link).toHaveAttribute('href', 'https://getpocket.com/');
     });
   });
 
