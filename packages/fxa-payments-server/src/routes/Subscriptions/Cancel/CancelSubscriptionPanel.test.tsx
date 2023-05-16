@@ -158,11 +158,22 @@ describe('CancelSubscriptionPanel', () => {
           },
         });
         const plan = findMockPlan('plan_daily');
-        const upgradeablePlan = {
+        const upgradeablePlan: Plan = {
           ...plan,
           configuration: {
+            locales: {},
+            productSet: ['testSet'],
+            styles: {},
+            support: {},
             uiContent: {
               upgradeCTA: 'Upgrade to config store premium plus plan!',
+            },
+            urls: {
+              termsOfService: 'https://test',
+              termsOfServiceDownload: 'https://test2',
+              privacyNotice: 'https://test3',
+              successActionButton: 'https://test/4',
+              webIcon: 'https://webicon',
             },
           },
         };
@@ -170,9 +181,8 @@ describe('CancelSubscriptionPanel', () => {
           <CancelSubscriptionPanel {...baseProps} plan={upgradeablePlan} />
         );
         expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
-        expect(
-          queryByText(upgradeablePlan.configuration.uiContent.upgradeCTA)
-        ).toBeInTheDocument();
+        const upgradeCTA = upgradeablePlan.configuration?.uiContent.upgradeCTA!;
+        expect(queryByText(upgradeCTA)).toBeInTheDocument();
       });
 
       it('should be displayed when upgradeCTA is in the plan configuration locale', () => {
@@ -182,7 +192,7 @@ describe('CancelSubscriptionPanel', () => {
           },
         });
         const plan = findMockPlan('plan_daily');
-        const upgradeablePlan = {
+        const upgradeablePlan: Plan = {
           ...plan,
           configuration: {
             uiContent: {
@@ -196,6 +206,16 @@ describe('CancelSubscriptionPanel', () => {
                 },
               },
             },
+            productSet: ['testSet'],
+            styles: {},
+            support: {},
+            urls: {
+              termsOfService: 'https://test',
+              termsOfServiceDownload: 'https://test2',
+              privacyNotice: 'https://test3',
+              successActionButton: 'https://test/4',
+              webIcon: 'https://webicon',
+            },
           },
         };
         render(
@@ -208,7 +228,7 @@ describe('CancelSubscriptionPanel', () => {
         expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
         expect(
           queryByText(
-            upgradeablePlan.configuration.locales.fr.uiContent.upgradeCTA
+            upgradeablePlan.configuration?.locales.fr.uiContent?.upgradeCTA!
           )
         ).toBeInTheDocument();
       });

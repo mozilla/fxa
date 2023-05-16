@@ -52,8 +52,13 @@ import { AppContextType } from '../../lib/AppContext';
 import {
   IapSubscription,
   MozillaSubscriptionTypes,
+  Plan,
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
+import {
+  IAP_APPLE_SUBSCRIPTION,
+  IAP_GOOGLE_SUBSCRIPTION,
+} from '../../lib/mock-data';
 
 function nock(it: any) {
   //@ts-ignore
@@ -72,8 +77,6 @@ jest.mock('./PaymentUpdateForm', () => ({
     <section data-testid="PaymentUpdateForm">{children}</section>
   ),
 }));
-
-const { location } = window;
 
 describe('routes/Subscriptions', () => {
   let contentServer = '';
@@ -114,14 +117,14 @@ describe('routes/Subscriptions', () => {
     const mockStripe = {
       createToken,
     };
-    const appContextValue = {
+    const appContextValue: AppContextType = {
       ...defaultAppContextValue(),
       matchMedia,
       navigateToUrl: navigateToUrl || jest.fn(),
       queryParams: {
-        deviceId: 'quux',
-        flowBeginTime: Date.now(),
-        flowId: 'thisisanid',
+        device_id: 'quux',
+        flow_begin_time: Date.now(),
+        flow_id: 'thisisanid',
       },
       ...(appContext ?? {}),
     };
@@ -651,7 +654,7 @@ describe('routes/Subscriptions', () => {
     discount?: 'NONE' | 'ENDS_NEXT_INTERVAL' | 'ONGOING';
   }) {
     // To exercise the default icon fallback, delete webIconURL from the second plan.
-    const plans = !useDefaultIcon
+    const plans: Plan[] = !useDefaultIcon
       ? MOCK_PLANS
       : [
           MOCK_PLANS[0],
@@ -904,8 +907,11 @@ describe('routes/Subscriptions', () => {
   });
 
   it('redirects to content server when there is no access token', async () => {
+    const originalWindow = window.location;
+    // @ts-ignore
     delete window.location;
-    window.location = {};
+    window.location = { ...originalWindow, href: '' };
+
     const setSpy = jest.fn();
     Object.defineProperty(window.location, 'href', { set: setSpy });
 
@@ -916,7 +922,7 @@ describe('routes/Subscriptions', () => {
       'https://content.example/subscriptions'
     );
 
-    window.location = location;
+    window.location = originalWindow;
   });
 
   describe('IAP subscriptions', () => {
@@ -937,18 +943,15 @@ describe('routes/Subscriptions', () => {
       promotion_duration: null,
       promotion_end: null,
     };
+
     const appleIapSubscription: IapSubscription = {
-      _subscription_type: MozillaSubscriptionTypes.IAP_APPLE,
+      ...IAP_APPLE_SUBSCRIPTION,
       product_id: PRODUCT_ID,
     };
 
     const googleIapSubscription: IapSubscription = {
-      _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+      ...IAP_GOOGLE_SUBSCRIPTION,
       product_id: PRODUCT_ID,
-      auto_renewing: true,
-      expiry_time_millis: Date.now(),
-      package_name: 'mozilla.cooking.with.foxkeh.monthly',
-      sku: 'mozilla.foxkeh',
     };
 
     it('does not render the PaymentUpdateForm if only IAP subscriptions are present', async () => {

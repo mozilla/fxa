@@ -10,12 +10,9 @@ import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
-import { MozillaSubscriptionTypes } from 'fxa-shared/subscriptions/types';
 import { updateConfig } from '../../lib/config';
-import {
-  FirstInvoicePreview,
-  LatestInvoiceItems,
-} from 'fxa-shared/dto/auth/payments/invoice';
+import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { CUSTOMER, PAYPAL_CUSTOMER } from '../../lib/mock-data';
 
 const userProfile = {
   avatar: './avatar.svg',
@@ -59,9 +56,10 @@ const selectedPlanWithMetadata = {
   },
 };
 
-const selectedPlanWithConfiguration = {
+const selectedPlanWithConfiguration: Plan = {
   ...selectedPlan,
   configuration: {
+    productSet: ['testSet'],
     uiContent: {
       successActionButtonLabel: 'Do something else, with configuration',
     },
@@ -72,79 +70,21 @@ const selectedPlanWithConfiguration = {
         },
       },
     },
+    styles: {},
+    support: {},
     urls: {
       termsOfService: 'https://test',
       termsOfServiceDownload: 'https://test2',
       privacyNotice: 'https://test3',
+      successActionButton: 'https://test/4',
+      webIcon: 'https://webicon',
     },
   },
 };
 
-const latestInvoiceItems: LatestInvoiceItems = {
-  line_items: [],
-  subtotal: 735,
-  subtotal_excluding_tax: null,
-  total: 735,
-  total_excluding_tax: null,
-};
+const customer: Customer = CUSTOMER;
 
-const customer: Customer = {
-  billing_name: 'Jane Doe',
-  payment_provider: 'stripe',
-  payment_type: 'credit',
-  last4: '5309',
-  exp_month: '02',
-  exp_year: '2099',
-  brand: 'Visa',
-  subscriptions: [
-    {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
-      latest_invoice: '628031D-0002',
-      latest_invoice_items: latestInvoiceItems,
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: 'plan_123',
-      product_id: 'prod_123',
-      product_name: '123 Done Pro',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_end: Date.now() / 1000 + 86400 * 31,
-      current_period_start: Date.now() / 1000 - 86400 * 31,
-      end_at: null,
-      promotion_duration: null,
-      promotion_end: null,
-      created: Date.now() / 1000 - 86400 * 31,
-    },
-  ],
-};
-
-const paypalCustomer: Customer = {
-  billing_name: 'Pay Pal Doe',
-  payment_provider: 'paypal',
-  payment_type: 'credit',
-  last4: '7777',
-  exp_month: '03',
-  exp_year: '3000',
-  brand: 'Visa',
-  subscriptions: [
-    {
-      _subscription_type: MozillaSubscriptionTypes.WEB,
-      latest_invoice: '628031D-0002',
-      latest_invoice_items: latestInvoiceItems,
-      subscription_id: 'sub0.28964929339372136',
-      plan_id: 'plan_123',
-      product_id: 'prod_123',
-      product_name: '123 Done Pro',
-      status: 'active',
-      cancel_at_period_end: false,
-      current_period_end: Date.now() / 1000 + 86400 * 31,
-      current_period_start: Date.now() / 1000 - 86400 * 31,
-      end_at: null,
-      promotion_duration: null,
-      promotion_end: null,
-      created: Date.now() / 1000 - 86400 * 31,
-    },
-  ],
-};
+const paypalCustomer: Customer = PAYPAL_CUSTOMER;
 
 const invoice: FirstInvoicePreview = {
   line_items: [],
@@ -297,8 +237,8 @@ describe('PaymentConfirmation', () => {
     expect(footer).toBeVisible();
     expect(
       queryByText(
-        selectedPlanWithConfiguration.configuration.uiContent
-          .successActionButtonLabel
+        selectedPlanWithConfiguration.configuration?.uiContent
+          .successActionButtonLabel!
       )
     ).toBeInTheDocument();
     expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();
@@ -334,8 +274,8 @@ describe('PaymentConfirmation', () => {
     expect(footer).toBeVisible();
     expect(
       queryByText(
-        selectedPlanWithConfiguration.configuration.locales['fy-NL'].uiContent
-          .successActionButtonLabel
+        selectedPlanWithConfiguration.configuration?.locales['fy-NL'].uiContent!
+          .successActionButtonLabel!
       )
     ).toBeInTheDocument();
     expect(queryByText(defaultButtonLabel)).not.toBeInTheDocument();

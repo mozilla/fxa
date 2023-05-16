@@ -19,18 +19,9 @@ import {
 } from '../../lib/test-utils';
 
 import PaymentForm, { PaymentFormProps } from './index';
+import { SELECTED_PLAN } from '../../lib/mock-data';
 
 jest.mock('../../lib/sentry');
-
-const MOCK_PLAN = {
-  plan_id: 'plan_123',
-  product_id: '123doneProProduct',
-  product_name: 'Example Product',
-  currency: 'USD',
-  amount: 1050,
-  interval: 'month' as const,
-  interval_count: 1,
-};
 
 afterEach(cleanup);
 
@@ -38,13 +29,19 @@ afterEach(cleanup);
 // functions by default in Subject.
 type SubjectProps = Omit<
   PaymentFormProps,
-  'onSubmit' | 'onMounted' | 'onEngaged' | 'onChange' | 'submitNonce'
+  | 'onSubmit'
+  | 'onMounted'
+  | 'onEngaged'
+  | 'onChange'
+  | 'submitNonce'
+  | 'getString'
 > & {
   onSubmit?: PaymentFormProps['onSubmit'];
   onMounted?: PaymentFormProps['onMounted'];
   onEngaged?: PaymentFormProps['onEngaged'];
   onChange?: PaymentFormProps['onChange'];
   submitNonce?: string;
+  getString?: PaymentFormProps['getString'];
 };
 const Subject = ({
   onSubmit = jest.fn(),
@@ -52,6 +49,7 @@ const Subject = ({
   onEngaged = jest.fn(),
   onChange = jest.fn(),
   submitNonce = 'test-nonce',
+  getString,
   ...props
 }: SubjectProps) => {
   return (
@@ -62,7 +60,7 @@ const Subject = ({
         onEngaged,
         onChange,
         submitNonce,
-        getString: null,
+        getString,
         ...props,
       }}
     />
@@ -149,7 +147,7 @@ it('calls onMounted and onEngaged', () => {
 it('when confirm = true, enables submit button when all fields are valid and checkbox checked', () => {
   let { getByTestId } = renderWithValidFields({
     confirm: true,
-    plan: MOCK_PLAN,
+    plan: SELECTED_PLAN,
   });
   expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
   fireEvent.click(getByTestId('confirm'));
@@ -163,7 +161,7 @@ it('omits the confirmation checkbox when confirm = false', () => {
 
 it('includes the confirmation checkbox when confirm = true and plan supplied', () => {
   const { queryByTestId } = render(
-    <Subject {...{ confirm: true, plan: MOCK_PLAN }} />
+    <Subject {...{ confirm: true, plan: SELECTED_PLAN }} />
   );
   expect(queryByTestId('confirm')).toBeInTheDocument();
 });
@@ -240,7 +238,7 @@ it('does not call onSubmit if somehow submitted without confirm checked', async 
   // renderWithValidFields does not check the confirm box
   let { getByTestId } = renderWithValidFields({
     confirm: true,
-    plan: MOCK_PLAN,
+    plan: SELECTED_PLAN,
     onSubmit,
     onChange: () => {},
   });
@@ -272,7 +270,7 @@ it('does not call onSubmit if somehow submitted while in progress', async () => 
 describe('with existing card', () => {
   it('renders correctly', () => {
     const { queryByTestId, queryByText } = render(
-      <Subject customer={MOCK_CUSTOMER} plan={MOCK_PLAN} />
+      <Subject customer={MOCK_CUSTOMER} plan={SELECTED_PLAN} />
     );
     expect(queryByTestId('card-logo-and-last-four')).toBeInTheDocument();
     expect(queryByTestId('name')).not.toBeInTheDocument();
@@ -293,7 +291,7 @@ describe('with existing card', () => {
     const { getByTestId } = render(
       <Subject
         customer={MOCK_CUSTOMER}
-        plan={MOCK_PLAN}
+        plan={SELECTED_PLAN}
         confirm={false}
         onSubmit={onSubmit}
       />
@@ -309,7 +307,7 @@ describe('with existing PayPal billing agreement', () => {
     const { queryByTestId } = render(
       <Subject
         customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
-        plan={MOCK_PLAN}
+        plan={SELECTED_PLAN}
       />
     );
     expect(queryByTestId('card-logo-and-last-four')).not.toBeInTheDocument();
@@ -321,7 +319,7 @@ describe('with existing PayPal billing agreement', () => {
     const { getByTestId } = render(
       <Subject
         customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
-        plan={MOCK_PLAN}
+        plan={SELECTED_PLAN}
         confirm={false}
         onSubmit={onSubmit}
       />
