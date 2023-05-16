@@ -33,7 +33,7 @@
     "watch-ftl": "grunt watch-ftl"
   },
   "dependencies": {
-    "@fluent/bundle": "^0.17.1",
+    "@fluent/bundle": "^0.18.0",
     "@fluent/langneg": "^0.6.2",
     "@fluent/react": "^0.13.1",
     "async-wait-until": "^2.0.12",
