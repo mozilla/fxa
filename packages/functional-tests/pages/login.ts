@@ -527,4 +527,8 @@ export class LoginPage extends BaseLayout {
     const config = await metaConfig.getAttribute('content');
     return JSON.parse(decodeURIComponent(config));
   }
+
+  async clearEmailTextBox() {
+    return this.page.locator(selectors.EMAIL).fill('');
+  }
 }
