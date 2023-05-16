@@ -45,7 +45,7 @@ export function Service({
       Icon = <AddonIcon data-testid="addon-icon" />;
       break;
     case 'Pocket':
-      serviceLink = 'https://www.mozilla.org/en-US/firefox/pocket/';
+      serviceLink = 'https://getpocket.com/';
       Icon = <PocketIcon data-testid="pocket-icon" />;
       break;
     case 'Firefox Monitor':
