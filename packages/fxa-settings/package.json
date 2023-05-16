@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && NODE_OPTIONS=--openssl-legacy-provider build-storybook",
+    "build-storybook": "yarn merge-ftl && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && LOG_LEVEL=TRACE NODE_OPTIONS=--openssl-legacy-provider build-storybook && cp -r public/locales ./storybook-static/locales",
     "build": "tsc --build ../fxa-react && NODE_ENV=production yarn build-css && yarn legal-clone && yarn merge-ftl && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "compile": "tsc --noEmit",
     "clean": "git clean -fXd",

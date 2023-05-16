@@ -13,7 +13,7 @@
   },
   "scripts": {
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
-    "build-storybook": "NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider build-storybook",
+    "build-storybook": "yarn merge-ftl && NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider build-storybook && cp -r public/locales ./storybook-static/locales",
     "build": "tsc --build && yarn merge-ftl",
     "compile": "tsc --noEmit",
     "clean": "git clean -fXd",
