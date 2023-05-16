@@ -105,16 +105,6 @@ export const SubscriptionUpgrade = ({
     ]
   );
 
-  const mobileUpdateHeading = isMobile ? (
-    <div className="mobile-subscription-title">
-      <div className="subscription-update-heading">
-        <Localized id="product-plan-change-heading">
-          <h2>Review your change</h2>
-        </Localized>
-      </div>
-    </div>
-  ) : null;
-
   const nextInvoiceDate =
     invoicePreview.line_items.find((item) => item.id === selectedPlan.plan_id)
       ?.period.end || upgradeFromSubscription.current_period_end;
@@ -141,20 +131,18 @@ export const SubscriptionUpgrade = ({
       <Header {...{ profile }} />
       <div className="main-content">
         <div
-          className="product-payment product-upgrade rounded-lg tablet:rounded-t-none"
+          className="product-payment product-upgrade rounded-b-lg rounded-t-none"
           data-testid="subscription-upgrade"
         >
-          {!isMobile ? (
-            <div
-              className="subscription-update-heading"
-              data-testid="subscription-update-heading"
-            >
-              <Localized id="product-plan-change-heading">
-                <h2>Review your change</h2>
-              </Localized>
-              <p className="subheading"></p>
-            </div>
-          ) : null}
+          <div
+            className="mb-8 subscription-update-heading"
+            data-testid="subscription-update-heading"
+          >
+            <Localized id="product-plan-change-heading">
+              <h2 className="page-title">Review your change</h2>
+            </Localized>
+            <p className="subheading"></p>
+          </div>
           <div className="payment-details">
             <Localized id="sub-update-payment-title">
               <span className="label-title">Payment information</span>
@@ -227,7 +215,6 @@ export const SubscriptionUpgrade = ({
             invoicePreview,
           }}
         />
-        {mobileUpdateHeading}
       </div>
     </>
   );
