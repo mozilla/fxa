@@ -20,6 +20,7 @@ import {
   INVOICE_WITH_TAX_INCLUSIVE,
   INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
   INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
+  INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
 } from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
@@ -372,6 +373,40 @@ describe('CancelSubscriptionPanel', () => {
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
           'Your next bill of $4.50 + $1.23 taxes is due due 08/14/2019'
         );
+      });
+
+      it('displays the correct pricing and hides tax for zero tax amount', () => {
+        const bundle = new FluentBundle('gd', { useIsolating: false });
+        [
+          `price-details-tax-day = { $intervalCount ->
+            [one] { $priceAmount } + { $taxAmount } tax fooly
+            *[other] { $priceAmount } + { $taxAmount } tax barly { $intervalCount } 24hrs
+          }`,
+          'payment-cancel-btn = blee',
+          `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
+          `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+        ].forEach((x) => bundle.addResource(new FluentResource(x)));
+        const plan = findMockPlan('plan_daily');
+        render(
+          <LocalizationProvider l10n={new ReactLocalization([bundle])}>
+            <CancelSubscriptionPanel
+              {...baseProps}
+              plan={plan}
+              subsequentInvoice={{
+                ...MOCK_SUBSEQUENT_INVOICES[7],
+                period_start: 1568408388.815,
+              }}
+              invoice={INVOICE_WITH_ZERO_TAX_EXCLUSIVE}
+            />
+          </LocalizationProvider>
+        );
+        expect(queryByTestId('price-details-standalone')).toHaveTextContent(
+          '$20.00 daily'
+        );
+        expect(queryByTestId('sub-next-bill')).toHaveTextContent(
+          'Your next bill of $5.00 is due 09/13/2019'
+        );
+        expect(queryByText('blee')).toBeInTheDocument();
       });
 
       it('displays the correct pricing and inclusive tax info with interval of 1', () => {

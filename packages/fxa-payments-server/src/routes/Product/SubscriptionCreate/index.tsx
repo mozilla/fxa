@@ -273,7 +273,7 @@ export const SubscriptionCreate = ({
 
         <div
           className={classNames(
-            'product-payment rounded-lg tablet:rounded-t-none',
+            'product-payment component-card tablet:rounded-t-none',
             {
               hidden: transactionInProgress || subscriptionError,
             }

@@ -131,18 +131,17 @@ export const SubscriptionUpgrade = ({
       <Header {...{ profile }} />
       <div className="main-content">
         <div
-          className="product-payment product-upgrade rounded-b-lg rounded-t-none"
+          className="page-title-container"
+          data-testid="subscription-update-heading"
+        >
+          <Localized id="product-plan-change-heading">
+            <h2 className="page-title">Review your change</h2>
+          </Localized>
+        </div>
+        <div
+          className="component-card product-payment product-upgrade rounded-t-none "
           data-testid="subscription-upgrade"
         >
-          <div
-            className="mb-8 subscription-update-heading"
-            data-testid="subscription-update-heading"
-          >
-            <Localized id="product-plan-change-heading">
-              <h2 className="page-title">Review your change</h2>
-            </Localized>
-            <p className="subheading"></p>
-          </div>
           <div className="payment-details">
             <Localized id="sub-update-payment-title">
               <span className="label-title">Payment information</span>
@@ -213,6 +212,7 @@ export const SubscriptionUpgrade = ({
             isMobile,
             showExpandButton: isMobile,
             invoicePreview,
+            className: 'payment-panel',
           }}
         />
       </div>

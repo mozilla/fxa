@@ -17,8 +17,8 @@ const NoInterval = ({
 }: {
   total: number;
   currency: string;
+  showTax: boolean;
   tax?: number;
-  showTax?: boolean;
   className?: string;
   dataTestId?: string;
 }) => {
@@ -71,8 +71,8 @@ const Interval = ({
   currency: string;
   interval: Stripe.Plan.Interval;
   intervalCount: number;
+  showTax: boolean;
   tax?: number;
-  showTax?: boolean;
   className?: string;
   dataTestId?: string;
 }) => {
@@ -130,7 +130,7 @@ export const PriceDetails = (props: PriceDetailsProps) => {
   // If a tax amount is provided, then the component will display the tax value, unless showTax is set to false.
   // However if showTax is set to true, if no tax amount is provided, it will be set to 0, and the tax value will be shown.
   const { showTax, tax } = props;
-  const calculatedShowTax = showTax === undefined && tax ? true : showTax;
+  const calculatedShowTax = showTax === undefined && tax ? true : !!showTax;
   if (props.interval && props.intervalCount) {
     return (
       <Interval

@@ -95,6 +95,10 @@
   @apply rounded-t-lg;
 }
 
+.page-title-container {
+  @apply bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px tablet:mx-0;
+}
+
 .page-title {
   @apply font-semibold leading-8 mb-2 text-grey-600 text-xl;
 }

@@ -19,6 +19,7 @@ import {
   MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
   MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
   MOCK_PREVIEW_INVOICE_NO_TAX,
+  MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle, FluentNumber } from '@fluent/bundle';
@@ -130,6 +131,26 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     expect(queryByTestId('plan-upgrade-subtotal')).toHaveTextContent('$20.00');
     expect(queryByTestId('plan-upgrade-tax-amount')).toHaveTextContent('$3.00');
     expect(queryByTestId('total-price')).toHaveTextContent('$23.00 monthly');
+  });
+
+  it('does not render tax for zero amount exclusive tax', async () => {
+    updateConfig({
+      featureFlags: {
+        useStripeAutomaticTax: true,
+      },
+    });
+    const { findByTestId, queryByTestId } = render(
+      <Subject
+        props={{
+          invoicePreview: MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
+        }}
+      />
+    );
+    await findByTestId('subscription-upgrade');
+
+    expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+    expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
+    expect(queryByTestId('total-price')).toHaveTextContent('$20.00 monthly');
   });
 
   it('can be submitted after confirmation is checked', async () => {

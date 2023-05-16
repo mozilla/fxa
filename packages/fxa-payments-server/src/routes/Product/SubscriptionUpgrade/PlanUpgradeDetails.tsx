@@ -36,7 +36,9 @@ export const PlanUpgradeDetails = ({
   const showTax = config.featureFlags.useStripeAutomaticTax;
 
   const exclusiveTaxRates =
-    invoicePreview.tax?.filter((taxRate) => !taxRate.inclusive) || [];
+    invoicePreview.tax?.filter(
+      (taxRate) => !taxRate.inclusive && taxRate.amount > 0
+    ) || [];
 
   const totalAmount = showTax ? invoicePreview.total : amount;
   const subTotal = invoicePreview.subtotal;
