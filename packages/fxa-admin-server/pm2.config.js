@@ -9,7 +9,7 @@ const PATH = process.env.PATH.split(':')
 const nest = require.resolve('@nestjs/cli/bin/nest.js');
 const getDevScript = () => `${nest} start --debug=9150 --watch`;
 const getProdScript = () =>
-  'rm -rf dist && npx --yes nx build fxa-admin-server && node dist/packages/fxa-admin-server/src/main.js';
+  'rm -rf dist && yarn build && node dist/packages/fxa-admin-server/src/main.js';
 const script =
   process.env.CI === 'true' || process.env.NODE_ENV === 'production'
     ? getProdScript()
