@@ -32,6 +32,7 @@ class OAuthRedis extends ConnectedServicesCache {
   constructor() {
     super(
       redis({
+        password: config.get('redis.password'),
         ...config.get('redis.accessTokens'),
 
         // TOOD: Once validated, rely values present in redis.accessTokens instead.
@@ -39,6 +40,7 @@ class OAuthRedis extends ConnectedServicesCache {
         maxttl: config.get('oauthServer.expiration.accessToken'),
       }),
       redis({
+        password: config.get('redis.password'),
         ...config.get('redis.refreshTokens'),
       }),
       undefined,

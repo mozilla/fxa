@@ -1,8 +1,7 @@
 #!/bin/bash -ex
 
-# This routine was formerly part of in test-ci.sh. It has been
-# split up so it can be run in separate steps in the CI,
-# resulting in more meaningful timing metrics.
+# This startup routine is seperate from the test command. This way it can be run in a
+# separate step in the CI, which results in more meaningful timing metrics.
 
 DIR=$(dirname "$0")
 

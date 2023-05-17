@@ -55,6 +55,7 @@ exports.create = async function createServer() {
     cacheProvider.options.host = config.serverCache.redis.host;
     cacheProvider.options.port = config.serverCache.redis.port;
     cacheProvider.options.partition = config.serverCache.redis.keyPrefix;
+    cacheProvider.options.password = config.serverCache.redis.password;
   }
   var isProd = config.env === 'production';
   var server = new Hapi.Server({

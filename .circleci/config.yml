@@ -101,10 +101,12 @@ executors:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
+        command: --requirepass fxa123
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
+      REDIS_PASSWORD: fxa123
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -117,6 +119,7 @@ executors:
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner
       - image: redis
+        command: --requirepass fxa123
       - image: memcached
       - image: pafortin/goaws
       - image: cimg/mysql:8.0.28
@@ -142,6 +145,7 @@ executors:
       REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES: true
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       CUSTOMS_SERVER_URL: none
+      REDIS_PASSWORD: fxa123
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.
@@ -310,6 +314,23 @@ commands:
     steps:
       - run:
           command: ./.circleci/report-coverage.sh << parameters.list >>
+
+  run-playwright-tests:
+    parameters:
+      project:
+        type: string
+    steps:
+      - run:
+          name: Running Playwright tests
+          # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
+          command: |
+            cd packages/functional-tests
+            TEST_FILES=$(circleci tests glob "tests/**/*.spec.ts")
+            echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >>" --verbose --split-by=timings
+          environment:
+            NODE_OPTIONS: --dns-result-order=ipv4first
+            JEST_JUNIT_OUTPUT_DIR: ./artifacts/tests
+            JEST_JUNIT_ADD_FILE_ATTRIBUTE: true
 
   store-artifacts:
     steps:
@@ -624,26 +645,21 @@ jobs:
     steps:
       - git-checkout
       - provision
-      - run:
-          name: Running smoke tests
-          command: yarn workspace functional-tests test-production
+      - run-playwright-tests:
+          project: production
       - store-artifacts
-      # TODO: Is this actually needed?
-      - store_test_results:
-          path: artifacts/tests
 
   smoke-tests:
     parameters:
-      target:
+      project:
         type: string
-        default: test-production
+        default: production
     executor: smoke-test-executor
     steps:
       - git-checkout
       - provision
-      - run:
-          name: Running smoke tests
-          command: yarn workspace functional-tests << parameters.target >>
+      - run-playwright-tests:
+          project: << parameters.project >>
       - store-artifacts
 
   # Runs functional tests using playwright. These tests support splitting
@@ -671,9 +687,8 @@ jobs:
       - run:
           name: Start services for playwright tests
           command: ./packages/functional-tests/scripts/start-services.sh
-      - run:
-          name: Running playwright tests
-          command: ./packages/functional-tests/scripts/test-ci.sh
+      - run-playwright-tests:
+          project: local
       - store-artifacts
 
   build-and-deploy-storybooks:
@@ -839,7 +854,7 @@ workflows:
     # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
-          target: test-production
+          project: production
           filters:
             branches:
               only: /.*/
@@ -873,7 +888,7 @@ workflows:
               only: /.*/
       - smoke-tests:
           name: Smoke Test Stage - Playwright
-          target: test-stage
+          project: stage
           filters:
             branches:
               only: /.*/

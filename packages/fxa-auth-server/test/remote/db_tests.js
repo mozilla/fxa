@@ -77,6 +77,7 @@ describe('#integration - remote db', function () {
     redis = require('ioredis').createClient({
       host: config.redis.host,
       port: config.redis.port,
+      password: config.redis.password,
       prefix: config.redis.sessionTokens.prefix,
       enable_offline_queue: false,
     });
