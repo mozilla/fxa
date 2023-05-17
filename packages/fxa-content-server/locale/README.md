@@ -4,12 +4,12 @@ This directory contains translated strings for all supported locales. Strings ar
 
 ## How to use
 
-This folder can be used locally, but the default behavior is to update through `npm install` (see the postinstall `clone-l10n.sh` step). If you do not follow those steps you might lose your work without understanding.
+This folder can be used locally, but the default behavior is to update through `yarn install` (see the postinstall `clone-l10n.sh` step). If you do not follow those steps you might lose your work without understanding.
 
 Here are a few things to know:
 
 - Do `git add` the file you are working on as often as possible. Otherwise you might just run `grunt` and it’ll overwrite all your work.
-- The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by npm install via git.
+- The files that the default behavior uses to generate the content is from `fxa-content-server-l10n`, that is handled by yarn install via git.
 - To work locally use those two commands:
 
         grunt po2json

@@ -9,8 +9,8 @@ To run the verification server locally:
 
     $ git clone https://github.com/mozilla/browserid-verifier
     $ cd browserid-verifier
-    $ npm install
-    $ npm start
+    $ yarn install
+    $ yarn start
 
 At this point, your verifier will be running and available to use locally over
 HTTP.

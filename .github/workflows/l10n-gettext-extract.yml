@@ -17,7 +17,7 @@ jobs:
           node-version: 18
       - name: Install global npm packages
         run: |
-          npm install -g grunt-cli
+          yarn global add grunt-cli
       - name: Clone l10n repository
         uses: actions/checkout@v3
         with:
@@ -31,7 +31,7 @@ jobs:
       - name: Install npm packages
         run: |
           cd fxa-l10n
-          npm install
+          yarn install
       - name: Extract gettext strings and flag for review
         run: |
           cd fxa-code

@@ -19,7 +19,7 @@ Available options:
 - Open Terminal and Run commands:
 - `git clone https://github.com/vladikoff/fxa-dev-launcher.git`
 - `cd fxa-dev-launcher`
-- `npm install`
+- `yarn install`
 - `FXA_ENV=latest npm start`
 
 The above will start a firefox talking to `latest.dev.lcip.org`

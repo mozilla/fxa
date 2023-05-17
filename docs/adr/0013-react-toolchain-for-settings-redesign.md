@@ -73,7 +73,7 @@ Chosen option: "B3 - Create React App and use Rescripts", because:
 #### Option B2 - Create React App and immediately eject
 
 - Description
-  - Start with Option B, and then immediately execute `npm run eject` in order to expose all configuration and build processes.
+  - Start with Option B, and then immediately execute `yarn eject` in order to expose all configuration and build processes.
 - Pros
   - You are still given a setup that you can immediately work with.
   - You can modify configurations or build processes as you see fit.
