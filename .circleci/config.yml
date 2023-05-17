@@ -388,7 +388,7 @@ commands:
           when: on_fail
           command: |
             echo "Canceling workflow as a step resulted in failure"
-            node .circleci/cancel-jobs.mjs;
+            # node .circleci/cancel-jobs.mjs;
 
   rebuild-check:
     parameters:
