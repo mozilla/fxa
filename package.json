@@ -87,7 +87,7 @@
     "mocha-junit-reporter": "^2.2.0",
     "mocha-multi": "^1.1.7",
     "postcss": "^8.4.14",
-    "stylelint": "^15.2.0",
+    "stylelint": "^15.6.2",
     "stylelint-config-prettier": "^9.0.3",
     "stylelint-config-recommended-scss": "^8.0.0"
   },
