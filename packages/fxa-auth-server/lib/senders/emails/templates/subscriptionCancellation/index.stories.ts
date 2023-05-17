@@ -20,6 +20,8 @@ const createStory = subplatStoryWithProps(
     serviceLastActiveDateOnly: '12/13/2021',
     cancellationSurveryUrl:
       'https://survey.alchemer.com/s3/6534408/Privacy-Security-Product-Cancellation-of-Service-Q4-21',
+    showOutstandingBalance: true,
+    cancelAtEnd: false,
   }
 );
 
