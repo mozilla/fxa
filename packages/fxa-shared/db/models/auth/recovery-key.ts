@@ -64,16 +64,12 @@ export class RecoveryKey extends BaseAuthModel {
     }
   }
 
-  static async updateRecoveryKeyHint({
-    uid,
-    hint,
-  }: Pick<RecoveryKey, 'uid' | 'hint'>) {
+  static async updateRecoveryKeyHint(uid: string, hint: string) {
     try {
-      const uidBuffer = uuidTransformer.to(uid);
       const result = await RecoveryKey.query()
-        .where(uid, uidBuffer)
-        .update({ hint });
-      return !!result;
+        .where('uid', uuidTransformer.to(uid))
+        .update({ hint: hint });
+      return result;
     } catch (e) {
       throw convertError(e);
     }

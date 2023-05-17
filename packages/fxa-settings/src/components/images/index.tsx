@@ -7,6 +7,8 @@ import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
 import { ReactComponent as Key } from './graphic_key.svg';
 import { ReactComponent as Lock } from './graphic_lock.svg';
+import { ReactComponent as Lightbulb } from './lightbulb.svg';
+
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 // Use this component to add your image into the collection of images exported below.
@@ -129,6 +131,15 @@ export const LockImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Illustration of a lock."
     ariaLabelFtlId="lock-image-aria-label"
     Image={Lock}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const LightbulbImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration to represent creating a storage hint."
+    ariaLabelFtlId="lightbulb-aria-label"
+    Image={Lightbulb}
     {...{ className, ariaHidden }}
   />
 );

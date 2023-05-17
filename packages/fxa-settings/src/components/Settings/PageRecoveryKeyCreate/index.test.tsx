@@ -93,7 +93,8 @@ describe('PageRecoveryKeyCreate', () => {
     fireEvent.click(flowPage3Button);
     await waitFor(() =>
       screen.getByRole('heading', {
-        name: 'Fourth step',
+        level: 2,
+        name: 'Great! Now add a storage hint',
       })
     );
   });

@@ -11,8 +11,9 @@ import FlowRecoveryKeyConfirmPwd from '../FlowRecoveryKeyConfirmPwd';
 import FlowRecoveryKeyDownload from '../FlowRecoveryKeyDownload';
 import FlowRecoveryKeyInfo from '../FlowRecoveryKeyInfo';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
+import FlowRecoveryKeyHint from '../FlowRecoveryKeyHint';
 
-const viewName = 'settings.account-recovery';
+export const viewName = 'settings.account-recovery';
 const numberOfSteps = 4;
 
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
@@ -95,19 +96,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       )}
 
       {/* Set a storage hint if the a recovery key exists */}
-      {/* TODO add view in FXA-7238 */}
-      {currentStep === 4 && (
-        <>
-          <h1>Fourth step</h1>
-          <button
-            className="cta-primary cta-base-p mx-2 flex-1"
-            type="button"
-            onClick={navigateForward}
-          >
-            click to move to next view
-          </button>
-        </>
-      )}
+      {currentStep === 4 && <FlowRecoveryKeyHint {...{ ...sharedStepProps }} />}
     </>
   );
 };

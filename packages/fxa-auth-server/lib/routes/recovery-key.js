@@ -308,7 +308,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           throw errors.recoveryKeyNotFound();
         }
 
-        const { hint } = await db.getRecoveryKeyHint(uid);
+        const hint = await db.getRecoveryKeyHint(uid);
 
         return hint;
       },
@@ -342,8 +342,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           throw errors.unverifiedSession();
         }
 
-        const result = await db.recoveryKeyExists(uid);
-        if (!result.exists) {
+        const keyForUid = await db.recoveryKeyExists(uid);
+
+        if (!keyForUid.exists) {
           throw errors.recoveryKeyNotFound();
         }
 

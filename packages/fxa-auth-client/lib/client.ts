@@ -1253,7 +1253,7 @@ export default class AuthClient {
   async getRecoveryKeyHint(
     sessionToken: hexstring | undefined,
     email?: string
-  ) {
+  ): Promise<{ hint: string | null }> {
     if (sessionToken) {
       return this.sessionGet('/recoveryKey/hint', sessionToken);
     }

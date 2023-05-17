@@ -1147,6 +1147,15 @@ export class Account implements AccountData {
     return recoveryKey;
   }
 
+  async getRecoveryKeyHint() {
+    const recoveryKeyHint = await this.authClient.getRecoveryKeyHint(
+      sessionToken()!,
+      this.primaryEmail.email
+    );
+
+    return recoveryKeyHint;
+  }
+
   async updateRecoveryKeyHint(hint: string) {
     await this.withLoadingStatus(
       this.authClient.updateRecoveryKeyHint(sessionToken()!, hint)

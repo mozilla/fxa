@@ -222,7 +222,7 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
-    description: 'Deletes the current TOTP token for the user.',
+    description: 'Deletes the current recovery key for the user.',
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
