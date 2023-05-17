@@ -91,6 +91,11 @@ module.exports = {
       return res.sendStatus(400).end();
     }
 
+    // Prevent implicit protocol in url path
+    if (docUrl.pathname.includes('//')) {
+      return res.sendStatus(400).end();
+    }
+
     // For backwards compatibility and future single-locale products(?)
     if (docUrl.pathname.endsWith('.pdf')) {
       return res.redirect(docUrl.href);
