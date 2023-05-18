@@ -25390,18 +25390,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"firefox-profile@npm:4.2.2":
-  version: 4.2.2
-  resolution: "firefox-profile@npm:4.2.2"
+"firefox-profile@npm:4.3.2":
+  version: 4.3.2
+  resolution: "firefox-profile@npm:4.3.2"
   dependencies:
     adm-zip: ~0.5.x
     fs-extra: ~9.0.1
     ini: ~2.0.0
     minimist: ^1.2.5
-    xml2js: ~0.4.23
+    xml2js: ^0.5.0
   bin:
     firefox-profile: lib/cli.js
-  checksum: 21f338accb06ced2e711ba541874e39fe54a4a9f8b8b87300cd101a71e6e5d03670aa694ee07f3100f8961cc8d0795e19b1e3b3f31a8003d5615f365d9dc3107
+  checksum: 3848edeec929565213866088b7249a2836094a15fc2b940f6c62ac63504a13fe32de9eb66c867e21170eabdb858907c103277b4b0c6d8ac0268b9c9d0a718b71
   languageName: node
   linkType: hard
 
@@ -26461,7 +26461,7 @@ fsevents@~2.1.1:
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.4
     file-loader: ^6.1.0
-    firefox-profile: 4.2.2
+    firefox-profile: 4.3.2
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
     fxa-common-password-list: 0.0.4
@@ -51864,13 +51864,13 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"xml2js@npm:~0.4.23":
-  version: 0.4.23
-  resolution: "xml2js@npm:0.4.23"
+"xml2js@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "xml2js@npm:0.5.0"
   dependencies:
     sax: ">=0.6.0"
     xmlbuilder: ~11.0.0
-  checksum: ca0cf2dfbf6deeaae878a891c8fbc0db6fd04398087084edf143cdc83d0509ad0fe199b890f62f39c4415cf60268a27a6aed0d343f0658f8779bd7add690fa98
+  checksum: 1aa71d62e5bc2d89138e3929b9ea46459157727759cbc62ef99484b778641c0cd21fb637696c052d901a22f82d092a3e740a16b4ce218e81ac59b933535124ea
   languageName: node
   linkType: hard
 
