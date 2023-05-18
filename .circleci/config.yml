@@ -344,6 +344,11 @@ commands:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
+            if [[ "<< parameters.project >>" == "production" ]]; then
+              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=false
+            else
+              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
+            fi
             cd packages/functional-tests
             TEST_FILES=$(circleci tests glob "tests/**/*.spec.ts")
             echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >>" --verbose --split-by=timings

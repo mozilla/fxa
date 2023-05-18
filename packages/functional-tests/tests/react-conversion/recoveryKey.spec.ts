@@ -3,6 +3,7 @@ import { EmailHeader, EmailType } from '../../lib/email';
 import { BaseTarget } from '../../lib/targets/base';
 
 let key;
+let hint;
 let originalEncryptionKeys;
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
@@ -25,19 +26,42 @@ test.describe('recovery key react', () => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
-      // Ensure that the feature flag is enabled
+      // Ensure that the react reset password route feature flag is enabled
       const config = await login.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+
       await settings.goto();
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
       await settings.recoveryKey.clickCreate();
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
 
-      // Store key to be used later
-      key = await recoveryKey.getKey();
-      await recoveryKey.clickClose();
+      // Check which account recovery key generation flow to use (based on feature flag)
+      // TODO in FXA-7419 - remove the condition and else block that goes through the old key generation flow
+      if (config.featureFlags.showRecoveryKeyV2 === true) {
+        // View 1/4 info
+        await recoveryKey.clickStart();
+        // View 2/4 confirm password and generate key
+        await recoveryKey.setPassword(credentials.password);
+        await recoveryKey.submit();
+
+        // View 3/4 key download
+        // Store key to be used later
+        key = await recoveryKey.getKey();
+        await recoveryKey.clickNext();
+
+        // View 4/4 hint
+        // store hint to be used later
+        hint = 'secret key location';
+        await recoveryKey.setHint(hint);
+        await recoveryKey.clickFinish();
+      } else {
+        await recoveryKey.setPassword(credentials.password);
+        await recoveryKey.submit();
+
+        // Store key to be used later
+        key = await recoveryKey.getKey();
+        await recoveryKey.clickClose();
+      }
 
       // Verify status as 'enabled'
       status = await settings.recoveryKey.statusText();

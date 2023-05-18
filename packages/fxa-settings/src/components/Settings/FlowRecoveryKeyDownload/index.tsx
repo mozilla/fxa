@@ -62,10 +62,7 @@ export const FlowRecoveryKeyDownload = ({
         <DataBlock
           value={recoveryKeyValue}
           onCopy={() =>
-            logViewEvent(
-              'flow.settings.account-recovery',
-              `recovery-key.copy-option`
-            )
+            logViewEvent(`flow.${viewName}`, `recovery-key.copy-option`)
           }
           isInline
         />

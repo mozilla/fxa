@@ -67,7 +67,7 @@ describe('ButtonDownloadRecoveryKey', () => {
     expect(downloadButtonDownloadAttribute).toContain(
       `Firefox-Recovery-Key_${date}_${account.primaryEmail.email}.txt`
     );
-    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(70);
+    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(75);
   });
 
   it('sets the filename with a truncated email as expected when the email is very long', () => {
@@ -82,10 +82,10 @@ describe('ButtonDownloadRecoveryKey', () => {
     const currentDate = new Date();
     const date = currentDate.toISOString().split('T')[0];
     const fullFilename = `Firefox-Recovery-Key_${date}_${accountWithLongEmail.primaryEmail.email}.txt`;
-    // Full filene would be longer than 70 char if not truncated
-    expect(fullFilename.length).toBeGreaterThan(70);
+    // Full filename would be longer than 75 char if not truncated
+    expect(fullFilename.length).toBeGreaterThan(75);
     // actual filename is truncated
-    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(70);
+    expect(downloadButtonDownloadAttribute!.length).toBeLessThanOrEqual(75);
     // filename still contains full prefix and date
     expect(downloadButtonDownloadAttribute).toContain('Firefox-Recovery-Key');
     expect(downloadButtonDownloadAttribute).toContain(date);

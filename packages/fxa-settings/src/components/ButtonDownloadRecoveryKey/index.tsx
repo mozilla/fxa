@@ -85,7 +85,7 @@ export const ButtonDownloadRecoveryKey = ({
     const date = currentDate.toISOString().split('T')[0];
     // Windows has a max directory length of 260 characters (including path)
     // filename should be kept much shorter (maxLength is arbitrary).
-    const maxLength = 70;
+    const maxLength = 75;
     const prefix = 'Firefox-Recovery-Key';
     let email = primaryEmail.email;
     let filename = `${prefix}_${date}_${email}.txt`;

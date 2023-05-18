@@ -35,10 +35,56 @@ export class RecoveryKeyPage extends SettingsLayout {
     ]);
   }
 
+  // TODO in FXA-7419 - delete this method
   clickClose() {
     return Promise.all([
       this.page.locator('[data-testid=close-button]').click(),
       this.page.waitForNavigation(),
     ]);
+  }
+
+  async clickStart() {
+    return this.page
+      .getByRole('button', { name: 'Start creating your account recovery key' })
+      .click();
+  }
+
+  async clickChange() {
+    return this.page
+      .getByRole('button', { name: 'Change account recovery key' })
+      .click();
+  }
+
+  async clickDownload() {
+    const [download] = await Promise.all([
+      this.page.waitForEvent('download'),
+      this.page.getByText('Download your account recovery key').click(),
+    ]);
+    return download;
+  }
+
+  async clickCopy(): Promise<string> {
+    // override writeText so we can capture the value
+    await this.page.evaluate(() => {
+      //@ts-ignore
+      window.clipboardText = null;
+      //@ts-ignore
+      navigator.clipboard.writeText = (text) => (window.clipboardText = text);
+    });
+    await this.page.getByRole('button', { name: 'Copy' }).click();
+    //@ts-ignore
+    return this.page.evaluate(() => window.clipboardText);
+  }
+
+  async clickNext() {
+    return this.page.getByRole('link', { name: 'Next' }).click();
+  }
+
+  setHint(hint: string) {
+    return this.page.getByRole('textbox').fill(hint);
+  }
+
+  async clickFinish() {
+    return this.page.getByRole('button', { name: 'Finish' }).click();
   }
 }

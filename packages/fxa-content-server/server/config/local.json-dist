@@ -51,5 +51,8 @@
   },
   "showReactApp": {
     "simpleRoutes": true
+  },
+  "featureFlags": {
+    "showRecoveryKeyV2": true
   }
 }
