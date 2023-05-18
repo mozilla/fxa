@@ -2,7 +2,7 @@
   "name": "fxa-shared",
   "version": "1.256.3",
   "description": "Shared module for FxA repositories",
-  "main": "dist/index.js",
+  "main": "dist/packages/fxa-shared/index.js",
   "exports": {
     ".": "./dist/packages/fxa-shared/index.js",
     "./*": "./dist/packages/fxa-shared/*",
@@ -87,6 +87,7 @@
   "bugs": {
     "url": "https://github.com/mozilla/fxa/issues"
   },
+  "type": "module",
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
     "@nestjs/testing": "^9.2.1",
