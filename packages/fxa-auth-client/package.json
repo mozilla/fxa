@@ -4,12 +4,12 @@
   "description": "",
   "main": "dist/server/server.js",
   "exports": {
-    ".": "./dist/server/server.js",
-    "./browser": "./dist/browser/browser.js",
-    "./lib/crypto": "./dist/server/lib/crypto.js",
-    "./lib/hawk": "./dist/server/lib/hawk.js",
-    "./lib/recoveryKey": "./dist/server/lib/recoveryKey.js",
-    "./lib/utils": "./dist/server/lib/utils.js",
+    ".": "./dist/packages/fxa-auth-client/server/server.js",
+    "./browser": "./dist/packages/fxa-auth-client/browser/browser.js",
+    "./lib/crypto": "./dist/packages/fxa-auth-client/server/lib/crypto.js",
+    "./lib/hawk": "./dist/packages/fxa-auth-client/server/lib/hawk.js",
+    "./lib/recoveryKey": "./dist/packages/fxa-auth-client/server/lib/recoveryKey.js",
+    "./lib/utils": "./dist/packages/fxa-auth-client/server/lib/utils.js",
     "./lib/": "./lib/"
   },
   "scripts": {

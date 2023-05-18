@@ -3,13 +3,13 @@
   "version": "1.256.3",
   "description": "Shared components for FxA React Apps",
   "exports": {
-    "./components/": "./dist/components/",
+    "./components/": "./dist/packages/fxa-react/components/",
     "./configs/tailwind": "./configs/tailwind.js",
     "./configs/rescripts": "./configs/rescripts.js",
     "./configs/storybooks": "./configs/storybooks.js",
     "./images/": "./images/",
     "./extract-imported-components": "./extract-imported-components.js",
-    "./lib/": "./dist/lib/"
+    "./lib/": "./dist/packages/fxa-react/lib/"
   },
   "scripts": {
     "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
