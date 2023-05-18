@@ -30,6 +30,7 @@ const createStory = subplatStoryWithProps(
     paymentProrated: null,
     showPaymentMethod: true,
     showProratedAmount: false,
+    showTaxAmount: false,
   }
 );
 
@@ -103,6 +104,7 @@ export const SubscriptionFirstInvoiceWithStripeTaxAndForeverCoupon =
       invoiceTaxAmount: '$2.00',
       discountType: 'forever',
       discountDuration: null,
+      showTaxAmount: true,
     },
     'Stripe - With Tax and Forever Coupon'
   );
@@ -115,6 +117,7 @@ export const SubscriptionFirstInvoiceWithStripeTax = createStory(
     invoiceTaxAmount: '$3.00',
     discountType: null,
     discountDuration: null,
+    showTaxAmount: true,
   },
   'Stripe - With Tax'
 );
