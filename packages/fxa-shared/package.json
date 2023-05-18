@@ -57,7 +57,7 @@
     "build": "tsc --build && yarn copy-assets && yarn copy-sql",
     "compile": "tsc --noEmit && yarn copy-assets && yarn copy-sql",
     "copy-assets": "cp -r ./db/luaScripts ./dist/packages/fxa-shared/db/luaScripts",
-    "copy-sql": "find test -name \\*.sql -exec cp \\{\\} dist/\\{\\} \\;",
+    "copy-sql": "find test -name \\*.sql -exec cp \\{\\} dist/packages/fxa-shared/\\{\\} \\;",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
