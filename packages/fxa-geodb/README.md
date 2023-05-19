@@ -4,7 +4,7 @@ Provides a wrapper around [node-maxmind](https://github.com/runk/node-maxmind) f
 
 ### Getting started
 
-Install the module by running `npm install fxa-geodb --save`. Then, include the module in your source file, like so:
+Install the module by running `yarn add fxa-geodb --dev`. Then, include the module in your source file, like so:
 
 ```JavaScript
 var geoDb = require('fxa-geodb')();
@@ -93,7 +93,7 @@ Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) fo
 
 ### Code Coverage
 
-Code coverage is provided with `nyc`, to run coverage, call `npm run-script cover`
+Code coverage is provided with `nyc`, to run coverage, call `yarn-script cover`
 
 --
 

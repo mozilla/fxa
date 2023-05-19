@@ -7,7 +7,7 @@ WORKDIR /home/fxa/fxa-profile-server
 RUN chown -R fxa .
 USER fxa
 
-RUN npm install --production \
+RUN yarn install --production \
   && npm cache clear
 
 CMD npm start

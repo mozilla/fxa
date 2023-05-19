@@ -19,7 +19,7 @@ Static server that hosts [Firefox Account sign up](https://accounts.firefox.com)
 ## Quick Start
 
 Clone the repository, make sure you have [required prerequisites](https://github.com/mozilla/fxa-local-dev#dependencies) installed.
-Run `npm install` and `npm run start-remote`.
+Run `yarn install` and `yarn start-remote`.
 This will start a local fxa-content-server on [http://localhost:3030](http://localhost:3030) that works with remote Firefox Accounts servers.
 
 If you want to install all Firefox Accounts servers locally follow the instructions on:
@@ -48,7 +48,7 @@ This package uses Selenium to perform functional tests. By default `npm test` wi
 
 ```bash
 # Grep for "change password, sign in with new password"
-npm run test -- --grep="change password, sign in with new password"
+yarn test -- --grep="change password, sign in with new password"
 ```
 
 If you need to run tests for a particular suite, you can like so:
@@ -75,7 +75,7 @@ On headless systems that can't spawn Firefox for use with Selenium, `xvfb-run` m
 to run with. After installing `xvfb-run` the functional tests can be run with:
 
 ```sh
-xvfb-run -s "-screen 0 1920x1200x16" npm run test-functional
+xvfb-run -s "-screen 0 1920x1200x16" yarn test-functional
 ```
 
 ### Unit Tests
