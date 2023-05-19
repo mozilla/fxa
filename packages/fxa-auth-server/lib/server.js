@@ -272,13 +272,9 @@ async function create(log, error, config, routes, db, statsd) {
       } else if (request.payload && request.payload.uid) {
         // Some unauthenticated requests might set uid in payload, ex. `/account/status`
         uid = request.payload.uid;
-      } else if (
-        request.auth &&
-        request.auth.artifacts &&
-        request.auth.artifacts.metricsUid
-      ) {
-        // For access tokens, we stash the uid
-        uid = request.auth.artifacts.metricsUid;
+      } else if (request.app.metricsEventUid) {
+        // For access tokens, and webhooks, we stash the uid
+        uid = request.app.metricsEventUid;
       } else if (request.payload && request.payload.email) {
         // last resort is to check if an email is in the payload
         try {

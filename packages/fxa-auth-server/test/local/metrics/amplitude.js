@@ -181,7 +181,7 @@ describe('metrics/amplitude', () => {
       });
     });
 
-    describe('sets metricsUid when uid specified', () => {
+    describe('sets metricsEventUid when uid specified', () => {
       it('credentials with metricsOptOutAt set do not log', async () => {
         const request = mocks.mockRequest({
           credentials: {
@@ -192,7 +192,7 @@ describe('metrics/amplitude', () => {
           },
         });
         await amplitude('account.confirmed', request);
-        assert.equal(request.auth.artifacts.metricsUid, 'blee');
+        assert.equal(request.app.metricsEventUid, 'blee');
       });
     });
 

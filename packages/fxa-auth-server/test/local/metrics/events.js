@@ -1172,6 +1172,35 @@ describe('metrics/events', () => {
     });
   });
 
+  it('.emit does not log event if isMetricsEnabled is false', () => {
+    const request = mocks.mockRequest({
+      isMetricsEnabledValue: false,
+    });
+    const data = {
+      uid: 'baz',
+    };
+    assert.equal(request.app.metricsEventUid, undefined);
+    return events.emit.call(request, 'account.signed', data).then(() => {
+      assert.equal(request.app.metricsEventUid, data.uid);
+      assert.equal(
+        log.amplitudeEvent.callCount,
+        0,
+        'log.amplitudeEvent was not called'
+      );
+    });
+  });
+
+  it('.emit sets metricsEventUid if provided in data', () => {
+    const request = mocks.mockRequest({});
+    const data = {
+      uid: 'baz',
+    };
+    assert.equal(request.app.metricsEventUid, undefined);
+    return events.emit.call(request, 'account.signed', data).then(() => {
+      assert.equal(request.app.metricsEventUid, data.uid);
+    });
+  });
+
   it('.emitRouteFlowEvent with matching route and response.statusCode', () => {
     const time = Date.now();
     sinon.stub(Date, 'now').callsFake(() => time);

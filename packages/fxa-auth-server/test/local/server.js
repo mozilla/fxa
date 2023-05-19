@@ -14,6 +14,7 @@ const knownIpLocation = require('../known-ip-location');
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
+const { Account } = require('fxa-shared/db/models/auth/account');
 
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
@@ -196,6 +197,124 @@ describe('lib/server', () => {
             url: '/oauth/subscriptions/clients',
           });
           assert.equal(statusCode, 200);
+        });
+
+        describe('isMetricsEnabled', () => {
+          let request;
+          beforeEach(() => {
+            response = 'ok';
+            return instance
+              .inject({
+                auth: {
+                  credentials: {
+                    uid: 'fake uid',
+                  },
+                  strategy: 'default',
+                },
+                method: 'POST',
+                url: '/account/create',
+                payload: {
+                  features: ['signinCodes'],
+                },
+                remoteAddress: knownIpLocation.ip,
+              })
+              .then((response) => (request = response.request));
+          });
+          afterEach(() => {
+            sandbox.restore();
+          });
+
+          it('should return request.auth.credentials.metricsOptOutAt', async () => {
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(false);
+            request.auth.credentials.uid = 'fake uid';
+            request.auth.credentials.metricsOptOutAt = 123456789;
+
+            const expected = !request.auth.credentials.metricsOptOutAt;
+            const result = await request.app.isMetricsEnabled;
+            assert.equal(result, expected);
+            sinon.assert.notCalled(accountStub);
+          });
+
+          it('should return Account.metricsEnabled if request.auth.credentials.user is provided', async () => {
+            request.auth.credentials.uid = null;
+            request.auth.credentials.user = 'fake uid';
+            const expected = false;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.called(accountStub);
+            assert.equal(result, expected);
+          });
+
+          it('should return Account.metricsEnabled if request.payload.uid is provided', async () => {
+            request.auth.credentials.uid = null;
+            request.payload.uid = 'fake uid';
+            const expected = false;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.called(accountStub);
+            assert.equal(result, expected);
+          });
+
+          it('should return Account.metricsEnabled if request.app.metricsEventUid is provided', async () => {
+            request.auth.credentials.uid = null;
+            request.app.metricsEventUid = 'fake uid';
+            const expected = false;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.called(accountStub);
+            assert.equal(result, expected);
+          });
+
+          it('should return Account.metricsEnabled if request.payload.email is provided', async () => {
+            request.auth.credentials.uid = null;
+            request.payload.email = 'fake@email.com';
+            const expected = false;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const accountEmailStub = sandbox
+              .stub(Account, 'findByPrimaryEmail')
+              .resolves({ uid: 'emailUID' });
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.called(accountStub);
+            sinon.assert.called(accountEmailStub);
+            assert.equal(result, expected);
+          });
+
+          it('should return true if Account.findByPrimaryEmail rejects', async () => {
+            request.auth.credentials.uid = null;
+            request.payload.email = 'fake@email.com';
+            const expected = true;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const accountEmailStub = sandbox
+              .stub(Account, 'findByPrimaryEmail')
+              .throws();
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.called(accountEmailStub);
+            sinon.assert.notCalled(accountStub);
+            assert.equal(result, expected);
+          });
+
+          it('should return true if no uid is found', async () => {
+            request.auth.credentials.uid = null;
+            const expected = true;
+            const accountStub = sandbox
+              .stub(Account, 'metricsEnabled')
+              .resolves(expected);
+            const result = await request.app.isMetricsEnabled;
+            sinon.assert.notCalled(accountStub);
+            assert.equal(result, expected);
+          });
         });
 
         describe('successful request, authenticated, acceptable locale, signinCodes feature enabled:', () => {

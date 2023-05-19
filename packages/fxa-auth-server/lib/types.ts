@@ -21,6 +21,7 @@ export interface AuthApp extends RequestApplicationState {
   acceptLanguage: string;
   clientAddress: string;
   metricsContext: any;
+  metricsEventUid?: string;
   accountRecreated: boolean;
   ua: {
     browser: string;
