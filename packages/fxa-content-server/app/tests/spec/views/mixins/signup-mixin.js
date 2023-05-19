@@ -5,6 +5,7 @@
 import Account from 'models/account';
 import { assert } from 'chai';
 import Broker from 'models/auth_brokers/base';
+import GleanMetrics from '../../../../scripts/lib/glean';
 import { Model } from 'backbone';
 import Relier from 'models/reliers/relier';
 import SignUpMixin from 'views/mixins/signup-mixin';
@@ -25,6 +26,7 @@ describe('views/mixins/signup-mixin', function () {
     let relier;
     let user;
     let view;
+    let regSubmitMetricEventStub;
 
     beforeEach(function () {
       account = new Account({
@@ -32,6 +34,10 @@ describe('views/mixins/signup-mixin', function () {
       });
 
       broker = new Broker();
+      regSubmitMetricEventStub = sinon.stub(
+        GleanMetrics.registration,
+        'submit'
+      );
       relier = new Relier();
       user = {
         signUpAccount: sinon.spy((account) => Promise.resolve(account)),
@@ -63,6 +69,10 @@ describe('views/mixins/signup-mixin', function () {
       };
     });
 
+    afterEach(function () {
+      regSubmitMetricEventStub.restore();
+    });
+
     describe('account needs permissions', function () {
       beforeEach(function () {
         sinon.stub(relier, 'accountNeedsPermissions').callsFake(function () {
@@ -74,6 +84,10 @@ describe('views/mixins/signup-mixin', function () {
 
       it('triggers an account.created on the notifier', () => {
         assert.isTrue(view.notifier.trigger.calledOnceWith('account.created'));
+      });
+
+      it('emits a Glean event', () => {
+        sinon.assert.calledOnce(regSubmitMetricEventStub);
       });
 
       it('calls user.signUpAccount correctly', () => {
