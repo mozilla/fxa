@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { HomePath } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -16,16 +16,24 @@ import FlowRecoveryKeyHint from '../FlowRecoveryKeyHint';
 export const viewName = 'settings.account-recovery';
 const numberOfSteps = 4;
 
+export enum RecoveryKeyAction {
+  Create,
+  Change,
+}
+
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   usePageViewEvent(viewName);
 
-  const account = useAccount();
+  const { recoveryKey } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
 
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
 
+  const action = recoveryKey
+    ? RecoveryKeyAction.Change
+    : RecoveryKeyAction.Create;
   const goHome = () => navigate(HomePath + '#recovery-key', { replace: true });
 
   const localizedPageTitle = ftlMsgResolver.getMsg(
@@ -38,8 +46,9 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     'Back to settings'
   );
 
+  // TODO: Remove feature flag param in FXA-7419
   const navigateBackward = () => {
-    navigate('/settings');
+    navigate(HomePath);
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
@@ -47,18 +56,12 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate('/settings');
+      // TODO: Remove feature flag param in FXA-7419
+      navigate(HomePath);
     }
   };
 
-  // Redirects to settings if a recovery key is already set
-  // TODO in FXA-7239 - review where user should be redirected if they already have a key created
-  // handle issue where user might get bounced out of the flow if the page is refreshed
-  useEffect(() => {
-    if (account.recoveryKey && !formattedRecoveryKey) {
-      navigate(HomePath, { replace: true });
-    }
-  }, [account, formattedRecoveryKey, navigate]);
+  // TODO prevent page refresh? currently refreshing breaks user from flow
 
   const sharedStepProps = {
     localizedBackButtonTitle,
@@ -73,7 +76,9 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
       {/* Switch through the account recovery key steps based on step number */}
       {/* Create an account recovery key */}
-      {currentStep === 1 && <FlowRecoveryKeyInfo {...{ ...sharedStepProps }} />}
+      {currentStep === 1 && (
+        <FlowRecoveryKeyInfo {...{ action, ...sharedStepProps }} />
+      )}
 
       {/* Confirm password and generate recovery key */}
       {currentStep === 2 && (
@@ -81,6 +86,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
           <FlowRecoveryKeyConfirmPwd
             {...{
               ...sharedStepProps,
+              action,
               setFormattedRecoveryKey,
             }}
           />

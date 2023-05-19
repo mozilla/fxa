@@ -27,7 +27,7 @@ export const ButtonIcon = ({
 
   return (
     <button
-      className={`relative w-8 h-8 disabled:text-grey-300 disabled:cursor-wait ${classNames}`}
+      className={`relative w-8 h-8 rounded disabled:text-grey-300  hover:bg-grey-50 active:bg-grey-100 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-10 disabled:cursor-wait ${classNames}`}
       data-testid={testId}
       {...{ title, onClick, disabled }}
     >
@@ -35,6 +35,7 @@ export const ButtonIcon = ({
         width={icon[1]}
         height={icon[2]}
         className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current"
+        aria-label={title}
       />
     </button>
   );
@@ -48,7 +49,7 @@ export const ButtonIconTrash = ({
   title,
 }: Omit<ButtonIconProps, 'icon'>) => (
   <ButtonIcon
-    classNames={`text-red-500 active:text-red-800 focus:text-red-800 ${classNames}`}
+    classNames={`text-grey-500 active:text-grey-800 focus:text-grey-800 ${classNames}`}
     icon={[TrashIcon, 11, 14]}
     {...{ title, disabled, onClick, testId }}
   />

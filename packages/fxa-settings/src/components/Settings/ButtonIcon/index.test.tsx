@@ -11,7 +11,7 @@ it('can render with props', () => {
   render(
     <ButtonIcon
       testId="test-button"
-      title="Hello"
+      title="Test Icon"
       classNames="ml-2"
       disabled={true}
       icon={[TrashIcon, 10, 15]}
@@ -22,9 +22,9 @@ it('can render with props', () => {
   expect(button).toBeInTheDocument();
   expect(button).toHaveClass('ml-2');
   expect(button).toBeDisabled();
-  expect(button).toHaveProperty('title', 'Hello');
+  expect(button).toHaveProperty('title', 'Test Icon');
   expect(button.innerHTML).toEqual(
-    '<svg width="10" height="15" class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current">trash-icon.svg</svg>'
+    '<svg width="10" height="15" class="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 fill-current" aria-label="Test Icon">trash-icon.svg</svg>'
   );
 });
 

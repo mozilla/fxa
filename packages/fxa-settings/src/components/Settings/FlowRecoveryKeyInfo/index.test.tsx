@@ -6,11 +6,9 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, screen } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
-import FlowRecoveryKeyInfo, {
-  forwardNavigationEventName,
-  backwardNavigationEventName,
-} from './';
+import FlowRecoveryKeyInfo from './';
 import { renderWithRouter } from '../../../models/mocks';
+import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 
 const navigateForward = jest.fn();
 const navigateBackward = jest.fn();
@@ -23,10 +21,11 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
-const renderFlowPage = () => {
+const renderFlowPage = (action: RecoveryKeyAction) => {
   renderWithRouter(
     <FlowRecoveryKeyInfo
       {...{
+        action,
         localizedBackButtonTitle,
         localizedPageTitle,
         navigateForward,
@@ -37,39 +36,98 @@ const renderFlowPage = () => {
   );
 };
 
-describe('FlowRecoveryKeyInfo', () => {
+describe('FlowRecoveryKeyInfo for key creation', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders as expected', async () => {
-    renderFlowPage();
-    expect(
-      screen.getByRole('heading', {
-        name: 'Create an account recovery key in case you forget your password',
-      })
-    ).toBeInTheDocument();
+    renderFlowPage(RecoveryKeyAction.Create);
+    screen.getByRole('heading', {
+      name: 'Create an account recovery key in case you forget your password',
+    });
+    screen.getByRole('button', {
+      name: 'Start creating your account recovery key',
+    });
+  });
+
+  it('emits the expected metrics on render', () => {
+    renderFlowPage(RecoveryKeyAction.Create);
+    expect(logViewEvent).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.info');
   });
 
   it('emits the expected metrics when user navigates forward', () => {
-    renderFlowPage();
+    renderFlowPage(RecoveryKeyAction.Create);
     fireEvent.click(
-      screen.getByText('Start creating your account recovery key')
+      screen.getByRole('button', {
+        name: 'Start creating your account recovery key',
+      })
     );
     expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(
-      `flow.${viewName}`,
-      forwardNavigationEventName
-    );
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.info');
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-key.start');
   });
 
   it('emits the expected metrics when user navigates back', () => {
-    renderFlowPage();
-    fireEvent.click(screen.getByTitle('Back to settings'));
+    renderFlowPage(RecoveryKeyAction.Create);
+    fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     expect(navigateBackward).toBeCalledTimes(1);
     expect(logViewEvent).toBeCalledWith(
       `flow.${viewName}`,
-      backwardNavigationEventName
+      'create-key.cancel'
+    );
+  });
+});
+
+describe('FlowRecoveryKeyInfo for key replacement', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders as expected', async () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    screen.getByRole('heading', {
+      name: 'Change your account recovery key',
+    });
+    screen.getByRole('button', { name: 'Change account recovery key' });
+    screen.getByRole('link', { name: 'Cancel' });
+  });
+
+  it('emits the expected metrics on render', () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    expect(logViewEvent).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.info');
+  });
+
+  it('emits the expected metrics when user navigates forward', () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Change account recovery key',
+      })
+    );
+    expect(navigateForward).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.info');
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'change-key.start');
+  });
+
+  it('emits the expected metrics when user navigates back', () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+    expect(navigateBackward).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'change-key.cancel'
+    );
+  });
+
+  it('emits the expected metrics when key change is cancelled', () => {
+    renderFlowPage(RecoveryKeyAction.Change);
+    fireEvent.click(screen.getByRole('link', { name: 'Cancel' }));
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'change-key.cancel'
     );
   });
 });

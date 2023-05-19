@@ -14,6 +14,7 @@ import {
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';
@@ -35,6 +36,7 @@ const setFormattedRecoveryKey = jest.fn();
 const accountWithSuccess = {
   ...MOCK_ACCOUNT,
   createRecoveryKey: jest.fn().mockResolvedValue(new Uint8Array(20)),
+  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
 const accountWithPasswordError = {
@@ -42,6 +44,7 @@ const accountWithPasswordError = {
   createRecoveryKey: () => {
     throw AuthUiErrors.INCORRECT_PASSWORD;
   },
+  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
 const accountWithThrottledError = {
@@ -49,6 +52,7 @@ const accountWithThrottledError = {
   createRecoveryKey: () => {
     throw AuthUiErrors.THROTTLED;
   },
+  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
 const accountWithUnexpectedError = {
@@ -56,14 +60,16 @@ const accountWithUnexpectedError = {
   createRecoveryKey: () => {
     throw AuthUiErrors.UNEXPECTED_ERROR;
   },
+  deleteRecoveryKey: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
-const renderFlowPage = (account: Account) => {
+const renderFlowPage = (account: Account, action: RecoveryKeyAction) => {
   window.URL.createObjectURL = jest.fn();
   renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <FlowRecoveryKeyConfirmPwd
         {...{
+          action,
           localizedBackButtonTitle,
           localizedPageTitle,
           navigateForward,
@@ -76,13 +82,13 @@ const renderFlowPage = (account: Account) => {
   );
 };
 
-describe('FlowRecoveryKeyConfirmPwd', () => {
+describe('FlowRecoveryKeyConfirmPwd with Create Action', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders as expected', async () => {
-    renderFlowPage(accountWithSuccess);
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Create);
 
     screen.getByRole('heading', {
       name: 'Enter your password again to get started',
@@ -92,7 +98,7 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   });
 
   it('disables the submit button when the input is empty', async () => {
-    renderFlowPage(accountWithSuccess);
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Create);
     const createRecoveryKeyButton = screen.getByRole('button', {
       name: 'Create account recovery key',
     });
@@ -115,7 +121,7 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   });
 
   it('emits the expected metrics when the form is submitted with success', async () => {
-    renderFlowPage(accountWithSuccess);
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Create);
     const createRecoveryKeyButton = screen.getByRole('button', {
       name: 'Create account recovery key',
     });
@@ -142,7 +148,7 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   });
 
   it('renders an error message when the requests are throttled', async () => {
-    renderFlowPage(accountWithThrottledError);
+    renderFlowPage(accountWithThrottledError, RecoveryKeyAction.Create);
     const createRecoveryKeyButton = screen.getByRole('button', {
       name: 'Create account recovery key',
     });
@@ -170,7 +176,7 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   });
 
   it('renders an error message when the password is incorrect', async () => {
-    renderFlowPage(accountWithPasswordError);
+    renderFlowPage(accountWithPasswordError, RecoveryKeyAction.Create);
     const createRecoveryKeyButton = screen.getByRole('button', {
       name: 'Create account recovery key',
     });
@@ -198,7 +204,7 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
   });
 
   it('renders an error message for unexpected errors', async () => {
-    renderFlowPage(accountWithUnexpectedError);
+    renderFlowPage(accountWithUnexpectedError, RecoveryKeyAction.Create);
     const createRecoveryKeyButton = screen.getByRole('button', {
       name: 'Create account recovery key',
     });
@@ -225,5 +231,174 @@ describe('FlowRecoveryKeyConfirmPwd', () => {
     });
   });
 
-  // TODO expect metric event when back arrow clicked
+  it('emits the expected metrics when user navigates back', () => {
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Create);
+    fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+    expect(navigateBackward).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'create-key.cancel'
+    );
+  });
+});
+
+describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('renders as expected', async () => {
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
+
+    screen.getByRole('heading', {
+      name: 'Enter your password again to get started',
+    });
+    screen.getByLabelText('Enter your password');
+    screen.getByRole('button', { name: 'Create account recovery key' });
+    screen.getByRole('link', { name: 'Cancel' });
+  });
+
+  it('disables the submit button when the input is empty', async () => {
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
+    const createRecoveryKeyButton = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    const passwordInput = screen.getByLabelText('Enter your password');
+    expect(createRecoveryKeyButton).toHaveAttribute('disabled');
+    // input a password to enable form submission
+    fireEvent.input(passwordInput, {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).not.toHaveAttribute('disabled')
+    );
+    // clear password input disables the submit button
+    fireEvent.input(passwordInput, {
+      target: { value: '' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).toHaveAttribute('disabled')
+    );
+  });
+
+  it('emits the expected metrics when the form is submitted with success', async () => {
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
+    const createRecoveryKeyButton = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    const passwordInput = screen.getByLabelText('Enter your password');
+    // input a password to enable form submission
+    fireEvent.input(passwordInput, {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).not.toHaveAttribute('disabled')
+    );
+    fireEvent.click(createRecoveryKeyButton);
+    await waitFor(() => {
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.submit'
+      );
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.success'
+      );
+      expect(navigateForward).toBeCalledTimes(1);
+    });
+  });
+
+  it('renders an error message when the requests are throttled', async () => {
+    renderFlowPage(accountWithThrottledError, RecoveryKeyAction.Change);
+    const createRecoveryKeyButton = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    const passwordInput = screen.getByLabelText('Enter your password');
+    // input a password to enable form submission
+    fireEvent.input(passwordInput, {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).not.toHaveAttribute('disabled')
+    );
+    fireEvent.click(createRecoveryKeyButton);
+    await waitFor(() => {
+      screen.getByText(/You’ve tried too many times/);
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.submit'
+      );
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.fail'
+      );
+      expect(navigateForward).not.toBeCalled();
+    });
+  });
+
+  it('renders an error message when the password is incorrect', async () => {
+    renderFlowPage(accountWithPasswordError, RecoveryKeyAction.Change);
+    const createRecoveryKeyButton = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    const passwordInput = screen.getByLabelText('Enter your password');
+    // input a password to enable form submission
+    fireEvent.input(passwordInput, {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).not.toHaveAttribute('disabled')
+    );
+    fireEvent.click(createRecoveryKeyButton);
+    await waitFor(() => {
+      screen.getByText('Incorrect password');
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.submit'
+      );
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.fail'
+      );
+      expect(navigateForward).not.toBeCalled();
+    });
+  });
+
+  it('renders an error message for unexpected errors', async () => {
+    renderFlowPage(accountWithUnexpectedError, RecoveryKeyAction.Change);
+    const createRecoveryKeyButton = screen.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+    const passwordInput = screen.getByLabelText('Enter your password');
+    // input a password to enable form submission
+    fireEvent.input(passwordInput, {
+      target: { value: 'anypassword' },
+    });
+    await waitFor(() =>
+      expect(createRecoveryKeyButton).not.toHaveAttribute('disabled')
+    );
+    fireEvent.click(createRecoveryKeyButton);
+    await waitFor(() => {
+      screen.getByText('Unexpected error');
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.submit'
+      );
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'confirm-password.fail'
+      );
+      expect(navigateForward).not.toBeCalled();
+    });
+  });
+
+  it('emits the expected metrics when user navigates back', () => {
+    renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
+    fireEvent.click(screen.getByTestId('flow-container-back-btn'));
+    expect(navigateBackward).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'change-key.cancel'
+    );
+  });
 });

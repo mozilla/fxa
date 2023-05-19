@@ -16,7 +16,6 @@ type ModalButtonProps = {
   revealModal: () => void;
   modalRevealed?: boolean;
   alertBarRevealed?: boolean;
-  leftSpaced?: boolean;
   prefixDataTestId?: string;
 };
 
@@ -26,7 +25,6 @@ export const ModalButton = ({
   revealModal,
   modalRevealed,
   alertBarRevealed,
-  leftSpaced,
   prefixDataTestId = '',
 }: ModalButtonProps) => {
   const modalTriggerElement = useRef<HTMLButtonElement>(null);
@@ -47,7 +45,6 @@ export const ModalButton = ({
     <button
       className={classNames(
         'cta-base transition-standard',
-        leftSpaced && 'ml-2',
         className || 'cta-neutral cta-base-p'
       )}
       data-testid={formatDataTestId('unit-row-modal')}
@@ -80,7 +77,6 @@ type UnitRowProps = {
   alertBarRevealed?: boolean;
   hideCtaText?: boolean;
   prefixDataTestId?: string;
-  isLevelWithRefreshButton?: boolean;
   disabled?: boolean;
   disabledReason?: string;
 };
@@ -106,7 +102,6 @@ export const UnitRow = ({
   alertBarRevealed,
   hideCtaText,
   prefixDataTestId = '',
-  isLevelWithRefreshButton = false,
   disabled = false,
   disabledReason = '',
 }: UnitRowProps & RouteComponentProps) => {
@@ -130,7 +125,6 @@ export const UnitRow = ({
   ctaText = ctaText || (headerValue ? localizedCtaChange : localizedCtaAdd);
 
   const location = useLocation();
-  const multiButton = !!(route || secondaryCtaRoute);
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
@@ -138,7 +132,7 @@ export const UnitRow = ({
 
   return (
     <div className="unit-row">
-      <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:mr-2 mobileLandscape:w-40">
+      <div className="font-header w-full mb-1 mobileLandscape:flex-none mobileLandscape:mb-0 mobileLandscape:me-2 mobileLandscape:w-40">
         <span className="flex justify-between items-center">
           <h3
             data-testid={formatDataTestId('unit-row-header')}
@@ -165,13 +159,10 @@ export const UnitRow = ({
       </div>
 
       <div className="unit-row-actions">
-        <div className="flex items-center">
+        <div className="flex items-center h-8 gap-2">
           {disabled ? (
             <button
-              className={classNames(
-                'cta-neutral cta-base cta-base-p transition-standard rtl:ml-1',
-                isLevelWithRefreshButton && 'mobileLandscape:mr-9'
-              )}
+              className="cta-neutral cta-base cta-base-p transition-standard me-1"
               data-testid={formatDataTestId('unit-row-route')}
               title={disabledReason}
               disabled={disabled}
@@ -182,10 +173,7 @@ export const UnitRow = ({
             <>
               {!hideCtaText && route && (
                 <Link
-                  className={classNames(
-                    'cta-neutral cta-base cta-base-p transition-standard rtl:ml-1',
-                    isLevelWithRefreshButton && 'mobileLandscape:mr-9'
-                  )}
+                  className="cta-neutral cta-base cta-base-p transition-standard me-1"
                   data-testid={formatDataTestId('unit-row-route')}
                   to={`${route}${location.search}`}
                 >
@@ -206,7 +194,7 @@ export const UnitRow = ({
 
               {secondaryCtaRoute && (
                 <Link
-                  className="cta-neutral cta-base cta-base-p transition-standard ltr:mr-1 rtl:ml-1"
+                  className="cta-neutral cta-base cta-base-p transition-standard me-1"
                   data-testid={formatDataTestId('unit-row-route')}
                   to={`${secondaryCtaRoute}${location.search}`}
                 >
@@ -216,7 +204,6 @@ export const UnitRow = ({
 
               {revealSecondaryModal && (
                 <ModalButton
-                  leftSpaced={multiButton}
                   revealModal={revealSecondaryModal}
                   ctaText={secondaryCtaText}
                   className={secondaryButtonClassName}

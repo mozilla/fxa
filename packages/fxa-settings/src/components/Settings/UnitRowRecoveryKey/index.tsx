@@ -2,92 +2,148 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { useAccount, useAlertBar } from '../../../models';
+import {
+  useAccount,
+  useAlertBar,
+  useConfig,
+  useFtlMsgResolver,
+} from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { ButtonIconReload } from '../ButtonIcon';
+import { ButtonIconReload, ButtonIconTrash } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
-import { Localized, useLocalization } from '@fluent/react';
+import { Localized } from '@fluent/react';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
+  const config = useConfig();
+  // TODO Remove feature flag in FXA-7419
+  const { showRecoveryKeyV2 } = config;
   const recoveryKey = account.recoveryKey;
   const alertBar = useAlertBar();
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const deleteRecoveryKey = useCallback(async () => {
     try {
       await account.deleteRecoveryKey();
+      setDeleteModalVisible(false);
       hideModal();
       alertBar.success(
-        l10n.getString('rk-key-removed-2', null, 'Account recovery key removed')
+        ftlMsgResolver.getMsg(
+          'rk-key-removed-2',
+          'Account recovery key removed'
+        )
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
+      setDeleteModalVisible(false);
       alertBar.error(
-        l10n.getString(
+        ftlMsgResolver.getMsg(
           'rk-remove-error-2',
-          null,
           'Your account recovery key could not be removed'
         )
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
     }
-  }, [account, hideModal, alertBar, l10n]);
+  }, [account, hideModal, alertBar, ftlMsgResolver]);
 
-  const localizedRefreshRkText = l10n.getString(
+  const localizedRefreshRkText = ftlMsgResolver.getMsg(
     'rk-refresh-key-1',
-    null,
     'Refresh account recovery key'
+  );
+
+  const localizedDeleteRKIconButton = ftlMsgResolver.getMsg(
+    'unit-row-recovery-key-delete-icon-button-title',
+    'Delete account recovery key'
   );
 
   return (
     <UnitRow
-      header={l10n.getString('rk-header-1', null, 'Account recovery key')}
+      header={ftlMsgResolver.getMsg('rk-header-1', 'Account recovery key')}
       headerId="recovery-key"
       prefixDataTestId="recovery-key"
       headerValueClassName={recoveryKey ? 'text-green-800' : ''}
       headerValue={
         recoveryKey
-          ? l10n.getString('rk-enabled', null, 'Enabled')
-          : l10n.getString('rk-not-set', null, 'Not Set')
+          ? ftlMsgResolver.getMsg('rk-enabled', 'Enabled')
+          : ftlMsgResolver.getMsg('rk-not-set', 'Not Set')
       }
-      route={recoveryKey ? undefined : `${HomePath}/account_recovery`}
-      revealModal={recoveryKey ? revealModal : undefined}
+      // TODO Remove condition in FXA-7419 and only keep v2
+      route={
+        showRecoveryKeyV2
+          ? `${HomePath}/account_recovery`
+          : recoveryKey
+          ? undefined
+          : `${HomePath}/account_recovery`
+      }
+      // Remove this attribute when v1 phased out in FXA-7419
+      revealModal={
+        showRecoveryKeyV2 ? undefined : recoveryKey ? revealModal : undefined
+      }
+      // TODO Remove condition in FXA-7419 and only keep v2
       ctaText={
-        recoveryKey
-          ? l10n.getString('rk-action-remove', null, 'Remove')
-          : l10n.getString('rk-action-create', null, 'Create')
+        showRecoveryKeyV2
+          ? recoveryKey
+            ? ftlMsgResolver.getMsg('rk-action-change-button', 'Change')
+            : ftlMsgResolver.getMsg('rk-action-create', 'Create')
+          : recoveryKey
+          ? ftlMsgResolver.getMsg('rk-action-remove', 'Remove')
+          : ftlMsgResolver.getMsg('rk-action-create', 'Create')
       }
       disabled={!account.hasPassword}
-      disabledReason={l10n.getString(
+      disabledReason={ftlMsgResolver.getMsg(
         'security-set-password',
-        null,
         'Set a password to sync and use certain account security features.'
       )}
       alertBarRevealed
       headerContent={
-        <ButtonIconReload
-          title={localizedRefreshRkText}
-          classNames="mobileLandscape:hidden ltr:ml-1 rtl:mr-1"
-          disabled={account.loading}
-          onClick={() => account.refresh('recovery')}
-        />
+        // TODO Remove condition in FXA-7419 and only keep v2
+        showRecoveryKeyV2 ? (
+          recoveryKey && (
+            <ButtonIconTrash
+              title={localizedDeleteRKIconButton}
+              classNames="inline-block mobileLandscape:hidden ms-1"
+              disabled={!recoveryKey || account.loading}
+              onClick={() => setDeleteModalVisible(true)}
+            />
+          )
+        ) : (
+          <ButtonIconReload
+            title={localizedRefreshRkText}
+            classNames="inline-block mobileLandscape:hidden ms-1"
+            disabled={account.loading}
+            onClick={() => account.refresh('recovery')}
+          />
+        )
       }
+      // if there is a recovery key for the account, show the trash icon
       actionContent={
-        <ButtonIconReload
-          title={localizedRefreshRkText}
-          classNames="hidden mobileLandscape:inline-block ltr:ml-1 rtl:mr-1"
-          testId="recovery-key-refresh"
-          disabled={account.loading || !account.hasPassword}
-          onClick={() => account.refresh('recovery')}
-        />
+        // TODO Remove condition in FXA-7419 and only keep v2
+        showRecoveryKeyV2 ? (
+          recoveryKey && (
+            <ButtonIconTrash
+              title={localizedDeleteRKIconButton}
+              classNames="hidden mobileLandscape:inline-block ms-1"
+              disabled={!recoveryKey || account.loading}
+              onClick={() => setDeleteModalVisible(true)}
+            />
+          )
+        ) : (
+          <ButtonIconReload
+            title={localizedRefreshRkText}
+            classNames="hidden mobileLandscape:inline-block ms-1"
+            testId="recovery-key-refresh"
+            disabled={account.loading || !account.hasPassword}
+            onClick={() => account.refresh('recovery')}
+          />
+        )
       }
     >
       <Localized id="rk-content-explain">
@@ -95,15 +151,14 @@ export const UnitRowRecoveryKey = () => {
           Restores your information when you forget your password.
         </p>
       </Localized>
-      {modalRevealed && (
+      {(deleteModalVisible || modalRevealed) && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
           onError={(error) => {
             hideModal();
             alertBar.error(
-              l10n.getString(
+              ftlMsgResolver.getMsg(
                 'rk-cannot-verify-session-4',
-                null,
                 'Sorry, there was a problem confirming your session'
               ),
               error
@@ -111,7 +166,10 @@ export const UnitRowRecoveryKey = () => {
           }}
         >
           <Modal
-            onDismiss={hideModal}
+            onDismiss={() => {
+              hideModal();
+              setDeleteModalVisible(false);
+            }}
             onConfirm={() => {
               deleteRecoveryKey();
               logViewEvent(
@@ -120,7 +178,7 @@ export const UnitRowRecoveryKey = () => {
               );
             }}
             confirmBtnClassName="cta-caution cta-base-p"
-            confirmText={l10n.getString('rk-action-remove', null, 'Remove')}
+            confirmText={ftlMsgResolver.getMsg('rk-action-remove', 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >

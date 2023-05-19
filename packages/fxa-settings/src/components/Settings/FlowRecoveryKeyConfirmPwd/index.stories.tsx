@@ -7,6 +7,7 @@ import { FlowRecoveryKeyConfirmPwd } from '.';
 import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
+import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',
@@ -16,7 +17,15 @@ export default {
 
 const viewName = 'example-view-name';
 
-export const Default = () => {
+const navigateBackward = () => {
+  alert('navigating to previous page');
+};
+
+const navigateForward = () => {
+  alert('navigating to next view within wizard');
+};
+
+export const CreateKey = () => {
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedBackButtonTitle = ftlMsgResolver.getMsg(
@@ -28,16 +37,35 @@ export const Default = () => {
     'Account Recovery Key'
   );
 
-  const navigateBackward = () => {
-    alert('navigating to previous page');
-  };
+  return (
+    <FlowRecoveryKeyConfirmPwd
+      {...{
+        localizedBackButtonTitle,
+        localizedPageTitle,
+        navigateBackward,
+        navigateForward,
+        setFormattedRecoveryKey,
+        viewName,
+      }}
+    />
+  );
+};
 
-  const navigateForward = () => {
-    alert('navigating to next view within wizard');
-  };
+export const ChangeKey = () => {
+  const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
+  const ftlMsgResolver = useFtlMsgResolver();
+  const localizedBackButtonTitle = ftlMsgResolver.getMsg(
+    'recovery-key-create-back-button',
+    'Back to settings'
+  );
+  const localizedPageTitle = ftlMsgResolver.getMsg(
+    'recovery-key-create-page-title',
+    'Account Recovery Key'
+  );
 
   return (
     <FlowRecoveryKeyConfirmPwd
+      action={RecoveryKeyAction.Change}
       {...{
         localizedBackButtonTitle,
         localizedPageTitle,

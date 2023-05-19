@@ -21,6 +21,7 @@ const recoveryKeyRaw = new Uint8Array(20);
 
 const accountWithSuccess = {
   ...MOCK_ACCOUNT,
+  recoveryKey: false,
   createRecoveryKey: () => recoveryKeyRaw,
 } as unknown as Account;
 
@@ -45,6 +46,13 @@ const accountWithUnexpectedError = {
   },
 } as unknown as Account;
 
+const accountWithKeyEnabled = {
+  ...MOCK_ACCOUNT,
+  recoveryKey: true,
+  createRecoveryKey: () => recoveryKeyRaw,
+  deleteRecoveryKey: () => true,
+} as unknown as Account;
+
 const storyWithContext = (account: Account) => {
   const story = () => (
     <LocationProvider>
@@ -56,10 +64,12 @@ const storyWithContext = (account: Account) => {
   return story;
 };
 
-export const WithSuccess = storyWithContext(accountWithSuccess);
+export const CreateKeyWithSuccess = storyWithContext(accountWithSuccess);
 
 export const WithPasswordError = storyWithContext(accountWithPasswordError);
 
 export const WithThrottledError = storyWithContext(accountWithThrottledError);
 
 export const WithUnexpectedError = storyWithContext(accountWithUnexpectedError);
+
+export const ChangeKeyWithSuccess = storyWithContext(accountWithKeyEnabled);

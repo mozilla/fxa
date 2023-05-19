@@ -397,18 +397,6 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_view',
   },
-  'screen.settings.account-recovery.info': {
-    group: GROUPS.settings,
-    event: 'account_recovery_info_view',
-  },
-  'flow.settings.account-recovery.info.navigate-backward': {
-    group: GROUPS.settings,
-    event: 'account_recovery_info_navigate_backward',
-  },
-  'flow.settings.account-recovery.info.navigate-forward': {
-    group: GROUPS.settings,
-    event: 'account_recovery_info_navigate_forward',
-  },
   // Revoke
   'flow.settings.account-recovery.confirm-revoke.submit': {
     group: GROUPS.settings,
@@ -422,7 +410,33 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_confirm_revoke_fail',
   },
-  // Add
+  // Create/Change Key
+  // Info page
+  'flow.settings.account-recovery.create-key.info': {
+    group: GROUPS.settings,
+    event: 'account_recovery_create_key_info',
+  },
+  'flow.settings.account-recovery.change-key.info': {
+    group: GROUPS.settings,
+    event: 'account_recovery_change_key_info',
+  },
+  'flow.settings.account-recovery.create-key.start': {
+    group: GROUPS.settings,
+    event: 'account_recovery_create_key_start',
+  },
+  'flow.settings.account-recovery.change-key.start': {
+    group: GROUPS.settings,
+    event: 'account_recovery_change_key_start',
+  },
+  'flow.settings.account-recovery.create-key.cancel': {
+    group: GROUPS.settings,
+    event: 'account_recovery_create_key_cancel',
+  },
+  'flow.settings.account-recovery.change-key.cancel': {
+    group: GROUPS.settings,
+    event: 'account_recovery_change_key_cancel',
+  },
+  // Confirm password page
   'flow.settings.account-recovery.confirm-password.submit': {
     group: GROUPS.settings,
     event: 'account_recovery_confirm_password_submit',
@@ -435,6 +449,7 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_confirm_password_fail',
   },
+  // Key download page
   'flow.settings.account-recovery.recovery-key.download-option': {
     group: GROUPS.settings,
     event: 'account_recovery_option_download',
@@ -443,14 +458,16 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_option_copy',
   },
+  'flow.settings.account-recovery.recovery-key.skip-download': {
+    group: GROUPS.settings,
+    event: 'account_recovery_skip_download',
+  },
+  // TODO remove in FXA-7419, print option not available in new UI
   'flow.settings.account-recovery.recovery-key.print-option': {
     group: GROUPS.settings,
     event: 'account_recovery_option_print',
   },
-  'flow.settings.account-recovery.hint-step-view': {
-    group: GROUPS.settings,
-    event: 'account_recovery_hint_view',
-  },
+  // Save hint page
   'flow.settings.account-recovery.hint-submit': {
     group: GROUPS.settings,
     event: 'account_recovery_hint_submit',

@@ -47,6 +47,7 @@ export interface Config {
     count: number;
     length: number;
   };
+  // TODO Remove feature flag from config in FXA-7419
   showRecoveryKeyV2: boolean;
   version: string;
   googleAuthConfig: {
@@ -101,6 +102,7 @@ export function getDefault() {
       count: 8,
       length: 10,
     },
+    // TODO Remove feature flag in FXA-7419
     showRecoveryKeyV2: false,
     googleAuthConfig: {
       enabled: false,
@@ -113,7 +115,7 @@ export function getDefault() {
       clientId: '',
       redirectUri: '',
       authorizationEndpoint: '',
-    }
+    },
   } as Config;
 }
 

@@ -79,7 +79,10 @@ describe('FlowRecoveryKeyDownload', () => {
     );
     fireEvent.click(downloadButton);
     expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'download-option');
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'recovery-key.download-option'
+    );
   });
 
   it('emits the expected metrics when user navigates forward without downloading the key', () => {
@@ -87,7 +90,10 @@ describe('FlowRecoveryKeyDownload', () => {
     const nextPageLink = screen.getByRole('link', { name: 'Next' });
     fireEvent.click(nextPageLink);
     expect(navigateForward).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'skip-download');
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'recovery-key.skip-download'
+    );
   });
 
   // TODO expect metric event when back arrow clicked
