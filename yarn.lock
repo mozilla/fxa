@@ -6523,9 +6523,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mozilla/glean@npm:^1.3.0":
-  version: 1.3.0
-  resolution: "@mozilla/glean@npm:1.3.0"
+"@mozilla/glean@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@mozilla/glean@npm:1.4.0"
   dependencies:
     fflate: ^0.7.1
     jose: ^4.0.4
@@ -6533,7 +6533,7 @@ __metadata:
     uuid: ^9.0.0
   bin:
     glean: dist/cli/cli.js
-  checksum: aecad9c4e1eca19e0fc44d92b9c94b0d2d3d04c7d1e012327da31953c35b0aa5967c71e6ecd986b86b1622f23ab5d180f3bcfffe19a832f01dbf1283b8321e63
+  checksum: 5a053560c38fbc07c6785cc62a124d32f0aaa7aa3dd8a9135c862b2a9e13ac9ea6f8945f5f19dc3a6c97e8f49d601d13f1faf5ad13e4f61c9773579ec1d0148f
   languageName: node
   linkType: hard
 
@@ -26392,7 +26392,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.0
-    "@mozilla/glean": ^1.3.0
+    "@mozilla/glean": ^1.4.0
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
