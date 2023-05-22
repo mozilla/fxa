@@ -70,7 +70,11 @@ export async function init() {
       'When maxSessions is greater than 0, this value controls the number of deletions that are batched together at one time. e.g. A batch size of 1 would delete one token at a time.',
       1e3
     )
-    .option('--wait', 'Amount of time to sleep in milliseconds between batches (i.e. between deletions).', 5e3)
+    .option(
+      '--wait <number>',
+      'Amount of time to sleep in milliseconds between batches (i.e. between deletions).',
+      5e3
+    )
     .on('--help', function () {
       console.log(`
 Example:
