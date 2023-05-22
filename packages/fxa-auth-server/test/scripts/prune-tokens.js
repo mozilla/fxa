@@ -207,6 +207,24 @@ describe('#integration - scripts/prune-tokens', () => {
     assert.isTrue(/skipping token pruning operation./.test(stderr));
   });
 
+  it('parses args', async () => {
+    const { stderr } = await exec(
+      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts --maxTokenAge=0 --maxCodeAge=0 --maxSessions=0 --maxSessionsMaxAccounts=0 --maxSessionsMaxDeletions=0  --maxSessionsBatchSize=0 --wait=1`,
+      {
+        cwd,
+        shell: '/bin/bash',
+      }
+    );
+
+    assert.match(stderr, /"maxTokenAge":"0"/);
+    assert.match(stderr, /"maxCodeAge":"0"/);
+    assert.match(stderr, /"maxSessions":"0"/);
+    assert.match(stderr, /"maxSessionsMaxAccounts":"0"/);
+    assert.match(stderr, /"maxSessionsMaxDeletions":"0"/);
+    assert.match(stderr, /"maxSessionsBatchSize":"0"/);
+    assert.match(stderr, /"wait":"1"/);
+  });
+
   describe('prune tokens', () => {
     let token;
 
@@ -373,14 +391,17 @@ describe('#integration - scripts/prune-tokens', () => {
     }
 
     it('limits with --maxSessionsBatchSize=1000', async () => {
-      await testScript(`--maxSessions=10 --maxSessionsBatchSize=1000 `, {
-        remaining: size - 10,
-        totalDeletions: 10 * 2,
-      });
+      await testScript(
+        `--maxSessions=10 --maxSessionsBatchSize=1000 --wait=10 `,
+        {
+          remaining: size - 10,
+          totalDeletions: 10 * 2,
+        }
+      );
     });
 
     it('limits with --maxSessionsBatchSize=2', async () => {
-      await testScript(`--maxSessions=10 --maxSessionsBatchSize=2 `, {
+      await testScript(`--maxSessions=10 --maxSessionsBatchSize=2 --wait=10`, {
         remaining: size - 10,
         totalDeletions: 10 * 2,
       });
@@ -388,7 +409,7 @@ describe('#integration - scripts/prune-tokens', () => {
 
     it('limits with --maxSessionsMaxDeletions=2', async () => {
       await testScript(
-        `--maxSessions=10 --maxSessionsMaxDeletions=2 --maxSessionsBatchSize=2`,
+        `--maxSessions=10 --maxSessionsMaxDeletions=2 --maxSessionsBatchSize=2 --wait=10`,
         {
           remaining: size - 2,
           totalDeletions: 2 * 2,
@@ -397,17 +418,23 @@ describe('#integration - scripts/prune-tokens', () => {
     });
 
     it('limits with --maxSessionsMaxDeletions=0', async () => {
-      await testScript(`--maxSessions=10 --maxSessionsMaxDeletions=0`, {
-        remaining: size,
-        totalDeletions: 0,
-      });
+      await testScript(
+        `--maxSessions=10 --maxSessionsMaxDeletions=0 --wait=10`,
+        {
+          remaining: size,
+          totalDeletions: 0,
+        }
+      );
     });
 
     it('limits with --maxSessionsMaxAccounts=0', async () => {
-      await testScript(`--maxSessions=10 --maxSessionsMaxAccounts=0`, {
-        remaining: size,
-        totalDeletions: 0,
-      });
+      await testScript(
+        `--maxSessions=10 --maxSessionsMaxAccounts=0 --wait=10`,
+        {
+          remaining: size,
+          totalDeletions: 0,
+        }
+      );
     });
   });
 });
