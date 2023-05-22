@@ -773,6 +773,22 @@ export const MOCK_SUBSEQUENT_INVOICES: SubsequentInvoicePreview[] = [
     total: 500,
     total_excluding_tax: null,
   },
+  // 7 - With zero amount Exclusive tax
+  {
+    subscriptionId: 'sub0.28964929339372136',
+    period_start: 1565816388.815,
+    subtotal: 500,
+    subtotal_excluding_tax: 500,
+    total: 500,
+    total_excluding_tax: 500,
+    tax: [
+      {
+        amount: 0,
+        inclusive: false,
+        display_name: 'Sales Tax',
+      },
+    ],
+  },
 ];
 
 export const MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION = [
@@ -933,6 +949,18 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
   ],
 };
 
+export const MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE: FirstInvoicePreview =
+  {
+    ...MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
+    total: MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE.total_excluding_tax!,
+    tax: [
+      {
+        ...MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE.tax![0],
+        amount: 0,
+      },
+    ],
+  };
+
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
   total: 2000,
   total_excluding_tax: 1700,
@@ -1030,6 +1058,9 @@ export const INVOICE_AFTER_SUBSCRIPTION: LatestInvoiceItems =
 
 export const INVOICE_WITH_TAX_EXCLUSIVE: LatestInvoiceItems =
   MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE;
+
+export const INVOICE_WITH_ZERO_TAX_EXCLUSIVE: LatestInvoiceItems =
+  MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE;
 
 export const INVOICE_WITH_TAX_INCLUSIVE: LatestInvoiceItems =
   MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE;

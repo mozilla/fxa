@@ -66,6 +66,7 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
     },
   ],
 };
+
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
   line_items: [],
   subtotal: 2999,
@@ -77,6 +78,20 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
       amount: 195,
       inclusive: false,
       display_name: 'Sales Tax',
+    },
+  ],
+};
+
+const invoicePreviewExclusiveTaxMulti: FirstInvoicePreview = {
+  ...invoicePreviewExclusiveTax,
+  tax: [
+    {
+      ...invoicePreviewExclusiveTax.tax![0],
+      amount: 100,
+    },
+    {
+      ...invoicePreviewExclusiveTax.tax![0],
+      amount: 95,
     },
   ],
 };
@@ -143,6 +158,22 @@ export const DefaultWithExclusiveTax = storyWithContext({
   props: {
     ...MOCK_PROPS,
     invoicePreview: invoicePreviewExclusiveTax,
+    updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    navigatorLanguages: ['xx-pirate'],
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: { useStripeAutomaticTax: true },
+    },
+  },
+});
+
+export const MultipleWithExclusiveTax = storyWithContext({
+  props: {
+    ...MOCK_PROPS,
+    invoicePreview: invoicePreviewExclusiveTaxMulti,
     updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
   },
   appContextValue: {

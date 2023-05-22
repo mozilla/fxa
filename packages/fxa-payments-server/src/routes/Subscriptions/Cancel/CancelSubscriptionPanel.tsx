@@ -30,7 +30,9 @@ const getIntervalPriceDetailsData = (
   invoice: LatestInvoiceItems | SubsequentInvoicePreview
 ) => {
   const exclusiveTaxRates =
-    invoice.tax?.filter((taxRate) => !taxRate.inclusive) || [];
+    invoice.tax?.filter(
+      (taxRate) => !taxRate.inclusive && taxRate.amount > 0
+    ) || [];
   const showInvoiceTax = !!exclusiveTaxRates.length;
 
   const invoiceDisplayTotal =
