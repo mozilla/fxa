@@ -134,7 +134,13 @@ describe('PageRecoveryKeyAdd', () => {
       } else {
         account.createRecoveryKey = jest.fn().mockImplementation(() => {
           // this is just a random key that does match a real error to keep tests passing.
-          throw { message: 'Example error', errno: 106 };
+          class FakeError {
+            constructor(
+              public readonly message: string,
+              public readonly errno: number
+            ) {}
+          }
+          throw new FakeError('Example error', 106);
         });
       }
 

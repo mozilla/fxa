@@ -61,7 +61,11 @@ const Introduction = () => (
       <div className="max-w-lg">
         <div className="shadow-md border border-black/25 rounded bg-white mb-4">
           <div className="p-3 bg-grey-50 text-sm font-bold rounded-t">
-            <img src="copy-icon.svg" className="inline-block w-6 h-6 mr-1" />
+            <img
+              src="copy-icon.svg"
+              className="inline-block w-6 h-6 mr-1"
+              alt="copy"
+            />
             Pro tip: Copy code samples
           </div>
           <div className="p-3">

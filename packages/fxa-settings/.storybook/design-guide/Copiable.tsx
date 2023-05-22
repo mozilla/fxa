@@ -18,7 +18,11 @@ const Copiable = ({ value, children }) => {
     >
       <button className="copy-content hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-sm pointer bg-white text-grey-900 focus:bg-grey-100 px-1 shadow-md rounded border border-grey-200 rounded-md whitespace-nowrap font-mono flex pr-7">
         {isActive ? 'copied!' : value}{' '}
-        <img src="copy-icon.svg" className="-ml-1 inline-block w-6 h-6" />
+        <img
+          src="copy-icon.svg"
+          className="-ml-1 inline-block w-6 h-6"
+          alt="copy"
+        />
       </button>
       {children}
     </span>

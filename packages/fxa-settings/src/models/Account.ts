@@ -712,7 +712,7 @@ export class Account implements AccountData {
         token,
         code
       );
-      const accountResetResult = await this.apolloClient.mutate({
+      await this.apolloClient.mutate({
         mutation: gql`
           mutation accountReset($input: AccountResetInput!) {
             accountReset(input: $input) {

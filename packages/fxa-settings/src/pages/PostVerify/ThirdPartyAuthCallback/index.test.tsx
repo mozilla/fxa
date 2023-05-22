@@ -5,8 +5,6 @@
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { render, screen } from '@testing-library/react';
-import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-import { FluentBundle } from '@fluent/bundle';
 import ThirdPartyAuthCallback from '.';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
@@ -24,10 +22,6 @@ function renderWith(props?: ThirdPartyAuthProps) {
 }
 
 describe('ThirdPartyAuth component', () => {
-  let bundle: FluentBundle;
-  beforeAll(async () => {
-    bundle = await getFtlBundle('settings');
-  });
   it('renders as expected', () => {
     renderWith();
     screen.getByText(

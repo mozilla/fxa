@@ -21,7 +21,10 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
       const url = new URL(redirectUrl);
 
       if (url.origin === window.location.origin) {
-        Storage.factory('localStorage', window).set('fxa_third_party_params', searchParams);
+        Storage.factory('localStorage', window).set(
+          'fxa_third_party_params',
+          searchParams
+        );
 
         navigate(redirectUrl, { replace: true });
       }
@@ -34,7 +37,7 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
 
   useEffect(() => {
     handleOauthResponse();
-  }, []);
+  });
 
   return (
     <AppLayout>

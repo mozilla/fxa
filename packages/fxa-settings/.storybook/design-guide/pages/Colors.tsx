@@ -50,6 +50,7 @@ const Colors = ({ config }) => {
         <a
           href="https://bit.ly/fxa-settings-colors"
           target="_blank"
+          rel="noreferrer"
           className="text-blue-500 underline"
         >
           Figma doc
@@ -71,7 +72,7 @@ const Colors = ({ config }) => {
         <Copiable value="tablet:focus:bg-violet-300">
           <code className="mt-2 inline-block text-sm mr-2">
             <a
-              href="#"
+              href="#top"
               className="px-1 inline-block tablet:focus:bg-violet-300 rounded-sm"
               target="_self"
             >

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import LinkUsed from '.';
 import { withLocalization } from '../../../.storybook/decorators';

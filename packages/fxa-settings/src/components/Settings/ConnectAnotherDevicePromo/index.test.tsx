@@ -19,11 +19,11 @@ describe('Connect another device Promo', () => {
       'href',
       'https://www.mozilla.org/en-US/firefox/mobile/'
     );
-    expect(await screen.getByTestId('play-store-link')).toHaveAttribute(
+    expect(screen.getByTestId('play-store-link')).toHaveAttribute(
       'href',
       'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fplay.google.com%2Fstore%2Fapps%2Fdetails%3Fid%3Dorg.mozilla.firefox'
     );
-    expect(await screen.getByTestId('app-store-link')).toHaveAttribute(
+    expect(screen.getByTestId('app-store-link')).toHaveAttribute(
       'href',
       'https://app.adjust.com/2uo1qc?redirect=https%3A%2F%2Fitunes.apple.com%2Fus%2Fapp%2Ffirefox-private-safe-browser%2Fid989804926'
     );

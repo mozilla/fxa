@@ -4,7 +4,7 @@
 
 import React from 'react';
 import LegalPrivacy, { viewName } from '.';
-import { screen, render, fireEvent, waitFor } from '@testing-library/react';
+import { screen, render, fireEvent } from '@testing-library/react';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';

@@ -10,7 +10,7 @@ import {
   UrlQueryData,
 } from '../../../lib/model-data';
 import { MozServices } from '../../../lib/types';
-import { Account, Integration, Relier } from '../../../models';
+import { Account, Relier } from '../../../models';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { ReachRouterWindow } from '../../../lib/window';
 import { DefaultRelierFlags, RelierFactory } from '../../../lib/reliers';
@@ -107,7 +107,6 @@ let _storage: StorageDataMock | undefined;
 let _relier: Relier | undefined;
 let _relierFactory: RelierFactoryMock | undefined;
 let _relierDelegate: any | undefined;
-let _integration: Integration | undefined;
 let _integrationFactory: IntegrationFactoryMock | undefined;
 let _account: Account | undefined;
 
@@ -121,7 +120,6 @@ export function resetMocks() {
   _relier = undefined;
   _relierFactory = undefined;
   _relierDelegate = undefined;
-  _integration = undefined;
   _integrationFactory = undefined;
   _account = undefined;
 }
