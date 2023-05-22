@@ -741,6 +741,19 @@ registerSuite('amplitude', {
       );
     },
 
+    'flow.settings.account-recovery.recovery-key.skip-download': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.recovery-key.skip-download'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_skip_download'
+      );
+    },
+
+    // TODO remove in FXA-7419, print option not available in new UI
     'flow.settings.account-recovery.recovery-key.print-option': () => {
       createAmplitudeEvent(
         'flow.settings.account-recovery.recovery-key.print-option'
@@ -750,6 +763,107 @@ registerSuite('amplitude', {
       assert.equal(
         logger.info.args[0][1].event_type,
         'fxa_pref - account_recovery_option_print'
+      );
+    },
+
+    'flow.settings.account-recovery.create-hint.submit': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-hint.submit');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_hint_submit'
+      );
+    },
+
+    'flow.settings.account-recovery.create-hint.success': () => {
+      createAmplitudeEvent(
+        'flow.settings.account-recovery.create-hint.success'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_hint_success'
+      );
+    },
+
+    'flow.settings.account-recovery.create-hint.fail': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-hint.fail');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_hint_fail'
+      );
+    },
+    'flow.settings.account-recovery.create-hint.skip': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-hint.skip');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_hint_skip'
+      );
+    },
+
+    'flow.settings.account-recovery.create-key.info': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-key.info');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_key_info'
+      );
+    },
+
+    'flow.settings.account-recovery.create-key.start': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-key.start');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_key_start'
+      );
+    },
+
+    'flow.settings.account-recovery.create-key.cancel': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.create-key.cancel');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_create_key_cancel'
+      );
+    },
+
+    'flow.settings.account-recovery.change-key.info': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.change-key.info');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_change_key_info'
+      );
+    },
+
+    'flow.settings.account-recovery.change-key.start': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.change-key.start');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_change_key_start'
+      );
+    },
+
+    'flow.settings.account-recovery.change-key.cancel': () => {
+      createAmplitudeEvent('flow.settings.account-recovery.change-key.cancel');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_pref - account_recovery_change_key_cancel'
       );
     },
 
