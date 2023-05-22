@@ -30,6 +30,7 @@ import {
   composeAuthUiErrorTranslationId,
 } from '../../../lib/auth-errors/auth-errors';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 type FormData = {
   password: string;
@@ -201,6 +202,24 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
                 </li>
               ))}
             </ul>
+
+            <Localized id="pocket-delete-notice"
+                       elems={{
+                         a: (
+                          <LinkExternal
+                           href="https://help.getpocket.com/article/986-canceling-your-pocket-premium-subscription"
+                           data-testid="link-pocket-delete-notice"
+                           className="link-blue"
+                          >
+                            cancel your subscription
+                          </LinkExternal>
+                         ),
+                       }}
+            >
+            <p className="mb-4">
+                If you subscribe to Pocket Premium, please make sure that you <a>cancel your subscription</a> before deleting your account.
+              </p>
+            </Localized>
             <Localized id="delete-account-acknowledge">
               <p className="mb-4">
                 Please acknowledge that by deleting your account:
