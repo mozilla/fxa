@@ -22,7 +22,7 @@
     "@hapi/catbox-memory": "~5.0.1",
     "@hapi/catbox-redis": "~6.0.2",
     "@hapi/hapi": "^20.2.1",
-    "@hapi/inert": "7.0.0",
+    "@hapi/inert": "7.1.0",
     "@sentry/node": "^6.19.1",
     "aws-sdk": "^2.1334.0",
     "bluebird": "^3.7.2",
