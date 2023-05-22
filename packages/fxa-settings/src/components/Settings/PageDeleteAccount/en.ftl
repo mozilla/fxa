@@ -34,6 +34,8 @@ delete-account-continue-button = Continue
 
 delete-account-password-input =
  .label = Enter password
+ 
+pocket-delete-notice = If you subscribe to Pocket Premium, please make sure that you <a>cancel your subscription</a> before deleting your account.
 
 delete-account-cancel-button = Cancel
 delete-account-delete-button-2 = Delete
