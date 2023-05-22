@@ -6757,17 +6757,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/schedule@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "@nestjs/schedule@npm:2.1.0"
+"@nestjs/schedule@npm:^2.2.2":
+  version: 2.2.2
+  resolution: "@nestjs/schedule@npm:2.2.2"
   dependencies:
-    cron: 2.0.0
-    uuid: 8.3.2
+    cron: 2.3.0
+    uuid: 9.0.0
   peerDependencies:
     "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
     "@nestjs/core": ^7.0.0 || ^8.0.0 || ^9.0.0
     reflect-metadata: ^0.1.12
-  checksum: 43423eb0491c692c08dcdb6d18d34ec758fe29cda52f4674a945e06933ec5b4e23229193c1b071971842b50db57024d6f1c55fe8f4c6392754b6a597b31eb423
+  checksum: 57672def3cb3d340e6d64459605e3c0f8ebe708e067558df1125b0a375e68e7f2c5ee756db76780faad8238ea8ccafdfce4471dc0185684ac539cd7798b8e289
   languageName: node
   linkType: hard
 
@@ -20854,15 +20854,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:2.0.0":
-  version: 2.0.0
-  resolution: "cron@npm:2.0.0"
-  dependencies:
-    luxon: ^1.23.x
-  checksum: 179ec137ada4ceb44cafe51c55491e84954308d7012d2a44539f0dadbbb1ffbbe3072c2f7aaa88595d60bd56e0d536aae2e4aaa4430c869317d6c2abd966988b
-  languageName: node
-  linkType: hard
-
 "cron@npm:2.3.0":
   version: 2.3.0
   resolution: "cron@npm:2.3.0"
@@ -26642,7 +26633,7 @@ fsevents@~2.1.1:
     "@nestjs/mapped-types": ^1.2.0
     "@nestjs/passport": ^9.0.3
     "@nestjs/platform-express": ^9.4.0
-    "@nestjs/schedule": ^2.1.0
+    "@nestjs/schedule": ^2.2.2
     "@nestjs/schematics": ^9.1.0
     "@nestjs/testing": ^9.2.1
     "@sentry/integrations": ^6.19.1
@@ -35383,13 +35374,6 @@ fsevents@~2.1.1:
   version: 0.3.3
   resolution: "lru_map@npm:0.3.3"
   checksum: ca9dd43c65ed7a4f117c548028101c5b6855e10923ea9d1f635af53ad20c5868ff428c364d454a7b57fe391b89c704982275410c3c5099cca5aeee00d76e169a
-  languageName: node
-  linkType: hard
-
-"luxon@npm:^1.23.x":
-  version: 1.28.0
-  resolution: "luxon@npm:1.28.0"
-  checksum: 5250cb9f138b6048eeb0b3a9044a4ac994d0058f680c72a0da4b6aeaec8612460385639cba2b1052ef6d5564879e9ed144d686f26d9d97b38ab920d82e18281c
   languageName: node
   linkType: hard
 
