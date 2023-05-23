@@ -7,6 +7,7 @@ import { assert } from 'chai';
 import AuthBroker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
+import GleanMetrics from '../../../../scripts/lib/glean';
 import OAuthErrors from 'lib/oauth-errors';
 import Relier from 'models/reliers/relier';
 import BrowserRelier from 'models/reliers/browser';
@@ -39,6 +40,7 @@ describe('views/mixins/signin-mixin', function () {
     beforeEach(function () {
       account = new Account({
         email: 'testuser@testuser.com',
+        metricsEnabled: false,
         verified: true,
       });
       broker = new AuthBroker();
@@ -572,6 +574,14 @@ describe('views/mixins/signin-mixin', function () {
     });
 
     describe('onSignInSuccess', () => {
+      beforeEach(() => {
+        sinon.spy(GleanMetrics, 'setEnabled');
+      });
+
+      afterEach(() => {
+        GleanMetrics.setEnabled.restore();
+      });
+
       it('updates relier email and uid from account', () => {
         account.set('uid', 'foo');
         account.set('email', 'a@a.com');
@@ -591,6 +601,13 @@ describe('views/mixins/signin-mixin', function () {
         view.onSignInSuccess(account);
         assert.equal(relier.get('uid'), account.get('uid'));
         assert.equal(relier.get('email'), account.get('email'));
+      });
+
+      it('disables Glean data upload on data collection pref', () => {
+        view.onSignInSuccess(account);
+        assert.equal(account.get('metricsEnabled'), false);
+        assert.isTrue(GleanMetrics.setEnabled.calledOnce);
+        assert.equal(GleanMetrics.setEnabled.args[0][0], false);
       });
     });
 

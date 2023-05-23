@@ -5,6 +5,7 @@
 // Shared implementation of `signIn` view method
 
 import AuthErrors from '../../lib/auth-errors';
+import GleanMetrics from '../../lib/glean';
 import OAuthErrors from '../../lib/oauth-errors';
 import NavigateBehavior from '../behaviors/navigate';
 import ResumeTokenMixin from './resume-token-mixin';
@@ -243,6 +244,10 @@ export default {
       // for a deleted account. See #4316
       this.relier.set('email', account.get('email'));
       this.relier.set('uid', account.get('uid'));
+    }
+
+    if (account.get('metricsEnabled') === false) {
+      GleanMetrics.setEnabled(false);
     }
 
     // This is the generic signin.success metric. The one
