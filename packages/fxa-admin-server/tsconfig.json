@@ -1,7 +1,9 @@
 {
-  "extends": "../../_dev/tsconfig.node.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowJs": true,
     "outDir": "./dist",
+    "module": "commonjs",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noEmitHelpers": true,

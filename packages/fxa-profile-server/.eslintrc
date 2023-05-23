@@ -1,9 +1,24 @@
 {
+  "extends": ["plugin:fxa/recommended"],
+  "plugins": ["fxa"],
+  "parserOptions": {
+    "ecmaVersion": "2020",
+    "sourceType": "module"
+  },
   "env": {
     "mocha": true
   },
   "rules": {
+    "require-atomic-updates": "off",
+    "space-unary-ops": "off",
+    "no-useless-escape": "off",
     "fxa/async-crypto-random": 0,
     "fxa/no-new-buffer": 2
-  }
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "pm2.config.js"
+  ],
+  "root": true
 }

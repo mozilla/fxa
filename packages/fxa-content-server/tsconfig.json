@@ -1,7 +1,6 @@
 {
-  "extends": "../../_dev/tsconfig.browser.json",
+  "extends": "../../tsconfig.base.json",
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts"],
   "compilerOptions": {
     "outDir": "./.tscompiled/",
     "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],

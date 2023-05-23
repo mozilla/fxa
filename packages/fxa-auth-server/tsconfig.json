@@ -1,14 +1,14 @@
 {
-  "extends": "../../_dev/tsconfig.node.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "experimentalDecorators": true,
-    "outDir": "./dist",
+    "module": "commonjs",
+    "allowJs": true,
     // Permit, but do not report errors for JS files
     // TODO: Remove after transition to TS is complete
     "checkJs": false,
-    "types": ["accept-language", "mocha", "mozlog", "node"]
+    "outDir": "./dist",
+    "types": ["accept-language", "mocha", "mozlog", "node", "fxa-geodb"],
   },
-  "references": [{ "path": "../fxa-shared" }],
   "include": [
     "bin/*",
     "scripts/*.ts",

@@ -213,7 +213,7 @@ export async function emailInputValidationAndAccountCheck(
   onClickSignInButton: () => void,
   getString?: (id: string) => string
 ) {
-  let error = null;
+  let error: JSX.Element | string | null = null;
   let valid = false;
   let hasAccount = false;
   let invalidEmailDomain = false;

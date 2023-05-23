@@ -1,15 +1,28 @@
 {
-  "extends": ["plugin:fxa/client"],
+  "extends": ["plugin:fxa/client", "plugin:fxa/recommended"],
   "plugins": ["fxa"],
   "parserOptions": {
+    "ecmaVersion": "2020",
+    "sourceType": "module",
     "ecmaFeatures": {
       "globalReturn": true
-    },
-    "sourceType": "module"
+    }
+  },
+  "env": {
+    "mocha": true
   },
   "rules": {
+    "require-atomic-updates": "off",
+    "space-unary-ops": "off",
+    "no-useless-escape": "off",
     "strict": "off",
     "handle-callback-err": "off",
     "camelcase": "off"
-  }
+  },
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "pm2.config.js"
+  ],
+  "root": true
 }

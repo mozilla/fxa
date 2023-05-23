@@ -1,8 +1,7 @@
 {
-  "extends": "../../_dev/tsconfig.browser.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "allowJs": false,
     "composite": true,
     "types": ["jest", "@testing-library/jest-dom"]
   },
@@ -10,7 +9,6 @@
     "./components",
     "./lib"
   ],
-  "exclude": ["node_modules"],
   "references": [
     {"path": "../fxa-shared"}
   ]

@@ -10,7 +10,7 @@ export type HeaderProps = {
 
 export const Header = ({ profile, className = 'default' }: HeaderProps) => {
   const { l10n } = useLocalization();
-  let profileSection = null;
+  let profileSection: JSX.Element | null = null;
 
   if (profile) {
     const { avatar, displayName, email } = profile;

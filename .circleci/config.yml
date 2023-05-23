@@ -297,13 +297,13 @@ commands:
     steps:
       - run:
           name: Linting
-          command: yarn workspaces foreach -piv --exclude=functional-tests --exclude=fxa-payments-server run lint
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t lint
 
   compile:
     steps:
       - run:
           name: Compiling TypeScript
-          command: yarn workspaces foreach --topological-dev --verbose run compile
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
 
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
@@ -350,7 +350,10 @@ commands:
     steps:
       - run:
           name: Build Common Typescript Packages
-          command: ./.circleci/build-ts-packages.sh
+          command: npx nx run-many --parallel=1 -t build --projects=fxa-shared,fxa-auth-client,fxa-react
+      - run:
+          name: Compile Changed Typescript Packages
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
 
   save-workspace:
     steps:
@@ -562,9 +565,11 @@ jobs:
     steps:
       - git-checkout
       - restore-workspace
-      - run-tests:
-          test_name: Unit Test
-          list: unit-test.list
+      - run:
+          name: Run unit tests
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t test-unit
+          environment:
+            NODE_ENV: test
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
