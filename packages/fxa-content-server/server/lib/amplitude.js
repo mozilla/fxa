@@ -412,26 +412,32 @@ const EVENTS = {
   },
   // Create/Change Key
   // Info page
+  // The first step of the "recovery key" wizard loads for a user who is creating a key
   'flow.settings.account-recovery.create-key.info': {
     group: GROUPS.settings,
     event: 'account_recovery_create_key_info',
   },
+  // The first step of the "recovery key" wizard loads for a user who is changing an existing key
   'flow.settings.account-recovery.change-key.info': {
     group: GROUPS.settings,
     event: 'account_recovery_change_key_info',
   },
+  // A user on the first step of the "recovery key" wizard, who is trying to create a new key, clicks the "Start creating your account recovery key" button to proceed to the next step
   'flow.settings.account-recovery.create-key.start': {
     group: GROUPS.settings,
     event: 'account_recovery_create_key_start',
   },
+  // A user on the first step of the "recovery key" wizard, who is trying to change an existing key, clicks the button to proceed to the next step
   'flow.settings.account-recovery.change-key.start': {
     group: GROUPS.settings,
     event: 'account_recovery_change_key_start',
   },
+  // A user in the recovery key flow to create a key exits the flow
   'flow.settings.account-recovery.create-key.cancel': {
     group: GROUPS.settings,
     event: 'account_recovery_create_key_cancel',
   },
+  // A user in the recovery key flow to change an existing key exits the flow
   'flow.settings.account-recovery.change-key.cancel': {
     group: GROUPS.settings,
     event: 'account_recovery_change_key_cancel',
@@ -450,14 +456,17 @@ const EVENTS = {
     event: 'account_recovery_confirm_password_fail',
   },
   // Key download page
+  // A user on the "download" step of the account recovery flow downloads their key
   'flow.settings.account-recovery.recovery-key.download-option': {
     group: GROUPS.settings,
     event: 'account_recovery_option_download',
   },
+  // A user on the "download" step of the account recovery flow copies their key to their clipboard
   'flow.settings.account-recovery.recovery-key.copy-option': {
     group: GROUPS.settings,
     event: 'account_recovery_option_copy',
   },
+  // A user on the "download" step of the account recovery flow moves to the next step (or exits the flow) without downloading
   'flow.settings.account-recovery.recovery-key.skip-download': {
     group: GROUPS.settings,
     event: 'account_recovery_skip_download',
@@ -468,21 +477,23 @@ const EVENTS = {
     event: 'account_recovery_option_print',
   },
   // Save hint page
-  'flow.settings.account-recovery.hint-submit': {
+  // A user on the "hint" step of the account recovery flow clicks the submit button to save the hint they entered into the text input
+  'flow.settings.account-recovery.create-hint.submit': {
     group: GROUPS.settings,
-    event: 'account_recovery_hint_submit',
+    event: 'account_recovery_create_hint_submit',
   },
-  'flow.settings.account-recovery.hint-success': {
+  'flow.settings.account-recovery.create-hint.success': {
     group: GROUPS.settings,
-    event: 'account_recovery_hint_success',
+    event: 'account_recovery_create_hint_success',
   },
-  'flow.settings.account-recovery.hint-fail': {
+  'flow.settings.account-recovery.create-hint.fail': {
     group: GROUPS.settings,
-    event: 'account_recovery_hint_fail',
+    event: 'account_recovery_create_hint_fail',
   },
-  'flow.settings.account-recovery.hint-skip': {
+  // A user exits hint step of the account recovery key flow without saving a hint, either by exiting the flow entirely or by skipping to the next step
+  'flow.settings.account-recovery.create-hint.skip': {
     group: GROUPS.settings,
-    event: 'account_recovery_hint_skip',
+    event: 'account_recovery_create_hint_skip',
   },
   // Avatar
   'screen.settings.avatar.change': {

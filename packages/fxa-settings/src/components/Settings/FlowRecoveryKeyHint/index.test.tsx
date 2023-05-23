@@ -98,11 +98,11 @@ describe('FlowRecoveryKeyHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(viewName, 'hint-submit');
+      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.submit');
       expect(accountWithSuccess.updateRecoveryKeyHint).toBeCalledWith(
         hintValue
       );
-      expect(logViewEvent).toBeCalledWith(viewName, 'hint-success');
+      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.success');
       expect(navigateForward).toHaveBeenCalledTimes(1);
     });
   });
@@ -126,7 +126,7 @@ describe('FlowRecoveryKeyHint', () => {
         'The hint must contain fewer than 255 characters.'
       );
       expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
-      expect(logViewEvent).not.toBeCalledWith(viewName, 'hint-submit');
+      expect(logViewEvent).not.toBeCalledWith(viewName, 'create-hint.submit');
       expect(navigateForward).not.toBeCalled();
     });
   });
@@ -146,12 +146,12 @@ describe('FlowRecoveryKeyHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(viewName, 'hint-submit');
+      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.submit');
       expect(accountWithError.updateRecoveryKeyHint).toBeCalledWith(hintValue);
       // logs the error
       expect(logViewEvent).toBeCalledWith(
         viewName,
-        'hint-fail',
+        'create-hint.fail',
         gqlUnexpectedError
       );
       expect(navigateForward).not.toHaveBeenCalled();
@@ -166,7 +166,7 @@ describe('FlowRecoveryKeyHint', () => {
     fireEvent.click(submitButton);
     await waitFor(() => {
       expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
-      expect(logViewEvent).toHaveBeenCalledWith(viewName, 'hint-skip');
+      expect(logViewEvent).toHaveBeenCalledWith(viewName, 'create-hint.skip');
       expect(navigateForward).toHaveBeenCalledTimes(1);
     });
   });
@@ -175,6 +175,6 @@ describe('FlowRecoveryKeyHint', () => {
     renderWithContext(accountWithSuccess);
     fireEvent.click(screen.getByTitle('Back to settings'));
     expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toHaveBeenCalledWith(viewName, 'hint-skip');
+    expect(logViewEvent).toHaveBeenCalledWith(viewName, 'create-hint.skip');
   });
 });

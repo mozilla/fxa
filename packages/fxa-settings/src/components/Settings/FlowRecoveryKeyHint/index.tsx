@@ -77,7 +77,7 @@ export const FlowRecoveryKeyHint = ({
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
-      logViewEvent(viewName, 'hint-skip');
+      logViewEvent(viewName, 'create-hint.skip');
       navigateForward();
       alertBar.success(
         ftlMsgResolver.getMsg(
@@ -92,9 +92,9 @@ export const FlowRecoveryKeyHint = ({
         return;
       } else {
         try {
-          logViewEvent(viewName, 'hint-submit');
+          logViewEvent(viewName, 'create-hint.submit');
           await account.updateRecoveryKeyHint(trimmedHint);
-          logViewEvent(viewName, 'hint-success');
+          logViewEvent(viewName, 'create-hint.success');
           navigateForward();
           alertBar.success(
             ftlMsgResolver.getMsg(
@@ -118,7 +118,7 @@ export const FlowRecoveryKeyHint = ({
             );
           }
           setBannerText(localizedError);
-          logViewEvent(viewName, 'hint-fail', e);
+          logViewEvent(viewName, 'create-hint.fail', e);
         }
       }
     }
@@ -151,7 +151,7 @@ export const FlowRecoveryKeyHint = ({
       title={localizedPageTitle}
       localizedBackButtonTitle={localizedBackButtonTitle}
       onBackButtonClick={() => {
-        logViewEvent(viewName, 'hint-skip');
+        logViewEvent(viewName, 'create-hint.skip');
         navigateBackward();
       }}
     >
