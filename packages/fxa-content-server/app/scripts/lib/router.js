@@ -357,7 +357,9 @@ Router = Router.extend({
       const searchParams = new URLSearchParams(this.window.location.search);
       const redirectUrl = searchParams.get('redirect_to');
       if (redirectUrl) {
-        if (!this.isValidRedirect(redirectUrl, this.config.redirectAllowlist)) {
+        // Ignore query params when validating the redirect url
+        const parsedRedirectUrl = redirectUrl.split('?')[0];
+        if (!this.isValidRedirect(parsedRedirectUrl, this.config.redirectAllowlist)) {
           throw new Error('Invalid redirect!');
         }
         return this.navigateAway(redirectUrl);

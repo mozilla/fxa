@@ -11,15 +11,16 @@ let errorResponse: ErrorResponse;
 let mockReplace: Mock;
 
 describe('errorHandler', () => {
-  const pageWhichRequiresAuthentication = pagesRequiringAuthentication[0];
-  const pageWhichDoesNotRequireAuthentication = 'foo';
+  const pageWhichRequiresAuthentication = 'https://accounts.firefox.com/settings';
+  const pageWhichDoesNotRequireAuthentication = 'https://accounts.firefox.com/signin';
   beforeAll(() => {
     mockReplace = jest.fn();
     Object.defineProperty(window, 'location', {
       value: {
         replace: mockReplace,
         search: '',
-        pathname: pageWhichRequiresAuthentication,
+        pathname: 'settings',
+        href: pageWhichRequiresAuthentication,
       },
     });
 
@@ -42,7 +43,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      `/signin?redirect_to=${pageWhichRequiresAuthentication}`
+      '/signin?redirect_to=https%253A%252F%252Faccounts.firefox.com%252Fsettings'
     );
   });
 
@@ -59,7 +60,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      `/signin?redirect_to=${pageWhichRequiresAuthentication}`
+     '/signin?redirect_to=https%253A%252F%252Faccounts.firefox.com%252Fsettings'
     );
   });
 
@@ -85,7 +86,8 @@ describe('errorHandler', () => {
       value: {
         replace: mockReplace,
         search: '',
-        pathname: pageWhichDoesNotRequireAuthentication,
+        pathname: 'signin',
+        href: pageWhichDoesNotRequireAuthentication,
       },
     });
 
