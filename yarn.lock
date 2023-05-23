@@ -8466,7 +8466,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-trace-web@npm:^1.0.0, @opentelemetry/sdk-trace-web@npm:~1.7.0":
+"@opentelemetry/sdk-trace-web@npm:^1.0.0":
   version: 1.7.0
   resolution: "@opentelemetry/sdk-trace-web@npm:1.7.0"
   dependencies:
@@ -8489,6 +8489,19 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ">=1.0.0 <1.4.0"
   checksum: 8fd7e57ece2ff953145cc10ce9a81fbe23e6dd43ffea364ea32cf53e0d74fc20ca354c9ee6968e0ef72104e459b0c38b87e696a927e48f0de68cb595e5dc4c99
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/sdk-trace-web@npm:~1.13.0":
+  version: 1.13.0
+  resolution: "@opentelemetry/sdk-trace-web@npm:1.13.0"
+  dependencies:
+    "@opentelemetry/core": 1.13.0
+    "@opentelemetry/sdk-trace-base": 1.13.0
+    "@opentelemetry/semantic-conventions": 1.13.0
+  peerDependencies:
+    "@opentelemetry/api": ">=1.0.0 <1.5.0"
+  checksum: 217aee7f963f01162bb619b29e68dd9745ea4c7842e7e50c2e12cd0a59b18ecff2b0c58ccb3d08b452b4d246d9452b8b2944396e4d094fe965528890a6fb994f
   languageName: node
   linkType: hard
 
@@ -27561,7 +27574,7 @@ fsevents@~2.1.1:
     "@opentelemetry/plugin-react-load": ~0.28.0
     "@opentelemetry/sdk-trace-base": ~1.7.0
     "@opentelemetry/sdk-trace-node": ~1.7.0
-    "@opentelemetry/sdk-trace-web": ~1.7.0
+    "@opentelemetry/sdk-trace-web": ~1.13.0
     "@sentry/browser": ^6.19.7
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
