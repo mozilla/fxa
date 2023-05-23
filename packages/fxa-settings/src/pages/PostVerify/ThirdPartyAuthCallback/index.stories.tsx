@@ -4,15 +4,10 @@
 
 import React from 'react';
 import ThirdPartyAuthCallback from '.';
-import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
 import { LocationProvider } from '@reach/router';
-import { Account, AppContext } from '../../../models';
-import CompleteSignin, {
-  CompleteSigninProps,
-} from '../../Signin/CompleteSignin';
-import DataBlock from '../../../components/DataBlock';
+import { AppContext } from '../../../models';
 import { StorageData } from '../../../lib/model-data';
 
 export default {

@@ -45,7 +45,7 @@ const ThirdPartyAuth = ({ enabled = false }: ThirdPartyAuthProps) => {
     if (authParams) {
       completeSignIn();
     }
-  }, []);
+  });
 
   if (!enabled) {
     return null;

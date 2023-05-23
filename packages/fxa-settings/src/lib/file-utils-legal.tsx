@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { GET_LEGAL_DOC } from '../models';
-import { ApolloClient, gql } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 
 export enum LegalDocFile {
   privacy = 'firefox_privacy_notice',

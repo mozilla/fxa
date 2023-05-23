@@ -4,26 +4,26 @@
 
 import { AccountData } from '../../models';
 
-const ALLOWED_LOGIN_FIELDS = [
-  'declinedSyncEngines',
-  'email',
-  'keyFetchToken',
-  'offeredSyncEngines',
-  'sessionToken',
-  'services',
-  'uid',
-  'unwrapBKey',
-  'verified',
-];
+// const ALLOWED_LOGIN_FIELDS = [
+//   'declinedSyncEngines',
+//   'email',
+//   'keyFetchToken',
+//   'offeredSyncEngines',
+//   'sessionToken',
+//   'services',
+//   'uid',
+//   'unwrapBKey',
+//   'verified',
+// ];
 
-const REQUIRED_LOGIN_FIELDS = [
-  'email',
-  'keyFetchToken',
-  'sessionToken',
-  'uid',
-  'unwrapBKey',
-  'verified',
-];
+// const REQUIRED_LOGIN_FIELDS = [
+//   'email',
+//   'keyFetchToken',
+//   'sessionToken',
+//   'uid',
+//   'unwrapBKey',
+//   'verified',
+// ];
 
 // Might need to go on the Integration?
 // let uidOfLoginNotification: hexstring = '';

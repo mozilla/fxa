@@ -96,7 +96,7 @@ describe('decode', () => {
     it('warns when an invalid server config is supplied', () => {
       const decodingValue = 'not gonna happen';
       expect(() => decode(decodingValue)).toThrowError(
-        `Invalid configuration \"${decodingValue}\": ${decodingValue}`
+        `Invalid configuration "${decodingValue}": ${decodingValue}`
       );
     });
   });

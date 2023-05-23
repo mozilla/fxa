@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import 'mutationobserver-shim';
 import React from 'react';
+import 'mutationobserver-shim';
 import { screen, fireEvent, act, within } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
@@ -144,7 +144,7 @@ describe('PageDeleteAccount', () => {
     const deleteAccountButton = screen.getByTestId('delete-account-button');
     expect(deleteAccountButton).toBeEnabled();
 
-    expect(location.pathname).toContainEqual('/');
+    expect(window.location.pathname).toContainEqual('/');
   });
 
   it('deletes account if no password set', async () => {

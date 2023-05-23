@@ -7,10 +7,7 @@ import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
 import config, { Config, readConfigMeta } from '../lib/config';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import firefox, {
-  FirefoxCommand,
-  FxAStatusResponse,
-} from '../lib/channels/firefox';
+import firefox, { FirefoxCommand } from '../lib/channels/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
@@ -111,9 +108,9 @@ export function initializeAppContext() {
     console.error(event);
   });
   firefox.addEventListener(FirefoxCommand.FxAStatus, (event) => {
-    const response = (event as CustomEvent).detail as FxAStatusResponse;
     // TODO: This event should be registered in the RelierFactory or Notifier
     // since they would be doing different things based on the response.
+    // const response = (event as CustomEvent).detail as FxAStatusResponse;
   });
 
   const context: AppContextValue = {

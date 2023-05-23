@@ -48,8 +48,8 @@ export const InlineTotpSetup = ({
     'inline-totp-setup-code-required-error',
     'Authentication code required'
   );
-  const [secret, setSecret] = useState<string>();
-  const [qrCodeSrc, setQRCodeSrc] = useState<string>();
+  const [secret] = useState<string>();
+  const [qrCodeSrc] = useState<string>();
   const [showIntro, setShowIntro] = useState(true);
   const [showQR, setShowQR] = useState(true);
   const [totpErrorMessage, setTotpErrorMessage] = useState('');

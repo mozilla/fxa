@@ -200,7 +200,7 @@ export class OAuthError extends Error {
   }
 }
 
-const NAMED_VARIABLE = /\%\(([a-zA-Z]+)\)s/g;
+const NAMED_VARIABLE = /%\(([a-zA-Z]+)\)s/g;
 function interpolate(string: string, context: Record<string, string>) {
   return string.replace(NAMED_VARIABLE, (match, name) => {
     return name in context ? context[name] : match;

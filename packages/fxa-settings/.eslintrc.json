@@ -11,5 +11,6 @@
     "import/no-unresolved": "off",
     "jest/no-jest-import": "off",
     "jest/valid-describe": "off"
-  }
+  },
+  "ignorePatterns": ["build/"]
 }

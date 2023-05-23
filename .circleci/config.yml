@@ -297,7 +297,7 @@ commands:
     steps:
       - run:
           name: Linting
-          command: ./.circleci/lint-packages.sh
+          command: yarn workspaces foreach -piv --exclude=functional-tests --exclude=fxa-payments-server run lint
 
   compile:
     steps:
