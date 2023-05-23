@@ -47,6 +47,7 @@ import { GeneralError } from '../../../lib/errors';
 import { PaymentMethodHeader } from '../../../components/PaymentMethodHeader';
 import CouponForm from '../../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 const PaypalButton = React.lazy(
   () => import('../../../components/PayPalButton')
@@ -89,18 +90,28 @@ export const SubscriptionCreate = ({
   coupon,
   setCoupon,
 }: SubscriptionCreateProps) => {
+  const checkoutType = CheckoutType.WITH_ACCOUNT;
+
   const [submitNonce, refreshSubmitNonce] = useNonce();
   const [transactionInProgress, setTransactionInProgress] = useState(false);
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
   const onFormMounted = useCallback(
-    () => Amplitude.createSubscriptionMounted(selectedPlan),
+    () =>
+      Amplitude.createSubscriptionMounted({
+        ...selectedPlan,
+        checkoutType: checkoutType,
+      }),
     [selectedPlan]
   );
 
   const onFormEngaged = useCallback(
-    () => Amplitude.createSubscriptionEngaged(selectedPlan),
+    () =>
+      Amplitude.createSubscriptionEngaged({
+        ...selectedPlan,
+        checkoutType: checkoutType,
+      }),
     [selectedPlan]
   );
 
@@ -147,6 +158,7 @@ export const SubscriptionCreate = ({
             email: profile.email,
             selectedPlan,
             customer,
+            checkoutType,
             retryStatus,
             onSuccess: refreshSubscriptions,
             onFailure: setSubscriptionError,
@@ -187,6 +199,7 @@ export const SubscriptionCreate = ({
         try {
           await apiCapturePaypalPayment({
             ...params,
+            checkoutType: checkoutType,
             productId: selectedPlan.product_id,
           });
           refreshSubscriptions();
@@ -312,6 +325,7 @@ export const SubscriptionCreate = ({
                     ButtonBase={paypalButtonBase}
                     setTransactionInProgress={setTransactionInProgress}
                     promotionCode={coupon?.promotionCode}
+                    checkoutType={checkoutType}
                   />
                 )}
 

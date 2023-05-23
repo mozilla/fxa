@@ -199,6 +199,22 @@ function mapSubscriptionChangeEventProperties(
       properties['previous_product_id'] = data.previousProductId;
     }
 
+    if (data.subscriptionId) {
+      properties['subscription_id'] = data.subscriptionId;
+    }
+
+    if (data.subscribed_plan_ids) {
+      properties['subscribed_plan_ids'] = data.subscribed_plan_ids;
+    }
+
+    if (data.country_code_source) {
+      properties['country_code_source'] = data.country_code_source;
+    }
+
+    if (data.error_id) {
+      properties['error_id'] = data.error_id;
+    }
+
     return properties;
   }
 
@@ -214,12 +230,20 @@ function mapSubscriptionPaymentEventProperties(
   if (data) {
     const properties: { [key: string]: string } = {};
 
-    if (data.sourceCountry) {
-      properties['source_country'] = data.sourceCountry;
+    if (data.country_code_source) {
+      properties['country_code_source'] = data.country_code_source;
     }
 
     if (data.checkoutType) {
       properties['checkout_type'] = data.checkoutType;
+    }
+
+    if (data.subscribed_plan_ids) {
+      properties['subscribed_plan_ids'] = data.subscribed_plan_ids;
+    }
+
+    if (data.error_id) {
+      properties['error_id'] = data.error_id;
     }
 
     if (data.other) {
@@ -383,7 +407,7 @@ export const amplitude = {
           session_id: data.flowBeginTime,
           app_version: version,
           language: data.lang,
-          countryCode: data.countryCode,
+          country_code: data.countryCode,
           country: data.country,
           region: data.region,
           os_name: data.os,
@@ -426,7 +450,7 @@ export const amplitude = {
           plan_id: data.planId || data.plan_id,
           product_id: data.productId || data.product_id,
           payment_provider: data.paymentProvider || data.payment_provider,
-          promotionCode: data.promotionCode,
+          promotion_code: data.promotionCode,
           provider_event_id: data.provider_event_id,
           subscription_id: data.subscription_id,
           voluntary_cancellation: data.voluntary_cancellation,

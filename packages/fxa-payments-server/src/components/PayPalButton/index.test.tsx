@@ -5,6 +5,7 @@ import { PaypalButton, PaypalButtonProps } from './index';
 
 import { PickPartial } from '../../lib/types';
 import { CUSTOMER, PLAN } from '../../lib/mock-data';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 const Subject = ({
   disabled = false,
@@ -51,7 +52,7 @@ describe('PaypalButton', () => {
   it("Doesn't render the PayPal button if the PayPal script fails to load", async () => {
     // The script is loaded in this button's consumer (e.g. SubscriptionCreate), so we
     // can guarantee that it won't be loaded for the button in isolation
-    render(<Subject />);
+    render(<Subject checkoutType={CheckoutType.WITH_ACCOUNT} />);
     expect(screen.queryByTestId('paypal-button')).not.toBeInTheDocument();
   });
 });

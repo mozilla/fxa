@@ -484,7 +484,7 @@ export class StripeHelper extends StripeHelperBase {
     const createParams: Stripe.SubscriptionCreateParams = {
       customer: customerId,
       items: [{ price: priceId }],
-      expand: ['latest_invoice.payment_intent'],
+      expand: ['latest_invoice.payment_intent.latest_charge'],
       promotion_code: promotionCode?.id,
       automatic_tax: {
         enabled: automaticTax,

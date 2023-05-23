@@ -30,6 +30,7 @@ import PaymentProviderDetails from '../../components/PaymentProviderDetails';
 import { ActionButton } from './ActionButton';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
 import {
+  CheckoutType,
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
 } from 'fxa-shared/subscriptions/types';
@@ -277,6 +278,7 @@ export const PaymentUpdateForm = ({
                   apiClientOverrides={apiClientOverrides}
                   setTransactionInProgress={setTransactionInProgress}
                   ButtonBase={paypalButtonBase}
+                  checkoutType={CheckoutType.WITH_ACCOUNT}
                 />
               </Suspense>
             )}

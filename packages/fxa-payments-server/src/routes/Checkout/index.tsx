@@ -64,6 +64,7 @@ import {
 import CouponForm from '../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -146,15 +147,19 @@ export const Checkout = ({
     [productId, planId, plansByProductId]
   );
 
-  const onFormMounted = useCallback(
-    () => Amplitude.createSubscriptionMounted(selectedPlan),
-    [selectedPlan]
-  );
+  const onFormMounted = useCallback(() => {
+    Amplitude.createSubscriptionMounted({
+      ...selectedPlan,
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
+    });
+  }, [selectedPlan]);
 
-  const onFormEngaged = useCallback(
-    () => Amplitude.createSubscriptionEngaged(selectedPlan),
-    [selectedPlan]
-  );
+  const onFormEngaged = useCallback(() => {
+    Amplitude.createSubscriptionEngaged({
+      ...selectedPlan,
+      checkoutType: CheckoutType.WITHOUT_ACCOUNT,
+    });
+  }, [selectedPlan]);
 
   // clear any error rendered with `ErrorMessage` on form change
   const onChange = useCallback(() => {
@@ -176,6 +181,7 @@ export const Checkout = ({
           email: validEmail,
           clientId: config.servers.oauth.clientId,
           customer: null,
+          checkoutType: CheckoutType.WITHOUT_ACCOUNT,
           stripe: stripeOverride || stripeFormParams,
           selectedPlan,
           retryStatus,
@@ -455,6 +461,7 @@ export const Checkout = ({
                 setTransactionInProgress={setTransactionInProgress}
                 ButtonBase={paypalButtonBase}
                 promotionCode={coupon?.promotionCode}
+                checkoutType={CheckoutType.WITHOUT_ACCOUNT}
               />
             )}
 

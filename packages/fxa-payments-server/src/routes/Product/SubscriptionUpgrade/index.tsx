@@ -65,12 +65,32 @@ export const SubscriptionUpgrade = ({
     customer?.payment_provider;
 
   useEffect(() => {
-    Amplitude.updateSubscriptionPlanMounted(selectedPlan);
-  }, [selectedPlan]);
+    const metrics = {
+      paymentProvider: paymentProvider,
+      previousPlanId: upgradeFromSubscription.plan_id,
+      previousProductId: upgradeFromSubscription.product_id,
+      subscriptionId: upgradeFromSubscription.subscription_id,
+      ...selectedPlan,
+    };
+    Amplitude.updateSubscriptionPlanMounted(metrics);
+  }, [
+    paymentProvider,
+    selectedPlan,
+    upgradeFromSubscription.plan_id,
+    upgradeFromSubscription.product_id,
+    upgradeFromSubscription.subscription_id,
+  ]);
 
   const engageOnce = useCallbackOnce(() => {
-    Amplitude.updateSubscriptionPlanEngaged(selectedPlan);
-  }, [selectedPlan]);
+    const metrics = {
+      paymentProvider: paymentProvider,
+      previousPlanId: upgradeFromSubscription.plan_id,
+      previousProductId: upgradeFromSubscription.product_id,
+      subscriptionId: upgradeFromSubscription.subscription_id,
+      ...selectedPlan,
+    };
+    Amplitude.updateSubscriptionPlanEngaged(metrics);
+  }, [selectedPlan, upgradeFromSubscription.subscription_id]);
 
   const handleClick = () => {
     engageOnce();

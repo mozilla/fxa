@@ -10,6 +10,7 @@ const DAY = 1000 * 60 * 60 * 24;
 const WEEK = DAY * 7;
 const FOUR_WEEKS = WEEK * 4;
 const APP_VERSION = /^([0-9]+)\.([0-9]+)$/; // Matches `XXX.X` version number
+const deepCopy = (object) => JSON.parse(JSON.stringify(object));
 
 describe('metrics/amplitude:', () => {
   let amplitude;
@@ -458,10 +459,10 @@ describe('metrics/amplitude:', () => {
       it('returned the correct subscription event details event properties', () => {
         const actual = transform(
           { type: 'fxa_pay_setup.blee.quuz' },
-          { sourceCountry: 'GD', checkoutType: 'without-account' }
+          { country_code_source: 'GD', checkoutType: 'without-account' }
         );
         assert.deepEqual(actual.event_properties, {
-          source_country: 'GD',
+          country_code_source: 'GD',
           checkout_type: 'without-account',
         });
       });
@@ -488,30 +489,10 @@ describe('metrics/amplitude:', () => {
       assert.isTrue(result);
     });
 
-    it('success - if event_type is `fxa_pay_setup - *` and language is provided', () => {
+    it('success if country_code is 2 characters code', () => {
       const event = {
         ...minimumEvent,
-        event_type: 'fxa_pay_setup - view',
-        language: 'en',
-      };
-      const result = amplitude.validate(event);
-      assert.isTrue(result);
-    });
-
-    it('success - if event_type is `fxa_pay_subscription_change - *` and language is provided', () => {
-      const event = {
-        ...minimumEvent,
-        event_type: 'fxa_pay_subscription_change - view',
-        language: 'en',
-      };
-      const result = amplitude.validate(event);
-      assert.isTrue(result);
-    });
-
-    it('success if countryCode is 2 characters code', () => {
-      const event = {
-        ...minimumEvent,
-        countryCode: 'US',
+        country_code: 'US',
       };
       const result = amplitude.validate(event);
       assert.isTrue(result);
@@ -537,24 +518,6 @@ describe('metrics/amplitude:', () => {
     it('errors - event_type required', () => {
       const event = {
         ...minimumEvent,
-      };
-      delete event.event_type;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type'`
-        );
-      }
-    });
-
-    it('errors - event_type required and language is provided', () => {
-      const event = {
-        ...minimumEvent,
-        language: 'en-US',
       };
       delete event.event_type;
       try {
@@ -620,10 +583,10 @@ describe('metrics/amplitude:', () => {
       }
     });
 
-    it('errors - if event_type is `fxa_pay_setup - *` and language is undefined', () => {
+    it('errors if country_code is more than 2 characters', () => {
       const event = {
         ...minimumEvent,
-        event_type: 'fxa_pay_setup - view',
+        country_code: 'USA',
       };
       try {
         amplitude.validate(event);
@@ -632,78 +595,422 @@ describe('metrics/amplitude:', () => {
         assert.isTrue(err instanceof Error);
         assert.equal(
           err.message,
-          `Invalid data: event must have required property 'language', event must match "then" schema`
+          `Invalid data: event/country_code must match pattern "^[A-Z]{2}$"`
         );
       }
     });
 
-    it('errors - if event_type is `fxa_pay_subscription_change - *` and language is undefined', () => {
+    it('errors if country_code less than 2 characters', () => {
       const event = {
         ...minimumEvent,
+        country_code: 'U',
+      };
+      try {
+        amplitude.validate(event);
+        assert.fail('Validate is expected to fail');
+      } catch (err) {
+        assert.isTrue(err instanceof Error);
+        assert.equal(
+          err.message,
+          `Invalid data: event/country_code must match pattern "^[A-Z]{2}$"`
+        );
+      }
+    });
+
+    describe('fxa_pay_setup events', () => {
+      const fxa_pay_setup_event = {
+        device_id: '9ce8626e11ab4238981287fb95c8545e',
+        op: 'amplitudeEvent',
+        time: 1680884839890,
+        user_id: '9ce8626e11ab4238981287fb95c8545e',
+        event_type: 'fxa_pay_setup - view',
+        language: 'en',
+        user_properties: {
+          flow_id:
+            'aed8442f52e9af1694ff13bf1f4523815e651e0c0e7242c72fb46069fa9adaee',
+        },
+        event_properties: {
+          service: 'qux',
+          product_id: 'product',
+          plan_id: 'plan',
+          checkout_type: 'without-account',
+        },
+      };
+
+      it('success - if event_type is `fxa_pay_setup - *` and language/product/plan/checkoutType is provided', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        const result = amplitude.validate(event);
+        assert.isTrue(result);
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and language is undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.language;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'language', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and language and op are undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.language;
+        delete event.op;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'op'`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and flow_id is undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.user_properties.flow_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/user_properties must have required property 'flow_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and plan_id is undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.event_properties.plan_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'plan_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and product_id is undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.event_properties.product_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'product_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_setup - *` and checkout_type is undefined', () => {
+        const event = deepCopy(fxa_pay_setup_event);
+        delete event.event_properties.checkout_type;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'checkout_type', event must match "then" schema`
+          );
+        }
+      });
+
+      describe('fxa_pay_setup - fail events', () => {
+        it('errors - if event_type is `fxa_pay_setup - fail` and payment_provider is undefined', () => {
+          const event = deepCopy(fxa_pay_setup_event);
+          event.event_type = 'fxa_pay_setup - fail';
+          event.event_properties.error_id = 'test';
+          delete event.event_properties.payment_provider;
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
+            );
+          }
+        });
+
+        it('errors - if event_type is `fxa_pay_setup - fail` and error_id is undefined', () => {
+          const event = deepCopy(fxa_pay_setup_event);
+          event.event_type = 'fxa_pay_setup - fail';
+          event.event_properties.payment_provider = 'stripe';
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'error_id', event must match "then" schema`
+            );
+          }
+        });
+      });
+
+      describe('fxa_pay_setup - submit events', () => {
+        it('errors - if event_type is `fxa_pay_setup - submit` and payment_provider is undefined', () => {
+          const event = deepCopy(fxa_pay_setup_event);
+          event.event_type = 'fxa_pay_setup - submit';
+          delete event.event_properties.payment_provider;
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
+            );
+          }
+        });
+      });
+
+      describe('fxa_pay_setup - success events', () => {
+        it('errors - if event_type is `fxa_pay_setup - success` and payment_provider is undefined', () => {
+          const event = deepCopy(fxa_pay_setup_event);
+          event.event_type = 'fxa_pay_setup - success';
+          event.event_properties.country_code_source = 'US';
+          delete event.event_properties.payment_provider;
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
+            );
+          }
+        });
+
+        it('errors - if event_type is `fxa_pay_setup - success` and country_code_source is undefined', () => {
+          const event = deepCopy(fxa_pay_setup_event);
+          event.event_type = 'fxa_pay_setup - success';
+          event.event_properties.payment_provider = 'stripe';
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'country_code_source', event must match "then" schema`
+            );
+          }
+        });
+      });
+    });
+
+    describe('fxa_pay_subscription_change events', () => {
+      const fxa_pay_sub_change_event = {
+        device_id: '9ce8626e11ab4238981287fb95c8545e',
+        op: 'amplitudeEvent',
+        time: 1680884839890,
+        user_id: '9ce8626e11ab4238981287fb95c8545e',
+        language: 'en',
+        user_properties: {
+          flow_id:
+            'aed8442f52e9af1694ff13bf1f4523815e651e0c0e7242c72fb46069fa9adaee',
+        },
         event_type: 'fxa_pay_subscription_change - view',
+        event_properties: {
+          service: 'qux',
+          product_id: 'product',
+          plan_id: 'plan',
+          previous_plan_id: 'oldPlan',
+          previous_product_id: 'oldProduct',
+          subscription_id: 'subId',
+          payment_provider: 'stripe',
+        },
       };
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event must have required property 'language', event must match "then" schema`
-        );
-      }
-    });
 
-    it('errors if countryCode is more than 2 characters', () => {
-      const event = {
-        ...minimumEvent,
-        countryCode: 'USA',
-      };
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event/countryCode must match pattern "^[A-Z]{2}$"`
-        );
-      }
-    });
+      it('success - if event_type is `fxa_pay_subscription_change - *` and language/product/plan is provided', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
 
-    it('errors if countryCode less than 2 characters', () => {
-      const event = {
-        ...minimumEvent,
-        countryCode: 'U',
-      };
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event/countryCode must match pattern "^[A-Z]{2}$"`
-        );
-      }
-    });
+        const result = amplitude.validate(event);
+        assert.isTrue(result);
+      });
 
-    it('errors - if event_type is `fxa_pay_setup - *` and language and op are undefined', () => {
-      const event = {
-        ...minimumEvent,
-        event_type: 'fxa_pay_setup - view',
-      };
-      delete event.op;
-      try {
-        amplitude.validate(event);
-        assert.fail('Validate is expected to fail');
-      } catch (err) {
-        assert.isTrue(err instanceof Error);
-        assert.equal(
-          err.message,
-          `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'op'`
-        );
-      }
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and language is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.language;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event must have required property 'language', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and plan_id is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.plan_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'plan_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and product_id is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.product_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'product_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and previous_plan_id is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.previous_plan_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'previous_plan_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and previous_product_id is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.previous_product_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'previous_product_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and subscription_id is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.subscription_id;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'subscription_id', event must match "then" schema`
+          );
+        }
+      });
+
+      it('errors - if event_type is `fxa_pay_subscription_change - *` and payment_provider is undefined', () => {
+        const event = deepCopy(fxa_pay_sub_change_event);
+        delete event.event_properties.payment_provider;
+
+        try {
+          amplitude.validate(event);
+          assert.fail('Validate is expected to fail');
+        } catch (err) {
+          assert.isTrue(err instanceof Error);
+          assert.equal(
+            err.message,
+            `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
+          );
+        }
+      });
+
+      describe('fxa_pay_subscription_change - fail events', () => {
+        it('errors - if event_type is `fxa_pay_subscription_change - fail` and error_id is undefined', () => {
+          const event = deepCopy(fxa_pay_sub_change_event);
+          event.event_type = 'fxa_pay_subscription_change - fail';
+
+          try {
+            amplitude.validate(event);
+            assert.fail('Validate is expected to fail');
+          } catch (err) {
+            assert.isTrue(err instanceof Error);
+            assert.equal(
+              err.message,
+              `Invalid data: event/event_properties must have required property 'error_id', event must match "then" schema`
+            );
+          }
+        });
+      });
+
+      // describe('fxa_pay_subscription_change - success events', () => {
+      //   it('errors - if event_type is `fxa_pay_subscription_change - success` and country_code_source is undefined', () => {
+      //     const event = deepCopy(fxa_pay_sub_change_event);
+      //     event.event_type = 'fxa_pay_subscription_change - success';
+
+      //     try {
+      //       amplitude.validate(event);
+      //       assert.fail('Validate is expected to fail');
+      //     } catch (err) {
+      //       assert.isTrue(err instanceof Error);
+      //       assert.equal(
+      //         err.message,
+      //         `Invalid data: event/event_properties must have required property 'country_code_source', event must match "then" schema`
+      //       );
+      //     }
+      //   });
+      // });
     });
 
     describe('fxa_subscribe - subscription_ended', () => {
@@ -717,7 +1024,7 @@ describe('metrics/amplitude:', () => {
         user_properties: {},
         event_properties: {
           country_code_source: 'BC',
-          payment_provider: 'abc',
+          payment_provider: 'stripe',
           plan_id: 'def',
           product_id: 'ghi',
           provider_event_id: 'jkl',
@@ -739,7 +1046,6 @@ describe('metrics/amplitude:', () => {
           ...subscriptionEndedEvent,
         };
         delete event.user_id;
-        delete event.event_properties.country_code_source;
 
         const result = amplitude.validate(event);
         assert.isTrue(result);
@@ -762,7 +1068,7 @@ describe('metrics/amplitude:', () => {
           assert.isTrue(err instanceof Error);
           assert.equal(
             err.message,
-            `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
+            `Invalid data: event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
           );
         }
       });
@@ -783,7 +1089,7 @@ describe('metrics/amplitude:', () => {
           assert.isTrue(err instanceof Error);
           assert.equal(
             err.message,
-            `Invalid data: event must have required property 'language', event must match "then" schema, event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
+            `Invalid data: event must have required property 'event_type', event must have required property 'time', event must have required property 'event_properties'`
           );
         }
       });

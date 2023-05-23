@@ -919,7 +919,7 @@ describe('#integration - StripeHelper', () => {
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
-          expand: ['latest_invoice.payment_intent'],
+          expand: ['latest_invoice.payment_intent.latest_charge'],
           promotion_code: undefined,
           automatic_tax: {
             enabled: true,
@@ -990,7 +990,7 @@ describe('#integration - StripeHelper', () => {
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
-          expand: ['latest_invoice.payment_intent'],
+          expand: ['latest_invoice.payment_intent.latest_charge'],
           promotion_code: promotionCode.id,
           automatic_tax: {
             enabled: false,
@@ -1065,7 +1065,7 @@ describe('#integration - StripeHelper', () => {
         {
           customer: 'customerId',
           items: [{ price: 'priceId' }],
-          expand: ['latest_invoice.payment_intent'],
+          expand: ['latest_invoice.payment_intent.latest_charge'],
           promotion_code: undefined,
           automatic_tax: {
             enabled: true,

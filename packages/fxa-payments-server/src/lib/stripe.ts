@@ -8,8 +8,9 @@ import {
   StripeElementsOptions,
   StripeError,
 } from '@stripe/stripe-js';
+import { CheckoutType } from 'fxa-shared/subscriptions/types';
 import { SubscriptionCreateAuthServerAPIs } from '../routes/Product/SubscriptionCreate';
-import { Customer, Plan } from '../store/types';
+import { Customer, Plan, Profile } from '../store/types';
 import {
   handlePasswordlessSignUp,
   PasswordlessSignupHandlerParam,
@@ -27,6 +28,7 @@ export type SubscriptionPaymentHandlerParam = {
   idempotencyKey: string;
   selectedPlan: Plan;
   customer: Customer | null;
+  checkoutType: CheckoutType;
   retryStatus: RetryStatus;
   promotionCode?: string;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
@@ -49,6 +51,7 @@ export async function handlePasswordlessSubscription({
   idempotencyKey,
   selectedPlan,
   customer,
+  checkoutType,
   retryStatus,
   promotionCode,
   apiCreateCustomer,
@@ -75,6 +78,7 @@ export async function handlePasswordlessSubscription({
       idempotencyKey,
       selectedPlan,
       customer,
+      checkoutType,
       retryStatus,
       promotionCode,
       apiCreateCustomer,
@@ -98,6 +102,7 @@ export async function handleSubscriptionPayment({
   idempotencyKey,
   selectedPlan,
   customer,
+  checkoutType,
   retryStatus,
   promotionCode,
   apiCreateCustomer,
@@ -116,6 +121,7 @@ export async function handleSubscriptionPayment({
         priceId: selectedPlan.plan_id,
         productId: selectedPlan.product_id,
         promotionCode: promotionCode,
+        checkoutType: checkoutType,
       });
     return handlePaymentIntent({
       customer,
@@ -178,6 +184,7 @@ export async function handleSubscriptionPayment({
         productId: selectedPlan.product_id,
         paymentMethodId: paymentMethod.id,
         promotionCode: promotionCode,
+        checkoutType: checkoutType,
       });
     return handlePaymentIntent({
       customer,
