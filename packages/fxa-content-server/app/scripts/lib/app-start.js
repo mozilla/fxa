@@ -121,8 +121,6 @@ Start.prototype = {
         .then(() => this.initializeNotificationChannel())
         // depends on interTabChannel, web channel
         .then(() => this.initializeNotifier())
-        // glean metrics
-        .then(() => this.initializeGlean())
         // metrics depends on relier and notifier
         .then(() => this.initializeMetrics())
         // profileClient depends on fxaClient
@@ -133,6 +131,8 @@ Start.prototype = {
         // user depends on the auth broker, profileClient, oAuthClient,
         // and notifier.
         .then(() => this.initializeUser())
+        // glean metrics
+        .then(() => this.initializeGlean())
         // depends on nothing
         .then(() => this.initializeFormPrefill())
         // depends on notifier, metrics
@@ -168,7 +168,12 @@ Start.prototype = {
   },
 
   initializeGlean() {
-    GleanMetrics.initialize(this._config.glean);
+    GleanMetrics.initialize(this._config.glean, {
+      metrics: this._metrics,
+      relier: this._relier,
+      user: this._user,
+      userAgent: this.getUserAgent(),
+    });
   },
 
   initializeMetrics() {

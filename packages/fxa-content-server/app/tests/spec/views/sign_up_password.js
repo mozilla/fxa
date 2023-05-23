@@ -8,6 +8,7 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import Broker from 'models/auth_brokers/base';
 import FormPrefill from 'models/form-prefill';
+import GleanMetrics from '../../../scripts/lib/glean';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
@@ -287,6 +288,23 @@ describe('views/sign_up_password', () => {
       view.useDifferentAccount();
 
       assert.isTrue(view.navigate.calledOnceWith('/', { account }));
+    });
+  });
+
+  describe('logView', () => {
+    let regViewEventStub;
+
+    beforeEach(() => {
+      regViewEventStub = sinon.stub(GleanMetrics.registration, 'view');
+    });
+
+    afterEach(() => {
+      regViewEventStub.restore();
+    });
+
+    it('submits a reg_view Glean ping', () => {
+      view.logView();
+      sinon.assert.calledOnce(regViewEventStub);
     });
   });
 });
