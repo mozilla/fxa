@@ -15398,7 +15398,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv-keywords@npm:^5.0.0":
+"ajv-keywords@npm:^5.0.0, ajv-keywords@npm:^5.1.0":
   version: 5.1.0
   resolution: "ajv-keywords@npm:5.1.0"
   dependencies:
@@ -15421,7 +15421,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ajv@npm:8.12.0, ajv@npm:^8.11.2":
+"ajv@npm:8.12.0, ajv@npm:^8.11.2, ajv@npm:^8.9.0":
   version: 8.12.0
   resolution: "ajv@npm:8.12.0"
   dependencies:
@@ -26933,7 +26933,7 @@ fsevents@~2.1.1:
     source-map-loader: ^1.1.1
     stream-browserify: ^3.0.0
     tailwindcss: ^3.3.1
-    thread-loader: ^3.0.4
+    thread-loader: ^4.0.2
     time-grunt: 2.0.0
     ts-loader: ^8.4.0
     typescript: ^4.9.3
@@ -45436,6 +45436,18 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
+"schema-utils@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "schema-utils@npm:4.0.1"
+  dependencies:
+    "@types/json-schema": ^7.0.9
+    ajv: ^8.9.0
+    ajv-formats: ^2.1.1
+    ajv-keywords: ^5.1.0
+  checksum: 745e7293c6b6c84940de16753c207311da821aa9911b9e2d158cfd9ffc5bf1f880147abbbe775b96cb8cd3c7f48890950fe0164f54eed9a8aabb948ebf8a3fdd
+  languageName: node
+  linkType: hard
+
 "scss-tokenizer@npm:^0.4.3":
   version: 0.4.3
   resolution: "scss-tokenizer@npm:0.4.3"
@@ -48581,18 +48593,17 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"thread-loader@npm:^3.0.4":
-  version: 3.0.4
-  resolution: "thread-loader@npm:3.0.4"
+"thread-loader@npm:^4.0.2":
+  version: 4.0.2
+  resolution: "thread-loader@npm:4.0.2"
   dependencies:
     json-parse-better-errors: ^1.0.2
     loader-runner: ^4.1.0
-    loader-utils: ^2.0.0
     neo-async: ^2.6.2
-    schema-utils: ^3.0.0
+    schema-utils: ^4.0.1
   peerDependencies:
-    webpack: ^4.27.0 || ^5.0.0
-  checksum: 832edc6eac46df148465feb8d3e3e67a30ea82d1d29401ca1c6461d1a0386c6d1fed05739887fc9c69a7d189a68ca1686eaad214f283825e355de9b42663bcf0
+    webpack: ^5.0.0
+  checksum: 1b1bd4cf4320b63e2a8c52d6ff64c4cf7fbc5e6099f41aae5fa35c4714134becff5b91cd6b00d707f60d18003aba0ae112a719dfbd92fbcdeb875beba76b1146
   languageName: node
   linkType: hard
 
