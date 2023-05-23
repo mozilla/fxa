@@ -500,12 +500,18 @@ export class StripeHandler {
     request: AuthRequest
   ): Promise<couponDTO.couponDetailsSchema> {
     this.log.begin('subscriptions.retrieveCouponDetails', request);
-    await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
 
     const { promotionCode, priceId } = request.payload as Record<
       string,
       string
     >;
+
+    if (request.auth.credentials) {
+      const { email } = await handleAuth(this.db, request.auth, true);
+      await this.customs.check(request, email, 'retrieveCouponDetails');
+    } else {
+      await this.customs.checkIpOnly(request, 'retrieveCouponDetails');
+    }
 
     const taxAddress = this.buildTaxAddress(
       request.app.clientAddress,

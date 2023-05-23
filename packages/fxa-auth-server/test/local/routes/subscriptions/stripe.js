@@ -1009,6 +1009,13 @@ describe('DirectStripeRoutes', () => {
       );
 
       sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'retrieveCouponDetails'
+      );
+      sinon.assert.notCalled(directStripeRoutesInstance.customs.checkIpOnly);
+      sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.retrieveCouponDetails,
         {
           promotionCode: 'promotionCode',
@@ -1021,6 +1028,19 @@ describe('DirectStripeRoutes', () => {
       );
 
       assert.deepEqual(actual, expected);
+    });
+
+    it('calls customs checkIpOnly for unauthenticated customer', async () => {
+      const request = deepCopy(VALID_REQUEST);
+      request.auth.credentials = undefined;
+      await directStripeRoutesInstance.retrieveCouponDetails(request);
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.checkIpOnly,
+        request,
+        'retrieveCouponDetails'
+      );
+      sinon.assert.notCalled(directStripeRoutesInstance.customs.check);
     });
   });
 

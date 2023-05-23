@@ -74,7 +74,7 @@ export class SubscribePage extends BaseLayout {
   async couponErrorMessageText() {
     const msg = await this.page.innerText('[data-testid="coupon-error"]');
     if (msg === 'An error occurred processing the code. Please try again.') {
-      throw new Error('Stripe generic error, most likely rate limited');
+      throw new Error('Generic error, most likely rate limited');
     }
     return msg;
   }
