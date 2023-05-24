@@ -20,7 +20,8 @@
       "type": "node",
       "protocol": "inspector",
       "env": {
-        "DEBUG": "1"
+        "DEBUG": "1",
+        "NODE_OPTIONS": "--dns-result-order=ipv4first",
       },
       "program": "${workspaceFolder}/node_modules/@playwright/test/cli.js",
       "args": ["test","--config=${workspaceFolder}/packages/functional-tests/playwright.config.ts", "--project=local"],
