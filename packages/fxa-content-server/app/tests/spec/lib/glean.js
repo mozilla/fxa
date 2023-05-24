@@ -228,6 +228,12 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit');
       });
+
+      it('submit a ping with the reg_submit_success event name', () => {
+        GleanMetrics.registration.success();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_submit_success');
+      });
     });
   });
 

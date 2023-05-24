@@ -26,7 +26,7 @@ describe('views/mixins/signup-mixin', function () {
     let relier;
     let user;
     let view;
-    let regSubmitMetricEventStub;
+    let regSubmitMetricEventStub, regSuccessMetricEventStub;
 
     beforeEach(function () {
       account = new Account({
@@ -37,6 +37,10 @@ describe('views/mixins/signup-mixin', function () {
       regSubmitMetricEventStub = sinon.stub(
         GleanMetrics.registration,
         'submit'
+      );
+      regSuccessMetricEventStub = sinon.stub(
+        GleanMetrics.registration,
+        'success'
       );
       relier = new Relier();
       user = {
@@ -71,6 +75,7 @@ describe('views/mixins/signup-mixin', function () {
 
     afterEach(function () {
       regSubmitMetricEventStub.restore();
+      regSuccessMetricEventStub.restore();
     });
 
     describe('account needs permissions', function () {
@@ -230,6 +235,7 @@ describe('views/mixins/signup-mixin', function () {
         assert.equal(view.logViewEvent.callCount, 2);
         assert.isTrue(view.logViewEvent.calledWith('success'));
         assert.isTrue(view.logViewEvent.calledWith('signup.success'));
+        sinon.assert.calledOnce(regSuccessMetricEventStub);
 
         assert.isTrue(view.invokeBrokerMethod.calledOnce);
         const args = view.invokeBrokerMethod.args[0];
