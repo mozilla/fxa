@@ -15,6 +15,12 @@ export class RelierPage extends BaseLayout {
     return login.isVisible();
   }
 
+  async isOauthSuccessHeader() {
+    const header = this.page.locator('#fxa-oauth-success-header');
+    await header.waitFor();
+    return header.isVisible();
+  }
+
   async isPro() {
     const pro = this.page.locator('.pro-status');
     await pro.waitFor({ state: 'visible' });
