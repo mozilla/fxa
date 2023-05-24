@@ -4,6 +4,7 @@
 
 // Shared implementation of `signUp` view method
 
+import GleanMetrics from '../../lib/glean';
 import ResumeTokenMixin from './resume-token-mixin';
 
 export default {
@@ -28,6 +29,7 @@ export default {
         // because we want to log the real action that is being performed.
         // This is important for the infamous signin-from-signup feature.
         this.logFlowEvent('attempt', 'signup');
+        GleanMetrics.registration.submit();
 
         const options = {
           resume: this.getStringifiedResumeToken(account),
