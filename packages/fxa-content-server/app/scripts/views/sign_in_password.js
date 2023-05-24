@@ -10,6 +10,7 @@ import Cocktail from 'cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import PasswordMixin from './mixins/password-mixin';
 import preventDefaultThen from './decorators/prevent_default_then';
 import ServiceMixin from './mixins/service-mixin';
@@ -43,6 +44,12 @@ const SignInPasswordView = FormView.extend({
     const account = this.getAccount();
     if (!account || !account.get('email')) {
       this.navigate('/');
+    }
+
+    // If a previously authenticated account was found locally and it had opted
+    // out of data collection
+    if (account && account.get('metricsEnabled') === false) {
+      GleanMetrics.setEnabled(false);
     }
   },
 

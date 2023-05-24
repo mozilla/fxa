@@ -13,6 +13,7 @@ import { SIGNIN_PASSWORD } from '../../../../tests/functional/lib/selectors';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/sign_in_password';
+import GleanMetrics from '../../../scripts/lib/glean';
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -29,7 +30,7 @@ describe('views/sign_in_password', () => {
   let view;
 
   beforeEach(() => {
-    account = new Account({ email: EMAIL });
+    account = new Account({ email: EMAIL, metricsEnabled: false });
     broker = new Broker();
     formPrefill = new FormPrefill();
     model = new Backbone.Model({ account });
@@ -64,6 +65,11 @@ describe('views/sign_in_password', () => {
   describe('beforeRender', () => {
     beforeEach(() => {
       sinon.spy(view, 'navigate');
+      sinon.spy(GleanMetrics, 'setEnabled');
+    });
+
+    afterEach(() => {
+      GleanMetrics.setEnabled.restore();
     });
 
     it('redirects to `/` if no account', () => {
@@ -79,6 +85,12 @@ describe('views/sign_in_password', () => {
       view.beforeRender();
 
       assert.isFalse(view.navigate.called);
+    });
+
+    it('disables Glean metrics on pref', () => {
+      view.beforeRender();
+      assert.isTrue(GleanMetrics.setEnabled.calledOnce);
+      assert.equal(GleanMetrics.setEnabled.args[0][0], false);
     });
   });
 
