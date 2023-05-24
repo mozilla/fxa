@@ -75,7 +75,7 @@ $(document).ready(function () {
         pwdlessURL: pwdlessPaymentURL.stage,
       };
       break;
-    case 'stage-123done.herokuapp.com':
+    case 'production-123done.herokuapp.com':
       paymentConfig = {
         env: 'prod',
         contentEnv: contentURL.prod,

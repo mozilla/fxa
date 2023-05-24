@@ -95,11 +95,16 @@ test.describe('metrics - flow metrics query params', () => {
     test('logged in and toggle off Share Data, Checkout to not have flow params in URL', async ({
       pages: { settings, relier, page },
     }) => {
+      // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
-      await settings.dataCollection.toggleShareData('off');
-      const ariaChecked = await settings.dataCollection.getToggleStatus();
-      expect(ariaChecked).toBe('false');
+      expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
 
+      // Toggle swtich, verify the alert bar appears and its status
+      await settings.dataCollection.toggleShareData('off');
+      expect(await settings.alertBarText()).toContain('Opt out successful.');
+      expect(await settings.dataCollection.getToggleStatus()).toBe('false');
+
+      // Subscribe to plan and verify URL does not include flow parameter
       await relier.goto();
       await relier.clickSubscribe6Month();
       expect(page.url()).not.toContain('&flow_begin_time=');
@@ -110,11 +115,15 @@ test.describe('metrics - flow metrics query params', () => {
     test('logged in and toggle on Share Data, Checkout to have flow params in URL', async ({
       pages: { settings, relier, page },
     }) => {
+      // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
-      await settings.dataCollection.toggleShareData('on');
-      const ariaChecked = await settings.dataCollection.getToggleStatus();
-      expect(ariaChecked).toBe('true');
+      expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
 
+      // Toggle swtich and verify its status
+      await settings.dataCollection.toggleShareData('on');
+      expect(await settings.dataCollection.getToggleStatus()).toBe('true');
+
+      // Subscribe to plan and verify URL does not include flow parameter
       await relier.goto();
       await relier.clickSubscribe6Month();
       expect(page.url()).toContain('&flow_begin_time=');
