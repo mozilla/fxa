@@ -6,7 +6,8 @@ const ACCOUNTS_DOMAIN =
 const ACCOUNTS_API_DOMAIN =
   process.env.ACCOUNTS_API_DOMAIN || 'api-accounts.stage.mozaws.net';
 const PAYMENTS_DOMAIN =
-  process.env.PAYMENTS_DOMAIN || 'payments.stage.mozaws.net';
+  process.env.PAYMENTS_DOMAIN ||
+  'payments-stage.fxa.nonprod.cloudops.mozgcp.net';
 const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'stage-123done.herokuapp.com';
 
