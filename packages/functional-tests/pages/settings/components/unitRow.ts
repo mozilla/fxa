@@ -89,6 +89,14 @@ export class RecoveryKeyRow extends UnitRow {
   clickCreate() {
     return this.clickCta();
   }
+
+  clickDelete() {
+    return this.page
+      .getByRole('button', { name: 'Delete account recovery key' })
+      .click();
+  }
+
+  // TODO FXA-7419 delete this function
   clickRemove() {
     return this.clickShowModal();
   }

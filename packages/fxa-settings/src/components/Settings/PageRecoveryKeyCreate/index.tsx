@@ -82,15 +82,13 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
 
       {/* Confirm password and generate recovery key */}
       {currentStep === 2 && (
-        <>
-          <FlowRecoveryKeyConfirmPwd
-            {...{
-              ...sharedStepProps,
-              action,
-              setFormattedRecoveryKey,
-            }}
-          />
-        </>
+        <FlowRecoveryKeyConfirmPwd
+          {...{
+            ...sharedStepProps,
+            action,
+            setFormattedRecoveryKey,
+          }}
+        />
       )}
 
       {/* Download recovery key */}

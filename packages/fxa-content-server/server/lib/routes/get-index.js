@@ -47,6 +47,7 @@ module.exports = function (config) {
   const APPLE_AUTH_CONFIG = config.get('appleAuthConfig');
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
+  const SHOW_RECOVERY_KEY_V2 = config.get('featureFlags.showRecoveryKeyV2');
 
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -98,6 +99,9 @@ module.exports = function (config) {
     subscriptions: SUBSCRIPTIONS,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
     showReactApp: SHOW_REACT_APP,
+    featureFlags: {
+      showRecoveryKeyV2: SHOW_RECOVERY_KEY_V2,
+    },
 
     glean: {
       // feature toggle

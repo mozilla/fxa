@@ -44,7 +44,7 @@ export class ResetPasswordPage extends BaseLayout {
     return resetPass.isVisible();
   }
 
-  async resetPasswordLinkExpriredHeader() {
+  async resetPasswordLinkExpiredHeader() {
     const resetPass = this.page.locator(
       selectors.RESET_PASSWORD_EXPIRED_HEADER
     );

@@ -3,12 +3,17 @@ import { EmailHeader, EmailType } from '../../lib/email';
 
 let status;
 let key;
+let hint;
 
-test.describe('recovery key test', () => {
+// TODO in FXA-7419 - remove this first describe block that refers to the old account recovery generation flow
+test.describe('old recovery key test', () => {
   test.beforeEach(
-    async ({ credentials, page, pages: { settings, recoveryKey } }) => {
+    async ({ credentials, page, pages: { login, settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
+
+      const config = await login.getConfig();
+      test.skip(config.featureFlags.showRecoveryKeyV2 === true);
 
       await settings.goto();
       let status = await settings.recoveryKey.statusText();
@@ -28,6 +33,7 @@ test.describe('recovery key test', () => {
   );
 
   test('revoke recovery key', async ({ pages: { settings } }) => {
+    console.log('old test');
     await settings.recoveryKey.clickRemove();
     await settings.clickModalConfirm();
     await settings.waitForAlertBar();
@@ -175,7 +181,7 @@ test.describe('recovery key test', () => {
     await page.goto(link2, { waitUntil: 'load' });
 
     // Verify reset link expired
-    expect(await resetPassword.resetPasswordLinkExpriredHeader()).toBe(true);
+    expect(await resetPassword.resetPasswordLinkExpiredHeader()).toBe(true);
   });
 
   test('use account recovery key', async ({
@@ -212,5 +218,293 @@ test.describe('recovery key test', () => {
     await recoveryKey.clickClose();
     status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Enabled');
+  });
+});
+
+// TODO in FXA-7419 - rename describe block (remove "new")
+test.describe('new recovery key test', () => {
+  test.beforeEach(
+    async ({ credentials, page, pages: { login, settings, recoveryKey } }) => {
+      // Generating and consuming recovery keys is a slow process
+      // Mail delivery can also be slow
+      test.slow();
+
+      const config = await login.getConfig();
+      test.skip(config.featureFlags.showRecoveryKeyV2 !== true);
+
+      await settings.goto();
+      let status = await settings.recoveryKey.statusText();
+      expect(status).toEqual('Not Set');
+      await settings.recoveryKey.clickCreate();
+      // View 1/4 info
+      await recoveryKey.clickStart();
+      // View 2/4 confirm password and generate key
+      await recoveryKey.setPassword(credentials.password);
+      await recoveryKey.submit();
+
+      // View 3/4 key download
+      // Store key to be used later
+      key = await recoveryKey.getKey();
+      await recoveryKey.clickNext();
+
+      // View 4/4 hint
+      // store hint to be used later
+      hint = 'secret key location';
+      await recoveryKey.setHint(hint);
+      await recoveryKey.clickFinish();
+
+      // Verify status as 'enabled'
+      status = await settings.recoveryKey.statusText();
+      expect(status).toEqual('Enabled');
+    }
+  );
+
+  test('can copy and download recovery key', async ({
+    credentials,
+    target,
+    pages: { page, login, recoveryKey, settings },
+  }) => {
+    // Create new recovery key
+    await settings.recoveryKey.clickCreate();
+    // View 1/4 info
+    await recoveryKey.clickChange();
+    // View 2/4 confirm password and generate key
+    await recoveryKey.setPassword(credentials.password);
+    await recoveryKey.submit();
+
+    // View 3/4 key download
+    // Store key to be used later
+    const newKey = await recoveryKey.getKey();
+
+    // Test copy
+    const clipboard = await recoveryKey.clickCopy();
+    expect(clipboard).toEqual(newKey);
+
+    // Test download
+    const dl = await recoveryKey.clickDownload();
+    const date = new Date().toISOString().split('T')[0];
+    const expectedFullFilename = `Firefox-Recovery-Key_${date}_${credentials.email}.txt`;
+    expect(dl.suggestedFilename().length).toBeLessThanOrEqual(75);
+    expect(dl.suggestedFilename()).toBe(
+      `Firefox-Recovery-Key_${date}_${credentials.email}.txt`
+    );
+
+    // After download, navigated to 'hint' page
+    const newHint = 'secret key location';
+    await recoveryKey.setHint(hint);
+    await recoveryKey.clickFinish();
+
+    // Verify status as 'enabled'
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Enabled');
+  });
+
+  test('use account recovery key', async ({
+    credentials,
+    target,
+    pages: { page, login, recoveryKey, settings },
+  }) => {
+    await settings.signOut();
+    // Reset password with recovery key
+    await login.setEmail(credentials.email);
+    await login.submit();
+    await login.clickForgotPassword();
+    await login.setEmail(credentials.email);
+    await login.submit();
+    let link = await target.email.waitForEmail(
+      credentials.email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
+    await page.goto(link, { waitUntil: 'networkidle' });
+    await login.setRecoveryKey(key);
+    await login.submit();
+    credentials.password = credentials.password + '_new';
+    await login.setNewPassword(credentials.password);
+    await settings.waitForAlertBar();
+
+    // Sign out and sign back in to verify new password works
+    await settings.signOut();
+    expect(credentials.password).toContain('_new');
+    await login.login(credentials.email, credentials.password);
+    expect(await login.loginHeader()).toBe(true);
+
+    // Verify key revoked after use
+    let status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Not Set');
+  });
+
+  test('change recovery key, and verify cannot change password with old key', async ({
+    credentials,
+    target,
+    page,
+    pages: { settings, recoveryKey, login },
+  }) => {
+    let secondKey;
+    let secondHint;
+
+    // Create new recovery key
+    await settings.recoveryKey.clickCreate();
+    // View 1/4 info
+    await recoveryKey.clickChange();
+    // View 2/4 confirm password and generate key
+    await recoveryKey.setPassword(credentials.password);
+    await recoveryKey.submit();
+
+    // View 3/4 key download
+    // Store key to be used later
+    secondKey = await recoveryKey.getKey();
+    await recoveryKey.clickNext();
+
+    // View 4/4 hint
+    // store hint to be used later
+    secondHint = 'new secret key location';
+    await recoveryKey.setHint(secondHint);
+    await recoveryKey.clickFinish();
+
+    // Check that key is enabled
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Enabled');
+
+    await settings.signOut();
+
+    // Attempt to use old key to reset password
+    await login.setEmail(credentials.email);
+    await login.submit();
+    await login.clickForgotPassword();
+    await login.setEmail(credentials.email);
+    await login.submit();
+    let link = await target.email.waitForEmail(
+      credentials.email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
+    await page.goto(link, { waitUntil: 'load' });
+    await login.setRecoveryKey(key);
+    await recoveryKey.confirmRecoveryKey();
+
+    // Verify the error
+    expect(await recoveryKey.invalidRecoveryKeyError()).toContain(
+      'Invalid account recovery key'
+    );
+
+    // Enter new recovery key
+    await login.setRecoveryKey(secondKey);
+    await login.submit();
+
+    // Reset password
+    credentials.password = credentials.password + '_new';
+    await login.setNewPassword(credentials.password);
+    await settings.waitForAlertBar();
+    await settings.signOut();
+
+    // login
+    await login.login(credentials.email, credentials.password);
+
+    // Verify login successful with password reset with new recovery key
+    expect(await login.loginHeader()).toBe(true);
+
+    // Verify that new account recovery key revoked
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Not Set');
+  });
+
+  test('can reset password when forgot recovery key', async ({
+    credentials,
+    target,
+    page,
+    pages: { settings, recoveryKey, login },
+  }) => {
+    await settings.signOut();
+
+    await login.setEmail(credentials.email);
+    await login.submit();
+    await login.clickForgotPassword();
+    await login.setEmail(credentials.email);
+    await login.submit();
+    let link = await target.email.waitForEmail(
+      credentials.email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
+    await page.goto(link, { waitUntil: 'networkidle' });
+    // Directed to "confirm recovery key" page, but lost the key
+    // Click on the lost recovery key link
+    await recoveryKey.clickLostRecoveryKey();
+
+    // Reset password without a recovery key
+    credentials.password = credentials.password + '_new';
+    await login.setNewPassword(credentials.password);
+    await settings.waitForAlertBar();
+    await settings.signOut();
+
+    // login
+    await login.login(credentials.email, credentials.password);
+
+    // Verify login successful
+    expect(await login.loginHeader()).toBe(true);
+
+    // Verify that account recovery key has been revoked after password reset
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Not Set');
+  });
+
+  test('cannot reuse link to reset password with account recovery key', async ({
+    credentials,
+    target,
+    page,
+    pages: { settings, recoveryKey, login, resetPassword },
+  }) => {
+    await settings.signOut();
+
+    await login.setEmail(credentials.email);
+    await login.submit();
+    await login.clickForgotPassword();
+    await login.setEmail(credentials.email);
+    await login.submit();
+    let link = await target.email.waitForEmail(
+      credentials.email,
+      EmailType.recovery,
+      EmailHeader.link
+    );
+    link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
+    await page.goto(link);
+    await login.setRecoveryKey(key);
+    await recoveryKey.confirmRecoveryKey();
+
+    // Reset password
+    credentials.password = credentials.password + '_new';
+    await login.setNewPassword(credentials.password);
+    await settings.waitForAlertBar();
+    await settings.signOut();
+
+    // login
+    await login.login(credentials.email, credentials.password);
+
+    // Verify login successful
+    expect(await login.loginHeader()).toBe(true);
+
+    // Verify that account recovery key has been revoked after password reset
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Not Set');
+
+    // Attempt to reuse reset link
+    await page.goto(link, { waitUntil: 'load' });
+
+    // Verify reset link expired
+    expect(await resetPassword.resetPasswordLinkExpiredHeader()).toBe(true);
+  });
+
+  test('revoke recovery key', async ({ pages: { settings } }) => {
+    await settings.recoveryKey.clickDelete();
+    await settings.clickModalConfirm();
+    await settings.waitForAlertBar();
+    status = await settings.recoveryKey.statusText();
+
+    // Verify status as 'not set'
+    expect(status).toEqual('Not Set');
   });
 });

@@ -34,11 +34,41 @@ test.describe('severity-1 #smoke', () => {
     pages: { settings, login, recoveryKey },
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
+
+    // TODO in FXA-7419 - remove config definition
+    const config = await login.getConfig();
+
     await settings.goto();
-    await settings.recoveryKey.clickCreate();
-    await recoveryKey.setPassword(credentials.password);
-    await recoveryKey.submit();
-    await settings.signOut();
+    let status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Not Set');
+
+    // Create recovery key
+    // TODO in FXA-7419 - remove condition and only keep new recovery key flow (remove content of else block)
+    if (config.featureFlags.showRecoveryKeyV2 === true) {
+      await settings.goto();
+
+      await settings.recoveryKey.clickCreate();
+      // View 1/4 info
+      await recoveryKey.clickStart();
+      // View 2/4 confirm password and generate key
+      await recoveryKey.setPassword(credentials.password);
+      await recoveryKey.submit();
+
+      // See download key page but click next without saving the key
+      await recoveryKey.clickNext();
+
+      // See hint page but finish the flow without saving a hint
+      await recoveryKey.clickFinish();
+
+      // Verify status as 'enabled'
+      status = await settings.recoveryKey.statusText();
+      expect(status).toEqual('Enabled');
+    } else {
+      await settings.recoveryKey.clickCreate();
+      await recoveryKey.setPassword(credentials.password);
+      await recoveryKey.submit();
+      await settings.signOut();
+    }
 
     await page.goto(target.contentServerUrl + '/reset_password', {
       waitUntil: 'networkidle',
@@ -55,7 +85,7 @@ test.describe('severity-1 #smoke', () => {
     await login.clickDontHaveRecoveryKey();
     await login.setNewPassword(credentials.password);
     await settings.waitForAlertBar();
-    const status = await settings.recoveryKey.statusText();
+    status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Not Set');
   });
 });
