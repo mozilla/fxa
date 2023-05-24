@@ -9,7 +9,7 @@ import { ButtonDownloadRecoveryKey } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { logViewEvent } from '../../lib/metrics';
 
-const recoveryKeyValue = 'WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ';
+const recoveryKeyValue = 'WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ';
 const viewName = 'settings.account-recovery';
 
 const account = {
@@ -90,6 +90,9 @@ describe('ButtonDownloadRecoveryKey', () => {
     expect(downloadButtonDownloadAttribute).toContain('Firefox-Recovery-Key');
     expect(downloadButtonDownloadAttribute).toContain(date);
   });
+
+  // Content of downloaded file is tested in Playwright tests
+  // including validating that the expected key is included and matches the key in the DataBlock
 
   it('emits a metrics event when the link is clicked', () => {
     render(

@@ -50,7 +50,6 @@ export const FlowRecoveryKeyDownload = ({
 
         <FtlMsg id="flow-recovery-key-download-heading">
           <h2 className="font-bold text-xl">
-            {/* This is an em dash - add space? */}
             Account recovery key generated — store it in a place you’ll remember
           </h2>
         </FtlMsg>
@@ -61,7 +60,7 @@ export const FlowRecoveryKeyDownload = ({
         </FtlMsg>
         <DataBlock
           value={recoveryKeyValue}
-          onCopy={() =>
+          onAction={() =>
             logViewEvent(`flow.${viewName}`, `recovery-key.copy-option`)
           }
           isInline

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, screen, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
@@ -68,9 +68,17 @@ describe('FlowRecoveryKeyDownload', () => {
     screen.getByRole('link', { name: 'Next' });
   });
 
-  // TODO metric for copy button
-
-  // TODO expect file download to be triggered
+  it('emits the expected metrics when user copies the recovery key', async () => {
+    renderFlowPage();
+    const copyButton = screen.getByRole('button', { name: 'Copy' });
+    fireEvent.click(copyButton);
+    await waitFor(() =>
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'recovery-key.copy-option'
+      )
+    );
+  });
 
   it('emits the expected metrics when user downloads the recovery key', () => {
     renderFlowPage();
@@ -78,7 +86,6 @@ describe('FlowRecoveryKeyDownload', () => {
       'Download your account recovery key'
     );
     fireEvent.click(downloadButton);
-    expect(navigateForward).toBeCalledTimes(1);
     expect(logViewEvent).toBeCalledWith(
       `flow.${viewName}`,
       'recovery-key.download-option'
@@ -96,5 +103,14 @@ describe('FlowRecoveryKeyDownload', () => {
     );
   });
 
-  // TODO expect metric event when back arrow clicked
+  it('emits the expected metrics when user clicks the back arrow', () => {
+    renderFlowPage();
+    const backLink = screen.getByRole('button', { name: 'Back to settings' });
+    fireEvent.click(backLink);
+    expect(navigateBackward).toBeCalledTimes(1);
+    expect(logViewEvent).toBeCalledWith(
+      `flow.${viewName}`,
+      'recovery-key.skip-download'
+    );
+  });
 });

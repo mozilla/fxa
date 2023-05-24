@@ -96,9 +96,7 @@ describe('PageRecoveryKeyCreate when recovery key not enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByText(
-      'Download your account recovery key'
-    );
+    const flowPage3Button = screen.getByRole('link', { name: 'Next' });
     fireEvent.click(flowPage3Button);
     await waitFor(() =>
       screen.getByRole('heading', {
@@ -167,9 +165,7 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByText(
-      'Download your account recovery key'
-    );
+    const flowPage3Button = screen.getByRole('link', { name: 'Next' });
     fireEvent.click(flowPage3Button);
     await waitFor(() =>
       screen.getByRole('heading', {
