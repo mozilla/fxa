@@ -13,12 +13,17 @@ function test_suite() {
   local numGroups=$2
   local i=$3
 
+  local fxaAccountsApiDomain="${ACCOUNTS_API_DOMAIN:-api-accounts.stage.mozaws.net}"
+  local fxaAccountsDomain="${ACCOUNTS_DOMAIN:-accounts.stage.mozaws.net}"
+  local relierDomain="${RELIER_DOMAIN:-stage-123done.herokuapp.com}"
+  local untrustedRelierDomain="${UNTRUSTED_RELIER_DOMAIN:-stage-123done-untrusted.herokuapp.com}"
+
   node tests/intern.js \
     --suites="${suite}" \
-    --fxaAuthRoot=https://api-accounts.stage.mozaws.net/v1 \
-    --fxaContentRoot=https://accounts.stage.mozaws.net/ \
-    --fxaOAuthApp=https://stage-123done.herokuapp.com/ \
-    --fxaUntrustedOauthApp=https://stage-123done-untrusted.herokuapp.com/ \
+    --fxaAuthRoot=https://${fxaAccountsApiDomain}/v1 \
+    --fxaContentRoot=https://${fxaAccountsDomain}/ \
+    --fxaOAuthApp=https://${relierDomain}/ \
+    --fxaUntrustedOauthApp=https://${untrustedRelierDomain}/ \
     --fxaEmailRoot=http://restmail.net \
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
@@ -29,10 +34,10 @@ function test_suite() {
     || \
   node tests/intern.js \
     --suites="${suite}" \
-    --fxaAuthRoot=https://api-accounts.stage.mozaws.net/v1 \
-    --fxaContentRoot=https://accounts.stage.mozaws.net/ \
-    --fxaOAuthApp=https://stage-123done.herokuapp.com/ \
-    --fxaUntrustedOauthApp=https://stage-123done-untrusted.herokuapp.com/ \
+    --fxaAuthRoot=https://${fxaAccountsApiDomain}/v1 \
+    --fxaContentRoot=https://${fxaAccountsDomain}/ \
+    --fxaOAuthApp=https://${relierDomain}/ \
+    --fxaUntrustedOauthApp=https://${untrustedRelierDomain}/ \
     --fxaEmailRoot=http://restmail.net \
     --fxaProduction=true \
     --output="../../artifacts/tests/${suite}-${numGroups}-${i}-results.xml" \
