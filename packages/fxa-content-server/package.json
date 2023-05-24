@@ -17,7 +17,7 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js && yarn build-css",
     "delete": "pm2 delete pm2.config.js",
-    "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json grunt serverproc:dist",
+    "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
     "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
