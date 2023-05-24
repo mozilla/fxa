@@ -145,7 +145,7 @@ describe('views/mixins/third-party-auth-mixin', function () {
       )
     );
 
-    assert.equal(mockInput.setAttribute.args.length, 21);
+    assert.equal(mockInput.setAttribute.args.length, 27);
 
     assertInputEl(mockInput, 'client_id', config.googleAuthConfig.clientId);
     assertInputEl(mockInput, 'scope', 'openid email profile');
@@ -164,8 +164,10 @@ describe('views/mixins/third-party-auth-mixin', function () {
     assertInputEl(mockInput, 'access_type', 'offline');
     assertInputEl(mockInput, 'prompt', 'consent');
     assertInputEl(mockInput, 'response_type', 'code');
+    assertInputEl(mockInput, 'disallow_webview', true);
+    assertInputEl(mockInput, 'ack_webview_shutdown', '2024-09-30');
 
-    assert.equal(mockForm.appendChild.args.length, 7);
+    assert.equal(mockForm.appendChild.args.length, 9);
     assert.isTrue(mockForm.submit.calledOnce);
   });
 
