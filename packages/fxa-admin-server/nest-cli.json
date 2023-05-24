@@ -2,9 +2,8 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "assets": [
-      "**/*.gql"
-    ],
+    "assets": ["**/*.gql"],
     "watchAssets": true
-  }
+  },
+  "entryFile": "src/packages/admin-server/main.js"
 }
