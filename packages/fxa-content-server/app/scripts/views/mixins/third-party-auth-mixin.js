@@ -102,6 +102,8 @@ export default {
       access_type: 'offline',
       prompt: 'consent',
       response_type: 'code',
+      disallow_webview: true,
+      ack_webview_shutdown:'2024-09-30'
     };
     /* eslint-enable camelcase */
     for (const p in params) {
@@ -148,7 +150,7 @@ export default {
       access_type: 'offline',
       prompt: 'consent',
       response_type: 'code id_token',
-      response_mode: 'form_post',
+      response_mode: 'form_post'
     };
     /* eslint-enable camelcase */
     for (const p in params) {
