@@ -75,12 +75,13 @@ $(document).ready(function () {
         pwdlessURL: pwdlessPaymentURL.stage,
       };
       break;
-    case 'stage-123done.herokuapp.com':
-      paymentConfig = {
-        env: 'prod',
-        contentEnv: contentURL.prod,
-      };
-      break;
+    // TODO: Enable when functional-tests are setup for prod
+    // case 'production-123done.herokuapp.com':
+    //   paymentConfig = {
+    //     env: 'prod',
+    //     contentEnv: contentURL.prod,
+    //   };
+    //   break;
     default:
       paymentConfig = {
         env: paymentURL.local,

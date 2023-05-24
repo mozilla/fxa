@@ -135,6 +135,12 @@ export class DataCollectionRow extends UnitRow {
       .getAttribute('aria-checked');
   }
 
+  async isToggleSwitch() {
+    const toggle = this.page.locator('[data-testid=metrics-opt-out]');
+    await toggle.waitFor();
+    return toggle.isVisible();
+  }
+
   async toggleShareData(action: 'on' | 'off') {
     const toggle = this.page.locator('[data-testid=metrics-opt-out]');
     const checked: string | null = await toggle.getAttribute('aria-checked');
@@ -144,10 +150,6 @@ export class DataCollectionRow extends UnitRow {
     ) {
       return;
     }
-    await toggle.waitFor();
-    await toggle.click();
-    return await this.page
-      .locator('[data-testid=metrics-opt-out]')
-      .getAttribute('aria-checked');
+    return await toggle.click();
   }
 }

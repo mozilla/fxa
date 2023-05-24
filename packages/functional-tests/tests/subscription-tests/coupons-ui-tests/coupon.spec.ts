@@ -7,7 +7,13 @@ test.describe('coupon test', () => {
     test.slow();
   });
 
-  test('apply an expired coupon', async ({ pages: { relier, subscribe } }) => {
+  test('apply an expired coupon', async ({ pages: { relier, subscribe } }, {
+    project,
+  }) => {
+    test.skip(
+      project.name === 'production',
+      'test plan not yet available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -20,7 +26,13 @@ test.describe('coupon test', () => {
     );
   });
 
-  test('apply an invalid coupon', async ({ pages: { relier, subscribe } }) => {
+  test('apply an invalid coupon', async ({ pages: { relier, subscribe } }, {
+    project,
+  }) => {
+    test.skip(
+      project.name === 'production',
+      'test plan not yet available in prod'
+    );
     await relier.goto();
     await relier.clickSubscribe6Month();
 
@@ -186,7 +198,12 @@ test.describe('coupon test', () => {
 
   test('remove a coupon and verify', async ({
     pages: { relier, subscribe, login },
-  }) => {
+  }, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'test plan not yet available in prod'
+    );
+
     await relier.goto();
     await relier.clickSubscribe12Month();
 
