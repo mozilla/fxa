@@ -28865,7 +28865,7 @@ fsevents@~2.1.1:
     semver: ^7.3.5
     stylelint: ^15.6.2
     stylelint-config-prettier: ^9.0.3
-    stylelint-config-recommended-scss: ^11.0.0
+    stylelint-config-recommended-scss: ^12.0.0
     ts-jest: ^29.1.0
     ts-node: ^10.9.1
     tslib: ^2.5.0
@@ -49488,20 +49488,20 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stylelint-config-recommended-scss@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "stylelint-config-recommended-scss@npm:11.0.0"
+"stylelint-config-recommended-scss@npm:^12.0.0":
+  version: 12.0.0
+  resolution: "stylelint-config-recommended-scss@npm:12.0.0"
   dependencies:
     postcss-scss: ^4.0.6
     stylelint-config-recommended: ^12.0.0
-    stylelint-scss: ^4.6.0
+    stylelint-scss: ^5.0.0
   peerDependencies:
     postcss: ^8.3.3
     stylelint: ^15.5.0
   peerDependenciesMeta:
     postcss:
       optional: true
-  checksum: 6f4f9aa88c15d4f7ebe25b4e4140397c841743d892cfd96141999e77ff9b91061656ecd3e67c39780e7be22d6c74ea21939296a0d85fcb8feca4512fa6e64927
+  checksum: 9bffa840a75c51b6bd7024ac8dbfd027983d57b86e9aad662c3023242deca433b9d7ccbfd9e909f7295081d55f7c0a3755a18e0d8a558997d4d37b8dc17ffc78
   languageName: node
   linkType: hard
 
@@ -49514,9 +49514,9 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"stylelint-scss@npm:^4.6.0":
-  version: 4.7.0
-  resolution: "stylelint-scss@npm:4.7.0"
+"stylelint-scss@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "stylelint-scss@npm:5.0.0"
   dependencies:
     postcss-media-query-parser: ^0.2.3
     postcss-resolve-nested-selector: ^0.1.1
@@ -49524,7 +49524,7 @@ resolve@^2.0.0-next.3:
     postcss-value-parser: ^4.2.0
   peerDependencies:
     stylelint: ^14.5.1 || ^15.0.0
-  checksum: 7818e7dd402864ae27dda9ea28213e0b25454f3dbe1524abf894050e677686614f7ca26437d45db1af9a352cc78466320741e91cc8694f9271a672db609319d9
+  checksum: 9e7b2d06bb933c187197d3e0424397d06b10d8840ee4387729690dfa0067a44e82114d8f04bfd46dcade73f58a406fa8da1aa8c3ca5ef32637e8a0c5578880f4
   languageName: node
   linkType: hard
 
