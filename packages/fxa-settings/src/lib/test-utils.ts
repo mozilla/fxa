@@ -21,28 +21,3 @@ export const typeByLabelText = (labelText: string) => async (x: string) => {
     target: { value: x },
   });
 };
-
-type LinkParamValue = string | null;
-
-export const getSearchWithParams = ({
-  mockToken,
-  mockCode,
-  mockEmail,
-  mockPasswordHash,
-  mockUid,
-}: {
-  mockToken: LinkParamValue;
-  mockCode: LinkParamValue;
-  mockEmail: LinkParamValue;
-  mockPasswordHash?: LinkParamValue;
-  mockUid?: LinkParamValue;
-}) => {
-  const tokenParam = mockToken !== null ? `token=${mockToken}&` : '';
-  const codeParam = mockCode !== null ? `code=${mockCode}&` : '';
-  const emailParam = mockEmail !== null ? `email=${mockEmail}&` : '';
-  const passwordHashParam = mockPasswordHash
-    ? `emailToHashWith=${mockPasswordHash}`
-    : '';
-  const uidParam = mockUid ? `uid=${mockUid}` : '';
-  return `?${tokenParam}${codeParam}${emailParam}${passwordHashParam}${uidParam}`;
-};

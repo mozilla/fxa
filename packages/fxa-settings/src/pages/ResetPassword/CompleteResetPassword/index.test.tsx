@@ -11,7 +11,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { Account } from '../../../models';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import {
   mockCompleteResetPasswordParams,
@@ -36,16 +36,28 @@ jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
 const PASSWORD = 'passwordzxcv';
 
 jest.mock('../../../lib/metrics', () => ({
+  logPageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
 }));
 
 let account: Account;
 let lostRecoveryKey: boolean;
 const mockNavigate = jest.fn();
 
+const mockSearchParams = {
+  email: mockCompleteResetPasswordParams.email,
+  emailToHashWith: mockCompleteResetPasswordParams.emailToHashWith,
+  token: mockCompleteResetPasswordParams.token,
+  code: mockCompleteResetPasswordParams.code,
+  uid: mockCompleteResetPasswordParams.uid,
+};
+
+const search = new URLSearchParams(mockSearchParams);
+
 const mockLocation = () => {
   return {
+    pathname: `/account_recovery_reset_password`,
+    search,
     state: {
       lostRecoveryKey,
     },
@@ -169,11 +181,15 @@ describe('CompleteResetPassword page', () => {
     });
   });
 
-  // TODO : check for metrics event when link is expired or damaged
-  it('emits the expected metrics on render', () => {
+  // TODO in FXA-7630: check for metrics event when link is expired or damaged
+  it('emits the expected metrics on render', async () => {
     renderSubject(account);
 
-    expect(usePageViewEvent).toHaveBeenCalledWith(
+    await screen.findByRole('heading', {
+      name: 'Create new password',
+    });
+
+    expect(logPageViewEvent).toHaveBeenCalledWith(
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
@@ -223,39 +239,33 @@ describe('CompleteResetPassword page', () => {
         { exact: false }
       );
 
-      // TODO: fix in FXA-7051
-      // expect(
-      //   screen.queryByRole('link', {
-      //     name: 'Reset your password with your account recovery key.',
-      //   })
-      // ).toHaveAttribute(
-      //   'href',
-      //   `/account_recovery_confirm_key${getSearchWithParams({
-      //     mockToken,
-      //     mockCode,
-      //     mockEmail,
-      //     mockPasswordHash,
-      //   })}`
-      // );
+      const useKeyLink = screen.getByRole('link', {
+        name: 'Reset your password with your account recovery key.',
+      });
+      expect(useKeyLink).toHaveAttribute(
+        'href',
+        `/account_recovery_confirm_key${search}`
+      );
     });
   });
 
   describe('account has recovery key', () => {
-    beforeEach(() => {
-      account = {
-        resetPasswordStatus: jest.fn().mockResolvedValue(true),
-        completeResetPassword: jest.fn().mockResolvedValue(true),
-        hasRecoveryKey: jest.fn().mockResolvedValue(true),
-      } as unknown as Account;
-    });
+    const accountWithRecoveryKey = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(true),
+      hasRecoveryKey: jest.fn().mockResolvedValue(true),
+    } as unknown as Account;
 
     it('redirects as expected', async () => {
-      renderSubject(account);
+      lostRecoveryKey = false;
+      renderSubject(accountWithRecoveryKey);
 
       screen.getByLabelText('Loading…');
 
-      expect(account.hasRecoveryKey).toHaveBeenCalledWith(
-        mockCompleteResetPasswordParams.email
+      await waitFor(() =>
+        expect(accountWithRecoveryKey.hasRecoveryKey).toHaveBeenCalledWith(
+          mockCompleteResetPasswordParams.email
+        )
       );
 
       await waitFor(() => {
@@ -269,12 +279,14 @@ describe('CompleteResetPassword page', () => {
       });
     });
 
-    it('does not check or redirect when state has lostRecoveryKey', () => {
+    it('does not check or redirect when state has lostRecoveryKey', async () => {
       lostRecoveryKey = true;
-      renderSubject(account);
-
-      expect(account.hasRecoveryKey).not.toHaveBeenCalled();
-
+      renderSubject(accountWithRecoveryKey);
+      // If recovery key reported as lost, default CompleteResetPassword page is rendered
+      await screen.findByRole('heading', {
+        name: 'Create new password',
+      });
+      expect(accountWithRecoveryKey.hasRecoveryKey).not.toHaveBeenCalled();
       expect(mockNavigate).not.toHaveBeenCalled();
     });
   });

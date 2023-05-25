@@ -21,6 +21,7 @@ export const mockCompleteResetPasswordParams = {
   emailToHashWith: MOCK_ACCOUNT.primaryEmail.email,
   token: '1111111111111111111111111111111111111111111111111111111111111111',
   code: '11111111111111111111111111111111',
+  uid: MOCK_ACCOUNT.uid,
 };
 
 export const paramsWithSyncDesktop = {

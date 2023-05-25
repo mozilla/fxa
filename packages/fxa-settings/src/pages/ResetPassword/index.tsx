@@ -239,7 +239,7 @@ const ResetPassword = ({
             type="submit"
             className="cta-primary cta-xl"
           >
-            Begin Reset
+            Begin reset
           </button>
         </FtlMsg>
       </form>
