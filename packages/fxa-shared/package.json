@@ -119,7 +119,7 @@
     "esbuild-register": "^3.2.0",
     "eslint": "^7.32.0",
     "jest": "27.5.1",
-    "jest-junit": "^15.0.0",
+    "jest-junit": "^16.0.0",
     "jsdom": "22.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^10.0.0",
