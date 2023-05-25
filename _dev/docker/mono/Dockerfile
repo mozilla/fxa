@@ -38,7 +38,7 @@ FROM fxa-build-utils as fxa-build
 COPY --chown=app:app . /fxa
 USER app
 WORKDIR /fxa
-RUN _dev/docker/mono/build.sh
+RUN _dev/docker/mono/build.sh $(cat packages/version.json | jq -r '.version.version')
 
 # Final image
 FROM fxa-utils as fxa-mono
