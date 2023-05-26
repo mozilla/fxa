@@ -26,14 +26,7 @@ const BODY_SCHEMA = {
     .keys({
       // CSP 2, 3 required
       // `eval` and `inline` are specified in CSP 3 and sent by Chrome
-      'blocked-uri': LONG_URI_TYPE.allow('')
-        .allow('asset')
-        .allow('blob')
-        .allow('data')
-        .allow('eval')
-        .allow('inline')
-        .allow('self')
-        .optional(),
+      'blocked-uri': STRING_TYPE.allow('').optional(),
       // CSP 2, 3 optional
       'column-number': INTEGER_TYPE.min(0).optional(),
       // CSP 3 required, but not always sent
