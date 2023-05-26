@@ -15,6 +15,7 @@ import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
+import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { AppConfig } from '../config';
 import { FirestoreService } from '../firestore/firestore.service';
 import { ServiceNotification } from './service-notification.interface';
@@ -47,7 +48,8 @@ export class QueueworkerService
     @Inject('METRICS') private metrics: StatsD,
     @Inject('GOOGLEPUBSUB') private pubsub: PubSub,
     private firestore: FirestoreService,
-    private clientCapability: ClientCapabilityService
+    private clientCapability: ClientCapabilityService,
+    private clientWebhooks: ClientWebhooksService
   ) {
     this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
@@ -118,6 +120,9 @@ export class QueueworkerService
     }
   }
 
+  /**
+   * Publish a message to the pubsub topic for the client.
+   */
   private async publishMessage(clientId: string, json: any) {
     const topicName = this.topicPrefix + clientId;
     if (this.pubsub.isEmulator) {
@@ -138,6 +143,19 @@ export class QueueworkerService
   }
 
   /**
+   * Merge the clientIds for the user and the resource servers and remove
+   * duplicates.
+   */
+  private async clientIdsForUserAndResourceServers(
+    uid: string
+  ): Promise<string[]> {
+    const userClientIds = await this.firestore.fetchClientIds(uid);
+    return [
+      ...new Set([...userClientIds, ...this.clientWebhooks.resourceServers]),
+    ];
+  }
+
+  /**
    * Generic fan-out of the message to the pubsub clientId queues.
    *
    * @param message Incoming SQS message type supported for generic fanout.
@@ -148,7 +166,9 @@ export class QueueworkerService
     eventType: string
   ) {
     this.metrics.increment('message.type', { eventType });
-    const clientIds = await this.firestore.fetchClientIds(message.uid);
+    const clientIds = await this.clientIdsForUserAndResourceServers(
+      message.uid
+    );
     for (const clientId of clientIds) {
       const messageId = await this.publishMessage(clientId, {
         changeTime: message.timestamp ? message.timestamp : message.ts * 1000,
@@ -197,7 +217,9 @@ export class QueueworkerService
    */
   private async handleSubscriptionEvent(message: dto.subscriptionUpdateSchema) {
     this.metrics.increment('message.type', { eventType: 'subscription' });
-    const clientIds = await this.firestore.fetchClientIds(message.uid);
+    const clientIds = await this.clientIdsForUserAndResourceServers(
+      message.uid
+    );
     const clientCapabilities = this.clientCapability.capabilities;
 
     // Split the product capabilities by clientId each capability goes to

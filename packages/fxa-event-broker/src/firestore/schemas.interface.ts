@@ -18,7 +18,7 @@
  *
  * The collection is keyed by the FxA user ID.
  */
-export interface User {
+export interface UserDocument {
   oauth_clients: {
     [clientId: string]: boolean;
   };
@@ -30,8 +30,20 @@ export interface User {
  * RPs that have a registered webhookUrl in this collection will
  * have a message queued.
  *
+ * If the RP acts as a Resource Server, the `isResourceServer` flag
+ * should be set to `true`. This will resuult in the RP being sent
+ * all events for all users.
+ *
  * The collection is keyed by the Client ID.
  */
-export interface WebhookUrl {
+export interface WebhookUrlDocument {
   webhookUrl: string;
+  isResourceServer?: boolean;
+}
+
+/**
+ * Map of OAuth client IDs to WebhookUrl documents.
+ */
+export interface WebhookUrlDocumentMap {
+  [clientId: string]: WebhookUrlDocument;
 }

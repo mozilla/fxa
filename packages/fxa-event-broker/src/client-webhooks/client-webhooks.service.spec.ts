@@ -22,9 +22,9 @@ describe('ClientWebhooksService', () => {
           triggerChange = triggerFunc;
           triggerError = errorFunc;
         },
-        fetchClientIdWebhooks: jest.fn().mockResolvedValue({
-          testClient1: 'http://localhost/webhook',
-          testClient2: 'http://localhost/webhooks',
+        fetchClientIdWebhookDocs: jest.fn().mockResolvedValue({
+          testClient1: { webhookUrl: 'http://localhost/webhook' },
+          testClient2: { webhookUrl: 'http://localhost/webhooks' },
         }),
       },
     };
@@ -55,12 +55,58 @@ describe('ClientWebhooksService', () => {
     it('gets change messages', async () => {
       await service.onApplicationBootstrap();
       triggerChange(
-        { testClient3: 'http://localhost/webhooks4' },
-        { testClient1: null }
+        { testClient3: { webhookUrl: 'http://localhost/webhooks4' } },
+        { testClient1: {} }
       );
       expect(service.webhooks).toStrictEqual({
         testClient3: 'http://localhost/webhooks4',
         testClient2: 'http://localhost/webhooks',
+      });
+    });
+
+    it('processes resource server client ids being added', async () => {
+      await service.onApplicationBootstrap();
+      triggerChange(
+        {
+          testClient3: {
+            webhookUrl: 'http://localhost/webhooks4',
+            isResourceServer: true,
+          },
+        },
+        {}
+      );
+      expect(service.webhooks).toStrictEqual({
+        testClient3: 'http://localhost/webhooks4',
+        testClient2: 'http://localhost/webhooks',
+        testClient1: 'http://localhost/webhook',
+      });
+    });
+
+    it('processes resource server client ids being removed', async () => {
+      await service.onApplicationBootstrap();
+      triggerChange(
+        {
+          testClient3: {
+            webhookUrl: 'http://localhost/webhooks4',
+            isResourceServer: true,
+          },
+        },
+        {}
+      );
+      expect(service.webhooks).toStrictEqual({
+        testClient3: 'http://localhost/webhooks4',
+        testClient2: 'http://localhost/webhooks',
+        testClient1: 'http://localhost/webhook',
+      });
+      triggerChange(
+        {},
+        {
+          testClient3: { webhookUrl: 'http://localhost/webhooks4' },
+        }
+      );
+      expect(service.webhooks).toStrictEqual({
+        testClient2: 'http://localhost/webhooks',
+        testClient1: 'http://localhost/webhook',
       });
     });
 

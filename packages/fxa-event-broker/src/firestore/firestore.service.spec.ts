@@ -6,8 +6,8 @@ import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { v4 as uuid4 } from 'uuid';
 
-import { ClientWebhooks } from '../client-webhooks/client-webhooks.interface';
 import { FirestoreService } from './firestore.service';
+import { WebhookUrlDocumentMap } from './schemas.interface';
 
 const TEST_TIMEOUT = 1000 * 30;
 
@@ -115,13 +115,24 @@ describe('#integration - FirestoreService', () => {
   it(
     'fetches client id webhooks',
     async () => {
-      const result = await service.fetchClientIdWebhooks();
-      expect(result).toStrictEqual({});
       const document = fs.doc('fxatest-clients/test');
-      await document.set({ webhookUrl: 'testUrl' });
-      const result2 = await service.fetchClientIdWebhooks();
-      expect(result2).toStrictEqual({ test: 'testUrl' });
-      await document.delete();
+      const document2 = fs.doc('fxatest-clients/test2');
+      try {
+        const result = await service.fetchClientIdWebhookDocs();
+        expect(result).toStrictEqual({});
+        await Promise.all([
+          document.set({ webhookUrl: 'testUrl' }),
+          document2.set({ webhookUrl: 'testUrl2', isResourceServer: true }),
+        ]);
+        const result2 = await service.fetchClientIdWebhookDocs();
+        expect(result2).toStrictEqual({
+          test: { webhookUrl: 'testUrl' },
+          test2: { webhookUrl: 'testUrl2', isResourceServer: true },
+        });
+      } finally {
+        await document.delete();
+        await document2.delete();
+      }
     },
     TEST_TIMEOUT
   );
@@ -129,31 +140,48 @@ describe('#integration - FirestoreService', () => {
   it(
     'gets updated when the database changes',
     async () => {
-      const data: ClientWebhooks = {};
-      const change = new Promise<() => void>((resolve, reject) => {
-        const done = service.listenForClientIdWebhooks(
-          (changed, removed) => {
-            Object.assign(data, changed);
-            for (const key of Object.keys(removed)) {
-              delete data[key];
-            }
-            resolve(done);
-          },
-          (err) => {
-            reject(err);
+      const data: WebhookUrlDocumentMap = {};
+      const stop = service.listenForClientIdWebhooks(
+        (changed, deleted) => {
+          Object.assign(data, changed);
+          for (const clientId of Object.keys(deleted)) {
+            delete data[clientId];
           }
-        );
-      });
+        },
+        (err) => {}
+      );
+
       // Manually insert into the db
       const document = fs.doc('fxatest-clients/test');
+      const document2 = fs.doc('fxatest-clients/test2');
       await document.set({ webhookUrl: 'testUrl' });
-      const stop = await change;
-      expect(data).toStrictEqual({ test: 'testUrl' });
+      await document2.set({ webhookUrl: 'testUrl2', isResourceServer: true });
 
-      // Manually delete from the db
-      await document.delete();
+      // Wait until the data matches expectations, up to TEST_TIMEOUT
+      const now = Date.now();
+      while (Object.keys(data).length !== 2) {
+        const timeSpentInSeconds = (Date.now() - now) / 1000 - 1;
+        if (timeSpentInSeconds > TEST_TIMEOUT) {
+          stop();
+          await document.delete();
+          await document2.delete();
+          throw new Error('Timeout waiting for data to match expectations');
+        }
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+
+      try {
+        expect(data).toStrictEqual({
+          test: { webhookUrl: 'testUrl' },
+          test2: { webhookUrl: 'testUrl2', isResourceServer: true },
+        });
+      } finally {
+        // Manually delete from the db
+        await document.delete();
+        await document2.delete();
+        stop();
+      }
       expect(data).toStrictEqual({});
-      stop();
     },
     TEST_TIMEOUT
   );

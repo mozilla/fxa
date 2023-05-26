@@ -22,9 +22,12 @@ import {
   TypedDocumentReference,
 } from 'typesafe-node-firestore';
 
-import { ClientWebhooks } from '../client-webhooks/client-webhooks.interface';
 import { AppConfig } from '../config';
-import { User, WebhookUrl } from './schemas.interface';
+import {
+  UserDocument,
+  WebhookUrlDocument,
+  WebhookUrlDocumentMap,
+} from './schemas.interface';
 
 @Injectable()
 export class FirestoreService {
@@ -68,7 +71,7 @@ export class FirestoreService {
   public async storeLogin(uid: string, clientId: string): Promise<boolean> {
     const document = this.db.doc(
       `${this.prefix}users/${uid}`
-    ) as TypedDocumentReference<User>;
+    ) as TypedDocumentReference<UserDocument>;
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
@@ -84,10 +87,17 @@ export class FirestoreService {
     return true;
   }
 
+  /**
+   * Fetches the OAuth Client Ids that a user has directly logged in to
+   * via a Relying Party flow.
+   *
+   * @param uid User id of login history to fetch
+   * @returns
+   */
   public async fetchClientIds(uid: string): Promise<string[]> {
     const document = this.db.doc(
       `${this.prefix}users/${uid}`
-    ) as TypedDocumentReference<User>;
+    ) as TypedDocumentReference<UserDocument>;
     const doc = await document.get();
     if (doc.exists) {
       const data = doc.data();
@@ -98,16 +108,22 @@ export class FirestoreService {
     return [];
   }
 
-  public async fetchClientIdWebhooks(): Promise<ClientWebhooks> {
+  /**
+   * Fetches the webhook URL documents for all the registered OAuth Clients
+   * as well as whether they are act as a Resource Server.
+   */
+  public async fetchClientIdWebhookDocs(): Promise<WebhookUrlDocumentMap> {
     const webhookCollection = this.db.collection(
       `${this.prefix}clients`
-    ) as TypedCollectionReference<WebhookUrl>;
-    const results = await webhookCollection.select('webhookUrl').get();
-    const clientWebhooks: ClientWebhooks = {};
+    ) as TypedCollectionReference<WebhookUrlDocument>;
+    const results = await webhookCollection
+      .select('webhookUrl', 'isResourceServer')
+      .get();
+    const webhookUrlDocuments: WebhookUrlDocumentMap = {};
     results.docs.forEach((doc) => {
-      clientWebhooks[doc.id] = doc.get('webhookUrl');
+      webhookUrlDocuments[doc.id] = doc.data();
     });
-    return clientWebhooks;
+    return webhookUrlDocuments;
   }
 
   /**
@@ -116,32 +132,32 @@ export class FirestoreService {
    * This is an additional special-case function for Firestore as it
    * can push changes out when they occur rather than requiring polling.
    *
-   * @param listener Function to call when webhooks have changed.
+   * @param listener Function to call when `WebhookUrlDocument`s have changed.
    * @param error Function that will be called if there's an error
    *              handling the connection/query.
    * @returns a cancel function to halt the listener
    */
   public listenForClientIdWebhooks(
     listener: (
-      changedClientWebhooks: ClientWebhooks,
-      removedClientWebhooks: ClientWebhooks
+      changedWebhookUrlDocument: WebhookUrlDocumentMap,
+      removedWebhookUrlDocument: WebhookUrlDocumentMap
     ) => void,
     error: (error: Error) => void
   ): () => void {
     const webhookCollection = this.db.collection(
       `${this.prefix}clients`
-    ) as TypedCollectionReference<WebhookUrl>;
+    ) as TypedCollectionReference<WebhookUrlDocument>;
     return webhookCollection.onSnapshot((snapshot) => {
-      const changedClientWebhooks: ClientWebhooks = {};
-      const removedClientWebhooks: ClientWebhooks = {};
+      const changedWebhookUrlDocuments: WebhookUrlDocumentMap = {};
+      const removedWebhookUrlDocuments: WebhookUrlDocumentMap = {};
       snapshot.docChanges().forEach((change) => {
         if (change.type === 'added' || change.type === 'modified') {
-          changedClientWebhooks[change.doc.id] = change.doc.get('webhookUrl');
+          changedWebhookUrlDocuments[change.doc.id] = change.doc.data();
         } else {
-          removedClientWebhooks[change.doc.id] = change.doc.get('webhookUrl');
+          removedWebhookUrlDocuments[change.doc.id] = change.doc.data();
         }
       });
-      listener(changedClientWebhooks, removedClientWebhooks);
+      listener(changedWebhookUrlDocuments, removedWebhookUrlDocuments);
     }, error);
   }
 }
