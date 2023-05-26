@@ -9,6 +9,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { FirestoreService } from '../firestore/firestore.service';
 import { QueueworkerService } from './queueworker.service';
+import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 
 const now = Date.now();
 
@@ -84,6 +85,10 @@ describe('QueueworkerService', () => {
   let topic: any;
   let capabilities: any;
   let config: any;
+  let webHookService = {
+    webhooks: {},
+    resourceServers: [] as string[],
+  };
 
   beforeEach(async () => {
     firestore = {
@@ -132,6 +137,13 @@ describe('QueueworkerService', () => {
         capabilities,
       },
     };
+    const MockWebhookService: Provider = {
+      provide: ClientWebhooksService,
+      useValue: webHookService,
+    };
+    webHookService.webhooks = {};
+    webHookService.resourceServers = [];
+
     config = {
       env: 'development',
       serviceNotificationQueueUrl:
@@ -154,6 +166,7 @@ describe('QueueworkerService', () => {
         MockMozLogger,
         MockFirestore,
         MockCapability,
+        MockWebhookService,
         MockConfig,
       ],
     }).compile();
@@ -223,6 +236,21 @@ describe('QueueworkerService', () => {
       );
     });
 
+    it('merges resourceServerClientIds', async () => {
+      webHookService.resourceServers = [
+        'resource-server-client-id',
+        '444c5d137fc34d82ae65441d7f26a504',
+      ];
+      webHookService.webhooks = {};
+      const clientIds = await (
+        service as any
+      ).clientIdsForUserAndResourceServers(baseLoginMessage.uid);
+      expect(clientIds).toStrictEqual([
+        '444c5d137fc34d82ae65441d7f26a504',
+        'resource-server-client-id',
+      ]);
+    });
+
     const fetchOnValidMessage = {
       'delete message': baseDeleteMessage,
       'legacy subscription message': baseSubscriptionUpdateLegacyMessage,
@@ -254,12 +282,14 @@ describe('QueueworkerService', () => {
       'profile change': { ...baseProfileMessage, ts: false },
       subscription: { ...baseSubscriptionUpdateMessage, eventCreatedAt: false },
     };
+
     async function logsErrorOnInvalid(value: any) {
       const msg = updateStubMessage(value);
       await (service as any).handleMessage(msg);
       expect(logger.error).toBeCalledTimes(1);
       expect(logger.error.mock.calls[0][0]).toBe('from.sqsMessage');
     }
+
     for (const [key, value] of Object.entries(invalidMessages)) {
       it(`logs an error on invalid ${key} message`, async () => {
         await logsErrorOnInvalid(value);
