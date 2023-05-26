@@ -116,11 +116,14 @@ const CompleteResetPassword = ({
       }
     };
 
-    if (!location.state?.lostRecoveryKey) {
-      checkForRecoveryKeyAndNavigate(params.email);
-    }
+    const handleRecoveryKeyStatus = async () => {
+      if (!location.state?.lostRecoveryKey) {
+        await checkForRecoveryKeyAndNavigate(params.email);
+      }
+      setShowLoadingSpinner(false);
+    };
 
-    setShowLoadingSpinner(false);
+    handleRecoveryKeyStatus();
   }, [
     account,
     navigate,
@@ -142,8 +145,6 @@ const CompleteResetPassword = ({
     };
 
     checkPasswordForgotToken(params.token);
-
-    setShowLoadingSpinner(false);
   }, [params.token, account, setLinkStatus]);
 
   const alertSuccessAndNavigate = useCallback(() => {

@@ -94,11 +94,11 @@ describe('CompleteResetPassword page', () => {
     jest.clearAllMocks();
   });
 
-  it('renders the component as expected', () => {
+  it('renders the component as expected', async () => {
     renderSubject(account);
     // testAllL10n(screen, bundle);
 
-    screen.getByRole('heading', {
+    await screen.findByRole('heading', {
       name: 'Create new password',
     });
     screen.getByLabelText('New password');
@@ -112,7 +112,9 @@ describe('CompleteResetPassword page', () => {
   it('displays password requirements when the new password field is in focus', async () => {
     renderSubject(account);
 
-    const newPasswordField = screen.getByTestId('new-password-input-field');
+    const newPasswordField = await screen.findByTestId(
+      'new-password-input-field'
+    );
 
     expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
 
@@ -192,8 +194,10 @@ describe('CompleteResetPassword page', () => {
 
       renderSubject(account);
 
-      fireEvent.input(screen.getByTestId('new-password-input-field'), {
-        target: { value: PASSWORD },
+      await waitFor(() => {
+        fireEvent.input(screen.getByTestId('new-password-input-field'), {
+          target: { value: PASSWORD },
+        });
       });
 
       fireEvent.input(screen.getByTestId('verify-password-input-field'), {
@@ -246,7 +250,7 @@ describe('CompleteResetPassword page', () => {
       hasRecoveryKey: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
 
-    it('redirects as expected', () => {
+    it('redirects as expected', async () => {
       account = {
         resetPasswordStatus: jest.fn().mockResolvedValue(true),
         completeResetPassword: jest.fn().mockResolvedValue(true),
@@ -254,6 +258,8 @@ describe('CompleteResetPassword page', () => {
       } as unknown as Account;
 
       renderSubject(account);
+
+      screen.getByLabelText('Loading…');
 
       expect(account.hasRecoveryKey).toHaveBeenCalledWith(
         mockCompleteResetPasswordParams.email
@@ -285,8 +291,10 @@ describe('CompleteResetPassword page', () => {
 
   describe('can submit', () => {
     async function enterPasswordAndSubmit() {
-      fireEvent.input(screen.getByTestId('new-password-input-field'), {
-        target: { value: PASSWORD },
+      await waitFor(() => {
+        fireEvent.input(screen.getByTestId('new-password-input-field'), {
+          target: { value: PASSWORD },
+        });
       });
       fireEvent.input(screen.getByTestId('verify-password-input-field'), {
         target: { value: PASSWORD },
