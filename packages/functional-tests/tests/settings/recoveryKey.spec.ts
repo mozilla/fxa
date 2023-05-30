@@ -1,5 +1,6 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import fs from 'fs';
 
 let status;
 let key;
@@ -8,7 +9,7 @@ let hint;
 // TODO in FXA-7419 - remove this first describe block that refers to the old account recovery generation flow
 test.describe('old recovery key test', () => {
   test.beforeEach(
-    async ({ credentials, page, pages: { login, settings, recoveryKey } }) => {
+    async ({ credentials, pages: { login, settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
@@ -49,8 +50,6 @@ test.describe('old recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
-    let secondKey;
-
     // Create new recovery key
     await settings.recoveryKey.clickRemove();
     await settings.clickModalConfirm();
@@ -60,7 +59,7 @@ test.describe('old recovery key test', () => {
     await recoveryKey.submit();
 
     // Store new key to be used later
-    secondKey = await recoveryKey.getKey();
+    const secondKey = await recoveryKey.getKey();
     await recoveryKey.clickClose();
     await settings.signOut();
 
@@ -224,7 +223,7 @@ test.describe('old recovery key test', () => {
 // TODO in FXA-7419 - rename describe block (remove "new")
 test.describe('new recovery key test', () => {
   test.beforeEach(
-    async ({ credentials, page, pages: { login, settings, recoveryKey } }) => {
+    async ({ credentials, pages: { login, settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       // Mail delivery can also be slow
       test.slow();
@@ -261,8 +260,7 @@ test.describe('new recovery key test', () => {
 
   test('can copy and download recovery key', async ({
     credentials,
-    target,
-    pages: { page, login, recoveryKey, settings },
+    pages: { recoveryKey, settings },
   }) => {
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
@@ -282,16 +280,32 @@ test.describe('new recovery key test', () => {
 
     // Test download
     const dl = await recoveryKey.clickDownload();
+    // Verify filename is as expected
     const date = new Date().toISOString().split('T')[0];
-    const expectedFullFilename = `Firefox-Recovery-Key_${date}_${credentials.email}.txt`;
-    expect(dl.suggestedFilename().length).toBeLessThanOrEqual(75);
-    expect(dl.suggestedFilename()).toBe(
+    const suggestedFileName = dl.suggestedFilename();
+    expect(suggestedFileName.length).toBeLessThanOrEqual(75);
+    expect(suggestedFileName).toBe(
       `Firefox-Recovery-Key_${date}_${credentials.email}.txt`
     );
 
+    // Test uses try/finally to ensure the downloaded file is deleted after tests
+    // whether or not the assertions passed
+    const filePath = suggestedFileName;
+    try {
+      // Verify file is downloaded
+      await dl.saveAs(filePath);
+      expect(fs.existsSync(filePath)).toBeTruthy();
+      // Verify downloaded file contains key
+      const downloadedContent = fs.readFileSync(filePath, 'utf-8');
+      expect(downloadedContent).toContain(newKey);
+    } finally {
+      // Delete the downloaded file
+      await fs.promises.unlink(filePath);
+    }
+
     // After download, navigated to 'hint' page
     const newHint = 'secret key location';
-    await recoveryKey.setHint(hint);
+    await recoveryKey.setHint(newHint);
     await recoveryKey.clickFinish();
 
     // Verify status as 'enabled'
@@ -302,7 +316,7 @@ test.describe('new recovery key test', () => {
   test('use account recovery key', async ({
     credentials,
     target,
-    pages: { page, login, recoveryKey, settings },
+    pages: { page, login, settings },
   }) => {
     await settings.signOut();
     // Reset password with recovery key
@@ -331,7 +345,7 @@ test.describe('new recovery key test', () => {
     expect(await login.loginHeader()).toBe(true);
 
     // Verify key revoked after use
-    let status = await settings.recoveryKey.statusText();
+    const status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Not Set');
   });
 
@@ -341,9 +355,6 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
-    let secondKey;
-    let secondHint;
-
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
@@ -354,13 +365,13 @@ test.describe('new recovery key test', () => {
 
     // View 3/4 key download
     // Store key to be used later
-    secondKey = await recoveryKey.getKey();
+    const newKey = await recoveryKey.getKey();
     await recoveryKey.clickNext();
 
     // View 4/4 hint
     // store hint to be used later
-    secondHint = 'new secret key location';
-    await recoveryKey.setHint(secondHint);
+    const newHint = 'new secret key location';
+    await recoveryKey.setHint(newHint);
     await recoveryKey.clickFinish();
 
     // Check that key is enabled
@@ -391,7 +402,7 @@ test.describe('new recovery key test', () => {
     );
 
     // Enter new recovery key
-    await login.setRecoveryKey(secondKey);
+    await login.setRecoveryKey(newKey);
     await login.submit();
 
     // Reset password

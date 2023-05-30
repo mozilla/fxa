@@ -5,7 +5,7 @@
 /* Temp hack until .spinner is fully converted to TW */
 .cta-primary .spinner {
   background-image: inline('../images/spinnerwhite.svg');
-  @apply -mt-[6px] mx-auto;
+  @apply -mt-[6px] mx-auto max-h-14;
 }
 
 a.cta-primary:focus {
