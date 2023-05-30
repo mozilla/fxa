@@ -89,7 +89,6 @@ export async function generateRecoveryKey(
  */
 export async function decryptRecoveryKeyData(
   recoveryKey: Uint8Array,
-  recoveryKeyId: string,
   recoveryData: string,
   uid: hexstring
 ): Promise<DecryptedRecoveryKeyData> {

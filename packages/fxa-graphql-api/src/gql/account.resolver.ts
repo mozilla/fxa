@@ -502,14 +502,18 @@ export class AccountResolver {
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => AccountResetInput })
     input: AccountResetInput
-  ) {
-    return this.authAPI.accountReset(
+  ): Promise<AccountResetPayload> {
+    const result = await this.authAPI.accountReset(
       input.email,
       input.newPassword,
       input.accountResetToken,
       input.options,
       headers
     );
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
+    };
   }
 
   @Mutation((returns) => SignedUpAccountPayload, {

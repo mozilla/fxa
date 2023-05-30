@@ -11,7 +11,7 @@ import AuthClient, {
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/browser';
-import { currentAccount, sessionToken } from '../lib/cache';
+import { currentAccount, getOldSettingsData, sessionToken } from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
@@ -712,16 +712,29 @@ export class Account implements AccountData {
         token,
         code
       );
-      await this.apolloClient.mutate({
+      const {
+        data: { accountReset },
+      } = await this.apolloClient.mutate({
         mutation: gql`
           mutation accountReset($input: AccountResetInput!) {
             accountReset(input: $input) {
               clientMutationId
+              sessionToken
+              uid
             }
           }
         `,
-        variables: { input: { accountResetToken, email, newPassword } },
+        variables: {
+          input: {
+            accountResetToken,
+            email,
+            newPassword,
+            options: { sessionToken: true },
+          },
+        },
       });
+      currentAccount(getOldSettingsData(accountReset));
+      sessionToken(accountReset.sessionToken);
     } catch (err) {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
       if (errno && AuthUiErrorNos[errno]) {
@@ -895,6 +908,38 @@ export class Account implements AccountData {
     return this.withLoadingStatus(
       this.authClient.replaceRecoveryCodes(sessionToken()!)
     );
+  }
+
+  /* TODO: Remove this and use GQL instead. We can't check for verified sessions
+   * unless you've already got one (oof) in at least the PW reset flow due to
+   * sessionToken.mustVerify which was added here: https://github.com/mozilla/fxa/pull/7512
+   * The unverified session token returned by a password reset contains `mustVerify`
+   * which causes the 'Must verify' error to be thrown and a redirect to occur */
+  async isSessionVerifiedAuthClient() {
+    try {
+      const { state } = await this.withLoadingStatus(
+        this.authClient.sessionStatus(sessionToken()!)
+      );
+      return state === 'verified';
+    } catch (e) {
+      // Proceed as if the user does not have a verified session,
+      // since they likely will not at this stage (password reset)
+      return false;
+    }
+  }
+
+  // TODO: Same as isSessionVerifiedAuthClient
+  async hasTotpAuthClient() {
+    try {
+      const { verified } = await this.withLoadingStatus(
+        this.authClient.checkTotpTokenExists(sessionToken()!)
+      );
+      return verified;
+    } catch (e) {
+      // Proceed as if the user does not have TOTP set up, they will be
+      // prompted for it before they can access settings
+      return false;
+    }
   }
 
   async generateRecoveryCodes(count: number, length: number) {
@@ -1234,9 +1279,11 @@ export class Account implements AccountData {
       opts.emailToHashWith,
       opts.password,
       opts.recoveryKeyId,
-      { kB: opts.kB }
+      { kB: opts.kB },
+      { sessionToken: true }
     );
-    currentAccount(data);
+    currentAccount(currentAccount(getOldSettingsData(data)));
+    sessionToken(data.sessionToken);
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),

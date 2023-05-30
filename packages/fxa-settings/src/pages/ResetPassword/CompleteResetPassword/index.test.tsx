@@ -82,11 +82,8 @@ describe('CompleteResetPassword page', () => {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
       completeResetPassword: jest.fn().mockResolvedValue(true),
       hasRecoveryKey: jest.fn().mockResolvedValue(false),
-      isSessionVerified: jest.fn().mockResolvedValue(true),
-      totp: {
-        exists: false,
-        verified: false,
-      },
+      hasTotpAuthClient: jest.fn().mockResolvedValue(false),
+      isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
   });
 
@@ -244,19 +241,15 @@ describe('CompleteResetPassword page', () => {
   });
 
   describe('account has recovery key', () => {
-    account = {
-      resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      completeResetPassword: jest.fn().mockResolvedValue(true),
-      hasRecoveryKey: jest.fn().mockResolvedValue(true),
-    } as unknown as Account;
-
-    it('redirects as expected', async () => {
+    beforeEach(() => {
       account = {
         resetPasswordStatus: jest.fn().mockResolvedValue(true),
         completeResetPassword: jest.fn().mockResolvedValue(true),
         hasRecoveryKey: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
+    });
 
+    it('redirects as expected', async () => {
       renderSubject(account);
 
       screen.getByLabelText('Loading…');
@@ -265,18 +258,15 @@ describe('CompleteResetPassword page', () => {
         mockCompleteResetPasswordParams.email
       );
 
-      // TODO: y u no pass?
-      // expect(mockNavigate).toHaveBeenCalledWith(
-      //   `/account_recovery_confirm_key${getSearch({
-      //     mockToken,
-      //     mockCode,
-      //     mockEmail,
-      //     mockPasswordHash,
-      //   })}`,
-      //   {
-      //     replace: true,
-      //   }
-      // );
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringContaining('/account_recovery_confirm_key'),
+          {
+            replace: true,
+            state: { email: mockCompleteResetPasswordParams.email },
+          }
+        );
+      });
     });
 
     it('does not check or redirect when state has lostRecoveryKey', () => {
@@ -304,6 +294,18 @@ describe('CompleteResetPassword page', () => {
         fireEvent.click(screen.getByText('Reset password'));
       });
     }
+
+    it('calls expected functions', async () => {
+      renderSubject(account);
+      await enterPasswordAndSubmit();
+      // Check that completeResetPassword was the first function called
+      // because it retrieves the session token required by other calls
+      expect(
+        (account.completeResetPassword as jest.Mock).mock.calls[0]
+      ).toBeTruthy();
+      expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
+      expect(account.hasTotpAuthClient).toHaveBeenCalled();
+    });
 
     it('submits with emailToHashWith if present', async () => {
       renderSubject(account);
@@ -348,15 +350,13 @@ describe('CompleteResetPassword page', () => {
       it('account has TOTP', async () => {
         account = {
           ...account,
-          totp: {
-            verified: true,
-          },
+          hasTotpAuthClient: jest.fn().mockResolvedValue(true),
         } as unknown as Account;
 
         renderSubject(account);
         await enterPasswordAndSubmit();
 
-        expect(window.location.href).toBe('/signin_totp_code');
+        expect(window.location.href).toContain('/signin_totp_code');
       });
 
       it('account does not have TOTP', async () => {

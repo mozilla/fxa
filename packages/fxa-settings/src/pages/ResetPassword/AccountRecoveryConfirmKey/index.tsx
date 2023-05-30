@@ -102,9 +102,8 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
       const decodedRecoveryKey = base32Decode(recoveryKey, 'Crockford');
       const uint8RecoveryKey = new Uint8Array(decodedRecoveryKey);
 
-      const decryptedData = await decryptRecoveryKeyData(
+      const { kB } = await decryptRecoveryKeyData(
         uint8RecoveryKey,
-        recoveryKeyId,
         recoveryData,
         uid
       );
@@ -113,7 +112,7 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
         state: {
           accountResetToken,
           recoveryKeyId,
-          kB: decryptedData.kB,
+          kB,
         },
       });
     },
@@ -123,21 +122,17 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   const checkRecoveryKey = useCallback(
     async ({ recoveryKey, token, code, email, uid }: SubmitData) => {
       try {
-        if (!fetchedResetToken) {
+        let resetToken = fetchedResetToken;
+        if (!resetToken) {
           const { accountResetToken } = await account.verifyPasswordForgotToken(
             token,
             code
           );
           setFetchedResetToken(accountResetToken);
-          await getRecoveryBundleAndNavigate({
-            accountResetToken,
-            recoveryKey,
-            uid,
-            email,
-          });
+          resetToken = accountResetToken;
         }
         await getRecoveryBundleAndNavigate({
-          accountResetToken: fetchedResetToken,
+          accountResetToken: resetToken,
           recoveryKey,
           uid,
           email,

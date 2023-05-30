@@ -52,15 +52,17 @@ describe('lib/recoveryKey', () => {
 
   describe('decryptRecoveryKeyData', () => {
     it('matches the test vector', async () => {
-      const { recoveryKey, recoveryKeyId, recoveryData } =
-        await generateRecoveryKey(uid, keys, {
+      const { recoveryKey, recoveryData } = await generateRecoveryKey(
+        uid,
+        keys,
+        {
           testRecoveryKey: expectedRecoveryKey,
           testIV: iv,
-        });
+        }
+      );
 
       const result = await decryptRecoveryKeyData(
         recoveryKey,
-        recoveryKeyId,
         recoveryData,
         uid
       );

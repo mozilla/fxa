@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
@@ -255,6 +255,47 @@ describe('PageAccountRecoveryConfirmKey', () => {
             kB: MOCK_KB,
           },
         }
+      );
+    });
+
+    it('submits successfully after invalid recovery key submission', async () => {
+      account = {
+        ...account,
+        getRecoveryKeyBundle: jest
+          .fn()
+          .mockImplementationOnce(() => {
+            return Promise.reject(new Error('Oh noes'));
+          })
+          .mockResolvedValue({
+            recoveryData: 'mockRecoveryData',
+            recoveryKeyId: MOCK_RECOVERY_KEY_ID,
+          }),
+      } as unknown as Account;
+
+      render(<Subject {...{ account }} />);
+      await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Confirm account recovery key' })
+      );
+      await screen.findByText('Invalid account recovery key');
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Confirm account recovery key' })
+      );
+
+      // only ever calls `verifyPasswordForgotToken` once despite number of submissions
+      await waitFor(() =>
+        expect(account.verifyPasswordForgotToken).toHaveBeenCalledTimes(1)
+      );
+      expect(account.verifyPasswordForgotToken).toHaveBeenCalledWith(
+        mockToken,
+        mockCode
+      );
+      expect(account.getRecoveryKeyBundle).toHaveBeenCalledTimes(2);
+      expect(account.getRecoveryKeyBundle).toHaveBeenCalledWith(
+        MOCK_RESET_TOKEN,
+        MOCK_RECOVERY_KEY,
+        mockUid
       );
     });
   });
