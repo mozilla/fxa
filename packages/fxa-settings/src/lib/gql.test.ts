@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { errorHandler, pagesRequiringAuthentication } from './gql';
+import { errorHandler } from './gql';
 import { ErrorResponse } from '@apollo/client/link/error';
 import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
@@ -43,7 +43,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      '/signin?redirect_to=https%253A%252F%252Faccounts.firefox.com%252Fsettings'
+      '/signin?redirect_to=https%3A%2F%2Faccounts.firefox.com%2Fsettings'
     );
   });
 
@@ -60,7 +60,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-     '/signin?redirect_to=https%253A%252F%252Faccounts.firefox.com%252Fsettings'
+     '/signin?redirect_to=https%3A%2F%2Faccounts.firefox.com%2Fsettings'
     );
   });
 

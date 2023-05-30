@@ -43,7 +43,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
     // When doing a redirect and going to signin, we want to ensure that original query params
     // are sent as well, otw we would strip out utms and context params
     const queryParams = new URLSearchParams(window.location.search);
-    queryParams.set('redirect_to', encodeURIComponent(window.location.href));
+    queryParams.set('redirect_to', window.location.href);
     window.location.replace(
       `/signin?${queryParams.toString()}`
     );
