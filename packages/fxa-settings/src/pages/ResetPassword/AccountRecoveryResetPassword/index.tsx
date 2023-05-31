@@ -252,11 +252,9 @@ const AccountRecoveryResetPassword = ({
           verificationInfo.emailToHashWith || verificationInfo.email,
       };
 
-      const [sessionisVerified] = await Promise.all([
-        account.isSessionVerified(),
-        account.resetPasswordWithRecoveryKey(options),
-      ]);
-
+      await account.resetPasswordWithRecoveryKey(options)
+      const sessionIsVerified =  await account.isSessionVerified();
+      
       // FOLLOW-UP: Functionality not yet available.
       await account.setLastLogin(Date.now());
 
@@ -268,11 +266,11 @@ const AccountRecoveryResetPassword = ({
 
       switch (integration.type) {
         case IntegrationType.SyncDesktop:
-          notifyFirefoxOfLogin(account, sessionisVerified);
+          notifyFirefoxOfLogin(account, sessionIsVerified);
           break;
         case IntegrationType.OAuth:
           if (
-            sessionisVerified &&
+            sessionIsVerified &&
             // a user can only redirect back to the relier from the original tab
             // to avoid two tabs redirecting.
             isOriginalTab()
@@ -315,7 +313,7 @@ const AccountRecoveryResetPassword = ({
   }
 
   function navigateAway() {
-    setUserPreference('account-recovery', account.recoveryKey);
+    // setUserPreference('account-recovery', account.recoveryKey);
     logViewEvent(viewName, 'recovery-key-consume.success');
 
     // When users reset a PW with their recovery key we always want to navigate to

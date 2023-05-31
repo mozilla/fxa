@@ -11,7 +11,7 @@ const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 function getReactFeatureFlagUrl(
   target: BaseTarget,
   path: string,
-  showReactApp: boolean = true
+  showReactApp = true
 ) {
   return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }
@@ -26,7 +26,7 @@ test.describe('recovery key react', () => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
-      // Ensure that the react reset password route feature flag is enabled
+      // Ensure that the React reset password route feature flag is enabled
       const config = await login.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
 
@@ -81,6 +81,9 @@ test.describe('recovery key react', () => {
         res.keyFetchToken,
         res.unwrapBKey
       );
+      
+      await settings.signOut();
+      await login.clearCache();
     }
   );
 

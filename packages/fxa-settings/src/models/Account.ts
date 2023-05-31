@@ -1234,9 +1234,10 @@ export class Account implements AccountData {
       opts.emailToHashWith,
       opts.password,
       opts.recoveryKeyId,
-      { kB: opts.kB }
+      { kB: opts.kB }, {sessionToken:true}
     );
     currentAccount(data);
+    sessionToken(data.sessionToken);
     const cache = this.apolloClient.cache;
     cache.modify({
       id: cache.identify({ __typename: 'Account' }),
