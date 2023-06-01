@@ -156,3 +156,6 @@ Library
 .node
 process.yml
 .lists
+
+# Next.js
+.next

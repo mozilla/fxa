@@ -24,6 +24,7 @@ import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
+import { CartResolver } from './cart.resolver';
 import { LegalResolver } from './legal.resolver';
 import { Request, Response } from 'express';
 
@@ -66,7 +67,13 @@ export const GraphQLConfigFactory = async (
 
 @Module({
   imports: [BackendModule, CustomsModule],
-  providers: [AccountResolver, CustomsService, SessionResolver, LegalResolver],
+  providers: [
+    AccountResolver,
+    CustomsService,
+    SessionResolver,
+    LegalResolver,
+    CartResolver,
+  ],
 })
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
