@@ -1,22 +1,19 @@
-import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { MockApp } from '../../../lib/test-utils';
+import { render } from '@testing-library/react';
+import { IapSubscription } from 'fxa-shared/subscriptions/types';
+
+import { SignInLayout } from '../../../components/AppLayout';
 import {
   IAP_APPLE_SUBSCRIPTION,
   IAP_GOOGLE_SUBSCRIPTION,
   SELECTED_PLAN,
 } from '../../../lib/mock-data';
-import { SignInLayout } from '../../../components/AppLayout';
-
-import { IapSubscription } from 'fxa-shared/subscriptions/types';
-
+import { deepCopy, MockApp } from '../../../lib/test-utils';
+import { PickPartial } from '../../../lib/types';
 import SubscriptionIapItem, {
   SubscriptionIapItemProps,
 } from './SubscriptionIapItem';
-import { PickPartial } from '../../../lib/types';
-
-const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
 type SubjectProps = PickPartial<
   SubscriptionIapItemProps,

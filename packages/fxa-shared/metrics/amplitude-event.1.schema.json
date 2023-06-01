@@ -257,9 +257,11 @@
         "required": ["language"],
         "properties": {
           "user_properties": {
+            "type": "object",
             "required": ["flow_id"]
           },
           "event_properties": {
+            "type": "object",
             "required": ["plan_id", "product_id"]
           }
         }
@@ -279,6 +281,7 @@
       "then": {
         "properties": {
           "event_properties": {
+            "type": "object",
             "required": ["checkout_type"]
           }
         }
@@ -296,9 +299,16 @@
         }
       },
       "then": {
+        "required": ["user_id"],
         "properties": {
           "event_properties": {
-            "required": ["previous_plan_id", "previous_product_id", "subscription_id", "payment_provider"]
+            "type": "object",
+            "required": [
+              "previous_plan_id",
+              "previous_product_id",
+              "subscription_id",
+              "payment_provider"
+            ]
           }
         }
       }
@@ -317,6 +327,7 @@
       "then": {
         "properties": {
           "event_properties": {
+            "type": "object",
             "required": ["payment_provider"]
           }
         }
@@ -336,6 +347,7 @@
       "then": {
         "properties": {
           "event_properties": {
+            "type": "object",
             "required": ["error_id"]
           }
         }
@@ -348,13 +360,14 @@
         "properties": {
           "event_type": {
             "type": "string",
-            "pattern": "^fxa_pay_setup - success|fxa_subscribe - subscription_ended"
+            "pattern": "fxa_pay_subscription_change - success|fxa_pay_setup - success|fxa_subscribe - subscription_ended"
           }
         }
       },
       "then": {
         "properties": {
           "event_properties": {
+            "type": "object",
             "required": ["country_code_source"]
           }
         }

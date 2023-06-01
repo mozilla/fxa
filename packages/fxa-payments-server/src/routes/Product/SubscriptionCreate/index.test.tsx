@@ -16,6 +16,7 @@ import waitForExpect from 'wait-for-expect';
 import SubscriptionCreate, { SubscriptionCreateProps } from '.';
 import { SignInLayout } from '../../../components/AppLayout';
 import { ButtonBaseProps } from '../../../components/PayPalButton';
+import { getFallbackTextByFluentId } from '../../../lib/errors';
 import { useNonce } from '../../../lib/hooks';
 import {
   CONFIRM_CARD_RESULT,
@@ -31,6 +32,7 @@ import {
   SUBSCRIPTION_RESULT,
 } from '../../../lib/mock-data';
 import {
+  deepCopy,
   defaultAppContextValue,
   elementChangeResponse,
   MOCK_CHECKOUT_TOKEN,
@@ -39,7 +41,6 @@ import {
   mockStripeElementOnChangeFns,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
-import { getFallbackTextByFluentId } from '../../../lib/errors';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -48,9 +49,6 @@ jest.mock('../../../lib/hooks', () => {
     useNonce: () => [Math.random(), refreshNonceMock],
   };
 });
-
-// TODO: Move to some shared lib?
-const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
 
 type SubjectProps = PickPartial<
   SubscriptionCreateProps,
