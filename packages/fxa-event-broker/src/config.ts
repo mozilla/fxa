@@ -81,7 +81,7 @@ const conf = convict({
     keyFilename: {
       default: path.resolve(
         __dirname,
-        '../../fxa-auth-server/config/secret-key.json'
+        '../../../../../fxa-auth-server/config/secret-key.json'
       ),
       doc: 'Path to GCP key file',
       env: 'FIRESTORE_KEY_FILE',
@@ -156,7 +156,7 @@ const conf = convict({
     keyFile: {
       default: path.resolve(
         __dirname,
-        '../../fxa-auth-server/config/secret-key.json'
+        '../../../../../fxa-auth-server/config/secret-key.json'
       ),
       doc: 'OpenID Keyfile',
       env: 'OPENID_KEYFILE',
@@ -236,9 +236,13 @@ const conf = convict({
 // files to process, which will be overlayed in order, in the CONFIG_FILES
 // environment variable.
 
-// Need to move two dirs up as we're in the compiled directory now
-const configDir = path.dirname(__dirname);
-let envConfig = path.join(configDir, 'config', `${conf.get('env')}.json`);
+// Need to move up several directories as we're in the compiled directory now
+let envConfig = path.join(
+  __dirname,
+  '../../../../config',
+  `${conf.get('env')}.json`
+);
+
 envConfig = `${envConfig},${process.env.CONFIG_FILES || ''}`;
 const files = envConfig.split(',').filter(fs.existsSync);
 conf.loadFile(files);

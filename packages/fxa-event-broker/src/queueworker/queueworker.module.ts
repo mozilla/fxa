@@ -8,9 +8,10 @@ import { ClientCapabilityModule } from '../client-capability/client-capability.m
 import { FirestoreModule } from '../firestore/firestore.module';
 import { GooglePubsubFactory } from '../google-pubsub.service';
 import { QueueworkerService } from './queueworker.service';
+import { ClientWebhooksModule } from '../client-webhooks/client-webhooks.module';
 
 @Module({
-  imports: [ClientCapabilityModule, FirestoreModule],
+  imports: [ClientCapabilityModule, ClientWebhooksModule, FirestoreModule],
   providers: [QueueworkerService, MetricsFactory, GooglePubsubFactory],
 })
 export class QueueworkerModule {}
