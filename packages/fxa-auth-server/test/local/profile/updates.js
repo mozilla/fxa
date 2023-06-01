@@ -69,7 +69,7 @@ describe('profile updates', () => {
 
         assert.ok(
           log.notifyAttachedServices.calledWithExactly(
-            'profileDataChanged',
+            'profileDataChange',
             {},
             { uid }
           )

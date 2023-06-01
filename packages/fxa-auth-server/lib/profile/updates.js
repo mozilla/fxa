@@ -20,7 +20,7 @@ module.exports = function (log) {
         // server is also listening for these events but will only
         // clear its cache when received.
         await log.notifyAttachedServices(
-          'profileDataChanged',
+          'profileDataChange',
           {},
           {
             uid,

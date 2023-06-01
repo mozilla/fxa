@@ -131,7 +131,7 @@ describe('totp', () => {
         );
         assert.equal(
           args[0],
-          'profileDataChanged',
+          'profileDataChange',
           'first argument was event name'
         );
         assert.equal(args[1], request, 'second argument was request object');
@@ -235,7 +235,7 @@ describe('totp', () => {
         );
         assert.equal(
           args[0],
-          'profileDataChanged',
+          'profileDataChange',
           'first argument was event name'
         );
         assert.equal(args[1], request, 'second argument was request object');

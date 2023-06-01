@@ -155,7 +155,7 @@ module.exports = (log, db, mailer, customs, config) => {
         // See #5154.
         await db.verifyTokensWithMethod(sessionToken.id, 'email-2fa');
 
-        await log.notifyAttachedServices('profileDataChanged', request, {
+        await log.notifyAttachedServices('profileDataChange', request, {
           uid,
         });
 
@@ -305,7 +305,7 @@ module.exports = (log, db, mailer, customs, config) => {
             tokenId: sessionToken && sessionToken.id,
           });
 
-          await log.notifyAttachedServices('profileDataChanged', request, {
+          await log.notifyAttachedServices('profileDataChange', request, {
             uid: sessionToken.uid,
           });
         }
