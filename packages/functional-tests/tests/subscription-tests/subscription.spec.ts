@@ -92,7 +92,7 @@ test.describe('metrics - flow metrics query params', () => {
     test.slow();
   });
   test.describe('severity-2', () => {
-    test('logged in and toggle off Share Data, Checkout to not have flow params in URL', async ({
+    test.only('logged in and toggle off Share Data, Checkout to not have flow params in URL', async ({
       pages: { settings, relier, page },
     }) => {
       // Go to settings page and verify the Data Collection toggle switch is visible

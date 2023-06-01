@@ -56,6 +56,17 @@ $(document).ready(function () {
         myr: 'price_1H8Os8Kb9q6OnNsLTDqGHIbC',
       },
     },
+    prod: {
+      product: 'prod_FScoZOGgwKRlQp',
+      plans: {
+        usd: 'prod_FScoZOGgwKRlQp',
+        usd6: 'price_1NBfeAJNcmPzuWtRw9NtFTLn',
+        usd12: 'price_1NBfhEJNcmPzuWtRJXGYnR4X',
+        eur: 'price_1NBfifJNcmPzuWtRxwCO6pGX',
+        cad: 'price_1NBflKJNcmPzuWtRNjuOQK4n',
+        myr: 'price_1NBfnGJNcmPzuWtRg9KXbUxh',
+      },
+    },
   };
 
   let paymentConfig = {};
@@ -77,7 +88,8 @@ $(document).ready(function () {
       break;
     case 'production-123done.herokuapp.com':
       paymentConfig = {
-        env: 'prod',
+        env: paymentConfig.prod,
+        ...subscriptionConfig.prod,
         contentEnv: contentURL.prod,
       };
       break;
@@ -112,18 +124,18 @@ $(document).ready(function () {
 
   // Since we don't set up test payment stuff in prod,
   // we can just hide the buttons for that env
-  if (paymentConfig.env === 'prod') {
-    $('.btn-subscribe').hide();
-  } else {
-    $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(function (
-      index
-    ) {
-      const { env, plans, product } = paymentConfig;
-      const currency = $(this).attr('data-currency');
-      const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
-      $(this).attr('href', currencyMappedURL);
-    });
-  }
+  // if (paymentConfig.env === paymentConfig.prod) {
+  //   $('.btn-subscribe').hide();
+  // } else {
+  $('.btn-subscribe, .btn-subscribe-rp-provided-flow-metrics').each(function (
+    index
+  ) {
+    const { env, plans, product } = paymentConfig;
+    const currency = $(this).attr('data-currency');
+    const currencyMappedURL = `${env}${product}?plan=${plans[currency]}`;
+    $(this).attr('href', currencyMappedURL);
+  });
+  // }
 
   function isSubscribed() {
     return (
