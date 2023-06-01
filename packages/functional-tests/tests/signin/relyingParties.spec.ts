@@ -111,18 +111,12 @@ test.describe('severity-3 #smoke', () => {
   }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod monitor');
     await page.goto('https://monitor.firefox.com');
-    await Promise.all([
-      page.click('text=Sign Up for Alerts'),
-      page.waitForNavigation(),
-    ]);
+    await Promise.all([page.click('text=Sign In'), page.waitForLoadState()]);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toContain('https://monitor.firefox.com/user/dashboard');
-    await page.click('#avatar-wrapper');
-    await Promise.all([
-      page.click('text=Sign Out'),
-      page.waitForNavigation({ waitUntil: 'networkidle' }),
-    ]);
-    await expect(page.locator('#sign-in-btn')).toBeVisible();
+    expect(page.url()).toContain('https://monitor.firefox.com/user/breaches');
+    await page.getByRole('button', { name: 'Open user menu' }).click();
+    await Promise.all([page.click('text=Sign Out'), page.waitForLoadState()]);
+    expect(page.url()).toContain('https://monitor.firefox.com');
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360

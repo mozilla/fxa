@@ -8,7 +8,7 @@ import { BaseTarget } from '../../lib/targets/base';
 function getReactFeatureFlagUrl(
   target: BaseTarget,
   path: string,
-  showReactApp: boolean = true
+  showReactApp: boolean
 ) {
   return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }
@@ -21,7 +21,7 @@ test.beforeEach(async ({ pages: { login } }) => {
 
 test.describe('legal', () => {
   test('start at legal page', async ({ page, target }) => {
-    await page.goto(getReactFeatureFlagUrl(target, '/legal'));
+    await page.goto(getReactFeatureFlagUrl(target, '/legal', true));
 
     // Verify react page has been loaded
     expect(await page.locator('#root').isEnabled()).toBeTruthy();
@@ -54,7 +54,7 @@ test.describe('legal', () => {
   });
 
   test('start at terms page', async ({ page, target }) => {
-    await page.goto(getReactFeatureFlagUrl(target, '/legal/terms'));
+    await page.goto(getReactFeatureFlagUrl(target, '/legal/terms', true));
 
     // Verify react page has been loaded
     await page.locator('#root').isVisible();
@@ -67,7 +67,7 @@ test.describe('legal', () => {
   });
 
   test('start at privacy page', async ({ page, target }) => {
-    await page.goto(getReactFeatureFlagUrl(target, '/legal/privacy'));
+    await page.goto(getReactFeatureFlagUrl(target, '/legal/privacy', true));
 
     // Verify react page has been loaded
     await page.locator('#root').isVisible();
