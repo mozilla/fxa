@@ -47,25 +47,27 @@ describe('FlowRecoveryKeyDownload', () => {
 
     screen.getByRole('heading', {
       level: 2,
-      name: 'Account recovery key generated — store it in a place you’ll remember',
+      name: 'Account recovery key created — Download and store it now',
     });
     screen.getByText(
-      'This key will help recover your data if you forget your password.'
+      'This key allows you to recover your data if you forget your password. Download it now and store it somewhere you’ll remember — you won’t be able to return to this page later.'
     );
+
+    screen.getByText(MOCK_RECOVERY_KEY_VALUE);
+    screen.getByRole('button', { name: 'Copy' });
+
     screen.getByRole('heading', {
       level: 3,
-      name: 'Some ideas for storing your account recovery key:',
+      name: 'Places to store your key:',
     });
     const list = screen.getByRole('list', {
-      name: 'Some ideas for storing your account recovery key:',
+      name: 'Places to store your key:',
     });
     const listItems = within(list).getAllByRole('listitem');
     expect(listItems.length).toBe(4);
 
-    screen.getByText(MOCK_RECOVERY_KEY_VALUE);
-    screen.getByRole('button', { name: 'Copy' });
-    screen.getByText('Download your account recovery key');
-    screen.getByRole('link', { name: 'Next' });
+    screen.getByText('Download and continue');
+    screen.getByRole('link', { name: 'Continue without downloading' });
   });
 
   it('emits the expected metrics when user copies the recovery key', async () => {
@@ -82,9 +84,7 @@ describe('FlowRecoveryKeyDownload', () => {
 
   it('emits the expected metrics when user downloads the recovery key', () => {
     renderFlowPage();
-    const downloadButton = screen.getByText(
-      'Download your account recovery key'
-    );
+    const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
     expect(logViewEvent).toBeCalledWith(
       `flow.${viewName}`,
@@ -94,7 +94,9 @@ describe('FlowRecoveryKeyDownload', () => {
 
   it('emits the expected metrics when user navigates forward without downloading the key', () => {
     renderFlowPage();
-    const nextPageLink = screen.getByRole('link', { name: 'Next' });
+    const nextPageLink = screen.getByRole('link', {
+      name: 'Continue without downloading',
+    });
     fireEvent.click(nextPageLink);
     expect(navigateForward).toBeCalledTimes(1);
     expect(logViewEvent).toBeCalledWith(

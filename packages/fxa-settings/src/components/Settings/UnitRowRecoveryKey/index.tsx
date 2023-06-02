@@ -16,7 +16,7 @@ import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { ButtonIconReload, ButtonIconTrash } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
-import { Localized } from '@fluent/react';
+import { FtlMsg } from 'fxa-react/lib/utils';
 
 export const UnitRowRecoveryKey = () => {
   const account = useAccount();
@@ -146,11 +146,11 @@ export const UnitRowRecoveryKey = () => {
         )
       }
     >
-      <Localized id="rk-content-explain">
+      <FtlMsg id="rk-content-explain">
         <p className="text-sm mt-3">
-          Restores your information when you forget your password.
+          Restore your information when you forget your password.
         </p>
-      </Localized>
+      </FtlMsg>
       {(deleteModalVisible || modalRevealed) && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
@@ -182,21 +182,21 @@ export const UnitRowRecoveryKey = () => {
             headerId="recovery-key-header"
             descId="recovery-key-desc"
           >
-            <Localized id="rk-remove-modal-heading-1">
+            <FtlMsg id="rk-remove-modal-heading-1">
               <h2
                 id="recovery-key-header"
                 className="font-bold text-xl text-center mb-2"
               >
                 Remove account recovery key?
               </h2>
-            </Localized>
-            <Localized id="rk-remove-modal-content-1">
-              <p id="recovery-key-desc" className="my-6 text-center">
-                In the event you reset your password, you won't be able to use
-                your account recovery key to access your data. You can't undo
+            </FtlMsg>
+            <FtlMsg id="rk-remove-modal-content-1">
+              <p className="my-6 text-center">
+                In the event you reset your password, you wonʼt be able to use
+                your account recovery key to access your data. You canʼt undo
                 this action.
               </p>
-            </Localized>
+            </FtlMsg>
           </Modal>
         </VerifiedSessionGuard>
       )}

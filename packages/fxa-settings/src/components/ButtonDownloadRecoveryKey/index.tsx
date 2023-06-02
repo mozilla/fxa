@@ -37,28 +37,28 @@ export const ButtonDownloadRecoveryKey = ({
   );
 
   const fileKey = ftlMsgResolver.getMsg(
-    'recovery-key-file-key-value',
-    `🔑 Key:  ${recoveryKeyValue}`,
+    'recovery-key-file-key-value-v2',
+    `Key: ${recoveryKeyValue}`,
     { recoveryKeyValue }
   );
 
   const fileUserEmail = ftlMsgResolver.getMsg(
-    'recovery-key-file-user-email',
-    `• Firefox account: ${primaryEmail.email}`,
+    'recovery-key-file-user-email-v2',
+    `* Firefox account: ${primaryEmail.email}`,
     { email: primaryEmail.email }
   );
 
   const fileDate = ftlMsgResolver.getMsg(
-    'recovery-key-file-download-date',
-    `• Key generated: ${downloadDateInLocale}`,
+    'recovery-key-file-download-date-v2',
+    `* Key generated: ${downloadDateInLocale}`,
     { downloadDate: downloadDateInLocale }
   );
 
   const supportURL = 'https://mzl.la/3bNrM1I';
 
   const fileSupport = ftlMsgResolver.getMsg(
-    'recovery-key-file-support',
-    `• Learn more about your account recovery key: ${supportURL}`,
+    'recovery-key-file-support-v2',
+    `* Learn more about your account recovery key: ${supportURL}`,
     { supportURL }
   );
 
@@ -99,9 +99,9 @@ export const ButtonDownloadRecoveryKey = ({
   };
 
   return (
-    <FtlMsg id="recovery-key-download-button-v2" attrs={{ title: true }}>
+    <FtlMsg id="recovery-key-download-button-v3" attrs={{ title: true }}>
       <a
-        title="Download"
+        title="Download and continue"
         href={URL.createObjectURL(fileContent)}
         download={getFilename()}
         data-testid="recovery-key-download"
@@ -111,7 +111,7 @@ export const ButtonDownloadRecoveryKey = ({
           navigateForward && navigateForward();
         }}
       >
-        Download your account recovery key
+        Download and continue
       </a>
     </FtlMsg>
   );

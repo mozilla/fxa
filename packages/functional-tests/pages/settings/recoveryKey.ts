@@ -44,21 +44,13 @@ export class RecoveryKeyPage extends SettingsLayout {
   }
 
   async clickStart() {
-    return this.page
-      .getByRole('button', { name: 'Start creating your account recovery key' })
-      .click();
-  }
-
-  async clickChange() {
-    return this.page
-      .getByRole('button', { name: 'Change account recovery key' })
-      .click();
+    return this.page.getByRole('button', { name: 'Get started' }).click();
   }
 
   async clickDownload() {
     const [download] = await Promise.all([
       this.page.waitForEvent('download'),
-      this.page.getByText('Download your account recovery key').click(),
+      this.page.getByText('Download and continue').click(),
     ]);
     return download;
   }
@@ -77,7 +69,9 @@ export class RecoveryKeyPage extends SettingsLayout {
   }
 
   async clickNext() {
-    return this.page.getByRole('link', { name: 'Next' }).click();
+    return this.page
+      .getByRole('link', { name: 'Continue without downloading' })
+      .click();
   }
 
   setHint(hint: string) {
