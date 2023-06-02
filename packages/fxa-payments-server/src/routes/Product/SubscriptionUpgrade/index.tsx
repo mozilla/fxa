@@ -126,8 +126,12 @@ export const SubscriptionUpgrade = ({
   );
 
   const nextInvoiceDate =
-    invoicePreview.line_items.find((item) => item.id === selectedPlan.plan_id)
-      ?.period.end || upgradeFromSubscription.current_period_end;
+    selectedPlan.interval === upgradeFromPlan.interval &&
+    selectedPlan.interval_count === upgradeFromPlan.interval_count
+      ? upgradeFromSubscription.current_period_end
+      : invoicePreview.line_items.find(
+          (item) => item.id === selectedPlan.plan_id
+        )?.period.end || upgradeFromSubscription.current_period_end;
 
   return (
     <>
@@ -181,7 +185,7 @@ export const SubscriptionUpgrade = ({
                 startingDate: getLocalizedDate(nextInvoiceDate),
               }}
             >
-              <p>
+              <p data-testid="sub-update-copy">
                 Your plan will change immediately, and you’ll be charged an
                 adjusted amount for the rest of your billing cycle. Starting
                 {getLocalizedDateString(nextInvoiceDate)} you’ll be charged the
