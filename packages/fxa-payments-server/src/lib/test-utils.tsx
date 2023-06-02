@@ -34,6 +34,8 @@ declare global {
   }
 }
 
+export const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
+
 export const wait = (delay: number) =>
   new Promise((resolve) => setTimeout(resolve, delay));
 

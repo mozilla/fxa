@@ -1,71 +1,69 @@
-import noc from 'nock';
-
-import {
-  cancelSubscription_PENDING,
-  cancelSubscription_FULFILLED,
-  cancelSubscription_REJECTED,
-  updateSubscriptionPlan_PENDING,
-  updateSubscriptionPlan_FULFILLED,
-  updateSubscriptionPlan_REJECTED,
-  createSubscriptionWithPaymentMethod_PENDING,
-  createSubscriptionWithPaymentMethod_FULFILLED,
-  createSubscriptionWithPaymentMethod_REJECTED,
-  updateDefaultPaymentMethod_PENDING,
-  updateDefaultPaymentMethod_FULFILLED,
-  updateDefaultPaymentMethod_REJECTED,
-  EventProperties,
-} from './amplitude';
-
-import { Config, defaultConfig } from './config';
-
-import {
-  mockOptionsResponses,
-  MOCK_PROFILE,
-  MOCK_CUSTOMER,
-  MOCK_ACTIVE_SUBSCRIPTIONS,
-  MOCK_CHECKOUT_TOKEN,
-  MOCK_TOKEN,
-  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
-  MOCK_PLANS,
-  PLAN_ID,
-} from './test-utils';
-
-import {
-  APIError,
-  updateAPIClientConfig,
-  updateAPIClientToken,
-  apiFetchProfile,
-  apiFetchPlans,
-  apiFetchSubscriptions,
-  apiFetchPlanEligibility,
-  apiFetchToken,
-  apiFetchCustomer,
-  apiUpdateSubscriptionPlan,
-  apiCancelSubscription,
-  apiReactivateSubscription,
-  apiCreateCustomer,
-  apiCreateSubscriptionWithPaymentMethod,
-  FilteredSetupIntent,
-  apiCreateSetupIntent,
-  apiUpdateDefaultPaymentMethod,
-  apiRetryInvoice,
-  apiDetachFailedPaymentMethod,
-  apiGetPaypalCheckoutToken,
-  apiCapturePaypalPayment,
-  apiUpdateBillingAgreement,
-  apiCreatePasswordlessAccount,
-  apiSignupForNewsletter,
-  apiInvoicePreview,
-  apiRetrieveCouponDetails,
-  apiSubsequentInvoicePreview,
-} from './apiClient';
-import { PaymentProvider } from './PaymentProvider';
+import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
   FirstInvoicePreview,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
-import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import noc from 'nock';
+
+import {
+  cancelSubscription_FULFILLED,
+  cancelSubscription_PENDING,
+  cancelSubscription_REJECTED,
+  createSubscriptionWithPaymentMethod_FULFILLED,
+  createSubscriptionWithPaymentMethod_PENDING,
+  createSubscriptionWithPaymentMethod_REJECTED,
+  EventProperties,
+  updateDefaultPaymentMethod_FULFILLED,
+  updateDefaultPaymentMethod_PENDING,
+  updateDefaultPaymentMethod_REJECTED,
+  updateSubscriptionPlan_FULFILLED,
+  updateSubscriptionPlan_PENDING,
+  updateSubscriptionPlan_REJECTED,
+} from './amplitude';
+import {
+  apiCancelSubscription,
+  apiCapturePaypalPayment,
+  apiCreateCustomer,
+  apiCreatePasswordlessAccount,
+  apiCreateSetupIntent,
+  apiCreateSubscriptionWithPaymentMethod,
+  apiDetachFailedPaymentMethod,
+  APIError,
+  apiFetchCustomer,
+  apiFetchPlanEligibility,
+  apiFetchPlans,
+  apiFetchProfile,
+  apiFetchSubscriptions,
+  apiFetchToken,
+  apiGetPaypalCheckoutToken,
+  apiInvoicePreview,
+  apiReactivateSubscription,
+  apiRetrieveCouponDetails,
+  apiRetryInvoice,
+  apiSignupForNewsletter,
+  apiSubsequentInvoicePreview,
+  apiUpdateBillingAgreement,
+  apiUpdateDefaultPaymentMethod,
+  apiUpdateSubscriptionPlan,
+  FilteredSetupIntent,
+  updateAPIClientConfig,
+  updateAPIClientToken,
+} from './apiClient';
+import { Config, defaultConfig } from './config';
+import { PaymentProvider } from './PaymentProvider';
+import {
+  deepCopy,
+  MOCK_ACTIVE_SUBSCRIPTIONS,
+  MOCK_CHECKOUT_TOKEN,
+  MOCK_CUSTOMER,
+  MOCK_PAYPAL_SUBSCRIPTION_RESULT,
+  MOCK_PLANS,
+  MOCK_PROFILE,
+  MOCK_TOKEN,
+  mockOptionsResponses,
+  PLAN_ID,
+} from './test-utils';
 
 function nock(it: any) {
   //@ts-ignore
@@ -271,16 +269,20 @@ describe('API requests', () => {
     };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
-      const expectedResponse = { ok: true };
+      const expectedResponse = { ok: true, sourceCountry: 'RO' };
       const requestMock = nock(AUTH_BASE_URL)
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(200, expectedResponse);
+      const metricsOptionsCountryCode = deepCopy({
+        ...metricsOptions,
+        country_code_source: expectedResponse.sourceCountry,
+      });
       expect(await apiUpdateSubscriptionPlan(params)).toEqual(expectedResponse);
       expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       expect(updateSubscriptionPlan_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptions
+        metricsOptionsCountryCode
       );
       requestMock.done();
     });

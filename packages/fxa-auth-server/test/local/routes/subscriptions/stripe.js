@@ -2035,7 +2035,7 @@ describe('DirectStripeRoutes', () => {
 
     it('returns the subscription id when the plan is a valid upgrade', async () => {
       const subscriptionId = 'sub_123';
-      const expected = { subscriptionId: subscriptionId };
+      const expected = { subscriptionId: subscriptionId, sourceCountry: 'RO' };
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
       directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();

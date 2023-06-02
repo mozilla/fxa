@@ -1,22 +1,17 @@
-import React from 'react';
-import { Stripe, PaymentMethod, PaymentIntent } from '@stripe/stripe-js';
-import { storiesOf } from '@storybook/react';
 import { linkTo } from '@storybook/addon-links';
+import { storiesOf } from '@storybook/react';
+import { PaymentIntent, PaymentMethod, Stripe } from '@stripe/stripe-js';
+import React from 'react';
+
+import SubscriptionCreate, { SubscriptionCreateProps } from '.';
 import MockApp, {
   defaultAppContextValue,
 } from '../../../../.storybook/components/MockApp';
-import { CUSTOMER, PROFILE, PLAN, NEW_CUSTOMER } from '../../../lib/mock-data';
-import { APIError } from '../../../lib/apiClient';
-import { PickPartial } from '../../../lib/types';
 import { SignInLayout } from '../../../components/AppLayout';
-import SubscriptionCreate, { SubscriptionCreateProps } from './index';
-
-// TODO: Move to some shared lib?
-const deepCopy = (object: Object) => JSON.parse(JSON.stringify(object));
-
-// TODO: Move to some shared lib?
-const wait = (delay: number) =>
-  new Promise((resolve) => setTimeout(resolve, delay));
+import { APIError } from '../../../lib/apiClient';
+import { CUSTOMER, NEW_CUSTOMER, PLAN, PROFILE } from '../../../lib/mock-data';
+import { deepCopy, wait } from '../../../lib/test-utils';
+import { PickPartial } from '../../../lib/types';
 
 function init() {
   storiesOf('routes/Product/SubscriptionCreate', module)

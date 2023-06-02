@@ -198,7 +198,10 @@ export async function apiUpdateSubscriptionPlan(params: {
       `${config.servers.auth.url}/v1/oauth/subscriptions/active/${subscriptionId}`,
       { body: JSON.stringify({ planId }) }
     );
-    Amplitude.updateSubscriptionPlan_FULFILLED(metricsOptions);
+    Amplitude.updateSubscriptionPlan_FULFILLED({
+      ...metricsOptions,
+      country_code_source: result.sourceCountry,
+    });
     return result;
   } catch (error) {
     Amplitude.updateSubscriptionPlan_REJECTED({
