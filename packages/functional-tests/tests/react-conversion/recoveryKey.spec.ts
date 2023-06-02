@@ -11,7 +11,7 @@ const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 function getReactFeatureFlagUrl(
   target: BaseTarget,
   path: string,
-  showReactApp: boolean = true
+  showReactApp = true
 ) {
   return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }

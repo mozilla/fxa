@@ -5,7 +5,7 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { logPageViewEvent } from '../../../lib/metrics';
 import {
   CreateIntegration,
   IntegrationType,
@@ -57,7 +57,7 @@ type SubmitData = {
 
 type LocationState = { lostRecoveryKey: boolean };
 
-type CompleteResetPasswordParams = {
+export type CompleteResetPasswordParams = {
   email: string;
   emailToHashWith: string;
   code: string;
@@ -71,8 +71,6 @@ const CompleteResetPassword = ({
   params: CompleteResetPasswordLink;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
 }) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
   const [errorType, setErrorType] = useState(ErrorType.none);
   /* Show a loading spinner until all checks complete. Without this, users with a
    * recovery key set or with an expired or damaged link will experience some jank due
@@ -97,15 +95,40 @@ const CompleteResetPassword = ({
     });
 
   /* When the user clicks the confirm password reset link from their email, we check
-   * to see if they have an account recovery key set. If they do, we navigate to the
-   * `account_recovery_confirm_key` page. If they don't, they'll continue on with a
-   * regular password reset. If users click the link leading back to this page from
-   * `account_recovery_confirm_key`, assume the user has lost the key and pass along
-   * a `lostRecoveryKey` flag so we don't perform the check and redirect again. */
+   * the status of the link. If the link is valid, we check if a recovery key is enabled.
+   * If there is a recovery key, we navigate to the `account_recovery_confirm_key` page.
+   * If there isn't, we stay on this page and continue a regular password reset.
+   * If users clicked the link leading back to this page from `account_recovery_confirm_key`,
+   * we assume the user has lost the key and pass along a `lostRecoveryKey` flag
+   * so we don't perform the check and redirect again.
+   * If the link is -not- valid, we render link expired or link damaged.
+   */
   useEffect(() => {
+    const checkPasswordForgotToken = async (token: string) => {
+      try {
+        const isValid = await account.resetPasswordStatus(token);
+        if (isValid) {
+          setLinkStatus(LinkStatus.valid);
+          handleRecoveryKeyStatus();
+        } else {
+          setLinkStatus(LinkStatus.expired);
+        }
+      } catch (e) {
+        setLinkStatus(LinkStatus.damaged);
+      }
+    };
+
+    const handleRecoveryKeyStatus = async () => {
+      if (!location.state?.lostRecoveryKey) {
+        await checkForRecoveryKeyAndNavigate(params.email);
+      }
+      renderCompleteResetPassword();
+    };
+
     const checkForRecoveryKeyAndNavigate = async (email: string) => {
       try {
-        if (await account.hasRecoveryKey(email)) {
+        const hasRecoveryKey = await account.hasRecoveryKey(email);
+        if (hasRecoveryKey) {
           navigate(`/account_recovery_confirm_key${location.search}`, {
             replace: true,
             state: { ...{ email } },
@@ -116,36 +139,20 @@ const CompleteResetPassword = ({
       }
     };
 
-    const handleRecoveryKeyStatus = async () => {
-      if (!location.state?.lostRecoveryKey) {
-        await checkForRecoveryKeyAndNavigate(params.email);
-      }
+    const renderCompleteResetPassword = () => {
       setShowLoadingSpinner(false);
+      logPageViewEvent(viewName, REACT_ENTRYPOINT);
     };
-
-    handleRecoveryKeyStatus();
+    checkPasswordForgotToken(params.token);
   }, [
     account,
     navigate,
     location.search,
     location.state?.lostRecoveryKey,
     params.email,
+    params.token,
+    setLinkStatus,
   ]);
-
-  useEffect(() => {
-    const checkPasswordForgotToken = async (token: string) => {
-      try {
-        const isValid = await account.resetPasswordStatus(token);
-        if (!isValid) {
-          setLinkStatus(LinkStatus.expired);
-        }
-      } catch (e) {
-        setLinkStatus(LinkStatus.damaged);
-      }
-    };
-
-    checkPasswordForgotToken(params.token);
-  }, [params.token, account, setLinkStatus]);
 
   const alertSuccessAndNavigate = useCallback(() => {
     setErrorType(ErrorType.none);
@@ -240,14 +247,8 @@ const CompleteResetPassword = ({
         setErrorType(ErrorType['complete-reset']);
       }
     },
-    [account, alertSuccessAndNavigate, integration.type]
+    [account, alertSuccessAndNavigate, integration.type, location.search]
   );
-
-  if (showLoadingSpinner) {
-    return (
-      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
-    );
-  }
 
   const renderCompleteResetPasswordErrorBanner = () => {
     return (
@@ -286,6 +287,11 @@ const CompleteResetPassword = ({
     );
   };
 
+  if (showLoadingSpinner) {
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  }
   return (
     <AppLayout>
       <CardHeader

@@ -18,6 +18,7 @@ export const LinkExpiredResetPassword = ({
   email,
   viewName,
 }: LinkExpiredResetPasswordProps) => {
+  // TODO in FXA-7630 add metrics event and associated tests for users hitting the LinkExpired page
   const account = useAccount();
 
   const [resendStatus, setResendStatus] = useState<ResendStatus>(

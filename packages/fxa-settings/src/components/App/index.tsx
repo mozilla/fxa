@@ -143,7 +143,7 @@ export const App = ({
               <LinkValidator
                 path="/complete_reset_password/*"
                 linkType={LinkType['reset-password']}
-                viewName={'complete-reset-password'}
+                viewName="complete-reset-password"
                 getParamsFromModel={() => {
                   return CreateCompleteResetPasswordLink();
                 }}
@@ -158,7 +158,24 @@ export const App = ({
                 )}
               </LinkValidator>
 
-              <AccountRecoveryConfirmKey path="/account_recovery_confirm_key/*" />
+              <LinkValidator
+                path="/account_recovery_confirm_key/*"
+                linkType={LinkType['reset-password']}
+                viewName="account-recovery-confirm-key"
+                getParamsFromModel={() => {
+                  return CreateCompleteResetPasswordLink();
+                }}
+              >
+                {({ setLinkStatus, params }) => (
+                  <AccountRecoveryConfirmKey
+                    {...{
+                      setLinkStatus,
+                      params,
+                    }}
+                  />
+                )}
+              </LinkValidator>
+
               <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
 
               <SigninReported path="/signin_reported/*" />

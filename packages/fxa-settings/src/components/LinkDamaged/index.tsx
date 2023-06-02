@@ -28,6 +28,7 @@ const LinkDamaged = ({ headingText, headingTextFtlId }: LinkDamagedProps) => {
 };
 
 export const ResetPasswordLinkDamaged = () => {
+  // TODO in FXA-7630 add metrics event and associated tests for users hitting the LinkDamaged page
   return (
     <LinkDamaged
       headingText="Reset password link damaged"

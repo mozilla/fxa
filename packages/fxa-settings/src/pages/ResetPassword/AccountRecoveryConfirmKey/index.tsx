@@ -2,15 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
-import React, { useCallback, useState } from 'react';
+import { Link, useLocation, useNavigate } from '@reach/router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { useAccount } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -18,22 +13,25 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 import { InputText } from '../../../components/InputText';
 import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
-import { LinkExpiredResetPassword } from '../../../components/LinkExpiredResetPassword';
-import { ResetPasswordLinkDamaged } from '../../../components/LinkDamaged';
 import { LinkStatus, MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import {
-  RequiredParamsAccountRecoveryConfirmKey,
-  useAccountRecoveryConfirmKeyLinkStatus,
-} from '../../../lib/hooks/useLinkStatus';
 import AppLayout from '../../../components/AppLayout';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import base32Decode from 'base32-decode';
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { isBase32Crockford } from '../../../lib/utilities';
+import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 type FormData = {
   recoveryKey: string;
+};
+
+export type RequiredParamsAccountRecoveryConfirmKey = {
+  email: string;
+  token: string;
+  code: string;
+  uid: string;
 };
 
 type SubmitData = {
@@ -42,9 +40,13 @@ type SubmitData = {
 
 export const viewName = 'account-recovery-confirm-key';
 
-const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
+const AccountRecoveryConfirmKey = ({
+  params,
+  setLinkStatus,
+}: {
+  params: CompleteResetPasswordLink;
+  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
+}) => {
   // TODO: grab serviceName from the relier
   const serviceName = MozServices.Default;
 
@@ -53,14 +55,34 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
   // so we set its value after the first request for subsequent requests.
   const [fetchedResetToken, setFetchedResetToken] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+  // Show loading spinner until token is valid, else LinkValidator handles invalid states
+  const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   // We use this to debounce the submit button
   const [isLoading, setIsLoading] = useState(false);
   const account = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
-  const { linkStatus, setLinkStatus, requiredParams } =
-    useAccountRecoveryConfirmKeyLinkStatus();
   const location = useLocation();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkPasswordForgotToken = async (token: string) => {
+      try {
+        const isValid = await account.resetPasswordStatus(token);
+        if (isValid) {
+          setLinkStatus(LinkStatus.valid);
+
+          setShowLoadingSpinner(false);
+          logPageViewEvent(viewName, REACT_ENTRYPOINT);
+        } else {
+          setLinkStatus(LinkStatus.expired);
+        }
+      } catch (e) {
+        setLinkStatus(LinkStatus.damaged);
+      }
+    };
+
+    checkPasswordForgotToken(params.token);
+  }, [account, params.token, setLinkStatus]);
 
   const { handleSubmit, register } = useForm<FormData>({
     mode: 'onBlur',
@@ -186,20 +208,11 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
       checkRecoveryKey(submitData);
     }
   };
-
-  if (linkStatus === LinkStatus.damaged || requiredParams === null) {
-    return <ResetPasswordLinkDamaged />;
-  }
-
-  if (linkStatus === LinkStatus.expired) {
+  if (showLoadingSpinner) {
     return (
-      <LinkExpiredResetPassword
-        email={requiredParams.email}
-        {...{ viewName }}
-      />
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
   }
-
   return (
     <AppLayout>
       <CardHeader
@@ -233,10 +246,10 @@ const AccountRecoveryConfirmKey = (_: RouteComponentProps) => {
           const recoveryKeyStripped = recoveryKey.replace(/\s/g, '');
           onSubmit({
             recoveryKey: recoveryKeyStripped,
-            token: requiredParams.token,
-            code: requiredParams.code,
-            email: requiredParams.email,
-            uid: requiredParams.uid,
+            token: params.token,
+            code: params.code,
+            email: params.email,
+            uid: params.uid,
           });
         })}
         data-testid="account-recovery-confirm-key-form"

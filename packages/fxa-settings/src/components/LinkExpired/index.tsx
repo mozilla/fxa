@@ -34,11 +34,10 @@ export const LinkExpired = ({
       {resendStatus === ResendStatus['error'] && <ResendLinkErrorBanner />}
 
       <FtlMsg id={messageFtlId}>
-        <p className="mt-4 text-sm">{messageText}</p>
+        <p className="text-sm my-4">{messageText}</p>
       </FtlMsg>
-      {/* TODO Extract for reuse into ButtonResendResetPasswordLink */}
       <FtlMsg id="reset-pwd-resend-link">
-        <button onClick={resendLinkHandler} className="link-blue mt-4">
+        <button onClick={resendLinkHandler} className="link-blue text-sm">
           Receive new link
         </button>
       </FtlMsg>

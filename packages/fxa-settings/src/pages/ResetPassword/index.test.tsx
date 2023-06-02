@@ -69,7 +69,7 @@ describe('PageResetPassword', () => {
     expect(screen.getByTestId('warning-message-container')).toBeInTheDocument();
     expect(screen.getByLabelText('Email')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Begin Reset' })
+      screen.getByRole('button', { name: 'Begin reset' })
     ).toBeInTheDocument();
     // when forceEmail is NOT provided as a prop, the optional read-only email should not be rendered
     const forcedEmailEl = screen.queryByTestId('reset-password-force-email');
@@ -121,7 +121,7 @@ describe('PageResetPassword', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByText('Begin Reset'));
+      fireEvent.click(screen.getByText('Begin reset'));
     });
 
     expect(account.resetPassword).toHaveBeenCalledWith(
@@ -150,7 +150,7 @@ describe('PageResetPassword', () => {
     it('with an empty email', async () => {
       renderWithAccount(account);
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'Begin Reset' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
       });
       await screen.findByText('Email required');
       expect(account.resetPassword).not.toHaveBeenCalled();
@@ -164,7 +164,7 @@ describe('PageResetPassword', () => {
       renderWithAccount(account);
       await typeByLabelText('Email')('foxy@gmail.');
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'Begin Reset' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
       });
       await screen.findByText('Valid email required');
       expect(account.resetPassword).not.toHaveBeenCalled();
@@ -217,7 +217,7 @@ describe('PageResetPassword', () => {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    fireEvent.click(screen.getByText('Begin Reset'));
+    fireEvent.click(screen.getByText('Begin reset'));
 
     await waitFor(() =>
       screen.findByText(
@@ -238,7 +238,7 @@ describe('PageResetPassword', () => {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    fireEvent.click(screen.getByText('Begin Reset'));
+    fireEvent.click(screen.getByText('Begin reset'));
 
     await waitFor(() => screen.findByText('Unexpected error'));
   });

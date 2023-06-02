@@ -23,4 +23,7 @@ export class CompleteResetPasswordLink extends ModelDataProvider {
 
   @bind([V.isHex, V.isRequired])
   token: string = '';
+
+  @bind([V.isHex, V.isRequired])
+  uid: string = '';
 }
