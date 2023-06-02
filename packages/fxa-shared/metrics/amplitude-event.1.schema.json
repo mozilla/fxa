@@ -355,26 +355,6 @@
     },
     {
       "if": {
-        "$comment": "Additional required fields for when a subscription is successfully created or ended",
-        "required": ["event_type"],
-        "properties": {
-          "event_type": {
-            "type": "string",
-            "pattern": "fxa_pay_subscription_change - success|fxa_pay_setup - success|fxa_subscribe - subscription_ended"
-          }
-        }
-      },
-      "then": {
-        "properties": {
-          "event_properties": {
-            "type": "object",
-            "required": ["country_code_source"]
-          }
-        }
-      }
-    },
-    {
-      "if": {
         "$comment": "Required fields for fxa_subscribe - subscription_ended events",
         "properties": {
           "event_type": {

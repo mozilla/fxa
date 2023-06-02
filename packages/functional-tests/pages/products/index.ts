@@ -1,7 +1,26 @@
+import { randomUUID } from 'crypto';
+
 import { BaseLayout } from '../layout';
 
 export class SubscribePage extends BaseLayout {
-  setFullName(name: string = 'Cave Johnson') {
+  async setEmailAndConfirmNewUser() {
+    // We can't reuse the same email address each time, as the form
+    // can't be submitted if the account already exists.
+    const email = `testo+${randomUUID()}@example.com`;
+    const inputFirst = this.page.locator(
+      '[data-testid="new-user-enter-email"]'
+    );
+    inputFirst.waitFor({ state: 'attached' });
+    await inputFirst.fill(email);
+
+    const inputSecond = this.page.locator(
+      '[data-testid="new-user-confirm-email"]'
+    );
+    inputSecond.waitFor({ state: 'attached' });
+    return inputSecond.fill(email);
+  }
+
+  setFullName(name = 'Cave Johnson') {
     const input = this.page.locator('[data-testid="name"]');
     input.waitFor({ state: 'attached' });
     return input.fill(name);
@@ -13,19 +32,25 @@ export class SubscribePage extends BaseLayout {
 
   async setCreditCardInfo() {
     const frame = this.page.frame({ url: /elements-inner-card/ });
-    await frame!.fill('.InputElement[name=cardnumber]', '');
-    await frame!.fill('.InputElement[name=cardnumber]', '4242424242424242');
-    await frame!.fill('.InputElement[name=exp-date]', '555');
-    await frame!.fill('.InputElement[name=cvc]', '333');
-    await frame!.fill('.InputElement[name=postal]', '66666');
+    if (!frame) {
+      throw new Error('No frame found');
+    }
+    await frame.fill('.InputElement[name=cardnumber]', '');
+    await frame.fill('.InputElement[name=cardnumber]', '4242424242424242');
+    await frame.fill('.InputElement[name=exp-date]', '555');
+    await frame.fill('.InputElement[name=cvc]', '333');
+    await frame.fill('.InputElement[name=postal]', '66666');
   }
 
   async setFailedCreditCardInfo() {
     const frame = this.page.frame({ url: /elements-inner-card/ });
-    await frame!.fill('.InputElement[name=cardnumber]', '4000000000000341');
-    await frame!.fill('.InputElement[name=exp-date]', '666');
-    await frame!.fill('.InputElement[name=cvc]', '444');
-    await frame!.fill('.InputElement[name=postal]', '77777');
+    if (!frame) {
+      throw new Error('No frame found');
+    }
+    await frame.fill('.InputElement[name=cardnumber]', '4000000000000341');
+    await frame.fill('.InputElement[name=exp-date]', '666');
+    await frame.fill('.InputElement[name=cvc]', '444');
+    await frame.fill('.InputElement[name=postal]', '77777');
   }
 
   async clickPayNow() {

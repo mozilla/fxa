@@ -291,9 +291,7 @@ export class StripeHandler {
 
     await this.customerChanged(request, uid, email);
 
-    const sourceCountry = customer?.shipping?.address?.country || null;
-
-    return { subscriptionId, sourceCountry };
+    return { subscriptionId };
   }
 
   async listPlans(request: AuthRequest) {
@@ -1184,7 +1182,6 @@ export const stripeRoutes = (
         response: {
           schema: isA.object().keys({
             subscriptionId: isA.string(),
-            sourceCountry: validators.subscriptionPaymentCountryCode.required(),
           }) as any,
         },
         validate: {

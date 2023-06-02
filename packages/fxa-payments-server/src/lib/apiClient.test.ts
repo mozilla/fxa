@@ -269,20 +269,16 @@ describe('API requests', () => {
     };
 
     it('PUT {auth-server}/v1/oauth/subscriptions/active', async () => {
-      const expectedResponse = { ok: true, sourceCountry: 'RO' };
+      const expectedResponse = { ok: true };
       const requestMock = nock(AUTH_BASE_URL)
         .put(path(params.subscriptionId), { planId: params.planId })
         .reply(200, expectedResponse);
-      const metricsOptionsCountryCode = deepCopy({
-        ...metricsOptions,
-        country_code_source: expectedResponse.sourceCountry,
-      });
       expect(await apiUpdateSubscriptionPlan(params)).toEqual(expectedResponse);
       expect(updateSubscriptionPlan_PENDING as jest.Mock).toBeCalledWith(
         metricsOptions
       );
       expect(updateSubscriptionPlan_FULFILLED as jest.Mock).toBeCalledWith(
-        metricsOptionsCountryCode
+        metricsOptions
       );
       requestMock.done();
     });

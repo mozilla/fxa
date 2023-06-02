@@ -1117,7 +1117,7 @@ describe('StripeWebhookHandler', () => {
         const account = { email: mockCustomerFixture.email };
         const subscriptionEnded = subscriptionDeleted.data.object;
         const mockSubscriptionEndedEventDetails = {
-          country_code_source: mockCustomerFixture.shipping.address.country,
+          country_code: mockCustomerFixture.shipping.address.country,
           payment_provider: 'stripe',
           plan_id: subscriptionEnded.items.data[0].plan.id,
           product_id: subscriptionEnded.items.data[0].plan.product,
@@ -2396,7 +2396,7 @@ describe('StripeWebhookHandler', () => {
     const mockInvoice = deepCopy(invoiceFixture);
 
     const mockSubscriptionEndedEventDetails = {
-      country_code_source: mockCustomerFixture.shipping.address.country,
+      country_code: mockCustomerFixture.shipping.address.country,
       payment_provider: 'stripe',
       plan_id: subscriptionEnded.items.data[0].plan.id,
       product_id: subscriptionEnded.items.data[0].plan.product,

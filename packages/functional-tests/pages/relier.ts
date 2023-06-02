@@ -99,7 +99,22 @@ export class RelierPage extends BaseLayout {
       .getAttribute('href');
   }
 
-  async getRpFlowParams(searchParams) {
+  getRpAcquisitionParams(searchParams) {
+    return {
+      entrypoint: searchParams.get('entrypoint'),
+      entrypoint_experiment: searchParams.get('entrypoint_experiment'),
+      entrypoint_variation: searchParams.get('entrypoint_variation'),
+      form_type: searchParams.get('form_type'),
+      utm_source: searchParams.get('utm_source'),
+      utm_campaign: searchParams.get('utm_campaign'),
+      utm_content: searchParams.get('utm_content'),
+      utm_term: searchParams.get('utm_term'),
+      utm_medium: searchParams.get('utm_medium'),
+      context: searchParams.get('context'),
+    };
+  }
+
+  getRpFlowParams(searchParams) {
     return {
       flow_id: searchParams.get('flow_id'),
       device_id: searchParams.get('device_id'),
@@ -107,7 +122,7 @@ export class RelierPage extends BaseLayout {
     };
   }
 
-  async getRpSearchParams(url) {
+  getRpSearchParams(url) {
     return new URL(url).searchParams;
   }
 }

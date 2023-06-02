@@ -1,4 +1,4 @@
-import { test, expect } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import { MetricsObserver } from '../../lib/metrics';
 
 test.describe.configure({ mode: 'parallel' });
@@ -32,7 +32,7 @@ test.describe('subscription test with cc and paypal', () => {
     expect(await relier.isPro()).toBe(true);
   });
 
-  test('subscribe with credit card after initial failed subscription', async ({
+  test('subscribe with credit card after initial failed subscription & verify existing user checkout funnel metrics', async ({
     pages: { relier, login, subscribe },
   }, { project }) => {
     test.skip(
@@ -54,6 +54,7 @@ test.describe('subscription test with cc and paypal', () => {
     await login.submit();
     expect(await relier.isPro()).toBe(true);
 
+    // check conversion funnel metrics
     const expectedEventTypes = [
       'amplitude.subPaySetup.view',
       'amplitude.subPaySetup.engage',
@@ -87,12 +88,17 @@ test.describe('subscription test with cc and paypal', () => {
   });
 });
 
-test.describe('metrics - flow metrics query params', () => {
-  test.beforeEach(() => {
+test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
+  let metricsObserver: MetricsObserver;
+
+  test.beforeEach(({ pages: { subscribe } }) => {
     test.slow();
+    metricsObserver = new MetricsObserver(subscribe);
+    metricsObserver.startTracking();
   });
+
   test.describe('severity-2', () => {
-    test('logged in and toggle off Share Data, Checkout to not have flow params in URL', async ({
+    test('Metrics disabled: existing user checkout URL to not have flow params', async ({
       pages: { settings, relier, page },
     }, { project }) => {
       test.skip(
@@ -116,7 +122,7 @@ test.describe('metrics - flow metrics query params', () => {
   });
 
   test.describe('severity-3', () => {
-    test('logged in and toggle on Share Data, Checkout to have flow params in URL', async ({
+    test('Existing user checkout URL to have flow params', async ({
       pages: { settings, relier, page },
     }, { project }) => {
       test.skip(
@@ -137,7 +143,7 @@ test.describe('metrics - flow metrics query params', () => {
       expect(page.url()).toContain('&flow_begin_time=');
     });
 
-    test('not logged in, Checkout to have flow params in URL', async ({
+    test('New user checkout URL to have flow params', async ({
       pages: { settings, relier, page },
     }, { project }) => {
       test.skip(
@@ -151,7 +157,7 @@ test.describe('metrics - flow metrics query params', () => {
       expect(page.url()).toContain('&flow_begin_time=');
     });
 
-    test('not logged in, user has no account and has not previously signed in, Checkout to have flow params in URL', async ({
+    test('New user checkout URL to have flow params with cache cleared', async ({
       pages: { settings, login, relier, page },
     }, { project }) => {
       test.skip(
@@ -166,8 +172,8 @@ test.describe('metrics - flow metrics query params', () => {
       expect(page.url()).toContain('&flow_begin_time=');
     });
 
-    test('not logged in, Checkout to have RP-provided flow params in URL', async ({
-      pages: { settings, relier, page },
+    test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
+      pages: { settings, relier, page, subscribe },
     }, { project }) => {
       test.skip(
         project.name === 'production',
@@ -181,16 +187,46 @@ test.describe('metrics - flow metrics query params', () => {
       if (!subscribeUrl) {
         fail('Subscribe button has no href.');
       }
-      const rpSearchParamsBefore = await relier.getRpSearchParams(subscribeUrl);
-      const rpFlowParamsBefore = await relier.getRpFlowParams(
-        rpSearchParamsBefore
-      );
+      const rpSearchParamsBefore = relier.getRpSearchParams(subscribeUrl);
+      const rpFlowParamsBefore = relier.getRpFlowParams(rpSearchParamsBefore);
+      const acquisitionParamsBefore =
+        relier.getRpAcquisitionParams(rpSearchParamsBefore);
+
+      // check flow metrics
       await relier.clickSubscribeRPFlowMetrics();
-      const rpSearchParamsAfter = await relier.getRpSearchParams(page.url());
-      const rpFlowParamsAfter = await relier.getRpFlowParams(
-        rpSearchParamsAfter
-      );
+      const rpSearchParamsAfter = relier.getRpSearchParams(page.url());
+      const rpFlowParamsAfter = relier.getRpFlowParams(rpSearchParamsAfter);
       expect(rpFlowParamsAfter).toStrictEqual(rpFlowParamsBefore);
+
+      // subscribe, failing first then succeeding
+      await subscribe.setEmailAndConfirmNewUser();
+      await subscribe.setConfirmPaymentCheckbox();
+      await subscribe.setFullName();
+      await subscribe.setFailedCreditCardInfo();
+      await subscribe.clickPayNow();
+      await subscribe.clickTryAgain();
+      await subscribe.setCreditCardInfo();
+      await subscribe.clickPayNow();
+      await subscribe.submit();
+
+      // check acquisition metrics
+      const acquisitionParamsAfter =
+        metricsObserver.getAcquisitionParamsFromEvents();
+      expect(acquisitionParamsAfter).toStrictEqual(acquisitionParamsBefore);
+
+      // check conversion funnel metrics
+      const expectedEventTypes = [
+        'amplitude.subPaySetup.view',
+        'amplitude.subPaySetup.engage',
+        'amplitude.subPaySetup.submit',
+        'amplitude.subPaySetup.fail',
+        'amplitude.subPaySetup.submit',
+        'amplitude.subPaySetup.success',
+      ];
+      const actualEventTypes = metricsObserver.rawEvents.map((event) => {
+        return event.type;
+      });
+      expect(actualEventTypes).toMatchObject(expectedEventTypes);
     });
   });
 });

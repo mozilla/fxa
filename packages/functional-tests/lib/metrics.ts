@@ -1,9 +1,22 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-import { SubscribePage } from '../pages/products';
 import { expect } from '../lib/fixtures/standard';
+import { SubscribePage } from '../pages/products';
+
+// https://mozilla.github.io/ecosystem-platform/relying-parties/reference/metrics-for-relying-parties#metrics-related-query-parameters
+const ACQUISITION_QUERY_PARAMS = [
+  'entrypoint',
+  'entrypoint_experiment',
+  'entrypoint_variation',
+  'form_type',
+  'utm_source',
+  'utm_campaign',
+  'utm_content',
+  'utm_term',
+  'utm_medium',
+  'context',
+];
 
 // language and time added downstream in the request handler
 // planId, productId, transformed downstream to snake_case
@@ -49,7 +62,6 @@ const REQUIRED_FIELDS_BY_EVENT_TYPE_MAP = {
     ...P1_PAYMENTS_GLOBAL_REQUIRED_FIELDS,
     ...P1_SUBSCRIPTION_CREATE_REQUIRED_FIELDS,
     'paymentProvider',
-    'country_code_source',
   ],
   'amplitude.subPaySetup.fail': [
     ...P1_PAYMENTS_GLOBAL_REQUIRED_FIELDS,
@@ -82,7 +94,7 @@ const REQUIRED_FIELDS_BY_EVENT_TYPE_MAP = {
 };
 
 export class MetricsObserver {
-  public rawEvents: (Object & { type: string })[];
+  public rawEvents: (object & { type: string })[];
   private subscribePage: SubscribePage;
 
   constructor(subscribePage: SubscribePage) {
@@ -103,8 +115,14 @@ export class MetricsObserver {
             for (const field of REQUIRED_FIELDS_BY_EVENT_TYPE_MAP[
               rawEvent.type
             ]) {
-              expect(rawEvent[field]).not.toBeNull();
-              expect(rawEvent[field], `${field} is required`).toBeDefined();
+              expect(
+                rawEvent[field],
+                `${field} must be non-null for event ${rawEvent.type}`
+              ).not.toBeNull();
+              expect(
+                rawEvent[field],
+                `${field} must be defined for event ${rawEvent.type}`
+              ).toBeDefined();
             }
 
             // If this is an existing user checkout flow or a plan change event, uid is required
@@ -123,5 +141,24 @@ export class MetricsObserver {
         }
       }
     });
+    this.subscribePage.page.on('response', (response) => {
+      if (
+        response.request().method() === 'POST' &&
+        response.request().url().includes('/metrics')
+      ) {
+        expect(response.status()).toBe(200);
+      }
+    });
+  }
+
+  getAcquisitionParamsFromEvents() {
+    const params = {};
+    // Since they're passed in by the RP, the params are identical
+    // between events in the same flow.
+    const firstEvent = this.rawEvents[0];
+    for (const param of ACQUISITION_QUERY_PARAMS) {
+      params[param] = firstEvent[param] || null;
+    }
+    return params;
   }
 }

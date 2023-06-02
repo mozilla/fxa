@@ -1088,7 +1088,7 @@ export class StripeWebhookHandler extends StripeHandler {
         : subscription.collection_method === 'charge_automatically'
         ? 'stripe'
         : 'not_chosen';
-    const countryCodeSource: string | null | undefined =
+    const countryCode: string | null | undefined =
       customer.shipping?.address?.country;
     const { id: planId, product: productId } = subscription.items.data[0].plan;
     // It is considered a voluntary cancellation when the customer cancels their subscription
@@ -1118,7 +1118,7 @@ export class StripeWebhookHandler extends StripeHandler {
     }
 
     return {
-      country_code_source: countryCodeSource,
+      country_code: countryCode,
       payment_provider: paymentProvider,
       plan_id: planId,
       product_id: productId,

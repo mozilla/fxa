@@ -379,7 +379,7 @@ export function updateSubscriptionPlan_PENDING(
 }
 
 export function updateSubscriptionPlan_FULFILLED(
-  eventProperties: SuccessfulSubscriptionEventProperties
+  eventProperties: EventProperties
 ) {
   safeLogAmplitudeEvent(
     eventGroupNames.changeSubscription,
