@@ -167,21 +167,37 @@ const CompleteResetPassword = ({
         // account's original email because this will maintain backwards compatibility with
         // how account password hashing works previously.
         const emailToUse = emailToHashWith || email;
-        const [sessionisVerified] = await Promise.all([
-          account.isSessionVerified(),
-          account.completeResetPassword(token, code, emailToUse, newPassword),
+
+        await account.completeResetPassword(
+          token,
+          code,
+          emailToUse,
+          newPassword
+        );
+
+        /* NOTE: Session check/totp check must come after completeResetPassword since those
+         * require session tokens that we retrieve in PW reset. We will want to refactor this
+         * later but there's a `mustVerify` check getting in the way (see Account.ts comment).
+         *
+         * We may also want to consider putting a different error message in place for when
+         * PW reset succeeds, but one of these fails. At the moment, the try/catch in Account
+         * just returns false for these if the request fails. */
+        const [sessionIsVerified, hasTotp] = await Promise.all([
+          account.isSessionVerifiedAuthClient(),
+          account.hasTotpAuthClient(),
         ]);
 
+        let hardNavigate = false;
         switch (integration.type) {
           case IntegrationType.SyncDesktop:
-            notifyFirefoxOfLogin(account, sessionisVerified);
+            notifyFirefoxOfLogin(account, sessionIsVerified);
             break;
           case IntegrationType.OAuth:
             if (
-              sessionisVerified &&
+              sessionIsVerified &&
               // only allow this redirect if 2FA is not enabled, otherwise users must enter
               // their TOTP code first
-              !account.totp.verified &&
+              !hasTotp &&
               // a user can only redirect back to the relier from the original tab
               // to avoid two tabs redirecting.
               isOriginalTab()
@@ -192,17 +208,23 @@ const CompleteResetPassword = ({
             } else if (!isOriginalTab()) {
               // allows a navigation to a "complete" screen or TOTP screen if it is setup
               // TODO: check if relier has state
-              if (account.totp.verified) {
+              if (hasTotp) {
                 // finishing OAuth flow occurs on this page after entering TOTP
                 // TODO: probably need to pass some params
-                hardNavigateToContentServer('/signin_totp_code');
+                hardNavigateToContentServer(
+                  `/signin_totp_code${location.search}`
+                );
+                hardNavigate = true;
               }
             }
             break;
           case IntegrationType.Web:
-            if (account.totp.verified) {
+            if (hasTotp) {
               // take users to Settings after entering TOTP
-              hardNavigateToContentServer('/signin_totp_code');
+              hardNavigateToContentServer(
+                `/signin_totp_code${location.search}`
+              );
+              hardNavigate = true;
             }
             // TODO: if no TOTP, navigate users to /settings with the alert bar message
             // for now, just navigate to reset_password_verified
@@ -211,7 +233,9 @@ const CompleteResetPassword = ({
           // TODO: run unpersistVerificationData in FXA-7308
         }
 
-        alertSuccessAndNavigate();
+        if (!hardNavigate) {
+          alertSuccessAndNavigate();
+        }
       } catch (e) {
         setErrorType(ErrorType['complete-reset']);
       }

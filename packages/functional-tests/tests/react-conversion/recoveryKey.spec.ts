@@ -67,6 +67,8 @@ test.describe('recovery key react', () => {
       status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Enabled');
 
+      // Ensure password reset occurs with no session token available
+      login.clearCache();
       // Stash original encryption keys to be verified later
       const res = await target.auth.sessionReauth(
         credentials.sessionToken,

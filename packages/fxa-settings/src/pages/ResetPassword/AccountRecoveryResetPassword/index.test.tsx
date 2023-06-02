@@ -38,6 +38,13 @@ let mockOauthClient = mocks.mockOauthClient();
 let mockNavigate = mocks.mockNavigate();
 let mockNotifier = mocks.mockNotifier();
 
+const mockUseNavigateWithoutRerender = jest.fn();
+
+jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
+  __esModule: true,
+  default: () => mockUseNavigateWithoutRerender,
+}));
+
 jest.mock('../../../models/hooks', () => {
   return {
     __esModule: true,
@@ -242,6 +249,8 @@ describe('AccountRecoveryResetPassword page', () => {
       beforeEach(async () => {
         mockAccount.setLastLogin = jest.fn();
         mockAccount.resetPasswordWithRecoveryKey = jest.fn();
+        mockAccount.isSessionVerifiedAuthClient = jest.fn();
+        mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
         await act(async () => {
           enterPassword('foo12356789!');
@@ -256,8 +265,14 @@ describe('AccountRecoveryResetPassword page', () => {
         );
       });
 
-      it('calls resetPasswordWithRecoveryKey', () => {
-        expect(mockAccount.resetPasswordWithRecoveryKey).toHaveBeenCalled();
+      it('calls account API methods', () => {
+        // Check that resetPasswordWithRecoveryKey was the first function called
+        // because it retrieves the session token required by other calls
+        expect(
+          (mockAccount.resetPasswordWithRecoveryKey as jest.Mock).mock.calls[0]
+        ).toBeTruthy();
+        expect(mockAccount.isSessionVerifiedAuthClient).toHaveBeenCalled();
+        expect(mockAccount.hasTotpAuthClient).toHaveBeenCalled();
       });
 
       it('sets relier state', () => {
@@ -290,6 +305,43 @@ describe('AccountRecoveryResetPassword page', () => {
           expect(notifyFirefoxOfLogin).toHaveBeenCalled();
         });
       });
+
+      it('navigates as expected without totp', async () => {
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(
+            '/reset_password_with_recovery_key_verified'
+          );
+        });
+      });
+    });
+  });
+
+  describe('successful reset with totp', () => {
+    // Window mocks not needed once this page doesn't use `hardNavigateToContentServer`
+    const originalWindow = window.location;
+    beforeAll(() => {
+      // @ts-ignore
+      delete window.location;
+      window.location = { ...originalWindow, href: '' };
+    });
+    beforeEach(async () => {
+      window.location.href = originalWindow.href;
+      mockAccount.setLastLogin = jest.fn();
+      mockAccount.resetPasswordWithRecoveryKey = jest.fn();
+      mockAccount.isSessionVerifiedAuthClient = jest.fn();
+      mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
+      await renderPage();
+      await act(async () => {
+        enterPassword('foo12356789!');
+        clickResetPassword();
+      });
+    });
+    afterAll(() => {
+      window.location = originalWindow;
+    });
+
+    it('navigates as expected', async () => {
+      expect(window.location.href).toContain('/signin_totp_code');
     });
   });
 

@@ -9,7 +9,7 @@ import {
   useLocation,
   useNavigate,
 } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
 
 import AppLayout from '../../../components/AppLayout';
@@ -252,15 +252,15 @@ const AccountRecoveryResetPassword = ({
           verificationInfo.emailToHashWith || verificationInfo.email,
       };
 
-      const [sessionisVerified] = await Promise.all([
-        account.isSessionVerified(),
-        account.resetPasswordWithRecoveryKey(options),
-      ]);
+      await account.resetPasswordWithRecoveryKey(options);
+      // must come after completeResetPassword since that receives the sessionToken
+      // required for this check
+      const sessionIsVerified = await account.isSessionVerifiedAuthClient();
 
-      // FOLLOW-UP: Functionality not yet available.
+      // FOLLOW-UP: Functionality not yet available. FXA-7045
       await account.setLastLogin(Date.now());
 
-      // FOLLOW-UP: Functionality not yet available.
+      // FOLLOW-UP: Functionality not yet available. FXA-7045
       notifier.onAccountSignIn(account);
 
       relier.resetPasswordConfirm = true;
@@ -268,11 +268,11 @@ const AccountRecoveryResetPassword = ({
 
       switch (integration.type) {
         case IntegrationType.SyncDesktop:
-          notifyFirefoxOfLogin(account, sessionisVerified);
+          notifyFirefoxOfLogin(account, sessionIsVerified);
           break;
         case IntegrationType.OAuth:
           if (
-            sessionisVerified &&
+            sessionIsVerified &&
             // a user can only redirect back to the relier from the original tab
             // to avoid two tabs redirecting.
             isOriginalTab()
@@ -314,18 +314,20 @@ const AccountRecoveryResetPassword = ({
     setBannerState(BannerState.PasswordResetSuccess);
   }
 
-  function navigateAway() {
-    setUserPreference('account-recovery', account.recoveryKey);
+  async function navigateAway() {
+    // TODO / refactor: the initial account result with useAccount() does not
+    // contain account data due to no session token. Users receive the session
+    // token on PW reset, so we can query here for it.
+    const hasTotp = await account.hasTotpAuthClient();
+
+    setUserPreference('account-recovery', false);
     logViewEvent(viewName, 'recovery-key-consume.success');
 
-    // When users reset a PW with their recovery key we always want to navigate to
-    // the page encouraging them to generate another. If they don't have a verified
-    // session, clicking on any link taking them into Settings should take them to
-    // `signin_token_code` to verify their session first, then take them to Settings.
-    // We don't prompt them for a TOTP code if enabled, unlike a regular password reset,
-    // because posession of the primary email to use the reset link while using a
-    // recovery key is sufficient proof of ownership.
-    navigate(`/reset_password_with_recovery_key_verified?${location.search}`);
+    if (hasTotp) {
+      hardNavigateToContentServer(`/signin_totp_code${location.search}`);
+    } else {
+      navigate(`/reset_password_with_recovery_key_verified${location.search}`);
+    }
   }
 
   function alertValidationError(err: ModelValidationErrors) {

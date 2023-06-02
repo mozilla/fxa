@@ -14,6 +14,22 @@ export interface OldSettingsData {
   metricsEnabled?: boolean;
 }
 
+export function getOldSettingsData({
+  uid,
+  sessionToken,
+  alertText,
+  displayName,
+  metricsEnabled,
+}: Record<string, any>): OldSettingsData {
+  return {
+    uid,
+    sessionToken,
+    alertText,
+    displayName,
+    metricsEnabled,
+  };
+}
+
 type LocalAccount = OldSettingsData | undefined;
 type LocalAccounts = Record<hexstring, LocalAccount> | undefined;
 
