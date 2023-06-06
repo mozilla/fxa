@@ -100,7 +100,7 @@ const ResetPassword = ({
     async (email: string) => {
       try {
         clearError();
-        const result = await account.resetPassword(email);
+        const result = await account.resetPassword(email, serviceName);
         navigateToConfirmPwReset({
           passwordForgotToken: result.passwordForgotToken,
           email,

@@ -252,7 +252,9 @@ const AccountRecoveryResetPassword = ({
           verificationInfo.emailToHashWith || verificationInfo.email,
       };
 
-      await account.resetPasswordWithRecoveryKey(options);
+      const accountResetData = await account.resetPasswordWithRecoveryKey(
+        options
+      );
       // must come after completeResetPassword since that receives the sessionToken
       // required for this check
       const sessionIsVerified = await account.isSessionVerifiedAuthClient();
@@ -267,8 +269,22 @@ const AccountRecoveryResetPassword = ({
       logViewEvent(viewName, 'verification.success');
 
       switch (integration.type) {
+        // NOTE: SyncBasic check is temporary until we implement codes
+        // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
         case IntegrationType.SyncDesktop:
-          notifyFirefoxOfLogin(account, sessionIsVerified);
+        case IntegrationType.SyncBasic:
+          notifyFirefoxOfLogin(
+            {
+              authAt: accountResetData.authAt,
+              email: verificationInfo.email,
+              keyFetchToken: accountResetData.keyFetchToken,
+              sessionToken: accountResetData.sessionToken,
+              uid: accountResetData.uid,
+              unwrapBKey: accountResetData.unwrapBKey,
+              verified: accountResetData.verified,
+            },
+            sessionIsVerified
+          );
           break;
         case IntegrationType.OAuth:
           if (

@@ -4,9 +4,13 @@
 
 import React from 'react';
 import { MozServices } from '../../../lib/types';
-import { LocationProvider } from '@reach/router';
-import { Account, AppContext } from '../../../models';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { Account } from '../../../models';
+import {
+  mockAppContext,
+  MOCK_ACCOUNT,
+  createHistoryWithQuery,
+  createAppContext,
+} from '../../../models/mocks';
 
 import { LinkType } from 'fxa-settings/src/lib/types';
 import LinkValidator from '../../../components/LinkValidator';
@@ -77,38 +81,42 @@ class StorageDataMock extends StorageData {
   }
 }
 
-export const Subject = ({
-  account,
-  params,
-}: {
-  account: Account;
-  params: Record<string, string>;
-}) => {
-  const windowWrapper = new ReachRouterWindow();
+const route = '/account_recovery_confirm_key';
+export const getSubject = (
+  account: Account,
+  params?: Record<string, string>
+) => {
   const urlQueryData = mockUrlQueryData(params);
+  const history = createHistoryWithQuery(
+    route,
+    new URLSearchParams(params).toString()
+  );
+  const windowWrapper = new ReachRouterWindow(history);
 
-  return (
-    <AppContext.Provider
-      value={mockAppContext({
+  return {
+    Subject: () => (
+      <LinkValidator
+        linkType={LinkType['reset-password']}
+        viewName="account-recovery-confirm-key"
+        getParamsFromModel={() => {
+          return new CompleteResetPasswordLink(urlQueryData);
+        }}
+      >
+        {({ setLinkStatus, params }) => (
+          <AccountRecoveryConfirmKey {...{ setLinkStatus, params }} />
+        )}
+      </LinkValidator>
+    ),
+    route,
+    history,
+    appCtx: {
+      ...mockAppContext({
+        ...createAppContext(history),
         account,
         windowWrapper,
-        storageData: new StorageDataMock(windowWrapper),
         urlQueryData,
-      })}
-    >
-      <LocationProvider>
-        <LinkValidator
-          linkType={LinkType['reset-password']}
-          viewName="account-recovery-confirm-key"
-          getParamsFromModel={() => {
-            return new CompleteResetPasswordLink(urlQueryData);
-          }}
-        >
-          {({ setLinkStatus, params }) => (
-            <AccountRecoveryConfirmKey {...{ setLinkStatus, params }} />
-          )}
-        </LinkValidator>
-      </LocationProvider>
-    </AppContext.Provider>
-  );
+        storageData: new StorageDataMock(windowWrapper),
+      }),
+    },
+  };
 };

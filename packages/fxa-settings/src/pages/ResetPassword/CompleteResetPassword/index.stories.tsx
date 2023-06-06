@@ -7,7 +7,9 @@ import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { Account } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
-import { paramsWithMissingEmail, Subject } from './mocks';
+import { getSubject, paramsWithMissingEmail } from './mocks';
+import { produceComponent } from '../../../models/mocks';
+// import { resetMocks } from '../AccountRecoveryResetPassword/mocks';
 
 export default {
   title: 'Pages/ResetPassword/CompleteResetPassword',
@@ -15,18 +17,21 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithSubject = (
-  account: Account,
-  params?: Record<string, string>,
-  storyName?: string
-) => {
-  const story = () => {
-    return <Subject {...{ account, params }} />;
-  };
-
-  story.storyName = storyName;
-  return story;
+type RenderStoryOptions = {
+  account?: Account;
+  params?: Record<string, string>;
 };
+
+function renderStory(
+  { account = accountNoRecoveryKey, params }: RenderStoryOptions = {},
+  storyName?: string
+) {
+  // resetMocks();
+  const { Subject, history, appCtx } = getSubject(account, params);
+  const story = () => produceComponent(<Subject />, { history }, appCtx);
+  story.storyName = storyName;
+  return story();
+}
 
 const accountNoRecoveryKey = {
   resetPasswordStatus: () => Promise.resolve(true),
@@ -44,21 +49,27 @@ const accountWithFalseyResetPasswordStatus = {
   resetPasswordStatus: () => Promise.resolve(false),
 } as unknown as Account;
 
-export const NoRecoveryKeySet = storyWithSubject(
-  accountNoRecoveryKey,
-  undefined,
-  'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
-);
+export const NoRecoveryKeySet = () => {
+  return renderStory(
+    {},
+    'Default - no account recovery key set. Users with one set will be redirected to AccountRecoveryConfirmKey'
+  );
+};
 
-export const ErrorCheckingRecoveryKeyStatus = storyWithSubject(
-  accountWithRecoveryKeyStatusError
-);
+export const ErrorCheckingRecoveryKeyStatus = () => {
+  return renderStory({
+    account: accountWithRecoveryKeyStatusError,
+  });
+};
+export const WithExpiredLink = () => {
+  return renderStory({
+    account: accountWithFalseyResetPasswordStatus,
+  });
+};
 
-export const WithExpiredLink = storyWithSubject(
-  accountWithFalseyResetPasswordStatus
-);
-
-export const WithDamagedLink = storyWithSubject(
-  accountNoRecoveryKey,
-  paramsWithMissingEmail
-);
+export const WithDamagedLink = () => {
+  return renderStory({
+    account: accountNoRecoveryKey,
+    params: paramsWithMissingEmail,
+  });
+};

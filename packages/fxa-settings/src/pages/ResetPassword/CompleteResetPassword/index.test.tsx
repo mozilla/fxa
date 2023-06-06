@@ -3,26 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { Account } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import {
+  getSubject,
+  MOCK_RESET_DATA,
   mockCompleteResetPasswordParams,
   paramsWithMissingCode,
   paramsWithMissingEmail,
   paramsWithMissingEmailToHashWith,
   paramsWithMissingToken,
   paramsWithSyncDesktop,
-  Subject,
 } from './mocks';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import { renderWithRouter } from '../../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -76,9 +72,10 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
-function renderSubject(account: Account, params?: Record<string, string>) {
-  render(<Subject {...{ account, params }} />);
-}
+const renderSubject = (account: Account, params?: Record<string, string>) => {
+  const { Subject, history, appCtx } = getSubject(account, params);
+  return renderWithRouter(<Subject />, { history }, appCtx);
+};
 
 describe('CompleteResetPassword page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -92,7 +89,7 @@ describe('CompleteResetPassword page', () => {
 
     account = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      completeResetPassword: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(MOCK_RESET_DATA),
       hasRecoveryKey: jest.fn().mockResolvedValue(false),
       hasTotpAuthClient: jest.fn().mockResolvedValue(false),
       isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
@@ -140,6 +137,7 @@ describe('CompleteResetPassword page', () => {
 
   it('renders the component as expected when provided with an expired link', async () => {
     account = {
+      ...account,
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
     } as unknown as Account;
 
@@ -252,7 +250,7 @@ describe('CompleteResetPassword page', () => {
   describe('account has recovery key', () => {
     const accountWithRecoveryKey = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      completeResetPassword: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(MOCK_RESET_DATA),
       hasRecoveryKey: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
 

@@ -10,7 +10,6 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
 import {
-  Subject,
   MOCK_RECOVERY_KEY,
   MOCK_RESET_TOKEN,
   MOCK_RECOVERY_KEY_ID,
@@ -19,12 +18,13 @@ import {
   paramsWithMissingToken,
   paramsWithMissingCode,
   paramsWithMissingEmail,
+  getSubject,
 } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account } from '../../../models';
 import { typeByLabelText } from '../../../lib/test-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
@@ -76,7 +76,8 @@ const renderSubject = ({
   account = accountWithValidResetToken,
   params = mockCompleteResetPasswordParams,
 } = {}) => {
-  render(<Subject {...{ account, params }} />);
+  const { Subject, history, appCtx } = getSubject(account, params);
+  return renderWithRouter(<Subject />, { history }, appCtx);
 };
 
 describe('PageAccountRecoveryConfirmKey', () => {

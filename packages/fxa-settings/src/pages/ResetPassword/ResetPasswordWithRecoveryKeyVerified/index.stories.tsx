@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPasswordWithRecoveryKeyVerified from '.';
+import ResetPasswordWithRecoveryKeyVerified, {
+  ResetPasswordWithRecoveryKeyVerifiedProps,
+} from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
-import {
-  produceComponent,
-  createAppContext,
-  createHistoryWithQuery,
-} from '../../../models/mocks';
+import { Account } from '../../../models';
+import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
@@ -18,19 +17,29 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const route = '/reset_password_with_recovery_key_verified';
+type RenderStoryOptions = {
+  account?: Account;
+  props?: ResetPasswordWithRecoveryKeyVerifiedProps;
+  queryParams?: string;
+};
 
-function render(isSignedIn: boolean, queryParams?: string) {
-  const history = createHistoryWithQuery(route, queryParams);
-  const appCtx = createAppContext(history);
-  return produceComponent(
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn={isSignedIn} />,
-    { route, history },
-    appCtx
+function renderStory({
+  account,
+  props = { isSignedIn: false },
+  queryParams,
+}: RenderStoryOptions = {}) {
+  return renderStoryWithHistory(
+    <ResetPasswordWithRecoveryKeyVerified {...props} />,
+    '/reset_password_with_recovery_key_verified',
+    account,
+    queryParams
   );
 }
 
-export const DefaultAccountSignedIn = () => render(true);
-export const DefaultAccountSignedOut = () => render(false);
-export const WithSyncAccountSignedIn = () => render(true, `service=sync`);
-export const WithSyncAccountSignedOut = () => render(false, `service=sync`);
+export const DefaultAccountSignedIn = () =>
+  renderStory({ props: { isSignedIn: true } });
+export const DefaultAccountSignedOut = () => renderStory();
+export const WithSyncAccountSignedIn = () =>
+  renderStory({ props: { isSignedIn: true }, queryParams: `service=sync` });
+export const WithSyncAccountSignedOut = () =>
+  renderStory({ queryParams: `service=sync` });

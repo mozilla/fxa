@@ -277,3 +277,10 @@ export function mockContext() {
 }
 
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
+export const MOCK_RESET_DATA = {
+  authAt: 12345,
+  keyFetchToken: 'keyFetchToken',
+  sessionToken: 'sessionToken',
+  unwrapBKey: 'unwrapBKey',
+  verified: true,
+};
