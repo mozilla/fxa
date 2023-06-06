@@ -13,7 +13,7 @@ import {
 } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
-import { useAccount, useFtlMsgResolver } from '../../models';
+import { CreateRelier, useAccount, useFtlMsgResolver } from '../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -41,8 +41,6 @@ type FormData = {
 
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
-  // TODO: Pull service name from Relier model FXA-6437
-  serviceName = MozServices.Default,
   prefillEmail,
   forceAuth,
 }: ResetPasswordProps & RouteComponentProps) => {
@@ -52,8 +50,11 @@ const ResetPassword = ({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [hasFocused, setHasFocused] = useState<boolean>(false);
   const account = useAccount();
+  const relier = CreateRelier();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
+
+  const serviceName = relier.getServiceName();
 
   const { control, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'onTouched',
