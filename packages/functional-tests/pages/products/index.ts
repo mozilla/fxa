@@ -99,6 +99,7 @@ export class SubscribePage extends BaseLayout {
     const listPrice = this.page.locator(
       '.plan-details-item:has-text("List Price")'
     );
+    await listPrice.waitFor();
     return listPrice.isVisible();
   }
 

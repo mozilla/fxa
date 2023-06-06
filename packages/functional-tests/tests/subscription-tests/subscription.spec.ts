@@ -94,12 +94,21 @@ test.describe('metrics - flow metrics query params', () => {
   test.describe('severity-2', () => {
     test('logged in and toggle off Share Data, Checkout to not have flow params in URL', async ({
       pages: { settings, relier, page },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'test plan not yet available in prod'
+      );
+      // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
-      await settings.dataCollection.toggleShareData('off');
-      const ariaChecked = await settings.dataCollection.getToggleStatus();
-      expect(ariaChecked).toBe('false');
+      expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
 
+      // Toggle swtich, verify the alert bar appears and its status
+      await settings.dataCollection.toggleShareData('off');
+      expect(await settings.alertBarText()).toContain('Opt out successful.');
+      expect(await settings.dataCollection.getToggleStatus()).toBe('false');
+
+      // Subscribe to plan and verify URL does not include flow parameter
       await relier.goto();
       await relier.clickSubscribe6Month();
       expect(page.url()).not.toContain('&flow_begin_time=');
@@ -109,12 +118,20 @@ test.describe('metrics - flow metrics query params', () => {
   test.describe('severity-3', () => {
     test('logged in and toggle on Share Data, Checkout to have flow params in URL', async ({
       pages: { settings, relier, page },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'test plan not yet available in prod'
+      );
+      // Go to settings page and verify the Data Collection toggle switch is visible
       await settings.goto();
-      await settings.dataCollection.toggleShareData('on');
-      const ariaChecked = await settings.dataCollection.getToggleStatus();
-      expect(ariaChecked).toBe('true');
+      expect(await settings.dataCollection.isToggleSwitch()).toBe(true);
 
+      // Toggle swtich and verify its status
+      await settings.dataCollection.toggleShareData('on');
+      expect(await settings.dataCollection.getToggleStatus()).toBe('true');
+
+      // Subscribe to plan and verify URL does not include flow parameter
       await relier.goto();
       await relier.clickSubscribe6Month();
       expect(page.url()).toContain('&flow_begin_time=');
@@ -122,7 +139,11 @@ test.describe('metrics - flow metrics query params', () => {
 
     test('not logged in, Checkout to have flow params in URL', async ({
       pages: { settings, relier, page },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'test plan not yet available in prod'
+      );
       await settings.goto();
       await settings.signOut();
       await relier.goto();
@@ -132,7 +153,11 @@ test.describe('metrics - flow metrics query params', () => {
 
     test('not logged in, user has no account and has not previously signed in, Checkout to have flow params in URL', async ({
       pages: { settings, login, relier, page },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'test plan not yet available in prod'
+      );
       await settings.goto();
       await settings.signOut();
       await login.clearCache();
@@ -143,7 +168,11 @@ test.describe('metrics - flow metrics query params', () => {
 
     test('not logged in, Checkout to have RP-provided flow params in URL', async ({
       pages: { settings, relier, page },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'test plan not yet available in prod'
+      );
       await settings.goto();
       await settings.signOut();
       await relier.goto();
