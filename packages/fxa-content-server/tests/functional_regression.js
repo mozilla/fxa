@@ -6,8 +6,6 @@ const testsSettings = require('./functional_settings');
 
 module.exports = testsSettings.concat([
   'tests/functional/oauth_settings_clients.js',
-  'tests/functional/oauth_prompt_none.js',
-  'tests/functional/oauth_permissions.js',
   // new and flaky tests above here',
   'tests/functional/avatar.js',
   'tests/functional/bounced_email.js',
@@ -15,9 +13,6 @@ module.exports = testsSettings.concat([
   'tests/functional/fx_desktop_handshake.js',
   'tests/functional/oauth_webchannel.js',
   'tests/functional/pages.js',
-  'tests/functional/post_verify/force_password_change.js',
-  'tests/functional/post_verify/account_recovery.js',
-  'tests/functional/post_verify/secondary_email.js',
   'tests/functional/sign_in.js',
   'tests/functional/sign_in_blocked.js',
 ]);

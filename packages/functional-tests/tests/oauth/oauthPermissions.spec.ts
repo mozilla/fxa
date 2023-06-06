@@ -28,7 +28,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     }
   });
 
-  test('signup without `prompt=consent', async ({
+  test('signup without `prompt=consent`', async ({
     pages: { login, relier },
   }) => {
     await relier.goto();
@@ -60,7 +60,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     expect(await login.isSignUpCodeHeader()).toBe(true);
   });
 
-  test('signin without `prompt=consent', async ({
+  test('signin without `prompt=consent`', async ({
     target,
     pages: { login, relier },
   }) => {
@@ -76,7 +76,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     expect(await relier.isLoggedIn()).toBe(true);
   });
 
-  test('signin with `prompt=consent', async ({
+  test('signin with `prompt=consent`', async ({
     target,
     page,
     pages: { login, relier },
@@ -163,7 +163,7 @@ test.describe('oauth permissions for trusted reliers', () => {
       prompt: 'consent',
       email: email,
     });
-    await page.goto(target.relierUrl + `/?${query.toString()}`);
+    await page.goto(`${target.relierUrl}/?${query.toString()}`);
     await relier.clickForceAuth();
     await login.setPassword(password);
     await login.submit();
