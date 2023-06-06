@@ -704,7 +704,6 @@ describe('metrics/amplitude:', () => {
           const eventNoRequired = deepCopy(fxa_pay_setup_event);
           eventNoRequired.event_type = 'fxa_pay_setup - success';
           delete eventNoRequired.event_properties.payment_provider;
-          delete eventNoRequired.event_properties.country_code_source;
 
           try {
             amplitude.validate(eventNoRequired);
@@ -713,7 +712,7 @@ describe('metrics/amplitude:', () => {
             assert.isTrue(err instanceof Error);
             assert.equal(
               err.message,
-              `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema, event/event_properties must have required property 'country_code_source', event must match "then" schema`
+              `Invalid data: event/event_properties must have required property 'payment_provider', event must match "then" schema`
             );
           }
         });
@@ -752,7 +751,6 @@ describe('metrics/amplitude:', () => {
         },
         event_type: 'fxa_pay_subscription_change - view',
         event_properties: {
-          country_code_source: 'DE',
           service: 'qux',
           product_id: 'product',
           plan_id: 'plan',
@@ -772,7 +770,6 @@ describe('metrics/amplitude:', () => {
       it('success - valid with only required and none of the optional properties', () => {
         const eventNoOptional = deepCopy(fxa_pay_subscription_change_event);
         delete eventNoOptional.country_code;
-        delete eventNoOptional.event_properties.country_code_source;
         delete eventNoOptional.event_properties.error_id;
         delete eventNoOptional.event_properties.promotion_code;
         delete eventNoOptional.event_properties.subscribed_plan_ids;
@@ -805,24 +802,6 @@ describe('metrics/amplitude:', () => {
           );
         }
       });
-      describe('fxa_pay_subscription_change - success events', () => {
-        it('error - required field(s) are missing', () => {
-          const eventNoRequired = deepCopy(fxa_pay_subscription_change_event);
-          eventNoRequired.event_type = 'fxa_pay_subscription_change - success';
-          delete eventNoRequired.event_properties.country_code_source;
-
-          try {
-            amplitude.validate(eventNoRequired);
-            assert.fail('Validate is expected to fail');
-          } catch (err) {
-            assert.isTrue(err instanceof Error);
-            assert.equal(
-              err.message,
-              `Invalid data: event/event_properties must have required property 'country_code_source', event must match "then" schema`
-            );
-          }
-        });
-      });
       describe('fxa_pay_subscription_change - fail events', () => {
         it('error - required field(s) are missing', () => {
           const eventNoRequired = deepCopy(fxa_pay_subscription_change_event);
@@ -852,7 +831,7 @@ describe('metrics/amplitude:', () => {
         user_id: '9ce8626e11ab4238981287fb95c8545e',
         user_properties: {},
         event_properties: {
-          country_code_source: 'BC',
+          country_code: 'BC',
           payment_provider: 'stripe',
           plan_id: 'def',
           product_id: 'ghi',

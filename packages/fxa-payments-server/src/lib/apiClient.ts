@@ -200,7 +200,6 @@ export async function apiUpdateSubscriptionPlan(params: {
     );
     Amplitude.updateSubscriptionPlan_FULFILLED({
       ...metricsOptions,
-      country_code_source: result.sourceCountry,
     });
     return result;
   } catch (error) {

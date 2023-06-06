@@ -26,18 +26,7 @@
   "name": null,
   "phone": null,
   "preferred_locales": [],
-  "shipping": {
-    "address": {
-      "city": null,
-      "country": "RO",
-      "line1": null,
-      "line2": null,
-      "postal_code": "98332",
-      "state": null
-    },
-    "name": "Testy McTesterson",
-    "phone": null
-  },
+  "shipping": null,
   "sources": {
     "object": "list",
     "data": [

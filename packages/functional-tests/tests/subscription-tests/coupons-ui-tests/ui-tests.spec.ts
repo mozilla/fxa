@@ -1,11 +1,16 @@
-import { test, expect } from '../../../lib/fixtures/standard';
+import { expect, test } from '../../../lib/fixtures/standard';
+import { MetricsObserver } from '../../../lib/metrics';
 
 test.describe('ui functionality', () => {
-  test.beforeEach(() => {
+  let metricsObserver: MetricsObserver;
+
+  test.beforeEach(({ pages: { subscribe } }) => {
     test.slow();
+    metricsObserver = new MetricsObserver(subscribe);
+    metricsObserver.startTracking();
   });
 
-  test('verify coupon feature not available when changing plans', async ({
+  test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
     page,
     pages: { relier, subscribe },
   }, { project }) => {
@@ -46,5 +51,21 @@ test.describe('ui functionality', () => {
 
     //Verify the subscription is successful
     expect(await subscribe.isSubscriptionSuccess()).toBe(true);
+
+    // check conversion funnel metrics
+    const expectedEventTypes = [
+      'amplitude.subPaySetup.view',
+      'amplitude.subPaySetup.engage',
+      'amplitude.subPaySetup.submit',
+      'amplitude.subPaySetup.success',
+      'amplitude.subPaySubChange.view',
+      'amplitude.subPaySubChange.engage',
+      'amplitude.subPaySubChange.submit',
+      'amplitude.subPaySubChange.success',
+    ];
+    const actualEventTypes = metricsObserver.rawEvents.map((event) => {
+      return event.type;
+    });
+    expect(actualEventTypes).toMatchObject(expectedEventTypes);
   });
 });
