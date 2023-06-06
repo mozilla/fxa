@@ -4,6 +4,7 @@ export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   CONFIRM_RESET_PASSWORD_HEADER: '#fxa-confirm-reset-password-header',
+  COMPLETE_RESET_PASSWORD_HEADER: '#fxa-complete-reset-password-header',
   EMAIL: 'input[type=email]',
   SUBMIT: 'button[type=submit]',
   VPASSWORD: '#vpassword',
@@ -22,39 +23,32 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async resetPasswordHeader() {
-    const resetPass = this.page.locator(selectors.RESET_PASSWORD_HEADER);
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+    const header = this.page.locator(selectors.RESET_PASSWORD_HEADER);
+    await header.waitFor();
   }
 
   async confirmResetPasswordHeader() {
-    const resetPass = this.page.locator(
-      selectors.CONFIRM_RESET_PASSWORD_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+    const header = this.page.locator(selectors.CONFIRM_RESET_PASSWORD_HEADER);
+    await header.waitFor();
   }
 
-  async completeResetPasswordHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_COMPLETE_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+  async completeResetPasswordHeader(page: BaseLayout['page'] = this.page) {
+    const header = page.locator(selectors.COMPLETE_RESET_PASSWORD_HEADER);
+    await header.waitFor();
   }
 
   async resetPasswordLinkExpiredHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_EXPIRED_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+    const header = this.page.locator(selectors.RESET_PASSWORD_EXPIRED_HEADER);
+    await header.waitFor();
   }
 
-  async resetNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
-    await this.page.locator(selectors.SUBMIT).click();
+  async resetNewPassword(
+    password: string,
+    page: BaseLayout['page'] = this.page
+  ) {
+    await page.locator(selectors.PASSWORD).fill(password);
+    await page.locator(selectors.VPASSWORD).fill(password);
+    await page.locator(selectors.SUBMIT).click();
   }
 
   async fillOutResetPassword(email) {

@@ -1,20 +1,11 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { BaseTarget } from '../../lib/targets/base';
 
 let key;
 let hint;
 let originalEncryptionKeys;
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
-
-function getReactFeatureFlagUrl(
-  target: BaseTarget,
-  path: string,
-  showReactApp = true
-) {
-  return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
-}
 
 test.describe('recovery key react', () => {
   test.beforeEach(
@@ -90,15 +81,15 @@ test.describe('recovery key react', () => {
     credentials,
     target,
     page,
+    pages: { resetPasswordReact },
   }) => {
-    await page.goto(getReactFeatureFlagUrl(target, '/reset_password'));
+    await resetPasswordReact.goto();
 
-    // Verify react page has been loaded
-    expect(await page.locator('#root').isEnabled()).toBeTruthy();
+    // Verify react page is loaded
+    await page.waitForSelector('#root');
 
-    await page.locator('input').fill(credentials.email);
-    await page.locator('text="Begin reset"').click();
-    await page.waitForURL(/confirm_reset_password/);
+    await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+    await resetPasswordReact.confirmResetPasswordHeadingVisible();
 
     // We need to append `&showReactApp=true` to reset link inorder to enroll in reset password experiment
     let link = await target.email.waitForEmail(
@@ -110,19 +101,15 @@ test.describe('recovery key react', () => {
 
     // Loads the React version
     await page.goto(link);
-    expect(await page.locator('#root').isEnabled()).toBeTruthy();
+    // Verify react page is loaded
+    await page.waitForSelector('#root');
 
-    expect(
-      await page.locator('text="Enter account recovery key"').isEnabled()
-    ).toBeTruthy();
-    await page.locator('input').fill(key);
-    await page.locator('text="Confirm account recovery key"').click();
+    await resetPasswordReact.confirmRecoveryKeyHeadingVisible();
+
+    await resetPasswordReact.submitRecoveryKey(key);
     await page.waitForURL(/account_recovery_reset_password/);
 
-    await page.locator('input[name="newPassword"]').fill(NEW_PASSWORD);
-    await page.locator('input[name="confirmPassword"]').fill(NEW_PASSWORD);
-
-    await page.locator('text="Reset password"').click();
+    await resetPasswordReact.submitNewPassword(NEW_PASSWORD);
     await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
     // Attempt to login with new password
@@ -149,7 +136,9 @@ test.describe('recovery key react', () => {
     // Cleanup requires setting this value to correct password
     credentials.password = NEW_PASSWORD;
 
-    await page.locator('text="Generate a new account recovery key"').click();
+    await page
+      .getByRole('button', { name: 'Generate a new account recovery key' })
+      .click();
     await page.waitForURL(/settings\/account_recovery/);
   });
 });

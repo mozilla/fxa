@@ -506,7 +506,7 @@ test.describe('new recovery key test', () => {
     await page.goto(link, { waitUntil: 'load' });
 
     // Verify reset link expired
-    expect(await resetPassword.resetPasswordLinkExpiredHeader()).toBe(true);
+    await resetPassword.resetPasswordLinkExpiredHeader();
   });
 
   test('revoke recovery key', async ({ pages: { settings } }) => {

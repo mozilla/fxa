@@ -6,7 +6,7 @@ import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('oauth reset password', () => {
-  test.beforeEach(async ({ target, pages: { login } }) => {
+  test.beforeEach(async () => {
     test.slow();
   });
 
@@ -23,7 +23,7 @@ test.describe('oauth reset password', () => {
     await login.clickForgotPassword();
 
     // Verify reset password header
-    expect(await resetPassword.resetPasswordHeader()).toBe(true);
+    await resetPassword.resetPasswordHeader();
 
     await resetPassword.fillOutResetPassword(credentials.email);
 

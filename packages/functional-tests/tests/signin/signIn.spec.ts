@@ -24,7 +24,7 @@ test.describe('signin here', () => {
     await login.clickForgotPassword();
 
     //Verify reset password header
-    expect(await resetPassword.resetPasswordHeader()).toBe(true);
+    await resetPassword.resetPasswordHeader();
   });
 
   test('signin with email with leading/trailing whitespace on the email', async ({
