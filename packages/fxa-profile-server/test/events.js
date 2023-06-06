@@ -227,7 +227,7 @@ describe('#integration - events', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
-          type = 'profileDataChanged';
+          type = 'profileDataChange';
         }
         return {
           event: type,
@@ -259,7 +259,7 @@ describe('#integration - events', function () {
       function Message(type, onDel) {
         if (typeof type === 'function') {
           onDel = type;
-          type = 'profileDataChanged';
+          type = 'profileDataChange';
         }
         return {
           event: type,

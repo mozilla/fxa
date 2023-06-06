@@ -130,7 +130,7 @@ export class StripeHandler {
       this.profile.deleteCache(uid),
     ]);
     await this.push.notifyProfileUpdated(uid, devices);
-    this.log.notifyAttachedServices('profileDataChanged', request, {
+    this.log.notifyAttachedServices('profileDataChange', request, {
       uid,
       email,
     });

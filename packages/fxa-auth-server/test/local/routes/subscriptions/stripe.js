@@ -530,7 +530,7 @@ describe('DirectStripeRoutes', () => {
 
       assert.isTrue(
         directStripeRoutesInstance.log.notifyAttachedServices.calledOnceWith(
-          'profileDataChanged',
+          'profileDataChange',
           VALID_REQUEST,
           { uid: UID, email: TEST_EMAIL }
         ),

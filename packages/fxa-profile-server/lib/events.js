@@ -55,12 +55,12 @@ module.exports = function (server) {
       });
   }
 
-  function profileDataChanged(message) {
+  function profileDataChange(message) {
     var userId = getUserId(message);
     return P.resolve()
       .then(function () {
         server.methods.profileCache.drop(userId).then(() => {
-          logger.info('profileDataChanged:cacheCleared', { uid: userId });
+          logger.info('profileDataChange:cacheCleared', { uid: userId });
         });
       })
       .then(function () {
@@ -78,8 +78,8 @@ module.exports = function (server) {
             return deleteUser(message);
           case 'primaryEmailChanged':
             return primaryEmailChanged(message);
-          case 'profileDataChanged':
-            return profileDataChanged(message);
+          case 'profileDataChange':
+            return profileDataChange(message);
           default:
             return;
         }
