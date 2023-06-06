@@ -5,6 +5,8 @@
 import {
   deepMerge,
   isBase32Crockford,
+  once,
+  resetOnce,
   searchParam,
   searchParams,
 } from './utilities';
@@ -113,5 +115,35 @@ describe('isBase32Crockford', () => {
     expect(isBase32Crockford('L')).toBe(false);
     expect(isBase32Crockford('O')).toBe(false);
     expect(isBase32Crockford('U')).toBe(false);
+  });
+});
+
+describe('once', () => {
+  let count = 0;
+  const cb = () => {
+    count++;
+  };
+
+  beforeEach(() => {
+    count = 0;
+    resetOnce();
+  });
+
+  it('calls at least once', () => {
+    once('foo', cb);
+    expect(count).toEqual(1);
+  });
+
+  it('calls no more than once', () => {
+    once('foo', cb);
+    once('foo', cb);
+    expect(count).toEqual(1);
+  });
+
+  it('call no more than once per key', () => {
+    once('foo', cb);
+    once('bar', cb);
+    once('bar', cb);
+    expect(count).toEqual(2);
   });
 });

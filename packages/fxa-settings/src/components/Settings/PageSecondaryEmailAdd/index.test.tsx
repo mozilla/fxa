@@ -10,6 +10,7 @@ import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import * as Metrics from '../../../lib/metrics';
+import { resetOnce } from '../../../lib/utilities';
 
 window.console.error = jest.fn();
 
@@ -19,6 +20,10 @@ const account = {
 
 afterAll(() => {
   (window.console.error as jest.Mock).mockReset();
+});
+
+afterEach(() => {
+  resetOnce();
 });
 
 describe('PageSecondaryEmailAdd', () => {
