@@ -203,7 +203,6 @@ describe('UnitRowRecoveryKey', () => {
         'Delete account recovery key'
       );
     });
-    // TODO Only one delete button should be visible
   });
 
   it('renders version 2 as expected when account recovery key is not set', () => {

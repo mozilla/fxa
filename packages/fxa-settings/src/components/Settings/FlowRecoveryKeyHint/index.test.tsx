@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import FlowRecoveryKeyHint, { maxHintLength } from '.';
@@ -68,12 +68,12 @@ describe('FlowRecoveryKeyHint', () => {
     screen.getByRole('progressbar', { name: 'Step 4 of 4.' });
     screen.getByRole('heading', {
       level: 2,
-      name: 'Great! Now add a storage hint',
+      name: 'Add a hint to help find your key',
     });
     screen.getByText(
-      'Add a hint about where you stored your account recovery key. We can show it to you during the password reset to recover your data.'
+      'This hint should help you remember where you stored your account recovery key. We’ll show it to you when you use it to recover your data.'
     );
-    screen.getByRole('textbox', { name: 'Enter your storage hint (optional)' });
+    screen.getByRole('textbox', { name: 'Enter a hint (optional)' });
     screen.getByRole('button', { name: 'Finish' });
   });
 
@@ -87,7 +87,7 @@ describe('FlowRecoveryKeyHint', () => {
     renderWithContext(accountWithSuccess);
     const hintValue = 'Ye Olde Hint';
     const textInput = screen.getByRole('textbox', {
-      name: 'Enter your storage hint (optional)',
+      name: 'Enter a hint (optional)',
     });
     const submitButton = screen.getByText('Finish');
     fireEvent.input(textInput, {
@@ -111,7 +111,7 @@ describe('FlowRecoveryKeyHint', () => {
     renderWithContext(accountWithSuccess);
     const hintValueTooLong = 'a'.repeat(maxHintLength + 5);
     const textInput = screen.getByRole('textbox', {
-      name: 'Enter your storage hint (optional)',
+      name: 'Enter a hint (optional)',
     });
     const submitButton = screen.getByText('Finish');
     fireEvent.input(textInput, {
@@ -135,7 +135,7 @@ describe('FlowRecoveryKeyHint', () => {
     renderWithContext(accountWithError);
     const hintValue = 'Ye Olde Hint';
     const textInput = screen.getByRole('textbox', {
-      name: 'Enter your storage hint (optional)',
+      name: 'Enter a hint (optional)',
     });
     const submitButton = screen.getByText('Finish');
     fireEvent.input(textInput, {

@@ -265,7 +265,7 @@ test.describe('new recovery key test', () => {
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
-    await recoveryKey.clickChange();
+    await recoveryKey.clickStart();
     // View 2/4 confirm password and generate key
     await recoveryKey.setPassword(credentials.password);
     await recoveryKey.submit();
@@ -358,7 +358,7 @@ test.describe('new recovery key test', () => {
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
-    await recoveryKey.clickChange();
+    await recoveryKey.clickStart();
     // View 2/4 confirm password and generate key
     await recoveryKey.setPassword(credentials.password);
     await recoveryKey.submit();

@@ -91,7 +91,7 @@ describe('FlowRecoveryKeyConfirmPwd with Create Action', () => {
     renderFlowPage(accountWithSuccess, RecoveryKeyAction.Create);
 
     screen.getByRole('heading', {
-      name: 'Enter your password again to get started',
+      name: 'Re-enter your password for security',
     });
     screen.getByLabelText('Enter your password');
     screen.getByRole('button', { name: 'Create account recovery key' });
@@ -251,17 +251,17 @@ describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
     renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
 
     screen.getByRole('heading', {
-      name: 'Enter your password again to get started',
+      name: 'Re-enter your password for security',
     });
     screen.getByLabelText('Enter your password');
-    screen.getByRole('button', { name: 'Create account recovery key' });
+    screen.getByRole('button', { name: 'Create new account recovery key' });
     screen.getByRole('link', { name: 'Cancel' });
   });
 
   it('disables the submit button when the input is empty', async () => {
     renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
     const createRecoveryKeyButton = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     const passwordInput = screen.getByLabelText('Enter your password');
     expect(createRecoveryKeyButton).toHaveAttribute('disabled');
@@ -284,7 +284,7 @@ describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
   it('emits the expected metrics when the form is submitted with success', async () => {
     renderFlowPage(accountWithSuccess, RecoveryKeyAction.Change);
     const createRecoveryKeyButton = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     const passwordInput = screen.getByLabelText('Enter your password');
     // input a password to enable form submission
@@ -311,7 +311,7 @@ describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
   it('renders an error message when the requests are throttled', async () => {
     renderFlowPage(accountWithThrottledError, RecoveryKeyAction.Change);
     const createRecoveryKeyButton = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     const passwordInput = screen.getByLabelText('Enter your password');
     // input a password to enable form submission
@@ -339,7 +339,7 @@ describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
   it('renders an error message when the password is incorrect', async () => {
     renderFlowPage(accountWithPasswordError, RecoveryKeyAction.Change);
     const createRecoveryKeyButton = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     const passwordInput = screen.getByLabelText('Enter your password');
     // input a password to enable form submission
@@ -367,7 +367,7 @@ describe('FlowRecoveryKeyConfirmPwd with Change Action', () => {
   it('renders an error message for unexpected errors', async () => {
     renderFlowPage(accountWithUnexpectedError, RecoveryKeyAction.Change);
     const createRecoveryKeyButton = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     const passwordInput = screen.getByLabelText('Enter your password');
     // input a password to enable form submission

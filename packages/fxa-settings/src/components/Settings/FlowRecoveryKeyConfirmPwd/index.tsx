@@ -125,9 +125,9 @@ export const FlowRecoveryKeyConfirmPwd = ({
         )}
         <LockImage className="mx-auto my-4" />
 
-        <FtlMsg id="flow-recovery-key-confirm-pwd-heading">
+        <FtlMsg id="flow-recovery-key-confirm-pwd-heading-v2">
           <h2 className="font-bold text-xl">
-            Enter your password again to get started
+            Re-enter your password for security
           </h2>
         </FtlMsg>
 
@@ -153,15 +153,28 @@ export const FlowRecoveryKeyConfirmPwd = ({
               {...{ errorText }}
             />
           </FtlMsg>
-          <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button">
-            <button
-              className="cta-primary cta-xl w-full mt-4"
-              type="submit"
-              disabled={!formState.isDirty || !!formState.errors.password}
-            >
-              Create account recovery key
-            </button>
-          </FtlMsg>
+          {action === RecoveryKeyAction.Create && (
+            <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button">
+              <button
+                className="cta-primary cta-xl w-full mt-4"
+                type="submit"
+                disabled={!formState.isDirty || !!formState.errors.password}
+              >
+                Create account recovery key
+              </button>
+            </FtlMsg>
+          )}
+          {action === RecoveryKeyAction.Change && (
+            <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button-change-key">
+              <button
+                className="cta-primary cta-xl w-full mt-4"
+                type="submit"
+                disabled={!formState.isDirty || !!formState.errors.password}
+              >
+                Create new account recovery key
+              </button>
+            </FtlMsg>
+          )}
         </form>
         {action === RecoveryKeyAction.Change && (
           <FtlMsg id="flow-recovery-key-info-cancel-link">

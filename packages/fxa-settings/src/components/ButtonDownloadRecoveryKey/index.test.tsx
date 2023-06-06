@@ -39,7 +39,7 @@ describe('ButtonDownloadRecoveryKey', () => {
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>
     );
-    screen.getByText('Download your account recovery key');
+    screen.getByText('Download and continue');
   });
 
   it('sets the filename as expected with a reasonably-sized email', () => {
@@ -49,7 +49,7 @@ describe('ButtonDownloadRecoveryKey', () => {
       </AppContext.Provider>
     );
     const downloadButtonDownloadAttribute = screen
-      .getByText('Download your account recovery key')
+      .getByText('Download and continue')
       .getAttribute('download');
 
     // Test the date formatting
@@ -77,7 +77,7 @@ describe('ButtonDownloadRecoveryKey', () => {
       </AppContext.Provider>
     );
     const downloadButtonDownloadAttribute = screen
-      .getByText('Download your account recovery key')
+      .getByText('Download and continue')
       .getAttribute('download');
     const currentDate = new Date();
     const date = currentDate.toISOString().split('T')[0];
@@ -100,9 +100,7 @@ describe('ButtonDownloadRecoveryKey', () => {
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>
     );
-    const downloadButton = screen.getByText(
-      'Download your account recovery key'
-    );
+    const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
 
     expect(logViewEvent).toHaveBeenCalledWith(

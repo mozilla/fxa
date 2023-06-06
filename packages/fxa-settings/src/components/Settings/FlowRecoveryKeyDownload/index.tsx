@@ -6,17 +6,17 @@ import React from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import DataBlock from '../../DataBlock';
+import ButtonDownloadRecoveryKey from '../../ButtonDownloadRecoveryKey';
+import { Link } from '@reach/router';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { RecoveryKeyImage } from '../../images';
+import { logViewEvent } from '../../../lib/metrics';
 import {
   FolderIconListItem,
   GlobeIconListItem,
   LockIconListItem,
   PrinterIconListItem,
 } from '../../IconListItem';
-import ButtonDownloadRecoveryKey from '../../ButtonDownloadRecoveryKey';
-import { Link } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { RecoveryKeyImage } from '../../images';
-import { logViewEvent } from '../../../lib/metrics';
 
 export type FlowRecoveryKeyDownloadProps = {
   localizedBackButtonTitle: string;
@@ -48,14 +48,16 @@ export const FlowRecoveryKeyDownload = ({
         <ProgressBar currentStep={3} numberOfSteps={4} />
         <RecoveryKeyImage className="my-6 mx-auto" />
 
-        <FtlMsg id="flow-recovery-key-download-heading">
+        <FtlMsg id="flow-recovery-key-download-heading-v2">
           <h2 className="font-bold text-xl">
-            Account recovery key generated — store it in a place you’ll remember
+            Account recovery key created — Download and store it now
           </h2>
         </FtlMsg>
-        <FtlMsg id="flow-recovery-key-download-info">
+        <FtlMsg id="flow-recovery-key-download-info-v2">
           <p>
-            This key will help recover your data if you forget your password.
+            This key allows you to recover your data if you forget your
+            password. Download it now and store it somewhere you’ll remember —
+            you won’t be able to return to this page later.
           </p>
         </FtlMsg>
         <DataBlock
@@ -65,37 +67,40 @@ export const FlowRecoveryKeyDownload = ({
           }
           isInline
         />
-        <FtlMsg id="flow-recovery-key-download-storage-ideas-heading">
-          <h3 id="key-storage-ideas" className="font-semibold -mb-4">
-            Some ideas for storing your account recovery key:
-          </h3>
-        </FtlMsg>
-        <ul aria-labelledby="key-storage-ideas">
-          <FolderIconListItem>
-            <FtlMsg id="flow-recovery-key-download-storage-ideas-folder">
-              Memorable folder in your device
-            </FtlMsg>
-          </FolderIconListItem>
-          <GlobeIconListItem>
-            <FtlMsg id="flow-recovery-key-download-storage-ideas-cloud">
-              Trusted cloud storage
-            </FtlMsg>
-          </GlobeIconListItem>
-          <PrinterIconListItem>
-            <FtlMsg id="flow-recovery-key-download-storage-ideas-print">
-              Print and keep a physical copy
-            </FtlMsg>
-          </PrinterIconListItem>
-          <LockIconListItem>
-            <FtlMsg id="flow-recovery-key-download-storage-ideas-pwd-manager">
-              <p>Password manager</p>
-            </FtlMsg>
-          </LockIconListItem>
-        </ul>
+        <div className="bg-grey-10 p-4 rounded-lg text-grey-400 text-sm">
+          <FtlMsg id="flow-recovery-key-download-storage-ideas-heading-v2">
+            <h3 id="key-storage-ideas" className="font-semibold mb-2">
+              Places to store your key:
+            </h3>
+          </FtlMsg>
+          <ul aria-labelledby="key-storage-ideas" className="flex flex-wrap">
+            <FolderIconListItem listItemClassnames="mobileLandscape:basis-1/2">
+              <FtlMsg id="flow-recovery-key-download-storage-ideas-folder-v2">
+                Folder on secure device
+              </FtlMsg>
+            </FolderIconListItem>
+            <GlobeIconListItem listItemClassnames="mobileLandscape:basis-1/2">
+              <FtlMsg id="flow-recovery-key-download-storage-ideas-cloud">
+                Trusted cloud storage
+              </FtlMsg>
+            </GlobeIconListItem>
+            <PrinterIconListItem listItemClassnames="mobileLandscape:basis-1/2">
+              <FtlMsg id="flow-recovery-key-download-storage-ideas-print-v2">
+                Printed physical copy
+              </FtlMsg>
+            </PrinterIconListItem>
+            <LockIconListItem listItemClassnames="mobileLandscape:basis-1/2">
+              <FtlMsg id="flow-recovery-key-download-storage-ideas-pwd-manager">
+                Password manager
+              </FtlMsg>
+            </LockIconListItem>
+          </ul>
+        </div>
+
         <ButtonDownloadRecoveryKey
           {...{ navigateForward, recoveryKeyValue, viewName }}
         />
-        <FtlMsg id="flow-recovery-key-download-next-link">
+        <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <Link
             to=""
             className="text-sm link-blue text-center py-2 mx-auto"
@@ -104,7 +109,7 @@ export const FlowRecoveryKeyDownload = ({
               navigateForward();
             }}
           >
-            Next
+            Continue without downloading
           </Link>
         </FtlMsg>
       </div>

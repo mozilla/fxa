@@ -73,18 +73,22 @@ export const FlowRecoveryKeyHint = ({
     return undefined;
   };
 
+  const navigateForwardAndAlertSuccess = () => {
+    navigateForward();
+    alertBar.success(
+      ftlMsgResolver.getMsg(
+        'flow-recovery-key-success-alert-v2',
+        'Account recovery key created'
+      )
+    );
+  };
+
   const onSubmit = async ({ hint }: FormData) => {
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
       logViewEvent(viewName, 'create-hint.skip');
-      navigateForward();
-      alertBar.success(
-        ftlMsgResolver.getMsg(
-          'flow-recovery-key-success-alert-no-hint',
-          'Account recovery key enabled.'
-        )
-      );
+      navigateForwardAndAlertSuccess();
     } else {
       const hintErrorText = getHintError(trimmedHint);
       if (hintErrorText) {
@@ -95,13 +99,7 @@ export const FlowRecoveryKeyHint = ({
           logViewEvent(viewName, 'create-hint.submit');
           await account.updateRecoveryKeyHint(trimmedHint);
           logViewEvent(viewName, 'create-hint.success');
-          navigateForward();
-          alertBar.success(
-            ftlMsgResolver.getMsg(
-              'flow-recovery-key-success-alert-with-hint',
-              'Account recovery key enabled and storage hint saved.'
-            )
-          );
+          navigateForwardAndAlertSuccess();
         } catch (e) {
           let localizedError: string;
           if (e.errno && AuthUiErrorNos[e.errno]) {
@@ -163,22 +161,24 @@ export const FlowRecoveryKeyHint = ({
           </Banner>
         )}
         <LightbulbImage className="mx-auto my-10" />
-        <FtlMsg id="flow-recovery-key-hint-header">
+        <FtlMsg id="flow-recovery-key-hint-header-v2">
           <h2 className="font-bold text-xl mb-4">
-            Great! Now add a storage hint
+            Add a hint to help find your key
           </h2>
         </FtlMsg>
-        <FtlMsg id="flow-recovery-key-hint-message">
+
+        <FtlMsg id="flow-recovery-key-hint-message-v2">
           <p className="text-md mb-4">
-            Add a hint about where you stored your account recovery key. We can
-            show it to you during the password reset to recover your data.
+            This hint should help you remember where you stored your account
+            recovery key. We’ll show it to you when you use it to recover your
+            data.
           </p>
         </FtlMsg>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <FtlMsg id="flow-recovery-key-hint-input" attrs={{ label: true }}>
+          <FtlMsg id="flow-recovery-key-hint-input-v2" attrs={{ label: true }}>
             <InputText
               name="hint"
-              label="Enter your storage hint (optional)"
+              label="Enter a hint (optional)"
               prefixDataTestId="hint"
               autoFocus
               inputRef={register()}

@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react';
 import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
+import { getFtlBundle, testAllL10n, testL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
 describe('Security', () => {
@@ -83,8 +83,7 @@ describe('Security', () => {
       );
       const passwordRouteLink = screen.getByTestId('password-unit-row-route');
 
-      const ftlMsgMock = screen.getByTestId('ftlmsg-mock');
-      testL10n(ftlMsgMock, bundle, {
+      testAllL10n(screen, bundle, {
         date: createDate,
       });
 

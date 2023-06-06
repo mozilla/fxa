@@ -68,12 +68,12 @@ describe('PageRecoveryKeyCreate when recovery key not enabled', () => {
 
     // Go to page 2
     const flowPage1Button = screen.getByRole('button', {
-      name: 'Start creating your account recovery key',
+      name: 'Get started',
     });
     fireEvent.click(flowPage1Button);
     await waitFor(() =>
       screen.getByRole('heading', {
-        name: 'Enter your password again to get started',
+        name: 'Re-enter your password for security',
       })
     );
 
@@ -91,17 +91,19 @@ describe('PageRecoveryKeyCreate when recovery key not enabled', () => {
     fireEvent.click(flowPage2Button);
     await waitFor(() => {
       screen.getByRole('heading', {
-        name: 'Account recovery key generated — store it in a place you’ll remember',
+        name: 'Account recovery key created — Download and store it now',
       });
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', { name: 'Next' });
+    const flowPage3Button = screen.getByRole('link', {
+      name: 'Continue without downloading',
+    });
     fireEvent.click(flowPage3Button);
     await waitFor(() =>
       screen.getByRole('heading', {
         level: 2,
-        name: 'Great! Now add a storage hint',
+        name: 'Add a hint to help find your key',
       })
     );
   });
@@ -127,7 +129,7 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
       level: 2,
       name: 'Change your account recovery key',
     });
-    screen.getByRole('button', { name: 'Change account recovery key' });
+    screen.getByRole('button', { name: 'Get started' });
     screen.getByRole('link', { name: 'Cancel' });
   });
 
@@ -136,19 +138,19 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
 
     // Go to page 2
     const flowPage1Button = screen.getByRole('button', {
-      name: 'Change account recovery key',
+      name: 'Get started',
     });
     fireEvent.click(flowPage1Button);
     await waitFor(() => {
       screen.getByRole('heading', {
-        name: 'Enter your password again to get started',
+        name: 'Re-enter your password for security',
       });
       screen.getByRole('link', { name: 'Cancel' });
     });
 
     // Go to page 3
     const flowPage2Button = screen.getByRole('button', {
-      name: 'Create account recovery key',
+      name: 'Create new account recovery key',
     });
     // input a password to enable form submission
     fireEvent.input(screen.getByLabelText('Enter your password'), {
@@ -160,17 +162,19 @@ describe('PageRecoveryKeyCreate when recovery key is enabled', () => {
     fireEvent.click(flowPage2Button);
     await waitFor(() => {
       screen.getByRole('heading', {
-        name: 'Account recovery key generated — store it in a place you’ll remember',
+        name: 'Account recovery key created — Download and store it now',
       });
     });
 
     // Go to page 4
-    const flowPage3Button = screen.getByRole('link', { name: 'Next' });
+    const flowPage3Button = screen.getByRole('link', {
+      name: 'Continue without downloading',
+    });
     fireEvent.click(flowPage3Button);
     await waitFor(() =>
       screen.getByRole('heading', {
         level: 2,
-        name: 'Great! Now add a storage hint',
+        name: 'Add a hint to help find your key',
       })
     );
   });

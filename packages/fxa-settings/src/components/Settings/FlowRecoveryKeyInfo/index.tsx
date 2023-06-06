@@ -65,51 +65,39 @@ export const FlowRecoveryKeyInfo = ({
 
       <ul>
         <ShieldIconListItem>
-          <FtlMsg id="flow-recovery-key-info-shield-bullet-point">
+          <FtlMsg id="flow-recovery-key-info-shield-bullet-point-v2">
             <p className="text-sm">
               We encrypt browsing data –– passwords, bookmarks, and more. It’s
-              great for privacy, but it means we can’t recover your data if you
-              forget your password.
+              great for privacy, but you may lose your data if you forget your
+              password.
             </p>
           </FtlMsg>
         </ShieldIconListItem>
         <KeyIconListItem>
-          <FtlMsg id="flow-recovery-key-info-key-bullet-point">
+          <FtlMsg id="flow-recovery-key-info-key-bullet-point-v2">
             <p className="text-sm">
               That’s why creating an account recovery key is so important –– you
-              can use your key to get your data back.
+              can use it to restore your data.
             </p>
           </FtlMsg>
         </KeyIconListItem>
       </ul>
-      {action === RecoveryKeyAction.Create && (
-        <FtlMsg id="flow-recovery-key-info-cta-text-v2">
-          <button
-            className="cta-primary cta-xl mt-4"
-            type="button"
-            onClick={() => {
+
+      <FtlMsg id="flow-recovery-key-info-cta-text-v3">
+        <button
+          className="cta-primary cta-xl mt-4"
+          type="button"
+          onClick={() => {
+            action === RecoveryKeyAction.Create &&
               logViewEvent(`flow.${viewName}`, 'create-key.start');
-              navigateForward();
-            }}
-          >
-            Start creating your account recovery key
-          </button>
-        </FtlMsg>
-      )}
-      {action === RecoveryKeyAction.Change && (
-        <FtlMsg id="flow-recovery-key-info-cta-text-change-key">
-          <button
-            className="cta-primary cta-xl mt-4"
-            type="button"
-            onClick={() => {
+            action === RecoveryKeyAction.Change &&
               logViewEvent(`flow.${viewName}`, 'change-key.start');
-              navigateForward();
-            }}
-          >
-            Change account recovery key
-          </button>
-        </FtlMsg>
-      )}
+            navigateForward();
+          }}
+        >
+          Get started
+        </button>
+      </FtlMsg>
 
       {action === RecoveryKeyAction.Change && (
         <FtlMsg id="flow-recovery-key-info-cancel-link">

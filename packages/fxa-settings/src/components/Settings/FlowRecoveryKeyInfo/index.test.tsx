@@ -47,7 +47,7 @@ describe('FlowRecoveryKeyInfo for key creation', () => {
       name: 'Create an account recovery key in case you forget your password',
     });
     screen.getByRole('button', {
-      name: 'Start creating your account recovery key',
+      name: 'Get started',
     });
   });
 
@@ -61,7 +61,7 @@ describe('FlowRecoveryKeyInfo for key creation', () => {
     renderFlowPage(RecoveryKeyAction.Create);
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Start creating your account recovery key',
+        name: 'Get started',
       })
     );
     expect(navigateForward).toBeCalledTimes(1);
@@ -90,7 +90,7 @@ describe('FlowRecoveryKeyInfo for key replacement', () => {
     screen.getByRole('heading', {
       name: 'Change your account recovery key',
     });
-    screen.getByRole('button', { name: 'Change account recovery key' });
+    screen.getByRole('button', { name: 'Get started' });
     screen.getByRole('link', { name: 'Cancel' });
   });
 
@@ -104,7 +104,7 @@ describe('FlowRecoveryKeyInfo for key replacement', () => {
     renderFlowPage(RecoveryKeyAction.Change);
     fireEvent.click(
       screen.getByRole('button', {
-        name: 'Change account recovery key',
+        name: 'Get started',
       })
     );
     expect(navigateForward).toBeCalledTimes(1);
