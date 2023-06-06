@@ -113,7 +113,7 @@ describe('#integration - auth', () => {
           assert.fail('Validation error expected for invalid uid');
         } catch (err) {
           assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(err.message.includes('uid: should match pattern'));
+          assert.isTrue(err.message.includes('uid: must match pattern'));
         }
       });
 
@@ -129,7 +129,7 @@ describe('#integration - auth', () => {
         } catch (err) {
           assert.isTrue(err instanceof ValidationError);
           assert.isTrue(
-            err.message.includes('stripeCustomerId: should match pattern')
+            err.message.includes('stripeCustomerId: must match pattern')
           );
         }
       });
@@ -294,7 +294,7 @@ describe('#integration - auth', () => {
           assert.fail('Validation error expected for invalid uid');
         } catch (err) {
           assert.isTrue(err instanceof ValidationError);
-          assert.isTrue(err.message.includes('uid: should match pattern'));
+          assert.isTrue(err.message.includes('uid: must match pattern'));
         }
       });
 
@@ -311,7 +311,7 @@ describe('#integration - auth', () => {
         } catch (err) {
           assert.isTrue(err instanceof ValidationError);
           assert.isTrue(
-            err.message.includes('billingAgreementId: should match pattern')
+            err.message.includes('billingAgreementId: must match pattern')
           );
         }
       });

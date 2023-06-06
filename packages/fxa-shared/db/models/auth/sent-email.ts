@@ -53,7 +53,7 @@ export class SentEmail extends BaseAuthModel {
     uid: string,
     emailType: string,
     params?: any
-  ): Promise<SentEmail> {
+  ): Promise<SentEmail | undefined> {
     const knex = SentEmail.knex();
     const result = await knex(
       knex.raw('?? (??, ??, ??, ??)', [
@@ -76,7 +76,6 @@ export class SentEmail extends BaseAuthModel {
         .from('emailTypes')
         .where({ emailType })
     );
-
     return SentEmail.query().findOne({ id: result[0] });
   }
 
@@ -84,7 +83,7 @@ export class SentEmail extends BaseAuthModel {
     uid: string,
     emailType: string,
     params?: any
-  ): Promise<SentEmail> {
+  ): Promise<SentEmail | undefined> {
     const paramsCondition = params
       ? SentEmail.knex().raw(
           `${this.tableName}.params = CAST('${JSON.stringify(params)}' as JSON)`

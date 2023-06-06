@@ -213,7 +213,7 @@ export class AccountResolver {
     const uidBuffer = uuidTransformer.to(uid);
     const result = await this.db.account
       .query()
-      .update({ disabledAt: null })
+      .update({ disabledAt: null } as any)
       .where('uid', uidBuffer);
     return !!result;
   }

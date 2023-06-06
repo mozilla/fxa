@@ -41,37 +41,37 @@ export class Account extends BaseAuthModel {
   static idColumn = 'uid';
 
   protected $uuidFields = [
-    'uid',
+    'authSalt',
     'emailCode',
     'kA',
-    'wrapWrapKb',
-    'authSalt',
+    'uid',
     'verifyHash',
+    'wrapWrapKb',
   ];
 
-  uid!: string;
+  authSalt!: string;
   createdAt!: number;
-  locale!: string;
+  devices?: Device[];
+  disabledAt?: number;
   email!: string;
-  emailVerified!: boolean;
-  normalizedEmail!: string;
   emailCode!: string;
-  primaryEmail?: Email;
+  emails?: Email[];
+  emailVerified!: boolean;
   kA!: string;
-  wrapWrapKb!: string;
+  keysChangedAt!: number;
+  linkedAccounts?: LinkedAccount[];
+  locale!: string;
+  lockedAt!: number;
+  metricsOptOutAt?: number;
+  normalizedEmail!: string;
+  primaryEmail?: Email;
+  profileChangedAt!: number;
+  securityEvents?: SecurityEvent[];
+  uid!: string;
+  verifierSetAt!: number;
   verifierVersion!: number;
   verifyHash?: string;
-  authSalt!: string;
-  verifierSetAt!: number;
-  lockedAt!: number;
-  disabledAt?: number;
-  profileChangedAt!: number;
-  keysChangedAt!: number;
-  metricsOptOutAt?: number;
-  devices?: Device[];
-  emails?: Email[];
-  linkedAccounts?: LinkedAccount[];
-  securityEvents?: SecurityEvent[];
+  wrapWrapKb!: string;
 
   static relationMappings = {
     emails: {
@@ -413,7 +413,7 @@ export class Account extends BaseAuthModel {
     authSalt: string,
     verifyHash: string,
     wrapWrapKb: string,
-    verifierVersion: string
+    verifierVersion: number
   ) {
     const now = Date.now();
     await Account.query()
@@ -425,7 +425,7 @@ export class Account extends BaseAuthModel {
         keysChangedAt: now,
         profileChangedAt: now,
         verifierVersion,
-      })
+      } as any)
       .where('uid', uuidTransformer.to(uid));
     return now;
   }
@@ -442,10 +442,11 @@ export class Account extends BaseAuthModel {
     if (!account) {
       // There is a possibility that this email exists on the account table (ex. deleted from emails table)
       // Lets check before throwing account not found.
-      account = await Account.query()
-        .select(...selectFields)
-        .where('normalizedEmail', fn.lower(email))
-        .first();
+      account =
+        (await Account.query()
+          .select(...selectFields)
+          .where('normalizedEmail', fn.lower(email))
+          .first()) || null;
       if (!account) {
         return null;
       }
@@ -507,16 +508,17 @@ export class Account extends BaseAuthModel {
       .update({
         metricsOptOutAt: state === 'out' ? timestamp : null,
         profileChangedAt: Date.now(),
-      })
+      } as any)
       .where('uid', uuidTransformer.to(uid));
   }
 
   static async metricsEnabled(uid: string) {
     try {
-      const { metricsOptOutAt } = await Account.query()
-        .select('metricsOptOutAt')
-        .where('uid', uuidTransformer.to(uid))
-        .first();
+      const { metricsOptOutAt } =
+        (await Account.query()
+          .select('metricsOptOutAt')
+          .where('uid', uuidTransformer.to(uid))
+          .first()) || {};
       return !metricsOptOutAt;
     } catch (error) {
       // err on caution / don't throw
