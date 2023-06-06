@@ -1,5 +1,4 @@
 import { BaseLayout } from './layout';
-import { LoginPage } from './login';
 
 export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
@@ -28,6 +27,14 @@ export class ResetPasswordPage extends BaseLayout {
     return resetPass.isVisible();
   }
 
+  async beginResetPasswordHeadingReact() {
+    const beginResetPasswordHeading = this.page.getByRole('heading', {
+      name: 'Reset password to continue to account settings',
+    });
+    await beginResetPasswordHeading.waitFor();
+    return beginResetPasswordHeading.isVisible();
+  }
+
   async confirmResetPasswordHeader() {
     const resetPass = this.page.locator(
       selectors.CONFIRM_RESET_PASSWORD_HEADER
@@ -36,12 +43,28 @@ export class ResetPasswordPage extends BaseLayout {
     return resetPass.isVisible();
   }
 
-  async completeResetPasswordHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_COMPLETE_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+  async confirmResetPasswordHeadingReact() {
+    const confirmResetPasswordHeading = this.page.getByRole('heading', {
+      name: 'Reset email sent',
+    });
+    await confirmResetPasswordHeading.waitFor();
+    return confirmResetPasswordHeading.isVisible();
+  }
+
+  async hasCompleteResetPasswordHeading(page: BaseLayout['page'] = this.page) {
+    const completeResetPasswordHeading = page.getByRole('heading', {
+      name: 'Create new password',
+    });
+    await completeResetPasswordHeading.waitFor();
+    return completeResetPasswordHeading.isVisible();
+  }
+
+  async resetPasswordConfirmedReact(page: BaseLayout['page'] = this.page) {
+    const resetPasswordConfirmedHeading = page.getByRole('heading', {
+      name: 'Your password has been reset',
+    });
+    await resetPasswordConfirmedHeading.waitFor();
+    return resetPasswordConfirmedHeading.isVisible();
   }
 
   async resetPasswordLinkExpiredHeader() {
@@ -52,10 +75,24 @@ export class ResetPasswordPage extends BaseLayout {
     return resetPass.isVisible();
   }
 
-  async resetNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
-    await this.page.locator(selectors.SUBMIT).click();
+  async resetNewPassword(
+    password: string,
+    page: BaseLayout['page'] = this.page
+  ) {
+    await page.locator(selectors.PASSWORD).fill(password);
+    await page.locator(selectors.VPASSWORD).fill(password);
+    await page.locator(selectors.SUBMIT).click();
+  }
+
+  async submitNewPasswordReact(
+    password: string,
+    page: BaseLayout['page'] = this.page
+  ) {
+    await page.getByRole('textbox', { name: 'New password' }).fill(password);
+    await page
+      .getByRole('textbox', { name: 'Re-enter password' })
+      .fill(password);
+    await page.locator(selectors.SUBMIT).click();
   }
 
   async fillOutResetPassword(email) {

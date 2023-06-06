@@ -1,20 +1,12 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { BaseTarget } from '../../lib/targets/base';
+import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 let key;
 let hint;
 let originalEncryptionKeys;
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
-
-function getReactFeatureFlagUrl(
-  target: BaseTarget,
-  path: string,
-  showReactApp = true
-) {
-  return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
-}
 
 test.describe('recovery key react', () => {
   test.beforeEach(

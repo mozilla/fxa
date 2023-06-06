@@ -87,7 +87,7 @@ export class EmailClient {
     emailAddress: string,
     type: EmailType,
     header?: EmailHeader,
-    timeout: number = 15000
+    timeout = 15000
   ) {
     const expires = Date.now() + timeout;
     while (Date.now() < expires) {

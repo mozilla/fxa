@@ -37,8 +37,8 @@ class CIReporter implements Reporter {
       }`
     );
     if (test.outcome() === 'unexpected') {
-      console.log(result.error.stack);
-      console.log(result.error.message);
+      console.log(result.error?.stack);
+      console.log(result.error?.message);
     }
   }
 
