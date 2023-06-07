@@ -1,0 +1,4 @@
+transfer_sub,uid,email,alternate_emails
+transfersub1,uid1,existing_fxa_user@test.com,""
+transfersub2,,new_fxa_user@test.com,"new_fxa_user1@test.com:new_fxa_user2@test.com"
+transfersub3,,private_relay_user@test.com,""
