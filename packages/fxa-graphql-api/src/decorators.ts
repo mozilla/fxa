@@ -45,6 +45,13 @@ export const GqlXHeaders = createParamDecorator(
     // We don't need to propagate the authorization token because
     // it needs to be updated to originate from gql server.
     delete headers['authorization'];
+    
+    // Set the x-forwarded-for header since the auth-server will use this
+    // to determine client geolocation
+    if (ctx.req?.ip) {
+     headers['x-forwarded-for'] = ctx.req?.ip;
+    }
+    
     return new Headers(headers);
   }
 );
