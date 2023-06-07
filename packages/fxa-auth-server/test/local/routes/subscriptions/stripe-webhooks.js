@@ -48,7 +48,7 @@ const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { asyncIterable } = require('../../../mocks');
 const { RefusedError } = require('../../../../lib/payments/paypal/error');
-const { RefundType } = require('../../../../lib/payments/paypal/client');
+const { RefundType } = require('../../../../../../libs/payments/paypal/src');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
@@ -1466,7 +1466,7 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
           'tx-1234',
-          RefundType.partial,
+          RefundType.Partial,
           500
         );
         assert.calledOnceWithExactly(
@@ -1511,7 +1511,7 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
           'tx-1234',
-          RefundType.full,
+          RefundType.Full,
           undefined
         );
       });
@@ -1560,7 +1560,7 @@ describe('StripeWebhookHandler', () => {
           StripeWebhookHandlerInstance.paypalHelper.issueRefund,
           invoice,
           'tx-1234',
-          RefundType.full,
+          RefundType.Full,
           undefined
         );
         assert.calledOnceWithExactly(

@@ -100,7 +100,8 @@ DB.connect(config).then(async (db) => {
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     const { CurrencyHelper } = require('../lib/payments/currencies');
     const { StripeHelper } = require('../lib/payments/stripe');
-    const { PayPalHelper, PayPalClient } = require('../lib/payments/paypal');
+    const { PayPalHelper } = require('../lib/payments/paypal');
+    const { PayPalClient } = require('../../../libs/payments/paypal/src');
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
     const paypalClient = new PayPalClient(

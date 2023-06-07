@@ -12,7 +12,7 @@ import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook'
 import { reportSentryError } from '../../sentry';
 import { AuthLogger } from '../../types';
 import { StripeHelper } from '../stripe';
-import { PayPalClientError } from './client';
+import { PayPalClientError } from '../../../../../libs/payments/paypal/src';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,

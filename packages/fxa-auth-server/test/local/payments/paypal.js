@@ -13,7 +13,9 @@ const {
   PayPalClient,
   PayPalClientError,
   RefundType,
-} = require('../../../lib/payments/paypal/client');
+  objectToNVP,
+  nvpToObject,
+} = require('../../../../../libs/payments/paypal/src');
 const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');
@@ -323,7 +325,7 @@ describe('PayPalHelper', () => {
       const response = await paypalHelper.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
-        refundType: RefundType.full,
+        refundType: RefundType.Full,
       });
       assert.deepEqual(response, {
         pendingReason: successfulRefundTransactionResponse.PENDINGREASON,
@@ -345,7 +347,7 @@ describe('PayPalHelper', () => {
       const response = await paypalHelper.refundTransaction({
         idempotencyKey: defaultData.MSGSUBID,
         transactionId: defaultData.TRANSACTIONID,
-        refundType: RefundType.partial,
+        refundType: RefundType.Partial,
         amount: 123,
       });
       assert.deepEqual(response, {
@@ -404,14 +406,14 @@ describe('PayPalHelper', () => {
       const result = await paypalHelper.issueRefund(
         invoice,
         transactionId,
-        RefundType.full
+        RefundType.Full
       );
 
       assert.deepEqual(result, undefined);
       sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
         idempotencyKey: invoice.id,
         transactionId: transactionId,
-        refundType: RefundType.full,
+        refundType: RefundType.Full,
         amount: undefined,
       });
       sinon.assert.calledOnceWithExactly(
@@ -433,7 +435,7 @@ describe('PayPalHelper', () => {
       paypalHelper.log = { error: sinon.fake.returns({}) };
 
       try {
-        await paypalHelper.issueRefund(invoice, transactionId, RefundType.full);
+        await paypalHelper.issueRefund(invoice, transactionId, RefundType.Full);
         assert.fail(
           'Error should throw PayPal refund transaction unsuccessful.'
         );
@@ -448,7 +450,7 @@ describe('PayPalHelper', () => {
       sinon.assert.calledOnceWithExactly(paypalHelper.refundTransaction, {
         idempotencyKey: invoice.id,
         transactionId: transactionId,
-        refundType: RefundType.full,
+        refundType: RefundType.Full,
         amount: undefined,
       });
     });
@@ -1027,8 +1029,8 @@ describe('PayPalHelper', () => {
       function makeFailedErr(errCode) {
         const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
         failedResponse.L_ERRORCODE0 = errCode;
-        const rawString = paypalHelper.client.objectToNVP(failedResponse);
-        const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+        const rawString = objectToNVP(failedResponse);
+        const parsedNvpObject = nvpToObject(rawString);
         const throwErr = new PayPalClientError(rawString, parsedNvpObject);
         paypalHelper.chargeCustomer = sinon.fake.rejects(throwErr);
         return throwErr;
