@@ -8,7 +8,7 @@ import { BaseTarget } from '../../lib/targets/base';
 function getReactFeatureFlagUrl(
   target: BaseTarget,
   path: string,
-  showReactApp: boolean = true
+  showReactApp = true
 ) {
   return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
 }

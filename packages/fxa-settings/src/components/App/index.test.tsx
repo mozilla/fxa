@@ -31,6 +31,8 @@ jest.mock('../Settings/ScrollToTop', () => ({
 }));
 
 describe('metrics', () => {
+  let flowInit: jest.SpyInstance;
+
   beforeEach(() => {
     //@ts-ignore
     delete window.location;
@@ -38,6 +40,12 @@ describe('metrics', () => {
       ...window.location,
       replace: jest.fn(),
     };
+
+    flowInit = jest.spyOn(Metrics, 'init');
+  });
+
+  afterEach(() => {
+    flowInit.mockReset();
   });
 
   it('Initializes metrics flow data when present', async () => {
@@ -45,7 +53,6 @@ describe('metrics', () => {
     const DEVICE_ID = 'yoyo';
     const BEGIN_TIME = 123456;
     const FLOW_ID = 'abc123';
-    const flowInit = jest.spyOn(Metrics, 'init');
     const updatedFlowQueryParams = {
       deviceId: DEVICE_ID,
       flowBeginTime: BEGIN_TIME,
