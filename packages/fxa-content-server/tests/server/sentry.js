@@ -69,4 +69,25 @@ suite.tests['it ignores errors that are not validation based'] = function () {
   assert.isFalse(sentry.tryCaptureValidationError('BOOM'));
 };
 
+suite.tests['it ignores navigation timing errors'] = function () {
+  var err = {
+    details: new Map([
+      [
+        'body',
+        {
+          details: [
+            {
+              message:
+                'ValidationError: "navigationTiming.navigationStart" must be a number',
+              type: 'number.base',
+              path: ['metrics'],
+            },
+          ],
+        },
+      ],
+    ]),
+  };
+  assert.isFalse(sentry.tryCaptureValidationError(err));
+};
+
 registerSuite('sentry', suite);
