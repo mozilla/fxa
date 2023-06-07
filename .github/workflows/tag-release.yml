@@ -34,10 +34,12 @@ jobs:
           git config user.email "noreply@github.com"
 
       - name: Commit update to branch
+        if: env.versionNumber != ''
         run: |
           git push origin train-${{ env.versionNumber }}
 
       - name: Make a new tag
+        if: env.versionNumber != ''
         run: |
           git tag -a "v1.${{ env.versionNumber }}.0" -m "Train release ${{ env.versionNumber }}"
           git push origin v1.${{ env.versionNumber }}.0
