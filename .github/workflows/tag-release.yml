@@ -1,6 +1,6 @@
 name: Tag Release
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
 permissions: {}
 jobs:
   tagrelease:
