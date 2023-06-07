@@ -16,41 +16,59 @@ import {
   mockDefaultAccount,
 } from './mocks';
 
+import {
+  produceComponent,
+  createAppContext,
+  createHistoryWithQuery,
+} from '../../models/mocks';
+
 export default {
   title: 'Pages/ResetPassword',
   component: ResetPassword,
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = (
+const route = '/reset_password';
+
+function render(
   account: Account,
-  props?: Partial<ResetPasswordProps>
-) => {
-  const story = () => (
-    <AppContext.Provider value={{ account }}>
-      <LocationProvider>
-        <ResetPassword {...props} />
-      </LocationProvider>
-    </AppContext.Provider>
+  props?: Partial<ResetPasswordProps>,
+  queryParams?: string
+) {
+  const history = createHistoryWithQuery(route, queryParams);
+  return produceComponent(
+    <ResetPassword {...props} />,
+    { route, history },
+    {
+      ...createAppContext(history),
+      account,
+    }
   );
-  return story;
+}
+
+export const Default = () => {
+  return render(mockDefaultAccount);
 };
 
-export const Default = storyWithProps(mockDefaultAccount);
+export const WithServiceName = () => {
+  return render(
+    mockDefaultAccount,
+    undefined,
+    `service=${MozServices.MozillaVPN}`
+  );
+};
 
-export const WithServiceName = storyWithProps(mockDefaultAccount, {
-  serviceName: MozServices.MozillaVPN,
-});
+export const WithForceAuth = () => {
+  return render(mockDefaultAccount, {
+    prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
+    forceAuth: true,
+  });
+};
 
-export const WithForceAuth = storyWithProps(mockDefaultAccount, {
-  prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
-  forceAuth: true,
-});
+export const WithThrottledErrorOnSubmit = () => {
+  return render(mockAccountWithThrottledError);
+};
 
-export const WithThrottledErrorOnSubmit = storyWithProps(
-  mockAccountWithThrottledError
-);
-
-export const WithUnexpectedErrorOnSubmit = storyWithProps(
-  mockAccountWithUnexpectedError
-);
+export const WithUnexpectedErrorOnSubmit = () => {
+  return render(mockAccountWithUnexpectedError);
+};

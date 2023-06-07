@@ -9,6 +9,7 @@ import {
   ModelDataProvider,
   ModelValidation as V,
 } from '../../lib/model-data';
+import { MozServices } from '../../lib/types';
 
 export interface RelierSubscriptionInfo {
   subscriptionProductId: string;
@@ -53,6 +54,7 @@ export interface ResumeTokenInfo {
 }
 
 export interface Relier extends RelierData {
+  getServiceName(): MozServices;
   isOAuth(): boolean;
   isSync(): Promise<boolean>;
   shouldOfferToSync(view: string): boolean;
@@ -139,6 +141,26 @@ export class BaseRelier extends ModelDataProvider implements Relier {
   }
   async isSync(): Promise<boolean> {
     return false;
+  }
+
+  getServiceName(): MozServices {
+    switch (this.service) {
+      case MozServices.FirefoxSync:
+      case 'sync':
+        return MozServices.FirefoxSync;
+
+      case MozServices.FirefoxMonitor:
+        return MozServices.FirefoxMonitor;
+
+      case MozServices.MozillaVPN:
+        return MozServices.MozillaVPN;
+
+      case MozServices.Pocket:
+        return MozServices.Pocket;
+
+      default:
+        return MozServices.Default;
+    }
   }
   shouldOfferToSync(view: string): boolean {
     return false;

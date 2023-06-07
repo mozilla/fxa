@@ -4,9 +4,13 @@
 
 import React from 'react';
 import ResetPasswordWithRecoveryKeyVerified from '.';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from '../../../../.storybook/decorators';
+import {
+  produceComponent,
+  createAppContext,
+  createHistoryWithQuery,
+} from '../../../models/mocks';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
@@ -14,20 +18,19 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const DefaultSignedIn = () => (
-  <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn isSync={false} />
-  </LocationProvider>
-);
+const route = '/reset_password_with_recovery_key_verified';
 
-export const DefaultSignedOut = () => (
-  <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} isSync={false} />
-  </LocationProvider>
-);
+function render(isSignedIn: boolean, queryParams?: string) {
+  const history = createHistoryWithQuery(route, queryParams);
+  const appCtx = createAppContext(history);
+  return produceComponent(
+    <ResetPasswordWithRecoveryKeyVerified isSignedIn={isSignedIn} />,
+    { route, history },
+    appCtx
+  );
+}
 
-export const WithSync = () => (
-  <LocationProvider>
-    <ResetPasswordWithRecoveryKeyVerified isSignedIn isSync />
-  </LocationProvider>
-);
+export const DefaultAccountSignedIn = () => render(true);
+export const DefaultAccountSignedOut = () => render(false);
+export const WithSyncAccountSignedIn = () => render(true, `service=sync`);
+export const WithSyncAccountSignedOut = () => render(false, `service=sync`);

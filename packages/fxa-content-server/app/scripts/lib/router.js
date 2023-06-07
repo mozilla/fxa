@@ -304,7 +304,10 @@ Router = Router.extend({
     'reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(
         'reset_password',
-        ResetPasswordView
+        ResetPasswordView,
+        {
+          ...Url.searchParams(this.window.location.search),
+        }
       );
     },
 
@@ -349,22 +352,27 @@ Router = Router.extend({
         service,
         uniqueUserId,
       } = this.metrics.getFilteredData();
-      
+
       // Some flows can specify a redirect url after a client has logged in. This is
-      // useful when you want to ensure the user has authenticated. Our GQL client 
-      // also sets the `redirect_to` param if a user attempts to navigate directly 
+      // useful when you want to ensure the user has authenticated. Our GQL client
+      // also sets the `redirect_to` param if a user attempts to navigate directly
       // to a section in settings
       const searchParams = new URLSearchParams(this.window.location.search);
       const redirectUrl = searchParams.get('redirect_to');
       if (redirectUrl) {
         // Ignore query params when validating the redirect url
         const parsedRedirectUrl = redirectUrl.split('?')[0];
-        if (!this.isValidRedirect(parsedRedirectUrl, this.config.redirectAllowlist)) {
+        if (
+          !this.isValidRedirect(
+            parsedRedirectUrl,
+            this.config.redirectAllowlist
+          )
+        ) {
           throw new Error('Invalid redirect!');
         }
         return this.navigateAway(redirectUrl);
-      } 
-      
+      }
+
       // All other flows should redirect to the settings page
       const settingsEndpoint = '/settings';
       const settingsLink = `${settingsEndpoint}${Url.objToSearchString({
@@ -496,7 +504,6 @@ Router = Router.extend({
     backboneViewOptions
   ) {
     const showReactApp = this.showReactApp(routeName);
-
     if (showReactApp) {
       const { deviceId, flowBeginTime, flowId } =
         this.metrics.getFlowEventMetadata();

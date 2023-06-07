@@ -5,14 +5,13 @@
 import { ApolloClient, gql } from '@apollo/client';
 import AuthClient from 'fxa-auth-client/browser';
 import React from 'react';
-import config, { Config, readConfigMeta } from '../lib/config';
+import config, { Config, readConfigMeta, getDefault } from '../lib/config';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import firefox, { FirefoxCommand } from '../lib/channels/firefox';
 import { createApolloClient } from '../lib/gql';
 import { OAuthClient } from '../lib/oauth/oauth-client';
 import { Account, ACCOUNT_FIELDS, GET_PROFILE_INFO } from './Account';
 import { AlertBarInfo } from './AlertBarInfo';
-import { mockAppContext } from './mocks';
 import { Session } from './Session';
 import { LocationStateData } from '../lib/model-data/data-stores/location-state-data';
 import { ReachRouterWindow } from '../lib/window';
@@ -131,6 +130,63 @@ export function initializeAppContext() {
   return context;
 }
 
+export function defaultAppContext(context?: AppContextValue) {
+  const account = {
+    uid: 'abc123',
+    displayName: 'John Dope',
+    avatar: {
+      id: 'abc1234',
+      url: 'http://placekitten.com/512/512',
+      isDefault: false,
+    },
+    accountCreated: 123456789,
+    passwordCreated: 123456789,
+    hasPassword: true,
+    recoveryKey: true,
+    metricsEnabled: true,
+    attachedClients: [],
+    subscriptions: [],
+    primaryEmail: {
+      email: 'johndope@example.com',
+      isPrimary: true,
+      verified: true,
+    },
+    emails: [
+      {
+        email: 'johndope@example.com',
+        isPrimary: true,
+        verified: true,
+      },
+    ],
+    totp: {
+      exists: true,
+      verified: true,
+    },
+    linkedAccounts: [],
+    securityEvents: [],
+  };
+  const session = {
+    verified: true,
+    token: 'deadc0de',
+  };
+  const storageData = {
+    get: () => 'deadc0de',
+    setItem(_key: string, _value: string) {
+      return;
+    },
+  };
+  return Object.assign(
+    {
+      account,
+      session,
+      config: getDefault(),
+      alertBarInfo: new AlertBarInfo(),
+      storageData,
+    },
+    context
+  ) as AppContextValue;
+}
+
 export const AppContext = React.createContext<AppContextValue>(
-  mockAppContext()
+  defaultAppContext()
 );

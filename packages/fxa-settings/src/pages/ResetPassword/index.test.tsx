@@ -4,13 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -19,10 +13,14 @@ import ResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
 
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
-import { MozServices } from '../../lib/types';
 import { Account, AppContext } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import { typeByLabelText } from '../../lib/test-utils';
+import {
+  createAppContext,
+  createHistoryWithQuery,
+  renderWithRouter,
+} from '../../models/mocks';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -42,12 +40,37 @@ jest.mock('@reach/router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-function renderWithAccount(account: Account) {
-  render(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <ResetPassword />
-    </AppContext.Provider>
+const route = '/reset_password';
+const render = (ui: any, queryParams = '', account?: Account) => {
+  const history = createHistoryWithQuery(route, queryParams);
+  if (account) {
+    return renderWithRouter(
+      ui,
+      {
+        route,
+        history,
+      },
+      mockAppContext({
+        ...createAppContext(history),
+        account,
+      })
+    );
+  }
+
+  return renderWithRouter(
+    ui,
+    {
+      route,
+      history,
+    },
+    mockAppContext({
+      ...createAppContext(history),
+    })
   );
+};
+
+function renderWithAccount(account: Account) {
+  render(<ResetPassword />, '', account);
 }
 
 describe('PageResetPassword', () => {
@@ -80,10 +103,10 @@ describe('PageResetPassword', () => {
   });
 
   it('renders a custom service name in the header when it is provided', () => {
-    render(<ResetPassword serviceName={MozServices.MozillaVPN} />);
+    render(<ResetPassword />, 'service=sync');
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      `Reset password to continue to Mozilla VPN`
+      `Reset password to continue to Firefox Sync`
     );
   });
 

@@ -4,12 +4,16 @@
 
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
-import { renderWithRouter } from '../../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import {
+  createAppContext,
+  createHistoryWithQuery,
+  renderWithRouter,
+} from '../../../models/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -25,29 +29,60 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
-  it('renders default content as expected', () => {
-    renderWithRouter(
-      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
-    );
-    // testAllL10n(screen, bundle);
 
-    const newAccountRecoveryKeyButton = screen.getByText(
-      'Generate a new account recovery key'
+  const route = '/reset_password_with_recovery_key_verified';
+
+  const startBrowsingText = 'Start browsing';
+  const signedInText = 'You’re now ready to use account settings';
+  const singedOutText = 'Your account is ready!';
+  const syncText =
+    'Complete setup by entering your new password on your other Firefox devices.';
+  const createRecoveryKeyText = 'Generate a new account recovery key';
+  const continueToAccountText = 'Continue to my account';
+
+  const render = (ui: any, queryParams = '') => {
+    const history = createHistoryWithQuery(route, queryParams);
+    const appCtx = createAppContext(history);
+    return renderWithRouter(
+      ui,
+      {
+        route,
+        history,
+      },
+      appCtx
     );
-    const continueToAccountLink = screen.getByText('Continue to my account');
-    // Calling `getByText` will fail if these elements aren't in the document,
-    // but we test anyway to make the intention of the test explicit
-    expect(newAccountRecoveryKeyButton).toBeInTheDocument();
-    expect(continueToAccountLink).toBeInTheDocument();
+  };
+
+  it('renders default content', async () => {
+    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    // testAllL10n(screen, bundle);
+    await screen.findByText(signedInText);
+    screen.getByText(createRecoveryKeyText);
+    screen.getByText(continueToAccountText);
+  });
+
+  it('renders default content when signed out', async () => {
+    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />);
+    await screen.findByText(singedOutText);
+    screen.getByText(createRecoveryKeyText);
+    screen.getByText(continueToAccountText);
+  });
+
+  it('renders default content for sync service', async () => {
+    render(
+      <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />,
+      'service=sync'
+    );
+
+    await screen.findByText(syncText);
+    screen.getByText(startBrowsingText);
+    screen.getByText(createRecoveryKeyText);
+    screen.getByText(continueToAccountText);
   });
 
   it('emits the expected metrics when a user generates new recovery keys', async () => {
-    renderWithRouter(
-      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
-    );
-    const newAccountRecoveryKeyButton = screen.getByText(
-      'Generate a new account recovery key'
-    );
+    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    const newAccountRecoveryKeyButton = screen.getByText(createRecoveryKeyText);
     fireEvent.click(newAccountRecoveryKeyButton);
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
@@ -57,10 +92,10 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('emits the expected metrics when a user continues to their account', async () => {
-    renderWithRouter(
-      <ResetPasswordWithRecoveryKeyVerified isSignedIn={true} isSync={false} />
+    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    const continueToAccountLink = await screen.findByText(
+      continueToAccountText
     );
-    const continueToAccountLink = screen.getByText('Continue to my account');
     fireEvent.click(continueToAccountLink);
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,
