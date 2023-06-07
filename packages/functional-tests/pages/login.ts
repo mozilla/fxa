@@ -49,6 +49,7 @@ export const selectors = {
   NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
   NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
   NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
+  PERMISSION_ACCEPT: '#accept',
 };
 
 export class LoginPage extends BaseLayout {
@@ -248,6 +249,10 @@ export class LoginPage extends BaseLayout {
     const header = this.page.locator(selectors.FIREFOX_HEADER);
     await header.waitFor();
     return header.isVisible();
+  }
+
+  async acceptOauthPermissions() {
+    return this.page.locator(selectors.PERMISSION_ACCEPT).click();
   }
 
   async signinUnblockHeader() {
