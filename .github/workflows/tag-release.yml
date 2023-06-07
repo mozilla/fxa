@@ -20,8 +20,7 @@ jobs:
 
       - name: Compute new version number
         run: |
-          versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.')
-          echo "versionNumber=$versionNumber" >> "$GITHUB_ENV"
+          echo versionNumber=$(git tag -l --sort=version:refname | grep -v '-' | tail -1 | awk '{print $2 + 1}' FS='.') >> "$GITHUB_ENV"
 
       - name: Create release branch
         run: git checkout -b train-${{ env.versionNumber }}
