@@ -27918,7 +27918,7 @@ fsevents@~2.1.1:
     stripe: ^11.12.0
     superagent: ^8.0.0
     through: 2.3.8
-    type-fest: ^3.7.1
+    type-fest: ^3.11.1
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.1
     typescript: ^4.9.3
@@ -51450,10 +51450,10 @@ resolve@^2.0.0-next.3:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^3.7.1":
-  version: 3.7.1
-  resolution: "type-fest@npm:3.7.1"
-  checksum: a694e0d62a06a60dec0f57e2e681d2e8d301992a3abd515fcc2f8f135ca12aa4f7d4aab24532ee781e4fb7735d6cfbd127ff0337b13cdbca6ff32b74d091c403
+"type-fest@npm:^3.11.1":
+  version: 3.11.1
+  resolution: "type-fest@npm:3.11.1"
+  checksum: 33be49e3b671c2ff3b5e320ef8c160c488205b08ab7631369116909a1baf2aebfcf45234c045e6902b8aa35730ac2bfd0655ea9e0fe3f8d26af9d99a16b07abd
   languageName: node
   linkType: hard
 
