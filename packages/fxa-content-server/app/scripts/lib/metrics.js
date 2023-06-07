@@ -365,9 +365,9 @@ _.extend(Metrics.prototype, Backbone.Events, {
       isDeviceIdValid: Validate.isDeviceIdValid,
     });
 
-    // Short circuit if bad L1 navigation timing data is detected.
-    if (validator.hasInvalidL1TimingData(filteredData)) {
-      return;
+    // Short circuit if bad navigation timing data is detected.
+    if (validator.hasInvalidNavigationTimingData(filteredData)) {
+      return Promise.resolve(false);
     }
 
     validator.sanitizeDeviceId(filteredData);
