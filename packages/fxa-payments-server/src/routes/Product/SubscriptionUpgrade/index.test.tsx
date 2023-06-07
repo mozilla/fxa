@@ -35,18 +35,30 @@ import {
 import { SignInLayout } from '../../../components/AppLayout';
 
 import SubscriptionUpgrade, { SubscriptionUpgradeProps } from './index';
-import { getLocalizedCurrency } from '../../../lib/formats';
+import {
+  getLocalizedCurrency,
+  getLocalizedDateString,
+} from '../../../lib/formats';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 import { updateConfig } from '../../../lib/config';
+import { deepCopy } from '../../../lib/test-utils';
 
 jest.mock('../../../lib/sentry');
 jest.mock('../../../lib/amplitude');
 
 const customerWebSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
+customerWebSubscription.current_period_start =
+  new Date('2023-05-10').getTime() / 1000 + 86400 * 31;
+customerWebSubscription.current_period_end =
+  new Date('2023-06-10').getTime() / 1000 + 86400 * 31;
 
-async function rendersAsExpected(upgradeFromPlan = UPGRADE_FROM_PLAN) {
+async function rendersAsExpected(
+  upgradeFromPlan = UPGRADE_FROM_PLAN,
+  invoicePreview = MOCK_PREVIEW_INVOICE_NO_TAX,
+  selectedPlan = SELECTED_PLAN
+) {
   const { findByTestId, queryByTestId, container } = render(
-    <Subject props={{ upgradeFromPlan }} />
+    <Subject props={{ upgradeFromPlan, invoicePreview, selectedPlan }} />
   );
   await findByTestId('subscription-upgrade');
 
@@ -70,8 +82,19 @@ async function rendersAsExpected(upgradeFromPlan = UPGRADE_FROM_PLAN) {
   expect(toDesc.textContent).toContain(
     SELECTED_PLAN.product_metadata?.['product:subtitle']
   );
+
+  // Expected invoice date can come from different sources depending on if interval
+  // and interval count match or not.
+  const expectedInvoiceDate =
+    upgradeFromPlan.interval !== selectedPlan.interval &&
+    selectedPlan.interval_count === upgradeFromPlan.interval_count
+      ? getLocalizedDateString(invoicePreview.line_items[0].period.end)
+      : getLocalizedDateString(customerWebSubscription.current_period_end);
   expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
   expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
+  expect(queryByTestId('sub-update-copy')).toHaveTextContent(
+    expectedInvoiceDate
+  );
 }
 
 describe('routes/Product/SubscriptionUpgrade', () => {
@@ -87,6 +110,17 @@ describe('routes/Product/SubscriptionUpgrade', () => {
 
   it('renders as expected', async () => {
     await rendersAsExpected();
+  });
+
+  it('renders as expected when upgrade to yearly from monthly', async () => {
+    const selectedPlan = deepCopy(SELECTED_PLAN);
+    selectedPlan.interval = 'yearly';
+    selectedPlan.interval_count = 1;
+    const invoicePreview = deepCopy(MOCK_PREVIEW_INVOICE_NO_TAX);
+    invoicePreview.line_items[0].id = selectedPlan.plan_id;
+    invoicePreview.line_items[0].period.end =
+      new Date('2024-05-10').getTime() / 1000 + 86400 * 31;
+    await rendersAsExpected(UPGRADE_FROM_PLAN, invoicePreview, selectedPlan);
   });
 
   it('renders as expected when upgrade from plan is archived', async () => {
