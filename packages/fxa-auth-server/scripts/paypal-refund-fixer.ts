@@ -8,7 +8,7 @@ import stripe from 'stripe';
 import Container from 'typedi';
 
 import { CurrencyHelper } from '../lib/payments/currencies';
-import { PayPalClient, RefundType } from '../lib/payments/paypal/client';
+import { PayPalClient, RefundType } from '../../../libs/payments/paypal/src';
 import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { STRIPE_INVOICE_METADATA, StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';
@@ -85,7 +85,7 @@ class PayPalFixer {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       idempotencyKey: invoice.id!,
       transactionId: transactionId,
-      refundType: RefundType.full,
+      refundType: RefundType.Full,
     });
     const success = ['instant', 'delayed'];
     if (success.includes(refundResponse.refundStatus.toLowerCase())) {

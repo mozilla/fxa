@@ -16,7 +16,7 @@ import {
   IpnMerchPmtType,
   isIpnMerchPmt,
   RefundType,
-} from '../../payments/paypal/client';
+} from '../../../../../libs/payments/paypal/src';
 import { StripeHelper, SUBSCRIPTIONS_RESOURCE } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
@@ -66,7 +66,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
         return this.paypalHelper.issueRefund(
           invoice,
           message.txn_id,
-          RefundType.full
+          RefundType.Full
         );
       }
     }
@@ -99,7 +99,7 @@ export class PayPalNotificationHandler extends PayPalHandler {
       ) {
         // we need to refund the user since the invoice was cancelled
         // but payment was processed
-        this.paypalHelper.issueRefund(invoice, message.txn_id, RefundType.full);
+        this.paypalHelper.issueRefund(invoice, message.txn_id, RefundType.Full);
       }
       // nothing to do since the invoice is already at its final status
       return;

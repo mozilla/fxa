@@ -23,7 +23,9 @@
     "esModuleInterop": true,
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
-    "paths": {},
+    "paths": {
+      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"]
+    },
     "typeRoots": [
       "./types",
       "./node_modules/@types",

@@ -1,4 +1,4 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
+/* This Source Code Form is subject to the terms of the Mozilla Publiclib/payments/paypal/helper.ts
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { hasPaypalSubscription } from 'fxa-shared/subscriptions/stripe';
@@ -15,6 +15,7 @@ import {
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
   IpnMessage,
+  nvpToObject,
   PayPalClient,
   PayPalClientError,
   RefundTransactionOptions,
@@ -22,7 +23,7 @@ import {
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
-} from './client';
+} from '../../../../../libs/payments/paypal/src';
 import { RefusedError } from './error';
 import {
   PAYPAL_APP_ERRORS,
@@ -354,7 +355,7 @@ export class PayPalHelper {
    * @param payload
    */
   public extractIpnMessage(payload: string): IpnMessage {
-    return this.client.nvpToObject(payload) as IpnMessage;
+    return nvpToObject(payload) as IpnMessage;
   }
 
   public async searchTransactions(
@@ -580,7 +581,8 @@ export class PayPalHelper {
       idempotencyKey: invoice.id!,
       transactionId: transactionId,
       refundType: refundType,
-      amount: amount,
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      amount: amount!,
     });
     const success = ['instant', 'delayed'];
     if (success.includes(refundResponse.refundStatus.toLowerCase())) {

@@ -17,7 +17,11 @@ const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
 const unpaidInvoice = require('./fixtures/stripe/invoice_open.json');
 const customer1 = require('./fixtures/stripe/customer1.json');
 const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
-const { PayPalClientError } = require('../../../lib/payments/paypal/client');
+const {
+  PayPalClientError,
+  nvpToObject,
+  objectToNVP,
+} = require('../../../../../libs/payments/paypal/src');
 const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
@@ -279,15 +283,14 @@ describe('PaypalProcessor', () => {
     });
 
     it('handles a paypal source error', async () => {
-      const paypalHelper = new PayPalHelper({ mockLog });
       const invoice = deepCopy(unpaidInvoice);
       const testCustomer = { metadata: { userid: 'testuser' } };
       invoice.customer = testCustomer;
 
       const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
       failedResponse.L_ERRORCODE0 = PAYPAL_SOURCE_ERRORS[0];
-      const rawString = paypalHelper.client.objectToNVP(failedResponse);
-      const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+      const rawString = objectToNVP(failedResponse);
+      const parsedNvpObject = nvpToObject(rawString);
       const throwErr = new PayPalClientError(rawString, parsedNvpObject);
       mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
@@ -311,15 +314,14 @@ describe('PaypalProcessor', () => {
     });
 
     it('handles an invalid billing agreement', async () => {
-      const paypalHelper = new PayPalHelper({ mockLog });
       const invoice = deepCopy(unpaidInvoice);
       const testCustomer = { metadata: { userid: 'testuser' } };
       invoice.customer = testCustomer;
 
       const failedResponse = deepCopy(failedDoReferenceTransactionResponse);
       failedResponse.L_ERRORCODE0 = PAYPAL_BILLING_AGREEMENT_INVALID;
-      const rawString = paypalHelper.client.objectToNVP(failedResponse);
-      const parsedNvpObject = paypalHelper.client.nvpToObject(rawString);
+      const rawString = objectToNVP(failedResponse);
+      const parsedNvpObject = nvpToObject(rawString);
       const throwErr = new PayPalClientError(rawString, parsedNvpObject);
       mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(

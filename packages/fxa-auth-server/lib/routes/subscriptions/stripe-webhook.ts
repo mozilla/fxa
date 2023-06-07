@@ -18,7 +18,7 @@ import {
 } from '../../../lib/sentry';
 import error from '../../error';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
-import { RefundType } from '../../payments/paypal/client';
+import { RefundType } from '../../../../../libs/payments/paypal/src';
 import {
   CUSTOMER_RESOURCE,
   FormattedSubscriptionForEmail,
@@ -98,7 +98,7 @@ export class StripeWebhookHandler extends StripeHandler {
         // Replace the object with the latest version if we support this object.
         event.data.object = await this.stripeHelper.expandResource(
           stripeObject.id,
-          resourceType as typeof VALID_RESOURCE_TYPES[number]
+          resourceType as (typeof VALID_RESOURCE_TYPES)[number]
         );
       }
     } else if (stripeObject.object === 'card' && stripeObject.customer) {
@@ -304,8 +304,8 @@ export class StripeWebhookHandler extends StripeHandler {
     try {
       const fullRefund = creditNote.out_of_band_amount === invoice.amount_due;
       const refundType: RefundType = fullRefund
-        ? RefundType.full
-        : RefundType.partial;
+        ? RefundType.Full
+        : RefundType.Partial;
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const amount = fullRefund ? undefined : creditNote.out_of_band_amount!;
 
