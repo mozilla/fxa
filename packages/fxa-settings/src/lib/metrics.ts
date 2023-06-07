@@ -8,11 +8,20 @@ import { useAccount } from '../models';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
+import { config } from 'process';
 
 export const settingsViewName = 'settings';
 
 const NOT_REPORTED_VALUE = 'none';
 const UNKNOWN_VALUE = 'unknown';
+
+const flowEventDataDefaults = {
+  broker: 'web',
+  context: 'web',
+  service: 'none',
+  isSampledUser: false,
+  deviceId: uuid().replace(/-/g, ''),
+};
 
 type Optional<T> = T | typeof NOT_REPORTED_VALUE;
 
@@ -38,7 +47,7 @@ type UserPreferences = {
   [userPref: string]: boolean;
 };
 
-type ConfigurableProperties = {
+interface ConfigurableProperties extends Hash<any> {
   experiments: ExperimentGroup[];
   lang: string | typeof UNKNOWN_VALUE;
   newsletters: string[] | typeof NOT_REPORTED_VALUE;
@@ -50,7 +59,9 @@ type ConfigurableProperties = {
   utm_medium: Optional<string>;
   utm_source: Optional<string>;
   utm_term: Optional<string>;
-};
+  isSampleUser?: Optional<boolean>;
+  broker?: Optional<string>;
+}
 
 type EventData = QueryParams &
   ConfigurableProperties & {
@@ -175,8 +186,7 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
       flowQueryParams.flowBeginTime &&
       flowQueryParams.flowId
     ) {
-      flowEventData = flowQueryParams;
-      initialized = true;
+      flowEventData = { ...flowQueryParams };
     } else {
       // Or initialize as a fresh flow
       const flowResponse = await fetch('/metrics-flow');
@@ -186,24 +196,47 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
           localStorage.getItem('__fxa_storage.uniqueUserId')!
         );
       } catch (e) {}
-      if (!flowEventData.uniqueUserId) {
-        flowEventData.uniqueUserId = uuid();
-        try {
-          localStorage.setItem(
-            '__fxa_storage.uniqueUserId',
-            JSON.stringify(flowEventData.uniqueUserId)
-          );
-        } catch (e) {}
-      }
-      // arriving directly to /beta/settings means all the following are fixed
-      flowEventData.broker = 'web';
-      flowEventData.context = 'web';
-      flowEventData.service = 'none';
-      flowEventData.isSampledUser = false;
-      flowEventData.deviceId = uuid().replace(/-/g, '');
-
-      initialized = true;
     }
+
+    // Make sure the default values are set. If default values are not set, metrics posts can fail.
+    // There are situations where arriving directly to /beta/settings means query params won't be
+    // provided, and we will use a set of fixed defaults.
+    if (!flowEventData.uniqueUserId) {
+      flowEventData.uniqueUserId = uuid();
+      try {
+        localStorage.setItem(
+          '__fxa_storage.uniqueUserId',
+          JSON.stringify(flowEventData.uniqueUserId)
+        );
+      } catch (e) {}
+    }
+
+    flowEventData.broker =
+      configurableProperties.broker ||
+      flowEventData.broker ||
+      flowEventDataDefaults.broker;
+
+    flowEventData.context =
+      configurableProperties.context ||
+      flowEventData.context ||
+      flowEventDataDefaults.broker;
+
+    flowEventData.service =
+      configurableProperties.service ||
+      flowEventData.service ||
+      flowEventDataDefaults.service;
+
+    flowEventData.isSampledUser =
+      configurableProperties.isSampledUser ||
+      flowEventData.isSampledUser ||
+      flowEventDataDefaults.isSampledUser;
+
+    flowEventData.deviceId =
+      configurableProperties.deviceId ||
+      flowEventData.deviceId ||
+      flowEventDataDefaults.deviceId;
+
+    initialized = true;
   }
 }
 
@@ -258,7 +291,6 @@ export function setProperties(properties: Hash<any>) {
   Object.keys(properties).forEach(
     (key) => properties[key] == null && delete properties[key]
   );
-
   configurableProperties = Object.assign(configurableProperties, properties);
 }
 

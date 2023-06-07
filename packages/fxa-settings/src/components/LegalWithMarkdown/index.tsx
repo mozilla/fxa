@@ -14,6 +14,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { fetchLegalMd, LegalDocFile } from '../../lib/file-utils-legal';
 import { AppContext } from '../../models';
+import { searchParams } from '../../lib/utilities';
 
 export type FetchLegalDoc = (
   locale: string,
@@ -73,7 +74,10 @@ const LegalWithMarkdown = ({
 
   const buttonHandler = () => {
     logViewEvent(`flow.${viewName}`, 'back', REACT_ENTRYPOINT);
-    navigate(-1);
+
+    navigate(
+      (searchParams(window.location.search) as any).contentRedirect ? -2 : -1
+    );
   };
 
   return (

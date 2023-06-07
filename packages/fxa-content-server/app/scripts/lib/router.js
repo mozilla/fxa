@@ -206,9 +206,15 @@ Router = Router.extend({
     'legal(/)': function () {
       this.createReactOrBackboneViewHandler('legal', 'legal');
     },
-    'legal/privacy(/)': createViewHandler('pp'),
+    'legal/privacy(/)': function () {
+      this.createReactOrBackboneViewHandler('legal/privacy', 'pp', {
+        contentRedirect: true,
+      });
+    },
     'legal/terms(/)': function () {
-      this.createReactOrBackboneViewHandler('legal/terms', 'tos');
+      this.createReactOrBackboneViewHandler('legal/terms', 'tos', {
+        contentRedirect: true,
+      });
     },
     'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
