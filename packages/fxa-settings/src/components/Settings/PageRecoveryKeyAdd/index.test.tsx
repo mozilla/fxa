@@ -10,6 +10,7 @@ import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { PageRecoveryKeyAdd } from '.';
 import * as Metrics from '../../../lib/metrics';
+import { resetOnce } from '../../../lib/utilities';
 
 jest.mock('base32-encode', () =>
   jest.fn().mockReturnValue('00000000000000000000000000000000')
@@ -106,13 +107,14 @@ describe('PageRecoveryKeyAdd', () => {
         .spyOn(Metrics, 'logViewEvent')
         .mockImplementation();
       logPageViewEventSpy = jest
-        .spyOn(Metrics, 'logPageViewEvent')
+        .spyOn(Metrics, 'logPageViewEventOnce')
         .mockImplementation();
     });
 
     afterEach(() => {
       logViewEventSpy.mockReset();
       logPageViewEventSpy.mockReset();
+      resetOnce();
     });
 
     afterAll(() => {

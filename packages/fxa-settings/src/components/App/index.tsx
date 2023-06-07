@@ -53,7 +53,7 @@ export const App = ({
 
   const { showReactApp } = flowQueryParams;
   const { loading, error } = useInitialState();
-  const { metricsEnabled } = useAccount();
+  const account = useAccount();
   const [email, setEmail] = useState<string>();
   const [emailLookupComplete, setEmailLookupComplete] =
     useState<boolean>(false);
@@ -61,9 +61,14 @@ export const App = ({
   const config = useConfig();
   const sessionTokenId = sessionToken();
 
+  const { metricsEnabled } = account;
+
   useEffect(() => {
     Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
-  }, [metricsEnabled, isSignedIn, flowQueryParams]);
+    if (metricsEnabled) {
+      Metrics.initUserPreferences(account);
+    }
+  }, [account, metricsEnabled, isSignedIn, flowQueryParams]);
 
   useEffect(() => {
     if (!loading && error?.message.includes('Invalid token')) {

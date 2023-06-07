@@ -63,8 +63,9 @@ export function searchParams(str = '', allowedFields?: string[]) {
 /**
  * Return the value of a single query parameter in the string
  */
-export function searchParam(name: string, str?: string): string {
-  return searchParams(str)[name];
+export function searchParam(name: string, str?: string) {
+  const params = searchParams(str);
+  return params[name];
 }
 
 /**
@@ -73,7 +74,10 @@ export function searchParam(name: string, str?: string): string {
  * `&` is the expected delimiter between parameters.
  * `=` is the delimiter between a key and a value.
  */
-export function splitEncodedParams(str = '', allowedFields?: string[]) {
+export function splitEncodedParams(
+  str = '',
+  allowedFields?: string[]
+): Record<string, string> {
   const pairs = str.split('&');
   const terms: { [key: string]: string } = {};
 
@@ -105,4 +109,23 @@ export function isMobileDevice(client?: AttachedClient) {
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {
   return B32_STRING.test(value);
+}
+
+/**
+ * Ensures a given callback is called at most once per invocation with a given key.
+ * For example:
+ *  foo('bar', () => console.log(1));
+ *  foo('bar', () => console.log(2));
+ * Would print: 1
+ */
+let calls = new Set<string>();
+export function once(key: string, callback: () => void) {
+  if (calls.has(key)) {
+    return;
+  }
+  calls.add(key);
+  callback();
+}
+export function resetOnce() {
+  calls = new Set<string>();
 }

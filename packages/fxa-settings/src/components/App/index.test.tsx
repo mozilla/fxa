@@ -6,11 +6,12 @@ import React, { ReactNode } from 'react';
 import { render, act } from '@testing-library/react';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
-import { useInitialState } from '../../models';
+import { useAccount, useInitialState } from '../../models';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialState: jest.fn(),
+  useAccount: jest.fn(),
 }));
 
 jest.mock('react-markdown', () => {});
@@ -49,10 +50,19 @@ describe('metrics', () => {
   });
 
   it('Initializes metrics flow data when present', async () => {
+    const mockAccount = {
+      metricsEnabled: true,
+      recoveryKey: true,
+      totpActive: true,
+      hasSecondaryVerifiedEmail: false,
+    };
+    (useAccount as jest.Mock).mockReturnValue(mockAccount);
     (useInitialState as jest.Mock).mockReturnValue({ loading: true });
     const DEVICE_ID = 'yoyo';
     const BEGIN_TIME = 123456;
     const FLOW_ID = 'abc123';
+    const flowInit = jest.spyOn(Metrics, 'init');
+    const userPreferencesInit = jest.spyOn(Metrics, 'initUserPreferences');
     const updatedFlowQueryParams = {
       deviceId: DEVICE_ID,
       flowBeginTime: BEGIN_TIME,
@@ -68,6 +78,7 @@ describe('metrics', () => {
       flowId: FLOW_ID,
       flowBeginTime: BEGIN_TIME,
     });
+    expect(userPreferencesInit).toHaveBeenCalledWith(mockAccount);
     expect(window.location.replace).not.toHaveBeenCalled();
   });
 });

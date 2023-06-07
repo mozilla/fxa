@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { MOCK_ACCOUNT } from '../models/mocks';
 import {
   init,
   reset,
@@ -13,10 +14,10 @@ import {
   addExperiment,
   setUserPreference,
   setNewsletters,
-  useUserPreferences,
   useViewEvent,
   usePageViewEvent,
   logErrorEvent,
+  initUserPreferences,
 } from './metrics';
 
 import { window } from './window';
@@ -90,6 +91,11 @@ function initFlow(enabled = true) {
     deviceId,
     flowBeginTime,
     flowId,
+  });
+  initUserPreferences({
+    hasSecondaryVerifiedEmail: MOCK_ACCOUNT.emails.length > 1,
+    recoveryKey: MOCK_ACCOUNT.recoveryKey,
+    totpActive: MOCK_ACCOUNT.totp.exists && MOCK_ACCOUNT.totp.verified,
   });
 }
 
@@ -404,7 +410,6 @@ describe('setUserPreference', () => {
 
 describe('setUserPreferences', () => {
   it('sets three user prefs', () => {
-    useUserPreferences();
     initAndLog();
     const payloadData = parsePayloadData();
     // strict equal since _all three_ properties must be present

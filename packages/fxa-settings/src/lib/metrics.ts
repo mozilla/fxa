@@ -3,12 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
-import { useEffect, useRef } from 'react';
-import { useAccount } from '../models';
 import { window } from './window';
 import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
-import { config } from 'process';
+import { once } from './utilities';
+import { useEffect } from 'react';
 
 export const settingsViewName = 'settings';
 
@@ -241,41 +240,28 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
 }
 
 /**
+ * Initializes the user preference state for metrics.
+ * @param account - An account model containing user preferences applicable to metrics
+ */
+export function initUserPreferences(account: {
+  recoveryKey: boolean;
+  hasSecondaryVerifiedEmail: boolean;
+  totpActive: boolean;
+}) {
+  setUserPreference('account-recovery', account.recoveryKey);
+  setUserPreference('emails', account.hasSecondaryVerifiedEmail);
+  setUserPreference('two-step-authentication', account.totpActive);
+}
+
+/**
  * Often we need to log a metric event in a place where hooks are not allowed.
  * However, we do want initialize some event data through the use of hooks.
  * It also provide a couple functions that ensure the event is logged once.
  */
-export function useMetrics(): {
-  logViewEventOnce: typeof logViewEvent;
-  logPageViewEventOnce: typeof logPageViewEvent;
-} {
-  useUserPreferences();
-  const makeLogOnceFn = useRef((f: Function) => {
-    let hasLogged = false;
-
-    return (
-      ...args:
-        | Parameters<typeof logViewEvent>
-        | Parameters<typeof logPageViewEvent>
-    ) => {
-      if (!hasLogged) {
-        hasLogged = true;
-        f(...args);
-      }
-    };
-  });
-
-  const logViewEventOnce = useRef<
-    (...args: Parameters<typeof logViewEvent>) => void
-  >(makeLogOnceFn.current(logViewEvent));
-
-  const logPageViewEventOnce = useRef<
-    (...args: Parameters<typeof logPageViewEvent>) => void
-  >(makeLogOnceFn.current(logPageViewEvent));
-
+export function useMetrics() {
   return {
-    logViewEventOnce: logViewEventOnce.current,
-    logPageViewEventOnce: logPageViewEventOnce.current,
+    logViewEventOnce: logViewEventOnce,
+    logPageViewEventOnce: logPageViewEventOnce,
   };
 }
 
@@ -408,13 +394,20 @@ export function logViewEvent(
 }
 
 /**
- * A non-hook version of usePageViewEvent.  See comments for that function.
+ * Same as logViewEvent, but ensures that event can be logged at most once per page lifecylce.
+ * The event is memoized based on viewName and eventName.
+ * @param viewName
+ * @param eventName
+ * @param eventProperties - Additional properties to log with the event
  */
-export function logPageViewEvent(
+export function logViewEventOnce(
   viewName: string,
+  eventName: string,
   eventProperties: Hash<any> = {}
 ) {
-  logEvents([`screen.${viewName}`], eventProperties);
+  once(`${viewName}.${eventName}`, () => {
+    logViewEvent(viewName, eventName, eventProperties);
+  });
 }
 
 /**
@@ -428,15 +421,35 @@ export function logPageViewEvent(
 export function useViewEvent(
   viewName: string,
   eventName: string,
-  eventProperties: Hash<any> = {},
-  dependencies: any[] = []
+  eventProperties: Hash<any> = {}
 ) {
-  useUserPreferences();
-
   useEffect(() => {
-    logViewEvent(viewName, eventName, eventProperties);
+    logViewEventOnce(viewName, eventName, eventProperties);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, dependencies);
+  }, []);
+}
+
+/**
+ * A non-hook version of usePageViewEvent.  See comments for that function.
+ */
+export function logPageViewEvent(
+  viewName: string,
+  eventProperties: Hash<any> = {}
+) {
+  logEvents([`screen.${viewName}`], eventProperties);
+}
+
+/**
+ * A non-hook version of usePageViewEvent.  Note that this function will log at most one
+ * event per page lifecycle. The event is memoized based on viewName.
+ */
+export function logPageViewEventOnce(
+  viewName: string,
+  eventProperties: Hash<any> = {}
+) {
+  once(viewName, () => {
+    logPageViewEvent(viewName, eventProperties);
+  });
 }
 
 /**
@@ -447,10 +460,9 @@ export function useViewEvent(
  */
 export function usePageViewEvent(
   viewName: string,
-  eventProperties: Hash<any> = {},
-  dependencies: any[] = []
+  eventProperties: Hash<any> = {}
 ) {
-  useViewEvent('screen', viewName, eventProperties, dependencies);
+  useViewEvent('screen', viewName, eventProperties);
 }
 
 /**
@@ -477,21 +489,6 @@ export function logExperiment(
  */
 export function setUserPreference(prefName: string, value: boolean) {
   configurableProperties.userPreferences[prefName] = value;
-}
-
-/**
- * All three properties must be included if userPreferences is in the request
- * payload.
- */
-export function useUserPreferences() {
-  try {
-    const account = useAccount();
-    setUserPreference('account-recovery', account.recoveryKey);
-    setUserPreference('emails', account.hasSecondaryVerifiedEmail);
-    setUserPreference('two-step-authentication', account.totpActive);
-  } catch {
-    // noop, just means the user isn't logged in
-  }
 }
 
 /**
