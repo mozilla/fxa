@@ -1059,7 +1059,11 @@ export const stripeRoutes = (
       path: '/oauth/subscriptions/coupon',
       options: {
         ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_COUPON_POST,
-        auth: false,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+          mode: 'try',
+        },
         response: {
           schema: couponDTO.couponDetailsSchema as any,
         },
