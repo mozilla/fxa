@@ -43,6 +43,7 @@ export const FlowRecoveryKeyHint = ({
   const alertBar = useAlertBar();
   const [bannerText, setBannerText] = useState<string>();
   const [hintError, setHintError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const { control, getValues, handleSubmit, register } = useForm<FormData>({
@@ -84,6 +85,7 @@ export const FlowRecoveryKeyHint = ({
   };
 
   const onSubmit = async ({ hint }: FormData) => {
+    setIsLoading(true);
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
@@ -117,6 +119,8 @@ export const FlowRecoveryKeyHint = ({
           }
           setBannerText(localizedError);
           logViewEvent(viewName, 'create-hint.fail', e);
+        } finally {
+          setIsLoading(false);
         }
       }
     }
@@ -194,6 +198,7 @@ export const FlowRecoveryKeyHint = ({
             <button
               className="cta-primary cta-xl w-full mt-6 mb-4"
               type="submit"
+              disabled={isLoading}
             >
               Finish
             </button>

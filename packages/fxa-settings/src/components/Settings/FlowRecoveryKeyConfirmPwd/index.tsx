@@ -50,6 +50,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
 
   const [errorText, setErrorText] = useState<string>();
   const [bannerText, setBannerText] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { formState, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'all',
@@ -92,6 +93,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
         setBannerText(localizedError);
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
+    } finally {
+      setIsLoading(false);
     }
   }, [
     account,
@@ -133,6 +136,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
 
         <form
           onSubmit={handleSubmit(({ password }) => {
+            setIsLoading(true);
             createRecoveryKey();
           })}
         >
@@ -156,7 +160,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
               <button
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
-                disabled={!formState.isDirty || !!formState.errors.password}
+                disabled={isLoading || !formState.isDirty}
               >
                 Create account recovery key
               </button>
@@ -167,7 +171,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
               <button
                 className="cta-primary cta-xl w-full mt-4"
                 type="submit"
-                disabled={!formState.isDirty || !!formState.errors.password}
+                disabled={isLoading || !formState.isDirty}
               >
                 Create new account recovery key
               </button>
