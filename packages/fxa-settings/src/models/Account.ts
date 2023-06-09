@@ -1129,7 +1129,7 @@ export class Account implements AccountData {
     firefox.profileChanged({ uid: this.uid });
   }
 
-  async createRecoveryKey(password: string) {
+  async createRecoveryKey(password: string, replaceKey: boolean = false) {
     const reauth = await this.withLoadingStatus(
       this.authClient.sessionReauth(
         sessionToken()!,
@@ -1151,7 +1151,8 @@ export class Account implements AccountData {
         sessionToken()!,
         recoveryKeyId,
         recoveryData,
-        true
+        true,
+        replaceKey
       )
     );
     const cache = this.apolloClient.cache;

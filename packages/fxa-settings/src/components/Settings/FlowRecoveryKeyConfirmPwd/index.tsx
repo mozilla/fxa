@@ -27,7 +27,6 @@ type FormData = {
 };
 
 export type FlowRecoveryKeyConfirmPwdProps = {
-  action?: RecoveryKeyAction;
   localizedBackButtonTitle: string;
   localizedPageTitle: string;
   navigateBackward: () => void;
@@ -37,7 +36,6 @@ export type FlowRecoveryKeyConfirmPwdProps = {
 };
 
 export const FlowRecoveryKeyConfirmPwd = ({
-  action = RecoveryKeyAction.Create,
   localizedBackButtonTitle,
   localizedPageTitle,
   navigateBackward,
@@ -51,6 +49,15 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const [errorText, setErrorText] = useState<string>();
   const [bannerText, setBannerText] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
+  const [actionType, setActionType] = useState<RecoveryKeyAction>();
+
+  useEffect(() => {
+    if (account.recoveryKey === true) {
+      setActionType(RecoveryKeyAction.Change);
+    } else {
+      setActionType(RecoveryKeyAction.Create);
+    }
+  }, [account.recoveryKey]);
 
   const { formState, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'all',
@@ -63,10 +70,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
     const password = getValues('password');
     logViewEvent(`flow.${viewName}`, 'confirm-password.submit');
     try {
-      if (action === RecoveryKeyAction.Change && account.recoveryKey) {
-        account.deleteRecoveryKey();
-      }
-      const recoveryKey = await account.createRecoveryKey(password);
+      const replaceKey = actionType === RecoveryKeyAction.Change;
+      const recoveryKey = await account.createRecoveryKey(password, replaceKey);
       setFormattedRecoveryKey(
         base32Encode(recoveryKey.buffer, 'Crockford').match(/.{4}/g)!.join(' ')
       );
@@ -75,13 +80,23 @@ export const FlowRecoveryKeyConfirmPwd = ({
     } catch (e) {
       let localizedError;
 
-      if (e.errno === AuthUiErrors.THROTTLED.errno && e.retryAfterLocalized) {
-        localizedError = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(e),
-          AuthUiErrorNos[e.errno].message,
-          { retryAfter: e.retryAfterLocalized }
-        );
-      } else {
+      if (e.errno === AuthUiErrors.THROTTLED.errno) {
+        if (e.retryAfterLocalized) {
+          localizedError = ftlMsgResolver.getMsg(
+            composeAuthUiErrorTranslationId(e),
+            AuthUiErrorNos[e.errno].message,
+            { retryAfter: e.retryAfterLocalized }
+          );
+        } else {
+          // For throttling errors where a localized retry after value is not available
+          localizedError = ftlMsgResolver.getMsg(
+            'auth-error-114-generic',
+            AuthUiErrorNos[114].message
+          );
+        }
+      }
+      // For any errors other than throttling
+      else {
         localizedError = ftlMsgResolver.getMsg(
           composeAuthUiErrorTranslationId(e),
           e.message
@@ -98,7 +113,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     }
   }, [
     account,
-    action,
+    actionType,
     ftlMsgResolver,
     getValues,
     navigateForward,
@@ -113,7 +128,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
       title={localizedPageTitle}
       onBackButtonClick={() => {
         navigateBackward();
-        action === RecoveryKeyAction.Create
+        actionType === RecoveryKeyAction.Create
           ? logViewEvent(`flow.${viewName}`, 'create-key.cancel')
           : logViewEvent(`flow.${viewName}`, 'change-key.cancel');
       }}
@@ -155,7 +170,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             })}
             {...{ errorText }}
           />
-          {action === RecoveryKeyAction.Create && (
+          {actionType === RecoveryKeyAction.Create && (
             <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button">
               <button
                 className="cta-primary cta-xl w-full mt-4"
@@ -166,7 +181,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
               </button>
             </FtlMsg>
           )}
-          {action === RecoveryKeyAction.Change && (
+          {actionType === RecoveryKeyAction.Change && (
             <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button-change-key">
               <button
                 className="cta-primary cta-xl w-full mt-4"
@@ -178,7 +193,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
             </FtlMsg>
           )}
         </form>
-        {action === RecoveryKeyAction.Change && (
+        {actionType === RecoveryKeyAction.Change && (
           <FtlMsg id="flow-recovery-key-info-cancel-link">
             {/* TODO: Remove feature flag param in FXA-7419 */}
             <Link

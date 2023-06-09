@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import FlowRecoveryKeyHint, { maxHintLength } from '.';
