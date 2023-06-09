@@ -36,19 +36,19 @@ export const FlowContainer = ({
     >
       <Head title={title} />
 
-      <div className="flex items-center">
+      <div className="relative flex items-center">
         <button
           onClick={onBackButtonClick}
           data-testid="flow-container-back-btn"
           title={backButtonTitle}
-          className="relative w-8 h-8 -ms-2 me-2 tablet:me-10 tablet:-ms-18"
+          className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24"
         >
-          <BackArrow className="w-8 h-auto pe-2 absolute top-1/2 start-1/4 transform -translate-y-1/2 ltr:-translate-x-1/2 rtl:translate-x-1/2 rtl:-scale-x-100 fill-current" />
+          <BackArrow className="w-6 h-auto fill-grey-400 rtl:transform rtl:-scale-x-100" />
         </button>
-        <h1 className="font-header text-lg mb-1">{title}</h1>
+        <h1 className="font-header text-lg">{title}</h1>
       </div>
       {subtitle && (
-        <h2 className="text-xs text-grey-400 font-semibold uppercase">
+        <h2 className="text-xs text-grey-400 font-semibold uppercase mt-1">
           {subtitle}
         </h2>
       )}
