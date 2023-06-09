@@ -10,7 +10,7 @@ import {
 } from '@stripe/stripe-js';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
 import { SubscriptionCreateAuthServerAPIs } from '../routes/Product/SubscriptionCreate';
-import { Customer, Plan, Profile } from '../store/types';
+import { Customer, Plan } from '../store/types';
 import {
   handlePasswordlessSignUp,
   PasswordlessSignupHandlerParam,

@@ -153,7 +153,18 @@ export const App = ({
   );
 };
 
-export class AppErrorBoundary extends React.Component {
+interface AppErrorBoundaryProps {
+  children?: React.ReactNode;
+}
+
+interface AppErrorBoundaryState {
+  error: Error | undefined;
+}
+
+export class AppErrorBoundary extends React.Component<
+  AppErrorBoundaryProps,
+  AppErrorBoundaryState
+> {
   state: {
     error: undefined | Error;
   };

@@ -60,7 +60,7 @@ export const NewUserEmailForm = ({
         ...selectedPlan,
         checkoutType: checkoutType,
       }),
-    [selectedPlan]
+    [checkoutType, selectedPlan]
   );
   useEffect(() => {
     onFormMounted();

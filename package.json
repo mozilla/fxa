@@ -85,6 +85,7 @@
     ]
   },
   "devDependencies": {
+    "@nx/eslint-plugin": "^16.3.2",
     "@nx/jest": "16.3.1",
     "@nx/js": "16.3.2",
     "@nx/node": "^16.3.1",
@@ -127,7 +128,8 @@
   "resolutions": {
     "@grpc/grpc-js": "~1.6.0",
     "@nestjs/cli/typescript": "^4.5.2",
-    "@types/node": "^18.14.2",
+    "@types/react": "^17.0.14",
+    "@types/react-dom": "^17.0.9",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "elliptic": ">=6.5.4",
     "eslint-plugin-import": "^2.25.2",
