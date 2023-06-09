@@ -4,12 +4,11 @@
 
 import React from 'react';
 import ResetPassword, { ResetPasswordProps } from '.';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
 import { withLocalization } from '../../../.storybook/decorators';
-import { Account, AppContext } from '../../models';
+import { Account } from '../../models';
 import {
   mockAccountWithThrottledError,
   mockAccountWithUnexpectedError,

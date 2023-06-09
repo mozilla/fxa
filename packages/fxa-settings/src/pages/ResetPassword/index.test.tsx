@@ -13,7 +13,7 @@ import ResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
 
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
-import { Account, AppContext } from '../../models';
+import { Account } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import { typeByLabelText } from '../../lib/test-utils';
 import {

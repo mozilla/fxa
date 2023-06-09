@@ -4,8 +4,6 @@ import { PriceDetails, PriceDetailsProps } from '.';
 import MockApp from '../../../.storybook/components/MockApp';
 import { SignInLayout } from '../AppLayout';
 
-import Stripe from 'stripe';
-
 export default {
   title: 'components/PriceDetails',
   component: PriceDetails,
@@ -14,17 +12,6 @@ export default {
 const defaultProps: PriceDetailsProps = {
   total: 500,
   currency: 'USD',
-};
-
-type PriceDetailsProps2 = {
-  total: number;
-  currency: string;
-  tax?: number;
-  showTax?: boolean;
-  interval?: Stripe.Plan.Interval;
-  intervalCount?: number;
-  className?: string;
-  dataTestId?: string;
 };
 
 const storyWithParams = ({

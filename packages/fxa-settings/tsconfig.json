@@ -11,7 +11,8 @@
       "@testing-library/jest-dom"
     ],
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "noImplicitAny": false
   },
   "include": [
     "src"

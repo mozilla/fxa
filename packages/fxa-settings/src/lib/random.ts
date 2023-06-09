@@ -44,7 +44,7 @@ export class Random {
     // 32-bit unsigned int for each element and map it to a float in [0,1).
     // This requires 4 bytes of randomness per element.
     const bytes = this.getRandomBytes(len);
-    const out = [];
+    const out: string[] = [];
 
     for (let i = 0; i < len; i++) {
       const r = bytes[i] / 2 ** 32;

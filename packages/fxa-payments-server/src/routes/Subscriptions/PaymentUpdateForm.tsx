@@ -168,6 +168,7 @@ export const PaymentUpdateForm = ({
       stripeSubmitSetInProgress();
       resetUpdatePaymentIsSuccess();
       try {
+        // @ts-ignore
         await handlePaymentUpdate({
           ...params,
           ...apiClient,
