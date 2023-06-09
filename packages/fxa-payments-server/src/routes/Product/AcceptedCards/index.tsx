@@ -13,10 +13,10 @@ export const AcceptedCards = () => {
         <p className="pay-with-heading">Pay with card</p>
       </Localized>
       <div className="flex justify-center mt-9 mb-14 gap-2">
-        <img src={visaLogo} alt="visa" />
-        <img src={mastercardLogo} alt="mastercard" />
-        <img src={discoverLogo} alt="discover" />
-        <img src={amexLogo} alt="american express" />
+        <img src={visaLogo} alt="Visa" />
+        <img src={mastercardLogo} alt="Mastercard" />
+        <img src={discoverLogo} alt="Discover" />
+        <img src={amexLogo} alt="American Express" />
       </div>
     </>
   );

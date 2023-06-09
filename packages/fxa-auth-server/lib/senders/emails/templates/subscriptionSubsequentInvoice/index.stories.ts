@@ -53,7 +53,8 @@ export const SubscriptionSubsequentInvoicePayPalNoProrated = createStory(
 
 export const SubscriptionSubsequentInvoiceStripeProrated = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     paymentProrated: '$5,231.00',
@@ -64,7 +65,8 @@ export const SubscriptionSubsequentInvoiceStripeProrated = createStory(
 
 export const SubscriptionSubsequentInvoiceStripeNoProrated = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     showProratedAmount: false,
@@ -74,7 +76,8 @@ export const SubscriptionSubsequentInvoiceStripeNoProrated = createStory(
 
 export const SubscriptionSubsequentInvoiceCouponFullAmount = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     invoiceSubtotal: '$20.00',
@@ -88,7 +91,8 @@ export const SubscriptionSubsequentInvoiceCouponFullAmount = createStory(
 
 export const SubscriptionSubsequentInvoiceStripeNoProrated3Month = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     showProratedAmount: false,
@@ -103,7 +107,8 @@ export const SubscriptionSubsequentInvoiceStripeNoProrated3Month = createStory(
 
 export const SubscriptionSubsequentInvoiceStripeNoProratedOneTime = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     showProratedAmount: false,
@@ -119,7 +124,8 @@ export const SubscriptionSubsequentInvoiceStripeNoProratedOneTime = createStory(
 export const SubscriptionSubsequentInvoiceStripeNoProratedOneTimeWithTax =
   createStory(
     {
-      cardType: 'MasterCard',
+      cardType: 'mastercard',
+      cardName: 'Mastercard',
       lastFour: '5309',
       payment_provider: 'stripe',
       showProratedAmount: false,
@@ -136,7 +142,8 @@ export const SubscriptionSubsequentInvoiceStripeNoProratedOneTimeWithTax =
 
 export const SubscriptionSubsequentInvoiceStripeNoProratedWithTax = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     showProratedAmount: false,

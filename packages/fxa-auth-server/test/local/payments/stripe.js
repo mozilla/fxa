@@ -6176,7 +6176,7 @@ describe('#integration - StripeHelper', () => {
       const mockPaymentMethod = {
         card: {
           last4: '4321',
-          brand: 'MasterCard',
+          brand: 'Mastercard',
           country: 'US',
         },
         billing_details: {

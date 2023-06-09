@@ -234,7 +234,7 @@ module.exports = function (log, config, bounces) {
     diners: 'Diners Club',
     discover: 'Discover',
     jcb: 'JCB',
-    mastercard: 'MasterCard',
+    mastercard: 'Mastercard',
     unionpay: 'UnionPay',
     visa: 'Visa',
     unknown: 'Unknown',
@@ -2252,7 +2252,8 @@ module.exports = function (log, config, bounces) {
           message.acceptLanguage
         ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
       },
@@ -2416,7 +2417,8 @@ module.exports = function (log, config, bounces) {
             message.acceptLanguage
           ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
         paymentProrated,
@@ -2521,7 +2523,8 @@ module.exports = function (log, config, bounces) {
             message.acceptLanguage
           ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
         showPaymentMethod,
