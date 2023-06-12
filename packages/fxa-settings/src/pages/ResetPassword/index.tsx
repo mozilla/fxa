@@ -166,7 +166,7 @@ const ResetPassword = ({
     const email: string = useWatch({
       control,
       name: 'email',
-      defaultValue: '',
+      defaultValue: getValues().email,
     });
     return <LinkRememberPassword {...{ email }} />;
   };
