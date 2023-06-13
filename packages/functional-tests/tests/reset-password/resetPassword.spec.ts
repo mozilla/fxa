@@ -1,7 +1,5 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
-const PASSWORD = 'passwordzxcv';
-
 test.describe('Reset password current', () => {
   test.beforeEach(async ({ target, credentials, pages: { login } }) => {
     test.slow();
