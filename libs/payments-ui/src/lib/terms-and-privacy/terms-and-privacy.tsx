@@ -75,6 +75,11 @@ function GenericTerms({
  *      - Example => CMS data fetch, since it's the same for all customers
  *    - Non-cacheable data should be passed in as props (TODO - Find docs for this)
  *      - Example => Cart data, different for each CartId, in this case paymentProvider
+ *
+ * Regarding data fetching, this is from the Next.js docs
+ *  - https://nextjs.org/docs/app/building-your-application/data-fetching/fetching
+ *  - Whenever possible, it's best to fetch data in the segment that uses it. This also allows
+ *    you to show a loading state for only the part of the page that is loading, and not the entire page.
  */
 
 export interface TermsAndPrivacyProps {
