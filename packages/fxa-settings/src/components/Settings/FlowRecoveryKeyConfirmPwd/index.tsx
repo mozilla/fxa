@@ -136,23 +136,21 @@ export const FlowRecoveryKeyConfirmPwd = ({
             createRecoveryKey();
           })}
         >
-          <FtlMsg
-            id="flow-recovery-key-confirm-pwd-input-label"
-            attrs={{ label: true }}
-          >
-            <InputPassword
-              name="password"
-              label="Enter your password"
-              onChange={() => {
-                errorText && setErrorText(undefined);
-                bannerText && setBannerText(undefined);
-              }}
-              inputRef={register({
-                required: true,
-              })}
-              {...{ errorText }}
-            />
-          </FtlMsg>
+          <InputPassword
+            name="password"
+            label={ftlMsgResolver.getMsg(
+              'flow-recovery-key-confirm-pwd-input-label',
+              'Enter your password'
+            )}
+            onChange={() => {
+              errorText && setErrorText(undefined);
+              bannerText && setBannerText(undefined);
+            }}
+            inputRef={register({
+              required: true,
+            })}
+            {...{ errorText }}
+          />
           {action === RecoveryKeyAction.Create && (
             <FtlMsg id="flow-recovery-key-confirm-pwd-submit-button">
               <button
