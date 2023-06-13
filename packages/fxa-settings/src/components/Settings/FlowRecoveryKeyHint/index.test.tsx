@@ -71,7 +71,7 @@ describe('FlowRecoveryKeyHint', () => {
       name: 'Add a hint to help find your key',
     });
     screen.getByText(
-      'This hint should help you remember where you stored your account recovery key. We’ll show it to you when you use it to recover your data.'
+      'This hint should help you remember where you stored your account recovery key. We can show it to you during the password reset to recover your data.'
     );
     screen.getByRole('textbox', { name: 'Enter a hint (optional)' });
     screen.getByRole('button', { name: 'Finish' });
