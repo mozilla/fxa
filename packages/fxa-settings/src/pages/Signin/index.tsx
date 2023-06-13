@@ -98,7 +98,10 @@ const Signin = ({
         {/* Alerts and success messages originally went here */}
         <div className="mt-9">
           {/* When we get to the functionality stage, we can probably replace this with the Avatar component in Settings*/}
-          <div className="mx-auto h-24 w-24 mobileLandscape:h-40 mobileLandscape:w-40"></div>
+          {/* The avatar size must not increase until the tablet breakpoint due to logging into
+           * Pocket with FxA and maybe others later: an Apple-controlled modal displays FxA in a
+           * web view and we want the "Sign in" button to be displayed above the fold. See FXA-7425 */}
+          <div className="mx-auto h-24 w-24 tablet:h-40 tablet:w-40"></div>
           <div className="my-5 text-base break-all">{email}</div>
         </div>
         <form noValidate {...{ onSubmit }}>
