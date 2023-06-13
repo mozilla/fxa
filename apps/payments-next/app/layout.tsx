@@ -1,4 +1,3 @@
-import { ApolloWrapper } from '@fxa/payments-ui';
 import './global.css';
 
 export const metadata = {
@@ -13,9 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <ApolloWrapper>{children}</ApolloWrapper>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }

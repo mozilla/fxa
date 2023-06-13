@@ -1,6 +1,5 @@
+import { ApolloWrapper, CouponForm, fetchGraphQl } from '@fxa/payments-ui';
 import { TermsAndPrivacy } from '@fxa/payments-ui/server';
-import { Suspense } from 'react';
-import { fetchGraphQl } from '@fxa/payments-ui';
 
 const CART_QUERY = `
   query singleCart($input: SingleCartInput!) {
@@ -13,9 +12,9 @@ const CART_QUERY = `
 `;
 
 /* eslint-disable-next-line */
-interface TermsProps {}
+interface DemoProps {}
 
-export default async function Terms(props: TermsProps) {
+export default async function Demo(props: DemoProps) {
   const {
     singleCart: { paymentProvider },
   } = await fetchGraphQl(CART_QUERY, {
@@ -24,14 +23,21 @@ export default async function Terms(props: TermsProps) {
 
   return (
     <div>
-      <h1>Welcome to Terms!</h1>
-      <Suspense fallback={<div>Loading...</div>}>
+      <h1>Welcome to the Demo Page!</h1>
+      <div className="w-[480px]">
+        <h2>Example of a Client Component</h2>
+        <ApolloWrapper>
+          <CouponForm cartId={1} readOnly={false} />
+        </ApolloWrapper>
+      </div>
+      <>
+        <h2>Example of a Server Component</h2>
         {/* @ts-expect-error Server Component */}
         <TermsAndPrivacy
           paymentProvider={paymentProvider || 'not_chosen'}
           showFXALinks={true}
         />
-      </Suspense>
+      </>
     </div>
   );
 }

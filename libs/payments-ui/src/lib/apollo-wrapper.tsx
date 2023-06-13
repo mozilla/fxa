@@ -1,3 +1,7 @@
+/**
+ * Implementation recommended by Apollo Blog
+ * - https://www.apollographql.com/blog/apollo-client/next-js/how-to-use-apollo-client-with-next-js-13/
+ */
 'use client';
 
 import {
@@ -36,7 +40,11 @@ function makeSuspenseCache() {
   return new SuspenseCache();
 }
 
-export function ApolloWrapper({ children }: React.PropsWithChildren) {
+interface ApolloWrapperProps {}
+
+export function ApolloWrapper({
+  children,
+}: React.PropsWithChildren<ApolloWrapperProps>) {
   return (
     <ApolloNextAppProvider
       makeClient={makeClient}

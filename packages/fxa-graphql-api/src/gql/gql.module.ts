@@ -25,6 +25,7 @@ import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
 import { CartResolver } from './cart.resolver';
+import { CmsResolver } from './cms.resolver';
 import { LegalResolver } from './legal.resolver';
 import { Request, Response } from 'express';
 
@@ -73,6 +74,7 @@ export const GraphQLConfigFactory = async (
     SessionResolver,
     LegalResolver,
     CartResolver,
+    CmsResolver,
   ],
 })
 export class GqlModule implements NestModule {

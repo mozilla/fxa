@@ -1,4 +1,10 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+/**
+ * DEMO IMPLEMENTATION ONLY
+ * This was thrown together to make the demo work
+ * Do Not Review
+ */
+
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { Cart as CartType } from './model/cart';
 import {
   AddCartInput,
@@ -57,6 +63,7 @@ export class CartResolver {
     {
       id: 1,
       promotionCode: 'CODE',
+      paymentProvider: 'stripe',
     },
     {
       id: 2,

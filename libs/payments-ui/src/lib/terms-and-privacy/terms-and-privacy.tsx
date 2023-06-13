@@ -1,26 +1,38 @@
-/* eslint-disable-next-line */
-export type GenericTermsListItem = {
-  key: string;
-  href: string;
-  text: string;
-  localizationId: string;
-};
+import { CMS_QUERY } from '../graphql';
+import { fetchGraphQl, getConfig } from '../utils';
+import {
+  GenericTermItem,
+  GenericTermsListItem,
+  PaymentProvider,
+  buildFirefoxAccountsTerms,
+  buildPaymentTerms,
+  buildProductTerms,
+} from './utils';
 
-export type GenericTermItem = {
-  key: string;
-  title: string;
-  titleLocalizationId: string;
-  items: GenericTermsListItem[];
-};
+/**
+ * GENERAL COMMENTS
+ *  - Example of a Container/Presentation pattern
+ *    - Container: TermsAndPrivacy
+ *    - Presentation: GenericTerms
+ *  - The idea behind this pattern is to keep the component logic, performed in the container, and
+ *    presentation separate. This creates a neat separation of code that determines what is shown,
+ *    and then separately how it's shown.
+ */
 
-const PaymentProviders = {
-  stripe: 'stripe',
-  paypal: 'paypal',
-  none: 'not_chosen',
-} as const;
-
-type PaymentProvidersType = typeof PaymentProviders;
-type PaymentProvider = PaymentProvidersType[keyof PaymentProvidersType];
+/**
+ * COMMENTS - GenericTerms component - Presentation component
+ *  - An example of a presentation component
+ *    - Return only data passed in via props
+ *    - Presentation components should not be exported
+ *  - Note that this component could be split out into a seperate GenericTerm, when iterrating
+ *    over the individual Terms in `items.map`. Conversly, this GenericTerms component could
+ *    be merged entirely into the TermsAndPrivacy component. When to split or merge components
+ *    is left up to engineer, however tend towards the following.
+ *      - Fewer components overall
+ *      - Split up components into container/presentation components when it improves readability
+ *        and understanding
+ *  - TODO: Translation for React Server Components (RSC) and Server Side Rendering (SSR)
+ */
 
 type GenericTermsProps = {
   key: string;
@@ -29,136 +41,14 @@ type GenericTermsProps = {
   items: GenericTermsListItem[];
 };
 
-function buildPaymentTerms(provider?: PaymentProvider): GenericTermItem[] {
-  let providerString = '';
-  const items: GenericTermsListItem[] = [];
-
-  if (
-    provider === PaymentProviders.stripe ||
-    provider === PaymentProviders.none
-  ) {
-    providerString = 'Stripe';
-    items.push({
-      key: 'payment-provider-terms-1',
-      href: 'https://stripe.com/privacy',
-      text: 'Stripe privacy policy',
-      localizationId: 'stripe-item-1',
-    });
-  }
-
-  if (
-    provider === PaymentProviders.paypal ||
-    provider === PaymentProviders.none
-  ) {
-    providerString = !providerString
-      ? 'PayPal'
-      : `${providerString} and PayPal`;
-    items.push({
-      key: 'payment-provider-terms-2',
-      href: 'https://www.paypal.com/webapps/mpp/ua/privacy-full',
-      text: 'PayPal privacy policy',
-      localizationId: 'paypal-item-1',
-    });
-  }
-
-  if (!items.length) {
-    return [];
-  }
-
-  return [
-    {
-      key: 'payment-provider-terms',
-      title: `Mozilla uses ${providerString} for secure payment processing.`,
-      titleLocalizationId: 'title-1',
-      items,
-    },
-  ];
-}
-
-function buildFirefoxAccountsTerms(
-  showFxaLinks: boolean,
-  contentServerURL?: string
-): GenericTermItem[] {
-  if (!showFxaLinks) {
-    return [];
-  }
-
-  return [
-    {
-      key: 'fxa-terms',
-      title: 'Firefox Accounts',
-      titleLocalizationId: 'title-1',
-      items: [
-        {
-          key: 'fxa-terms-1',
-          href: `${contentServerURL}/legal/terms`,
-          text: 'Terms of Service',
-          localizationId: 'terms-item-1',
-        },
-        {
-          key: 'fxa-terms-2',
-          href: `${contentServerURL}/legal/privacy`,
-          text: 'Privacy Notice',
-          localizationId: 'privacy-item-1',
-        },
-      ],
-    },
-  ];
-}
-
-function buildProductTerms(
-  productName: string,
-  termsOfService?: string,
-  privacyNotice?: string,
-  termsOfServiceDownload?: string
-): GenericTermItem[] {
-  const items: GenericTermsListItem[] = [];
-
-  if (termsOfService) {
-    items.push({
-      key: 'product-terms-1',
-      href: termsOfService,
-      text: 'Terms of Service',
-      localizationId: 'terms-item-1',
-    });
-  }
-
-  if (privacyNotice) {
-    items.push({
-      key: 'product-terms-2',
-      href: privacyNotice,
-      text: 'Privacy Notice',
-      localizationId: 'privacy-item-1',
-    });
-  }
-
-  if (termsOfServiceDownload) {
-    items.push({
-      key: 'product-terms-3',
-      href: termsOfServiceDownload,
-      text: 'Download Terms',
-      localizationId: 'download-item-1',
-    });
-  }
-
-  if (!items.length) {
-    return [];
-  }
-
-  return [
-    {
-      key: 'product-terms',
-      title: productName,
-      titleLocalizationId: 'title-1',
-      items,
-    },
-  ];
-}
-
-function GenericTerms(props: GenericTermsProps) {
-  const { title, titleLocalizationId, items } = props;
+function GenericTerms({
+  key,
+  title,
+  titleLocalizationId,
+  items,
+}: GenericTermsProps) {
   return (
-    <div className="clear-both mt-5 text-xs leading-5 text-center">
+    <div key={key} className="clear-both mt-5 text-xs leading-5 text-center">
       <p className="m-0 font-semibold text-grey-500">{title}</p>
 
       <p className="m-0 text-grey-400">
@@ -175,47 +65,53 @@ function GenericTerms(props: GenericTermsProps) {
   );
 }
 
+/**
+ * COMMENTS - TermsAndPrivacy component - Container component
+ *  - An example container component
+ *    - Handle all controller logic, data fetching etc, and pass the necessary
+ *      information to the presentation components.
+ *  - Data Fetching (WIP - These points are based on current understanding)
+ *    - Cacheable requests should be fetched by the Component (TODO - Find docs for this)
+ *      - Example => CMS data fetch, since it's the same for all customers
+ *    - Non-cacheable data should be passed in as props (TODO - Find docs for this)
+ *      - Example => Cart data, different for each CartId, in this case paymentProvider
+ */
+
 export interface TermsAndPrivacyProps {
-  productName: string;
-  termsOfService?: string;
-  termsOfServiceDownload?: string;
-  privacyNotice?: string;
   paymentProvider?: PaymentProvider;
   showFXALinks?: boolean;
-  contentServerURL?: string;
 }
 
-export function TermsAndPrivacy({
-  productName,
-  termsOfService,
-  termsOfServiceDownload,
-  privacyNotice,
+export async function TermsAndPrivacy({
   paymentProvider,
   showFXALinks = false,
-  contentServerURL,
 }: TermsAndPrivacyProps) {
-  const paymentTerms = buildPaymentTerms(paymentProvider);
-  const firefoxAccountsTerms = buildFirefoxAccountsTerms(
-    showFXALinks,
-    contentServerURL
-  );
-  const productTerms = buildProductTerms(
-    productName,
-    termsOfService,
-    privacyNotice,
-    termsOfServiceDownload
-  );
+  const { contentServerURL } = getConfig();
+  const {
+    singleCms: {
+      productName,
+      termsOfService,
+      termsOfServiceDownload,
+      privacyNotice,
+    },
+  } = await fetchGraphQl(CMS_QUERY, {
+    input: { offering: 'vpn' },
+  });
 
   const terms: GenericTermItem[] = [
-    ...paymentTerms,
-    ...firefoxAccountsTerms,
-    ...productTerms,
+    ...buildPaymentTerms(paymentProvider),
+    ...buildFirefoxAccountsTerms(showFXALinks, contentServerURL),
+    ...buildProductTerms(
+      productName,
+      termsOfService,
+      privacyNotice,
+      termsOfServiceDownload
+    ),
   ];
 
   return (
     <>
       {terms.map((term) => (
-        // eslint-disable-next-line react/jsx-key
         <GenericTerms {...term} />
       ))}
     </>

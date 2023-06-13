@@ -1,7 +1,20 @@
 'use client';
 
 import { FormEventHandler, RefObject, useRef } from 'react';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
+import { CART_QUERY, CHECK_CODE, UPDATE_CART } from '../graphql';
+
+/**
+ * GENERAL COMMENTS
+ *  - Example of a Client Component. (Note the 'use client' directive on line 1)
+ *    - Necessary to be a client component to handle loading/disabled states
+ *    - Uses Apollo Client, and Apollo Cache to maintain Cart state
+ *  - Improvements
+ *    - Instead of querying initial cart state in this component, pass it in via props.
+ *    - Use Next.js Server Actions and turn this into a server component, and remove
+ *      complexity of using Apollo Client.
+ *    - Add proper loading state
+ */
 
 /*
   ## Links
@@ -12,35 +25,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
   * https://www.apollographql.com/blog/announcement/frontend/using-apollo-client-with-next-js-13-releasing-an-official-library-to-support-the-app-router/
   * https://www.apollographql.com/blog/apollo-client/next-js/how-to-use-apollo-client-with-next-js-13/
 */
-
-export const CART_QUERY = gql`
-  query singleCart($input: SingleCartInput!) {
-    singleCart(input: $input) {
-      id
-      promotionCode
-    }
-  }
-`;
-
-export const CHECK_CODE = gql`
-  mutation checkPromotionCode($input: CheckPromotionCodeInput!) {
-    checkPromotionCode(input: $input) {
-      id
-      promotionCode
-    }
-  }
-`;
-
-export const UPDATE_CART = gql`
-  mutation updateCart($input: UpdateCartInput!) {
-    updateCart(input: $input) {
-      id
-      promotionCode
-    }
-  }
-`;
-
-const CART_ID = 1;
 
 function errorHandler(err: Error) {
   console.error(err.message);
@@ -130,10 +114,11 @@ function WithoutCoupon({
 
 /* eslint-disable-next-line */
 export interface CouponFormProps {
+  cartId: number;
   readOnly: boolean;
 }
 
-export function CouponForm({ readOnly }: CouponFormProps) {
+export function CouponForm({ cartId, readOnly }: CouponFormProps) {
   const couponInputRef = useRef<HTMLInputElement>(null);
   const [checkCode, { loading: checkLoading, error: checkError }] = useMutation(
     CHECK_CODE,
@@ -151,7 +136,7 @@ export function CouponForm({ readOnly }: CouponFormProps) {
     data,
   } = useQuery(CART_QUERY, {
     variables: {
-      input: { id: CART_ID },
+      input: { id: cartId },
     },
   });
 
@@ -161,7 +146,7 @@ export function CouponForm({ readOnly }: CouponFormProps) {
     checkCode({
       variables: {
         input: {
-          id: CART_ID,
+          id: cartId,
           promotionCode: couponInputRef?.current?.value || '',
         },
       },
@@ -173,6 +158,7 @@ export function CouponForm({ readOnly }: CouponFormProps) {
   const error =
     queryError?.message || checkError?.message || updateError?.message;
 
+  // TODO - Add proper loading state maybe using Suspense?
   if (loading) {
     return <>Loading...</>;
   }
@@ -194,7 +180,7 @@ export function CouponForm({ readOnly }: CouponFormProps) {
             updateCart({
               variables: {
                 input: {
-                  id: CART_ID,
+                  id: cartId,
                   promotionCode: '',
                 },
               },

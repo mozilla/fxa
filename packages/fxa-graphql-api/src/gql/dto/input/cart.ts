@@ -1,6 +1,9 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+/**
+ * DEMO IMPLEMENTATION ONLY
+ * This was thrown together to make the demo work
+ * Do Not Review
+ */
+
 import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()

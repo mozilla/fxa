@@ -3,3 +3,4 @@
 export * from './lib/payments-ui';
 export * from './lib/coupon-form/coupon-form';
 export * from './lib/apollo-wrapper';
+export * from './lib/utils';
