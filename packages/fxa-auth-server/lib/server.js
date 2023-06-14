@@ -166,9 +166,7 @@ async function create(log, error, config, routes, db, statsd) {
           throw err;
         },
       },
-      ...(config.env !== 'prod' && {
-        response: { options: { abortEarly: false } },
-      }),
+      response: { options: { abortEarly: false } },
     },
     load: {
       sampleInterval: 1000,
@@ -318,13 +316,9 @@ async function create(log, error, config, routes, db, statsd) {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
-      if (config.env !== 'prod') {
-        logValidationError(response, log);
-      }
+      logValidationError(response, log);
       response = error.translate(request, response);
-      if (config.env !== 'prod') {
-        response.backtrace(request.app.traced);
-      }
+      response.backtrace(request.app.traced);
     }
     response.header('Timestamp', `${Math.floor(Date.now() / 1000)}`);
     return response;

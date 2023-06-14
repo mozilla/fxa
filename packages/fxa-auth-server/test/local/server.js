@@ -606,6 +606,7 @@ describe('lib/server', () => {
             errno: 125,
             error: 'Request blocked',
             info: 'https://mozilla.github.io/ecosystem-platform/api#section/Response-format',
+            log: undefined,
             message: 'The request was blocked for security reasons',
           };
           beforeEach(() => {
