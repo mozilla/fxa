@@ -451,6 +451,16 @@ export class StripeHandler {
 
       return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
     } catch (err: any) {
+      //TODO - this is part of FXA-7664, we can remove this one we uncover the underlying error
+      Sentry.withScope((scope) => {
+        scope.setContext('previewInvoice', {
+          error: err,
+          msg: err.message,
+        });
+        Sentry.captureMessage(`Invoice Preview Error.`, Sentry.Severity.Error);
+      });
+      this.log.error('subscriptions.previewInvoice', err);
+
       if (err.type === 'StripeInvalidRequestError') {
         throw error.invalidInvoicePreviewRequest(
           err,
