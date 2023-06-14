@@ -1,3 +1,6 @@
+import { cache } from 'react';
+import { CART_QUERY_STRING } from './graphql';
+import { PaymentProvider } from './terms-and-privacy/utils';
 /**
  * DEMO IMPLEMENTATION ONLY
  * This was thrown together to make the demo work
@@ -9,7 +12,34 @@ export function getConfig() {
   };
 }
 
-export async function fetchGraphQl(query: string, variables: any) {
+export const fetchCartByIdWithCache = cache(async (cartId: number) => {
+  console.log('Called here actually');
+  const temp = await fetch(
+    'http://localhost:9000/v1/oauth/subscriptions/plans'
+  );
+  return fetchGraphQl(CART_QUERY_STRING, {
+    input: { id: cartId },
+  });
+});
+
+export const fetchCartById = async (cartId: number) => {
+  return fetchGraphQl(CART_QUERY_STRING, {
+    input: { id: cartId },
+  });
+};
+
+// Just for testing cache stuff
+export const fetchPlans = async () => {
+  // await fetch('http://localhost:9000/v1/oauth/subscriptions/plans', {
+  //   cache: 'force-cache',
+  // });
+};
+
+export async function fetchGraphQl(
+  query: string,
+  variables: any,
+  reload: boolean = true
+) {
   try {
     const result = await fetch('http://localhost:8290/graphql', {
       method: 'POST',
@@ -21,6 +51,7 @@ export async function fetchGraphQl(query: string, variables: any) {
         query,
         variables,
       }),
+      cache: reload ? 'no-store' : 'force-cache',
     });
 
     const { errors, data } = await result.json();

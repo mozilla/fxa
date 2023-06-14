@@ -20,7 +20,25 @@ export const CART_QUERY = gql`
   }
 `;
 
+export const CART_QUERY_STRING = `
+  query singleCart($input: SingleCartInput!) {
+    singleCart(input: $input) {
+      id
+      promotionCode
+      paymentProvider
+    }
+  }
+`;
+
 export const CHECK_CODE = gql`
+  mutation checkPromotionCode($input: CheckPromotionCodeInput!) {
+    checkPromotionCode(input: $input) {
+      id
+      promotionCode
+    }
+  }
+`;
+export const CHECK_CODE_STRING = `
   mutation checkPromotionCode($input: CheckPromotionCodeInput!) {
     checkPromotionCode(input: $input) {
       id

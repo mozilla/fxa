@@ -1,3 +1,6 @@
+import { CMS_QUERY } from '../graphql';
+import { fetchGraphQl } from '../utils';
+
 /* eslint-disable-next-line */
 export type GenericTermsListItem = {
   key: string;
@@ -148,4 +151,18 @@ export function buildProductTerms(
       items,
     },
   ];
+}
+
+export async function getTermsCMS(offering: string) {
+  const data = await fetchGraphQl(CMS_QUERY, {
+    input: { offering },
+  });
+
+  if (!data?.singleCms) {
+    return null;
+  } else {
+    return {
+      ...data.singleCms,
+    };
+  }
 }

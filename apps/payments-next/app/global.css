@@ -14,6 +14,14 @@
   @apply flex-1 font-semibold rounded-md text-base py-2 px-5 w-full inline-block text-center border box-border disabled:bg-gray-300;
 }
 
+.demo-container-header {
+  @apply text-center text-xl underline py-6 border-t-4;
+}
+
+.demo-container {
+  @apply py-2;
+}
+
 html {
   -webkit-text-size-adjust: 100%;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,

@@ -1,5 +1,4 @@
-import { CMS_QUERY } from '../graphql';
-import { fetchGraphQl, getConfig } from '../utils';
+import { fetchCartById, fetchGraphQl, getConfig } from '../utils';
 import {
   GenericTermItem,
   GenericTermsListItem,
@@ -7,6 +6,7 @@ import {
   buildFirefoxAccountsTerms,
   buildPaymentTerms,
   buildProductTerms,
+  getTermsCMS,
 } from './utils';
 
 /**
@@ -35,20 +35,18 @@ import {
  */
 
 type GenericTermsProps = {
-  key: string;
   title: string;
   titleLocalizationId: string;
   items: GenericTermsListItem[];
 };
 
 function GenericTerms({
-  key,
   title,
   titleLocalizationId,
   items,
 }: GenericTermsProps) {
   return (
-    <div key={key} className="clear-both mt-5 text-xs leading-5 text-center">
+    <div className="clear-both mt-5 text-xs leading-5 text-center">
       <p className="m-0 font-semibold text-grey-500">{title}</p>
 
       <p className="m-0 text-grey-400">
@@ -83,25 +81,32 @@ function GenericTerms({
  */
 
 export interface TermsAndPrivacyProps {
+  offering: string;
   paymentProvider?: PaymentProvider;
   showFXALinks?: boolean;
 }
 
 export async function TermsAndPrivacy({
+  offering,
   paymentProvider,
   showFXALinks = false,
 }: TermsAndPrivacyProps) {
   const { contentServerURL } = getConfig();
-  const {
-    singleCms: {
-      productName,
-      termsOfService,
-      termsOfServiceDownload,
-      privacyNotice,
-    },
-  } = await fetchGraphQl(CMS_QUERY, {
-    input: { offering: 'vpn' },
-  });
+
+  const termsCms = await getTermsCMS(offering);
+  const data = await fetchCartById(1);
+
+  if (!termsCms) {
+    return (
+      <>
+        <h3>Error</h3>
+        <p>Please reload page</p>
+      </>
+    );
+  }
+
+  const { productName, termsOfService, termsOfServiceDownload, privacyNotice } =
+    termsCms;
 
   const terms: GenericTermItem[] = [
     ...buildPaymentTerms(paymentProvider),
@@ -117,7 +122,7 @@ export async function TermsAndPrivacy({
   return (
     <>
       {terms.map((term) => (
-        <GenericTerms {...term} />
+        <GenericTerms {...term} key={term.key} />
       ))}
     </>
   );

@@ -77,9 +77,12 @@ export class CartResolver {
   }
 
   @Query((returns) => CartType, { name: 'singleCart' })
-  getSingleCart(
+  async getSingleCart(
     @Args('input', { type: () => SingleCartInput }) input: SingleCartInput
   ) {
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 1000);
+    });
     const { id } = input;
     const cart = this.carts.find((cart) => cart.id === id);
 
