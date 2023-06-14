@@ -784,6 +784,10 @@ module.exports = {
     VPASSWORD: '#vpassword',
     ...CWTS_ENGINES,
   },
+  THIRD_PARTY_AUTH: {
+    GOOGLE: '#google-login-button',
+    APPLE: '#apple-login-button',
+  },
   TOS: {
     HEADER: '#fxa-tos-header',
     LINK_BACK: '#fxa-tos-back',

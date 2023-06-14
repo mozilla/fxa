@@ -43,7 +43,14 @@
     </form>
 
     {{#isInThirdPartyAuthExperiment}}
-      {{{ unsafeThirdPartyAuthHTML }}}
+      {{^isSync}}
+        {{{ unsafeThirdPartyAuthHTML }}}
+      {{/isSync}}
+      {{#isSync}}
+        <p class="text-xs text-grey-500 mb-0 mt-5" id="firefox-family-services">
+          {{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+        </p>
+      {{/isSync}}
     {{/isInThirdPartyAuthExperiment}}
 
     {{^isInThirdPartyAuthExperiment}}
