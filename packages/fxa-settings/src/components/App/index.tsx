@@ -43,6 +43,7 @@ import LinkValidator from '../LinkValidator';
 import { LinkType } from 'fxa-settings/src/lib/types';
 import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import WebChannelExample from '../../pages/WebChannelExample';
+import About from '../../pages/About';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 
@@ -130,6 +131,7 @@ export const App = ({
            * are false, but guard with query param anyway since we have it handy */}
           {showReactApp && (
             <>
+              <About path="/about/*" />
               <CannotCreateAccount path="/cannot_create_account/*" />
               <Clear path="/clear/*" />
               <CookiesDisabled path="/cookies_disabled/*" />
@@ -144,7 +146,7 @@ export const App = ({
               <ConfirmResetPassword path="/confirm_reset_password/*" />
 
               <WebChannelExample path="/web_channel_example/*" />
-
+              
               <LinkValidator
                 path="/complete_reset_password/*"
                 linkType={LinkType['reset-password']}
