@@ -167,11 +167,11 @@ export const FlowRecoveryKeyHint = ({
           </h2>
         </FtlMsg>
 
-        <FtlMsg id="flow-recovery-key-hint-message-v2">
+        <FtlMsg id="flow-recovery-key-hint-message-v3">
           <p className="text-md mb-4">
             This hint should help you remember where you stored your account
-            recovery key. We’ll show it to you when you use it to recover your
-            data.
+            recovery key. We can show it to you during the password reset to
+            recover your data.
           </p>
         </FtlMsg>
         <form onSubmit={handleSubmit(onSubmit)}>
