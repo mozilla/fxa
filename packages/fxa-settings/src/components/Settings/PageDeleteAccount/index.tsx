@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState, ChangeEvent } from 'react';
+import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAccount, useAlertBar } from '../../../models';
@@ -117,6 +117,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
+  
+  useEffect(() => {
+    if (!account.hasPassword) {
+      setSubtitleText('');
+    }
+   }, [account.hasPassword]);
 
   const advanceStep = () => {
     // Accounts that do not have a password set, will delete immediately
