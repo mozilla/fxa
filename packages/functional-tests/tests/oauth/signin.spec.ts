@@ -98,7 +98,7 @@ test.describe('OAuth signin', () => {
     await relier.clickEmailFirst();
 
     // Dont register account and attempt to login via relier
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     await relier.goto();
     await relier.clickEmailFirst();
@@ -127,7 +127,7 @@ test.describe('OAuth signin', () => {
 
     await relier.goto();
     await relier.clickChooseFlow();
-    await login.fillOutFirstSignUp(email, PASSWORD, false);
+    await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
     // go back to the OAuth app, the /oauth flow should
     // now suggest a cached login

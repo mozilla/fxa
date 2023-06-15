@@ -50,6 +50,15 @@ export const selectors = {
   NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
   NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   PERMISSION_ACCEPT: '#accept',
+  CWTS_HEADER: 'text="Choose what to sync"',
+  CWTS_ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
+  CWTS_ENGINE_HISTORY: '#sync-engine-history',
+};
+
+type FirstSignUpOptions = {
+  verify?: boolean;
+  enterEmail?: boolean;
+  waitForNavOnSubmit?: boolean;
 };
 
 export class LoginPage extends BaseLayout {
@@ -87,7 +96,12 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
-  async login(email: string, password: string, recoveryCode?: string) {
+  async login(
+    email: string,
+    password: string,
+    recoveryCode?: string,
+    waitForNavOnSubmit = true
+  ) {
     // When running tests in parallel, playwright shares the storage state,
     // so we might not always be at the email first screen.
     if (await this.isCachedLogin()) {
@@ -106,7 +120,7 @@ export class LoginPage extends BaseLayout {
       await this.setPassword(password);
     }
 
-    await this.submit();
+    await this.submit(waitForNavOnSubmit);
     if (recoveryCode) {
       await this.clickUseRecoveryCode();
       await this.setCode(recoveryCode);
@@ -165,8 +179,11 @@ export class LoginPage extends BaseLayout {
   async fillOutFirstSignUp(
     email: string,
     password: string,
-    verify = true,
-    enterEmail = true
+    {
+      verify = true,
+      enterEmail = true,
+      waitForNavOnSubmit = true,
+    }: FirstSignUpOptions = {}
   ) {
     if (enterEmail) {
       await this.setEmail(email);
@@ -177,18 +194,18 @@ export class LoginPage extends BaseLayout {
     await this.page.fill(selectors.AGE, '24');
     await this.submit();
     if (verify) {
-      await this.fillOutSignUpCode(email);
+      await this.fillOutSignUpCode(email, waitForNavOnSubmit);
     }
   }
 
-  async fillOutSignUpCode(email: string) {
+  async fillOutSignUpCode(email: string, waitForNavOnSubmit = true) {
     const code = await this.target.email.waitForEmail(
       email,
       EmailType.verifyShortCode,
       EmailHeader.shortCode
     );
     await this.setCode(code);
-    await this.submit();
+    await this.submit(waitForNavOnSubmit);
   }
 
   async fillOutSignInCode(email: string) {
@@ -319,10 +336,16 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
-  async submit() {
-    const waitForNavigation = this.page.waitForNavigation();
+  async submit(waitForNav = true) {
+    if (waitForNav) {
+      const waitForNavigation = this.page.waitForNavigation();
+      await this.page.locator(selectors.SUBMIT).click();
+      return waitForNavigation;
+    }
+    // `waitForNavigation` is deprecated because it's "hard to make it work reliably",
+    // see https://github.com/microsoft/playwright/issues/20853. It's causing at least
+    // one set of test failures so give an option to opt-out here.
     await this.page.locator(selectors.SUBMIT).click();
-    return waitForNavigation;
   }
 
   async clickForgotPassword() {
@@ -353,6 +376,24 @@ export class LoginPage extends BaseLayout {
 
   async clickSubmit() {
     return this.page.locator(selectors.SUBMIT).click();
+  }
+
+  async waitForCWTSHeader() {
+    await this.page.waitForSelector(selectors.CWTS_HEADER, {
+      timeout: 100,
+    });
+  }
+
+  async waitForCWTSEngineBookmarks() {
+    await this.page.waitForSelector(selectors.CWTS_ENGINE_BOOKMARKS, {
+      timeout: 100,
+    });
+  }
+
+  async waitForCWTSEngineHistory() {
+    await this.page.waitForSelector(selectors.CWTS_ENGINE_HISTORY, {
+      timeout: 100,
+    });
   }
 
   async isSyncConnectedHeader() {

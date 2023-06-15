@@ -33,7 +33,7 @@ test.describe('oauth permissions for trusted reliers', () => {
   }) => {
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //no permissions asked for, straight to confirm
     expect(await login.isSignUpCodeHeader()).toBe(true);
@@ -50,7 +50,7 @@ test.describe('oauth permissions for trusted reliers', () => {
       waitUntil: 'networkidle',
     });
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify permissions header
     expect(await login.permissionsHeader()).toBe(true);
