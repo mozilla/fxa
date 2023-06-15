@@ -8,6 +8,9 @@ import { Account, AppContext } from '../../models';
 import { ButtonDownloadRecoveryKey } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { logViewEvent } from '../../lib/metrics';
+import { TextEncoder } from 'util';
+
+Object.assign(global, { TextEncoder });
 
 const recoveryKeyValue = 'WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ';
 const viewName = 'settings.account-recovery';

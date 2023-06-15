@@ -12,6 +12,9 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
+import { TextEncoder } from 'util';
+
+Object.assign(global, { TextEncoder });
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
