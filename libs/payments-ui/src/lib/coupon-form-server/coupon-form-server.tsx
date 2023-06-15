@@ -21,6 +21,11 @@ function WithCoupon({ cartId, promotionCode, readOnly }: WithCouponProps) {
   async function removeCoupon() {
     'use server';
     await updateCartPromotionCode('', cartId);
+
+    // Temporary workaround
+    // This redirect forces the page to re-load to show cart changes
+    // This should be temporary, as it should be possible to update only this component,
+    // instead of refreshing the whole page. Still investigating.
     redirect(`/vpn/demo?id=${cartId}`);
   }
 
@@ -63,6 +68,10 @@ function WithoutCoupon({ cartId, promotionCode }: WithoutCouponProps) {
 
     await checkPromotionCode(promotionCode, cartId);
 
+    // Temporary workaround
+    // This redirect forces the page to re-load to show cart changes
+    // This should be temporary, as it should be possible to update only this component,
+    // instead of refreshing the whole page. Still investigating.
     redirect(`/vpn/demo?id=${cartId}`);
   }
 

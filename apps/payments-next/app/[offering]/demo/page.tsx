@@ -26,8 +26,6 @@ export default async function Demo({ params, searchParams }: DemoProps) {
     singleCart: { paymentProvider },
   } = await fetchCartById(cartId);
 
-  await fetchPlans();
-
   return (
     <div>
       <h1 className="text-center text-2xl">Welcome to the Demo Page!</h1>

@@ -28,17 +28,10 @@ export const fetchCartById = async (cartId: number) => {
   });
 };
 
-// Just for testing cache stuff
-export const fetchPlans = async () => {
-  // await fetch('http://localhost:9000/v1/oauth/subscriptions/plans', {
-  //   cache: 'force-cache',
-  // });
-};
-
 export async function fetchGraphQl(
   query: string,
   variables: any,
-  reload: boolean = true
+  forceCache: boolean = false // Currently not caching any requests by default
 ) {
   try {
     const result = await fetch('http://localhost:8290/graphql', {
@@ -51,7 +44,7 @@ export async function fetchGraphQl(
         query,
         variables,
       }),
-      cache: reload ? 'no-store' : 'force-cache',
+      cache: forceCache ? 'force-cache' : 'no-store',
     });
 
     const { errors, data } = await result.json();
