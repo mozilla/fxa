@@ -2,7 +2,12 @@
 
 import { FormEventHandler, RefObject, useRef } from 'react';
 import { useQuery, useMutation } from '@apollo/client';
-import { CART_QUERY, CHECK_CODE, UPDATE_CART } from '../graphql';
+import {
+  CART_QUERY,
+  CART_QUERY_DELAY,
+  CHECK_CODE,
+  UPDATE_CART,
+} from '../graphql';
 
 /**
  * GENERAL COMMENTS
@@ -134,7 +139,7 @@ export function CouponForm({ cartId, readOnly }: CouponFormProps) {
     loading,
     error: queryError,
     data,
-  } = useQuery(CART_QUERY, {
+  } = useQuery(CART_QUERY_DELAY, {
     variables: {
       input: { id: cartId },
     },
@@ -143,6 +148,10 @@ export function CouponForm({ cartId, readOnly }: CouponFormProps) {
   const onSubmit: FormEventHandler = async (event) => {
     event.preventDefault();
     event.stopPropagation();
+    // Simulate request time (For demo purposes)
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 1000);
+    });
     checkCode({
       variables: {
         input: {
@@ -153,14 +162,16 @@ export function CouponForm({ cartId, readOnly }: CouponFormProps) {
     });
   };
 
-  const promotionCode = data?.singleCart?.promotionCode;
+  const promotionCode = data?.singleCartDelay?.promotionCode;
   const hasPromotionCode = !!promotionCode;
   const error =
     queryError?.message || checkError?.message || updateError?.message;
 
   // TODO - Add proper loading state maybe using Suspense?
   if (loading) {
-    return <>Loading...</>;
+    return (
+      <div className="py-12 text-center text-xl bg-slate-200">Loading...</div>
+    );
   }
 
   return (
@@ -176,7 +187,7 @@ export function CouponForm({ cartId, readOnly }: CouponFormProps) {
           readOnly={readOnly}
           disabled={updateLoading}
           promotionCode={promotionCode}
-          clearPromotionCode={() => {
+          clearPromotionCode={async () => {
             updateCart({
               variables: {
                 input: {

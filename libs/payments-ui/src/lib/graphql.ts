@@ -20,6 +20,15 @@ export const CART_QUERY = gql`
   }
 `;
 
+export const CART_QUERY_DELAY = gql`
+  query singleCart($input: SingleCartInput!) {
+    singleCartDelay(input: $input) {
+      id
+      promotionCode
+    }
+  }
+`;
+
 export const CART_QUERY_STRING = `
   query singleCart($input: SingleCartInput!) {
     singleCart(input: $input) {
@@ -48,6 +57,15 @@ export const CHECK_CODE_STRING = `
 `;
 
 export const UPDATE_CART = gql`
+  mutation updateCart($input: UpdateCartInput!) {
+    updateCart(input: $input) {
+      id
+      promotionCode
+    }
+  }
+`;
+
+export const UPDATE_CART_STRING = `
   mutation updateCart($input: UpdateCartInput!) {
     updateCart(input: $input) {
       id

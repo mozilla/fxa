@@ -80,6 +80,24 @@ export class CartResolver {
   async getSingleCart(
     @Args('input', { type: () => SingleCartInput }) input: SingleCartInput
   ) {
+    // Simulate processing time (For demo purposes)
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 500);
+    });
+    const { id } = input;
+    const cart = this.carts.find((cart) => cart.id === id);
+
+    if (!cart) throw new Error(`Could not find cart with id: ${id}`);
+
+    return cart;
+  }
+
+  // Used to demo requests from client component, to indicate additional delay
+  @Query((returns) => CartType, { name: 'singleCartDelay' })
+  async getSingleCartDelay(
+    @Args('input', { type: () => SingleCartInput }) input: SingleCartInput
+  ) {
+    // Simulate processing time (For demo purposes)
     await new Promise((resolve) => {
       setTimeout(() => resolve(null), 1000);
     });
@@ -92,7 +110,13 @@ export class CartResolver {
   }
 
   @Mutation((returns) => CartType)
-  addCart(@Args('input', { type: () => AddCartInput }) input: AddCartInput) {
+  async addCart(
+    @Args('input', { type: () => AddCartInput }) input: AddCartInput
+  ) {
+    // Simulate processing time (For demo purposes)
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 500);
+    });
     const { promotionCode } = input;
 
     const newCart = {
@@ -109,6 +133,11 @@ export class CartResolver {
   async updateCart(
     @Args('input', { type: () => UpdateCartInput }) input: UpdateCartInput
   ) {
+    // Simulate processing time (For demo purposes)
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 500);
+    });
+
     const { id, promotionCode } = input;
     let returnCart = null;
     this.carts.forEach((cart) => {
@@ -116,10 +145,6 @@ export class CartResolver {
         cart.promotionCode = promotionCode;
         returnCart = cart;
       }
-    });
-
-    await new Promise((resolve) => {
-      setTimeout(() => resolve(null), 2000);
     });
 
     return returnCart;
@@ -130,6 +155,11 @@ export class CartResolver {
     @Args('input', { type: () => CheckPromotionCodeInput })
     input: CheckPromotionCodeInput
   ) {
+    // Simulate processing time (For demo purposes)
+    await new Promise((resolve) => {
+      setTimeout(() => resolve(null), 500);
+    });
+
     const { id, promotionCode } = input;
     try {
       await checkPromotionCode('plan_GqM9N6qyhvxaVk', promotionCode);
@@ -144,10 +174,6 @@ export class CartResolver {
         cart.promotionCode = promotionCode;
         returnCart = cart;
       }
-    });
-
-    await new Promise((resolve) => {
-      setTimeout(() => resolve(null), 2000);
     });
 
     return returnCart;
