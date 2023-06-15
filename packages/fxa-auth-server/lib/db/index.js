@@ -265,9 +265,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     return PasswordChangeToken.fromHex(data.tokenData, data);
   };
 
-  DB.prototype.accountRecord = async function (email) {
+  DB.prototype.accountRecord = async function (email, options) {
     log.trace('DB.accountRecord', { email });
-    const account = await Account.findByPrimaryEmail(email);
+    const account = await Account.findByPrimaryEmail(email, options);
     if (!account) {
       throw error.unknownAccount(email);
     }

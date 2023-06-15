@@ -1348,7 +1348,11 @@ describe('/account/stub', () => {
 });
 
 describe('/account/status', () => {
-  function setup(extraConfig) {
+  function setup({
+    extraConfig = {},
+    dbOptions = {},
+    shouldError = true,
+  } = {}) {
     const config = {
       securityHistory: {
         enabled: true,
@@ -1397,15 +1401,14 @@ describe('/account/status', () => {
         uaOSVersion: '10.10',
         uid,
         wrapWrapKb: 'wibble',
+        ...dbOptions,
       },
       {
-        emailRecord: new error.unknownAccount(),
+        ...(shouldError && {
+          emailRecord: new error.unknownAccount(),
+        }),
       }
     );
-    mockDB.accountExists = (arg) => {
-      return false;
-    };
-
     const mockMailer = mocks.mockMailer();
     const mockPush = mocks.mockPush();
     const verificationReminders = mocks.mockVerificationReminders();
@@ -1471,6 +1474,41 @@ describe('/account/status', () => {
 
     return runTest(route, mockRequest, (response) => {
       assert.equal(response.invalidDomain, undefined);
+    });
+  });
+
+  it('calls accountRecord and returns expected values when thirdPartyAuthStatus is requested', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: {
+        linkedAccounts: [{}],
+        verifierSetAt: 0,
+      },
+      shouldError: false,
+    });
+    mockRequest.payload.thirdPartyAuthStatus = true;
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 1);
+      assert.equal(mockDB.accountExists.callCount, 0);
+
+      assert.equal(response.exists, true);
+      assert.equal(response.hasLinkedAccount, true);
+      assert.equal(response.hasPassword, false);
+    });
+  });
+
+  it('calls accountExists when thirdPartyAuthStatus is not requested', async () => {
+    const { route, mockRequest, mockDB } = setup({
+      dbOptions: { exists: false },
+    });
+
+    return runTest(route, mockRequest, (response) => {
+      assert.equal(mockDB.accountRecord.callCount, 0);
+      assert.equal(mockDB.accountExists.callCount, 1);
+
+      assert.equal(response.exists, false);
+      assert.equal(response.linkedAccounts, undefined);
+      assert.equal(response.hasPassword, undefined);
     });
   });
 });

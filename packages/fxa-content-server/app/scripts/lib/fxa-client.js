@@ -208,6 +208,27 @@ FxaClientWrapper.prototype = {
   }),
 
   /**
+   * Check if the account's email is registered and retrieve third-party auth related values.
+   * @param {String} email
+   * @returns {Promise<{
+   *  exists: boolean,
+   *  hasLinkedAccount: boolean,
+   *  hasPassword: boolean
+   * }>}
+   */
+  checkAccountStatus: withClient((client, email) => {
+    return client
+      .accountStatusByEmail(email, { thirdPartyAuthStatus: true })
+      .then(function ({ exists, hasLinkedAccount, hasPassword }) {
+        return {
+          exists,
+          hasLinkedAccount,
+          hasPassword,
+        };
+      });
+  }),
+
+  /**
    * Authenticate a user.
    *
    * @method signIn

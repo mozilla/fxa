@@ -430,7 +430,10 @@ export class Account extends BaseAuthModel {
     return now;
   }
 
-  static async findByPrimaryEmail(email: string) {
+  static async findByPrimaryEmail(
+    email: string,
+    options: { linkedAccounts?: boolean } = {}
+  ) {
     let account: Account | null = null;
     const { rows } = await Account.callProcedure(Proc.AccountRecord, email);
     if (rows.length) {
@@ -449,6 +452,9 @@ export class Account extends BaseAuthModel {
     }
     account.emails = await Email.findByUid(account.uid);
     account.primaryEmail = account.emails?.find((email) => email.isPrimary);
+    if (options.linkedAccounts) {
+      account.linkedAccounts = await LinkedAccount.findByUid(account.uid);
+    }
     return account;
   }
 

@@ -1571,6 +1571,39 @@ describe('#integration - remote db', function () {
       });
     });
 
+    it('can retrieve linked account', async () => {
+      const linkedAccount = await db.createLinkedAccount(
+        account.uid,
+        'googleid',
+        'google'
+      );
+      // linkedAccount UID comes back as a buffer but we want a hex string
+      // comparison to see what accountRecord retrieves
+      if (linkedAccount.uid instanceof Buffer) {
+        linkedAccount.uid = linkedAccount.uid.toString('hex');
+      }
+
+      const accountRecord = await db.accountRecord(account.email, {
+        linkedAccounts: true,
+      });
+
+      assert.deepEqual(
+        linkedAccount,
+        accountRecord.linkedAccounts[0],
+        'should contain an array of linked accounts'
+      );
+    });
+
+    it('does not retrieve linked account without option specified', async () => {
+      await db.createLinkedAccount(account.uid, 'googleid', 'google');
+      const accountRecord = await db.accountRecord(account.email);
+      assert.strictEqual(
+        accountRecord.linkedAccounts,
+        undefined,
+        'linkedAccounts should be undefined'
+      );
+    });
+
     it('returns unknown account', () => {
       return db
         .accountRecord('idontexist@email.com')

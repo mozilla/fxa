@@ -1148,6 +1148,8 @@ export class AccountHandler {
   async accountStatusCheck(request: AuthRequest) {
     const email = (request.payload as any).email;
     const checkDomain = !!(request.payload as any).checkDomain;
+    const thirdPartyAuthStatus = !!(request.payload as any)
+      .thirdPartyAuthStatus;
     let invalidDomain = false;
 
     if (checkDomain) {
@@ -1156,14 +1158,31 @@ export class AccountHandler {
 
     await this.customs.check(request, email, 'accountStatusCheck');
 
-    const result: { exists: boolean; invalidDomain?: boolean } = {
+    const result: {
+      exists: boolean;
+      invalidDomain?: boolean;
+      hasLinkedAccount?: boolean;
+      hasPassword?: boolean;
+    } = {
       exists: false,
       invalidDomain: undefined,
+      hasLinkedAccount: undefined,
+      hasPassword: undefined,
     };
 
     try {
-      const exist = await this.db.accountExists(email);
-      result.exists = exist;
+      if (thirdPartyAuthStatus) {
+        const account = await this.db.accountRecord(email, {
+          linkedAccounts: true,
+        });
+        // account must exist or unknown account error is thrown
+        result.exists = true;
+        result.hasLinkedAccount = account.linkedAccounts.length > 0;
+        result.hasPassword = account.verifierSetAt > 0;
+      } else {
+        const exist = await this.db.accountExists(email);
+        result.exists = exist;
+      }
 
       if (checkDomain) {
         result.invalidDomain = invalidDomain;
@@ -1895,12 +1914,15 @@ export const accountRoutes = (
         validate: {
           payload: isA.object({
             email: validators.email().required(),
+            thirdPartyAuthStatus: isA.boolean().optional().default(false),
             checkDomain: isA.optional(),
           }),
         },
         response: {
           schema: isA.object({
             exists: isA.boolean().required(),
+            hasLinkedAccount: isA.boolean().optional(),
+            hasPassword: isA.boolean().optional(),
             invalidDomain: isA.boolean().optional(),
           }),
         },

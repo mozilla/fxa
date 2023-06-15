@@ -111,6 +111,7 @@ const DB_METHOD_NAMES = [
   'getLinkedAccount',
   'createLinkedAccount',
   'deleteLinkedAccount',
+  'accountExists',
 ];
 
 const LOG_METHOD_NAMES = [
@@ -308,6 +309,9 @@ function mockDB(data, errors) {
         },
       ]);
     }),
+    accountExists: sinon.spy(() => {
+      return Promise.resolve(data.exists ?? true);
+    }),
     accountRecord: sinon.spy(() => {
       if (errors.emailRecord) {
         return Promise.reject(errors.emailRecord);
@@ -339,6 +343,7 @@ function mockDB(data, errors) {
         uid: data.uid,
         wrapWrapKb: crypto.randomBytes(32),
         verifierSetAt: data.verifierSetAt ?? Date.now(),
+        linkedAccounts: data.linkedAccounts,
       });
     }),
     consumeSigninCode: sinon.spy(() => {
