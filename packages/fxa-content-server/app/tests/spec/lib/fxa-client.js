@@ -1191,6 +1191,28 @@ describe('lib/fxa-client', function () {
     });
   });
 
+  describe('checkAccountStatus', function () {
+    it('calls accountStatusByEmail as expected and returns expected data', function () {
+      const accountStatusData = {
+        exists: true,
+        hasLinkedAccount: true,
+        hasPassword: false,
+      };
+      sinon.stub(realClient, 'accountStatusByEmail').callsFake(function () {
+        return Promise.resolve(accountStatusData);
+      });
+
+      return client.checkAccountStatus(email).then(function (statusData) {
+        assert.isTrue(
+          realClient.accountStatusByEmail.calledWith(email, {
+            thirdPartyAuthStatus: true,
+          })
+        );
+        assert.deepEqual(accountStatusData, statusData);
+      });
+    });
+  });
+
   describe('checkPassword', function () {
     it('returns error if password is incorrect', function () {
       email = trim(email);

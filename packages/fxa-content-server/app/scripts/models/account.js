@@ -74,6 +74,8 @@ const DEFAULTS = _.extend(
     verificationReason: undefined,
     totpVerified: undefined,
     providerUid: undefined,
+    hasLinkedAccount: undefined,
+    hasPassword: undefined,
   },
   PERSISTENT
 );
@@ -816,6 +818,27 @@ const Account = Backbone.Model.extend(
      */
     checkEmailExists() {
       return this._fxaClient.checkAccountExistsByEmail(this.get('email'));
+    },
+
+    /**
+     * Check if the account's email is registered and retrieve third-party auth related values.
+     * Sets the third-party auth values onto the model.
+     * @returns {Promise<{
+     *  exists: boolean,
+     *  hasLinkedAccount: boolean,
+     *  hasPassword: boolean
+     * }>}
+     */
+    async checkAccountStatus() {
+      const { hasLinkedAccount, hasPassword, exists } =
+        await this._fxaClient.checkAccountStatus(this.get('email'));
+      this.set('hasLinkedAccount', hasLinkedAccount);
+      this.set('hasPassword', hasPassword);
+      return {
+        hasLinkedAccount,
+        hasPassword,
+        exists,
+      };
     },
 
     /**
