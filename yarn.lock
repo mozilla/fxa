@@ -20659,7 +20659,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:5.2.0":
+"chalk@npm:5.2.0, chalk@npm:^5.2.0":
   version: 5.2.0
   resolution: "chalk@npm:5.2.0"
   checksum: 03d8060277de6cf2fd567dc25fcf770593eb5bb85f460ce443e49255a30ff1242edd0c90a06a03803b0466ff0687a939b41db1757bec987113e83de89a003caa
@@ -20676,13 +20676,6 @@ __metadata:
     strip-ansi: ^3.0.0
     supports-color: ^2.0.0
   checksum: 9d2ea6b98fc2b7878829eec223abcf404622db6c48396a9b9257f6d0ead2acf18231ae368d6a664a83f272b0679158da12e97b5229f794939e555cc574478acd
-  languageName: node
-  linkType: hard
-
-"chalk@npm:^5.1.2":
-  version: 5.1.2
-  resolution: "chalk@npm:5.1.2"
-  checksum: 804d7485e33531abe45b14e91026ceb5615974a8c04259ab0806f214a7666f6ea03e39ab124f7d5a0c78a83fda89005f236db3c5f10c2abe9ae875f7aa56bcb5
   languageName: node
   linkType: hard
 
@@ -28267,7 +28260,7 @@ fsevents@~2.1.1:
   resolution: "fxa-dev-launcher@workspace:packages/fxa-dev-launcher"
   dependencies:
     "@types/eslint": ^8
-    chalk: ^5.1.2
+    chalk: ^5.2.0
     eslint: ^8.38.0
     eslint-config-react-app: ^7.0.1
     foxfire: ^2.0.0
