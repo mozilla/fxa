@@ -25,9 +25,7 @@ test.describe('Firefox Desktop Sync v3 settings', () => {
     const customEventDetail = createCustomEventDetail(
       FirefoxCommand.LinkAccount,
       {
-        data: {
-          ok: true,
-        },
+        ok: true,
       }
     );
     await page.goto(
@@ -42,13 +40,18 @@ test.describe('Firefox Desktop Sync v3 settings', () => {
     expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
   });
 
-  test.afterEach(async ({ target }) => {
+  test.afterEach(async ({ target }, test) => {
     await syncBrowserPages.browser?.close();
     if (email) {
       // Cleanup any accounts created during the test
       try {
-        await target.auth.accountDestroy(email, firstPassword);
-      } catch (e) {}
+        await target.auth.accountDestroy(email, secondPassword);
+      } catch (e) {
+        // Handle the error here
+        console.error('An error occurred during account cleanup:', e);
+        // Optionally, rethrow the error to propagate it further
+        throw e;
+      }
     }
   });
 
@@ -90,20 +93,34 @@ test.describe('Firefox Desktop Sync v3 settings', () => {
       'Password updated'
     );
   });
+});
 
+test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
   test('sign in, delete the account', async ({ target }) => {
-    const { settings, deleteAccount, page } = syncBrowserPages;
+    syncBrowserPages = await newPagesForSync(target);
+    const { login, settings, deleteAccount, page } = syncBrowserPages;
+    test.slow();
+    email = login.createEmail('sync{id}');
+    await target.auth.signUp(email, firstPassword, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
+    );
+    await login.fillOutEmailFirstSignIn(email, firstPassword);
+    await login.fillOutSignInCode(email);
 
-    //Goto settings sync url
+    //Go to setting page
     await page.goto(
       `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
     );
-    // Click Delete account
+    //Click Delete account
     await settings.clickDeleteAccount();
     await deleteAccount.checkAllBoxes();
     await deleteAccount.clickContinue();
 
-    // Enter incorrect password
+    //Enter password
     await deleteAccount.setPassword(firstPassword);
     await deleteAccount.submit();
 
