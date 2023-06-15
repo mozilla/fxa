@@ -45,7 +45,7 @@ export const FlowRecoveryKeyHint = ({
   const [hintError, setHintError] = useState<string>();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const { control, handleSubmit, register } = useForm<FormData>({
+  const { control, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'onTouched',
     defaultValues: {
       hint: '',
@@ -56,7 +56,7 @@ export const FlowRecoveryKeyHint = ({
     logViewEvent(viewName, 'hint-step-view');
   }, [viewName]);
 
-  const getHintError = (hint: string) => {
+  const checkForHintError = (hint: string) => {
     if (hint.length > maxHintLength) {
       const localizedCharLimitError = ftlMsgResolver.getMsg(
         'flow-recovery-key-hint-char-limit-error',
@@ -90,7 +90,7 @@ export const FlowRecoveryKeyHint = ({
       logViewEvent(viewName, 'create-hint.skip');
       navigateForwardAndAlertSuccess();
     } else {
-      const hintErrorText = getHintError(trimmedHint);
+      const hintErrorText = checkForHintError(trimmedHint);
       if (hintErrorText) {
         setHintError(hintErrorText);
         return;
@@ -130,7 +130,7 @@ export const FlowRecoveryKeyHint = ({
     const hint: string = useWatch({
       control,
       name: 'hint',
-      defaultValue: '',
+      defaultValue: getValues().hint,
     });
     const isTooLong: boolean = hint.length > maxHintLength;
     return (
