@@ -12,6 +12,9 @@ import {
   HeartsVerifiedImage,
   TwoFactorAuthImage,
   SecurityShieldImage,
+  LockImage,
+  RecoveryKeyImage,
+  LightbulbImage,
 } from '.';
 import { withLocalization } from '../../../.storybook/decorators';
 
@@ -39,3 +42,9 @@ export const HeartsVerified = () => <HeartsVerifiedImage />;
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
 
 export const SecurityShield = () => <SecurityShieldImage />;
+
+export const Lock = () => <LockImage />;
+
+export const Key = () => <RecoveryKeyImage />;
+
+export const Lightbulb = () => <LightbulbImage />;
