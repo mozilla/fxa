@@ -6,6 +6,9 @@ export enum FirefoxCommand {
   FxAStatus = 'fxaccounts:fxa_status',
   OAuthLogin = 'fxaccounts:oauth_login',
   Logout = 'fxaccounts:logout',
+  Login = 'fxaccounts:login',
+  LinkAccount = 'fxaccounts:can_link_account',
+  ChangePassword = 'fxaccounts:change_password',
 }
 
 export function createCustomEventDetail(

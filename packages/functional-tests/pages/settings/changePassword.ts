@@ -78,6 +78,10 @@ export class ChangePasswordPage extends SettingsLayout {
     return this.page.locator('[data-testid=cancel-password-button]').click();
   }
 
+  async changePasswordSuccess() {
+    return this.page.innerText('[data-testid=alert-bar-content]');
+  }
+
   submit() {
     return Promise.all([
       this.page.locator('button[type=submit]').click(),
