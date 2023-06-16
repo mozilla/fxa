@@ -9,3 +9,5 @@ recent-activity-account-login = Account initiated login
 recent-activity-account-reset = Account initiated password reset
 recent-activity-emails-clearBounces = Account cleared email bounces
 
+## $date (Date) - Date recent activity was created
+recent-activity-created-at = { $date }

@@ -73,7 +73,7 @@ const getNextBillData = (
   const nextBillDate = getLocalizedDateString(subsequentInvoiceDate, true);
   const nextBillL10nVarsDefault = {
     priceAmount: getLocalizedCurrency(invoiceDisplayTotal, plan.currency),
-    date: nextBillDate,
+    date: getLocalizedDate(subsequentInvoiceDate, true),
   };
   const nextBillL10nVars = showInvoiceTax
     ? {
