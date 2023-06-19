@@ -28149,7 +28149,7 @@ fsevents@~2.1.1:
     legal-docs: "https://github.com/mozilla/legal-docs.git#68a02d3a95f22fb10db68893bb54e49bc0604f69"
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
-    mkdirp: 2.1.5
+    mkdirp: 3.0.1
     mocha: ^10.0.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
@@ -39358,12 +39358,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mkdirp@npm:2.1.5":
-  version: 2.1.5
-  resolution: "mkdirp@npm:2.1.5"
+"mkdirp@npm:3.0.1":
+  version: 3.0.1
+  resolution: "mkdirp@npm:3.0.1"
   bin:
     mkdirp: dist/cjs/src/bin.js
-  checksum: 039998e3a55f056f48dbd025ad1f5095c78464ed62bd666fcaf78d07fd15b73218aabe3237e7a500b3f6cacdce684f6bbbc9a773792dce7cceab0dc266e95238
+  checksum: 972deb188e8fb55547f1e58d66bd6b4a3623bf0c7137802582602d73e6480c1c2268dcbafbfb1be466e00cc7e56ac514d7fd9334b7cf33e3e2ab547c16f83a8d
   languageName: node
   linkType: hard
 
