@@ -35,7 +35,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
       inclusive: tax.inclusive,
       display_name:
         typeof tax.tax_rate === 'object'
-          ? tax.tax_rate.display_name
+          ? tax.tax_rate.display_name || undefined
           : undefined,
     }));
   }
@@ -73,7 +73,7 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
         inclusive: tax.inclusive,
         display_name:
           typeof tax.tax_rate === 'object'
-            ? tax.tax_rate.display_name
+            ? tax.tax_rate.display_name || undefined
             : undefined,
       }));
     }
