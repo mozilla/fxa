@@ -2,14 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FluentBundle, FluentVariable } from '@fluent/bundle';
+import { FluentBundle, FluentDateTime, FluentVariable } from '@fluent/bundle';
 import { Message, Pattern } from '@fluent/bundle/esm/ast';
 import { Localized, LocalizedProps, ReactLocalization } from '@fluent/react';
 import React from 'react';
-
-export type FtlMsgProps = {
-  children: React.ReactNode;
-} & LocalizedProps;
 
 // Going from react page to non-react page requires a hard navigate. This temporary
 // function is an easy way to reference what needs updating when applicable flows have
@@ -18,6 +14,51 @@ export type FtlMsgProps = {
 export function hardNavigateToContentServer(href: string) {
   window.location.href = href;
 }
+
+export enum LocalizedDateOptions {
+  NumericDate,
+  NumericDateAndTime,
+}
+
+/**
+ * This method is used to provide Fluent with a localizable value that can be formatted per .ftl file based on localization requirements
+ *
+ * @param milliseconds
+ * @param numericDate
+ */
+export const getLocalizedDate = (
+  milliseconds: number,
+  dateOptions: LocalizedDateOptions
+): FluentDateTime => {
+  let options: Intl.DateTimeFormatOptions | undefined;
+
+  switch (dateOptions) {
+    case LocalizedDateOptions.NumericDate:
+      options = {
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+      };
+      break;
+    case LocalizedDateOptions.NumericDateAndTime:
+      options = {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      };
+      break;
+    default:
+      options = undefined;
+  }
+
+  return new FluentDateTime(milliseconds, options);
+};
+
+export type FtlMsgProps = {
+  children: React.ReactNode;
+} & LocalizedProps;
 
 export const FtlMsg = (props: FtlMsgProps) => (
   <Localized {...props}>{props.children}</Localized>

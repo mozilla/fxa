@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  FtlMsg,
+  LocalizedDateOptions,
+  getLocalizedDate,
+} from 'fxa-react/lib/utils';
 
 enum SecurityEventName {
   Create = 'account.create',
@@ -77,12 +81,22 @@ export function SecurityEvent({
     minute: 'numeric',
   }).format(new Date(createdAt));
 
+  const createdAtDateFluent = getLocalizedDate(
+    createdAt,
+    LocalizedDateOptions.NumericDateAndTime
+  );
+
   const l10nName = getSecurityEventNameL10n(name);
   return (
     <li className="mt-5 ml-4" data-testid={l10nName.ftlId}>
       <div className="absolute w-3 h-3 bg-green-600 rounded-full mt-1.5 -left-1.5 border border-green-700"></div>
       <div className="text-grey-900 text-sm mobileLandscape:mt-3">
-        {createdAtDateText}
+        <FtlMsg
+          id="recent-activity-created-at"
+          vars={{ date: createdAtDateFluent }}
+        >
+          {createdAtDateText}
+        </FtlMsg>
       </div>
       <FtlMsg id={l10nName.ftlId}>
         <p className="text-grey-400 text-xs mobileLandscape:mt-3">

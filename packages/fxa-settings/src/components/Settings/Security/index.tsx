@@ -8,7 +8,11 @@ import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
 import { useAccount } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  FtlMsg,
+  getLocalizedDate,
+  LocalizedDateOptions,
+} from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
@@ -18,8 +22,13 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
     day: 'numeric',
   }).format(new Date(passwordCreated));
 
+  const pwdDateFluent = getLocalizedDate(
+    passwordCreated,
+    LocalizedDateOptions.NumericDate
+  );
+
   return (
-    <FtlMsg id="security-password-created-date" vars={{ date: pwdDateText }}>
+    <FtlMsg id="security-password-created-date" vars={{ date: pwdDateFluent }}>
       <p className="text-grey-400 text-xs mobileLandscape:mt-3">
         Created {pwdDateText}
       </p>
