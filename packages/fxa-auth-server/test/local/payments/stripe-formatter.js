@@ -79,6 +79,22 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
       previewInvoiceWithDiscountAndTax.discount.coupon.percent_off
     );
   });
+
+  it('formats an invoice where tax display_name is an empty string', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithTax);
+    invoicePreview.total_tax_amounts[0].tax_rate.display_name = '';
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(invoicePreview);
+
+    assert.equal(invoice.total, invoicePreview.total);
+    assert.equal(invoice.subtotal, invoicePreview.subtotal);
+    assert.equal(
+      invoice.tax[0].amount,
+      invoicePreview.total_tax_amounts[0].amount
+    );
+    assert.equal(invoice.tax[0].display_name, undefined);
+    assert.equal(invoice.tax[0].inclusive, true);
+  });
 });
 
 describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
@@ -105,6 +121,25 @@ describe('stripeInvoicesToSubsequentInvoicePreviewsDTO', () => {
       previewInvoiceWithDiscountAndTax.period_end
     );
     assert.equal(invoice[1].total, previewInvoiceWithDiscountAndTax.total);
+  });
+
+  it('formats an invoice where tax display_name is an empty string', () => {
+    const invoicePreview = deepCopy(previewInvoiceWithTax);
+    invoicePreview.total_tax_amounts[0].tax_rate.display_name = '';
+
+    const invoices = stripeInvoicesToSubsequentInvoicePreviewsDTO([
+      invoicePreview,
+    ]);
+    const invoice = invoices[0];
+
+    assert.equal(invoice.total, invoicePreview.total);
+    assert.equal(invoice.subtotal, invoicePreview.subtotal);
+    assert.equal(
+      invoice.tax[0].amount,
+      invoicePreview.total_tax_amounts[0].amount
+    );
+    assert.equal(invoice.tax[0].display_name, undefined);
+    assert.equal(invoice.tax[0].inclusive, true);
   });
 });
 
