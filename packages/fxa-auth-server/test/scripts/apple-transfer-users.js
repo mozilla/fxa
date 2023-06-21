@@ -162,6 +162,12 @@ describe('ApplePocketFxAMigration', function() {
     await migration.close();
     assert.calledOnce(migration.db.close);
   });
+  
+  it('should mock requests correctly', async function() {
+    migration = new ApplePocketFxAMigration('valid.csv', config, DB, 'output.csv', ',', true);
+    await migration.generateAccessToken();
+    assert.notCalled(axios.post);
+  })
 });
 
 describe('AppleUser', function() {
@@ -205,8 +211,8 @@ describe('AppleUser', function() {
     await user.createUpdateFxAUser();
 
     assert.calledOnceWithExactly(dbStub.account, user.uid);
-    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid', 2);
-    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid', 'sub', 2);
+    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid', 'apple');
+    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid', 'sub', 'apple');
     assert.isTrue(user.success);
     assert.equal(user.accountRecord,accountRecord);
   });
@@ -230,8 +236,8 @@ describe('AppleUser', function() {
     await user.createUpdateFxAUser();
 
     assert.calledOnceWithExactly(dbStub.accountRecord, 'pocket@example.com');
-    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid1', 2);
-    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid1', 'sub', 2);
+    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid1', 'apple');
+    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid1', 'sub', 'apple');
     assert.isTrue(user.success);
     assert.equal(user.accountRecord,accountRecord);
   });
@@ -263,8 +269,8 @@ describe('AppleUser', function() {
       email: 'apple@example.com' 
     });
     
-    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid2', 2);
-    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid2', 'sub', 2);
+    assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid2', 'apple');
+    assert.calledOnceWithExactly(dbStub.createLinkedAccount, 'uid2', 'sub', 'apple');
     assert.isTrue(user.success);
     assert.equal(user.accountRecord, accountRecord);
   });
