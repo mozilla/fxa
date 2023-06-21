@@ -41,6 +41,8 @@ export const PreparedImage = (props: PreparedImageProps) => {
   const showAriaLabel =
     !ariaHidden && props?.ariaLabel && props?.ariaLabelFtlId;
 
+  // if (!Image) return (<></>);
+
   return (
     <>
       {showAriaLabel ? (

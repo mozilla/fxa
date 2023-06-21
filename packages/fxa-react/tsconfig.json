@@ -3,7 +3,16 @@
   "compilerOptions": {
     "outDir": "./dist",
     "composite": true,
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": [
+      "jest",
+      "@testing-library/jest-dom",
+      "react",
+      "react-dom"
+    ],
+    "paths": {
+      "react": ["node_modules/@types/react"],
+      "react-dom": ["node_modules/@types/react-dom"]
+    }
   },
   "include": [
     "./components",

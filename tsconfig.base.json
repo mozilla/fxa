@@ -28,8 +28,7 @@
     },
     "typeRoots": [
       "./types",
-      "./node_modules/@types",
-      "./packages/*/node_modules/@types"
+      "./node_modules/@types"
     ],
     "jsx": "react-jsx"
   },
