@@ -11,7 +11,7 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import { CreateRelier, useFtlMsgResolver } from '../../../models';
 
-type ResetPasswordWithRecoveryKeyVerifiedProps = {
+export type ResetPasswordWithRecoveryKeyVerifiedProps = {
   isSignedIn: boolean;
 };
 

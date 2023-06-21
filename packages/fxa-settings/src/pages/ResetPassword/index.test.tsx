@@ -13,7 +13,7 @@ import ResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
 
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
-import { Account, AppContext } from '../../models';
+import { Account } from '../../models';
 import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
 import { typeByLabelText } from '../../lib/test-utils';
 import {
@@ -21,6 +21,7 @@ import {
   createHistoryWithQuery,
   renderWithRouter,
 } from '../../models/mocks';
+import { MozServices } from '../../lib/types';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -148,7 +149,8 @@ describe('PageResetPassword', () => {
     });
 
     expect(account.resetPassword).toHaveBeenCalledWith(
-      MOCK_ACCOUNT.primaryEmail.email
+      MOCK_ACCOUNT.primaryEmail.email,
+      MozServices.Default
     );
 
     expect(mockNavigate).toHaveBeenCalledWith(

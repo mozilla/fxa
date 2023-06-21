@@ -17,6 +17,7 @@ import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { GET_SESSION_VERIFIED } from './Session';
+import { MozServices } from '../lib/types';
 
 export interface DeviceLocation {
   city: string | null;
@@ -538,7 +539,10 @@ export class Account implements AccountData {
     });
   }
 
-  async resetPassword(email: string): Promise<PasswordForgotSendCodePayload> {
+  async resetPassword(
+    email: string,
+    service?: string
+  ): Promise<PasswordForgotSendCodePayload> {
     try {
       const result = await this.apolloClient.mutate({
         mutation: gql`
@@ -550,7 +554,17 @@ export class Account implements AccountData {
             }
           }
         `,
-        variables: { input: { email } },
+        variables: {
+          input: {
+            email,
+            // Only include the `service` option if the service is Sync.
+            // This becomes a query param (service=sync) on the email link.
+            // We need to modify this in FXA-7657 to send the `client_id` param
+            // when we work on the OAuth flow.
+            ...(service &&
+              service === MozServices.FirefoxSync && { service: 'sync' }),
+          },
+        },
       });
       return result.data.passwordForgotSendCode;
     } catch (err) {
@@ -608,51 +622,6 @@ export class Account implements AccountData {
 
       // Throw all other errors
       if (errno && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
-    }
-  }
-
-  async resendResetPassword(
-    email: string
-  ): Promise<PasswordForgotSendCodePayload> {
-    try {
-      const result = await this.apolloClient.mutate({
-        mutation: gql`
-          mutation passwordForgotSendCode(
-            $input: PasswordForgotSendCodeInput!
-          ) {
-            passwordForgotSendCode(input: $input) {
-              clientMutationId
-              passwordForgotToken
-            }
-          }
-        `,
-        variables: { input: { email } },
-      });
-      return result.data.passwordForgotSendCode;
-    } catch (err) {
-      const graphQlError = ((err as ApolloError) || (err as ThrottledError))
-        .graphQLErrors[0];
-      const errno = graphQlError.extensions?.errno;
-      if (
-        (err as ThrottledError) &&
-        errno &&
-        AuthUiErrorNos[errno] &&
-        errno === AuthUiErrors.THROTTLED.errno
-      ) {
-        const throttledErrorWithRetryAfter = {
-          ...AuthUiErrorNos[errno],
-          retryAfter: graphQlError.extensions?.retryAfter,
-          retryAfterLocalized: graphQlError.extensions?.retryAfterLocalized,
-        };
-        throw throttledErrorWithRetryAfter;
-      } else if (
-        errno &&
-        AuthUiErrorNos[errno] &&
-        errno !== AuthUiErrors.THROTTLED.errno
-      ) {
         throw AuthUiErrorNos[errno];
       }
       throw AuthUiErrors.UNEXPECTED_ERROR;
@@ -721,6 +690,10 @@ export class Account implements AccountData {
               clientMutationId
               sessionToken
               uid
+              authAt
+              keyFetchToken
+              verified
+              unwrapBKey
             }
           }
         `,
@@ -729,12 +702,13 @@ export class Account implements AccountData {
             accountResetToken,
             email,
             newPassword,
-            options: { sessionToken: true },
+            options: { sessionToken: true, keys: true },
           },
         },
       });
       currentAccount(getOldSettingsData(accountReset));
       sessionToken(accountReset.sessionToken);
+      return accountReset;
     } catch (err) {
       const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
       if (errno && AuthUiErrorNos[errno]) {
@@ -1280,7 +1254,7 @@ export class Account implements AccountData {
       opts.password,
       opts.recoveryKeyId,
       { kB: opts.kB },
-      { sessionToken: true }
+      { sessionToken: true, keys: true }
     );
     currentAccount(currentAccount(getOldSettingsData(data)));
     sessionToken(data.sessionToken);
@@ -1293,5 +1267,6 @@ export class Account implements AccountData {
         },
       },
     });
+    return data;
   }
 }

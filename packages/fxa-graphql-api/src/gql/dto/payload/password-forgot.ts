@@ -64,4 +64,7 @@ export class AccountResetPayload {
 
   @Field({ nullable: true })
   public keyFetchToken?: string;
+
+  @Field({ nullable: true })
+  public unwrapBKey?: string;
 }

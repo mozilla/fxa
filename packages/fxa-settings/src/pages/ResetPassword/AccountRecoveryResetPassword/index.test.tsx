@@ -248,7 +248,9 @@ describe('AccountRecoveryResetPassword page', () => {
     describe('successful reset', () => {
       beforeEach(async () => {
         mockAccount.setLastLogin = jest.fn();
-        mockAccount.resetPasswordWithRecoveryKey = jest.fn();
+        mockAccount.resetPasswordWithRecoveryKey = jest
+          .fn()
+          .mockResolvedValue(mocks.MOCK_RESET_DATA);
         mockAccount.isSessionVerifiedAuthClient = jest.fn();
         mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
@@ -327,7 +329,9 @@ describe('AccountRecoveryResetPassword page', () => {
     beforeEach(async () => {
       window.location.href = originalWindow.href;
       mockAccount.setLastLogin = jest.fn();
-      mockAccount.resetPasswordWithRecoveryKey = jest.fn();
+      mockAccount.resetPasswordWithRecoveryKey = jest
+        .fn()
+        .mockResolvedValue(mocks.MOCK_RESET_DATA);
       mockAccount.isSessionVerifiedAuthClient = jest.fn();
       mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
       await renderPage();
