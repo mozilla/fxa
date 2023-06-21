@@ -27,6 +27,7 @@ program
     '-i, --input <filename>',
     'Input filename from which to read input if not specified on the command line',
   )
+  .option('-m,  --mock', 'Mock FxA DB and Apple API calls', true)
   .parse(process.argv);
 
 if (!program.input) {
@@ -35,10 +36,16 @@ if (!program.input) {
 }
 
 async function main() {
-  const migration = new ApplePocketFxAMigration(program.input, config, AuthDB, program.output, program.delimiter);
+  const migration = new ApplePocketFxAMigration(program.input, config, AuthDB, program.output, program.delimiter, program.mock);
   await migration.load();
   await migration.transferUsers();
   await migration.close();
+
+  // For very large lists, we need to comment this out
+  // or else the program will exit before writing contents to output
+  if (process.env.NODE_ENV === 'dev') {
+    process.exit();
+  }
 }
 
 main();
