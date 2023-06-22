@@ -451,7 +451,6 @@ export class CurrencyHelper {
     'PYG',
     'QAR',
     'RON',
-    'RSD',
     'RUB',
     'RWF',
     'SAR',
