@@ -9,6 +9,7 @@ export const selectors = {
   VPASSWORD: '#vpassword',
   PASSWORD: '#password',
   RESEND_RESET_PASSWORD_LINK: '#resend',
+  REMEMBER_PASSWORD: 'text="Remember password? Sign in"',
   RESEND_SUCCESS: '.success',
   UNKNOWN_ACCOUNT_ERROR: '.error',
   RESET_PASSWORD_COMPLETE_HEADER: '#fxa-reset-password-complete-header',
@@ -68,6 +69,10 @@ export class ResetPasswordPage extends BaseLayout {
 
   async clickResend() {
     await this.page.locator(selectors.RESEND_RESET_PASSWORD_LINK).click();
+  }
+
+  async clickRememberPassword() {
+    await this.page.locator(selectors.REMEMBER_PASSWORD).click();
   }
 
   async resendSuccessMessage() {

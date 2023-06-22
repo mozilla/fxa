@@ -7,6 +7,7 @@ import { DeleteAccountPage } from './settings/deleteAccount';
 import { DisplayNamePage } from './settings/displayName';
 import { FourOhFourPage } from './fourOhFour';
 import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
+import { ForceAuthPage } from './forceAuth';
 import { LoginPage } from './login';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RelierPage } from './relier';
@@ -31,6 +32,7 @@ export function create(page: Page, target: BaseTarget) {
     displayName: new DisplayNamePage(page, target),
     fourOhFour: new FourOhFourPage(page, target),
     fxDesktopV3ForceAuth: new FxDesktopV3ForceAuthPage(page, target),
+    forceAuth: new ForceAuthPage(page, target),
     login: new LoginPage(page, target),
     page,
     recoveryKey: new RecoveryKeyPage(page, target),
