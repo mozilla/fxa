@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 
@@ -9,7 +9,12 @@ import {
   getLocalizedDateString,
 } from '../../lib/formats';
 import { Customer, Plan } from '../../store/types';
-import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  getLocalizedMessage,
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import AppContext, { defaultAppContext } from '../../lib/AppContext';
@@ -109,7 +114,7 @@ afterEach(() => {
 describe('PaymentConfirmation', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -137,7 +142,7 @@ describe('PaymentConfirmation', () => {
 
   it('renders as expected with no display name', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfileNoDisplayName,
@@ -160,7 +165,7 @@ describe('PaymentConfirmation', () => {
 
   it('renders as expected with custom success button label text', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -189,7 +194,7 @@ describe('PaymentConfirmation', () => {
 
   it('renders as expected with custom success button label text localized to xx-pirate', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <AppContext.Provider
           value={{ ...defaultAppContext, navigatorLanguages: ['xx-pirate'] }}
         >
@@ -227,7 +232,7 @@ describe('PaymentConfirmation', () => {
       },
     });
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -260,7 +265,7 @@ describe('PaymentConfirmation', () => {
       },
     });
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <AppContext.Provider
           value={{ ...defaultAppContext, navigatorLanguages: ['fy-NL'] }}
         >
@@ -292,7 +297,7 @@ describe('PaymentConfirmation', () => {
 
   it('renders with the invoice total amount when an invoice is present', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <AppContext.Provider value={{ ...defaultAppContext }}>
           <PaymentConfirmation
             {...{
@@ -314,7 +319,7 @@ describe('PaymentConfirmation', () => {
 
   it('renders without Order details if not available', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -335,7 +340,7 @@ describe('PaymentConfirmation', () => {
 
   describe('When payment_provider is "paypal"', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -362,7 +367,7 @@ describe('PaymentConfirmation', () => {
 
   describe('When payment_provider is "stripe"', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentConfirmation
           {...{
             profile: userProfile,
@@ -413,7 +418,7 @@ describe('PaymentConfirmation', () => {
         };
 
         const testRenderer = TestRenderer.create(
-          <PaymentConfirmation {...props} />
+          withLocalizationProvider(<PaymentConfirmation {...props} />)
         );
         const testInstance = testRenderer.root;
 

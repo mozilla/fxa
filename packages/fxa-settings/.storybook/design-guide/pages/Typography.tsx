@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
+import { withLocalization } from 'fxa-react/lib/AppLocalizationProvider';
 
 /**
  * Note: we have a handful of concatenated classes here, which PurgeCSS will not observe
@@ -117,4 +118,4 @@ export const Typography = ({ config }) => {
   );
 };
 
-export default Typography;
+export default (config) => withLocalization(() => Typography(config));

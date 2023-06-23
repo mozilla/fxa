@@ -4,22 +4,24 @@
 
 import React from 'react';
 import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from '.';
-import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { StoryFn } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
-export default {
+const meta = {
   title: 'Components/Settings/ButtonIcon',
   component: ButtonIcon,
   subcomponents: { ButtonIconTrash, ButtonIconReload },
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryFn) => (
       <div className="p-10 max-w-lg">
         <Story />
       </div>
     ),
   ],
-} as Meta;
+};
+
+export default meta;
 
 const onClick = () => alert('You clicked the button!');
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 import {
@@ -9,6 +9,7 @@ import {
 } from './index';
 import { Localized } from '@fluent/react';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 jest.mock('../../lib/apiClient', () => ({
   apiFetchAccountStatus: jest.fn(),
@@ -75,7 +76,7 @@ const WrapNewUserEmailForm = ({
 describe('NewUserEmailForm test', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -110,7 +111,7 @@ describe('NewUserEmailForm test', () => {
 
   it('renders as expected, with metadata configuration', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -135,7 +136,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows error when invalid email is input to first field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -156,7 +157,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when valid email is input to first field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -176,7 +177,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when empty string is provided to second field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -200,7 +201,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows error when emails do not match', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -225,7 +226,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when emails match', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}

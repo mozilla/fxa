@@ -5,17 +5,19 @@
 module.exports = {
   stories: ['./design-guide/main.stories.tsx', '../src/**/*.stories.tsx'],
   staticDirs: ['../public'],
+  core: {
+    builder: 'webpack5',
+  },
+  framework: {
+    name: '@storybook/react-webpack5',
+    options: {},
+  },
+  features: { storyStoreV7: false },
   addons: [
     '@storybook/addon-actions',
     '@storybook/addon-links',
     'storybook-addon-rtl',
-    {
-      name: '@storybook/addon-postcss',
-      options: {
-        postcssLoaderOptions: {
-          implementation: require('postcss'),
-        },
-      },
-    },
+    '@storybook/addon-styling',
+    '@storybook/preset-create-react-app',
   ],
 };

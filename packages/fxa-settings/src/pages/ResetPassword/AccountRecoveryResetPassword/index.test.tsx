@@ -4,13 +4,7 @@
 
 import { LocationProvider } from '@reach/router';
 import '@testing-library/jest-dom/extend-expect';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import AccountRecoveryResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -23,6 +17,7 @@ import { AppContext, AppContextValue, IntegrationType } from '../../../models';
 import * as mocks from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 let mockHistory = mocks.mockWindowHistory();
 let mockWindowWrapper = mocks.mockWindowWrapper();
@@ -105,7 +100,7 @@ describe('AccountRecoveryResetPassword page', () => {
   }
 
   async function renderPage() {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={ctx}>
         <LocationProvider
           {...{ history: mockHistory, location: mockHistory.location }}

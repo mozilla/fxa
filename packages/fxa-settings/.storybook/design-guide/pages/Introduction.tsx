@@ -3,8 +3,9 @@ import Page from '../Page';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
+import { withLocalization } from 'fxa-react/lib/AppLocalizationProvider';
 
-const Introduction = () => (
+export const Introduction = () => (
   <Page title="Introduction🎨">
     <div className="flex">
       <div className="max-w-3xl pr-6">
@@ -82,4 +83,4 @@ const Introduction = () => (
   </Page>
 );
 
-export default Introduction;
+export default () => withLocalization(Introduction);

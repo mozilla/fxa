@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import SigninConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -23,7 +23,9 @@ describe('SigninConfirmed', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Ready component as expected', () => {
-    render(<SigninConfirmed isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <SigninConfirmed isSignedIn isSync={false} />
+    );
     // testAllL10n(screen, bundle);
 
     const signinConfirmation = screen.getByText('Sign-in confirmed');
@@ -39,12 +41,14 @@ describe('SigninConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<SigninConfirmed isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <SigninConfirmed isSignedIn isSync={false} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
-    render(
+    renderWithLocalizationProvider(
       <SigninConfirmed isSignedIn isSync={false} {...{ continueHandler }} />
     );
     const passwordResetContinueButton = screen.getByText('Continue');

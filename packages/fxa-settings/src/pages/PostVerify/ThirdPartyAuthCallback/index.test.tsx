@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ThirdPartyAuthCallback from '.';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
@@ -12,7 +13,7 @@ import { LocationProvider } from '@reach/router';
 import { ThirdPartyAuthProps } from '../../../components/ThirdPartyAuth';
 
 function renderWith(props?: ThirdPartyAuthProps) {
-  return render(
+  return renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext()}>
       <LocationProvider>
         <ThirdPartyAuthCallback {...props} />;

@@ -5,7 +5,7 @@
 import React from 'react';
 import { DataCollection } from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { mockAppContext } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 

@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import AppLayout from '../AppLayout';
 import ButtonDownloadRecoveryKey, { fileContentVariation } from '.';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Account, AppContext } from '../../models';
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 

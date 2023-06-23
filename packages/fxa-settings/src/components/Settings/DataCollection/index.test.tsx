@@ -12,6 +12,7 @@ import {
 } from '@testing-library/react';
 import { DataCollection } from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../../models';
 
 const account = {
@@ -24,7 +25,7 @@ jest.mock('../../../models/AlertBarInfo');
 
 describe('DataCollection', () => {
   it('renders as expected', () => {
-    const { container } = render(<DataCollection />);
+    const { container } = renderWithLocalizationProvider(<DataCollection />);
 
     expect(container).toHaveTextContent('Data Collection and Use');
     expect(container).toHaveTextContent('Help improve Firefox Accounts');

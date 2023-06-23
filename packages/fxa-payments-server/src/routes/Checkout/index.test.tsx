@@ -1,13 +1,7 @@
 /**
  * @jest-environment jsdom
  */
-import {
-  render,
-  cleanup,
-  fireEvent,
-  act,
-  screen,
-} from '@testing-library/react';
+import { cleanup, fireEvent, act, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 
@@ -24,6 +18,7 @@ import {
   elementChangeResponse,
   MOCK_CHECKOUT_TOKEN,
   MOCK_PAYPAL_SUBSCRIPTION_RESULT,
+  renderWithLocalizationProvider,
 } from '../../lib/test-utils';
 
 import Checkout, { CheckoutProps } from './index';
@@ -187,7 +182,7 @@ describe('routes/Checkout', () => {
 
   it('renders as expected', async () => {
     await act(async () => {
-      render(<Subject planId="testo" />);
+      renderWithLocalizationProvider(<Subject planId="testo" />);
     });
 
     const { findByTestId, getByTestId } = screen;
@@ -221,7 +216,7 @@ describe('routes/Checkout', () => {
 
   it('displays checkbox tooltip error when unchecking checkbox', async () => {
     await act(async () => {
-      render(<Subject planId="testo" />);
+      renderWithLocalizationProvider(<Subject planId="testo" />);
     });
     const { queryByTestId, findByTestId, queryByText } = screen;
     const paymentFormContainer = queryByTestId('payment-form-container');
@@ -245,7 +240,7 @@ describe('routes/Checkout', () => {
 
   it('displays checkbox tooltip error when unchecked and clicking on disabled form', async () => {
     await act(async () => {
-      render(<Subject planId="testo" />);
+      renderWithLocalizationProvider(<Subject planId="testo" />);
     });
     const { queryByTestId, queryByText } = screen;
     const paymentFormContainer = queryByTestId('payment-form-container');
@@ -265,7 +260,7 @@ describe('routes/Checkout', () => {
   });
 
   it('displays an error with invalid product ID', async () => {
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject productId="bad_product" />
     );
     await findByTestId('no-such-plan-error');
@@ -274,13 +269,15 @@ describe('routes/Checkout', () => {
 
   it('displays an error on failure to load plans', async () => {
     (apiFetchPlans as jest.Mock).mockRejectedValue({});
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const errorEl = await findByTestId('error-loading-plans');
     expect(errorEl).toBeInTheDocument();
   });
 
   it('displays an error when selecting an inactive / archived plan', async () => {
-    const { findByTestId } = render(<Subject planId={INACTIVE_PLAN_ID} />);
+    const { findByTestId } = renderWithLocalizationProvider(
+      <Subject planId={INACTIVE_PLAN_ID} />
+    );
     const errorEl = await findByTestId('no-such-plan-error');
     expect(errorEl).toBeInTheDocument();
   });
@@ -322,7 +319,7 @@ describe('routes/Checkout', () => {
 
     it('creates the account and subscription successfully', async () => {
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -349,7 +346,7 @@ describe('routes/Checkout', () => {
         .mockResolvedValueOnce({ ...CUSTOMER, subscriptions: [] })
         .mockResolvedValueOnce(CUSTOMER);
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -364,7 +361,7 @@ describe('routes/Checkout', () => {
         FXA_SIGNUP_ERROR
       );
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -393,7 +390,7 @@ describe('routes/Checkout', () => {
         error: MOCK_STRIPE_CARD_ERROR,
       });
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -423,7 +420,7 @@ describe('routes/Checkout', () => {
         MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR
       );
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -455,7 +452,7 @@ describe('routes/Checkout', () => {
         MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR
       );
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -488,7 +485,7 @@ describe('routes/Checkout', () => {
         .mockRejectedValue(MOCK_CURRENCY_ERROR);
 
       await act(async () => {
-        render(<Subject />);
+        renderWithLocalizationProvider(<Subject />);
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -508,7 +505,7 @@ describe('routes/Checkout', () => {
     describe('newsletter', () => {
       it('POSTs to /newsletters if the newsletter checkbox is checked when subscription succeeds', async () => {
         await act(async () => {
-          render(<Subject />);
+          renderWithLocalizationProvider(<Subject />);
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -520,7 +517,7 @@ describe('routes/Checkout', () => {
 
       it('Does not POST to /newsletters if the newsletter checkbox is unchecked when subscription succeeds', async () => {
         await act(async () => {
-          render(<Subject />);
+          renderWithLocalizationProvider(<Subject />);
         });
         const shouldSubscribeToNewsletter = false;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -536,7 +533,7 @@ describe('routes/Checkout', () => {
           error: MOCK_STRIPE_CARD_ERROR,
         });
         await act(async () => {
-          render(<Subject />);
+          renderWithLocalizationProvider(<Subject />);
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -551,7 +548,7 @@ describe('routes/Checkout', () => {
           FXA_NEWSLETTER_SIGNUP_ERROR
         );
         await act(async () => {
-          render(<Subject />);
+          renderWithLocalizationProvider(<Subject />);
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -610,7 +607,9 @@ describe('routes/Checkout', () => {
         );
       };
       await act(async () => {
-        render(<Subject paypalButtonBase={paypalButtonBase} />);
+        renderWithLocalizationProvider(
+          <Subject paypalButtonBase={paypalButtonBase} />
+        );
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -646,7 +645,9 @@ describe('routes/Checkout', () => {
         );
       };
       await act(async () => {
-        render(<Subject paypalButtonBase={paypalButtonBase} />);
+        renderWithLocalizationProvider(
+          <Subject paypalButtonBase={paypalButtonBase} />
+        );
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -680,7 +681,9 @@ describe('routes/Checkout', () => {
         );
       };
       await act(async () => {
-        render(<Subject paypalButtonBase={paypalButtonBase} />);
+        renderWithLocalizationProvider(
+          <Subject paypalButtonBase={paypalButtonBase} />
+        );
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -714,7 +717,9 @@ describe('routes/Checkout', () => {
         );
       };
       await act(async () => {
-        render(<Subject paypalButtonBase={paypalButtonBase} />);
+        renderWithLocalizationProvider(
+          <Subject paypalButtonBase={paypalButtonBase} />
+        );
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -744,7 +749,9 @@ describe('routes/Checkout', () => {
         );
       };
       await act(async () => {
-        render(<Subject paypalButtonBase={paypalButtonBase} />);
+        renderWithLocalizationProvider(
+          <Subject paypalButtonBase={paypalButtonBase} />
+        );
       });
       await fillOutZeForm();
       await waitForExpect(() => {
@@ -777,7 +784,9 @@ describe('routes/Checkout', () => {
           );
         };
         await act(async () => {
-          render(<Subject paypalButtonBase={paypalButtonBase} />);
+          renderWithLocalizationProvider(
+            <Subject paypalButtonBase={paypalButtonBase} />
+          );
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -803,7 +812,9 @@ describe('routes/Checkout', () => {
           );
         };
         await act(async () => {
-          render(<Subject paypalButtonBase={paypalButtonBase} />);
+          renderWithLocalizationProvider(
+            <Subject paypalButtonBase={paypalButtonBase} />
+          );
         });
         const shouldSubscribeToNewsletter = false;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -826,7 +837,9 @@ describe('routes/Checkout', () => {
           );
         };
         await act(async () => {
-          render(<Subject paypalButtonBase={paypalButtonBase} />);
+          renderWithLocalizationProvider(
+            <Subject paypalButtonBase={paypalButtonBase} />
+          );
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);
@@ -851,7 +864,9 @@ describe('routes/Checkout', () => {
           );
         };
         await act(async () => {
-          render(<Subject paypalButtonBase={paypalButtonBase} />);
+          renderWithLocalizationProvider(
+            <Subject paypalButtonBase={paypalButtonBase} />
+          );
         });
         const shouldSubscribeToNewsletter = true;
         await fillOutZeForm(shouldSubscribeToNewsletter);

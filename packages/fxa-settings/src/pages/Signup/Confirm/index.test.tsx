@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
 // import { FluentBundle } from '@fluent/bundle';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -45,7 +46,7 @@ function renderWithContext(
   session: Session,
   sessionTokenId: string | null
 ) {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider
       value={mockAppContext({
         account,

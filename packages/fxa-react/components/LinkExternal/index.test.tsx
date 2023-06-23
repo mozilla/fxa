@@ -3,15 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from '@testing-library/react';
 import LinkExternal from './index';
+import { renderWithLocalizationProvider } from '../../lib/test-utils/localizationProvider';
 
 it('renders without imploding', () => {
   const className = 'mozilla-link';
   const href = 'https://mozilla.org/';
   const textContent = 'Keep the internet open and accessible to all.';
 
-  const renderResult = render(
+  const renderResult = renderWithLocalizationProvider(
     <LinkExternal {...{ className, href }}>{textContent}</LinkExternal>
   );
 

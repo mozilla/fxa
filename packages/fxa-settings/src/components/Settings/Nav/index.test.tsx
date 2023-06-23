@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../../models';
 import { getDefault } from '../../../lib/config';
 import Nav from '.';
@@ -18,7 +19,7 @@ const account = {
 
 describe('Nav', () => {
   it('renders as expected', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account, config: getDefault() }}>
         <Nav />
       </AppContext.Provider>
@@ -75,7 +76,7 @@ describe('Nav', () => {
       subscriptions: [{ created: 1, productName: 'x' }],
       linkedAccounts: [],
     } as unknown as Account;
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account }}>
         <Nav />
       </AppContext.Provider>
@@ -95,7 +96,7 @@ describe('Nav', () => {
       marketingEmailPreferencesUrl: '',
     });
 
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account, config }}>
         <Nav />
       </AppContext.Provider>
@@ -116,7 +117,7 @@ describe('Nav', () => {
         },
       ],
     } as unknown as Account;
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account }}>
         <Nav />
       </AppContext.Provider>

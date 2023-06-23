@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import Footer from '.';
+import { renderWithLocalizationProvider } from '../../lib/test-utils/localizationProvider';
 
 describe('Footer', () => {
   it('renders as expected', () => {
-    render(<Footer />);
+    renderWithLocalizationProvider(<Footer />);
 
     const linkMozilla = screen.getByTestId('link-mozilla');
 

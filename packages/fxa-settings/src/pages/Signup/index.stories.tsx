@@ -9,7 +9,7 @@ import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
 import { MOCK_ACCOUNT } from '../../models/mocks';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Signup',

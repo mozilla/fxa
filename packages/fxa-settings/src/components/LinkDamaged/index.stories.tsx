@@ -5,7 +5,7 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/LinkDamaged',

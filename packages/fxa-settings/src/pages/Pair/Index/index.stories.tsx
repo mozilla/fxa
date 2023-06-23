@@ -9,7 +9,7 @@ import AppLayout from '../../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { ENTRYPOINTS } from '../../../constants';
 import { MOCK_ERROR, MOCK_CALLBACK } from './mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair',

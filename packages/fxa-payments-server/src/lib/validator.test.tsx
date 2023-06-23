@@ -1,5 +1,5 @@
 import React, { useCallback, useContext } from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   mainReducer,
@@ -10,6 +10,7 @@ import {
   defaultState as validatorDefaultState,
   Action as ValidatorAction,
 } from './validator';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 
@@ -28,7 +29,7 @@ describe('useValidatorState', () => {
       const validator = useValidatorState();
       return <div>{JSON.stringify(validator.state)}</div>;
     };
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
   });
 });
 
@@ -192,7 +193,7 @@ const runAgainstValidator = (...fns: Array<(validator: Validator) => any>) => {
     return nextState;
   };
 
-  const { queryAllByTestId } = render(
+  const { queryAllByTestId } = renderWithLocalizationProvider(
     <TestContainer {...{ middleware, results, fns }} />
   );
 
@@ -229,11 +230,10 @@ const TestContainer = ({
 
 const TestFn = ({ execute }: { execute: (validator: Validator) => any }) => {
   const { validator, results } = useContext(TestContext) as TestContextValue;
-  const onClick = useCallback(() => results.push(execute(validator)), [
-    results,
-    execute,
-    validator,
-  ]);
+  const onClick = useCallback(
+    () => results.push(execute(validator)),
+    [results, execute, validator]
+  );
   return (
     <button data-testid="execute" onClick={onClick}>
       Execute

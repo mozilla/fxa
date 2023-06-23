@@ -11,7 +11,7 @@ import {
   createHistory,
 } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext, AppContextValue } from '../../../models';
 import {
   mockAccount,

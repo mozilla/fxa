@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { Subject } from './mocks';
-import { screen, render, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { fetchLegalMd } from '../../lib/file-utils-legal';
 import { navigate } from '@reach/router';
 
@@ -37,7 +38,7 @@ describe('LegalWithMarkdown', () => {
   });
 
   it('can go back', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith(-1);
@@ -45,7 +46,7 @@ describe('LegalWithMarkdown', () => {
   });
 
   it('displays a loading state', () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     screen.getByTestId('loading-spinner');
   });
 
@@ -60,7 +61,7 @@ describe('LegalWithMarkdown', () => {
     });
 
     it('displays an error state', async () => {
-      render(<Subject />);
+      renderWithLocalizationProvider(<Subject />);
       await screen.findByText('boop');
     });
   });

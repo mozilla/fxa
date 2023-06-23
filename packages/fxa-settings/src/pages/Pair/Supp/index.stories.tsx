@@ -6,7 +6,7 @@ import React from 'react';
 import Supp from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/Supp',

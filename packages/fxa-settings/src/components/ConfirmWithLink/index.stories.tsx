@@ -13,7 +13,7 @@ import {
   SubjectCanGoBack,
   MOCK_GOBACK_CB,
 } from './mocks';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/ConfirmWithLink',

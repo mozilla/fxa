@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import CardHeader from '.';
 import {
   MOCK_DEFAULT_HEADING_FTL_ID,
@@ -24,7 +25,7 @@ describe('CardHeader', () => {
   // });
 
   it('renders as expected when no serviceName is provided', () => {
-    render(
+    renderWithLocalizationProvider(
       <CardHeader
         headingWithDefaultServiceFtlId={MOCK_DEFAULT_HEADING_FTL_ID}
         headingWithCustomServiceFtlId={MOCK_CUSTOM_HEADING_FTL_ID}
@@ -41,7 +42,7 @@ describe('CardHeader', () => {
   });
 
   it('renders as expected when a serviceName is provided', () => {
-    render(
+    renderWithLocalizationProvider(
       <CardHeader
         headingWithDefaultServiceFtlId={MOCK_DEFAULT_HEADING_FTL_ID}
         headingWithCustomServiceFtlId={MOCK_CUSTOM_HEADING_FTL_ID}

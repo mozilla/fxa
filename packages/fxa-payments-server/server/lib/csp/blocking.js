@@ -43,8 +43,13 @@ module.exports = function (config) {
   // CSP directives required for GA
   // https://developers.google.com/tag-platform/tag-manager/csp#google_analytics_4_google_analytics
   const GA_SCRIPT_SRC = 'https://*.googletagmanager.com';
-  const GA_IMG_SRC = 'https://*.google-analytics.com https://*.googletagmanager.com';
-  const GA_CONNECT_SRC = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+  const GA_IMG_SRC =
+    'https://*.google-analytics.com https://*.googletagmanager.com';
+  const GA_CONNECT_SRC =
+    'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+
+  // We need this for Webpack 5
+  const WEBPACK_DEV_SERVER = 'ws://localhost:3032';
 
   //
   // Double quoted values
@@ -100,7 +105,7 @@ module.exports = function (config) {
       scriptSrc: addCdnRuleIfRequired([
         SELF,
         STRIPE_SCRIPT_URL,
-        PAYPAL_SCRIPT_URL
+        PAYPAL_SCRIPT_URL,
       ]),
       styleSrc: addCdnRuleIfRequired([SELF, UNSAFE_INLINE]),
     },
@@ -131,6 +136,7 @@ module.exports = function (config) {
 
   if (config.get('env') === 'development') {
     rules.directives.connectSrc.push(HOT_RELOAD_WEBSOCKET);
+    rules.directives.connectSrc.push(WEBPACK_DEV_SERVER);
   }
 
   // If GA is enabled, add directives
@@ -141,8 +147,8 @@ module.exports = function (config) {
     Object.assign(rules.Sources, {
       GA_CONNECT_SRC,
       GA_IMG_SRC,
-      GA_SCRIPT_SRC
-    })
+      GA_SCRIPT_SRC,
+    });
   }
 
   return rules;

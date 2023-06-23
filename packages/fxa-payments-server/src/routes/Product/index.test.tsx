@@ -2,11 +2,7 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import {
-  render,
-  cleanup,
-  waitForElementToBeRemoved,
-} from '@testing-library/react';
+import { cleanup, waitForElementToBeRemoved } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 
@@ -29,6 +25,7 @@ import {
   mockOptionsResponses,
   INACTIVE_PLAN_ID,
   MOCK_PREVIEW_INVOICE_NO_TAX,
+  renderWithLocalizationProvider,
 } from '../../lib/test-utils';
 
 import { SignInLayout } from '../../components/AppLayout';
@@ -196,7 +193,8 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findAllByText, queryByText, queryAllByText } = render(<Subject />);
+    const { findAllByText, queryByText, queryAllByText } =
+      renderWithLocalizationProvider(<Subject />);
 
     await findAllByText('Set up your subscription');
     expect(
@@ -229,7 +227,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject productId="bad_product" />
     );
     await waitForElementToBeRemoved(queryByTestId('loading-overlay'));
@@ -268,7 +266,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const errorEl = await findByTestId('error-loading-profile');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -286,7 +284,7 @@ describe('routes/Product', () => {
         )
         .reply(200, MOCK_CUSTOMER),
     ];
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const errorEl = await findByTestId('error-loading-plans');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -310,7 +308,9 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findByTestId } = render(<Subject planId={INACTIVE_PLAN_ID} />);
+    const { findByTestId } = renderWithLocalizationProvider(
+      <Subject planId={INACTIVE_PLAN_ID} />
+    );
     const errorEl = await findByTestId('no-such-plan-error');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -346,7 +346,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const errorEl = await findByTestId('error-loading-customer');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -382,7 +382,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const errorEl = await findByTestId('product-invoice-preview-error');
     expect(errorEl).toBeInTheDocument();
     expectNockScopesDone(apiMocks);
@@ -422,7 +422,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findAllByText } = render(<Subject />);
+    const { findAllByText } = renderWithLocalizationProvider(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
     expect(headingEls.length).toBeGreaterThan(0);
     expectNockScopesDone(apiMocks);
@@ -462,7 +462,7 @@ describe('routes/Product', () => {
           'Access-Control-Allow-Origin': '*',
         }),
     ];
-    const { findAllByText } = render(<Subject />);
+    const { findAllByText } = renderWithLocalizationProvider(<Subject />);
     const headingEls = await findAllByText('Set up your subscription');
     expect(headingEls.length).toBeGreaterThan(0);
     expectNockScopesDone(apiMocks);
@@ -473,7 +473,7 @@ describe('routes/Product', () => {
       planId: 'plan_upgrade',
       planEligibility: 'upgrade',
     });
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
           planId: 'plan_upgrade',
@@ -496,7 +496,7 @@ describe('routes/Product', () => {
       planId: 'plan_no_upgrade',
       planEligibility: 'create',
     });
-    const { findAllByText, queryByTestId } = render(
+    const { findAllByText, queryByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
           planId: 'plan_no_upgrade',
@@ -516,7 +516,7 @@ describe('routes/Product', () => {
 
   it('does not allow a downgrade', async () => {
     const apiMocks = initSubscribedApiMocks({ planId: 'plan_no_downgrade' });
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
           planId: 'plan_no_downgrade',
@@ -536,7 +536,7 @@ describe('routes/Product', () => {
 
   it('displays roadblock for a different plan of the same product with no upgrade path', async () => {
     const apiMocks = initSubscribedApiMocks({ planId: 'nextlevel' });
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
           planId: 'nextlevel',
@@ -574,7 +574,7 @@ describe('routes/Product', () => {
       planId: 'nextlevel',
       planEligibility: 'blocked_iap',
     });
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
           planId: 'nextlevel',
@@ -594,7 +594,9 @@ describe('routes/Product', () => {
 
   it('displays payment confirmation if user is already subscribed to the product', async () => {
     const apiMocks = initSubscribedApiMocks();
-    const { findByTestId, queryByTestId } = render(<Subject />);
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     await waitForElementToBeRemoved(queryByTestId('loading-overlay'));
     const confirmEl = await findByTestId('payment-confirmation');
     expect(confirmEl).toBeInTheDocument();
@@ -604,7 +606,7 @@ describe('routes/Product', () => {
   it('redirects to content server when there is no access token', async () => {
     const navigateToUrl = jest.fn();
     const appContext = { ...defaultAppContextValue(), accessToken: undefined };
-    render(
+    renderWithLocalizationProvider(
       <Subject
         productId="fizz"
         planId="quux"

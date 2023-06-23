@@ -2,63 +2,212 @@
   "name": "fxa-shared",
   "version": "0.0.0",
   "description": "Shared module for FxA repositories",
-  "main": "dist/packages/fxa-shared/index.js",
+  "main": "dist/cjs/packages/fxa-shared/index.js",
+  "module": "dist/esm/packages/fxa-shared/index.js",
   "exports": {
-    ".": "./dist/packages/fxa-shared/index.js",
-    "./*": "./dist/packages/fxa-shared/*",
-    "./auth": "./dist/packages/fxa-shared/auth/index.js",
-    "./auth/*": "./dist/packages/fxa-shared/auth/*.js",
-    "./cache/*": "./dist/packages/fxa-shared/cache/*.js",
-    "./configuration/*": "./dist/packages/fxa-shared/configuration/*.js",
-    "./connected-services": "./dist/packages/fxa-shared/connected-services/index.js",
-    "./connected-services/*": "./dist/packages/fxa-shared/connected-services/*.js",
-    "./coverage/*": "./dist/packages/fxa-shared/coverage/*.js",
-    "./db": "./dist/packages/fxa-shared/db/index.js",
-    "./db/*": "./dist/packages/fxa-shared/db/*.js",
-    "./db/config": "./dist/packages/fxa-shared/db/config.js",
-    "./db/models": "./dist/packages/fxa-shared/db/models/index.js",
-    "./db/models/auth": "./dist/packages/fxa-shared/db/models/auth/index.js",
-    "./db/models/auth/*": "./dist/packages/fxa-shared/db/models/auth/*.js",
-    "./db/models/profile": "./dist/packages/fxa-shared/db/models/profile/index.js",
-    "./db/mysql": "./dist/packages/fxa-shared/db/mysql.js",
-    "./db/redis": "./dist/packages/fxa-shared/db/redis.js",
-    "./dto/*": "./dist/packages/fxa-shared/dto/*.js",
-    "./email/*": "./dist/packages/fxa-shared/email/*.js",
-    "./email/popularDomains.json": "./dist/packages/fxa-shared/email/popularDomains.json",
-    "./experiments/*": "./dist/packages/fxa-shared/experiments/*.js",
-    "./express": "./dist/packages/fxa-shared/express/index.js",
-    "./express/*": "./dist/packages/fxa-shared/express/*.js",
-    "./feature-flags": "./dist/packages/fxa-shared/feature-flags/index.js",
-    "./feature-flags/*": "./dist/packages/fxa-shared/feature-flags/*.js",
-    "./guards": "./dist/packages/fxa-shared/guards/index.js",
-    "./guards/*": "./dist/packages/fxa-shared/guards/*.js",
-    "./l10n/*": "./dist/packages/fxa-shared/l10n/*.js",
-    "./lib/*": "./dist/packages/fxa-shared/lib/*.js",
-    "./log": "./dist/packages/fxa-shared/log/index.js",
-    "./log/*": "./dist/packages/fxa-shared/log/*.js",
-    "./metrics/*": "./dist/packages/fxa-shared/metrics/*.js",
-    "./nestjs/*": "./dist/packages/fxa-shared/nestjs/*.js",
-    "./oauth/*": "./dist/packages/fxa-shared/oauth/*.js",
-    "./payments/*": "./dist/packages/fxa-shared/payments/*.js",
-    "./payments/configuration/*": "./dist/packages/fxa-shared/payments/configuration/*.js",
-    "./payments/iap/*": "./dist/packages/fxa-shared/payments/iap/*.js",
-    "./payments/iap/apple-app-store/types": "./dist/packages/fxa-shared/payments/iap/apple-app-store/types/index.js",
-    "./payments/iap/google-play/types": "./dist/packages/fxa-shared/payments/iap/google-play/types/index.js",
-    "./payments/stripe": "./dist/packages/fxa-shared/payments/stripe.js",
-    "./payments/stripe-firestore": "./dist/packages/fxa-shared/payments/stripe-firestore.js",
-    "./scripts/*": "./dist/packages/fxa-shared/scripts/*.js",
-    "./sentry": "./dist/packages/fxa-shared/sentry/index.js",
-    "./sentry/*": "./dist/packages/fxa-shared/sentry/*.js",
-    "./speed-trap/*": "./dist/packages/fxa-shared/speed-trap/*.js",
-    "./subscriptions/*": "./dist/packages/fxa-shared/subscriptions/*.js",
-    "./tracing/*": "./dist/packages/fxa-shared/tracing/*.js"
+    ".": {
+      "import": "./dist/esm/packages/fxa-shared/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/index.js"
+    },
+    "./*": {
+      "import": "./dist/esm/packages/fxa-shared/*",
+      "require": "./dist/cjs/packages/fxa-shared/*"
+    },
+    "./auth": {
+      "import": "./dist/esm/packages/fxa-shared/auth/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/auth/index.js"
+    },
+    "./auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/auth/*.js"
+    },
+    "./cache/*": {
+      "import": "./dist/esm/packages/fxa-shared/cache/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/cache/*.js"
+    },
+    "./configuration/*": {
+      "import": "./dist/esm/packages/fxa-shared/configuration/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/configuration/*.js"
+    },
+    "./connected-services": {
+      "import": "./dist/esm/packages/fxa-shared/connected-services/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/connected-services/index.js"
+    },
+    "./connected-services/*": {
+      "import": "./dist/esm/packages/fxa-shared/connected-services/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/connected-services/*.js"
+    },
+    "./coverage/*": {
+      "import": "./dist/esm/packages/fxa-shared/coverage/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/coverage/*.js"
+    },
+    "./db": {
+      "import": "./dist/esm/packages/fxa-shared/db/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/index.js"
+    },
+    "./db/*": {
+      "import": "./dist/esm/packages/fxa-shared/db/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/*.js"
+    },
+    "./db/config": {
+      "import": "./dist/esm/packages/fxa-shared/db/config.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/config.js"
+    },
+    "./db/models": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/index.js"
+    },
+    "./db/models/auth": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/auth/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/index.js"
+    },
+    "./db/models/auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/auth/*.js"
+    },
+    "./db/models/profile": {
+      "import": "./dist/esm/packages/fxa-shared/db/models/profile/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/models/profile/index.js"
+    },
+    "./db/mysql": {
+      "import": "./dist/esm/packages/fxa-shared/db/mysql.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/mysql.js"
+    },
+    "./db/redis": {
+      "import": "./dist/esm/packages/fxa-shared/db/redis.js",
+      "require": "./dist/cjs/packages/fxa-shared/db/redis.js"
+    },
+    "./dto/*": {
+      "import": "./dist/esm/packages/fxa-shared/dto/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/dto/*.js"
+    },
+    "./email/*": {
+      "import": "./dist/esm/packages/fxa-shared/email/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/email/*.js"
+    },
+    "./email/popularDomains.json": {
+      "import": "./dist/esm/packages/fxa-shared/email/popularDomains.json",
+      "require": "./dist/cjs/packages/fxa-shared/email/popularDomains.json"
+    },
+    "./experiments/*": {
+      "import": "./dist/esm/packages/fxa-shared/experiments/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/experiments/*.js"
+    },
+    "./express": {
+      "import": "./dist/esm/packages/fxa-shared/express/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/express/index.js"
+    },
+    "./express/*": {
+      "import": "./dist/esm/packages/fxa-shared/express/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/express/*.js"
+    },
+    "./feature-flags": {
+      "import": "./dist/esm/packages/fxa-shared/feature-flags/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/feature-flags/index.js"
+    },
+    "./feature-flags/*": {
+      "import": "./dist/esm/packages/fxa-shared/feature-flags/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/feature-flags/*.js"
+    },
+    "./guards": {
+      "import": "./dist/esm/packages/fxa-shared/guards/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/guards/index.js"
+    },
+    "./guards/*": {
+      "import": "./dist/esm/packages/fxa-shared/guards/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/guards/*.js"
+    },
+    "./l10n/otherLanguages": {
+      "import": "./dist/esm/packages/fxa-shared/l10n/otherLanguages.js",
+      "require": "./dist/cjs/packages/fxa-shared/l10n/otherLanguages.js"
+    },
+    "./l10n/*": {
+      "import": "./dist/esm/packages/fxa-shared/l10n/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/l10n/*.js"
+    },
+    "./lib/*": {
+      "import": "./dist/esm/packages/fxa-shared/lib/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/lib/*.js"
+    },
+    "./log": {
+      "import": "./dist/esm/packages/fxa-shared/log/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/log/index.js"
+    },
+    "./log/*": {
+      "import": "./dist/esm/packages/fxa-shared/log/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/log/*.js"
+    },
+    "./metrics/*": {
+      "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"
+    },
+    "./nestjs/*": {
+      "import": "./dist/esm/packages/fxa-shared/nestjs/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/nestjs/*.js"
+    },
+    "./oauth/*": {
+      "import": "./dist/esm/packages/fxa-shared/oauth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/oauth/*.js"
+    },
+    "./payments/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/*.js"
+    },
+    "./payments/configuration/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/configuration/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/configuration/*.js"
+    },
+    "./payments/iap/*": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/*.js"
+    },
+    "./payments/iap/apple-app-store/types": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/apple-app-store/types/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/apple-app-store/types/index.js"
+    },
+    "./payments/iap/google-play/types": {
+      "import": "./dist/esm/packages/fxa-shared/payments/iap/google-play/types/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/iap/google-play/types/index.js"
+    },
+    "./payments/stripe": {
+      "import": "./dist/esm/packages/fxa-shared/payments/stripe.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/stripe.js"
+    },
+    "./payments/stripe-firestore": {
+      "import": "./dist/esm/packages/fxa-shared/payments/stripe-firestore.js",
+      "require": "./dist/cjs/packages/fxa-shared/payments/stripe-firestore.js"
+    },
+    "./scripts/*": {
+      "import": "./dist/esm/packages/fxa-shared/scripts/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/scripts/*.js"
+    },
+    "./sentry": {
+      "import": "./dist/esm/packages/fxa-shared/sentry/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/sentry/index.js"
+    },
+    "./sentry/*": {
+      "import": "./dist/esm/packages/fxa-shared/sentry/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/sentry/*.js"
+    },
+    "./speed-trap/*": {
+      "import": "./dist/esm/packages/fxa-shared/speed-trap/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/speed-trap/*.js"
+    },
+    "./subscriptions/*": {
+      "import": "./dist/esm/packages/fxa-shared/subscriptions/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/subscriptions/*.js"
+    },
+    "./tracing/*": {
+      "import": "./dist/esm/packages/fxa-shared/tracing/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/tracing/*.js"
+    }
   },
   "scripts": {
     "postinstall": "yarn build || true",
-    "build": "tsc --build && yarn copy-assets && yarn copy-sql",
+    "build": "tsc --build && tsc --build tsconfig.cjs.json && echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && yarn copy-assets && yarn copy-sql",
     "compile": "tsc --noEmit && yarn copy-assets && yarn copy-sql",
-    "copy-assets": "cp -r ./db/luaScripts ./dist/packages/fxa-shared/db/luaScripts",
-    "copy-sql": "find test -name \\*.sql -exec cp \\{\\} dist/packages/fxa-shared/\\{\\} \\;",
+    "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
+    "copy-sql": "find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",

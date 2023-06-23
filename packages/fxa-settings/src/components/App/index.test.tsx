@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { render, act } from '@testing-library/react';
+import { act } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import { useAccount, useInitialState } from '../../models';
@@ -70,7 +71,9 @@ describe('metrics', () => {
     };
 
     await act(async () => {
-      render(<App flowQueryParams={updatedFlowQueryParams} />);
+      renderWithLocalizationProvider(
+        <App flowQueryParams={updatedFlowQueryParams} />
+      );
     });
 
     expect(flowInit).toHaveBeenCalledWith(true, {

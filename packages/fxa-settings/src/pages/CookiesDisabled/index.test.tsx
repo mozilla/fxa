@@ -4,7 +4,8 @@
 
 import React from 'react';
 import CookiesDisabled, { viewName } from '.';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -44,7 +45,7 @@ describe('CookiesDisabled', () => {
     screen.getByRole('button', { name: 'Try again' });
 
   it('renders as expected', () => {
-    render(<CookiesDisabled />);
+    renderWithLocalizationProvider(<CookiesDisabled />);
     testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {
@@ -94,7 +95,7 @@ describe('CookiesDisabled', () => {
     });
 
     it('emits expected metrics events on success', () => {
-      render(<CookiesDisabled />);
+      renderWithLocalizationProvider(<CookiesDisabled />);
       fireEvent.click(getTryAgainButton());
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
@@ -110,7 +111,7 @@ describe('CookiesDisabled', () => {
 
     it('emits expected metrics events on error', () => {
       setLocationSearch('?disable_local_storage=1');
-      render(<CookiesDisabled />);
+      renderWithLocalizationProvider(<CookiesDisabled />);
       fireEvent.click(getTryAgainButton());
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
@@ -128,13 +129,13 @@ describe('CookiesDisabled', () => {
       it('when redirected from content-server', () => {
         setLocationSearch('?contentRedirect=true');
 
-        render(<CookiesDisabled />);
+        renderWithLocalizationProvider(<CookiesDisabled />);
         fireEvent.click(getTryAgainButton());
         expect(mockHistoryGo).toBeCalledWith(-2);
       });
 
       it('when hit directly', () => {
-        render(<CookiesDisabled />);
+        renderWithLocalizationProvider(<CookiesDisabled />);
         fireEvent.click(getTryAgainButton());
         expect(mockHistoryBack).toBeCalled();
       });
@@ -144,7 +145,7 @@ describe('CookiesDisabled', () => {
       it('if cookies are still disabled', async () => {
         setCookieEnabled(false);
 
-        render(<CookiesDisabled />);
+        renderWithLocalizationProvider(<CookiesDisabled />);
         testAllL10n(screen, bundle);
         fireEvent.click(getTryAgainButton());
         await screen.findByText('Local storage or cookies are still disabled');
@@ -153,7 +154,7 @@ describe('CookiesDisabled', () => {
       it('if localStorage is still disabled', async () => {
         setLocationSearch('?disable_local_storage=1');
 
-        render(<CookiesDisabled />);
+        renderWithLocalizationProvider(<CookiesDisabled />);
         fireEvent.click(getTryAgainButton());
         await screen.findByText('Local storage or cookies are still disabled');
       });

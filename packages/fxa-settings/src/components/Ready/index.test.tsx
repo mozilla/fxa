@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
@@ -28,7 +28,7 @@ describe('Ready', () => {
   // });
 
   it('renders as expected with default values', () => {
-    render(<Ready {...{ viewName, isSignedIn }} />);
+    renderWithLocalizationProvider(<Ready {...{ viewName, isSignedIn }} />);
     // testAllL10n(screen, bundle);
 
     const passwordResetConfirmation = screen.getByText(
@@ -46,7 +46,7 @@ describe('Ready', () => {
   });
 
   it('renders as expected when given a service name', () => {
-    render(
+    renderWithLocalizationProvider(
       <Ready {...{ viewName, isSignedIn }} serviceName={customServiceName} />
     );
 
@@ -65,7 +65,9 @@ describe('Ready', () => {
   });
 
   it('renders as expected when page is viewed by a logged out user', () => {
-    render(<Ready isSignedIn={false} {...{ viewName }} />);
+    renderWithLocalizationProvider(
+      <Ready isSignedIn={false} {...{ viewName }} />
+    );
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -78,7 +80,9 @@ describe('Ready', () => {
   });
 
   it('renders as expected the service is sync', () => {
-    render(<Ready isSignedIn={false} isSync {...{ viewName }} />);
+    renderWithLocalizationProvider(
+      <Ready isSignedIn={false} isSync {...{ viewName }} />
+    );
 
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
@@ -91,7 +95,7 @@ describe('Ready', () => {
   });
 
   it('renders as expected when given a service name and relier continue action', () => {
-    render(
+    renderWithLocalizationProvider(
       <Ready
         {...{
           continueHandler,
@@ -117,12 +121,12 @@ describe('Ready', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<Ready {...{ viewName, isSignedIn }} />);
+    renderWithLocalizationProvider(<Ready {...{ viewName, isSignedIn }} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits a metrics event when a user clicks `Continue`', () => {
-    render(
+    renderWithLocalizationProvider(
       <Ready
         serviceName={customServiceName}
         {...{ continueHandler, viewName, isSignedIn }}

@@ -8,7 +8,7 @@ import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/InlineRecoverySetup',

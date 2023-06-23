@@ -1,11 +1,15 @@
 import '@testing-library/jest-dom/extend-expect';
 
-import { act, cleanup, fireEvent, render } from '@testing-library/react';
+import { act, cleanup, fireEvent } from '@testing-library/react';
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
 
 import { PaymentConsentCheckbox } from '.';
-import { MOCK_PLANS } from '../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from '../../lib/test-utils';
 import useValidatorState from '../../lib/validator';
 import { Plan } from '../../store/types';
 import { Form } from '../fields';
@@ -39,7 +43,9 @@ describe('components/PaymentConsentCheckbox', () => {
     const plan_id = 'plan_daily';
     const plan = findMockPlan(plan_id);
     const props = { plan };
-    const { findByTestId } = render(<WrapCheckbox {...props} />);
+    const { findByTestId } = renderWithLocalizationProvider(
+      <WrapCheckbox {...props} />
+    );
     const checkbox = await findByTestId('confirm');
 
     expect(checkbox).toBeVisible();
@@ -53,7 +59,9 @@ describe('components/PaymentConsentCheckbox', () => {
       plan,
       onClick: onClickSpy,
     };
-    const { findByTestId } = render(<WrapCheckbox {...props} />);
+    const { findByTestId } = renderWithLocalizationProvider(
+      <WrapCheckbox {...props} />
+    );
     const checkbox = await findByTestId('confirm');
 
     await act(async () => {
@@ -68,7 +76,9 @@ describe('components/PaymentConsentCheckbox', () => {
       function runTests(plan: Plan, expectedMsgId: string) {
         const props = { plan };
 
-        const testRenderer = TestRenderer.create(<WrapCheckbox {...props} />);
+        const testRenderer = TestRenderer.create(
+          withLocalizationProvider(<WrapCheckbox {...props} />)
+        );
         const testInstance = testRenderer.root;
         const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
 

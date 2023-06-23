@@ -2,6 +2,10 @@
 
 ## Shared modules
 
+### Dual Package
+
+Note that this is a dual package. The impetus for it was Webpack 5 compat. (And we'd want to move to all-ESM eventually.) But CommonJS was kept for backwards compatibility until we can be certain of its removal.
+
 ### l10n
 
 `supportedLanguages.json` is the shared list of all supported locales across FxA
@@ -119,10 +123,6 @@ TRACING_OTEL_COLLECTOR_JAEGER_ENABLED=true
 ```
 
 The default config for tracing found at fxa-shared/tracing/config.ts will pick up these variables and result in traces showing up in Jaeger which runs locally at `localhost:16686`.
-
-## Publishing new version
-
-Install the [np](https://github.com/sindresorhus/np) tool, run `np [new_version_here]`.
 
 ## Used by:
 

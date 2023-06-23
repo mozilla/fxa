@@ -3,13 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, cleanup } from '@testing-library/react';
+import { screen, cleanup } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import InputText from '.';
 
 const label = 'Eveything to Nothing';
 
 it('renders as expected', () => {
-  render(<InputText {...{ label }} />);
+  renderWithLocalizationProvider(<InputText {...{ label }} />);
   expect(screen.getByTestId('input-container')).toBeInTheDocument();
   expect(screen.getByTestId('input-label')).toBeInTheDocument();
   expect(screen.getByTestId('input-field')).toBeInTheDocument();
@@ -17,13 +18,13 @@ it('renders as expected', () => {
 });
 
 it('can be disabled', () => {
-  render(<InputText {...{ label }} disabled />);
+  renderWithLocalizationProvider(<InputText {...{ label }} disabled />);
   expect(screen.getByTestId('input-field')).toBeDisabled();
 });
 
 it('can have default text', () => {
   const defaultValue = 'Forest Whitaker';
-  render(<InputText {...{ label, defaultValue }} />);
+  renderWithLocalizationProvider(<InputText {...{ label, defaultValue }} />);
   expect(screen.getByTestId('input-field')).toHaveValue(defaultValue);
 });
 
@@ -36,7 +37,7 @@ it('accepts various input types', () => {
       | 'number'
       | 'url'
       | 'password';
-    render(<InputText {...{ label, type }} />);
+    renderWithLocalizationProvider(<InputText {...{ label, type }} />);
     expect(screen.getByTestId('input-field')).toHaveAttribute('type', type);
     // Cleanup because we want to find this element again within the same test
     cleanup();
@@ -44,7 +45,7 @@ it('accepts various input types', () => {
 });
 
 it('can render adjacent children', () => {
-  render(
+  renderWithLocalizationProvider(
     <InputText {...{ label }}>
       <p data-testid="input-children">Hey</p>
     </InputText>

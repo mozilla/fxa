@@ -4,11 +4,12 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 
 function renderWith(props?: any) {
-  return render(<Subject {...props} />);
+  return renderWithLocalizationProvider(<Subject {...props} />);
 }
 
 describe('ThirdPartyAuth component', () => {

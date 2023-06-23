@@ -8,6 +8,7 @@ import AppLayout, { SignInLayout, SettingsLayout } from './index';
 import TermsAndPrivacy from '../TermsAndPrivacy';
 import { SELECTED_PLAN } from '../../lib/mock-data';
 import { RawMetadata } from 'fxa-shared/subscriptions/types';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 afterEach(cleanup);
 
@@ -22,11 +23,13 @@ describe('AppLayout', () => {
   const subject = () => {
     return render(
       <AppContext.Provider value={defaultAppContext}>
-        <AppLayout>
-          <div data-testid="children">
-            <TermsAndPrivacy plan={SELECTED_PLAN} />
-          </div>
-        </AppLayout>
+        <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+          <AppLayout>
+            <div data-testid="children">
+              <TermsAndPrivacy plan={SELECTED_PLAN} />
+            </div>
+          </AppLayout>
+        </AppLocalizationProvider>
       </AppContext.Provider>
     );
   };
@@ -80,9 +83,11 @@ describe('SettingsLayout', () => {
 
     return render(
       <AppContext.Provider value={appContextValue}>
-        <SettingsLayout>
-          <div data-testid="children">Testing</div>
-        </SettingsLayout>
+        <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+          <SettingsLayout>
+            <div data-testid="children">Testing</div>
+          </SettingsLayout>
+        </AppLocalizationProvider>
       </AppContext.Provider>
     );
   };

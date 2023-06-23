@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { Omit } from '../../lib/types';
 import ScreenInfo from '../../lib/screen-info';
@@ -10,6 +10,7 @@ import {
   MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW,
   MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW,
 } from './index';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const LABEL_TEXT = 'Valid frobnitz required.';
 
@@ -56,7 +57,9 @@ const Subject = (props: SubjectProps) => {
 };
 
 it('renders children as label', () => {
-  const { queryByText } = render(<Subject>{LABEL_TEXT}</Subject>);
+  const { queryByText } = renderWithLocalizationProvider(
+    <Subject>{LABEL_TEXT}</Subject>
+  );
   const result = queryByText(LABEL_TEXT);
   expect(result).toBeInTheDocument();
   expect(result).toHaveClass('tooltip');
@@ -66,7 +69,7 @@ it('renders children as label', () => {
 });
 
 it('renders with expected id and class names', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject id="xyzzy" extraClassNames="frobnitz">
       {LABEL_TEXT}
     </Subject>
@@ -81,7 +84,7 @@ it('renders with expected id and class names', () => {
 
 it('handles being dismissible', () => {
   const onDismiss = jest.fn();
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <Subject dismissible onDismiss={onDismiss}>
       {LABEL_TEXT}
     </Subject>
@@ -93,14 +96,16 @@ it('handles being dismissible', () => {
 });
 
 it('throws no error if onDismiss was not supplied to dismissable', () => {
-  const { queryByTestId } = render(<Subject dismissible>{LABEL_TEXT}</Subject>);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <Subject dismissible>{LABEL_TEXT}</Subject>
+  );
   const control = queryByTestId('dismiss-button');
   expect(control).toBeInTheDocument();
   fireEvent.click(control as Element);
 });
 
 it('displays label above with showBelow=false', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject showBelow={false}>{LABEL_TEXT}</Subject>
   );
   const result = getByText(LABEL_TEXT);
@@ -110,7 +115,7 @@ it('displays label above with showBelow=false', () => {
 });
 
 it('displays label above on short window', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}>
       {LABEL_TEXT}
     </Subject>
@@ -122,7 +127,7 @@ it('displays label above on short window', () => {
 });
 
 it('overrides showBelow={true} on short window', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject
       showBelow={true}
       clientHeight={MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW - 10}
@@ -137,7 +142,7 @@ it('overrides showBelow={true} on short window', () => {
 });
 
 it('displays label above on narrow window', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject
       showBelow={true}
       clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}
@@ -152,7 +157,7 @@ it('displays label above on narrow window', () => {
 });
 
 it('overrides showBelow={true} on narrow window', () => {
-  const { getByText } = render(
+  const { getByText } = renderWithLocalizationProvider(
     <Subject
       showBelow={true}
       clientWidth={MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW - 10}

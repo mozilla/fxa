@@ -46,11 +46,18 @@ async function createFluentBundleGenerator(
 
   const mergedBundle = fetched.reduce((obj, cur) => Object.assign(obj, cur));
 
+  return getBundleGenerator(currentLocales, mergedBundle);
+}
+
+function getBundleGenerator(
+  locales: string[],
+  messages: { [key: string]: string[] }
+) {
   return function* generateFluentBundles() {
-    for (const locale of currentLocales) {
+    for (const locale of locales) {
       const sourceLocale = EN_GB_LOCALES.includes(locale) ? 'en-GB' : locale;
       const cx = new FluentBundle(locale);
-      for (const i of mergedBundle[sourceLocale]) {
+      for (const i of messages[sourceLocale]) {
         const resource = new FluentResource(i);
         cx.addResource(resource);
       }
@@ -71,6 +78,8 @@ type Props = {
   userLocales: ReadonlyArray<string>;
   bundles: Array<string>;
   children: any;
+  // pass messages directly in, used in testing
+  messages?: { [key: string]: string[] };
 };
 
 export default class AppLocalizationProvider extends Component<Props, State> {
@@ -93,10 +102,20 @@ export default class AppLocalizationProvider extends Component<Props, State> {
   }
 
   async componentDidMount() {
+    if (this.props.messages) {
+      this.setState({
+        l10n: new ReactLocalization(
+          getBundleGenerator(
+            Object.keys(this.props.messages),
+            this.props.messages
+          )()
+        ),
+      });
+      return;
+    }
+
     const { baseDir, userLocales, bundles } = this.state;
-
     const currentLocales = parseAcceptLanguage(userLocales.join(', '));
-
     const bundleGenerator = await createFluentBundleGenerator(
       baseDir,
       currentLocales,

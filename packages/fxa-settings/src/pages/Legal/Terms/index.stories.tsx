@@ -5,7 +5,7 @@
 import React from 'react';
 import LegalTerms from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { fetchLegalDoc } from '../mocks';
 
 export default {

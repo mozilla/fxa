@@ -7,7 +7,7 @@ import { LocationProvider } from '@reach/router';
 import FlowRecoveryKeyHint from '.';
 import { Meta } from '@storybook/react';
 import { Account, AppContext } from '../../../models';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 

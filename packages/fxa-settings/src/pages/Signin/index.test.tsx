@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Signin, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -24,7 +25,7 @@ describe('Signin', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Signin page as expected with password required', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signin
         email={MOCK_EMAIL}
         isPasswordNeeded={true}
@@ -51,7 +52,7 @@ describe('Signin', () => {
   });
 
   it('renders Signin page as expected with password not required', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signin
         email={MOCK_EMAIL}
         isPasswordNeeded={false}
@@ -70,7 +71,7 @@ describe('Signin', () => {
   });
 
   it('renders Signin page with Pocket client as expected', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signin
         email={MOCK_EMAIL}
         isPasswordNeeded={false}
@@ -108,7 +109,7 @@ describe('Signin', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signin
         email={MOCK_EMAIL}
         isPasswordNeeded={false}

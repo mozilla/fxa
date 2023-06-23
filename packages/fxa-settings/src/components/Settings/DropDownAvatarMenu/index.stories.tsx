@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import DropDownAvatarMenu from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import { mockAppContext, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';

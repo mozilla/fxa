@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import SigninTokenCode, { viewName } from '.';
@@ -26,7 +26,9 @@ describe('PageSigninTokenCode', () => {
   // });
 
   it('renders as expected', () => {
-    render(<SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -40,7 +42,9 @@ describe('PageSigninTokenCode', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });
