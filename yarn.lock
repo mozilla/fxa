@@ -21337,6 +21337,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"coffeescript@npm:^2.7.0":
+  version: 2.7.0
+  resolution: "coffeescript@npm:2.7.0"
+  bin:
+    cake: bin/cake
+    coffee: bin/coffee
+  checksum: b07c40910b0585ef7c1bddbfad93bdf1f47c158a1b6a21017a4366f2672d9253eb0d24c1301a96afb8dc687216a7613c2f40e572dc5994edcef9680dce839722
+  languageName: node
+  linkType: hard
+
 "collapse-white-space@npm:^1.0.2":
   version: 1.0.6
   resolution: "collapse-white-space@npm:1.0.6"
@@ -28074,6 +28084,7 @@ fsevents@~2.1.1:
     cache-loader: ^4.1.0
     chai: ^4.3.6
     chosen-js: "https://github.com/mozilla-fxa/chosen.git#3bea55b356c249ae82980c04f67ccc98ff3b28b0"
+    coffeescript: ^2.7.0
     connect-cachify: 0.0.17
     consolidate: 0.16.0
     convict: ^6.2.4
