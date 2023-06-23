@@ -1,6 +1,11 @@
 import React, { useContext } from 'react';
 import { Localized, useLocalization } from '@fluent/react';
-import { getLocalizedCurrency, formatPlanPricing } from '../../lib/formats';
+import {
+  getLocalizedCurrency,
+  formatPlanPricing,
+  getLocalizedDate,
+  getLocalizedDateString,
+} from '../../lib/formats';
 import { Plan, Profile, Customer } from '../../store/types';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import SubscriptionTitle from '../SubscriptionTitle';
@@ -47,12 +52,15 @@ export const PaymentConfirmation = ({
     config.featureFlags.useFirestoreProductConfigs
   ).successActionButtonLabel;
 
-  const invoiceNumber = (subscriptions[0] as WebSubscription).latest_invoice;
-  const date = new Date().toLocaleDateString(navigator.language, {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
+  const subscription = (subscriptions as WebSubscription[]).find(
+    (sub) => sub.plan_id === selectedPlan.plan_id
+  );
+  const invoiceNumber = subscription?.latest_invoice;
+  const latestInvoiceLineItem =
+    subscription?.latest_invoice_items.line_items.find(
+      (item) => item.id === selectedPlan.plan_id
+    );
+  const invoiceDate = latestInvoiceLineItem?.period.start;
 
   const finalAmount = invoice && amount ? invoice.total : amount;
   const planPrice = formatPlanPricing(
@@ -118,20 +126,33 @@ export const PaymentConfirmation = ({
           )}
         </header>
 
-        <div className="pb-6 row-divider-grey-200">
-          <Localized id="payment-confirmation-order-heading">
-            <h3 className={h3classes}>Order details</h3>
-          </Localized>
-          <div className={bottomRowClasses}>
-            <Localized
-              id="payment-confirmation-invoice-number"
-              vars={{ invoiceNumber }}
+        {
+          // Do not display Order details section if all data could not be retrieved
+          invoiceNumber && invoiceDate !== undefined && (
+            <div
+              className="pb-6 row-divider-grey-200"
+              data-testid="payment-confirmation-order"
             >
-              <p></p>
-            </Localized>
-            <p>{date}</p>
-          </div>
-        </div>
+              <Localized id="payment-confirmation-order-heading">
+                <h3 className={h3classes}>Order details</h3>
+              </Localized>
+              <div className={bottomRowClasses}>
+                <Localized
+                  id="payment-confirmation-invoice-number"
+                  vars={{ invoiceNumber }}
+                >
+                  <p>Invoice #{invoiceNumber}</p>
+                </Localized>
+                <Localized
+                  id="payment-confirmation-invoice-date"
+                  vars={{ invoiceDate: getLocalizedDate(invoiceDate) }}
+                >
+                  <p>{getLocalizedDateString(invoiceDate)}</p>
+                </Localized>
+              </div>
+            </div>
+          )
+        }
 
         <div className="pb-6 row-divider-grey-200">
           <Localized id="payment-confirmation-details-heading-2">
