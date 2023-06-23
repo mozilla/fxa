@@ -208,6 +208,19 @@ export class AppleUser {
     const transferSub = this.transferSub;
     const success = this.success;
     const err = (this.err && this.err.message) || '';
+
+/*    this.log.notifyAttachedServices(
+      'subscription:update', {},
+      {
+        uid,
+        // This number needs to be in seconds.
+        eventCreatedAt: eventCreatedAt ?? Math.floor(Date.now() / 1000),
+        isActive: true,
+        productCapabilities: capabilities,
+      },
+    );*/
+    
+    
     const line = `${transferSub},${uid},${fxaEmail},${appleEmail},${success},${err}`;
     this.writeStream.write(line + '\n');
   }

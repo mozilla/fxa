@@ -11,6 +11,7 @@ export const PASSWORD_RESET_EVENT = 'reset';
 export const PRIMARY_EMAIL_EVENT = 'primaryEmailChanged';
 export const PROFILE_CHANGE_EVENT = 'profileDataChange';
 export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
+export const APPLE_USER_MIGRATION_EVENT = 'appleUserMigration';
 
 // Message schemas
 export const CLIENT_ID = joi.string().regex(/[a-z0-9]{16}/);

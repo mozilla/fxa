@@ -196,6 +196,17 @@ export class PubsubProxyController {
           email: message.email,
         });
       }
+      case dto.APPLE_USER_MIGRATION_EVENT: {
+        return await this.jwtset.generateAppleMigrationSET({
+          clientId,
+          uid: message.uid,
+          fxaEmail: message.fxaEmail,
+          appleEmail: message.appleEmail,
+          transferSub: message.transferSub,
+          success: message.success,
+          err: message.error
+        });
+      }
       default:
         throw Error(`Invalid event: ${message.event}`);
     }
