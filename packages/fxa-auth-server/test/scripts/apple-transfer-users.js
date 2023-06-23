@@ -171,7 +171,7 @@ describe('ApplePocketFxAMigration', function() {
 });
 
 describe('AppleUser', function() {
-  let sandbox, dbStub, user, writeStreamStub;
+  let sandbox, dbStub, user, writeStreamStub, log;
   beforeEach(function() {
     sandbox = sinon.createSandbox();
     dbStub = {
@@ -184,7 +184,10 @@ describe('AppleUser', function() {
     writeStreamStub = {
       write: sandbox.stub()
     };
-    user = new AppleUser('pocket@example.com', 'transferSub', 'uid', ['altEmail@example.com'], dbStub, writeStreamStub, config);
+    log = {
+      notifyAttachedServices: sandbox.stub().resolves()
+    }
+    user = new AppleUser('pocket@example.com', 'transferSub', 'uid', ['altEmail@example.com'], dbStub, writeStreamStub, config, false, log);
   });
 
   afterEach(function() {
@@ -300,5 +303,15 @@ describe('AppleUser', function() {
     user.saveResult();
     const expectedOutput = 'transferSub,uid,fxa@example.com,apple@example.com,true,\n';
     assert.calledWith(user.writeStream.write, expectedOutput);
+    
+    assert.calledOnceWithExactly(user.log.notifyAttachedServices, 'appleUserMigration', {},
+      {
+        uid: 'uid',
+        appleEmail:'apple@example.com',
+        fxaEmail:'fxa@example.com',
+        transferSub: 'transferSub',
+        success: true,
+        err: '',
+      })
   });
 });
