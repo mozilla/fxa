@@ -1,0 +1,13 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "allowJs": true,
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "composite": true,
+    "types": ["mocha", "mozlog", "jest", "node"]
+  },
+  "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
+  "exclude": ["dist", "node_modules", "**/*.spec.ts", "package.json"]
+}

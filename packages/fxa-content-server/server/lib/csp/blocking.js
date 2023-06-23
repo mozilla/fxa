@@ -34,6 +34,8 @@ module.exports = function (config) {
     config.get('pairing.server_base_uri')
   );
   const PAIRING_SERVER_HTTP = PAIRING_SERVER_WEBSOCKET.replace(/^ws/, 'http');
+  // We need this for Webpack 5
+  const WEBPACK_DEV_SERVER = 'ws://localhost:3000';
   const SENTRY_SERVER = 'https://*.sentry.io';
   const GOOGLE_AUTH = 'https://accounts.google.com';
   const APPLE_AUTH = 'https://appleid.apple.com';
@@ -69,6 +71,7 @@ module.exports = function (config) {
   const styleSrc = addCdnRuleIfRequired([SELF]);
   if (config.get('env') === 'development') {
     connectSrc.push(config.get('public_url').replace(/^http/, 'ws'));
+    connectSrc.push(WEBPACK_DEV_SERVER);
     scriptSrc.push("'unsafe-inline'");
     styleSrc.push("'unsafe-inline'");
   }

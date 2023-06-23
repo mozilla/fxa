@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist/esm",
+    "module": "commonjs",
+    "outDir": "./dist/server/cjs",
   },
 }
