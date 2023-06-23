@@ -11,6 +11,7 @@ export const PASSWORD_RESET_EVENT = 'reset';
 export const PRIMARY_EMAIL_EVENT = 'primaryEmailChanged';
 export const PROFILE_CHANGE_EVENT = 'profileDataChange';
 export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
+export const APPLE_USER_MIGRATION_EVENT = 'appleUserMigration';
 
 // Message schemas
 export const CLIENT_ID = joi.string().regex(/[a-z0-9]{16}/);
@@ -91,6 +92,18 @@ export const PROFILE_CHANGE_SCHEMA = joi
   .unknown(true)
   .required();
 
+export const APPLE_USER_MIGRATION_SCHEMA = joi
+ .object()
+ .keys({
+  event: joi.string().valid(APPLE_USER_MIGRATION_EVENT),
+  timestamp: joi.number().optional(),
+  ts: joi.number().required(),
+  uid: joi.string().required(),
+ })
+ .unknown(true)
+ .required();
+
+
 export type deleteSchema = {
   event: typeof DELETE_EVENT;
   timestamp?: number;
@@ -136,3 +149,15 @@ export type subscriptionUpdateSchema = {
   ts: number;
   uid: string;
 };
+
+export type appleUserMigrationSchema = {
+  event: typeof APPLE_USER_MIGRATION_EVENT;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+  fxaEmail: string;
+  appleEmail: string;
+  transferSub: string;
+  success: boolean;
+  err: string;
+}
