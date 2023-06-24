@@ -160,6 +160,7 @@
     "babel-eslint": "^10.1.0",
     "babel-plugin-dynamic-import-webpack": "1.1.0",
     "chai": "^4.3.6",
+    "coffeescript": "^2.7.0",
     "copy-webpack-plugin": "11.0.0",
     "core-js": "^3.30.2",
     "css": "3.0.0",
