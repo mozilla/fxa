@@ -64,6 +64,7 @@ jobs:
           then
             echo "No changes found."
           else
+            gh repo set-default $REPO_NAME
             gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
             if [ $? -ne 0 ]; then
                 # Check if someone from the Localization Team already reviewed the PR.
@@ -87,3 +88,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
+          REPO_NAME: ${{ github.event.repository.full_name }}
