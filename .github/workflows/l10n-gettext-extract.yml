@@ -10,67 +10,40 @@ jobs:
       - name: Install Linux packages
         run: |
           sudo apt update
-          sudo apt install gettext -y
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install global npm packages
-        run: |
-          yarn global add grunt-cli
-      - name: Clone l10n repository
-        uses: actions/checkout@v3
-        with:
-          repository: mozilla/fxa-content-server-l10n
-          path: "fxa-l10n"
       - name: Clone FxA code repository
         uses: actions/checkout@v3
         with:
-          fetch-depth: 2
+          fetch-depth: 1
           path: "fxa-code"
-      - name: Install npm packages
-        run: |
-          cd fxa-l10n
-          yarn install
       - name: Extract gettext strings and flag for review
         run: |
+          # Fake strings extraction to speed up debugging
           cd fxa-code
-          _scripts/l10n/clone.sh
-          yarn workspaces focus fxa-content-server
-
-          # Extract gettext
-          cd ./packages/fxa-content-server
-          npx grunt l10n-extract
-          cd ../..
-
-          # Get hash from PR commit.
-          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
-
-          # Checkout base commit
-          git fetch origin ${{ github.event.pull_request.base.sha }}
-          git checkout ${{ github.event.pull_request.base.sha }}
-
-          # Extract gettext
-          cd ./packages/fxa-content-server
-          rm ./locale/templates/LC_MESSAGES/*
-          npx grunt l10n-extract
-          cd ../..
-
-          # Get hash from base commit
-          OLD_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+          NEW_HASHES="foo"
+          OLD_HASHES="bar"
 
           # Compare hashes
           if [ "$NEW_HASHES" = "$OLD_HASHES" ]
           then
             echo "No changes found."
           else
+            echo "Checking reviewers requested for PR #$PR_NUMBER in repository $REPO_NAME"
+            echo "Test command"
+            echo $(gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME)
+            echo "Full command"
+            echo $(gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n")
             gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
             if [ $? -ne 0 ]; then
+                echo "fxa-l10n team not found in reviewers, checking if a localization EPM already reviewed the PR"
                 # Check if someone from the Localization Team already reviewed the PR.
                 # Get the list of fxa-l10n reviewers, excluding non-l10n members
+                echo "Getting the list of localization EPMs in the fxa-l10n team"
                 L10N_REVIEWERS=$(gh api -H "Accept: application/vnd.github+json" /orgs/mozilla/teams/fxa-l10n/members | jq -r '(.[].login | select(. != "clouserw"))' | sort)
+                echo $L10N_REVIEWERS
                 # Get the list of reviewers who already approved the pull request
+                echo "Getting the list of reviewers for the PR"
                 PR_REVIEWERS=$(gh pr view $PR_NUMBER --json reviews --repo $REPO_NAME | jq -r '.reviews[] | select(.state=="APPROVED") | .author.login' | sort)
+                echo $PR_REVIEWERS
                 # Check intersection of the two lists
                 L10N_APPROVERS=$(comm -12 <(echo "$L10N_REVIEWERS") <(echo "$PR_REVIEWERS"))
                 if [ -z "$L10N_APPROVERS" ]; then
@@ -85,6 +58,6 @@ jobs:
             fi
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
           REPO_NAME: ${{ github.event.repository.full_name }}
