@@ -4,7 +4,10 @@ import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 
 import PaymentConfirmation from './index';
-import { getLocalizedCurrency } from '../../lib/formats';
+import {
+  getLocalizedCurrency,
+  getLocalizedDateString,
+} from '../../lib/formats';
 import { Customer, Plan } from '../../store/types';
 import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
@@ -36,7 +39,7 @@ const defaultButtonLabel = 'Continue to download';
 
 const selectedPlan: Plan = {
   active: true,
-  plan_id: 'planId',
+  plan_id: '123doneProMonthly',
   plan_name: 'Pro level',
   product_id: 'fpnID',
   product_name: 'Firefox Private Network Pro',
@@ -124,6 +127,12 @@ describe('PaymentConfirmation', () => {
     const footer = queryByTestId('footer');
     expect(footer).toBeVisible();
     expect(queryByText(defaultButtonLabel)).toBeInTheDocument();
+    const paymentOrder = queryByTestId('payment-confirmation-order');
+    expect(paymentOrder?.textContent).toBe(
+      `Order detailsInvoice #628031D-0002${getLocalizedDateString(
+        Date.now() / 1000 - 86400 * 31
+      )}`
+    );
   });
 
   it('renders as expected with no display name', () => {
@@ -301,6 +310,27 @@ describe('PaymentConfirmation', () => {
     const { queryByTestId } = subject();
     const planPrice = queryByTestId('plan-price');
     expect(planPrice?.innerHTML).toContain('$7.35 monthly');
+  });
+
+  it('renders without Order details if not available', () => {
+    const subject = () => {
+      return render(
+        <PaymentConfirmation
+          {...{
+            profile: userProfile,
+            selectedPlan: {
+              ...selectedPlan,
+              plan_id: 'other_plan_id',
+            },
+            customer,
+            productUrl,
+          }}
+        />
+      );
+    };
+
+    const { queryByTestId } = subject();
+    expect(queryByTestId('payment-confirmation-order')).not.toBeInTheDocument();
   });
 
   describe('When payment_provider is "paypal"', () => {

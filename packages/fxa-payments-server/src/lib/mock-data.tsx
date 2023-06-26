@@ -15,11 +15,32 @@ import { FilteredSetupIntent } from '../lib/apiClient';
 import { Customer, Plan, Profile } from '../store/types';
 
 const invoice: LatestInvoiceItems = {
-  line_items: [],
+  line_items: [
+    {
+      id: '123doneProMonthly',
+      name: 'Pro level',
+      currency: 'USD',
+      amount: 735,
+      period: {
+        start: Date.now() / 1000 - 86400 * 31,
+        end: Date.now() / 1000 + 86400 * 31,
+      },
+    },
+  ],
   subtotal: 735,
   subtotal_excluding_tax: null,
   total: 735,
   total_excluding_tax: null,
+};
+
+const invoicePayPal: LatestInvoiceItems = {
+  ...invoice,
+  line_items: [
+    {
+      ...invoice.line_items[0],
+      id: 'plan_123',
+    },
+  ],
 };
 
 export const PROFILE: Profile = {
@@ -160,7 +181,7 @@ export const PAYPAL_CUSTOMER: Customer = {
       product_id: 'prod_123',
       product_name: '123done Pro',
       latest_invoice: '628031D-0002',
-      latest_invoice_items: invoice,
+      latest_invoice_items: invoicePayPal,
       status: 'active',
       cancel_at_period_end: false,
       created: Date.now(),

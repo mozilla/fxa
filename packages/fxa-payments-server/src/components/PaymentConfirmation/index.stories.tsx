@@ -29,7 +29,7 @@ const userProfile: Profile = {
 };
 
 const selectedPlan: Plan = {
-  plan_id: 'planId',
+  plan_id: '123doneProMonthly',
   product_id: 'fpnID',
   product_name: 'Firefox Private Network Pro',
   currency: 'usd',
@@ -50,7 +50,18 @@ const selectedPlanWithMetadata: Plan = {
 };
 
 const invoice: FirstInvoicePreview = {
-  line_items: [],
+  line_items: [
+    {
+      id: '123doneProMonthly',
+      name: 'Pro level',
+      currency: 'USD',
+      amount: 735,
+      period: {
+        start: Date.now() / 1000 - 86400 * 31,
+        end: Date.now() / 1000 + 86400 * 31,
+      },
+    },
+  ],
   subtotal: 735,
   subtotal_excluding_tax: null,
   total: 735,
@@ -127,14 +138,20 @@ export const CustomActionButtonLabelWithLocalization = storyWithProps(
 
 export const Paypal = storyWithProps({
   profile: userProfile,
-  selectedPlan: selectedPlan,
+  selectedPlan: {
+    ...selectedPlan,
+    plan_id: 'plan_123',
+  },
   customer: PAYPAL_CUSTOMER,
   productUrl: productUrl,
 });
 
 export const WithPasswordlessAccount = storyWithProps({
   profile: userProfile,
-  selectedPlan: selectedPlan,
+  selectedPlan: {
+    ...selectedPlan,
+    plan_id: 'plan_123',
+  },
   customer: PAYPAL_CUSTOMER,
   productUrl: productUrl,
   accountExists: false,
@@ -142,7 +159,21 @@ export const WithPasswordlessAccount = storyWithProps({
 
 export const WithInvoicePreview = storyWithProps({
   profile: userProfile,
-  selectedPlan: selectedPlan,
+  selectedPlan: {
+    ...selectedPlan,
+    plan_id: 'plan_123',
+  },
+  customer: PAYPAL_CUSTOMER,
+  productUrl: productUrl,
+  invoice: invoice,
+});
+
+export const WithoutOrderDetails = storyWithProps({
+  profile: userProfile,
+  selectedPlan: {
+    ...selectedPlan,
+    plan_id: 'other_plan',
+  },
   customer: PAYPAL_CUSTOMER,
   productUrl: productUrl,
   invoice: invoice,
