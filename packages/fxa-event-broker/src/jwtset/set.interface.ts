@@ -11,6 +11,10 @@ export const PROFILE_EVENT_ID =
 export const SUBSCRIPTION_STATE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/subscription-state-change';
 
+export const APPLE_USER_MIGRATION_ID =
+ 'https://schemas.accounts.firefox.com/event/apple-user-migration';
+
+
 export type deleteEvent = {
   clientId: string;
   uid: string;
@@ -44,4 +48,14 @@ export type subscriptionEvent = {
   capabilities: string[];
   isActive: boolean;
   changeTime: number;
+};
+
+export type appleMigrationEvent = {
+  uid: string;
+  clientId: string;
+  fxaEmail: string;
+  appleEmail: string;
+  transferSub: string;
+  success: boolean;
+  err: string;
 };
