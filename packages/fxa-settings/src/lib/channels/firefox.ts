@@ -7,6 +7,7 @@ export enum FirefoxCommand {
   Logout = 'fxaccounts:logout',
   Loaded = 'fxaccounts:loaded',
   Error = 'fxError',
+  OAuthLogin = 'fxaccounts:oauth_login',
 }
 
 export interface FirefoxMessage {
@@ -68,6 +69,13 @@ export type FxALoginRequest = {
   uid: hexstring;
   unwrapBKey: string;
   verified: boolean;
+};
+
+export type FxAOAuthLogin = {
+  action: string;
+  code: string;
+  redirect: string;
+  state: string;
 };
 
 export class Firefox extends EventTarget {
@@ -210,6 +218,10 @@ export class Firefox extends EventTarget {
 
   fxaLoaded(options: any) {
     this.send(FirefoxCommand.Loaded, options);
+  }
+
+  fxaOAuthLogin(options: FxAOAuthLogin) {
+    this.send(FirefoxCommand.OAuthLogin, options);
   }
 }
 
