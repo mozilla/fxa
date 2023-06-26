@@ -387,9 +387,13 @@ describe('views/index', () => {
       it('navigates to signin using the stored account so that profile images can be displayed', () => {
         const storedAccount = user.initAccount({});
 
-        sinon
-          .stub(user, 'checkAccountEmailExists')
-          .callsFake(() => Promise.resolve(true));
+        sinon.stub(user, 'checkAccountStatus').callsFake(() =>
+          Promise.resolve({
+            exists: true,
+            hasPassword: true,
+            hasLinkedAccount: false,
+          })
+        );
         sinon.stub(user, 'getAccountByEmail').callsFake(() => storedAccount);
 
         return view.checkEmail(EMAIL).then(() => {
@@ -413,8 +417,8 @@ describe('views/index', () => {
     describe('email is not registered', () => {
       it('navigates to signup with email domain MX record validation', () => {
         sinon
-          .stub(user, 'checkAccountEmailExists')
-          .callsFake(() => Promise.resolve(false));
+          .stub(user, 'checkAccountStatus')
+          .callsFake(() => Promise.resolve({ exists: false }));
         sinon.stub(view, '_validateEmailDomain').resolves();
         return view.checkEmail(EMAIL).then(() => {
           assert.isTrue(view.navigate.calledOnceWith('signup'));
@@ -424,7 +428,7 @@ describe('views/index', () => {
       });
 
       it('does not navigate away if checkEmailDomain rejects', () => {
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.stub(view, '_validateEmailDomain').rejects();
         return view.checkEmail(EMAIL).then(() => {
           assert.isFalse(view.navigate.called);
@@ -445,7 +449,7 @@ describe('views/index', () => {
         const config = { mxRecordValidation: { enabled: false } };
         const options = { ...viewOptions, config };
         createView(options);
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.spy(view, 'navigate');
         return view.checkEmail(email).then(() => {
           assert.isTrue(view.navigate.calledOnceWith('signup'));
@@ -460,7 +464,7 @@ describe('views/index', () => {
         };
         const options = { ...viewOptions, config };
         createView(options);
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.spy(view, 'navigate');
         return view
           .render()

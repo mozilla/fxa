@@ -710,8 +710,11 @@ export default class AuthClient {
     return this.request('GET', `/account/status?uid=${uid}`);
   }
 
-  async accountStatusByEmail(email: string) {
-    return this.request('POST', '/account/status', { email });
+  async accountStatusByEmail(
+    email: string,
+    options: { thirdPartyAuthStatus?: boolean } = {}
+  ) {
+    return this.request('POST', '/account/status', { email, ...options });
   }
 
   async accountProfile(sessionToken: hexstring) {
