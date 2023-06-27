@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import classNames from 'classnames';
@@ -25,6 +25,7 @@ type ModalProps = {
   confirmText?: string;
   confirmBtnClassName?: string;
   'data-testid'?: string;
+  isLoading?: boolean;
 };
 
 export const Modal = ({
@@ -40,6 +41,7 @@ export const Modal = ({
   confirmText,
   confirmBtnClassName = 'cta-primary cta-base-p',
   'data-testid': testid = 'modal',
+  isLoading = false,
 }: ModalProps) => {
   const modalInsideRef = useClickOutsideEffect<HTMLDivElement>(onDismiss);
   const tabFenceRef = useChangeFocusEffect();
@@ -119,7 +121,10 @@ export const Modal = ({
                   <button
                     className={classNames('mx-2 flex-1', confirmBtnClassName)}
                     data-testid="modal-confirm"
-                    onClick={(event) => onConfirm()}
+                    onClick={(event) => {
+                      onConfirm();
+                    }}
+                    disabled={isLoading}
                   >
                     {confirmText || localizedDefaultConfirmText}
                   </button>
