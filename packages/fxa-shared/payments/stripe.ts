@@ -82,6 +82,9 @@ export type StripeHelperConfig = {
     productConfigsFirestore: {
       enabled: boolean;
     };
+    stripeInvoiceImmediately: {
+      enabled: boolean;
+    };
   };
   authFirestore: {
     prefix: string;
