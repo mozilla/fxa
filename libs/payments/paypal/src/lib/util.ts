@@ -32,7 +32,11 @@ export function isIpnMerchPmt(
  * in compliance with https://developer.paypal.com/api/nvp-soap/NVPAPIOverview/#link-urlencoding
  */
 export function objectToNVP(object: Record<string, any>): string {
-  const urlSearchParams = new URLSearchParams(object);
+  // Convert undefined values to an empty string
+  const santizedObject = Object.fromEntries(
+    Object.entries(object).map(([k, v]) => [k, v === undefined ? '' : v])
+  );
+  const urlSearchParams = new URLSearchParams(santizedObject);
 
   // Convert array containing L_ objects to Paypal NVP list string
   if (object.L) {
