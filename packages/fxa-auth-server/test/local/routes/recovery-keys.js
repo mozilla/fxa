@@ -25,18 +25,22 @@ describe('POST /recoveryKey', () => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
   });
 
-  after(() => {
+  afterEach(() => {
     mocks.unMockAccountEventsManager();
   });
 
-  describe('should create account recovery key', () => {
+  describe('should create an account recovery key', () => {
     let requestOptions;
 
     beforeEach(() => {
       requestOptions = {
         credentials: { uid, email },
         log,
-        payload: { recoveryKeyId, recoveryData, enabled: true },
+        payload: {
+          recoveryKeyId,
+          recoveryData,
+          enabled: true,
+        },
       };
       return setup({ db: { email } }, {}, '/recoveryKey', requestOptions).then(
         (r) => (response = r)
@@ -78,6 +82,10 @@ describe('POST /recoveryKey', () => {
       assert.equal(args[3], true);
     });
 
+    it('did not call db.deleteRecoveryKey', () => {
+      assert.equal(db.deleteRecoveryKey.callCount, 0);
+    });
+
     it('called log.info correctly', () => {
       assert.equal(log.info.callCount, 1);
       const args = log.info.args[0];
@@ -109,6 +117,186 @@ describe('POST /recoveryKey', () => {
       const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
+    });
+  });
+
+  describe('should change account recovery key when an enabled key exists and replaceKey is true', () => {
+    let requestOptions;
+
+    beforeEach(() => {
+      requestOptions = {
+        credentials: { uid, email },
+        log,
+        payload: {
+          recoveryKeyId,
+          recoveryData,
+          enabled: true,
+          replaceKey: true,
+        },
+      };
+      return setup(
+        { db: { recoveryData, email } },
+        {},
+        '/recoveryKey',
+        requestOptions
+      ).then((r) => (response = r));
+    });
+
+    it('returned the correct response', () => {
+      assert.deepEqual(response, {});
+    });
+
+    it('recorded security event for the key deletion', () => {
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_removed',
+          ipAddr: '63.245.221.32',
+          uid: requestOptions.credentials.uid,
+          tokenId: requestOptions.credentials.id,
+        })
+      );
+    });
+
+    it('recorded security event for the key creation', () => {
+      sinon.assert.calledWith(
+        mockAccountEventsManager.recordSecurityEvent,
+        sinon.match.defined,
+        sinon.match({
+          name: 'account.recovery_key_added',
+          ipAddr: '63.245.221.32',
+          uid: requestOptions.credentials.uid,
+          tokenId: requestOptions.credentials.id,
+        })
+      );
+    });
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1);
+      const args = log.begin.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0], 'createRecoveryKey');
+      assert.equal(args[1], request);
+    });
+
+    it('called db.createRecoveryKey correctly', () => {
+      assert.equal(db.createRecoveryKey.callCount, 1);
+      const args = db.createRecoveryKey.args[0];
+      assert.equal(args.length, 4);
+      assert.equal(args[0], uid);
+      assert.equal(args[1], recoveryKeyId);
+      assert.equal(args[2], recoveryData);
+      assert.equal(args[3], true);
+    });
+
+    it('called db.deleteRecoveryKey correctly', () => {
+      assert.equal(db.deleteRecoveryKey.callCount, 1);
+      const args = db.deleteRecoveryKey.args[0];
+      assert.equal(args.length, 1);
+      assert.equal(args[0], uid);
+    });
+
+    it('called log.info correctly', () => {
+      assert.equal(log.info.callCount, 1);
+      const args = log.info.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0], 'account.recoveryKey.changed');
+    });
+
+    it('called request.emitMetricsEvent correctly', () => {
+      assert.equal(
+        request.emitMetricsEvent.callCount,
+        1,
+        'called emitMetricsEvent'
+      );
+      const args = request.emitMetricsEvent.args[0];
+      assert.equal(
+        args[0],
+        'recoveryKey.changed',
+        'called emitMetricsEvent with correct event'
+      );
+      assert.equal(
+        args[1]['uid'],
+        uid,
+        'called emitMetricsEvent with correct event'
+      );
+    });
+
+    it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
+      assert.equal(args.length, 3);
+      assert.equal(args[0][0].email, email);
+    });
+  });
+
+  describe('should not change account recovery key when a key exists and replaceKey is false', () => {
+    let requestOptions;
+    let error;
+
+    beforeEach(() => {
+      requestOptions = {
+        credentials: { uid, email },
+        log,
+        payload: {
+          recoveryKeyId,
+          recoveryData,
+          enabled: true,
+          replaceKey: false,
+        },
+      };
+      return setup(
+        { db: { recoveryData, email } },
+        {},
+        '/recoveryKey',
+        requestOptions
+      )
+        .then((r) => (response = r))
+        .catch((e) => {
+          error = e;
+        });
+    });
+
+    it('returned the correct response', () => {
+      assert.isDefined(error);
+      assert.deepEqual(
+        error.errno,
+        errors.ERRNO.RECOVERY_KEY_EXISTS,
+        'returns key already exists error'
+      );
+    });
+
+    it('recorded a security event', () => {
+      assert.equal(mockAccountEventsManager.recordSecurityEvent.callCount, 0);
+    });
+
+    it('called log.begin correctly', () => {
+      assert.equal(log.begin.callCount, 1);
+      const args = log.begin.args[0];
+      assert.equal(args.length, 2);
+      assert.equal(args[0], 'createRecoveryKey');
+      assert.equal(args[1], request);
+    });
+
+    it('db.createRecoveryKey is not called', () => {
+      assert.equal(db.createRecoveryKey.callCount, 0);
+    });
+
+    it('did not call db.deleteRecoveryKey', () => {
+      assert.equal(db.deleteRecoveryKey.callCount, 0);
+    });
+
+    it('did not call log.info', () => {
+      assert.equal(log.info.callCount, 0);
+    });
+
+    it('did not call request.emitMetricsEvent', () => {
+      assert.equal(request.emitMetricsEvent.callCount, 0);
+    });
+
+    it('did not call mailer.sendPostAddAccountRecoveryEmail', () => {
+      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 0);
     });
   });
 

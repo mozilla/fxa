@@ -29,7 +29,7 @@ export const ButtonDownloadRecoveryKey = ({
   viewName,
   fileType = fileContentVariation['keyOnly'],
 }: ButtonDownloadRecoveryKeyProps) => {
-  const { primaryEmail } = useAccount();
+  const account = useAccount();
   const currentDate = new Date();
   const downloadDateInLocale = currentDate.toLocaleDateString(
     navigator.language
@@ -85,8 +85,8 @@ export const ButtonDownloadRecoveryKey = ({
 
   const fileUserEmail = ftlMsgResolver.getMsg(
     'recovery-key-file-user-email-v2',
-    `* Firefox account: ${primaryEmail.email}`,
-    { email: primaryEmail.email }
+    `* Firefox account: ${account.primaryEmail.email}`,
+    { email: account.primaryEmail.email }
   );
 
   const fileDate = ftlMsgResolver.getMsg(
@@ -202,7 +202,7 @@ export const ButtonDownloadRecoveryKey = ({
     // filename should be kept much shorter (maxLength is arbitrary).
     const maxLength = 75;
     const prefix = 'Firefox-Recovery-Key';
-    let email = primaryEmail.email;
+    let email = account.primaryEmail.email;
     let filename = `${prefix}_${date}_${email}.txt`;
 
     if (filename.length > maxLength) {

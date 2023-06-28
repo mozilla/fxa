@@ -1234,12 +1234,14 @@ export default class AuthClient {
     sessionToken: hexstring,
     recoveryKeyId: string,
     recoveryData: any,
-    enabled: boolean
+    enabled: boolean = true,
+    replaceKey: boolean = false
   ): Promise<{}> {
     return this.sessionPost('/recoveryKey', sessionToken, {
       recoveryKeyId,
       recoveryData,
       enabled,
+      replaceKey,
     });
   }
 

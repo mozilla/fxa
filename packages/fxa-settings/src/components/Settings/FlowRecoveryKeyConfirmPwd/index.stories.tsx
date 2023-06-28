@@ -5,9 +5,11 @@
 import React, { useState } from 'react';
 import { FlowRecoveryKeyConfirmPwd } from '.';
 import { Meta } from '@storybook/react';
-import { useFtlMsgResolver } from '../../../models';
+import { Account, AppContext, useFtlMsgResolver } from '../../../models';
 import { withLocalization } from '../../../../.storybook/decorators';
-import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
+import AppLayout from '../AppLayout';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',
@@ -18,16 +20,49 @@ export default {
 const viewName = 'example-view-name';
 
 const navigateBackward = () => {
-  alert('navigating to previous page');
+  alert('Going back!');
 };
 
 const navigateForward = () => {
-  alert('navigating to next view within wizard');
+  alert('Success!');
 };
 
-export const CreateKey = () => {
+const accountWithChangeKeySuccess = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    return new Uint8Array(20);
+  },
+  recoveryKey: true,
+} as unknown as Account;
+
+const accountWithCreateKeySuccess = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    return new Uint8Array(20);
+  },
+  recoveryKey: false,
+} as unknown as Account;
+
+const accountWithInvalidPasswordOnSubmit = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    throw AuthUiErrors.INCORRECT_PASSWORD;
+  },
+  recoveryKey: false,
+} as unknown as Account;
+
+const accountWithThrottledErrorOnSubmit = {
+  ...MOCK_ACCOUNT,
+  createRecoveryKey: () => {
+    throw AuthUiErrors.THROTTLED;
+  },
+  recoveryKey: false,
+} as unknown as Account;
+
+const StoryWithContext = (account: Account) => {
   const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
+
   const localizedBackButtonTitle = ftlMsgResolver.getMsg(
     'recovery-key-create-back-button',
     'Back to settings'
@@ -38,42 +73,29 @@ export const CreateKey = () => {
   );
 
   return (
-    <FlowRecoveryKeyConfirmPwd
-      {...{
-        localizedBackButtonTitle,
-        localizedPageTitle,
-        navigateBackward,
-        navigateForward,
-        setFormattedRecoveryKey,
-        viewName,
-      }}
-    />
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <AppLayout>
+        <FlowRecoveryKeyConfirmPwd
+          {...{
+            localizedBackButtonTitle,
+            localizedPageTitle,
+            navigateBackward,
+            navigateForward,
+            setFormattedRecoveryKey,
+            viewName,
+          }}
+        />
+      </AppLayout>
+    </AppContext.Provider>
   );
 };
 
-export const ChangeKey = () => {
-  const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
-  const ftlMsgResolver = useFtlMsgResolver();
-  const localizedBackButtonTitle = ftlMsgResolver.getMsg(
-    'recovery-key-create-back-button',
-    'Back to settings'
-  );
-  const localizedPageTitle = ftlMsgResolver.getMsg(
-    'recovery-key-create-page-title',
-    'Account Recovery Key'
-  );
+export const CreateKey = () => StoryWithContext(accountWithCreateKeySuccess);
 
-  return (
-    <FlowRecoveryKeyConfirmPwd
-      action={RecoveryKeyAction.Change}
-      {...{
-        localizedBackButtonTitle,
-        localizedPageTitle,
-        navigateBackward,
-        navigateForward,
-        setFormattedRecoveryKey,
-        viewName,
-      }}
-    />
-  );
-};
+export const ChangeKey = () => StoryWithContext(accountWithChangeKeySuccess);
+
+export const WithTooltipErrorOnSubmit = () =>
+  StoryWithContext(accountWithInvalidPasswordOnSubmit);
+
+export const WithBannerErrorOnSubmit = () =>
+  StoryWithContext(accountWithThrottledErrorOnSubmit);
