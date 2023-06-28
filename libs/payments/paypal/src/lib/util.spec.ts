@@ -9,6 +9,7 @@ describe('util', () => {
     const obj = {
       NAME: 'Robert Moore',
       COMPANY: 'R. H. Moore & Associates',
+      EMAIL: undefined,
       L: [
         {
           EXAMPLE: 'val',
@@ -18,7 +19,7 @@ describe('util', () => {
     const result = objectToNVP(obj);
     // See https://developer.paypal.com/api/nvp-soap/NVPAPIOverview/#link-specifycredentialswithcurl
     expect(result).toEqual(
-      'COMPANY=R.+H.+Moore+%26+Associates&L_EXAMPLE0=val&NAME=Robert+Moore'
+      'COMPANY=R.+H.+Moore+%26+Associates&EMAIL=&L_EXAMPLE0=val&NAME=Robert+Moore'
     );
   });
 
