@@ -11,6 +11,7 @@ import {
   WebSubscription,
 } from 'fxa-shared/subscriptions/types';
 import React from 'react';
+import ReactGA from 'react-ga4';
 
 import {
   CouponInfoBoxMessageType,
@@ -19,6 +20,7 @@ import {
   useFetchInvoicePreview,
   useInfoBoxMessage,
   useNonce,
+  useReactGA4Setup,
 } from './hooks';
 import {
   COUPON_DETAILS_VALID,
@@ -29,6 +31,7 @@ import {
 
 // eslint-disable-next-line import/first
 import { apiInvoicePreview } from '../lib/apiClient';
+import { Config } from './config';
 
 jest.mock('../lib/apiClient', () => {
   return {
@@ -36,6 +39,8 @@ jest.mock('../lib/apiClient', () => {
     apiInvoicePreview: jest.fn(),
   };
 });
+
+jest.mock('react-ga4');
 
 afterEach(cleanup);
 
@@ -95,6 +100,158 @@ describe('useNonce', () => {
       expect(knownNonces).not.toContain(afterRefreshNonce);
       knownNonces.push(afterRefreshNonce);
     }
+  });
+});
+
+describe('useReactGA4Setup', () => {
+  const mockConfig = {
+    googleAnalytics: {
+      enabled: true,
+      measurementId: '123',
+      supportedProductIds: 'prod_GqM9ToKK62qjkK',
+      testMode: false,
+    },
+  } as Config;
+  const Subject = ({
+    config,
+    productId,
+  }: {
+    config: Config;
+    productId: string;
+  }) => {
+    useReactGA4Setup(config, productId);
+    // Should always render
+    return <div data-testid="success">Render success</div>;
+  };
+
+  beforeEach(() => {
+    (ReactGA.initialize as jest.Mock).mockClear().mockReturnValue(true);
+  });
+
+  it('does not initialize ReactGA4 - not enabled', () => {
+    const config = {
+      googleAnalytics: {
+        ...mockConfig.googleAnalytics,
+        enabled: false,
+      },
+    } as Config;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).not.toBeCalled();
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+  });
+
+  it('does not initialize ReactGA4 - supportedProductIds is empty', () => {
+    const config = {
+      googleAnalytics: {
+        ...mockConfig.googleAnalytics,
+        supportedProductIds: '',
+      },
+    } as Config;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).not.toBeCalled();
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+  });
+
+  it('does not initialize ReactGA4 - productId is not in supportedProductIds', () => {
+    const config = mockConfig;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_fake" />
+    );
+
+    expect(ReactGA.initialize).not.toBeCalled();
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+  });
+
+  it('does not initialize ReactGA4 - measurementId is invalid', () => {
+    (ReactGA.initialize as jest.Mock).mockClear().mockImplementation(() => {
+      throw new Error('GA Measurement ID required');
+    });
+    const consoleError = jest
+      .spyOn(console, 'error')
+      .mockImplementation(() => {});
+    const config = {
+      googleAnalytics: {
+        ...mockConfig.googleAnalytics,
+        measurementId: '',
+      },
+    } as Config;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).toThrowError();
+    expect(consoleError).toBeCalledWith(
+      'Error initializing GA script\n',
+      new Error('GA Measurement ID required')
+    );
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+
+    consoleError.mockRestore();
+  });
+
+  it('successfully initialize ReactGA4', () => {
+    const config = mockConfig;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).toBeCalledTimes(1);
+    expect(ReactGA.initialize).toBeCalledWith(
+      config.googleAnalytics.measurementId,
+      {
+        nonce: '',
+        testMode: config.googleAnalytics.testMode,
+      }
+    );
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+  });
+
+  it('successfully initialize ReactGA4 - with multiple supportedProductIds', () => {
+    const config = {
+      googleAnalytics: {
+        ...mockConfig.googleAnalytics,
+        supportedProductIds: 'prod_test_1,prod_GqM9ToKK62qjkK,prod_test_2',
+      },
+    } as Config;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).toBeCalledWith(
+      config.googleAnalytics.measurementId,
+      {
+        nonce: '',
+        testMode: config.googleAnalytics.testMode,
+      }
+    );
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
+  });
+
+  it('successfully initialize ReactGA4 - with testMode enabled', () => {
+    const config = {
+      googleAnalytics: {
+        ...mockConfig.googleAnalytics,
+        testMode: true,
+      },
+    } as Config;
+    const { queryByTestId } = render(
+      <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
+    );
+
+    expect(ReactGA.initialize).toBeCalledWith(
+      config.googleAnalytics.measurementId,
+      {
+        nonce: '',
+        testMode: true,
+      }
+    );
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
   });
 });
 

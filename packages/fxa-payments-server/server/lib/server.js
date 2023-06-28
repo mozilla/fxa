@@ -69,6 +69,12 @@ module.exports = () => {
   // variable to the client/browser (via fxa-content-server/config)
   const CLIENT_CONFIG = {
     env: config.get('env'),
+    googleAnalytics: {
+      enabled: config.get('googleAnalytics.enabled'),
+      measurementId: config.get('googleAnalytics.measurementId'),
+      supportedProductIds: config.get('googleAnalytics.supportedProductIds'),
+      testMode: config.get('googleAnalytics.testMode'),
+    },
     legalDocLinks: {
       privacyNotice: config.get('legalDocLinks.privacyNotice'),
       termsOfService: config.get('legalDocLinks.termsOfService'),
@@ -179,6 +185,11 @@ module.exports = () => {
     app.use(function (req, res, next) {
       // Generate nonce for CSP to allow paypal inline script.
       res.paypalCspNonce = uuid();
+
+      if (config.get('googleAnalytics.enabled')) {
+        // Generate nonce for CSP to allow GA inline script.
+        res.gaCspNonce = uuid();
+      }
       next();
     });
 
@@ -186,6 +197,13 @@ module.exports = () => {
     cspRulesBlocking.directives.scriptSrc.push((req, res) => {
       return `'nonce-${res.paypalCspNonce}'`;
     });
+
+    if (config.get('googleAnalytics.enabled')) {
+      // Add nonce for GA's inline script.
+      cspRulesBlocking.directives.scriptSrc.push((req, res) => {
+        return `'nonce-${res.gaCspNonce}'`;
+      });
+    }
 
     app.use(csp({ rules: cspRulesBlocking }));
   }
@@ -231,11 +249,12 @@ module.exports = () => {
     return result;
   }
 
-  function injectHtmlConfig(html, config, featureFlags, paypalCspNonce) {
+  function injectHtmlConfig(html, config, featureFlags, paypalCspNonce, gaCspNonce) {
     return injectMetaContent(html, {
       __SERVER_CONFIG__: config,
       __FEATURE_FLAGS__: featureFlags,
       __PAYPAL_CSP_NONCE__: paypalCspNonce,
+      __GA_CSP_NONCE__: gaCspNonce,
     });
   }
 
@@ -265,7 +284,8 @@ module.exports = () => {
             body,
             CLIENT_CONFIG,
             FEATURE_FLAGS,
-            userRes.paypalCspNonce
+            userRes.paypalCspNonce,
+            userRes.gaCspNonce
           );
         },
       })
@@ -293,7 +313,8 @@ module.exports = () => {
             STATIC_INDEX_HTML,
             CLIENT_CONFIG,
             FEATURE_FLAGS,
-            res.paypalCspNonce
+            res.paypalCspNonce,
+            res.gaCspNonce
           )
         );
       });

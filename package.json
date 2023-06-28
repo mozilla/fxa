@@ -45,6 +45,7 @@
     "p-queue": "^7.3.4",
     "pm2": "^5.3.0",
     "prettier": "^2.6.2",
+    "react-ga4": "^2.1.0",
     "replace-in-file": "^6.3.5",
     "semver": "^7.3.5",
     "tslib": "^2.5.0"

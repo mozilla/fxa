@@ -104,6 +104,32 @@ const conf = convict({
     env: 'FLOW_ID_EXPIRY',
     format: 'duration',
   },
+  googleAnalytics: {
+    enabled: {
+      default: false,
+      doc: 'Toggle Google Analytics enabled',
+      env: 'GA_ENABLED',
+      format: Boolean,
+    },
+    measurementId: {
+      default: '',
+      doc: 'Google Analytics measurement ID',
+      env: 'GA_MEASUREMENT_ID',
+      format: String,
+    },
+    supportedProductIds: {
+      default: 'prod_GqM9ToKK62qjkK',
+      doc: 'Comma separated string of supported Stripe Product IDs',
+      env: 'GA_SUPPORTED_STRIPE_PRODUCT_IDS',
+      format: String,
+    },
+    testMode: {
+      default: false,
+      doc: 'Toggle Google Analytics test/debug mode',
+      env: 'GA_TEST_MODE',
+      format: Boolean,
+    },
+  },
   geodb: {
     dbPath: {
       default: path.resolve(__dirname, '../../../fxa-geodb/db/cities-db.mmdb'),
