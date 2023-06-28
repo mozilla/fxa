@@ -628,7 +628,7 @@ type ErrorVal = { errno: number; message: string; version?: number };
 
 export const composeAuthUiErrorTranslationId = (err: {
   errno?: number;
-  message: string;
+  message?: string;
 }) => {
   /* all of these checks for fields/values being present look a little wonky, but allow us to work with
    * the AuthUiError type, which has all optional fields. Previously this wasn't an issue bc we didn't use

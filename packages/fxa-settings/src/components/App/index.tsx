@@ -2,11 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps, Router } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import { sessionToken } from '../../lib/cache';
-import { useInitialState, useAccount, useConfig } from '../../models';
+import {
+  useInitialState,
+  useAccount,
+  useConfig,
+  AppContext,
+} from '../../models';
 import * as Metrics from '../../lib/metrics';
 import Storage from '../../lib/storage';
 
@@ -18,7 +23,7 @@ import { QueryParams } from '../..';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
-import ResetPassword from '../../pages/ResetPassword';
+// import ResetPassword from '../../pages/ResetPassword';
 import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
@@ -45,6 +50,8 @@ import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import WebChannelExample from '../../pages/WebChannelExample';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
+import ResetPasswordContainer from '../../pages/ResetPassword/container';
+import { ApolloProvider } from '@apollo/client';
 
 export const App = ({
   flowQueryParams,
@@ -121,115 +128,125 @@ export const App = ({
     }
   }, [setEmail, email, setEmailLookupComplete]);
 
+  // ❌ See TODO further down
+  const { apolloClient } = useContext(AppContext);
+
   return (
     <>
-      <Router basepath={'/'}>
-        <ScrollToTop default>
-          {/* We probably don't need a guard here with `showReactApp` or a feature flag/config
-           * check since users will be served the Backbone version of pages if either of those
-           * are false, but guard with query param anyway since we have it handy */}
-          {showReactApp && (
-            <>
-              <CannotCreateAccount path="/cannot_create_account/*" />
-              <Clear path="/clear/*" />
-              <CookiesDisabled path="/cookies_disabled/*" />
+      {/* ❌ TODO, create apollo client here or higher and remove from
+       * AppContext. In the meantime pull it off of AppContext and pass
+       * in here to keep it a singleton */}
+      {apolloClient && (
+        <ApolloProvider client={apolloClient}>
+          <Router basepath={'/'}>
+            <ScrollToTop default>
+              {/* We probably don't need a guard here with `showReactApp` or a feature flag/config
+               * check since users will be served the Backbone version of pages if either of those
+               * are false, but guard with query param anyway since we have it handy */}
+              {showReactApp && (
+                <>
+                  <CannotCreateAccount path="/cannot_create_account/*" />
+                  <Clear path="/clear/*" />
+                  <CookiesDisabled path="/cookies_disabled/*" />
 
-              <Legal path="/legal/*" />
-              <LegalTerms path="/legal/terms/*" />
-              <LegalTerms path="/:locale/legal/terms/*" />
-              <LegalPrivacy path="/legal/privacy/*" />
-              <LegalPrivacy path="/:locale/legal/privacy/*" />
+                  <Legal path="/legal/*" />
+                  <LegalTerms path="/legal/terms/*" />
+                  <LegalTerms path="/:locale/legal/terms/*" />
+                  <LegalPrivacy path="/legal/privacy/*" />
+                  <LegalPrivacy path="/:locale/legal/privacy/*" />
 
-              <ResetPassword path="/reset_password/*" />
-              <ConfirmResetPassword path="/confirm_reset_password/*" />
+                  <ResetPasswordContainer path="/reset_password/*" />
+                  <ConfirmResetPassword path="/confirm_reset_password/*" />
 
-              <WebChannelExample path="/web_channel_example/*" />
+                  <WebChannelExample path="/web_channel_example/*" />
 
-              <LinkValidator
-                path="/complete_reset_password/*"
-                linkType={LinkType['reset-password']}
-                viewName="complete-reset-password"
-                getParamsFromModel={() => {
-                  return CreateCompleteResetPasswordLink();
-                }}
-              >
-                {({ setLinkStatus, params }) => (
-                  <CompleteResetPassword
-                    {...{
-                      setLinkStatus,
-                      params,
+                  <LinkValidator
+                    path="/complete_reset_password/*"
+                    linkType={LinkType['reset-password']}
+                    viewName="complete-reset-password"
+                    getParamsFromModel={() => {
+                      return CreateCompleteResetPasswordLink();
                     }}
-                  />
-                )}
-              </LinkValidator>
+                  >
+                    {({ setLinkStatus, params }) => (
+                      <CompleteResetPassword
+                        {...{
+                          setLinkStatus,
+                          params,
+                        }}
+                      />
+                    )}
+                  </LinkValidator>
 
-              <LinkValidator
-                path="/account_recovery_confirm_key/*"
-                linkType={LinkType['reset-password']}
-                viewName="account-recovery-confirm-key"
-                getParamsFromModel={() => {
-                  return CreateCompleteResetPasswordLink();
-                }}
-              >
-                {({ setLinkStatus, params }) => (
-                  <AccountRecoveryConfirmKey
-                    {...{
-                      setLinkStatus,
-                      params,
+                  <LinkValidator
+                    path="/account_recovery_confirm_key/*"
+                    linkType={LinkType['reset-password']}
+                    viewName="account-recovery-confirm-key"
+                    getParamsFromModel={() => {
+                      return CreateCompleteResetPasswordLink();
                     }}
+                  >
+                    {({ setLinkStatus, params }) => (
+                      <AccountRecoveryConfirmKey
+                        {...{
+                          setLinkStatus,
+                          params,
+                        }}
+                      />
+                    )}
+                  </LinkValidator>
+
+                  <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
+
+                  <SigninReported path="/signin_reported/*" />
+                  <SigninBounced
+                    {...{ emailLookupComplete, email }}
+                    path="/signin_bounced/*"
                   />
-                )}
-              </LinkValidator>
+                  {/* Pages using the Ready view need to be accessible to logged out viewers,
+                   * but need to be able to check if the user is logged in or logged out,
+                   * so they are wrapped in this component.
+                   */}
+                  <PageWithLoggedInStatusState
+                    Page={ResetPasswordConfirmed}
+                    path="/reset_password_verified/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={ResetPasswordWithRecoveryKeyVerified}
+                    path="/reset_password_with_recovery_key_verified/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={PrimaryEmailVerified}
+                    path="/primary_email_verified/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={SignupConfirmed}
+                    path="/signup_verified/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={SignupConfirmed}
+                    path="/signup_confirmed/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={SigninConfirmed}
+                    path="/signin_verified/*"
+                  />
+                  <PageWithLoggedInStatusState
+                    Page={SigninConfirmed}
+                    path="/signin_confirmed/*"
+                  />
 
-              <AccountRecoveryResetPassword path="/account_recovery_reset_password/*" />
+                  <Confirm path="/confirm/*" {...{ sessionTokenId }} />
+                  <ConfirmSignupCode path="/confirm_signup_code/*" />
 
-              <SigninReported path="/signin_reported/*" />
-              <SigninBounced
-                {...{ emailLookupComplete, email }}
-                path="/signin_bounced/*"
-              />
-              {/* Pages using the Ready view need to be accessible to logged out viewers,
-               * but need to be able to check if the user is logged in or logged out,
-               * so they are wrapped in this component.
-               */}
-              <PageWithLoggedInStatusState
-                Page={ResetPasswordConfirmed}
-                path="/reset_password_verified/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={ResetPasswordWithRecoveryKeyVerified}
-                path="/reset_password_with_recovery_key_verified/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={PrimaryEmailVerified}
-                path="/primary_email_verified/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={SignupConfirmed}
-                path="/signup_verified/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={SignupConfirmed}
-                path="/signup_confirmed/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={SigninConfirmed}
-                path="/signin_verified/*"
-              />
-              <PageWithLoggedInStatusState
-                Page={SigninConfirmed}
-                path="/signin_confirmed/*"
-              />
-
-              <Confirm path="/confirm/*" {...{ sessionTokenId }} />
-              <ConfirmSignupCode path="/confirm_signup_code/*" />
-
-              <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
-            </>
-          )}
-          <Settings path="/settings/*" />
-        </ScrollToTop>
-      </Router>
+                  <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
+                </>
+              )}
+              <Settings path="/settings/*" />
+            </ScrollToTop>
+          </Router>
+        </ApolloProvider>
+      )}
     </>
   );
 };

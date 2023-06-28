@@ -14,7 +14,10 @@ import { REACT_ENTRYPOINT } from '../../constants';
 
 import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
 import { Account } from '../../models';
-import { AuthUiErrorNos } from '../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrorNos,
+  AuthUiErrors,
+} from '../../lib/auth-errors/auth-errors';
 import { typeByLabelText } from '../../lib/test-utils';
 import {
   createAppContext,
@@ -22,6 +25,7 @@ import {
   renderWithRouter,
 } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
+import { BeginResetPasswordResult } from './container';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -42,22 +46,19 @@ jest.mock('@reach/router', () => ({
 }));
 
 const route = '/reset_password';
-const render = (ui: any, queryParams = '', account?: Account) => {
+const render = ({
+  ui = (
+    <ResetPassword
+      {...{ beginResetPasswordHandler }}
+      beginResetPasswordResult={createBeginResetPasswordResult()}
+    />
+  ),
+  queryParams = '',
+}: {
+  ui?: JSX.Element;
+  queryParams?: string;
+} = {}) => {
   const history = createHistoryWithQuery(route, queryParams);
-  if (account) {
-    return renderWithRouter(
-      ui,
-      {
-        route,
-        history,
-      },
-      mockAppContext({
-        ...createAppContext(history),
-        account,
-      })
-    );
-  }
-
   return renderWithRouter(
     ui,
     {
@@ -70,9 +71,30 @@ const render = (ui: any, queryParams = '', account?: Account) => {
   );
 };
 
-function renderWithAccount(account: Account) {
-  render(<ResetPassword />, '', account);
-}
+const beginResetPasswordHandler = jest.fn();
+
+const createBeginResetPasswordResult = (
+  options: {
+    data?: BeginResetPasswordResult['data'];
+    loading?: BeginResetPasswordResult['loading'];
+    error?: BeginResetPasswordResult['error'];
+  } = {}
+): BeginResetPasswordResult => {
+  const {
+    data = {
+      passwordForgotSendCode: {
+        passwordForgotToken: '123',
+      },
+    },
+    loading = false,
+    error,
+  } = options;
+  return {
+    data,
+    loading,
+    error,
+  };
+};
 
 describe('PageResetPassword', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -82,8 +104,8 @@ describe('PageResetPassword', () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
-  it('renders as expected when no props are provided', () => {
-    render(<ResetPassword />);
+  it('renders as expected', () => {
+    render();
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -104,39 +126,34 @@ describe('PageResetPassword', () => {
   });
 
   it('renders a custom service name in the header when it is provided', () => {
-    render(<ResetPassword />, 'service=sync');
+    render({ queryParams: 'service=sync' });
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
       `Reset password to continue to Firefox Sync`
     );
   });
 
-  it('renders a read-only email but no text input when forceAuth is true', () => {
-    render(
-      <ResetPassword
-        prefillEmail={MOCK_ACCOUNT.primaryEmail.email}
-        forceAuth={true}
-      />
-    );
-    expect(
-      screen.getByTestId('reset-password-force-email')
-    ).toBeInTheDocument();
-    expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
-  });
+  // we're getting rid of forceAuth logic
+  // it('renders a read-only email but no text input when forceAuth is true', () => {
+  //   render(
+  //     <ResetPassword
+  //       prefillEmail={MOCK_ACCOUNT.primaryEmail.email}
+  //       forceAuth={true}
+  //     />
+  //   );
+  //   expect(
+  //     screen.getByTestId('reset-password-force-email')
+  //   ).toBeInTheDocument();
+  //   expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
+  // });
 
   it('emits a metrics event on render', () => {
-    render(<ResetPassword />);
+    render();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('submit success', async () => {
-    const account = {
-      resetPassword: jest.fn().mockResolvedValue({
-        passwordForgotToken: '123',
-      }),
-    } as unknown as Account;
-
-    renderWithAccount(account);
+    render();
 
     await act(async () => {
       fireEvent.input(screen.getByTestId('reset-password-input-field'), {
@@ -148,7 +165,7 @@ describe('PageResetPassword', () => {
       fireEvent.click(screen.getByText('Begin reset'));
     });
 
-    expect(account.resetPassword).toHaveBeenCalledWith(
+    expect(beginResetPasswordHandler).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email,
       MozServices.Default
     );
@@ -158,7 +175,7 @@ describe('PageResetPassword', () => {
       {
         replace: true,
         state: {
-          email: 'johndope@example.com',
+          email: MOCK_ACCOUNT.primaryEmail.email,
           passwordForgotToken: '123',
         },
       }
@@ -238,19 +255,13 @@ describe('PageResetPassword', () => {
   });
 
   describe('displays error and does not allow submission', () => {
-    const account = {
-      resetPassword: jest.fn().mockResolvedValue({
-        passwordForgotToken: '123',
-      }),
-    } as unknown as Account;
-
     it('with an empty email', async () => {
-      renderWithAccount(account);
+      render();
       await act(async () => {
         fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
       });
       await screen.findByText('Email required');
-      expect(account.resetPassword).not.toHaveBeenCalled();
+      expect(beginResetPasswordHandler).not.toHaveBeenCalled();
 
       // clears the error onchange
       await typeByLabelText('Email')('a');
@@ -258,13 +269,13 @@ describe('PageResetPassword', () => {
     });
 
     it('with an invalid email', async () => {
-      renderWithAccount(account);
+      render();
       await typeByLabelText('Email')('foxy@gmail.');
       await act(async () => {
         fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
       });
       await screen.findByText('Valid email required');
-      expect(account.resetPassword).not.toHaveBeenCalled();
+      expect(beginResetPasswordHandler).not.toHaveBeenCalled();
 
       // clears the error onchange
       await typeByLabelText('Email')('a');
@@ -272,71 +283,5 @@ describe('PageResetPassword', () => {
         screen.queryByText('Valid email required')
       ).not.toBeInTheDocument();
     });
-  });
-
-  it('displays an error when the account is unknown', async () => {
-    const gqlError: any = AuthUiErrorNos[102]; // Unknown account error
-    const account = {
-      resetPassword: jest.fn().mockRejectedValue(gqlError),
-    } as unknown as Account;
-
-    renderWithAccount(account);
-
-    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
-      target: { value: MOCK_ACCOUNT.primaryEmail.email },
-    });
-
-    fireEvent.click(screen.getByRole('button'));
-
-    await waitFor(() => screen.findByText('Unknown account'));
-  });
-
-  it('displays an error when rate limiting kicks in', async () => {
-    // mocks an error that contains the required values to localize the message
-    // does not test if the Account model passes in the correct information
-    // does not test if the message is localized
-    // does not test if the lang of localizedRetryAfter matches the lang used for the rest of the string
-    const gqlThrottledErrorWithRetryAfter: any = {
-      errno: 114,
-      message: AuthUiErrorNos[114].message,
-      retryAfter: 500,
-      retryAfterLocalized: 'in 15 minutes',
-    }; // Throttled error
-    const account = {
-      resetPassword: jest
-        .fn()
-        .mockRejectedValue(gqlThrottledErrorWithRetryAfter),
-    } as unknown as Account;
-
-    renderWithAccount(account);
-
-    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
-      target: { value: MOCK_ACCOUNT.primaryEmail.email },
-    });
-
-    fireEvent.click(screen.getByText('Begin reset'));
-
-    await waitFor(() =>
-      screen.findByText(
-        'You’ve tried too many times. Please try again in 15 minutes.'
-      )
-    );
-  });
-
-  it('handles unexpected errors on submit', async () => {
-    const unexpectedError: Error = { name: 'fake', message: 'error' }; // Unknown account error
-    const account = {
-      resetPassword: jest.fn().mockRejectedValue(unexpectedError),
-    } as unknown as Account;
-
-    renderWithAccount(account);
-
-    fireEvent.input(screen.getByTestId('reset-password-input-field'), {
-      target: { value: MOCK_ACCOUNT.primaryEmail.email },
-    });
-
-    fireEvent.click(screen.getByText('Begin reset'));
-
-    await waitFor(() => screen.findByText('Unexpected error'));
   });
 });

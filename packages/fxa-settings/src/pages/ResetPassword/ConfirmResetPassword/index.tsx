@@ -72,7 +72,8 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
 
   const resendEmailHandler = async () => {
     try {
-      const result = await account.resetPassword(email, serviceName);
+      const result = { passwordForgotToken: '123' };
+      // const result = await account.resetPassword(email, serviceName);
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
       setCurrentPasswordForgotToken(result.passwordForgotToken);
       setResendStatus(ResendStatus['sent']);

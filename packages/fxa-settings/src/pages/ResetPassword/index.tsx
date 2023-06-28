@@ -2,18 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useCallback, useState } from 'react';
+import { useNavigate } from '@reach/router';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-  composeAuthUiErrorTranslationId,
-} from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
-import { CreateRelier, useAccount, useFtlMsgResolver } from '../../models';
+import { CreateRelier, useFtlMsgResolver } from '../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -25,7 +20,10 @@ import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import {
+  BeginResetPasswordHandler,
+  BeginResetPasswordResult,
+} from './container';
 
 export const viewName = 'reset-password';
 
@@ -33,23 +31,28 @@ export type ResetPasswordProps = {
   prefillEmail?: string;
   forceAuth?: boolean;
   serviceName?: MozServices;
+  beginResetPasswordHandler: BeginResetPasswordHandler;
+  beginResetPasswordResult: BeginResetPasswordResult;
 };
 
 type FormData = {
   email: string;
 };
 
+const sanitizeEmail = (email: string) => email.trim();
+
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
   prefillEmail,
   forceAuth,
-}: ResetPasswordProps & RouteComponentProps) => {
+  beginResetPasswordHandler,
+  beginResetPasswordResult,
+}: ResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [errorText, setErrorText] = useState<string>('');
-  const [errorMessage, setErrorMessage] = useState<string>('');
+  const [bannerErrorText, setBannerErrorText] = useState<string>('');
   const [hasFocused, setHasFocused] = useState<boolean>(false);
-  const account = useAccount();
   const relier = CreateRelier();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -92,55 +95,51 @@ const ResetPassword = ({
   const clearError = useCallback(() => {
     if (errorText !== '') {
       setErrorText('');
-      setErrorMessage('');
+      setBannerErrorText('');
     }
   }, [errorText, setErrorText]);
 
   const submitEmail = useCallback(
-    async (email: string) => {
-      try {
-        clearError();
-        const result = await account.resetPassword(email, serviceName);
-        navigateToConfirmPwReset({
-          passwordForgotToken: result.passwordForgotToken,
-          email,
-        });
-      } catch (err) {
-        let localizedError;
-        if (err.errno && AuthUiErrorNos[err.errno]) {
-          if (
-            err.errno === AuthUiErrors.THROTTLED.errno &&
-            err.retryAfterLocalized
-          ) {
-            localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(err),
-              AuthUiErrorNos[err.errno].message,
-              { retryAfter: err.retryAfterLocalized }
-            );
-          } else {
-            localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(err),
-              AuthUiErrorNos[err.errno].message
-            );
-          }
-        } else {
-          // TEMPORARY deliberate log to help debug FXA-7347, this should be captured server-side
-          // but for some reason isn't logging to Sentry
-          sentryMetrics.captureException(err);
-          const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-          localizedError = ftlMsgResolver.getMsg(
-            composeAuthUiErrorTranslationId(unexpectedError),
-            unexpectedError.message
-          );
-        }
-        setErrorMessage(localizedError);
-      }
+    (email: string) => {
+      clearError();
+      beginResetPasswordHandler(email, serviceName);
     },
-    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, serviceName]
+    [clearError, beginResetPasswordHandler, serviceName]
   );
 
+  useEffect(() => {
+    if (beginResetPasswordResult.data) {
+      // ❌ This means submit was called and the result was returned successfully.
+      // We do have to `navigateToConfirmPwReset` in a separate `useEffect`
+      // because the result is passed in as a prop instead of being available
+      // via `await`ing the API call.
+      const email = sanitizeEmail(getValues('email'));
+      const { passwordForgotToken } =
+        beginResetPasswordResult.data.passwordForgotSendCode;
+      navigateToConfirmPwReset({
+        passwordForgotToken,
+        email,
+      });
+    }
+    if (beginResetPasswordResult.error) {
+      const { message, ftlId, retryAfterLocalized } =
+        beginResetPasswordResult.error;
+      setBannerErrorText(
+        ftlMsgResolver.getMsg(ftlId, message, {
+          ...(retryAfterLocalized && { retryAfter: retryAfterLocalized }),
+        })
+      );
+    }
+  }, [
+    beginResetPasswordResult.data,
+    beginResetPasswordResult.error,
+    ftlMsgResolver,
+    navigateToConfirmPwReset,
+    getValues,
+  ]);
+
   const onSubmit = useCallback(async () => {
-    const sanitizedEmail = getValues('email').trim();
+    const sanitizedEmail = sanitizeEmail(getValues('email'));
     if (sanitizedEmail === '') {
       setErrorText(
         ftlMsgResolver.getMsg(
@@ -180,9 +179,9 @@ const ResetPassword = ({
         {...{ serviceName }}
       />
 
-      {errorMessage && (
+      {bannerErrorText && (
         <Banner type={BannerType.error}>
-          <p>{errorMessage}</p>
+          <p>{bannerErrorText}</p>
         </Banner>
       )}
 
@@ -239,6 +238,9 @@ const ResetPassword = ({
             data-testid="reset-password-button"
             type="submit"
             className="cta-primary cta-xl"
+            // ❌ Let's be more consistent with our loading disabled button states
+            // and loading spinners
+            disabled={beginResetPasswordResult.loading}
           >
             Begin reset
           </button>

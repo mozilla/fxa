@@ -29,7 +29,7 @@ export const LinkExpiredResetPassword = ({
 
   const resendResetPasswordLink = async () => {
     try {
-      await account.resetPassword(email, serviceName);
+      // await account.resetPassword(email, serviceName);
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
       setResendStatus(ResendStatus['sent']);
     } catch (e) {

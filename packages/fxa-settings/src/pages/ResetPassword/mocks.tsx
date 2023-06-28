@@ -8,8 +8,8 @@ import { Account } from '../../models';
 // No error message on submit
 export const mockDefaultAccount = { MOCK_ACCOUNT } as any as Account;
 
-mockDefaultAccount.resetPassword = () =>
-  Promise.resolve({ passwordForgotToken: 'mockPasswordForgotToken' });
+// mockDefaultAccount.resetPassword = () =>
+//   Promise.resolve({ passwordForgotToken: 'mockPasswordForgotToken' });
 
 // Mocked localized throttled error (not localized in storybook)
 export const mockAccountWithThrottledError = {
@@ -22,12 +22,12 @@ const throttledErrorObj = {
   retryAfterLocalized: 'in 15 minutes',
 };
 
-mockAccountWithThrottledError.resetPassword = () =>
-  Promise.reject(throttledErrorObj);
+// mockAccountWithThrottledError.resetPassword = () =>
+//   Promise.reject(throttledErrorObj);
 
-export const mockAccountWithUnexpectedError = {
-  MOCK_ACCOUNT,
-} as unknown as Account;
+// export const mockAccountWithUnexpectedError = {
+//   MOCK_ACCOUNT,
+// } as unknown as Account;
 
-mockAccountWithThrottledError.resetPassword = () =>
-  Promise.reject('some error');
+// mockAccountWithThrottledError.resetPassword = () =>
+//   Promise.reject('some error');
