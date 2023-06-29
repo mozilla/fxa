@@ -6,7 +6,7 @@ import { BaseLayout } from '../layout';
 import uaStrings from '../../lib/ua-strings';
 import { Credentials } from '../../lib/targets/base';
 
-export abstract class ForceAuthPage extends BaseLayout {
+export class ForceAuthPage extends BaseLayout {
   readonly path = 'force_auth';
   context;
   service;
