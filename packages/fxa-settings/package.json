@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-storybook": "yarn merge-ftl && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && LOG_LEVEL=TRACE NODE_OPTIONS=--openssl-legacy-provider build-storybook && cp -r public/locales ./storybook-static/locales",
+    "build-storybook": "yarn merge-ftl && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && LOG_LEVEL=TRACE NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
     "build": "tsc --build ../fxa-react && NODE_ENV=production yarn build-css && yarn legal-clone && yarn merge-ftl && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "compile": "tsc --noEmit",
     "clean": "git clean -fXd",
@@ -18,7 +18,7 @@
     "start": "yarn merge-ftl && yarn build-css && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3000/settings/static/js/bundle.js",
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "storybook": "yarn legal-clone && STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6008 --no-version-updates",
+    "storybook": "yarn legal-clone && STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6008 --no-version-updates",
     "test": "yarn legal-clone && yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false",
     "test-watch": "yarn legal-clone && yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test-coverage": "yarn legal-clone && yarn test --coverage --watchAll=false",
