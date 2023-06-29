@@ -457,9 +457,10 @@ describe('DirectStripeRoutes', () => {
       },
     };
     mockCapabilityService.getPlanEligibility = sinon.stub();
-    mockCapabilityService.getPlanEligibility.resolves(
-      SubscriptionEligibilityResult.CREATE
-    );
+    mockCapabilityService.getPlanEligibility.resolves([
+      SubscriptionEligibilityResult.CREATE,
+      undefined,
+    ]);
     Container.set(CapabilityService, mockCapabilityService);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
@@ -662,7 +663,10 @@ describe('DirectStripeRoutes', () => {
   describe('previewInvoice', () => {
     it('returns the preview invoice', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+        expected,
+        undefined,
+      ]);
       VALID_REQUEST.payload = {
         promotionCode: 'promotionCode',
         priceId: 'priceId',
@@ -680,7 +684,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.fetchCustomer,
         UID,
-        ['tax']
+        ['subscriptions', 'tax']
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
@@ -689,9 +693,14 @@ describe('DirectStripeRoutes', () => {
           promotionCode: 'promotionCode',
           priceId: 'priceId',
           taxAddress: undefined,
+          isUpgrade: false,
+          sourcePlan: undefined,
         }
       );
-      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+      assert.deepEqual(
+        stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined]),
+        actual
+      );
     });
 
     it('returns the preview invoice when Stripe tax is enabled', async () => {
@@ -703,7 +712,10 @@ describe('DirectStripeRoutes', () => {
         mockCustomer
       );
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+        expected,
+        undefined,
+      ]);
       VALID_REQUEST.payload = {
         promotionCode: 'promotionCode',
         priceId: 'priceId',
@@ -721,7 +733,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.fetchCustomer,
         UID,
-        ['tax']
+        ['subscriptions', 'tax']
       );
       sinon.assert.calledOnceWithExactly(
         directStripeRoutesInstance.stripeHelper.previewInvoice,
@@ -730,14 +742,22 @@ describe('DirectStripeRoutes', () => {
           promotionCode: 'promotionCode',
           priceId: 'priceId',
           taxAddress: undefined,
+          isUpgrade: false,
+          sourcePlan: undefined,
         }
       );
-      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+      assert.deepEqual(
+        stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined]),
+        actual
+      );
     });
 
     it('returns the preview invoice even if fetch customer errors', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+        expected,
+        undefined,
+      ]);
 
       const error = new Error('test');
       directStripeRoutesInstance.stripeHelper.fetchCustomer.throws(error);
@@ -782,14 +802,22 @@ describe('DirectStripeRoutes', () => {
             countryCode: 'US',
             postalCode: '92841',
           },
+          isUpgrade: false,
+          sourcePlan: undefined,
         }
       );
-      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+      assert.deepEqual(
+        stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined]),
+        actual
+      );
     });
 
     it('does not call fetchCustomer if no credentials are provided, and returns invoice preview', async () => {
       const expected = deepCopy(invoicePreviewTax);
-      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves(expected);
+      directStripeRoutesInstance.stripeHelper.previewInvoice.resolves([
+        expected,
+        undefined,
+      ]);
 
       const request = deepCopy(VALID_REQUEST);
       request.payload = {
@@ -829,9 +857,14 @@ describe('DirectStripeRoutes', () => {
             countryCode: 'DE',
             postalCode: '92841',
           },
+          isUpgrade: false,
+          sourcePlan: undefined,
         }
       );
-      assert.deepEqual(stripeInvoiceToFirstInvoicePreviewDTO(expected), actual);
+      assert.deepEqual(
+        stripeInvoiceToFirstInvoicePreviewDTO([expected, undefined]),
+        actual
+      );
     });
 
     it('error with AppError invalidInvoicePreviewRequest', async () => {

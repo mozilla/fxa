@@ -190,3 +190,13 @@ export class SubscriptionStripeError extends Error {
     this.name = 'SubscriptionStripeError';
   }
 }
+
+export type InvoicePreview = [
+  invoicePreview: Stripe.UpcomingInvoice,
+  proratedInvoice?: Stripe.UpcomingInvoice
+];
+
+export type SubscriptionChangeEligibility = [
+  subscriptionEligibilityResult: SubscriptionEligibilityResult,
+  eligibleSourcePlan?: AbbrevPlan
+];

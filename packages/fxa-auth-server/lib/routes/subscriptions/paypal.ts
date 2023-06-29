@@ -108,10 +108,12 @@ export class PayPalHandler extends StripeWebhookHandler {
       }
 
       // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
-      const eligibility = await this.capabilityService.getPlanEligibility(
-        customer.metadata.userid,
-        priceId
-      );
+      const eligibility = (
+        await this.capabilityService.getPlanEligibility(
+          customer.metadata.userid,
+          priceId
+        )
+      )[0];
       if (eligibility !== SubscriptionEligibilityResult.CREATE) {
         throw error.userAlreadySubscribedToProduct();
       }

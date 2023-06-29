@@ -30,9 +30,10 @@ function buildExpectedLineItems(invoice) {
 
 describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   it('formats an invoice with tax', () => {
-    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(
-      deepCopy(previewInvoiceWithTax)
-    );
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      deepCopy(previewInvoiceWithTax),
+      undefined,
+    ]);
     const expectedLineItems = buildExpectedLineItems(invoice);
 
     assert.deepEqual(invoice.line_items, expectedLineItems);
@@ -51,9 +52,10 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
   });
 
   it('formats an invoice with tax and discount', () => {
-    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(
-      deepCopy(previewInvoiceWithDiscountAndTax)
-    );
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      deepCopy(previewInvoiceWithDiscountAndTax),
+      undefined,
+    ]);
     assert.equal(invoice.total, previewInvoiceWithDiscountAndTax.total);
     assert.equal(invoice.subtotal, previewInvoiceWithDiscountAndTax.subtotal);
     assert.equal(
@@ -84,7 +86,10 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     const invoicePreview = deepCopy(previewInvoiceWithTax);
     invoicePreview.total_tax_amounts[0].tax_rate.display_name = '';
 
-    const invoice = stripeInvoiceToFirstInvoicePreviewDTO(invoicePreview);
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      invoicePreview,
+      undefined,
+    ]);
 
     assert.equal(invoice.total, invoicePreview.total);
     assert.equal(invoice.subtotal, invoicePreview.subtotal);
@@ -94,6 +99,34 @@ describe('stripeInvoiceToFirstInvoicePreviewDTO', () => {
     );
     assert.equal(invoice.tax[0].display_name, undefined);
     assert.equal(invoice.tax[0].inclusive, true);
+  });
+
+  it('formats an invoice with a prorated amount', () => {
+    const firstInvoice = deepCopy(previewInvoiceWithTax);
+    const proratedInvoice = deepCopy(previewInvoiceWithTax);
+    proratedInvoice.lines.data[0].proration = true;
+
+    const invoice = stripeInvoiceToFirstInvoicePreviewDTO([
+      firstInvoice,
+      proratedInvoice,
+    ]);
+    const expectedLineItems = buildExpectedLineItems(invoice);
+
+    assert.deepEqual(invoice.line_items, expectedLineItems);
+    assert.equal(invoice.total, previewInvoiceWithTax.total);
+    assert.equal(invoice.subtotal, previewInvoiceWithTax.subtotal);
+    assert.equal(
+      invoice.tax[0].amount,
+      previewInvoiceWithTax.total_tax_amounts[0].amount
+    );
+    assert.equal(
+      invoice.tax[0].display_name,
+      previewInvoiceWithTax.total_tax_amounts[0].tax_rate.display_name
+    );
+    assert.equal(invoice.tax[0].inclusive, true);
+    assert.isUndefined(invoice.discount);
+    assert.equal(invoice.one_time_charge, proratedInvoice.total);
+    assert.equal(invoice.prorated_amount, proratedInvoice.lines.data[0].amount);
   });
 });
 

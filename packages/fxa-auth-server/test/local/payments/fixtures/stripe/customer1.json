@@ -85,6 +85,7 @@
           "data": [
             {
               "id": "si_G8xrQI1ybSfVm9",
+              "subscription": "sub_test1",
               "object": "subscription_item",
               "billing_thresholds": null,
               "created": 1573252096,

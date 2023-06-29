@@ -74,6 +74,8 @@ export const firstInvoicePreviewSchema = joi.object({
     amount_off: joi.number().required().allow(null),
     percent_off: joi.number().required().allow(null),
   }),
+  one_time_charge: joi.number().optional(),
+  prorated_amount: joi.number().optional(),
 });
 
 type line_item = {
@@ -103,6 +105,8 @@ export type firstInvoicePreviewSchema = {
     amount_off: number | null;
     percent_off: number | null;
   };
+  one_time_charge?: number;
+  prorated_amount?: number;
 };
 
 /**

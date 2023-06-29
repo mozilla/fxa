@@ -8,6 +8,7 @@ import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
   SubscriptionEligibilityResult,
+  SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
@@ -428,7 +429,10 @@ export class StripeHandler {
       const { uid, email } = await handleAuth(this.db, request.auth, true);
       await this.customs.check(request, email, 'previewInvoice');
       try {
-        customer = await this.stripeHelper.fetchCustomer(uid, ['tax']);
+        customer = await this.stripeHelper.fetchCustomer(uid, [
+          'subscriptions',
+          'tax',
+        ]);
       } catch (e: any) {
         this.log.error('previewInvoice.fetchCustomer', { error: e, uid });
       }
@@ -442,11 +446,25 @@ export class StripeHandler {
     );
 
     try {
+      let isUpgrade = false,
+        sourcePlan;
+      if (customer) {
+        const upgradeResult = await this.capabilityService.getPlanEligibility(
+          customer.metadata.userid,
+          priceId
+        );
+
+        isUpgrade = upgradeResult[0] === SubscriptionUpdateEligibility.UPGRADE;
+        sourcePlan = upgradeResult[1];
+      }
+
       const previewInvoice = await this.stripeHelper.previewInvoice({
         customer: customer || undefined,
         promotionCode,
         priceId,
         taxAddress,
+        isUpgrade,
+        sourcePlan,
       });
 
       return stripeInvoiceToFirstInvoicePreviewDTO(previewInvoice);
@@ -576,10 +594,12 @@ export class StripeHandler {
       }
 
       // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
-      const eligibility = await this.capabilityService.getPlanEligibility(
-        customer.metadata.userid,
-        priceId
-      );
+      const eligibility = (
+        await this.capabilityService.getPlanEligibility(
+          customer.metadata.userid,
+          priceId
+        )
+      )[0];
       if (eligibility !== SubscriptionEligibilityResult.CREATE) {
         throw error.userAlreadySubscribedToProduct();
       }

@@ -61,9 +61,10 @@ export class MozillaSubscriptionHandler {
     const response: {
       customerId?: string;
       subscriptions: MozillaSubscription[];
-    } & Partial<PaymentBillingDetails> = stripeBillingDetailsAndSubscriptions || {
-      subscriptions: [],
-    };
+    } & Partial<PaymentBillingDetails> =
+      stripeBillingDetailsAndSubscriptions || {
+        subscriptions: [],
+      };
 
     return {
       ...response,
@@ -91,10 +92,9 @@ export class MozillaSubscriptionHandler {
 
     const targetPlanId = request.params.planId;
 
-    const eligibility = await this.capabilityService.getPlanEligibility(
-      uid,
-      targetPlanId
-    );
+    const eligibility = (
+      await this.capabilityService.getPlanEligibility(uid, targetPlanId)
+    )[0];
 
     return {
       eligibility,
