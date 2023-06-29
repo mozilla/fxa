@@ -28145,7 +28145,6 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     helmet: ^7.0.0
     hot-shots: ^10.0.0
-    https-browserify: ^1.0.0
     intl: 1.2.5
     jest: 27.5.1
     jest-watch-typeahead: 0.6.5
@@ -28171,7 +28170,6 @@ fsevents@~2.1.1:
     react-stripe-elements: ^6.1.2
     react-test-renderer: ^17.0.2
     react-transition-group: ^4.4.2
-    readable-stream: ^4.4.0
     redux: ^4.2.0
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
@@ -28558,7 +28556,7 @@ fsevents@~2.1.1:
     ts-jest: 29.1.0
     ts-node: ^10.9.1
     tslib: ^2.5.0
-    typescript: ^4.9.5
+    typescript: ^5.0.4
   languageName: unknown
   linkType: soft
 
@@ -44393,18 +44391,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^4.4.0":
-  version: 4.4.1
-  resolution: "readable-stream@npm:4.4.1"
-  dependencies:
-    abort-controller: ^3.0.0
-    buffer: ^6.0.3
-    events: ^3.3.0
-    process: ^0.11.10
-  checksum: e02053388fc5df4416c734759e8b901483dcf41d61555c1a39bf51f9e05db04cec17e4ac5ae1e6c60aea30b460ccb36bcc845663ed8f8878e9ec45a6fa7a8b82
-  languageName: node
-  linkType: hard
-
 "readable-stream@npm:~2.0.0, readable-stream@npm:~2.0.5":
   version: 2.0.6
   resolution: "readable-stream@npm:2.0.6"
@@ -50291,13 +50277,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@npm:^4.9.5":
-  version: 4.9.5
-  resolution: "typescript@npm:4.9.5"
+"typescript@npm:^5.0.4":
+  version: 5.1.6
+  resolution: "typescript@npm:5.1.6"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: ee000bc26848147ad423b581bd250075662a354d84f0e06eb76d3b892328d8d4440b7487b5a83e851b12b255f55d71835b008a66cbf8f255a11e4400159237db
+  checksum: b2f2c35096035fe1f5facd1e38922ccb8558996331405eb00a5111cc948b2e733163cc22fab5db46992aba7dd520fff637f2c1df4996ff0e134e77d3249a7350
   languageName: node
   linkType: hard
 
@@ -50311,13 +50297,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^4.9.5#~builtin<compat/typescript>":
-  version: 4.9.5
-  resolution: "typescript@patch:typescript@npm%3A4.9.5#~builtin<compat/typescript>::version=4.9.5&hash=d73830"
+"typescript@patch:typescript@^5.0.4#~builtin<compat/typescript>":
+  version: 5.1.6
+  resolution: "typescript@patch:typescript@npm%3A5.1.6#~builtin<compat/typescript>::version=5.1.6&hash=d73830"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 2eee5c37cad4390385db5db5a8e81470e42e8f1401b0358d7390095d6f681b410f2c4a0c496c6ff9ebd775423c7785cdace7bcdad76c7bee283df3d9718c0f20
+  checksum: 21e88b0a0c0226f9cb9fd25b9626fb05b4c0f3fddac521844a13e1f30beb8f14e90bd409a9ac43c812c5946d714d6e0dee12d5d02dfc1c562c5aacfa1f49b606
   languageName: node
   linkType: hard
 
