@@ -66,7 +66,7 @@ test.describe('Sync v3 sign up and CWTS', () => {
     await login.waitForCWTSEngineHeader();
     expect(await login.isCWTSEngineBookmarks()).toBe(true);
     expect(await login.isCWTSEngineHistory()).toBe(true);
-    expect(await login.isCWTSEnginePassword()).toBe(true);
+    expect(await login.isCWTSEnginePasswords()).toBe(true);
     expect(await login.isCWTSEngineTabs()).toBe(true);
     expect(await login.isCWTSEnginePrefs()).toBe(true);
     expect(await login.isCWTSEngineAddresses()).toBe(false);
