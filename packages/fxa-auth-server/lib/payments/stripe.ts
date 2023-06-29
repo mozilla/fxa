@@ -1927,6 +1927,11 @@ export class StripeHelper extends StripeHelperBase {
       plan_change_date: moment().unix(),
     };
 
+    const prorationBehavior = this.config.subscriptions.stripeInvoiceImmediately
+      .enabled
+      ? 'always_invoice'
+      : 'create_prorations';
+
     const updatedSubscription = await this.updateSubscriptionAndBackfill(
       subscription,
       {
@@ -1937,6 +1942,7 @@ export class StripeHelper extends StripeHelperBase {
             plan: newPlanId,
           },
         ],
+        proration_behavior: prorationBehavior,
         metadata: updatedMetadata,
       }
     );
