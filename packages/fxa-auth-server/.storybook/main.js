@@ -7,7 +7,7 @@ module.exports = {
     '../lib/senders/emails/**/*.stories.tsx',
     '../lib/senders/emails/**/*.stories.ts',
   ],
-  staticDirs: ['..'],
+  staticDirs: process.env.STORYBOOK_BUILD !== 'true' ? ['..'] : undefined,
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-controls',
