@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
+import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
@@ -17,7 +18,7 @@ const meta = {
   subcomponents: { LinkExpiredResetPassword, LinkExpiredSignin },
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryFn) => (
       <LocationProvider>
         <Story />
       </LocationProvider>
