@@ -10,40 +10,7 @@ import uaStrings from '../../lib/ua-strings';
 const password = 'passwordzxcv';
 let syncBrowserPages;
 let browserSignedInEmail;
-let browserSignedInAccount;
-
 let otherEmail;
-let otherAccount;
-
-const ensureUsers = async (page, target, login) => {
-  // Ensure browserSignedInAccount
-  if (!browserSignedInAccount) {
-    browserSignedInEmail = login.createEmail();
-    await target.auth.signUp(browserSignedInEmail, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-    (_browserSignedInAccount) => {
-      browserSignedInAccount = _browserSignedInAccount;
-      browserSignedInAccount.email = browserSignedInEmail;
-      browserSignedInAccount.verified = true;
-      login.clearCache();
-    };
-  }
-  // Ensure otherAccount
-  if (!otherAccount) {
-    otherEmail = login.createEmail();
-    await target.auth.signUp(otherEmail, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-    (_otherAccount) => {
-      otherAccount = _otherAccount;
-      otherAccount.email = otherEmail;
-      otherAccount.verified = true;
-    };
-  }
-};
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -52,12 +19,34 @@ test.describe('Firefox desktop user info handshake', () => {
     test.slow();
     syncBrowserPages = await newPagesForSync(target);
     const { login } = syncBrowserPages;
-    await login.clearCache();
-    await ensureUsers(page, target, login);
+    browserSignedInEmail = login.createEmail();
+    await target.auth.signUp(browserSignedInEmail, password, {
+      lang: 'en',
+      preVerified: 'true',
+    });
+    otherEmail = login.createEmail();
+    await target.auth.signUp(otherEmail, password, {
+      lang: 'en',
+      preVerified: 'true',
+    });
   });
 
-  test.afterEach(async () => {
+  test.afterEach(async ({ target }) => {
     await syncBrowserPages.browser?.close();
+    const emails = [browserSignedInEmail, otherEmail];
+    for (const email of emails) {
+      if (email) {
+        // Cleanup any accounts created during the test
+        try {
+          await target.auth.accountDestroy(email, password);
+        } catch (e) {
+          // Handle the error here
+          console.error('An error occurred during account cleanup:', e);
+          // Optionally, rethrow the error to propagate it further
+          throw e;
+        }
+      }
+    }
   });
 
   test('Non-Sync - user signed into browser, user signed in locally', async ({
@@ -86,11 +75,11 @@ test.describe('Firefox desktop user info handshake', () => {
     const eventDetailStatusSignIn = createCustomEventDetail(
       FirefoxCommand.FxAStatus,
       {
-        signedInUser: browserSignedInAccount,
+        signedInUser: browserSignedInEmail,
       }
     );
     await page.goto(
-      `${target.contentServerUrl}?/automatedBrowser=true&${query.toString()}`
+      `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
     );
     await login.respondToWebChannelMessage(eventDetailStatusSignIn);
     await login.checkWebChannelMessage('fxaccounts:fxa_status');
@@ -168,7 +157,7 @@ test.describe('Firefox desktop user info handshake', () => {
     const eventDetailStatus = createCustomEventDetail(
       FirefoxCommand.FxAStatus,
       {
-        signedInUser: browserSignedInAccount,
+        signedInUser: browserSignedInEmail,
       }
     );
     await page.goto(
@@ -192,7 +181,7 @@ test.describe('Firefox desktop user info handshake', () => {
     const eventDetailStatus = createCustomEventDetail(
       FirefoxCommand.FxAStatus,
       {
-        signedInUser: browserSignedInAccount,
+        signedInUser: browserSignedInEmail,
       }
     );
     await page.goto(
@@ -244,7 +233,7 @@ test.describe('Firefox desktop user info handshake', () => {
       }
     );
     await page.goto(
-      `${target.contentServerUrl}?/automatedBrowser=true&${query.toString()}`
+      `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
     );
     await login.respondToWebChannelMessage(eventDetailStatus);
     await login.checkWebChannelMessage('fxaccounts:fxa_status');
