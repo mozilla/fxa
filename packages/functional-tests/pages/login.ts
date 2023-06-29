@@ -408,7 +408,7 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.CWTS_ENGINE_HISTORY).isVisible();
   }
 
-  async isCWTSEnginePassword() {
+  async isCWTSEnginePasswords() {
     return this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).isVisible();
   }
 
