@@ -5911,7 +5911,7 @@ describe('#integration - StripeHelper', () => {
         (
           isUpgrade,
           upcomingInvoice = undefined,
-          expectedPaymentProratedInCents
+          expectedPaymentProratedInCents = 0
         ) =>
         async () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
@@ -5983,7 +5983,6 @@ describe('#integration - StripeHelper', () => {
             productIdNew,
             updateType:
               SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
-            invoiceTotalNewInCents: mockInvoice.total,
             productIdOld,
             productNameOld,
             productIconURLOld,
@@ -5991,10 +5990,22 @@ describe('#integration - StripeHelper', () => {
               event.data.previous_attributes.plan.interval,
             paymentAmountOldCurrency:
               event.data.previous_attributes.plan.currency,
-            paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
-            paymentProratedCurrency: upcomingInvoice
-              ? upcomingInvoice.currency
-              : mockInvoice.currency,
+            paymentAmountOldInCents:
+              upcomingInvoice && upcomingInvoice.total
+                ? upcomingInvoice.total
+                : mockInvoice.invoiceTotalOldInCents,
+            paymentAmountNewCurrency:
+              upcomingInvoice && upcomingInvoice.currency
+                ? upcomingInvoice.currency
+                : mockInvoice.currency,
+            paymentAmountNewInCents:
+              upcomingInvoice && upcomingInvoice.total
+                ? upcomingInvoice.total
+                : mockInvoice.total,
+            paymentProratedCurrency:
+              upcomingInvoice && upcomingInvoice.currency
+                ? upcomingInvoice.currency
+                : mockInvoice.currency,
             paymentProratedInCents: upcomingInvoice
               ? expectedPaymentProratedInCents
               : mockInvoice.amount_due,
@@ -6005,11 +6016,18 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade',
-        commonTest(true)
+        commonTest(true, {
+          currency: 'usd',
+          total: 1234,
+        })
       );
+
       it(
         'extracts expected details for a subscription downgrade',
-        commonTest(false)
+        commonTest(false, {
+          currency: 'usd',
+          total: 1234,
+        })
       );
 
       it('checks productPaymentCycleOld returns a value if it is not included in the old plan', async () => {
@@ -6086,19 +6104,16 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade with pending invoice items',
-        commonTest(
-          false,
-          {
-            currency: 'usd',
-            lines: {
-              data: [
-                { type: 'invoiceitem', amount: -500 },
-                { type: 'invoiceitem', amount: 2500 },
-              ],
-            },
+        commonTest(false, {
+          currency: 'usd',
+          total: 1234,
+          lines: {
+            data: [
+              { type: 'invoiceitem', amount: -500 },
+              { type: 'invoiceitem', amount: 2500 },
+            ],
           },
-          2000
-        )
+        })
       );
     });
 
