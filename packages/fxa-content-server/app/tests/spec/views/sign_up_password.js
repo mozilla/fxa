@@ -192,7 +192,8 @@ describe('views/sign_up_password', () => {
         return Promise.resolve(view.validateAndSubmit()).then(() => {
           assert.isTrue(view.signUp.calledOnceWith(account, 'password123123'));
           assert.sameMembers(account.get('newsletters'), [
-            'knowledge-is-power',
+            'security-privacy-news',
+            'mozilla-accounts',
             'test-pilot',
             'take-action-for-the-internet',
           ]);

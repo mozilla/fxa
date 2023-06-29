@@ -15,10 +15,12 @@ const MARKETING_EMAIL_CHECKBOX_SELECTOR = '#newsletters-optin input';
  */
 
 const NEWSLETTERS = [
-  Newsletters.ONLINE_SAFETY,
+  Newsletters.SECURITY_PRIVACY,
   Newsletters.CONSUMER_BETA,
   Newsletters.HEALTHY_INTERNET,
 ];
+
+const UNESCAPED_NEWSLETTERS = [Newsletters.SECURITY_PRIVACY];
 
 export default {
   initialize(options = {}) {
@@ -38,9 +40,12 @@ export default {
 
     const newsletters = this._getNewsletters().map((newsletter) => {
       // labels are untranslated, make sure to translate them
-      // before rendering.
+      // before rendering. Some newsletter labels should not be HTML escaped.
+      const label = UNESCAPED_NEWSLETTERS.includes(newsletter)
+        ? this.unsafeTranslate(newsletter.label)
+        : this.translate(newsletter.label);
       return {
-        label: this.translate(newsletter.label),
+        label,
         slug: newsletter.slug,
       };
     });
@@ -85,9 +90,14 @@ export default {
    * @returns {String[]} Array containing list of newsletters
    */
   getOptedIntoNewsletters() {
-    return this._getNewsletters()
-      .filter((newsletter) => this._hasOptedIntoNewsletter(newsletter))
-      .map((newsletter) => newsletter.slug);
+    return (
+      this._getNewsletters()
+        .filter((newsletter) => this._hasOptedIntoNewsletter(newsletter))
+        .map((newsletter) => newsletter.slug)
+        // `newsletter.slug` can be an array of strings when one checkbox corresponds
+        // with multiple slugs. Flatten them here to send an array of strings.
+        .flat()
+    );
   },
 
   /**

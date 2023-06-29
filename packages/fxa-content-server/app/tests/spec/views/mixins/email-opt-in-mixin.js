@@ -114,26 +114,49 @@ describe('views/mixins/email-opt-in-mixin', () => {
         .$(view._newsletterTypeToSelector(NEWSLETTERS.CONSUMER_BETA))
         .attr('checked', 'checked');
       view
-        .$(view._newsletterTypeToSelector(NEWSLETTERS.ONLINE_SAFETY))
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.HEALTHY_INTERNET))
         .attr('checked', 'checked');
+      view;
       assert.sameMembers(view.getOptedIntoNewsletters(), [
         'test-pilot',
-        'knowledge-is-power',
+        'take-action-for-the-internet',
+      ]);
+    });
+
+    it('returns list of expected newsletters when newsletter is array of slugs', () => {
+      view
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.SECURITY_PRIVACY))
+        .attr('checked', 'checked');
+      view
+        .$(view._newsletterTypeToSelector(NEWSLETTERS.HEALTHY_INTERNET))
+        .attr('checked', 'checked');
+      view;
+      assert.sameMembers(view.getOptedIntoNewsletters(), [
+        'take-action-for-the-internet',
+        'security-privacy-news',
+        'mozilla-accounts',
       ]);
     });
   });
 
   describe('returns new copy for newsletter experiment', () => {
     beforeEach(() => {
-      view.getExperimentGroup = () => true;
-      sinon.spy(view, 'getExperimentGroup');
+      sinon.stub(experimentGroupingRules, 'choose').callsFake(() => true);
       return view.render();
     });
 
     it('returns list of newsletters', () => {
-      view
-        .$(view._newsletterTypeToSelector(NEWSLETTERS.CONSUMER_BETA))
-        .attr('label', 'Testing Firefox products');
+      assert.equal(
+        view.$(`label[for="${NEWSLETTERS.CONSUMER_BETA.slug}"]`).text(),
+        'Early access to test new products'
+      );
+    });
+
+    it('renders unescaped label as expected', () => {
+      assert.equal(
+        view.$(`label[for="${NEWSLETTERS.SECURITY_PRIVACY.slug}"]`).text(),
+        'Security & privacy news and updates'
+      );
     });
   });
 });
