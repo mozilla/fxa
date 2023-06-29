@@ -1,17 +1,32 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import LoadingSpinner, { SpinnerType } from './index';
-import { withLocalization } from '../../lib/storybooks';
+import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
 storiesOf('Components/LoadingSpinner', module)
-  .add('default', () => withLocalization(() => <LoadingSpinner />))
-  .add('blue', () =>
-    withLocalization(() => <LoadingSpinner spinnerType={SpinnerType.Blue} />)
-  )
-  .add('white', () =>
-    withLocalization(() => (
+  .add('default', () => (
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <LoadingSpinner />
+    </AppLocalizationProvider>
+  ))
+  .add('blue', () => (
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <LoadingSpinner spinnerType={SpinnerType.Blue} />
+    </AppLocalizationProvider>
+  ))
+  .add('white', () => (
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
       <div className="bg-grey-700">
         <LoadingSpinner spinnerType={SpinnerType.White} />
       </div>
-    ))
-  );
+    </AppLocalizationProvider>
+  ));

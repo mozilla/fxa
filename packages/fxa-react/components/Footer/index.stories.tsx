@@ -5,8 +5,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { Footer } from './index';
-import { withLocalization } from '../../lib/storybooks';
+import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
-storiesOf('Components/Footer', module).add('default', () =>
-  withLocalization(() => <Footer />)
-);
+storiesOf('Components/Footer', module).add('default', () => (
+  <AppLocalizationProvider
+    baseDir="./locales"
+    userLocales={navigator.languages}
+  >
+    <Footer />
+  </AppLocalizationProvider>
+));

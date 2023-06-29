@@ -1,8 +1,13 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import AppErrorDialog from './index';
-import { withLocalization } from '../../lib/storybooks';
+import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
-storiesOf('Components/AppErrorDialog', module).add('basic', () =>
-  withLocalization(() => <AppErrorDialog error={new Error('Uh oh!')} />)
-);
+storiesOf('Components/AppErrorDialog', module).add('basic', () => (
+  <AppLocalizationProvider
+    baseDir="./locales"
+    userLocales={navigator.languages}
+  >
+    <AppErrorDialog error={new Error('Uh oh!')} />
+  </AppLocalizationProvider>
+));
