@@ -3,15 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
-import { BaseTarget } from '../../lib/targets/base';
-
-function getReactFeatureFlagUrl(
-  target: BaseTarget,
-  path: string,
-  showReactApp = true
-) {
-  return `${target.contentServerUrl}${path}?showReactApp=${showReactApp}`;
-}
+import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.beforeEach(async ({ pages: { login } }) => {
   // This test requires simple react routes to be enabled

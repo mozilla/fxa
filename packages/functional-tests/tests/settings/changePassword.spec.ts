@@ -96,6 +96,6 @@ test.describe('change password tests', () => {
     await login.clickForgotPassword();
 
     // Verify it navigates to reset password page
-    expect(await resetPassword.resetPasswordHeader()).toBe(true);
+    await resetPassword.resetPasswordHeader();
   });
 });

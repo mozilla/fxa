@@ -10,7 +10,7 @@ export class RelierPage extends BaseLayout {
 
   async isLoggedIn() {
     const login = this.page.locator('#loggedin');
-    await login.waitFor({ state: 'visible' });
+    await login.waitFor();
     return login.isVisible();
   }
 
@@ -60,7 +60,7 @@ export class RelierPage extends BaseLayout {
   }
 
   async promptNoneError() {
-    const error = this.page.locator('.error');
+    const error = await this.page.locator('.error');
     return error.innerText();
   }
 

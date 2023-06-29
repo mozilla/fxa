@@ -136,7 +136,7 @@ const ResetPassword = ({
         setErrorMessage(localizedError);
       }
     },
-    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset]
+    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, serviceName]
   );
 
   const onSubmit = useCallback(async () => {

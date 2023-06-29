@@ -165,6 +165,78 @@ describe('PageResetPassword', () => {
     );
   });
 
+  it('submit success with trailing space in email', async () => {
+    const account = {
+      resetPassword: jest.fn().mockResolvedValue({
+        passwordForgotToken: '123',
+      }),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await waitFor(() =>
+      fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+        target: { value: `${MOCK_ACCOUNT.primaryEmail.email} ` },
+      })
+    );
+
+    fireEvent.click(screen.getByText('Begin reset'));
+
+    await waitFor(() => {
+      expect(account.resetPassword).toHaveBeenCalledWith(
+        MOCK_ACCOUNT.primaryEmail.email,
+        MozServices.Default
+      );
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        'confirm_reset_password?showReactApp=true',
+        {
+          replace: true,
+          state: {
+            email: 'johndope@example.com',
+            passwordForgotToken: '123',
+          },
+        }
+      );
+    });
+  });
+
+  it('submit success with leading space in email', async () => {
+    const account = {
+      resetPassword: jest.fn().mockResolvedValue({
+        passwordForgotToken: '123',
+      }),
+    } as unknown as Account;
+
+    renderWithAccount(account);
+
+    await waitFor(() =>
+      fireEvent.input(screen.getByTestId('reset-password-input-field'), {
+        target: { value: ` ${MOCK_ACCOUNT.primaryEmail.email}` },
+      })
+    );
+
+    fireEvent.click(screen.getByText('Begin reset'));
+
+    await waitFor(() => {
+      expect(account.resetPassword).toHaveBeenCalledWith(
+        MOCK_ACCOUNT.primaryEmail.email,
+        MozServices.Default
+      );
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        'confirm_reset_password?showReactApp=true',
+        {
+          replace: true,
+          state: {
+            email: 'johndope@example.com',
+            passwordForgotToken: '123',
+          },
+        }
+      );
+    });
+  });
+
   describe('displays error and does not allow submission', () => {
     const account = {
       resetPassword: jest.fn().mockResolvedValue({

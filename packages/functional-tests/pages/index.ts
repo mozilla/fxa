@@ -21,6 +21,7 @@ import { ResetPasswordPage } from './resetPassword';
 import { LegalPage } from './legal';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { PostVerifyPage } from './postVerify';
+import { ResetPasswordReactPage } from './resetPasswordReact';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -43,6 +44,7 @@ export function create(page: Page, target: BaseTarget) {
     totp: new TotpPage(page, target),
     subscriptionManagement: new SubscriptionManagementPage(page, target),
     resetPassword: new ResetPasswordPage(page, target),
+    resetPasswordReact: new ResetPasswordReactPage(page, target),
     legal: new LegalPage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     postVerify: new PostVerifyPage(page, target),
