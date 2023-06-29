@@ -2,6 +2,7 @@ import React from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 const Swatch = ({
   color,
@@ -124,4 +125,4 @@ const Colors = ({ config }) => {
   );
 };
 
-export default Colors;
+export default (config) => withLocalization(() => Colors(config));

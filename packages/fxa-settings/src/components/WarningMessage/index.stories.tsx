@@ -11,7 +11,7 @@ import {
   MOCK_WARNING_MESSAGE,
   MOCK_WARNING_TYPE,
 } from './mocks';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/WarningMessage',

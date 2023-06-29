@@ -15,7 +15,7 @@ const customizeWebpackConfig = ({ config }) => ({
   ...config,
   resolve: {
     ...config.resolve,
-    plugins: config.resolve.plugins.map((plugin) => {
+    plugins: (config.resolve.plugins || []).map((plugin) => {
       // Rebuild ModuleScopePlugin with some additional allowed paths
       if (
         plugin.constructor &&
@@ -28,7 +28,7 @@ const customizeWebpackConfig = ({ config }) => ({
     // Register a few more extensions to resolve
     extensions: [...config.resolve.extensions, '.svg', '.scss', '.css', '.png'],
     // Add aliases to some packages shared across the project
-    alias: { ...config.alias, ...additionalJSImports },
+    alias: { ...config.resolve.alias, ...additionalJSImports },
   },
   module: {
     ...config.module,
@@ -43,6 +43,8 @@ const customizeWebpackConfig = ({ config }) => ({
             use: ['style-loader', 'css-loader', 'sass-loader'],
           },
           // Support using SVGs as React components
+          // fxa-react stories need this since that package does not have the
+          // webpack config from CRA that includes svgr
           {
             test: /\.svg$/,
             use: [
@@ -50,9 +52,17 @@ const customizeWebpackConfig = ({ config }) => ({
                 loader: require.resolve('@svgr/webpack'),
                 options: {
                   svgoConfig: {
-                    plugins: {
-                      removeViewBox: false,
-                    },
+                    plugins: [
+                      {
+                        name: 'preset-default',
+                        params: {
+                          overrides: {
+                            // disable plugins
+                            removeViewBox: false,
+                          },
+                        },
+                      },
+                    ],
                   },
                 },
               },

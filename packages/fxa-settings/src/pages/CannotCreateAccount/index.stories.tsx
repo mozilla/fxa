@@ -5,7 +5,7 @@
 import React from 'react';
 import CannotCreateAccount from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/CannotCreateAccount',

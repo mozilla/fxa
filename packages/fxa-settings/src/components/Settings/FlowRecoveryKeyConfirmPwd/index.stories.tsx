@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { FlowRecoveryKeyConfirmPwd } from '.';
 import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { RecoveryKeyAction } from '../PageRecoveryKeyCreate';
 
 export default {

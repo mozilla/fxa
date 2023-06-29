@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import CompleteSignin, { CompleteSigninProps } from '.';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkStatus } from '../../../lib/types';
 import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { DecoratorFn } from '@storybook/react';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import AppLocalizationProvider from './AppLocalizationProvider';
 
 // This decorator makes the localization bundles available in the stories.
 // If a localized string is available, that will be rendered in the storybook,

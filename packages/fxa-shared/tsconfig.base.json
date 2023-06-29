@@ -9,5 +9,5 @@
     "types": ["mocha", "mozlog", "jest", "node"]
   },
   "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
-  "exclude": ["dist", "node_modules", "**/*.spec.ts", "package.json"]
+  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
 }

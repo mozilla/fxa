@@ -7,9 +7,18 @@ module.exports = {
     '../lib/senders/emails/**/*.stories.tsx',
     '../lib/senders/emails/**/*.stories.ts',
   ],
+  staticDirs: ['..'],
   addons: [
     '@storybook/addon-docs',
     '@storybook/addon-controls',
     '@storybook/addon-toolbars',
   ],
+  core: {
+    builder: 'webpack5',
+  },
+  framework: {
+    name: '@storybook/html-webpack5',
+    options: {},
+  },
+  features: { storyStoreV7: false },
 };

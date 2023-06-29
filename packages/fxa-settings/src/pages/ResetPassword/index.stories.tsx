@@ -6,7 +6,7 @@ import React from 'react';
 import ResetPassword, { ResetPasswordProps } from '.';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   mockAccountWithThrottledError,
   mockAccountWithUnexpectedError,

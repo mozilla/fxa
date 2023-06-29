@@ -4,7 +4,7 @@
 
 import React, { useCallback } from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { useBooleanState } from 'fxa-react/lib/hooks';
 import { Modal } from '.';
 import { LocationProvider } from '@reach/router';

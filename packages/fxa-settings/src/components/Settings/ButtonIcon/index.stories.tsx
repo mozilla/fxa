@@ -4,10 +4,9 @@
 
 import React from 'react';
 import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from '.';
-import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
-export default {
+const meta = {
   title: 'Components/Settings/ButtonIcon',
   component: ButtonIcon,
   subcomponents: { ButtonIconTrash, ButtonIconReload },
@@ -19,7 +18,9 @@ export default {
       </div>
     ),
   ],
-} as Meta;
+};
+
+export default meta;
 
 const onClick = () => alert('You clicked the button!');
 

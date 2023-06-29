@@ -5,7 +5,10 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Head from './index';
+import { withLocalization } from '../../lib/storybooks';
 
 storiesOf('Components/Head', module)
-  .add('basic', () => <Head />)
-  .add('with title', () => <Head title="neat feature" />);
+  .add('basic', () => withLocalization(() => <Head />))
+  .add('with title', () =>
+    withLocalization(() => <Head title="neat feature" />)
+  );
