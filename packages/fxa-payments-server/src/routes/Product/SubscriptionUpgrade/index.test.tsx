@@ -40,7 +40,7 @@ import {
   getLocalizedDateString,
 } from '../../../lib/formats';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import { updateConfig } from '../../../lib/config';
+import { config, updateConfig } from '../../../lib/config';
 import { deepCopy } from '../../../lib/test-utils';
 
 jest.mock('../../../lib/sentry');
@@ -90,11 +90,19 @@ async function rendersAsExpected(
     selectedPlan.interval_count === upgradeFromPlan.interval_count
       ? getLocalizedDateString(invoicePreview.line_items[0].period.end)
       : getLocalizedDateString(customerWebSubscription.current_period_end);
+
   expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
   expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
-  expect(queryByTestId('sub-update-copy')).toHaveTextContent(
-    expectedInvoiceDate
-  );
+
+  if (config.featureFlags.useStripeInvoiceImmediately) {
+    expect(queryByTestId('sub-update-acknowledgment')).toHaveTextContent(
+      expectedInvoiceDate
+    );
+  } else {
+    expect(queryByTestId('sub-update-copy')).toHaveTextContent(
+      expectedInvoiceDate
+    );
+  }
 }
 
 describe('routes/Product/SubscriptionUpgrade', () => {
