@@ -40,6 +40,9 @@ module.exports = function (config) {
 
   const EXTRA_IMG_SRC = config.get('csp.extraImgSrc');
 
+  // We need this for Webpack 5
+  const WEBPACK_DEV_SERVER = 'ws://localhost:3032';
+
   //
   // Double quoted values
   //
@@ -125,6 +128,7 @@ module.exports = function (config) {
 
   if (config.get('env') === 'development') {
     rules.directives.connectSrc.push(HOT_RELOAD_WEBSOCKET);
+    rules.directives.connectSrc.push(WEBPACK_DEV_SERVER);
   }
 
   return rules;
