@@ -100,11 +100,11 @@ export const App = ({
 
   return (
     <AppContext.Provider value={appContextValue}>
-      <Head />
       <AppLocalizationProvider
         userLocales={navigatorLanguages}
         bundles={['payments', 'react']}
       >
+        <Head />
         <Localized id="document" attrs={{ title: true }}>
           <AppErrorBoundary>
             <StripeProvider apiKey={config.stripe.apiKey}>
