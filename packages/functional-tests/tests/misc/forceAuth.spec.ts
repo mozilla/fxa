@@ -23,7 +23,7 @@ test.describe('force auth', () => {
     await login.clickForgotPassword();
 
     // Verify reset password header
-    expect(await resetPassword.resetPasswordHeader()).toBe(true);
+    await resetPassword.resetPasswordHeader();
 
     //Verify email is prefilled
     expect(await login.getPrefilledEmail()).toContain(credentials.email);
@@ -37,7 +37,7 @@ test.describe('force auth', () => {
     await resetPassword.clickBeginReset();
 
     //Verify confirm reset password header
-    expect(await resetPassword.confirmResetPasswordHeader()).toBe(true);
+    await resetPassword.confirmResetPasswordHeader();
 
     //Click 'Remember password? Sign in', redirected to force auth page
     await resetPassword.clickRememberPassword();
