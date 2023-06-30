@@ -180,7 +180,6 @@ const webpackConfig = {
                     useBuiltIns: 'entry',
                   },
                 ],
-                ['@babel/preset-react', {}],
                 '@babel/preset-typescript',
               ],
               plugins: [
