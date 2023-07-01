@@ -1,13 +1,14 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AlertBar } from './index';
+import { renderWithLocalizationProvider } from '../../lib/test-utils';
 
 afterEach(cleanup);
 
 it('renders as expected', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AlertBar
       dataTestId="children"
       headerId="alert-bar-header"
@@ -25,7 +26,7 @@ it('renders as expected', () => {
 });
 
 it('renders success alert', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AlertBar
       className="alert-success"
       dataTestId="children"
@@ -42,7 +43,7 @@ it('renders success alert', () => {
 });
 
 it('renders error alert', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AlertBar
       className="alert-error"
       dataTestId="children"
@@ -57,7 +58,7 @@ it('renders error alert', () => {
 });
 
 it('renders newsletter error alert', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AlertBar
       className="alert-newsletter-error"
       dataTestId="children"
@@ -72,7 +73,7 @@ it('renders newsletter error alert', () => {
 });
 
 it('renders pending alert', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AlertBar
       className="alert-pending"
       dataTestId="children"

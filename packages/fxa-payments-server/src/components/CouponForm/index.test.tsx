@@ -1,10 +1,4 @@
-import {
-  render,
-  screen,
-  cleanup,
-  fireEvent,
-  waitFor,
-} from '@testing-library/react';
+import { screen, cleanup, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { CouponForm, checkPromotionCode } from './index';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
@@ -39,6 +33,7 @@ jest.mock('../../lib/apiClient', () => {
 
 // eslint-disable-next-line import/first
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
+import { renderWithLocalizationProvider } from '../../lib/test-utils';
 
 beforeEach(() => {
   (apiRetrieveCouponDetails as jest.Mock)
@@ -57,7 +52,7 @@ describe('CouponForm', () => {
   describe('CouponForm component', () => {
     it('renders as expected', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
@@ -89,7 +84,7 @@ describe('CouponForm', () => {
         maximallyRedeemed: false,
       };
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={coupon}
@@ -113,7 +108,7 @@ describe('CouponForm', () => {
         .mockResolvedValue(COUPON_DETAILS_INVALID);
       const mockSetCoupon = jest.fn();
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
@@ -171,7 +166,7 @@ describe('CouponForm', () => {
         maximallyRedeemed: false,
       };
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={coupon}
@@ -189,7 +184,7 @@ describe('CouponForm', () => {
 
     it('has the input and buttons disabled during processing of a subscription', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={undefined}
@@ -218,7 +213,7 @@ describe('CouponForm', () => {
         maximallyRedeemed: false,
       };
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <CouponForm
             planId={SELECTED_PLAN.plan_id}
             coupon={coupon}
@@ -250,7 +245,7 @@ describe('CouponForm', () => {
         .mockResolvedValue(coupon);
 
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <AppContext.Provider
             value={{
               ...defaultAppContext,
@@ -284,7 +279,7 @@ describe('CouponForm', () => {
         .mockResolvedValue(COUPON_DETAILS_INVALID);
 
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <AppContext.Provider
             value={{
               ...defaultAppContext,

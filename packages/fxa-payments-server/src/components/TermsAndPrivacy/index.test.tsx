@@ -1,8 +1,11 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { MOCK_PLANS } from '../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  renderWithLocalizationProvider,
+} from '../../lib/test-utils';
 import { TermsAndPrivacy } from './index';
 import { defaultAppContext, AppContext } from '../../lib/AppContext';
 import { DEFAULT_PRODUCT_DETAILS } from 'fxa-shared/subscriptions/metadata';
@@ -72,7 +75,7 @@ afterEach(() => {
 });
 
 it('renders as expected with a plan with no legal doc links metadata', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <TermsAndPrivacy plan={planWithNoLegalLinks} />
   );
 
@@ -99,7 +102,7 @@ it('renders as expected with a plan with no legal doc links metadata', () => {
 });
 
 it('renders as expected when passed "showFXALinks" option', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <TermsAndPrivacy plan={planWithNoLegalLinks} showFXALinks={true} />
   );
 
@@ -108,7 +111,9 @@ it('renders as expected when passed "showFXALinks" option', () => {
 });
 
 it('renders as expected with default locale', () => {
-  const { queryByTestId } = render(<TermsAndPrivacy plan={plan} />);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <TermsAndPrivacy plan={plan} />
+  );
   const termsLink = queryByTestId('terms');
   expect(termsLink).toBeInTheDocument();
   expect(termsLink).toHaveAttribute('href', enTermsOfServiceURL);
@@ -118,7 +123,7 @@ it('renders as expected with default locale', () => {
 });
 
 it('renders as expected with fr locale', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AppContext.Provider
       value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
     >
@@ -139,7 +144,7 @@ it('renders as expected with firestore config and default locale', () => {
       useFirestoreProductConfigs: true,
     },
   });
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <TermsAndPrivacy plan={planWithConfiguration} />
   );
   const termsLink = queryByTestId('terms');
@@ -156,7 +161,7 @@ it('renders as expected with firestore config and fr locale', () => {
       useFirestoreProductConfigs: true,
     },
   });
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <AppContext.Provider
       value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
     >

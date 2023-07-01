@@ -1,7 +1,10 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { getLocalizedMessage } from '../../lib/test-utils';
+import {
+  getLocalizedMessage,
+  renderWithLocalizationProvider,
+} from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
@@ -15,7 +18,9 @@ describe('PaymentProcessing tests', () => {
   });
 
   it('renders as expected', () => {
-    const { queryByTestId } = render(<PaymentProcessing provider="paypal" />);
+    const { queryByTestId } = renderWithLocalizationProvider(
+      <PaymentProcessing provider="paypal" />
+    );
 
     const subscriptionTitle = queryByTestId('subscription-processing-title');
     expect(subscriptionTitle).toBeInTheDocument();

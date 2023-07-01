@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import {
-  render,
   cleanup,
   fireEvent,
   RenderResult,
@@ -44,6 +43,7 @@ import {
   MOCK_LATEST_INVOICE_ITEMS,
   MOCK_CUSTOMER_ARCHIVED_PLAN,
   MOCK_ACTIVE_SUBSCRIPTIONS_TO_ARCHIVED,
+  renderWithLocalizationProvider,
 } from '../../lib/test-utils';
 
 import { SettingsLayout } from '../../components/AppLayout';
@@ -171,7 +171,7 @@ describe('routes/Subscriptions', () => {
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
     });
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     await screen.findByTestId('subscription-management-loaded');
     await waitForExpect(() => {
       expect(screen.queryByTestId('loading-overlay')).not.toBeInTheDocument();
@@ -188,9 +188,8 @@ describe('routes/Subscriptions', () => {
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
 
-    const { findByTestId, queryAllByTestId, queryByTestId } = render(
-      <Subject />
-    );
+    const { findByTestId, queryAllByTestId, queryByTestId } =
+      renderWithLocalizationProvider(<Subject />);
     if (window.onload) {
       dispatchEvent(new Event('load'));
     }
@@ -206,7 +205,7 @@ describe('routes/Subscriptions', () => {
     initApiMocks({
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
     });
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('manage-pocket-title');
     await findByTestId('manage-pocket-link');
   });
@@ -227,7 +226,9 @@ describe('routes/Subscriptions', () => {
         },
       })),
     });
-    const { findByTestId, queryAllByTestId } = render(<Subject />);
+    const { findByTestId, queryAllByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     await findByTestId('subscription-management-loaded');
     expect(queryAllByTestId('upgrade-cta').length).toBe(2);
     // Ensure that our HTML in upgradeCTA got rendered as markup
@@ -237,7 +238,7 @@ describe('routes/Subscriptions', () => {
   it('offers a button for support', async () => {
     initApiMocks();
     const navigateToUrl = jest.fn();
-    const { getByTestId, findByTestId } = render(
+    const { getByTestId, findByTestId } = renderWithLocalizationProvider(
       <Subject navigateToUrl={navigateToUrl} />
     );
     await findByTestId('subscription-management-loaded');
@@ -251,7 +252,9 @@ describe('routes/Subscriptions', () => {
       mockCustomer: MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
       mockActiveSubscriptions: MOCK_ACTIVE_SUBSCRIPTIONS_AFTER_SUBSCRIPTION,
     });
-    const { getAllByTestId, findByTestId } = render(<Subject />);
+    const { getAllByTestId, findByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     await findByTestId('subscription-management-loaded');
     fireEvent.click(getAllByTestId('reveal-cancel-subscription-button')[0]);
     expect(manageSubscriptionsMounted).toBeCalledTimes(1);
@@ -260,7 +263,7 @@ describe('routes/Subscriptions', () => {
 
   it('displays profile displayName if available', async () => {
     initApiMocks({ displayName: 'Foo Barson' });
-    const { findByText } = render(<Subject />);
+    const { findByText } = renderWithLocalizationProvider(<Subject />);
     await findByText('Foo Barson');
   });
 
@@ -271,7 +274,7 @@ describe('routes/Subscriptions', () => {
     });
 
     const navigateToUrl = jest.fn();
-    render(<Subject navigateToUrl={navigateToUrl} />);
+    renderWithLocalizationProvider(<Subject navigateToUrl={navigateToUrl} />);
 
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/settings`);
@@ -291,7 +294,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-loading-profile');
   });
 
@@ -309,7 +312,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-loading-plans');
   });
 
@@ -327,7 +330,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-loading-customer');
   });
 
@@ -345,7 +348,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(500, MOCK_SUBSEQUENT_INVOICES);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-loading-invoice');
   });
 
@@ -363,7 +366,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, []);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-subhub-missing-subsequent-invoice');
   });
 
@@ -385,7 +388,7 @@ describe('routes/Subscriptions', () => {
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
     const navigateToUrl = jest.fn();
-    render(<Subject navigateToUrl={navigateToUrl} />);
+    renderWithLocalizationProvider(<Subject navigateToUrl={navigateToUrl} />);
 
     await waitForExpect(() => expect(navigateToUrl).toBeCalled());
     expect(navigateToUrl).toBeCalledWith(`${contentServer}/settings`);
@@ -398,7 +401,8 @@ describe('routes/Subscriptions', () => {
       .delete('/v1/oauth/subscriptions/active/sub0.28964929339372136')
       .reply(400, {});
 
-    const { findByTestId, queryAllByTestId, getByTestId } = render(<Subject />);
+    const { findByTestId, queryAllByTestId, getByTestId } =
+      renderWithLocalizationProvider(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -428,7 +432,7 @@ describe('routes/Subscriptions', () => {
       queryByTestId,
       getByTestId,
       getAllByTestId,
-    } = render(<Subject />);
+    } = renderWithLocalizationProvider(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -585,7 +589,7 @@ describe('routes/Subscriptions', () => {
       });
 
     const { findByTestId, queryAllByTestId, queryByTestId, getAllByTestId } =
-      render(<Subject />);
+      renderWithLocalizationProvider(<Subject />);
 
     // Wait for the page to load with one subscription
     await findByTestId('subscription-management-loaded');
@@ -810,9 +814,8 @@ describe('routes/Subscriptions', () => {
       nock(authServer)
         .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
         .reply(200, MOCK_SUBSEQUENT_INVOICES);
-      const { findByTestId, getByTestId, getByAltText, queryByTestId } = render(
-        <Subject />
-      );
+      const { findByTestId, getByTestId, getByAltText, queryByTestId } =
+        renderWithLocalizationProvider(<Subject />);
 
       // Wait for the page to load with one subscription
       await findByTestId('subscription-management-loaded');
@@ -857,7 +860,9 @@ describe('routes/Subscriptions', () => {
         .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
         .reply(200, MOCK_SUBSEQUENT_INVOICES);
 
-      const { findByTestId, getByTestId } = render(<Subject />);
+      const { findByTestId, getByTestId } = renderWithLocalizationProvider(
+        <Subject />
+      );
 
       // Wait for the page to load with one subscription
       await findByTestId('subscription-management-loaded');
@@ -902,7 +907,7 @@ describe('routes/Subscriptions', () => {
     nock(authServer)
       .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
       .reply(200, MOCK_SUBSEQUENT_INVOICES);
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     await findByTestId('error-subhub-missing-plan');
   });
 
@@ -916,7 +921,7 @@ describe('routes/Subscriptions', () => {
     Object.defineProperty(window.location, 'href', { set: setSpy });
 
     const appContext = { accessToken: undefined };
-    render(<Subject appContext={appContext} />);
+    renderWithLocalizationProvider(<Subject appContext={appContext} />);
 
     expect(setSpy).toHaveBeenCalledWith(
       'https://content.example/subscriptions'
@@ -968,9 +973,8 @@ describe('routes/Subscriptions', () => {
         },
       });
 
-      const { findByTestId, queryAllByTestId, queryByTestId } = render(
-        <Subject />
-      );
+      const { findByTestId, queryAllByTestId, queryByTestId } =
+        renderWithLocalizationProvider(<Subject />);
 
       await findByTestId('subscription-management-loaded');
 
@@ -995,7 +999,9 @@ describe('routes/Subscriptions', () => {
         mockSubsequentInvoices: MOCK_SUBSEQUENT_INVOICES,
       });
 
-      const { findByTestId, queryAllByTestId } = render(<Subject />);
+      const { findByTestId, queryAllByTestId } = renderWithLocalizationProvider(
+        <Subject />
+      );
 
       await findByTestId('subscription-management-loaded');
 

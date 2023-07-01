@@ -1,16 +1,17 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import PaymentProviderDetails from './index';
 import * as Customers from '../../lib/mock-data';
+import { renderWithLocalizationProvider } from '../../lib/test-utils';
 
 afterEach(cleanup);
 
 describe('PaymentProviderDetails', () => {
   describe('payment_method === "stripe" and an expirationDate is provided', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentProviderDetails {...{ customer: Customers.CUSTOMER }} />
       );
     };
@@ -30,7 +31,7 @@ describe('PaymentProviderDetails', () => {
 
   describe('When payment_method === "paypal"', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PaymentProviderDetails {...{ customer: Customers.PAYPAL_CUSTOMER }} />
       );
     };

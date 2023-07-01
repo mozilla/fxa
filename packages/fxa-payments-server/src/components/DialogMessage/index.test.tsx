@@ -3,31 +3,40 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { DialogMessage } from './index';
+import { renderWithLocalizationProvider } from '../../lib/test-utils';
 
 afterEach(cleanup);
 
 it('renders as expected', () => {
   const onDismiss = jest.fn();
-  const ariaLabelledBy = "message-header";
-  const ariaDescribedBy = "message-description";
-  const { queryByTestId } = render(
+  const ariaLabelledBy = 'message-header';
+  const ariaDescribedBy = 'message-description';
+  const { queryByTestId } = renderWithLocalizationProvider(
     <DialogMessage
       onDismiss={onDismiss}
       headerId={ariaLabelledBy}
       descId={ariaDescribedBy}
     >
-      <div id={ariaLabelledBy} data-testid="children">Message for Mom</div>
+      <div id={ariaLabelledBy} data-testid="children">
+        Message for Mom
+      </div>
       <p id={ariaDescribedBy}>Hi mom</p>
     </DialogMessage>
   );
   expect(queryByTestId('dialog-message-container')).toHaveClass('blocker');
   expect(queryByTestId('children')).toBeInTheDocument();
-  expect(queryByTestId('dialog-message-information')).toHaveAttribute('aria-labelledby', ariaLabelledBy);
-  expect(queryByTestId('dialog-message-information')).toHaveAttribute('aria-describedby', ariaDescribedBy);
+  expect(queryByTestId('dialog-message-information')).toHaveAttribute(
+    'aria-labelledby',
+    ariaLabelledBy
+  );
+  expect(queryByTestId('dialog-message-information')).toHaveAttribute(
+    'aria-describedby',
+    ariaDescribedBy
+  );
   expect(queryByTestId('dialog-message-information')).toHaveAttribute(
     'role',
     'dialog'
@@ -36,16 +45,18 @@ it('renders as expected', () => {
 
 it('accepts an alternate className', () => {
   const onDismiss = jest.fn();
-  const ariaLabelledBy = "barquux-message-header";
-  const ariaDescribedBy = "barquux-message-description";
-  const { queryByTestId } = render(
+  const ariaLabelledBy = 'barquux-message-header';
+  const ariaDescribedBy = 'barquux-message-description';
+  const { queryByTestId } = renderWithLocalizationProvider(
     <DialogMessage
       onDismiss={onDismiss}
       className="barquux"
       headerId={ariaLabelledBy}
       descId={ariaDescribedBy}
     >
-      <div id={ariaLabelledBy} data-testid="children">Message for Mom</div>
+      <div id={ariaLabelledBy} data-testid="children">
+        Message for Mom
+      </div>
       <p id={ariaDescribedBy}>Hi mom</p>
     </DialogMessage>
   );
@@ -54,15 +65,17 @@ it('accepts an alternate className', () => {
 
 it('calls onDismiss on click outside', () => {
   const onDismiss = jest.fn();
-  const ariaLabelledBy = "dismiss-message-header";
-  const ariaDescribedBy = "dismiss-message-description";
-  const { container, getByTestId } = render(
+  const ariaLabelledBy = 'dismiss-message-header';
+  const ariaDescribedBy = 'dismiss-message-description';
+  const { container, getByTestId } = renderWithLocalizationProvider(
     <DialogMessage
       onDismiss={onDismiss}
       headerId={ariaLabelledBy}
       descId={ariaDescribedBy}
     >
-      <div id={ariaLabelledBy} data-testid="children">Message for Mom</div>
+      <div id={ariaLabelledBy} data-testid="children">
+        Message for Mom
+      </div>
       <p id={ariaDescribedBy}>Hi mom</p>
     </DialogMessage>
   );
@@ -73,11 +86,13 @@ it('calls onDismiss on click outside', () => {
 });
 
 it('hides the close button when onDismiss is not supplied', () => {
-  const ariaLabelledBy = "dismiss-header";
-  const ariaDescribedBy = "dismiss-description";
-  const { queryByTestId } = render(
+  const ariaLabelledBy = 'dismiss-header';
+  const ariaDescribedBy = 'dismiss-description';
+  const { queryByTestId } = renderWithLocalizationProvider(
     <DialogMessage headerId={ariaLabelledBy} descId={ariaDescribedBy}>
-      <div id={ariaLabelledBy} data-testid="children">Message for Mom</div>
+      <div id={ariaLabelledBy} data-testid="children">
+        Message for Mom
+      </div>
       <p id={ariaDescribedBy}>Hi mom</p>
     </DialogMessage>
   );

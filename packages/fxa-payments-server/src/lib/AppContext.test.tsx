@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { defaultAppContext, AppContext, AppContextType } from './AppContext';
+import { renderWithLocalizationProvider } from './test-utils';
 
 afterEach(cleanup);
 
@@ -29,7 +30,7 @@ it('passes along given app-global props', () => {
     accessToken: 'lettherightonein',
   };
 
-  const { getByTestId } = render(
+  const { getByTestId } = renderWithLocalizationProvider(
     <AppContext.Provider value={appContextValue}>
       <Subject />
     </AppContext.Provider>

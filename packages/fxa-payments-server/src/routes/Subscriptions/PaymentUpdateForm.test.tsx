@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  screen,
-  render,
-  cleanup,
-  act,
-  fireEvent,
-} from '@testing-library/react';
+import { screen, cleanup, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import waitForExpect from 'wait-for-expect';
@@ -16,6 +10,7 @@ import {
   mockStripeElementOnChangeFns,
   elementChangeResponse,
   MOCK_PAYPAL_CUSTOMER_RESULT,
+  renderWithLocalizationProvider,
 } from '../../lib/test-utils';
 import {
   CUSTOMER,
@@ -118,41 +113,45 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('renders with payment update form hidden initially', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     expect(screen.queryByTestId('payment-update')).toBeInTheDocument();
     expect(screen.queryByTestId('paymentForm')).not.toBeInTheDocument();
   });
 
   it('renders valid expiration date', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     expect(screen.queryByTestId('card-expiration-date')).toHaveTextContent(
       'Expires February 2099'
     );
   });
 
   it('does not render expiration date if date is invalid', async () => {
-    render(<Subject customer={{ ...CUSTOMER, exp_month: undefined }} />);
+    renderWithLocalizationProvider(
+      <Subject customer={{ ...CUSTOMER, exp_month: undefined }} />
+    );
     expect(
       screen.queryByTestId('card-expiration-date')
     ).not.toBeInTheDocument();
   });
 
   it('reveals the payment update form on clicking Change button', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     expect(screen.queryByTestId('payment-update')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('change-button'));
     expect(screen.queryByTestId('paymentForm')).toBeInTheDocument();
   });
 
   it('renders correctly for paypal', async () => {
-    render(<Subject customer={{ ...CUSTOMER, payment_provider: 'paypal' }} />);
+    renderWithLocalizationProvider(
+      <Subject customer={{ ...CUSTOMER, payment_provider: 'paypal' }} />
+    );
     expect(
       screen.getByTestId('change-payment-update-button')?.getAttribute('href')
     ).toEqual(`${apiUrl}/myaccount/autopay/connect/ba-131243`);
   });
 
   it('renders correctly for paypal with archived plan', async () => {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         customer={{ ...CUSTOMER, payment_provider: 'paypal' }}
         plan={INACTIVE_PLAN}
@@ -173,7 +172,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
 
     const refreshSubscriptions = jest.fn();
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             customer: {
@@ -228,7 +227,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     const refreshSubscriptions = jest.fn();
 
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             customer: {
@@ -273,7 +272,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
   });
 
   it('renders correctly for incorrect funding source for paypal', async () => {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         customer={{
           ...CUSTOMER,
@@ -295,7 +294,7 @@ describe('routes/Subscriptions/PaymentUpdateFormV2', () => {
     refreshSubscriptions = jest.fn(),
     ...props
   } = {}) {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         {...{
           apiClientOverrides,

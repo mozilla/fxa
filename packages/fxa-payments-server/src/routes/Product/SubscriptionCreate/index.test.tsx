@@ -4,13 +4,7 @@
 import '@testing-library/jest-dom/extend-expect';
 
 import { PaymentMethod } from '@stripe/stripe-js';
-import {
-  act,
-  cleanup,
-  fireEvent,
-  render,
-  screen,
-} from '@testing-library/react';
+import { act, cleanup, fireEvent, screen } from '@testing-library/react';
 import waitForExpect from 'wait-for-expect';
 
 import SubscriptionCreate, { SubscriptionCreateProps } from '.';
@@ -39,6 +33,7 @@ import {
   MOCK_PAYPAL_SUBSCRIPTION_RESULT,
   MockApp,
   mockStripeElementOnChangeFns,
+  renderWithLocalizationProvider,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
 
@@ -127,7 +122,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('renders as expected', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     const { queryByTestId, queryByText } = screen;
     const subscriptionCreateTitle = queryByTestId('subscription-create-title');
     expect(subscriptionCreateTitle).toBeInTheDocument();
@@ -153,7 +148,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('displays checkbox tooltip error when unchecking checkbox', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     const { queryByTestId, findByTestId, queryByText } = screen;
     const paymentFormContainer = queryByTestId('payment-form-container');
     expect(paymentFormContainer).toBeInTheDocument();
@@ -175,7 +170,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('displays checkbox tooltip error when unchecked and clicking on disabled form', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     const { queryByTestId, queryByText } = screen;
     const paymentFormContainer = queryByTestId('payment-form-container');
     expect(paymentFormContainer).toBeInTheDocument();
@@ -199,7 +194,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             paypalButtonBase: MockedButtonBase,
@@ -226,7 +221,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject customer={CUSTOMER} paypalButtonBase={MockedButtonBase} />
       );
     });
@@ -244,7 +239,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       return <button data-testid="paypal-button" />;
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           customer={PAYPAL_CUSTOMER}
           paypalButtonBase={MockedButtonBase}
@@ -260,7 +255,7 @@ describe('routes/Product/SubscriptionCreate', () => {
   });
 
   it('renders as expected for mobile', async () => {
-    render(<Subject isMobile={true} />);
+    renderWithLocalizationProvider(<Subject isMobile={true} />);
     const { queryByTestId } = screen;
     const subscriptionCreateTitle = queryByTestId('subscription-create-title');
     expect(subscriptionCreateTitle).toBeInTheDocument();
@@ -280,7 +275,7 @@ describe('routes/Product/SubscriptionCreate', () => {
     refreshSubscriptions = jest.fn(),
     ...props
   }) {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         {...{
           apiClientOverrides,
@@ -606,7 +601,7 @@ describe('routes/Product/SubscriptionCreate', () => {
     };
     const refreshSubscriptions = jest.fn();
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             apiClientOverrides,
@@ -642,7 +637,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       apiCreateCustomer: jest.fn(),
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             customer: null,
@@ -869,7 +864,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       };
 
       await act(async () => {
-        render(
+        renderWithLocalizationProvider(
           <Subject
             {...{
               apiClientOverrides,
@@ -893,7 +888,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       return <button data-testid="paypal-button" onClick={onError} />;
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             paypalButtonBase: MockedButtonBase,
@@ -927,7 +922,7 @@ describe('routes/Product/SubscriptionCreate', () => {
         .mockRejectedValue({ code: 'barf apiCapturePaypalPayment' }),
     };
     await act(async () => {
-      render(
+      renderWithLocalizationProvider(
         <Subject
           {...{
             apiClientOverrides,

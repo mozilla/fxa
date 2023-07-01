@@ -1,8 +1,10 @@
 import React from 'react';
-import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { MockApp } from '../../../lib/test-utils';
+import {
+  MockApp,
+  renderWithLocalizationProvider,
+} from '../../../lib/test-utils';
 import { SELECTED_PLAN, PROFILE } from '../../../lib/mock-data';
 import { SignInLayout } from '../../../components/AppLayout';
 import SubscriptionChangeRoadblock, {
@@ -27,7 +29,7 @@ const Subject = () => {
 
 describe('routes/Product/SubscriptionDowngradeRoadblock', () => {
   it('renders as expected', async () => {
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const titleEl = await findByTestId('subscription-noplanchange-title');
     expect(titleEl).toBeInTheDocument();
     const errorEl = await findByTestId('payment-error');
