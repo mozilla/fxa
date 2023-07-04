@@ -38,6 +38,8 @@ export interface FirstInvoicePreview {
   total_excluding_tax: number | null;
   tax?: InvoiceTax[];
   discount?: InvoiceDiscount;
+  one_time_charge?: number;
+  prorated_amount?: number;
 }
 
 export const firstInvoicePreviewSchema = joi.object({

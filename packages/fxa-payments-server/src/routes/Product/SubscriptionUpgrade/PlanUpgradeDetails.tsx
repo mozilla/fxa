@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Localized } from '@fluent/react';
 
 import { AppContext } from '../../../lib/AppContext';
-
+import { formatPlanInterval } from '../../../lib/formats';
 import ffLogo from '../../../images/firefox-logo.svg';
 import { Plan } from '../../../store/types';
 
@@ -28,12 +28,23 @@ export const PlanUpgradeDetails = ({
   invoicePreview: FirstInvoicePreview;
   className?: string;
 }) => {
-  const { config } = useContext(AppContext);
-  const { amount, currency, interval, interval_count } = selectedPlan;
+  const { navigatorLanguages, config } = useContext(AppContext);
+  const { product_name, amount, currency, interval, interval_count } =
+    selectedPlan;
+  const formattedInterval = formatPlanInterval({
+    interval: interval,
+    intervalCount: 1,
+  });
+  const productDetails = uiContentFromProductConfig(
+    selectedPlan,
+    navigatorLanguages,
+    config.featureFlags.useFirestoreProductConfigs
+  );
 
   const role = isMobile ? undefined : 'complementary';
 
   const showTax = config.featureFlags.useStripeAutomaticTax;
+  const invoiceImmediately = config.featureFlags.useStripeInvoiceImmediately;
 
   const exclusiveTaxRates =
     invoicePreview.tax?.filter(
@@ -42,6 +53,7 @@ export const PlanUpgradeDetails = ({
 
   const totalAmount = showTax ? invoicePreview.total : amount;
   const subTotal = invoicePreview.subtotal;
+  const oneTimeCharge = invoicePreview?.one_time_charge;
 
   return (
     <section
@@ -65,9 +77,26 @@ export const PlanUpgradeDetails = ({
         {showTax && !!subTotal && !!exclusiveTaxRates.length && (
           <>
             <div className="plan-details-item">
-              <Localized id="plan-details-list-price">
-                <div>List Price</div>
-              </Localized>
+              {invoiceImmediately ? (
+                <Localized
+                  id={`sub-update-new-plan-${formattedInterval}`}
+                  vars={{
+                    productName: productDetails.name || product_name,
+                  }}
+                >
+                  <div>
+                    {productDetails.name || product_name} (
+                    {formattedInterval.replace(/\w/, (firstLetter) =>
+                      firstLetter.toUpperCase()
+                    )}
+                    )
+                  </div>
+                </Localized>
+              ) : (
+                <Localized id="plan-details-list-price">
+                  <div>List Price</div>
+                </Localized>
+              )}
 
               <PriceDetails
                 total={subTotal}
@@ -119,6 +148,25 @@ export const PlanUpgradeDetails = ({
               dataTestId="total-price"
             />
           </div>
+        )}
+
+        {invoiceImmediately && oneTimeCharge && (
+          <>
+            <hr className="m-0 my-5 unit-row-hr" />
+
+            <div className="plan-details-item font-semibold mt-5">
+              <Localized id="sub-update-prorated-upgrade">
+                <div className="total-label">Prorated Upgrade</div>
+              </Localized>
+
+              <PriceDetails
+                total={oneTimeCharge}
+                currency={currency}
+                className="total-price"
+                dataTestId="prorated-amount"
+              />
+            </div>
+          </>
         )}
       </div>
     </section>

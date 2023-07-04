@@ -907,6 +907,8 @@ export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
@@ -926,6 +928,8 @@ export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
@@ -952,6 +956,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE: FirstInvoicePreview =
@@ -990,6 +996,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePreview =
@@ -1022,6 +1030,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePrevi
       amount_off: 50,
       percent_off: null,
     },
+    prorated_amount: -833,
+    one_time_charge: 1337,
   };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePreview =
@@ -1054,6 +1064,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePrevi
       amount_off: 50,
       percent_off: null,
     },
+    prorated_amount: -833,
+    one_time_charge: 1337,
   };
 
 export const INVOICE_NO_TAX: LatestInvoiceItems = MOCK_PREVIEW_INVOICE_NO_TAX;

@@ -101,6 +101,22 @@ async function rendersAsExpected(
     expect(queryByTestId('sub-update-acknowledgment')).toHaveTextContent(
       expectedInvoiceDate
     );
+    expect(
+      queryByTestId(`sub-update-new-plan-${selectedPlan.interval}`)
+    ).toBeInTheDocument();
+
+    if (
+      !!invoicePreview.one_time_charge &&
+      invoicePreview.one_time_charge > 0
+    ) {
+      expect(queryByTestId('sub-update-prorated-upgrade')).toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).toBeInTheDocument();
+    } else {
+      expect(
+        queryByTestId('sub-update-prorated-upgrade')
+      ).not.toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).not.toBeInTheDocument();
+    }
   } else {
     expect(queryByTestId('sub-update-copy')).toHaveTextContent(
       expectedInvoiceDate

@@ -50,6 +50,8 @@ const invoicePreviewNoTax: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewInclusiveTax: FirstInvoicePreview = {
@@ -65,6 +67,8 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
@@ -80,6 +84,8 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewExclusiveTaxMulti: FirstInvoicePreview = {

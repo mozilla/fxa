@@ -171,6 +171,35 @@ export function formatPlanPricing(
   }
 }
 
+/**
+ * Helper function to format a Stripe plan's interval
+ * Examples:
+ *   'daily' or 'days'
+ *   'weekly' or 'weeks'
+ *   'monthly' or 'months'
+ *   'yearly' or 'years'
+ * @param interval
+ * @param intervalCount
+ */
+export function formatPlanInterval({
+  interval,
+  intervalCount,
+}: {
+  interval: PlanInterval;
+  intervalCount?: number;
+}): string {
+  switch (interval) {
+    case 'day':
+      return intervalCount === 1 ? 'daily' : 'days';
+    case 'week':
+      return intervalCount === 1 ? 'weekly' : 'weeks';
+    case 'month':
+      return intervalCount === 1 ? 'monthly' : 'months';
+    case 'year':
+      return intervalCount === 1 ? 'yearly' : 'years';
+  }
+}
+
 export const legalDocsRedirectUrl = (docUrl: string): string =>
   `/legal-docs?url=${encodeURI(docUrl)}`;
 

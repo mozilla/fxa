@@ -1,10 +1,13 @@
 import {
+  formatPlanInterval,
   formatPriceAmount,
   getLocalizedCurrency,
   getLocalizedCurrencyString,
   getLocalizedDate,
   getLocalizedDateString,
 } from './formats';
+import { Plan } from 'fxa-shared/subscriptions/types';
+import { MOCK_PLANS } from './test-utils';
 
 describe('format.ts', () => {
   describe('Currency Formatting', () => {
@@ -110,6 +113,80 @@ describe('format.ts', () => {
           const actual = getLocalizedDateString(unixSeconds, true);
           expect(actual).toMatch(pattern);
         });
+      });
+    });
+  });
+
+  describe('Plan Details Formatting', () => {
+    // test plans
+    const MOCK_PLAN_1: Plan = {
+      ...MOCK_PLANS[0],
+      interval: 'day',
+      interval_count: 1,
+    };
+    const MOCK_PLAN_2: Plan = {
+      ...MOCK_PLANS[0],
+      interval: 'month',
+      interval_count: 2,
+    };
+    const MOCK_PLAN_3: Plan = {
+      ...MOCK_PLANS[0],
+      interval: 'year',
+    };
+
+    describe('returns plural of plan interval', () => {
+      it('returns correctly formatted interval when intervalCount is set to a number other than 1', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_2.interval,
+          intervalCount: MOCK_PLAN_2.interval_count,
+        });
+
+        expect(formattedInterval).toEqual('months');
+      });
+
+      it('returns correctly formatted interval when intervalCount is undefined', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_3.interval,
+        });
+
+        expect(formattedInterval).toEqual('years');
+      });
+
+      it('does not return plural of interval when intervalCount is set to 1', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_1.interval,
+          intervalCount: MOCK_PLAN_1.interval_count,
+        });
+
+        expect(formattedInterval).not.toEqual('days');
+      });
+    });
+
+    describe('returns adverb of plan interval', () => {
+      it('returns a correctly formatted string when intervalCount is equal to 1', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_1.interval,
+          intervalCount: MOCK_PLAN_1.interval_count,
+        });
+
+        expect(formattedInterval).toEqual('daily');
+      });
+
+      it('does not return correctly formatted string when intervalCount is undefined', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_3.interval,
+        });
+
+        expect(formattedInterval).not.toEqual('yearly');
+      });
+
+      it('does not return correctly formatted string when intervalCount is set to a number other than 1', () => {
+        const formattedInterval = formatPlanInterval({
+          interval: MOCK_PLAN_2.interval,
+          intervalCount: MOCK_PLAN_2.interval_count,
+        });
+
+        expect(formattedInterval).not.toEqual('monthly');
       });
     });
   });
