@@ -28,6 +28,8 @@ export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   SIGN_UP_CODE_HEADER: '#fxa-confirm-signup-code-header',
+  SIGNIN_BOUNCED_HEADER: '#fxa-signin-bounced-header',
+  BOUNCED_CREATE_ACCOUNT: '#create-account',
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
   CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
@@ -266,6 +268,10 @@ export class LoginPage extends BaseLayout {
     return this.page.click(selectors.LINK_USE_RECOVERY_CODE);
   }
 
+  async clickBouncedCreateAccount() {
+    return this.page.locator(selectors.BOUNCED_CREATE_ACCOUNT).click();
+  }
+
   async setCode(code: string) {
     return this.page.fill(selectors.RECOVERY_KEY_TEXT_INPUT, code);
   }
@@ -363,6 +369,12 @@ export class LoginPage extends BaseLayout {
 
   async isSigninHeader() {
     return this.page.isVisible(selectors.SIGNIN_HEADER, {
+      timeout: 100,
+    });
+  }
+
+  async isSigninBouncedHeader() {
+    return this.page.isVisible(selectors.SIGNIN_BOUNCED_HEADER, {
       timeout: 100,
     });
   }

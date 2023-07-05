@@ -100,4 +100,31 @@ test.describe('signin here', () => {
     // Verify the header after login
     expect(await login.loginHeader()).toBe(true);
   });
+
+  test('with bounced email', async ({
+    target,
+    page,
+    pages: { login, settings },
+  }) => {
+    const email = login.createEmail('sync{id}');
+    const password = 'password123';
+    await target.createAccount(email, password);
+    await page.goto(
+      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
+    );
+    await login.fillOutEmailFirstSignIn(email, password);
+
+    // Verify the header after login
+    expect(await login.isSignInCodeHeader()).toBe(true);
+    await target.auth.accountDestroy(email, password);
+    await page.waitForURL(/signin_bounced/);
+
+    //Verify sign in bounced header
+    expect(await login.isSigninBouncedHeader()).toBe(true);
+    await login.clickBouncedCreateAccount();
+
+    //Verify user redirected to login page
+    expect(await login.isEmailHeader()).toBe(true);
+    expect(await login.getEmailInput()).toContain('');
+  });
 });
