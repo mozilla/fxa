@@ -1112,6 +1112,19 @@ const Account = Backbone.Model.extend(
         .then(this.set.bind(this));
     },
 
+    setPasswordThirdParty(relier, idToken, provider, email, password) {
+      return this._fxaClient
+        .verifyAccountThirdParty(
+          relier,
+          idToken,
+          provider,
+          email,
+          password,
+          this._metrics.getFlowEventMetadata()
+        )
+        .then(this.set.bind(this));
+    },
+
     /**
      * Fetch the account's list of attached clients.
      *

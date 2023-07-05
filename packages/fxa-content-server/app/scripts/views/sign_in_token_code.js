@@ -47,23 +47,24 @@ const View = FormView.extend({
         this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
       )
       .then(() => {
-        this.waitForSessionVerification(this.getAccount(), () => {
-          // don't do anything on verification, that's taken care of in the submit handler.
-        });
+        debugger
+        // this.waitForSessionVerification(this.getAccount(), () => {
+        //   // don't do anything on verification, that's taken care of in the submit handler.
+        // });
       });
   },
 
   setInitialContext(context) {
-    const email = this.getAccount().get('email');
-
-    // This needs to point to correct support link
-    const supportLink = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
-
-    context.set({
-      email,
-      escapedSupportLink: encodeURI(supportLink),
-      hasSupportLink: !!supportLink,
-    });
+    // const email = this.getAccount().get('email');
+    //
+    // // This needs to point to correct support link
+    // const supportLink = Constants.BLOCKED_SIGNIN_SUPPORT_URL;
+    //
+    // context.set({
+    //   email,
+    //   escapedSupportLink: encodeURI(supportLink),
+    //   hasSupportLink: !!supportLink,
+    // });
   },
 
   submit() {

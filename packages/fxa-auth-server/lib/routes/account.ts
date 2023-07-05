@@ -649,6 +649,58 @@ export class AccountHandler {
       throw err;
     }
   }
+  
+  async setPasswordThirdParty(request: AuthRequest) {
+    this.log.begin('Account.set_password_for_third_party', request);
+
+    try {
+      const form = request.payload as any;
+      const { authPW, idToken, keys } = form;
+      const auth = request.auth;
+      const { uid } = auth.credentials;
+
+      const account = await this.db.account(uid);
+      const email = account.primaryEmail.email;
+
+      await this.customs.check(request, email, 'setPasswordThirdParty');
+      
+      await this.setPasswordOnStubAccount(account, authPW);
+      
+      const sessionToken = await this.createSessionToken({
+        account,
+        request,
+        // this route counts as verification
+        tokenVerificationId: undefined,
+      });
+
+      const password = new this.Password(
+       authPW,
+       account.authSalt,
+       account.verifierVersion
+      );
+      const keyFetchToken = await this.signinUtils.createKeyFetchToken(
+       request,
+       account,
+       password,
+       sessionToken
+      );
+
+      const response: Record<string, any> = {
+        uid: sessionToken.uid,
+        sessionToken: sessionToken.data,
+        authAt: sessionToken.lastAuthAt(),
+        metricsEnabled: !account.metricsOptOutAt,
+        keyFetchToken: keyFetchToken.data,
+      };
+      
+      return response;
+    } catch(err) {
+      this.log.error('Account.set_password_for_sync.error', {
+        err,
+      });
+      throw err;
+    }
+  }
 
   async setPassword(request: AuthRequest) {
     this.log.begin('Account.set_password', request);
@@ -847,7 +899,7 @@ export class AccountHandler {
     };
 
     const checkTotpToken = async () => {
-      // Check to see if the user has a TOTP token and it is verified and
+      // Check to see if the user has a TOTP token, and it is verified and
       // enabled, if so then the verification method is automatically forced so that
       // they have to verify the token.
       const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
@@ -1762,6 +1814,21 @@ export const accountRoutes = (
         },
       },
       handler: (request: AuthRequest) => accountHandler.accountStub(request),
+    },
+    {
+      method: 'POST',
+      path: '/account/set_password_sync',
+      options: {
+        auth: {
+          strategy: 'sessionToken',
+        },
+        validate: {
+          payload: isA.object({
+            authPW: validators.authPW,
+          }),
+        },
+      },
+      handler: (request: AuthRequest) => accountHandler.setPasswordThirdParty(request),
     },
     {
       method: 'POST',

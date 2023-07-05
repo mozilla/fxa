@@ -635,6 +635,19 @@ export default class AuthClient {
     });
   }
 
+  async setPasswordThirdParty(
+   authPW: string
+  ): Promise<{
+    uid: hexstring;
+    sessionToken: hexstring;
+    authPW: boolean;
+  }> {
+    const payload = {
+      authPW
+    };
+    return await this.request('POST', '/account/set_password_sync', payload);
+  }
+
   async accountKeys(
     keyFetchToken: hexstring,
     unwrapBKey: hexstring
