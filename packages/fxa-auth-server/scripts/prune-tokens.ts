@@ -169,12 +169,11 @@ Exit Codes:
             maxSessionsBatchSize
           );
 
-          log.info('limitSessions result', {
-            result,
-          });
+          const currentDeletions = result.outputs['@totalDeletions']
+          log.info('limitSessions result', { currentDeletions });
 
           // Keeping looping until all extraneous sessions been cleaned up
-          if (result.outputs['@totalDeletions'] <= 0) {
+          if (currentDeletions <= 0) {
             break;
           }
 
