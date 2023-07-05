@@ -40,6 +40,12 @@ module.exports = function (config) {
 
   const EXTRA_IMG_SRC = config.get('csp.extraImgSrc');
 
+  // CSP directives required for GA
+  // https://developers.google.com/tag-platform/tag-manager/csp#google_analytics_4_google_analytics
+  const GA_SCRIPT_SRC = 'https://*.googletagmanager.com';
+  const GA_IMG_SRC = 'https://*.google-analytics.com https://*.googletagmanager.com';
+  const GA_CONNECT_SRC = 'https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com';
+
   //
   // Double quoted values
   //
@@ -94,7 +100,7 @@ module.exports = function (config) {
       scriptSrc: addCdnRuleIfRequired([
         SELF,
         STRIPE_SCRIPT_URL,
-        PAYPAL_SCRIPT_URL,
+        PAYPAL_SCRIPT_URL
       ]),
       styleSrc: addCdnRuleIfRequired([SELF, UNSAFE_INLINE]),
     },
@@ -125,6 +131,18 @@ module.exports = function (config) {
 
   if (config.get('env') === 'development') {
     rules.directives.connectSrc.push(HOT_RELOAD_WEBSOCKET);
+  }
+
+  // If GA is enabled, add directives
+  if (config.get('googleAnalytics.enabled')) {
+    rules.directives.connectSrc.push(GA_CONNECT_SRC);
+    rules.directives.imgSrc.push(GA_IMG_SRC);
+    rules.directives.scriptSrc.push(GA_SCRIPT_SRC);
+    Object.assign(rules.Sources, {
+      GA_CONNECT_SRC,
+      GA_IMG_SRC,
+      GA_SCRIPT_SRC
+    })
   }
 
   return rules;
