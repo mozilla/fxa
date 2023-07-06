@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from '@testing-library/react';
 import AppErrorDialog from '.';
+import { renderWithLocalizationProvider } from '../../lib/test-utils/localizationProvider';
 
 describe('AppErrorDialog', () => {
   it('renders a general error dialog', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <AppErrorDialog error={new Error('bad')} />
     );
 
