@@ -33,7 +33,7 @@ jest.mock('../../lib/apiClient', () => {
 
 // eslint-disable-next-line import/first
 import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 beforeEach(() => {
   (apiRetrieveCouponDetails as jest.Mock)

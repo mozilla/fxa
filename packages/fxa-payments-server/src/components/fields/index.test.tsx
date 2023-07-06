@@ -19,7 +19,7 @@ import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

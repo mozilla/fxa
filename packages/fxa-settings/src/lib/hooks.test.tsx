@@ -3,13 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useRef } from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,
   useChangeFocusEffect,
 } from './hooks';
+import {
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from 'fxa-react/lib/test-utils/localizationProvider';
 
 describe('useFocusOnTriggeringElementOnClose', () => {
   const Subject = ({
@@ -34,22 +38,28 @@ describe('useFocusOnTriggeringElementOnClose', () => {
   };
 
   it('changes focus as expected', () => {
-    const { rerender, getByTestId } = render(<Subject revealed />);
-    rerender(<Subject revealed={false} />);
+    const { rerender, getByTestId } = renderWithLocalizationProvider(
+      <Subject revealed />
+    );
+    rerender(withLocalizationProvider(<Subject revealed={false} />));
 
     expect(document.activeElement).toBe(getByTestId('trigger-element'));
   });
 
   it('does nothing if `revealed` is not passed in', () => {
-    const { rerender, getByTestId } = render(<Subject />);
-    rerender(<Subject />);
+    const { rerender, getByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
+    rerender(withLocalizationProvider(<Subject />));
 
     expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
   });
 
   it('does nothing if `triggerException` is truthy', () => {
-    const { rerender, getByTestId } = render(<Subject triggerException />);
-    rerender(<Subject />);
+    const { rerender, getByTestId } = renderWithLocalizationProvider(
+      <Subject triggerException />
+    );
+    rerender(withLocalizationProvider(<Subject />));
 
     expect(document.activeElement).not.toBe(getByTestId('trigger-element'));
   });
@@ -62,7 +72,7 @@ describe('useEscKeydownEffect', () => {
     return <div>Hi mom</div>;
   };
   it('calls onEscKeydown on esc key press', () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     expect(onEscKeydown).not.toHaveBeenCalled();
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(onEscKeydown).toHaveBeenCalled();
@@ -81,7 +91,7 @@ describe('useChangeFocusEffect', () => {
   };
 
   it('changes focus as expected', () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     expect(document.activeElement).toBe(screen.getByTestId('el-to-focus'));
   });
 });

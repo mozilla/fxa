@@ -10,7 +10,7 @@ import {
   defaultState as validatorDefaultState,
   Action as ValidatorAction,
 } from './validator';
-import { renderWithLocalizationProvider } from './test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

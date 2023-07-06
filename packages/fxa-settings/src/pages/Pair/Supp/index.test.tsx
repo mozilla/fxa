@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Supp from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -16,20 +17,20 @@ jest.mock('../../../lib/metrics', () => ({
 
 describe('Pair/Supp page', () => {
   it('renders the default loading state as expected', () => {
-    render(<Supp />);
+    renderWithLocalizationProvider(<Supp />);
 
     screen.queryByTestId('loading-spinner');
   });
 
   it('renders as expected when an error is received', () => {
-    render(<Supp error={MOCK_ERROR} />);
+    renderWithLocalizationProvider(<Supp error={MOCK_ERROR} />);
 
     expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
     screen.getByText('You shall not pass');
   });
 
   it('emits the expected metrics event on render', () => {
-    render(<Supp />);
+    renderWithLocalizationProvider(<Supp />);
 
     expect(usePageViewEvent).toHaveBeenCalledWith(
       'pair.supp',

@@ -9,7 +9,7 @@ import {
 } from './index';
 import { Localized } from '@fluent/react';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 jest.mock('../../lib/apiClient', () => ({
   apiFetchAccountStatus: jest.fn(),

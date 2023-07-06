@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AlertBar from '.';
 
 jest.mock('@apollo/client', () => ({
@@ -18,7 +19,7 @@ jest.mock('../../../models', () => ({
 
 describe('AlertBar', () => {
   it('renders as expected', () => {
-    render(<AlertBar />);
+    renderWithLocalizationProvider(<AlertBar />);
     expect(screen.getByTestId('alert-bar-root')).toContainElement(
       screen.getByTestId('alert-bar')
     );
@@ -31,7 +32,7 @@ describe('AlertBar', () => {
   });
 
   it('shifts focus to the tab fence when rendered', () => {
-    render(<AlertBar />);
+    renderWithLocalizationProvider(<AlertBar />);
     expect(document.activeElement).toBe(
       screen.getByTestId('alert-bar-tab-fence')
     );

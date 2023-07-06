@@ -5,6 +5,7 @@
 import React from 'react';
 import Legal, { viewName } from '.';
 import { screen, render } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -21,7 +22,7 @@ describe('Legal', () => {
   });
 
   it('renders as expected', () => {
-    render(<Legal />);
+    renderWithLocalizationProvider(<Legal />);
     testAllL10n(screen, bundle);
 
     screen.getByRole('heading', {

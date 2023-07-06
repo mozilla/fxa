@@ -29,7 +29,7 @@ import {
 
 // eslint-disable-next-line import/first
 import { apiInvoicePreview } from '../lib/apiClient';
-import { renderWithLocalizationProvider } from './test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 jest.mock('../lib/apiClient', () => {
   return {

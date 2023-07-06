@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { HeartsVerifiedImage } from '.';
 
 it('applies localization by default', () => {
-  render(<HeartsVerifiedImage />);
+  renderWithLocalizationProvider(<HeartsVerifiedImage />);
   expect(
     screen.getByLabelText(
       'A computer and a mobile phone and a tablet with a pulsing heart on each'
@@ -16,12 +17,12 @@ it('applies localization by default', () => {
 });
 
 it('applies basic styles by default', () => {
-  render(<HeartsVerifiedImage />);
+  renderWithLocalizationProvider(<HeartsVerifiedImage />);
   expect(screen.getByRole('img')).toHaveClass('w-3/5');
 });
 
 it('applies a11y by default', () => {
-  render(<HeartsVerifiedImage />);
+  renderWithLocalizationProvider(<HeartsVerifiedImage />);
   expect(
     screen.getByLabelText(
       'A computer and a mobile phone and a tablet with a pulsing heart on each'
@@ -30,7 +31,7 @@ it('applies a11y by default', () => {
 });
 
 it('can be hidden from screenreaders when desired', () => {
-  render(<HeartsVerifiedImage ariaHidden />);
+  renderWithLocalizationProvider(<HeartsVerifiedImage ariaHidden />);
   const image = screen.getByTestId('aria-hidden-image');
   expect(image).toBeInTheDocument();
   expect(image).toHaveAttribute('aria-hidden');
@@ -39,6 +40,8 @@ it('can be hidden from screenreaders when desired', () => {
 
 it('applies custom classNames when desired', () => {
   const MOCK_CLASS = 'w-full';
-  render(<HeartsVerifiedImage className={MOCK_CLASS} />);
+  renderWithLocalizationProvider(
+    <HeartsVerifiedImage className={MOCK_CLASS} />
+  );
   expect(screen.getByRole('img')).toHaveClass(MOCK_CLASS);
 });

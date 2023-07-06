@@ -7,7 +7,7 @@ import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { DialogMessage } from './index';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

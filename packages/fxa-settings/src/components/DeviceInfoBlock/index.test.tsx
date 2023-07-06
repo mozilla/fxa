@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import DeviceInfoBlock from '.';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
@@ -14,7 +15,9 @@ import {
 
 describe('DeviceInfoBlock component', () => {
   it('renders as expected when the location is undefined', () => {
-    render(<DeviceInfoBlock remoteMetadata={MOCK_METADATA_UNKNOWN_LOCATION} />);
+    renderWithLocalizationProvider(
+      <DeviceInfoBlock remoteMetadata={MOCK_METADATA_UNKNOWN_LOCATION} />
+    );
 
     screen.getByText('Firefox on macOS');
     screen.getByText('Location unknown');
@@ -22,7 +25,9 @@ describe('DeviceInfoBlock component', () => {
   });
 
   it('renders as expected when a device name is provided', () => {
-    render(<DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_DEVICE_NAME} />);
+    renderWithLocalizationProvider(
+      <DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_DEVICE_NAME} />
+    );
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
       'Ultron'
@@ -30,7 +35,9 @@ describe('DeviceInfoBlock component', () => {
   });
 
   it('renders as expected when a location is available', () => {
-    render(<DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_LOCATION} />);
+    renderWithLocalizationProvider(
+      <DeviceInfoBlock remoteMetadata={MOCK_METADATA_WITH_LOCATION} />
+    );
 
     screen.getByText('Vancouver, British Columbia, Canada (estimated)');
   });

@@ -3,7 +3,7 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { AlertBar } from './index';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

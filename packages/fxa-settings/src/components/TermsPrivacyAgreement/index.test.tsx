@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import TermsPrivacyAgreement from '.';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -17,7 +18,7 @@ describe('TermsPrivacyAgreement', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders the default component as expected', () => {
-    render(<TermsPrivacyAgreement />);
+    renderWithLocalizationProvider(<TermsPrivacyAgreement />);
     // testAllL10n(screen, bundle);
 
     const linkElements: HTMLElement[] = screen.getAllByRole('link');
@@ -27,7 +28,7 @@ describe('TermsPrivacyAgreement', () => {
   });
 
   it('renders component as expected for Pocket clients', () => {
-    render(<TermsPrivacyAgreement isPocketClient />);
+    renderWithLocalizationProvider(<TermsPrivacyAgreement isPocketClient />);
     // testAllL10n(screen, bundle);
 
     const linkElements: HTMLElement[] = screen.getAllByRole('link');

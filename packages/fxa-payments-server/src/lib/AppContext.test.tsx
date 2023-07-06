@@ -3,7 +3,7 @@ import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { defaultAppContext, AppContext, AppContextType } from './AppContext';
-import { renderWithLocalizationProvider } from './test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

@@ -10,7 +10,7 @@ import {
   MIN_HEIGHT_TO_SHOW_TOOLTIP_BELOW,
   MIN_WIDTH_TO_SHOW_TOOLTIP_BELOW,
 } from './index';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const LABEL_TEXT = 'Valid frobnitz required.';
 

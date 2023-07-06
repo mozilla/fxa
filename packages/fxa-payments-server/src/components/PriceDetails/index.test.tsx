@@ -1,7 +1,7 @@
 import { PriceDetails } from '.';
 
 import '@testing-library/jest-dom/extend-expect';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const defaultPriceDetailsProps = {
   total: 2000,

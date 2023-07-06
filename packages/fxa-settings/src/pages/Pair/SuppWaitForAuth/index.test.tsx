@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SuppWaitForAuth, { viewName } from '.';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
@@ -20,7 +21,9 @@ jest.mock('../../../lib/metrics', () => ({
 
 describe('SuppWaitForAuth page', () => {
   it('renders as expected when the location is undefined', () => {
-    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />);
+    renderWithLocalizationProvider(
+      <SuppWaitForAuth authDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+    );
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
       'Approval now required from your other device'
@@ -31,7 +34,9 @@ describe('SuppWaitForAuth page', () => {
   });
 
   it('renders as expected when a device name is provided', () => {
-    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME} />);
+    renderWithLocalizationProvider(
+      <SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME} />
+    );
 
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent(
       'Ultron'
@@ -39,13 +44,17 @@ describe('SuppWaitForAuth page', () => {
   });
 
   it('renders as expected when a location is available', () => {
-    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
+    renderWithLocalizationProvider(
+      <SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />
+    );
 
     screen.getByText('Vancouver, British Columbia, Canada (estimated)');
   });
 
   it('emits expected metrics events on render', () => {
-    render(<SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />);
+    renderWithLocalizationProvider(
+      <SuppWaitForAuth authDeviceInfo={MOCK_METADATA_WITH_LOCATION} />
+    );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });

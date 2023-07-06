@@ -4,7 +4,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import PaymentProviderDetails from './index';
 import * as Customers from '../../lib/mock-data';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 

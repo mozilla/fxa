@@ -3,14 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { AppContext } from '../../../models';
 import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
 import Avatar from '.';
 
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
         <Avatar />
       </AppContext.Provider>
@@ -24,7 +25,7 @@ describe('Avatar', () => {
   });
 
   it('renders default avatar with a custom className', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
         <Avatar className="my-class" />
       </AppContext.Provider>
@@ -34,7 +35,7 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with expected attributes', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
         <Avatar />
       </AppContext.Provider>
@@ -52,7 +53,7 @@ describe('Avatar', () => {
   });
 
   it('renders the avatar with a custom className', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
         <Avatar className="my-class" />
       </AppContext.Provider>

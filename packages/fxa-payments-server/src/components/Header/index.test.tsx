@@ -8,7 +8,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import Header from './index';
 import { Profile } from '../../store/types';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 let userProfile: Profile = {
   avatar: './avatar.svg',

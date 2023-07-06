@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { screen, render } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import PasswordInfoBalloon from '.';
@@ -15,7 +16,7 @@ describe('PasswordInfoBalloon component', () => {
   });
 
   it('renders as expected', () => {
-    render(<PasswordInfoBalloon />);
+    renderWithLocalizationProvider(<PasswordInfoBalloon />);
     testAllL10n(screen, bundle);
     screen.getByText(
       'You need this password to access any encrypted data you store with us.'

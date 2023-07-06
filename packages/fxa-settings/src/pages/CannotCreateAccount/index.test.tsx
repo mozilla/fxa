@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { screen, render } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../lib/metrics';
 import CannotCreateAccount, { viewName } from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -21,7 +22,7 @@ describe('CannotCreateAccount', () => {
   });
 
   it('renders as expected', () => {
-    render(<CannotCreateAccount />);
+    renderWithLocalizationProvider(<CannotCreateAccount />);
     testAllL10n(screen, bundle);
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);

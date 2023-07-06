@@ -6,7 +6,7 @@ import { PaypalButton, PaypalButtonProps } from './index';
 import { PickPartial } from '../../lib/types';
 import { CUSTOMER, PLAN } from '../../lib/mock-data';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const Subject = ({
   disabled = false,

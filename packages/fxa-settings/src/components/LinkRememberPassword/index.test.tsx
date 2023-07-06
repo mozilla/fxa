@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import LinkRememberPassword from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -17,7 +18,9 @@ describe('LinkRememberPassword', () => {
   });
 
   it('renders', () => {
-    render(<LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     testAllL10n(screen, bundle);
 
     expect(
@@ -26,7 +29,9 @@ describe('LinkRememberPassword', () => {
   });
 
   it('links to signin if not forceAuth', () => {
-    render(<LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
 
     const rememberPasswordLink = screen.getByRole('link', {
       name: 'Remember your password? Sign in',
@@ -40,7 +45,7 @@ describe('LinkRememberPassword', () => {
   });
 
   it('links to force_auth if forceAuth is true', () => {
-    render(
+    renderWithLocalizationProvider(
       <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} forceAuth />
     );
 

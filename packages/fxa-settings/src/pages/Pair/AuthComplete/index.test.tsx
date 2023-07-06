@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AuthComplete, { viewName } from '.';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -23,7 +24,9 @@ describe('AuthComplete page', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders the default page as expected', () => {
-    render(<AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />);
+    renderWithLocalizationProvider(
+      <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+    );
     // testAllL10n(screen, bundle);
 
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(
@@ -40,7 +43,7 @@ describe('AuthComplete page', () => {
   });
 
   it('renders the correct button when Firefox view is supported', () => {
-    render(
+    renderWithLocalizationProvider(
       <AuthComplete
         suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
         supportsFirefoxView
@@ -54,7 +57,9 @@ describe('AuthComplete page', () => {
   // Add tests for button/link handling
 
   it('emits expected metrics events on render', () => {
-    render(<AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />);
+    renderWithLocalizationProvider(
+      <AuthComplete suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION} />
+    );
 
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });

@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LinkExpiredSignin } from '.';
 import { mockAppContext, MOCK_ACCOUNT } from '../../models/mocks';
 import { Account, AppContext } from '../../models';
@@ -17,7 +18,7 @@ jest.mock('@reach/router', () => ({
 }));
 
 function renderLinkExpiredSigninWithAccount(account: Account) {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <LocationProvider>
         <LinkExpiredSignin {...{ email, viewName }} />

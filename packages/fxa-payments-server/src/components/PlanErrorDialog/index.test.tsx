@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 import PlanErrorDialog from './index';
 import { PLANS } from '../../lib/mock-data';
 import { FetchState, Plan } from '../../store/types';
-import { renderWithLocalizationProvider } from '../../lib/test-utils';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const locationReload = () => {};
 const plans: FetchState<Plan[], any> = {

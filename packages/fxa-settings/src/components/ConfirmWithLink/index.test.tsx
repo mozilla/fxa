@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import {
   SubjectCanGoBack,
@@ -23,7 +24,7 @@ describe('ConfirmWithLink component', () => {
   // TODO: add tests for all metrics as they are added
 
   it("renders default view as expected with user's email", () => {
-    render(<SubjectWithEmailResendSuccess />);
+    renderWithLocalizationProvider(<SubjectWithEmailResendSuccess />);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent('Confirm something');
@@ -34,7 +35,7 @@ describe('ConfirmWithLink component', () => {
   });
 
   it('displays a success banner when resending a link is successful', () => {
-    render(<SubjectWithEmailResendSuccess />);
+    renderWithLocalizationProvider(<SubjectWithEmailResendSuccess />);
     const resendEmailButton = screen.getByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
@@ -45,7 +46,7 @@ describe('ConfirmWithLink component', () => {
   });
 
   it('displays an error banner when resending a link is unsuccessful', () => {
-    render(<SubjectWithEmailResendError />);
+    renderWithLocalizationProvider(<SubjectWithEmailResendError />);
     const resendEmailButton = screen.getByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
@@ -54,7 +55,9 @@ describe('ConfirmWithLink component', () => {
   });
 
   it('renders the expected view with the Back button when user can go back', async () => {
-    render(<SubjectCanGoBack navigateBackHandler={mockCallback} />);
+    renderWithLocalizationProvider(
+      <SubjectCanGoBack navigateBackHandler={mockCallback} />
+    );
 
     const backLink = screen.getByRole('button', {
       name: 'Back',
