@@ -9,6 +9,10 @@ module.exports = function (grunt) {
     // in a later ticket - will require coordination with l10n to resolve
     // conflicting IDs for identical terms.
     'src/branding.ftl',
+    // Adding shared branding file to allow for gradual adoption of shared
+    // branding terms. There are currently no conflicting IDs between the
+    // two branding.ftl files.
+    '../fxa-shared/l10n/branding.ftl',
     'src/**/*.ftl',
   ];
 

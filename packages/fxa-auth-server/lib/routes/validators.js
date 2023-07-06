@@ -28,6 +28,10 @@ const {
 const {
   default: DESCRIPTIONS,
 } = require('../../docs/swagger/shared/descriptions');
+const {
+  subscriptionProductMetadataBaseValidator,
+  capabilitiesClientIdPattern,
+} = require('fxa-shared/subscriptions/validation');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -516,36 +520,6 @@ module.exports.subscriptionsSubscriptionListValidator = isA.object({
 // - but we can make a good effort at validating what we expect to see when we see it
 module.exports.subscriptionPlanMetadataValidator = isA.object().unknown(true);
 
-const capabilitiesClientIdPattern = /^capabilities/;
-const legalResourceDomainPattern =
-  /^https:\/\/accounts-static\.cdn\.mozilla\.net\/legal\/(.*)/;
-
-module.exports.subscriptionProductMetadataBaseValidator = isA
-  .object({
-    webIconURL: isA.string().uri().required(),
-    upgradeCTA: isA.string().optional(),
-    successActionButtonURL: isA.string().uri().required(),
-    appStoreLink: isA.string().uri().optional(),
-    playStoreLink: isA.string().uri().optional(),
-    productSet: isA.string().required(),
-    productOrder: isA.number().optional(),
-    'product:termsOfServiceDownloadURL': isA
-      .string()
-      .regex(legalResourceDomainPattern)
-      .required(),
-    'product:termsOfServiceURL': isA.string().uri().required(),
-    'product:privacyNoticeDownloadURL': isA
-      .string()
-      .regex(legalResourceDomainPattern)
-      .optional(),
-    'product:privacyNoticeURL': isA.string().uri().required(),
-    'product:cancellationSurveyURL': isA.string().uri().optional(),
-  })
-  .pattern(capabilitiesClientIdPattern, isA.string(), {
-    fallthrough: true,
-  })
-  .unknown(true);
-
 module.exports.subscriptionProductMetadataValidator = {
   validate: function (metadata) {
     const hasCapability = Object.keys(metadata).some((k) =>
@@ -559,12 +533,9 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     const { value: result, error } =
-      module.exports.subscriptionProductMetadataBaseValidator.validate(
-        metadata,
-        {
-          abortEarly: false,
-        }
-      );
+      subscriptionProductMetadataBaseValidator.validate(metadata, {
+        abortEarly: false,
+      });
 
     if (error) {
       return { error };
@@ -584,8 +555,7 @@ module.exports.subscriptionProductMetadataValidator = {
     }
 
     try {
-      const validationSchema =
-        module.exports.subscriptionProductMetadataBaseValidator;
+      const validationSchema = subscriptionProductMetadataBaseValidator;
       const value = await validationSchema.validateAsync(metadata, {
         abortEarly: false,
       });
@@ -612,7 +582,7 @@ module.exports.subscriptionsPlanWithMetaDataValidator = isA.object({
     .allow('')
     .optional()
     .description(DESCRIPTIONS.planName),
-  product_metadata: module.exports.subscriptionProductMetadataBaseValidator
+  product_metadata: subscriptionProductMetadataBaseValidator
     .optional()
     .description(DESCRIPTIONS.productMetadata),
   interval: isA.string().required().description(DESCRIPTIONS.interval),
@@ -868,7 +838,9 @@ module.exports.newsletters = isA
         'test-pilot',
         'mozilla-and-you',
         'security-privacy-news',
-        'mozilla-accounts'
+        'mozilla-accounts',
+        'hubs',
+        'mdnplus'
       )
   )
   .default([])

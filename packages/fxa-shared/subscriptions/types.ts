@@ -49,8 +49,9 @@ export interface PlanMetadata {
 export interface ProductMetadata {
   appStoreLink?: string;
   capabilities?: string;
-  successActionButtonURL: string | null;
   emailIconURL?: string | null;
+  newsletterSlug?: string;
+  newsletterLabelTextCode?: string;
   playStoreLink?: string;
   productOrder?: string | null;
   productSet: string[];
@@ -62,6 +63,7 @@ export interface ProductMetadata {
   'product:privacyNoticeDownloadURL'?: string;
   'product:privacyNoticeURL': string;
   'product:cancellationSurveyURL'?: string;
+  successActionButtonURL: string | null;
   // capabilities:{clientID}: string // filtered out or ignored for now
 }
 
@@ -86,8 +88,7 @@ export type ProductDetailsListProperty =
   keyof typeof ProductDetailsListProperties;
 export type ProductDetails = {
   [key in ProductDetailsStringProperty]?: string;
-} &
-  { [key in ProductDetailsListProperty]?: string[] };
+} & { [key in ProductDetailsListProperty]?: string[] };
 
 export type AbbrevProduct = {
   product_id: string;
@@ -177,7 +178,7 @@ export enum SubscriptionEligibilityResult {
 }
 
 export type SubscriptionUpdateEligibility =
-  typeof SubscriptionUpdateEligibility[keyof typeof SubscriptionUpdateEligibility];
+  (typeof SubscriptionUpdateEligibility)[keyof typeof SubscriptionUpdateEligibility];
 
 export enum SubscriptionStripeErrorType {
   NO_MIN_CHARGE_AMOUNT = 'Currency does not have a minimum charge amount available.',
