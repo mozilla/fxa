@@ -543,54 +543,12 @@ export class Account implements AccountData {
     email: string,
     service?: string
   ): Promise<PasswordForgotSendCodePayload> {
-    try {
-      const result = await this.apolloClient.mutate({
-        mutation: gql`
-          mutation passwordForgotSendCode(
-            $input: PasswordForgotSendCodeInput!
-          ) {
-            passwordForgotSendCode(input: $input) {
-              passwordForgotToken
-            }
-          }
-        `,
-        variables: {
-          input: {
-            email,
-            // Only include the `service` option if the service is Sync.
-            // This becomes a query param (service=sync) on the email link.
-            // We need to modify this in FXA-7657 to send the `client_id` param
-            // when we work on the OAuth flow.
-            ...(service &&
-              service === MozServices.FirefoxSync && { service: 'sync' }),
-          },
-        },
-      });
-      return result.data.passwordForgotSendCode;
-    } catch (err) {
-      const graphQlError = ((err as ApolloError) || (err as ThrottledError))
-        .graphQLErrors[0];
-      const errno = graphQlError.extensions?.errno;
-      if (
-        errno &&
-        AuthUiErrorNos[errno] &&
-        errno === AuthUiErrors.THROTTLED.errno
-      ) {
-        const throttledErrorWithRetryAfter = {
-          ...AuthUiErrorNos[errno],
-          retryAfter: graphQlError.extensions?.retryAfter,
-          retryAfterLocalized: graphQlError.extensions?.retryAfterLocalized,
-        };
-        throw throttledErrorWithRetryAfter;
-      } else if (
-        errno &&
-        AuthUiErrorNos[errno] &&
-        errno !== AuthUiErrors.THROTTLED.errno
-      ) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
+    let serviceName;
+    if (service && service === MozServices.FirefoxSync) {
+      serviceName = 'sync';
     }
+    const result = await this.authClient.passwordForgotSendCode(email, { service: serviceName });
+    return result;
   }
 
   async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
@@ -627,7 +585,13 @@ export class Account implements AccountData {
       throw AuthUiErrors.UNEXPECTED_ERROR;
     }
   }
-
+  async resendResetPassword(
+    email: string
+  ): Promise<PasswordForgotSendCodePayload> {
+      const result = await this.authClient.passwordForgotSendCode(email);
+      return result;
+  }
+  
   /**
    * Verify a passwordForgotToken, which returns an accountResetToken that can
    * be used to perform the actual password reset.
@@ -676,11 +640,17 @@ export class Account implements AccountData {
     email: string,
     newPassword: string
   ): Promise<any> {
+    
     try {
-      const { accountResetToken } = await this.verifyPasswordForgotToken(
-        token,
-        code
-      );
+      // TODO: Temporary workaround (use auth-client directly) for GraphQL not 
+      //  getting correct ip address
+      // const { accountResetToken } = await this.verifyPasswordForgotToken(
+      //   token,
+      //   code
+      // );
+      const { accountResetToken } = await this.authClient.passwordForgotVerifyCode(code, token, {
+        accountResetWithoutRecoveryKey: true
+      });
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
