@@ -156,7 +156,7 @@ export async function getAllPayPalBAByUid(
  */
 export async function getPayPalBAByBAId(
   billingAgreementId: string
-): Promise<PayPalBillingAgreements> {
+): Promise<PayPalBillingAgreements | undefined> {
   return PayPalBillingAgreements.query().findOne({ billingAgreementId });
 }
 
