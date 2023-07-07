@@ -1767,8 +1767,6 @@ module.exports = function (log, config, bounces) {
     const {
       email,
       uid,
-      invoiceTotalNewInCents,
-      invoiceTotalOldInCents,
       productId,
       planId,
       productIconURLNew,
@@ -1810,12 +1808,12 @@ module.exports = function (log, config, bounces) {
         productName: productNameNew,
         productNameOld,
         paymentAmountOld: this._getLocalizedCurrencyString(
-          invoiceTotalOldInCents || paymentAmountOldInCents,
+          paymentAmountOldInCents,
           paymentAmountOldCurrency,
           message.acceptLanguage
         ),
         paymentAmountNew: this._getLocalizedCurrencyString(
-          invoiceTotalNewInCents || paymentAmountNewInCents,
+          paymentAmountNewInCents,
           paymentAmountNewCurrency,
           message.acceptLanguage
         ),
