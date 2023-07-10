@@ -96,6 +96,7 @@ export const GleanMetrics = {
 
   login: {
     view: createEventFn('login_view'),
+    submit: createEventFn('login_submit'),
     success: createEventFn('login_submit_success'),
   },
 };

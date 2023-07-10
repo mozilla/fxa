@@ -194,6 +194,7 @@ describe('views/sign_in_password', () => {
   });
 
   describe('validateAndSubmit', () => {
+    let loginSubmitEventStub;
     let loginSuccessStub;
 
     beforeEach(() => {
@@ -201,11 +202,13 @@ describe('views/sign_in_password', () => {
         view.onSignInSuccess(account);
         return Promise.resolve();
       });
+      loginSubmitEventStub = sinon.stub(GleanMetrics.login, 'submit');
       loginSuccessStub = sinon.stub(GleanMetrics.login, 'success');
     });
 
     afterEach(() => {
       loginSuccessStub.restore();
+      loginSubmitEventStub.restore();
     });
 
     describe('password valid', () => {
@@ -217,6 +220,7 @@ describe('views/sign_in_password', () => {
           assert.isTrue(view.signIn.calledOnce);
           assert.isTrue(view.signIn.calledWith(account, 'password'));
           sinon.assert.calledOnce(loginSuccessStub);
+          sinon.assert.calledOnce(loginSubmitEventStub);
         });
       });
     });
