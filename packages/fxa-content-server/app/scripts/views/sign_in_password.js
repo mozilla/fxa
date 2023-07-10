@@ -113,11 +113,16 @@ const SignInPasswordView = FormView.extend({
       this.logViewEvent('canceled');
       // if user canceled login, just stop
       return;
-    } else if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+    }
+
+    if (AuthErrors.is(err, 'ACCOUNT_RESET')) {
+      GleanMetrics.login.error({ reason: 'account locked' });
       return this.notifyOfResetAccount(account);
     } else if (AuthErrors.is(err, 'INCORRECT_PASSWORD')) {
+      GleanMetrics.login.error({ reason: 'password incorrect' });
       return this.showValidationError(this.$('input[type=password]'), err);
     } else if (AuthErrors.is(err, 'UNABLE_TO_LOGIN_NO_PASSWORD_SET')) {
+      GleanMetrics.login.error({ reason: 'password missing' });
       return this.unsafeDisplayError(err);
     }
 

@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import Glean from '@mozilla/glean/web';
+import { testResetGlean } from '@mozilla/glean/testing';
 import GleanMetrics from '../../../scripts/lib/glean';
-import { name } from '../../../scripts/lib/glean/event';
+import * as event from '../../../scripts/lib/glean/event';
 import * as pings from '../../../scripts/lib/glean/pings';
 import { userIdSha256 } from '../../../scripts/lib/glean/account';
 import {
@@ -59,6 +60,7 @@ describe('lib/glean', () => {
   let setDeviceTypeStub,
     setEntrypointStub,
     setEventNameStub,
+    setEventReasonStub,
     setFlowIdStub,
     setOauthClientIdStub,
     setServiceStub,
@@ -70,10 +72,11 @@ describe('lib/glean', () => {
     setUtmTermStub,
     submitPingStub;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     setDeviceTypeStub = sandbox.stub(deviceType, 'set');
     setEntrypointStub = sandbox.stub(entrypoint, 'set');
-    setEventNameStub = sandbox.stub(name, 'set');
+    setEventNameStub = sandbox.stub(event.name, 'set');
+    setEventReasonStub = sandbox.stub(event.reason, 'set');
     setFlowIdStub = sandbox.stub(flowId, 'set');
     setOauthClientIdStub = sandbox.stub(oauthClientId, 'set');
     setServiceStub = sandbox.stub(service, 'set');
@@ -84,6 +87,7 @@ describe('lib/glean', () => {
     setUtmSourceStub = sandbox.stub(utm.source, 'set');
     setUtmTermStub = sandbox.stub(utm.term, 'set');
     submitPingStub = sandbox.stub(pings.accountsEvents, 'submit');
+    await testResetGlean('glean-test');
   });
 
   afterEach(() => {
@@ -277,13 +281,13 @@ describe('lib/glean', () => {
     });
 
     describe('signup confirmation code', () => {
-      it('submit a ping with the reg_signup_code_view event name', async () => {
+      it('submits a ping with the reg_signup_code_view event name', async () => {
         await GleanMetrics.signupConfirmation.view();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
       });
 
-      it('submit a ping with the reg_signup_code_submit event name', async () => {
+      it('submits a ping with the reg_signup_code_submit event name', async () => {
         await GleanMetrics.signupConfirmation.submit();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
@@ -330,6 +334,37 @@ describe('lib/glean', () => {
           setEventNameStub,
           'login_totp_code_success_view'
         );
+      });
+    });
+
+    describe('login', () => {
+      it('submits a ping with the login_view event name', () => {
+        GleanMetrics.login.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_view');
+      });
+
+      it('submits a ping with the login_submit event name', () => {
+        GleanMetrics.login.submit();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_submit');
+      });
+
+      it('submits a ping with the login_submit_success event name', () => {
+        GleanMetrics.login.success();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_submit_success');
+      });
+
+      it('submits a ping with the login_submit_frontend_error event name and a reason', () => {
+        GleanMetrics.login.error({ reason: 'quux' });
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_submit_frontend_error'
+        );
+        sinon.assert.calledOnce(setEventReasonStub);
+        sinon.assert.calledWith(setEventReasonStub, 'quux');
       });
     });
   });
