@@ -3156,9 +3156,6 @@ export class StripeHelper extends StripeHelperBase {
 
     const productPaymentCycleOld = this.stripePlanToPaymentCycle(planOld);
 
-    const sameBillingCycle =
-      productPaymentCycleOld === baseDetails.productPaymentCycleNew;
-
     // get next invoice details
     const nextInvoice = upcomingInvoiceWithInvoiceItem
       ? upcomingInvoiceWithInvoiceItem
@@ -3185,13 +3182,26 @@ export class StripeHelper extends StripeHelperBase {
       tax_amounts: upcomingInvoiceTaxAmounts,
     } = upcomingInvoiceLineItem || {};
 
+    const {
+      productPaymentCycleNew: productPaymentCycleNew,
+      invoiceTotalOldInCents: invoiceTotalOldInCents,
+    } = baseDetails;
+
+    // remove everything between asterisk in FXA-7796
+    // **************** //
+    const sameBillingCycle = productPaymentCycleOld === productPaymentCycleNew;
     const sameBillingCondition = sameBillingCycle && !!upcomingInvoiceLineItem;
 
+    const invoiceImmediately =
+      this.config.subscriptions.stripeInvoiceImmediately.enabled;
+
+    // used for newTotalInCents
     const newListPriceTotalWithoutTax =
       sameBillingCondition && !!upcomingInvoiceAmount
         ? upcomingInvoiceAmount
         : undefined;
 
+    // used for newTotalInCents
     const newListPriceDiscounts =
       (sameBillingCondition &&
         upcomingInvoiceDiscountAmounts?.reduce(
@@ -3201,6 +3211,7 @@ export class StripeHelper extends StripeHelperBase {
         )) ||
       0;
 
+    // used for newTotalInCents
     const newListPriceTotalTaxes = sameBillingCondition
       ? upcomingInvoiceTaxAmounts?.reduce(
           (acc, tax) => (tax.inclusive ? acc + 0 : acc + tax.amount),
@@ -3231,7 +3242,8 @@ export class StripeHelper extends StripeHelperBase {
     // else get current invoiceTotal
     const oldTotalInCents = sameBillingCycle
       ? invoiceTotalNewInCents
-      : baseDetails.invoiceTotalOldInCents;
+      : invoiceTotalOldInCents;
+    // **************** //
 
     return {
       ...baseDetails,
@@ -3240,14 +3252,25 @@ export class StripeHelper extends StripeHelperBase {
       productNameOld,
       productIconURLOld,
       productPaymentCycleOld,
-      paymentAmountOldInCents: oldTotalInCents,
+      // remove condition and keep invoiceTotalOldInCents as value in FXA-7796
+      paymentAmountOldInCents: !invoiceImmediately
+        ? oldTotalInCents
+        : invoiceTotalOldInCents,
       paymentAmountOldCurrency: planOld.currency,
-      paymentAmountNewInCents: newTotalInCents,
+      // remove condition and keep nextInvoiceTotal as value in FXA-7796
+      paymentAmountNewInCents: !invoiceImmediately
+        ? newTotalInCents
+        : nextInvoiceTotal,
       paymentAmountNewCurrency: nextInvoiceCurrency,
       invoiceNumber,
       invoiceId,
-      paymentProratedInCents: paymentProratedInCents,
+      // remove condition and keep invoiceAmountDue as value in FXA-7796
+      paymentProratedInCents: !invoiceImmediately
+        ? paymentProratedInCents
+        : invoiceAmountDue,
       paymentProratedCurrency,
+      // remove in FXA-7796
+      invoiceImmediately: invoiceImmediately,
     };
   }
 

@@ -19,7 +19,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <% if (locals.productPaymentCycleOld === locals.productPaymentCycleNew) { %>
+      <% if (!locals.invoiceImmediately && locals.productPaymentCycleOld === locals.productPaymentCycleNew) { %>
         <span data-l10n-id="subscriptionUpgrade-content-charge-info" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycleNew, productPaymentCycleOld}) %>">Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>. At that time you will also be charged a one-time fee of <%- paymentProrated %> to reflect the higher charge for the remainder of this <%- productPaymentCycleOld %>.</span>
       <% } else { %>
         <span data-l10n-id="subscriptionUpgrade-content-charge-info-different-cycle" data-l10n-args="<%= JSON.stringify({paymentAmountNew, paymentAmountOld, paymentProrated, productPaymentCycleNew, productPaymentCycleOld}) %>">You will be charged a one-time fee of <%- paymentProrated %> to reflect your subscription’s higher price for the remainder of this <%- productPaymentCycleOld %>. Starting with your next bill, your charge will change from <%- paymentAmountOld %> per <%- productPaymentCycleOld %> to <%- paymentAmountNew %> per <%- productPaymentCycleNew %>.</span>

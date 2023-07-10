@@ -13,32 +13,36 @@ const createStory = subplatStoryWithProps(
   'subscriptionUpgrade',
   'Sent when a user upgrades their subscription.',
   {
-    paymentAmountNew: '£123,121.00',
-    paymentAmountOld: '¥99,991',
+    paymentAmountNew: '$69.89',
+    paymentAmountOld: '$9.89',
     productIconURLNew:
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     productIconURLOld:
       'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',
     productName: 'Product Name B',
     productNameOld: 'Product Name A',
-    productPaymentCycleNew: 'month',
+    productPaymentCycleNew: 'year',
     productPaymentCycleOld: 'month',
-    paymentProrated: '$5,231.00',
+    paymentProrated: '$60.00',
     subscriptionSupportUrl: 'http://localhost:3030/support',
   }
 );
 
-export const SubscriptionUpgradeSameBillingCycle = createStory(
+export const Default = createStory();
+
+// remove in FXA-7796
+export const SubscriptionUpgradeDifferentBillingCycle = createStory(
   {},
-  'Subscription upgrade - same billing cycle'
+  'Subscription upgrade - differnt billing cycle'
 );
 
-export const SubscriptionUpgradeDifferentBillingCycle = createStory(
+// remove in FXA-7796
+export const SubscriptionUpgradeSameBillingCycle = createStory(
   {
-    paymentAmountNew: '$69.89',
-    paymentAmountOld: '$9.89',
-    productPaymentCycleNew: 'year',
-    paymentProrated: '$60.00',
+    paymentAmountNew: '£123,121.00',
+    paymentAmountOld: '¥99,991',
+    productPaymentCycleNew: 'month',
+    paymentProrated: '$5,231.00',
   },
-  'Subscription upgrade - different billing cycle'
+  'Subscription upgrade - same billing cycle'
 );
