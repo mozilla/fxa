@@ -14388,7 +14388,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:>=16.9.0, @types/react-dom@npm:^17.0.9":
+"@types/react-dom@npm:>=16.9.0":
   version: 17.0.9
   resolution: "@types/react-dom@npm:17.0.9"
   dependencies:
@@ -14406,12 +14406,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-helmet@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "@types/react-helmet@npm:6.1.2"
+"@types/react-helmet@npm:^6.1.6":
+  version: 6.1.6
+  resolution: "@types/react-helmet@npm:6.1.6"
   dependencies:
     "@types/react": "*"
-  checksum: ee66a7b950ba9f1013fd25de32ba6322bf5206fe5de56b9556a5151c76522b892b0cc5566cc8dfd0b54cb76fedb17ed21b6b2e6577849b791c168eaed5aad5f3
+  checksum: 81560c56bfe854b6a43aee31360862588ac875d1177b975da5ce049ac9aa2f7c98dcde65d4397bfaa04e468f40cf3ab2975a2ef966a69d64a60493422898698d
   languageName: node
   linkType: hard
 
@@ -14492,18 +14492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:>=16.9.0, @types/react@npm:^17.0.14":
-  version: 17.0.14
-  resolution: "@types/react@npm:17.0.14"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: ca2eca8f33ddbcba46932efeb8affdd274ea5800ea38bf8bc8de205808d09de21ea1f3d6ab156573aca393b912f0d908826cc6ad92470a3f2b6c34e70d5f75db
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:>=16, @types/react@npm:^18":
+"@types/react@npm:^18":
   version: 18.2.14
   resolution: "@types/react@npm:18.2.14"
   dependencies:
@@ -14511,17 +14500,6 @@ __metadata:
     "@types/scheduler": "*"
     csstype: ^3.0.2
   checksum: a6a5e8cc78f486b9020d1ad009aa6c56943c68c7c6376e0f8399e9cbcd950b7b8f5d73f00200f5379f5e58d31d57d8aed24357f301d8e86108cd438ce6c8b3dd
-  languageName: node
-  linkType: hard
-
-"@types/react@npm:^17":
-  version: 17.0.45
-  resolution: "@types/react@npm:17.0.45"
-  dependencies:
-    "@types/prop-types": "*"
-    "@types/scheduler": "*"
-    csstype: ^3.0.2
-  checksum: 3cc13a02824c13f6fa4807a83abd065ac1d9943359e76bd995cc7cd2b4148c1176ebd54a30a9f4eb8a0f141ff359d712876f256c4fee707e4290607ef8410b3e
   languageName: node
   linkType: hard
 
@@ -27320,7 +27298,6 @@ fsevents@~2.1.1:
     "@types/jsdom": ^16.2.11
     "@types/on-headers": ^1.0.0
     "@types/postcss-import": ^14
-    "@types/react": ^17.0.14
     "@types/serve-static": 1.13.9
     "@types/supertest": ^2.0.11
     "@typescript-eslint/eslint-plugin": ^5.59.0
@@ -27351,8 +27328,6 @@ fsevents@~2.1.1:
     postcss: ^8.4.14
     postcss-import: ^15.1.0
     prettier: ^2.3.1
-    react: ^16.13.0
-    react-dom: ^16.13.0
     react-router-dom: ^6.9.0
     react-scripts: ^5.0.1
     serve-static: ^1.14.2
@@ -27495,8 +27470,6 @@ fsevents@~2.1.1:
     "@types/node": ^18.14.2
     "@types/node-zendesk": ^2.0.2
     "@types/nodemailer": ^6.4.2
-    "@types/react": ^18
-    "@types/react-dom": ^18
     "@types/request": 2.48.5
     "@types/safe-regex": 1.1.2
     "@types/sass": ^1
@@ -27590,8 +27563,6 @@ fsevents@~2.1.1:
     proxyquire: ^2.1.3
     punycode.js: 2.3.0
     qrcode: ^1.5.1
-    react: ^18.2.0
-    react-dom: ^18.2.0
     read: 2.1.0
     redlock: ^5.0.0-beta.2
     request: ^2.88.2
@@ -27760,8 +27731,6 @@ fsevents@~2.1.1:
     postcss-loader: 4.2.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
-    react: ^16.8.6
-    react-dom: ^16.8.6
     request: ^2.88.2
     request-promise: 4.2.6
     sass-loader: ^10.0.3
@@ -28102,8 +28071,6 @@ fsevents@~2.1.1:
     "@types/nock": ^11.1.0
     "@types/node": ^18.14.2
     "@types/postcss-import": ^12
-    "@types/react": ^17.0.14
-    "@types/react-dom": ^17.0.9
     "@types/react-redux": ^7.1.18
     "@types/react-stripe-elements": ^6.0.5
     "@types/react-transition-group": ^4.4.2
@@ -28162,8 +28129,6 @@ fsevents@~2.1.1:
     postcss: ^8.4.14
     postcss-import: 15.1.0
     prettier: ^2.3.1
-    react: ^16.12.0
-    react-dom: ^16.12.0
     react-redux: ^8.0.2
     react-router-dom: ^6.9.0
     react-scripts: ^5.0.1
@@ -28263,9 +28228,7 @@ fsevents@~2.1.1:
     "@types/node": ^18.14.2
     "@types/postcss-import": ^14
     "@types/prettier": 2.3.0
-    "@types/react": ^17.0.14
-    "@types/react-dom": ^17.0.9
-    "@types/react-helmet": ^6.1.2
+    "@types/react-helmet": ^6.1.6
     "@types/react-transition-group": ^4.4.2
     "@types/rimraf": 3.0.0
     "@types/sinon": ^10
@@ -28290,8 +28253,6 @@ fsevents@~2.1.1:
     postcss: ^8.4.23
     postcss-import: ^15.1.0
     prettier: ^2.3.1
-    react: ^16.13.1
-    react-dom: ^16.13.1
     react-helmet: ^6.1.0
     react-transition-group: ^4.4.2
     rimraf: ^5.0.0
@@ -28345,8 +28306,6 @@ fsevents@~2.1.1:
     "@types/node": ^18.14.2
     "@types/prop-types": ^15
     "@types/reach__router": ^1.3.11
-    "@types/react": ^17.0.14
-    "@types/react-dom": ^17.0.9
     "@types/react-router": ^5.1.19
     "@types/react-test-renderer": ^17.0.1
     "@types/react-webcam": ^3.0.0
@@ -28382,9 +28341,7 @@ fsevents@~2.1.1:
     postcss-assets: ^6.0.0
     postcss-import: ^15.1.0
     prop-types: ^15.8.1
-    react: ^16.13.1
     react-async-hook: ^4.0.0
-    react-dom: ^16.13.1
     react-easy-crop: ^4.7.4
     react-hook-form: ^6.15.8
     react-markdown: ^8.0.5
@@ -28526,6 +28483,8 @@ fsevents@~2.1.1:
     "@storybook/react-webpack5": ^7.0.23
     "@types/jest": ^29.5.1
     "@types/node": ^18.16.1
+    "@types/react": ^18
+    "@types/react-dom": ^18
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^5.59.1
     diffparser: ^2.0.1
@@ -28548,6 +28507,8 @@ fsevents@~2.1.1:
     pm2: ^5.3.0
     postcss: ^8.4.14
     prettier: ^2.6.2
+    react: ^18.2.0
+    react-dom: ^18.2.0
     replace-in-file: ^6.3.5
     semver: ^7.3.5
     stylelint: ^15.6.2
@@ -43768,20 +43729,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.12.0, react-dom@npm:^16.13.0, react-dom@npm:^16.13.1, react-dom@npm:^16.8.6":
-  version: 16.14.0
-  resolution: "react-dom@npm:16.14.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-    prop-types: ^15.6.2
-    scheduler: ^0.19.1
-  peerDependencies:
-    react: ^16.14.0
-  checksum: 5a5c49da0f106b2655a69f96c622c347febcd10532db391c262b26aec225b235357d9da1834103457683482ab1b229af7a50f6927a6b70e53150275e31785544
-  languageName: node
-  linkType: hard
-
 "react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -44229,17 +44176,6 @@ fsevents@~2.1.1:
     react: ">=16.2.0"
     react-dom: ">=16.2.0"
   checksum: 2241beacdbe55cdfd74e34290fbadb915d202ddccdf366a65d84f002872bc85789baec5ed548915c3eaf93a37bca61b6a6c77cd029ed7ee215adae5fd80b1b09
-  languageName: node
-  linkType: hard
-
-"react@npm:^16.12.0, react@npm:^16.13.0, react@npm:^16.13.1, react@npm:^16.8.6":
-  version: 16.14.0
-  resolution: "react@npm:16.14.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-    prop-types: ^15.6.2
-  checksum: 8484f3ecb13414526f2a7412190575fc134da785c02695eb92bb6028c930bfe1c238d7be2a125088fec663cc7cda0a3623373c46807cf2c281f49c34b79881ac
   languageName: node
   linkType: hard
 
@@ -45983,16 +45919,6 @@ resolve@1.1.7:
   dependencies:
     xmlchars: ^2.2.0
   checksum: d3fa3e2aaf6c65ed52ee993aff1891fc47d5e47d515164b5449cbf5da2cbdc396137e55590472e64c5c436c14ae64a8a03c29b9e7389fc6f14035cf4e982ef3b
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.19.1":
-  version: 0.19.1
-  resolution: "scheduler@npm:0.19.1"
-  dependencies:
-    loose-envify: ^1.1.0
-    object-assign: ^4.1.1
-  checksum: 73e185a59e2ff5aa3609f5b9cb97ddd376f89e1610579d29939d952411ca6eb7a24907a4ea4556569dacb931467a1a4a56d94fe809ef713aa76748642cd96a6c
   languageName: node
   linkType: hard
 
