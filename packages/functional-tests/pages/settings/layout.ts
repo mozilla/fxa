@@ -10,7 +10,7 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   goto() {
-    return super.goto('networkidle');
+    return super.goto('load');
   }
 
   async alertBarText() {

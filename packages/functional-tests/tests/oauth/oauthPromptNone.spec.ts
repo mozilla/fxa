@@ -131,6 +131,7 @@ test.describe('oauth prompt none', () => {
     await page.goto(`${target.relierUrl}/?${query.toString()}`);
 
     await relier.signInPromptNone();
+    await page.waitForLoadState();
 
     //Verify error message
     expect(await relier.promptNoneError()).toContain(

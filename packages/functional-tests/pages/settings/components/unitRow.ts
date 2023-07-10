@@ -5,7 +5,7 @@ export class UnitRow {
   constructor(readonly page: Page, readonly id: string) {}
 
   protected async clickCta() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator(`[data-testid=${this.id}-unit-row-route]`).click();
     return waitForNavigation;
   }

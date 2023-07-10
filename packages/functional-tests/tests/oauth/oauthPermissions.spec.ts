@@ -47,7 +47,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
     await login.fillOutFirstSignUp(email, password, { verify: false });
@@ -88,7 +88,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
     await login.fillOutEmailFirstSignIn(email, password);
@@ -120,7 +120,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
     await login.clickSignIn();

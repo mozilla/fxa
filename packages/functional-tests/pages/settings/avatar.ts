@@ -18,7 +18,7 @@ export class AvatarPage extends SettingsLayout {
   async clickRemove() {
     await Promise.all([
       this.page.click('[data-testid=remove-photo-btn]'),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
     // HACK we don't really have a good way to distinguish
     // between monogram avatars and user set images
@@ -30,7 +30,7 @@ export class AvatarPage extends SettingsLayout {
   clickSave() {
     return Promise.all([
       this.page.locator('[data-testid=save-button]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 

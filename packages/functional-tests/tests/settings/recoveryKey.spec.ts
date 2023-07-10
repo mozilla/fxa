@@ -121,7 +121,7 @@ test.describe('old recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await recoveryKey.clickLostRecoveryKey();
 
     // Reset password
@@ -201,7 +201,7 @@ test.describe('old recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await login.submit();
     credentials.password = credentials.password + '_new';
@@ -331,7 +331,7 @@ test.describe('new recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await login.submit();
     credentials.password = credentials.password + '_new';
@@ -441,7 +441,7 @@ test.describe('new recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     // Directed to "confirm recovery key" page, but lost the key
     // Click on the lost recovery key link
     await recoveryKey.clickLostRecoveryKey();

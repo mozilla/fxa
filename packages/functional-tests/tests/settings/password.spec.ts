@@ -1,6 +1,5 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { BaseTarget } from '../../lib/targets/base';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293389
@@ -12,7 +11,7 @@ test.describe('severity-1 #smoke', () => {
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
     await page.goto(target.contentServerUrl + '/reset_password', {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await login.setEmail(credentials.email);
     await login.submit();
@@ -21,7 +20,7 @@ test.describe('severity-1 #smoke', () => {
       EmailType.recovery,
       EmailHeader.link
     );
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setNewPassword(credentials.password);
     expect(page.url()).toContain(settings.url);
   });
@@ -71,7 +70,7 @@ test.describe('severity-1 #smoke', () => {
     }
 
     await page.goto(target.contentServerUrl + '/reset_password', {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await login.setEmail(credentials.email);
     await login.submit();
@@ -81,7 +80,7 @@ test.describe('severity-1 #smoke', () => {
       EmailHeader.link
     );
     link = `${link}&showReactApp=false`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.clickDontHaveRecoveryKey();
     await login.setNewPassword(credentials.password);
     await settings.waitForAlertBar();
@@ -93,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
 test.describe('password strength tests', () => {
   test.beforeEach(async ({ target, credentials, page, pages: { login } }) => {
     const email = login.createEmail();
-    await page.goto(target.contentServerUrl, { waitUntil: 'networkidle' });
+    await page.goto(target.contentServerUrl, { waitUntil: 'load' });
     credentials.email = email;
 
     //Enter email at email first and then goto the sign up page

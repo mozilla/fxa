@@ -5,7 +5,7 @@ export class RelierPage extends BaseLayout {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;
-    return this.page.goto(url, { waitUntil: 'networkidle' });
+    return this.page.goto(url, { waitUntil: 'load' });
   }
 
   async isLoggedIn() {
@@ -34,19 +34,19 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickEmailFirst() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.email-first-button').click();
     return waitForNavigation;
   }
 
   async clickSignIn() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.sign-in-button.signin').click();
     return waitForNavigation;
   }
 
   async clickForceAuth() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.force-auth').click();
     return waitForNavigation;
   }
@@ -60,7 +60,7 @@ export class RelierPage extends BaseLayout {
   }
 
   async promptNoneError() {
-    const error = await this.page.locator('.error');
+    const error = this.page.locator('.error');
     return error.innerText();
   }
 

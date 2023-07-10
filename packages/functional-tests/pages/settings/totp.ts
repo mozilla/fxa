@@ -44,7 +44,7 @@ export class TotpPage extends SettingsLayout {
   clickClose() {
     return Promise.all([
       this.page.locator('[data-testid=close-button]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 

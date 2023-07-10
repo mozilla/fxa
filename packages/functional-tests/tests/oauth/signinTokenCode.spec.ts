@@ -101,7 +101,7 @@ test.describe('OAuth signin token code', () => {
     );
     await signinTokenCode.input.fill(code);
     await signinTokenCode.submit.click();
-    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    await page.waitForLoadState();
 
     const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
     await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toBeVisible();

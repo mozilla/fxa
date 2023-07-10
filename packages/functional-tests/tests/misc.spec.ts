@@ -5,7 +5,7 @@ test.describe('severity-1', () => {
     test.skip(project.name !== 'local', 'mocha tests are local only');
     test.slow();
     await page.goto(`${target.contentServerUrl}/tests/index.html`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await page.waitForTimeout(2000); // wait for mocha to load
     await page.evaluate(() =>
@@ -32,7 +32,7 @@ test.describe('severity-1', () => {
 test.describe('robots.txt', () => {
   test('should allow bots to access all pages', async ({ target, page }) => {
     await page.goto(`${target.contentServerUrl}/robots.txt`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     const text = await page.locator('body').innerText();
     expect(/^Allow:/gm.test(text)).toBeTruthy();

@@ -46,7 +46,7 @@ test.describe('post verify - account recovery', () => {
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
 
     //Verify account recovery header
@@ -89,7 +89,7 @@ test.describe('post verify - account recovery', () => {
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
 
     //Verify account recovery header
@@ -116,7 +116,7 @@ test.describe('post verify - account recovery', () => {
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
 
     //Verify account recovery header

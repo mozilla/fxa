@@ -66,7 +66,7 @@ export class SettingsPage extends SettingsLayout {
   clickDeleteAccount() {
     return Promise.all([
       this.page.locator('[data-testid=settings-delete-account]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 
