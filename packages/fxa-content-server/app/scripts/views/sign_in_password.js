@@ -75,6 +75,11 @@ const SignInPasswordView = FormView.extend({
     }
   },
 
+  logView() {
+    GleanMetrics.login.view();
+    return FormView.prototype.logView.call(this);
+  },
+
   setInitialContext(context) {
     const account = this.getAccount();
     const hasLinkedAccount = account.get('hasLinkedAccount') ?? false;

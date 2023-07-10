@@ -196,4 +196,21 @@ describe('views/sign_in_password', () => {
       });
     });
   });
+
+  describe('logView', () => {
+    let loginViewEventStub;
+
+    beforeEach(() => {
+      loginViewEventStub = sinon.stub(GleanMetrics.login, 'view');
+    });
+
+    afterEach(() => {
+      loginViewEventStub.restore();
+    });
+
+    it('submits a reg_view Glean ping', () => {
+      view.logView();
+      sinon.assert.calledOnce(loginViewEventStub);
+    });
+  });
 });
