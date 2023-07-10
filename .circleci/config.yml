@@ -107,7 +107,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: large
+        default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner

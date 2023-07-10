@@ -49,11 +49,15 @@ describe('DataCollection', () => {
 
     const button = it.getByTestId('metrics-opt-out');
     // since metricsOpt is async and uses useState the `act` here is necessary
-    button.click();
+    await act(async () => {
+      button.click();
+    });
     await waitFor(() => expect(account.metricsOpt).toBeCalledWith('out'));
     //@ts-ignore mock doesn't care that the prop is readonly
     account.metricsEnabled = false;
-    button.click();
+    await act(async () => {
+      button.click();
+    });
     await waitFor(() => expect(account.metricsOpt).toBeCalledWith('in'));
   });
 

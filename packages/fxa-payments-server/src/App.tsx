@@ -5,7 +5,10 @@
 import React, { ReactNode, useContext } from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { loadStripe } from '@stripe/stripe-js';
-import { StripeProvider } from 'react-stripe-elements';
+import {
+  StripeProvider as _StripeProvider,
+  ReactStripeElements,
+} from 'react-stripe-elements';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { Localized } from '@fluent/react';
 import Head from 'fxa-react/components/Head';
@@ -28,6 +31,13 @@ import selectors from './store/selectors';
 const Checkout = React.lazy(() => import('./routes/Checkout'));
 const Product = React.lazy(() => import('./routes/Product'));
 const Subscriptions = React.lazy(() => import('./routes/Subscriptions'));
+
+// @types/react-stripe-elements is built for React 16. React 18 doesn't implicitly include `children` on the
+// type signature of React.FC anymore. We must add it ourselves
+type StripeProviderType = React.FC<
+  ReactStripeElements.StripeProviderProps & { children?: React.ReactNode }
+>;
+const StripeProvider = _StripeProvider as unknown as StripeProviderType;
 
 // TODO: Come up with a better fallback component for lazy-loaded routes?
 const RouteFallback = () => <LoadingOverlay isLoading={true} />;
@@ -170,7 +180,11 @@ export class AppErrorBoundary extends React.Component {
   }
   render() {
     const { error } = this.state;
-    return error ? <AppErrorDialog error={error} /> : this.props.children;
+    return error ? (
+      <AppErrorDialog error={error} />
+    ) : (
+      (this.props as any).children
+    );
   }
 }
 

@@ -8,6 +8,7 @@ import { AdminPanelFeature } from 'fxa-shared/guards';
 import { useGuardContext } from '../../hooks/GuardContext';
 
 export type GuardProps = {
+  children?: React.ReactNode;
   features: AdminPanelFeature[];
 };
 

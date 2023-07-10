@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { typeByTestIdFn } from '../../lib/test-utils';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
@@ -40,7 +40,10 @@ describe('FormPasswordWithBalloons component', () => {
     renderWithLocalizationProvider(<Subject passwordFormType="reset" />);
     const newPasswordField = screen.getByLabelText('New password');
 
-    fireEvent.focus(newPasswordField);
+    act(() => {
+      fireEvent.focus(newPasswordField);
+    });
+
     await waitFor(
       () => expect(screen.getByText('Password requirements')).toBeVisible(),
       {
@@ -53,7 +56,10 @@ describe('FormPasswordWithBalloons component', () => {
     renderWithLocalizationProvider(<Subject passwordFormType="reset" />);
     const confirmPasswordField = screen.getByLabelText('Re-enter password');
 
-    fireEvent.focus(confirmPasswordField);
+    act(() => {
+      fireEvent.focus(confirmPasswordField);
+    });
+
     await waitFor(() => {
       expect(
         screen.queryByText(
@@ -67,7 +73,10 @@ describe('FormPasswordWithBalloons component', () => {
     renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
     const confirmPasswordField = screen.getByLabelText('Repeat password');
 
-    fireEvent.focus(confirmPasswordField);
+    act(() => {
+      fireEvent.focus(confirmPasswordField);
+    });
+
     await waitFor(
       () =>
         expect(
@@ -75,10 +84,13 @@ describe('FormPasswordWithBalloons component', () => {
             'You need this password to access any encrypted data you store with us.'
           )
         ).toBeVisible(),
-      { timeout: SHOW_BALLOON_TIMEOUT }
+      { timeout: SHOW_BALLOON_TIMEOUT + 200 }
     );
 
-    fireEvent.blur(confirmPasswordField);
+    act(() => {
+      fireEvent.blur(confirmPasswordField);
+    });
+
     await waitFor(
       () =>
         expect(
@@ -86,7 +98,7 @@ describe('FormPasswordWithBalloons component', () => {
             'You need this password to access any encrypted data you store with us.'
           )
         ).not.toBeInTheDocument(),
-      { timeout: HIDE_BALLOON_TIMEOUT }
+      { timeout: HIDE_BALLOON_TIMEOUT + 200 }
     );
   });
 });

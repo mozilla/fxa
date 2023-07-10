@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import { createAppStore } from './store';
 import { config, readConfigFromMeta } from './lib/config';
 import { updateAPIClientToken, updateAPIClientConfig } from './lib/apiClient';
@@ -40,7 +40,9 @@ async function init() {
     store.dispatch(actions.fetchProfile());
   }
 
-  render(
+  const root = createRoot(document.getElementById('root')!);
+
+  root.render(
     <App
       {...{
         config,
@@ -55,8 +57,7 @@ async function init() {
         navigatorLanguages: navigator.languages,
         stripePromise: loadStripe(config.stripe.apiKey),
       }}
-    />,
-    document.getElementById('root')
+    />
   );
 }
 

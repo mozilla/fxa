@@ -6,7 +6,7 @@ import React, { ChangeEvent, useCallback, useRef, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { Localized, useLocalization } from '@fluent/react';
 import Webcam from 'react-webcam';
-import Cropper from 'react-easy-crop';
+import Cropper, { Area } from 'react-easy-crop';
 import { Slider } from '@material-ui/core';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
@@ -126,7 +126,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
   /* Edit Handlers */
 
   const onCropComplete = useCallback(
-    (_croppedArea, croppedAreaPixels) => {
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
       setCroppedAreaPixels(croppedAreaPixels);
       setSaveEnabled(true);
     },
