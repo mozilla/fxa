@@ -165,7 +165,30 @@ describe('views/sign_in_password', () => {
 
         assert.lengthOf(view.$('.separator'), 0);
         assert.lengthOf(view.$('#use-different'), 1);
-        assert.lengthOf(view.$('#tos-pp'), 0);
+        assert.lengthOf(view.$('#fxa-pp'), 1);
+        assert.lengthOf(view.$('#fxa-tos'), 1);
+        // only renders if service is pocket
+        assert.lengthOf(view.$('#pocket-pp'), 0);
+        assert.lengthOf(view.$('#pocket-tos'), 0);
+      });
+    });
+
+    it('renders TOS as expected when service is pocket', () => {
+      relier.set({
+        clientId: '749818d3f2e7857f',
+      });
+      // Pocket TOS should always show for pocket clients despite
+      // linked account / password state
+      account.set({
+        hasLinkedAccount: true,
+        hasPassword: false,
+      });
+
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#fxa-pp'), 1);
+        assert.lengthOf(view.$('#fxa-tos'), 1);
+        assert.lengthOf(view.$('#pocket-pp'), 1);
+        assert.lengthOf(view.$('#pocket-tos'), 1);
       });
     });
   });
