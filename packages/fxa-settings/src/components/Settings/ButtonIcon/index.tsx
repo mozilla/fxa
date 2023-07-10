@@ -8,7 +8,7 @@ import { ReactComponent as RefreshIcon } from './refresh-icon.svg';
 
 type ButtonIconProps = {
   title: string;
-  icon: [FunctionComponent<SVGProps<SVGSVGElement>>, number, number];
+  icon: [FunctionComponent<SVGProps<SVGSVGElement & { title?: string }>>, number, number];
   classNames?: string;
   disabled?: boolean;
   onClick?: () => void;

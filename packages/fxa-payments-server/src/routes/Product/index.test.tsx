@@ -108,10 +108,11 @@ describe('routes/Product', () => {
         plan: planId,
       },
     };
+    const ProductAny = Product as any;
     return (
       <MockApp {...{ appContextValue }}>
         <SignInLayout>
-          <Product {...props} />
+          <ProductAny {...props} />
         </SignInLayout>
       </MockApp>
     );

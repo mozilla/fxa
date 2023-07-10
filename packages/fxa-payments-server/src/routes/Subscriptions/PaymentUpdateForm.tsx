@@ -168,7 +168,7 @@ export const PaymentUpdateForm = ({
       stripeSubmitSetInProgress();
       resetUpdatePaymentIsSuccess();
       try {
-        await handlePaymentUpdate({
+        await (handlePaymentUpdate as any)({
           ...params,
           ...apiClient,
           ...apiClientOverrides,
