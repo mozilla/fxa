@@ -8,7 +8,7 @@ import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
-test.describe('reset password', () => {
+test.describe('reset password react', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     // Ensure that the feature flag is enabled
