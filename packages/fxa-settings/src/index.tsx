@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import App from './components/App';
 import { readConfigMeta } from './lib/config';
@@ -38,7 +38,9 @@ try {
 
   const appContext = initializeAppContext();
 
-  render(
+  const root = createRoot(document.getElementById('root')!);
+
+  root.render(
     <React.StrictMode>
       <AppErrorBoundary>
         <AppContext.Provider value={appContext}>
@@ -50,8 +52,7 @@ try {
           </AppLocalizationProvider>
         </AppContext.Provider>
       </AppErrorBoundary>
-    </React.StrictMode>,
-    document.getElementById('root')
+    </React.StrictMode>
   );
 } catch (error) {
   console.error('Error initializing FXA Settings', error);
