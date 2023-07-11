@@ -4,6 +4,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { setupAuthDatabase, setupProfileDatabase } from 'fxa-shared/db';
+import { setupAccountDatabase } from '../../../../libs/shared/db/mysql/core/src';
 import { Account } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -15,6 +16,7 @@ import { AppConfig } from '../config';
 export class DatabaseService {
   public authKnex: Knex;
   public profileKnex: Knex;
+  public accountKnex: Knex;
 
   constructor(
     configService: ConfigService<AppConfig>,
@@ -25,6 +27,11 @@ export class DatabaseService {
     this.authKnex = setupAuthDatabase(dbConfig.mysql.auth, logger, metrics);
     this.profileKnex = setupProfileDatabase(
       dbConfig.mysql.profile,
+      logger,
+      metrics
+    );
+    this.accountKnex = setupAccountDatabase(
+      dbConfig.mysql.auth,
       logger,
       metrics
     );

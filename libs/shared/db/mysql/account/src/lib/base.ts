@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Model } from 'objection';
 
-import { intBoolTransformer, uuidTransformer } from '@fxa/shared/db/mysql/core';
+import { intBoolTransformer, uuidTransformer } from '../../../core/src';
 
 /**
  * Base Model for helpers that should be present on all models.

@@ -3,8 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 export {
   MySQLConfig,
-  makeValidatedMySQLConfig,
   makeConvictMySQLConfig,
+  makeValidatedMySQLConfig,
 } from './lib/config';
-export { createKnex, monitorKnexConnectionPool } from './lib/core';
-export { uuidTransformer, intBoolTransformer } from './lib/transformers';
+export {
+  createKnex,
+  generateFxAUuid,
+  monitorKnexConnectionPool,
+} from './lib/core';
+export { setupAccountDatabase } from './lib/setup';
+export { runSql } from './lib/tests';
+export { intBoolTransformer, uuidTransformer } from './lib/transformers';
