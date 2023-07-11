@@ -97,14 +97,11 @@ export class AppleUser {
 
   async createUpdateFxAUser() {
     const sub = this.appleUserInfo.sub; // The recipient team-scoped identifier for the user.
-    const appleEmail = this.appleUserInfo.email; // The private email address specific to the recipient team. 
     
-    // TODO, maybe we should mark this failure
-    // const isPrivateEmail = this.appleUserInfo.is_private_email; // Boolean if email is private
-    // if (isPrivateEmail) {
-    //   this.setFailure({ message: 'Apple email is private' });
-    // }
-
+    const pocketEmail = this.email;
+    const isPrivateEmail = this.appleUserInfo.is_private_email; // Boolean if email is private
+    const privateEmail = this.appleUserInfo.email;
+    
     // 1. Check if user exists in FxA via the uid value from Pocket. We should expect
     // the uid to be valid, but if it isn't error out.
     try {
@@ -120,12 +117,10 @@ export class AppleUser {
         return;
       }
     } catch (err) {
-      // We shouldn't expect Pocket to send a uid that doesn't exist in FxA, but
-      // if they do, error out.
+      // We shouldn't expect Pocket to send an uid that doesn't exist in FxA, but
+      // if they do, continue to create user.
       const msg = `Uid not found: ${this.uid}`;
       console.error(msg);
-      this.setFailure(err);
-      return;
     }
 
     // 2. Check all emails to see if there exists a match in FxA, link Apple account
@@ -134,11 +129,12 @@ export class AppleUser {
     
     // FxA tries to find an email match in the following order:
     // 1. Primary email from Pocket
-    // 2. Apple email from `transfer_sub`
-    // 3. Alternate emails from Pocket
-    this.alternateEmails.unshift(appleEmail);
-    if (appleEmail !== this.email) {
-      this.alternateEmails.unshift(this.email);
+    // 2. Alternate emails from Pocket
+    // 3. Apple private email from `transfer_sub`
+    this.alternateEmails.unshift(pocketEmail);
+    
+    if (isPrivateEmail) {
+      this.alternateEmails.push(privateEmail);
     }
 
     if (this.alternateEmails) {
@@ -168,18 +164,24 @@ export class AppleUser {
     // link the Apple account to the FxA account.
     try {
       if (this.mock) {
-        console.log(`Mock: No user found, creating new user with email: ${appleEmail}`);
-        this.setSuccess({uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'), email: appleEmail});
+        console.log(`Mock: No user found, creating new user with email: ${pocketEmail}`);
+        this.setSuccess({uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'), email: pocketEmail});
         return;
       }
       
       const emailCode = await random.hex(16);
       const authSalt = await random.hex(32);
       const [kA, wrapWrapKb] = await random.hex(32, 32);
+      
+      // Is Pocket email private? Use the new private email from Mozilla Apple.
+      let accountEmail = pocketEmail;
+      if (!pocketEmail || pocketEmail.endsWith('privaterelay.appleid.com')) {
+        accountEmail = privateEmail;
+      }
       accountRecord = await this.db.createAccount({
         uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
         createdAt: Date.now(),
-        email: appleEmail,
+        email: accountEmail,
         emailCode,
         emailVerified: true,
         kA,
@@ -198,32 +200,43 @@ export class AppleUser {
 
   async transferUser(accessToken) {
     await this.exchangeIdentifiers(accessToken);
-    await this.createUpdateFxAUser(this.appleUserInfo);
+    if (!this.err) {
+      await this.createUpdateFxAUser(this.appleUserInfo);
+    }
     this.saveResult();
     console.log(`Transfer complete: ${this.transferSub} ${this.success}`);
   }
   
   saveResult() {
-    const appleEmail = this.appleUserInfo.email;
-    const fxaEmail = this.accountRecord.email;
-    const uid = this.accountRecord.uid; // Newly created uid
-    const transferSub = this.transferSub;
-    const success = this.success;
-    const err = (this.err && this.err.message) || '';
+    if (!this.success) {
+      console.log(`Failed to transfer ${this.transferSub}`);
+      const transferSub = this.transferSub;
+      const success = this.success;
+      const err = (this.err && this.err.message) || '';
+      const line = `${transferSub},,,,${success},${err}`;
+      this.writeStream.write(line + '\n');
+    } else {
+      const appleEmail = this.appleUserInfo.email;
+      const fxaEmail = this.accountRecord.email;
+      const uid = this.accountRecord.uid; // Newly created uid
+      const transferSub = this.transferSub;
+      const success = this.success;
+      const err = (this.err && this.err.message) || '';
 
-    this.log.notifyAttachedServices(
-      'appleUserMigration', {},
-      {
-        uid,
-        appleEmail,
-        fxaEmail,
-        transferSub,
-        success,
-        err,
-      },
-    );
-    const line = `${transferSub},${uid},${fxaEmail},${appleEmail},${success},${err}`;
-    this.writeStream.write(line + '\n');
+      this.log.notifyAttachedServices(
+        'appleUserMigration', {},
+        {
+          uid,
+          appleEmail,
+          fxaEmail,
+          transferSub,
+          success,
+          err,
+        },
+      );
+      const line = `${transferSub},${uid},${fxaEmail},${appleEmail},${success},${err}`;
+      this.writeStream.write(line + '\n');
+    }
   }
 }
 

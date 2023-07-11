@@ -195,6 +195,15 @@ describe('AppleUser', function() {
   });
 
   it('should exchange identifiers correctly and update user', async function() {
+    const stub = sandbox.stub(axios, 'post').resolves({ data: { sub: 'sub'} });
+    const data = await user.exchangeIdentifiers('accessToken');
+
+    assert.calledOnce(stub);
+    assert.deepEqual(data, { sub: 'sub' });
+    assert.deepEqual(user.appleUserInfo, { sub: 'sub' });
+  });
+
+  it('should exchange identifiers correctly and update user - private user', async function() {
     const stub = sandbox.stub(axios, 'post').resolves({ data: { sub: 'sub', email: 'email@example.com', is_private_email: true } });
     const data = await user.exchangeIdentifiers('accessToken');
 
@@ -207,9 +216,7 @@ describe('AppleUser', function() {
     const accountRecord = { uid: 'uid', email: 'email@example.com' };
     dbStub.account.resolves(accountRecord);
     user.appleUserInfo = {
-      sub: 'sub',
-      email: 'email@email.com',
-      is_private_email: false
+      sub: 'sub'
     };
     await user.createUpdateFxAUser();
 
@@ -232,8 +239,6 @@ describe('AppleUser', function() {
 
     user.appleUserInfo = {
       sub: 'sub',
-      email: 'apple@example.com',
-      is_private_email: false
     };
 
     await user.createUpdateFxAUser();
@@ -245,7 +250,7 @@ describe('AppleUser', function() {
     assert.equal(user.accountRecord,accountRecord);
   });
 
-  it('should create user from Apple email without FxA account', async function() {
+  it('should create user from Pocket email without FxA account', async function() {
     dbStub.account.rejects({
       errno: 102,
     });
@@ -255,21 +260,19 @@ describe('AppleUser', function() {
     user.uid = ''; // user does not have an account in FxA
     
     const accountRecord = {
-      email: 'apple@example.com',
+      email: 'pocket@example.com',
       uid: 'uid2'
     }
     dbStub.createAccount.resolves(accountRecord);
 
     user.appleUserInfo = {
-      sub: 'sub',
-      email: 'apple@example.com',
-      is_private_email: false
+      sub: 'sub'
     };
 
     await user.createUpdateFxAUser();
 
     assert.calledOnceWithMatch(dbStub.createAccount, { 
-      email: 'apple@example.com' 
+      email: 'pocket@example.com' 
     });
     
     assert.calledOnceWithExactly(dbStub.deleteLinkedAccount, 'uid2', 'apple');
@@ -295,7 +298,7 @@ describe('AppleUser', function() {
     user.appleUserInfo = {
       sub: 'transferSub',
       email: 'apple@example.com',
-      is_private_email: false
+      is_private_email: true
     };
     user.err = undefined;    
     await user.createUpdateFxAUser();
