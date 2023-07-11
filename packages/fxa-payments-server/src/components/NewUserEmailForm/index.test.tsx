@@ -34,9 +34,11 @@ const selectedPlan = {
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
   invalidDomain,
+  plan = selectedPlan,
 }: {
   accountExistsReturnValue: boolean;
   invalidDomain: boolean;
+  plan?: any;
 }) => {
   const [, setValidEmail] = useState<string>('');
   const [, setAccountExists] = useState(false);
@@ -64,7 +66,7 @@ const WrapNewUserEmailForm = ({
           })
         }
         onToggleNewsletterCheckbox={() => {}}
-        selectedPlan={selectedPlan}
+        selectedPlan={plan}
       />
     </div>
   );
@@ -98,9 +100,37 @@ describe('NewUserEmailForm test', () => {
       'new-user-subscribe-product-updates'
     );
     expect(subscribeCheckbox).toBeInTheDocument();
+    expect(subscribeCheckbox?.nextSibling?.textContent).toBe(
+      'I’d like to receive product news and updates from Mozilla'
+    );
 
     const assuranceCopy = queryByTestId('assurance-copy');
     expect(assuranceCopy).toBeInTheDocument();
+  });
+
+  it('renders as expected, with metadata configuration', () => {
+    const subject = () => {
+      return render(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+          plan={{
+            ...selectedPlan,
+            product_metadata: {
+              newsletterLabelTextCode: 'snp',
+            },
+          }}
+        />
+      );
+    };
+    const { queryByTestId } = subject();
+    const subscribeCheckbox = queryByTestId(
+      'new-user-subscribe-product-updates'
+    );
+    expect(subscribeCheckbox).toBeInTheDocument();
+    expect(subscribeCheckbox?.nextSibling?.textContent).toBe(
+      'I’d like to receive security and privacy news and updates from Mozilla'
+    );
   });
 
   it('shows error when invalid email is input to first field', async () => {

@@ -2,18 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ProductMetadata } from 'fxa-shared/subscriptions/types';
 import { apiSignupForNewsletter } from './apiClient';
-import { config } from './config';
 import { GeneralError } from './errors';
 import sentry from './sentry';
 export const FXA_NEWSLETTER_SIGNUP_ERROR: GeneralError = {
   code: 'fxa_newsletter_signup_error',
 };
+const DEFAULT_NEWSLETTER_SLUG = 'mozilla-accounts';
 
-export async function handleNewsletterSignup() {
+export async function handleNewsletterSignup(
+  productMetadata?: ProductMetadata
+) {
+  const newsletterSlugs: string[] = productMetadata?.newsletterSlug
+    ? productMetadata?.newsletterSlug.split(',')
+    : [DEFAULT_NEWSLETTER_SLUG];
+
   try {
     await apiSignupForNewsletter({
-      newsletters: [config.newsletterId],
+      newsletters: newsletterSlugs,
     });
   } catch (e) {
     sentry.captureException(e);
