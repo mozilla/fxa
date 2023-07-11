@@ -4,8 +4,9 @@
 
 import { Localized } from '@fluent/react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import Switch from '.';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 describe('Switch', () => {
   const switchProps = {
@@ -17,7 +18,7 @@ describe('Switch', () => {
   };
 
   it('has expected attributes when on', () => {
-    render(<Switch {...switchProps} />);
+    renderWithLocalizationProvider(<Switch {...switchProps} />);
     const button = screen.getByLabelText('Label for screenreaders');
 
     expect(button).not.toBeDisabled();
@@ -30,7 +31,7 @@ describe('Switch', () => {
   });
 
   it('has expected attributes when off', () => {
-    render(<Switch {...switchProps} isOn={false} />);
+    renderWithLocalizationProvider(<Switch {...switchProps} isOn={false} />);
     const button = screen.getByRole('switch');
 
     expect(button).toHaveAttribute('aria-checked', 'false');
@@ -39,7 +40,7 @@ describe('Switch', () => {
   });
 
   it('has expected attributes when submitting', () => {
-    render(<Switch {...switchProps} isSubmitting />);
+    renderWithLocalizationProvider(<Switch {...switchProps} isSubmitting />);
     const button = screen.getByRole('switch');
 
     // should be 'true' until submission completes
@@ -53,7 +54,9 @@ describe('Switch', () => {
 
   it('calls handler onclick', () => {
     const handler = jest.fn();
-    render(<Switch {...switchProps} {...{ handler }} />);
+    renderWithLocalizationProvider(
+      <Switch {...switchProps} {...{ handler }} />
+    );
     const button = screen.getByRole('switch');
 
     fireEvent.click(button);

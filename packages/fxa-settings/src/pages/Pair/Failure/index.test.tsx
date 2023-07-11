@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { MOCK_ERROR } from './mock';
@@ -24,7 +24,7 @@ describe('PairFailure', () => {
   // });
 
   it('renders the default view as expected', () => {
-    render(<PairFailure />);
+    renderWithLocalizationProvider(<PairFailure />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -35,7 +35,7 @@ describe('PairFailure', () => {
   });
 
   it('renders errors as expected', () => {
-    render(<PairFailure error={MOCK_ERROR} />);
+    renderWithLocalizationProvider(<PairFailure error={MOCK_ERROR} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -47,7 +47,7 @@ describe('PairFailure', () => {
   });
 
   it('emits expected metrics event on render', () => {
-    render(<PairFailure />);
+    renderWithLocalizationProvider(<PairFailure />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

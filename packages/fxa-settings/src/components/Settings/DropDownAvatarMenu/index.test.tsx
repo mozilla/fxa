@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { screen, fireEvent, act } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
@@ -46,7 +47,7 @@ describe('DropDownAvatarMenu', () => {
         email: 'johndope@example.com',
       },
     } as unknown as Account;
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
@@ -73,7 +74,7 @@ describe('DropDownAvatarMenu', () => {
   });
 
   it('renders as expected with avatar url and displayName set', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
@@ -85,7 +86,7 @@ describe('DropDownAvatarMenu', () => {
   });
 
   it('closes on esc keypress', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
         <DropDownAvatarMenu />
       </AppContext.Provider>
@@ -98,7 +99,7 @@ describe('DropDownAvatarMenu', () => {
   });
 
   it('closes on click outside', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <AppContext.Provider value={mockAppContext({ account })}>
         <div className="w-full flex justify-end">
           <div className="flex pr-10 pt-4">
@@ -123,7 +124,7 @@ describe('DropDownAvatarMenu', () => {
         assign: jest.fn(),
       };
 
-      render(
+      renderWithLocalizationProvider(
         <AppContext.Provider
           value={mockAppContext({ account, session: makeSession() })}
         >
@@ -146,7 +147,7 @@ describe('DropDownAvatarMenu', () => {
 
     it('displays an error in the AlertBar', async () => {
       const context = mockAppContext({ account, session: makeSession(true) });
-      render(
+      renderWithLocalizationProvider(
         <AppContext.Provider value={context}>
           <DropDownAvatarMenu />
         </AppContext.Provider>

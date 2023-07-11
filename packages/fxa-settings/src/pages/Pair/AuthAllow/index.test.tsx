@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import AuthAllow from '.';
 import {
   MOCK_METADATA_UNKNOWN_LOCATION,
@@ -37,7 +38,7 @@ describe('Pair/AuthAllow page', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders as expected when the location is undefined', () => {
-    render(
+    renderWithLocalizationProvider(
       <AuthAllow
         email={MOCK_EMAIL}
         suppDeviceInfo={MOCK_METADATA_UNKNOWN_LOCATION}
@@ -61,7 +62,7 @@ describe('Pair/AuthAllow page', () => {
   });
 
   it('renders as expected when a device name is provided', () => {
-    render(
+    renderWithLocalizationProvider(
       <AuthAllow
         email={MOCK_EMAIL}
         suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}
@@ -74,7 +75,7 @@ describe('Pair/AuthAllow page', () => {
   });
 
   it('renders as expected when a location is available', () => {
-    render(
+    renderWithLocalizationProvider(
       <AuthAllow
         email={MOCK_EMAIL}
         suppDeviceInfo={MOCK_METADATA_WITH_LOCATION}
@@ -85,7 +86,7 @@ describe('Pair/AuthAllow page', () => {
   });
 
   it('emits the expected metrics event on render', () => {
-    render(
+    renderWithLocalizationProvider(
       <AuthAllow
         email={MOCK_EMAIL}
         suppDeviceInfo={MOCK_METADATA_WITH_DEVICE_NAME}

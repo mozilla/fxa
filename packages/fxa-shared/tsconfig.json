@@ -1,15 +1,6 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "allowJs": true,
-    "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "composite": true,
-    "outDir": "./dist",
-    "types": ["mocha", "mozlog", "jest", "node"]
+    "outDir": "./dist/esm",
   },
-  "include": ["./**/*", "./**/**/*", "./*", "./**/*.json"],
-  "exclude": ["dist", "node_modules", "**/*.spec.ts"]
 }

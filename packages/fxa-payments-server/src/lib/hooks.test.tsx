@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import '@testing-library/jest-dom/extend-expect';
 
-import { cleanup, fireEvent, render, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, waitFor } from '@testing-library/react';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
   MozillaSubscription,
@@ -32,6 +32,7 @@ import {
 // eslint-disable-next-line import/first
 import { apiInvoicePreview } from '../lib/apiClient';
 import { Config } from './config';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 jest.mock('../lib/apiClient', () => {
   return {
@@ -56,7 +57,7 @@ describe('useCheckboxStateResult', () => {
   };
 
   it('updates state with checkbox state as expected', () => {
-    const { getByTestId } = render(<Subject />);
+    const { getByTestId } = renderWithLocalizationProvider(<Subject />);
     expect(getByTestId('result')).toHaveTextContent('false');
     fireEvent.click(getByTestId('checkbox'));
     expect(getByTestId('result')).toHaveTextContent('true');
@@ -65,7 +66,9 @@ describe('useCheckboxStateResult', () => {
   });
 
   it('accepts an initial value', () => {
-    const { getByTestId } = render(<Subject initialState={true} />);
+    const { getByTestId } = renderWithLocalizationProvider(
+      <Subject initialState={true} />
+    );
     expect(getByTestId('result')).toHaveTextContent('true');
   });
 });
@@ -82,14 +85,14 @@ describe('useNonce', () => {
   };
 
   it('should render with an initial nonce', () => {
-    const { getByTestId } = render(<Subject />);
+    const { getByTestId } = renderWithLocalizationProvider(<Subject />);
     const initialNonce = getByTestId('nonce').textContent;
     expect(initialNonce).toBeDefined();
     expect(initialNonce).not.toBe('');
   });
 
   it('should change nonce on refresh', () => {
-    const { getByTestId } = render(<Subject />);
+    const { getByTestId } = renderWithLocalizationProvider(<Subject />);
     const refreshButton = getByTestId('refresh');
 
     // Click the button a few times for good measure;
@@ -135,7 +138,7 @@ describe('useReactGA4Setup', () => {
         enabled: false,
       },
     } as Config;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -150,7 +153,7 @@ describe('useReactGA4Setup', () => {
         supportedProductIds: '',
       },
     } as Config;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -160,7 +163,7 @@ describe('useReactGA4Setup', () => {
 
   it('does not initialize ReactGA4 - productId is not in supportedProductIds', () => {
     const config = mockConfig;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_fake" />
     );
 
@@ -181,7 +184,7 @@ describe('useReactGA4Setup', () => {
         measurementId: '',
       },
     } as Config;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -197,7 +200,7 @@ describe('useReactGA4Setup', () => {
 
   it('successfully initialize ReactGA4', () => {
     const config = mockConfig;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -219,7 +222,7 @@ describe('useReactGA4Setup', () => {
         supportedProductIds: 'prod_test_1,prod_GqM9ToKK62qjkK,prod_test_2',
       },
     } as Config;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -240,7 +243,7 @@ describe('useReactGA4Setup', () => {
         testMode: true,
       },
     } as Config;
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject config={config} productId="prod_GqM9ToKK62qjkK" />
     );
 
@@ -284,7 +287,7 @@ describe('useInfoBoxMessage', () => {
   };
 
   it('coupon has no value', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject coupon={undefined} selectedPlan={selectedPlan} />
     );
     expect(queryByTestId('info-box-message')).not.toBeInTheDocument();
@@ -292,7 +295,7 @@ describe('useInfoBoxMessage', () => {
   });
 
   it('coupon type is "forever"', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'forever' }}
         selectedPlan={selectedPlan}
@@ -303,7 +306,7 @@ describe('useInfoBoxMessage', () => {
   });
 
   it('coupon type is an unexpected value', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'unexpected-value' }}
         selectedPlan={selectedPlan}
@@ -314,7 +317,7 @@ describe('useInfoBoxMessage', () => {
   });
 
   it('coupon type is "once"', () => {
-    const { queryByTestId, getByTestId } = render(
+    const { queryByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'once' }}
         selectedPlan={selectedPlan}
@@ -328,7 +331,7 @@ describe('useInfoBoxMessage', () => {
   });
 
   it('coupon type is "repeating" plan interval greater than coupon duration', () => {
-    const { queryByTestId, getByTestId } = render(
+    const { queryByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
         selectedPlan={{ ...selectedPlan, interval_count: 6 }}
@@ -342,7 +345,7 @@ describe('useInfoBoxMessage', () => {
   });
 
   it('coupon type is "repeating" plan interval equal to coupon duration', () => {
-    const { queryByTestId, getByTestId } = render(
+    const { queryByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         coupon={{ ...coupon, type: 'repeating' }}
         selectedPlan={selectedPlan}
@@ -361,7 +364,7 @@ describe('useInfoBoxMessage', () => {
       durationInMonths: 2,
       type: 'repeating',
     };
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <Subject coupon={couponLongerDuration} selectedPlan={selectedPlan} />
     );
     const date = new Date();
@@ -485,7 +488,9 @@ describe('useFetchInvoicePreview', () => {
   });
 
   it('returns invoicePreview no subscriptions', async () => {
-    const { queryByTestId } = render(<Subject planId={PLAN_ID} />);
+    const { queryByTestId } = renderWithLocalizationProvider(
+      <Subject planId={PLAN_ID} />
+    );
 
     await waitFor(() => {
       expect(queryByTestId('loading')).toBeInTheDocument();
@@ -499,7 +504,7 @@ describe('useFetchInvoicePreview', () => {
   });
 
   it('returns invoicePreview no promotionCode', async () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject planId={PLAN_ID} customerSubscriptions={customerSubscriptions} />
     );
 
@@ -515,7 +520,7 @@ describe('useFetchInvoicePreview', () => {
   });
 
   it('returns invoicePreview with promotionCode', async () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject
         planId={PLAN_ID}
         customerSubscriptions={customerSubscriptionsWithPromotionCode}
@@ -537,7 +542,7 @@ describe('useFetchInvoicePreview', () => {
   });
 
   it('empty planId', async () => {
-    const { queryByTestId } = render(<Subject />);
+    const { queryByTestId } = renderWithLocalizationProvider(<Subject />);
 
     await waitFor(() => {
       expect(queryByTestId('no-invoice')).toBeInTheDocument();
@@ -548,7 +553,7 @@ describe('useFetchInvoicePreview', () => {
 
   it('invoicePreview throws error', async () => {
     (apiInvoicePreview as jest.Mock).mockClear().mockRejectedValue({});
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject planId={PLAN_ID} customerSubscriptions={customerSubscriptions} />
     );
 

@@ -3,40 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Checkbox from './index';
 
 it('renders as expected', () => {
-  render(<Checkbox />);
+  renderWithLocalizationProvider(<Checkbox />);
   expect(screen.getByTestId('checkbox-container')).toBeInTheDocument();
   expect(screen.getByTestId('checkbox-input')).toBeInTheDocument();
 });
 
 it('can be default checked', () => {
-  render(<Checkbox defaultChecked />);
+  renderWithLocalizationProvider(<Checkbox defaultChecked />);
   expect(screen.getByTestId('checkbox-input')).toHaveAttribute('checked');
 });
 
 it('can be default unchecked', () => {
-  render(<Checkbox />);
+  renderWithLocalizationProvider(<Checkbox />);
   expect(screen.getByTestId('checkbox-input')).not.toHaveAttribute('checked');
 });
 
 it('can be disabled', () => {
-  render(<Checkbox disabled />);
+  renderWithLocalizationProvider(<Checkbox disabled />);
   expect(screen.getByTestId('checkbox-input')).toHaveAttribute('disabled');
 });
 
 it('can have a label', () => {
   const label = 'Jimmy, He Whispers';
-  render(<Checkbox {...{ label }} />);
+  renderWithLocalizationProvider(<Checkbox {...{ label }} />);
   expect(screen.getByTestId('checkbox-label')).toBeInTheDocument();
   expect(screen.getByTestId('checkbox-label')).toHaveTextContent(label);
 });
 
 it('will call onChange argument', () => {
   const onChange = jest.fn();
-  render(<Checkbox {...{ onChange }} />);
+  renderWithLocalizationProvider(<Checkbox {...{ onChange }} />);
   fireEvent.click(screen.getByTestId('checkbox-input'));
   expect(onChange).toBeCalled();
 });

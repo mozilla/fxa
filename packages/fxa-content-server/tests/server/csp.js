@@ -42,7 +42,7 @@ suite.tests['blockingRules'] = function () {
   assert.isFalse(reportOnly);
 
   const connectSrc = directives.connectSrc;
-  assert.lengthOf(connectSrc, config.get('env') === 'development' ? 10 : 9);
+  assert.lengthOf(connectSrc, config.get('env') === 'development' ? 11 : 10);
   assert.include(connectSrc, Sources.AUTH_SERVER);
   assert.include(connectSrc, Sources.GLEAN_SERVER);
   assert.include(connectSrc, Sources.GQL_SERVER);

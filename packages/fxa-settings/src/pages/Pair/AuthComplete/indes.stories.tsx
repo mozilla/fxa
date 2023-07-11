@@ -7,7 +7,7 @@ import AuthComplete from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_ERROR } from './mocks';
 import { MOCK_METADATA_UNKNOWN_LOCATION } from '../../../components/DeviceInfoBlock/mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/AuthComplete',

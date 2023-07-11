@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
 import { MOCK_ACCOUNT } from '../../models/mocks';
@@ -16,7 +17,7 @@ const account = { ...MOCK_ACCOUNT } as unknown as Account;
 
 it('renders Trio as expected', () => {
   window.URL.createObjectURL = jest.fn();
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={{ account }}>
       <GetDataTrio {...{ value, contentType, url }} />
     </AppContext.Provider>
@@ -32,7 +33,7 @@ it('renders Trio as expected', () => {
 
 it('renders single Copy button as expected', () => {
   window.URL.createObjectURL = jest.fn();
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={{ account }}>
       <GetDataTrio {...{ value, contentType, url }} />
     </AppContext.Provider>

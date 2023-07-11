@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import SigninTotpCode, { viewName } from '.';
@@ -27,7 +27,9 @@ describe('Sign in with TOTP code page', () => {
   // });
 
   it('renders as expected', () => {
-    render(<SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -42,7 +44,7 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('shows the relying party in the header when a service name is provided', () => {
-    render(
+    renderWithLocalizationProvider(
       <SigninTotpCode
         email={MOCK_ACCOUNT.primaryEmail.email}
         serviceName={MozServices.MozillaVPN}
@@ -55,7 +57,9 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

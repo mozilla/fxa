@@ -5,6 +5,10 @@
 import React from 'react';
 import { AccountData, ProfileInfo, Session } from '.';
 import { AppContext, AppContextValue, defaultAppContext } from './AppContext';
+import {
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from 'fxa-react/lib/test-utils/localizationProvider';
 
 import {
   createHistory,
@@ -12,7 +16,6 @@ import {
   LocationProvider,
   History,
 } from '@reach/router';
-import { render } from '@testing-library/react';
 import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
 import { ReachRouterWindow } from '../lib/window';
@@ -49,13 +52,15 @@ export function produceComponent(
   appCtx?: AppContextValue
 ) {
   if (appCtx) {
-    return (
+    return withLocalizationProvider(
       <AppContext.Provider value={appCtx}>
         <LocationProvider {...{ history }}>{ui}</LocationProvider>
       </AppContext.Provider>
     );
   }
-  return <LocationProvider {...{ history }}>{ui}</LocationProvider>;
+  return withLocalizationProvider(
+    <LocationProvider {...{ history }}>{ui}</LocationProvider>
+  );
 }
 
 export function renderWithRouter(
@@ -65,13 +70,17 @@ export function renderWithRouter(
 ) {
   if (!appCtx) {
     return {
-      ...render(<LocationProvider {...{ history }}>{ui}</LocationProvider>),
+      ...renderWithLocalizationProvider(
+        <LocationProvider {...{ history }}>{ui}</LocationProvider>
+      ),
       history,
     };
   }
 
   return {
-    ...render(produceComponent(ui, { route, history }, appCtx)),
+    ...renderWithLocalizationProvider(
+      produceComponent(ui, { route, history }, appCtx)
+    ),
     history,
   };
 }

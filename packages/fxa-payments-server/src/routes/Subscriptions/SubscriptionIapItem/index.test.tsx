@@ -1,6 +1,5 @@
 import '@testing-library/jest-dom/extend-expect';
 
-import { render } from '@testing-library/react';
 import { IapSubscription } from 'fxa-shared/subscriptions/types';
 
 import { SignInLayout } from '../../../components/AppLayout';
@@ -9,7 +8,11 @@ import {
   IAP_GOOGLE_SUBSCRIPTION,
   SELECTED_PLAN,
 } from '../../../lib/mock-data';
-import { deepCopy, MockApp } from '../../../lib/test-utils';
+import {
+  deepCopy,
+  MockApp,
+  renderWithLocalizationProvider,
+} from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
 import SubscriptionIapItem, {
   SubscriptionIapItemProps,
@@ -40,7 +43,7 @@ const Subject = ({
 
 describe('routes/Subscriptions/SubscriptionIapItem', () => {
   it('renders as expected for a Google Play subscription with autorenew=true', async () => {
-    const { findByTestId } = render(<Subject />);
+    const { findByTestId } = renderWithLocalizationProvider(<Subject />);
     const subscriptionItemEle = await findByTestId('subscription-item');
     expect(subscriptionItemEle).toBeInTheDocument();
     const iapDetailsEle = await findByTestId('iap-details');
@@ -51,7 +54,7 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     expect(manageButton).toBeInTheDocument();
   });
   it('renders as expected for a Google Play subscription with autorenew=false', async () => {
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         customerSubscription={
           {
@@ -67,7 +70,7 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     expect(iapDetailsEle).toHaveTextContent('Expires on');
   });
   it('renders as expected for an App Store subscription', async () => {
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject
         customerSubscription={IAP_APPLE_SUBSCRIPTION as IapSubscription}
       />
@@ -84,7 +87,7 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
   it('renders an App store subscription with no expiration data', async () => {
     const subscription = deepCopy(IAP_APPLE_SUBSCRIPTION);
 
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
@@ -100,7 +103,7 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     subscription.expiry_time_millis = 1656759852811;
     subscription.auto_renewing = true;
 
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');
@@ -117,7 +120,7 @@ describe('routes/Subscriptions/SubscriptionIapItem', () => {
     subscription.expiry_time_millis = 1656759852811;
     subscription.auto_renewing = false;
 
-    const { findByTestId } = render(
+    const { findByTestId } = renderWithLocalizationProvider(
       <Subject customerSubscription={subscription as IapSubscription} />
     );
     const subscriptionItemEle = await findByTestId('subscription-item');

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import SigninReported, { viewName } from '.';
@@ -20,7 +21,7 @@ describe('SigninReported', () => {
     bundle = await getFtlBundle('settings');
   });
   it('renders Ready component as expected', () => {
-    render(<SigninReported />);
+    renderWithLocalizationProvider(<SigninReported />);
     testAllL10n(screen, bundle);
 
     const reportHeader = screen.getByText('Thank you for your vigilance');
@@ -32,7 +33,7 @@ describe('SigninReported', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<SigninReported />);
+    renderWithLocalizationProvider(<SigninReported />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

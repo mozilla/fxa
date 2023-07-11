@@ -5,11 +5,11 @@
 import React, { useState } from 'react';
 import { FlowRecoveryKeyConfirmPwd } from '.';
 import { Meta } from '@storybook/react';
-import { Account, AppContext, useFtlMsgResolver } from '../../../models';
-import { withLocalization } from '../../../../.storybook/decorators';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import AppLayout from '../AppLayout';
+import { Account, AppContext, useFtlMsgResolver } from '../../../models';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyConfirmPwd',

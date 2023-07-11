@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import ConfirmSignin, { viewName } from '.';
@@ -26,7 +26,9 @@ describe('ConfirmSignin', () => {
   // TODO: add tests for all metrics as they are added
 
   it("renders default view as expected with user's email", () => {
-    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -38,7 +40,9 @@ describe('ConfirmSignin', () => {
   });
 
   it('resends the email when the user clicks the resend button', () => {
-    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent('Confirm this sign-in');
     const resendEmailButton = screen.getByRole('button', {
@@ -50,7 +54,9 @@ describe('ConfirmSignin', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <ConfirmSignin email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

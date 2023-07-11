@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { ReactComponent as TrashIcon } from './trash-icon.svg';
 import ButtonIcon, { ButtonIconTrash, ButtonIconReload } from './index';
 
 it('can render with props', () => {
-  render(
+  renderWithLocalizationProvider(
     <ButtonIcon
       testId="test-button"
       title="Test Icon"
@@ -29,7 +30,7 @@ it('can render with props', () => {
 });
 
 it('can render premade buttons', () => {
-  render(
+  renderWithLocalizationProvider(
     <>
       <ButtonIconTrash title="Remove email" testId="remove-button" />
       <ButtonIconReload title="Reload email" testId="reload-button" />

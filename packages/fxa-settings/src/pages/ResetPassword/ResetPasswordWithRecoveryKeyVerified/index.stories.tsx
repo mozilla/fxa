@@ -7,7 +7,7 @@ import ResetPasswordWithRecoveryKeyVerified, {
   ResetPasswordWithRecoveryKeyVerifiedProps,
 } from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Account } from '../../../models';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 

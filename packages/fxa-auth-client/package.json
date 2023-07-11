@@ -2,20 +2,36 @@
   "name": "fxa-auth-client",
   "version": "0.0.0",
   "description": "",
-  "main": "dist/server/packages/fxa-auth-client/server.js",
+  "main": "dist/server/cjs/packages/fxa-auth-client/server.js",
+  "module": "dist/server/esm/packages/fxa-auth-client/server.js",
   "exports": {
-    ".": "./dist/server/packages/fxa-auth-client/server.js",
+    ".": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/server.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/server.js"
+    },
     "./browser": "./dist/browser/packages/fxa-auth-client/browser.js",
-    "./lib/crypto": "./dist/server/packages/fxa-auth-client/lib/crypto.js",
-    "./lib/hawk": "./dist/server/packages/fxa-auth-client/lib/hawk.js",
-    "./lib/recoveryKey": "./dist/server/packages/fxa-auth-client/lib/recoveryKey.js",
-    "./lib/utils": "./dist/server/packages/fxa-auth-client/lib/utils.js",
+    "./lib/crypto": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/lib/crypto.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/lib/crypto.js"
+    },
+    "./lib/hawk": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/lib/hawk.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/lib/hawk.js"
+    },
+    "./lib/recoveryKey": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/lib/recoveryKey.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/lib/recoveryKey.js"
+    },
+    "./lib/utils": {
+      "import": "./dist/server/esm/packages/fxa-auth-client/lib/utils.js",
+      "require": "./dist/server/cjs/packages/fxa-auth-client/lib/utils.js"
+    },
     "./lib/": "./lib/"
   },
   "scripts": {
     "lint": "eslint . --ext .ts",
     "postinstall": "(tsc --build tsconfig.browser.json && tsc --build) || true",
-    "build": "tsc --build tsconfig.browser.json && tsc --build",
+    "build": "tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json",
     "compile": "tsc --noEmit",
     "ts-check": "tsc --noEmit",
     "test": "mocha -r esbuild-register test/*",

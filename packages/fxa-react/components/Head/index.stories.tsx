@@ -5,7 +5,22 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import Head from './index';
+import AppLocalizationProvider from '../../lib/AppLocalizationProvider';
 
 storiesOf('Components/Head', module)
-  .add('basic', () => <Head />)
-  .add('with title', () => <Head title="neat feature" />);
+  .add('basic', () => (
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <Head />
+    </AppLocalizationProvider>
+  ))
+  .add('with title', () => (
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <Head title="neat feature" />
+    </AppLocalizationProvider>
+  ));

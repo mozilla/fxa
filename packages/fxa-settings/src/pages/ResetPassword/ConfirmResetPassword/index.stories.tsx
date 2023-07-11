@@ -5,7 +5,7 @@
 import React from 'react';
 import ConfirmResetPassword from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 
 export default {

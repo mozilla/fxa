@@ -5,7 +5,7 @@
 import React from 'react';
 import Clear from '.';
 import { screen, render } from '@testing-library/react';
-
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 describe('Clear', () => {
   it('clears localStorage, sessionStorage, and sets cookie', () => {
     localStorage.setItem('hey', 'ho');
@@ -20,7 +20,7 @@ describe('Clear', () => {
     jest.spyOn(document, 'cookie', 'get').mockImplementation(() => cookieJar);
     expect(document.cookie).toBe('');
 
-    render(<Clear />);
+    renderWithLocalizationProvider(<Clear />);
     screen.getByRole('heading', { name: 'Browser storage is cleared' });
     expect(localStorage.length).toBe(0);
     expect(sessionStorage.length).toBe(0);

@@ -4,16 +4,20 @@
 
 module.exports = {
   stories: ['../**/*.stories.tsx'],
+  core: {
+    builder: 'webpack5',
+  },
   addons: [
     '@storybook/addon-actions',
     '@storybook/addon-links',
-    {
-      name: '@storybook/addon-postcss',
-      options: {
-        postcssLoaderOptions: {
-          implementation: require('postcss'),
-        },
-      },
-    },
+    '@storybook/addon-styling',
   ],
+  framework: {
+    name: '@storybook/react-webpack5',
+    options: {},
+  },
+  features: { storyStoreV7: false },
+  docs: {
+    autodocs: true,
+  },
 };

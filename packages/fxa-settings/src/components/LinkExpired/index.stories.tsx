@@ -4,27 +4,29 @@
 
 import React from 'react';
 import { LocationProvider } from '@reach/router';
-import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../.storybook/decorators';
+import { StoryFn } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
-export default {
+const meta = {
   title: 'Components/LinkExpired',
   component: LinkExpired,
   subcomponents: { LinkExpiredResetPassword, LinkExpiredSignin },
   decorators: [
     withLocalization,
-    (Story) => (
+    (Story: StoryFn) => (
       <LocationProvider>
         <Story />
       </LocationProvider>
     ),
   ],
-} as Meta;
+};
+
+export default meta;
 
 const viewName = 'example-view-name';
 const email = MOCK_ACCOUNT.primaryEmail.email;

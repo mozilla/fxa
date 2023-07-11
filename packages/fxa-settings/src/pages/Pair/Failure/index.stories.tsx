@@ -7,7 +7,7 @@ import PairFailure from '.';
 import { Meta } from '@storybook/react';
 import AppLayout from '../../../components/AppLayout';
 import { MOCK_ERROR } from './mock';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/Failure',

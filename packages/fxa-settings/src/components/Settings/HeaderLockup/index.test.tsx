@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import HeaderLockup from '.';
 
 // TODO: functional test for `data-testid="header-menu"` to be visible in
@@ -11,7 +12,7 @@ import HeaderLockup from '.';
 
 describe('HeaderLockup', () => {
   it('renders as expected', () => {
-    render(<HeaderLockup />);
+    renderWithLocalizationProvider(<HeaderLockup />);
     const headerHelp = screen.getByTestId('header-help');
     const headerMenu = screen.getByTestId('header-menu');
 

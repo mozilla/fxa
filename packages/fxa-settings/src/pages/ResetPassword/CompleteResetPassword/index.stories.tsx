@@ -6,7 +6,7 @@ import React from 'react';
 import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { Account } from '../../../models';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { getSubject, paramsWithMissingEmail } from './mocks';
 import { produceComponent } from '../../../models/mocks';
 // import { resetMocks } from '../AccountRecoveryResetPassword/mocks';

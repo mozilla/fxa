@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useContext, useRef } from 'react';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import {
   FieldGroup,
@@ -19,13 +19,14 @@ import {
   State as ValidatorState,
   MiddlewareReducer as ValidatorMiddlewareReducer,
 } from '../../lib/validator';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 afterEach(cleanup);
 
 describe('Form', () => {
   it('renders a form that provides children with a validator', () => {
     const validatorStateRef = mkValidatorStateRef();
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Field fieldType="input" name="foo" label="This is a label">
           <p>Hi mom</p>
@@ -50,7 +51,7 @@ describe('Form', () => {
 
 describe('FieldGroup', () => {
   it('wraps children in className="input-row-group"', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <FieldGroup>
         <div>Hi mom</div>
       </FieldGroup>
@@ -62,7 +63,7 @@ describe('FieldGroup', () => {
 
 describe('Field', () => {
   it('renders a label when available', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <TestForm>
         <Field fieldType="input" name="foo" label="This is a label">
           <p>Hi mom</p>
@@ -101,7 +102,9 @@ describe('Field', () => {
         </TestForm>
       );
     };
-    const { container, queryAllByTestId } = render(<Subject />);
+    const { container, queryAllByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     queryAllByTestId('execute').forEach(fireEvent.click);
     const tooltip = container.querySelector('aside.tooltip');
     expect(tooltip).not.toBeNull();
@@ -132,7 +135,9 @@ describe('Field', () => {
         </TestForm>
       );
     };
-    const { container, queryAllByTestId } = render(<Subject />);
+    const { container, queryAllByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     queryAllByTestId('execute').forEach(fireEvent.click);
     const tooltip = container.querySelector('aside.tooltip');
     expect(tooltip).toBeNull();
@@ -140,7 +145,7 @@ describe('Field', () => {
 
   it('registers a field with validator state', () => {
     const validatorStateRef = mkValidatorStateRef();
-    render(
+    renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Field fieldType="input" name="foo">
           <p>Hi mom</p>
@@ -175,7 +180,7 @@ describe('defaultInputValidator', () => {
 describe('Input', () => {
   it('considers an optional field without onValidate as always valid', () => {
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Input
           data-testid="input-1"
@@ -193,7 +198,7 @@ describe('Input', () => {
 
   it('enforces non-empty content in required fields', () => {
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Input
           data-testid="input-1"
@@ -241,7 +246,7 @@ describe('Input', () => {
     });
 
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Input
           data-testid="testInput"
@@ -301,7 +306,7 @@ describe('Input', () => {
       valid: false,
       error: 'bad thing',
     });
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm>
         <Input
           data-testid="testInput"
@@ -352,7 +357,7 @@ describe('StripeElement', () => {
   it('does nothing if field value is null', () => {
     const MockStripeElement = buildMockStripeElement(null);
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
       </TestForm>
@@ -369,7 +374,7 @@ describe('StripeElement', () => {
       error: null,
     });
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
       </TestForm>
@@ -385,7 +390,7 @@ describe('StripeElement', () => {
       error: { message: 'game over man' },
     });
     const validatorStateRef = mkValidatorStateRef();
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
       </TestForm>
@@ -422,7 +427,7 @@ describe('StripeElement', () => {
     const MockStripeElement = buildMockStripeElement(undefined);
     const validatorStateRef = mkValidatorStateRef();
     const translatedIsRequired = 'IS REQUIRED TRANSLATED';
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement
           data-testid="input-1"
@@ -463,7 +468,7 @@ describe('StripeElement', () => {
       valid: false,
       error: expectedError,
     }));
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement
           data-testid="input-1"
@@ -486,7 +491,7 @@ describe('StripeElement', () => {
       error: { message: 'period.' },
     });
     const validatorStateRef = mkValidatorStateRef();
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
       </TestForm>
@@ -503,7 +508,7 @@ describe('StripeElement', () => {
   it('handles complete result from contained stripe element', () => {
     const MockStripeElement = buildMockStripeElement({ complete: true });
     const validatorStateRef = mkValidatorStateRef();
-    const { container, getByTestId } = render(
+    const { container, getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <StripeElement name="input-1" component={MockStripeElement} />
       </TestForm>
@@ -531,7 +536,7 @@ describe('StripeElement', () => {
 
 describe('Checkbox', () => {
   it('renders its own label with a label prop when avaiable', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <TestForm>
         <Checkbox name="foo" label="nice label" />
       </TestForm>
@@ -542,7 +547,7 @@ describe('Checkbox', () => {
   });
 
   it('renders children as a label with markup when available', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <TestForm>
         <Checkbox name="foo">
           nice <span className="label-inner-span">label</span>
@@ -558,7 +563,7 @@ describe('Checkbox', () => {
   });
 
   it('accepts an alternate className', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <TestForm>
         <Checkbox className="fooquux" name="foo" label="nice label" />
       </TestForm>
@@ -568,7 +573,7 @@ describe('Checkbox', () => {
 
   it('must be checked to be valid when required', () => {
     const validatorStateRef = mkValidatorStateRef();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <TestForm validatorStateRef={validatorStateRef}>
         <Checkbox data-testid="checkbox" name="foo" required />
       </TestForm>
@@ -633,7 +638,9 @@ describe('SubmitButton', () => {
         </TestForm>
       );
     };
-    const { queryAllByTestId, getByTestId } = render(<Subject />);
+    const { queryAllByTestId, getByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     const validatorFns = queryAllByTestId('execute');
 
     fireEvent.click(validatorFns[0]);

@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ContentSkip from '.';
 
 describe('ContentSkip', () => {
   it('links to #main with expected text', () => {
-    render(<ContentSkip />);
+    renderWithLocalizationProvider(<ContentSkip />);
 
     expect(screen.getByTestId('content-skip')).toHaveTextContent(
       'Skip to content'

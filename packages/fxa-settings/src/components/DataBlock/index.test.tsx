@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../models';
 import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
@@ -32,7 +33,7 @@ Object.defineProperty(window.navigator, 'clipboard', {
 window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={singleValue} />
     </AppContext.Provider>
@@ -41,7 +42,7 @@ it('can render single values', () => {
 });
 
 it('can render multiple values', () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>
@@ -52,7 +53,7 @@ it('can render multiple values', () => {
 });
 
 it('can apply spacing to multiple values', () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} separator=" " />
     </AppContext.Provider>
@@ -64,7 +65,7 @@ it('can apply spacing to multiple values', () => {
 });
 
 it('displays only Copy icon in iOS', () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} separator=" " isIOS />
     </AppContext.Provider>
@@ -80,7 +81,7 @@ it('displays only Copy icon in iOS', () => {
 });
 
 it('displays a tooltip on action', async () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>
@@ -94,7 +95,7 @@ it('displays a tooltip on action', async () => {
 });
 
 it('sets download file name', async () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock
         value={multiValue}
@@ -110,7 +111,7 @@ it('sets download file name', async () => {
 });
 
 it('sets has fallback download file name', async () => {
-  render(
+  renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
       <DataBlock value={multiValue} />
     </AppContext.Provider>

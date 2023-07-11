@@ -12,7 +12,7 @@ import {
   MOCK_METADATA_WITH_LOCATION,
 } from '../../../components/DeviceInfoBlock/mocks';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/SuppAllow',

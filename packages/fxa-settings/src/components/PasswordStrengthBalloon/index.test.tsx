@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, render, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import PasswordStrengthBalloon from '.';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -16,7 +17,7 @@ describe('PasswordStrengthBalloon component', () => {
   // });
 
   it('renders password requirements as expected', () => {
-    render(
+    renderWithLocalizationProvider(
       <PasswordStrengthBalloon
         hasUserTakenAction={false}
         isTooShort={true}
@@ -37,7 +38,7 @@ describe('PasswordStrengthBalloon component', () => {
     );
   });
   it('displays checkmark icon when password requirements are respected', () => {
-    render(
+    renderWithLocalizationProvider(
       <PasswordStrengthBalloon
         hasUserTakenAction={true}
         isTooShort={false}
@@ -69,7 +70,7 @@ describe('PasswordStrengthBalloon component', () => {
   });
 
   it('displays alert icon when password is too short', () => {
-    render(
+    renderWithLocalizationProvider(
       <PasswordStrengthBalloon
         hasUserTakenAction={true}
         isTooShort={true}
@@ -87,7 +88,7 @@ describe('PasswordStrengthBalloon component', () => {
   });
 
   it('displays alert icon when password is the same as email', () => {
-    render(
+    renderWithLocalizationProvider(
       <PasswordStrengthBalloon
         hasUserTakenAction={true}
         isTooShort={false}
@@ -105,7 +106,7 @@ describe('PasswordStrengthBalloon component', () => {
   });
 
   it('displays alert icon when password is common', () => {
-    render(
+    renderWithLocalizationProvider(
       <PasswordStrengthBalloon
         hasUserTakenAction={true}
         isTooShort={false}

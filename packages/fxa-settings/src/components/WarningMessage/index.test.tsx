@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
 import WarningMessage from '.';
@@ -23,7 +23,7 @@ describe('WarningMessage', () => {
   // });
 
   it('renders as expected', () => {
-    render(
+    renderWithLocalizationProvider(
       <WarningMessage
         warningMessageFtlId={MOCK_WARNING_MESSAGE_FTL_ID}
         warningType={MOCK_WARNING_TYPE}

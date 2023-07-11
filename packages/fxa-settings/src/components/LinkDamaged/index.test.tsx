@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
 
 describe('LinkDamaged', () => {
   it('renders the component as expected for a damaged Reset Password link', () => {
-    render(<ResetPasswordLinkDamaged />);
+    renderWithLocalizationProvider(<ResetPasswordLinkDamaged />);
 
     screen.getByRole('heading', {
       name: 'Reset password link damaged',
@@ -19,7 +20,7 @@ describe('LinkDamaged', () => {
   });
 
   it('renders the component as expected for a damaged signin link', () => {
-    render(<SigninLinkDamaged />);
+    renderWithLocalizationProvider(<SigninLinkDamaged />);
 
     screen.getByRole('heading', {
       name: 'Confirmation link damaged',

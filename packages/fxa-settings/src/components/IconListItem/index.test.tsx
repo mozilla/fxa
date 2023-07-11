@@ -3,16 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { KeyIconListItem } from '.';
 
 it('renders a list item when provided with a text string', () => {
-  render(<KeyIconListItem>Some text</KeyIconListItem>);
+  renderWithLocalizationProvider(<KeyIconListItem>Some text</KeyIconListItem>);
   expect(screen.getAllByRole('listitem')).toHaveLength(1);
 });
 
 it('hides non-semantic icon from screen-readers', async () => {
-  render(<KeyIconListItem>Some text</KeyIconListItem>);
+  renderWithLocalizationProvider(<KeyIconListItem>Some text</KeyIconListItem>);
   expect(screen.getByTestId('list-item-icon')).toBeVisible();
   const accessibleImages = screen.queryAllByRole('img');
   expect(accessibleImages).toHaveLength(0);

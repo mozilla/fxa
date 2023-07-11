@@ -4,7 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
@@ -16,7 +17,7 @@ describe('ChooseWhatToSync component', () => {
     bundle = await getFtlBundle('settings');
   });
   it('renders CWTS options as expected', async () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     testAllL10n(screen, bundle);
 
     screen.getByText('Choose what to sync:');

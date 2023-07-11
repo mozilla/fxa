@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import Subscription from '.';
 import { MozSubscription } from 'fxa-admin-server/src/graphql';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const subscription: MozSubscription = {
   created: 1583259953 * 1e3,
@@ -24,7 +25,7 @@ const subscription: MozSubscription = {
 };
 
 it('renders each field as expected', () => {
-  render(<Subscription {...subscription} />);
+  renderWithLocalizationProvider(<Subscription {...subscription} />);
 
   screen.getByText(subscription.productName);
   screen.getByText(subscription.status);

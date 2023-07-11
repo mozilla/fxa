@@ -1,10 +1,11 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import PlanErrorDialog from './index';
 import { PLANS } from '../../lib/mock-data';
 import { FetchState, Plan } from '../../store/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const locationReload = () => {};
 const plans: FetchState<Plan[], any> = {
@@ -18,7 +19,7 @@ afterEach(cleanup);
 describe('PlanErrorDialog', () => {
   it('renders as expected for no plan for product', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanErrorDialog
           {...{
             locationReload,
@@ -34,7 +35,7 @@ describe('PlanErrorDialog', () => {
 
   it('renders as expected for no selectedPlan', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanErrorDialog
           {...{
             locationReload,

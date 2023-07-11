@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkedAccounts } from '.';
 import { MOCK_LINKED_ACCOUNTS } from './mocks';
 import { AppContext } from 'fxa-settings/src/models';

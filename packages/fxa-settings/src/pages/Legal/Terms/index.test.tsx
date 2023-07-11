@@ -4,7 +4,8 @@
 
 import React from 'react';
 import LegalTerms, { viewName } from '.';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -40,7 +41,7 @@ describe('Legal/Terms', () => {
   });
 
   it('renders as expected', () => {
-    render(<LegalTerms />);
+    renderWithLocalizationProvider(<LegalTerms />);
     testAllL10n(screen, bundle);
 
     // renders if `markdown` is undefined
@@ -50,7 +51,7 @@ describe('Legal/Terms', () => {
   });
 
   it('emits metrics events as expected', () => {
-    render(<LegalTerms />);
+    renderWithLocalizationProvider(<LegalTerms />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
 
     fireEvent.click(screen.getByRole('button', { name: 'Back' }));

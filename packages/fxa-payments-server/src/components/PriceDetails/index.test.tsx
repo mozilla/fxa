@@ -1,7 +1,7 @@
 import { PriceDetails } from '.';
 
-import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const defaultPriceDetailsProps = {
   total: 2000,
@@ -12,7 +12,9 @@ describe('PriceDetails', () => {
   describe('PriceDetails component', () => {
     it('renders NoInterval component', () => {
       const subject = () => {
-        return render(<PriceDetails {...defaultPriceDetailsProps} />);
+        return renderWithLocalizationProvider(
+          <PriceDetails {...defaultPriceDetailsProps} />
+        );
       };
 
       const { queryByTestId } = subject();
@@ -21,7 +23,7 @@ describe('PriceDetails', () => {
 
     it('renders Interval component', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PriceDetails
             {...defaultPriceDetailsProps}
             interval={'month'}
@@ -40,7 +42,9 @@ describe('PriceDetails', () => {
   describe('NoInterval', () => {
     it('renders without tax', () => {
       const subject = () => {
-        return render(<PriceDetails {...defaultPriceDetailsProps} />);
+        return renderWithLocalizationProvider(
+          <PriceDetails {...defaultPriceDetailsProps} />
+        );
       };
 
       const { queryByTestId } = subject();
@@ -50,7 +54,7 @@ describe('PriceDetails', () => {
 
     it('renders with tax with showTax set', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PriceDetails
             {...defaultPriceDetailsProps}
             tax={300}
@@ -68,7 +72,9 @@ describe('PriceDetails', () => {
 
     it('renders with tax without showTax set', () => {
       const subject = () => {
-        return render(<PriceDetails {...defaultPriceDetailsProps} tax={300} />);
+        return renderWithLocalizationProvider(
+          <PriceDetails {...defaultPriceDetailsProps} tax={300} />
+        );
       };
 
       const { queryByTestId } = subject();
@@ -80,7 +86,7 @@ describe('PriceDetails', () => {
 
     it('renders with tax, even though tax isnt provided', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PriceDetails {...defaultPriceDetailsProps} showTax={true} />
         );
       };
@@ -97,7 +103,7 @@ describe('PriceDetails', () => {
     describe('Without tax', () => {
       it('renders for one day', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'day'}
@@ -114,7 +120,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple days', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'day'}
@@ -131,7 +137,7 @@ describe('PriceDetails', () => {
 
       it('renders for one week', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'week'}
@@ -148,7 +154,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple weeks', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'week'}
@@ -165,7 +171,7 @@ describe('PriceDetails', () => {
 
       it('renders for one month', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'month'}
@@ -182,7 +188,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple months', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'month'}
@@ -199,7 +205,7 @@ describe('PriceDetails', () => {
 
       it('renders for one year', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'year'}
@@ -216,7 +222,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple years', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'year'}
@@ -235,7 +241,7 @@ describe('PriceDetails', () => {
     describe('With tax', () => {
       it('renders for one day', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'day'}
@@ -253,7 +259,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple days', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'day'}
@@ -273,7 +279,7 @@ describe('PriceDetails', () => {
 
       it('renders for one week', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'week'}
@@ -291,7 +297,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple weeks', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'week'}
@@ -311,7 +317,7 @@ describe('PriceDetails', () => {
 
       it('renders for one month', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'month'}
@@ -329,7 +335,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple months', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'month'}
@@ -349,7 +355,7 @@ describe('PriceDetails', () => {
 
       it('renders for one year', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'year'}
@@ -367,7 +373,7 @@ describe('PriceDetails', () => {
 
       it('renders for multiple years', () => {
         const subject = () => {
-          return render(
+          return renderWithLocalizationProvider(
             <PriceDetails
               {...defaultPriceDetailsProps}
               interval={'year'}

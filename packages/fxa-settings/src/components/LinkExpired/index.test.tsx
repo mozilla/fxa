@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { LinkExpired, LinkExpiredProps } from '.';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const mockResendHandler = jest.fn().mockResolvedValue(true);
 
@@ -20,7 +21,7 @@ const mockedProps: LinkExpiredProps = {
 
 describe('LinkExpired', () => {
   it('renders the component as expected with mocked props', () => {
-    render(<LinkExpired {...mockedProps} />);
+    renderWithLocalizationProvider(<LinkExpired {...mockedProps} />);
 
     screen.getByRole('heading', {
       name: 'Some heading',

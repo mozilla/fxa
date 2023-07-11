@@ -7,7 +7,7 @@ import { Subject } from './mocks';
 import AppLayout from '../AppLayout';
 import FormPasswordWithBalloons from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/FormPasswordWithBalloons',

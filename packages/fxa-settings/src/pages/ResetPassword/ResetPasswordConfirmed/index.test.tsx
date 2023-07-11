@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ResetPasswordConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -17,7 +18,9 @@ const continueHandler = jest.fn();
 
 describe('ResetPasswordConfirmed', () => {
   it('renders Ready component as expected', () => {
-    render(<ResetPasswordConfirmed isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed isSignedIn isSync={false} />
+    );
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
     );
@@ -29,12 +32,14 @@ describe('ResetPasswordConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<ResetPasswordConfirmed isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed isSignedIn isSync={false} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
-    render(
+    renderWithLocalizationProvider(
       <ResetPasswordConfirmed
         isSignedIn
         isSync={false}

@@ -1,7 +1,10 @@
-import { render } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
-import { MockApp, MOCK_CUSTOMER } from '../../../lib/test-utils';
+import {
+  MockApp,
+  MOCK_CUSTOMER,
+  renderWithLocalizationProvider,
+} from '../../../lib/test-utils';
 import { PLAN, SELECTED_PLAN, PROFILE } from '../../../lib/mock-data';
 import { SignInLayout } from '../../../components/AppLayout';
 import IapRoadblock, { IapRoadblockProps } from './index';
@@ -34,7 +37,7 @@ const MOCK_PROPS: IapRoadblockProps = {
 describe('routes/Product/IapRoadblock', () => {
   it('renders as expected', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <MockApp>
           <SignInLayout>
             <IapRoadblock {...MOCK_PROPS} />
@@ -56,7 +59,7 @@ describe('routes/Product/IapRoadblock', () => {
 
   it('displays messaging to contact support for help in upgrading', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <MockApp>
           <SignInLayout>
             <IapRoadblock

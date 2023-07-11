@@ -6,7 +6,7 @@ import React from 'react';
 import { LocationProvider } from '@reach/router';
 import { ConnectAnotherDevicePromo } from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
 
