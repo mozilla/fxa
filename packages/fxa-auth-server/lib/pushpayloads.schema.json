@@ -32,6 +32,7 @@
   "definitions": {
     "deviceConnected": {
       "required": ["version", "command", "data"],
+      "type": "object",
       "properties": {
         "version": {
           "type": "integer",
@@ -57,6 +58,7 @@
       "additionalProperties": false
     },
     "deviceDisconnected": {
+      "type": "object",
       "required": ["version", "command", "data"],
       "properties": {
         "version": {
@@ -81,6 +83,7 @@
       "additionalProperties": false
     },
     "profileUpdated": {
+      "type": "object",
       "required": ["version", "command"],
       "properties": {
         "version": {
@@ -94,6 +97,7 @@
       "additionalProperties": false
     },
     "collectionsChanged": {
+      "type": "object",
       "required": ["version", "command", "data"],
       "properties": {
         "version": {
@@ -137,6 +141,7 @@
       "additionalProperties": false
     },
     "passwordChanged": {
+      "type": "object",
       "required": ["version", "command"],
       "properties": {
         "version": {
@@ -150,6 +155,7 @@
       "additionalProperties": false
     },
     "passwordReset": {
+      "type": "object",
       "required": ["version", "command"],
       "properties": {
         "version": {
@@ -163,6 +169,7 @@
       "additionalProperties": false
     },
     "accountDestroyed": {
+      "type": "object",
       "required": ["version", "command", "data"],
       "properties": {
         "version": {
@@ -187,6 +194,7 @@
       "additionalProperties": false
     },
     "commandReceived": {
+      "type": "object",
       "required": ["version", "command", "data"],
       "properties": {
         "version": {
