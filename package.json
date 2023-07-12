@@ -107,6 +107,7 @@
     "mocha-junit-reporter": "^2.2.0",
     "mocha-multi": "^1.1.7",
     "nx": "16.3.1",
+    "nx-cloud": "latest",
     "postcss": "^8.4.14",
     "stylelint": "^15.10.1",
     "stylelint-config-prettier": "^9.0.3",
