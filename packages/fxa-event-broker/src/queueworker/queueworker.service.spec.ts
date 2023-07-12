@@ -195,16 +195,13 @@ describe('QueueworkerService', () => {
     it('starts up with dev checks', async () => {
       (service as any).queueName =
         'https://localhost:4100/queue.mozilla/321321321/notifications';
-      const mockQueue = jest.fn().mockResolvedValue({});
-      const mockCreate = jest.fn().mockResolvedValue({});
+      const mockSend = jest.fn().mockResolvedValue({});
       (service as any).sqs = {
-        listQueues: jest.fn().mockReturnValue({ promise: mockQueue }),
-        createQueue: jest.fn().mockReturnValue({ promise: mockCreate }),
+        send: mockSend,
       };
       (service as any).app.start = jest.fn().mockReturnValue(null);
       await service.onApplicationBootstrap();
-      expect(mockQueue).toHaveBeenCalled();
-      expect(mockCreate).toHaveBeenCalled();
+      expect(mockSend).toHaveBeenCalledTimes(2);
       expect((service as any).app.start).toHaveBeenCalled();
     });
 
@@ -263,25 +260,25 @@ describe('QueueworkerService', () => {
         'resource-server-client-id',
       ]);
     });
-    
+
     it('handles apple migration event', async () => {
       const msg = updateStubMessage(appleMigrationMessage);
       await (service as any).handleMessage(msg);
-      
+
       const topicName = 'rp749818d3f2e7857f';
       expect(pubsub.topic).toBeCalledWith(topicName);
       expect(pubsub.topic(topicName).publishMessage).toBeCalledTimes(1);
       expect(pubsub.topic(topicName).publishMessage).toBeCalledWith({
         json: {
-          'appleEmail': 'apple@email.com',
-          'err': '',
-          'event': 'appleUserMigration',
-          'fxaEmail': 'fxa@email.com',
-          'success': true,
-          'timestamp': now,
-          'transferSub': '123',
-          'ts': now / 1000,
-          'uid': '993d26bac72b471991b197b3d298a5de',
+          appleEmail: 'apple@email.com',
+          err: '',
+          event: 'appleUserMigration',
+          fxaEmail: 'fxa@email.com',
+          success: true,
+          timestamp: now,
+          transferSub: '123',
+          ts: now / 1000,
+          uid: '993d26bac72b471991b197b3d298a5de',
         },
       });
     });

@@ -13,6 +13,8 @@ import { NestFactory } from '@nestjs/core';
 import { Chance } from 'chance';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
+import { SendMessageCommand } from '@aws-sdk/client-sqs';
+
 import { AppModule } from '../app.module';
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import Config from '../config';
@@ -56,12 +58,11 @@ async function main() {
   const clientData = capabilityService.capabilities;
 
   const queueMessage = (message: object) => {
-    return sqs
-      .sendMessage({
-        MessageBody: JSON.stringify(message),
-        QueueUrl: queue,
-      })
-      .promise();
+    const command = new SendMessageCommand({
+      MessageBody: JSON.stringify(message),
+      QueueUrl: queue,
+    });
+    return sqs.send(command);
   };
 
   let i = 0;
