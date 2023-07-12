@@ -4,8 +4,10 @@
 
 const {
   permitAdditionalJSImports,
+  suppressRuntimeErrorOverlay,
 } = require('fxa-react/configs/rescripts');
 
-module.exports = [
-  permitAdditionalJSImports,
-];
+module.exports = {
+  webpack: permitAdditionalJSImports,
+  devServer: suppressRuntimeErrorOverlay,
+};
