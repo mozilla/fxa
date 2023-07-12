@@ -13,17 +13,15 @@ import {
 } from '../../lib/auth-errors/auth-errors';
 import { RouteComponentProps } from '@reach/router';
 import { GraphQLError } from 'graphql';
+import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
+import {
+  AccountRecoveryKeyInfo,
+  ResetPasswordQueryParams,
+} from '../../models/reset-password';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 // WIP PROTOTYPE
 // ❌ = Note for prototype review. Comment will be removed in implementation.
-
-// TODO for another page requiring some data validation
-// function createResetPasswordModel(data) {
-//   // validate data
-//   return {
-//     email: data.email,
-//   };
-// }
 
 export interface PasswordForgotSendCodeResponse {
   passwordForgotSendCode: {
@@ -82,6 +80,18 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
   const [beginResetPasswordError, setBeginResetPasswordError] =
     useState<BeginResetPasswordResult['error']>(undefined);
 
+  // ❌ Validate all the things. We may prefer for the model to handle these
+  // variations for us, e.g. we have one model per page and we have it attempt
+  // to read from router state, then localStorage, then query params but,
+  // it may also be nice to be more explicit.
+  const { queryParams, queryParamErrors } = useValidatedQueryParams(
+    ResetPasswordQueryParams
+  );
+  // ❌ Haven't implemented, but same idea as useValidatedQueryParams
+  // const { routerState, routerStateErrors } = useValidatedRouterState(
+  //   AccountRecoveryKeyInfo
+  // );
+
   const beginResetPasswordHandler: BeginResetPasswordHandler = useCallback(
     async (email, service) => {
       try {
@@ -137,6 +147,17 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
     [beginResetPassword]
   );
 
+  // ❌ We may or may not want this per container component but we can show a loading
+  // spinner here if validation is required and hasn't occured yet.
+  if (queryParams === null) {
+    return <LoadingSpinner />;
+  }
+  // ❌ Handle query param validation errors, e.g. return LinkDamaged or whatever
+  // makes sense for that error. Can also access errors like `queryParamErrors.email`
+  if (queryParamErrors) {
+    console.log('queryParamErrors', queryParamErrors);
+  }
+
   // ❌ Create a result object per query or mutation whose name matches
   // the handler. On more complex pages we will be passing multiple handlers
   // and their results.
@@ -148,7 +169,7 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
 
   return (
     <ResetPassword
-      {...{ beginResetPasswordHandler, beginResetPasswordResult }}
+      {...{ beginResetPasswordHandler, beginResetPasswordResult, queryParams }}
     />
   );
 };

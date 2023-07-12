@@ -24,6 +24,7 @@ import {
   BeginResetPasswordHandler,
   BeginResetPasswordResult,
 } from './container';
+import { ResetPasswordQueryParams } from '../../models/reset-password';
 
 export const viewName = 'reset-password';
 
@@ -33,6 +34,7 @@ export type ResetPasswordProps = {
   serviceName?: MozServices;
   beginResetPasswordHandler: BeginResetPasswordHandler;
   beginResetPasswordResult: BeginResetPasswordResult;
+  queryParams: ResetPasswordQueryParams;
 };
 
 type FormData = {

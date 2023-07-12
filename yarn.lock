@@ -29243,6 +29243,7 @@ fsevents@~2.1.1:
     babel-loader: ^8.3.0
     base32-decode: ^1.0.0
     base32-encode: ^1.2.0
+    class-validator: ^0.14.0
     classnames: ^2.3.1
     css-loader: ^3.6.0
     eslint: ^7.32.0

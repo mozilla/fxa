@@ -27,3 +27,27 @@ export class CompleteResetPasswordLink extends ModelDataProvider {
   @bind([V.isHex, V.isRequired])
   uid: string = '';
 }
+
+// ❌ Here's what this might look like with `class-validator`.
+// hexstring regex probably needs tweaking, this just shows some possibilities:
+// export class CompleteResetPasswordLink {
+//   @IsEmail()
+//   @IsNotEmpty()
+//   email = '';
+//
+//   @IsOptional()
+//   @IsEmail()
+//   emailToHashWith = '';
+//
+//   @IsString()
+//   @IsNotEmpty()
+//   code = '';
+//
+//   @Matches(/^[0-9a-fA-F]+$/)
+//   @IsNotEmpty()
+//   token = '';
+//
+//   @Matches(/^[0-9a-fA-F]+$/)
+//   @IsNotEmpty()
+//   uid = '';
+// }
