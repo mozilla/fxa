@@ -61,6 +61,17 @@ const permitAdditionalJSImports = (config) => {
   return config;
 };
 
+const suppressRuntimeErrorOverlay = (devServerConfig) => {
+  return {
+    ...devServerConfig,
+    client: {
+      ...devServerConfig.client,
+      overlay: { ...devServerConfig.client.overlay, runtimeErrors: false },
+    },
+  };
+};
+
 module.exports = {
   permitAdditionalJSImports,
+  suppressRuntimeErrorOverlay,
 };
