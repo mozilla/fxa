@@ -250,6 +250,8 @@ export default {
       GleanMetrics.setEnabled(false);
     }
 
+    GleanMetrics.login.success();
+
     // This is the generic signin.success metric. The one
     // true signin success metric.
     this.logEvent('signin.success');

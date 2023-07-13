@@ -194,17 +194,29 @@ describe('views/sign_in_password', () => {
   });
 
   describe('validateAndSubmit', () => {
+    let loginSuccessStub;
+
     beforeEach(() => {
-      sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+      sinon.stub(view, 'signIn').callsFake(() => {
+        view.onSignInSuccess(account);
+        return Promise.resolve();
+      });
+      loginSuccessStub = sinon.stub(GleanMetrics.login, 'success');
+    });
+
+    afterEach(() => {
+      loginSuccessStub.restore();
     });
 
     describe('password valid', () => {
       it('signs up the user', () => {
+        sinon.stub(account, 'get').withArgs('verified').returns(true);
         view.$('#password').val('password');
 
         return Promise.resolve(view.validateAndSubmit()).then(() => {
           assert.isTrue(view.signIn.calledOnce);
           assert.isTrue(view.signIn.calledWith(account, 'password'));
+          sinon.assert.calledOnce(loginSuccessStub);
         });
       });
     });
