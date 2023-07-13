@@ -24,7 +24,7 @@ export function useValidatedQueryParams<T extends Record<string, any>>(
   useEffect(() => {
     const schema = new Schema();
 
-    for (let key in schema) {
+    for (let key of Object.keys(schema)) {
       const value = urlQueryData.get(key);
       if (value) {
         (schema as any)[key] = value;

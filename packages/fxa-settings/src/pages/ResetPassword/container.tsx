@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { gql, useMutation } from '@apollo/client';
-import ResetPassword from '.';
+import ResetPassword, { BeginResetPasswordHandler } from '.';
 import { MozServices } from '../../lib/types';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
@@ -14,36 +14,14 @@ import {
 import { RouteComponentProps } from '@reach/router';
 import { GraphQLError } from 'graphql';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
-import {
-  AccountRecoveryKeyInfo,
-  ResetPasswordQueryParams,
-} from '../../models/reset-password';
+import { ResetPasswordQueryParams } from '../../models/reset-password';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
-// WIP PROTOTYPE
 // ❌ = Note for prototype review. Comment will be removed in implementation.
 
 export interface PasswordForgotSendCodeResponse {
   passwordForgotSendCode: {
     passwordForgotToken: string;
-  };
-}
-
-export type BeginResetPasswordHandler = (
-  email: string,
-  service?: MozServices
-) => Promise<void>;
-
-export interface BeginResetPasswordResult {
-  // ❌ 'data' is undefined when the mutation is loading and is 'null' when there
-  //  is an error
-  data: PasswordForgotSendCodeResponse | null | undefined;
-  loading: boolean;
-  error?: {
-    errno: number;
-    message: string;
-    ftlId: string;
-    retryAfterLocalized?: string;
   };
 }
 
@@ -75,10 +53,9 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
   // presentation layer, we don't need to use `MockedProvider`, which can require
   // heavy mocking and setup, _except_ for in page container tests. This also
   // provides more inversion of control.
-  const [beginResetPassword, beginResetPasswordMutationResult] =
-    useMutation<PasswordForgotSendCodeResponse>(BEGIN_RESET_PASSWORD_MUTATION);
-  const [beginResetPasswordError, setBeginResetPasswordError] =
-    useState<BeginResetPasswordResult['error']>(undefined);
+  const [beginResetPassword] = useMutation<PasswordForgotSendCodeResponse>(
+    BEGIN_RESET_PASSWORD_MUTATION
+  );
 
   // ❌ Validate all the things. We may prefer for the model to handle these
   // variations for us, e.g. we have one model per page and we have it attempt
@@ -95,7 +72,7 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
   const beginResetPasswordHandler: BeginResetPasswordHandler = useCallback(
     async (email, service) => {
       try {
-        await beginResetPassword({
+        const { data } = await beginResetPassword({
           variables: {
             input: {
               email,
@@ -108,7 +85,9 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
             },
           },
         });
-        setBeginResetPasswordError(undefined);
+        return {
+          data,
+        };
       } catch (error) {
         // ❌ All error processing should occur here. Let the presentation component
         // handle just the presentation.
@@ -116,16 +95,18 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
         if (graphQLError && graphQLError.extensions) {
           const { errno, retryAfterLocalized } = graphQLError.extensions;
 
-          setBeginResetPasswordError({
-            errno,
-            message: AuthUiErrorNos[errno].message,
-            // ❌ Because grabbing the FTL ID from an error always requires a call to
-            // composeAuthUiErrorTranslationId, it seemed best to do that here when
-            // creating a new error object. Allow actual l10n with FtlMsg or FtlMsgResolver
-            // to occur in the presentation layer.
-            ftlId: composeAuthUiErrorTranslationId({ errno }),
-            retryAfterLocalized,
-          });
+          return {
+            error: {
+              errno,
+              message: AuthUiErrorNos[errno].message,
+              // ❌ Because grabbing the FTL ID from an error always requires a call to
+              // composeAuthUiErrorTranslationId, it seemed best to do that here when
+              // creating a new error object. Allow actual l10n with FtlMsg or FtlMsgResolver
+              // to occur in the presentation layer.
+              ftlId: composeAuthUiErrorTranslationId({ errno }),
+              retryAfterLocalized,
+            },
+          };
         } else {
           // ❌ Prior to our Account refactor, we had a custom `useMutation` hook that
           // would capture networkErrors in Sentry. We may want to use that here as well.
@@ -136,11 +117,15 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
           // TODO: why is `errno` in `AuthServerError` possibly undefined?
           // might want to grab from `ERRORS.UNEXPECTED_ERROR` instead
           const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
-          setBeginResetPasswordError({
-            errno,
-            message,
-            ftlId: composeAuthUiErrorTranslationId({ errno }),
-          });
+          return {
+            data: null,
+            loading: false,
+            error: {
+              errno,
+              message,
+              ftlId: composeAuthUiErrorTranslationId({ errno }),
+            },
+          };
         }
       }
     },
@@ -161,17 +146,13 @@ const ResetPasswordContainer = (_: RouteComponentProps) => {
   // ❌ Create a result object per query or mutation whose name matches
   // the handler. On more complex pages we will be passing multiple handlers
   // and their results.
-  const beginResetPasswordResult: BeginResetPasswordResult = {
-    data: beginResetPasswordMutationResult.data,
-    loading: beginResetPasswordMutationResult.loading,
-    error: beginResetPasswordError,
-  };
+  // const beginResetPasswordResult: BeginResetPasswordResult = {
+  //   data: beginResetPasswordMutationResult.data,
+  //   loading: beginResetPasswordMutationResult.loading,
+  //   error: beginResetPasswordError,
+  // };
 
-  return (
-    <ResetPassword
-      {...{ beginResetPasswordHandler, beginResetPasswordResult, queryParams }}
-    />
-  );
+  return <ResetPassword {...{ beginResetPasswordHandler, queryParams }} />;
 };
 
 export default ResetPasswordContainer;

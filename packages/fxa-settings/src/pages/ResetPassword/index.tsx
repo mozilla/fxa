@@ -20,10 +20,6 @@ import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import {
-  BeginResetPasswordHandler,
-  BeginResetPasswordResult,
-} from './container';
 import { ResetPasswordQueryParams } from '../../models/reset-password';
 
 export const viewName = 'reset-password';
@@ -33,9 +29,29 @@ export type ResetPasswordProps = {
   forceAuth?: boolean;
   serviceName?: MozServices;
   beginResetPasswordHandler: BeginResetPasswordHandler;
-  beginResetPasswordResult: BeginResetPasswordResult;
   queryParams: ResetPasswordQueryParams;
 };
+
+export interface PasswordForgotSendCodeResponse {
+  passwordForgotSendCode: {
+    passwordForgotToken: string;
+  };
+}
+
+export interface BeginResetPasswordResult {
+  data?: PasswordForgotSendCodeResponse | null;
+  error?: {
+    errno: number;
+    message: string;
+    ftlId: string;
+    retryAfterLocalized?: string;
+  };
+}
+
+export type BeginResetPasswordHandler = (
+  email: string,
+  service?: MozServices
+) => Promise<BeginResetPasswordResult>;
 
 type FormData = {
   email: string;
@@ -48,13 +64,14 @@ const ResetPassword = ({
   prefillEmail,
   forceAuth,
   beginResetPasswordHandler,
-  beginResetPasswordResult,
 }: ResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const [errorText, setErrorText] = useState<string>('');
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
   const [hasFocused, setHasFocused] = useState<boolean>(false);
+  const [resetPasswordLoading, setResetPasswordLoading] =
+    useState<boolean>(false);
   const relier = CreateRelier();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -102,43 +119,41 @@ const ResetPassword = ({
   }, [errorText, setErrorText]);
 
   const submitEmail = useCallback(
-    (email: string) => {
+    async (email: string) => {
       clearError();
-      beginResetPasswordHandler(email, serviceName);
-    },
-    [clearError, beginResetPasswordHandler, serviceName]
-  );
+      setResetPasswordLoading(true);
 
-  useEffect(() => {
-    if (beginResetPasswordResult.data) {
-      // ❌ This means submit was called and the result was returned successfully.
-      // We do have to `navigateToConfirmPwReset` in a separate `useEffect`
-      // because the result is passed in as a prop instead of being available
-      // via `await`ing the API call.
-      const email = sanitizeEmail(getValues('email'));
-      const { passwordForgotToken } =
-        beginResetPasswordResult.data.passwordForgotSendCode;
-      navigateToConfirmPwReset({
-        passwordForgotToken,
+      const { data, error } = await beginResetPasswordHandler(
         email,
-      });
-    }
-    if (beginResetPasswordResult.error) {
-      const { message, ftlId, retryAfterLocalized } =
-        beginResetPasswordResult.error;
-      setBannerErrorText(
-        ftlMsgResolver.getMsg(ftlId, message, {
-          ...(retryAfterLocalized && { retryAfter: retryAfterLocalized }),
-        })
+        serviceName
       );
-    }
-  }, [
-    beginResetPasswordResult.data,
-    beginResetPasswordResult.error,
-    ftlMsgResolver,
-    navigateToConfirmPwReset,
-    getValues,
-  ]);
+
+      setResetPasswordLoading(false);
+
+      if (data) {
+        const { passwordForgotToken } = data.passwordForgotSendCode;
+        navigateToConfirmPwReset({
+          passwordForgotToken,
+          email,
+        });
+      }
+      if (error) {
+        const { message, ftlId, retryAfterLocalized } = error;
+        setBannerErrorText(
+          ftlMsgResolver.getMsg(ftlId, message, {
+            ...(retryAfterLocalized && { retryAfter: retryAfterLocalized }),
+          })
+        );
+      }
+    },
+    [
+      ftlMsgResolver,
+      navigateToConfirmPwReset,
+      clearError,
+      beginResetPasswordHandler,
+      serviceName,
+    ]
+  );
 
   const onSubmit = useCallback(async () => {
     const sanitizedEmail = sanitizeEmail(getValues('email'));
@@ -242,7 +257,7 @@ const ResetPassword = ({
             className="cta-primary cta-xl"
             // ❌ Let's be more consistent with our loading disabled button states
             // and loading spinners
-            disabled={beginResetPasswordResult.loading}
+            disabled={resetPasswordLoading}
           >
             Begin reset
           </button>
