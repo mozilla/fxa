@@ -27,12 +27,11 @@ jobs:
           then
             echo "No changes found."
           else
-            echo "Checking reviewers requested for PR #$PR_NUMBER in repository $REPO_NAME"
             echo "Test command"
-            echo $(gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME)
+            echo $(gh pr view $PR_NUMBER --json reviewRequests)
             echo "Full command"
-            echo $(gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n")
-            gh pr view $PR_NUMBER --json reviewRequests --repo $REPO_NAME | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
+            echo $(gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n")
+            gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
             if [ $? -ne 0 ]; then
                 echo "fxa-l10n team not found in reviewers, checking if a localization EPM already reviewed the PR"
                 # Check if someone from the Localization Team already reviewed the PR.
@@ -42,7 +41,7 @@ jobs:
                 echo $L10N_REVIEWERS
                 # Get the list of reviewers who already approved the pull request
                 echo "Getting the list of reviewers for the PR"
-                PR_REVIEWERS=$(gh pr view $PR_NUMBER --json reviews --repo $REPO_NAME | jq -r '.reviews[] | select(.state=="APPROVED") | .author.login' | sort)
+                PR_REVIEWERS=$(gh pr view $PR_NUMBER --json reviews | jq -r '.reviews[] | select(.state=="APPROVED") | .author.login' | sort)
                 echo $PR_REVIEWERS
                 # Check intersection of the two lists
                 L10N_APPROVERS=$(comm -12 <(echo "$L10N_REVIEWERS") <(echo "$PR_REVIEWERS"))
