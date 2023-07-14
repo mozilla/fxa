@@ -35,16 +35,20 @@ jobs:
       - name: Extract gettext strings and flag for review
         run: |
           cd fxa-code
-          _scripts/l10n/clone.sh
-          yarn workspaces focus fxa-content-server
+          # _scripts/l10n/clone.sh
+          # yarn workspaces focus fxa-content-server
 
-          # Extract gettext
-          cd ./packages/fxa-content-server
-          npx grunt l10n-extract
-          cd ../..
+          # # Extract gettext
+          # cd ./packages/fxa-content-server
+          # npx grunt l10n-extract
+          # cd ../..
 
           # Get hash from PR commit.
-          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+          # NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
+          # Checkout base commit
+          git fetch origin ${{ github.event.pull_request.base.sha }}
+          git checkout ${{ github.event.pull_request.base.sha }}
 
           OLD_HASHES="bar"
 
