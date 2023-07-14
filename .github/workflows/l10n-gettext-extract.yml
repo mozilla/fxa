@@ -51,7 +51,10 @@ jobs:
           git checkout ${{ github.event.pull_request.base.sha }}
 
           cd ./packages/fxa-content-server
-          rm ./locale/templates/LC_MESSAGES/*
+          if [ -d "./locale/templates/LC_MESSAGES" ]; then
+            rm -r ./locale/templates/LC_MESSAGES/*
+          fi
+
           npx grunt l10n-extract
           cd ../..
 
