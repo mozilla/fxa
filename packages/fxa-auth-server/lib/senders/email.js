@@ -348,7 +348,7 @@ module.exports = function (log, config, bounces) {
     timeZone,
     acceptLanguage
   ) {
-    return constructLocalTimeString(timeZone, acceptLanguage);
+    return constructLocalTimeString(timeZone, determineLocale(acceptLanguage));
   };
 
   Mailer.prototype._constructLocalDateString = function (
