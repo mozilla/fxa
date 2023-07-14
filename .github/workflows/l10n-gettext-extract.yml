@@ -22,12 +22,12 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: mozilla/fxa-content-server-l10n
-          path: "fxa-l10n"
+          path: 'fxa-l10n'
       - name: Clone FxA code repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 2
-          path: "fxa-code"
+          path: 'fxa-code'
       - name: Install npm packages
         run: |
           cd fxa-l10n
@@ -52,7 +52,7 @@ jobs:
 
           # Extract gettext
           cd ./packages/fxa-content-server
-          rm ./locale/templates/LC_MESSAGES/*
+          rm -rf ./locale/templates/LC_MESSAGES/*
           npx grunt l10n-extract
           cd ../..
 
