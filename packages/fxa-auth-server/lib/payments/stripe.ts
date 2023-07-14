@@ -52,6 +52,7 @@ import {
   PaypalPaymentError,
   SubscriptionUpdateEligibility,
   WebSubscription,
+  InvoicePreview,
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
@@ -630,12 +631,16 @@ export class StripeHelper extends StripeHelperBase {
     priceId,
     promotionCode,
     taxAddress,
+    isUpgrade,
+    sourcePlan,
   }: {
     customer?: Stripe.Customer;
     priceId: string;
     promotionCode?: string;
     taxAddress?: TaxAddress;
-  }) {
+    isUpgrade?: boolean;
+    sourcePlan?: AbbrevPlan;
+  }): Promise<InvoicePreview> {
     const params: Stripe.InvoiceRetrieveUpcomingParams = {};
 
     if (promotionCode) {
@@ -664,24 +669,61 @@ export class StripeHelper extends StripeHelperBase {
           }
         : undefined;
 
+    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      customer: customer?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
+      customer_details: {
+        tax_exempt: 'none', // Param required when shipping address not present
+        shipping,
+      },
+      subscription_items: [{ price: priceId }],
+      expand: ['total_tax_amounts.tax_rate'],
+      ...params,
+    };
+
     try {
-      return await this.stripe.invoices.retrieveUpcoming({
-        customer: customer?.id,
-        automatic_tax: {
-          enabled: automaticTax,
-        },
-        customer_details: {
-          tax_exempt: 'none', // Param required when shipping address not present
-          shipping,
-        },
-        subscription_items: [
-          {
-            price: priceId,
-          },
-        ],
-        expand: ['total_tax_amounts.tax_rate'],
-        ...params,
-      });
+      const firstInvoice = await this.stripe.invoices.retrieveUpcoming(
+        requestObject
+      );
+
+      let proratedInvoice;
+      if (
+        isUpgrade &&
+        requestObject.subscription_items?.length &&
+        this.config.subscriptions.stripeInvoiceImmediately
+      ) {
+        try {
+          requestObject.subscription_proration_date = Math.floor(
+            Date.now() / 1000
+          );
+          const subscriptionItem = customer?.subscriptions?.data
+            .flatMap((sub) => sub.items.data)
+            ?.find((sub) => sub.plan.id === sourcePlan?.plan_id);
+
+          requestObject.subscription_items[0].id = subscriptionItem?.id;
+          requestObject.subscription = subscriptionItem?.subscription;
+
+          proratedInvoice = await this.stripe.invoices.retrieveUpcoming(
+            requestObject
+          );
+        } catch (error: any) {
+          Sentry.withScope((scope) => {
+            scope.setContext('previewInvoice.proratedInvoice', {
+              error: error,
+              msg: error.message,
+            });
+            Sentry.captureMessage(
+              `Invoice Preview Error: Prorated Invoice Preview`,
+              Sentry.Severity.Error
+            );
+          });
+          this.log.error('subscriptions.previewInvoice.proratedInvoice', error);
+        }
+      }
+
+      return [firstInvoice, proratedInvoice];
     } catch (e: any) {
       this.log.warn('stripe.previewInvoice.automatic_tax', {
         postalCode: taxAddress?.postalCode,
@@ -931,12 +973,16 @@ export class StripeHelper extends StripeHelperBase {
 
       if (verifiedPromotionAndCoupon.valid) {
         try {
-          const { currency, discount, total, total_discount_amounts } =
+          const invoicePreview = (
             await this.previewInvoice({
               priceId,
               promotionCode,
               taxAddress,
-            });
+            })
+          )[0];
+
+          const { currency, discount, total, total_discount_amounts } =
+            invoicePreview;
 
           const minAmount = getMinimumAmount(currency);
           if (total !== 0 && minAmount && total < minAmount) {

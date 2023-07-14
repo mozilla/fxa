@@ -9,6 +9,7 @@ import {
 import {
   AbbrevPlan,
   ClientIdCapabilityMap,
+  SubscriptionChangeEligibility,
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
@@ -247,7 +248,7 @@ export class CapabilityService {
     uid: string,
     targetPlanId: string,
     useFirestoreProductConfigs = false
-  ) {
+  ): Promise<SubscriptionChangeEligibility> {
     const allPlans = await this.stripeHelper.allAbbrevPlans();
 
     // Create a map of planId: abbrevPlan for speed/ease of lookup later without iterating
@@ -271,7 +272,7 @@ export class CapabilityService {
     );
 
     if (!targetProductSet) {
-      return SubscriptionEligibilityResult.INVALID;
+      return [SubscriptionEligibilityResult.INVALID, undefined];
     }
 
     // Fetch all user's subscriptions from all sources
@@ -310,7 +311,7 @@ export class CapabilityService {
     // Users with an IAP subscription to the productSet that we're trying to subscribe
     // to should not be allowed to proceed
     if (iapRoadblock) {
-      return SubscriptionEligibilityResult.BLOCKED_IAP;
+      return [SubscriptionEligibilityResult.BLOCKED_IAP, undefined];
     }
 
     const isSubscribedToProductSet = stripeSubscribedPlans.some(
@@ -325,7 +326,7 @@ export class CapabilityService {
     );
 
     if (!isSubscribedToProductSet) {
-      return SubscriptionEligibilityResult.CREATE;
+      return [SubscriptionEligibilityResult.CREATE, undefined];
     }
 
     // Use the upgradeEligibility helper to check if any of our existing plans are
@@ -338,15 +339,15 @@ export class CapabilityService {
       );
 
       if (eligibility === SubscriptionUpdateEligibility.UPGRADE) {
-        return SubscriptionEligibilityResult.UPGRADE;
+        return [SubscriptionEligibilityResult.UPGRADE, abbrevPlan];
       }
 
       if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE) {
-        return SubscriptionEligibilityResult.DOWNGRADE;
+        return [SubscriptionEligibilityResult.DOWNGRADE, abbrevPlan];
       }
     }
 
-    return SubscriptionEligibilityResult.INVALID;
+    return [SubscriptionEligibilityResult.INVALID, undefined];
   }
 
   /**

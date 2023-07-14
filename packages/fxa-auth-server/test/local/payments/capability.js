@@ -479,18 +479,16 @@ describe('CapabilityService', () => {
       capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
         ['plan_123456']
       );
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_ABCDEF'
-      );
+      const actual = (
+        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
+      )[0];
       assert.equal(actual, 'blocked_iap');
     });
 
     it('returns create for targetPlan with productSet user is not subscribed to', async () => {
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_ABCDEF'
-      );
+      const actual = (
+        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
+      )[0];
       assert.equal(actual, 'create');
     });
 
@@ -498,10 +496,9 @@ describe('CapabilityService', () => {
       capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
         'plan_123456',
       ]);
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_ABCDEF'
-      );
+      const actual = (
+        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
+      )[0];
       assert.equal(actual, 'upgrade');
     });
 
@@ -509,10 +506,9 @@ describe('CapabilityService', () => {
       capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
         'plan_ABCDEF',
       ]);
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_123456'
-      );
+      const actual = (
+        await capabilityService.getPlanEligibility(UID, 'plan_123456')
+      )[0];
       assert.equal(actual, 'downgrade');
     });
 
@@ -520,10 +516,9 @@ describe('CapabilityService', () => {
       capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
         'plan_ABCDEF',
       ]);
-      const actual = await capabilityService.getPlanEligibility(
-        UID,
-        'plan_NOPRODUCTORDER'
-      );
+      const actual = (
+        await capabilityService.getPlanEligibility(UID, 'plan_NOPRODUCTORDER')
+      )[0];
       assert.equal(actual, 'invalid');
     });
   });

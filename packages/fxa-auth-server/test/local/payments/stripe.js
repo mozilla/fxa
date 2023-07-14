@@ -1699,7 +1699,7 @@ describe('#integration - StripeHelper', () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
-        .resolves(validInvoicePreview);
+        .resolves([validInvoicePreview, undefined]);
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1742,7 +1742,7 @@ describe('#integration - StripeHelper', () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total: 0 });
+        .resolves([{ ...validInvoicePreview, total: 0 }, undefined]);
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -2090,6 +2090,51 @@ describe('#integration - StripeHelper', () => {
       } catch (e) {
         sinon.assert.calledOnce(stripeHelper.log.warn);
       }
+    });
+
+    it('retrieves both upcoming invoices with and without proration info', async () => {
+      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = true;
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(Math, 'floor').returns(1);
+
+      await stripeHelper.previewInvoice({
+        customer: customer1,
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+        isUpgrade: true,
+        sourcePlan: {
+          plan_id: 'plan_test1',
+        },
+      });
+
+      sinon.assert.callCount(stripeStub, 2);
+
+      sinon.assert.calledWith(stripeStub, {
+        customer: 'cus_test1',
+        automatic_tax: {
+          enabled: false,
+        },
+        customer_details: {
+          tax_exempt: 'none',
+          shipping: undefined,
+        },
+        subscription: customer1.subscriptions?.data[0].id,
+        subscription_proration_date: 1,
+        subscription_items: [
+          {
+            price: 'priceId',
+            id: customer1.subscriptions?.data[0].items.data[0].id,
+          },
+        ],
+        expand: ['total_tax_amounts.tax_rate'],
+      });
+
+      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = false;
     });
   });
 
