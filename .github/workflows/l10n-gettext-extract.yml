@@ -34,9 +34,18 @@ jobs:
           yarn install
       - name: Extract gettext strings and flag for review
         run: |
-          # Fake strings extraction to speed up debugging
           cd fxa-code
-          NEW_HASHES="foo"
+          _scripts/l10n/clone.sh
+          yarn workspaces focus fxa-content-server
+
+          # Extract gettext
+          cd ./packages/fxa-content-server
+          npx grunt l10n-extract
+          cd ../..
+
+          # Get hash from PR commit.
+          NEW_HASHES=$(python ../fxa-l10n/scripts/pot_checksum.py ./packages/fxa-content-server/locale/templates/)
+
           OLD_HASHES="bar"
 
           # Compare hashes
