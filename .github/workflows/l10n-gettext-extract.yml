@@ -52,7 +52,7 @@ jobs:
 
           cd ./packages/fxa-content-server
           if [ -d "./locale/templates/LC_MESSAGES" ]; then
-            rm -r ./locale/templates/LC_MESSAGES/*
+            rm -rf ./locale/templates/LC_MESSAGES/*
           fi
 
           npx grunt l10n-extract
