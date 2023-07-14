@@ -58,5 +58,5 @@ jobs:
             fi
           fi
         env:
-          GH_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.L10N_BUILDCHECK_GITHUB_TOKEN }}
           PR_NUMBER: ${{ github.event.number }}
