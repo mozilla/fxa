@@ -50,6 +50,11 @@ jobs:
           git fetch origin ${{ github.event.pull_request.base.sha }}
           git checkout ${{ github.event.pull_request.base.sha }}
 
+          cd ./packages/fxa-content-server
+          rm ./locale/templates/LC_MESSAGES/*
+          npx grunt l10n-extract
+          cd ../..
+
           OLD_HASHES="bar"
 
           # Compare hashes
