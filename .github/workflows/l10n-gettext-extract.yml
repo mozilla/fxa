@@ -52,9 +52,7 @@ jobs:
 
           # Extract gettext
           cd ./packages/fxa-content-server
-          if [ -d "./locale/templates/LC_MESSAGES" ]; then
-            rm -rf ./locale/templates/LC_MESSAGES/*
-          fi
+          rm -rf ./locale/templates/LC_MESSAGES/*
           npx grunt l10n-extract
           cd ../..
 
