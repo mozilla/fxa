@@ -70,6 +70,7 @@ export class SentryPiiFilter extends FilterBase {
   public filter(event: Sentry.Event) {
     // Target key parts of sentry event structure
     this.scrubMessage(event)
+      .scrubContext(event)
       .scrubBreadCrumbs(event)
       .scrubRequest(event)
       .scrubTags(event)
@@ -152,6 +153,13 @@ export class SentryPiiFilter extends FilterBase {
   protected scrubUser(event: Sentry.Event) {
     if (event.user) {
       event.user = this.applyFilters(event.user);
+    }
+    return this;
+  }
+
+  protected scrubContext(event: Sentry.Event) {
+    if (event.contexts) {
+      event.contexts = this.applyFilters(event.contexts);
     }
     return this;
   }

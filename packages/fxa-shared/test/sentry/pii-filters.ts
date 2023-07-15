@@ -43,6 +43,28 @@ describe('pii-filters', () => {
     it('filters event', () => {
       let event: Sentry.Event = {
         message: 'A foo message.',
+        contexts: {
+          ValidationError: {
+            _original: {
+              email: `foo@bar.com`,
+            },
+            details: [
+              {
+                context: {
+                  key: 'email',
+                  label: 'email',
+                  name: '[undefined]',
+                  regex: {},
+                  value: 'none',
+                },
+                message: `foo@bar.com fails to match email pattern`,
+                path: ['email'],
+                type: 'string.pattern.base',
+              },
+            ],
+            type: 'ValidationError',
+          },
+        },
         breadcrumbs: [
           {
             message: 'A foo breadcrumb',
@@ -133,6 +155,28 @@ describe('pii-filters', () => {
 
       expect(event).to.deep.equal({
         message: `A ${FILTERED} message.`,
+        contexts: {
+          ValidationError: {
+            _original: {
+              email: '[Filtered]',
+            },
+            details: [
+              {
+                context: {
+                  key: 'email',
+                  label: 'email',
+                  name: '[undefined]',
+                  regex: {},
+                  value: 'none',
+                },
+                message: '[Filtered] fails to match email pattern',
+                path: ['email'],
+                type: 'string.pattern.base',
+              },
+            ],
+            type: 'ValidationError',
+          },
+        },
         breadcrumbs: [
           {
             message: `A ${FILTERED} breadcrumb`,
@@ -186,7 +230,9 @@ describe('pii-filters', () => {
             l2: {
               l3: {
                 l4: {
-                  l5: TRUNCATED,
+                  l5: {
+                    l6: TRUNCATED,
+                  },
                 },
               },
             },
