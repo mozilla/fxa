@@ -5962,6 +5962,8 @@ describe('#integration - StripeHelper', () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
           const productIdNew = event.data.object.plan.product;
+          const invoiceImmediately =
+            stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled;
 
           const baseDetails = {
             ...expectedBaseUpdateDetails,
@@ -6036,26 +6038,28 @@ describe('#integration - StripeHelper', () => {
             paymentAmountOldCurrency:
               event.data.previous_attributes.plan.currency,
             paymentAmountOldInCents:
-              upcomingInvoice && upcomingInvoice.total
+              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
                 ? upcomingInvoice.total
-                : mockInvoice.invoiceTotalOldInCents,
+                : baseDetails.invoiceTotalOldInCents,
             paymentAmountNewCurrency:
-              upcomingInvoice && upcomingInvoice.currency
+              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
                 ? upcomingInvoice.currency
                 : mockInvoice.currency,
             paymentAmountNewInCents:
-              upcomingInvoice && upcomingInvoice.total
+              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
                 ? upcomingInvoice.total
                 : mockInvoice.total,
             paymentProratedCurrency:
-              upcomingInvoice && upcomingInvoice.currency
+              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
                 ? upcomingInvoice.currency
                 : mockInvoice.currency,
-            paymentProratedInCents: upcomingInvoice
-              ? expectedPaymentProratedInCents
-              : mockInvoice.amount_due,
+            paymentProratedInCents:
+              upcomingInvoice && !invoiceImmediately
+                ? expectedPaymentProratedInCents
+                : mockInvoice.amount_due,
             invoiceNumber: mockInvoice.number,
             invoiceId: mockInvoice.id,
+            invoiceImmediately: invoiceImmediately,
           });
         };
 
