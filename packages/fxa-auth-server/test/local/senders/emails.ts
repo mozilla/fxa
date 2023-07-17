@@ -2857,10 +2857,14 @@ describe('lib/senders/emails:', () => {
   });
 
   describe('constructLocalTimeString - returns date/time', () => {
+    // Moment expects a single locale identifier. This tests to ensure
+    // we account for this in _constructLocalTimeString
+    const enAcceptLanguageHeader = 'en,en-US;q=0.7,nl;q=0.3';
+
     it('returns date/time based on given values', () => {
       const message = {
         timeZone: 'America/Los_Angeles',
-        acceptLanguage: 'en',
+        acceptLanguage: enAcceptLanguageHeader,
       };
 
       const result = mailer._constructLocalTimeString(
@@ -2875,7 +2879,7 @@ describe('lib/senders/emails:', () => {
     it('returns date/time based on default timezone (UTC) if timezone is undefined', () => {
       const message = {
         timeZone: undefined,
-        acceptLanguage: 'en',
+        acceptLanguage: enAcceptLanguageHeader,
       };
       const result = mailer._constructLocalTimeString(
         message.timeZone,
@@ -2911,7 +2915,7 @@ describe('lib/senders/emails:', () => {
     it('returns date/time in another timezone (at the time of writing - EST', () => {
       const message = {
         timeZone: 'Europe/Berlin',
-        acceptLanguage: 'en',
+        acceptLanguage: MESSAGE.acceptLanguage,
       };
 
       const result = mailer._constructLocalTimeString(
@@ -2924,7 +2928,7 @@ describe('lib/senders/emails:', () => {
     it('returns date/time in Spanish', () => {
       const message = {
         timeZone: 'America/Los_Angeles',
-        acceptLanguage: 'es',
+        acceptLanguage: 'es,en-US;q=0.7,en;q=0.3',
       };
 
       const result = mailer._constructLocalTimeString(
