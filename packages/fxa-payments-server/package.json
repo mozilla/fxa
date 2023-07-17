@@ -8,7 +8,7 @@
     "postinstall": "yarn l10n:prime fxa-payments-server",
     "clean": "git clean -fXd",
     "l10n-prime": "yarn l10n:prime fxa-payments-server",
-    "l10n-bundle": "yarn l10n:bundle fxa-payments-server react,payments",
+    "l10n-bundle": "yarn l10n:bundle fxa-payments-server branding,react,payments",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "tsc --build ../fxa-react && yarn build-css && yarn merge-ftl && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3031/__lbheartbeat__",
     "stop": "pm2 stop pm2.config.js",

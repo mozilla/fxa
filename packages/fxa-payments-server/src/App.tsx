@@ -100,10 +100,7 @@ export const App = ({
 
   return (
     <AppContext.Provider value={appContextValue}>
-      <AppLocalizationProvider
-        userLocales={navigatorLanguages}
-        bundles={['payments', 'react']}
-      >
+      <AppLocalizationProvider userLocales={navigatorLanguages}>
         <Head />
         <Localized id="document" attrs={{ title: true }}>
           <AppErrorBoundary>
