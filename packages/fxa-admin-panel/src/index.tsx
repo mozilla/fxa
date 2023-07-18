@@ -6,6 +6,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { ApolloProvider } from '@apollo/client';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import sentryMetrics from 'fxa-shared/lib/sentry';
@@ -44,7 +45,9 @@ try {
     <React.StrictMode>
       <AppErrorBoundary>
         <ApolloProvider {...{ client }}>
-          <App {...{ config }} />
+          <AppLocalizationProvider>
+            <App {...{ config }} />
+          </AppLocalizationProvider>
         </ApolloProvider>
       </AppErrorBoundary>
     </React.StrictMode>,
