@@ -44,7 +44,8 @@ export const GraphQLConfigFactory = async (
   debug: configService.get<string>('env') !== 'production',
   playground: configService.get<string>('env') !== 'production',
   autoSchemaFile: join(path.dirname(__dirname), './schema.gql'),
-  context: ({ req, connection }) => createContext({ req, connection }),
+  context: ({ req, connection }: { req: any; connection: any }) =>
+    createContext({ req, connection }),
   // Disabling cors here allows the cors middleware from NestJS to be applied
   cors: false,
   uploads: false,

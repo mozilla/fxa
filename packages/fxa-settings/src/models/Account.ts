@@ -4,7 +4,6 @@
 
 import base32Decode from 'base32-decode';
 import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
-import { ThrottledError } from 'fxa-graphql-api/src/gql/lib/error';
 import config from '../lib/config';
 import AuthClient, {
   AUTH_PROVIDER,
@@ -109,66 +108,6 @@ export interface ProfileInfo {
   emails: Email[];
 }
 
-const ATTACHED_CLIENTS_FIELDS = `
-      attachedClients {
-        clientId
-        isCurrentSession
-        userAgent
-        deviceType
-        deviceId
-        name
-        lastAccessTime
-        lastAccessTimeFormatted
-        approximateLastAccessTime
-        approximateLastAccessTimeFormatted
-        location {
-          city
-          country
-          state
-          stateCode
-        }
-        os
-        sessionTokenId
-        refreshTokenId
-      }
-`;
-
-export const ACCOUNT_FIELDS = `
-    account {
-      uid
-      displayName
-      avatar {
-        id
-        url
-        isDefault @client
-      }
-      accountCreated
-      passwordCreated
-      recoveryKey
-      metricsEnabled
-      primaryEmail @client
-      emails {
-        email
-        isPrimary
-        verified
-      }
-      ${ATTACHED_CLIENTS_FIELDS}
-      totp {
-        exists
-        verified
-      }
-      subscriptions {
-        created
-        productName
-      }
-      linkedAccounts {
-        providerId
-        authAt
-        enabled
-      }
-    }
-`;
-
 export const GET_PROFILE_INFO = gql`
   query GetProfileInfo {
     account {
@@ -190,14 +129,86 @@ export const GET_PROFILE_INFO = gql`
 
 export const GET_ACCOUNT = gql`
   query GetAccount {
-    ${ACCOUNT_FIELDS}
+    account {
+      uid
+      displayName
+      avatar {
+        id
+        url
+        isDefault @client
+      }
+      accountCreated
+      passwordCreated
+      recoveryKey
+      metricsEnabled
+      primaryEmail @client
+      emails {
+        email
+        isPrimary
+        verified
+      }
+      attachedClients {
+        clientId
+        isCurrentSession
+        userAgent
+        deviceType
+        deviceId
+        name
+        lastAccessTime
+        lastAccessTimeFormatted
+        approximateLastAccessTime
+        approximateLastAccessTimeFormatted
+        location {
+          city
+          country
+          state
+          stateCode
+        }
+        os
+        sessionTokenId
+        refreshTokenId
+      }
+      totp {
+        exists
+        verified
+      }
+      subscriptions {
+        created
+        productName
+      }
+      linkedAccounts {
+        providerId
+        authAt
+        enabled
+      }
+    }
   }
 `;
 
 export const GET_CONNECTED_CLIENTS = gql`
   query GetConnectedClients {
     account {
-      ${ATTACHED_CLIENTS_FIELDS}
+      attachedClients {
+        clientId
+        isCurrentSession
+        userAgent
+        deviceType
+        deviceId
+        name
+        lastAccessTime
+        lastAccessTimeFormatted
+        approximateLastAccessTime
+        approximateLastAccessTimeFormatted
+        location {
+          city
+          country
+          state
+          stateCode
+        }
+        os
+        sessionTokenId
+        refreshTokenId
+      }
     }
   }
 `;
@@ -547,7 +558,9 @@ export class Account implements AccountData {
     if (service && service === MozServices.FirefoxSync) {
       serviceName = 'sync';
     }
-    const result = await this.authClient.passwordForgotSendCode(email, { service: serviceName });
+    const result = await this.authClient.passwordForgotSendCode(email, {
+      service: serviceName,
+    });
     return result;
   }
 
@@ -588,10 +601,10 @@ export class Account implements AccountData {
   async resendResetPassword(
     email: string
   ): Promise<PasswordForgotSendCodePayload> {
-      const result = await this.authClient.passwordForgotSendCode(email);
-      return result;
+    const result = await this.authClient.passwordForgotSendCode(email);
+    return result;
   }
-  
+
   /**
    * Verify a passwordForgotToken, which returns an accountResetToken that can
    * be used to perform the actual password reset.
@@ -640,17 +653,17 @@ export class Account implements AccountData {
     email: string,
     newPassword: string
   ): Promise<any> {
-    
     try {
-      // TODO: Temporary workaround (use auth-client directly) for GraphQL not 
+      // TODO: Temporary workaround (use auth-client directly) for GraphQL not
       //  getting correct ip address
       // const { accountResetToken } = await this.verifyPasswordForgotToken(
       //   token,
       //   code
       // );
-      const { accountResetToken } = await this.authClient.passwordForgotVerifyCode(code, token, {
-        accountResetWithoutRecoveryKey: true
-      });
+      const { accountResetToken } =
+        await this.authClient.passwordForgotVerifyCode(code, token, {
+          accountResetWithoutRecoveryKey: true,
+        });
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({

@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "description": "FxA GraphQL API",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && yarn gql:allowlist",
+    "copy-gql": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
     "build": "nest build",
     "compile": "tsc --noEmit",
     "lint": "eslint .",
@@ -46,6 +47,7 @@
     "apollo-datasource": "^3.3.1",
     "apollo-server": "^2.26.0",
     "apollo-server-express": "^2.26.0",
+    "body-parser": "^1.20.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "commander": "^6.0.0",
@@ -81,6 +83,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^9.4.0",
+    "@types/body-parser": "^1",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/get-stream": "3.0.2",

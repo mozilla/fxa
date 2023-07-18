@@ -3,125 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useLazyQuery, gql, ApolloError } from '@apollo/client';
+import { useLazyQuery, ApolloError } from '@apollo/client';
 import Account from './Account';
 import { Account as AccountType } from 'fxa-admin-server/src/graphql';
 import iconSearch from '../../images/icon-search.svg';
 import ErrorAlert from '../ErrorAlert';
-
-const ACCOUNT_SCHEMA = `
-  uid
-  createdAt
-  disabledAt
-  lockedAt
-  locale
-  email
-  emails {
-    email
-    isVerified
-    isPrimary
-    createdAt
-  }
-  emailBounces {
-    email
-    templateName
-    createdAt
-    bounceType
-    bounceSubType
-    diagnosticCode
-  }
-  securityEvents {
-    uid
-    nameId
-    verified
-    createdAt
-    name
-  }
-  totp {
-    verified
-    createdAt
-    enabled
-  }
-  recoveryKeys {
-    createdAt
-    verifiedAt
-    enabled
-  }
-  linkedAccounts {
-    providerId
-    authAt
-    enabled
-  }
-  accountEvents {
-    name
-    service    
-    eventType
-    createdAt
-    template
-  }
-  attachedClients {
-    createdTime
-    createdTimeFormatted
-    lastAccessTime
-    lastAccessTimeFormatted
-    deviceType
-    name
-    clientId
-    userAgent
-    os
-    sessionTokenId
-    location {
-      city
-      state
-      stateCode
-      country
-      countryCode
-    }
-  }
-  subscriptions {
-    created
-    currentPeriodEnd
-    currentPeriodStart
-    cancelAtPeriodEnd
-    endedAt
-    latestInvoice
-    planId
-    productName
-    productId
-    status
-    subscriptionId,
-    manageSubscriptionLink
-  }
-`;
-export const GET_ACCOUNT_BY_EMAIL = gql`
-  query getAccountByEmail($email: String!, $autoCompleted: Boolean!) {
-    accountByEmail(email: $email, autoCompleted:$autoCompleted) {
-      ${ACCOUNT_SCHEMA}
-    }
-  }
-`;
-
-// new query for getting account by UID
-export const GET_ACCOUNT_BY_UID = gql`
-  query getAccountByUid($uid: String!) {
-    accountByUid(uid: $uid) {
-      ${ACCOUNT_SCHEMA}
-    }
-  }
-`;
+import {
+  GET_ACCOUNT_BY_EMAIL,
+  GET_ACCOUNT_BY_UID,
+  GET_EMAILS_LIKE,
+} from './index.gql';
 
 function validateUID(uid: string) {
   // checks if input string is in uid format (hex, 32 digit)
   return /^[0-9a-fA-F]{32}/.test(uid);
 }
-
-export const GET_EMAILS_LIKE = gql`
-  query getEmails($search: String!) {
-    getEmailsLike(search: $search) {
-      email
-    }
-  }
-`;
 
 export const AccountSearch = () => {
   const [showResult, setShowResult] = useState<boolean>(false);

@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NestApplicationOptions } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
@@ -10,14 +9,17 @@ import * as tracing from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
 import { Request, Response } from 'express';
 import mozLog from 'mozlog';
-
+import bodyParser from 'body-parser';
 import { AppModule } from './app.module';
-import Config, { AppConfig } from './config';
+import Config from './config';
+import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
+
+const appConfig = Config.getProperties();
 
 async function bootstrap() {
   // Initialize tracing first
   tracing.init(
-    Config.getProperties().tracing,
+    appConfig.tracing,
     mozLog(Config.getProperties().log)(Config.getProperties().log.app)
   );
 
@@ -29,24 +31,26 @@ async function bootstrap() {
     AppModule,
     nestConfig
   );
-  const config: ConfigService<AppConfig> = app.get(ConfigService);
-  const port = config.get('port') as number;
 
-  if (config.get<boolean>('hstsEnabled')) {
-    const maxAge = config.get<number>('hstsMaxAge');
+  // Configure allowlisting of gql queries
+  app.use(bodyParser.json());
+  app.use(allowlistGqlQueries(appConfig.gql));
+
+  if (appConfig.hstsEnabled) {
+    const maxAge = appConfig.hstsMaxAge;
     app.use(helmet.hsts({ includeSubDomains: true, maxAge }));
   }
 
   // Only apply security restrictions when in prod-like environment
   // since this interferes with Graphql playground
-  if (Config.getProperties().env !== 'development') {
+  if (appConfig.env !== 'development') {
     app.use(
       helmet.frameguard({
         action: 'deny',
       })
     );
 
-    app.use((req: Request, res: Response, next: any) => {
+    app.use((_req: Request, res: Response, next: any) => {
       res.setHeader('X-XSS-Protection', '1; mode=block');
       next();
     });
@@ -70,10 +74,7 @@ async function bootstrap() {
   }
 
   app.enableCors({
-    origin:
-      Config.getProperties().env === 'development'
-        ? '*'
-        : config.get<string[]>('corsOrigin'),
+    origin: appConfig.env === 'development' ? '*' : appConfig.corsOrigin,
     methods: ['OPTIONS', 'POST'],
   });
 
@@ -83,6 +84,6 @@ async function bootstrap() {
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();
 
-  await app.listen(port);
+  await app.listen(appConfig.port);
 }
 bootstrap();

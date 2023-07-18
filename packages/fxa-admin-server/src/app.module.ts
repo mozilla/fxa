@@ -52,7 +52,8 @@ const version = getVersionInfo(__dirname);
         definitions: {
           path: join(process.cwd(), 'src/graphql.ts'),
         },
-        context: ({ req, connection }) => createContext({ req, connection }),
+        context: ({ req, connection }: any) =>
+          createContext({ req, connection }),
         plugins: [SentryPlugin],
         fieldResolverEnhancers: ['guards'],
       }),

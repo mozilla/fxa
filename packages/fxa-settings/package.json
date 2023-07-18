@@ -6,6 +6,7 @@
   "scripts": {
     "build-css": "tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
     "build-storybook": "yarn merge-ftl && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && LOG_LEVEL=TRACE NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
+    "extract-gql": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
     "build": "tsc --build ../fxa-react && NODE_ENV=production yarn build-css && yarn legal-clone && yarn merge-ftl && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "compile": "tsc --noEmit",
     "clean": "git clean -fXd",
