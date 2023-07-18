@@ -76,7 +76,9 @@ export class RecoveryKeyPage extends SettingsLayout {
 
   async clickNext() {
     return this.page
-      .getByRole('link', { name: 'Continue without downloading' })
+      .getByRole('link', {
+        name: 'Continue without downloading',
+      })
       .click();
   }
 

@@ -7,7 +7,6 @@ import Clear from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
-// This page is only used for testing and does not need the localization decorator
 export default {
   title: 'Pages/Clear',
   component: Clear,

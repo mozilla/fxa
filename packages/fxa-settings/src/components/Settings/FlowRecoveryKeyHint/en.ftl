@@ -15,13 +15,6 @@ flow-recovery-key-hint-input-v2 =
 # The text of the "submit" button. Clicking on this button will save the hint (if provided) and exit the account recovery key creation flow.
 # "Finish" refers to "Finish the account recovery key creation process"
 flow-recovery-key-hint-cta-text = Finish
-# This heading is shown above a list of options for storing the account recovery key
-# "key" here refers to "account recovery key"
-flow-recovery-key-download-storage-ideas-heading-v2 = Places to store your key:
-flow-recovery-key-download-storage-ideas-folder-v2 = Folder on secure device
-flow-recovery-key-download-storage-ideas-cloud = Trusted cloud storage
-flow-recovery-key-download-storage-ideas-print-v2 = Printed physical copy
-flow-recovery-key-download-storage-ideas-pwd-manager = Password manager
 
 # Success message displayed in alert bar after the user has finished creating an account recovery key.
 flow-recovery-key-success-alert = Account recovery key created

@@ -264,7 +264,7 @@ const AccountRecoveryConfirmKey = ({
             autoFocus
             // Crockford base32 encoding is case insensitive, so visually display as
             // uppercase here but don't bother transforming the submit data to match
-            inputOnlyClassName="uppercase"
+            inputOnlyClassName="font-mono uppercase"
             className="text-start"
             anchorPosition="start"
             autoComplete="off"

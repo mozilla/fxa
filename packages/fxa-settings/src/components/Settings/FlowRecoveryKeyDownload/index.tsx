@@ -6,7 +6,6 @@ import React from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import DataBlock from '../../DataBlock';
-import ButtonDownloadRecoveryKey from '../../ButtonDownloadRecoveryKey';
 import { Link } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { RecoveryKeyImage } from '../../images';
@@ -17,6 +16,7 @@ import {
   LockIconListItem,
   PrinterIconListItem,
 } from '../../IconListItem';
+import ButtonDownloadRecoveryKeyPDF from '../../ButtonDownloadRecoveryKeyPDF';
 
 export type FlowRecoveryKeyDownloadProps = {
   localizedBackButtonTitle: string;
@@ -97,9 +97,10 @@ export const FlowRecoveryKeyDownload = ({
           </ul>
         </div>
 
-        <ButtonDownloadRecoveryKey
+        <ButtonDownloadRecoveryKeyPDF
           {...{ navigateForward, recoveryKeyValue, viewName }}
         />
+
         <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <Link
             to=""

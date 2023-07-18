@@ -80,7 +80,7 @@ describe('FlowRecoveryKeyHint', () => {
   it('emits the expected metrics when the user lands on this step of the flow', () => {
     renderWithContext(accountWithSuccess);
     expect(logViewEvent).toBeCalledTimes(1);
-    expect(logViewEvent).toBeCalledWith(viewName, 'hint-step-view');
+    expect(logViewEvent).toBeCalledWith(`flow.${viewName}`, 'create-hint.view');
   });
 
   it('saves the hint on submit if the user has entered a valid hint in the text input', async () => {
@@ -98,11 +98,17 @@ describe('FlowRecoveryKeyHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.submit');
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'create-hint.submit'
+      );
       expect(accountWithSuccess.updateRecoveryKeyHint).toBeCalledWith(
         hintValue
       );
-      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.success');
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'create-hint.success'
+      );
       expect(navigateForward).toHaveBeenCalledTimes(1);
     });
   });
@@ -126,7 +132,10 @@ describe('FlowRecoveryKeyHint', () => {
         'The hint must contain fewer than 255 characters.'
       );
       expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
-      expect(logViewEvent).not.toBeCalledWith(viewName, 'create-hint.submit');
+      expect(logViewEvent).not.toBeCalledWith(
+        `flow.${viewName}`,
+        'create-hint.submit'
+      );
       expect(navigateForward).not.toBeCalled();
     });
   });
@@ -146,11 +155,14 @@ describe('FlowRecoveryKeyHint', () => {
     });
     fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(logViewEvent).toBeCalledWith(viewName, 'create-hint.submit');
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'create-hint.submit'
+      );
       expect(accountWithError.updateRecoveryKeyHint).toBeCalledWith(hintValue);
       // logs the error
       expect(logViewEvent).toBeCalledWith(
-        viewName,
+        `flow.${viewName}`,
         'create-hint.fail',
         gqlUnexpectedError
       );
@@ -166,7 +178,10 @@ describe('FlowRecoveryKeyHint', () => {
     fireEvent.click(submitButton);
     await waitFor(() => {
       expect(accountWithSuccess.updateRecoveryKeyHint).not.toBeCalled();
-      expect(logViewEvent).toHaveBeenCalledWith(viewName, 'create-hint.skip');
+      expect(logViewEvent).toHaveBeenCalledWith(
+        `flow.${viewName}`,
+        'create-hint.skip'
+      );
       expect(navigateForward).toHaveBeenCalledTimes(1);
     });
   });
@@ -175,6 +190,9 @@ describe('FlowRecoveryKeyHint', () => {
     renderWithContext(accountWithSuccess);
     fireEvent.click(screen.getByTitle('Back to settings'));
     expect(navigateBackward).toBeCalledTimes(1);
-    expect(logViewEvent).toHaveBeenCalledWith(viewName, 'create-hint.skip');
+    expect(logViewEvent).toHaveBeenCalledWith(
+      `flow.${viewName}`,
+      'create-hint.skip'
+    );
   });
 });

@@ -30,6 +30,7 @@ export function hardNavigate(href: string) {
 export enum LocalizedDateOptions {
   NumericDate,
   NumericDateAndTime,
+  MediumDateStyle,
 }
 
 /**
@@ -59,6 +60,11 @@ export const getLocalizedDate = (
         day: 'numeric',
         hour: 'numeric',
         minute: 'numeric',
+      };
+      break;
+    case LocalizedDateOptions.MediumDateStyle:
+      options = {
+        dateStyle: 'medium',
       };
       break;
     default:

@@ -9,9 +9,6 @@ import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
 import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
-import { TextEncoder } from 'util';
-
-Object.assign(global, { TextEncoder });
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';
@@ -23,6 +20,15 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
 }));
+
+jest.mock('@react-pdf/renderer', () => {
+  return {
+    pdf: jest.fn().mockResolvedValue({
+      toBlob: jest.fn().mockResolvedValue(new Blob()),
+      updateContainer: jest.fn(),
+    }),
+  };
+});
 
 const renderFlowPage = () => {
   window.URL.createObjectURL = jest.fn();
@@ -69,8 +75,11 @@ describe('FlowRecoveryKeyDownload', () => {
     const listItems = within(list).getAllByRole('listitem');
     expect(listItems.length).toBe(4);
 
-    screen.getByText('Download and continue');
-    screen.getByRole('link', { name: 'Continue without downloading' });
+    screen.getByRole('button', { name: 'Download and continue' });
+
+    screen.getByRole('link', {
+      name: 'Continue without downloading',
+    });
   });
 
   it('emits the expected metrics when user copies the recovery key', async () => {
@@ -85,27 +94,29 @@ describe('FlowRecoveryKeyDownload', () => {
     );
   });
 
-  it('emits the expected metrics when user downloads the recovery key', () => {
+  it('emits the expected metrics when user downloads the recovery key', async () => {
     renderFlowPage();
     const downloadButton = screen.getByText('Download and continue');
     fireEvent.click(downloadButton);
-    expect(logViewEvent).toBeCalledWith(
-      `flow.${viewName}`,
-      'recovery-key.download-option'
-    );
+    await waitFor(() => {
+      expect(logViewEvent).toBeCalledWith(
+        `flow.${viewName}`,
+        'recovery-key.download-option'
+      );
+    });
   });
 
-  it('emits the expected metrics when user navigates forward without downloading the key', () => {
+  it('emits the expected metrics when user navigates forward', () => {
     renderFlowPage();
     const nextPageLink = screen.getByRole('link', {
       name: 'Continue without downloading',
     });
     fireEvent.click(nextPageLink);
-    expect(navigateForward).toBeCalledTimes(1);
     expect(logViewEvent).toBeCalledWith(
       `flow.${viewName}`,
       'recovery-key.skip-download'
     );
+    expect(navigateForward).toBeCalledTimes(1);
   });
 
   it('emits the expected metrics when user clicks the back arrow', () => {
