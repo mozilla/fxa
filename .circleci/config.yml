@@ -107,7 +107,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: large
+        default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner
@@ -890,7 +890,7 @@ workflows:
   production_smoke_tests:
     when: << pipeline.parameters.enable_production_smoke_tests >>
     jobs:
-    # Note that we removed content server tests as it runs on Stage only
+      # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
           project: production

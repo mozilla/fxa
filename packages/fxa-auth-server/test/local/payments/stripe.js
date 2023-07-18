@@ -2123,6 +2123,7 @@ describe('#integration - StripeHelper', () => {
           tax_exempt: 'none',
           shipping: undefined,
         },
+        subscription_proration_behavior: 'always_invoice',
         subscription: customer1.subscriptions?.data[0].id,
         subscription_proration_date: 1,
         subscription_items: [

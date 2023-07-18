@@ -267,6 +267,33 @@ export const PlanDetails = ({
                   </div>
                 )}
 
+                {!!priceAmounts.discountAmount && (
+                  <div className="plan-details-item">
+                    <Localized id="coupon-promo-code">
+                      <div>Promo Code</div>
+                    </Localized>
+
+                    <Localized
+                      id="coupon-amount"
+                      attrs={{ title: true }}
+                      vars={{
+                        amount: getLocalizedCurrency(
+                          priceAmounts.discountAmount,
+                          currency
+                        ),
+                        intervalCount: interval_count,
+                      }}
+                    >
+                      <div>
+                        {`- ${getLocalizedCurrencyString(
+                          priceAmounts.discountAmount,
+                          currency
+                        )}`}
+                      </div>
+                    </Localized>
+                  </div>
+                )}
+
                 {exclusiveTaxRates.length === 1 && (
                   <div className="plan-details-item">
                     <Localized id="plan-details-tax">
@@ -317,33 +344,6 @@ export const PlanDetails = ({
                       </Localized>
                     </div>
                   ))}
-
-                {!!priceAmounts.discountAmount && (
-                  <div className="plan-details-item">
-                    <Localized id="coupon-promo-code">
-                      <div>Promo Code</div>
-                    </Localized>
-
-                    <Localized
-                      id={`coupon-amount`}
-                      attrs={{ title: true }}
-                      vars={{
-                        amount: getLocalizedCurrency(
-                          priceAmounts.discountAmount,
-                          currency
-                        ),
-                        intervalCount: interval_count,
-                      }}
-                    >
-                      <div>
-                        {`- ${getLocalizedCurrencyString(
-                          priceAmounts.discountAmount,
-                          currency
-                        )}`}
-                      </div>
-                    </Localized>
-                  </div>
-                )}
               </div>
 
               <div className="pt-4 pb-6">

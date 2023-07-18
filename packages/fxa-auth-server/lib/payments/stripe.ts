@@ -695,6 +695,7 @@ export class StripeHelper extends StripeHelperBase {
         this.config.subscriptions.stripeInvoiceImmediately
       ) {
         try {
+          requestObject.subscription_proration_behavior = 'always_invoice';
           requestObject.subscription_proration_date = Math.floor(
             Date.now() / 1000
           );
