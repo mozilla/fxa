@@ -10,6 +10,12 @@ import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/Subscript
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
 
 import { needsCustomer } from '../../lib/customer';
+import {
+  GAEvent,
+  GAPaymentType,
+  GAPurchaseType,
+  ReactGALog,
+} from '../../lib/reactga-event';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 declare var paypal: {
@@ -35,6 +41,7 @@ export type PaypalButtonProps = {
   setTransactionInProgress?: Function;
   ButtonBase?: React.ElementType;
   promotionCode?: string;
+  discount?: number;
 };
 
 export type ButtonBaseProps = {
@@ -70,6 +77,7 @@ export const PaypalButton = ({
   setTransactionInProgress,
   ButtonBase = PaypalButtonBase,
   promotionCode,
+  discount,
 }: PaypalButtonProps) => {
   const {
     currency: currencyCode,
@@ -87,6 +95,12 @@ export const PaypalButton = ({
         ...apiClientOverrides,
       };
       const { token } = await apiGetPaypalCheckoutToken({ currencyCode });
+      ReactGALog.logEvent({
+        eventName: GAEvent.AddPaymentInfo,
+        paymentType: GAPaymentType.PayPal,
+        plan: selectedPlan,
+        discount,
+      });
       /* istanbul ignore next */
       return token;
     } catch (error) {
@@ -101,6 +115,8 @@ export const PaypalButton = ({
     currencyCode,
     setSubscriptionError,
     beforeCreateOrder,
+    discount,
+    selectedPlan,
   ]);
 
   const onApprove = useCallback(
@@ -125,6 +141,12 @@ export const PaypalButton = ({
         // This is the same token as obtained in createOrder
         const token = data.orderID;
         if (isNewSubscription) {
+          ReactGALog.logEvent({
+            eventName: GAEvent.PurchaseSubmit,
+            plan: selectedPlan,
+            purchaseType: GAPurchaseType.New,
+            discount,
+          });
           await apiCapturePaypalPayment({
             idempotencyKey,
             // @ts-ignore Doesn't like that the existence check for priceId is stored in isNewSubscription
@@ -133,6 +155,12 @@ export const PaypalButton = ({
             token,
             promotionCode,
             checkoutType,
+          });
+          ReactGALog.logEvent({
+            eventName: GAEvent.Purchase,
+            plan: selectedPlan,
+            purchaseType: GAPurchaseType.New,
+            discount,
           });
         } else {
           await apiUpdateBillingAgreement({
@@ -166,6 +194,8 @@ export const PaypalButton = ({
       setTransactionInProgress,
       promotionCode,
       idempotencyKey,
+      discount,
+      selectedPlan,
     ]
   );
 

@@ -6,6 +6,7 @@ import {
   apiCreatePasswordlessAccount,
   updateAPIClientToken,
 } from './apiClient';
+import { GAEvent, ReactGALog } from './reactga-event';
 import { AuthServerErrno, GeneralError } from './errors';
 import sentry from './sentry';
 export const FXA_SIGNUP_ERROR: GeneralError = {
@@ -25,6 +26,7 @@ export async function handlePasswordlessSignUp({
       clientId,
     });
     updateAPIClientToken(accessToken);
+    ReactGALog.logEvent({ eventName: GAEvent.SignUp });
   } catch (e) {
     if (e.body?.errno !== AuthServerErrno.ACCOUNT_EXISTS) {
       sentry.captureException(e);

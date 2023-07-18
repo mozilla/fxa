@@ -13,6 +13,7 @@ import {
 
 import { FilteredSetupIntent } from '../lib/apiClient';
 import { Customer, Plan, Profile } from '../store/types';
+import { GAEvent, GAPaymentType, GAPurchaseType } from '../lib/reactga-event';
 
 const invoice: LatestInvoiceItems = {
   line_items: [
@@ -494,4 +495,40 @@ export const INVOICE_PREVIEW_EXCLUSIVE_TAX: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+};
+
+export const MOCK_EVENTS = {
+  AddPaymentInfo: (plan: Plan) => ({
+    eventName: GAEvent.AddPaymentInfo,
+    paymentType: GAPaymentType.CreditCard,
+    plan,
+  }),
+  AddPayPalPaymentInfo: (plan: Plan) => ({
+    eventName: GAEvent.AddPaymentInfo,
+    paymentType: GAPaymentType.PayPal,
+    plan,
+  }),
+  PurchaseSubmitNew: (plan: Plan) => ({
+    eventName: GAEvent.PurchaseSubmit,
+    plan,
+    purchaseType: GAPurchaseType.New,
+  }),
+  PurchaseSubmitUpgrade: (plan: Plan) => ({
+    eventName: GAEvent.PurchaseSubmit,
+    plan,
+    purchaseType: GAPurchaseType.Upgrade,
+  }),
+  PurchaseNew: (plan: Plan) => ({
+    eventName: GAEvent.Purchase,
+    plan,
+    purchaseType: GAPurchaseType.New,
+  }),
+  PurchaseUpgrade: (plan: Plan) => ({
+    eventName: GAEvent.Purchase,
+    plan,
+    purchaseType: GAPurchaseType.Upgrade,
+  }),
+  SignUp: {
+    eventName: GAEvent.SignUp,
+  },
 };

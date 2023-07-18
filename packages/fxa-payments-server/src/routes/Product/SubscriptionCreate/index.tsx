@@ -103,7 +103,7 @@ export const SubscriptionCreate = ({
         ...selectedPlan,
         checkoutType: checkoutType,
       }),
-    [selectedPlan]
+    [checkoutType, selectedPlan]
   );
 
   const onFormEngaged = useCallback(
@@ -112,7 +112,7 @@ export const SubscriptionCreate = ({
         ...selectedPlan,
         checkoutType: checkoutType,
       }),
-    [selectedPlan]
+    [checkoutType, selectedPlan]
   );
 
   const [paypalScriptLoaded, setPaypalScriptLoaded] = useState(false);
@@ -159,6 +159,7 @@ export const SubscriptionCreate = ({
             selectedPlan,
             customer,
             checkoutType,
+            discount: coupon?.discountAmount,
             retryStatus,
             onSuccess: refreshSubscriptions,
             onFailure: setSubscriptionError,
@@ -183,6 +184,8 @@ export const SubscriptionCreate = ({
         customer,
         retryStatus,
         apiClientOverrides,
+        checkoutType,
+        coupon,
         stripeOverride,
         setInProgress,
         refreshSubscriptions,
@@ -209,7 +212,13 @@ export const SubscriptionCreate = ({
         setInProgress(false);
         refreshSubmitNonce();
       },
-      [setInProgress, refreshSubmitNonce, refreshSubscriptions, selectedPlan]
+      [
+        setInProgress,
+        refreshSubmitNonce,
+        refreshSubscriptions,
+        checkoutType,
+        selectedPlan,
+      ]
     );
 
   const onSubmit = getPaymentProviderMappedVal<

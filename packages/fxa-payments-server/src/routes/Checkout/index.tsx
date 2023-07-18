@@ -195,6 +195,7 @@ export const Checkout = ({
           clientId: config.servers.oauth.clientId,
           customer: null,
           checkoutType: CheckoutType.WITHOUT_ACCOUNT,
+          discount: coupon?.discountAmount,
           stripe: stripeOverride || stripeFormParams,
           selectedPlan,
           retryStatus,
@@ -227,6 +228,7 @@ export const Checkout = ({
       refreshSubmitNonce,
       validEmail,
       config.servers.oauth.clientId,
+      coupon,
       stripeOverride,
       selectedPlan,
       retryStatus,
@@ -474,6 +476,7 @@ export const Checkout = ({
                 setTransactionInProgress={setTransactionInProgress}
                 ButtonBase={paypalButtonBase}
                 promotionCode={coupon?.promotionCode}
+                discount={coupon?.discountAmount}
                 checkoutType={CheckoutType.WITHOUT_ACCOUNT}
               />
             )}
@@ -513,6 +516,7 @@ export const Checkout = ({
                     accountExists ||
                     invalidEmailDomain ||
                     !emailsMatch,
+                  discount: coupon?.discountAmount,
                 }}
               />
             </div>

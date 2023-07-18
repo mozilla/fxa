@@ -14,11 +14,16 @@ import {
 } from '../../lib/test-utils';
 
 import PaymentForm, { PaymentFormProps } from './index';
-import { SELECTED_PLAN } from '../../lib/mock-data';
+import { MOCK_EVENTS, SELECTED_PLAN } from '../../lib/mock-data';
+import { ReactGALog } from '../../lib/reactga-event';
 
 jest.mock('../../lib/sentry');
+jest.mock('../../lib/reactga-event');
 
-afterEach(cleanup);
+beforeEach(() => {
+  jest.clearAllMocks();
+  return cleanup();
+});
 
 // Redefine onPayment and onPaymentError as optional so we can supply mock
 // functions by default in Subject.
@@ -38,6 +43,7 @@ type SubjectProps = Omit<
   submitNonce?: string;
   getString?: PaymentFormProps['getString'];
 };
+
 const Subject = ({
   onSubmit = jest.fn(),
   onMounted = jest.fn(),
@@ -148,6 +154,10 @@ it('when confirm = true, enables submit button when all fields are valid and che
   expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
   fireEvent.click(getByTestId('confirm'));
   expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
+  expect(ReactGALog.logEvent).toBeCalledTimes(1);
+  expect(ReactGALog.logEvent).toBeCalledWith(
+    MOCK_EVENTS.AddPaymentInfo(SELECTED_PLAN)
+  );
 });
 
 it('omits the confirmation checkbox when confirm = false', () => {
@@ -155,6 +165,7 @@ it('omits the confirmation checkbox when confirm = false', () => {
     <Subject {...{ confirm: false }} />
   );
   expect(queryByTestId('confirm')).not.toBeInTheDocument();
+  expect(ReactGALog.logEvent).not.toBeCalled();
 });
 
 it('includes the confirmation checkbox when confirm = true and plan supplied', () => {
@@ -162,6 +173,7 @@ it('includes the confirmation checkbox when confirm = true and plan supplied', (
     <Subject {...{ confirm: true, plan: SELECTED_PLAN }} />
   );
   expect(queryByTestId('confirm')).toBeInTheDocument();
+  expect(ReactGALog.logEvent).not.toBeCalled();
 });
 
 it('calls onSubmit when all fields valid and submitted', async () => {
@@ -174,6 +186,8 @@ it('calls onSubmit when all fields valid and submitted', async () => {
   expect(submitButton).not.toHaveClass('payment-button-disabled');
   fireEvent.click(submitButton);
   expect(onSubmit).toHaveBeenCalled();
+  // logs add_payment_info and purchase_submit
+  expect(ReactGALog.logEvent).toBeCalledTimes(2);
 });
 
 it('renders a progress spinner when submitted, disables further submission (issue #4386 / FXA-1275)', async () => {
@@ -230,11 +244,14 @@ it('displays an error for empty name', () => {
   fireEvent.change(getByTestId('name'), { target: { value: '' } });
   fireEvent.blur(getByTestId('name'));
   expect(getByText('Please enter your name')).toBeInTheDocument();
+  expect(ReactGALog.logEvent).not.toBeCalled();
 });
 
 it('submit button should still be enabled when all fields are valid', () => {
   let { getByTestId } = renderWithValidFields();
   expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
+  // logs add_payment_info
+  expect(ReactGALog.logEvent).toBeCalledTimes(1);
 });
 
 it('does not call onSubmit if somehow submitted without confirm checked', async () => {
@@ -252,6 +269,7 @@ it('does not call onSubmit if somehow submitted without confirm checked', async 
   // ...but let's force the form to submit and assert nothing happens.
   fireEvent.submit(getByTestId('paymentForm'));
   expect(onSubmit).not.toHaveBeenCalled();
+  expect(ReactGALog.logEvent).not.toBeCalled();
 });
 
 it('does not call onSubmit if somehow submitted while in progress', async () => {
@@ -305,6 +323,10 @@ describe('with existing card', () => {
 
     fireEvent.click(getByTestId('submit'));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitNew(SELECTED_PLAN)
+    );
   });
 });
 
@@ -332,5 +354,8 @@ describe('with existing PayPal billing agreement', () => {
     );
     fireEvent.click(getByTestId('submit'));
     expect(onSubmit).toHaveBeenCalledTimes(1);
+
+    // confirm checkbox was not checked
+    expect(ReactGALog.logEvent).not.toBeCalled();
   });
 });

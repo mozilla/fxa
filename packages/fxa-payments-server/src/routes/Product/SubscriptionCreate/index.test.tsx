@@ -17,6 +17,7 @@ import {
   CUSTOMER,
   DETACH_PAYMENT_METHOD_RESULT,
   IAP_CUSTOMER,
+  MOCK_EVENTS,
   NEW_CUSTOMER,
   PAYMENT_METHOD_RESULT,
   PAYPAL_CUSTOMER,
@@ -36,6 +37,7 @@ import {
   renderWithLocalizationProvider,
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
+import { ReactGALog } from '../../../lib/reactga-event';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -44,6 +46,8 @@ jest.mock('../../../lib/hooks', () => {
     useNonce: () => [Math.random(), refreshNonceMock],
   };
 });
+
+jest.mock('../../../lib/reactga-event');
 
 type SubjectProps = PickPartial<
   SubscriptionCreateProps,
@@ -118,6 +122,7 @@ describe('routes/Product/SubscriptionCreate', () => {
 
   afterEach(() => {
     if (consoleSpy) consoleSpy.mockRestore();
+    jest.clearAllMocks();
     return cleanup();
   });
 
@@ -621,6 +626,11 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(
       screen.queryByTestId('error-payment-submission')
     ).not.toBeInTheDocument();
+    expect(ReactGALog.logEvent).toBeCalledTimes(2);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+    );
+    expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.PurchaseNew(PLAN));
   });
 
   it('creates a new customer if needed for PayPal', async () => {
@@ -651,6 +661,10 @@ describe('routes/Product/SubscriptionCreate', () => {
       fireEvent.click(screen.getByTestId('paypal-button'));
     });
     expect(apiClientOverrides.apiCreateCustomer).toHaveBeenCalled();
+    expect(ReactGALog.logEvent).toBeCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+    );
   });
 
   const commonCreateSubscriptionFailureTest =
@@ -689,6 +703,13 @@ describe('routes/Product/SubscriptionCreate', () => {
       expect(
         screen.queryByTestId('error-payment-submission')
       ).not.toBeInTheDocument()
+    );
+    expect(ReactGALog.logEvent).toBeCalledTimes(2);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.AddPaymentInfo(PLAN)
+    );
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitNew(PLAN)
     );
   });
 
@@ -783,6 +804,13 @@ describe('routes/Product/SubscriptionCreate', () => {
         screen.queryByTestId('error-payment-submission')
       ).toBeInTheDocument();
       expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
+      expect(ReactGALog.logEvent).toBeCalledTimes(2);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLAN)
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+      );
     });
 
     it('displays for unexpected payment intent status', async () => {
@@ -810,6 +838,13 @@ describe('routes/Product/SubscriptionCreate', () => {
         screen.queryByTestId('error-payment-submission')
       ).toBeInTheDocument();
       expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
+      expect(ReactGALog.logEvent).toBeCalledTimes(2);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLAN)
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+      );
     });
 
     it('displays if client secret is missing from payment intent', async () => {
@@ -850,6 +885,13 @@ describe('routes/Product/SubscriptionCreate', () => {
       );
       expect(refreshSubscriptions).toHaveBeenCalledTimes(0);
       expect(stripeOverride.confirmCardPayment).not.toHaveBeenCalled();
+      expect(ReactGALog.logEvent).toBeCalledTimes(2);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLAN)
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+      );
     });
 
     it('displays apiGetPaypalCheckoutToken failure', async () => {
@@ -880,6 +922,7 @@ describe('routes/Product/SubscriptionCreate', () => {
       expect(
         screen.queryByTestId('error-payment-submission')
       ).toBeInTheDocument();
+      expect(ReactGALog.logEvent).not.toBeCalled();
     });
   });
 
@@ -902,6 +945,7 @@ describe('routes/Product/SubscriptionCreate', () => {
     expect(
       screen.queryByTestId('error-payment-submission')
     ).toBeInTheDocument();
+    expect(ReactGALog.logEvent).not.toBeCalled();
   });
 
   it('displays apiCapturePaypalPayment failure', async () => {
@@ -935,6 +979,10 @@ describe('routes/Product/SubscriptionCreate', () => {
       fireEvent.click(screen.getByTestId('paypal-button'));
     });
     expect(apiClientOverrides.apiCapturePaypalPayment).toHaveBeenCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitNew(PLAN)
+    );
     expect(
       screen.queryByTestId('error-payment-submission')
     ).toBeInTheDocument();

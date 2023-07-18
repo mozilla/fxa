@@ -442,6 +442,7 @@ export const Product = ({
             resetUpdateSubscriptionPlan,
             updateSubscriptionPlanStatus,
             invoicePreview: invoicePreview.result,
+            discount: coupon?.discountAmount,
           }}
         />
       );
