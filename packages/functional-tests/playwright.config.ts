@@ -19,8 +19,7 @@ if (CI) {
   // Overall maxFailures is now dependent on the number of retries, workers
   retries = 3;
   workers = 2;
-  //maxFailures = retries * workers * 2;
-  maxFailures = 0;
+  maxFailures = retries * workers * 2;
 }
 
 const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
