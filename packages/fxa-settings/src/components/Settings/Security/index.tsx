@@ -85,15 +85,17 @@ export const Security = () => {
         <hr className="unit-row-hr" />
         <UnitRowTwoStepAuth />
 
-        <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6">
-          <div className="pb-5 text-center mobileLandscape:text-start">
-            <Localized id="cs-recent-activity">
+        <hr className="unit-row-hr" />
+
+        <div className="px-5 pt-4 pb-6">
+          <div className="text-center mobileLandscape:text-start">
+            <Localized id="security-recent-activity-link">
               <Link
                 data-testid="settings-recent-activity"
                 className="link-blue text-sm"
                 to="/settings/recent_activity"
               >
-                Recent Account Activity
+                View recent account activity
               </Link>
             </Localized>
           </div>
