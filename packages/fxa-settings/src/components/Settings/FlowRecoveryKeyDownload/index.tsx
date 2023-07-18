@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
+import { PDFDownloadLink } from '@react-pdf/renderer';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import DataBlock from '../../DataBlock';
@@ -17,6 +18,7 @@ import {
   LockIconListItem,
   PrinterIconListItem,
 } from '../../IconListItem';
+import { RecoveryKeyPDF } from '../../RecoveryKeyPDF';
 
 export type FlowRecoveryKeyDownloadProps = {
   localizedBackButtonTitle: string;
@@ -100,6 +102,17 @@ export const FlowRecoveryKeyDownload = ({
         <ButtonDownloadRecoveryKey
           {...{ navigateForward, recoveryKeyValue, viewName }}
         />
+
+        <PDFDownloadLink
+          document={<RecoveryKeyPDF {...{ recoveryKeyValue }} />}
+          fileName="recoveryKey.pdf"
+          className="cta-primary cta-xl"
+        >
+          {({ blob, url, loading, error }) =>
+            loading ? 'Generating PDF...' : 'Download as PDF'
+          }
+        </PDFDownloadLink>
+
         <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <Link
             to=""

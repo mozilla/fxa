@@ -238,19 +238,18 @@ export const ButtonDownloadRecoveryKey = ({
   };
 
   return (
-    <FtlMsg id="recovery-key-download-button-v3" attrs={{ title: true }}>
+    <FtlMsg id="recovery-key-download-button-v4" attrs={{ title: true }}>
       <a
-        title="Download and continue"
         href={getURL()}
         download={getFilename()}
         data-testid="recovery-key-download"
         className="cta-primary cta-xl w-full"
         onClick={() => {
           logViewEvent(`flow.${viewName}`, `recovery-key.download-option`);
-          navigateForward && navigateForward();
+          // navigateForward && navigateForward();
         }}
       >
-        Download and continue
+        Download as text file
       </a>
     </FtlMsg>
   );

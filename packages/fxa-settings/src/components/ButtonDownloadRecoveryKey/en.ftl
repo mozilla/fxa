@@ -5,8 +5,7 @@
 # Button to download the account recovery key as a plain text file and continue to the next step
 # "key" here refers to the "account recovery key"
 # .title will displayed as a tooltip on the button
-recovery-key-download-button-v3 = Download and continue
-  .title = Download and continue
+recovery-key-download-button-v4 = Download as text file
 
 # Heading in the text file. No CSS styling will be applied to the text.
 # All caps is used in English to show this is a header.
