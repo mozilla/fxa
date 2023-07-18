@@ -28,6 +28,12 @@ export class RecoveryKeyPage extends SettingsLayout {
     return this.page.locator('.lost-recovery-key').click();
   }
 
+  async clickCreateAccountRecoveryKey() {
+    return this.page
+      .getByRole('button', { name: 'Create account recovery key' })
+      .click();
+  }
+
   submit() {
     return Promise.all([
       this.page.locator('button[type=submit]').click(),

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState, useEffect } from 'react';
-import { CreateRelier, useInitialState } from '../../models';
+import { useRelier, useInitialState } from '../../models';
 import { RouteComponentProps } from '@reach/router';
 
 export const PageWithLoggedInStatusState = (
@@ -18,7 +18,7 @@ export const PageWithLoggedInStatusState = (
   const [isSignedIn, setIsSignedIn] = useState<boolean>();
   const [isSync, setIsSync] = useState<boolean>();
   const [serviceName, setServiceName] = useState<string>();
-  const relier = CreateRelier();
+  const relier = useRelier();
 
   // TODO: Get the broker `continue` action once https://mozilla-hub.atlassian.net/browse/FXA-6989 is merged
   let continueHandler: Function | undefined;

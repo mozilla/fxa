@@ -111,21 +111,28 @@ describe('AccountRecoveryResetPassword page', () => {
     );
   }
 
-  function clickResetPassword() {
-    screen.getByRole('button', { name: 'Reset password' }).click();
+  async function clickResetPassword() {
+    const button = await screen.findByRole('button', {
+      name: 'Reset password',
+    });
+    await act(async () => {
+      button.click();
+    });
   }
 
-  function clickReceiveNewLink() {
-    screen
-      .getByRole('button', {
-        name: 'Receive new link',
-      })
-      .click();
+  async function clickReceiveNewLink() {
+    const button = await screen.findByRole('button', {
+      name: 'Receive new link',
+    });
+
+    await act(async () => {
+      button.click();
+    });
   }
 
-  function enterPassword(password: string, password2?: string) {
-    const newPassword = screen.getByLabelText('New password');
-    const newPassword2 = screen.getByLabelText('Re-enter password');
+  async function enterPassword(password: string, password2?: string) {
+    const newPassword = await screen.findByLabelText('New password');
+    const newPassword2 = await screen.findByLabelText('Re-enter password');
     fireEvent.change(newPassword, { target: { value: password } });
     fireEvent.change(newPassword2, {
       target: { value: password2 || password },
@@ -151,30 +158,45 @@ describe('AccountRecoveryResetPassword page', () => {
   });
 
   describe('required recovery key info', () => {
-    async function setState(key: string) {
+    async function setEmptyState(key: string) {
       mockLocationStateData.set(key, '');
       await renderPage();
     }
 
-    it(`requires kB`, function () {
-      setState('kB');
-      expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
-      );
+    let mockConsoleWarn: jest.SpyInstance;
+
+    beforeEach(() => {
+      mockConsoleWarn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
     });
 
-    it(`requires recoveryKeyId`, function () {
-      setState('recoveryKeyId');
-      expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
-      );
+    afterEach(() => {
+      mockConsoleWarn.mockClear();
     });
 
-    it(`requires accountResetToken`, function () {
-      setState('accountResetToken');
+    it(`requires kB`, async () => {
+      setEmptyState('kB');
       expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${mockUrlQueryData.toSearchQuery()}`
+        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
       );
+      expect(mockConsoleWarn).toBeCalled();
+    });
+
+    it(`requires recoveryKeyId`, async () => {
+      setEmptyState('recoveryKeyId');
+      expect(mockNavigate).toBeCalledWith(
+        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
+      );
+      expect(mockConsoleWarn).toBeCalled();
+    });
+
+    it(`requires accountResetToken`, async () => {
+      setEmptyState('accountResetToken');
+      expect(mockNavigate).toBeCalledWith(
+        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
+      );
+      expect(mockConsoleWarn).toBeCalled();
     });
   });
 
@@ -185,8 +207,10 @@ describe('AccountRecoveryResetPassword page', () => {
       await renderPage();
     });
 
-    it('shows damaged link message', () => {
-      screen.getByRole('heading', { name: 'Reset password link damaged' });
+    it('shows damaged link message', async () => {
+      await screen.findByRole('heading', {
+        name: 'Reset password link damaged',
+      });
     });
   });
 
@@ -200,8 +224,8 @@ describe('AccountRecoveryResetPassword page', () => {
       // testAllL10n(screen, bundle);
     });
 
-    it('renders with valid link', () => {
-      const heading = screen.getByRole('heading', {
+    it('renders with valid link', async () => {
+      const heading = await screen.findByRole('heading', {
         name: 'Create new password',
       });
       screen.getByLabelText('New password');
@@ -224,7 +248,9 @@ describe('AccountRecoveryResetPassword page', () => {
     });
 
     it('displays password requirements when the new password field is in focus', async () => {
-      const newPasswordField = screen.getByTestId('new-password-input-field');
+      const newPasswordField = await screen.findByTestId(
+        'new-password-input-field'
+      );
       expect(
         screen.queryByText('Password requirements')
       ).not.toBeInTheDocument();
@@ -249,10 +275,8 @@ describe('AccountRecoveryResetPassword page', () => {
         mockAccount.isSessionVerifiedAuthClient = jest.fn();
         mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
-        await act(async () => {
-          enterPassword('foo12356789!');
-          clickResetPassword();
-        });
+        await enterPassword('foo12356789!');
+        await clickResetPassword();
       });
 
       it('emits a metric on successful reset', async () => {
@@ -330,10 +354,9 @@ describe('AccountRecoveryResetPassword page', () => {
       mockAccount.isSessionVerifiedAuthClient = jest.fn();
       mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
       await renderPage();
-      await act(async () => {
-        enterPassword('foo12356789!');
-        clickResetPassword();
-      });
+
+      await enterPassword('foo12356789!');
+      await clickResetPassword();
     });
     afterAll(() => {
       window.location = originalWindow;
@@ -353,21 +376,20 @@ describe('AccountRecoveryResetPassword page', () => {
       mockAccount.resetPassword = jest.fn();
 
       await renderPage();
-      await act(async () => {
-        enterPassword('foo12356789!');
-        clickResetPassword();
-      });
+      await enterPassword('foo12356789!');
+      await clickResetPassword();
     });
 
     it('logs error event', async () => {
       expect(logErrorEvent).toBeCalled();
+      expect(true).toBeTruthy();
     });
 
     it('renders LinkExpired component', async () => {
       await clickReceiveNewLink();
-      expect(
-        screen.getByRole('heading', { name: 'Reset password link expired' })
-      ).toBeInTheDocument();
+      await screen.findByRole('heading', {
+        name: 'Reset password link expired',
+      });
     });
   });
 });

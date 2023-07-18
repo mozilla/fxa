@@ -54,15 +54,17 @@ export interface ResumeTokenInfo {
 }
 
 export interface Relier extends RelierData {
-  getServiceName(): MozServices;
+  getServiceName(): Promise<string>;
+  getClientInfo(): Promise<RelierClientInfo | undefined>;
   isOAuth(): boolean;
   isSync(): Promise<boolean>;
   shouldOfferToSync(view: string): boolean;
   wantsKeys(): boolean;
   wantsTwoStepAuthentication(): boolean;
-  pickResumeTokenInfo(): ResumeTokenInfo;
   isTrusted(): boolean;
   validate(): void;
+  getService(): string | undefined;
+  getRedirectUri(): string | undefined;
 }
 
 export interface RelierAccount {
@@ -139,11 +141,27 @@ export class BaseRelier extends ModelDataProvider implements Relier {
   isOAuth(): boolean {
     return false;
   }
+
   async isSync(): Promise<boolean> {
     return false;
   }
 
-  getServiceName(): MozServices {
+  async getClientInfo(): Promise<RelierClientInfo | undefined> {
+    return undefined;
+  }
+
+  async getServiceName(): Promise<string> {
+    // If the service is not defined, then check the client info
+    if (!!this.service) {
+      if (this.clientInfo) {
+        const clientInfo = await this.clientInfo;
+        if (clientInfo?.serviceName) {
+          return clientInfo.serviceName;
+        }
+      }
+    }
+
+    // Fallback to defacto service names
     switch (this.service) {
       case MozServices.FirefoxSync:
       case 'sync':
@@ -162,6 +180,7 @@ export class BaseRelier extends ModelDataProvider implements Relier {
         return MozServices.Default;
     }
   }
+
   shouldOfferToSync(view: string): boolean {
     return false;
   }
@@ -171,10 +190,16 @@ export class BaseRelier extends ModelDataProvider implements Relier {
   wantsTwoStepAuthentication(): boolean {
     return false;
   }
-  pickResumeTokenInfo() {
-    return {};
+
+  getRedirectUri(): string | undefined {
+    return undefined;
   }
-  isTrusted(): boolean {
+
+  getService() {
+    return this.service;
+  }
+
+  isTrusted() {
     return true;
   }
 

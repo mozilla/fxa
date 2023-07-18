@@ -368,6 +368,10 @@ export class Account implements AccountData {
     return this.data.primaryEmail;
   }
 
+  get email() {
+    return this.data.primaryEmail.email;
+  }
+
   get subscriptions() {
     return this.data.subscriptions;
   }
@@ -552,14 +556,19 @@ export class Account implements AccountData {
 
   async resetPassword(
     email: string,
-    service?: string
+    service?: string,
+    redirectTo?: string
   ): Promise<PasswordForgotSendCodePayload> {
     let serviceName;
     if (service && service === MozServices.FirefoxSync) {
       serviceName = 'sync';
+    } else {
+      serviceName = service;
     }
     const result = await this.authClient.passwordForgotSendCode(email, {
       service: serviceName,
+      resume: 'e30=', // base64 json for {}
+      redirectTo,
     });
     return result;
   }

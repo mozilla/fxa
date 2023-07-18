@@ -178,7 +178,13 @@ export const bind = <T>(checks: ValidationCheck[], dataKey?: KeyTransform) => {
       set: function (value: T) {
         const data = getModelData(this);
         const key = getKey(dataKey, memberName);
-        data.set(key, validate(key, value));
+        const currentValue = data.get(key);
+
+        // Don't bother setting state needlessly. Depending on the data
+        // store writes may or may not be cheap.
+        if (currentValue !== value) {
+          data.set(key, validate(key, value));
+        }
       },
       get: function () {
         const data = getModelData(this);

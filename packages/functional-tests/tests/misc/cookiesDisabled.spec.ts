@@ -22,6 +22,7 @@ test.describe('cookies disabled', () => {
     });
 
     //Verify the Cookies disabled header
+    await page.waitForURL(/\/cookies_disabled/);
     expect(await cookiesDisabled.isCookiesDisabledHeader()).toBe(true);
 
     //Click retry
@@ -50,6 +51,7 @@ test.describe('cookies disabled', () => {
     });
 
     //Verify the Cookies disabled header
+    await page.waitForURL(/\/cookies_disabled/);
     expect(await cookiesDisabled.isCookiesDisabledHeader()).toBe(true);
 
     //Click retry
@@ -72,6 +74,7 @@ test.describe('cookies disabled', () => {
         waitUntil: 'networkidle',
       }
     );
+    await page.waitForURL(/\/cookies_disabled/);
 
     //Verify the Cookies disabled header
     expect(await cookiesDisabled.isCookiesDisabledHeader()).toBe(true);

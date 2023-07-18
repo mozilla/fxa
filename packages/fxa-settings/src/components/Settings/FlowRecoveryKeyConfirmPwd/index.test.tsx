@@ -61,6 +61,10 @@ const getAccountWithErrorOnKeyChange = (error: AuthUiError) => {
     ...MOCK_ACCOUNT,
     accountRecovery: true,
     createRecoveryKey: () => {
+      if (error.errno != null && error.errno === AuthUiErrors.THROTTLED.errno) {
+        (error as any).retryAfterLocalized = '15 minutes';
+      }
+
       throw error;
     },
     deleteRecoveryKey: jest.fn().mockResolvedValue(true),

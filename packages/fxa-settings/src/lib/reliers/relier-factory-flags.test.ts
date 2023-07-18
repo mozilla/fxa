@@ -122,23 +122,4 @@ describe('lib/reliers/relier-factory-flags', function () {
     queryData.set('code', '123');
     expect(relierFlags.isOAuthVerificationFlow()).toBeTruthy();
   });
-
-  it('getOAuthResumeObj', () => {
-    queryData.set('service', 'foo');
-    const obj1 = relierFlags.getOAuthResumeObj();
-    storageData.set('oauth', { ...obj1, extra: 'bar' });
-    const obj2 = relierFlags.getOAuthResumeObj();
-
-    expect(obj1).toEqual({
-      // Is this correct? It's the way the ported code functioned.
-      client_id: 'foo',
-      service: 'foo',
-    });
-    expect(obj2).toEqual({
-      // Is this correct? It's the way the ported code functioned.
-      client_id: 'foo',
-      service: 'foo',
-      extra: 'bar',
-    });
-  });
 });

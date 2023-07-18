@@ -732,6 +732,7 @@ jobs:
 
   build-and-deploy-storybooks:
     executor: default-executor
+    resource_class: medium+
     steps:
       - git-checkout
       - restore-workspace

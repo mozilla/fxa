@@ -84,6 +84,7 @@ describe('CompleteResetPassword page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
   beforeEach(() => {
     lostRecoveryKey = false;
 
@@ -153,6 +154,21 @@ describe('CompleteResetPassword page', () => {
   });
 
   describe('renders the component as expected when provided with a damaged link', () => {
+    let mockConsoleWarn: jest.SpyInstance;
+
+    beforeEach(() => {
+      // We expect that model bindings will warn us about missing / incorrect values.
+      // We don't want these warnings to effect test output since they are expected, so we
+      // will mock the function, and make sure it's called.
+      mockConsoleWarn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      mockConsoleWarn.mockClear();
+    });
+
     it('with missing token', async () => {
       renderSubject(account, paramsWithMissingToken);
 
@@ -162,6 +178,7 @@ describe('CompleteResetPassword page', () => {
       screen.getByText(
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing code', async () => {
       renderSubject(account, paramsWithMissingCode);
@@ -169,6 +186,7 @@ describe('CompleteResetPassword page', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing email', async () => {
       renderSubject(account, paramsWithMissingEmail);
@@ -176,6 +194,7 @@ describe('CompleteResetPassword page', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
   });
 
@@ -372,9 +391,8 @@ describe('CompleteResetPassword page', () => {
       it('account does not have TOTP', async () => {
         renderSubject(account);
         await enterPasswordAndSubmit();
-
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
-          '/reset_password_verified',
+          '/reset_password_verified?email=johndope%40example.com&emailToHashWith=&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
           {
             replace: true,
           }

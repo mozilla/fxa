@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
 import {
@@ -13,7 +13,13 @@ import {
 } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
-import { CreateRelier, useAccount, useFtlMsgResolver } from '../../models';
+import {
+  OAuthRelier,
+  isOAuthRelier,
+  useAccount,
+  useFtlMsgResolver,
+  useRelier,
+} from '../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -26,6 +32,7 @@ import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import sentryMetrics from 'fxa-shared/lib/sentry';
+import { setOriginalTabMarker } from '../../lib/storage-utils';
 
 export const viewName = 'reset-password';
 
@@ -50,11 +57,20 @@ const ResetPassword = ({
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [hasFocused, setHasFocused] = useState<boolean>(false);
   const account = useAccount();
-  const relier = CreateRelier();
+  const relier = useRelier();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const serviceName = relier.getServiceName();
+  // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
+  setOriginalTabMarker();
+
+  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
+  useEffect(() => {
+    (async () => {
+      const name = await relier.getServiceName();
+      setServiceName(name);
+    })();
+  }, [relier]);
 
   const { control, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'onTouched',
@@ -100,11 +116,26 @@ const ResetPassword = ({
     async (email: string) => {
       try {
         clearError();
-        const result = await account.resetPassword(email, serviceName);
-        navigateToConfirmPwReset({
-          passwordForgotToken: result.passwordForgotToken,
-          email,
-        });
+
+        // This will save the scope and oauth state for later
+        if (isOAuthRelier(relier)) {
+          relier.saveOAuthState();
+          const result = await account.resetPassword(
+            email,
+            relier.getService(),
+            relier.getRedirectUri()
+          );
+          navigateToConfirmPwReset({
+            passwordForgotToken: result.passwordForgotToken,
+            email,
+          });
+        } else {
+          const result = await account.resetPassword(email);
+          navigateToConfirmPwReset({
+            passwordForgotToken: result.passwordForgotToken,
+            email,
+          });
+        }
       } catch (err) {
         let localizedError;
         if (err.errno && AuthUiErrorNos[err.errno]) {
@@ -136,7 +167,7 @@ const ResetPassword = ({
         setErrorMessage(localizedError);
       }
     },
-    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, serviceName]
+    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, relier]
   );
 
   const onSubmit = useCallback(async () => {

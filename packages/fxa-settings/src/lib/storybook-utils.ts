@@ -14,7 +14,7 @@ import { Account } from '../models';
 export function renderStoryWithHistory(
   component: ReactElement,
   route: string,
-  account = MOCK_ACCOUNT as unknown as Account,
+  account: Account | undefined = MOCK_ACCOUNT as unknown as Account,
   queryParams?: string
 ) {
   const history = createHistoryWithQuery(route, queryParams);

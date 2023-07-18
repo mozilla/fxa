@@ -7,11 +7,18 @@ import { PairingSupplicantRelier } from './pairing-supplicant-relier';
 
 describe('models/reliers/pairing-supplicant-relier', function () {
   let data: ModelDataStore;
+  let storageData: ModelDataStore;
   let model: PairingSupplicantRelier;
 
   beforeEach(function () {
     data = new GenericData({});
-    model = new PairingSupplicantRelier(data);
+    storageData = new GenericData({});
+    model = new PairingSupplicantRelier(data, storageData, {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    });
   });
 
   it('exists', () => {

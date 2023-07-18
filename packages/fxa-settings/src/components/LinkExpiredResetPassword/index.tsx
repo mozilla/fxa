@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { CreateRelier, useAccount } from '../../models';
+import { useAccount, useRelier } from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { logViewEvent } from 'fxa-settings/src/lib/metrics';
 import { REACT_ENTRYPOINT } from 'fxa-settings/src/constants';
@@ -20,8 +20,7 @@ export const LinkExpiredResetPassword = ({
 }: LinkExpiredResetPasswordProps) => {
   // TODO in FXA-7630 add metrics event and associated tests for users hitting the LinkExpired page
   const account = useAccount();
-  const relier = CreateRelier();
-  const serviceName = relier.getServiceName();
+  const relier = useRelier();
 
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
@@ -29,7 +28,15 @@ export const LinkExpiredResetPassword = ({
 
   const resendResetPasswordLink = async () => {
     try {
-      await account.resetPassword(email, serviceName);
+      if (relier.isOAuth()) {
+        await account.resetPassword(
+          email,
+          relier.getService(),
+          relier.getRedirectUri()
+        );
+      } else {
+        await account.resetPassword(email);
+      }
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
       setResendStatus(ResendStatus['sent']);
     } catch (e) {

@@ -40,6 +40,7 @@ export function CreateRelierFactory() {
     windowWrapper: window,
     urlQueryData,
     urlHashData,
+    storageData,
   } = useContext(AppContext);
 
   if (!window || !urlHashData || !urlQueryData) {
@@ -48,16 +49,13 @@ export function CreateRelierFactory() {
 
   const delegates = CreateRelierDelegates();
   const flags = CreateRelierFlags();
-  const relierFactory = new RelierFactory({
+
+  return new RelierFactory({
     window,
     delegates,
     data: urlQueryData,
     channelData: urlHashData,
+    storageData,
     flags,
   });
-  return relierFactory;
-}
-
-export function CreateRelier() {
-  return CreateRelierFactory().getRelier();
 }

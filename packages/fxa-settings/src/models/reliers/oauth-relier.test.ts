@@ -7,11 +7,18 @@ import { OAuthRelier } from './oauth-relier';
 
 describe('models/reliers/oauth-relier', function () {
   let data: ModelDataStore;
+  let oauthData: ModelDataStore;
   let model: OAuthRelier;
 
   beforeEach(function () {
     data = new GenericData({});
-    model = new OAuthRelier(data);
+    oauthData = new GenericData({});
+    model = new OAuthRelier(data, oauthData, {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    });
   });
 
   it('exists', () => {

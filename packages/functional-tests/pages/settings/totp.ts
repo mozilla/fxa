@@ -67,7 +67,7 @@ export class TotpPage extends SettingsLayout {
     await this.submit();
     await this.setRecoveryCode(recoveryCodes[0]);
     await this.submit();
-    credentials.secret = secret;
+    credentials.secret = secret === null ? undefined : secret;
     return {
       secret,
       recoveryCodes,

@@ -27,22 +27,43 @@ export const MOCK_ACCOUNT: AccountData =
 
 export function createHistoryWithQuery(path: string, queryParams?: string) {
   const history = createHistory(createMemorySource(path));
-  if (queryParams) {
+  if (queryParams != null) {
     history.location.search = queryParams;
   }
   return history;
 }
 
 export function createAppContext(history: History) {
+  const mockStorage: Record<string, unknown> = {};
   const windowWrapper = new ReachRouterWindow(history);
   const appCtx = {
     windowWrapper,
     urlQueryData: new UrlQueryData(windowWrapper),
     urlHashData: new UrlHashData(windowWrapper),
-    oauthClient: {},
+    oauthClient: {
+      async getClientInfo(_id) {
+        return {
+          name: 'test',
+        };
+      },
+      async destroyToken(_token) {},
+    },
     authClient: {},
-    storageData: {},
+    storageData: {
+      load() {},
+      requiresSync() {
+        return true;
+      },
+      set(key: string, value: unknown) {
+        mockStorage[key] = value;
+      },
+      get(key: string) {
+        return mockStorage[key];
+      },
+      persist() {},
+    },
   } as AppContextValue;
+
   return appCtx;
 }
 
@@ -51,6 +72,9 @@ export function produceComponent(
   { route = '/', history = createHistory(createMemorySource(route)) } = {},
   appCtx?: AppContextValue
 ) {
+  // Note that reliers and integrations are application instances. Reset them
+  // to ensure a clean slate between storybook renders.
+
   if (appCtx) {
     return withLocalizationProvider(
       <AppContext.Provider value={appCtx}>
@@ -58,9 +82,8 @@ export function produceComponent(
       </AppContext.Provider>
     );
   }
-  return withLocalizationProvider(
-    <LocationProvider {...{ history }}>{ui}</LocationProvider>
-  );
+
+  return <LocationProvider {...{ history }}>{ui}</LocationProvider>;
 }
 
 export function renderWithRouter(

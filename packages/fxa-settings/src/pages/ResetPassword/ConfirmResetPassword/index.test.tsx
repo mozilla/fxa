@@ -18,7 +18,6 @@ import {
   createHistoryWithQuery,
 } from '../../../models/mocks';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
-import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -57,6 +56,30 @@ jest.mock('@reach/router', () => ({
   },
 }));
 
+let mockIsSync = false;
+let mockService = '123 Done';
+let redirectUri = 'http://localhost:8080/123Done';
+jest.mock('../../../models/hooks', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('../../../models/hooks'),
+    useRelier: () => ({
+      isOAuth() {
+        return true;
+      },
+      isSync() {
+        return mockIsSync;
+      },
+      getService() {
+        return mockService;
+      },
+      getRedirectUri() {
+        return redirectUri;
+      },
+    }),
+  };
+});
+
 describe('ConfirmResetPassword page', () => {
   // TODO enable l10n testing
   // let bundle: FluentBundle;
@@ -84,20 +107,27 @@ describe('ConfirmResetPassword page', () => {
   });
 
   it('sends a new email when clicking on resend button', async () => {
-    renderWithHistory(<ConfirmResetPassword />, '', account);
-    account.resetPassword = jest.fn().mockResolvedValue('');
+    account.resetPassword = jest.fn().mockImplementation(() => {
+      return {
+        passwordForgotToken: '123',
+      };
+    });
 
-    const resendEmailButton = screen.getByRole('button', {
+    renderWithHistory(<ConfirmResetPassword />, '', account);
+
+    const resendEmailButton = await screen.findByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
 
+    expect(resendEmailButton).toBeInTheDocument();
     fireEvent.click(resendEmailButton);
 
-    await waitFor(() =>
-      expect(account.resetPassword).toHaveBeenCalledWith(
-        MOCK_EMAIL,
-        MozServices.Default
-      )
+    await waitFor(() => new Promise((r) => setTimeout(r, 100)));
+
+    expect(account.resetPassword).toHaveBeenCalledWith(
+      MOCK_EMAIL,
+      mockService,
+      redirectUri
     );
     expect(logViewEvent).toHaveBeenCalledWith(
       'confirm-reset-password',

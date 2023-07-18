@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { BaseLayout } from './layout';
 
 export class RelierPage extends BaseLayout {
@@ -42,6 +46,12 @@ export class RelierPage extends BaseLayout {
   async clickSignIn() {
     const waitForNavigation = this.page.waitForNavigation();
     await this.page.locator('button.sign-in-button.signin').click();
+    return waitForNavigation;
+  }
+
+  async clickSignInScopedKeys() {
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
+    await this.page.locator('button.scope-keys').click();
     return waitForNavigation;
   }
 

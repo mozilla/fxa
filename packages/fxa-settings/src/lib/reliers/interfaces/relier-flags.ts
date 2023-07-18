@@ -18,5 +18,4 @@ export interface RelierFlags extends IntegrationFlags {
   isV3DesktopContext(): boolean;
   isOAuthSuccessFlow(): { status: boolean; clientId: string };
   isOAuthVerificationFlow(): boolean;
-  getOAuthResumeObj(): Record<string, unknown>;
 }

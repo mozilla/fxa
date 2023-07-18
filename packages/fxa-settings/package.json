@@ -82,6 +82,7 @@
     "classnames": "^2.3.1",
     "fxa-auth-client": "workspace:*",
     "fxa-common-password-list": "^0.0.4",
+    "fxa-crypto-relier": "^2.7.0",
     "fxa-react": "workspace:*",
     "get-orientation": "^1.1.2",
     "graphql": "^15.6.1",

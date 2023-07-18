@@ -6,8 +6,9 @@ import { useContext } from 'react';
 import { AppContext } from '../AppContext';
 import { IntegrationFactory } from '../../lib/integrations/integration-factory';
 import { DefaultIntegrationFlags } from '../../lib/integrations/integration-factory-flags';
+import { useAuthClient, useRelier } from '../hooks';
 
-function CreateIntegrationFlags() {
+function useIntegrationFlags() {
   const { urlQueryData, storageData } = useContext(AppContext);
 
   if (!urlQueryData || !storageData) {
@@ -17,22 +18,21 @@ function CreateIntegrationFlags() {
   return new DefaultIntegrationFlags(urlQueryData, storageData);
 }
 
-function CreateIntegrationFactory() {
+export function CreateIntegrationFactory() {
   const { windowWrapper: window, urlQueryData } = useContext(AppContext);
 
   if (!window || !urlQueryData) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
 
-  const flags = CreateIntegrationFlags();
-  const integrationFactory = new IntegrationFactory({
-    window,
-    data: urlQueryData,
+  const relier = useRelier();
+  const flags = useIntegrationFlags();
+  const authClient = useAuthClient();
+  return new IntegrationFactory(
     flags,
-  });
-  return integrationFactory;
-}
-
-export function CreateIntegration() {
-  return CreateIntegrationFactory().getIntegration();
+    relier,
+    authClient,
+    window,
+    urlQueryData
+  );
 }

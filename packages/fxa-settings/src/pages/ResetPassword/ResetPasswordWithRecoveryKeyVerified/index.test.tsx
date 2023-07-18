@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
@@ -19,6 +19,24 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
+
+let mockIsSync = false;
+let mockServiceName = 'account settings';
+jest.mock('../../../models/hooks.ts', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('../../../models/hooks.ts'),
+    useRelier: () => ({
+      isSync: () => mockIsSync,
+      getServiceName: () => mockServiceName,
+    }),
+  };
+});
+
+beforeEach(() => {
+  mockIsSync = false;
+  mockServiceName = 'account settings';
+});
 
 afterEach(() => {
   jest.clearAllMocks();
@@ -43,7 +61,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   const render = (ui: any, queryParams = '') => {
     const history = createHistoryWithQuery(route, queryParams);
     const appCtx = createAppContext(history);
-    return renderWithRouter(
+    const result = renderWithRouter(
       ui,
       {
         route,
@@ -51,6 +69,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
       },
       appCtx
     );
+    return result;
   };
 
   it('renders default content', async () => {
@@ -69,11 +88,11 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('renders default content for sync service', async () => {
+    mockIsSync = true;
     render(
       <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />,
       'service=sync'
     );
-
     await screen.findByText(syncText);
     screen.getByText(startBrowsingText);
     screen.getByText(createRecoveryKeyText);
@@ -82,7 +101,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
 
   it('emits the expected metrics when a user generates new recovery keys', async () => {
     render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
-    const newAccountRecoveryKeyButton = screen.getByText(createRecoveryKeyText);
+    const newAccountRecoveryKeyButton = await screen.findByText(
+      createRecoveryKeyText
+    );
     fireEvent.click(newAccountRecoveryKeyButton);
     expect(logViewEvent).toHaveBeenCalledWith(
       `flow.${viewName}`,

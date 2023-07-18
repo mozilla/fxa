@@ -79,6 +79,9 @@ class StorageDataMock extends StorageData {
   public override load(): void {
     // no op
   }
+  public override set(): void {
+    // no op
+  }
 }
 
 const route = '/complete_reset_password';

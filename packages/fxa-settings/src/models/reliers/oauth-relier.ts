@@ -10,7 +10,13 @@ import {
   ModelValidation as V,
 } from '../../lib/model-data';
 import { OAuthError } from '../../lib/oauth';
-import { BaseRelier, RelierAccount, RelierData } from './base-relier';
+import {
+  BaseRelier,
+  Relier,
+  RelierAccount,
+  RelierClientInfo,
+  RelierData,
+} from './base-relier';
 
 export enum OAuthPrompt {
   CONSENT = 'consent',
@@ -84,10 +90,32 @@ export interface OAuthRelierData
     OAuthClientInfoData,
     RelierData {}
 
+export type OAuthRelierOptions = {
+  scopedKeysEnabled: boolean;
+  scopedKeysValidation: Record<string, any>;
+  isPromptNoneEnabled: boolean;
+  isPromptNoneEnabledClientIds: Array<string>;
+};
+
+/**
+ * State held in local/session storage between requests
+ */
+export type OAuthState = {
+  clientId: string;
+  scope: string;
+  state: string;
+};
+
+export function isOAuthRelier(
+  relier: Relier | OAuthRelier
+): relier is OAuthRelier {
+  return (relier as OAuthRelier).restoreOAuthState !== undefined;
+}
+
 /**
  * Default implementation of the OAuth Relier
  */
-export class OAuthRelier extends BaseRelier implements OAuthRelierData {
+export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
   get name() {
     return 'oauth';
   }
@@ -131,7 +159,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
   @bind([V.isString])
   prompt: string | undefined;
 
-  @bind([V.isUrl], T.snakeCase)
+  @bind([V.isUrl])
   redirectTo: string | undefined;
 
   @bind([V.isUrl], T.snakeCase)
@@ -154,19 +182,66 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
 
   constructor(
     protected readonly modelData: ModelDataStore,
-    public readonly opts = {
-      config: {
-        scopedKeysEnabled: false,
-        scopedKeysValidation: {} as Record<string, any>,
-        isPromptNoneEnabled: true,
-        isPromptNoneEnabledForClient: true,
-      },
-    }
+    protected readonly storageData: ModelDataStore,
+    public readonly opts: OAuthRelierOptions
   ) {
     super(modelData);
   }
 
-  isOAuth(): boolean {
+  getRedirectUri() {
+    return this.redirectUri;
+  }
+
+  getService() {
+    return this.service || this.clientId;
+  }
+
+  restoreOAuthState() {
+    const oauth = this.storageData.get('oauth') as any;
+
+    if (typeof oauth === 'object') {
+      if (typeof oauth.client_id === 'string') {
+        this.clientId = oauth.client_id;
+      }
+      if (typeof oauth.scope === 'string') {
+        this.scope = oauth.scope;
+      }
+      if (typeof oauth.state === 'string') {
+        this.state = oauth.state;
+      }
+    }
+  }
+
+  saveOAuthState() {
+    this.storageData.set('oauth', {
+      client_id: this.clientId,
+      scope: this.scope,
+      state: this.state,
+    });
+    this.storageData.persist();
+  }
+
+  async getServiceName() {
+    // If the clientId and the service are the same, prefer the clientInfo
+    if (this.service && this.clientId === this.service) {
+      const clientInfo = await this.clientInfo;
+      if (clientInfo?.serviceName) {
+        return clientInfo.serviceName;
+      }
+    }
+
+    return super.getServiceName();
+  }
+
+  async getClientInfo(): Promise<RelierClientInfo | undefined> {
+    if (this.clientInfo) {
+      const info = await this.clientInfo;
+      return info;
+    }
+    return undefined;
+  }
+
+  isOAuth() {
     return true;
   }
 
@@ -201,7 +276,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
   }
 
   wantsKeys(): boolean {
-    if (!this.opts.config.scopedKeysEnabled) {
+    if (!this.opts.scopedKeysEnabled) {
       return false;
     }
     if (this.keysJwk == null) {
@@ -211,7 +286,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
       return false;
     }
 
-    const validation = this.opts.config.scopedKeysValidation;
+    const validation = this.opts.scopedKeysValidation;
     const individualScopes = scopeStrToArray(this.scope || '');
 
     let wantsScopeThatHasKeys = false;
@@ -230,18 +305,24 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData {
     return wantsScopeThatHasKeys;
   }
 
+  protected isPromptNoneEnabledForClient() {
+    return (
+      this.clientId != null &&
+      this.opts.isPromptNoneEnabledClientIds.includes(this.clientId)
+    );
+  }
+
   async validatePromptNoneRequest(account: RelierAccount): Promise<void> {
     const requestedEmail = this.email;
-    const config = this.opts.config;
 
-    if (!config.isPromptNoneEnabled) {
+    if (!this.opts.isPromptNoneEnabled) {
       throw new OAuthError('PROMPT_NONE_NOT_ENABLED');
     }
 
     // If the RP uses email, check they are allowed to use prompt=none.
     // This check is not necessary if the RP uses id_token_hint.
     // See the discussion issue: https://github.com/mozilla/fxa/issues/4963
-    if (requestedEmail && !config.isPromptNoneEnabledForClient) {
+    if (requestedEmail && !this.isPromptNoneEnabledForClient()) {
       throw new OAuthError('PROMPT_NONE_NOT_ENABLED_FOR_CLIENT');
     }
 
