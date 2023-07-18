@@ -211,8 +211,18 @@ Router = Router.extend({
         contentRedirect: true,
       });
     },
+    ':lang/legal/privacy(/)': function () {
+      this.createReactOrBackboneViewHandler(`legal/terms`, 'pp', {
+        contentRedirect: true,
+      });
+    },
     'legal/terms(/)': function () {
       this.createReactOrBackboneViewHandler('legal/terms', 'tos', {
+        contentRedirect: true,
+      });
+    },
+    ':lang/legal/terms(/)': function () {
+      this.createReactOrBackboneViewHandler(`legal/terms`, 'tos', {
         contentRedirect: true,
       });
     },
