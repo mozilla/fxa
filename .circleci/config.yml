@@ -238,10 +238,13 @@ commands:
             ./.circleci/base-install.sh
             ./.circleci/create-lists.sh
             ./_scripts/create-version-json.sh
+            yarn gql:allowlist
       - store_artifacts:
           path: ./packages/version.json
       - store_artifacts:
           path: ./.lists
+      - store_artifacts:
+          path: ./configs/gql
 
   cache-save-yarn:
     steps:
@@ -392,6 +395,7 @@ commands:
           paths:
             - .lists
             - external
+            - configs/gql/allowlist
             - node_modules
             - packages
 

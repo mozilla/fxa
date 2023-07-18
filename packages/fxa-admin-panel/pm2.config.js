@@ -71,5 +71,13 @@ module.exports = {
       ignore_watch: ['src/styles/tailwind.out.css'],
       time: true,
     },
+    {
+      name: 'admin-gql-allowlist',
+      autorestart: false,
+      script: 'yarn gql:allowlist',
+      watch: ['src/**/*.ts'],
+      cwd: __dirname,
+      filter_env: ['npm_'],
+    },
   ],
 };

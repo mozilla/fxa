@@ -7,6 +7,9 @@ cd "$DIR/../.."
 # communicate with one another if needed
 _dev/pm2/create-docker-net.sh fxa
 
+# Searches for and extracts gql queries from code
+yarn gql:allowlist
+
 pm2 start _dev/pm2/infrastructure.config.js
 
 echo "waiting for containers to start"

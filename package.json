@@ -23,7 +23,8 @@
     "l10n:clone": "_scripts/l10n/clone.sh",
     "l10n:prime": "_scripts/l10n/prime.sh",
     "l10n:bundle": "_scripts/l10n/bundle.sh",
-    "legal:clone": "_scripts/clone-legal-docs.sh"
+    "legal:clone": "_scripts/clone-legal-docs.sh",
+    "gql:allowlist": "nx run-many -t extract-gql && nx run-many -t copy-gql"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {
@@ -108,6 +109,7 @@
     "mocha-multi": "^1.1.7",
     "nx": "16.3.1",
     "nx-cloud": "latest",
+    "persistgraphql": "^0.3.11",
     "postcss": "^8.4.14",
     "stylelint": "^15.10.1",
     "stylelint-config-prettier": "^9.0.3",

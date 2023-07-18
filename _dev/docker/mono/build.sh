@@ -31,6 +31,7 @@ done
 
 # `npx yarn` because `npm i -g yarn` needs sudo
 npx yarn install
+npx yarn gql:allowlist
 SKIP_PREFLIGHT_CHECK=true npx yarn workspaces foreach --topological-dev --verbose run build
 
 # This will reduce packages to only production dependencies

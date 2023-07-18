@@ -4,7 +4,7 @@
 
 import { MockedResponse } from '@apollo/client/testing';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
-import { GET_RELYING_PARTIES, UPDATE_NOTE } from '.';
+import { GET_RELYING_PARTIES, UPDATE_NOTE } from './index.gql';
 
 // Response mocks
 export const MOCK_RP_ALL_FIELDS = {

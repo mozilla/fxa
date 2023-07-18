@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MockedResponse } from '@apollo/client/testing';
-import { UNSUBSCRIBE_FROM_MAILING_LISTS } from '../DangerZone';
+import { UNSUBSCRIBE_FROM_MAILING_LISTS } from '../DangerZone/index.gql';
 
 export const mockUnsubscribe = (success: boolean): MockedResponse => {
   const request = {

@@ -4,8 +4,8 @@
 
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
-import { gql, useMutation } from '@apollo/client';
-import { RECORD_ADMIN_SECURITY_EVENT } from '../Account';
+import { useMutation } from '@apollo/client';
+import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
 import {
   EmailBounce as EmailBounceType,
   Email as EmailType,
@@ -14,12 +14,7 @@ import { TableRowYHeader, TableYHeaders } from '../../TableYHeaders';
 import getEmailBounceDescription from './getBounceDescription';
 import { getFormattedDate } from '../../../lib/utils';
 import { HIDE_ROW } from '../../../../constants';
-
-export const CLEAR_BOUNCES_BY_EMAIL = gql`
-  mutation clearBouncesByEmail($email: String!) {
-    clearEmailBounce(email: $email)
-  }
-`;
+import { CLEAR_BOUNCES_BY_EMAIL } from './index.gql';
 
 const ClearButton = ({
   emails,
