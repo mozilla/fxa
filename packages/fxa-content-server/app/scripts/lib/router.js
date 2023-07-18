@@ -493,16 +493,6 @@ Router = Router.extend({
           (route) => routeName === route
         )
       ) {
-        // Relier OAuth check is temporary until we work on OAuth flows; at the time of writing
-        // we don't want to show the React version of reset password for example if users are
-        // trying to reset through a relying party, e.g. going to Firefox Monitor > sign in >
-        // reset PW, since there is a lot of logic we must port over for that to function
-        // correctly. However, the relier for simple routes doesn't matter since the simple
-        // routes don't contain any oauth logic.
-        if (routeGroup !== 'simpleRoutes' && this.relier.isOAuth()) {
-          return false;
-        }
-
         return (
           this.reactRouteGroups[routeGroup].featureFlagOn &&
           (this.isInReactExperiment() ||

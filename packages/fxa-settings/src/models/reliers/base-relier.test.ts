@@ -31,12 +31,6 @@ describe('BaseRelier Model', function () {
     });
   });
 
-  describe('pickResumeTokenInfo', function () {
-    it('returns an empty object by default', function () {
-      expect(model.pickResumeTokenInfo()).toEqual({});
-    });
-  });
-
   describe('isTrusted', function () {
     it('returns `true`', function () {
       expect(model.isTrusted()).toBeTruthy();

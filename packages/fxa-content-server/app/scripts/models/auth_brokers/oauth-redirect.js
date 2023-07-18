@@ -196,6 +196,7 @@ export default BaseAuthenticationBroker.extend({
           oauthParams.access_type = Constants.ACCESS_TYPE_OFFLINE; //eslint-disable-line camelcase
         }
 
+        // NOTE: This appears to be wrong... the max_age option supported isn't supported by fxa-client
         if (relier.get('maxAge') >= 0) {
           oauthParams.max_age = relier.get('maxAge'); //eslint-disable-line camelcase
         }

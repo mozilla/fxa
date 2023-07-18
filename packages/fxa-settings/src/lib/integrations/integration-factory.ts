@@ -2,37 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import AuthClient from 'fxa-auth-client/lib/client';
 import {
   OAuthIntegration,
+  OAuthRelier,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
+  Relier,
   SyncBasicIntegration,
   SyncDesktopIntegration,
   WebIntegration,
+  isOAuthRelier,
 } from '../../models';
 import { Constants } from '../constants';
-import { ModelDataStore, StorageData, UrlQueryData } from '../model-data';
-import { DefaultRelierFlags, RelierFlags } from '../reliers';
+import { ModelDataStore, StorageData } from '../model-data';
+import { RelierFlags } from '../reliers';
 import { ReachRouterWindow } from '../window';
 
 export class IntegrationFactory {
-  protected readonly data: ModelDataStore;
-  // TODO: Using Relier flags is temporary, we will combine them in FXA-7308
-  public readonly flags: RelierFlags;
   public readonly storageData: StorageData;
 
-  constructor(opts: {
-    data?: ModelDataStore;
-    flags?: RelierFlags;
-    window: ReachRouterWindow;
-  }) {
-    const { window } = opts;
-    this.storageData = new StorageData(window);
-    this.data = opts.data || new UrlQueryData(window);
+  constructor(
     // TODO: Using Relier flags is temporary, we will combine them in FXA-7308
-    this.flags =
-      opts.flags ||
-      new DefaultRelierFlags(new UrlQueryData(window), this.storageData);
+    protected readonly flags: RelierFlags,
+    protected readonly relier: Relier | OAuthRelier,
+    protected readonly authClient: AuthClient,
+    protected readonly window: ReachRouterWindow,
+    protected readonly data: ModelDataStore
+  ) {
+    this.storageData = new StorageData(window);
   }
 
   /**
@@ -41,15 +39,16 @@ export class IntegrationFactory {
    */
   getIntegration() {
     const flags = this.flags;
+    const relier = this.relier;
 
-    if (flags.isOAuth()) {
+    if (flags.isOAuth() && isOAuthRelier(relier)) {
       if (flags.isDevicePairingAsAuthority()) {
         return new PairingAuthorityIntegration();
       }
       if (flags.isDevicePairingAsSupplicant()) {
-        return new PairingSupplicantIntegration(this.flags.searchParam);
+        return new PairingSupplicantIntegration(relier);
       }
-      return this.createOAuthIntegration();
+      return this.createOAuthIntegration(relier);
     } else if (flags.isVerification()) {
       return this.getVerificationIntegration();
     } else if (
@@ -84,9 +83,9 @@ export class IntegrationFactory {
     } else if (this.flags.isServiceSync()) {
       // user is verifying in a different browser.
       return new SyncBasicIntegration();
-    } else if (this.flags.isServiceOAuth()) {
+    } else if (this.flags.isServiceOAuth() && isOAuthRelier(this.relier)) {
       // oauth, user is verifying in a different browser.
-      return new OAuthIntegration(this.flags.searchParam);
+      return new OAuthIntegration(this.relier);
     }
 
     // TEMPORARY for tests until `sameBrowserVerificationContext` is accounted for.
@@ -114,16 +113,17 @@ export class IntegrationFactory {
   //   return verificationInfo;
   // }
 
-  private createOAuthIntegration() {
+  private createOAuthIntegration(relier: OAuthRelier) {
     const flags = this.flags;
 
     if (flags.isDevicePairingAsAuthority()) {
       return new PairingAuthorityIntegration();
     }
+
     if (flags.isDevicePairingAsSupplicant()) {
-      return new PairingSupplicantIntegration(this.flags.searchParam);
+      return new PairingSupplicantIntegration(relier);
     }
 
-    return new OAuthIntegration(this.flags.searchParam);
+    return new OAuthIntegration(relier);
   }
 }

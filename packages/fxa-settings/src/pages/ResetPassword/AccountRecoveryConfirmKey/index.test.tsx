@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
@@ -123,6 +123,21 @@ describe('PageAccountRecoveryConfirmKey', () => {
   });
 
   describe('renders the component as expected when provided with a damaged link', () => {
+    let mockConsoleWarn: jest.SpyInstance;
+
+    beforeEach(() => {
+      // We expect that model bindings will warn us about missing / incorrect values.
+      // We don't want these warnings to effect test output since they are expected, so we
+      // will mock the function, and make sure it's called.
+      mockConsoleWarn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      mockConsoleWarn.mockRestore();
+    });
+
     it('with missing token', async () => {
       renderSubject({ params: paramsWithMissingToken });
 
@@ -132,6 +147,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       screen.getByText(
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing code', async () => {
       renderSubject({ params: paramsWithMissingCode });
@@ -139,6 +155,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing email', async () => {
       renderSubject({ params: paramsWithMissingEmail });
@@ -146,6 +163,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
   });
 

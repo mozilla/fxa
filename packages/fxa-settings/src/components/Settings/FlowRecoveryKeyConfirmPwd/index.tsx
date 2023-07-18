@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -50,6 +50,13 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const [bannerText, setBannerText] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
+  const mounted = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mounted.current = false;
+    };
+  });
 
   useEffect(() => {
     if (account.recoveryKey === true) {
@@ -109,7 +116,9 @@ export const FlowRecoveryKeyConfirmPwd = ({
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
     } finally {
-      setIsLoading(false);
+      if (mounted.current) {
+        setIsLoading(false);
+      }
     }
   }, [
     account,
@@ -119,6 +128,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
     navigateForward,
     setBannerText,
     setErrorText,
+    setIsLoading,
     setFormattedRecoveryKey,
     viewName,
   ]);

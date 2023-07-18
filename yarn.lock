@@ -29307,7 +29307,7 @@ fsevents@~2.1.1:
   languageName: unknown
   linkType: soft
 
-"fxa-crypto-relier@npm:2.7.0":
+"fxa-crypto-relier@npm:2.7.0, fxa-crypto-relier@npm:^2.7.0":
   version: 2.7.0
   resolution: "fxa-crypto-relier@npm:2.7.0"
   dependencies:
@@ -29884,6 +29884,7 @@ fsevents@~2.1.1:
     eslint-plugin-react: ^7.32.2
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: ^0.0.4
+    fxa-crypto-relier: ^2.7.0
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2

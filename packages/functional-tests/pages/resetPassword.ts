@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { BaseLayout } from './layout';
 
 export const selectors = {
@@ -17,6 +21,7 @@ export const selectors = {
 };
 
 export class ResetPasswordPage extends BaseLayout {
+  public react = false;
   readonly path = '';
 
   getEmailValue() {
@@ -24,8 +29,17 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async resetPasswordHeader() {
-    const header = this.page.locator(selectors.RESET_PASSWORD_HEADER);
-    await header.waitFor();
+    if (this.react) {
+      const resetPass = await this.page.waitForSelector('#root .card-header');
+      return (
+        (await resetPass.textContent())?.startsWith('Reset password') &&
+        (await resetPass.isVisible())
+      );
+    }
+
+    const resetPass = this.page.locator(selectors.RESET_PASSWORD_HEADER);
+    await resetPass.waitFor();
+    return resetPass.isVisible();
   }
 
   async confirmResetPasswordHeader() {
@@ -47,6 +61,13 @@ export class ResetPasswordPage extends BaseLayout {
     password: string,
     page: BaseLayout['page'] = this.page
   ) {
+    if (this.react) {
+      await page.getByTitle('New password').fill(password);
+      await page.getByTitle('Re-enter password').fill(password);
+      await page.locator(selectors.SUBMIT).click();
+      return;
+    }
+
     await page.locator(selectors.PASSWORD).fill(password);
     await page.locator(selectors.VPASSWORD).fill(password);
     await page.locator(selectors.SUBMIT).click();

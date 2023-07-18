@@ -15,9 +15,11 @@ export const typeByTestIdFn = (testId: string) => async (x: string) => {
 };
 
 export const typeByLabelText = (labelText: string) => async (x: string) => {
-  const input = screen.getByLabelText(labelText, { exact: false });
-  input.focus();
-  fireEvent.input(input, {
-    target: { value: x },
+  const input = await screen.findByLabelText(labelText, { exact: false });
+  await act(async () => {
+    input.focus();
+    fireEvent.input(input, {
+      target: { value: x },
+    });
   });
 };

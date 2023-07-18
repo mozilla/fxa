@@ -7,13 +7,14 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
-import { CreateRelier, useAccount, useInterval } from '../../../models';
+import { useAccount, useInterval, useRelier } from '../../../models';
 import AppLayout from '../../../components/AppLayout';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { setOriginalTabMarker } from '../../../lib/storage-utils';
 
 export const viewName = 'confirm-reset-password';
 
@@ -24,8 +25,7 @@ export type ConfirmResetPasswordLocationState = {
 
 const ConfirmResetPassword = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const relier = CreateRelier();
-  const serviceName = relier.getServiceName();
+  const relier = useRelier();
 
   const navigate = useNavigate();
   let { state } = useLocation();
@@ -64,6 +64,9 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
       );
       if (!isValid) {
         hardNavigateToContentServer('/signin');
+      } else {
+        // TODO: Not sure about this. It works with the flow... but.
+        setOriginalTabMarker();
       }
     } catch (err) {
       setIsPolling(null);
@@ -72,10 +75,20 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
 
   const resendEmailHandler = async () => {
     try {
-      const result = await account.resetPassword(email, serviceName);
-      logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
-      setCurrentPasswordForgotToken(result.passwordForgotToken);
+      if (relier.isOAuth()) {
+        const result = await account.resetPassword(
+          email,
+          relier.getService(),
+          relier.getRedirectUri()
+        );
+        setCurrentPasswordForgotToken(result.passwordForgotToken);
+      } else {
+        const result = await account.resetPassword(email);
+        setCurrentPasswordForgotToken(result.passwordForgotToken);
+      }
+
       setResendStatus(ResendStatus['sent']);
+      logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
     } catch (e) {
       setResendStatus(ResendStatus['error']);
     }

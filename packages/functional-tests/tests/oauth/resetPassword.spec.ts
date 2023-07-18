@@ -6,8 +6,12 @@ import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('oauth reset password', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
+
+    const config = await login.getConfig();
+    test.skip(config.showReactApp.resetPasswordRoutes === true);
+    test.skip(config.showReactApp.oauthRoutes === true);
   });
 
   test('reset password happy path', async ({

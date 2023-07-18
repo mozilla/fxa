@@ -2,17 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
-import { MozServices } from '../../../lib/types';
 import AppLayout from '../../../components/AppLayout';
+import { useRelier } from '../../../models';
 
-type ResetPasswordConfirmedProps = {
+export type ResetPasswordConfirmedProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
-  isSync: boolean;
-  serviceName?: MozServices;
 };
 
 export const viewName = 'reset-password-confirmed';
@@ -20,14 +18,26 @@ export const viewName = 'reset-password-confirmed';
 const ResetPasswordConfirmed = ({
   continueHandler,
   isSignedIn,
-  isSync,
-  serviceName,
-}: ResetPasswordConfirmedProps & RouteComponentProps) => (
-  <AppLayout>
-    <Ready
-      {...{ continueHandler, isSignedIn, isSync, viewName, serviceName }}
-    />
-  </AppLayout>
-);
+}: ResetPasswordConfirmedProps & RouteComponentProps) => {
+  const relier = useRelier();
+
+  const [serviceName, setServiceName] = useState<string>();
+  const [isSync, setIsSync] = useState<boolean>();
+
+  useEffect(() => {
+    (async () => {
+      setServiceName(await relier.getServiceName());
+      setIsSync(await relier.isSync());
+    })();
+  });
+
+  return (
+    <AppLayout>
+      <Ready
+        {...{ continueHandler, isSignedIn, isSync, viewName, serviceName }}
+      />
+    </AppLayout>
+  );
+};
 
 export default ResetPasswordConfirmed;

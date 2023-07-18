@@ -20,6 +20,13 @@ export function hardNavigateToContentServer(href: string) {
   window.location.href = href;
 }
 
+// There maybe situations where we are navigating away from the react app. For example when
+// directing back to an RP. Let's use this function to make it clear this behavior is
+// intentional.
+export function hardNavigate(href: string) {
+  window.location.href = href;
+}
+
 export enum LocalizedDateOptions {
   NumericDate,
   NumericDateAndTime,

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useContext, useRef, useEffect } from 'react';
+import { useContext, useRef, useEffect, useMemo } from 'react';
 import { AppContext, GET_INITIAL_STATE } from './AppContext';
 import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
@@ -10,6 +10,9 @@ import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
+import { IntegrationFactory } from '../lib/integrations/integration-factory';
+import { DefaultIntegrationFlags } from '../lib/integrations/integration-factory-flags';
+import { DefaultRelierFlags, RelierFactory } from '../lib/reliers';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -19,6 +22,119 @@ export function useAccount() {
   return account;
 }
 
+function getMissing(obj: any) {
+  const missingKeys = [];
+  for (const x of Object.keys(obj)) {
+    if (obj[x] == null) {
+      missingKeys.push(x);
+    }
+  }
+
+  return missingKeys.join(',');
+}
+
+export function useAuthClient() {
+  const { authClient } = useContext(AppContext);
+  if (!authClient) {
+    throw new Error(
+      `Are you forgetting an AppContext.Provider? State:${getMissing({
+        authClient,
+      })}`
+    );
+  }
+  return authClient;
+}
+
+export function useRelier() {
+  const {
+    windowWrapper: window,
+    urlQueryData,
+    urlHashData,
+    oauthClient,
+    authClient,
+    storageData,
+  } = useContext(AppContext);
+
+  if (
+    !window ||
+    !urlHashData ||
+    !urlQueryData ||
+    !oauthClient ||
+    !authClient ||
+    !storageData
+  ) {
+    throw new Error(
+      `Are you forgetting an AppContext.Provider or to mock something in app context?\n Context: ${getMissing(
+        {
+          window,
+          urlQueryData,
+          urlHashData,
+          oauthClient,
+          authClient,
+          storageData,
+        }
+      )}`
+    );
+  }
+
+  return useMemo(() => {
+    const delegates = {
+      getClientInfo: (id: string) => oauthClient.getClientInfo(id),
+      getProductInfo: (id: string) => authClient.getProductInfo(id),
+      getProductIdFromRoute: () => {
+        const re = new RegExp('/subscriptions/products/(.*)');
+        return re.exec(window.location.pathname)?.[1] || '';
+      },
+    };
+    const flags = new DefaultRelierFlags(urlQueryData, storageData);
+    const factory = new RelierFactory({
+      window,
+      delegates,
+      data: urlQueryData,
+      channelData: urlHashData,
+      storageData,
+      flags,
+    });
+
+    return factory.getRelier();
+  }, [urlQueryData, storageData, window, urlHashData, oauthClient, authClient]);
+}
+
+export function useIntegration() {
+  const {
+    windowWrapper: window,
+    urlQueryData,
+    storageData,
+  } = useContext(AppContext);
+
+  if (!window || !urlQueryData || !storageData) {
+    throw new Error(
+      `Are you forgetting an AppContext.Provider? Missing: ${getMissing({
+        window,
+        urlQueryData,
+        storageData,
+      })}`
+    );
+  }
+
+  const relier = useRelier();
+  const authClient = useAuthClient();
+
+  return useMemo(() => {
+    const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
+
+    const factory = new IntegrationFactory(
+      flags,
+      relier,
+      authClient,
+      window,
+      urlQueryData
+    );
+
+    return factory.getIntegration();
+  }, [authClient, relier, storageData, urlQueryData, window]);
+}
+
 export function useSession() {
   const ref = useRef({} as unknown as Session);
   const { apolloClient, session } = useContext(AppContext);
@@ -26,7 +142,12 @@ export function useSession() {
     return session;
   }
   if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
+    throw new Error(
+      `Are you forgetting an AppContext.Provider? Missing ${getMissing({
+        apolloClient,
+        session,
+      })}`
+    );
   }
   const data = apolloClient.cache.readQuery<{ session: Session }>({
     query: GET_SESSION_VERIFIED,
