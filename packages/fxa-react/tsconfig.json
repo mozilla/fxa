@@ -2,14 +2,10 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "composite": true,
     "types": ["jest", "@testing-library/jest-dom"]
   },
   "include": [
     "./components",
     "./lib"
-  ],
-  "references": [
-    {"path": "../fxa-shared"}
   ]
 }

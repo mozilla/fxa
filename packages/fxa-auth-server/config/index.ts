@@ -3,10 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
-import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
+import { makeRedisConfig } from 'fxa-shared/db/config';
 import { tracingConfig } from 'fxa-shared/tracing/config';
 import path from 'path';
 import url from 'url';
+
+import { makeConvictMySQLConfig as makeMySQLConfig } from '../../../libs/shared/db/mysql/core/src/lib/config';
 
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 const ONE_DAY = 1000 * 60 * 60 * 24;

@@ -16,10 +16,5 @@
   },
   "include": [
     "src"
-  ],
-  "references": [
-    {
-      "path": "../fxa-react"
-    }
   ]
 }
