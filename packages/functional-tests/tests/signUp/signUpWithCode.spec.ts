@@ -17,7 +17,7 @@ test.describe('Sign up with code ', () => {
   test('bounced email', async ({ target, page, pages: { login } }) => {
     const client = await login.getFxaClient(target);
     await page.goto(target.contentServerUrl, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await login.fillOutFirstSignUp(email, PASSWORD);
 
@@ -28,14 +28,13 @@ test.describe('Sign up with code ', () => {
   test('valid code then click back', async ({
     target,
     page,
-    pages: { login, settings },
+    pages: { login },
   }) => {
     await page.goto(target.contentServerUrl, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
-    await login.fillOutFirstSignUp(email, PASSWORD);
-    await page.waitForNavigation();
-    await page.goBack({ waitUntil: 'networkidle' });
+    await login.fillOutFirstSignUp(email, PASSWORD, {waitForNavOnSubmit: false});
+    await page.goBack({waitUntil: 'load'});
     expect(await login.loginHeader()).toBe(true);
   });
 
@@ -45,7 +44,7 @@ test.describe('Sign up with code ', () => {
     pages: { login, signinTokenCode },
   }) => {
     await page.goto(target.contentServerUrl, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
     await login.setCode('1234');

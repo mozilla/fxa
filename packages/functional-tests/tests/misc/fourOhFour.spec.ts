@@ -5,11 +5,11 @@ test.describe('404', () => {
     page,
     pages: { login, fourOhFour },
   }) => {
-    await fourOhFour.goto('networkidle');
+    await fourOhFour.goto('load');
     expect(await fourOhFour.header.isVisible()).toBeTruthy();
     expect(await fourOhFour.homeLink.isVisible()).toBeTruthy();
     await fourOhFour.homeLink.click();
-    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    await page.waitForLoadState();
     expect(await login.emailHeader.isVisible()).toBeTruthy();
   });
 });

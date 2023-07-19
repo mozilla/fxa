@@ -70,9 +70,7 @@ export class SubscribePage extends BaseLayout {
     const paypalWindow = await paypalWindowPromise;
 
     await paypalWindow.waitForLoadState('load');
-    await paypalWindow.waitForNavigation({
-      url: /checkoutnow/,
-    });
+    await paypalWindow.waitForURL(/checkoutnow/);
     await paypalWindow.fill(
       'input[type=email]',
       'qa-test-no-balance-16@personal.example.com'

@@ -13,7 +13,7 @@ export class SecondaryEmailPage extends SettingsLayout {
   }
 
   async submit() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button[type=submit]').click();
     return waitForNavigation;
   }

@@ -17,9 +17,10 @@ test.describe('cookies disabled', () => {
     pages: { cookiesDisabled },
   }) => {
     //Goto cookies disabled url
-    await page.goto(`${target.contentServerUrl}/?disable_local_storage=1`, {
-      waitUntil: 'networkidle',
-    });
+    await page.goto(`${target.contentServerUrl}?disable_local_storage=1`);
+
+    //Adding the timeout as the page closes before loading
+    await page.waitForTimeout(500);
 
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
@@ -39,7 +40,7 @@ test.describe('cookies disabled', () => {
   }) => {
     //Goto cookies enabled url
     await page.goto(target.contentServerUrl, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
 
     //Verify Email header
@@ -47,8 +48,11 @@ test.describe('cookies disabled', () => {
 
     //Goto cookies disabled url
     await page.goto(`${target.contentServerUrl}/cookies_disabled`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
+
+    //Adding the timeout as the page closes before loading
+    await page.waitForTimeout(500);
 
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
@@ -56,7 +60,7 @@ test.describe('cookies disabled', () => {
 
     //Click retry
     await cookiesDisabled.clickRetry();
-    await page.waitForNavigation();
+    await page.waitForLoadState();
 
     //Verify Email header
     expect(await login.isEmailHeader()).toBe(true);
@@ -71,10 +75,13 @@ test.describe('cookies disabled', () => {
     await page.goto(
       `${target.contentServerUrl}/verify_email?disable_local_storage=1&uid=240103bbecd645848103021e7d245bcb&code=fc46f44802b2a2ce979f39b2187aa1c0`,
       {
-        waitUntil: 'networkidle',
+        waitUntil: 'load',
       }
     );
     await page.waitForURL(/\/cookies_disabled/);
+
+    //Adding the timeout as the page closes before loading
+    await page.waitForTimeout(500);
 
     //Verify the Cookies disabled header
     expect(await cookiesDisabled.isCookiesDisabledHeader()).toBe(true);

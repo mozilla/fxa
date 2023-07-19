@@ -26,7 +26,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     const { page, login } = syncBrowserPages;
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.setEmail(email);
     await login.submit();
@@ -52,7 +52,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     });
     await page.goto(
       `${target.contentServerUrl}/signin?context=fx_desktop_v3&service=sync&action=email`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.setEmail(email);
     await login.submit();
@@ -72,7 +72,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     const { page, login, signinTokenCode } = syncBrowserPages;
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.setEmail('testuser@firefox.com');
     await signinTokenCode.clickSubmitButton();
