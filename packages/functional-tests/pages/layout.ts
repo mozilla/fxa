@@ -14,8 +14,12 @@ export abstract class BaseLayout {
     return `${this.baseUrl}/${this.path}`;
   }
 
-  goto(waitUntil: 'networkidle' | 'domcontentloaded' | 'load' = 'load') {
-    return this.page.goto(this.url, { waitUntil });
+  goto(
+    waitUntil: 'networkidle' | 'domcontentloaded' | 'load' = 'load',
+    query?: string
+  ) {
+    const url = query ? `${this.url}?${query}` : this.url;
+    return this.page.goto(url, { waitUntil });
   }
 
   screenshot() {

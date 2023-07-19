@@ -26,10 +26,10 @@ import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 
-export const Settings = (props: RouteComponentProps) => {
+export const Settings = ({
+  showRecoveryKeyV2,
+}: { showRecoveryKeyV2?: boolean } & RouteComponentProps) => {
   const config = useConfig();
-  // TODO Remove in FXA-7419
-  const { showRecoveryKeyV2 } = config;
   const { metricsEnabled, hasPassword } = useAccount();
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export const Settings = (props: RouteComponentProps) => {
       <Head />
       <Router basepath={HomePath}>
         <ScrollToTop default>
-          <PageSettings path="/" />
+          <PageSettings path="/" {...{ showRecoveryKeyV2 }} />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {hasPassword ? (

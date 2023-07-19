@@ -44,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
     // Create recovery key
     // TODO in FXA-7419 - remove condition and only keep new recovery key flow (remove content of else block)
     if (config.featureFlags.showRecoveryKeyV2 === true) {
-      await settings.goto();
+      await settings.goto('isInRecoveryKeyExperiment=true');
 
       await settings.recoveryKey.clickCreate();
       // View 1/4 info
