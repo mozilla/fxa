@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { HomePath } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../../models';
@@ -23,6 +23,7 @@ export enum RecoveryKeyAction {
 
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   usePageViewEvent(viewName);
+  const location = useLocation();
 
   const { recoveryKey } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -48,7 +49,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
 
   // TODO: Remove feature flag param in FXA-7419
   const navigateBackward = () => {
-    navigate(HomePath);
+    navigate(`${HomePath}${location.search}`);
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
@@ -57,7 +58,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       setCurrentStep(currentStep + 1);
     } else {
       // TODO: Remove feature flag param in FXA-7419
-      navigate(HomePath);
+      navigate(`${HomePath}${location.search}`);
     }
   };
 

@@ -9,8 +9,8 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.locator('[data-testid=drop-down-avatar-menu]');
   }
 
-  goto() {
-    return super.goto('load');
+  goto(query?: string) {
+    return super.goto('load', query);
   }
 
   async alertBarText() {

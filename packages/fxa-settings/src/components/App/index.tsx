@@ -51,7 +51,7 @@ export const App = ({
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const [isSignedIn, setIsSignedIn] = useState<boolean>();
 
-  const { showReactApp } = flowQueryParams;
+  const { showReactApp, isInRecoveryKeyExperiment } = flowQueryParams;
   const { loading, error } = useInitialState();
   const account = useAccount();
   const [email, setEmail] = useState<string>();
@@ -62,6 +62,11 @@ export const App = ({
   const sessionTokenId = sessionToken();
 
   const { metricsEnabled } = account;
+
+  // TODO Remove feature flag and experiment logic in FXA-7419
+  const showRecoveryKeyV2 = !!(
+    config.showRecoveryKeyV2 && isInRecoveryKeyExperiment === 'true'
+  );
 
   useEffect(() => {
     Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
@@ -227,7 +232,7 @@ export const App = ({
               <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
             </>
           )}
-          <Settings path="/settings/*" />
+          <Settings path="/settings/*" {...{ showRecoveryKeyV2 }} />
         </ScrollToTop>
       </Router>
     </>
