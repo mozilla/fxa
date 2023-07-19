@@ -154,7 +154,6 @@ describe('PurchaseManager', () => {
   describe('querySubscriptionPurchase', () => {
     let purchaseManager;
     let mockPurchaseDoc;
-    let mockSubscription;
     const firestoreObject = {};
     mockPurchaseDbRef = {};
 
@@ -166,21 +165,21 @@ describe('PurchaseManager', () => {
         exists: false,
         ref: {
           set: sinon.fake.resolves({}),
-          update: sinon.fake.resolves({}),
         },
       };
       mockPurchaseDbRef.doc = sinon.fake.returns({
         get: sinon.fake.resolves(mockPurchaseDoc),
       });
-      mockSubscription = {
-        toFirestoreObject: sinon.fake.returns(firestoreObject),
-      };
-      mockSubscriptionPurchase.fromApiResponse =
-        sinon.fake.returns(mockSubscription);
+      mockSubscriptionPurchase.toFirestoreObject =
+        sinon.fake.returns(firestoreObject);
+      mockSubscriptionPurchase.fromApiResponse = sinon.fake.returns(
+        mockSubscriptionPurchase
+      );
       purchaseManager = new PurchaseManager(
         mockPurchaseDbRef,
         mockAppStoreHelper
       );
+      mockMergePurchase.resetHistory();
     });
 
     afterEach(() => {
@@ -192,7 +191,7 @@ describe('PurchaseManager', () => {
         mockBundleId,
         mockOriginalTransactionId
       );
-      assert.strictEqual(result, mockSubscription);
+      assert.strictEqual(result, mockSubscriptionPurchase);
 
       sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
       sinon.assert.calledOnce(mockDecodeTransactionInfo);
@@ -211,7 +210,7 @@ describe('PurchaseManager', () => {
       sinon.assert.calledOnce(mockPurchaseDbRef.doc);
       sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
       sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
+      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
 
       sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
     });
@@ -255,14 +254,14 @@ describe('PurchaseManager', () => {
       }
     });
 
-    it('queries with found firestore doc', async () => {
+    it('queries with found firestore doc with no userId', async () => {
       mockPurchaseDoc.data = sinon.fake.returns({});
       mockPurchaseDoc.exists = true;
       const result = await purchaseManager.querySubscriptionPurchase(
         mockBundleId,
         mockOriginalTransactionId
       );
-      assert.strictEqual(result, mockSubscription);
+      assert.strictEqual(result, mockSubscriptionPurchase);
 
       sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
       sinon.assert.calledOnce(mockDecodeTransactionInfo);
@@ -271,14 +270,37 @@ describe('PurchaseManager', () => {
       sinon.assert.calledOnce(mockPurchaseDbRef.doc);
       sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
       sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
-      sinon.assert.calledOnce(mockSubscription.toFirestoreObject);
+      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
 
-      sinon.assert.calledWithExactly(
-        mockPurchaseDoc.ref.update,
-        firestoreObject
-      );
+      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, firestoreObject);
       sinon.assert.calledOnce(mockMergePurchase);
-      sinon.assert.calledOnce(mockPurchaseDoc.data);
+      sinon.assert.calledTwice(mockPurchaseDoc.data);
+    });
+
+    it('queries with found firestore doc with userId and preserves the userId', async () => {
+      mockPurchaseDoc.data = sinon.fake.returns({ userId: 'amazing' });
+      mockPurchaseDoc.exists = true;
+      const result = await purchaseManager.querySubscriptionPurchase(
+        mockBundleId,
+        mockOriginalTransactionId
+      );
+      assert.strictEqual(result, mockSubscriptionPurchase);
+
+      sinon.assert.calledOnce(mockAppStoreHelper.getSubscriptionStatuses);
+      sinon.assert.calledOnce(mockDecodeTransactionInfo);
+      sinon.assert.calledOnce(mockDecodeRenewalInfo);
+
+      sinon.assert.calledOnce(mockPurchaseDbRef.doc);
+      sinon.assert.calledOnce(mockPurchaseDbRef.doc().get);
+      sinon.assert.calledOnce(mockSubscriptionPurchase.fromApiResponse);
+      sinon.assert.calledOnce(mockSubscriptionPurchase.toFirestoreObject);
+
+      sinon.assert.calledWithExactly(mockPurchaseDoc.ref.set, {
+        userId: 'amazing',
+        ...firestoreObject,
+      });
+      sinon.assert.calledOnce(mockMergePurchase);
+      sinon.assert.calledTwice(mockPurchaseDoc.data);
     });
 
     it('adds notification type and subtype to the purchase if passed in', async () => {
@@ -287,7 +309,7 @@ describe('PurchaseManager', () => {
       const notificationType = 'foo';
       const notificationSubtype = 'bar';
       const mockSubscriptionWithNotificationProps = {
-        ...mockSubscription,
+        ...mockSubscriptionPurchase,
         latestNotificationType: notificationType,
         latestNotificationSubtype: notificationSubtype,
       };
@@ -306,7 +328,7 @@ describe('PurchaseManager', () => {
       const notificationType = 'foo';
       const notificationSubtype = undefined;
       const mockSubscriptionWithNotificationProp = {
-        ...mockSubscription,
+        ...mockSubscriptionPurchase,
         latestNotificationType: notificationType,
       };
       const result = await purchaseManager.querySubscriptionPurchase(

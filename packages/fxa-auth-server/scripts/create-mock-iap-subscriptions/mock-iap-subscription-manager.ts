@@ -17,7 +17,12 @@ export class MockIapSubscriptionManager {
 
   private async insert(purchasesDbRef: CollectionReference, records: any[]) {
     for (const record of records) {
-      await purchasesDbRef.add(record);
+      // The document ID for Apple IAP subscriptions is the originalTransactionId
+      // and for Google IAP is purchaseToken
+      const purchaseRecordDoc = await purchasesDbRef
+        .doc(record.originalTransactionId || record.purchaseToken)
+        .get();
+      await purchaseRecordDoc.ref.set(record);
     }
   }
 
