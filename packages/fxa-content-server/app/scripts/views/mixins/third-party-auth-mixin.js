@@ -208,9 +208,6 @@ export default {
         this.metrics.flush();
 
         return this.signIn(updatedAccount);
-        
-        // TODO: If Sync, redirect user to set password if it hasn't already been
-        // set
       })
       .catch(() => {
         this.clearStoredParams();
