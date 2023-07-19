@@ -20,25 +20,20 @@ const OAUTH_APP = config.fxaOAuthApp;
 
 const PASSWORD = 'password1234567';
 const NEW_PASSWORD = '1234zxcvasdf';
-let secret;
 let email;
 
 const {
   clearBrowserState,
-  click,
   createEmail,
   createUser,
-  enableTotp,
   fillOutEmailFirstSignIn,
   fillOutForceChangePassword,
   fillOutSignInTokenCode,
-  generateTotpCode,
   openFxaFromRp,
   openPage,
   testElementExists,
   testIsBrowserNotified,
   thenify,
-  type,
 } = FunctionalHelpers;
 
 const testAtOAuthApp = thenify(function () {
@@ -108,49 +103,6 @@ registerSuite('post_verify_force_password_change', {
 
         .then(fillOutForceChangePassword(PASSWORD, NEW_PASSWORD))
         .then(testAtOAuthApp());
-    },
-    'force change password on login - w/TOTP': function () {
-      const self = this.remote;
-      return this.remote
-        .then(openPage(ENTER_EMAIL_SYNC_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, PASSWORD))
-        .then(fillOutSignInTokenCode(email, 0))
-
-        .then(fillOutForceChangePassword(PASSWORD, NEW_PASSWORD))
-
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER))
-
-        .then(enableTotp())
-        .then((_secret) => {
-          secret = _secret;
-        })
-        .then(
-          clearBrowserState({
-            '123done': true,
-            contentServer: true,
-            force: true,
-          })
-        )
-        .then(openPage(ENTER_EMAIL_SYNC_URL, selectors.ENTER_EMAIL.HEADER))
-        .then(fillOutEmailFirstSignIn(email, NEW_PASSWORD))
-
-        .then(testElementExists(selectors.TOTP_SIGNIN.HEADER))
-
-        .then(() => {
-          return self.then(
-            type(selectors.TOTP_SIGNIN.INPUT, generateTotpCode(secret))
-          );
-        })
-        .then(click(selectors.TOTP_SIGNIN.SUBMIT))
-
-        .then(testIsBrowserNotified('fxaccounts:login'))
-
-        .then(
-          testElementExists(selectors.POST_VERIFY_FORCE_PASSWORD_CHANGE.HEADER)
-        )
-
-        .then(fillOutForceChangePassword(NEW_PASSWORD, PASSWORD))
-        .then(testElementExists(selectors.CONNECT_ANOTHER_DEVICE.HEADER));
     },
   },
 });

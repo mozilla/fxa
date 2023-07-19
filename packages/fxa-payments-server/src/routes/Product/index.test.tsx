@@ -2,7 +2,11 @@
  * @jest-environment jsdom
  */
 import React from 'react';
-import { cleanup, waitForElementToBeRemoved } from '@testing-library/react';
+import {
+  cleanup,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import noc from 'nock';
 
@@ -105,10 +109,11 @@ describe('routes/Product', () => {
         plan: planId,
       },
     };
+    const ProductAny = Product as any;
     return (
       <MockApp {...{ appContextValue }}>
         <SignInLayout>
-          <Product {...props} />
+          <ProductAny {...props} />
         </SignInLayout>
       </MockApp>
     );
@@ -311,8 +316,10 @@ describe('routes/Product', () => {
     const { findByTestId } = renderWithLocalizationProvider(
       <Subject planId={INACTIVE_PLAN_ID} />
     );
-    const errorEl = await findByTestId('no-such-plan-error');
-    expect(errorEl).toBeInTheDocument();
+    await waitFor(async () => {
+      const errorEl = await findByTestId('no-such-plan-error');
+      expect(errorEl).toBeInTheDocument();
+    });
     expectNockScopesDone(apiMocks);
   });
 
