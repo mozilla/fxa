@@ -12,7 +12,7 @@ fi
 mkdir -p artifacts
 
 echo "building shared fxa projects..."
-if ! yarn workspaces foreach --verbose --include fxa-auth-client --include fxa-react --include fxa-shared run build > artifacts/build-shared.log;
+if ! nx run-many --targets=fxa-auth-client,fxa-react,fxa-shared --all build --verbose > artifacts/build-shared.log;
 then
   echo -e "\n###########################################################\n"
   echo "# fxa couldn't build shared projects. see ./artifacts/build-shared.log for details"
@@ -20,8 +20,8 @@ then
   exit 1
 fi
 
-echo "${COMMAND} fxa services..."
-if yarn workspaces foreach --topological-dev --verbose --exclude fxa-dev-launcher --exclude fxa run "$COMMAND" > artifacts/start.log;
+echo "${COMMAND} fxa services and nx projects..."
+if nx run-many --verbose --exclude fxa-dev-launcher --exclude fxa --targets="$COMMAND" > artifacts/start.log;
 then
   pm2 ls
 else
