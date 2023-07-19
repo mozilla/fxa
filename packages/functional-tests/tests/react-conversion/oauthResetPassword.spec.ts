@@ -179,7 +179,7 @@ async function addAccountRecoveryKeyFlow({
   credentials,
   pages: { settings, recoveryKey },
 }) {
-  await settings.goto();
+  await settings.goto('isInRecoveryKeyExperiment=true');
   await settings.recoveryKey.clickCreate();
   await recoveryKey.clickStart();
   await recoveryKey.setPassword(credentials.password);

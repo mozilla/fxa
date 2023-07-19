@@ -231,7 +231,7 @@ test.describe('new recovery key test', () => {
       const config = await login.getConfig();
       test.skip(config.featureFlags.showRecoveryKeyV2 !== true);
 
-      await settings.goto();
+      await settings.goto('isInRecoveryKeyExperiment=true');
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
       await settings.recoveryKey.clickCreate();
@@ -355,6 +355,7 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
+    await settings.goto('isInRecoveryKeyExperiment=true');
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
@@ -510,6 +511,7 @@ test.describe('new recovery key test', () => {
   });
 
   test('revoke recovery key', async ({ pages: { settings } }) => {
+    await settings.goto('isInRecoveryKeyExperiment=true');
     await settings.recoveryKey.clickDelete();
     await settings.clickModalConfirm();
     await settings.waitForAlertBar();

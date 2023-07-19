@@ -24,11 +24,12 @@ test.describe('recovery key react', () => {
       await settings.goto();
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
-      await settings.recoveryKey.clickCreate();
 
       // Check which account recovery key generation flow to use (based on feature flag)
       // TODO in FXA-7419 - remove the condition and else block that goes through the old key generation flow
       if (config.featureFlags.showRecoveryKeyV2 === true) {
+        await settings.goto('isInRecoveryKeyExperiment=true');
+        await settings.recoveryKey.clickCreate();
         // View 1/4 info
         await recoveryKey.clickStart();
         // View 2/4 confirm password and generate key
@@ -46,6 +47,7 @@ test.describe('recovery key react', () => {
         await recoveryKey.setHint(hint);
         await recoveryKey.clickFinish();
       } else {
+        await settings.recoveryKey.clickCreate();
         await recoveryKey.setPassword(credentials.password);
         await recoveryKey.submit();
 
@@ -91,7 +93,7 @@ test.describe('recovery key react', () => {
     await resetPasswordReact.fillEmailToResetPwd(credentials.email);
     await resetPasswordReact.confirmResetPasswordHeadingVisible();
 
-    // We need to append `&showReactApp=true` to reset link inorder to enroll in reset password experiment
+    // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
     let link = await target.email.waitForEmail(
       credentials.email,
       EmailType.recovery,
