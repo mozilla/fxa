@@ -655,7 +655,9 @@ export class AccountHandler {
 
     try {
       const form = request.payload as any;
-      const { authPW, idToken, keys } = form;
+      // TODO: We should consider passing in an idToken and verifying it here. This
+      // would give us some extra assurance that the user is who they say they are.
+      const { authPW } = form;
       const auth = request.auth;
       const { uid } = auth.credentials;
 
@@ -664,36 +666,10 @@ export class AccountHandler {
 
       await this.customs.check(request, email, 'setPasswordThirdParty');
       
+      // Try to set a new password, errors out if password already set.
       await this.setPasswordOnStubAccount(account, authPW);
       
-      const sessionToken = await this.createSessionToken({
-        account,
-        request,
-        // this route counts as verification
-        tokenVerificationId: undefined,
-      });
-
-      const password = new this.Password(
-       authPW,
-       account.authSalt,
-       account.verifierVersion
-      );
-      const keyFetchToken = await this.signinUtils.createKeyFetchToken(
-       request,
-       account,
-       password,
-       sessionToken
-      );
-
-      const response: Record<string, any> = {
-        uid: sessionToken.uid,
-        sessionToken: sessionToken.data,
-        authAt: sessionToken.lastAuthAt(),
-        metricsEnabled: !account.metricsOptOutAt,
-        keyFetchToken: keyFetchToken.data,
-      };
-      
-      return response;
+      return {};
     } catch(err) {
       this.log.error('Account.set_password_for_sync.error', {
         err,

@@ -636,16 +636,15 @@ export default class AuthClient {
   }
 
   async setPasswordThirdParty(
-   authPW: string
-  ): Promise<{
-    uid: hexstring;
-    sessionToken: hexstring;
-    authPW: boolean;
-  }> {
+   sessionToken: hexstring,
+   email: string,
+   password: string
+  ): Promise<{}> {
+    const credentials = await crypto.getCredentials(email, password);
     const payload = {
-      authPW
+      authPW: credentials.authPW,
     };
-    return await this.request('POST', '/account/set_password_sync', payload);
+    return await this.sessionPost('/account/set_password_sync', sessionToken, payload);
   }
 
   async accountKeys(
