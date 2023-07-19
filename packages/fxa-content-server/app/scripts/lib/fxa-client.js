@@ -1381,23 +1381,15 @@ FxaClientWrapper.prototype = {
     });
   }),
 
-  verifyAccountThirdParty(relier, code, provider) {
-    return this._fxaClient
-      .verifyAccountThirdParty(
-        relier,
-        code,
-        provider,
-        this._metrics.getFlowEventMetadata()
-      )
-      .then(this.set.bind(this));
-  },
-
-  setPasswordThirdParty: withClient((client, relier, idToken, provider, email, password) => {
-    return client.setPasswordThirdParty(relier, idToken, provider, email, password)
-      .then((accountData) => {
-        return getUpdatedSessionData(email, relier, accountData);
-      })
-  }),
+  verifyAccountThirdParty: withClient(
+    (client, relier, token, provider, metricsContext) => {
+      return client
+        .verifyAccountThirdParty(token, provider, metricsContext)
+        .then((accountData) => {
+          return getUpdatedSessionData(accountData.email, relier, accountData);
+        });
+    }
+  )
 };
 
 export default FxaClientWrapper;
