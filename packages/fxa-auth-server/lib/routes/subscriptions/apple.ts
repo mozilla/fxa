@@ -2,10 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
+import isA from 'joi';
 import { DecodedNotificationPayload } from 'app-store-server-api';
 import { OAUTH_SCOPE_SUBSCRIPTIONS_IAP } from 'fxa-shared/oauth/constants';
-import ScopeSet from 'fxa-shared/oauth/scopes';
-import isA from 'joi';
 import { Container } from 'typedi';
 
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
@@ -15,6 +14,7 @@ import { AppleIAP } from '../../payments/iap/apple-app-store/apple-iap';
 import { PurchaseUpdateError } from '../../payments/iap/apple-app-store/types/errors';
 import { IAPConfig } from '../../payments/iap/iap-config';
 import { AuthLogger, AuthRequest } from '../../types';
+import { handleAuthScoped } from './utils';
 
 export class AppleIapHandler {
   private log: AuthLogger;
@@ -94,18 +94,9 @@ export class AppleIapHandler {
    */
   public async registerOriginalTransactionId(request: AuthRequest) {
     this.log.begin('appleIap.registerOriginalTransactionId', request);
-    const { auth } = request;
-    const scopes = [
+    const { uid } = handleAuthScoped(request.auth, [
       OAUTH_SCOPE_SUBSCRIPTIONS_IAP,
-      // FIXME: Remove this scope and use `handleAuthScoped` instead of below logic
-      // once VPN migration is complete (FXA-5848).
-      'profile:subscriptions',
-    ];
-    const scope = ScopeSet.fromArray(auth.credentials.scope);
-    if (!scopes.some((requiredScope) => scope.contains(requiredScope))) {
-      throw error.invalidScopes();
-    }
-    const { user: uid } = auth.credentials;
+    ]);
 
     const { appName } = request.params;
     const { originalTransactionId } = request.payload as any;
@@ -119,7 +110,7 @@ export class AppleIapHandler {
       purchase = await this.appStore.purchaseManager.registerToUserAccount(
         bundleId,
         originalTransactionId,
-        uid as string
+        uid
       );
     } catch (err) {
       switch (err.name) {
@@ -138,7 +129,7 @@ export class AppleIapHandler {
           );
       }
     }
-    await this.capabilityService.iapUpdate(uid as string, purchase);
+    await this.capabilityService.iapUpdate(uid, purchase);
     return { transactionIdValid: true };
   }
 }
