@@ -14715,15 +14715,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^10.0.4":
-  version: 10.0.4
-  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.4"
+"@type-cacheable/ioredis-adapter@npm:^13.0.1":
+  version: 13.0.1
+  resolution: "@type-cacheable/ioredis-adapter@npm:13.0.1"
   dependencies:
-    compare-versions: ^4.0.0
+    compare-versions: ^5.0.1
   peerDependencies:
-    "@type-cacheable/core": ^10.0.0
-    ioredis: ^4.14.1
-  checksum: 0716d9566bd2fb3da00ca26138576cc7300ba2142232527fc040290e9ec3c5dbe644977dbe16c9e5f8487a8b3a907b3d7b9da651e046f7c946332f87414621e2
+    "@type-cacheable/core": ^12.0.0
+    ioredis: ^5
+  checksum: 9fb9d84f7b5bd6469e1f02382d729ae40a8a8a82ca37a7bac04f371825eb44354beb2f9b20793287f6860de04affa5c847017fd87a9a770735c176eb4db6f5fe
   languageName: node
   linkType: hard
 
@@ -23557,10 +23557,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compare-versions@npm:^4.0.0":
-  version: 4.1.3
-  resolution: "compare-versions@npm:4.1.3"
-  checksum: 54460756ab2d62f8a9d672db249b248fec7ca41c3e8ed242925e2f2257793ad3e83cecb2cdfd60b46a3aabc962a3a4cbf37a4b928c8f30517822d2bde937a3d1
+"compare-versions@npm:^5.0.1":
+  version: 5.0.3
+  resolution: "compare-versions@npm:5.0.3"
+  checksum: f66a4bb6ef8ff32031cc92c04dea4bbead039e72a7f6c7df7ef05f5a42ddca9202f8875b7449add54181e73b89f039662a8760c8db0ab036c4e8f653a7cd29c1
   languageName: node
   linkType: hard
 
@@ -29743,7 +29743,7 @@ fsevents@~2.1.1:
     "@storybook/html": ^7.0.23
     "@storybook/html-webpack5": ^7.0.23
     "@type-cacheable/core": ^11.0.0
-    "@type-cacheable/ioredis-adapter": ^10.0.4
+    "@type-cacheable/ioredis-adapter": ^13.0.1
     "@types/async-retry": ^1
     "@types/babel__core": 7.1.14
     "@types/babel__preset-env": ^7
@@ -30670,7 +30670,7 @@ fsevents@~2.1.1:
     "@sentry/integrations": ^6.19.1
     "@sentry/node": ^6.19.1
     "@type-cacheable/core": ^11.0.0
-    "@type-cacheable/ioredis-adapter": ^10.0.4
+    "@type-cacheable/ioredis-adapter": ^13.0.1
     "@types/accept-language-parser": ^1.5.3
     "@types/chai": ^4.2.18
     "@types/chance": ^1.1.2
