@@ -37,14 +37,14 @@ describe('Recent Account Activity', () => {
 
     expect(
       screen.getByRole('heading', {
-        name: 'Recent Account Activity',
+        name: 'Recent account activity',
       })
     ).toBeInTheDocument();
-    screen.getByText('Account was created');
-    screen.getByText('Account was disabled');
-    screen.getByText('Account was enabled');
-    screen.getByText('Account initiated login');
-    screen.getByText('Account initiated password reset');
-    screen.getByText('Account cleared email bounces');
+    screen.getByText('Account created');
+    screen.getByText('Account disabled');
+    screen.getByText('Account enabled');
+    screen.getByText('Account login initiated');
+    screen.getByText('Password reset initiated');
+    screen.getByText('Email bounces cleared');
   });
 });

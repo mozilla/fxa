@@ -24,7 +24,7 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
-      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"]
+      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
     },
     "typeRoots": [
       "./types",

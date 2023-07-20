@@ -7,7 +7,7 @@ import { screen } from '@testing-library/react';
 import Security from '.';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { getFtlBundle, testAllL10n, testL10n } from 'fxa-react/lib/test-utils';
+import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
 describe('Security', () => {

@@ -12,7 +12,7 @@
     "./lib/": "./lib/"
   },
   "scripts": {
-    "build-css": "tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
+    "build-css": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
     "build-storybook": "yarn merge-ftl && NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
     "build": "tsc --build && yarn merge-ftl",
     "compile": "tsc --noEmit",
@@ -39,7 +39,6 @@
     "classnames": "^2.3.1",
     "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
-    "postcss": "^8.4.23",
     "react-helmet": "^6.1.0",
     "react-transition-group": "^4.4.2",
     "sinon": "^9.2.3",
@@ -90,7 +89,6 @@
     "rimraf": "^5.0.0",
     "sass-loader": "^10.0.3",
     "storybook": "^7.0.23",
-    "tailwindcss": "^3.3.1",
     "ts-jest": "^29.1.0",
     "typescript": "^4.9.3",
     "webpack": "^5.84.1"

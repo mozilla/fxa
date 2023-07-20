@@ -7,7 +7,7 @@ test.describe('password visibility tests', () => {
     pages: { login },
   }) => {
     const email = login.createEmail();
-    await page.goto(target.contentServerUrl, { waitUntil: 'networkidle' });
+    await page.goto(target.contentServerUrl, { waitUntil: 'load' });
     await login.setEmail(email);
     await login.submit();
 

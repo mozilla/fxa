@@ -1,4 +1,4 @@
-import AuthClient from 'fxa-auth-client';
+import AuthClient from 'fxa-auth-client/lib/client';
 import { EmailClient } from '../email';
 import { TargetName } from './index';
 

@@ -145,7 +145,7 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
     // Sync sign in
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.login(credentials.email, credentials.password);
     await login.setTotp(credentials.secret);

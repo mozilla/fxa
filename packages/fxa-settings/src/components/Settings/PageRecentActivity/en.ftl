@@ -1,13 +1,34 @@
-## Recent Activity
+## Recent account activity
+## All strings except title indicate an event that occurred from the user's account
+## These are displayed as a list with the date when the event occured
 
-recent-activity-title = Recent Account Activity
+recent-activity-title = Recent account activity
 
-recent-activity-account-create = Account was created
-recent-activity-account-disable = Account was disabled
-recent-activity-account-enable = Account was enabled
-recent-activity-account-login = Account initiated login
-recent-activity-account-reset = Account initiated password reset
-recent-activity-emails-clearBounces = Account cleared email bounces
+recent-activity-account-create-v2 = Account created
+recent-activity-account-disable-v2 = Account disabled
+recent-activity-account-enable-v2 = Account enabled
+recent-activity-account-login-v2 = Account login initiated
+recent-activity-account-reset-v2 = Password reset initiated
+# This string appears under recent account activity when there were email bounces associated with the account, but those were recently cleared (i.e. removed/deleted).
+# An email bounce is when an email is sent to an email address and fails/receives a non-delivery receipt from the recipient's mail server.
+recent-activity-emails-clearBounces-v2 = Email bounces cleared
+recent-activity-account-login-failure = Account login attempt failed
+recent-activity-account-two-factor-added = Two-step authentication enabled
+recent-activity-account-two-factor-requested = Two-step authentication requested
+recent-activity-account-two-factor-failure = Two-step authentication failed
+recent-activity-account-two-factor-success = Two-step authentication successful
+recent-activity-account-two-factor-removed = Two-step authentication removed
+recent-activity-account-password-reset-requested = Account requested password reset
+recent-activity-account-password-reset-success = Account password reset successful
+recent-activity-account-recovery-key-added = Account recovery key enabled
+recent-activity-account-recovery-key-verification-failure = Account recovery key verification failed
+recent-activity-account-recovery-key-verification-success = Account recovery key verification successful
+recent-activity-account-recovery-key-removed = Account recovery key removed
+recent-activity-account-password-added = New password added
+recent-activity-account-password-changed = Password changed
+recent-activity-account-secondary-email-added = Secondary email address added
+recent-activity-account-secondary-email-removed = Secondary email address removed
+recent-activity-account-emails-swapped = Primary and secondary emails swapped
 
-## $date (Date) - Date recent activity was created
-recent-activity-created-at = { $date }
+# Security event was recorded, but the activity details are unknown or not shown to user
+recent-activity-unknown = Other account activity

@@ -160,3 +160,6 @@ process.yml
 **/config/gql/allowlist
 configs/gql/allowlist
 !configs/gql/allowlist/gql-playground.json
+
+# Next.js
+.next

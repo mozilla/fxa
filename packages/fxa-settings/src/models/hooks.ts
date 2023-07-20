@@ -23,7 +23,7 @@ export function useAccount() {
 }
 
 function getMissing(obj: any) {
-  const missingKeys = [];
+  const missingKeys: string[] = [];
   for (const x of Object.keys(obj)) {
     if (obj[x] == null) {
       missingKeys.push(x);

@@ -126,14 +126,9 @@ describe('CompleteResetPassword page', () => {
     expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
 
     fireEvent.focus(newPasswordField);
-    await waitFor(
-      () => {
-        expect(screen.getByText('Password requirements')).toBeVisible();
-      },
-      {
-        timeout: SHOW_BALLOON_TIMEOUT,
-      }
-    );
+    await waitFor(() => {
+      expect(screen.getByText('Password requirements')).toBeVisible();
+    });
   });
 
   it('renders the component as expected when provided with an expired link', async () => {

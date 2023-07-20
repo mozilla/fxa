@@ -14,10 +14,8 @@ import crypto from 'crypto';
 import {
   setupAuthDatabase,
   setupDatabase,
-  setupOAuthDatabase,
   setupProfileDatabase,
 } from 'fxa-shared/db';
-import { Profile } from 'fxa-shared/db/models/profile';
 
 const toRandomBuff = (size: number) =>
   uuidTransformer.to(crypto.randomBytes(size).toString('hex'));

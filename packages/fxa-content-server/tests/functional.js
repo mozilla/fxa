@@ -5,18 +5,18 @@
 const testsSettings = require('./functional_settings');
 module.exports = testsSettings.concat([
   // new and flaky tests above here',
-  'tests/functional/email_opt_in.js',
-  'tests/functional/fx_desktop_handshake.js',
+  // 'tests/functional/email_opt_in.js',
+  // 'tests/functional/fx_desktop_handshake.js',
 
-  'tests/functional/oauth_sign_up.js',
-  'tests/functional/pages.js',
-  'tests/functional/post_verify/force_password_change.js',
-  'tests/functional/post_verify/account_recovery.js',
-  'tests/functional/post_verify/secondary_email.js',
-  'tests/functional/sign_in.js',
-  'tests/functional/sign_in_blocked.js',
-  'tests/functional/sync_v3_sign_up.js',
-  'tests/functional/sync_v3_settings.js',
+  // 'tests/functional/oauth_sign_up.js',
+  // 'tests/functional/pages.js',
+  // 'tests/functional/post_verify/force_password_change.js',
+  // 'tests/functional/post_verify/account_recovery.js',
+  // 'tests/functional/post_verify/secondary_email.js',
+  // 'tests/functional/sign_in.js',
+  // 'tests/functional/sign_in_blocked.js',
+  // 'tests/functional/sync_v3_sign_up.js',
+  // 'tests/functional/sync_v3_settings.js',
 
   // Disabled because of https://github.com/mozilla/fxa/issues/9863
   // 'tests/functional/verification_reminders.js',

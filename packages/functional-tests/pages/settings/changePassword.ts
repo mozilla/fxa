@@ -85,7 +85,7 @@ export class ChangePasswordPage extends SettingsLayout {
   submit() {
     return Promise.all([
       this.page.locator('button[type=submit]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 }
