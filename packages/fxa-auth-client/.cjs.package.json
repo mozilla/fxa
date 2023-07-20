@@ -1,0 +1,13 @@
+{
+  "name": "fxa-auth-client",
+  "type": "commonjs",
+  "exports": {
+    ".": "./server.js",
+    "./lib/client": "./client.js",
+    "./lib/crypto": "./lib/crypto.js",
+    "./lib/hawk": "./lib/hawk.js",
+    "./lib/recoveryKey": "./lib/recoveryKey.js",
+    "./lib/utils": "./lib/utils.js",
+    "./lib/*": "./lib/*.js"
+  }
+}
