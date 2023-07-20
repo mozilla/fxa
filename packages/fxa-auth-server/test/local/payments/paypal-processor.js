@@ -28,6 +28,7 @@ const {
 } = require('../../../lib/payments/paypal/error-codes');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 const { CapabilityService } = require('../../../lib/payments/capability');
+const { PayPalNVPError } = require('../../../../../libs/shared/error/src');
 
 const sandbox = sinon.createSandbox();
 
@@ -291,7 +292,15 @@ describe('PaypalProcessor', () => {
       failedResponse.L_ERRORCODE0 = PAYPAL_SOURCE_ERRORS[0];
       const rawString = objectToNVP(failedResponse);
       const parsedNvpObject = nvpToObject(rawString);
-      const throwErr = new PayPalClientError(rawString, parsedNvpObject);
+      const nvpError = new PayPalNVPError(rawString, parsedNvpObject, {
+        message: parsedNvpObject.L[0].LONGMESSAGE,
+        errorCode: parseInt(parsedNvpObject.L[0].ERRORCODE),
+      });
+      const throwErr = new PayPalClientError(
+        [nvpError],
+        rawString,
+        parsedNvpObject
+      );
       mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
         {}
@@ -322,7 +331,15 @@ describe('PaypalProcessor', () => {
       failedResponse.L_ERRORCODE0 = PAYPAL_BILLING_AGREEMENT_INVALID;
       const rawString = objectToNVP(failedResponse);
       const parsedNvpObject = nvpToObject(rawString);
-      const throwErr = new PayPalClientError(rawString, parsedNvpObject);
+      const nvpError = new PayPalNVPError(rawString, parsedNvpObject, {
+        message: parsedNvpObject.L[0].LONGMESSAGE,
+        errorCode: parseInt(parsedNvpObject.L[0].ERRORCODE),
+      });
+      const throwErr = new PayPalClientError(
+        [nvpError],
+        rawString,
+        parsedNvpObject
+      );
       mockPaypalHelper.processInvoice = sandbox.fake.rejects(throwErr);
       mockStripeHelper.removeCustomerPaypalAgreement = sandbox.fake.resolves(
         {}
