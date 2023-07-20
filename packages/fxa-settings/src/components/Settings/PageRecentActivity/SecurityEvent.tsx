@@ -149,7 +149,7 @@ const getSecurityEventNameL10n = (name: string) => {
     }
     case SecurityEventName.PasswordChanged: {
       return {
-        ftlId: 'recent-activity-account-recovery-key-added',
+        ftlId: 'recent-activity-account-password-changed',
         fallbackText: 'Password changed',
       };
     }
