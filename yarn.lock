@@ -6603,11 +6603,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.0.0"
+"@google-cloud/opentelemetry-cloud-trace-exporter@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@google-cloud/opentelemetry-cloud-trace-exporter@npm:2.1.0"
   dependencies:
-    "@google-cloud/opentelemetry-resource-util": ^2.0.0
+    "@google-cloud/opentelemetry-resource-util": ^2.1.0
     "@grpc/grpc-js": ^1.1.8
     "@grpc/proto-loader": ^0.7.0
     google-auth-library: ^7.0.0
@@ -6617,19 +6617,19 @@ __metadata:
     "@opentelemetry/core": ^1.0.0
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/sdk-trace-base": ^1.0.0
-  checksum: 4cb3c15426e05716a2a85babede9f120bf04face327873a164411708afad55853978aa3f4674e1350dda32185905c7fbb178c36d5edc7ab96e07c00d5f609a16
+  checksum: 17ba2dbf66cd47a776a0b1546ca68eadd22c5a0f58477b69be1927bc31f9b3596982715e4714f46d4f955d2fce91367f207d2026546485e254a20b2fe0fb8531
   languageName: node
   linkType: hard
 
-"@google-cloud/opentelemetry-resource-util@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.0.0"
+"@google-cloud/opentelemetry-resource-util@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@google-cloud/opentelemetry-resource-util@npm:2.1.0"
   dependencies:
     gcp-metadata: ^5.0.1
   peerDependencies:
     "@opentelemetry/resources": ^1.0.0
     "@opentelemetry/semantic-conventions": ^1.0.0
-  checksum: 909c9b7f58b12a64c404c985f6677a78fcfd5cdd6c0bd3afc1d537a5071bab760dc503849db0d5ef39809a320d6d0514e7857c1c48babd7293488bcc9a150767
+  checksum: 3b70d42f39e808919e85be7b37cc716816c2a4dae0f2d903d1da40a4804199bbc5368f8f78b026292fddc38e9cecd515caf673925d57c630ed16c1fbe7e96862
   languageName: node
   linkType: hard
 
@@ -30799,7 +30799,7 @@ fsevents@~2.1.1:
   resolution: "fxa-shared@workspace:packages/fxa-shared"
   dependencies:
     "@fluent/langneg": ^0.6.2
-    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.0.0
+    "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
     "@nestjs/common": ^9.4.1
     "@nestjs/config": ^2.3.1
     "@nestjs/core": ^9.2.0
