@@ -14,7 +14,7 @@ const returnPaymentMethodHeader = (type: PaymentMethodHeaderType) => {
   switch (type) {
     case PaymentMethodHeaderType.SecondStep:
       return (
-        <Localized id="payment-method-header-second-step">
+        <Localized id="payment-method-header-step">
           <h2 className="step-header" data-testid="header-prefix">
             2. Choose your payment method
           </h2>

@@ -61,7 +61,7 @@ describe('components/PaymentMethodHeader', () => {
     });
 
     it('returns correct heading with prefix', async () => {
-      const msgId = 'payment-method-header-second-step';
+      const msgId = 'payment-method-header-step';
       const expected = '2. Choose your payment method';
       const actual = getLocalizedMessage(bundle, msgId, {});
 
