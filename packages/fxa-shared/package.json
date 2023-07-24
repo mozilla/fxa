@@ -299,7 +299,7 @@
     "@opentelemetry/exporter-jaeger": "~1.13.0",
     "@opentelemetry/exporter-trace-otlp-http": "~0.34.0",
     "@opentelemetry/instrumentation-document-load": "~0.31.0",
-    "@opentelemetry/instrumentation-fetch": "~0.36.1",
+    "@opentelemetry/instrumentation-fetch": "~0.41.0",
     "@opentelemetry/instrumentation-ioredis": "^0.34.1",
     "@opentelemetry/instrumentation-user-interaction": "~0.32.1",
     "@opentelemetry/instrumentation-xml-http-request": "~0.39.1",
