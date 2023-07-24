@@ -62,8 +62,8 @@ export class ResetPasswordPage extends BaseLayout {
     page: BaseLayout['page'] = this.page
   ) {
     if (this.react) {
-      await page.getByTitle('New password').fill(password);
-      await page.getByTitle('Re-enter password').fill(password);
+      await page.getByLabel('New password').fill(password);
+      await page.getByLabel('Re-enter password').fill(password);
       await page.locator(selectors.SUBMIT).click();
       return;
     }
