@@ -48,7 +48,7 @@ test.describe('sync signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify sign up code header is visible
-    expect(await login.isSignInCodeHeader()).toBe(true);
+    await login.waitForSignInCodeHeader();
 
     const query = { email: email2 };
     const queryParam = new URLSearchParams(query);
@@ -65,7 +65,7 @@ test.describe('sync signin cached', () => {
     await connectAnotherDevice.clickNotNow();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     //Reset prefill and context
     await login.clearSessionStorage();
@@ -76,7 +76,7 @@ test.describe('sync signin cached', () => {
     });
     expect(await login.getPrefilledEmail()).toContain(email);
     await login.useDifferentAccountLink();
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 
   test('sign in with desktop context then no context, desktop credentials should persist', async ({
@@ -89,18 +89,18 @@ test.describe('sync signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify sign up code header is visible
-    expect(await login.isSignInCodeHeader()).toBe(true);
+    await login.waitForSignInCodeHeader();
 
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
     expect(await login.getPrefilledEmail()).toContain(email);
     await login.useDifferentAccountLink();
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
     await login.fillOutEmailFirstSignIn(email2, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     //Reset prefill and context
     await login.clearSessionStorage();
@@ -111,6 +111,6 @@ test.describe('sync signin cached', () => {
     });
     expect(await login.getPrefilledEmail()).toContain(email);
     await login.useDifferentAccountLink();
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 });

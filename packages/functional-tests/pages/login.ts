@@ -228,24 +228,28 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
-  async isEmailHeader() {
-    return this.page.locator(selectors.EMAIL_HEADER).isVisible();
+  async waitForEmailHeader() {
+    await this.page.waitForSelector(selectors.EMAIL_HEADER, {
+      timeout: 2000,
+    });
   }
 
   async cannotCreateAccountHeader() {
     return this.page.locator(selectors.COPPA_HEADER).isVisible();
   }
 
-  async isSignUpCodeHeader() {
-    const header = this.page.locator(selectors.SIGN_UP_CODE_HEADER);
-    await header.waitFor({ state: 'visible' });
-    return header.isVisible();
+  async waitForSignUpCodeHeader() {
+    await this.page.waitForSelector(selectors.SIGN_UP_CODE_HEADER,
+      {
+      timeout: 2000,
+    });
   }
 
-  async isSignInCodeHeader() {
-    const header = this.page.locator(selectors.SIGN_IN_CODE_HEADER);
-    await header.waitFor({ state: 'visible' });
-    return header.isVisible();
+  async waitForSignInCodeHeader() {
+    await this.page.waitForSelector(selectors.SIGN_IN_CODE_HEADER,
+      {
+      timeout: 2000,
+    });
   }
 
   async confirmEmail() {
@@ -276,7 +280,7 @@ export class LoginPage extends BaseLayout {
     return this.page.fill(selectors.RECOVERY_KEY_TEXT_INPUT, code);
   }
 
-  async loginHeader() {
+  async isUserLoggedIn() {
     const header = this.page.locator(selectors.FIREFOX_HEADER);
     await header.waitFor();
     return header.isVisible();
@@ -286,10 +290,10 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.PERMISSION_ACCEPT).click();
   }
 
-  async signinUnblockHeader() {
-    const header = this.page.locator(selectors.SIGNIN_UNBLOCK_HEADER);
-    await header.waitFor();
-    return header.isVisible();
+  async waitForSigninUnblockHeader() {
+    await this.page.waitForSelector(selectors.SIGNIN_UNBLOCK_HEADER, {
+      timeout: 2000,
+    });
   }
 
   async signInError() {
@@ -378,10 +382,10 @@ export class LoginPage extends BaseLayout {
     });
   }
 
-  async isPasswordHeader() {
-    const header = await this.page.locator(selectors.PASSWORD_HEADER);
-    await header.waitFor();
-    return header.isVisible();
+  async waitForPasswordHeader() {
+    await this.page.waitForSelector(selectors.PASSWORD_HEADER, {
+      timeout: 2000,
+    });
   }
 
   async clickSignIn() {

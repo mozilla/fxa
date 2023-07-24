@@ -46,7 +46,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await login.clearSessionStorage();
     await page.goto(target.contentServerUrl, {
@@ -56,7 +56,7 @@ test.describe('signin cached', () => {
     await login.clickSignIn();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
@@ -70,7 +70,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await login.clearSessionStorage();
     await page.goto(target.contentServerUrl, {
@@ -83,7 +83,7 @@ test.describe('signin cached', () => {
     await login.clickSignIn();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     //Verify email is normalized
     const primary = await settings.primaryEmail.statusText();
@@ -101,7 +101,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -111,7 +111,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email2, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // testing to make sure cached signin comes back after a refresh
     await page.goto(target.contentServerUrl, {
@@ -132,7 +132,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await login.destroySession(email);
     await page.goto(target.contentServerUrl, {
@@ -145,7 +145,7 @@ test.describe('signin cached', () => {
     await login.clickSubmit();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('cached credentials that expire while on page', async ({
@@ -159,7 +159,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
@@ -179,7 +179,7 @@ test.describe('signin cached', () => {
     await login.clickSubmit();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('unverified cached signin redirects to confirm email', async ({
@@ -198,7 +198,7 @@ test.describe('signin cached', () => {
     await login.fillOutEmailFirstSignIn(email_unverified, password);
 
     //Verify sign up code header is visible
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -207,12 +207,12 @@ test.describe('signin cached', () => {
     await login.clickSignIn();
 
     //Cached login should still go to email confirmation screen for unverified accounts
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
 
     //Fill the code and submit
     await login.fillOutSignUpCode(email_unverified);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });

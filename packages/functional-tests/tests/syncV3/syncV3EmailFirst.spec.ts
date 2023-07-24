@@ -39,7 +39,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await page.waitForTimeout(1000);
 
     // refresh sends the user back to the first step
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 
   test('open directly to /signin page, refresh on the /signin page', async ({
@@ -58,14 +58,14 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await login.submit();
 
     // Verify user is redirected to the password page
-    expect(await login.isPasswordHeader()).toBe(true);
+    await login.waitForPasswordHeader();
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });
     await page.waitForTimeout(1000);
 
     // refresh sends the user back to the first step
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 
   test('enter a firefox.com address', async ({ target }) => {

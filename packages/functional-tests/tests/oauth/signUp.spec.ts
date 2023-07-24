@@ -29,7 +29,8 @@ test.describe('Oauth sign up', () => {
     await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify sign up code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
+
     await login.fillOutSignUpCode(email);
 
     //Verify logged in on relier page
@@ -47,7 +48,7 @@ test.describe('Oauth sign up', () => {
     await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
 
     //Verify sign up code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
     await client.accountDestroy(bouncedEmail, password);
 
     //Verify error message
@@ -59,7 +60,7 @@ test.describe('Oauth sign up', () => {
     await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify sign up code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
     await login.fillOutSignUpCode(email);
 
     //Verify logged in on relier page

@@ -35,7 +35,7 @@ test.describe('signup here', () => {
     await login.fillOutFirstSignUp(emailWithSpace, password, { verify: false });
 
     // Verify the confirm code header and the email
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
     expect(await login.confirmEmail()).toContain(emailWithoutSpace);
 
     // Need to clear the cache to get the new email
@@ -46,8 +46,7 @@ test.describe('signup here', () => {
     emailWithoutSpace = email;
     emailWithSpace = email + ' ';
     await login.fillOutFirstSignUp(emailWithSpace, password, { verify: false });
-
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
     expect(await login.confirmEmail()).toContain(emailWithoutSpace);
   });
 
@@ -121,11 +120,11 @@ test.describe('signup here', () => {
 
     // The original tab should transition to the settings page w/ success
     // message.
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
     await settings.signOut();
 
     // check the email address was cleared
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
     expect(await login.getEmailInput()).toContain('');
 
     await login.setEmail(login.createEmail());
@@ -157,7 +156,7 @@ test.describe('signup here', () => {
 
     // The original tab should transition to the settings page w/ success
     // message.
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Verify the account is in local storage and has a correct state
     const currentAccountUid = await page.evaluate(() => {
@@ -185,13 +184,13 @@ test.describe('signup here', () => {
 
     // The original tab should transition to the settings page w/ success
     // message.
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
     await settings.signOut();
 
     await login.setEmail(email);
     await login.clickSubmit();
     await login.setPassword(password);
     await login.submit();
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });

@@ -12,7 +12,7 @@ test.describe('force auth', () => {
     await forceAuth.open(credentials);
     await login.setPassword(credentials.password);
     await login.submit();
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('forgot password flow via force_auth', async ({
@@ -51,21 +51,21 @@ test.describe('force auth', () => {
     await forceAuth.open(credentials);
     await login.setPassword(credentials.password);
     await login.submit();
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     //Sign out
     await settings.signOut();
 
     //Verify user need to enter email
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
     await login.setEmail(credentials.email);
     await login.submit();
 
     //Verify password is empty and user need to enter password
-    expect(await login.isPasswordHeader()).toBe(true);
+    await login.waitForPasswordHeader();
     expect(await login.getPasswordInput()).toContain('');
     await login.setPassword(credentials.password);
     await login.submit();
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });

@@ -41,7 +41,7 @@ test.describe('signin here', () => {
     );
 
     // Verify the header after login
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Need to clear the cache to get the new email
     await login.clearCache();
@@ -54,7 +54,7 @@ test.describe('signin here', () => {
     );
 
     // Verify the header after login
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('signin verified with password that incorrectly has leading whitespace', async ({
@@ -86,7 +86,7 @@ test.describe('signin here', () => {
     );
 
     // Verify the header after login
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Sign out
     await settings.signOut();
@@ -98,7 +98,7 @@ test.describe('signin here', () => {
     await login.clickSubmit();
 
     // Verify the header after login
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('with bounced email', async ({
@@ -115,7 +115,7 @@ test.describe('signin here', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     // Verify the header after login
-    expect(await login.isSignInCodeHeader()).toBe(true);
+    await login.waitForSignInCodeHeader();
     await target.auth.accountDestroy(email, password);
     await page.waitForURL(/signin_bounced/);
 
@@ -124,7 +124,7 @@ test.describe('signin here', () => {
     await login.clickBouncedCreateAccount();
 
     //Verify user redirected to login page
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
     expect(await login.getEmailInput()).toContain('');
   });
 });

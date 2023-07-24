@@ -98,7 +98,7 @@ test.describe('old recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Verify login successful
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('can reset password when forgot recovery key', async ({
@@ -134,7 +134,7 @@ test.describe('old recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Verify login successful
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('cannot reuse recovery key', async ({
@@ -342,7 +342,7 @@ test.describe('new recovery key test', () => {
     await settings.signOut();
     expect(credentials.password).toContain('_new');
     await login.login(credentials.email, credentials.password);
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Verify key revoked after use
     const status = await settings.recoveryKey.statusText();
@@ -416,7 +416,7 @@ test.describe('new recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Verify login successful with password reset with new recovery key
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Verify that new account recovery key revoked
     status = await settings.recoveryKey.statusText();
@@ -457,7 +457,7 @@ test.describe('new recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Verify login successful
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Verify that account recovery key has been revoked after password reset
     status = await settings.recoveryKey.statusText();
@@ -497,7 +497,7 @@ test.describe('new recovery key test', () => {
     await login.login(credentials.email, credentials.password);
 
     // Verify login successful
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     // Verify that account recovery key has been revoked after password reset
     status = await settings.recoveryKey.statusText();

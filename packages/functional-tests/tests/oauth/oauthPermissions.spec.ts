@@ -36,7 +36,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //no permissions asked for, straight to confirm
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
   });
 
   test('signup with `prompt=consent`', async ({
@@ -57,7 +57,8 @@ test.describe('oauth permissions for trusted reliers', () => {
     await login.acceptOauthPermissions();
 
     //Verify sign up code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
+
   });
 
   test('signin without `prompt=consent`', async ({

@@ -93,7 +93,7 @@ test.describe('oauth prompt none', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
     await target.auth.accountDestroy(email, password);
 
     const query = new URLSearchParams({
@@ -122,7 +122,7 @@ test.describe('oauth prompt none', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify sign up code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
 
     const query = new URLSearchParams({
       login_hint: email,
@@ -175,7 +175,7 @@ test.describe('oauth prompt none with emails', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     const query = new URLSearchParams({
       return_on_error: 'false',
@@ -205,7 +205,7 @@ test.describe('oauth prompt none with emails', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     const query = new URLSearchParams({
       login_hint: login.createEmail(),
@@ -236,7 +236,7 @@ test.describe('oauth prompt none with emails', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     const query = new URLSearchParams({
       login_hint: email,

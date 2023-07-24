@@ -22,7 +22,7 @@ test.describe('Sign up with code ', () => {
     await login.fillOutFirstSignUp(email, PASSWORD);
 
     await client.accountDestroy(email, PASSWORD);
-    expect(await login.isPasswordHeader()).toBe(true);
+    await login.waitForPasswordHeader();
   });
 
   test('valid code then click back', async ({
@@ -35,7 +35,7 @@ test.describe('Sign up with code ', () => {
     });
     await login.fillOutFirstSignUp(email, PASSWORD, {waitForNavOnSubmit: false});
     await page.goBack({waitUntil: 'load'});
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('invalid code', async ({

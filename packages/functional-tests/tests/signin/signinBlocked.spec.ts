@@ -50,14 +50,14 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
     //Verify sign in block header
-    expect(await login.signinUnblockHeader()).toBe(true);
+    await login.waitForSigninUnblockHeader();
     expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
     //Unblock the email
     await login.unblock(blockedEmail);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('incorrect code entered', async ({ target, page, pages: { login } }) => {
@@ -67,7 +67,7 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
     //Verify sign in block header
-    expect(await login.signinUnblockHeader()).toBe(true);
+    await login.waitForSigninUnblockHeader();
     expect(await login.getUnblockEmail()).toContain(blockedEmail);
     await login.enterUnblockCode('incorrect');
 
@@ -80,7 +80,7 @@ test.describe('signin blocked', () => {
     await login.unblock(blockedEmail);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('resend', async ({ target, page, pages: { login, resetPassword } }) => {
@@ -90,7 +90,7 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
     //Verify sign in block header
-    expect(await login.signinUnblockHeader()).toBe(true);
+    await login.waitForSigninUnblockHeader();
     expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
     //Click resend link
@@ -105,7 +105,7 @@ test.describe('signin blocked', () => {
     await login.unblock(blockedEmail);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('with primary email changed', async ({
@@ -119,7 +119,7 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await settings.goto();
     await settings.secondaryEmail.clickAdd();
@@ -133,14 +133,14 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(newEmail, password);
 
     //Verify sign in block header
-    expect(await login.signinUnblockHeader()).toBe(true);
+    await login.waitForSigninUnblockHeader();
     expect(await login.getUnblockEmail()).toContain(newEmail);
 
     //Unblock the email
     await login.unblock(newEmail);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('unverified', async ({ target, page, pages: { login } }) => {
@@ -150,18 +150,18 @@ test.describe('signin blocked', () => {
     await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
 
     //Verify sign in block header
-    expect(await login.signinUnblockHeader()).toBe(true);
+    await login.waitForSigninUnblockHeader();
     expect(await login.getUnblockEmail()).toContain(unverifiedEmail);
 
     //Unblock the email
     await login.unblock(unverifiedEmail);
 
     //Verify confirm code header
-    expect(await login.isSignUpCodeHeader()).toBe(true);
+    await login.waitForSignUpCodeHeader();
 
     await login.fillOutSignInCode(unverifiedEmail);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });

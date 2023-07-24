@@ -44,7 +44,7 @@ test.describe('cookies disabled', () => {
     });
 
     //Verify Email header
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
 
     //Goto cookies disabled url
     await page.goto(`${target.contentServerUrl}/cookies_disabled`, {
@@ -63,7 +63,7 @@ test.describe('cookies disabled', () => {
     await page.waitForLoadState();
 
     //Verify Email header
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 
   test('visit verify page with localStorage disabled', async ({
