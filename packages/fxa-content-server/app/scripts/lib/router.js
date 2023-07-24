@@ -213,7 +213,7 @@ Router = Router.extend({
       });
     },
     ':lang/legal/privacy(/)': function () {
-      this.createReactOrBackboneViewHandler(`legal/terms`, 'pp', {
+      this.createReactOrBackboneViewHandler('legal/privacy', 'pp', {
         contentRedirect: true,
       });
     },
