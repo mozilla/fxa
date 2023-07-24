@@ -319,7 +319,7 @@
     "celebrate": "^15.0.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
-    "cldr-localenames-full": "42.0.0",
+    "cldr-localenames-full": "43.1.0",
     "cors": "^2.8.5",
     "express": "^4.17.3",
     "find-up": "^5.0.0",
