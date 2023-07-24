@@ -34,8 +34,8 @@
   },
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "postinstall": "(tsc --build tsconfig.browser.json && tsc --build) || true",
-    "build": "tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json && cp .cjs.package.json ./dist/server/cjs/packages/fxa-auth-client/package.json",
+    "postinstall": "(tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json) || true",
+    "build": "tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json",
     "compile": "tsc --noEmit",
     "ts-check": "tsc --noEmit",
     "test": "mocha -r esbuild-register test/*",
