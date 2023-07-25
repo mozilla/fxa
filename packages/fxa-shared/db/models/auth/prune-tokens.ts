@@ -31,8 +31,15 @@ export class PruneTokens extends BaseAuthModel {
    *
    * @param maxTokenAge - Max age of token. To disable token pruning set to 0.
    * @param maxCodeAge - Max age of code. To disable token pruning set to 0.
+   * @param sessionTokenWindowSize - The size of the pruning window. This only applies to session tokens and
+   *                     effectively limits the number of tokens considered per run. Increase this value to
+   *                     increase the number of sessions being pruned
    */
-  public async prune(maxTokenAge: number, maxCodeAge: number) {
+  public async prune(
+    maxTokenAge: number,
+    maxCodeAge: number,
+    maxWindowSize: number
+  ) {
     const prefix = 'prune-tokens';
 
     this.onStartMetric(prefix);
@@ -45,7 +52,7 @@ export class PruneTokens extends BaseAuthModel {
       // result in an onslaught of deletes.
       const result = await PruneTokens.callProcedureWithOutputsAndQueryResults(
         Proc.Prune,
-        [Date.now(), maxTokenAge, maxCodeAge],
+        [Date.now(), maxTokenAge, maxCodeAge, maxWindowSize],
         [
           '@unblockCodesDeleted',
           '@signInCodesDeleted',

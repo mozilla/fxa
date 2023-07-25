@@ -124,7 +124,16 @@ describe('#integration - PruneTokens', () => {
   }
 
   it('Does not prune if maxAge is 0', async () => {
-    pruneTokens.prune(0, 0);
+    pruneTokens.prune(0, 0, 10000);
+    await new Promise((resolve) =>
+      setTimeout(resolve, pruneInterval + maxJitter)
+    );
+    const sessionToken = await SessionToken.query().select('tokenId').first();
+    expect(sessionToken).to.exist;
+  });
+
+  it('Does not prune if windowSize is 0', async () => {
+    pruneTokens.prune(1, 1, 0);
     await new Promise((resolve) =>
       setTimeout(resolve, pruneInterval + maxJitter)
     );
@@ -133,7 +142,7 @@ describe('#integration - PruneTokens', () => {
   });
 
   it('Prunes expired tokens', async () => {
-    const result = await pruneTokens.prune(1, 1);
+    const result = await pruneTokens.prune(1, 1, 10000);
 
     // Check for the session token again
     const sessionTokens = await SessionToken.query().select(
@@ -155,7 +164,7 @@ describe('#integration - PruneTokens', () => {
   });
 
   it('Will not prune valid tokens', async () => {
-    const result = await pruneTokens.prune(now, now);
+    const result = await pruneTokens.prune(now, now, 10000);
     const sessionTokens = await SessionToken.query().select(
       'tokenId',
       'createdAt'
@@ -272,7 +281,7 @@ describe('#integration - PruneTokens', () => {
     // Causes error, will be reset on subsequent test
     (PruneTokens as any).knex = null;
 
-    await pruneTokens.prune(1, 1);
+    await pruneTokens.prune(1, 1, 10000);
 
     expect(statsd.increment.calledWith('prune-tokens.error')).to.be.true;
     expect(log.error.calledWith('prune-tokens')).to.be.true;
