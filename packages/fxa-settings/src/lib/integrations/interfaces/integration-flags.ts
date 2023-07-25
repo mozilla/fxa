@@ -2,9 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-// TODO: These used to be `private` methods on the relier factory flags.
-// We will combine integrations + reliers in FXA-7308
+/**
+ * Creation flags interface, controls the type of integration that is ultimately produced.
+ */
 export interface IntegrationFlags {
+  isDevicePairingAsAuthority(): boolean;
+  isDevicePairingAsSupplicant(): boolean;
+  isOAuth(): boolean;
+  isSyncService(): boolean;
+  isV3DesktopContext(): boolean;
+  isOAuthSuccessFlow(): { status: boolean; clientId: string };
+  isOAuthVerificationFlow(): boolean;
+
   isServiceOAuth(): boolean;
   isServiceSync(): boolean;
   isVerification(): boolean;

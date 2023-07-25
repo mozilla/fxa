@@ -5,8 +5,13 @@
 import React from 'react';
 import { screen, act, fireEvent } from '@testing-library/react';
 import { UnitRowTwoStepAuth } from '.';
-import { renderWithRouter, mockAppContext } from '../../../models/mocks';
+import {
+  renderWithRouter,
+  mockAppContext,
+  mockSettingsContext,
+} from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../models/AlertBarInfo');
 const account = {
@@ -92,9 +97,12 @@ describe('UnitRowTwoStepAuth', () => {
 
   it('renders view as not enabled after disabling TOTP', async () => {
     const context = mockAppContext({ account });
+    const settingsContext = mockSettingsContext();
     renderWithRouter(
       <AppContext.Provider value={context}>
-        <UnitRowTwoStepAuth />
+        <SettingsContext.Provider value={settingsContext}>
+          <UnitRowTwoStepAuth />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
 
@@ -112,7 +120,7 @@ describe('UnitRowTwoStepAuth', () => {
       fireEvent.click(screen.getByTestId('modal-confirm'));
     });
 
-    expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+    expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
   });
 
   it('renders disabled state when account has no password', async () => {

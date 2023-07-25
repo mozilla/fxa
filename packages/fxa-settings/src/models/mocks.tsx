@@ -4,19 +4,23 @@
 
 import React from 'react';
 import { AccountData, ProfileInfo, Session } from '.';
-import { AppContext, AppContextValue, defaultAppContext } from './AppContext';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import {
+  AppContext,
+  AppContextValue,
+  defaultAppContext,
+  SettingsContextValue,
+} from '.';
 
 import {
   createHistory,
   createMemorySource,
   LocationProvider,
-  History,
 } from '@reach/router';
 import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
 import { ReachRouterWindow } from '../lib/window';
-import { UrlHashData, UrlQueryData } from '../lib/model-data';
+import { UrlQueryData } from '../lib/model-data';
 
 const DEFAULT_APP_CONTEXT = defaultAppContext();
 export const MOCK_ACCOUNT: AccountData =
@@ -30,35 +34,9 @@ export function createHistoryWithQuery(path: string, queryParams?: string) {
   return history;
 }
 
-export function createAppContext(history: History) {
-  const mockStorage: Record<string, unknown> = {};
-  const windowWrapper = new ReachRouterWindow(history);
+export function createAppContext() {
   const appCtx = {
-    windowWrapper,
-    urlQueryData: new UrlQueryData(windowWrapper),
-    urlHashData: new UrlHashData(windowWrapper),
-    oauthClient: {
-      async getClientInfo(_id) {
-        return {
-          name: 'test',
-        };
-      },
-      async destroyToken(_token) {},
-    },
     authClient: {},
-    storageData: {
-      load() {},
-      requiresSync() {
-        return true;
-      },
-      set(key: string, value: unknown) {
-        mockStorage[key] = value;
-      },
-      get(key: string) {
-        return mockStorage[key];
-      },
-      persist() {},
-    },
   } as AppContextValue;
 
   return appCtx;
@@ -69,7 +47,7 @@ export function produceComponent(
   { route = '/', history = createHistory(createMemorySource(route)) } = {},
   appCtx?: AppContextValue
 ) {
-  // Note that reliers and integrations are application instances. Reset them
+  // Note that integrations are application instances. Reset them
   // to ensure a clean slate between storybook renders.
 
   if (appCtx) {
@@ -121,6 +99,15 @@ export function mockStorage() {
   };
 }
 
+export function mockUrlQueryData(params: Record<string, string>) {
+  const window = new ReachRouterWindow();
+  const data = new UrlQueryData(window);
+  for (const param of Object.keys(params)) {
+    data.set(param, params[param]);
+  }
+  return data;
+}
+
 export const mockEmail = (
   email = 'johndope@example.com',
   isPrimary = true,
@@ -148,9 +135,17 @@ export function mockAppContext(context?: AppContextValue) {
       account: MOCK_ACCOUNT,
       session: mockSession(),
       config: getDefault(),
-      alertBarInfo: new AlertBarInfo(),
-      storageData: mockStorage(),
     },
     context
   ) as AppContextValue;
+}
+
+export function mockSettingsContext(context?: SettingsContextValue) {
+  return Object.assign(
+    {
+      alertBarInfo: new AlertBarInfo(),
+      navigatorLanguages: navigator.languages || ['en'],
+    },
+    context
+  );
 }

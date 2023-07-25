@@ -4,20 +4,20 @@
 
 import React from 'react';
 import { MozServices } from '../../../lib/types';
-import { Account } from '../../../models';
+import { Account, Integration } from '../../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
   createHistoryWithQuery,
   createAppContext,
+  mockUrlQueryData,
 } from '../../../models/mocks';
 
 import { LinkType } from 'fxa-settings/src/lib/types';
 import LinkValidator from '../../../components/LinkValidator';
-import { StorageData, UrlQueryData } from '../../../lib/model-data';
-import { ReachRouterWindow } from '../../../lib/window';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import AccountRecoveryConfirmKey from '.';
+import { createMockResetPasswordWebIntegration } from '../mocks';
 
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
 export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
@@ -61,40 +61,16 @@ export const paramsWithMissingToken = {
   token: '',
 };
 
-export function mockUrlQueryData(
-  params: Record<string, string> = mockCompleteResetPasswordParams
-) {
-  const window = new ReachRouterWindow();
-  const data = new UrlQueryData(window);
-  for (const param of Object.keys(params)) {
-    data.set(param, params[param]);
-  }
-  return data;
-}
-
-class StorageDataMock extends StorageData {
-  public override persist(): void {
-    // no op
-  }
-  public override load(): void {
-    // no op
-  }
-  public override set(): void {
-    // no op
-  }
-}
-
 const route = '/account_recovery_confirm_key';
 export const getSubject = (
   account: Account,
-  params?: Record<string, string>
+  params: Record<string, string>
 ) => {
   const urlQueryData = mockUrlQueryData(params);
   const history = createHistoryWithQuery(
     route,
     new URLSearchParams(params).toString()
   );
-  const windowWrapper = new ReachRouterWindow(history);
 
   return {
     Subject: () => (
@@ -104,6 +80,8 @@ export const getSubject = (
         getParamsFromModel={() => {
           return new CompleteResetPasswordLink(urlQueryData);
         }}
+        // TODO worth fixing this type and adding integrations for AccountRecoveryConfirmKey?
+        integration={createMockResetPasswordWebIntegration() as Integration}
       >
         {({ setLinkStatus, params }) => (
           <AccountRecoveryConfirmKey {...{ setLinkStatus, params }} />
@@ -114,11 +92,8 @@ export const getSubject = (
     history,
     appCtx: {
       ...mockAppContext({
-        ...createAppContext(history),
+        ...createAppContext(),
         account,
-        windowWrapper,
-        urlQueryData,
-        storageData: new StorageDataMock(windowWrapper),
       }),
     },
   };

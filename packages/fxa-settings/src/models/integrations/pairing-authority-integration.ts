@@ -2,12 +2,35 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { BaseIntegration, IntegrationType } from './base-integration';
+import { ModelDataStore } from '../../lib/model-data';
+import { IntegrationType } from './base-integration';
+import {
+  OAuthIntegration,
+  OAuthIntegrationData,
+  OAuthIntegrationOptions,
+} from './oauth-integration';
+import {
+  bind,
+  KeyTransforms as T,
+  ModelValidation as V,
+} from '../../lib/model-data';
+
+export class PairingAuthorityIntegrationData extends OAuthIntegrationData {
+  @bind([V.isString], T.snakeCase)
+  channelId: string = '';
+}
 
 // TODO in the 'Pairing' React epic. This shouldn't have any `feature` overrides but feel
 // free to look at all of that logic with fresh eyes in case we want to do it differently.
-export class PairingAuthorityIntegration extends BaseIntegration {
-  constructor() {
-    super(IntegrationType.PairingAuthority);
+//
+// Also keep in mind, in content-server:
+// Authority auth_broker extends from Base auth_broker and Authority relier extends from OAuthRelier
+export class PairingAuthorityIntegration extends OAuthIntegration {
+  constructor(
+    data: ModelDataStore,
+    protected readonly storageData: ModelDataStore,
+    public readonly opts: OAuthIntegrationOptions
+  ) {
+    super(data, storageData, opts, IntegrationType.PairingAuthority);
   }
 }

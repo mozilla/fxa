@@ -8,7 +8,8 @@ import { ConnectAnotherDevicePromo } from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext } from '../../../models';
-import { mockAppContext } from '../../../models/mocks';
+import { mockAppContext, mockSettingsContext } from '../../../models/mocks';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 export default {
   title: 'Components/Settings/ConnectAnotherDevice',
@@ -17,10 +18,14 @@ export default {
     withLocalization,
     (Story) => (
       <LocationProvider>
-        <AppContext.Provider
-          value={mockAppContext({ navigatorLanguages: navigator.languages })}
-        >
-          <Story />
+        <AppContext.Provider value={mockAppContext()}>
+          <SettingsContext.Provider
+            value={mockSettingsContext({
+              navigatorLanguages: navigator.languages,
+            })}
+          >
+            <Story />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       </LocationProvider>
     ),

@@ -3,24 +3,41 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useAccount, useRelier } from '../../models';
+import {
+  IntegrationType,
+  OAuthIntegration,
+  isOAuthIntegration,
+  useAccount,
+} from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { logViewEvent } from 'fxa-settings/src/lib/metrics';
 import { REACT_ENTRYPOINT } from 'fxa-settings/src/constants';
 import { LinkExpired } from '../LinkExpired';
+import { IntegrationSubsetType } from '../../lib/integrations';
 
 type LinkExpiredResetPasswordProps = {
   email: string;
   viewName: string;
+  integration: LinkExpiredResetPasswordIntegration;
 };
+
+interface LinkExpiredResetPasswordOAuthIntegration {
+  type: IntegrationType.OAuth;
+  getService: () => ReturnType<OAuthIntegration['getService']>;
+  getRedirectUri: () => ReturnType<OAuthIntegration['getService']>;
+}
+
+type LinkExpiredResetPasswordIntegration =
+  | LinkExpiredResetPasswordOAuthIntegration
+  | IntegrationSubsetType;
 
 export const LinkExpiredResetPassword = ({
   email,
   viewName,
+  integration,
 }: LinkExpiredResetPasswordProps) => {
   // TODO in FXA-7630 add metrics event and associated tests for users hitting the LinkExpired page
   const account = useAccount();
-  const relier = useRelier();
 
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
@@ -28,11 +45,11 @@ export const LinkExpiredResetPassword = ({
 
   const resendResetPasswordLink = async () => {
     try {
-      if (relier.isOAuth()) {
+      if (isOAuthIntegration(integration)) {
         await account.resetPassword(
           email,
-          relier.getService(),
-          relier.getRedirectUri()
+          integration.getService(),
+          integration.getRedirectUri()
         );
       } else {
         await account.resetPassword(email);

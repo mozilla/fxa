@@ -5,7 +5,7 @@
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { ClientInfo } from './client-info';
 
-describe('models/reliers/client-info', function () {
+describe('models/integrations/client-info', function () {
   let data: ModelDataStore;
   let model: ClientInfo;
 

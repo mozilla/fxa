@@ -16,7 +16,6 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export type SigninBouncedProps = {
   email?: string;
-  emailLookupComplete: boolean;
   onBackButtonClick?: (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => void;
@@ -27,7 +26,6 @@ export const viewName = 'signin-bounced';
 
 const SigninBounced = ({
   email,
-  emailLookupComplete,
   canGoBack,
   onBackButtonClick,
 }: SigninBouncedProps & RouteComponentProps) => {
@@ -45,10 +43,10 @@ const SigninBounced = ({
   };
 
   useEffect(() => {
-    if (emailLookupComplete && !email) {
+    if (!email) {
       hardNavigateToContentServer('/signin');
     }
-  }, [email, emailLookupComplete /*, navigate*/]);
+  }, [email]);
 
   const createAccountHandler = () => {
     logViewEvent(viewName, 'link.create-account', REACT_ENTRYPOINT);

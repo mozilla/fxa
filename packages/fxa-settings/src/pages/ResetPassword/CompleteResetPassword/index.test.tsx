@@ -4,11 +4,10 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
-import { Account } from '../../../models';
+import { Account, IntegrationType } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
-  getSubject,
   MOCK_RESET_DATA,
   mockCompleteResetPasswordParams,
   paramsWithMissingCode,
@@ -16,9 +15,15 @@ import {
   paramsWithMissingEmailToHashWith,
   paramsWithMissingToken,
   paramsWithSyncDesktop,
+  Subject,
 } from './mocks';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
-import { renderWithRouter } from '../../../models/mocks';
+import {
+  createAppContext,
+  createHistoryWithQuery,
+  mockAppContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -72,9 +77,20 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
-const renderSubject = (account: Account, params?: Record<string, string>) => {
-  const { Subject, history, appCtx } = getSubject(account, params);
-  return renderWithRouter(<Subject />, { history }, appCtx);
+const route = '/complete_reset_password';
+const render = (ui: any, account?: Account) => {
+  const history = createHistoryWithQuery(route);
+  return renderWithRouter(
+    ui,
+    {
+      route,
+      history,
+    },
+    mockAppContext({
+      ...createAppContext(),
+      ...(account && { account }),
+    })
+  );
 };
 
 describe('CompleteResetPassword page', () => {
@@ -102,7 +118,7 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('renders the component as expected', async () => {
-    renderSubject(account);
+    render(<Subject />, account);
     // testAllL10n(screen, bundle);
 
     await screen.findByRole('heading', {
@@ -117,7 +133,7 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('displays password requirements when the new password field is in focus', async () => {
-    renderSubject(account);
+    render(<Subject />, account);
 
     const newPasswordField = await screen.findByTestId(
       'new-password-input-field'
@@ -137,7 +153,7 @@ describe('CompleteResetPassword page', () => {
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
     } as unknown as Account;
 
-    renderSubject(account);
+    render(<Subject />, account);
 
     await screen.findByRole('heading', {
       name: 'Reset password link expired',
@@ -165,7 +181,8 @@ describe('CompleteResetPassword page', () => {
     });
 
     it('with missing token', async () => {
-      renderSubject(account, paramsWithMissingToken);
+      // TODO: figure out param type when looking at LinkValidator
+      render(<Subject params={paramsWithMissingToken} />, account);
 
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
@@ -176,7 +193,7 @@ describe('CompleteResetPassword page', () => {
       expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing code', async () => {
-      renderSubject(account, paramsWithMissingCode);
+      render(<Subject params={paramsWithMissingCode} />, account);
 
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
@@ -184,7 +201,7 @@ describe('CompleteResetPassword page', () => {
       expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing email', async () => {
-      renderSubject(account, paramsWithMissingEmail);
+      render(<Subject params={paramsWithMissingEmail} />, account);
 
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
@@ -195,7 +212,7 @@ describe('CompleteResetPassword page', () => {
 
   // TODO in FXA-7630: check for metrics event when link is expired or damaged
   it('emits the expected metrics on render', async () => {
-    renderSubject(account);
+    render(<Subject />, account);
 
     await screen.findByRole('heading', {
       name: 'Create new password',
@@ -217,7 +234,7 @@ describe('CompleteResetPassword page', () => {
           .mockRejectedValue(new Error('Request failed')),
       } as unknown as Account;
 
-      renderSubject(account);
+      render(<Subject />, account);
 
       await waitFor(() => {
         fireEvent.input(screen.getByTestId('new-password-input-field'), {
@@ -244,7 +261,7 @@ describe('CompleteResetPassword page', () => {
           .mockRejectedValue(new Error('Request failed')),
       } as unknown as Account;
 
-      renderSubject(account);
+      render(<Subject />, account);
 
       await screen.findByText(
         'Sorry, there was a problem checking if you have an account recovery key.',
@@ -270,7 +287,7 @@ describe('CompleteResetPassword page', () => {
 
     it('redirects as expected', async () => {
       lostRecoveryKey = false;
-      renderSubject(accountWithRecoveryKey);
+      render(<Subject />, accountWithRecoveryKey);
 
       screen.getByLabelText('Loading…');
 
@@ -293,7 +310,7 @@ describe('CompleteResetPassword page', () => {
 
     it('does not check or redirect when state has lostRecoveryKey', async () => {
       lostRecoveryKey = true;
-      renderSubject(accountWithRecoveryKey);
+      render(<Subject />, accountWithRecoveryKey);
       // If recovery key reported as lost, default CompleteResetPassword page is rendered
       await screen.findByRole('heading', {
         name: 'Create new password',
@@ -320,7 +337,7 @@ describe('CompleteResetPassword page', () => {
     }
 
     it('calls expected functions', async () => {
-      renderSubject(account);
+      render(<Subject />, account);
       await enterPasswordAndSubmit();
       // Check that completeResetPassword was the first function called
       // because it retrieves the session token required by other calls
@@ -332,7 +349,7 @@ describe('CompleteResetPassword page', () => {
     });
 
     it('submits with emailToHashWith if present', async () => {
-      renderSubject(account);
+      render(<Subject />, account);
       const { token, emailToHashWith, code } = mockCompleteResetPasswordParams;
 
       await enterPasswordAndSubmit();
@@ -344,7 +361,7 @@ describe('CompleteResetPassword page', () => {
       );
     });
     it('submits with email if emailToHashWith is missing', async () => {
-      renderSubject(account, paramsWithMissingEmailToHashWith);
+      render(<Subject params={paramsWithMissingEmailToHashWith} />, account);
       const { token, email, code } = paramsWithMissingEmailToHashWith;
 
       await enterPasswordAndSubmit();
@@ -377,14 +394,14 @@ describe('CompleteResetPassword page', () => {
           hasTotpAuthClient: jest.fn().mockResolvedValue(true),
         } as unknown as Account;
 
-        renderSubject(account);
+        render(<Subject />, account);
         await enterPasswordAndSubmit();
 
         expect(window.location.href).toContain('/signin_totp_code');
       });
 
       it('account does not have TOTP', async () => {
-        renderSubject(account);
+        render(<Subject />, account);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
           '/reset_password_verified?email=johndope%40example.com&emailToHashWith=&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
@@ -396,7 +413,13 @@ describe('CompleteResetPassword page', () => {
     });
     describe('SyncDesktop integration', () => {
       it('calls notifyFirefoxOfLogin', async () => {
-        renderSubject(account, paramsWithSyncDesktop);
+        render(
+          <Subject
+            integrationType={IntegrationType.SyncDesktop}
+            params={paramsWithSyncDesktop}
+          />,
+          account
+        );
         await enterPasswordAndSubmit();
 
         expect(notifyFirefoxOfLogin).toBeCalled();

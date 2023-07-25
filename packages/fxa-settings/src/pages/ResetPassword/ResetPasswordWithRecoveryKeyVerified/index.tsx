@@ -9,11 +9,8 @@ import { logViewEvent } from '../../../lib/metrics';
 import Ready from '../../../components/Ready';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
-import { useRelier, useFtlMsgResolver } from '../../../models';
-
-export type ResetPasswordWithRecoveryKeyVerifiedProps = {
-  isSignedIn: boolean;
-};
+import { useFtlMsgResolver } from '../../../models';
+import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
 
 export const viewName = 'reset-password-with-recovery-key-verified';
 
@@ -24,9 +21,9 @@ export const viewName = 'reset-password-with-recovery-key-verified';
 
 const ResetPasswordWithRecoveryKeyVerified = ({
   isSignedIn,
+  integration,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
   const navigate = useNavigate();
-  const relier = useRelier();
 
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -51,8 +48,8 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   const [serviceName, setServiceName] = useState<string>();
   useEffect(() => {
     (async () => {
-      setIsSync(await relier.isSync());
-      setServiceName(await relier.getServiceName());
+      setIsSync(await integration.isSync());
+      setServiceName(await integration.getServiceName());
     })();
   });
 

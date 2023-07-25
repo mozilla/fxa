@@ -5,17 +5,19 @@
 import React from 'react';
 import { LinkType } from 'fxa-settings/src/lib/types';
 import CompleteResetPassword from '.';
-import LinkValidator from '../../../components/LinkValidator';
-import { StorageData, UrlQueryData } from '../../../lib/model-data';
-import { Account } from '../../../models';
-import {
-  mockAppContext,
-  MOCK_ACCOUNT,
-  createHistoryWithQuery,
-  createAppContext,
-} from '../../../models/mocks';
+import { Integration, IntegrationType } from '../../../models';
+import { MOCK_ACCOUNT, mockUrlQueryData } from '../../../models/mocks';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
-import { ReachRouterWindow } from '../../../lib/window';
+import {
+  CompleteResetPasswordIntegration,
+  CompleteResetPasswordOAuthIntegration,
+} from './interfaces';
+import { MOCK_UID } from '../../mocks';
+import LinkValidator from '../../../components/LinkValidator';
+import {
+  createMockSyncDesktopIntegration,
+  createMockWebIntegration,
+} from '../../../lib/integrations/mocks';
 
 // TODO: combine a lot of mocks with AccountRecoveryResetPassword
 const fxDesktopV3ContextParam = { context: 'fx_desktop_v3' };
@@ -61,65 +63,57 @@ export const MOCK_RESET_DATA = {
   verified: true,
 };
 
-export function mockUrlQueryData(
-  params: Record<string, string> = mockCompleteResetPasswordParams
-) {
-  const window = new ReachRouterWindow();
-  const data = new UrlQueryData(window);
-  for (const param of Object.keys(params)) {
-    data.set(param, params[param]);
-  }
-  return data;
-}
-
-class StorageDataMock extends StorageData {
-  public override persist(): void {
-    // no op
-  }
-  public override load(): void {
-    // no op
-  }
-  public override set(): void {
-    // no op
-  }
-}
-
-const route = '/complete_reset_password';
-export const getSubject = (
-  account: Account,
-  params?: Record<string, string>
-) => {
+export const Subject = ({
+  integrationType = IntegrationType.Web,
+  params = mockCompleteResetPasswordParams,
+}: {
+  integrationType?: IntegrationType;
+  params?: Record<string, string>;
+}) => {
   const urlQueryData = mockUrlQueryData(params);
-  const history = createHistoryWithQuery(
-    route,
-    new URLSearchParams(params).toString()
-  );
-  const windowWrapper = new ReachRouterWindow(history);
 
+  let completeResetPasswordIntegration: CompleteResetPasswordIntegration;
+  switch (integrationType) {
+    case IntegrationType.OAuth:
+      completeResetPasswordIntegration =
+        createMockResetPasswordOAuthIntegration();
+      break;
+    case IntegrationType.SyncDesktop:
+      completeResetPasswordIntegration = createMockSyncDesktopIntegration();
+      break;
+    case IntegrationType.Web:
+    default:
+      completeResetPasswordIntegration = createMockWebIntegration();
+  }
+
+  return (
+    <LinkValidator
+      linkType={LinkType['reset-password']}
+      viewName={'complete-reset-password'}
+      getParamsFromModel={() => {
+        return new CompleteResetPasswordLink(urlQueryData);
+      }}
+      // TODO worth fixing this type?
+      integration={completeResetPasswordIntegration as Integration}
+    >
+      {({ setLinkStatus, params }) => (
+        <CompleteResetPassword
+          {...{ setLinkStatus, params }}
+          integration={completeResetPasswordIntegration}
+          finishOAuthFlowHandler={() =>
+            Promise.resolve({ redirect: 'someUri' })
+          }
+        />
+      )}
+    </LinkValidator>
+  );
+};
+
+function createMockResetPasswordOAuthIntegration(): CompleteResetPasswordOAuthIntegration {
   return {
-    Subject: () => (
-      <LinkValidator
-        linkType={LinkType['reset-password']}
-        viewName={'complete-reset-password'}
-        getParamsFromModel={() => {
-          return new CompleteResetPasswordLink(urlQueryData);
-        }}
-      >
-        {({ setLinkStatus, params }) => (
-          <CompleteResetPassword {...{ setLinkStatus, params }} />
-        )}
-      </LinkValidator>
-    ),
-    route,
-    history,
-    appCtx: {
-      ...mockAppContext({
-        ...createAppContext(history),
-        account,
-        windowWrapper,
-        urlQueryData,
-        storageData: new StorageDataMock(windowWrapper),
-      }),
+    type: IntegrationType.OAuth,
+    data: {
+      uid: MOCK_UID,
     },
   };
-};
+}

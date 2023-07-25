@@ -14,11 +14,9 @@ import {
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import {
-  OAuthRelier,
-  isOAuthRelier,
+  isOAuthIntegration,
   useAccount,
   useFtlMsgResolver,
-  useRelier,
 } from '../../models';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -26,38 +24,28 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
-import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword';
 import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
 import { isEmailValid } from 'fxa-shared/email/helpers';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 import { setOriginalTabMarker } from '../../lib/storage-utils';
+import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
+import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
 
 export const viewName = 'reset-password';
-
-export type ResetPasswordProps = {
-  prefillEmail?: string;
-  forceAuth?: boolean;
-  serviceName?: MozServices;
-};
-
-type FormData = {
-  email: string;
-};
 
 // eslint-disable-next-line no-empty-pattern
 const ResetPassword = ({
   prefillEmail,
   forceAuth,
+  integration,
 }: ResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
   const [errorText, setErrorText] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [hasFocused, setHasFocused] = useState<boolean>(false);
   const account = useAccount();
-  const relier = useRelier();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -67,24 +55,25 @@ const ResetPassword = ({
   const [serviceName, setServiceName] = useState<string>(MozServices.Default);
   useEffect(() => {
     (async () => {
-      const name = await relier.getServiceName();
+      const name = await integration.getServiceName();
       setServiceName(name);
     })();
-  }, [relier]);
+  }, [integration]);
 
-  const { control, getValues, handleSubmit, register } = useForm<FormData>({
-    mode: 'onTouched',
-    criteriaMode: 'all',
-    // The email field is not pre-filled for the reset_password page,
-    // but if the user enters an email address, the entered email
-    // address should be propagated back to the signin page. If
-    // the user enters no email and instead clicks "Remember password?"
-    // immediately, the /signin page should have the original email.
-    // See https://github.com/mozilla/fxa-content-server/issues/5293.
-    defaultValues: {
-      email: '',
-    },
-  });
+  const { control, getValues, handleSubmit, register } =
+    useForm<ResetPasswordFormData>({
+      mode: 'onTouched',
+      criteriaMode: 'all',
+      // The email field is not pre-filled for the reset_password page,
+      // but if the user enters an email address, the entered email
+      // address should be propagated back to the signin page. If
+      // the user enters no email and instead clicks "Remember password?"
+      // immediately, the /signin page should have the original email.
+      // See https://github.com/mozilla/fxa-content-server/issues/5293.
+      defaultValues: {
+        email: '',
+      },
+    });
 
   // Log a metrics event when a user first engages with the form
   const { logViewEventOnce: logEngageEvent } = useMetrics();
@@ -118,12 +107,12 @@ const ResetPassword = ({
         clearError();
 
         // This will save the scope and oauth state for later
-        if (isOAuthRelier(relier)) {
-          relier.saveOAuthState();
+        if (isOAuthIntegration(integration)) {
+          integration.saveOAuthState();
           const result = await account.resetPassword(
             email,
-            relier.getService(),
-            relier.getRedirectUri()
+            integration.getService(),
+            integration.getRedirectUri()
           );
           navigateToConfirmPwReset({
             passwordForgotToken: result.passwordForgotToken,
@@ -167,7 +156,7 @@ const ResetPassword = ({
         setErrorMessage(localizedError);
       }
     },
-    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, relier]
+    [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, integration]
   );
 
   const onSubmit = useCallback(async () => {
@@ -192,7 +181,7 @@ const ResetPassword = ({
   const ControlledLinkRememberPassword = ({
     control,
   }: {
-    control: Control<FormData>;
+    control: Control<ResetPasswordFormData>;
   }) => {
     const email: string = useWatch({
       control,

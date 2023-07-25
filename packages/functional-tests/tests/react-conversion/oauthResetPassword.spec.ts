@@ -15,7 +15,6 @@ test.describe('oauth reset password react', () => {
 
     const config = await login.getConfig();
     test.skip(config.showReactApp.resetPasswordRoutes !== true);
-    test.skip(config.showReactApp.oauthRoutes !== true);
   });
 
   test.afterEach(async ({ pages: { resetPassword } }) => {
@@ -286,6 +285,7 @@ async function passwordResetFlow(
 
   // This is an alternate flow. The account is expecting to have 2FA, ie totp enabled.
   if (totp) {
+    await page.waitForURL(/signin_totp_code/);
     await login.setTotp(credentials.secret);
   }
 

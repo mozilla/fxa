@@ -4,20 +4,20 @@
 
 import sinon, { createSandbox } from 'sinon';
 import {
-  BaseRelier,
-  BrowserRelier,
-  OAuthRelier,
-  PairingAuthorityRelier,
-  PairingSupplicantRelier,
-  Relier,
-} from '../../models/reliers';
+  BaseIntegration,
+  Integration,
+  IntegrationType,
+  OAuthIntegration,
+  PairingAuthorityIntegration,
+  PairingSupplicantIntegration,
+  SyncDesktopIntegration,
+} from '../../models/integrations';
 import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
-import { RelierDelegates } from './interfaces';
-import { RelierFactory } from './relier-factory';
-import { DefaultRelierFlags } from './relier-factory-flags';
+import { IntegrationDelegates } from '../integrations/interfaces';
+import { IntegrationFactory, DefaultIntegrationFlags } from '../integrations';
 import { ReachRouterWindow } from '../window';
 
-type RelierFlagOverrides = {
+type IntegrationFlagOverrides = {
   isDevicePairingAsAuthority?: boolean;
   isDevicePairingAsSupplicant?: boolean;
   isOAuth?: boolean;
@@ -26,28 +26,28 @@ type RelierFlagOverrides = {
 };
 
 type FactoryCallCounts = {
-  initRelier?: number;
-  initBrowserRelier?: number;
-  initOAuthRelier?: number;
+  initIntegration?: number;
+  initSyncDesktopIntegration?: number;
+  initOAuthIntegration?: number;
   initClientInfo?: number;
 };
 
-describe('lib/reliers/relier-factory', () => {
+describe('lib/integrations/integration-factory', () => {
   const window = new ReachRouterWindow();
   let sandbox: sinon.SinonSandbox;
-  let flags: DefaultRelierFlags;
+  let flags: DefaultIntegrationFlags;
   let urlQueryData: UrlQueryData;
   let urlHashData: UrlHashData;
   let storageData: StorageData;
-  let delegates: RelierDelegates;
+  let delegates: IntegrationDelegates;
 
   /**
-   * Initial setup for factory tests. Checks that factory methods were invoked and factory produced correct relier type.
+   * Initial setup for factory tests. Checks that factory methods were invoked and factory produced correct integration type.
    **/
-  async function setup<T extends Relier>(
-    flagOverrides: RelierFlagOverrides,
+  async function setup<T extends Integration>(
+    flagOverrides: IntegrationFlagOverrides,
     callCounts: FactoryCallCounts,
-    checkInstance: (relier: Relier) => boolean
+    checkInstance: (integration: Integration) => boolean
   ) {
     // Make sure sinon is reset
     sandbox.restore();
@@ -66,7 +66,7 @@ describe('lib/reliers/relier-factory', () => {
       .returns(!!flagOverrides.isV3DesktopContext);
 
     // Create a factory with current state
-    const factory = new RelierFactory({
+    const factory = new IntegrationFactory({
       window,
       data: urlQueryData,
       channelData: urlHashData,
@@ -78,10 +78,10 @@ describe('lib/reliers/relier-factory', () => {
     urlQueryData.set('client_id', '123');
     urlQueryData.set('redirect_uri', 'https://redirect.to');
 
-    // Create the relier
-    const relier = await factory.getRelier();
-    checkInstance(relier);
-    return relier as T;
+    // Create the integration
+    const integration = factory.getIntegration();
+    checkInstance(integration);
+    return integration as T;
   }
 
   async function mockSearchParams(overrides: Record<string, string>) {
@@ -107,9 +107,9 @@ describe('lib/reliers/relier-factory', () => {
     urlHashData = new UrlHashData(window);
     storageData = new StorageData(window);
 
-    // Flags hold all the logic that controls the state which drives the type of relier
+    // Flags hold all the logic that controls the state which drives the type of integration
     // instance being created by the factory
-    flags = new DefaultRelierFlags(urlQueryData, storageData);
+    flags = new DefaultIntegrationFlags(urlQueryData, storageData);
 
     // Delegates are used by the factory as callbacks to get external data.
     // This stops the factory from becoming concerned with out to fetch external
@@ -133,59 +133,59 @@ describe('lib/reliers/relier-factory', () => {
     };
   });
 
-  describe('BaseRelier creation', () => {
-    let relier: BaseRelier;
+  describe('BaseIntegration creation', () => {
+    let integration: BaseIntegration;
 
     beforeAll(async () => {
-      relier = await setup<BaseRelier>(
+      integration = await setup<BaseIntegration>(
         {},
-        { initRelier: 1 },
-        (r: Relier) => r instanceof BaseRelier
+        { initIntegration: 1 },
+        (i: Integration) => i instanceof BaseIntegration
       );
     });
 
     it('has correct state`', async () => {
-      expect(relier.name).toEqual('base');
-      expect(relier.isOAuth()).toBeFalsy();
-      expect(await relier.isSync()).toBeFalsy();
-      expect(relier.wantsKeys()).toBeFalsy();
-      expect(await relier.isTrusted()).toBeTruthy();
+      expect(integration.type).toEqual(IntegrationType.Web);
+      expect(integration.isOAuth()).toBeFalsy();
+      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.wantsKeys()).toBeFalsy();
+      expect(await integration.isTrusted()).toBeTruthy();
     });
 
     // TODO: Remove with approval.
     //
-    // I think maybe this is feature envy, perhaps we should have some dedicated thing that checks relier state
-    // and account state to determine if features are needed. As far as I can tell the relier models
+    // I think maybe this is feature envy, perhaps we should have some dedicated thing that checks integration state
+    // and account state to determine if features are needed. As far as I can tell the integration models
     // themselves really shouldn't know or care about 'accounts'
     //
     // describe('accountNeedsPermissions', function () {
     //   it('returns `false`', function () {
-    //     assert.isFalse(relier.accountNeedsPermissions());
+    //     assert.isFalse(integration.accountNeedsPermissions());
     //   });
     // });
   });
 
-  describe('BrowserRelier creation', () => {
+  describe('SyncDesktop creation', () => {
     const ACTION = 'email';
     const CONTEXT = 'fx_desktop_v3';
     const COUNTRY = 'RO';
     const SYNC_SERVICE = 'sync';
-    let relier: BrowserRelier;
+    let integration: SyncDesktopIntegration;
 
     beforeAll(async () => {
-      relier = await setup<BrowserRelier>(
+      integration = await setup<SyncDesktopIntegration>(
         { isSyncService: true, isV3DesktopContext: true },
-        { initRelier: 1, initBrowserRelier: 1 },
-        (r: Relier) => r instanceof BrowserRelier
+        { initIntegration: 1, initSyncDesktopIntegration: 1 },
+        (i: Integration) => i instanceof SyncDesktopIntegration
       );
     });
 
     it('has correct state', async () => {
-      expect(relier.name).toEqual('browser');
-      expect(relier.isOAuth()).toBeFalsy();
-      expect(await relier.isSync()).toBeTruthy();
-      expect(relier.wantsKeys()).toBeTruthy();
-      expect(await relier.isTrusted()).toBeTruthy();
+      expect(integration.type).toEqual(IntegrationType.SyncDesktop);
+      expect(integration.isOAuth()).toBeFalsy();
+      expect(await integration.isSync()).toBeTruthy();
+      expect(integration.wantsKeys()).toBeTruthy();
+      expect(await integration.isTrusted()).toBeTruthy();
     });
 
     it('populates model from the search parameters', async () => {
@@ -196,26 +196,26 @@ describe('lib/reliers/relier-factory', () => {
         service: SYNC_SERVICE,
       });
 
-      expect(relier.action).toEqual(ACTION);
-      expect(relier.context).toEqual(CONTEXT);
-      expect(relier.country).toEqual(COUNTRY);
-      expect(relier.service).toEqual(SYNC_SERVICE);
+      expect(integration.data.action).toEqual(ACTION);
+      expect(integration.data.context).toEqual(CONTEXT);
+      expect(integration.data.country).toEqual(COUNTRY);
+      expect(integration.data.service).toEqual(SYNC_SERVICE);
     });
 
     // TODO: Port remaining tests from content-server
   });
 
-  describe('OAuthRelier creation', () => {
-    let relier: OAuthRelier;
+  describe('OAuthIntegration creation', () => {
+    let integration: OAuthIntegration;
 
     beforeAll(async () => {
-      relier = await setup<OAuthRelier>(
+      integration = await setup<OAuthIntegration>(
         { isOAuth: true },
-        { initRelier: 1, initOAuthRelier: 1, initClientInfo: 1 },
-        (r: Relier) => r instanceof OAuthRelier
+        { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
+        (i: Integration) => i instanceof OAuthIntegration
       );
 
-      sandbox.stub(relier, 'clientInfo').returns(
+      sandbox.stub(integration, 'clientInfo').returns(
         Promise.resolve({
           trusted: true,
         })
@@ -223,46 +223,46 @@ describe('lib/reliers/relier-factory', () => {
     });
 
     it('has correct state', async () => {
-      expect(relier.name).toEqual('oauth');
-      expect(relier.isOAuth()).toBeTruthy();
-      expect(await relier.isSync()).toBeFalsy();
-      expect(relier.wantsKeys()).toBeFalsy();
-      expect(await relier.isTrusted()).toBeFalsy();
+      expect(integration.type).toEqual(IntegrationType.OAuth);
+      expect(integration.isOAuth()).toBeTruthy();
+      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.wantsKeys()).toBeFalsy();
+      expect(await integration.isTrusted()).toBeFalsy();
     });
     // TODO: Port remaining tests from content-server
   });
 
-  describe('PairingSupplicantRelier creation', () => {
-    let relier: PairingSupplicantRelier;
+  describe('PairingSupplicantIntegration creation', () => {
+    let integration: PairingSupplicantIntegration;
 
     beforeAll(async () => {
       await mockSearchParams({
         redirect_uri: 'foo',
       });
-      relier = await setup<PairingSupplicantRelier>(
+      integration = await setup<PairingSupplicantIntegration>(
         { isDevicePairingAsSupplicant: true },
-        { initRelier: 1, initClientInfo: 1 },
-        (r: Relier) => r instanceof PairingSupplicantRelier
+        { initIntegration: 1, initClientInfo: 1 },
+        (i: Integration) => i instanceof PairingSupplicantIntegration
       );
     });
 
     it('has correct state', async () => {
-      expect(relier.name).toEqual('pairing-supplicant');
-      expect(relier.isOAuth()).toBeTruthy();
-      expect(await relier.isSync()).toBeFalsy();
-      expect(relier.wantsKeys()).toBeFalsy();
-      expect(await relier.isTrusted()).toBeFalsy();
+      expect(integration.type).toEqual(IntegrationType.PairingSupplicant);
+      expect(integration.isOAuth()).toBeTruthy();
+      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.wantsKeys()).toBeFalsy();
+      expect(await integration.isTrusted()).toBeFalsy();
     });
   });
 
-  describe('PairingAuthorityRelier creation', () => {
-    let relier: PairingAuthorityRelier;
+  describe('PairingAuthorityIntegration creation', () => {
+    let integration: PairingAuthorityIntegration;
 
     beforeAll(async () => {
-      relier = await setup<PairingAuthorityRelier>(
+      integration = await setup<PairingAuthorityIntegration>(
         { isDevicePairingAsAuthority: true },
-        { initRelier: 1, initClientInfo: 1, initOAuthRelier: 1 },
-        (r: Relier) => r instanceof PairingSupplicantRelier
+        { initIntegration: 1, initClientInfo: 1, initOAuthIntegration: 1 },
+        (i: Integration) => i instanceof PairingSupplicantIntegration
       );
     });
 
@@ -270,11 +270,11 @@ describe('lib/reliers/relier-factory', () => {
       await mockSearchParams({
         redirect_uri: 'foo',
       });
-      expect(relier.name).toEqual('pairing-authority');
-      expect(relier.isOAuth()).toBeTruthy();
-      expect(await relier.isSync()).toBeFalsy();
-      expect(relier.wantsKeys()).toBeFalsy();
-      expect(await relier.isTrusted()).toBeFalsy();
+      expect(integration.type).toEqual(IntegrationType.PairingAuthority);
+      expect(integration.isOAuth()).toBeTruthy();
+      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.wantsKeys()).toBeFalsy();
+      expect(await integration.isTrusted()).toBeFalsy();
     });
   });
 });

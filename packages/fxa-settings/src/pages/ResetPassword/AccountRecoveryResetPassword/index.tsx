@@ -2,13 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import {
-  NavigateFn,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from '@reach/router';
 import {
   FtlMsg,
   hardNavigate,
@@ -26,32 +21,27 @@ import { LinkExpiredResetPassword } from '../../../components/LinkExpiredResetPa
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import {
-  ModelValidationErrors,
-  GenericData,
-  UrlQueryData,
-} from '../../../lib/model-data';
-import {
   logErrorEvent,
   logViewEvent,
   setUserPreference,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useNotifier, useAccount, useAuthClient } from '../../../models/hooks';
+import { useAccount } from '../../../models/hooks';
 import { LinkStatus } from '../../../lib/types';
-import {
-  CreateAccountRecoveryKeyInfo,
-  useRelier,
-  CreateVerificationInfo,
-  useIntegration,
-  IntegrationType,
-  OAuthIntegration,
-} from '../../../models';
+import { IntegrationType, isOAuthIntegration } from '../../../models';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
 import {
   clearOAuthData,
   clearOriginalTab,
   isOriginalTab,
 } from '../../../lib/storage-utils';
+import {
+  AccountRecoveryResetPasswordBannerState,
+  AccountRecoveryResetPasswordFormData,
+  AccountRecoveryResetPasswordLocationState,
+  AccountRecoveryResetPasswordProps,
+} from './interfaces';
+import { CreateVerificationInfo } from '../../../models/verification';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -59,54 +49,42 @@ import {
 // Account recovery properties must be set to recover the account using the recovery key
 // (recoveryKeyId, accountResetToken, kb)
 
-// If lostRecoveryKey is set, redirect to /complete_reset_password
-
 export const viewName = 'account-recovery-reset-password';
 
-export type AccountRecoveryResetPasswordProps = {
-  overrides?: {
-    navigate?: NavigateFn;
-    locationData?: GenericData;
-    urlQueryData?: UrlQueryData;
-  };
-} & RouteComponentProps;
-
-type FormData = {
-  newPassword: string;
-  confirmPassword: string;
-};
-
-enum BannerState {
-  None,
-  UnexpectedError,
-  PasswordResetSuccess,
-  Redirecting,
-  PasswordResendError,
-  ValidationError,
-}
-
 const AccountRecoveryResetPassword = ({
-  overrides,
+  integration,
+  finishOAuthFlowHandler,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const notifier = useNotifier();
   const account = useAccount();
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const relier = useRelier();
-  const authClient = useAuthClient();
-  const integration = useIntegration();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: AccountRecoveryResetPasswordLocationState;
+  };
+  // TODO: This should be done in a container component
   const verificationInfo = CreateVerificationInfo();
-  const accountRecoveryKeyInfo = CreateAccountRecoveryKeyInfo();
 
-  const state = getInitialState();
+  const [bannerState, setBannerState] =
+    useState<AccountRecoveryResetPasswordBannerState>(
+      AccountRecoveryResetPasswordBannerState.None
+    );
 
-  const [bannerState, setBannerState] = useState<BannerState>(BannerState.None);
-  const [linkStatus, setLinkStatus] = useState<LinkStatus>(state.linkStatus);
+  // TODO: This should be done in a container component
+  const linkIsValid = !!(
+    location.state.accountResetToken &&
+    location.state.kB &&
+    location.state.recoveryKeyId &&
+    verificationInfo.email
+  );
+
+  const [linkStatus, setLinkStatus] = useState<LinkStatus>(
+    linkIsValid ? LinkStatus.valid : LinkStatus.damaged
+  );
+
   const { handleSubmit, register, getValues, errors, formState, trigger } =
-    useForm<FormData>({
+    useForm<AccountRecoveryResetPasswordFormData>({
       mode: 'onTouched',
       criteriaMode: 'all',
       defaultValues: {
@@ -115,33 +93,18 @@ const AccountRecoveryResetPassword = ({
       },
     });
 
-  useEffect(() => {
-    if (state.validationError) {
-      alertValidationError(state.validationError);
-    } else if (!state.supportsRecovery) {
-      setBannerState(BannerState.Redirecting);
-      navigate(`/complete_reset_password?${location.search}`);
-    }
-  }, [
-    state.validationError,
-    state.supportsRecovery,
-    navigate,
-    location.search,
-  ]);
-
   if (linkStatus === 'damaged') {
     return <ResetPasswordLinkDamaged />;
   }
 
   if (linkStatus === 'expired') {
-    return <LinkExpiredResetPassword email={state.email} {...{ viewName }} />;
+    return (
+      <LinkExpiredResetPassword
+        email={verificationInfo.email}
+        {...{ viewName, integration }}
+      />
+    );
   }
-
-  // TODO: implement persistVerificationData,
-  // _finishPasswordResetDifferentBrowser + finishPasswordResetSameBrowser
-  // + check afterResetPasswordConfirmationPoll (maybe this was done with `useInterval`?)
-
-  // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
 
   return (
     <AppLayout>
@@ -149,14 +112,15 @@ const AccountRecoveryResetPassword = ({
         headingText="Create new password"
         headingTextFtlId="create-new-password-header"
       />
-      {BannerState.Redirecting === bannerState && (
+      {AccountRecoveryResetPasswordBannerState.Redirecting === bannerState && (
         <Banner type={BannerType.info}>
           <FtlMsg id="account-recovery-reset-password-redirecting">
             <p>Redirecting</p>
           </FtlMsg>
         </Banner>
       )}
-      {BannerState.UnexpectedError === bannerState && (
+      {AccountRecoveryResetPasswordBannerState.UnexpectedError ===
+        bannerState && (
         <Banner type={BannerType.error}>
           <FtlMsg id="account-recovery-reset-password-unexpected-error">
             <p>Unexpected error encountered</p>
@@ -164,7 +128,8 @@ const AccountRecoveryResetPassword = ({
         </Banner>
       )}
 
-      {BannerState.PasswordResetSuccess === bannerState && (
+      {AccountRecoveryResetPasswordBannerState.PasswordResetSuccess ===
+        bannerState && (
         <Banner type={BannerType.success}>
           <FtlMsg id="account-recovery-reset-password-success-alert">
             <p>Password set</p>
@@ -184,7 +149,12 @@ const AccountRecoveryResetPassword = ({
         to correctly save the updated password. Without it,
         the password manager tries to save the old password
         as the username. */}
-      <input type="email" value={state.email} className="hidden" readOnly />
+      <input
+        type="email"
+        value={verificationInfo.email}
+        className="hidden"
+        readOnly
+      />
       <section className="text-start mt-4">
         <FormPasswordWithBalloons
           {...{
@@ -196,72 +166,34 @@ const AccountRecoveryResetPassword = ({
           }}
           passwordFormType="reset"
           onSubmit={handleSubmit(
-            (data: FormData) => {
+            (data: AccountRecoveryResetPasswordFormData) => {
               onSubmit(data);
             },
             (err) => {
               console.error(err);
             }
           )}
-          email={state.email}
+          email={verificationInfo.email}
           loading={false}
           onFocusMetricsEvent={`${viewName}.engage`}
         />
       </section>
 
-      <LinkRememberPassword {...state} />
+      <LinkRememberPassword email={verificationInfo.email} />
     </AppLayout>
   );
 
-  /**
-   * Determines starting state for component
-   */
-  function getInitialState() {
-    let email = '';
-    let linkStatus: LinkStatus = LinkStatus.valid;
-    let forceAuth = false;
-    let supportsRecovery = true;
-    let validationError: ModelValidationErrors | null = null;
-
-    try {
-      email = verificationInfo.email || '';
-      forceAuth = !!verificationInfo.forceAuth;
-
-      if (!verificationInfo.isValid()) {
-        supportsRecovery = false;
-        linkStatus = LinkStatus.damaged;
-      } else if (!accountRecoveryKeyInfo.isValid()) {
-        supportsRecovery = false;
-      } else if (verificationInfo.lostRecoveryKey === true) {
-        supportsRecovery = false;
-      }
-    } catch (err) {
-      if (err instanceof ModelValidationErrors) {
-        validationError = err;
-        linkStatus = LinkStatus.damaged;
-      }
-    }
-
-    return {
-      email,
-      linkStatus,
-      forceAuth,
-      supportsRecovery,
-      validationError,
-    };
-  }
-
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: AccountRecoveryResetPasswordFormData) {
     const password = data.newPassword;
+    const email = verificationInfo.email;
 
     try {
       const options = {
         password,
-        accountResetToken: accountRecoveryKeyInfo.accountResetToken,
-        kB: accountRecoveryKeyInfo.kB,
-        recoveryKeyId: accountRecoveryKeyInfo.recoveryKeyId,
-        emailToHashWith:
-          verificationInfo.emailToHashWith || verificationInfo.email,
+        accountResetToken: location.state.accountResetToken,
+        kB: location.state.kB,
+        recoveryKeyId: location.state.recoveryKeyId,
+        emailToHashWith: verificationInfo.emailToHashWith || email,
       };
 
       const accountResetData = await account.resetPasswordWithRecoveryKey(
@@ -271,13 +203,8 @@ const AccountRecoveryResetPassword = ({
       // required for this check
       const sessionIsVerified = await account.isSessionVerifiedAuthClient();
 
-      // FOLLOW-UP: Functionality not yet available. FXA-7045
-      await account.setLastLogin(Date.now());
-
-      // FOLLOW-UP: Functionality not yet available. FXA-7045
-      notifier.onAccountSignIn(account);
-
-      relier.resetPasswordConfirm = true;
+      // TODO: do we need this? Is integration data the right place for it if so?
+      integration.data.resetPasswordConfirm = true;
 
       logViewEvent(viewName, 'verification.success');
 
@@ -289,7 +216,7 @@ const AccountRecoveryResetPassword = ({
           notifyFirefoxOfLogin(
             {
               authAt: accountResetData.authAt,
-              email: verificationInfo.email,
+              email,
               keyFetchToken: accountResetData.keyFetchToken,
               sessionToken: accountResetData.sessionToken,
               uid: accountResetData.uid,
@@ -300,14 +227,13 @@ const AccountRecoveryResetPassword = ({
           );
           break;
         case IntegrationType.OAuth:
-          if (sessionIsVerified) {
-            const oauthIntegration = integration as OAuthIntegration;
-            const { redirect } = await oauthIntegration.handlePasswordReset(
-              relier.uid || account.uid,
+          // TODO just use type guard instead of switch, FXA-8111
+          if (sessionIsVerified && isOAuthIntegration(integration)) {
+            const { redirect } = await finishOAuthFlowHandler(
+              integration.data.uid || account.uid,
               accountResetData.sessionToken,
               accountResetData.keyFetchToken,
-              accountResetData.unwrapBKey,
-              authClient
+              accountResetData.unwrapBKey
             );
 
             // Clear session / local storage states
@@ -336,22 +262,16 @@ const AccountRecoveryResetPassword = ({
         logErrorEvent({ viewName, ...err });
         setLinkStatus(LinkStatus.expired);
       } else {
-        // Validation errors indicate a bad state in either the url query or
-        // maybe storage. In these cases show an alert bar and let the error
-        // keep bubbling up.
-        if (err instanceof ModelValidationErrors) {
-          alertValidationError(err);
-        } else {
-          logErrorEvent(err);
-          setBannerState(BannerState.UnexpectedError);
-        }
-        throw err;
+        logErrorEvent(err);
+        setBannerState(AccountRecoveryResetPasswordBannerState.UnexpectedError);
       }
     }
   }
 
   function alertSuccess() {
-    setBannerState(BannerState.PasswordResetSuccess);
+    setBannerState(
+      AccountRecoveryResetPasswordBannerState.PasswordResetSuccess
+    );
   }
 
   async function navigateAway() {
@@ -368,10 +288,6 @@ const AccountRecoveryResetPassword = ({
     } else {
       navigate(`/reset_password_with_recovery_key_verified${location.search}`);
     }
-  }
-
-  function alertValidationError(err: ModelValidationErrors) {
-    setBannerState(BannerState.UnexpectedError);
   }
 };
 

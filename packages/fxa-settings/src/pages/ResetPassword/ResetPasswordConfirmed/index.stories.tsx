@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPasswordConfirmed, { ResetPasswordConfirmedProps } from '.';
+import ResetPasswordConfirmed from '.';
 import { MozServices } from '../../../lib/types';
 import { Meta } from '@storybook/react';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { createMockResetPasswordConfirmWebIntegration } from './mocks';
+import { ResetPasswordConfirmedProps } from './interfaces';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordConfirmed',
@@ -16,10 +18,19 @@ export default {
 } as Meta;
 
 function renderStory(
-  props: ResetPasswordConfirmedProps,
-
+  incomingProps: Partial<ResetPasswordConfirmedProps> = {},
   queryParams: string
 ) {
+  const defaultProps: ResetPasswordConfirmedProps = {
+    isSignedIn: true,
+    integration: createMockResetPasswordConfirmWebIntegration(),
+  };
+
+  const props: ResetPasswordConfirmedProps = {
+    ...defaultProps,
+    ...incomingProps,
+  };
+
   return renderStoryWithHistory(
     <ResetPasswordConfirmed {...props} />,
     '/reset_password_verified',

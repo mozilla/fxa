@@ -17,19 +17,12 @@ export default {
 
 export const Default = () => (
   <LocationProvider>
-    <SigninBounced
-      emailLookupComplete
-      email={MOCK_ACCOUNT.primaryEmail.email}
-    />
+    <SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} />
   </LocationProvider>
 );
 
 export const CanGoBack = () => (
   <LocationProvider>
-    <SigninBounced
-      canGoBack
-      emailLookupComplete
-      email={MOCK_ACCOUNT.primaryEmail.email}
-    />
+    <SigninBounced canGoBack email={MOCK_ACCOUNT.primaryEmail.email} />
   </LocationProvider>
 );

@@ -12,7 +12,7 @@ export type LinkRememberPasswordProps = {
 
 const LinkRememberPassword = ({
   email,
-  forceAuth,
+  forceAuth = false,
 }: LinkRememberPasswordProps) => {
   const linkTarget = `${forceAuth ? '/force_auth' : '/signin'}`;
   let target = linkTarget;

@@ -12,10 +12,12 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import {
   MOCK_ACCOUNT,
   mockAppContext,
+  mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
 
 import { Page2faReplaceRecoveryCodes } from '.';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../models/AlertBarInfo');
 const recoveryCodes = ['0123456789'];
@@ -45,7 +47,9 @@ async function renderPage2faReplaceRecoveryCodes() {
   await act(async () => {
     renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account, config })}>
-        <Page2faReplaceRecoveryCodes />
+        <SettingsContext.Provider value={mockSettingsContext()}>
+          <Page2faReplaceRecoveryCodes />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
   });
@@ -53,7 +57,7 @@ async function renderPage2faReplaceRecoveryCodes() {
 
 it('renders', async () => {
   await renderPage2faReplaceRecoveryCodes();
-  const context = mockAppContext({ account, config });
+  const settingsContext = mockSettingsContext();
 
   expect(screen.getByTestId('2fa-recovery-codes')).toBeInTheDocument();
 
@@ -67,7 +71,7 @@ it('renders', async () => {
     'download',
     expect.stringContaining('Firefox backup authentication codes')
   );
-  expect(context.alertBarInfo?.error).not.toBeCalled();
+  expect(settingsContext.alertBarInfo?.error).not.toBeCalled();
 });
 
 it('displays an error when fails to fetch new backup authentication codes', async () => {
@@ -76,15 +80,18 @@ it('displays an error when fails to fetch new backup authentication codes', asyn
     generateRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
   } as unknown as Account;
   const context = mockAppContext({ account, config });
+  const settingsContext = mockSettingsContext();
   await act(async () => {
     renderWithRouter(
       <AppContext.Provider value={context}>
-        <Page2faReplaceRecoveryCodes />
+        <SettingsContext.Provider value={settingsContext}>
+          <Page2faReplaceRecoveryCodes />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
   });
-  expect(context.alertBarInfo?.error).toBeCalledTimes(1);
-  expect(context.alertBarInfo?.error).toHaveBeenCalledWith(
+  expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+  expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledWith(
     'There was a problem creating your backup authentication codes'
   );
 });
@@ -96,10 +103,13 @@ it('displays an error when fails to update backup authentication codes', async (
     updateRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
   } as unknown as Account;
   const context = mockAppContext({ account, config });
+  const settingsContext = mockSettingsContext();
   await act(async () => {
     renderWithRouter(
       <AppContext.Provider value={context}>
-        <Page2faReplaceRecoveryCodes />
+        <SettingsContext.Provider value={settingsContext}>
+          <Page2faReplaceRecoveryCodes />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
   });
@@ -108,8 +118,8 @@ it('displays an error when fails to update backup authentication codes', async (
   fireEvent.click(screen.getByTestId('submit-recovery-code'));
 
   await waitFor(() => {
-    expect(context.alertBarInfo?.error).toBeCalledTimes(1);
-    expect(context.alertBarInfo?.error).toHaveBeenCalledWith(
+    expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
+    expect(settingsContext.alertBarInfo?.error).toHaveBeenCalledWith(
       'There was a problem replacing your backup authentication codes'
     );
   });

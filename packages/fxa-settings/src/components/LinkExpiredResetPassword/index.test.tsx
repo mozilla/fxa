@@ -14,6 +14,7 @@ import {
 } from '../../models/mocks';
 import { Account } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from 'fxa-settings/src/constants';
+import { createMockWebIntegration } from '../../lib/integrations/mocks';
 
 const viewName = 'example-view-name';
 const email = MOCK_ACCOUNT.primaryEmail.email;
@@ -32,14 +33,19 @@ const renderWithHistory = (ui: any, queryParams = '', account?: Account) => {
       history,
     },
     mockAppContext({
-      ...createAppContext(history),
+      ...createAppContext(),
       ...(account && { account }),
     })
   );
 };
 
 describe('LinkExpiredResetPassword', () => {
-  const component = <LinkExpiredResetPassword {...{ email, viewName }} />;
+  const component = (
+    <LinkExpiredResetPassword
+      {...{ email, viewName }}
+      integration={createMockWebIntegration()}
+    />
+  );
 
   afterEach(() => {
     jest.clearAllMocks();

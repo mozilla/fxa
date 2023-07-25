@@ -3,22 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
-import { PairingAuthorityRelier } from './pairing-authority-relier';
+import { SupplicantInfo } from './supplicant-info';
 
-describe('models/reliers/pairing-authority-relier', function () {
+describe('models/integrations/supplicant-info', function () {
   let data: ModelDataStore;
-  let storageData: ModelDataStore;
-  let model: PairingAuthorityRelier;
+  let model: SupplicantInfo;
 
   beforeEach(function () {
     data = new GenericData({});
-    storageData = new GenericData({});
-    model = new PairingAuthorityRelier(data, storageData, {
-      scopedKeysEnabled: true,
-      scopedKeysValidation: {},
-      isPromptNoneEnabled: true,
-      isPromptNoneEnabledClientIds: [],
-    });
+    model = new SupplicantInfo(data);
   });
 
   it('exists', () => {

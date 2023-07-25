@@ -5,7 +5,7 @@
 import { ModelDataStore, GenericData } from '../../lib/model-data';
 import { ChannelInfo } from './channel-info';
 
-describe('models/reliers/channel-info', function () {
+describe('models/integrations/channel-info', function () {
   let data: ModelDataStore;
   let model: ChannelInfo;
 

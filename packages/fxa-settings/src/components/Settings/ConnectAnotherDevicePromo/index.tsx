@@ -6,10 +6,10 @@ import React, { useContext } from 'react';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
 import { Localized } from '@fluent/react';
 import { getStoreImageByLanguages, StoreType } from './storeImageLoader';
-import { AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 export function ConnectAnotherDevicePromo() {
-  const { navigatorLanguages } = useContext(AppContext);
+  const { navigatorLanguages } = useContext(SettingsContext);
   const GooglePlayBadge = getStoreImageByLanguages(
     StoreType.google,
     navigatorLanguages

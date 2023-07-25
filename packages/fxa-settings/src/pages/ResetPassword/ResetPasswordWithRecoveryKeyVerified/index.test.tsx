@@ -3,52 +3,65 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import ResetPasswordWithRecoveryKeyVerified, { viewName } from '.';
 import { logViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
-  createAppContext,
   createHistoryWithQuery,
   renderWithRouter,
 } from '../../../models/mocks';
+import {
+  createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration,
+  createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration,
+} from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
 
-let mockIsSync = false;
-let mockServiceName = 'account settings';
-jest.mock('../../../models/hooks.ts', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('../../../models/hooks.ts'),
-    useRelier: () => ({
-      isSync: () => mockIsSync,
-      getServiceName: () => mockServiceName,
-    }),
-  };
-});
-
-beforeEach(() => {
-  mockIsSync = false;
-  mockServiceName = 'account settings';
-});
-
 afterEach(() => {
   jest.clearAllMocks();
 });
+
+const route = 'reset_password_with_recovery_key_verified';
+const render = (
+  ui: any = <ResetPasswordWithRecoveryKeyVerifiedWithWebIntegration />
+) => {
+  const history = createHistoryWithQuery(route);
+  const result = renderWithRouter(ui, {
+    route,
+    history,
+  });
+  return result;
+};
+
+const ResetPasswordWithRecoveryKeyVerifiedWithWebIntegration = ({
+  isSignedIn = true,
+}) => (
+  <ResetPasswordWithRecoveryKeyVerified
+    integration={createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration()}
+    {...{ isSignedIn }}
+  />
+);
+
+const ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopIntegration = ({
+  isSignedIn = true,
+}) => (
+  <ResetPasswordWithRecoveryKeyVerified
+    integration={createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration()}
+    {...{ isSignedIn }}
+  />
+);
 
 describe('ResetPasswordWithRecoveryKeyVerified', () => {
   // let bundle: FluentBundle;
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
-
-  const route = '/reset_password_with_recovery_key_verified';
 
   const startBrowsingText = 'Start browsing';
   const signedInText = 'You’re now ready to use account settings';
@@ -58,22 +71,8 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   const createRecoveryKeyText = 'Generate a new account recovery key';
   const continueToAccountText = 'Continue to my account';
 
-  const render = (ui: any, queryParams = '') => {
-    const history = createHistoryWithQuery(route, queryParams);
-    const appCtx = createAppContext(history);
-    const result = renderWithRouter(
-      ui,
-      {
-        route,
-        history,
-      },
-      appCtx
-    );
-    return result;
-  };
-
   it('renders default content', async () => {
-    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    render();
     // testAllL10n(screen, bundle);
     await screen.findByText(signedInText);
     screen.getByText(createRecoveryKeyText);
@@ -81,18 +80,18 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('renders default content when signed out', async () => {
-    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />);
+    render(
+      <ResetPasswordWithRecoveryKeyVerifiedWithWebIntegration
+        isSignedIn={false}
+      />
+    );
     await screen.findByText(singedOutText);
     screen.getByText(createRecoveryKeyText);
     screen.getByText(continueToAccountText);
   });
 
   it('renders default content for sync service', async () => {
-    mockIsSync = true;
-    render(
-      <ResetPasswordWithRecoveryKeyVerified isSignedIn={false} />,
-      'service=sync'
-    );
+    render(<ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopIntegration />);
     await screen.findByText(syncText);
     screen.getByText(startBrowsingText);
     screen.getByText(createRecoveryKeyText);
@@ -100,7 +99,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('emits the expected metrics when a user generates new recovery keys', async () => {
-    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    render();
     const newAccountRecoveryKeyButton = await screen.findByText(
       createRecoveryKeyText
     );
@@ -113,7 +112,7 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('emits the expected metrics when a user continues to their account', async () => {
-    render(<ResetPasswordWithRecoveryKeyVerified isSignedIn={true} />);
+    render();
     const continueToAccountLink = await screen.findByText(
       continueToAccountText
     );

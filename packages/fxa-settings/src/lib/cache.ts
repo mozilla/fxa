@@ -12,6 +12,7 @@ export interface OldSettingsData {
   alertText?: string;
   displayName?: string;
   metricsEnabled?: boolean;
+  email?: string;
 }
 
 export function getOldSettingsData({

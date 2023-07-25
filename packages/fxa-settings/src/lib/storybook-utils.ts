@@ -22,7 +22,7 @@ export function renderStoryWithHistory(
     component,
     { route, history },
     {
-      ...createAppContext(history),
+      ...createAppContext(),
       account,
     }
   );

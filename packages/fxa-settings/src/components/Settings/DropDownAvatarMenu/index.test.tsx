@@ -5,10 +5,15 @@
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { mockAppContext, mockSession } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSession,
+  mockSettingsContext,
+} from '../../../models/mocks';
 import DropDownAvatarMenu from '.';
 import { logViewEvent, settingsViewName } from 'fxa-settings/src/lib/metrics';
 import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('fxa-settings/src/lib/metrics', () => ({
@@ -147,9 +152,12 @@ describe('DropDownAvatarMenu', () => {
 
     it('displays an error in the AlertBar', async () => {
       const context = mockAppContext({ account, session: makeSession(true) });
+      const settingsContext = mockSettingsContext();
       renderWithLocalizationProvider(
         <AppContext.Provider value={context}>
-          <DropDownAvatarMenu />
+          <SettingsContext.Provider value={settingsContext}>
+            <DropDownAvatarMenu />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
@@ -157,7 +165,7 @@ describe('DropDownAvatarMenu', () => {
       await act(async () => {
         fireEvent.click(screen.getByTestId('avatar-menu-sign-out'));
       });
-      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 });

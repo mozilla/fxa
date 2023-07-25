@@ -3,17 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { DataCollection } from '.';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSettingsContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 const account = {
   displayName: 'jrgm',
@@ -43,7 +42,9 @@ describe('DataCollection', () => {
   it('toggles', async () => {
     const it = renderWithRouter(
       <AppContext.Provider value={mockAppContext({ account })}>
-        <DataCollection />
+        <SettingsContext.Provider value={mockSettingsContext()}>
+          <DataCollection />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
 
@@ -67,10 +68,12 @@ describe('DataCollection', () => {
     });
 
     it('displays an opt out success message in the AlertBar', async () => {
-      const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
-        <AppContext.Provider value={context}>
-          <DataCollection />
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <SettingsContext.Provider value={settingsContext}>
+            <DataCollection />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
@@ -78,9 +81,9 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
       expect(
-        (context.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
+        (settingsContext.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
       ).toContain('Opt out successful.');
     });
 
@@ -91,9 +94,12 @@ describe('DataCollection', () => {
           metricsEnabled: true,
         } as Account,
       });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <DataCollection />
+          <SettingsContext.Provider value={settingsContext}>
+            <DataCollection />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
@@ -101,13 +107,14 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
       expect(
-        (context.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
+        (settingsContext.alertBarInfo?.success as jest.Mock).mock.calls[0][0]
       ).toContain('Thanks! Sharing this data helps us improve');
     });
 
     it('displays an error message in the AlertBar', async () => {
+      const settingsContext = mockSettingsContext();
       const context = mockAppContext({
         account: {
           ...account,
@@ -116,7 +123,9 @@ describe('DataCollection', () => {
       });
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <DataCollection />
+          <SettingsContext.Provider value={settingsContext}>
+            <DataCollection />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
@@ -124,9 +133,9 @@ describe('DataCollection', () => {
         fireEvent.click(screen.getByTestId('metrics-opt-out'));
       });
 
-      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
       expect(
-        (context.alertBarInfo?.error as jest.Mock).mock.calls[0][0]
+        (settingsContext.alertBarInfo?.error as jest.Mock).mock.calls[0][0]
       ).toContain('Sorry, there was a problem');
     });
   });

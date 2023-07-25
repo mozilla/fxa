@@ -3,5 +3,4 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './verification-info';
-export * from './account-recovery-key-info';
 export * from './factory';

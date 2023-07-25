@@ -6,19 +6,21 @@
 // import {  screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { PageWithLoggedInStatusState } from '.';
 // import { MockComponent } from './mocks';
-import { /* Account, AppContext,*/ useInitialState } from '../../models';
+import {
+  /* Account, AppContext,*/ useInitialSettingsState,
+} from '../../models';
 // import { mockAppContext } from '../../models/mocks';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
-  useInitialState: jest.fn(),
+  useInitialSettingsState: jest.fn(),
 }));
 
 describe('PageWithLoggedInStatusState', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
-  (useInitialState as jest.Mock).mockReturnValue({ loading: false });
+  (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
 
   it('passes the `isSignedIn` prop on to the child component', () => {
     // TODO:

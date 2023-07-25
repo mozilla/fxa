@@ -94,7 +94,7 @@ describe('Ready', () => {
     expect(prompt).toBeInTheDocument();
   });
 
-  it('renders as expected when given a service name and relier continue action', () => {
+  it('renders as expected when given a service name and integration continue action', () => {
     renderWithLocalizationProvider(
       <Ready
         {...{

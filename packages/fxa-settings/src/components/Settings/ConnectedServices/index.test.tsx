@@ -9,10 +9,12 @@ import { Account, AlertBarInfo, AppContext } from '../../../models';
 import {
   renderWithRouter,
   mockAppContext,
+  mockSettingsContext,
 } from 'fxa-settings/src/models/mocks';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
 import { MOCK_SERVICES } from './mocks';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -322,8 +324,10 @@ describe('Connected Services', () => {
     } as unknown as Account;
 
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
-        <ConnectedServices />
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <SettingsContext.Provider value={mockSettingsContext({ alertBarInfo })}>
+          <ConnectedServices />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
     const initialCount = (
@@ -357,8 +361,10 @@ describe('Connected Services', () => {
     } as unknown as Account;
 
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
-        <ConnectedServices />
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <SettingsContext.Provider value={mockSettingsContext({ alertBarInfo })}>
+          <ConnectedServices />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
 

@@ -9,9 +9,11 @@ import {
   renderWithRouter,
   mockEmail,
   mockAppContext,
+  mockSettingsContext,
 } from '../../../models/mocks';
 import { UnitRowSecondaryEmail } from '.';
 import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 const account = {
   emails: [mockEmail(), mockEmail('johndope2@example.com', false, false)],
@@ -232,9 +234,12 @@ describe('UnitRowSecondaryEmail', () => {
         resendEmailCode: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Account;
       const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <UnitRowSecondaryEmail />
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
@@ -243,7 +248,7 @@ describe('UnitRowSecondaryEmail', () => {
           screen.getByTestId('secondary-email-resend-code-button')
         );
       });
-      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 
@@ -258,17 +263,20 @@ describe('UnitRowSecondaryEmail', () => {
         makeEmailPrimary: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
       const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <UnitRowSecondaryEmail />
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(context.alertBarInfo?.success).toBeCalledWith(
+      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toBeCalledWith(
         'johndope2@example.com is now your primary email'
       );
     });
@@ -283,16 +291,19 @@ describe('UnitRowSecondaryEmail', () => {
         makeEmailPrimary: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Account;
       const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <UnitRowSecondaryEmail />
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-make-primary'));
       });
-      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 
@@ -308,17 +319,21 @@ describe('UnitRowSecondaryEmail', () => {
         deleteSecondaryEmail: jest.fn().mockResolvedValue(true),
       } as unknown as Account;
       const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <UnitRowSecondaryEmail />
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
-      expect(context.alertBarInfo?.success).toBeCalledTimes(1);
-      expect(context.alertBarInfo?.success).toBeCalledWith(
+
+      expect(settingsContext.alertBarInfo?.success).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.success).toBeCalledWith(
         'johndope2@example.com successfully deleted'
       );
     });
@@ -333,16 +348,19 @@ describe('UnitRowSecondaryEmail', () => {
         deleteSecondaryEmail: jest.fn().mockRejectedValue(new Error()),
       } as unknown as Account;
       const context = mockAppContext({ account });
+      const settingsContext = mockSettingsContext();
       renderWithRouter(
         <AppContext.Provider value={context}>
-          <UnitRowSecondaryEmail />
+          <SettingsContext.Provider value={settingsContext}>
+            <UnitRowSecondaryEmail />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
 
       await act(async () => {
         fireEvent.click(screen.getByTestId('secondary-email-delete'));
       });
-      expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+      expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
     });
   });
 });

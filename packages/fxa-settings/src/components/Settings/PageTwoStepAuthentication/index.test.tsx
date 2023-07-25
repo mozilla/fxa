@@ -9,6 +9,7 @@ import {
   renderWithRouter,
   mockSession,
   mockAppContext,
+  mockSettingsContext,
 } from '../../../models/mocks';
 import React from 'react';
 import PageTwoStepAuthentication, { metricsPreInPostFix } from '.';
@@ -17,6 +18,7 @@ import { HomePath } from '../../../constants';
 import * as Metrics from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../models/AlertBarInfo');
 jest.mock('../../../lib/totp', () => ({
@@ -256,8 +258,12 @@ describe('step 3', () => {
     } as any;
     await act(async () => {
       renderWithRouter(
-        <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
-          <PageTwoStepAuthentication />
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <SettingsContext.Provider
+            value={mockSettingsContext({ alertBarInfo })}
+          >
+            <PageTwoStepAuthentication />
+          </SettingsContext.Provider>
         </AppContext.Provider>
       );
     });

@@ -6,7 +6,7 @@ import React, { useEffect } from 'react';
 import AppLayout from './AppLayout';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import AppErrorDialog from 'fxa-react/components/AppErrorDialog';
-import { useAccount, useConfig, useInitialState } from '../../models';
+import { useAccount, useConfig, useInitialSettingsState } from '../../models';
 import { Redirect, Router, RouteComponentProps } from '@reach/router';
 import Head from 'fxa-react/components/Head';
 import PageSettings from './PageSettings';
@@ -42,7 +42,7 @@ export const Settings = ({
     config.metrics.navTiming.endpoint,
   ]);
 
-  const { loading, error } = useInitialState();
+  const { loading, error } = useInitialSettingsState();
 
   // In case of an invalid token the page will redirect,
   // but to prevent a flash of the error message we show
