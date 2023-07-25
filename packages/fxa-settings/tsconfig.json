@@ -15,13 +15,5 @@
   },
   "include": [
     "src"
-  ],
-  "references": [
-    {
-      "path": "../fxa-react"
-    },
-    {
-      "path": "../fxa-shared"
-    }
   ]
 }

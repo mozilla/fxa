@@ -233,9 +233,10 @@ export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
   return Account.query().whereIn('uid', uids).update(updateFields);
 }
 
+export type { AccountOptions };
+
 export {
   Account,
-  AccountOptions,
   AccountCustomers,
   AccountResetToken,
   BaseAuthModel,

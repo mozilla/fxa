@@ -6,9 +6,5 @@
     "rootDirs": ["./app/scripts/", "./server/lib/routes/react-app"],
     "baseUrl": "./app/scripts",
     "noImplicitAny": false
-  },
-  "references": [
-    { "path": "../fxa-shared" },
-    { "path": "../fxa-react" }
-  ]
+  }
 }
