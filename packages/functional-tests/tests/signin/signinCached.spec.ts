@@ -9,6 +9,7 @@ let email2;
 
 test.describe('signin cached', () => {
   test.beforeEach(async ({ target, pages: { login } }) => {
+    test.slow();//This test has steps for email rendering that runs slow on stage
     await login.clearCache();
     email = login.createEmail('sync{id}');
     email2 = login.createEmail();
@@ -23,6 +24,7 @@ test.describe('signin cached', () => {
   });
 
   test.afterEach(async ({ target }) => {
+    test.slow(); //The cleanup was timing out and exceeding 3000ms
     const emails = [email, email2];
     for (const email of emails) {
       if (email) {

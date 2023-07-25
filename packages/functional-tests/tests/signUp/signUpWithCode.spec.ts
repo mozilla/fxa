@@ -7,7 +7,7 @@ import { test, expect } from '../../lib/fixtures/standard';
 const PASSWORD = 'passwordzxcv';
 let email;
 
-test.describe('Sign up with code ', () => {
+test.describe('Sign up with code', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail();

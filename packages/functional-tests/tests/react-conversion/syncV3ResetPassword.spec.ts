@@ -19,10 +19,6 @@ test.describe('Firefox Desktop Sync v3 reset password react', () => {
     syncBrowserPages = await newPagesForSync(target);
   });
 
-  test.afterEach(async () => {
-    await syncBrowserPages.browser?.close();
-  });
-
   test('reset pw for sync user', async ({ credentials, target }) => {
     const { page, resetPasswordReact } = syncBrowserPages;
     await page.goto(

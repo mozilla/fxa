@@ -70,8 +70,8 @@ export class RelierPage extends BaseLayout {
   }
 
   async promptNoneError() {
-    const error = this.page.locator('.error');
-    return error.innerText();
+    await this.page.waitForSelector('.error');
+    return this.page.innerText('.error');
   }
 
   async clickSubscribe() {

@@ -20,6 +20,7 @@ test.describe('Firefox Desktop Sync v3 sign in', () => {
   });
 
   test.afterEach(async () => {
+    test.slow();//The cleanup was timing out and exceeding 3000ms
     await syncBrowserPages.browser?.close();
   });
 
