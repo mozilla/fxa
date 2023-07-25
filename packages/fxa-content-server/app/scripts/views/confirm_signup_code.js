@@ -12,6 +12,7 @@ import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 import SessionVerificationPollMixin from './mixins/session-verification-poll-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
+import GleanMetrics from '../lib/glean';
 
 const CODE_INPUT_SELECTOR = '#otp-code';
 
@@ -58,6 +59,11 @@ class ConfirmSignupCodeView extends FormView {
     if (!this.getAccount()) {
       this.navigate('signup');
     }
+  }
+
+  logView() {
+    GleanMetrics.confirmation.view();
+    return proto.logView.call(this);
   }
 
   resend() {
