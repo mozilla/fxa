@@ -26121,7 +26121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"domhandler@npm:^5.0.1, domhandler@npm:^5.0.2":
+"domhandler@npm:^5.0.1, domhandler@npm:^5.0.2, domhandler@npm:^5.0.3":
   version: 5.0.3
   resolution: "domhandler@npm:5.0.3"
   dependencies:
@@ -26159,6 +26159,17 @@ __metadata:
     domelementtype: ^2.3.0
     domhandler: ^5.0.1
   checksum: 23aa7a840572d395220e173cb6263b0d028596e3950100520870a125af33ff819e6f609e1606d6f7d73bd9e7feb03bb404286e57a39063b5384c62b724d987b3
+  languageName: node
+  linkType: hard
+
+"domutils@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "domutils@npm:3.1.0"
+  dependencies:
+    dom-serializer: ^2.0.0
+    domelementtype: ^2.3.0
+    domhandler: ^5.0.3
+  checksum: e5757456ddd173caa411cfc02c2bb64133c65546d2c4081381a3bafc8a57411a41eed70494551aa58030be9e58574fcc489828bebd673863d39924fb4878f416
   languageName: node
   linkType: hard
 
@@ -26615,14 +26626,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.2.0, entities@npm:^4.3.0":
+"entities@npm:^4.2.0":
   version: 4.3.0
   resolution: "entities@npm:4.3.0"
   checksum: f6abacfe1f4ee06a98aae713ed0b97d4dbd1fcd4c90840d16c6c7535a4e34df1445614c987b7b359ab8362823f050158b8fd435652f0ac18c45683174cbec6ce
   languageName: node
   linkType: hard
 
-"entities@npm:^4.4.0":
+"entities@npm:^4.4.0, entities@npm:^4.5.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
@@ -30248,7 +30259,7 @@ fsevents@~2.1.1:
     handlebars: ^4.7.7
     helmet: ^7.0.0
     hot-shots: ^10.0.0
-    htmlparser2: 8.0.1
+    htmlparser2: 9.0.0
     http-proxy-middleware: ^2.0.0
     i18n-abide: 0.0.26
     install: 0.13.0
@@ -33409,15 +33420,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"htmlparser2@npm:8.0.1":
-  version: 8.0.1
-  resolution: "htmlparser2@npm:8.0.1"
+"htmlparser2@npm:9.0.0":
+  version: 9.0.0
+  resolution: "htmlparser2@npm:9.0.0"
   dependencies:
     domelementtype: ^2.3.0
-    domhandler: ^5.0.2
-    domutils: ^3.0.1
-    entities: ^4.3.0
-  checksum: 06d5c71e8313597722bc429ae2a7a8333d77bd3ab07ccb916628384b37332027b047f8619448d8f4a3312b6609c6ea3302a4e77435d859e9e686999e6699ca39
+    domhandler: ^5.0.3
+    domutils: ^3.1.0
+    entities: ^4.5.0
+  checksum: a234c3add821cae8308ca61ce4b8ad3e88af83cf9c3c2003059adc89c46a06ffc39cc2a92b39af8d16c3705e1055df6769d80877acb6529983867f0d7e74098d
   languageName: node
   linkType: hard
 
