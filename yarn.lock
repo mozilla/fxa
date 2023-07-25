@@ -9168,6 +9168,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nrwl/devkit@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nrwl/devkit@npm:16.5.5"
+  dependencies:
+    "@nx/devkit": 16.5.5
+  checksum: e791b2be9fe2297b58c6a67dc24cacf0e0534fee4e060166d8cb6968b19505e2d0de876a8cdbc2609b2b5e72d4c7434ad060eb12471c4764c6b19d4062c1bb4c
+  languageName: node
+  linkType: hard
+
 "@nrwl/eslint-plugin-nx@npm:16.5.3":
   version: 16.5.3
   resolution: "@nrwl/eslint-plugin-nx@npm:16.5.3"
@@ -9183,6 +9192,15 @@ __metadata:
   dependencies:
     "@nx/jest": 16.3.1
   checksum: 9db6dbc5a8dcc3d03a0e853e99f823a9e7ff7af3cdf257b112a8bd22a6039a55e14b62ae9f14672a47d0483f023035cb51f050b87f851e525e8d0649be03bdd3
+  languageName: node
+  linkType: hard
+
+"@nrwl/jest@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nrwl/jest@npm:16.5.5"
+  dependencies:
+    "@nx/jest": 16.5.5
+  checksum: 43dead57aad2cec611f011959240184be8a79970c8f70ced4b0e98cf126a4d814999391fc9e3b0c97c1c5976cda7cbd66a3a826b1d2c7cc934092ba25f647d33
   languageName: node
   linkType: hard
 
@@ -9210,6 +9228,15 @@ __metadata:
   dependencies:
     "@nx/js": 16.5.3
   checksum: 78531bd1a87d354461008e4d0bd827d81f8f40a8473a597ab8df771f47183d503b81b6a94ab29f1676aa42e96ca25f7af3b4cf015e333b144f48add4b0009c42
+  languageName: node
+  linkType: hard
+
+"@nrwl/js@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nrwl/js@npm:16.5.5"
+  dependencies:
+    "@nx/js": 16.5.5
+  checksum: acd9e10840854e8dbb8fdf1da6aa7dc4c8524776337d444ed355b7e8713070cc3a2cd0f767e34716ab7cba0a91a8020d59be8789c2613acea7a35affc20929a4
   languageName: node
   linkType: hard
 
@@ -9394,6 +9421,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nrwl/workspace@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nrwl/workspace@npm:16.5.5"
+  dependencies:
+    "@nx/workspace": 16.5.5
+  checksum: 2fd89b236aabfc041f68b9668e20ed7e819a909d2bd8ec2fc68e0507b1a6f77986e9ebc7a2d76f1ff49d70c0c71295a003d2b1b1d6b39d0281aea1ea313c1e60
+  languageName: node
+  linkType: hard
+
 "@nuxtjs/opencollective@npm:0.3.2":
   version: 0.3.2
   resolution: "@nuxtjs/opencollective@npm:0.3.2"
@@ -9471,6 +9507,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nx/devkit@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nx/devkit@npm:16.5.5"
+  dependencies:
+    "@nrwl/devkit": 16.5.5
+    ejs: ^3.1.7
+    ignore: ^5.0.4
+    semver: 7.5.3
+    tmp: ~0.2.1
+    tslib: ^2.3.0
+  peerDependencies:
+    nx: ">= 15 <= 17"
+  checksum: 163b02f59db0eff76258165a10f9a7770d2e1237aaef120b8397e1d9c650a6777bc2eb1c77a6760392009c54416c41287cc9fbb3b8b6c7d9b1762be3ee928acd
+  languageName: node
+  linkType: hard
+
 "@nx/eslint-plugin@npm:16.5.3, @nx/eslint-plugin@npm:^16.3.2":
   version: 16.5.3
   resolution: "@nx/eslint-plugin@npm:16.5.3"
@@ -9513,6 +9565,28 @@ __metadata:
     resolve.exports: 1.1.0
     tslib: ^2.3.0
   checksum: 430828c33d33cb96f7a9b0850fac630bdcf7cf8a131bf192b74287e2654af952cab0bf16c4db38963fcaf5e1a70b038b26a1cebaf863390f9918e1258c7b98d9
+  languageName: node
+  linkType: hard
+
+"@nx/jest@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nx/jest@npm:16.5.5"
+  dependencies:
+    "@jest/reporters": ^29.4.1
+    "@jest/test-result": ^29.4.1
+    "@nrwl/jest": 16.5.5
+    "@nx/devkit": 16.5.5
+    "@nx/js": 16.5.5
+    "@phenomnomnominal/tsquery": ~5.0.1
+    chalk: ^4.1.0
+    dotenv: ~10.0.0
+    identity-obj-proxy: 3.0.0
+    jest-config: ^29.4.1
+    jest-resolve: ^29.4.1
+    jest-util: ^29.4.1
+    resolve.exports: 1.1.0
+    tslib: ^2.3.0
+  checksum: 526c1f210284587aad0ebda56af3bad34e31e553252a87b948a5c56df851b494484ccdd9895d2400804b7cbcc6b68b65850453f05ef3f99cd8e7c5a77463fff9
   languageName: node
   linkType: hard
 
@@ -9621,6 +9695,43 @@ __metadata:
     verdaccio:
       optional: true
   checksum: 1b613603358edf1c286bcc642d08b73a455a76860fe47a97a5fd024fe03caac6e5e0dc77507cf4f49e44043ed98ce56acf398578a51985d95526cfe07f985e73
+  languageName: node
+  linkType: hard
+
+"@nx/js@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nx/js@npm:16.5.5"
+  dependencies:
+    "@babel/core": ^7.15.0
+    "@babel/plugin-proposal-class-properties": ^7.14.5
+    "@babel/plugin-proposal-decorators": ^7.14.5
+    "@babel/plugin-transform-runtime": ^7.15.0
+    "@babel/preset-env": ^7.15.0
+    "@babel/preset-typescript": ^7.15.0
+    "@babel/runtime": ^7.14.8
+    "@nrwl/js": 16.5.5
+    "@nx/devkit": 16.5.5
+    "@nx/workspace": 16.5.5
+    "@phenomnomnominal/tsquery": ~5.0.1
+    babel-plugin-const-enum: ^1.0.1
+    babel-plugin-macros: ^2.8.0
+    babel-plugin-transform-typescript-metadata: ^0.3.1
+    chalk: ^4.1.0
+    detect-port: ^1.5.1
+    fast-glob: 3.2.7
+    fs-extra: ^11.1.0
+    ignore: ^5.0.4
+    js-tokens: ^4.0.0
+    minimatch: 3.0.5
+    semver: 7.5.3
+    source-map-support: 0.5.19
+    tslib: ^2.3.0
+  peerDependencies:
+    verdaccio: ^5.0.4
+  peerDependenciesMeta:
+    verdaccio:
+      optional: true
+  checksum: 105fcd3011fcf0e85387b967f6a4f19498c502c03533e32e6742428bef1974f5455020ec54b6af9583322660bdbf7dfc046a8f3d3318dd8e4a358b14b26485fe
   languageName: node
   linkType: hard
 
@@ -10256,6 +10367,34 @@ __metadata:
     yargs: ^17.6.2
     yargs-parser: 21.1.1
   checksum: 7638c1d0eeefe6eac94f8d243d4654a50025cb8d84483672af10066d949b904fbe71b9cf02aea65c89ff5c5a0b9053ff2e5d9dcb6f67000e7bf96a88e2a6d673
+  languageName: node
+  linkType: hard
+
+"@nx/workspace@npm:16.5.5":
+  version: 16.5.5
+  resolution: "@nx/workspace@npm:16.5.5"
+  dependencies:
+    "@nrwl/workspace": 16.5.5
+    "@nx/devkit": 16.5.5
+    "@parcel/watcher": 2.0.4
+    chalk: ^4.1.0
+    chokidar: ^3.5.1
+    cli-cursor: 3.1.0
+    cli-spinners: 2.6.1
+    dotenv: ~10.0.0
+    figures: 3.2.0
+    flat: ^5.0.2
+    ignore: ^5.0.4
+    minimatch: 3.0.5
+    npm-run-path: ^4.0.1
+    nx: 16.5.5
+    open: ^8.4.0
+    rxjs: ^7.8.0
+    tmp: ~0.2.1
+    tslib: ^2.3.0
+    yargs: ^17.6.2
+    yargs-parser: 21.1.1
+  checksum: 40acb76d47fefe454be0e3e52a4572307b79d006dccbfac57c728a432ac7245e0e766ed5260352f66bc8cf74727070f99f3dd689cfe6af596ef0e83fbb74c425
   languageName: node
   linkType: hard
 
@@ -31015,7 +31154,7 @@ fsevents@~2.1.1:
     "@faker-js/faker": ^8.0.2
     "@fluent/react": ^0.15.1
     "@nx/eslint-plugin": ^16.3.2
-    "@nx/jest": 16.3.1
+    "@nx/jest": 16.5.5
     "@nx/js": ^16.3.2
     "@nx/next": ^16.3.2
     "@nx/node": ^16.3.1
