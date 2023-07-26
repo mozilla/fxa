@@ -5,7 +5,7 @@ export default create({
 
   brandTitle: 'Firefox Accounts Storybook',
   brandUrl: 'https://github.com/mozilla/fxa',
-  brandImage: './logo.png',
+  brandImage: 'assets/logo.png',
 
   colorPrimary: '#F3A03F',
   colorSecondary: '#0060DF',

@@ -5,10 +5,7 @@
 import React from 'react';
 import { AccountData, ProfileInfo, Session } from '.';
 import { AppContext, AppContextValue, defaultAppContext } from './AppContext';
-import {
-  renderWithLocalizationProvider,
-  withLocalizationProvider,
-} from 'fxa-react/lib/test-utils/localizationProvider';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 import {
   createHistory,
@@ -76,7 +73,7 @@ export function produceComponent(
   // to ensure a clean slate between storybook renders.
 
   if (appCtx) {
-    return withLocalizationProvider(
+    return (
       <AppContext.Provider value={appCtx}>
         <LocationProvider {...{ history }}>{ui}</LocationProvider>
       </AppContext.Provider>

@@ -6,7 +6,7 @@ import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { Account } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
-import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
+import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   getSubject,
   MOCK_RESET_DATA,
