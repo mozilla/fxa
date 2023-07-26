@@ -9,6 +9,7 @@
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
@@ -51,6 +52,11 @@ const View = FormView.extend({
           // don't do anything on verification, that's taken care of in the submit handler.
         });
       });
+  },
+
+  logView() {
+    GleanMetrics.loginConfirmation.view();
+    return proto.logView.call(this);
   },
 
   setInitialContext(context) {

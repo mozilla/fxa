@@ -9,6 +9,7 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
+import GleanMetrics from '../../../scripts/lib/glean';
 import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
@@ -245,6 +246,23 @@ describe('views/sign_in_token_code', () => {
       it('calls correct methods', () => {
         assert.equal(account.verifySessionResendCode.callCount, 1);
       });
+    });
+  });
+
+  describe('logview', () => {
+    let viewEventStub;
+
+    beforeEach(() => {
+      viewEventStub = sinon.stub(GleanMetrics.loginConfirmation, 'view');
+    });
+
+    afterEach(() => {
+      viewEventStub.restore();
+    });
+
+    it('submits a view Glean ping', () => {
+      view.logView();
+      sinon.assert.calledOnce(viewEventStub);
     });
   });
 });
