@@ -73,6 +73,7 @@ const View = FormView.extend({
   },
 
   submit() {
+    GleanMetrics.loginConfirmation.submit();
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
     return this.user

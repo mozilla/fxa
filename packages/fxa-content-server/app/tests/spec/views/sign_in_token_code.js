@@ -162,6 +162,8 @@ describe('views/sign_in_token_code', () => {
   });
 
   describe('submit', () => {
+    let submitEventStub;
+
     describe('success', () => {
       beforeEach(() => {
         sinon
@@ -170,8 +172,13 @@ describe('views/sign_in_token_code', () => {
         sinon
           .stub(view, 'invokeBrokerMethod')
           .callsFake(() => Promise.resolve());
+        submitEventStub = sinon.stub(GleanMetrics.loginConfirmation, 'submit');
         view.$(Selectors.INPUT).val(TOKEN_CODE);
         return view.submit();
+      });
+
+      afterEach(() => {
+        submitEventStub.restore();
       });
 
       it('calls correct broker methods', () => {
@@ -185,6 +192,7 @@ describe('views/sign_in_token_code', () => {
             account
           )
         );
+        sinon.assert.calledOnce(submitEventStub);
       });
     });
 
@@ -230,6 +238,7 @@ describe('views/sign_in_token_code', () => {
       it('rejects with the error for display', () => {
         const args = view.showValidationError.args[0];
         assert.equal(args[1], error);
+        sinon.assert.calledOnce(submitEventStub);
       });
     });
   });

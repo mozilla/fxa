@@ -102,6 +102,7 @@ export const GleanMetrics = {
 
   loginConfirmation: {
     view: createEventFn('login_email_confirmation_view'),
+    submit: createEventFn('login_email_confirmation_submit'),
   },
 };
 
