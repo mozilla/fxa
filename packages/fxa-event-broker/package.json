@@ -106,7 +106,7 @@
     "supertest": "^6.3.0",
     "ts-jest": "^29.1.0",
     "ts-loader": "^8.4.0",
-    "tsconfig-paths": "^4.1.0",
+    "tsconfig-paths": "^4.2.0",
     "typesafe-node-firestore": "^1.4.1",
     "typescript": "^4.9.3"
   },
