@@ -162,6 +162,19 @@ describe('views/sign_in_totp_code', () => {
   });
 
   describe('submit', () => {
+    let submitEventStub;
+    let successEventStub;
+
+    beforeEach(() => {
+      submitEventStub = sinon.stub(GleanMetrics.totpForm, 'submit');
+      successEventStub = sinon.stub(GleanMetrics.totpForm, 'success');
+    });
+
+    afterEach(() => {
+      submitEventStub.restore();
+      successEventStub.restore();
+    });
+
     describe('success', () => {
       beforeEach(() => {
         sinon
@@ -186,6 +199,8 @@ describe('views/sign_in_totp_code', () => {
             account
           )
         );
+        sinon.assert.calledOnce(submitEventStub);
+        sinon.assert.calledOnce(successEventStub);
       });
 
       it('logs flowEvent', () => {
@@ -209,6 +224,7 @@ describe('views/sign_in_totp_code', () => {
           1054,
           'correct error thrown'
         );
+        sinon.assert.calledOnce(submitEventStub);
       });
     });
 

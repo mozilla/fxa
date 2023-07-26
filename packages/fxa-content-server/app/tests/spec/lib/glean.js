@@ -262,6 +262,21 @@ describe('lib/glean', () => {
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
       });
+
+      it('submits a ping with the login_totp_code_submit event name', () => {
+        GleanMetrics.totpForm.submit();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_totp_code_submit');
+      });
+
+      it('submits a ping with the login_totp_code_success_view event name', () => {
+        GleanMetrics.totpForm.success();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_totp_code_success_view'
+        );
+      });
     });
   });
 

@@ -35,6 +35,7 @@ const View = FormView.extend({
   },
 
   submit() {
+    GleanMetrics.totpForm.submit();
     const account = this.getAccount();
     const code = this.getElementValue('input.totp-code');
     return account
@@ -42,6 +43,7 @@ const View = FormView.extend({
       .then((result) => {
         if (result.success) {
           this.logFlowEvent('success', this.viewName);
+          GleanMetrics.totpForm.success();
 
           const redirectPathname = this.model.get('redirectPathname');
           if (redirectPathname) {
