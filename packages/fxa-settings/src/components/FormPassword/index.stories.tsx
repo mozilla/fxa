@@ -8,7 +8,7 @@ import { LocationProvider } from '@reach/router';
 import AppLayout from '../Settings/AppLayout';
 import FormPassword from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/FormPassword',

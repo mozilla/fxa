@@ -8,6 +8,7 @@ const RECOVERY_KEY_DOCS =
   require('../../docs/swagger/recovery-key-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 
+const AppError = require('../error');
 const errors = require('../error');
 const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
@@ -33,6 +34,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
               DESCRIPTION.recoveryData
             ),
             enabled: isA.boolean().default(true),
+            replaceKey: isA.boolean().default(false),
           }),
         },
       },
@@ -46,36 +48,11 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         }
 
         const { uid } = sessionToken;
-        const { recoveryKeyId, recoveryData, enabled } = request.payload;
+        const { recoveryKeyId, recoveryData, enabled, replaceKey } =
+          request.payload;
 
-        // Users that already have an enabled account recovery key can not
-        // create a second account recovery key
-        try {
-          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
-        } catch (err) {
-          if (err.errno !== errors.ERRNO.RECOVERY_KEY_EXISTS) {
-            throw err;
-          }
-
-          // `recoveryKeyExists` will return true if and only if there is an enabled recovery
-          // key. In other scenarios a user started creating one but never completed the enable
-          // process.
-          const result = await db.recoveryKeyExists(uid);
-          if (result.exists) {
-            throw err;
-          }
-
-          await db.deleteRecoveryKey(uid);
-          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
-        }
-
-        log.info('account.recoveryKey.created', { uid });
-
-        if (enabled) {
-          await request.emitMetricsEvent('recoveryKey.created', { uid });
-
+        async function sendKeyCreationEmail() {
           const account = await db.account(uid);
-
           const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
@@ -89,7 +66,6 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             uaDeviceType: ua.deviceType,
             uid,
           };
-
           await mailer.sendPostAddAccountRecoveryEmail(
             account.emails,
             account,
@@ -97,12 +73,86 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           );
         }
 
-        recordSecurityEvent('account.recovery_key_added', {
-          db,
-          request,
-          account: { uid },
-        });
+        async function postKeyCreation() {
+          log.info('account.recoveryKey.created', { uid });
 
+          if (enabled) {
+            await request.emitMetricsEvent('recoveryKey.created', { uid });
+            recordSecurityEvent('account.recovery_key_added', {
+              db,
+              request,
+              account: { uid },
+            });
+            sendKeyCreationEmail();
+          }
+        }
+
+        async function postKeyChange() {
+          log.info('account.recoveryKey.changed', { uid });
+          if (enabled) {
+            await request.emitMetricsEvent('recoveryKey.changed', { uid });
+            recordSecurityEvent('account.recovery_key_removed', {
+              db,
+              request,
+            });
+            recordSecurityEvent('account.recovery_key_added', {
+              db,
+              request,
+              account: { uid },
+            });
+            sendKeyCreationEmail();
+          }
+        }
+
+        async function attemptKeyChange() {
+          await db.deleteRecoveryKey(uid);
+          await db.createRecoveryKey(uid, recoveryKeyId, recoveryData, enabled);
+          postKeyChange();
+        }
+
+        try {
+          // `recoveryKeyExists` will return true if and only if there is an *enabled* recovery
+          // key. In other scenarios a user started creating one but never completed the enable
+          // process.
+          const enabledKey = await db.recoveryKeyExists(uid);
+
+          if (enabledKey.exists && replaceKey === true) {
+            // if we are explicitly requesting a key change
+            // delete the key and create a new one
+            await attemptKeyChange();
+            // if we are not explicitly requesting a key change
+            // but an enabled key exists, throw an error
+          } else if (enabledKey.exists && replaceKey !== true) {
+            throw AppError.recoveryKeyExists();
+          } else {
+            // if no key is enabled, attempt to create a new key
+            await db.createRecoveryKey(
+              uid,
+              recoveryKeyId,
+              recoveryData,
+              enabled
+            );
+            postKeyCreation();
+          }
+        } catch (err) {
+          // `recoveryKeyExists` will return true if and only if there is an *enabled* recovery
+          // key. In other scenarios a user started creating one but never completed the enable
+          // process.
+          const enabledKey = await db.recoveryKeyExists(uid);
+
+          // throw for all errors except recovery key exists
+          if (err.errno !== errors.ERRNO.RECOVERY_KEY_EXISTS) {
+            throw err;
+          } else if (!enabledKey.exists) {
+            // if a recovery key exists but it is not enabled,
+            // attempt to change it
+            await attemptKeyChange();
+          } else {
+            // if a key is already enabled and we don't intend to replace it
+            // reject the request
+            throw err;
+          }
+        }
         return {};
       },
     },

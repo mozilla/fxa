@@ -19,7 +19,7 @@ type CustomerData = {
 
 type AccountData = {
   customer: CustomerData;
-  account: Account;
+  account?: Account;
 };
 
 type ErrorsOutput = CustomerData & {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { config as defaultConfig } from '../../../lib/config';
 import { AppContext, defaultAppContext } from '../../../lib/AppContext';
@@ -8,6 +8,7 @@ import {
   MOCK_PLANS,
   MOCK_PROFILE,
   MOCK_CUSTOMER,
+  renderWithLocalizationProvider,
 } from '../../../lib/test-utils';
 
 import { SubscriptionSuccess } from './index';
@@ -44,7 +45,7 @@ function assertRedirectForProduct(
     product_name,
     configuration: planConfiguration,
   };
-  const { getByTestId } = render(
+  const { getByTestId } = renderWithLocalizationProvider(
     <AppContext.Provider value={appContextValue}>
       <SubscriptionSuccess
         {...{
@@ -126,7 +127,7 @@ describe('SubscriptionSuccess', () => {
   });
 
   it('renders the PlanDetails component on mobile', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <AppContext.Provider value={defaultAppContext}>
         <SubscriptionSuccess
           {...{
@@ -144,7 +145,7 @@ describe('SubscriptionSuccess', () => {
   });
 
   it('renders the coupon form component when a coupon is present', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <AppContext.Provider value={defaultAppContext}>
         <SubscriptionSuccess
           {...{
@@ -171,7 +172,7 @@ describe('SubscriptionSuccess', () => {
   });
 
   it('does not renders the coupon form component when a coupon is not present', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <AppContext.Provider value={defaultAppContext}>
         <SubscriptionSuccess
           {...{

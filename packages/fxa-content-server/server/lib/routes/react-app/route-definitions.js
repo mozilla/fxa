@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const {
-  termsPrivacyRouteDefinitionProcess,
-} = require('./route-definition-get-terms-privacy-process');
-
 /** @type {import("./types").GetRouteDefinition} */
 function getFrontEndRouteDefinition(routes) {
   const path = routes.join('|'); // prepare for use in a RegExp
@@ -52,7 +48,8 @@ function getTermsPrivacyRouteDefinition(regex, i18n) {
     method: 'get',
     path: regex,
     process: function (req, res, next) {
-      termsPrivacyRouteDefinitionProcess(i18n, req, res, next);
+      req.url = '/';
+      next();
     },
   };
 }

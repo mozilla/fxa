@@ -9,6 +9,9 @@ import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
 import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
+import { TextEncoder } from 'util';
+
+Object.assign(global, { TextEncoder });
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';

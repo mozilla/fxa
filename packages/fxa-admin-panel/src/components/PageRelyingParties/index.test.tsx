@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing';
 import PageRelyingParties from '.';
 import {
@@ -20,6 +20,7 @@ import {
   AdminPanelGuard,
 } from '../../../../fxa-shared/guards';
 import { mockConfigBuilder } from '../../lib/config';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 // Setup the current user hook. Required for Guards.
 const mockGuard = new AdminPanelGuard(AdminPanelEnv.Prod);
@@ -43,7 +44,7 @@ jest.mock('../../hooks/UserContext.ts', () => ({
 }));
 
 it('renders without imploding and shows loading text', () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider mocks={[mockGetRelyingParties()]} addTypename={false}>
       <PageRelyingParties />
     </MockedProvider>
@@ -54,7 +55,7 @@ it('renders without imploding and shows loading text', () => {
 });
 
 it('renders as expected with zero relying parties', async () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider mocks={[mockGetRelyingParties()]} addTypename={false}>
       <PageRelyingParties />
     </MockedProvider>
@@ -63,7 +64,7 @@ it('renders as expected with zero relying parties', async () => {
 });
 
 it('renders as expected with a relying party containing all fields', async () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider
       mocks={[mockGetRelyingParties([MOCK_RP_ALL_FIELDS])]}
       addTypename={false}
@@ -81,7 +82,7 @@ it('renders as expected with a relying party containing all fields', async () =>
 });
 
 it('updates notes', async () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider
       mocks={[
         mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
@@ -109,7 +110,7 @@ it('updates notes', async () => {
 });
 
 it('shows error if notes fail to update', async () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider
       mocks={[
         mockGetRelyingParties([MOCK_RP_ALL_FIELDS]),
@@ -137,7 +138,7 @@ it('shows error if notes fail to update', async () => {
 });
 
 it('renders as expected with a relying party containing falsy fields', async () => {
-  render(
+  renderWithLocalizationProvider(
     <MockedProvider
       mocks={[mockGetRelyingParties([MOCK_RP_FALSY_FIELDS])]}
       addTypename={false}

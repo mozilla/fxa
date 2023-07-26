@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, render, act, fireEvent } from '@testing-library/react';
+import { screen, act, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 import * as Amplitude from '../../../lib/amplitude';
@@ -21,6 +21,7 @@ import {
   INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT,
   INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT,
   INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
+  renderWithLocalizationProvider,
 } from '../../../lib/test-utils';
 import { Plan } from 'fxa-payments-server/src/store/types';
 import {
@@ -71,7 +72,9 @@ describe('CancelSubscriptionPanel', () => {
     })) {
       describe(`when plan has ${k} interval`, () => {
         const runTests = (props: CancelSubscriptionPanelProps) => {
-          render(<CancelSubscriptionPanel {...props} />);
+          renderWithLocalizationProvider(
+            <CancelSubscriptionPanel {...props} />
+          );
 
           const planPrice = formatPlanPricing(
             props.invoice.total,
@@ -131,7 +134,9 @@ describe('CancelSubscriptionPanel', () => {
 
       it('should not be displayed when upgradeCTA is not in the plan', () => {
         const plan = findMockPlan('plan_daily');
-        render(<CancelSubscriptionPanel {...baseProps} plan={plan} />);
+        renderWithLocalizationProvider(
+          <CancelSubscriptionPanel {...baseProps} plan={plan} />
+        );
         expect(queryByTestId('upgrade-cta')).not.toBeInTheDocument();
       });
 
@@ -143,7 +148,7 @@ describe('CancelSubscriptionPanel', () => {
             upgradeCTA: 'Upgrade to the ultra super premium plus plan!',
           },
         };
-        render(
+        renderWithLocalizationProvider(
           <CancelSubscriptionPanel {...baseProps} plan={upgradeablePlan} />
         );
         expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
@@ -178,7 +183,7 @@ describe('CancelSubscriptionPanel', () => {
             },
           },
         };
-        render(
+        renderWithLocalizationProvider(
           <CancelSubscriptionPanel {...baseProps} plan={upgradeablePlan} />
         );
         expect(queryByTestId('upgrade-cta')).toBeInTheDocument();
@@ -219,7 +224,7 @@ describe('CancelSubscriptionPanel', () => {
             },
           },
         };
-        render(
+        renderWithLocalizationProvider(
           <AppContext.Provider
             value={{ ...defaultAppContext, navigatorLanguages: ['fr'] }}
           >
@@ -247,7 +252,7 @@ describe('CancelSubscriptionPanel', () => {
           'payment-cancel-btn = blee',
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -260,7 +265,7 @@ describe('CancelSubscriptionPanel', () => {
           </LocalizationProvider>
         );
         expect(queryByText('$20.00 fooly')).toBeInTheDocument();
-        expect(queryByText('quuz 09/13/2019')).toBeInTheDocument();
+        expect(queryByText('quuz 13/09/2019')).toBeInTheDocument();
         expect(queryByText('blee')).toBeInTheDocument();
       });
 
@@ -274,7 +279,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
@@ -294,7 +299,7 @@ describe('CancelSubscriptionPanel', () => {
           `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -311,7 +316,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 + $3.00 tax fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 + $1.23 taxes is due due 09/13/2019'
+          'Your next bill of $5.00 + $1.23 taxes is due due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -328,7 +333,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -342,7 +347,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 + $3.00 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 + $1.23 taxes is due due 08/14/2019'
+          'Your next bill of $5.00 + $1.23 taxes is due due 14/08/2019'
         );
       });
 
@@ -357,7 +362,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -371,7 +376,7 @@ describe('CancelSubscriptionPanel', () => {
           '$19.50 + $3.00 tax barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $4.50 + $1.23 taxes is due due 08/14/2019'
+          'Your next bill of $4.50 + $1.23 taxes is due due 14/08/2019'
         );
       });
 
@@ -385,9 +390,10 @@ describe('CancelSubscriptionPanel', () => {
           'payment-cancel-btn = blee',
           `price-details-tax = { $priceAmount } + { $taxAmount } taxes`,
           `sub-next-bill-tax = Your next bill of { $priceAmount } + { $taxAmount } taxes is due due <strong>{ $date }</strong>`,
+          `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -404,7 +410,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 daily'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 is due 09/13/2019'
+          'Your next bill of $5.00 prices is due due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -420,7 +426,7 @@ describe('CancelSubscriptionPanel', () => {
           `sub-next-bill-no-tax = Your next bill of { $priceAmount } prices is due due <strong>{ $date }</strong>`,
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -437,7 +443,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 fooly'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 09/13/2019'
+          'Your next bill of $5.00 prices is due due 13/09/2019'
         );
         expect(queryByText('blee')).toBeInTheDocument();
       });
@@ -453,7 +459,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -467,7 +473,7 @@ describe('CancelSubscriptionPanel', () => {
           '$20.00 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $5.00 prices is due due 08/14/2019'
+          'Your next bill of $5.00 prices is due due 14/08/2019'
         );
       });
 
@@ -482,7 +488,7 @@ describe('CancelSubscriptionPanel', () => {
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = { ...findMockPlan('plan_daily'), interval_count: 8 };
 
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel
               {...baseProps}
@@ -496,7 +502,7 @@ describe('CancelSubscriptionPanel', () => {
           '$19.50 barly 8 24hrs'
         );
         expect(queryByTestId('sub-next-bill')).toHaveTextContent(
-          'Your next bill of $4.50 prices is due due 08/14/2019'
+          'Your next bill of $4.50 prices is due due 14/08/2019'
         );
       });
 
@@ -511,7 +517,7 @@ describe('CancelSubscriptionPanel', () => {
           'sub-item-stay-sub = haha never mind',
         ].forEach((x) => bundle.addResource(new FluentResource(x)));
         const plan = findMockPlan('plan_daily');
-        render(
+        renderWithLocalizationProvider(
           <LocalizationProvider l10n={new ReactLocalization([bundle])}>
             <CancelSubscriptionPanel {...baseProps} plan={plan} />
           </LocalizationProvider>
@@ -536,7 +542,9 @@ describe('CancelSubscriptionPanel', () => {
   describe('event handling', () => {
     beforeEach(() => {
       const plan = findMockPlan('plan_daily');
-      render(<CancelSubscriptionPanel {...baseProps} plan={plan} />);
+      renderWithLocalizationProvider(
+        <CancelSubscriptionPanel {...baseProps} plan={plan} />
+      );
     });
 
     it('closes the cancellation confirmation on Stay Subscribed', () => {
@@ -565,7 +573,7 @@ describe('CancelSubscriptionPanel', () => {
       (Amplitude.cancelSubscriptionMounted as jest.Mock).mockClear();
       (Amplitude.cancelSubscriptionEngaged as jest.Mock).mockClear();
       const plan = findMockPlan('plan_daily');
-      render(
+      renderWithLocalizationProvider(
         <CancelSubscriptionPanel
           {...baseProps}
           plan={plan}

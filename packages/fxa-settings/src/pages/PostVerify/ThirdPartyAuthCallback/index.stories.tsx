@@ -5,7 +5,7 @@
 import React from 'react';
 import ThirdPartyAuthCallback from '.';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
 import { AppContext } from '../../../models';
 import { StorageData } from '../../../lib/model-data';

@@ -50,6 +50,8 @@ const invoicePreviewNoTax: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewInclusiveTax: FirstInvoicePreview = {
@@ -65,6 +67,8 @@ const invoicePreviewInclusiveTax: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewExclusiveTax: FirstInvoicePreview = {
@@ -80,6 +84,8 @@ const invoicePreviewExclusiveTax: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 const invoicePreviewExclusiveTaxMulti: FirstInvoicePreview = {
@@ -136,6 +142,16 @@ export const Default = storyWithContext({
     ...MOCK_PROPS,
     updateSubscriptionPlanAndRefresh: () => linkToUpgradeSuccess(),
   },
+  appContextValue: {
+    ...defaultAppContext,
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: {
+        useStripeAutomaticTax: true,
+        useStripeInvoiceImmediately: true,
+      },
+    },
+  },
 });
 
 export const DefaultWithInclusiveTax = storyWithContext({
@@ -149,7 +165,10 @@ export const DefaultWithInclusiveTax = storyWithContext({
     navigatorLanguages: ['xx-pirate'],
     config: {
       ...defaultAppContext.config,
-      featureFlags: { useStripeAutomaticTax: true },
+      featureFlags: {
+        useStripeAutomaticTax: true,
+        useStripeInvoiceImmediately: true,
+      },
     },
   },
 });
@@ -165,7 +184,10 @@ export const DefaultWithExclusiveTax = storyWithContext({
     navigatorLanguages: ['xx-pirate'],
     config: {
       ...defaultAppContext.config,
-      featureFlags: { useStripeAutomaticTax: true },
+      featureFlags: {
+        useStripeAutomaticTax: true,
+        useStripeInvoiceImmediately: true,
+      },
     },
   },
 });
@@ -181,7 +203,10 @@ export const MultipleWithExclusiveTax = storyWithContext({
     navigatorLanguages: ['xx-pirate'],
     config: {
       ...defaultAppContext.config,
-      featureFlags: { useStripeAutomaticTax: true },
+      featureFlags: {
+        useStripeAutomaticTax: true,
+        useStripeInvoiceImmediately: true,
+      },
     },
   },
 });
@@ -194,6 +219,12 @@ export const LocalizedToPirate = storyWithContext({
   appContextValue: {
     ...defaultAppContext,
     navigatorLanguages: ['xx-pirate'],
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: {
+        useStripeInvoiceImmediately: true,
+      },
+    },
   },
 });
 
@@ -204,6 +235,15 @@ export const Submitting = storyWithContext({
       loading: true,
       result: null,
       error: null,
+    },
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: {
+        useStripeInvoiceImmediately: true,
+      },
     },
   },
 });
@@ -220,5 +260,14 @@ export const InternalServerError = storyWithContext({
       }),
     },
     resetUpdateSubscriptionPlan: linkToUpgradeOffer,
+  },
+  appContextValue: {
+    ...defaultAppContext,
+    config: {
+      ...defaultAppContext.config,
+      featureFlags: {
+        useStripeInvoiceImmediately: true,
+      },
+    },
   },
 });

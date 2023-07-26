@@ -9,6 +9,7 @@
 import Cocktail from 'cocktail';
 import Constants from '../lib/constants';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import Template from 'templates/sign_in_token_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
@@ -53,6 +54,11 @@ const View = FormView.extend({
       });
   },
 
+  logView() {
+    GleanMetrics.loginConfirmation.view();
+    return proto.logView.call(this);
+  },
+
   setInitialContext(context) {
     const email = this.getAccount().get('email');
 
@@ -67,6 +73,7 @@ const View = FormView.extend({
   },
 
   submit() {
+    GleanMetrics.loginConfirmation.submit();
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
     return this.user

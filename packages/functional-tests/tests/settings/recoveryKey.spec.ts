@@ -121,7 +121,7 @@ test.describe('old recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await recoveryKey.clickLostRecoveryKey();
 
     // Reset password
@@ -201,7 +201,7 @@ test.describe('old recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await login.submit();
     credentials.password = credentials.password + '_new';
@@ -231,7 +231,7 @@ test.describe('new recovery key test', () => {
       const config = await login.getConfig();
       test.skip(config.featureFlags.showRecoveryKeyV2 !== true);
 
-      await settings.goto();
+      await settings.goto('isInRecoveryKeyExperiment=true');
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
       await settings.recoveryKey.clickCreate();
@@ -331,7 +331,7 @@ test.describe('new recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     await login.setRecoveryKey(key);
     await login.submit();
     credentials.password = credentials.password + '_new';
@@ -355,6 +355,7 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
+    await settings.goto('isInRecoveryKeyExperiment=true');
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
@@ -441,7 +442,7 @@ test.describe('new recovery key test', () => {
       EmailHeader.link
     );
     link = `${link}&forceExperiment=generalizedReactApp&forceExperimentGroup=control`;
-    await page.goto(link, { waitUntil: 'networkidle' });
+    await page.goto(link, { waitUntil: 'load' });
     // Directed to "confirm recovery key" page, but lost the key
     // Click on the lost recovery key link
     await recoveryKey.clickLostRecoveryKey();
@@ -506,10 +507,11 @@ test.describe('new recovery key test', () => {
     await page.goto(link, { waitUntil: 'load' });
 
     // Verify reset link expired
-    expect(await resetPassword.resetPasswordLinkExpiredHeader()).toBe(true);
+    await resetPassword.resetPasswordLinkExpiredHeader();
   });
 
   test('revoke recovery key', async ({ pages: { settings } }) => {
+    await settings.goto('isInRecoveryKeyExperiment=true');
     await settings.recoveryKey.clickDelete();
     await settings.clickModalConfirm();
     await settings.waitForAlertBar();

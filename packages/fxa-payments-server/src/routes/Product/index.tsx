@@ -4,7 +4,11 @@ import { Localized } from '@fluent/react';
 import { AuthServerErrno } from '../../lib/errors';
 import { AppContext } from '../../lib/AppContext';
 import { LoadingOverlay } from '../../components/LoadingOverlay';
-import { useFetchInvoicePreview, useMatchMedia } from '../../lib/hooks';
+import {
+  useFetchInvoicePreview,
+  useMatchMedia,
+  useReactGA4Setup,
+} from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
 
 import { State } from '../../store/state';
@@ -158,6 +162,8 @@ export const Product = ({
       `${config.servers.content.url}/subscriptions/products/${productId}?plan=${planId}&signin=yes`
     );
   }
+
+  useReactGA4Setup(config, productId);
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {

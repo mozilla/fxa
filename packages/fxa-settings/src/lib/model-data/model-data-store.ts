@@ -36,4 +36,8 @@ export abstract class ModelDataStore {
       this.set(key, parsed[key]);
     });
   }
+
+  async synchronized() {
+    // no-op - used for data stores that have async setters
+  }
 }

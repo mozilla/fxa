@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Page } from '@playwright/test';
 import {
   AvatarRow,
@@ -66,7 +70,7 @@ export class SettingsPage extends SettingsLayout {
   clickDeleteAccount() {
     return Promise.all([
       this.page.locator('[data-testid=settings-delete-account]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 

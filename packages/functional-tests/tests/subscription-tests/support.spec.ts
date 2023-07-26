@@ -8,7 +8,7 @@ test.describe('support form without valid session', () => {
   }) => {
     await login.clearCache();
     await page.goto(`${target.contentServerUrl}/support`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     expect(await login.isEmailHeader()).toBe(true);
   });
@@ -22,9 +22,9 @@ test.describe('support form without active subscriptions', () => {
   }) => {
     test.slow();
     await page.goto(`${target.contentServerUrl}/support`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
-    await page.waitForNavigation();
+    await page.waitForURL(/settings/);
     expect(await login.loginHeader()).toBe(true);
   });
 });

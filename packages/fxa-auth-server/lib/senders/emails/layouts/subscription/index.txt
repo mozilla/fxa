@@ -45,7 +45,7 @@ subplat-cloud-terms-plaintext = "Firefox Cloud Terms Of Service:"
 <% } %>
 
 Mozilla Corporation
-2 Harrison St, #175, San Francisco, CA 94105
+149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 
 subplat-legal-plaintext = "Legal:"
 https://www.mozilla.org/about/legal/terms/services/

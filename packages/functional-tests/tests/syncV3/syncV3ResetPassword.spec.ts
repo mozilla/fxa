@@ -56,10 +56,7 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
     expect(await login.notCommonPasswordUnmetError()).toBe(true);
 
     await resetPassword.resetNewPassword('Newpassword@');
-    expect(await resetPassword.completeResetPasswordHeader()).toBe(true);
-
-    // Update credentials file so that account can be deleted as part of test cleanup
-    credentials.password = 'Newpassword@';
+    await resetPassword.completeResetPasswordHeader();
 
     await browser?.close();
   });

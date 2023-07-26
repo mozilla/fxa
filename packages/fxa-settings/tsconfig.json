@@ -11,17 +11,9 @@
       "@testing-library/jest-dom"
     ],
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
   },
   "include": [
     "src"
-  ],
-  "references": [
-    {
-      "path": "../fxa-react"
-    },
-    {
-      "path": "../fxa-shared"
-    }
   ]
 }

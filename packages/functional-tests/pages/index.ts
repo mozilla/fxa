@@ -7,6 +7,7 @@ import { DeleteAccountPage } from './settings/deleteAccount';
 import { DisplayNamePage } from './settings/displayName';
 import { FourOhFourPage } from './fourOhFour';
 import { FxDesktopV3ForceAuthPage } from './forceAuth/fxDesktopV3';
+import { ForceAuthPage } from './forceAuth';
 import { LoginPage } from './login';
 import { RecoveryKeyPage } from './settings/recoveryKey';
 import { RelierPage } from './relier';
@@ -21,6 +22,7 @@ import { ResetPasswordPage } from './resetPassword';
 import { LegalPage } from './legal';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { PostVerifyPage } from './postVerify';
+import { ResetPasswordReactPage } from './resetPasswordReact';
 
 export function create(page: Page, target: BaseTarget) {
   return {
@@ -31,6 +33,7 @@ export function create(page: Page, target: BaseTarget) {
     displayName: new DisplayNamePage(page, target),
     fourOhFour: new FourOhFourPage(page, target),
     fxDesktopV3ForceAuth: new FxDesktopV3ForceAuthPage(page, target),
+    forceAuth: new ForceAuthPage(page, target),
     login: new LoginPage(page, target),
     page,
     recoveryKey: new RecoveryKeyPage(page, target),
@@ -43,6 +46,7 @@ export function create(page: Page, target: BaseTarget) {
     totp: new TotpPage(page, target),
     subscriptionManagement: new SubscriptionManagementPage(page, target),
     resetPassword: new ResetPasswordPage(page, target),
+    resetPasswordReact: new ResetPasswordReactPage(page, target),
     legal: new LegalPage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     postVerify: new PostVerifyPage(page, target),

@@ -7,7 +7,7 @@ import Confirm from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { mockAppContext } from '../../../models/mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import {
   MOCK_PROFILE_WITH_RESEND_ERROR,

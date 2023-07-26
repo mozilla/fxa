@@ -36,7 +36,7 @@ describe('#integration - RelyingPartyResolver', () => {
   beforeAll(async () => {
     knex = await testDatabaseSetup();
     db.relyingParty = RelyingParty.bindKnex(knex);
-    await db.relyingParty.query().insert(MOCK_RP);
+    await db.relyingParty.query().insert(MOCK_RP as any);
 
     let logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
     const MockMozLogger: Provider = {

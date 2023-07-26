@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // import React from 'react';
-// import { render, screen } from '@testing-library/react';
-// import { PageWithLoggedInStatusState } from '.';
+// import {  screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { PageWithLoggedInStatusState } from '.';
 // import { MockComponent } from './mocks';
 import { /* Account, AppContext,*/ useInitialState } from '../../models';
 // import { mockAppContext } from '../../models/mocks';
@@ -29,7 +29,7 @@ describe('PageWithLoggedInStatusState', () => {
     //   metricsEnabled: false,
     //   hasPassword: true,
     // } as unknown as Account;
-    // render(
+    // renderWithLocalizationProvider(
     //   <AppContext.Provider value={mockAppContext({ account })}>
     //     <PageWithLoggedInStatusState
     //       path="/arbitrary_path/*"

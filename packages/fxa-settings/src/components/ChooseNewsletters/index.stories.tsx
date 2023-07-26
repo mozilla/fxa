@@ -7,7 +7,7 @@ import ChooseNewsletters from '.';
 import AppLayout from '../AppLayout';
 import { Meta } from '@storybook/react';
 import { Subject } from './mocks';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/ChooseNewsletters',

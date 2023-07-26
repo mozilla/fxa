@@ -32,7 +32,7 @@ test.describe('signup here', () => {
     let emailWithoutSpace = email;
     let emailWithSpace = '   ' + email;
     await page.goto(target.contentServerUrl);
-    await login.fillOutFirstSignUp(emailWithSpace, password, false);
+    await login.fillOutFirstSignUp(emailWithSpace, password, { verify: false });
 
     // Verify the confirm code header and the email
     expect(await login.isSignUpCodeHeader()).toBe(true);
@@ -45,7 +45,7 @@ test.describe('signup here', () => {
     email = login.createEmail();
     emailWithoutSpace = email;
     emailWithSpace = email + ' ';
-    await login.fillOutFirstSignUp(emailWithSpace, password, false);
+    await login.fillOutFirstSignUp(emailWithSpace, password, { verify: false });
 
     expect(await login.isSignUpCodeHeader()).toBe(true);
     expect(await login.confirmEmail()).toContain(emailWithoutSpace);
@@ -117,7 +117,7 @@ test.describe('signup here', () => {
   }) => {
     const email = login.createEmail();
     await page.goto(target.contentServerUrl);
-    await login.fillOutFirstSignUp(email, password, true);
+    await login.fillOutFirstSignUp(email, password);
 
     // The original tab should transition to the settings page w/ success
     // message.
@@ -141,7 +141,7 @@ test.describe('signup here', () => {
     const email = login.createEmail();
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, true);
+    await login.fillOutFirstSignUp(email, password);
     expect(await relier.isLoggedIn()).toBe(true);
   });
 
@@ -153,7 +153,7 @@ test.describe('signup here', () => {
     const email = login.createEmail();
     const secondEmail = login.createEmail();
     await page.goto(target.contentServerUrl);
-    await login.fillOutFirstSignUp(email, password, true);
+    await login.fillOutFirstSignUp(email, password);
 
     // The original tab should transition to the settings page w/ success
     // message.
@@ -181,7 +181,7 @@ test.describe('signup here', () => {
 
     await settings.signOut();
 
-    await login.fillOutFirstSignUp(secondEmail, password, true);
+    await login.fillOutFirstSignUp(secondEmail, password);
 
     // The original tab should transition to the settings page w/ success
     // message.

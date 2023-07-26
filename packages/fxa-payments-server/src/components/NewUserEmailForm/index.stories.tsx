@@ -10,9 +10,11 @@ export default {
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
   invalidDomain,
+  newsletterLabelTextCode,
 }: {
   accountExistsReturnValue: boolean;
   invalidDomain: boolean;
+  newsletterLabelTextCode?: string;
 }) => {
   const [, setValidEmail] = useState<string>('');
   const [, setAccountExists] = useState(false);
@@ -35,7 +37,11 @@ const WrapNewUserEmailForm = ({
             invalidDomain,
           })
         }
-        selectedPlan={{}}
+        selectedPlan={{
+          product_metadata: {
+            newsletterLabelTextCode,
+          },
+        }}
         onToggleNewsletterCheckbox={() => {}}
       />
     </div>
@@ -45,12 +51,14 @@ const WrapNewUserEmailForm = ({
 const storyWithContext = (
   accountExistsReturnValue: boolean,
   invalidDomain: boolean,
-  storyName?: string
+  storyName?: string,
+  newsletterLabelTextCode?: string
 ) => {
   const story = () => (
     <WrapNewUserEmailForm
       accountExistsReturnValue={accountExistsReturnValue}
       invalidDomain={invalidDomain}
+      newsletterLabelTextCode={newsletterLabelTextCode}
     />
   );
 
@@ -59,6 +67,27 @@ const storyWithContext = (
 };
 
 export const Default = storyWithContext(false, false, 'default');
+
+export const SnPNewsletterCopy = storyWithContext(
+  false,
+  false,
+  'default - with S&P newsletter copy',
+  'snp'
+);
+
+export const HubsNewsletterCopy = storyWithContext(
+  false,
+  false,
+  'default - with Hubs newsletter copy',
+  'hubs'
+);
+
+export const MDNNewsletterCopy = storyWithContext(
+  false,
+  false,
+  'default - with MDN Plus newsletter copy',
+  'mdnplus'
+);
 
 export const ExistingAccount = storyWithContext(
   true,

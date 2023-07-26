@@ -116,7 +116,7 @@ describe('#integration - AccountResolver', () => {
     await db.emailBounces.query().insert(EMAIL_BOUNCE_1);
     await db.totp.query().insert(TOTP_1);
     await db.recoveryKeys.query().insert(RECOVERY_KEY_1);
-    await db.linkedAccounts.query().insert(LINKED_ACCOUNT_1);
+    await db.linkedAccounts.query().insert(LINKED_ACCOUNT_1 as any);
     await db.sessionTokens.query().insert(SESSION_TOKEN_1);
   });
 
@@ -305,9 +305,10 @@ describe('#integration - AccountResolver', () => {
       true,
       'joe'
     )) as Account;
-    const { emailType: templateName } = await db.emailTypes
-      .query()
-      .findOne({ id: EMAIL_BOUNCE_1.emailTypeId });
+    const { emailType: templateName } =
+      (await db.emailTypes
+        .query()
+        .findOne({ id: EMAIL_BOUNCE_1.emailTypeId })) || {};
     const result = await resolver.emailBounces(user);
     expect(result).toBeDefined();
     const bounce = result[0];
@@ -390,7 +391,8 @@ describe('#integration - AccountResolver', () => {
 
   it('edits locale', async () => {
     const result1 = await resolver.editLocale(USER_1.uid, 'en-CA');
-    const result2 = await resolver.accountByEmail(USER_1.email, true, 'joe');
+    const result2 =
+      (await resolver.accountByEmail(USER_1.email, true, 'joe')) || ({} as any);
     expect(result1).toBe(true);
     expect(result2.locale).toBe('en-CA');
   });

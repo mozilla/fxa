@@ -17,6 +17,8 @@ import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignInMixin from './mixins/signin-mixin';
 import Template from 'templates/sign_in_password.mustache';
+import ThirdPartyAuthMixin from './mixins/third-party-auth-mixin';
+import ThirdPartyAuth from '../templates/partial/third-party-auth.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 
@@ -51,14 +53,45 @@ const SignInPasswordView = FormView.extend({
     if (account && account.get('metricsEnabled') === false) {
       GleanMetrics.setEnabled(false);
     }
+
+    // We need an explicit call here in case a user directly navigates to
+    // /signin or they're redirected, e.g. when directly accessing settings.
+    // However, we don't want to call this if the previous enter email screen
+    // already called this, verified the account exists, and set the third party
+    // auth data because of rate limiting on the POST account/status endpoint.
+    // We can't use account/status GET since we don't always have the uid.
+    if (
+      account &&
+      (account.get('hasLinkedAccount') === undefined ||
+        account.get('hasPassword') === undefined)
+    ) {
+      return account.checkAccountStatus().catch(() => {
+        // Unlikely, but if this errors, it's probably due to rate limiting,
+        // see note above. Regardless, don't block the user from proceeding
+        // because this check failed, and assume they have a password set
+        // (since most users do) via defaults set in setInitialContext.
+        // See https://github.com/mozilla/fxa/pull/15456#discussion_r1237799514
+      });
+    }
+  },
+
+  logView() {
+    GleanMetrics.login.view();
+    return FormView.prototype.logView.call(this);
   },
 
   setInitialContext(context) {
     const account = this.getAccount();
+    const hasLinkedAccount = account.get('hasLinkedAccount') ?? false;
+    const hasPassword = account.get('hasPassword') ?? true;
 
     context.set({
       email: account.get('email'),
-      isPasswordNeeded: this.isPasswordNeededForAccount(account),
+      isPasswordNeeded: this.isPasswordNeededForAccount(account) && hasPassword,
+      hasLinkedAccountAndNoPassword: hasLinkedAccount && !hasPassword,
+      unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
+        isSignup: false,
+      }),
     });
   },
 
@@ -66,6 +99,7 @@ const SignInPasswordView = FormView.extend({
     const account = this.getAccount();
     if (this.isPasswordNeededForAccount(account)) {
       const password = this.getElementValue('input[type=password]');
+      GleanMetrics.login.submit();
       return this.signIn(account, password).catch((error) =>
         this.onSignInError(account, password, error)
       );
@@ -102,6 +136,7 @@ Cocktail.mixin(
   ServiceMixin,
   SignInMixin,
   SignedInNotificationMixin,
+  ThirdPartyAuthMixin,
   UserCardMixin,
   PocketMigrationMixin
 );

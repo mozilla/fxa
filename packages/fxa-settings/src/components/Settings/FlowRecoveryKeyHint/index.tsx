@@ -43,9 +43,10 @@ export const FlowRecoveryKeyHint = ({
   const alertBar = useAlertBar();
   const [bannerText, setBannerText] = useState<string>();
   const [hintError, setHintError] = useState<string>();
+  const [isLoading, setIsLoading] = useState(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const { control, handleSubmit, register } = useForm<FormData>({
+  const { control, getValues, handleSubmit, register } = useForm<FormData>({
     mode: 'onTouched',
     defaultValues: {
       hint: '',
@@ -56,7 +57,7 @@ export const FlowRecoveryKeyHint = ({
     logViewEvent(viewName, 'hint-step-view');
   }, [viewName]);
 
-  const getHintError = (hint: string) => {
+  const checkForHintError = (hint: string) => {
     if (hint.length > maxHintLength) {
       const localizedCharLimitError = ftlMsgResolver.getMsg(
         'flow-recovery-key-hint-char-limit-error',
@@ -84,13 +85,14 @@ export const FlowRecoveryKeyHint = ({
   };
 
   const onSubmit = async ({ hint }: FormData) => {
+    setIsLoading(true);
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
       logViewEvent(viewName, 'create-hint.skip');
       navigateForwardAndAlertSuccess();
     } else {
-      const hintErrorText = getHintError(trimmedHint);
+      const hintErrorText = checkForHintError(trimmedHint);
       if (hintErrorText) {
         setHintError(hintErrorText);
         return;
@@ -117,6 +119,8 @@ export const FlowRecoveryKeyHint = ({
           }
           setBannerText(localizedError);
           logViewEvent(viewName, 'create-hint.fail', e);
+        } finally {
+          setIsLoading(false);
         }
       }
     }
@@ -130,7 +134,7 @@ export const FlowRecoveryKeyHint = ({
     const hint: string = useWatch({
       control,
       name: 'hint',
-      defaultValue: '',
+      defaultValue: getValues().hint,
     });
     const isTooLong: boolean = hint.length > maxHintLength;
     return (
@@ -167,11 +171,11 @@ export const FlowRecoveryKeyHint = ({
           </h2>
         </FtlMsg>
 
-        <FtlMsg id="flow-recovery-key-hint-message-v2">
+        <FtlMsg id="flow-recovery-key-hint-message-v3">
           <p className="text-md mb-4">
             This hint should help you remember where you stored your account
-            recovery key. We’ll show it to you when you use it to recover your
-            data.
+            recovery key. We can show it to you during the password reset to
+            recover your data.
           </p>
         </FtlMsg>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -194,6 +198,7 @@ export const FlowRecoveryKeyHint = ({
             <button
               className="cta-primary cta-xl w-full mt-6 mb-4"
               type="submit"
+              disabled={isLoading}
             >
               Finish
             </button>

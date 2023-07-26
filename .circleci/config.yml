@@ -107,7 +107,7 @@ executors:
     parameters:
       resource_class:
         type: string
-        default: large
+        default: xlarge
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner
@@ -238,10 +238,13 @@ commands:
             ./.circleci/base-install.sh
             ./.circleci/create-lists.sh
             ./_scripts/create-version-json.sh
+            yarn gql:allowlist
       - store_artifacts:
           path: ./packages/version.json
       - store_artifacts:
           path: ./.lists
+      - store_artifacts:
+          path: ./configs/gql
 
   cache-save-yarn:
     steps:
@@ -257,27 +260,6 @@ commands:
           keys:
             - fxa-yarn-001-{{ checksum "yarn.lock" }}
             - fxa-yarn-001-
-
-  test-content-server-part:
-    parameters:
-      index:
-        type: integer
-      total:
-        type: integer
-    steps:
-      - git-checkout
-      - restore-workspace
-      - wait-for-infrastructure
-      - run:
-          name: Start services for << parameters.index >> of << parameters.total >>
-          command: packages/fxa-content-server/scripts/start-services.sh
-      - run:
-          name: Running test section << parameters.index >> of << parameters.total >>
-          environment:
-            CIRCLE_NODE_INDEX: << parameters.index >>
-            CIRCLE_NODE_TOTAL: << parameters.total >>
-          command: ./.circleci/test-package.sh fxa-content-server
-      - store-artifacts
 
   test-content-server-remote-part:
     parameters:
@@ -392,6 +374,7 @@ commands:
           paths:
             - .lists
             - external
+            - configs/gql/allowlist
             - node_modules
             - packages
 
@@ -624,24 +607,6 @@ jobs:
           index: << parameters.index >>
           total: << parameters.total >>
 
-  # Runs a subset of content server's tests. These tests take longer to run,
-  # so they are split into parts.
-  test-content-server-part:
-    parameters:
-      resource_class:
-        type: string
-        default: large
-      index:
-        type: integer
-      total:
-        type: integer
-    executor: functional-test-executor
-    resource_class: << parameters.resource_class >>
-    steps:
-      - test-content-server-part:
-          index: << parameters.index >>
-          total: << parameters.total >>
-
   # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
     executor: smoke-test-executor
@@ -728,6 +693,7 @@ jobs:
 
   build-and-deploy-storybooks:
     executor: default-executor
+    resource_class: medium+
     steps:
       - git-checkout
       - restore-workspace
@@ -824,39 +790,9 @@ workflows:
             - Build (PR)
           post-steps:
             - fail-fast
-      - test-content-server-part:
-          name: Functional Test - Content 1 (PR)
-          index: 0
-          total: 5
-          requires:
-            - Build (PR)
-      - test-content-server-part:
-          name: Functional Test - Content 2 (PR)
-          index: 1
-          total: 5
-          requires:
-            - Build (PR)
-      - test-content-server-part:
-          name: Functional Test - Content 3 (PR)
-          index: 2
-          total: 5
-          requires:
-            - Build (PR)
-      - test-content-server-part:
-          name: Functional Test - Content 4 (PR)
-          index: 3
-          total: 5
-          requires:
-            - Build (PR)
-      - test-content-server-part:
-          name: Functional Test - Content 5 (PR)
-          index: 4
-          total: 5
-          requires:
-            - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
-          resource_class: large
+          resource_class: xlarge
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:
@@ -874,11 +810,6 @@ workflows:
             - Integration Test 1 (PR)
             - Integration Test 2 (PR)
             - Integration Test 3 (PR)
-            - Functional Test - Content 1 (PR)
-            - Functional Test - Content 2 (PR)
-            - Functional Test - Content 3 (PR)
-            - Functional Test - Content 4 (PR)
-            - Functional Test - Content 5 (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
 
@@ -886,7 +817,7 @@ workflows:
   production_smoke_tests:
     when: << pipeline.parameters.enable_production_smoke_tests >>
     jobs:
-    # Note that we removed content server tests as it runs on Stage only
+      # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
           project: production
@@ -900,27 +831,6 @@ workflows:
   stage_smoke_tests:
     when: << pipeline.parameters.enable_stage_smoke_tests >>
     jobs:
-      - test-content-server-remote-part-0:
-          name: Smoke Test Stage - Content Server Part 1
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - test-content-server-remote-part-1:
-          name: Smoke Test Stage - Content Server Part 2
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
-      - test-content-server-remote-part-2:
-          name: Smoke Test Stage - Content Server Part 3
-          filters:
-            branches:
-              only: /.*/
-            tags:
-              only: /.*/
       - smoke-tests:
           name: Smoke Test Stage - Playwright
           project: stage
@@ -1064,61 +974,6 @@ workflows:
           total: 3
           requires:
             - Build
-      - test-content-server-part:
-          name: Functional Test - Content 1
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          index: 0
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 2
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          index: 1
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 3
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          index: 2
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 4
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          index: 3
-          total: 5
-          requires:
-            - Build
-      - test-content-server-part:
-          name: Functional Test - Content 5
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /.*/
-          index: 4
-          total: 5
-          requires:
-            - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
           resource_class: xlarge
@@ -1152,11 +1007,6 @@ workflows:
             - Integration Test 1
             - Integration Test 2
             - Integration Test 3
-            - Functional Test - Content 1
-            - Functional Test - Content 2
-            - Functional Test - Content 3
-            - Functional Test - Content 4
-            - Functional Test - Content 5
             - Functional Tests - Playwright
             - Create FxA Image
 

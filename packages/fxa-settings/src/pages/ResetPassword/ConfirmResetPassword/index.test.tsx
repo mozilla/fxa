@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import ConfirmResetPassword, { viewName } from '.';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { LocationProvider } from '@reach/router';
-import { Account, AppContext } from '../../../models';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { Account } from '../../../models';
+import {
+  mockAppContext,
+  MOCK_ACCOUNT,
+  createAppContext,
+  renderWithRouter,
+  createHistoryWithQuery,
+} from '../../../models/mocks';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -21,15 +26,21 @@ jest.mock('../../../lib/metrics', () => ({
 
 const account = MOCK_ACCOUNT as unknown as Account;
 
-function renderWithAccount(account: Account) {
-  render(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider>
-        <ConfirmResetPassword />
-      </LocationProvider>
-    </AppContext.Provider>
+const route = '/confirm_reset_password';
+const renderWithHistory = (ui: any, queryParams = '', account?: Account) => {
+  const history = createHistoryWithQuery(route, queryParams);
+  return renderWithRouter(
+    ui,
+    {
+      route,
+      history,
+    },
+    mockAppContext({
+      ...createAppContext(history),
+      ...(account && { account }),
+    })
   );
-}
+};
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
@@ -45,6 +56,30 @@ jest.mock('@reach/router', () => ({
   },
 }));
 
+let mockIsSync = false;
+let mockService = '123 Done';
+let redirectUri = 'http://localhost:8080/123Done';
+jest.mock('../../../models/hooks', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('../../../models/hooks'),
+    useRelier: () => ({
+      isOAuth() {
+        return true;
+      },
+      isSync() {
+        return mockIsSync;
+      },
+      getService() {
+        return mockService;
+      },
+      getRedirectUri() {
+        return redirectUri;
+      },
+    }),
+  };
+});
+
 describe('ConfirmResetPassword page', () => {
   // TODO enable l10n testing
   // let bundle: FluentBundle;
@@ -53,7 +88,7 @@ describe('ConfirmResetPassword page', () => {
   // });
 
   it('renders as expected', () => {
-    render(<ConfirmResetPassword />);
+    renderWithHistory(<ConfirmResetPassword />);
 
     // testAllL10n(screen, bundle);
 
@@ -72,16 +107,28 @@ describe('ConfirmResetPassword page', () => {
   });
 
   it('sends a new email when clicking on resend button', async () => {
-    renderWithAccount(account);
-    account.resendResetPassword = jest.fn().mockResolvedValue('');
+    account.resetPassword = jest.fn().mockImplementation(() => {
+      return {
+        passwordForgotToken: '123',
+      };
+    });
 
-    const resendEmailButton = screen.getByRole('button', {
+    renderWithHistory(<ConfirmResetPassword />, '', account);
+
+    const resendEmailButton = await screen.findByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
 
+    expect(resendEmailButton).toBeInTheDocument();
     fireEvent.click(resendEmailButton);
 
-    await waitFor(() => expect(account.resendResetPassword).toHaveBeenCalled());
+    await waitFor(() => new Promise((r) => setTimeout(r, 100)));
+
+    expect(account.resetPassword).toHaveBeenCalledWith(
+      MOCK_EMAIL,
+      mockService,
+      redirectUri
+    );
     expect(logViewEvent).toHaveBeenCalledWith(
       'confirm-reset-password',
       'resend',
@@ -90,12 +137,12 @@ describe('ConfirmResetPassword page', () => {
   });
 
   it('emits the expected metrics on render', async () => {
-    render(<ConfirmResetPassword />);
+    renderWithHistory(<ConfirmResetPassword />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('renders a "Remember your password?" link', () => {
-    render(<ConfirmResetPassword />);
+    renderWithHistory(<ConfirmResetPassword />);
     expect(
       screen.getByRole('link', { name: 'Remember your password? Sign in' })
     ).toBeInTheDocument();

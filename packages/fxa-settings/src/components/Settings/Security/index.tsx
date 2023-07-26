@@ -8,7 +8,11 @@ import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
 import { useAccount } from '../../../models';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  FtlMsg,
+  getLocalizedDate,
+  LocalizedDateOptions,
+} from 'fxa-react/lib/utils';
 import { Link } from '@reach/router';
 
 const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
@@ -18,8 +22,13 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
     day: 'numeric',
   }).format(new Date(passwordCreated));
 
+  const pwdDateFluent = getLocalizedDate(
+    passwordCreated,
+    LocalizedDateOptions.NumericDate
+  );
+
   return (
-    <FtlMsg id="security-password-created-date" vars={{ date: pwdDateText }}>
+    <FtlMsg id="security-password-created-date" vars={{ date: pwdDateFluent }}>
       <p className="text-grey-400 text-xs mobileLandscape:mt-3">
         Created {pwdDateText}
       </p>
@@ -27,7 +36,11 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   );
 };
 
-export const Security = () => {
+export const Security = ({
+  showRecoveryKeyV2,
+}: {
+  showRecoveryKeyV2?: boolean;
+}) => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
@@ -72,19 +85,21 @@ export const Security = () => {
         </Localized>
         <hr className="unit-row-hr" />
 
-        <UnitRowRecoveryKey />
+        <UnitRowRecoveryKey {...{ showRecoveryKeyV2 }} />
         <hr className="unit-row-hr" />
         <UnitRowTwoStepAuth />
 
-        <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6">
-          <div className="pb-5 text-center mobileLandscape:text-start">
-            <Localized id="cs-recent-activity">
+        <hr className="unit-row-hr" />
+
+        <div className="px-5 pt-4 pb-6">
+          <div className="text-center mobileLandscape:text-start">
+            <Localized id="security-recent-activity-link">
               <Link
                 data-testid="settings-recent-activity"
                 className="link-blue text-sm"
                 to="/settings/recent_activity"
               >
-                Recent Account Activity
+                View recent account activity
               </Link>
             </Localized>
           </div>

@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 
 import { Localized } from '@fluent/react';
 import * as apiClient from '../../lib/apiClient';
-import { Customer, Plan, Profile } from '../../store/types';
+import { Customer, Plan } from '../../store/types';
 import { SubscriptionCreateAuthServerAPIs } from '../../routes/Product/SubscriptionCreate';
 import { PaymentUpdateAuthServerAPIs } from '../../routes/Subscriptions/PaymentUpdateForm';
 
@@ -155,6 +155,7 @@ export const PaypalButton = ({
     },
     [
       apiClientOverrides,
+      checkoutType,
       customer,
       priceId,
       productId,

@@ -4,13 +4,12 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
 import {
-  Subject,
   MOCK_RECOVERY_KEY,
   MOCK_RESET_TOKEN,
   MOCK_RECOVERY_KEY_ID,
@@ -19,12 +18,13 @@ import {
   paramsWithMissingToken,
   paramsWithMissingCode,
   paramsWithMissingEmail,
+  getSubject,
 } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account } from '../../../models';
 import { typeByLabelText } from '../../../lib/test-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
@@ -76,7 +76,8 @@ const renderSubject = ({
   account = accountWithValidResetToken,
   params = mockCompleteResetPasswordParams,
 } = {}) => {
-  render(<Subject {...{ account, params }} />);
+  const { Subject, history, appCtx } = getSubject(account, params);
+  return renderWithRouter(<Subject />, { history }, appCtx);
 };
 
 describe('PageAccountRecoveryConfirmKey', () => {
@@ -122,6 +123,21 @@ describe('PageAccountRecoveryConfirmKey', () => {
   });
 
   describe('renders the component as expected when provided with a damaged link', () => {
+    let mockConsoleWarn: jest.SpyInstance;
+
+    beforeEach(() => {
+      // We expect that model bindings will warn us about missing / incorrect values.
+      // We don't want these warnings to effect test output since they are expected, so we
+      // will mock the function, and make sure it's called.
+      mockConsoleWarn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      mockConsoleWarn.mockRestore();
+    });
+
     it('with missing token', async () => {
       renderSubject({ params: paramsWithMissingToken });
 
@@ -131,6 +147,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       screen.getByText(
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing code', async () => {
       renderSubject({ params: paramsWithMissingCode });
@@ -138,6 +155,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing email', async () => {
       renderSubject({ params: paramsWithMissingEmail });
@@ -145,6 +163,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
   });
 

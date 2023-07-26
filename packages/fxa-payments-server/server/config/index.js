@@ -24,6 +24,12 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_STRIPE_TAX_ENABLED',
       format: Boolean,
     },
+    useStripeInvoiceImmediately: {
+      default: false,
+      doc: 'Enables immediate invoicing for stripe in all subscription upgrades',
+      env: 'SUBSCRIPTIONS_STRIPE_INVOICE_IMMEDIATELY',
+      format: Boolean,
+    }
   },
   amplitude: {
     enabled: {
@@ -97,6 +103,32 @@ const conf = convict({
     doc: 'Time after which flow ids are considered stale',
     env: 'FLOW_ID_EXPIRY',
     format: 'duration',
+  },
+  googleAnalytics: {
+    enabled: {
+      default: false,
+      doc: 'Toggle Google Analytics enabled',
+      env: 'GA_ENABLED',
+      format: Boolean,
+    },
+    measurementId: {
+      default: '',
+      doc: 'Google Analytics measurement ID',
+      env: 'GA_MEASUREMENT_ID',
+      format: String,
+    },
+    supportedProductIds: {
+      default: 'prod_GqM9ToKK62qjkK',
+      doc: 'Comma separated string of supported Stripe Product IDs',
+      env: 'GA_SUPPORTED_STRIPE_PRODUCT_IDS',
+      format: String,
+    },
+    testMode: {
+      default: false,
+      doc: 'Toggle Google Analytics test/debug mode',
+      env: 'GA_TEST_MODE',
+      format: Boolean,
+    },
   },
   geodb: {
     dbPath: {

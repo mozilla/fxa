@@ -52,6 +52,7 @@ import {
   PaypalPaymentError,
   SubscriptionUpdateEligibility,
   WebSubscription,
+  InvoicePreview,
 } from 'fxa-shared/subscriptions/types';
 import { StatsD } from 'hot-shots';
 import ioredis from 'ioredis';
@@ -630,12 +631,16 @@ export class StripeHelper extends StripeHelperBase {
     priceId,
     promotionCode,
     taxAddress,
+    isUpgrade,
+    sourcePlan,
   }: {
     customer?: Stripe.Customer;
     priceId: string;
     promotionCode?: string;
     taxAddress?: TaxAddress;
-  }) {
+    isUpgrade?: boolean;
+    sourcePlan?: AbbrevPlan;
+  }): Promise<InvoicePreview> {
     const params: Stripe.InvoiceRetrieveUpcomingParams = {};
 
     if (promotionCode) {
@@ -664,24 +669,62 @@ export class StripeHelper extends StripeHelperBase {
           }
         : undefined;
 
+    const requestObject: Stripe.InvoiceRetrieveUpcomingParams = {
+      customer: customer?.id,
+      automatic_tax: {
+        enabled: automaticTax,
+      },
+      customer_details: {
+        tax_exempt: 'none', // Param required when shipping address not present
+        shipping,
+      },
+      subscription_items: [{ price: priceId }],
+      expand: ['total_tax_amounts.tax_rate'],
+      ...params,
+    };
+
     try {
-      return await this.stripe.invoices.retrieveUpcoming({
-        customer: customer?.id,
-        automatic_tax: {
-          enabled: automaticTax,
-        },
-        customer_details: {
-          tax_exempt: 'none', // Param required when shipping address not present
-          shipping,
-        },
-        subscription_items: [
-          {
-            price: priceId,
-          },
-        ],
-        expand: ['total_tax_amounts.tax_rate'],
-        ...params,
-      });
+      const firstInvoice = await this.stripe.invoices.retrieveUpcoming(
+        requestObject
+      );
+
+      let proratedInvoice;
+      if (
+        isUpgrade &&
+        requestObject.subscription_items?.length &&
+        this.config.subscriptions.stripeInvoiceImmediately
+      ) {
+        try {
+          requestObject.subscription_proration_behavior = 'always_invoice';
+          requestObject.subscription_proration_date = Math.floor(
+            Date.now() / 1000
+          );
+          const subscriptionItem = customer?.subscriptions?.data
+            .flatMap((sub) => sub.items.data)
+            ?.find((sub) => sub.plan.id === sourcePlan?.plan_id);
+
+          requestObject.subscription_items[0].id = subscriptionItem?.id;
+          requestObject.subscription = subscriptionItem?.subscription;
+
+          proratedInvoice = await this.stripe.invoices.retrieveUpcoming(
+            requestObject
+          );
+        } catch (error: any) {
+          Sentry.withScope((scope) => {
+            scope.setContext('previewInvoice.proratedInvoice', {
+              error: error,
+              msg: error.message,
+            });
+            Sentry.captureMessage(
+              `Invoice Preview Error: Prorated Invoice Preview`,
+              Sentry.Severity.Error
+            );
+          });
+          this.log.error('subscriptions.previewInvoice.proratedInvoice', error);
+        }
+      }
+
+      return [firstInvoice, proratedInvoice];
     } catch (e: any) {
       this.log.warn('stripe.previewInvoice.automatic_tax', {
         postalCode: taxAddress?.postalCode,
@@ -931,12 +974,16 @@ export class StripeHelper extends StripeHelperBase {
 
       if (verifiedPromotionAndCoupon.valid) {
         try {
-          const { currency, discount, total, total_discount_amounts } =
+          const invoicePreview = (
             await this.previewInvoice({
               priceId,
               promotionCode,
               taxAddress,
-            });
+            })
+          )[0];
+
+          const { currency, discount, total, total_discount_amounts } =
+            invoicePreview;
 
           const minAmount = getMinimumAmount(currency);
           if (total !== 0 && minAmount && total < minAmount) {
@@ -1927,6 +1974,11 @@ export class StripeHelper extends StripeHelperBase {
       plan_change_date: moment().unix(),
     };
 
+    const prorationBehavior = this.config.subscriptions.stripeInvoiceImmediately
+      .enabled
+      ? 'always_invoice'
+      : 'create_prorations';
+
     const updatedSubscription = await this.updateSubscriptionAndBackfill(
       subscription,
       {
@@ -1937,6 +1989,7 @@ export class StripeHelper extends StripeHelperBase {
             plan: newPlanId,
           },
         ],
+        proration_behavior: prorationBehavior,
         metadata: updatedMetadata,
       }
     );
@@ -2835,14 +2888,14 @@ export class StripeHelper extends StripeHelperBase {
     // subscription is updated. Instead there will be pending invoice items
     // which will be added to next invoice once its generated.
     // For more info see https://stripe.com/docs/api/subscriptions/update
-    let upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined;
+    let upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined;
     try {
       const upcomingInvoice = await this.stripe.invoices.retrieveUpcoming({
         customer: customer.id,
         subscription: subscription.id,
       });
       // Only use upcomingInvoice if there are `invoiceitems`
-      upcomingInvoiceWithInvoiceitem = upcomingInvoice?.lines.data.some(
+      upcomingInvoiceWithInvoiceItem = upcomingInvoice?.lines.data.some(
         (line) => line.type === 'invoiceitem'
       )
         ? upcomingInvoice
@@ -2852,7 +2905,7 @@ export class StripeHelper extends StripeHelperBase {
         error.type === 'StripeInvalidRequestError' &&
         error.code === 'invoice_upcoming_none'
       ) {
-        upcomingInvoiceWithInvoiceitem = undefined;
+        upcomingInvoiceWithInvoiceItem = undefined;
       } else {
         throw error;
       }
@@ -2889,7 +2942,7 @@ export class StripeHelper extends StripeHelperBase {
         subscription,
         baseDetails,
         invoice,
-        upcomingInvoiceWithInvoiceitem
+        upcomingInvoiceWithInvoiceItem
       );
     } else if (cancelAtPeriodEndOld && !cancelAtPeriodEndNew && !planOld) {
       return this.extractSubscriptionUpdateReactivationDetailsForEmail(
@@ -2901,7 +2954,7 @@ export class StripeHelper extends StripeHelperBase {
         subscription,
         baseDetails,
         invoice,
-        upcomingInvoiceWithInvoiceitem,
+        upcomingInvoiceWithInvoiceItem,
         productOrderNew,
         planOld
       );
@@ -2919,7 +2972,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined
+    upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined
   ) {
     const { current_period_end: serviceLastActiveDate } = subscription;
 
@@ -2938,7 +2991,7 @@ export class StripeHelper extends StripeHelperBase {
       total: invoiceTotalInCents,
       currency: invoiceTotalCurrency,
       created: invoiceDate,
-    } = upcomingInvoiceWithInvoiceitem || invoice;
+    } = upcomingInvoiceWithInvoiceItem || invoice;
 
     return {
       updateType: SUBSCRIPTION_UPDATE_TYPES.CANCELLATION,
@@ -2952,7 +3005,7 @@ export class StripeHelper extends StripeHelperBase {
       invoiceTotalInCents,
       invoiceTotalCurrency,
       serviceLastActiveDate: new Date(serviceLastActiveDate * 1000),
-      showOutstandingBalance: !!upcomingInvoiceWithInvoiceitem,
+      showOutstandingBalance: !!upcomingInvoiceWithInvoiceItem,
       productMetadata,
       planConfig,
     };
@@ -3076,7 +3129,7 @@ export class StripeHelper extends StripeHelperBase {
     subscription: Stripe.Subscription,
     baseDetails: any,
     invoice: Stripe.Invoice,
-    upcomingInvoiceWithInvoiceitem: Stripe.UpcomingInvoice | undefined,
+    upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined,
     productOrderNew: string,
     planOld: Stripe.Plan
   ) {
@@ -3085,29 +3138,11 @@ export class StripeHelper extends StripeHelperBase {
       number: invoiceNumber,
       currency: paymentProratedCurrency,
       total: invoiceTotalNewInCents,
+      amount_due: invoiceAmountDue,
     } = invoice;
-
-    // Using stripes default proration behaviour
-    // (https://stripe.com/docs/billing/subscriptions/upgrade-downgrade#immediate-payment)
-    // an invoice is only created at time of upgrade, if the billing period changes.
-    // In the case that the billing period is the same, we sum the pending invoiceItems
-    // retrieved in upcomingInvoiceWithInvoiceitem.
-    // The actual recuring charge, for the next billing cycle, shows up as a type = 'subscription'
-    // line item.
-    const onetimePaymentAmount = upcomingInvoiceWithInvoiceitem
-      ? upcomingInvoiceWithInvoiceitem.lines.data.reduce(
-          (acc, line) =>
-            line.type === 'invoiceitem' ? acc + line.amount : acc,
-          0
-        )
-      : invoice.amount_due;
 
     // https://github.com/mozilla/subhub/blob/e224feddcdcbafaf0f3cd7d52691d29d94157de5/src/hub/vendor/customer.py#L643
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
-    const {
-      amount: paymentAmountOldInCents,
-      currency: paymentAmountOldCurrency,
-    } = planOld;
     const { product_id: productIdOld, product_name: productNameOld } =
       abbrevProductOld;
     const {
@@ -3122,6 +3157,95 @@ export class StripeHelper extends StripeHelperBase {
 
     const productPaymentCycleOld = this.stripePlanToPaymentCycle(planOld);
 
+    // get next invoice details
+    const nextInvoice = upcomingInvoiceWithInvoiceItem
+      ? upcomingInvoiceWithInvoiceItem
+      : await this.previewInvoiceBySubscriptionId({
+          subscriptionId: subscription.id,
+        });
+
+    const {
+      total: nextInvoiceTotal,
+      currency: nextInvoiceCurrency,
+      lines: nextInvoiceLines,
+    } = nextInvoice || {};
+
+    // https://stripe.com/docs/api/invoices/object#invoice_object-lines
+    // as per the Stripe docs, one of the individual line items includes
+    // new plan pricing and tax information without additional fees
+    const upcomingInvoiceLineItem = nextInvoiceLines?.data?.find(
+      (line) => line.type === 'subscription'
+    );
+
+    const {
+      amount: upcomingInvoiceAmount,
+      discount_amounts: upcomingInvoiceDiscountAmounts,
+      tax_amounts: upcomingInvoiceTaxAmounts,
+    } = upcomingInvoiceLineItem || {};
+
+    const {
+      productPaymentCycleNew: productPaymentCycleNew,
+      invoiceTotalOldInCents: invoiceTotalOldInCents,
+    } = baseDetails;
+
+    // remove everything between asterisk in FXA-7796
+    // **************** //
+    const sameBillingCycle = productPaymentCycleOld === productPaymentCycleNew;
+    const sameBillingCondition = sameBillingCycle && !!upcomingInvoiceLineItem;
+
+    const invoiceImmediately =
+      this.config.subscriptions.stripeInvoiceImmediately.enabled;
+
+    // used for newTotalInCents
+    const newListPriceTotalWithoutTax =
+      sameBillingCondition && !!upcomingInvoiceAmount
+        ? upcomingInvoiceAmount
+        : undefined;
+
+    // used for newTotalInCents
+    const newListPriceDiscounts =
+      (sameBillingCondition &&
+        upcomingInvoiceDiscountAmounts?.reduce(
+          (acc, discount) =>
+            discount.amount ? acc + discount.amount : acc + 0,
+          0
+        )) ||
+      0;
+
+    // used for newTotalInCents
+    const newListPriceTotalTaxes = sameBillingCondition
+      ? upcomingInvoiceTaxAmounts?.reduce(
+          (acc, tax) => (tax.inclusive ? acc + 0 : acc + tax.amount),
+          0
+        )
+      : undefined;
+
+    // if same billing cycle and line item exists, add amount and tax for new total
+    // else return the next invoice total
+    const newTotalInCents =
+      sameBillingCycle &&
+      !!newListPriceTotalWithoutTax &&
+      !!newListPriceTotalTaxes
+        ? newListPriceTotalWithoutTax -
+          newListPriceDiscounts +
+          newListPriceTotalTaxes
+        : nextInvoiceTotal;
+
+    // calculated proration
+    // if same billing cycle, return next invoice total minus new plan price
+    // else return amount due on current invoice
+    const paymentProratedInCents = sameBillingCycle
+      ? nextInvoiceTotal - newTotalInCents
+      : invoiceAmountDue;
+
+    // calculated old total
+    // if same billing cycle, get new invoiceTotal
+    // else get current invoiceTotal
+    const oldTotalInCents = sameBillingCycle
+      ? invoiceTotalNewInCents
+      : invoiceTotalOldInCents;
+    // **************** //
+
     return {
       ...baseDetails,
       updateType,
@@ -3129,13 +3253,25 @@ export class StripeHelper extends StripeHelperBase {
       productNameOld,
       productIconURLOld,
       productPaymentCycleOld,
-      paymentAmountOldInCents,
-      paymentAmountOldCurrency,
+      // remove condition and keep invoiceTotalOldInCents as value in FXA-7796
+      paymentAmountOldInCents: !invoiceImmediately
+        ? oldTotalInCents
+        : invoiceTotalOldInCents,
+      paymentAmountOldCurrency: planOld.currency,
+      // remove condition and keep nextInvoiceTotal as value in FXA-7796
+      paymentAmountNewInCents: !invoiceImmediately
+        ? newTotalInCents
+        : nextInvoiceTotal,
+      paymentAmountNewCurrency: nextInvoiceCurrency,
       invoiceNumber,
       invoiceId,
-      invoiceTotalNewInCents,
-      paymentProratedInCents: onetimePaymentAmount,
+      // remove condition and keep invoiceAmountDue as value in FXA-7796
+      paymentProratedInCents: !invoiceImmediately
+        ? paymentProratedInCents
+        : invoiceAmountDue,
       paymentProratedCurrency,
+      // remove in FXA-7796
+      invoiceImmediately: invoiceImmediately,
     };
   }
 

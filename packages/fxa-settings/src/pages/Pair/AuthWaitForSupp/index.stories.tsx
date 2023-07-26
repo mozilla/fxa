@@ -11,7 +11,7 @@ import {
   MOCK_METADATA_WITH_LOCATION,
 } from '../../../components/DeviceInfoBlock/mocks';
 import { MOCK_BANNER_MESSAGE } from './mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Pair/AuthWaitForSupp',

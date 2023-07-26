@@ -3,26 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import {
-  act,
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-} from '@testing-library/react';
+import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import { Account } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT, SHOW_BALLOON_TIMEOUT } from '../../../constants';
 import {
+  getSubject,
+  MOCK_RESET_DATA,
   mockCompleteResetPasswordParams,
   paramsWithMissingCode,
   paramsWithMissingEmail,
   paramsWithMissingEmailToHashWith,
   paramsWithMissingToken,
   paramsWithSyncDesktop,
-  Subject,
 } from './mocks';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import { renderWithRouter } from '../../../models/mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -76,9 +72,10 @@ jest.mock('@reach/router', () => ({
   useLocation: () => mockLocation(),
 }));
 
-function renderSubject(account: Account, params?: Record<string, string>) {
-  render(<Subject {...{ account, params }} />);
-}
+const renderSubject = (account: Account, params?: Record<string, string>) => {
+  const { Subject, history, appCtx } = getSubject(account, params);
+  return renderWithRouter(<Subject />, { history }, appCtx);
+};
 
 describe('CompleteResetPassword page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -87,12 +84,13 @@ describe('CompleteResetPassword page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
   beforeEach(() => {
     lostRecoveryKey = false;
 
     account = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      completeResetPassword: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(MOCK_RESET_DATA),
       hasRecoveryKey: jest.fn().mockResolvedValue(false),
       hasTotpAuthClient: jest.fn().mockResolvedValue(false),
       isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
@@ -128,18 +126,14 @@ describe('CompleteResetPassword page', () => {
     expect(screen.queryByText('Password requirements')).not.toBeInTheDocument();
 
     fireEvent.focus(newPasswordField);
-    await waitFor(
-      () => {
-        expect(screen.getByText('Password requirements')).toBeVisible();
-      },
-      {
-        timeout: SHOW_BALLOON_TIMEOUT,
-      }
-    );
+    await waitFor(() => {
+      expect(screen.getByText('Password requirements')).toBeVisible();
+    });
   });
 
   it('renders the component as expected when provided with an expired link', async () => {
     account = {
+      ...account,
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
     } as unknown as Account;
 
@@ -155,6 +149,21 @@ describe('CompleteResetPassword page', () => {
   });
 
   describe('renders the component as expected when provided with a damaged link', () => {
+    let mockConsoleWarn: jest.SpyInstance;
+
+    beforeEach(() => {
+      // We expect that model bindings will warn us about missing / incorrect values.
+      // We don't want these warnings to effect test output since they are expected, so we
+      // will mock the function, and make sure it's called.
+      mockConsoleWarn = jest
+        .spyOn(console, 'warn')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      mockConsoleWarn.mockClear();
+    });
+
     it('with missing token', async () => {
       renderSubject(account, paramsWithMissingToken);
 
@@ -164,6 +173,7 @@ describe('CompleteResetPassword page', () => {
       screen.getByText(
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing code', async () => {
       renderSubject(account, paramsWithMissingCode);
@@ -171,6 +181,7 @@ describe('CompleteResetPassword page', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
     it('with missing email', async () => {
       renderSubject(account, paramsWithMissingEmail);
@@ -178,6 +189,7 @@ describe('CompleteResetPassword page', () => {
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
+      expect(mockConsoleWarn).toBeCalled();
     });
   });
 
@@ -252,7 +264,7 @@ describe('CompleteResetPassword page', () => {
   describe('account has recovery key', () => {
     const accountWithRecoveryKey = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      completeResetPassword: jest.fn().mockResolvedValue(true),
+      completeResetPassword: jest.fn().mockResolvedValue(MOCK_RESET_DATA),
       hasRecoveryKey: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
 
@@ -374,9 +386,8 @@ describe('CompleteResetPassword page', () => {
       it('account does not have TOTP', async () => {
         renderSubject(account);
         await enterPasswordAndSubmit();
-
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
-          '/reset_password_verified',
+          '/reset_password_verified?email=johndope%40example.com&emailToHashWith=&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
           {
             replace: true,
           }

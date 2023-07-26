@@ -54,7 +54,7 @@ export class LinkedAccount extends BaseAuthModel {
       authAt: Date.now(),
       enabled: true,
       providerId: PROVIDER[provider],
-    });
+    } as any);
   }
 
   static async deleteLinkedAccount(uid: string, provider: Provider) {

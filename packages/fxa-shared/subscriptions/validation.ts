@@ -9,12 +9,28 @@ export const capabilitiesClientIdPattern = /^capabilities/;
 export const legalResourceDomainPattern =
   /^https:\/\/accounts-static\.cdn\.mozilla\.net\/legal\/(.*)/;
 
+export const commaArray = Joi.extend((joi) => ({
+  base: joi.array(),
+  coerce: (value) => ({
+    value: value.split ? value.split(',') : value,
+  }),
+  type: 'commaArray',
+})).commaArray();
+
 export const subscriptionProductMetadataBaseValidator = Joi.object({
   webIconURL: Joi.string().uri().required(),
   upgradeCTA: Joi.string().optional(),
   successActionButtonURL: Joi.string().uri().required(),
   appStoreLink: Joi.string().uri().optional(),
   playStoreLink: Joi.string().uri().optional(),
+  newsletterSlug: commaArray
+    .optional()
+    .items(
+      Joi.valid('mozilla-accounts', 'security-privacy-news', 'hubs', 'mdnplus')
+    ),
+  newsletterLabelTextCode: Joi.string()
+    .optional()
+    .valid('mozilla', 'snp', 'hubs', 'mdnplus'),
   productSet: Joi.string().required(),
   productOrder: Joi.number().optional(),
   'product:termsOfServiceDownloadURL': Joi.string()

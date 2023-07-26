@@ -16,7 +16,6 @@ import {
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
-import customer from './customer';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
 
 // TODO: Use a better type here

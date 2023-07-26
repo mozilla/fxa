@@ -12,8 +12,11 @@ import {
   HeartsVerifiedImage,
   TwoFactorAuthImage,
   SecurityShieldImage,
+  LockImage,
+  RecoveryKeyImage,
+  LightbulbImage,
 } from '.';
-import { withLocalization } from '../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Components/Images',
@@ -39,3 +42,9 @@ export const HeartsVerified = () => <HeartsVerifiedImage />;
 export const TwoFactorAuth = () => <TwoFactorAuthImage />;
 
 export const SecurityShield = () => <SecurityShieldImage />;
+
+export const Lock = () => <LockImage />;
+
+export const Key = () => <RecoveryKeyImage />;
+
+export const Lightbulb = () => <LightbulbImage />;

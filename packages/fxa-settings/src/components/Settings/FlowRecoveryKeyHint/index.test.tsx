@@ -4,7 +4,7 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import { Account, AppContext } from '../../../models';
 import FlowRecoveryKeyHint, { maxHintLength } from '.';
@@ -71,7 +71,7 @@ describe('FlowRecoveryKeyHint', () => {
       name: 'Add a hint to help find your key',
     });
     screen.getByText(
-      'This hint should help you remember where you stored your account recovery key. We’ll show it to you when you use it to recover your data.'
+      'This hint should help you remember where you stored your account recovery key. We can show it to you during the password reset to recover your data.'
     );
     screen.getByRole('textbox', { name: 'Enter a hint (optional)' });
     screen.getByRole('button', { name: 'Finish' });

@@ -319,7 +319,7 @@ describe('mozilla-subscriptions', () => {
 describe('plan-eligibility', () => {
   beforeEach(() => {
     capabilityService = {
-      getPlanEligibility: sandbox.stub().resolves('eligibility'),
+      getPlanEligibility: sandbox.stub().resolves(['eligibility', undefined]),
     };
   });
 

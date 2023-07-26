@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, render, cleanup, fireEvent } from '@testing-library/react';
+import { screen, cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import ActionButton, { ActionButtonProps } from './ActionButton';
@@ -10,6 +10,7 @@ import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
 } from 'fxa-shared/subscriptions/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 const { apiUrl } = defaultConfig().paypal;
 
@@ -40,7 +41,9 @@ describe('routes/Subscriptions/ActionButton', () => {
 
   it('renders revealonclick button when payment_provider is "stripe"', async () => {
     const onRevealUpdateClick = jest.fn();
-    render(<Subject onRevealUpdateClick={onRevealUpdateClick} />);
+    renderWithLocalizationProvider(
+      <Subject onRevealUpdateClick={onRevealUpdateClick} />
+    );
     const revealButton = screen.getByTestId('reveal-payment-update-button');
     expect(revealButton).toBeInTheDocument();
     fireEvent.click(revealButton);
@@ -48,7 +51,7 @@ describe('routes/Subscriptions/ActionButton', () => {
   });
 
   it('renders paypalActionButton when paypal is payment provider and paypal_payment_error is not set', async () => {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         customer={{
           ...CUSTOMER,
@@ -64,7 +67,7 @@ describe('routes/Subscriptions/ActionButton', () => {
   });
 
   it('renders paypalFundingSourceActionButton when paypal is payment provider and paypal_payment_error is set to "funding_source"', async () => {
-    render(
+    renderWithLocalizationProvider(
       <Subject
         customer={{
           ...CUSTOMER,
@@ -82,7 +85,7 @@ describe('routes/Subscriptions/ActionButton', () => {
 
   it('renders paypalMissingAgreementActionButton when paypal is payment provider and paypal_payment_error is set to "missing_agreement"', async () => {
     const revealFixPaymentModal = jest.fn();
-    render(
+    renderWithLocalizationProvider(
       <Subject
         revealFixPaymentModal={revealFixPaymentModal}
         customer={{

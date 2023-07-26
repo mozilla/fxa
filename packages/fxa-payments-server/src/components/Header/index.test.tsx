@@ -3,11 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import Header from './index';
 import { Profile } from '../../store/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 let userProfile: Profile = {
   avatar: './avatar.svg',
@@ -26,7 +27,9 @@ afterEach(cleanup);
 describe('Header', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(<Header {...{ profile: userProfile }} />);
+      return renderWithLocalizationProvider(
+        <Header {...{ profile: userProfile }} />
+      );
     };
 
     const { queryByTestId } = subject();
@@ -35,10 +38,10 @@ describe('Header', () => {
     expect(avatar).toHaveAttribute('alt', userProfile.displayName);
   });
 
-  it('renders without profile', () => {
+  it('renderWithLocalizationProviders without profile', () => {
     userProfile.displayName = null;
     const subject = () => {
-      return render(<Header />);
+      return renderWithLocalizationProvider(<Header />);
     };
 
     const { queryByTestId } = subject();
@@ -50,7 +53,9 @@ describe('Header', () => {
   it('alt falls back to email is displayName is null', () => {
     userProfile.displayName = null;
     const subject = () => {
-      return render(<Header {...{ profile: userProfile }} />);
+      return renderWithLocalizationProvider(
+        <Header {...{ profile: userProfile }} />
+      );
     };
 
     const { queryByTestId } = subject();

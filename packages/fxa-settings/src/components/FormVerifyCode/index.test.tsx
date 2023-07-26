@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
 
@@ -22,7 +22,7 @@ describe('FormVerifyCode component', () => {
   // });
 
   it('renders as expected', () => {
-    render(<Subject />);
+    renderWithLocalizationProvider(<Subject />);
     // testAllL10n(screen, bundle);
     screen.getByRole('textbox', { name: 'Enter your 4-digit code' });
 

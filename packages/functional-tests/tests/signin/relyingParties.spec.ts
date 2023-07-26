@@ -11,7 +11,7 @@ test.describe('severity-1 #smoke', () => {
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email',
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await page.waitForTimeout(1000);
 
@@ -120,7 +120,7 @@ test.describe('severity-3 #smoke', () => {
     await page.click('#avatar-wrapper');
     await Promise.all([
       page.click('text=Sign Out'),
-      page.waitForNavigation({ waitUntil: 'networkidle' }),
+      page.waitForNavigation({ waitUntil: 'load' }),
     ]);
     await expect(page.locator('#sign-in-btn')).toBeVisible();
   });

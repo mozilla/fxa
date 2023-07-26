@@ -7,25 +7,26 @@ import { Account } from '../../../models';
 import AccountRecoveryConfirmKey from '.';
 import { Meta } from '@storybook/react';
 import {
+  getSubject,
   mockCompleteResetPasswordParams,
   paramsWithMissingEmail,
-  Subject,
 } from './mocks';
+import { produceComponent } from '../../../models/mocks';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
 } as Meta;
 
-const storyWithSubject = (
-  account: Account,
-  params: Record<string, string>,
+function renderStory(
+  { account = accountValid, params = mockCompleteResetPasswordParams } = {},
   storyName?: string
-) => {
-  const story = () => <Subject {...{ account, params }} />;
+) {
+  const { Subject, history, appCtx } = getSubject(account, params);
+  const story = () => produceComponent(<Subject />, { history }, appCtx);
   story.storyName = storyName;
-  return story;
-};
+  return story();
+}
 
 const accountValid = {
   resetPasswordStatus: () => Promise.resolve(true),
@@ -45,23 +46,29 @@ const accountWithInvalidRecoveryKey = {
   verifyPasswordForgotToken: () => Promise.resolve(true),
 } as unknown as Account;
 
-export const OnConfirmValidKey = storyWithSubject(
-  accountValid,
-  mockCompleteResetPasswordParams,
-  'Valid recovery key. Users will be redirected to AccountRecoveryResetPassword on confirm'
-);
+export const OnConfirmValidKey = () => {
+  return renderStory(
+    {},
+    'Valid recovery key (32 characters). Users will be redirected to AccountRecoveryResetPassword on confirm'
+  );
+};
 
-export const OnConfirmInvalidKey = storyWithSubject(
-  accountWithInvalidRecoveryKey,
-  mockCompleteResetPasswordParams
-);
+export const OnConfirmInvalidKey = () => {
+  return renderStory({
+    account: accountWithInvalidRecoveryKey,
+    params: mockCompleteResetPasswordParams,
+  });
+};
 
-export const OnConfirmLinkExpired = storyWithSubject(
-  accountWithExpiredLink,
-  mockCompleteResetPasswordParams
-);
+export const OnConfirmLinkExpired = () => {
+  return renderStory({
+    account: accountWithExpiredLink,
+    params: mockCompleteResetPasswordParams,
+  });
+};
 
-export const WithDamagedLink = storyWithSubject(
-  accountValid,
-  paramsWithMissingEmail
-);
+export const WithDamagedLink = () => {
+  return renderStory({
+    params: paramsWithMissingEmail,
+  });
+};

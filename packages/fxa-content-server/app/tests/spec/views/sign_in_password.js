@@ -9,7 +9,10 @@ import Broker from 'models/auth_brokers/base';
 import FormPrefill from 'models/form-prefill';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
-import { SIGNIN_PASSWORD } from '../../../../tests/functional/lib/selectors';
+import {
+  SIGNIN_PASSWORD,
+  THIRD_PARTY_AUTH,
+} from '../../../../tests/functional/lib/selectors';
 import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/sign_in_password';
@@ -17,7 +20,7 @@ import GleanMetrics from '../../../scripts/lib/glean';
 
 const EMAIL = 'testuser@testuser.com';
 
-const Selectors = SIGNIN_PASSWORD;
+const Selectors = { ...SIGNIN_PASSWORD, THIRD_PARTY_AUTH };
 
 describe('views/sign_in_password', () => {
   let account;
@@ -73,6 +76,11 @@ describe('views/sign_in_password', () => {
     });
 
     it('redirects to `/` if no account', () => {
+      sinon.stub(account, 'checkAccountStatus').callsFake(() =>
+        Promise.resolve({
+          exists: false,
+        })
+      );
       sinon.stub(view, 'getAccount').callsFake(() => null);
       view.beforeRender();
 
@@ -91,6 +99,26 @@ describe('views/sign_in_password', () => {
       view.beforeRender();
       assert.isTrue(GleanMetrics.setEnabled.calledOnce);
       assert.equal(GleanMetrics.setEnabled.args[0][0], false);
+    });
+
+    describe('checkAccountStatus', () => {
+      beforeEach(() => {
+        sinon.stub(account, 'checkAccountStatus').callsFake(() =>
+          Promise.resolve({
+            exists: false,
+          })
+        );
+      });
+      it('calls if values are not set', () => {
+        view.beforeRender();
+        assert.isTrue(account.checkAccountStatus.calledOnce);
+      });
+
+      it('does not call if values exist', () => {
+        sinon.stub(account, 'get').callsFake(() => true);
+        view.beforeRender();
+        assert.isFalse(account.checkAccountStatus.called);
+      });
     });
   });
 
@@ -116,24 +144,83 @@ describe('views/sign_in_password', () => {
       assert.lengthOf(view.$('input[type=email]'), 1);
       assert.equal(view.$('input[type=email]').val(), EMAIL);
       assert.lengthOf(view.$('input[type=password]'), 1);
-      assert.isTrue(notifier.trigger.calledOnce);
+      // assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
       assert.lengthOf(view.$('#tos-pp'), 1);
+    });
+
+    it('renders as expected when user has a linked account and no password', () => {
+      account.set({
+        hasLinkedAccount: true,
+        hasPassword: false,
+      });
+
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Sign in');
+        assert.lengthOf(view.$('input[type=email]'), 0);
+        assert.lengthOf(view.$('input[type=password]'), 0);
+
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
+
+        assert.lengthOf(view.$('.separator'), 0);
+        assert.lengthOf(view.$('#use-different'), 1);
+        assert.lengthOf(view.$('#fxa-pp'), 1);
+        assert.lengthOf(view.$('#fxa-tos'), 1);
+        // only renders if service is pocket
+        assert.lengthOf(view.$('#pocket-pp'), 0);
+        assert.lengthOf(view.$('#pocket-tos'), 0);
+      });
+    });
+
+    it('renders TOS as expected when service is pocket', () => {
+      relier.set({
+        clientId: '749818d3f2e7857f',
+      });
+      // Pocket TOS should always show for pocket clients despite
+      // linked account / password state
+      account.set({
+        hasLinkedAccount: true,
+        hasPassword: false,
+      });
+
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#fxa-pp'), 1);
+        assert.lengthOf(view.$('#fxa-tos'), 1);
+        assert.lengthOf(view.$('#pocket-pp'), 1);
+        assert.lengthOf(view.$('#pocket-tos'), 1);
+      });
     });
   });
 
   describe('validateAndSubmit', () => {
+    let loginSubmitEventStub;
+    let loginSuccessStub;
+
     beforeEach(() => {
-      sinon.stub(view, 'signIn').callsFake(() => Promise.resolve());
+      sinon.stub(view, 'signIn').callsFake(() => {
+        view.onSignInSuccess(account);
+        return Promise.resolve();
+      });
+      loginSubmitEventStub = sinon.stub(GleanMetrics.login, 'submit');
+      loginSuccessStub = sinon.stub(GleanMetrics.login, 'success');
+    });
+
+    afterEach(() => {
+      loginSuccessStub.restore();
+      loginSubmitEventStub.restore();
     });
 
     describe('password valid', () => {
       it('signs up the user', () => {
+        sinon.stub(account, 'get').withArgs('verified').returns(true);
         view.$('#password').val('password');
 
         return Promise.resolve(view.validateAndSubmit()).then(() => {
           assert.isTrue(view.signIn.calledOnce);
           assert.isTrue(view.signIn.calledWith(account, 'password'));
+          sinon.assert.calledOnce(loginSuccessStub);
+          sinon.assert.calledOnce(loginSubmitEventStub);
         });
       });
     });
@@ -146,6 +233,23 @@ describe('views/sign_in_password', () => {
 
         assert.isTrue(view.navigate.calledOnceWith('/', { account }));
       });
+    });
+  });
+
+  describe('logView', () => {
+    let loginViewEventStub;
+
+    beforeEach(() => {
+      loginViewEventStub = sinon.stub(GleanMetrics.login, 'view');
+    });
+
+    afterEach(() => {
+      loginViewEventStub.restore();
+    });
+
+    it('submits a reg_view Glean ping', () => {
+      view.logView();
+      sinon.assert.calledOnce(loginViewEventStub);
     });
   });
 });

@@ -3,10 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import convict from 'convict';
 import fs from 'fs';
-import { makeMySQLConfig, makeRedisConfig } from 'fxa-shared/db/config';
+import { makeRedisConfig } from 'fxa-shared/db/config';
 import { tracingConfig } from 'fxa-shared/tracing/config';
 import path from 'path';
 import url from 'url';
+
+import { makeConvictMySQLConfig as makeMySQLConfig } from '../../../libs/shared/db/mysql/core/src/lib/config';
 
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 const ONE_DAY = 1000 * 60 * 60 * 24;
@@ -198,7 +200,7 @@ const convictConf = convict({
   googleAuthConfig: {
     clientId: {
       default:
-        '210899493109-u0erdakhegg6b572faenm3mn9hf4mdp8.apps.googleusercontent.com',
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
       env: 'GOOGLE_AUTH_CLIENT_ID',
       format: String,
       doc: 'Google auth client id',
@@ -900,6 +902,14 @@ const convictConf = convict({
       env: 'SUBHUB_STRIPE_APIKEY',
       format: String,
       doc: 'Stripe API key for direct Stripe integration',
+    },
+    stripeInvoiceImmediately: {
+      enabled: {
+        default: false,
+        doc: 'Enables immediate invoicing for stripe in all subscription upgrades',
+        env: 'SUBSCRIPTIONS_STRIPE_INVOICE_IMMEDIATELY',
+        format: Boolean,
+      },
     },
     stripeWebhookPayloadLimit: {
       default: 1048576,

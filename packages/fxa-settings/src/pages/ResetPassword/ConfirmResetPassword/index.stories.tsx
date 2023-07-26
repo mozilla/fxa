@@ -4,14 +4,9 @@
 
 import React from 'react';
 import ConfirmResetPassword from '.';
-import {
-  LocationProvider,
-  createHistory,
-  createMemorySource,
-} from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_EMAIL, MOCK_PASSWORD_FORGOT_TOKEN } from './mocks';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
+import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 
 export default {
   title: 'Pages/ResetPassword/ConfirmResetPassword',
@@ -19,15 +14,5 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const source = createMemorySource('/fake-memories');
-const history = createHistory(source);
-history.location.state = {
-  email: MOCK_EMAIL,
-  passwordForgotToken: MOCK_PASSWORD_FORGOT_TOKEN,
-};
-
-export const Default = () => (
-  <LocationProvider history={history}>
-    <ConfirmResetPassword />
-  </LocationProvider>
-);
+export const Default = () =>
+  renderStoryWithHistory(<ConfirmResetPassword />, '/confirm_reset_password');

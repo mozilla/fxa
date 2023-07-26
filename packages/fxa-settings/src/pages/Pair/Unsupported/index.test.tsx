@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -23,7 +23,7 @@ describe('PairUnsupported', () => {
   // });
 
   it('renders the default view as expected', () => {
-    render(<PairUnsupported />);
+    renderWithLocalizationProvider(<PairUnsupported />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -36,7 +36,7 @@ describe('PairUnsupported', () => {
   });
 
   it('renders errors as expected', () => {
-    render(<PairUnsupported error={MOCK_ERROR} />);
+    renderWithLocalizationProvider(<PairUnsupported error={MOCK_ERROR} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -50,7 +50,7 @@ describe('PairUnsupported', () => {
   });
 
   it('emits expected metrics event on render', () => {
-    render(<PairUnsupported />);
+    renderWithLocalizationProvider(<PairUnsupported />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

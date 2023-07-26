@@ -2752,6 +2752,24 @@ describe('models/account', function () {
     });
   });
 
+  describe('checkAccountStatus', () => {
+    beforeEach(() => {
+      sinon.stub(fxaClient, 'checkAccountStatus').callsFake(() =>
+        Promise.resolve({
+          exists: true,
+          hasLinkedAccount: true,
+          hasPassword: true,
+        })
+      );
+    });
+
+    it('sets states on model', async () => {
+      await account.checkAccountStatus();
+      assert.isTrue(account.get('hasLinkedAccount'));
+      assert.isTrue(account.get('hasPassword'));
+    });
+  });
+
   describe('isPasswordResetComplete', () => {
     beforeEach(() => {
       sinon

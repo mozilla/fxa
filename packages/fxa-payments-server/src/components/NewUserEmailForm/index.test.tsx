@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fireEvent, render, waitFor } from '@testing-library/react';
+import { fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import { apiFetchAccountStatus } from '../../lib/apiClient';
 import {
@@ -9,6 +9,7 @@ import {
 } from './index';
 import { Localized } from '@fluent/react';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 jest.mock('../../lib/apiClient', () => ({
   apiFetchAccountStatus: jest.fn(),
@@ -34,9 +35,11 @@ const selectedPlan = {
 const WrapNewUserEmailForm = ({
   accountExistsReturnValue,
   invalidDomain,
+  plan = selectedPlan,
 }: {
   accountExistsReturnValue: boolean;
   invalidDomain: boolean;
+  plan?: any;
 }) => {
   const [, setValidEmail] = useState<string>('');
   const [, setAccountExists] = useState(false);
@@ -64,7 +67,7 @@ const WrapNewUserEmailForm = ({
           })
         }
         onToggleNewsletterCheckbox={() => {}}
-        selectedPlan={selectedPlan}
+        selectedPlan={plan}
       />
     </div>
   );
@@ -73,7 +76,7 @@ const WrapNewUserEmailForm = ({
 describe('NewUserEmailForm test', () => {
   it('renders as expected', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -98,14 +101,42 @@ describe('NewUserEmailForm test', () => {
       'new-user-subscribe-product-updates'
     );
     expect(subscribeCheckbox).toBeInTheDocument();
+    expect(subscribeCheckbox?.nextSibling?.textContent).toBe(
+      'I’d like to receive product news and updates from Mozilla'
+    );
 
     const assuranceCopy = queryByTestId('assurance-copy');
     expect(assuranceCopy).toBeInTheDocument();
   });
 
+  it('renders as expected, with metadata configuration', () => {
+    const subject = () => {
+      return renderWithLocalizationProvider(
+        <WrapNewUserEmailForm
+          accountExistsReturnValue={false}
+          invalidDomain={false}
+          plan={{
+            ...selectedPlan,
+            product_metadata: {
+              newsletterLabelTextCode: 'snp',
+            },
+          }}
+        />
+      );
+    };
+    const { queryByTestId } = subject();
+    const subscribeCheckbox = queryByTestId(
+      'new-user-subscribe-product-updates'
+    );
+    expect(subscribeCheckbox).toBeInTheDocument();
+    expect(subscribeCheckbox?.nextSibling?.textContent).toBe(
+      'I’d like to receive security and privacy news and updates from Mozilla'
+    );
+  });
+
   it('shows error when invalid email is input to first field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -126,7 +157,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when valid email is input to first field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -146,7 +177,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when empty string is provided to second field', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -170,7 +201,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows error when emails do not match', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}
@@ -195,7 +226,7 @@ describe('NewUserEmailForm test', () => {
 
   it('shows no error when emails match', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <WrapNewUserEmailForm
           accountExistsReturnValue={false}
           invalidDomain={false}

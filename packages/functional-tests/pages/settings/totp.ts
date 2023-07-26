@@ -44,7 +44,7 @@ export class TotpPage extends SettingsLayout {
   clickClose() {
     return Promise.all([
       this.page.locator('[data-testid=close-button]').click(),
-      this.page.waitForNavigation(),
+      this.page.waitForEvent('framenavigated'),
     ]);
   }
 
@@ -67,7 +67,7 @@ export class TotpPage extends SettingsLayout {
     await this.submit();
     await this.setRecoveryCode(recoveryCodes[0]);
     await this.submit();
-    credentials.secret = secret;
+    credentials.secret = secret === null ? undefined : secret;
     return {
       secret,
       recoveryCodes,

@@ -234,7 +234,7 @@ module.exports = function (log, config, bounces) {
     diners: 'Diners Club',
     discover: 'Discover',
     jcb: 'JCB',
-    mastercard: 'MasterCard',
+    mastercard: 'Mastercard',
     unionpay: 'UnionPay',
     visa: 'Visa',
     unknown: 'Unknown',
@@ -348,7 +348,7 @@ module.exports = function (log, config, bounces) {
     timeZone,
     acceptLanguage
   ) {
-    return constructLocalTimeString(timeZone, acceptLanguage);
+    return constructLocalTimeString(timeZone, determineLocale(acceptLanguage));
   };
 
   Mailer.prototype._constructLocalDateString = function (
@@ -1767,8 +1767,6 @@ module.exports = function (log, config, bounces) {
     const {
       email,
       uid,
-      invoiceTotalNewInCents,
-      invoiceTotalOldInCents,
       productId,
       planId,
       productIconURLNew,
@@ -1810,12 +1808,12 @@ module.exports = function (log, config, bounces) {
         productName: productNameNew,
         productNameOld,
         paymentAmountOld: this._getLocalizedCurrencyString(
-          invoiceTotalOldInCents || paymentAmountOldInCents,
+          paymentAmountOldInCents,
           paymentAmountOldCurrency,
           message.acceptLanguage
         ),
         paymentAmountNew: this._getLocalizedCurrencyString(
-          invoiceTotalNewInCents || paymentAmountNewInCents,
+          paymentAmountNewInCents,
           paymentAmountNewCurrency,
           message.acceptLanguage
         ),
@@ -2252,7 +2250,8 @@ module.exports = function (log, config, bounces) {
           message.acceptLanguage
         ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
       },
@@ -2416,7 +2415,8 @@ module.exports = function (log, config, bounces) {
             message.acceptLanguage
           ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
         paymentProrated,
@@ -2521,7 +2521,8 @@ module.exports = function (log, config, bounces) {
             message.acceptLanguage
           ),
         payment_provider,
-        cardType: cardTypeToText(cardType),
+        cardType,
+        cardName: cardTypeToText(cardType),
         lastFour,
         nextInvoiceDate,
         showPaymentMethod,

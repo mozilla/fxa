@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import {
   Account as AccountType,
   SecurityEvents as SecurityEventsType,
@@ -21,29 +21,12 @@ import { getFormattedDate } from '../../../lib/utils';
 import DangerZone from '../DangerZone';
 import ResultBoolean from '../../ResultBoolean';
 import { HIDE_ROW } from '../../../../constants';
+import { EDIT_LOCALE, UNLINK_ACCOUNT } from './index.gql';
 
 export type AccountProps = AccountType & {
   onCleared: () => void;
   query: string;
 };
-
-export const RECORD_ADMIN_SECURITY_EVENT = gql`
-  mutation recordAdminSecurityEvent($uid: String!, $name: String!) {
-    recordAdminSecurityEvent(uid: $uid, name: $name)
-  }
-`;
-
-export const EDIT_LOCALE = gql`
-  mutation editLocale($uid: String!, $locale: String!) {
-    editLocale(uid: $uid, locale: $locale)
-  }
-`;
-
-export const UNLINK_ACCOUNT = gql`
-  mutation unlinkAccount($uid: String!) {
-    unlinkAccount(uid: $uid)
-  }
-`;
 
 export const LinkedAccount = ({
   uid,

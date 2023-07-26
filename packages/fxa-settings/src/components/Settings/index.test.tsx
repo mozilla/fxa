@@ -15,17 +15,11 @@ import {
 import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
 import { HomePath } from '../../constants';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
   useInitialState: jest.fn(),
-}));
-
-jest.mock('fxa-react/lib/AppLocalizationProvider', () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <section data-testid="AppLocalizationProvider">{children}</section>
-  ),
 }));
 
 jest.mock('./ScrollToTop', () => ({
@@ -284,7 +278,9 @@ describe('App component', () => {
 
       ({ history } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account, config })}>
-          <App {...{ flowQueryParams }} />
+          <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+            <App {...{ flowQueryParams }} />
+          </AppLocalizationProvider>
         </AppContext.Provider>,
         { route: HomePath }
       ));

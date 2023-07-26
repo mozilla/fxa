@@ -1,4 +1,5 @@
 import React, { useContext, ReactNode } from 'react';
+import { render } from '@testing-library/react';
 import { Provider as ReduxProvider } from 'react-redux';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config, updateConfig } from '../../src/lib/config';
@@ -25,6 +26,8 @@ import {
   LatestInvoiceItems,
   SubsequentInvoicePreview,
 } from 'fxa-shared/dto/auth/payments/invoice';
+
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 declare global {
   namespace NodeJS {
@@ -904,6 +907,8 @@ export const MOCK_PREVIEW_INVOICE_NO_TAX: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
@@ -923,6 +928,8 @@ export const MOCK_PREVIEW_INVOICE_AFTER_SUBSCRIPTION: FirstInvoicePreview = {
       },
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
@@ -949,6 +956,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE: FirstInvoicePreview =
@@ -987,6 +996,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE: FirstInvoicePreview = {
       display_name: 'Sales Tax',
     },
   ],
+  prorated_amount: -833,
+  one_time_charge: 1337,
 };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePreview =
@@ -1019,6 +1030,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE_DISCOUNT: FirstInvoicePrevi
       amount_off: 50,
       percent_off: null,
     },
+    prorated_amount: -833,
+    one_time_charge: 1337,
   };
 
 export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePreview =
@@ -1051,6 +1064,8 @@ export const MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE_DISCOUNT: FirstInvoicePrevi
       amount_off: 50,
       percent_off: null,
     },
+    prorated_amount: -833,
+    one_time_charge: 1337,
   };
 
 export const INVOICE_NO_TAX: LatestInvoiceItems = MOCK_PREVIEW_INVOICE_NO_TAX;
@@ -1084,6 +1099,27 @@ export function getLocalizedMessage(
   }
 
   return bundle.formatPattern(localizedMessage.value, { ...args });
+}
+
+export function renderWithLocalizationProvider(
+  children,
+  messages = { en: ['testo: lol'] }
+) {
+  // by default fluent warns about missing messages, but there's no way to
+  // disable it right now.  see
+  // https://github.com/projectfluent/fluent.js/issues/411
+  return render(withLocalizationProvider(children, messages));
+}
+
+export function withLocalizationProvider(
+  children,
+  messages = { en: ['testo: lol'] }
+) {
+  return (
+    <AppLocalizationProvider messages={messages}>
+      {children}
+    </AppLocalizationProvider>
+  );
 }
 
 export default MockApp;

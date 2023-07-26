@@ -43,10 +43,6 @@ function trimLocale(header) {
 }
 
 function logValidationError(response, log) {
-  if (response?.__proto__.name !== 'ValidationError') {
-    return;
-  }
-
   log.error('server.ValidationError', response);
   reportValidationError(response.stack, response);
 }
@@ -166,9 +162,7 @@ async function create(log, error, config, routes, db, statsd) {
           throw err;
         },
       },
-      ...(config.env !== 'prod' && {
-        response: { options: { abortEarly: false } },
-      }),
+      response: { options: { abortEarly: false } },
     },
     load: {
       sampleInterval: 1000,
@@ -318,9 +312,17 @@ async function create(log, error, config, routes, db, statsd) {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
-      if (config.env !== 'prod') {
+
+      // Do not log errors that either aren't a validation error or have a status code below 500
+      // ValidationError that are 4xx status are request validation errors
+      if (
+        response?.__proto__.name === 'ValidationError' &&
+        response.output &&
+        response.output.statusCode >= 500
+      ) {
         logValidationError(response, log);
       }
+
       response = error.translate(request, response);
       if (config.env !== 'prod') {
         response.backtrace(request.app.traced);

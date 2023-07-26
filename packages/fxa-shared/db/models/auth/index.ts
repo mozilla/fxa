@@ -156,7 +156,7 @@ export async function getAllPayPalBAByUid(
  */
 export async function getPayPalBAByBAId(
   billingAgreementId: string
-): Promise<PayPalBillingAgreements> {
+): Promise<PayPalBillingAgreements | undefined> {
   return PayPalBillingAgreements.query().findOne({ billingAgreementId });
 }
 
@@ -233,9 +233,10 @@ export function batchAccountUpdate(uids: Buffer[], updateFields: Accountish) {
   return Account.query().whereIn('uid', uids).update(updateFields);
 }
 
+export type { AccountOptions };
+
 export {
   Account,
-  AccountOptions,
   AccountCustomers,
   AccountResetToken,
   BaseAuthModel,

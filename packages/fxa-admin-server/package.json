@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
-    "prebuild": "rimraf dist",
+    "prebuild": "rimraf dist && yarn gql:allowlist",
+    "copy-gql": "mkdir -p src/config/gql/allowlist && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
     "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
     "build": "yarn prebuild && yarn nest build && yarn copy-config",
     "compile": "tsc --noEmit",
@@ -56,7 +57,7 @@
     "graphql": "^15.6.1",
     "helmet": "^7.0.0",
     "hot-shots": "^10.0.0",
-    "knex": "^2.4.0",
+    "knex": "^2.4.2",
     "pem-jwk": "^2.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.0",

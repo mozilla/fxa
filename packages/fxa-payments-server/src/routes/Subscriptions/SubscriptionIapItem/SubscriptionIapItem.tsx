@@ -18,6 +18,7 @@ import {
 } from 'fxa-shared/subscriptions/type-guards';
 import {
   getIapSubscriptionManagementUrl,
+  getLocalizedDate,
   getLocalizedDateString,
 } from '../../../lib/formats';
 
@@ -48,6 +49,7 @@ const GooglePlaySubscriptionIapItem = (
   const { auto_renewing, expiry_time_millis } = customerSubscription;
 
   const nextBillDate = getLocalizedDateString(expiry_time_millis / 1000, true);
+  const nextBillDateL10n = getLocalizedDate(expiry_time_millis / 1000, true);
   const nextBill = `Next billed on ${nextBillDate}`;
   const expiresOn = `Expires on ${nextBillDate}`;
 
@@ -65,17 +67,11 @@ const GooglePlaySubscriptionIapItem = (
               <div className="iap-type">Google: In-App purchase</div>
             </Localized>
             {auto_renewing ? (
-              <Localized
-                id="sub-next-bill"
-                vars={{ date: nextBillDate as string }}
-              >
+              <Localized id="sub-next-bill" vars={{ date: nextBillDateL10n }}>
                 <div>{nextBill}</div>
               </Localized>
             ) : (
-              <Localized
-                id="sub-expires-on"
-                vars={{ date: nextBillDate as string }}
-              >
+              <Localized id="sub-expires-on" vars={{ date: nextBillDateL10n }}>
                 <div>{expiresOn}</div>
               </Localized>
             )}
@@ -103,10 +99,11 @@ const AppleSubscriptionIapItem = (
 ) => {
   const { auto_renewing, expiry_time_millis } = customerSubscription;
 
-  let nextBill, expiresOn, nextBillDate;
+  let nextBill, expiresOn, nextBillDate, nextBillDateL10n;
   // TODO - Remove expiry_time_millis check pending https://developer.apple.com/forums/thread/705730
   if (expiry_time_millis) {
     nextBillDate = getLocalizedDateString(expiry_time_millis / 1000, true);
+    nextBillDateL10n = getLocalizedDate(expiry_time_millis / 1000, true);
     nextBill = `Next billed on ${nextBillDate}`;
     expiresOn = `Expires on ${nextBillDate}`;
   }
@@ -126,16 +123,13 @@ const AppleSubscriptionIapItem = (
             </Localized>
             {!!expiry_time_millis &&
               (auto_renewing ? (
-                <Localized
-                  id="sub-next-bill"
-                  vars={{ date: nextBillDate as string }}
-                >
+                <Localized id="sub-next-bill" vars={{ date: nextBillDateL10n }}>
                   <div>{nextBill}</div>
                 </Localized>
               ) : (
                 <Localized
                   id="sub-expires-on"
-                  vars={{ date: nextBillDate as string }}
+                  vars={{ date: nextBillDateL10n }}
                 >
                   <div>{expiresOn}</div>
                 </Localized>

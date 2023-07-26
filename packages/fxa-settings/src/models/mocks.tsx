@@ -5,6 +5,10 @@
 import React from 'react';
 import { AccountData, ProfileInfo, Session } from '.';
 import { AppContext, AppContextValue, defaultAppContext } from './AppContext';
+import {
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from 'fxa-react/lib/test-utils/localizationProvider';
 
 import {
   createHistory,
@@ -12,7 +16,6 @@ import {
   LocationProvider,
   History,
 } from '@reach/router';
-import { render } from '@testing-library/react';
 import { getDefault } from '../lib/config';
 import { AlertBarInfo } from './AlertBarInfo';
 import { ReachRouterWindow } from '../lib/window';
@@ -24,22 +27,43 @@ export const MOCK_ACCOUNT: AccountData =
 
 export function createHistoryWithQuery(path: string, queryParams?: string) {
   const history = createHistory(createMemorySource(path));
-  if (queryParams) {
+  if (queryParams != null) {
     history.location.search = queryParams;
   }
   return history;
 }
 
 export function createAppContext(history: History) {
+  const mockStorage: Record<string, unknown> = {};
   const windowWrapper = new ReachRouterWindow(history);
   const appCtx = {
     windowWrapper,
     urlQueryData: new UrlQueryData(windowWrapper),
     urlHashData: new UrlHashData(windowWrapper),
-    oauthClient: {},
+    oauthClient: {
+      async getClientInfo(_id) {
+        return {
+          name: 'test',
+        };
+      },
+      async destroyToken(_token) {},
+    },
     authClient: {},
-    storageData: {},
+    storageData: {
+      load() {},
+      requiresSync() {
+        return true;
+      },
+      set(key: string, value: unknown) {
+        mockStorage[key] = value;
+      },
+      get(key: string) {
+        return mockStorage[key];
+      },
+      persist() {},
+    },
   } as AppContextValue;
+
   return appCtx;
 }
 
@@ -48,13 +72,17 @@ export function produceComponent(
   { route = '/', history = createHistory(createMemorySource(route)) } = {},
   appCtx?: AppContextValue
 ) {
+  // Note that reliers and integrations are application instances. Reset them
+  // to ensure a clean slate between storybook renders.
+
   if (appCtx) {
-    return (
+    return withLocalizationProvider(
       <AppContext.Provider value={appCtx}>
         <LocationProvider {...{ history }}>{ui}</LocationProvider>
       </AppContext.Provider>
     );
   }
+
   return <LocationProvider {...{ history }}>{ui}</LocationProvider>;
 }
 
@@ -65,13 +93,17 @@ export function renderWithRouter(
 ) {
   if (!appCtx) {
     return {
-      ...render(<LocationProvider {...{ history }}>{ui}</LocationProvider>),
+      ...renderWithLocalizationProvider(
+        <LocationProvider {...{ history }}>{ui}</LocationProvider>
+      ),
       history,
     };
   }
 
   return {
-    ...render(produceComponent(ui, { route, history }, appCtx)),
+    ...renderWithLocalizationProvider(
+      produceComponent(ui, { route, history }, appCtx)
+    ),
     history,
   };
 }

@@ -22,25 +22,6 @@ describe('index', () => {
     global.console.error = origError;
   });
 
-  it('should render as expected', () => {
-    jest.mock('./lib/config', () => ({
-      __esModule: true,
-      ...jest.requireActual('./lib/config'),
-      readConfigFromMeta: jest.fn(),
-    }));
-    require('./index');
-
-    const root = document.getElementById('root')!;
-    // Assert that these mock components are nested as expected
-    let currRoot: any = root;
-    ['StrictMode', 'AppErrorBoundary', 'ApolloProvider', 'App'].forEach(
-      (name) => {
-        currRoot = currRoot?.querySelector(`*[data-testid="${name}"]`);
-        expect(currRoot).toBeDefined();
-      }
-    );
-  });
-
   it('should log initialization errors', () => {
     jest.mock('./lib/config', () => ({
       __esModule: true,

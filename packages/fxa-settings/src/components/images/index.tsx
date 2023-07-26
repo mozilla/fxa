@@ -7,7 +7,7 @@ import { ReactComponent as Mail } from './graphic_mail.svg';
 import { ReactComponent as SecurityShield } from './graphic_security_shield.svg';
 import { ReactComponent as Key } from './graphic_key.svg';
 import { ReactComponent as Lock } from './graphic_lock.svg';
-import { ReactComponent as Lightbulb } from './lightbulb.svg';
+import { ReactComponent as Lightbulb } from './graphic_lightbulb.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 

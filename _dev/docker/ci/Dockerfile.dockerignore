@@ -12,3 +12,5 @@
 **/artifacts
 **/configs
 **/temp
+
+!configs/gql/allowlist

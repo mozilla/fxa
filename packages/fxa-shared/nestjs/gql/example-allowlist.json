@@ -1,0 +1,3 @@
+{
+  "query GetUid {\n  account {\n    uid\n  }\n}\n": 1
+}

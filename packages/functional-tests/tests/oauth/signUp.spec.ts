@@ -26,7 +26,7 @@ test.describe('Oauth sign up', () => {
   test('sign up', async ({ pages: { login, relier } }) => {
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify sign up code header
     expect(await login.isSignUpCodeHeader()).toBe(true);
@@ -44,7 +44,7 @@ test.describe('Oauth sign up', () => {
 
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(bouncedEmail, password, false);
+    await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
 
     //Verify sign up code header
     expect(await login.isSignUpCodeHeader()).toBe(true);
@@ -56,7 +56,7 @@ test.describe('Oauth sign up', () => {
     );
 
     await login.clearEmailTextBox();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify sign up code header
     expect(await login.isSignUpCodeHeader()).toBe(true);

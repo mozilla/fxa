@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState, ChangeEvent } from 'react';
+import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { useAccount, useAlertBar } from '../../../models';
@@ -117,6 +117,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
+  
+  useEffect(() => {
+    if (!account.hasPassword) {
+      setSubtitleText('');
+    }
+   }, [account.hasPassword]);
 
   const advanceStep = () => {
     // Accounts that do not have a password set, will delete immediately
@@ -203,21 +209,23 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
               ))}
             </ul>
 
-            <Localized id="pocket-delete-notice"
-                       elems={{
-                         a: (
-                          <LinkExternal
-                           href="https://help.getpocket.com/article/986-canceling-your-pocket-premium-subscription"
-                           data-testid="link-pocket-delete-notice"
-                           className="link-blue"
-                          >
-                            cancel your subscription
-                          </LinkExternal>
-                         ),
-                       }}
+            <Localized
+              id="pocket-delete-notice"
+              elems={{
+                a: (
+                  <LinkExternal
+                    href="https://help.getpocket.com/article/986-canceling-your-pocket-premium-subscription"
+                    data-testid="link-pocket-delete-notice"
+                    className="link-blue"
+                  >
+                    cancel your subscription
+                  </LinkExternal>
+                ),
+              }}
             >
-            <p className="mb-4">
-                If you subscribe to Pocket Premium, please make sure that you <a>cancel your subscription</a> before deleting your account.
+              <p className="mb-4">
+                If you subscribe to Pocket Premium, please make sure that you{' '}
+                <a>cancel your subscription</a> before deleting your account.
               </p>
             </Localized>
             <Localized id="delete-account-acknowledge">

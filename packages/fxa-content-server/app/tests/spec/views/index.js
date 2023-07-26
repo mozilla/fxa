@@ -6,7 +6,10 @@ import $ from 'jquery';
 import { assert } from 'chai';
 import AuthBroker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
-import { ENTER_EMAIL } from '../../../../tests/functional/lib/selectors';
+import {
+  ENTER_EMAIL,
+  THIRD_PARTY_AUTH,
+} from '../../../../tests/functional/lib/selectors';
 import FormPrefill from 'models/form-prefill';
 import IndexView from 'views/index';
 import { Model } from 'backbone';
@@ -16,7 +19,10 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../mocks/window';
 
-const Selectors = ENTER_EMAIL;
+const Selectors = {
+  ...ENTER_EMAIL,
+  THIRD_PARTY_AUTH,
+};
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -216,6 +222,36 @@ describe('views/index', () => {
             );
           });
         });
+
+        describe('user is in thirdPartyAuth experiment', () => {
+          beforeEach(() => {
+            sinon
+              .stub(view, 'isInThirdPartyAuthExperiment')
+              .callsFake(() => true);
+          });
+
+          it('renders as expected when not sync', () => {
+            return view.render().then(() => {
+              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
+            });
+          });
+          it('renders as expected when sync', () => {
+            relier.set({
+              action: 'email',
+              service: 'sync',
+              serviceName: 'Firefox Sync',
+            });
+            sinon.stub(relier, 'isSync').callsFake(() => true);
+
+            return view.render().then(() => {
+              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
+              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
+            });
+          });
+        });
       });
 
       describe('fallback behavior', () => {
@@ -351,9 +387,13 @@ describe('views/index', () => {
       it('navigates to signin using the stored account so that profile images can be displayed', () => {
         const storedAccount = user.initAccount({});
 
-        sinon
-          .stub(user, 'checkAccountEmailExists')
-          .callsFake(() => Promise.resolve(true));
+        sinon.stub(user, 'checkAccountStatus').callsFake(() =>
+          Promise.resolve({
+            exists: true,
+            hasPassword: true,
+            hasLinkedAccount: false,
+          })
+        );
         sinon.stub(user, 'getAccountByEmail').callsFake(() => storedAccount);
 
         return view.checkEmail(EMAIL).then(() => {
@@ -377,8 +417,8 @@ describe('views/index', () => {
     describe('email is not registered', () => {
       it('navigates to signup with email domain MX record validation', () => {
         sinon
-          .stub(user, 'checkAccountEmailExists')
-          .callsFake(() => Promise.resolve(false));
+          .stub(user, 'checkAccountStatus')
+          .callsFake(() => Promise.resolve({ exists: false }));
         sinon.stub(view, '_validateEmailDomain').resolves();
         return view.checkEmail(EMAIL).then(() => {
           assert.isTrue(view.navigate.calledOnceWith('signup'));
@@ -388,7 +428,7 @@ describe('views/index', () => {
       });
 
       it('does not navigate away if checkEmailDomain rejects', () => {
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.stub(view, '_validateEmailDomain').rejects();
         return view.checkEmail(EMAIL).then(() => {
           assert.isFalse(view.navigate.called);
@@ -409,7 +449,7 @@ describe('views/index', () => {
         const config = { mxRecordValidation: { enabled: false } };
         const options = { ...viewOptions, config };
         createView(options);
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.spy(view, 'navigate');
         return view.checkEmail(email).then(() => {
           assert.isTrue(view.navigate.calledOnceWith('signup'));
@@ -424,7 +464,7 @@ describe('views/index', () => {
         };
         const options = { ...viewOptions, config };
         createView(options);
-        sinon.stub(user, 'checkAccountEmailExists').resolves(false);
+        sinon.stub(user, 'checkAccountStatus').resolves({ exists: false });
         sinon.spy(view, 'navigate');
         return view
           .render()

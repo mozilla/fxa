@@ -1,7 +1,10 @@
 import React from 'react';
-import { render, cleanup, fireEvent, act } from '@testing-library/react';
+import { cleanup, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { getLocalizedMessage } from '../../lib/test-utils';
+import {
+  getLocalizedMessage,
+  renderWithLocalizationProvider,
+} from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
@@ -27,7 +30,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('renders as expected', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         actionFn={() => {}}
         error={{ code: 'general_paypal_error' }}
@@ -54,7 +57,7 @@ describe('PaymentErrorView test with l10n', () => {
 
   it('calls passed onRetry function when retry button clicked', async () => {
     const onRetry = jest.fn();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         actionFn={onRetry}
         error={{ code: 'general_paypal_error' }}
@@ -70,7 +73,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('navigates to the correct relative URL when the "Manage my subscription" button is clicked', async () => {
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         actionFn={() => {}}
         error={{ code: 'no_subscription_change' }}
@@ -86,7 +89,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('uses the given SubscriptionTitle', async () => {
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         subscriptionTitle={<SubscriptionTitle screenType={'noplanchange'} />}
         actionFn={() => {}}
@@ -107,7 +110,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('does not render the ActionButton for post-subscription creation errors', async () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         actionFn={() => {}}
         error={{ code: 'fxa_fetch_profile_customer_error' }}
@@ -129,7 +132,7 @@ describe('PaymentErrorView test with l10n', () => {
   });
 
   it('shows FxA legal links in footer when isPasswordlessCheckout is true', async () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <PaymentErrorView
         actionFn={() => {}}
         error={{ code: 'general_paypal_error' }}

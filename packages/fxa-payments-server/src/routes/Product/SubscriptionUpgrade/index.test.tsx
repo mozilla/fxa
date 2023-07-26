@@ -1,6 +1,6 @@
 import React from 'react';
 import TestRenderer from 'react-test-renderer';
-import { render, cleanup, fireEvent } from '@testing-library/react';
+import { cleanup, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import { APIError } from '../../../lib/apiClient';
@@ -20,6 +20,8 @@ import {
   MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
   MOCK_PREVIEW_INVOICE_NO_TAX,
   MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle, FluentNumber } from '@fluent/bundle';
@@ -40,7 +42,7 @@ import {
   getLocalizedDateString,
 } from '../../../lib/formats';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import { updateConfig } from '../../../lib/config';
+import { config, updateConfig } from '../../../lib/config';
 import { deepCopy } from '../../../lib/test-utils';
 
 jest.mock('../../../lib/sentry');
@@ -57,9 +59,10 @@ async function rendersAsExpected(
   invoicePreview = MOCK_PREVIEW_INVOICE_NO_TAX,
   selectedPlan = SELECTED_PLAN
 ) {
-  const { findByTestId, queryByTestId, container } = render(
-    <Subject props={{ upgradeFromPlan, invoicePreview, selectedPlan }} />
-  );
+  const { findByTestId, queryByTestId, container } =
+    renderWithLocalizationProvider(
+      <Subject props={{ upgradeFromPlan, invoicePreview, selectedPlan }} />
+    );
   await findByTestId('subscription-upgrade');
 
   // Could do some more content-based tests here, but basically just a
@@ -90,11 +93,35 @@ async function rendersAsExpected(
     selectedPlan.interval_count === upgradeFromPlan.interval_count
       ? getLocalizedDateString(invoicePreview.line_items[0].period.end)
       : getLocalizedDateString(customerWebSubscription.current_period_end);
+
   expect(queryByTestId('plan-upgrade-subtotal')).not.toBeInTheDocument();
   expect(queryByTestId('plan-upgrade-tax-amount')).not.toBeInTheDocument();
-  expect(queryByTestId('sub-update-copy')).toHaveTextContent(
-    expectedInvoiceDate
-  );
+
+  if (config.featureFlags.useStripeInvoiceImmediately) {
+    expect(queryByTestId('sub-update-acknowledgment')).toHaveTextContent(
+      expectedInvoiceDate
+    );
+    expect(
+      queryByTestId(`sub-update-new-plan-${selectedPlan.interval}`)
+    ).toBeInTheDocument();
+
+    if (
+      !!invoicePreview.one_time_charge &&
+      invoicePreview.one_time_charge > 0
+    ) {
+      expect(queryByTestId('sub-update-prorated-upgrade')).toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).toBeInTheDocument();
+    } else {
+      expect(
+        queryByTestId('sub-update-prorated-upgrade')
+      ).not.toBeInTheDocument();
+      expect(queryByTestId('prorated-amount')).not.toBeInTheDocument();
+    }
+  } else {
+    expect(queryByTestId('sub-update-copy')).toHaveTextContent(
+      expectedInvoiceDate
+    );
+  }
 }
 
 describe('routes/Product/SubscriptionUpgrade', () => {
@@ -133,7 +160,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         useStripeAutomaticTax: true,
       },
     });
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject
         props={{
           invoicePreview: MOCK_PREVIEW_INVOICE_WITH_TAX_INCLUSIVE,
@@ -153,7 +180,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         useStripeAutomaticTax: true,
       },
     });
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject
         props={{
           invoicePreview: MOCK_PREVIEW_INVOICE_WITH_TAX_EXCLUSIVE,
@@ -173,7 +200,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
         useStripeAutomaticTax: true,
       },
     });
-    const { findByTestId, queryByTestId } = render(
+    const { findByTestId, queryByTestId } = renderWithLocalizationProvider(
       <Subject
         props={{
           invoicePreview: MOCK_PREVIEW_INVOICE_WITH_ZERO_TAX_EXCLUSIVE,
@@ -190,7 +217,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   it('can be submitted after confirmation is checked', async () => {
     const updateSubscriptionPlanAndRefresh = jest.fn();
 
-    const { findByTestId, getByTestId } = render(
+    const { findByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         props={{
           updateSubscriptionPlanAndRefresh,
@@ -215,7 +242,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 
   it('displays a loading spinner while submitting', async () => {
-    const { findByTestId, getByTestId } = render(
+    const { findByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject
         props={{
           updateSubscriptionPlanStatus: {
@@ -234,19 +261,20 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   it('displays a dialog when updating subscription results in error', async () => {
     const expectedMessage = 'game over man';
 
-    const { findByTestId, getByTestId, getByText } = render(
-      <Subject
-        props={{
-          updateSubscriptionPlanStatus: {
-            error: new APIError({
-              message: expectedMessage,
-            }),
-            loading: false,
-            result: null,
-          },
-        }}
-      />
-    );
+    const { findByTestId, getByTestId, getByText } =
+      renderWithLocalizationProvider(
+        <Subject
+          props={{
+            updateSubscriptionPlanStatus: {
+              error: new APIError({
+                message: expectedMessage,
+              }),
+              loading: false,
+              result: null,
+            },
+          }}
+        />
+      );
     await findByTestId('subscription-upgrade');
 
     expect(getByTestId('error-plan-update-failed')).toBeInTheDocument();
@@ -254,7 +282,9 @@ describe('routes/Product/SubscriptionUpgrade', () => {
   });
 
   it('calls updateSubscriptionPlanMounted and updateSubscriptionPlanEngaged', async () => {
-    const { findByTestId, getByTestId } = render(<Subject />);
+    const { findByTestId, getByTestId } = renderWithLocalizationProvider(
+      <Subject />
+    );
     await findByTestId('subscription-upgrade');
     fireEvent.click(getByTestId('confirm'));
     expect(updateSubscriptionPlanMounted).toBeCalledTimes(1);
@@ -280,7 +310,9 @@ describe('PlanDetailsCard', () => {
     function runTests(plan: Plan, expectedMsgId: string, expectedMsg: string) {
       const props = { plan: plan };
 
-      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
+      const testRenderer = TestRenderer.create(
+        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      );
       const testInstance = testRenderer.root;
       const planPriceComponent = testInstance.findByProps({
         id: expectedMsgId,
@@ -301,7 +333,9 @@ describe('PlanDetailsCard', () => {
 
       const props = { plan: plan };
 
-      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
+      const testRenderer = TestRenderer.create(
+        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      );
       const testInstance = testRenderer.root;
       const planPriceComponent = testInstance.findByProps({
         id: 'plan-details-product',
@@ -318,7 +352,9 @@ describe('PlanDetailsCard', () => {
 
       const props = { plan: plan };
 
-      const testRenderer = TestRenderer.create(<PlanDetailsCard {...props} />);
+      const testRenderer = TestRenderer.create(
+        withLocalizationProvider(<PlanDetailsCard {...props} />)
+      );
       const testInstance = testRenderer.root;
       const planPriceComponent = testInstance.findByProps({
         id: 'plan-details-product',

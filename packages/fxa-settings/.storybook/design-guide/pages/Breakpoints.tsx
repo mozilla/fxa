@@ -3,6 +3,7 @@ import Page from '../Page';
 import Copiable from '../Copiable';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Snippet from '../Snippet';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 /**
  * Note: we have a handful of concatenated classes here, which PurgeCSS will not observe
@@ -130,4 +131,4 @@ const Breakpoints = ({ config }) => {
   );
 };
 
-export default Breakpoints;
+export default (config) => withLocalization(() => Breakpoints(config));

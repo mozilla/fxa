@@ -28,6 +28,8 @@ export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   SIGN_UP_CODE_HEADER: '#fxa-confirm-signup-code-header',
+  SIGNIN_BOUNCED_HEADER: '#fxa-signin-bounced-header',
+  BOUNCED_CREATE_ACCOUNT: '#create-account',
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
   CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
@@ -50,6 +52,23 @@ export const selectors = {
   NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
   NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   PERMISSION_ACCEPT: '#accept',
+  CWTS_ENGINE_HEADER: 'text="Choose what to sync"',
+  CWTS_ENGINE_BOOKMARKS: '#sync-engine-bookmarks',
+  CWTS_ENGINE_HISTORY: '#sync-engine-history',
+  CWTS_ENGINE_PASSWORDS: '#sync-engine-passwords',
+  CWTS_ENGINE_ADDONS: '#sync-engine-addons',
+  CWTS_ENGINE_TABS: '#sync-engine-tabs',
+  CWTS_ENGINE_PREFS: '#sync-engine-prefs',
+  CWTS_ENGINE_CREDITCARDS: '#sync-engine-creditcards',
+  CWTS_ENGINE_ADDRESSES: '#sync-engine-addresses',
+  DO_NOT_SYNC: '#do-not-sync-device',
+  CWTS_PAGE_HEADER: '#fxa-choose-what-to-sync-header',
+};
+
+type FirstSignUpOptions = {
+  verify?: boolean;
+  enterEmail?: boolean;
+  waitForNavOnSubmit?: boolean;
 };
 
 export class LoginPage extends BaseLayout {
@@ -87,7 +106,12 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
-  async login(email: string, password: string, recoveryCode?: string) {
+  async login(
+    email: string,
+    password: string,
+    recoveryCode?: string,
+    waitForNavOnSubmit = true
+  ) {
     // When running tests in parallel, playwright shares the storage state,
     // so we might not always be at the email first screen.
     if (await this.isCachedLogin()) {
@@ -106,7 +130,7 @@ export class LoginPage extends BaseLayout {
       await this.setPassword(password);
     }
 
-    await this.submit();
+    await this.submit(waitForNavOnSubmit);
     if (recoveryCode) {
       await this.clickUseRecoveryCode();
       await this.setCode(recoveryCode);
@@ -165,8 +189,11 @@ export class LoginPage extends BaseLayout {
   async fillOutFirstSignUp(
     email: string,
     password: string,
-    verify = true,
-    enterEmail = true
+    {
+      verify = true,
+      enterEmail = true,
+      waitForNavOnSubmit = true,
+    }: FirstSignUpOptions = {}
   ) {
     if (enterEmail) {
       await this.setEmail(email);
@@ -177,18 +204,18 @@ export class LoginPage extends BaseLayout {
     await this.page.fill(selectors.AGE, '24');
     await this.submit();
     if (verify) {
-      await this.fillOutSignUpCode(email);
+      await this.fillOutSignUpCode(email, waitForNavOnSubmit);
     }
   }
 
-  async fillOutSignUpCode(email: string) {
+  async fillOutSignUpCode(email: string, waitForNavOnSubmit = true) {
     const code = await this.target.email.waitForEmail(
       email,
       EmailType.verifyShortCode,
       EmailHeader.shortCode
     );
     await this.setCode(code);
-    await this.submit();
+    await this.submit(waitForNavOnSubmit);
   }
 
   async fillOutSignInCode(email: string) {
@@ -239,6 +266,10 @@ export class LoginPage extends BaseLayout {
 
   async clickUseRecoveryCode() {
     return this.page.click(selectors.LINK_USE_RECOVERY_CODE);
+  }
+
+  async clickBouncedCreateAccount() {
+    return this.page.locator(selectors.BOUNCED_CREATE_ACCOUNT).click();
   }
 
   async setCode(code: string) {
@@ -319,10 +350,15 @@ export class LoginPage extends BaseLayout {
     await this.submit();
   }
 
-  async submit() {
-    const waitForNavigation = this.page.waitForNavigation();
+  async submit(waitForNav = true) {
+    if (waitForNav) {
+      const waitForNavigation = this.page.waitForEvent('framenavigated');
+      await this.page.locator(selectors.SUBMIT).click();
+      return waitForNavigation;
+    }
+    //using waitForNav just as parameters as
+    //waitForNavigation() has been deprecated
     await this.page.locator(selectors.SUBMIT).click();
-    return waitForNavigation;
   }
 
   async clickForgotPassword() {
@@ -332,6 +368,12 @@ export class LoginPage extends BaseLayout {
 
   async isSigninHeader() {
     return this.page.isVisible(selectors.SIGNIN_HEADER, {
+      timeout: 100,
+    });
+  }
+
+  async isSigninBouncedHeader() {
+    return this.page.isVisible(selectors.SIGNIN_BOUNCED_HEADER, {
       timeout: 100,
     });
   }
@@ -353,6 +395,60 @@ export class LoginPage extends BaseLayout {
 
   async clickSubmit() {
     return this.page.locator(selectors.SUBMIT).click();
+  }
+
+  async waitForCWTSEngineHeader() {
+    await this.page.waitForSelector(selectors.CWTS_ENGINE_HEADER, {
+      timeout: 2000,
+    });
+  }
+
+  async isCWTSPageHeader() {
+    return this.page.locator(selectors.CWTS_PAGE_HEADER).isVisible();
+  }
+
+  async isCWTSEngineCreditCards() {
+    return this.page.locator(selectors.CWTS_ENGINE_CREDITCARDS).isVisible();
+  }
+
+  async isCWTSEngineBookmarks() {
+    return this.page.locator(selectors.CWTS_ENGINE_BOOKMARKS).isVisible();
+  }
+
+  async isCWTSEngineHistory() {
+    return this.page.locator(selectors.CWTS_ENGINE_HISTORY).isVisible();
+  }
+
+  async isCWTSEnginePasswords() {
+    return this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).isVisible();
+  }
+
+  async isCWTSEngineAddons() {
+    return this.page.locator(selectors.CWTS_ENGINE_ADDONS).isVisible();
+  }
+
+  async isCWTSEnginePrefs() {
+    return this.page.locator(selectors.CWTS_ENGINE_PREFS).isVisible();
+  }
+
+  async isCWTSEngineTabs() {
+    return this.page.locator(selectors.CWTS_ENGINE_TABS).isVisible();
+  }
+
+  async isCWTSEngineAddresses() {
+    return this.page.locator(selectors.CWTS_ENGINE_ADDRESSES).isVisible();
+  }
+
+  async isDoNotSync() {
+    return this.page.locator(selectors.DO_NOT_SYNC).isVisible();
+  }
+
+  async uncheckCWTSEngineHistory() {
+    await this.page.locator(selectors.CWTS_ENGINE_HISTORY).click();
+  }
+
+  async uncheckCWTSEnginePasswords() {
+    await this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).click();
   }
 
   async isSyncConnectedHeader() {

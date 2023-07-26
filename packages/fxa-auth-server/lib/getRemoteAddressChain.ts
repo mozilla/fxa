@@ -13,7 +13,7 @@ export function getRemoteAddressChain(
     return remoteAddressChainOverride.split(',');
   }
 
-  const xff = (request.headers['x-forwarded-for'] || '').split(/\s*,\s*/);
+  const xff = (request.headers['x-forwarded-for'] as string || '').split(/\s*,\s*/);
 
   xff.push(request.info.remoteAddress);
 

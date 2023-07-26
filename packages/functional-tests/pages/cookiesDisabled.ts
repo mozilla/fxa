@@ -7,8 +7,10 @@ import { BaseLayout } from './layout';
 export class CookiesDisabledPage extends BaseLayout {
   readonly path = 'cookies_disabled';
 
-  async isCookiesDisabledHeader() {
-    return this.page.locator('.card-header').isVisible();
+  async waitForCookiesDisabledHeader() {
+    await this.page.waitForSelector('.card-header', {
+      timeout: 1000,
+    });
   }
 
   async clickRetry() {

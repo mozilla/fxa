@@ -9,6 +9,5 @@
     "noEmitHelpers": true,
     "importHelpers": true
   },
-  "references": [{ "path": "../fxa-shared" }],
   "include": ["src"]
 }

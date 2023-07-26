@@ -3,11 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Account, AppContext } from '../../models';
 import { ButtonDownloadRecoveryKey } from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { logViewEvent } from '../../lib/metrics';
+import { TextEncoder } from 'util';
+
+Object.assign(global, { TextEncoder });
 
 const recoveryKeyValue = 'WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ WXYZ';
 const viewName = 'settings.account-recovery';
@@ -34,7 +38,7 @@ beforeAll(() => {
 
 describe('ButtonDownloadRecoveryKey', () => {
   it('renders button as expected', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account }}>
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>
@@ -43,7 +47,7 @@ describe('ButtonDownloadRecoveryKey', () => {
   });
 
   it('sets the filename as expected with a reasonably-sized email', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account }}>
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>
@@ -71,7 +75,7 @@ describe('ButtonDownloadRecoveryKey', () => {
   });
 
   it('sets the filename with a truncated email as expected when the email is very long', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account: accountWithLongEmail }}>
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>
@@ -95,7 +99,7 @@ describe('ButtonDownloadRecoveryKey', () => {
   // including validating that the expected key is included and matches the key in the DataBlock
 
   it('emits a metrics event when the link is clicked', () => {
-    render(
+    renderWithLocalizationProvider(
       <AppContext.Provider value={{ account }}>
         <ButtonDownloadRecoveryKey {...{ recoveryKeyValue, viewName }} />
       </AppContext.Provider>

@@ -43,11 +43,22 @@ export const SubscriptionFirstInvoiceWithPayPal = createStory(
 
 export const SubscriptionFirstInvoiceWithStripe = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
   },
   'Payment method - Stripe'
+);
+
+export const SubscriptionFirstInvoiceWithStripeUnknownCard = createStory(
+  {
+    cardType: 'unknown',
+    cardName: 'Unknown',
+    lastFour: '5309',
+    payment_provider: 'stripe',
+  },
+  'Payment method - Stripe (Unknown card)'
 );
 
 export const SubscriptionFirstInvoiceWithCoupon = createStory(
@@ -66,7 +77,8 @@ export const SubscriptionFirstInvoiceWithCoupon = createStory(
 
 export const SubscriptionFirstInvoiceWithStripe3Month = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     invoiceTotal: '$15.00',
@@ -80,7 +92,8 @@ export const SubscriptionFirstInvoiceWithStripe3Month = createStory(
 
 export const SubscriptionFirstInvoiceWithStripeOneTime = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     invoiceTotal: '$15.00',
@@ -95,7 +108,8 @@ export const SubscriptionFirstInvoiceWithStripeOneTime = createStory(
 export const SubscriptionFirstInvoiceWithStripeTaxAndForeverCoupon =
   createStory(
     {
-      cardType: 'MasterCard',
+      cardType: 'mastercard',
+      cardName: 'Mastercard',
       lastFour: '5309',
       payment_provider: 'stripe',
       invoiceTotal: '$15.00',
@@ -111,7 +125,8 @@ export const SubscriptionFirstInvoiceWithStripeTaxAndForeverCoupon =
 
 export const SubscriptionFirstInvoiceWithStripeTax = createStory(
   {
-    cardType: 'MasterCard',
+    cardType: 'mastercard',
+    cardName: 'Mastercard',
     lastFour: '5309',
     payment_provider: 'stripe',
     invoiceTaxAmount: '$3.00',

@@ -55,7 +55,7 @@ export const routing = (app: express.Express, logger: Logger) => {
         throw new Error('Invalid route definition');
       }
 
-      const routeHandlers = [];
+      const routeHandlers: Function[] = [];
 
       // Enable CORS using https://github.com/expressjs/cors
       // If defined, `cors` can be truthy or an object.
@@ -92,7 +92,7 @@ export const routing = (app: express.Express, logger: Logger) => {
       routeHandlers.push(routeDefinition.process);
       app[routeDefinition.method as RouteMethod](
         routeDefinition.path as string,
-        ...routeHandlers
+        ...(routeHandlers as any)
       );
     },
 

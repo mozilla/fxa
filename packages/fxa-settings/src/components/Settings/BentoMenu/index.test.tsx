@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import BentoMenu from '.';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
@@ -16,7 +17,7 @@ describe('BentoMenu', () => {
   const dropDownId = 'drop-down-bento-menu';
 
   it('renders and toggles as expected with default values', () => {
-    render(<BentoMenu />);
+    renderWithLocalizationProvider(<BentoMenu />);
 
     const toggleButton = screen.getByTestId('drop-down-bento-menu-toggle');
 
@@ -37,7 +38,7 @@ describe('BentoMenu', () => {
   });
 
   it('closes on esc keypress', () => {
-    render(<BentoMenu />);
+    renderWithLocalizationProvider(<BentoMenu />);
 
     fireEvent.click(screen.getByTestId('drop-down-bento-menu-toggle'));
     expect(screen.queryByTestId(dropDownId)).toBeInTheDocument();
@@ -46,7 +47,7 @@ describe('BentoMenu', () => {
   });
 
   it('closes on click outside', () => {
-    const { container } = render(
+    const { container } = renderWithLocalizationProvider(
       <div className="w-full flex justify-end">
         <div className="flex pr-10 pt-4">
           <BentoMenu />

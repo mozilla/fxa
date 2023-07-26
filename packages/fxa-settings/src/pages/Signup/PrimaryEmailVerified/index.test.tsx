@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import PrimaryEmailVerified, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
@@ -23,7 +24,9 @@ describe('PrimaryEmailVerified page', () => {
   // });
 
   it('renders the page as expected when the user is signed in', () => {
-    render(<PrimaryEmailVerified isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <PrimaryEmailVerified isSignedIn isSync={false} />
+    );
     // testAllL10n(screen, bundle);
 
     screen.getByText('Primary email confirmed');
@@ -33,14 +36,16 @@ describe('PrimaryEmailVerified page', () => {
   });
 
   it('renders the page as expected when the user is signed out', () => {
-    render(<PrimaryEmailVerified isSignedIn={false} isSync={false} />);
+    renderWithLocalizationProvider(
+      <PrimaryEmailVerified isSignedIn={false} isSync={false} />
+    );
     // testAllL10n(screen, bundle);
 
     screen.getByText('Your account is ready!');
   });
 
   it('show the service name when it is passed in', () => {
-    render(
+    renderWithLocalizationProvider(
       <PrimaryEmailVerified
         isSignedIn
         serviceName={MOCK_SERVICE}
@@ -52,7 +57,9 @@ describe('PrimaryEmailVerified page', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    render(<PrimaryEmailVerified isSignedIn isSync={false} />);
+    renderWithLocalizationProvider(
+      <PrimaryEmailVerified isSignedIn isSync={false} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

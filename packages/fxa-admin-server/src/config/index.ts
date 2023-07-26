@@ -13,6 +13,23 @@ convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
 
 const conf = convict({
+  gql: {
+    allowlist: {
+      doc: 'A list of json files holding allowed gql queries',
+      env: 'GQL_ALLOWLIST',
+      default: [
+        'src/config/gql/allowlist/fxa-admin-panel.json',
+        'src/config/gql/allowlist/gql-playground.json',
+      ],
+      format: Array,
+    },
+    enabled: {
+      doc: 'Toggles whether or not gql queries are checked against the allowlist.',
+      env: 'GQL_ALLOWLIST_ENABLED',
+      default: true,
+      format: Boolean,
+    },
+  },
   authHeader: {
     default: USER_EMAIL_HEADER,
     doc: 'Authentication header that should be logged for the user',
@@ -468,7 +485,7 @@ const conf = convict({
   googleAuthConfig: {
     clientId: {
       default:
-        '210899493109-u0erdakhegg6b572faenm3mn9hf4mdp8.apps.googleusercontent.com',
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
       env: 'GOOGLE_AUTH_CLIENT_ID',
       format: String,
       doc: 'Google auth client id',
@@ -560,5 +577,5 @@ conf.loadFile(existingConfigFiles);
 conf.validate();
 const Config = conf;
 
-export type AppConfig = ReturnType<typeof Config['getProperties']>;
+export type AppConfig = ReturnType<(typeof Config)['getProperties']>;
 export default Config;

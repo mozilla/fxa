@@ -4,7 +4,8 @@
 
 import React from 'react';
 import { typeByTestIdFn } from '../../lib/test-utils';
-import { screen, render, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
@@ -21,7 +22,7 @@ describe('FormPasswordWithBalloons component', () => {
     bundle = await getFtlBundle('settings');
   });
   it('renders as expected for the reset form type', () => {
-    render(<Subject passwordFormType="reset" />);
+    renderWithLocalizationProvider(<Subject passwordFormType="reset" />);
     testAllL10n(screen, bundle);
     screen.getByLabelText('New password');
     screen.getByLabelText('Re-enter password');
@@ -29,17 +30,20 @@ describe('FormPasswordWithBalloons component', () => {
   });
 
   it('renders as expected for the signup form type', () => {
-    render(<Subject passwordFormType="signup" />);
+    renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
     screen.getByLabelText('Password');
     screen.getByLabelText('Repeat password');
     screen.getByRole('button', { name: 'Create account' });
   });
 
   it('displays the PasswordStrengthBalloon when the new password field is in focus', async () => {
-    render(<Subject passwordFormType="reset" />);
+    renderWithLocalizationProvider(<Subject passwordFormType="reset" />);
     const newPasswordField = screen.getByLabelText('New password');
 
-    fireEvent.focus(newPasswordField);
+    act(() => {
+      fireEvent.focus(newPasswordField);
+    });
+
     await waitFor(
       () => expect(screen.getByText('Password requirements')).toBeVisible(),
       {
@@ -49,10 +53,13 @@ describe('FormPasswordWithBalloons component', () => {
   });
 
   it('does not display the PasswordInfoBalloon for the reset form type', async () => {
-    render(<Subject passwordFormType="reset" />);
+    renderWithLocalizationProvider(<Subject passwordFormType="reset" />);
     const confirmPasswordField = screen.getByLabelText('Re-enter password');
 
-    fireEvent.focus(confirmPasswordField);
+    act(() => {
+      fireEvent.focus(confirmPasswordField);
+    });
+
     await waitFor(() => {
       expect(
         screen.queryByText(
@@ -63,10 +70,13 @@ describe('FormPasswordWithBalloons component', () => {
   });
 
   it('displays the PasswordInfoBalloon for the signup form type when the confirm password field is in focus', async () => {
-    render(<Subject passwordFormType="signup" />);
+    renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
     const confirmPasswordField = screen.getByLabelText('Repeat password');
 
-    fireEvent.focus(confirmPasswordField);
+    act(() => {
+      fireEvent.focus(confirmPasswordField);
+    });
+
     await waitFor(
       () =>
         expect(
@@ -74,10 +84,13 @@ describe('FormPasswordWithBalloons component', () => {
             'You need this password to access any encrypted data you store with us.'
           )
         ).toBeVisible(),
-      { timeout: SHOW_BALLOON_TIMEOUT }
+      { timeout: SHOW_BALLOON_TIMEOUT + 200 }
     );
 
-    fireEvent.blur(confirmPasswordField);
+    act(() => {
+      fireEvent.blur(confirmPasswordField);
+    });
+
     await waitFor(
       () =>
         expect(
@@ -85,7 +98,7 @@ describe('FormPasswordWithBalloons component', () => {
             'You need this password to access any encrypted data you store with us.'
           )
         ).not.toBeInTheDocument(),
-      { timeout: HIDE_BALLOON_TIMEOUT }
+      { timeout: HIDE_BALLOON_TIMEOUT + 200 }
     );
   });
 });

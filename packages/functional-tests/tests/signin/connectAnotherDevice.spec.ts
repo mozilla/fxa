@@ -11,12 +11,12 @@ test.describe('connect_another_device', () => {
 
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.fillOutFirstSignUp(credentials.email, credentials.password);
 
     // Move on to the connect another device page
-    await connectAnotherDevice.goto('networkidle');
+    await connectAnotherDevice.goto('load');
     await expect(connectAnotherDevice.header).toHaveCount(1);
     await expect(connectAnotherDevice.signInButton).toHaveCount(0);
     await expect(connectAnotherDevice.installFxDesktop).toHaveCount(1);

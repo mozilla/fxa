@@ -11,7 +11,6 @@ import {
   PairingSupplicantRelier,
   Relier,
   RelierSubscriptionInfo,
-  ResumeObj,
 } from '../../models/reliers';
 import { Constants } from '../constants';
 import {
@@ -26,6 +25,7 @@ import { ReachRouterWindow } from '../window';
 import { RelierFlags } from './interfaces';
 import { RelierDelegates } from './interfaces/relier-delegates';
 import { DefaultRelierFlags } from './relier-factory-flags';
+import config from '../config';
 
 /**
  * Checks a redirect value.
@@ -67,6 +67,7 @@ export function isCorrectRedirect(
 export class RelierFactory {
   protected readonly data: ModelDataStore;
   protected readonly channelData: ModelDataStore;
+  protected readonly storageData: ModelDataStore;
   public readonly flags: RelierFlags;
   protected readonly delegates: RelierDelegates;
 
@@ -75,11 +76,13 @@ export class RelierFactory {
     delegates: RelierDelegates;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
+    storageData?: ModelDataStore;
     flags?: RelierFlags;
   }) {
     const { window } = opts;
     this.data = opts.data || new UrlQueryData(window);
     this.channelData = opts.channelData || new UrlHashData(window);
+    this.storageData = opts.storageData || new StorageData(window);
     this.flags =
       opts.flags ||
       new DefaultRelierFlags(new UrlQueryData(window), new StorageData(window));
@@ -90,51 +93,49 @@ export class RelierFactory {
    * Produces a relier given the current data store's state.
    * @returns A relier implementation.
    */
-  getRelier() {
+  getRelier(): Relier {
     const data = this.data;
     const channelData = this.channelData;
+    const storageData = this.storageData;
     const flags = this.flags;
 
     // Keep trying until something sticks
-    let relier: Relier | undefined;
     if (flags.isDevicePairingAsAuthority()) {
-      relier = this.createPairingAuthorityRelier(channelData);
+      return this.createPairingAuthorityRelier(channelData, storageData);
     } else if (flags.isDevicePairingAsSupplicant()) {
-      relier = this.createParingSupplicationRelier(data);
+      return this.createParingSupplicationRelier(data, storageData);
     } else if (flags.isOAuth()) {
-      relier = this.createOAuthRelier(data);
+      return this.createOAuthRelier(data, storageData);
     } else if (flags.isSyncService() || flags.isV3DesktopContext()) {
-      relier = this.createBrowserRelier(data);
+      return this.createBrowserRelier(data);
     } else {
-      relier = this.creteDefaultRelier(data);
+      return this.creteDefaultRelier(data);
     }
-
-    // Run final validation. This will ensure that the all fields decorated with an @bind are in the
-    // the correct state.
-
-    // Commenting this out so that pages will stop erroring out when we don't have sufficient query params.
-    // This might be a TODO to restore this once we have all the data we need in the React app.
-    // relier?.validate();
-
-    return relier;
   }
 
-  private createPairingAuthorityRelier(data: ModelDataStore) {
-    const relier = new PairingAuthorityRelier(data);
+  private createPairingAuthorityRelier(
+    data: ModelDataStore,
+    storageData: ModelDataStore
+  ) {
+    const relier = new PairingAuthorityRelier(data, storageData, config.oauth);
     this.initRelier(relier);
     return relier;
   }
 
-  private createParingSupplicationRelier(data: ModelDataStore) {
-    const relier = new PairingSupplicantRelier(data);
+  private createParingSupplicationRelier(
+    data: ModelDataStore,
+    storageData: ModelDataStore
+  ) {
+    const relier = new PairingSupplicantRelier(data, storageData, config.oauth);
     this.initRelier(relier);
     this.initClientInfo(relier);
 
     return relier;
   }
 
-  private createOAuthRelier(data: ModelDataStore) {
-    const relier = new OAuthRelier(data);
+  private createOAuthRelier(data: ModelDataStore, storageData: ModelDataStore) {
+    // Resolve configuration settings for oauth relier
+    const relier = new OAuthRelier(data, storageData, config.oauth);
     this.initRelier(relier);
     this.initOAuthRelier(relier, this.flags);
     this.initClientInfo(relier);
@@ -182,38 +183,28 @@ export class RelierFactory {
       }
       relier.clientId = clientId;
     } else if (flags.isOAuthVerificationFlow()) {
-      const data = flags.getOAuthResumeObj();
+      // The presence of the 'resume' query parameter indicates we are resuming a previous flow,
+      // which usually means the user is opening a link from an email. We aren't relying on this
+      // token's actual value anymore, however, we will still use it as a signal that a flow is being
+      // resumed.
+      const resume = this.data.get('resume');
 
-      const resumeInfo = new ResumeObj(new GenericData(data));
-
-      relier.accessType = resumeInfo.accessType;
-      relier.acrValues = resumeInfo.acrValues;
-      relier.action = resumeInfo.action;
-      relier.clientId = resumeInfo.clientId;
-      relier.codeChallenge = resumeInfo.codeChallenge;
-      relier.codeChallengeMethod = resumeInfo.codeChallengeMethod;
-      relier.prompt = resumeInfo.prompt;
-      relier.redirectUri = resumeInfo.redirectUri;
-      relier.scope = resumeInfo.scope;
-      relier.service = resumeInfo.service;
-      relier.state = resumeInfo.state;
+      if (!!resume) {
+        // Since we are resuming a previous flow, check to see if a previous oauth state was saved prior
+        // to the verification email being sent out and attempt to restore this state.
+        //
+        // If a state is present, the it will contain 'scope' and 'state' parameters that allow us to
+        // redirect the user back to the relying party's site after they complete their workflow here.
+        //
+        // If the state isn't present, we can still proceed with the user flow, but we will not be able to
+        // redirect the user back to the relying parties site, becuase without the knowing the relying party's
+        // oauth 'state', the redirect would be rejected.
+        relier.restoreOAuthState();
+      }
     } else {
       // Sign inflow
       // params listed in:
       // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
-      if (!relier.email && relier.loginHint) {
-        relier.email = relier.loginHint;
-      }
-
-      // OAuth reliers are not allowed to specify a service. `service`
-      // is used in the verification flow, it'll be set to the `client_id`.
-      if (relier.service && relier.service.length > 0) {
-        throw new OAuthError('service');
-      }
-    }
-
-    if (relier.service == null) {
-      relier.service = relier.clientId;
     }
   }
 

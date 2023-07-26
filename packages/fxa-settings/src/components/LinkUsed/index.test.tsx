@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import LinkUsed from '.';
 
 describe('LinkUsed', () => {
   it('renders the component as expected for a link already used to verify a primary email address', () => {
-    render(<LinkUsed isForPrimaryEmail={true} />);
+    renderWithLocalizationProvider(<LinkUsed isForPrimaryEmail={true} />);
 
     screen.getByRole('heading', {
       name: 'Primary email already confirmed',
@@ -19,7 +20,7 @@ describe('LinkUsed', () => {
   });
 
   it('renders the component as expected for a Used Signin link', () => {
-    render(<LinkUsed isForPrimaryEmail={false} />);
+    renderWithLocalizationProvider(<LinkUsed isForPrimaryEmail={false} />);
 
     screen.getByRole('heading', {
       name: 'Sign-in already confirmed',

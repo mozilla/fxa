@@ -28,8 +28,8 @@ var pages = [
   // 'en/legal/privacy',
   'force_auth',
   // invalid locale legal pages should be redirected to en-US
-  'invalid-locale/legal/terms',
-  'invalid-locale/legal/privacy',
+  // 'invalid-locale/legal/terms',
+  // 'invalid-locale/legal/privacy',
   // 'legal',
   // legal are all redirected to the language detected
   // by sniffing headers, barring that, using en-US as

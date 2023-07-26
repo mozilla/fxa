@@ -51,7 +51,7 @@
 
     <mj-section>
       <mj-column>
-        <mj-text css-class="text-footer">Mozilla. 2 Harrison St, #175, San Francisco, CA 94105</mj-text>
+        <mj-text css-class="text-footer">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</mj-text>
         <mj-text css-class="text-footer">
           <a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a>
         </mj-text>

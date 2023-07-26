@@ -82,6 +82,9 @@ export type StripeHelperConfig = {
     productConfigsFirestore: {
       enabled: boolean;
     };
+    stripeInvoiceImmediately: {
+      enabled: boolean;
+    };
   };
   authFirestore: {
     prefix: string;
@@ -159,7 +162,7 @@ export abstract class StripeHelper {
    * Use `allProducts` below to use the cached-enhanced version.
    */
   async fetchAllProducts(): Promise<Stripe.Product[]> {
-    const products = [];
+    const products: Stripe.Product[] = [];
     for await (const product of this.stripe.products.list()) {
       products.push(product);
     }
@@ -341,7 +344,7 @@ export abstract class StripeHelper {
    * Use `allPlans` below to use the cached-enhanced version.
    */
   async fetchAllPlans(): Promise<Stripe.Plan[]> {
-    const plans = [];
+    const plans: Stripe.Plan[] = [];
 
     for await (const item of this.stripe.plans.list({
       expand: ['data.product'],
@@ -435,7 +438,7 @@ export abstract class StripeHelper {
 
   async allAbbrevPlans(): Promise<AbbrevPlan[]> {
     const plans = await this.allConfiguredPlans();
-    const validPlans = [];
+    const validPlans: (Stripe.Plan | ConfiguredPlan)[] = [];
 
     for (const p of plans) {
       // @ts-ignore: depending the SUBSCRIPTIONS_FIRESTORE_CONFIGS_ENABLED feature flag, p can be a Stripe.Plan, which does not have a `configuration`
@@ -474,7 +477,7 @@ export abstract class StripeHelper {
    */
   async expandResource<T>(
     resource: string | T,
-    resourceType: typeof VALID_RESOURCE_TYPES[number],
+    resourceType: (typeof VALID_RESOURCE_TYPES)[number],
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<T> {
     if (typeof resource !== 'string') {

@@ -6,7 +6,7 @@ import React from 'react';
 import FlowRecoveryKeyDownload from '.';
 import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
 
 export default {

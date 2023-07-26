@@ -42,6 +42,10 @@ export interface Config {
   };
   oauth: {
     clientId: string;
+    scopedKeysEnabled: boolean;
+    scopedKeysValidation: Record<string, any>;
+    isPromptNoneEnabled: boolean;
+    isPromptNoneEnabledClientIds: string[];
   };
   recoveryCodes: {
     count: number;
@@ -97,6 +101,9 @@ export function getDefault() {
     },
     oauth: {
       clientId: '',
+      scopedKeysEnabled: false,
+      isPromptNoneEnabled: false,
+      isPromptNoneEnabledClientIds: new Array<string>(),
     },
     recoveryCodes: {
       count: 8,
@@ -130,7 +137,7 @@ export function readConfigMeta(
 
   const metaConfig = decode(metaEl.getAttribute('content'));
 
-  update(metaConfig);
+  return update(metaConfig);
 }
 
 export function decode(content: string | null) {
@@ -176,7 +183,7 @@ export function reset() {
 }
 
 export function update(newData: { [key: string]: any }) {
-  deepMerge(config, newData);
+  return deepMerge(config, newData);
 }
 
 const config: Config = getDefault();

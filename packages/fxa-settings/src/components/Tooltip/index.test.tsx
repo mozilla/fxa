@@ -3,23 +3,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Tooltip from '.';
 
 const tooltipText = 'This is a tooltip';
 
 it('renders as expected with children', () => {
-  render(<Tooltip message={tooltipText} />);
+  renderWithLocalizationProvider(<Tooltip message={tooltipText} />);
   expect(screen.getByTestId('tooltip')).toHaveTextContent(tooltipText);
 });
 
 it('can be passed classNames', () => {
-  render(<Tooltip className="my-custom-class" message={tooltipText} />);
+  renderWithLocalizationProvider(
+    <Tooltip className="my-custom-class" message={tooltipText} />
+  );
   expect(screen.getByTestId('tooltip')).toHaveClass('my-custom-class');
 });
 
 it('has title present when passed message', () => {
-  render(<Tooltip className="my-custom-class" message={tooltipText} />);
+  renderWithLocalizationProvider(
+    <Tooltip className="my-custom-class" message={tooltipText} />
+  );
   expect(screen.getByTestId('tooltip').getAttribute('title')).toEqual(
     tooltipText
   );

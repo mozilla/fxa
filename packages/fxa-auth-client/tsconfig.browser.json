@@ -1,7 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true,
     "outDir": "./dist/browser",
     "types": ["mocha", "./lib/types"]
   },

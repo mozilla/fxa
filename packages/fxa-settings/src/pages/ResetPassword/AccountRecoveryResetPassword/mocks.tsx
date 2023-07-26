@@ -93,6 +93,9 @@ export class StorageDataMock extends StorageData {
   public override load(): void {
     // no op
   }
+  public override set(): void {
+    // no op
+  }
 }
 
 export class RelierFactoryMock extends RelierFactory {}
@@ -196,10 +199,18 @@ export function mockIntegration(urlQueryData = mockUrlQueryData({})) {
 
 function mockIntegrationFactory(urlQueryData: UrlSearchDataMock) {
   if (!_integrationFactory) {
-    _integrationFactory = new IntegrationFactoryMock({
-      window: mockWindowWrapper(),
-      flags: new DefaultRelierFlags(urlQueryData, mockStorageData()),
-    });
+    const storageData = mockStorageData();
+    const flags = new DefaultRelierFlags(urlQueryData, storageData);
+    const relier = mockRelier();
+    const authClient = mockAuthClient();
+    const window = mockWindowWrapper();
+    _integrationFactory = new IntegrationFactoryMock(
+      flags,
+      relier,
+      authClient,
+      window,
+      urlQueryData
+    );
   }
   return _integrationFactory;
 }
@@ -221,7 +232,9 @@ export function mockRelierDelegates() {
   if (!_relierDelegate) {
     _relierDelegate = {
       async getClientInfo(clientId: any) {
-        return {};
+        return {
+          name: 'foo',
+        };
       },
       async getProductInfo(subscriptionId: string) {
         return { productName: 'foo' };
@@ -277,3 +290,10 @@ export function mockContext() {
 }
 
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
+export const MOCK_RESET_DATA = {
+  authAt: 12345,
+  keyFetchToken: 'keyFetchToken',
+  sessionToken: 'sessionToken',
+  unwrapBKey: 'unwrapBKey',
+  verified: true,
+};

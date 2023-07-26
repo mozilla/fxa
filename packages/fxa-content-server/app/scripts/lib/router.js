@@ -45,6 +45,7 @@ import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
+import RecoveryKeyExperimentMixin from './new-recovery-key-UI-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
@@ -120,7 +121,7 @@ let Router = Backbone.Router.extend({
   },
 });
 
-Cocktail.mixin(Router, ReactExperimentMixin);
+Cocktail.mixin(Router, ReactExperimentMixin, RecoveryKeyExperimentMixin);
 
 Router = Router.extend({
   routes: {
@@ -211,8 +212,18 @@ Router = Router.extend({
         contentRedirect: true,
       });
     },
+    ':lang/legal/privacy(/)': function () {
+      this.createReactOrBackboneViewHandler('legal/privacy', 'pp', {
+        contentRedirect: true,
+      });
+    },
     'legal/terms(/)': function () {
       this.createReactOrBackboneViewHandler('legal/terms', 'tos', {
+        contentRedirect: true,
+      });
+    },
+    ':lang/legal/terms(/)': function () {
+      this.createReactOrBackboneViewHandler(`legal/terms`, 'tos', {
         contentRedirect: true,
       });
     },
@@ -379,6 +390,8 @@ Router = Router.extend({
         return this.navigateAway(redirectUrl);
       }
 
+      const isInRecoveryKeyExperiment = this.isInNewRecoveryKeyUIExperiment();
+
       // All other flows should redirect to the settings page
       const settingsEndpoint = '/settings';
       const settingsLink = `${settingsEndpoint}${Url.objToSearchString({
@@ -390,6 +403,7 @@ Router = Router.extend({
         isSampledUser,
         service,
         uniqueUserId,
+        ...(isInRecoveryKeyExperiment && { isInRecoveryKeyExperiment }),
       })}`;
       this.navigateAway(settingsLink);
     },
@@ -483,16 +497,6 @@ Router = Router.extend({
           (route) => routeName === route
         )
       ) {
-        // Relier OAuth check is temporary until we work on OAuth flows; at the time of writing
-        // we don't want to show the React version of reset password for example if users are
-        // trying to reset through a relying party, e.g. going to Firefox Monitor > sign in >
-        // reset PW, since there is a lot of logic we must port over for that to function
-        // correctly. However, the relier for simple routes doesn't matter since the simple
-        // routes don't contain any oauth logic.
-        if (routeGroup !== 'simpleRoutes' && this.relier.isOAuth()) {
-          return false;
-        }
-
         return (
           this.reactRouteGroups[routeGroup].featureFlagOn &&
           (this.isInReactExperiment() ||

@@ -164,6 +164,8 @@ describe('PageDeleteAccount', () => {
       </AppContext.Provider>
     );
 
+    expect(screen.queryByText('Step 1 of 2')).toBeNull();
+    
     await advanceStep();
 
     expect(logViewEvent).toHaveBeenCalledWith(

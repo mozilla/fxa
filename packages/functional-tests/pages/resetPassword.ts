@@ -1,21 +1,27 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { BaseLayout } from './layout';
-import { LoginPage } from './login';
 
 export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   CONFIRM_RESET_PASSWORD_HEADER: '#fxa-confirm-reset-password-header',
+  COMPLETE_RESET_PASSWORD_HEADER: '#fxa-complete-reset-password-header',
   EMAIL: 'input[type=email]',
   SUBMIT: 'button[type=submit]',
   VPASSWORD: '#vpassword',
   PASSWORD: '#password',
   RESEND_RESET_PASSWORD_LINK: '#resend',
+  REMEMBER_PASSWORD: 'text="Remember password? Sign in"',
   RESEND_SUCCESS: '.success',
   UNKNOWN_ACCOUNT_ERROR: '.error',
   RESET_PASSWORD_COMPLETE_HEADER: '#fxa-reset-password-complete-header',
 };
 
 export class ResetPasswordPage extends BaseLayout {
+  public react = false;
   readonly path = '';
 
   getEmailValue() {
@@ -23,39 +29,48 @@ export class ResetPasswordPage extends BaseLayout {
   }
 
   async resetPasswordHeader() {
+    if (this.react) {
+      const resetPass = await this.page.waitForSelector('#root .card-header');
+      return (
+        (await resetPass.textContent())?.startsWith('Reset password') &&
+        (await resetPass.isVisible())
+      );
+    }
+
     const resetPass = this.page.locator(selectors.RESET_PASSWORD_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
   }
 
   async confirmResetPasswordHeader() {
-    const resetPass = this.page.locator(
-      selectors.CONFIRM_RESET_PASSWORD_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+    const header = this.page.locator(selectors.CONFIRM_RESET_PASSWORD_HEADER);
+    await header.waitFor();
   }
 
-  async completeResetPasswordHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_COMPLETE_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+  async completeResetPasswordHeader(page: BaseLayout['page'] = this.page) {
+    const header = page.locator(selectors.COMPLETE_RESET_PASSWORD_HEADER);
+    await header.waitFor();
   }
 
   async resetPasswordLinkExpiredHeader() {
-    const resetPass = this.page.locator(
-      selectors.RESET_PASSWORD_EXPIRED_HEADER
-    );
-    await resetPass.waitFor();
-    return resetPass.isVisible();
+    const header = this.page.locator(selectors.RESET_PASSWORD_EXPIRED_HEADER);
+    await header.waitFor();
   }
 
-  async resetNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
-    await this.page.locator(selectors.SUBMIT).click();
+  async resetNewPassword(
+    password: string,
+    page: BaseLayout['page'] = this.page
+  ) {
+    if (this.react) {
+      await page.getByLabel('New password').fill(password);
+      await page.getByLabel('Re-enter password').fill(password);
+      await page.locator(selectors.SUBMIT).click();
+      return;
+    }
+
+    await page.locator(selectors.PASSWORD).fill(password);
+    await page.locator(selectors.VPASSWORD).fill(password);
+    await page.locator(selectors.SUBMIT).click();
   }
 
   async fillOutResetPassword(email) {
@@ -69,6 +84,10 @@ export class ResetPasswordPage extends BaseLayout {
 
   async clickResend() {
     await this.page.locator(selectors.RESEND_RESET_PASSWORD_LINK).click();
+  }
+
+  async clickRememberPassword() {
+    await this.page.locator(selectors.REMEMBER_PASSWORD).click();
   }
 
   async resendSuccessMessage() {

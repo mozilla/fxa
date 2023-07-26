@@ -78,7 +78,12 @@ export const ActionButton = ({
     <button
       data-testid="reveal-payment-modal-button"
       className="button settings-button error-button"
-      onClick={revealFixPaymentModal}
+      onClick={(e) => {
+        // The stopPropagation prevents the "onDismiss" function to be called as soon
+        // as the FixPaymentModal initially loads.
+        e.stopPropagation();
+        revealFixPaymentModal();
+      }}
     >
       <Localized id="pay-update-manage-btn">
         <span className="manage-button" data-testid="manage-button">

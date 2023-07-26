@@ -1,3 +1,10 @@
-<% if (payment_provider === "paypal" && showPaymentMethod) { %>payment-provider-paypal-plaintext = "Payment Method: PayPal"
-<% } else if (cardType && lastFour && showPaymentMethod) {%>payment-method = "Payment Method: "
-card-ending-in = "<%- cardType %> card ending in <%- lastFour %>"<% } %>
+<% if (payment_provider === "paypal" && showPaymentMethod) { %>
+  payment-provider-paypal-plaintext = "Payment Method: PayPal"
+<% } else if (cardType && lastFour && showPaymentMethod) {%>
+  payment-method = "Payment Method: "
+  <% if (cardType === 'unknown') { %>
+    unknown-card-ending-in = "Unknown card ending in <%- lastFour %>"
+  <% } else { %>
+    credit-card-ending-in = "<%- cardName %> card ending in <%- lastFour %>"
+  <% } %>
+<% } %>

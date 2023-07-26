@@ -26,7 +26,13 @@
     "paths": {
       "@fxa/payments-ui": ["libs/payments-ui/src/index.ts"],
       "@fxa/payments-ui/server": ["libs/payments-ui/src/server.ts"],
-      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"]
+      "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
+      "@fxa/shared/db/mysql/account": [
+        "libs/shared/db/mysql/account/src/index.ts"
+      ],
+      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
     },
     "typeRoots": [
       "./types",

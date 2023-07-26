@@ -2,13 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { gql, useMutation } from '@apollo/client';
+import { useMutation } from '@apollo/client';
 import { Email } from 'fxa-admin-server/src/graphql';
-import { RECORD_ADMIN_SECURITY_EVENT } from '../Account';
+import { RECORD_ADMIN_SECURITY_EVENT } from '../Account/index.gql';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import Guard from '../../Guard';
 import { getFormattedDate } from '../../../lib/utils';
 import { ReactElement } from 'react';
+import {
+  DISABLE_ACCOUNT,
+  ENABLE_ACCOUNT,
+  SEND_PASSWORD_RESET_EMAIL,
+  UNSUBSCRIBE_FROM_MAILING_LISTS,
+  UNVERIFY_EMAIL,
+} from './index.gql';
 
 type DangerZoneProps = {
   uid: string;
@@ -16,36 +23,6 @@ type DangerZoneProps = {
   disabledAt: number | null;
   onCleared: Function;
 };
-
-export const UNVERIFY_EMAIL = gql`
-  mutation unverify($email: String!) {
-    unverifyEmail(email: $email)
-  }
-`;
-
-export const DISABLE_ACCOUNT = gql`
-  mutation disableAccount($uid: String!) {
-    disableAccount(uid: $uid)
-  }
-`;
-
-export const ENABLE_ACCOUNT = gql`
-  mutation enableAccount($uid: String!) {
-    enableAccount(uid: $uid)
-  }
-`;
-
-export const SEND_PASSWORD_RESET_EMAIL = gql`
-  mutation sendPasswordResetEmail($email: String!) {
-    sendPasswordResetEmail(email: $email)
-  }
-`;
-
-export const UNSUBSCRIBE_FROM_MAILING_LISTS = gql`
-  mutation unsubscribeFromMailingLists($uid: String!) {
-    unsubscribeFromMailingLists(uid: $uid)
-  }
-`;
 
 const DangerZoneAction = ({
   header,

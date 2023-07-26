@@ -62,9 +62,9 @@ test.describe('OAuth signin token code', () => {
     // This will cause the token become 'invalid' and ultimately cause an
     // INVALID_TOKEN error to be thrown.
     await login.destroySession(email);
-    await page.waitForNavigation({ waitUntil: 'networkidle' }),
-      // Destroying the session should direct user back to sign in page
-      expect(await login.passwordHeader.isVisible()).toBeTruthy();
+    await page.waitForURL(/oauth\/signin/);
+    // Destroying the session should direct user back to sign in page
+    await login.passwordHeader.waitFor({ state: 'visible' });
   });
 
   test('verified - valid code', async ({
@@ -101,7 +101,7 @@ test.describe('OAuth signin token code', () => {
     );
     await signinTokenCode.input.fill(code);
     await signinTokenCode.submit.click();
-    await page.waitForNavigation({ waitUntil: 'networkidle' });
+    await page.waitForLoadState();
 
     const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
     await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toBeVisible();

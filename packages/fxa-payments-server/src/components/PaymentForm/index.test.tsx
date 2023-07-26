@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  render,
-  cleanup,
-  act,
-  fireEvent,
-  queryByTestId,
-} from '@testing-library/react';
+import { cleanup, act, fireEvent, queryByTestId } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import waitForExpect from 'wait-for-expect';
 
@@ -16,6 +10,7 @@ import {
   mockStripeElementOnBlurFns,
   elementChangeResponse,
   MOCK_CUSTOMER,
+  renderWithLocalizationProvider,
 } from '../../lib/test-utils';
 
 import PaymentForm, { PaymentFormProps } from './index';
@@ -68,7 +63,8 @@ const Subject = ({
 };
 
 it('renders all expected default fields and elements', () => {
-  const { container, queryAllByTestId, getByTestId } = render(<Subject />);
+  const { container, queryAllByTestId, getByTestId } =
+    renderWithLocalizationProvider(<Subject />);
 
   expect(container.querySelector('button.cancel')).not.toBeInTheDocument();
   expect(container.querySelector('span.spinner')).not.toBeInTheDocument();
@@ -81,7 +77,7 @@ it('renders all expected default fields and elements', () => {
 });
 
 it('renders error tooltips for invalid stripe elements', () => {
-  const { getByTestId } = render(<Subject />);
+  const { getByTestId } = renderWithLocalizationProvider(<Subject />);
 
   const mockErrors = {
     cardElement: 'CARD BAD',
@@ -109,7 +105,7 @@ it('renders error tooltips for invalid stripe elements', () => {
 });
 
 const renderWithValidFields = (props?: SubjectProps) => {
-  const renderResult = render(<Subject {...props} />);
+  const renderResult = renderWithLocalizationProvider(<Subject {...props} />);
   const { getByTestId } = renderResult;
 
   expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
@@ -155,12 +151,14 @@ it('when confirm = true, enables submit button when all fields are valid and che
 });
 
 it('omits the confirmation checkbox when confirm = false', () => {
-  const { queryByTestId } = render(<Subject {...{ confirm: false }} />);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <Subject {...{ confirm: false }} />
+  );
   expect(queryByTestId('confirm')).not.toBeInTheDocument();
 });
 
 it('includes the confirmation checkbox when confirm = true and plan supplied', () => {
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <Subject {...{ confirm: true, plan: SELECTED_PLAN }} />
   );
   expect(queryByTestId('confirm')).toBeInTheDocument();
@@ -203,25 +201,31 @@ it('renders a progress spinner when submitted, disables further submission (issu
 });
 
 it('renders a progress spinner when inProgress = true', () => {
-  const { queryByTestId } = render(<Subject {...{ inProgress: true }} />);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <Subject {...{ inProgress: true }} />
+  );
   expect(queryByTestId('loading-spinner')).toBeInTheDocument();
 });
 
 it('renders a progress spinner when inProgress = true and onCancel supplied', () => {
   const onCancel = jest.fn();
-  const { queryByTestId } = render(
+  const { queryByTestId } = renderWithLocalizationProvider(
     <Subject {...{ inProgress: true, onCancel }} />
   );
   expect(queryByTestId('loading-spinner')).toBeInTheDocument();
 });
 
 it('includes the cancel button when onCancel supplied', () => {
-  const { queryByTestId } = render(<Subject {...{ onCancel: jest.fn() }} />);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <Subject {...{ onCancel: jest.fn() }} />
+  );
   expect(queryByTestId('cancel')).toBeInTheDocument();
 });
 
 it('displays an error for empty name', () => {
-  const { getByText, getByTestId } = render(<Subject />);
+  const { getByText, getByTestId } = renderWithLocalizationProvider(
+    <Subject />
+  );
   fireEvent.change(getByTestId('name'), { target: { value: '123' } });
   fireEvent.change(getByTestId('name'), { target: { value: '' } });
   fireEvent.blur(getByTestId('name'));
@@ -269,7 +273,7 @@ it('does not call onSubmit if somehow submitted while in progress', async () => 
 
 describe('with existing card', () => {
   it('renders correctly', () => {
-    const { queryByTestId, queryByText } = render(
+    const { queryByTestId, queryByText } = renderWithLocalizationProvider(
       <Subject customer={MOCK_CUSTOMER} plan={SELECTED_PLAN} />
     );
     expect(queryByTestId('card-logo-and-last-four')).toBeInTheDocument();
@@ -281,14 +285,16 @@ describe('with existing card', () => {
 
   it('renders the payment form for customer without subscriptions', () => {
     const customer = { ...MOCK_CUSTOMER, subscriptions: [] };
-    const { queryByTestId } = render(<Subject customer={customer} />);
+    const { queryByTestId } = renderWithLocalizationProvider(
+      <Subject customer={customer} />
+    );
     expect(queryByTestId('name')).toBeInTheDocument();
     expect(queryByTestId('card-details')).not.toBeInTheDocument();
   });
 
   it('calls the submit handler', async () => {
     const onSubmit = jest.fn();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <Subject
         customer={MOCK_CUSTOMER}
         plan={SELECTED_PLAN}
@@ -304,7 +310,7 @@ describe('with existing card', () => {
 
 describe('with existing PayPal billing agreement', () => {
   it('renders correctly', () => {
-    const { queryByTestId } = render(
+    const { queryByTestId } = renderWithLocalizationProvider(
       <Subject
         customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
         plan={SELECTED_PLAN}
@@ -316,7 +322,7 @@ describe('with existing PayPal billing agreement', () => {
 
   it('calls the submit handler', async () => {
     const onSubmit = jest.fn();
-    const { getByTestId } = render(
+    const { getByTestId } = renderWithLocalizationProvider(
       <Subject
         customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
         plan={SELECTED_PLAN}

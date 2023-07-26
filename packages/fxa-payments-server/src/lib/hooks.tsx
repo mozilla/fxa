@@ -10,6 +10,7 @@ import React, {
   ChangeEvent,
 } from 'react';
 import { v4 as uuidv4 } from 'uuid';
+import ReactGA from 'react-ga4';
 import { ButtonBaseProps } from '../components/PayPalButton';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import {
@@ -25,6 +26,7 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import { apiInvoicePreview } from './apiClient';
 import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import { Config } from './config';
 
 export function useCallbackOnce(cb: Function, deps: any[]) {
   const called = useRef(false);
@@ -112,6 +114,38 @@ export function usePaypalButtonSetup(
     };
     document.body.appendChild(script);
   }, [config, setPaypalScriptLoaded, paypalButtonBase]);
+}
+
+export function useReactGA4Setup(config: Config, productId: string) {
+  const { enabled, measurementId, supportedProductIds, testMode } =
+    config.googleAnalytics;
+
+  useEffect(() => {
+    // Check if GA is enabled and if current productId should support GA
+    const products: string[] = !supportedProductIds
+      ? []
+      : supportedProductIds.split(',');
+    if (!enabled || !products.includes(productId)) {
+      return;
+    }
+
+    // Read nonce from the fxa-paypal-csp-nonce meta tag
+    const cspNonceMetaTag = document?.querySelector(
+      'meta[name="fxa-ga-csp-nonce"]'
+    );
+    const cspNonce = JSON.parse(
+      decodeURIComponent(cspNonceMetaTag?.getAttribute('content') || '""')
+    );
+
+    try {
+      ReactGA.initialize(measurementId, {
+        nonce: cspNonce,
+        testMode,
+      });
+    } catch (error) {
+      console.error('Error initializing GA script\n', error);
+    }
+  }, [enabled, measurementId, supportedProductIds, testMode, productId]);
 }
 
 export const enum CouponInfoBoxMessageType {

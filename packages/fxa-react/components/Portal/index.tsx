@@ -49,7 +49,7 @@ const Portal = ({ id, children }: PortalProps): React.ReactPortal | null => {
   useEffect(() => {
     return () => {
       let el = document.getElementById(id);
-      if (el && el.children.length === 1) {
+      if (el && el.children.length === 0) {
         // Reset any non-portal properties here
         if (id === 'modal') {
           // When unloaded, we do not remove the portal element in order to allow

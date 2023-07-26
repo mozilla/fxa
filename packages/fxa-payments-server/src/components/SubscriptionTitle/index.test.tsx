@@ -1,10 +1,13 @@
 import React from 'react';
-import { render, cleanup } from '@testing-library/react';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 
 import SubscriptionTitle, { SubscriptionTitleProps, titles } from './index';
 
-import { getLocalizedMessage } from '../../lib/test-utils';
+import {
+  getLocalizedMessage,
+  renderWithLocalizationProvider,
+} from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 
@@ -21,7 +24,9 @@ describe('SubscriptionTitle', () => {
   });
   it('renders as expected', async () => {
     const subject = () => {
-      return render(<SubscriptionTitle {...defaultProps} />);
+      return renderWithLocalizationProvider(
+        <SubscriptionTitle {...defaultProps} />
+      );
     };
     const { findByTestId } = subject();
     const component = await findByTestId('subscription-create-title');
@@ -43,7 +48,9 @@ describe('SubscriptionTitle', () => {
 
   it('renders as expected for SubscriptionSuccess', async () => {
     const subject = () => {
-      return render(<SubscriptionTitle screenType="success" />);
+      return renderWithLocalizationProvider(
+        <SubscriptionTitle screenType="success" />
+      );
     };
     const { findByTestId } = subject();
     const component = await findByTestId('subscription-success-title');
@@ -65,7 +72,9 @@ describe('SubscriptionTitle', () => {
 
   it('renders as expected for PaymentProcessing', async () => {
     const subject = () => {
-      return render(<SubscriptionTitle screenType="processing" />);
+      return renderWithLocalizationProvider(
+        <SubscriptionTitle screenType="processing" />
+      );
     };
     const { findByTestId } = subject();
     const component = await findByTestId('subscription-processing-title');
@@ -87,7 +96,7 @@ describe('SubscriptionTitle', () => {
 
   it('renders the subtitle as expected', async () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <SubscriptionTitle
           {...{
             screenType: 'noplanchange',

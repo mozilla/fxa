@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { ApolloError, gql, useMutation, useQuery } from '@apollo/client';
+import { ApolloError, useMutation, useQuery } from '@apollo/client';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
 import ErrorAlert from '../ErrorAlert';
@@ -11,37 +11,11 @@ import { AdminPanelFeature } from '../../../../fxa-shared/guards';
 import { Guard } from '../Guard';
 import { getFormattedDate } from '../../lib/utils';
 import { TableRowYHeader, TableYHeaders } from '../TableYHeaders';
-
-const RELYING_PARTIES_SCHEMA = `
-  relyingParties {
-    id
-    name
-    imageUri
-    redirectUri
-    canGrant
-    publicClient
-    createdAt
-    trusted
-    allowedScopes
-    notes
-  }
-`;
+import { GET_RELYING_PARTIES, UPDATE_NOTE } from './index.gql';
 
 interface RelyingPartiesData {
   relyingParties: RelyingParty[];
 }
-
-export const GET_RELYING_PARTIES = gql`
-  query getRelyingParties {
-    ${RELYING_PARTIES_SCHEMA}
-  }
-`;
-
-export const UPDATE_NOTE = gql`
-  mutation updateNotes($id: String!, $notes: String!) {
-    updateNotes(id: $id, notes: $notes)
-  }
-`;
 
 const Notes = ({ id, notes }: { id: string; notes: string }) => {
   const [saveAllowed, setSaveAllowed] = useState<boolean>(true);

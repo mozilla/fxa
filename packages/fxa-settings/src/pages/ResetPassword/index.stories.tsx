@@ -4,23 +4,16 @@
 
 import React from 'react';
 import ResetPassword, { ResetPasswordProps } from '.';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../models/mocks';
 import { MozServices } from '../../lib/types';
-import { withLocalization } from '../../../.storybook/decorators';
-import { Account, AppContext } from '../../models';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   mockAccountWithThrottledError,
   mockAccountWithUnexpectedError,
-  mockDefaultAccount,
 } from './mocks';
-
-import {
-  produceComponent,
-  createAppContext,
-  createHistoryWithQuery,
-} from '../../models/mocks';
+import { renderStoryWithHistory } from '../../lib/storybook-utils';
+import { Account } from '../../models';
+import { MOCK_ACCOUNT } from '../../models/mocks';
 
 export default {
   title: 'Pages/ResetPassword',
@@ -28,47 +21,36 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const route = '/reset_password';
+type RenderStoryOptions = {
+  account?: Account;
+  props?: Partial<ResetPasswordProps>;
+  queryParams?: string;
+};
 
-function render(
-  account: Account,
-  props?: Partial<ResetPasswordProps>,
-  queryParams?: string
-) {
-  const history = createHistoryWithQuery(route, queryParams);
-  return produceComponent(
+function renderStory({ account, props, queryParams }: RenderStoryOptions = {}) {
+  return renderStoryWithHistory(
     <ResetPassword {...props} />,
-    { route, history },
-    {
-      ...createAppContext(history),
-      account,
-    }
+    '/reset_password',
+    account,
+    queryParams
   );
 }
 
-export const Default = () => {
-  return render(mockDefaultAccount);
-};
+export const Default = () => renderStory();
 
-export const WithServiceName = () => {
-  return render(
-    mockDefaultAccount,
-    undefined,
-    `service=${MozServices.MozillaVPN}`
-  );
-};
+export const WithServiceName = () =>
+  renderStory({ queryParams: `service=${MozServices.MozillaVPN}` });
 
-export const WithForceAuth = () => {
-  return render(mockDefaultAccount, {
-    prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
-    forceAuth: true,
+export const WithForceAuth = () =>
+  renderStory({
+    props: {
+      prefillEmail: MOCK_ACCOUNT.primaryEmail.email,
+      forceAuth: true,
+    },
   });
-};
 
-export const WithThrottledErrorOnSubmit = () => {
-  return render(mockAccountWithThrottledError);
-};
+export const WithThrottledErrorOnSubmit = () =>
+  renderStory({ account: mockAccountWithThrottledError });
 
-export const WithUnexpectedErrorOnSubmit = () => {
-  return render(mockAccountWithUnexpectedError);
-};
+export const WithUnexpectedErrorOnSubmit = () =>
+  renderStory({ account: mockAccountWithUnexpectedError });

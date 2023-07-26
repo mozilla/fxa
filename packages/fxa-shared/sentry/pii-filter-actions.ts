@@ -287,7 +287,7 @@ export const CommonPiiActions = {
   /**
    * Limits objects to 5 levels of depth
    */
-  depthFilter: new DepthFilter(5),
+  depthFilter: new DepthFilter(6),
 
   /**
    * Makes sure the user name / password is stripped out of the url.

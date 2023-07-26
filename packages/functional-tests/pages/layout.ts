@@ -14,8 +14,12 @@ export abstract class BaseLayout {
     return `${this.baseUrl}/${this.path}`;
   }
 
-  goto(waitUntil: 'networkidle' | 'domcontentloaded' | 'load' = 'load') {
-    return this.page.goto(this.url, { waitUntil });
+  goto(
+    waitUntil: 'networkidle' | 'domcontentloaded' | 'load' = 'load',
+    query?: string
+  ) {
+    const url = query ? `${this.url}?${query}` : this.url;
+    return this.page.goto(url, { waitUntil });
   }
 
   screenshot() {
@@ -96,5 +100,59 @@ export abstract class BaseLayout {
       }
       addEventListener('WebChannelMessageToChrome', listener);
     });
+  }
+
+  /**
+   * Listens for a `WebChannelMessageToChrome` web channel event which
+   * occurs when we (web content) send a message to the browser.
+   *
+   * Responds with a `WebChannelMessageToContent` event containing event
+   * details passed in only when the given command matches the command from
+   * the listened-for event.
+   *
+   * @param webChannelMessage - Custom event details to send to the web content.
+   */
+  async respondToWebChannelMessage(webChannelMessage) {
+    const expectedCommand = webChannelMessage.message.command;
+    const response = webChannelMessage.message.data;
+
+    await this.page.evaluate(
+      ({ expectedCommand, response }) => {
+        function listener(e) {
+          const detail = JSON.parse((e as CustomEvent).detail);
+          const command = detail.message.command;
+          const messageId = detail.message.messageId;
+
+          if (command === expectedCommand) {
+            window.removeEventListener('WebChannelMessageToChrome', listener);
+            const event = new CustomEvent('WebChannelMessageToContent', {
+              detail: {
+                id: 'account_updates',
+                message: {
+                  command,
+                  data: response,
+                  messageId,
+                },
+              },
+            });
+
+            window.dispatchEvent(event);
+          }
+        }
+
+        function startListening() {
+          try {
+            window.addEventListener('WebChannelMessageToChrome', listener);
+          } catch (e) {
+            // problem adding the listener, window may not be
+            // ready, try again.
+            setTimeout(startListening, 0);
+          }
+        }
+
+        startListening();
+      },
+      { expectedCommand, response }
+    );
   }
 }

@@ -138,7 +138,6 @@ export const InputText = ({
           )}
           data-testid={formatDataTestId('input-field')}
           onChange={textFieldChange}
-          title={label}
           ref={inputRef}
           {...{
             name,

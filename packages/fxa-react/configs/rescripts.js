@@ -44,11 +44,11 @@ const permitAdditionalJSImports = (config) => {
   if (
     config.module.rules[1] &&
     config.module.rules[1].oneOf &&
-    config.module.rules[1].oneOf[2].test.toString() ===
+    config.module.rules[1].oneOf[3].test.toString() ===
       '/\\.(js|mjs|jsx|ts|tsx)$/'
   ) {
-    config.module.rules[1].oneOf[2].include = [
-      config.module.rules[1].oneOf[2].include,
+    config.module.rules[1].oneOf[3].include = [
+      config.module.rules[1].oneOf[3].include,
       allFxa,
     ];
   } else {
@@ -61,6 +61,17 @@ const permitAdditionalJSImports = (config) => {
   return config;
 };
 
+const suppressRuntimeErrorOverlay = (devServerConfig) => {
+  return {
+    ...devServerConfig,
+    client: {
+      ...devServerConfig.client,
+      overlay: { ...devServerConfig.client.overlay, runtimeErrors: false },
+    },
+  };
+};
+
 module.exports = {
   permitAdditionalJSImports,
+  suppressRuntimeErrorOverlay,
 };

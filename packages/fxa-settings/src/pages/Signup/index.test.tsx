@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { fireEvent, render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { fireEvent, screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
 import Signup, { viewName } from '.';
@@ -33,7 +33,9 @@ describe('Signup page', () => {
   // });
 
   it('renders as expected', () => {
-    render(<Signup email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <Signup email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     // testAllL10n(screen, bundle);
     screen.getByRole('heading', { name: 'Set your password' });
     screen.getByRole('link', { name: 'Change email' });
@@ -56,7 +58,9 @@ describe('Signup page', () => {
   });
 
   it('allows users to show and hide password input', () => {
-    render(<Signup email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <Signup email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
 
     const newPasswordInput = screen.getByLabelText('Password');
 
@@ -68,7 +72,7 @@ describe('Signup page', () => {
   });
 
   it('allows the user to change their email when canGoBack is true', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signup email={MOCK_ACCOUNT.primaryEmail.email} canChangeEmail={false} />
     );
     expect(
@@ -77,7 +81,7 @@ describe('Signup page', () => {
   });
 
   it('shows an info banner and Pocket-specific TOS when client is Pocket', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signup
         email={MOCK_ACCOUNT.primaryEmail.email}
         serviceName={MozServices.Pocket}
@@ -115,7 +119,9 @@ describe('Signup page', () => {
   });
 
   it('shows options to choose what to sync when CWTS is enabled', () => {
-    render(<Signup email={MOCK_ACCOUNT.primaryEmail.email} isCWTSEnabled />);
+    renderWithLocalizationProvider(
+      <Signup email={MOCK_ACCOUNT.primaryEmail.email} isCWTSEnabled />
+    );
 
     screen.getByText('Choose what to sync:');
 
@@ -124,7 +130,7 @@ describe('Signup page', () => {
   });
 
   it('shows newsletter subscription options when newsletters are enabled', () => {
-    render(
+    renderWithLocalizationProvider(
       <Signup email={MOCK_ACCOUNT.primaryEmail.email} areNewslettersEnabled />
     );
 
@@ -137,7 +143,9 @@ describe('Signup page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    render(<Signup email={MOCK_ACCOUNT.primaryEmail.email} />);
+    renderWithLocalizationProvider(
+      <Signup email={MOCK_ACCOUNT.primaryEmail.email} />
+    );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPasswordConfirmed from '.';
+import ResetPasswordConfirmed, { ResetPasswordConfirmedProps } from '.';
 import { MozServices } from '../../../lib/types';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { renderStoryWithHistory } from '../../../lib/storybook-utils';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordConfirmed',
@@ -15,43 +15,37 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const DefaultSignedIn = () => (
-  <LocationProvider>
-    <ResetPasswordConfirmed isSignedIn isSync={false} />
-  </LocationProvider>
-);
+function renderStory(
+  props: ResetPasswordConfirmedProps,
 
-export const DefaultIsSync = () => (
-  <LocationProvider>
-    <ResetPasswordConfirmed isSignedIn isSync />
-  </LocationProvider>
-);
+  queryParams: string
+) {
+  return renderStoryWithHistory(
+    <ResetPasswordConfirmed {...props} />,
+    '/reset_password_verified',
+    undefined,
+    queryParams
+  );
+}
 
-export const DefaultSignedOut = () => (
-  <LocationProvider>
-    <ResetPasswordConfirmed isSignedIn={false} isSync={false} />
-  </LocationProvider>
-);
+export const DefaultSignedIn = () => renderStory({ isSignedIn: true }, ``);
 
-export const WithRelyingPartyNoContinueAction = () => (
-  <LocationProvider>
-    <ResetPasswordConfirmed
-      isSignedIn
-      serviceName={MozServices.MozillaVPN}
-      isSync={false}
-    />
-  </LocationProvider>
-);
+export const DefaultIsSync = () =>
+  renderStory({ isSignedIn: true }, 'service=sync');
 
-export const WithRelyingPartyAndContinueAction = () => (
-  <LocationProvider>
-    <ResetPasswordConfirmed
-      isSignedIn
-      isSync={false}
-      serviceName={MozServices.MozillaVPN}
-      continueHandler={() => {
+export const DefaultSignedOut = () =>
+  renderStory({ isSignedIn: false }, 'service=');
+
+export const WithRelyingPartyNoContinueAction = () =>
+  renderStory({ isSignedIn: true }, `service=${MozServices.MozillaVPN}`);
+
+export const WithRelyingPartyAndContinueAction = () =>
+  renderStory(
+    {
+      isSignedIn: true,
+      continueHandler: () => {
         console.log('Arbitrary action');
-      }}
-    />
-  </LocationProvider>
-);
+      },
+    },
+    `service=`
+  );

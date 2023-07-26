@@ -7,6 +7,7 @@ import { PlanErrorDialog } from './index';
 import { PLANS } from '../../lib/mock-data';
 import { FetchState, Plan } from '../../store/types';
 import { Meta } from '@storybook/react';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 export default {
   title: 'components/PlanErrorDialog',
@@ -25,7 +26,12 @@ const storyWithContext = (
   storyName?: string
 ) => {
   const story = () => (
-    <PlanErrorDialog locationReload={locationReload} plans={plans} />
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <PlanErrorDialog locationReload={locationReload} plans={plans} />
+    </AppLocalizationProvider>
   );
 
   if (storyName) story.storyName = storyName;

@@ -116,7 +116,9 @@ test.describe('Desktop Sync V3 force auth', () => {
     await expect(
       await (await login.getUseDifferentAccountLink()).count()
     ).toEqual(0);
-    await login.fillOutFirstSignUp(email, credentials.password, true, false);
+    await login.fillOutFirstSignUp(email, credentials.password, {
+      enterEmail: false,
+    });
     await fxDesktopV3ForceAuth.checkWebChannelMessage(
       'fxaccounts:can_link_account'
     );

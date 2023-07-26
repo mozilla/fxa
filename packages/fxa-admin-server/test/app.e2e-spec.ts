@@ -4,8 +4,10 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-
+import bodyParser from 'body-parser';
 import { AppModule } from '../src/app.module';
+import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
+import Config from '../src/config';
 
 describe('#integration - AppController (e2e)', () => {
   let app: INestApplication;
@@ -16,6 +18,9 @@ describe('#integration - AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    const appConfig = Config.getProperties();
+    app.use(bodyParser.json());
+    app.use(allowlistGqlQueries(appConfig.gql));
     await app.init();
   });
 
@@ -34,11 +39,22 @@ describe('#integration - AppController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/graphql')
       .send({
-        operationName: null,
-        variables: {},
+        operationName: 'getEmails',
+        variables: { search: 'moz' },
         query:
-          '{accountByEmail(email:"test@test.com", autoCompleted:true){uid}}',
+          'query getEmails($search: String!) {\n  getEmailsLike(search: $search) {\n    email\n  }\n}\n',
       })
       .expect(200);
+  });
+
+  it('/graphql (GET) - with invalid query', () => {
+    return request(app.getHttpServer())
+      .post('/graphql')
+      .send({
+        operationName: null,
+        variables: {},
+        query: `query test { __typename @a@a }`,
+      })
+      .expect(403);
   });
 });

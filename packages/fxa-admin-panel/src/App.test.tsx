@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render } from '@testing-library/react';
 import App from './App';
 import { mockConfigBuilder } from './lib/config';
 import {
@@ -11,6 +10,7 @@ import {
   AdminPanelGroup,
   AdminPanelGuard,
 } from 'fxa-shared/guards';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 it('renders without imploding', () => {
   const guard = new AdminPanelGuard(AdminPanelEnv.Prod);
@@ -21,6 +21,8 @@ it('renders without imploding', () => {
       group: guard.getGroup(AdminPanelGroup.SupportAgentProd),
     },
   });
-  const { queryByTestId } = render(<App {...{ config }} />);
+  const { queryByTestId } = renderWithLocalizationProvider(
+    <App {...{ config }} />
+  );
   expect(queryByTestId('app')).toBeInTheDocument();
 });

@@ -1,13 +1,23 @@
 import React, { useEffect, useMemo, ReactNode } from 'react';
 import { action } from '@storybook/addon-actions';
 import { loadStripe } from '@stripe/stripe-js';
-import { StripeProvider } from 'react-stripe-elements';
+import {
+  ReactStripeElements,
+  StripeProvider as _StripeProvider,
+} from 'react-stripe-elements';
 import { MockLoader } from './MockLoader';
 import { AppContext, AppContextType } from '../../src/lib/AppContext';
 import { config } from '../../src/lib/config';
 import ScreenInfo from '../../src/lib/screen-info';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// @types/react-stripe-elements is built for React 16. React 18 doesn't implicitly include `children` on the
+// type signature of React.FC anymore. We must add it ourselves
+type StripeProviderType = React.FC<
+  ReactStripeElements.StripeProviderProps & { children?: React.ReactNode }
+>;
+const StripeProvider = _StripeProvider as unknown as StripeProviderType;
 
 // Stripe API key used in official doc examples. Used as fallback if missing
 // from config and is necessary for Stripe elements to render at all

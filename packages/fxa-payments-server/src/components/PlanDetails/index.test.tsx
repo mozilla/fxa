@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { render, cleanup, fireEvent, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import TestRenderer from 'react-test-renderer';
 
@@ -13,7 +13,12 @@ import {
   getLocalizedCurrency,
   getLocalizedCurrencyString,
 } from '../../lib/formats';
-import { MOCK_PLANS, getLocalizedMessage } from '../../lib/test-utils';
+import {
+  MOCK_PLANS,
+  getLocalizedMessage,
+  renderWithLocalizationProvider,
+  withLocalizationProvider,
+} from '../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { updateConfig } from '../../lib/config';
@@ -111,7 +116,7 @@ afterEach(() => {
 describe('PlanDetails', () => {
   it('renders as expected without tax', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -154,7 +159,7 @@ describe('PlanDetails', () => {
       },
     };
     const subject = () => {
-      return render(<PlanDetails {...props} />);
+      return renderWithLocalizationProvider(<PlanDetails {...props} />);
     };
 
     const { queryByTestId } = subject();
@@ -192,7 +197,7 @@ describe('PlanDetails', () => {
       },
     };
     const subject = () => {
-      return render(<PlanDetails {...props} />);
+      return renderWithLocalizationProvider(<PlanDetails {...props} />);
     };
 
     const { queryByTestId } = subject();
@@ -247,7 +252,7 @@ describe('PlanDetails', () => {
       },
     };
     const subject = () => {
-      return render(<PlanDetails {...props} />);
+      return renderWithLocalizationProvider(<PlanDetails {...props} />);
     };
 
     const { queryByTestId } = subject();
@@ -265,7 +270,7 @@ describe('PlanDetails', () => {
       },
     });
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -295,7 +300,7 @@ describe('PlanDetails', () => {
       },
     });
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <AppContext.Provider
           value={{ ...defaultAppContext, navigatorLanguages: ['fy-NL'] }}
         >
@@ -326,7 +331,7 @@ describe('PlanDetails', () => {
   });
 
   it('renders product_name when product:name is not present', () => {
-    render(
+    renderWithLocalizationProvider(
       <PlanDetails
         {...{
           profile: userProfile,
@@ -352,7 +357,7 @@ describe('PlanDetails', () => {
       },
     };
 
-    render(
+    renderWithLocalizationProvider(
       <PlanDetails
         {...{
           profile: userProfile,
@@ -371,7 +376,7 @@ describe('PlanDetails', () => {
 
   it('hides expand button when showExpandButton is false', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -393,7 +398,7 @@ describe('PlanDetails', () => {
 
   it('shows and hides detail section when expand button is clicked', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -423,7 +428,7 @@ describe('PlanDetails', () => {
 
   it('sets role to "complementary" when isMobile is false', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -445,7 +450,7 @@ describe('PlanDetails', () => {
 
   it('does not set role to "complementary" when isMobile is true', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -464,7 +469,7 @@ describe('PlanDetails', () => {
 
   it('does not show the coupon success message when there is no coupon used', () => {
     const subject = () => {
-      return render(
+      return renderWithLocalizationProvider(
         <PlanDetails
           {...{
             profile: userProfile,
@@ -507,7 +512,7 @@ describe('PlanDetails', () => {
       };
 
       const subject = () => {
-        return render(<PlanDetails {...props} />);
+        return renderWithLocalizationProvider(<PlanDetails {...props} />);
       };
 
       const { queryByTestId } = subject();
@@ -535,7 +540,7 @@ describe('PlanDetails', () => {
 
     it('for coupon info box without couponDurationDate, display coupon-success message', async () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PlanDetails
             {...{
               profile: userProfile,
@@ -560,7 +565,7 @@ describe('PlanDetails', () => {
 
     it('for coupon info box with couponDurationDate, display coupon-success-with-date message', async () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PlanDetails
             {...{
               profile: userProfile,
@@ -586,7 +591,7 @@ describe('PlanDetails', () => {
 
     it('do not show either coupon-success message, if info box is empty', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PlanDetails
             {...{
               profile: userProfile,
@@ -609,7 +614,7 @@ describe('PlanDetails', () => {
 
     it('show total for 100% coupon', () => {
       const subject = () => {
-        return render(
+        return renderWithLocalizationProvider(
           <PlanDetails
             {...{
               profile: userProfile,
@@ -661,7 +666,9 @@ describe('PlanDetails', () => {
           },
         };
 
-        const testRenderer = TestRenderer.create(<PlanDetails {...props} />);
+        const testRenderer = TestRenderer.create(
+          withLocalizationProvider(<PlanDetails {...props} />)
+        );
         const testInstance = testRenderer.root;
 
         const planPriceComponent = testInstance.findByProps({

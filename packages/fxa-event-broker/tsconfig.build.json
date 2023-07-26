@@ -3,6 +3,5 @@
   "compilerOptions": {
     "baseUrl": "."
   },
-  "references": [{ "path": "../fxa-shared" }],
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

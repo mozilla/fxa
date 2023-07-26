@@ -45,6 +45,9 @@ const settingsConfig = {
     gql: {
       url: config.get('settings_gql_url'),
     },
+    oauth: {
+      url: config.get('fxaccount_url'),
+    },
     auth: {
       url: config.get('fxaccount_url'),
     },
@@ -54,6 +57,11 @@ const settingsConfig = {
   },
   oauth: {
     clientId: config.get('oauth_client_id'),
+    scopedKeysEnabled: config.get('scopedKeys.enabled'),
+    isPromptNoneEnabled: config.get('oauth.prompt_none.enabled'),
+    isPromptNoneEnabledClientIds: config.get(
+      'oauth.prompt_none.enabled_client_ids'
+    ),
   },
   recoveryCodes: {
     count: config.get('recovery_codes.count'),

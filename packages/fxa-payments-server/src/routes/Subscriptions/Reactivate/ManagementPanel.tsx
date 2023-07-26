@@ -82,7 +82,12 @@ const ReactivateSubscriptionPanel = ({
           <div className="action">
             <button
               className="button settings-button"
-              onClick={revealReactivateConfirmation}
+              onClick={(e) => {
+                // The stopPropagation prevents the "onDismiss" function to be called as soon
+                // as the ReactivationConfirmationDialog initially loads.
+                e.stopPropagation();
+                revealReactivateConfirmation();
+              }}
               data-testid="reactivate-subscription-button"
             >
               <Localized id="reactivate-confirm-button">

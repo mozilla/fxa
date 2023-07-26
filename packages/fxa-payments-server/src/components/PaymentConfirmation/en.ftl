@@ -12,6 +12,8 @@ payment-confirmation-thanks-subheading-account-exists = You’ll receive an emai
 
 payment-confirmation-order-heading = Order details
 payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
+# $invoiceDate (Date) - Start date of the latest invoice
+payment-confirmation-invoice-date = { $invoiceDate }
 payment-confirmation-details-heading-2 = Payment information
 
 payment-confirmation-amount = { $amount } per { $interval }

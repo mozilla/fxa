@@ -4,12 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import {
-  useAccount,
-  useAlertBar,
-  useConfig,
-  useFtlMsgResolver,
-} from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
@@ -18,15 +13,18 @@ import { ButtonIconReload, ButtonIconTrash } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-export const UnitRowRecoveryKey = () => {
+export const UnitRowRecoveryKey = ({
+  showRecoveryKeyV2,
+}: {
+  showRecoveryKeyV2?: boolean;
+}) => {
   const account = useAccount();
-  const config = useConfig();
-  // TODO Remove feature flag in FXA-7419
-  const { showRecoveryKeyV2 } = config;
+
   const recoveryKey = account.recoveryKey;
   const alertBar = useAlertBar();
   const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const deleteRecoveryKey = useCallback(async () => {
@@ -51,6 +49,8 @@ export const UnitRowRecoveryKey = () => {
         )
       );
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.fail');
+    } finally {
+      setIsLoading(false);
     }
   }, [account, hideModal, alertBar, ftlMsgResolver]);
 
@@ -171,6 +171,7 @@ export const UnitRowRecoveryKey = () => {
               setDeleteModalVisible(false);
             }}
             onConfirm={() => {
+              setIsLoading(true);
               deleteRecoveryKey();
               logViewEvent(
                 'flow.settings.account-recovery',
@@ -181,6 +182,7 @@ export const UnitRowRecoveryKey = () => {
             confirmText={ftlMsgResolver.getMsg('rk-action-remove', 'Remove')}
             headerId="recovery-key-header"
             descId="recovery-key-desc"
+            isLoading={isLoading}
           >
             <FtlMsg id="rk-remove-modal-heading-1">
               <h2

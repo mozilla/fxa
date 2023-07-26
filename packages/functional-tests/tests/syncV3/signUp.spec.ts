@@ -27,7 +27,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
 
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.setEmail(email);
     await signinTokenCode.clickSubmitButton();
@@ -59,7 +59,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
       `${
         target.contentServerUrl
       }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`,
-      { waitUntil: 'networkidle' }
+      { waitUntil: 'load' }
     );
     await login.setEmail(email);
     await login.submit();

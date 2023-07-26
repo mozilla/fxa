@@ -4,8 +4,8 @@
 
 import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
-import { render, screen } from '@testing-library/react';
-// import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
+import { screen } from '@testing-library/react';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -23,7 +23,7 @@ describe('PairSuccess', () => {
   // });
 
   it('renders the default view as expected', () => {
-    render(<PairSuccess />);
+    renderWithLocalizationProvider(<PairSuccess />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -32,7 +32,7 @@ describe('PairSuccess', () => {
   });
 
   it('renders any arising errors', () => {
-    render(<PairSuccess error={MOCK_ERROR} />);
+    renderWithLocalizationProvider(<PairSuccess error={MOCK_ERROR} />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -42,7 +42,7 @@ describe('PairSuccess', () => {
   });
 
   it('emits expected metrics event on render', () => {
-    render(<PairSuccess />);
+    renderWithLocalizationProvider(<PairSuccess />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

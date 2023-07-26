@@ -22,10 +22,20 @@ export class ModelDataProvider {
   }
 
   /**
+   * Indicates the data store is in a synchronized state. Many data stores don't have
+   * to worry about synchronization because they have a single source of truth. See the
+   * datastore's implementation to determine if synchronization is necessary.
+   * @returns
+   */
+  async synchronized() {
+    return await this.modelData.synchronized();
+  }
+
+  /**
    * Checks the state of the model data is valid. Throws an error if not valid.
    * @returns
    */
-  validate(): void {
+  validate() {
     return validateData(this);
   }
 
@@ -51,7 +61,10 @@ export class ModelDataProvider {
    * passes validation. If the model is not valid, the ValidationError is also returned.
    * @returns
    */
-  tryValidate(): { isValid: boolean; error?: ModelValidationErrors } {
+  tryValidate(): {
+    isValid: boolean;
+    error?: ModelValidationErrors;
+  } {
     let error: ModelValidationErrors | undefined;
     let isValid = true;
     try {

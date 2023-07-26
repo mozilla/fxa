@@ -10,7 +10,12 @@ import { Localized, useLocalization } from '@fluent/react';
 import classNames from 'classnames';
 
 import { AppContext } from '../../lib/AppContext';
-import { useMatchMedia, useNonce, usePaypalButtonSetup } from '../../lib/hooks';
+import {
+  useMatchMedia,
+  useNonce,
+  usePaypalButtonSetup,
+  useReactGA4Setup,
+} from '../../lib/hooks';
 import { getSelectedPlan } from '../../lib/plan';
 import { State as ValidatorState } from '../../lib/validator';
 
@@ -65,6 +70,7 @@ import CouponForm from '../../components/CouponForm';
 import { CouponDetails } from 'fxa-shared/dto/auth/payments/coupon';
 import { useParams } from 'react-router-dom';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 
 const PaypalButton = React.lazy(() => import('../../components/PayPalButton'));
 
@@ -134,9 +140,16 @@ export const Checkout = ({
   }, [fetchCheckoutRouteResources]);
 
   usePaypalButtonSetup(config, setPaypalScriptLoaded, paypalButtonBase);
-  
-  const redirectUrl = encodeURIComponent(window.location.href.replace('/checkout/', '/products/'));
-  const signInQueryParams = { ...queryParams, signin: 'yes', redirect_to: redirectUrl };
+  useReactGA4Setup(config, productId);
+
+  const redirectUrl = encodeURIComponent(
+    window.location.href.replace('/checkout/', '/products/')
+  );
+  const signInQueryParams = {
+    ...queryParams,
+    signin: 'yes',
+    redirect_to: redirectUrl,
+  };
   const signInQueryParamString = Object.entries(signInQueryParams)
     .map(([k, v]) => `${k}=${v}`)
     .join('&');
@@ -195,7 +208,7 @@ export const Checkout = ({
           },
         });
         if (subscribeToNewsletter) {
-          await handleNewsletterSignup();
+          await handleNewsletterSignup(metadataFromPlan(selectedPlan));
         }
       } catch (error) {
         if (error.code === 'fxa_newsletter_signup_error') {
@@ -239,14 +252,14 @@ export const Checkout = ({
     await fetchProfileAndCustomer();
     if (subscribeToNewsletter) {
       try {
-        await handleNewsletterSignup();
+        await handleNewsletterSignup(metadataFromPlan(selectedPlan));
       } catch (error) {
         // If both fetchProfileAndCustomer and handleNewsletterSignup fail,
         // there would be an AlertBar on top of the PaymentErrorView screen.
         setNewsletterSignupError(true);
       }
     }
-  }, [subscribeToNewsletter]);
+  }, [subscribeToNewsletter, selectedPlan]);
 
   const beforePaypalCreateOrder = useCallback(async () => {
     await handlePasswordlessSignUp({

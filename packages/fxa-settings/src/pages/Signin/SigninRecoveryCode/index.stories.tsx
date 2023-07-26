@@ -8,7 +8,7 @@ import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryCode',

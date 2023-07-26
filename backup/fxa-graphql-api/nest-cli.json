@@ -1,5 +1,0 @@
-{
-  "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
-  "entryFile": "packages/fxa-graphql-api/src/main.js"
-}

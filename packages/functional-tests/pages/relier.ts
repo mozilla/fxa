@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { BaseLayout } from './layout';
 
 export class RelierPage extends BaseLayout {
@@ -5,12 +9,12 @@ export class RelierPage extends BaseLayout {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;
-    return this.page.goto(url, { waitUntil: 'networkidle' });
+    return this.page.goto(url, { waitUntil: 'load' });
   }
 
   async isLoggedIn() {
     const login = this.page.locator('#loggedin');
-    await login.waitFor({ state: 'visible' });
+    await login.waitFor();
     return login.isVisible();
   }
 
@@ -34,19 +38,25 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickEmailFirst() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.email-first-button').click();
     return waitForNavigation;
   }
 
   async clickSignIn() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.sign-in-button.signin').click();
     return waitForNavigation;
   }
 
+  async clickSignInScopedKeys() {
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
+    await this.page.locator('button.scope-keys').click();
+    return waitForNavigation;
+  }
+
   async clickForceAuth() {
-    const waitForNavigation = this.page.waitForNavigation();
+    const waitForNavigation = this.page.waitForEvent('framenavigated');
     await this.page.locator('button.force-auth').click();
     return waitForNavigation;
   }

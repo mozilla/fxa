@@ -6,7 +6,6 @@ import React from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
@@ -15,7 +14,7 @@ import Banner, { BannerType } from '../Banner';
 export type ReadyProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
-  serviceName?: MozServices;
+  serviceName?: string;
   viewName: ViewNameType;
   isSync?: boolean;
   errorMessage?: string;

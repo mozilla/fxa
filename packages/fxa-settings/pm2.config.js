@@ -63,5 +63,13 @@ module.exports = {
       min_uptime: '2m',
       time: true,
     },
+    {
+      filter_env: ['npm_'],
+      autorestart: false,
+      name: 'settings-gql-allowlist',
+      script: 'yarn gql:allowlist',
+      cwd: __dirname,
+      watch: ['src/**/*.ts'],
+    },
   ],
 };

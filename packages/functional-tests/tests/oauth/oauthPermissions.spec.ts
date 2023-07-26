@@ -33,7 +33,7 @@ test.describe('oauth permissions for trusted reliers', () => {
   }) => {
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //no permissions asked for, straight to confirm
     expect(await login.isSignUpCodeHeader()).toBe(true);
@@ -47,10 +47,10 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
-    await login.fillOutFirstSignUp(email, password, false);
+    await login.fillOutFirstSignUp(email, password, { verify: false });
 
     //Verify permissions header
     expect(await login.permissionsHeader()).toBe(true);
@@ -88,7 +88,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
     await login.fillOutEmailFirstSignIn(email, password);
@@ -120,7 +120,7 @@ test.describe('oauth permissions for trusted reliers', () => {
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-      waitUntil: 'networkidle',
+      waitUntil: 'load',
     });
     await relier.clickEmailFirst();
     await login.clickSignIn();

@@ -14,7 +14,7 @@ const t = (msg) => msg;
 
 export default {
   CONSUMER_BETA: {
-    label: t('Test new Firefox products'),
+    label: t('Early access to test new products'),
     slug: 'test-pilot',
   },
   FIREFOX_ACCOUNTS_JOURNEY: {
@@ -22,30 +22,15 @@ export default {
     slug: 'firefox-accounts-journey',
   },
   HEALTHY_INTERNET: {
-    label: t('Take action to keep the internet healthy'),
+    label: t('Help keep the internet healthy'),
     slug: 'take-action-for-the-internet',
   },
   ONLINE_SAFETY: {
     label: t('Be safer and smarter online'),
     slug: 'knowledge-is-power',
   },
-};
-
-export const newsletterNewCopy = {
-  CONSUMER_BETA: {
-    label: t('Testing Firefox products'),
-    slug: 'test-pilot',
-  },
-  FIREFOX_ACCOUNTS_JOURNEY: {
-    label: t('Get the latest news about Mozilla and Firefox'),
-    slug: 'firefox-accounts-journey',
-  },
-  HEALTHY_INTERNET: {
-    label: t('Taking action to keep the internet healthy'),
-    slug: 'take-action-for-the-internet',
-  },
-  ONLINE_SAFETY: {
-    label: t('Safety and privacy online with Firefox and Mozilla'),
-    slug: 'knowledge-is-power',
+  SECURITY_PRIVACY: {
+    label: t('Security & privacy news and updates'),
+    slug: ['security-privacy-news', 'mozilla-accounts'],
   },
 };

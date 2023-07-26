@@ -1,6 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import {
+  CreateQueueCommand,
+  ListQueuesCommand,
+  Message,
+  SQSClient,
+} from '@aws-sdk/client-sqs';
 import { PubSub } from '@google-cloud/pubsub';
 import {
   Inject,
@@ -9,7 +15,6 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import AWS, { SQS } from 'aws-sdk';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
@@ -40,7 +45,7 @@ export class QueueworkerService
   private disableQueueWorker: boolean;
 
   public queueName: string;
-  public sqs: SQS;
+  public sqs: SQSClient;
 
   constructor(
     private configService: ConfigService<AppConfig>,
@@ -54,22 +59,22 @@ export class QueueworkerService
     this.queueName = configService.get('serviceNotificationQueueUrl') as string;
     this.disableQueueWorker =
       this.configService.get<boolean>('disableQueueWorker') ?? false;
-    if (this.queueName.includes('localhost:4100')) {
-      AWS.config.update({
-        accessKeyId: 'fake',
-        ['endpoint' as any]: 'localhost:4100',
-        secretAccessKey: 'fake',
-        sslEnabled: false,
-      });
-    }
     this.topicPrefix = configService.get('topicPrefix') as string;
 
     const region = extractRegionFromUrl(this.queueName);
     this.region = region || 'us-east-1';
-    this.sqs = new SQS({ region: this.region });
+    this.sqs = new SQSClient({
+      ...(this.queueName.includes('localhost:4100') && {
+        accessKeyId: 'fake',
+        ['endpoint' as any]: 'localhost:4100',
+        secretAccessKey: 'fake',
+        sslEnabled: false,
+      }),
+      region: this.region,
+    });
     this.app = Consumer.create({
       batchSize: 10,
-      handleMessage: (message: SQS.Message) => {
+      handleMessage: (message: Message) => {
         return this.handleMessage(message);
       },
       queueUrl: this.queueName,
@@ -89,14 +94,14 @@ export class QueueworkerService
       // Verify that the queue exists
       const queueParts = this.queueName.split('/');
       const queueName = queueParts[queueParts.length - 1];
-      const queues = await this.sqs.listQueues().promise();
+      // This returns paginated results, defaulting to the first 1000.
+      // We don't expect to have this many initially that we can read.
+      const command = new ListQueuesCommand({});
+      const queues = await this.sqs.send(command);
 
       if (!queues.QueueUrls || !queues.QueueUrls.includes(queueName)) {
-        await this.sqs
-          .createQueue({
-            QueueName: queueName,
-          })
-          .promise();
+        const command = new CreateQueueCommand({ QueueName: queueName });
+        await this.sqs.send(command);
       }
     } else {
       // Production queue names must have the region in them.
@@ -162,7 +167,11 @@ export class QueueworkerService
    * @param eventType Event type to use for metrics
    */
   private async handleMessageFanout(
-    message: dto.deleteSchema | dto.profileSchema | dto.passwordSchema,
+    message:
+      | dto.deleteSchema
+      | dto.profileSchema
+      | dto.passwordSchema
+      | dto.appleUserMigrationSchema,
     eventType: string
   ) {
     this.metrics.increment('message.type', { eventType });
@@ -262,11 +271,29 @@ export class QueueworkerService
   }
 
   /**
+   * Notify Pocket that a user's Apple account has been migrated.
+   *
+   * @param message Incoming SQS Message
+   */
+  private async handleAppleUserMigrationEvent(
+    message: dto.appleUserMigrationSchema
+  ) {
+    // Note the hardcoded Pocket clientId, this value should not change in production
+    const clientId = '749818d3f2e7857f';
+    this.metrics.increment('message.type', { eventType: 'appleMigration' });
+    const rpMessage = {
+      timestamp: Date.now(),
+      ...message,
+    };
+    await this.publishMessage(clientId, rpMessage);
+  }
+
+  /**
    * Process a SQS message, dispatch based on message event type.
    *
    * @param sqsMessage Incoming SQS Message
    */
-  private async handleMessage(sqsMessage: SQS.Message) {
+  private async handleMessage(sqsMessage: Message) {
     const processingStart = Date.now();
     const body = JSON.parse(sqsMessage.Body || '{}');
     const message = ServiceNotification.from(this.log, body);
@@ -304,6 +331,10 @@ export class QueueworkerService
       case dto.PASSWORD_CHANGE_EVENT:
       case dto.PASSWORD_RESET_EVENT: {
         await this.handleMessageFanout(message, 'password');
+        break;
+      }
+      case dto.APPLE_USER_MIGRATION_EVENT: {
+        await this.handleAppleUserMigrationEvent(message);
         break;
       }
       default:

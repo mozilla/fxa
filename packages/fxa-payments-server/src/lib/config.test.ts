@@ -119,6 +119,12 @@ const encodedFeatureFlags = encodeURIComponent(
 const expectedMergedConfig = {
   env: 'development',
   featureFlags: { foo: 1, bar: true },
+  googleAnalytics: {
+    enabled: false,
+    measurementId: '',
+    supportedProductIds: 'prod_GqM9ToKK62qjkK',
+    testMode: false,
+  },
   lang: '',
   legalDocLinks: {
     privacyNotice: 'https://abc.xyz/privacy',

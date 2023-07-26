@@ -1,0 +1,4 @@
+{
+  "name": "@fxa/shared/metrics/statsd",
+  "version": "0.0.0"
+}

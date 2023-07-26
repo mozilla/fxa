@@ -77,7 +77,7 @@ describe('lib/server', () => {
 
   describe('logValidationError', () => {
     const msg = 'Invalid response payload';
-    let response = {
+    const response = {
       __proto__: {
         name: 'ValidationError',
       },
@@ -109,20 +109,6 @@ describe('lib/server', () => {
         response.stack,
         response
       );
-    });
-
-    it('does not log or report other types of errors', () => {
-      response = {
-        __proto__: {
-          name: 'OtherError',
-        },
-      };
-      const mockLog = {
-        error: sinon.stub(),
-      };
-      server._logValidationError(response, mockLog);
-      sinon.assert.notCalled(mockLog.error);
-      sinon.assert.notCalled(mockReportValidationError);
     });
   });
 

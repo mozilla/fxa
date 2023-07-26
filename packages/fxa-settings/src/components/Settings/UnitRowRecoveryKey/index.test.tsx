@@ -43,13 +43,14 @@ const featureFlagConfig = {
 
 const renderWithContext = (
   account: Partial<Account>,
-  config?: Partial<Config>
+  config?: Partial<Config>,
+  showRecoveryKeyV2?: boolean
 ) => {
   const context = { account: account as Account, config: config as Config };
 
   renderWithRouter(
     <AppContext.Provider value={mockAppContext(context)}>
-      <UnitRowRecoveryKey />
+      <UnitRowRecoveryKey {...{ showRecoveryKeyV2 }} />
     </AppContext.Provider>
   );
 };
@@ -189,7 +190,7 @@ describe('UnitRowRecoveryKey', () => {
 
   // NEW TESTS FOR VERSION 2
   it('renders version 2 as expected when account recovery key is set', () => {
-    renderWithContext(accountHasRecoveryKey, featureFlagConfig);
+    renderWithContext(accountHasRecoveryKey, featureFlagConfig, true);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
@@ -206,7 +207,7 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('renders version 2 as expected when account recovery key is not set', () => {
-    renderWithContext(accountWithoutRecoveryKey, featureFlagConfig);
+    renderWithContext(accountWithoutRecoveryKey, featureFlagConfig, true);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
@@ -217,7 +218,7 @@ describe('UnitRowRecoveryKey', () => {
   });
 
   it('disables key creation in version 2 when account has no password', () => {
-    renderWithContext(accountWithoutPassword, featureFlagConfig);
+    renderWithContext(accountWithoutPassword, featureFlagConfig, true);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
       screen.getByTestId('recovery-key-unit-row-header-value').textContent
@@ -253,7 +254,8 @@ describe('UnitRowRecoveryKey', () => {
 
       renderWithContext(
         accountHasRecoveryKeyWithDeleteSuccess,
-        featureFlagConfig
+        featureFlagConfig,
+        true
       );
 
       const deleteButtons = screen.getAllByRole('button', { hidden: false });
@@ -277,7 +279,8 @@ describe('UnitRowRecoveryKey', () => {
 
       renderWithContext(
         accountHasRecoveryKeyWithDeleteFailure,
-        featureFlagConfig
+        featureFlagConfig,
+        true
       );
 
       const deleteButtons = screen.getAllByRole('button', { hidden: false });

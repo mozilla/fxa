@@ -4,7 +4,7 @@
 
 import React, { useState } from 'react';
 import { Meta } from '@storybook/react';
-import { withLocalization } from '../../../../.storybook/decorators';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import { FlowContainer } from '.';
 import { ProgressBar } from '../ProgressBar';
 import { LocationProvider } from '@reach/router';

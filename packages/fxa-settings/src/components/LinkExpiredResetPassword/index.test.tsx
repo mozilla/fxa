@@ -3,11 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { LocationProvider } from '@reach/router';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { LinkExpiredResetPassword } from '.';
-import { mockAppContext, MOCK_ACCOUNT } from '../../models/mocks';
-import { Account, AppContext } from '../../models';
+import {
+  mockAppContext,
+  MOCK_ACCOUNT,
+  createHistoryWithQuery,
+  renderWithRouter,
+  createAppContext,
+} from '../../models/mocks';
+import { Account } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from 'fxa-settings/src/constants';
 
 const viewName = 'example-view-name';
@@ -17,25 +22,31 @@ jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
 }));
 
-function renderLinkExpiredResetPasswordWithAccount(account: Account) {
-  render(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider>
-        <LinkExpiredResetPassword {...{ email, viewName }} />
-      </LocationProvider>
-    </AppContext.Provider>
+const route = '/bloop';
+const renderWithHistory = (ui: any, queryParams = '', account?: Account) => {
+  const history = createHistoryWithQuery(route, queryParams);
+  return renderWithRouter(
+    ui,
+    {
+      route,
+      history,
+    },
+    mockAppContext({
+      ...createAppContext(history),
+      ...(account && { account }),
+    })
   );
-}
+};
 
 describe('LinkExpiredResetPassword', () => {
-  const account = {} as unknown as Account;
+  const component = <LinkExpiredResetPassword {...{ email, viewName }} />;
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
   it('renders the component as expected for an expired Reset Password link', () => {
-    renderLinkExpiredResetPasswordWithAccount(account);
+    renderWithHistory(component);
 
     screen.getByRole('heading', {
       name: 'Reset password link expired',
@@ -47,10 +58,10 @@ describe('LinkExpiredResetPassword', () => {
   });
   it('displays a success banner when clicking on "receive a new link" is successful', async () => {
     const account = {
-      resendResetPassword: jest.fn().mockResolvedValue(true),
+      resetPassword: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
 
-    renderLinkExpiredResetPasswordWithAccount(account);
+    renderWithHistory(component, '', account);
     const receiveNewLinkButton = screen.getByRole('button', {
       name: 'Receive new link',
     });
@@ -65,10 +76,10 @@ describe('LinkExpiredResetPassword', () => {
   });
   it('displays an error banner when clicking on "receive a new link" is unsuccessful', async () => {
     const account = {
-      resendResetPassword: jest.fn().mockRejectedValue('error'),
+      resetPassword: jest.fn().mockRejectedValue('error'),
     } as unknown as Account;
 
-    renderLinkExpiredResetPasswordWithAccount(account);
+    renderWithHistory(component, '', account);
     const receiveNewLinkButton = screen.getByRole('button', {
       name: 'Receive new link',
     });

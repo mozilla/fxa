@@ -129,6 +129,7 @@ const mockConfig = {
   subscriptions: {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
+    stripeInvoiceImmediately: { enabled: false },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
@@ -1698,7 +1699,7 @@ describe('#integration - StripeHelper', () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
-        .resolves(validInvoicePreview);
+        .resolves([validInvoicePreview, undefined]);
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -1741,7 +1742,7 @@ describe('#integration - StripeHelper', () => {
       const expected = { ...expectedTemplate, discountAmount: 200 };
       sandbox
         .stub(stripeHelper, 'previewInvoice')
-        .resolves({ ...validInvoicePreview, total: 0 });
+        .resolves([{ ...validInvoicePreview, total: 0 }, undefined]);
 
       sandbox.stub(stripeHelper, 'retrievePromotionCodeForPlan').resolves({
         active: true,
@@ -2089,6 +2090,52 @@ describe('#integration - StripeHelper', () => {
       } catch (e) {
         sinon.assert.calledOnce(stripeHelper.log.warn);
       }
+    });
+
+    it('retrieves both upcoming invoices with and without proration info', async () => {
+      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = true;
+      const stripeStub = sandbox
+        .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
+        .resolves();
+      sandbox.stub(Math, 'floor').returns(1);
+
+      await stripeHelper.previewInvoice({
+        customer: customer1,
+        priceId: 'priceId',
+        taxAddress: {
+          countryCode: 'US',
+          postalCode: '92841',
+        },
+        isUpgrade: true,
+        sourcePlan: {
+          plan_id: 'plan_test1',
+        },
+      });
+
+      sinon.assert.callCount(stripeStub, 2);
+
+      sinon.assert.calledWith(stripeStub, {
+        customer: 'cus_test1',
+        automatic_tax: {
+          enabled: false,
+        },
+        customer_details: {
+          tax_exempt: 'none',
+          shipping: undefined,
+        },
+        subscription_proration_behavior: 'always_invoice',
+        subscription: customer1.subscriptions?.data[0].id,
+        subscription_proration_date: 1,
+        subscription_items: [
+          {
+            price: 'priceId',
+            id: customer1.subscriptions?.data[0].items.data[0].id,
+          },
+        ],
+        expand: ['total_tax_amounts.tax_rate'],
+      });
+
+      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = false;
     });
   });
 
@@ -3586,6 +3633,7 @@ describe('#integration - StripeHelper', () => {
               plan: 'plan_G93mMKnIFCjZek',
             },
           ],
+          proration_behavior: 'create_prorations',
           metadata: {
             key: 'value',
             previous_plan_id: subscription1.items.data[0].plan.id,
@@ -3610,6 +3658,49 @@ describe('#integration - StripeHelper', () => {
       }
       assert.equal(thrown.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
       sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
+    });
+
+    it(`uses 'always_invoice' when the config is enabled`, async () => {
+      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = true;
+
+      const unixTimestamp = moment().unix();
+      const subscription = deepCopy(subscription1);
+      subscription.metadata = {
+        key: 'value',
+        previous_plan_id: 'plan_123',
+        plan_change_date: 12345678,
+      };
+
+      sandbox.stub(moment, 'unix').returns(unixTimestamp);
+      sandbox
+        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
+        .resolves(subscription2);
+
+      const actual = await stripeHelper.changeSubscriptionPlan(
+        subscription,
+        'plan_G93mMKnIFCjZek'
+      );
+
+      assert.deepEqual(actual, subscription2);
+      sinon.assert.calledWithExactly(
+        stripeHelper.updateSubscriptionAndBackfill,
+        subscription,
+        {
+          cancel_at_period_end: false,
+          items: [
+            {
+              id: subscription1.items.data[0].id,
+              plan: 'plan_G93mMKnIFCjZek',
+            },
+          ],
+          proration_behavior: 'always_invoice',
+          metadata: {
+            key: 'value',
+            previous_plan_id: subscription1.items.data[0].plan.id,
+            plan_change_date: unixTimestamp,
+          },
+        }
+      );
     });
   });
 
@@ -5866,12 +5957,14 @@ describe('#integration - StripeHelper', () => {
         (
           isUpgrade,
           upcomingInvoice = undefined,
-          expectedPaymentProratedInCents
+          expectedPaymentProratedInCents = 0
         ) =>
         async () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
           const productIdNew = event.data.object.plan.product;
+          const invoiceImmediately =
+            stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled;
 
           const baseDetails = {
             ...expectedBaseUpdateDetails,
@@ -5938,7 +6031,6 @@ describe('#integration - StripeHelper', () => {
             productIdNew,
             updateType:
               SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
-            invoiceTotalNewInCents: mockInvoice.total,
             productIdOld,
             productNameOld,
             productIconURLOld,
@@ -5946,25 +6038,46 @@ describe('#integration - StripeHelper', () => {
               event.data.previous_attributes.plan.interval,
             paymentAmountOldCurrency:
               event.data.previous_attributes.plan.currency,
-            paymentAmountOldInCents: event.data.previous_attributes.plan.amount,
-            paymentProratedCurrency: upcomingInvoice
-              ? upcomingInvoice.currency
-              : mockInvoice.currency,
-            paymentProratedInCents: upcomingInvoice
-              ? expectedPaymentProratedInCents
-              : mockInvoice.amount_due,
+            paymentAmountOldInCents:
+              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
+                ? upcomingInvoice.total
+                : baseDetails.invoiceTotalOldInCents,
+            paymentAmountNewCurrency:
+              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
+                ? upcomingInvoice.currency
+                : mockInvoice.currency,
+            paymentAmountNewInCents:
+              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
+                ? upcomingInvoice.total
+                : mockInvoice.total,
+            paymentProratedCurrency:
+              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
+                ? upcomingInvoice.currency
+                : mockInvoice.currency,
+            paymentProratedInCents:
+              upcomingInvoice && !invoiceImmediately
+                ? expectedPaymentProratedInCents
+                : mockInvoice.amount_due,
             invoiceNumber: mockInvoice.number,
             invoiceId: mockInvoice.id,
+            invoiceImmediately: invoiceImmediately,
           });
         };
 
       it(
         'extracts expected details for a subscription upgrade',
-        commonTest(true)
+        commonTest(true, {
+          currency: 'usd',
+          total: 1234,
+        })
       );
+
       it(
         'extracts expected details for a subscription downgrade',
-        commonTest(false)
+        commonTest(false, {
+          currency: 'usd',
+          total: 1234,
+        })
       );
 
       it('checks productPaymentCycleOld returns a value if it is not included in the old plan', async () => {
@@ -6041,19 +6154,16 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade with pending invoice items',
-        commonTest(
-          false,
-          {
-            currency: 'usd',
-            lines: {
-              data: [
-                { type: 'invoiceitem', amount: -500 },
-                { type: 'invoiceitem', amount: 2500 },
-              ],
-            },
+        commonTest(false, {
+          currency: 'usd',
+          total: 1234,
+          lines: {
+            data: [
+              { type: 'invoiceitem', amount: -500 },
+              { type: 'invoiceitem', amount: 2500 },
+            ],
           },
-          2000
-        )
+        })
       );
     });
 
@@ -6176,7 +6286,7 @@ describe('#integration - StripeHelper', () => {
       const mockPaymentMethod = {
         card: {
           last4: '4321',
-          brand: 'MasterCard',
+          brand: 'Mastercard',
           country: 'US',
         },
         billing_details: {

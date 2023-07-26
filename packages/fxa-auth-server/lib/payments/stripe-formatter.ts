@@ -2,20 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
+import { InvoicePreview } from 'fxa-shared/subscriptions/types';
 import { Stripe } from 'stripe';
+import { config } from '../../config';
 
 /**
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
  */
 export function stripeInvoiceToFirstInvoicePreviewDTO(
-  invoice: Stripe.UpcomingInvoice
+  invoice: InvoicePreview
 ): invoiceDTO.FirstInvoicePreview {
   const invoicePreview: invoiceDTO.firstInvoicePreviewSchema = {
-    subtotal: invoice.subtotal,
-    subtotal_excluding_tax: invoice.subtotal_excluding_tax,
-    total: invoice.total,
-    total_excluding_tax: invoice.total_excluding_tax,
-    line_items: invoice.lines.data.map((line) => ({
+    subtotal: invoice[0].subtotal,
+    subtotal_excluding_tax: invoice[0].subtotal_excluding_tax,
+    total: invoice[0].total,
+    total_excluding_tax: invoice[0].total_excluding_tax,
+    line_items: invoice[0].lines.data.map((line) => ({
       amount: line.amount,
       currency: line.currency,
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -29,25 +31,40 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
   };
 
   // Add tax if it exists
-  if (invoice.total_tax_amounts.length > 0) {
-    invoicePreview.tax = invoice.total_tax_amounts.map((tax) => ({
+  if (invoice[0].total_tax_amounts.length > 0) {
+    invoicePreview.tax = invoice[0].total_tax_amounts.map((tax) => ({
       amount: tax.amount,
       inclusive: tax.inclusive,
       display_name:
         typeof tax.tax_rate === 'object'
-          ? tax.tax_rate.display_name
+          ? tax.tax_rate.display_name || undefined
           : undefined,
     }));
   }
 
   // Add discount if it exists
-  if (invoice.discount && invoice.total_discount_amounts) {
+  if (invoice[0].discount && invoice[0].total_discount_amounts) {
     invoicePreview.discount = {
-      amount: invoice.total_discount_amounts[0].amount,
-      amount_off: invoice.discount.coupon.amount_off,
-      percent_off: invoice.discount.coupon.percent_off,
+      amount: invoice[0].total_discount_amounts[0].amount,
+      amount_off: invoice[0].discount.coupon.amount_off,
+      percent_off: invoice[0].discount.coupon.percent_off,
     };
   }
+
+  if (
+    invoice[1] &&
+    config.getProperties().subscriptions.stripeInvoiceImmediately
+  ) {
+    const proration = invoice[1].lines.data.find(
+      (lineItem) => lineItem.proration
+    );
+
+    if (proration) {
+      invoicePreview.prorated_amount = proration.amount;
+      invoicePreview.one_time_charge = invoice[1].total;
+    }
+  }
+
   return invoicePreview;
 }
 
@@ -73,7 +90,7 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
         inclusive: tax.inclusive,
         display_name:
           typeof tax.tax_rate === 'object'
-            ? tax.tax_rate.display_name
+            ? tax.tax_rate.display_name || undefined
             : undefined,
       }));
     }
@@ -91,5 +108,5 @@ export function stripeInvoicesToSubsequentInvoicePreviewsDTO(
 export function stripeInvoiceToLatestInvoiceItemsDTO(
   invoice: Stripe.Invoice
 ): invoiceDTO.LatestInvoiceItems {
-  return stripeInvoiceToFirstInvoicePreviewDTO(invoice);
+  return stripeInvoiceToFirstInvoicePreviewDTO([invoice, undefined]);
 }

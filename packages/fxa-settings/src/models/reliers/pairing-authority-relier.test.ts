@@ -7,11 +7,18 @@ import { PairingAuthorityRelier } from './pairing-authority-relier';
 
 describe('models/reliers/pairing-authority-relier', function () {
   let data: ModelDataStore;
+  let storageData: ModelDataStore;
   let model: PairingAuthorityRelier;
 
   beforeEach(function () {
     data = new GenericData({});
-    model = new PairingAuthorityRelier(data);
+    storageData = new GenericData({});
+    model = new PairingAuthorityRelier(data, storageData, {
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
+      isPromptNoneEnabled: true,
+      isPromptNoneEnabledClientIds: [],
+    });
   });
 
   it('exists', () => {
