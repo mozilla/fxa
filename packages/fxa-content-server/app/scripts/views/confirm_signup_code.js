@@ -7,6 +7,7 @@ import AuthErrors from '../lib/auth-errors';
 import Cocktail from '../lib/cocktail';
 import FlowEventsMixin from './mixins/flow-events-mixin';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/confirm_signup_code.mustache';
 import ResendMixin from './mixins/resend-mixin';
@@ -60,12 +61,18 @@ class ConfirmSignupCodeView extends FormView {
     }
   }
 
+  logView() {
+    GleanMetrics.signupConfirmation.view();
+    return proto.logView.call(this);
+  }
+
   resend() {
     const account = this.getAccount();
     return account.verifySessionResendCode();
   }
 
   submit() {
+    GleanMetrics.signupConfirmation.submit();
     const account = this.getAccount();
     const code = this.getElementValue(CODE_INPUT_SELECTOR);
     const newsletters = account.get('newsletters');

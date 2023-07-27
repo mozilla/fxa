@@ -236,6 +236,20 @@ describe('lib/glean', () => {
       });
     });
 
+    describe('signup confirmation code', () => {
+      it('submit a ping with the reg_signup_code_view event name', () => {
+        GleanMetrics.signupConfirmation.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
+      });
+
+      it('submit a ping with the reg_signup_code_submit event name', () => {
+        GleanMetrics.signupConfirmation.submit();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
+      });
+    });
+
     describe('loginConfirmation', () => {
       it('submits a ping with the login_email_confirmation_view event name', () => {
         GleanMetrics.loginConfirmation.view();
