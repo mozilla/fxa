@@ -64,8 +64,10 @@ jobs:
           then
             echo "No changes found."
           else
-            gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n"
-            if [ $? -ne 0 ]; then
+            # `grep -p "fxa-l10n` fails w/exit code 1 when 'fxa-l10n' is not found in the review list and breaks the
+            # command pipeline. Capture this with `GREP_STATUS` to directly check against the grep exit code
+            gh pr view $PR_NUMBER --json reviewRequests | jq -r ".reviewRequests[].name" | grep -q "fxa-l10n" || GREP_STATUS=$?
+            if [ $GREP_STATUS -ne 0 ]; then
                 # Check if someone from the Localization Team already reviewed the PR.
                 # Get the list of fxa-l10n reviewers, excluding non-l10n members
                 L10N_REVIEWERS=$(gh api -H "Accept: application/vnd.github+json" /orgs/mozilla/teams/fxa-l10n/members | jq -r '(.[].login | select(. != "clouserw"))' | sort)
