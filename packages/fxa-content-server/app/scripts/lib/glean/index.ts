@@ -107,6 +107,8 @@ export const GleanMetrics = {
 
   totpForm: {
     view: createEventFn('login_totp_form_view'),
+    submit: createEventFn('login_totp_code_submit'),
+    success: createEventFn('login_totp_code_success_view'),
   },
 };
 
