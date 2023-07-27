@@ -17,6 +17,7 @@ import ThirdPartyAuth from '../templates/partial/third-party-auth.mustache';
 import FlowBeginMixin from './mixins/flow-begin-mixin';
 import FormPrefillMixin from './mixins/form-prefill-mixin';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import ThirdPartyAuthMixin from './mixins/third-party-auth-mixin';
@@ -90,6 +91,11 @@ class IndexView extends FormView {
     } else {
       return this.chooseEmailActionPage();
     }
+  }
+
+  logView() {
+    GleanMetrics.emailFirst.view();
+    return super.logView.call(this);
   }
 
   afterVisible() {
