@@ -18,16 +18,7 @@ import { withLocalization } from 'fxa-react/lib/storybooks';
 export default {
   title: 'Components/ConfirmWithLink',
   component: ConfirmWithLink,
-  decorators: [
-    withLocalization,
-    (Story) => (
-      <LocationProvider>
-        <AppLayout>
-          <Story />
-        </AppLayout>
-      </LocationProvider>
-    ),
-  ],
+  decorators: [withLocalization],
 } as Meta;
 
 export const ResendSuccess = () => <SubjectWithEmailResendSuccess />;

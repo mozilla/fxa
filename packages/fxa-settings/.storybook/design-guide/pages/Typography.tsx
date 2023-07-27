@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
-import { withLocalization } from 'fxa-react/lib/AppLocalizationProvider';
 
 /**
  * Note: we have a handful of concatenated classes here, which PurgeCSS will not observe
@@ -31,59 +30,65 @@ export const Typography = ({ config }) => {
 
     return (
       <table className="flex flex-col">
-        <tr className="flex mb-2">
-          <th className="flex-1 text-left">class</th>
-          <th className="flex-2 text-left">value</th>
-          <th className="flex-7 text-left flex">
-            <div className="flex-1">
-              preview
-              <span className="font-normal">
-                {' '}
-                with{' '}
-                <Copiable value={fontWeightClass}>
-                  <code className="text-purple-700 font-normal">
-                    {fontWeightClass}
+        <thead>
+          <tr className="flex mb-2">
+            <th className="flex-1 text-left">class</th>
+            <th className="flex-2 text-left">value</th>
+            <th className="flex-7 text-left flex">
+              <div className="flex-1">
+                preview
+                <span className="font-normal">
+                  {' '}
+                  with{' '}
+                  <Copiable value={fontWeightClass}>
+                    <code className="text-purple-700 font-normal">
+                      {fontWeightClass}
+                    </code>
+                  </Copiable>
+                </span>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <button
+                  onClick={toggleIsBold}
+                  className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal hover:bg-grey-50"
+                >
+                  click to apply{' '}
+                  <code className="text-grey-500">
+                    {toggleToFontWeightClass}
                   </code>
-                </Copiable>
-              </span>
-            </div>
-            <div className="flex-1 flex justify-end">
-              <button
-                onClick={toggleIsBold}
-                className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal hover:bg-grey-50"
-              >
-                click to apply{' '}
-                <code className="text-grey-500">{toggleToFontWeightClass}</code>
-              </button>
-              <button
-                onClick={toggleHasBreak}
-                className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal ml-2 hover:bg-grey-50"
-              >
-                click to {hasBreak ? 'remove' : 'add'}{' '}
-                <code className="text-grey-500">{'<br />'}</code>
-              </button>
-            </div>
-          </th>
-        </tr>
-        {Object.keys(twFontSizes).map((fontSize) => (
-          <tr className="flex mb-1">
-            <td className="flex-1">
-              <Copiable value={`text-${fontSize}`}>
-                <code>{`text-${fontSize}`}</code>
-              </Copiable>
-            </td>
-            <td className="flex-2">
-              <code>{twFontSizes[fontSize]}</code> (
-              <code>{parseInt(twFontSizes[fontSize]) / 16}rem</code>)
-            </td>
-            <td
-              className={`text-${fontSize} font-${fontFamilyShortName} ${fontWeightClass} flex-7`}
-            >
-              The quick brown Firefox {hasBreak && <br />} jumps over the lazy
-              dog. 🦊
-            </td>
+                </button>
+                <button
+                  onClick={toggleHasBreak}
+                  className="border border-grey-200 rounded-md px-2 py-1 shadow-sm text-xs font-normal ml-2 hover:bg-grey-50"
+                >
+                  click to {hasBreak ? 'remove' : 'add'}{' '}
+                  <code className="text-grey-500">{'<br />'}</code>
+                </button>
+              </div>
+            </th>
           </tr>
-        ))}
+        </thead>
+        <tbody>
+          {Object.keys(twFontSizes).map((fontSize) => (
+            <tr className="flex mb-1" key={fontSize}>
+              <td className="flex-1">
+                <Copiable value={`text-${fontSize}`}>
+                  <code>{`text-${fontSize}`}</code>
+                </Copiable>
+              </td>
+              <td className="flex-2">
+                <code>{twFontSizes[fontSize]}</code> (
+                <code>{parseInt(twFontSizes[fontSize]) / 16}rem</code>)
+              </td>
+              <td
+                className={`text-${fontSize} font-${fontFamilyShortName} ${fontWeightClass} flex-7`}
+              >
+                The quick brown Firefox {hasBreak && <br />} jumps over the lazy
+                dog. 🦊
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
     );
   };
@@ -96,7 +101,10 @@ export const Typography = ({ config }) => {
       </p>
       <div>
         {Object.keys(twFontFamilies).map((fontFamilyShortName) => (
-          <div className="mb-6 border border-grey-200 rounded-md shadow-md">
+          <div
+            className="mb-6 border border-grey-200 rounded-md shadow-md"
+            key={fontFamilyShortName}
+          >
             <div className="bg-purple-700 rounded-t-sm p-2 flex justify-between">
               <Copiable value={`font-${fontFamilyShortName}`}>
                 <code className="text-white flex-1">
@@ -118,4 +126,4 @@ export const Typography = ({ config }) => {
   );
 };
 
-export default (config) => withLocalization(() => Typography(config));
+export default (config) => Typography(config);

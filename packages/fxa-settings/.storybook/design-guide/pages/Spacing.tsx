@@ -3,6 +3,7 @@ import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 const nonIntMap = {
   px: {
@@ -110,12 +111,12 @@ const Spacing = ({ config }) => {
       <div className="border border-grey-200 rounded-md shadow-md p-3 bg-white">
         <table className="flex flex-col">
           <thead>
-            <th className="flex text-left">
-              <td className="flex-1 pb-2">name</td>
-              <td className="flex-2 pb-2">value</td>
-              <td className="flex-7 pb-2">example</td>
-              <td className="flex-1 pb-2 text-right">availability</td>
-            </th>
+            <tr className="flex text-left">
+              <th className="flex-1 pb-2">name</th>
+              <th className="flex-2 pb-2">value</th>
+              <th className="flex-7 pb-2">example</th>
+              <th className="flex-1 pb-2 text-right">availability</th>
+            </tr>
           </thead>
           <tbody>
             {Object.keys(twSpacing).map((size) => {
@@ -124,7 +125,7 @@ const Spacing = ({ config }) => {
               const parsedValue = parseFloat(data.value);
 
               return (
-                <tr className="flex relative spacing-item-row">
+                <tr className="flex relative spacing-item-row" key={size}>
                   <td className="flex-1 mb-2">
                     <code>{size}</code>
 
@@ -194,7 +195,7 @@ const Spacing = ({ config }) => {
                   <td className="flex-1 mb-2 text-right">
                     <span>
                       {data.available.map((a) => (
-                        <code className="bg-white ml-1 bg-grey-100 px-1 rounded-sm">
+                        <code className="bg-white ml-1 px-1 rounded-sm" key={a}>
                           {a}
                         </code>
                       ))}
@@ -210,4 +211,4 @@ const Spacing = ({ config }) => {
   );
 };
 
-export default (config) => withLocalization(() => Spacing(config));
+export default (config) => Spacing(config);

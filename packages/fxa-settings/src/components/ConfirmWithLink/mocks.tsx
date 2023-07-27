@@ -6,6 +6,7 @@ import React, { useState } from 'react';
 import ConfirmWithLink, { ConfirmWithLinkProps } from '.';
 import { ResendStatus } from '../../lib/types';
 import { MOCK_ACCOUNT } from '../../models/mocks';
+import AppLayout from '../AppLayout';
 
 const MOCK_STRINGS = {
   headingFtlId: 'mock-confirmation-heading',
@@ -29,12 +30,14 @@ export const SubjectWithEmailResendSuccess = () => {
   };
 
   return (
-    <ConfirmWithLink
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailHandler={MOCK_EMAIL_RESEND_SUCCESS}
-      resendStatus={mockResendStatus}
-    />
+    <AppLayout>
+      <ConfirmWithLink
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        confirmWithLinkPageStrings={MOCK_STRINGS}
+        resendEmailHandler={MOCK_EMAIL_RESEND_SUCCESS}
+        resendStatus={mockResendStatus}
+      />
+    </AppLayout>
   );
 };
 
@@ -49,12 +52,14 @@ export const SubjectWithEmailResendError = () => {
   };
 
   return (
-    <ConfirmWithLink
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailHandler={MOCK_EMAIL_RESEND_FAIL}
-      resendStatus={mockResendStatus}
-    />
+    <AppLayout>
+      <ConfirmWithLink
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        confirmWithLinkPageStrings={MOCK_STRINGS}
+        resendEmailHandler={MOCK_EMAIL_RESEND_FAIL}
+        resendStatus={mockResendStatus}
+      />
+    </AppLayout>
   );
 };
 
@@ -71,12 +76,14 @@ export const SubjectCanGoBack = ({
   };
 
   return (
-    <ConfirmWithLink
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      confirmWithLinkPageStrings={MOCK_STRINGS}
-      resendEmailHandler={MOCK_RESEND_HANDLER_SUCCESS}
-      resendStatus={mockResendStatus}
-      {...{ navigateBackHandler }}
-    />
+    <AppLayout>
+      <ConfirmWithLink
+        email={MOCK_ACCOUNT.primaryEmail.email}
+        confirmWithLinkPageStrings={MOCK_STRINGS}
+        resendEmailHandler={MOCK_RESEND_HANDLER_SUCCESS}
+        resendStatus={mockResendStatus}
+        {...{ navigateBackHandler }}
+      />
+    </AppLayout>
   );
 };

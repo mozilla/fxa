@@ -2,7 +2,6 @@ import React from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
-import { withLocalization } from 'fxa-react/lib/storybooks';
 
 const Swatch = ({
   color,
@@ -19,7 +18,7 @@ const Swatch = ({
   }
 
   return (
-    <div className="inline-block w-20 mr-2 shadow-md rounded border border-black/25 bg-white">
+    <div className="w-32 text-center mr-2 shadow-md rounded border border-black/25 bg-white">
       <div className="p-2">
         {shade && (
           <Copiable value={copyValue}>
@@ -64,7 +63,7 @@ const Colors = ({ config }) => {
         color) with the name of the color and optionally the shade. Some
         examples:
       </p>
-      <div className="leading-6 flex flex-wrap shadow-md border border-black/25 rounded max-w-2xl p-3 pt-1 mb-8 bg-white">
+      <div className="leading-6 flex flex-wrap shadow-md border border-black/25 rounded max-w-2xl p-3 pt-1 mb-8 bg-white gap-3">
         <Copiable value="bg-blue-100">
           <code className="mt-2 inline-block rounded-sm px-1 bg-blue-100 text-sm mr-2">
             bg-blue-100
@@ -108,15 +107,21 @@ const Colors = ({ config }) => {
         </Copiable>
       </div>
       {Object.keys(twColors).map((name) => (
-        <div className="mb-6 flex flex-column items-end">
-          <h2 className="pr-5 font-bold flex-80px">
+        <div
+          className="mb-6 flex flex-column gap-2 items-end flex-wrap"
+          key={name}
+        >
+          <h2 className="pr-5 font-bold w-full">
             {name.charAt(0).toUpperCase() + name.slice(1)}
           </h2>
           {typeof twColors[name] === 'string' ? (
             <Swatch color={name} hex={twColors[name]} />
           ) : (
             Object.keys(twColors[name]).map((shade) => (
-              <Swatch {...{ color: name, hex: twColors[name][shade], shade }} />
+              <Swatch
+                {...{ color: name, hex: twColors[name][shade], shade }}
+                key={shade}
+              />
             ))
           )}
         </div>
@@ -125,4 +130,4 @@ const Colors = ({ config }) => {
   );
 };
 
-export default (config) => withLocalization(() => Colors(config));
+export default (config) => Colors(config);

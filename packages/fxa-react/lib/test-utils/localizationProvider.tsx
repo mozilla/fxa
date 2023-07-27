@@ -1,3 +1,4 @@
+import React from 'react';
 import { render } from '@testing-library/react';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
@@ -8,15 +9,20 @@ export function renderWithLocalizationProvider(
   // by default fluent warns about missing messages, but there's no way to
   // disable it right now.  see
   // https://github.com/projectfluent/fluent.js/issues/411
-  return render(withLocalizationProvider(children, messages));
+  return render(
+    <AppLocalizationProvider {...{ messages }}>
+      {children}
+    </AppLocalizationProvider>
+  );
 }
 
 export function withLocalizationProvider(
   children: JSX.Element,
-  messages = { en: ['testo: lol'] }
+  baseDir = '/locales',
+  userLocales = navigator.languages || ['en']
 ) {
   return (
-    <AppLocalizationProvider messages={messages}>
+    <AppLocalizationProvider {...{ baseDir, userLocales }}>
       {children}
     </AppLocalizationProvider>
   );

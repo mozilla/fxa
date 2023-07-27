@@ -44,11 +44,8 @@ describe('FormPasswordWithBalloons component', () => {
       fireEvent.focus(newPasswordField);
     });
 
-    await waitFor(
-      () => expect(screen.getByText('Password requirements')).toBeVisible(),
-      {
-        timeout: SHOW_BALLOON_TIMEOUT,
-      }
+    await waitFor(() =>
+      expect(screen.getByText('Password requirements')).toBeVisible()
     );
   });
 
