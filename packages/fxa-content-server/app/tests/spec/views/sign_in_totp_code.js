@@ -9,6 +9,7 @@ import Account from 'models/account';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
+import GleanMetrics from '../../../scripts/lib/glean';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
@@ -258,6 +259,23 @@ describe('views/sign_in_totp_code', () => {
           'correct error thrown'
         );
       });
+    });
+  });
+
+  describe('logView', () => {
+    let viewMetricsEventStub;
+
+    beforeEach(() => {
+      viewMetricsEventStub = sinon.stub(GleanMetrics.totpForm, 'view');
+    });
+
+    afterEach(() => {
+      viewMetricsEventStub.restore();
+    });
+
+    it('submits a reg_view Glean ping', () => {
+      view.logView();
+      sinon.assert.calledOnce(viewMetricsEventStub);
     });
   });
 });

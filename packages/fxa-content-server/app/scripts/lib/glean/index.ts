@@ -104,6 +104,10 @@ export const GleanMetrics = {
     view: createEventFn('login_email_confirmation_view'),
     submit: createEventFn('login_email_confirmation_submit'),
   },
+
+  totpForm: {
+    view: createEventFn('login_totp_form_view'),
+  },
 };
 
 export default GleanMetrics;

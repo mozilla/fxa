@@ -5,6 +5,7 @@
 import AuthErrors from 'lib/auth-errors';
 import Cocktail from 'cocktail';
 import FormView from './form';
+import GleanMetrics from '../lib/glean';
 import ServiceMixin from './mixins/service-mixin';
 import Template from 'templates/sign_in_totp_code.mustache';
 import VerificationReasonMixin from './mixins/verification-reason-mixin';
@@ -26,6 +27,11 @@ const View = FormView.extend({
     if (!account || !account.get('sessionToken')) {
       this.navigate(this._getAuthPage());
     }
+  },
+
+  logView() {
+    GleanMetrics.totpForm.view();
+    return FormView.prototype.logView.call(this);
   },
 
   submit() {

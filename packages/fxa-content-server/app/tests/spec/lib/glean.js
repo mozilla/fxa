@@ -217,22 +217,50 @@ describe('lib/glean', () => {
     });
 
     describe('registration', () => {
-      it('submit a ping with the reg_view event name', () => {
+      it('submits a ping with the reg_view event name', () => {
         GleanMetrics.registration.view();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_view');
       });
 
-      it('submit a ping with the reg_submit event name', () => {
+      it('submits a ping with the reg_submit event name', () => {
         GleanMetrics.registration.submit();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit');
       });
 
-      it('submit a ping with the reg_submit_success event name', () => {
+      it('submits a ping with the reg_submit_success event name', () => {
         GleanMetrics.registration.success();
         sinon.assert.calledOnce(setEventNameStub);
         sinon.assert.calledWith(setEventNameStub, 'reg_submit_success');
+      });
+    });
+
+    describe('loginConfirmation', () => {
+      it('submits a ping with the login_email_confirmation_view event name', () => {
+        GleanMetrics.loginConfirmation.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_email_confirmation_view'
+        );
+      });
+
+      it('submits a ping with the reg_submit event name', () => {
+        GleanMetrics.loginConfirmation.submit();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(
+          setEventNameStub,
+          'login_email_confirmation_submit'
+        );
+      });
+    });
+
+    describe('totpForm', () => {
+      it('submits a ping with the login_totp_form_view event name', () => {
+        GleanMetrics.totpForm.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
       });
     });
   });
