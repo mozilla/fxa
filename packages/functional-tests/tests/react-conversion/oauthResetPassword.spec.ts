@@ -247,7 +247,12 @@ async function passwordResetFlow(
   await checkForReactApp({ page });
 
   // Verify reset password header
-  expect(await resetPassword.resetPasswordHeader()).toBe(true);
+  expect(
+    await resetPassword.resetPasswordHeader(
+      'Reset password to continue to 123Done'
+    )
+  ).toBe(true);
+
   await resetPassword.fillOutResetPassword(credentials.email);
 
   // Step 2 - Get the confirmation email
