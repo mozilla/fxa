@@ -96,7 +96,8 @@ describe('views/mixins/third-party-auth-mixin', function () {
       assert.isTrue(view.logViewEvent.calledOnceWith('thirdPartyAuth'));
     });
 
-    it('with third party auth set', () => {
+    it('with third party auth set from `enter-email`', () => {
+      view.viewName = 'enter-email';
       Storage.factory('localStorage', windowMock).set(
         'fxa_third_party_params',
         'some params'
@@ -106,6 +107,15 @@ describe('views/mixins/third-party-auth-mixin', function () {
       assert.isTrue(notifier.trigger.calledOnce);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
       assert.isFalse(view.logViewEvent.called);
+    });
+
+    it('with third party auth set from other', () => {
+      Storage.factory('localStorage', windowMock).set(
+        'fxa_third_party_params',
+        'some params'
+      );
+      view.beforeRender();
+      assert.isTrue(view.completeSignIn.notCalled);
     });
 
     it('google login deeplink', () => {

@@ -53,7 +53,11 @@ export default {
     const thirdPartyAuth = Storage.factory('localStorage', this.window).get(
       'fxa_third_party_params'
     );
-    if (thirdPartyAuth) {
+    
+    // Since this mixin is loaded from multiple views it is possible to have
+    // a race condition and call complete multiple times. We only want to call it
+    // on the `enter-email` view.
+    if (thirdPartyAuth && this.viewName ==='enter-email') {
       return this.completeSignIn();
     }
 
@@ -197,7 +201,7 @@ export default {
     );
     const code = authParams.code;
     const provider = authParams.provider || 'google';
-
+    
     return this.user
       .verifyAccountThirdParty(account, this.relier, code, provider)
       .then((updatedAccount) => {
