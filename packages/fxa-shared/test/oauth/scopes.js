@@ -118,6 +118,7 @@ describe('oauth/scopes:', () => {
       'profile:email!:write',
       ':',
       '::',
+      'profile+https://identity.mozilla.com/account/subscriptions',
       ':profile',
       'profile::email',
       'profile profile\0:email',

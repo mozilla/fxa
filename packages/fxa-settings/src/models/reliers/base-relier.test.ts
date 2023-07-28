@@ -32,8 +32,8 @@ describe('BaseRelier Model', function () {
   });
 
   describe('isTrusted', function () {
-    it('returns `true`', function () {
-      expect(model.isTrusted()).toBeTruthy();
+    it('returns `true`', async () => {
+      expect(await model.isTrusted()).toBeTruthy();
     });
   });
 

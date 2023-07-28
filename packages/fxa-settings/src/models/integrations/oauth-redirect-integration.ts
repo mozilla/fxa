@@ -94,7 +94,7 @@ export class OAuthRedirectIntegration {
       const clientKeyData = await this.callbacks.getOAuthScopedKeyData(
         sessionToken,
         this.relier.clientId,
-        this.relier.scope
+        await this.relier.getNormalizedScope()
       );
 
       if (clientKeyData && Object.keys(clientKeyData).length > 0) {
@@ -127,7 +127,7 @@ export class OAuthRedirectIntegration {
       acr_values: this.relier.acrValues,
       code_challenge: this.relier.codeChallenge,
       code_challenge_method: this.relier.codeChallengeMethod,
-      scope: this.relier.scope,
+      scope: await this.relier.getNormalizedScope(),
     };
     if (keysJwe) {
       opts.keys_jwe = keysJwe;
@@ -159,7 +159,7 @@ export class OAuthRedirectIntegration {
     code: string;
     state: string;
   }) {
-    // Ensure a redirect was provided. With out this info, we can't relay the oauth code
+    // Ensure a redirect was provided. Without this info, we can't relay the oauth code
     // and state!
     if (!this.relier.redirectTo) {
       throw new OAuthErrorInvalidRedirectUri();

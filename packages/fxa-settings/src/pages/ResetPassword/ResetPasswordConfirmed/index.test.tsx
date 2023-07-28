@@ -22,7 +22,7 @@ jest.mock('../../../models/hooks', () => {
       isSync() {
         return false;
       },
-      getServiceName() {
+      async getServiceName() {
         return 'account settings';
       },
     }),
