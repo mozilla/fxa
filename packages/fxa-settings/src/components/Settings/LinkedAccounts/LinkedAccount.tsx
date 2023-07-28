@@ -10,6 +10,7 @@ import { ReactComponent as AppleIcon } from './apple.svg';
 import { Modal } from '../Modal';
 import { useAccount } from '../../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
+import { hardNavigate } from 'fxa-react/lib/utils';
 
 export function LinkedAccount({ providerId }: { providerId: number }) {
   const account = useAccount();
@@ -19,11 +20,22 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
     useBooleanState();
 
   const onConfirmUnlinkAccountClick = async () => {
-    await account.unlinkThirdParty(providerId);
+    if (account.hasPassword) {
+      await account.unlinkThirdParty(providerId);
+    } else {
+      // If a user doesn't have a password, they must create one first.
+      hardNavigate('/settings/create_password' + window.location.search);
+    }
   };
 
   const onUnlinkAccountClick = () => {
     revealUnlinkModal();
+  };
+
+  const unlinkConfirmText = () => {
+    return account.hasPassword
+      ? l10n.getString('la-unlink-account-button', null, 'Unlink')
+      : l10n.getString('la-set-password-button', null, 'Set Password');
   };
 
   return (
@@ -67,11 +79,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
           onDismiss={hideUnlinkModal}
           onConfirm={onConfirmUnlinkAccountClick}
           confirmBtnClassName="cta-primary cta-base-p"
-          confirmText={l10n.getString(
-            'la-unlink-account-button',
-            null,
-            'Unlink'
-          )}
+          confirmText={unlinkConfirmText()}
           data-testid="linked-account-unlink-header-test-id"
           headerId="linked-account-unlink-header"
           descId="linked-account-unlink-description"
@@ -86,17 +94,31 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             </h2>
           </Localized>
 
-          <Localized id="la-unlink-content-3">
-            <p
-              id="linked-accounts-unlink-description"
-              className="my-4 text-center"
-            >
-              Are you sure you want to unlink your account? Unlinking your
-              account does not automatically sign you out of your Connected
-              Services. To do that, you will need to manually sign out from the
-              Connected Services section.
-            </p>
-          </Localized>
+          {!account.hasPassword && (
+            <Localized id="la-unlink-content-4">
+              <p
+                id="linked-accounts-unlink-pwd-needed-description"
+                className="my-4 text-center"
+              >
+                Before unlinking your account, you must set a password. Without
+                a password, there is no way for you to log in after unlinking
+                your account.
+              </p>
+            </Localized>
+          )}
+          {account.hasPassword && (
+            <Localized id="la-unlink-content-3">
+              <p
+                id="linked-accounts-unlink-description"
+                className="my-4 text-center"
+              >
+                Are you sure you want to unlink your account? Unlinking your
+                account does not automatically sign you out of your Connected
+                Services. To do that, you will need to manually sign out from
+                the Connected Services section.
+              </p>
+            </Localized>
+          )}
         </Modal>
       )}
     </div>

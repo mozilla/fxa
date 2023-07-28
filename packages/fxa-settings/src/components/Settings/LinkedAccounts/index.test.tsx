@@ -10,6 +10,7 @@ import { act, fireEvent, screen } from '@testing-library/react';
 import { MOCK_LINKED_ACCOUNTS } from '../LinkedAccounts/mocks';
 
 const account = {
+  hasPassword: true,
   linkedAccounts: MOCK_LINKED_ACCOUNTS,
 } as unknown as Account;
 
@@ -90,5 +91,56 @@ describe('#integration - Linked Accounts', () => {
     await clickConfirmUnlinkButton();
 
     expect(screen.queryAllByTestId('linked-account')).toHaveLength(0);
+  });
+
+  describe('account without password', () => {
+    const accountWithoutPassword = {
+      hasPassword: false,
+      linkedAccounts: MOCK_LINKED_ACCOUNTS,
+    } as unknown as Account;
+
+    let mockHref = jest.fn();
+    let originalLocation = window.location;
+
+    beforeEach(() => {
+      mockHref = jest.fn();
+      Object.defineProperty(window, 'location', {
+        value: {
+          set href(val: string) {
+            mockHref(val);
+          },
+          get href() {
+            return mockHref();
+          },
+          search: '',
+        },
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(window, 'location', originalLocation);
+    });
+
+    it('on unlink, directs user to create password flow', async () => {
+      renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: accountWithoutPassword,
+          })}
+        >
+          <LinkedAccounts />
+        </AppContext.Provider>
+      );
+
+      await clickUnlinkButton();
+      expect(
+        screen.queryByText(
+          'Before unlinking your account, you must set a password. Without a password, there is no way for you to log in after unlinking your account.'
+        )
+      ).toBeInTheDocument();
+
+      await clickConfirmUnlinkButton();
+      expect(mockHref).toHaveBeenCalled();
+    });
   });
 });
