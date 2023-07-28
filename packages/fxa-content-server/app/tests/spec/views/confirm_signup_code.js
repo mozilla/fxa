@@ -8,6 +8,7 @@ import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
 import BaseBroker from 'models/auth_brokers/base';
 import Constants from 'lib/constants';
+import GleanMetrics from '../../../scripts/lib/glean';
 import helpers from '../../lib/helpers';
 import Metrics from 'lib/metrics';
 import Relier from 'models/reliers/relier';
@@ -184,6 +185,19 @@ describe('views/confirm_signup_code', () => {
   });
 
   describe('submit', () => {
+    let submitMetricsEventStub;
+
+    beforeEach(() => {
+      submitMetricsEventStub = sinon.stub(
+        GleanMetrics.signupConfirmation,
+        'submit'
+      );
+    });
+
+    afterEach(() => {
+      submitMetricsEventStub.restore();
+    });
+
     describe('success', () => {
       beforeEach(() => {
         sinon
@@ -210,6 +224,7 @@ describe('views/confirm_signup_code', () => {
             account
           )
         );
+        sinon.assert.calledOnce(submitMetricsEventStub);
       });
     });
 
@@ -228,6 +243,7 @@ describe('views/confirm_signup_code', () => {
       it('rejects with the error for display', () => {
         const args = view.showValidationError.args[0];
         assert.equal(args[1], error);
+        sinon.assert.calledOnce(submitMetricsEventStub);
       });
     });
 
@@ -299,6 +315,23 @@ describe('views/confirm_signup_code', () => {
       it('calls correct methods', () => {
         assert.equal(account.verifySessionResendCode.callCount, 1);
       });
+    });
+  });
+
+  describe('logView', () => {
+    let viewEventStub;
+
+    beforeEach(() => {
+      viewEventStub = sinon.stub(GleanMetrics.signupConfirmation, 'view');
+    });
+
+    afterEach(() => {
+      viewEventStub.restore();
+    });
+
+    it('logs the signup confirmation view Glean event', () => {
+      view.logView();
+      sinon.assert.calledOnce(viewEventStub);
     });
   });
 });
