@@ -35,6 +35,7 @@ jobs:
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/product-icons
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/other
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment  assets/legal s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/legal
+          aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.ttf" --include "*.otf" assets/fonts s3://fxa-content-cdn-stage-distbucket-bpquvfnty86g/fonts
 
       - name: Configure Production AWS credentials
         uses: aws-actions/configure-aws-credentials@master
@@ -48,6 +49,7 @@ jobs:
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/product-icons  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/product-icons
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.svg" --include "*.png" assets/other  s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/other
           aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.pdf" --content-disposition attachment   assets/legal s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/legal
+          aws s3 sync --cache-control 'public,max-age=86400' --exclude "*" --include "*.ttf" --include "*.otf"  assets/fonts s3://fxa-content-cdn-prod-distbucket-gqg70i8xqycy/fonts
 
       - name: "Post to fxa-team Slack channel"
         uses: slackapi/slack-github-action@v1.24.0
