@@ -28,3 +28,18 @@ export const Default = () => (
     </AppContext.Provider>
   </LocationProvider>
 );
+
+export const NoPassword = () => {
+  <LocationProvider>
+    <AppContext.Provider
+      value={mockAppContext({
+        account: {
+          hasPassword: false,
+          linkedAccounts: MOCK_LINKED_ACCOUNTS,
+        } as any,
+      })}
+    >
+      <LinkedAccounts />
+    </AppContext.Provider>
+  </LocationProvider>;
+};
