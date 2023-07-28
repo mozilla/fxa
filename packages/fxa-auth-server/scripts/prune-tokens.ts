@@ -46,6 +46,11 @@ export async function init() {
       '0'
     )
     .option(
+      '--maxTokenAgeWindowSize <number>',
+      'The number of tokens to consider when pruning. This applies specifically to session tokens and has a limiting effect on the query. Increasing value will pull in more tokens for deletion.',
+      100000
+    )
+    .option(
       '--maxCodeAge <duration>',
       'Max age of code. Any codes older than this value will be pruned. A value of 0 results in a no-op.',
       '0'
@@ -90,6 +95,7 @@ Exit Codes:
     .parse(process.argv);
 
   const tokenMaxAge = parseDuration(program.maxTokenAge);
+  const maxTokenAgeWindowSize = program.maxTokenAgeWindowSize;
   const codeMaxAge = parseDuration(program.maxCodeAge);
   const maxSessions = program.maxSessions;
   const maxSessionsMaxAccounts = program.maxSessionsMaxAccounts;
@@ -100,6 +106,7 @@ Exit Codes:
 
   log.info('token pruning args', {
     maxTokenAge: program.maxTokenAge,
+    maxTokenAgeWindowSize: maxTokenAgeWindowSize,
     maxCodeAge: program.maxCodeAge,
     maxSessions,
     maxSessionsMaxAccounts,
@@ -169,7 +176,7 @@ Exit Codes:
             maxSessionsBatchSize
           );
 
-          const currentDeletions = result.outputs['@totalDeletions']
+          const currentDeletions = result.outputs['@totalDeletions'];
           log.info('limitSessions result', { currentDeletions });
 
           // Keeping looping until all extraneous sessions been cleaned up
@@ -212,7 +219,11 @@ Exit Codes:
         tokenMaxAge: tokenMaxAge + 'ms',
         codeMaxAge: codeMaxAge + 'ms',
       });
-      const result = await pruner.prune(tokenMaxAge, codeMaxAge);
+      const result = await pruner.prune(
+        tokenMaxAge,
+        codeMaxAge,
+        maxTokenAgeWindowSize
+      );
       log.info('token pruning complete', result.outputs);
 
       for (const row of result.uids || []) {

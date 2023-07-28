@@ -209,7 +209,7 @@ describe('#integration - scripts/prune-tokens', () => {
 
   it('parses args', async () => {
     const { stderr } = await exec(
-      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts --maxTokenAge=0 --maxCodeAge=0 --maxSessions=0 --maxSessionsMaxAccounts=0 --maxSessionsMaxDeletions=0  --maxSessionsBatchSize=0 --wait=1`,
+      `NODE_ENV=dev node -r esbuild-register scripts/prune-tokens.ts --maxTokenAge=0 --maxTokenAgeWindowSize=0 --maxCodeAge=0 --maxSessions=0 --maxSessionsMaxAccounts=0 --maxSessionsMaxDeletions=0  --maxSessionsBatchSize=0 --wait=1`,
       {
         cwd,
         shell: '/bin/bash',
@@ -222,6 +222,7 @@ describe('#integration - scripts/prune-tokens', () => {
     assert.match(stderr, /"maxSessionsMaxAccounts":"0"/);
     assert.match(stderr, /"maxSessionsMaxDeletions":"0"/);
     assert.match(stderr, /"maxSessionsBatchSize":"0"/);
+    assert.match(stderr, /"maxTokenAgeWindowSize":"0"/);
     assert.match(stderr, /"wait":"1"/);
   });
 
