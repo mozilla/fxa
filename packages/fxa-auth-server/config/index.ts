@@ -1955,6 +1955,32 @@ const convictConf = convict({
       format: Boolean,
     },
   },
+  gleanMetrics: {
+    enabled: {
+      default: true,
+      doc: 'Enable Glean metrics logging',
+      env: 'AUTH_GLEAN_ENABLED',
+      format: Boolean,
+    },
+    applicationId: {
+      default: 'accounts_backend_dev',
+      doc: 'The Glean application id',
+      env: 'AUTH_GLEAN_APP_ID',
+      format: String,
+    },
+    channel: {
+      default: 'development',
+      doc: 'The application channel, e.g. development, stage, production, etc.',
+      env: 'AUTH_GLEAN_APP_CHANNEL',
+      format: String,
+    },
+    loggerAppName: {
+      default: 'fxa-auth-api',
+      doc: 'Used to form the mozlog logger name',
+      env: 'AUTH_GLEAN_LOGGER_APP_NAME',
+      format: String,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

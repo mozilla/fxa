@@ -29,6 +29,7 @@ const {
 const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 const { AccountEventsManager } = require('../lib/account-events');
+const { gleanMetrics } = require('../lib/metrics/glean');
 
 async function run(config) {
   Container.set(AppConfig, config);
@@ -158,6 +159,8 @@ async function run(config) {
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
+  const glean = gleanMetrics(config);
+
   const routes = require('../lib/routes')(
     log,
     serverPublicKeys,
@@ -171,7 +174,8 @@ async function run(config) {
     statsd,
     profile,
     stripeHelper,
-    redis
+    redis,
+    glean
   );
 
   const Server = require('../lib/server');

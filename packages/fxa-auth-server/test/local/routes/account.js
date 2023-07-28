@@ -33,6 +33,8 @@ const {
   deleteAccountIfUnverified,
 } = require('../../../lib/routes/utils/account');
 const { AppConfig } = require('../../../lib/types');
+const { gleanMetrics } = require('../../../lib/metrics/glean');
+const defaultConfig = require('../../../config').default.getProperties();
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -57,6 +59,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.secondaryEmail = config.secondaryEmail || {};
   config.authFirestore = config.authFirestore || {};
   config.securityHistory = config.securityHistory || {};
+  config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
 
   Container.set(AppConfig, config);
   Container.set(AccountEventsManager, new AccountEventsManager());
@@ -104,6 +107,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       verificationReminders
     );
   const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
+  const glean = gleanMetrics(config);
+
   return accountRoutes(
     log,
     db,
@@ -121,7 +126,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       removePublicAndCanGrantTokens: () => {},
     },
     options.stripeHelper,
-    pushbox
+    pushbox,
+    glean
   );
 };
 

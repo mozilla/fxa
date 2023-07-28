@@ -1,0 +1,14 @@
+---
+$schema: moz://mozilla.org/schemas/glean/pings/2-0-0
+
+accounts-events:
+  description: |
+    An account service side event
+  include_client_id: true
+  send_if_empty: false
+  bugs:
+    - https://mozilla-hub.atlassian.net/browse/FXA-7265
+  data_reviews:
+    - https://bugzilla.mozilla.org/show_bug.cgi?id=1830504
+  notification_emails:
+    - fxa-staff@mozilla.com
