@@ -8,6 +8,8 @@ import {
   CHECK_CODE,
   UPDATE_CART,
 } from '../graphql';
+import { Localized } from '@fluent/react';
+import { AppLocalizationProvider } from '../../l10n/l10n';
 
 /**
  * GENERAL COMMENTS
@@ -62,7 +64,7 @@ function WithCoupon({
             disabled={disabled}
             data-testid="coupon-remove-button"
           >
-            Remove
+            <Localized id="coupon-remove">Remove</Localized>
           </button>
         </div>
       )}
@@ -90,16 +92,18 @@ function WithoutCoupon({
       data-testid="coupon-form"
     >
       <div className="input-row">
-        <input
-          className="coupon-input"
-          type="text"
-          name="coupon"
-          data-testid="coupon-input"
-          defaultValue={promotionCode}
-          placeholder="Enter code"
-          disabled={disabled}
-          ref={couponInputRef}
-        />
+        <Localized attrs={{ placeholder: true }} id="coupon-enter-code">
+          <input
+            className="coupon-input"
+            type="text"
+            name="coupon"
+            data-testid="coupon-input"
+            defaultValue={promotionCode}
+            placeholder="Enter code"
+            disabled={disabled}
+            ref={couponInputRef}
+          />
+        </Localized>
       </div>
 
       <div>
@@ -110,7 +114,7 @@ function WithoutCoupon({
           data-testid="coupon-button"
           disabled={disabled}
         >
-          Apply
+          <Localized id="coupon-submit">Apply</Localized>
         </button>
       </div>
     </form>
@@ -175,43 +179,51 @@ export function CouponForm({ cartId, readOnly }: CouponFormProps) {
   }
 
   return (
-    <div
-      className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8 coupon-component"
-      data-testid="coupon-component"
-    >
-      <h4 className="m-0 mb-4 font-bold">
-        {hasPromotionCode ? `Promo Code Applied` : `Promo Code`}
-      </h4>
-      {hasPromotionCode ? (
-        <WithCoupon
-          readOnly={readOnly}
-          disabled={updateLoading}
-          promotionCode={promotionCode}
-          clearPromotionCode={async () => {
-            updateCart({
-              variables: {
-                input: {
-                  id: cartId,
-                  promotionCode: '',
+    <AppLocalizationProvider>
+      <div
+        className="bg-white rounded-b-lg shadow-sm shadow-grey-300 mt-6 p-4 rounded-t-lg text-base tablet:my-8 coupon-component"
+        data-testid="coupon-component"
+      >
+        <h4 className="m-0 mb-4 font-bold">
+          {hasPromotionCode ? (
+            <Localized id="coupon-promo-code-applied">
+              Promo Code Applied
+            </Localized>
+          ) : (
+            <Localized id="coupon-promo-code">Promo Code</Localized>
+          )}
+        </h4>
+        {hasPromotionCode ? (
+          <WithCoupon
+            readOnly={readOnly}
+            disabled={updateLoading}
+            promotionCode={promotionCode}
+            clearPromotionCode={async () => {
+              updateCart({
+                variables: {
+                  input: {
+                    id: cartId,
+                    promotionCode: '',
+                  },
                 },
-              },
-            });
-          }}
-        />
-      ) : (
-        <WithoutCoupon
-          disabled={checkLoading}
-          promotionCode={promotionCode}
-          couponInputRef={couponInputRef}
-          onSubmit={onSubmit}
-        />
-      )}
-      {error && (
-        <div className="text-red-700 mt-4" data-testid="coupon-error">
-          {error}
-        </div>
-      )}
-    </div>
+              });
+            }}
+          />
+        ) : (
+          <WithoutCoupon
+            disabled={checkLoading}
+            promotionCode={promotionCode}
+            couponInputRef={couponInputRef}
+            onSubmit={onSubmit}
+          />
+        )}
+        {error && (
+          <div className="text-red-700 mt-4" data-testid="coupon-error">
+            {error}
+          </div>
+        )}
+      </div>
+    </AppLocalizationProvider>
   );
 }
 
