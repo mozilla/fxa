@@ -8,6 +8,9 @@ import {
   buildProductTerms,
   getTermsCMS,
 } from './utils';
+import { headers } from 'next/headers';
+import { getBundle } from '../../l10n/l10n';
+import { getl10n } from './getl10n';
 
 /**
  * GENERAL COMMENTS
@@ -33,6 +36,8 @@ import {
  *        and understanding
  *  - TODO: Translation for React Server Components (RSC) and Server Side Rendering (SSR)
  */
+
+const otherl10n = getl10n();
 
 type GenericTermsProps = {
   title: string;
