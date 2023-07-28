@@ -50,13 +50,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const [bannerText, setBannerText] = useState<string>();
   const [isLoading, setIsLoading] = useState(false);
   const [actionType, setActionType] = useState<RecoveryKeyAction>();
-  const mounted = useRef(true);
-
-  useEffect(() => {
-    return () => {
-      mounted.current = false;
-    };
-  });
 
   useEffect(() => {
     if (account.recoveryKey === true) {
@@ -115,10 +108,7 @@ export const FlowRecoveryKeyConfirmPwd = ({
         setBannerText(localizedError);
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
-    } finally {
-      if (mounted.current) {
-        setIsLoading(false);
-      }
+      setIsLoading(false);
     }
   }, [
     account,
