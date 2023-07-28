@@ -13,4 +13,5 @@
 **/configs
 **/temp
 
-!configs/gql/allowlist
+!project/configs/gql/allowlist/
+
