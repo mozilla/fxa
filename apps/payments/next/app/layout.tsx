@@ -1,5 +1,5 @@
 import ExampleHeader from '../components/ExampleHeader';
-import './global.css';
+import '@fxa/shared/styles';
 
 export const metadata = {
   title: 'Welcome to payments/next',

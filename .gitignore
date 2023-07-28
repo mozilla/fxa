@@ -163,3 +163,5 @@ configs/gql/allowlist
 
 # Next.js
 .next
+
+yarn copy 2.lock
