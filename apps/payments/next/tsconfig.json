@@ -9,15 +9,8 @@
         "name": "next"
       }
     ],
-    "types": [
-      "jest",
-      "node"
-    ],
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ]
+    "types": ["jest", "node"],
+    "lib": ["dom", "dom.iterable", "esnext"]
   },
   "include": [
     "**/*.ts",
@@ -32,6 +25,13 @@
     "node_modules",
     "jest.config.ts",
     "src/**/*.spec.ts",
-    "src/**/*.test.ts"
+    "src/**/*.test.ts",
+    "**/*.stories.ts",
+    "**/*.stories.js"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.storybook.json"
+    }
   ]
 }
