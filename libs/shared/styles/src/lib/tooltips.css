@@ -1,0 +1,35 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.input-balloon {
+  @apply absolute text-start w-[calc(100%+.5rem)] -left-1 desktop:w-64 desktop:left-auto px-5 py-4 bg-white rounded-sm top-[calc(100%+.25rem)] desktop:-top-2 border border-grey-100 shadow-sm transition-opacity z-10;
+
+  &::before {
+    @apply absolute w-3 h-3 rotate-45 bg-white border-grey-100 border-l border-t top-[calc(-0.375rem-1px)] content-[''];
+  }
+}
+
+@screen desktop {
+  .input-balloon {
+    @apply before:top-5;
+
+    [dir='ltr'] & {
+      @apply left-[calc(100%+1rem)];
+
+      &::before {
+        /* negative left is half the pseudo width - border-width */
+        @apply border-l border-b border-t-0 left-[calc(-0.375rem-1px)];
+      }
+    }
+
+    [dir='rtl'] & {
+      @apply right-[calc(100%+1rem)];
+
+      &::before {
+        /* negative right is half the pseudo width - border-width */
+        @apply border-r border-l-0 right-[calc(-0.375rem-1px)];
+      }
+    }
+  }
+}
