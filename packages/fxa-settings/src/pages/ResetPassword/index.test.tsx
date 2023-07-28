@@ -134,7 +134,7 @@ describe('PageResetPassword', () => {
 
     render(
       <ResetPassword />,
-      'client_id=123&service=123Done&resume=123abc&redirect_uri=foo',
+      'client_id=123&service=123Done&resume=123abc&redirect_uri=foo&scope=profile:email',
       account
     );
 

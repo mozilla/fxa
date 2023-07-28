@@ -9,7 +9,7 @@ import {
   KeyTransforms as T,
   ModelValidation as V,
 } from '../../lib/model-data';
-import { OAuthError } from '../../lib/oauth';
+import { ERRORS, OAuthError } from '../../lib/oauth';
 import {
   BaseRelier,
   Relier,
@@ -154,9 +154,6 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
   maxAge: number | undefined;
 
   @bind([V.isString])
-  permissions: string | undefined;
-
-  @bind([V.isString])
   prompt: string | undefined;
 
   @bind([V.isUrl])
@@ -196,6 +193,36 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
     return this.service || this.clientId;
   }
 
+  async getPermissions() {
+    // Ported from content server, search for _normalizeScopesAndPermissions
+    let permissions = Array.from(scopeStrToArray(this.scope || ''));
+    if (await this.isTrusted()) {
+      // We have to normalize `profile` into is expanded sub-scopes
+      // in order to show the consent screen.
+      if (this.wantsConsent()) {
+        permissions = replaceItemInArray(
+          permissions,
+          Constants.OAUTH_TRUSTED_PROFILE_SCOPE,
+          Constants.OAUTH_TRUSTED_PROFILE_SCOPE_EXPANSION
+        );
+      }
+    } else {
+      permissions = sanitizeUntrustedPermissions(permissions);
+    }
+
+    if (!permissions.length) {
+      console.trace('!!!!!!!!');
+      throw new OAuthError(ERRORS.INVALID_PARAMETER.errno, { params: 'scope' });
+    }
+
+    return permissions;
+  }
+
+  async getNormalizedScope() {
+    const permissions = await this.getPermissions();
+    return permissions.join(' ');
+  }
+
   restoreOAuthState() {
     const oauth = this.storageData.get('oauth') as any;
 
@@ -222,6 +249,11 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
   }
 
   async getServiceName() {
+    const permissions = await this.getPermissions();
+    if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
+      return Constants.RELIER_SYNC_SERVICE_NAME;
+    }
+
     // If the clientId and the service are the same, prefer the clientInfo
     if (this.service && this.clientId === this.service) {
       const clientInfo = await this.clientInfo;
@@ -230,7 +262,7 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
       }
     }
 
-    return super.getServiceName();
+    return await super.getServiceName();
   }
 
   async getClientInfo(): Promise<RelierClientInfo | undefined> {
@@ -254,8 +286,8 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
     return clientInfo.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
   }
 
-  isTrusted() {
-    return this.trusted === true;
+  async isTrusted() {
+    return (await this.clientInfo)?.trusted === true;
   }
 
   wantsConsent() {
@@ -375,4 +407,22 @@ function scopeStrToArray(scopes: string) {
     .split(/\s+|\++/g)
     .filter((x) => x.length > 0);
   return new Set(arrScopes);
+}
+
+export function replaceItemInArray(
+  array: Array<string>,
+  itemToReplace: string,
+  replaceWith: Array<string>
+) {
+  return Array.from(
+    new Set(
+      array.map((item) => (item === itemToReplace ? replaceWith : item)).flat()
+    )
+  );
+}
+
+function sanitizeUntrustedPermissions(permissions: Array<string>) {
+  return permissions.filter((x) =>
+    Constants.OAUTH_UNTRUSTED_ALLOWED_PERMISSIONS.includes(x)
+  );
 }
