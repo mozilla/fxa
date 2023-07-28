@@ -152,7 +152,7 @@ export class BaseRelier extends ModelDataProvider implements Relier {
 
   async getServiceName(): Promise<string> {
     // If the service is not defined, then check the client info
-    if (!!this.service) {
+    if (!this.service) {
       if (this.clientInfo) {
         const clientInfo = await this.clientInfo;
         if (clientInfo?.serviceName) {
