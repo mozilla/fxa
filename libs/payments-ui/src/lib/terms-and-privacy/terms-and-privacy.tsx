@@ -8,6 +8,8 @@ import {
   buildProductTerms,
   getTermsCMS,
 } from './utils';
+import { headers } from 'next/headers';
+import { getBundle } from '../../l10n/l10n';
 
 /**
  * GENERAL COMMENTS
@@ -95,6 +97,12 @@ export async function TermsAndPrivacy({
 
   const termsCms = await getTermsCMS(offering);
   const data = await fetchCartById(1);
+  const headersList = headers();
+  const languages = headersList
+    .get('Accept-Language')
+    ?.split(',')
+    .map((language) => language.split(';')[0]);
+  const l10n = await getBundle(languages);
 
   if (!termsCms) {
     return (
@@ -112,6 +120,7 @@ export async function TermsAndPrivacy({
     ...buildPaymentTerms(paymentProvider),
     ...buildFirefoxAccountsTerms(showFXALinks, contentServerURL),
     ...buildProductTerms(
+      l10n,
       productName,
       termsOfService,
       privacyNotice,
@@ -121,6 +130,7 @@ export async function TermsAndPrivacy({
 
   return (
     <>
+      {/* <div>{l10n.getMessage('hello')?.value?.toString()}</div> */}
       {terms.map((term) => (
         <GenericTerms {...term} key={term.key} />
       ))}

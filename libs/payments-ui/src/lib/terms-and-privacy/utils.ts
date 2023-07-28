@@ -1,5 +1,6 @@
 import { CMS_QUERY } from '../graphql';
 import { fetchGraphQl } from '../utils';
+import { FluentBundle } from '@fluent/bundle';
 
 /* eslint-disable-next-line */
 export type GenericTermsListItem = {
@@ -105,6 +106,7 @@ export function buildFirefoxAccountsTerms(
 }
 
 export function buildProductTerms(
+  l10n: FluentBundle,
   productName: string,
   termsOfService?: string,
   privacyNotice?: string,
@@ -116,7 +118,7 @@ export function buildProductTerms(
     items.push({
       key: 'product-terms-1',
       href: termsOfService,
-      text: 'Terms of Service',
+      text: `${l10n.getMessage('terms')?.value?.toString()}`,
       localizationId: 'terms-item-1',
     });
   }
@@ -125,7 +127,7 @@ export function buildProductTerms(
     items.push({
       key: 'product-terms-2',
       href: privacyNotice,
-      text: 'Privacy Notice',
+      text: `${l10n.getMessage('privacy')?.value?.toString()}`,
       localizationId: 'privacy-item-1',
     });
   }
@@ -134,7 +136,7 @@ export function buildProductTerms(
     items.push({
       key: 'product-terms-3',
       href: termsOfServiceDownload,
-      text: 'Download Terms',
+      text: `${l10n.getMessage('terms-download')?.value?.toString()}`,
       localizationId: 'download-item-1',
     });
   }
