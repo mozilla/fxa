@@ -1390,6 +1390,13 @@ FxaClientWrapper.prototype = {
         });
     }
   ),
+
+  createPassword: withClient(
+    (client, token, email, password) => {
+      return client
+        .createPassword(token, email, password)
+    }
+  ),
 };
 
 export default FxaClientWrapper;

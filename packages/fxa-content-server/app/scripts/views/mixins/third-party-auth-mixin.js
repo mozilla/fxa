@@ -206,6 +206,13 @@ export default {
         this.logFlowEvent(`${provider}.signin-complete`);
 
         this.metrics.flush();
+        
+        // Sync service requires a password to be set before it can be used.
+        // Note that once a password is set, the user will not have an option to use
+        // third party login for Sync since it always requires a password.
+        if (this.relier.isSync()) {
+          return this.navigate('/post_verify/third_party_auth/set_password', { provider });
+        }
 
         return this.signIn(updatedAccount);
       })

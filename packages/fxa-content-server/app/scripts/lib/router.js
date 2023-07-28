@@ -36,6 +36,7 @@ import SignInTotpCodeView from '../views/sign_in_totp_code';
 import SignInUnblockView from '../views/sign_in_unblock';
 import SignUpPasswordView from '../views/sign_up_password';
 import ThirdPartyAuthCallbackView from '../views/post_verify/third_party_auth/callback';
+import ThirdPartyAuthSetPasswordView from '../views/post_verify/third_party_auth/set_password';
 import Storage from './storage';
 import SubscriptionsProductRedirectView from '../views/subscriptions_product_redirect';
 import SubscriptionsManagementRedirectView from '../views/subscriptions_management_redirect';
@@ -302,7 +303,13 @@ Router = Router.extend({
         ThirdPartyAuthCallbackView
       );
     },
-
+    'post_verify/third_party_auth/set_password(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'post_verify/third_party_auth/set_password',
+        ThirdPartyAuthSetPasswordView
+      );
+    },
+    
     'push/confirm_login(/)': createViewHandler('push/confirm_login'),
     'push/send_login(/)': createViewHandler('push/send_login'),
     'push/completed(/)': createViewHandler('push/completed'),

@@ -1112,6 +1112,10 @@ const Account = Backbone.Model.extend(
         .then(this.set.bind(this));
     },
 
+    createPassword(email, password) {
+      return this._fxaClient.createPassword(this.get('sessionToken'), email, password);
+    },
+
     /**
      * Fetch the account's list of attached clients.
      *
