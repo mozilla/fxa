@@ -88,6 +88,10 @@ export const GleanMetrics = {
     Glean.setUploadEnabled(gleanEnabled);
   },
 
+  emailFirst: {
+    view: createEventFn('email_first_view'),
+  },
+
   registration: {
     view: createEventFn('reg_view'),
     submit: createEventFn('reg_submit'),

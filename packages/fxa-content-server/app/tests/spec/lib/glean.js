@@ -216,6 +216,14 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setUtmTermStub, mockFlowEventMetadata.utmTerm);
     });
 
+    describe('email first', () => {
+      it('submits a ping with the email_first_view event name', () => {
+        GleanMetrics.emailFirst.view();
+        sinon.assert.calledOnce(setEventNameStub);
+        sinon.assert.calledWith(setEventNameStub, 'email_first_view');
+      });
+    });
+
     describe('registration', () => {
       it('submits a ping with the reg_view event name', () => {
         GleanMetrics.registration.view();

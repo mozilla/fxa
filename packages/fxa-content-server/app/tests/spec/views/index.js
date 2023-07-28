@@ -12,6 +12,7 @@ import {
 } from '../../../../tests/functional/lib/selectors';
 import FormPrefill from 'models/form-prefill';
 import IndexView from 'views/index';
+import GleanMetrics from '../../../scripts/lib/glean';
 import { Model } from 'backbone';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
@@ -476,6 +477,23 @@ describe('views/index', () => {
             assert.equal(account.get('email'), email);
           });
       });
+    });
+  });
+
+  describe('logView', () => {
+    let viewEventStub;
+
+    beforeEach(() => {
+      viewEventStub = sinon.stub(GleanMetrics.emailFirst, 'view');
+    });
+
+    afterEach(() => {
+      viewEventStub.restore();
+    });
+
+    it('logs a view Glean metrics event', () => {
+      view.logView();
+      sinon.assert.calledOnce(viewEventStub);
     });
   });
 
