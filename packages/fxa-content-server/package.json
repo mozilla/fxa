@@ -47,7 +47,7 @@
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.22.5",
     "@babel/preset-typescript": "^7.22.5",
-    "@mozilla/glean": "^1.4.0",
+    "@mozilla/glean": "^2.0.0",
     "@sentry/browser": "^6.19.7",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",

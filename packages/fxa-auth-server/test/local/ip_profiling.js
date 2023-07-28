@@ -8,17 +8,18 @@ const { assert } = require('chai');
 const crypto = require('crypto');
 const getRoute = require('../routes_helpers').getRoute;
 const mocks = require('../mocks');
-const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { Container } = require('typedi');
 const { ProfileClient } = require('../../lib/types');
 const { AccountEventsManager } = require('../../lib/account-events');
+const { gleanMetrics } = require('../../lib/metrics/glean');
+const defaultConfig = require('../../config').default.getProperties();
 
 const TEST_EMAIL = 'foo@gmail.com';
 const MS_ONE_DAY = 1000 * 60 * 60 * 24;
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 
-function makeRoutes(options = {}, requireMocks) {
+function makeRoutes(options = {}) {
   const { db, mailer } = options;
   const config = {
     oauth: {},
@@ -51,10 +52,9 @@ function makeRoutes(options = {}, requireMocks) {
     cadReminders
   );
   signinUtils.checkPassword = () => Promise.resolve(true);
-  const { accountRoutes } = proxyquire(
-    '../../lib/routes/account',
-    requireMocks || {}
-  );
+  const glean = gleanMetrics(defaultConfig);
+  const { accountRoutes } = require('../../lib/routes/account');
+
   return accountRoutes(
     log,
     db,
@@ -63,8 +63,14 @@ function makeRoutes(options = {}, requireMocks) {
     config,
     customs,
     signinUtils,
+    null,
     mocks.mockPush(),
-    mocks.mockVerificationReminders()
+    mocks.mockVerificationReminders(),
+    null,
+    null,
+    null,
+    null,
+    glean
   );
 }
 
