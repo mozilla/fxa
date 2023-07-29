@@ -149,7 +149,7 @@ describe('lib/reliers/relier-factory', () => {
       expect(relier.isOAuth()).toBeFalsy();
       expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
-      expect(relier.isTrusted()).toBeTruthy();
+      expect(await relier.isTrusted()).toBeTruthy();
     });
 
     // TODO: Remove with approval.
@@ -185,7 +185,7 @@ describe('lib/reliers/relier-factory', () => {
       expect(relier.isOAuth()).toBeFalsy();
       expect(await relier.isSync()).toBeTruthy();
       expect(relier.wantsKeys()).toBeTruthy();
-      expect(relier.isTrusted()).toBeTruthy();
+      expect(await relier.isTrusted()).toBeTruthy();
     });
 
     it('populates model from the search parameters', async () => {
@@ -214,6 +214,12 @@ describe('lib/reliers/relier-factory', () => {
         { initRelier: 1, initOAuthRelier: 1, initClientInfo: 1 },
         (r: Relier) => r instanceof OAuthRelier
       );
+
+      sandbox.stub(relier, 'clientInfo').returns(
+        Promise.resolve({
+          trusted: true,
+        })
+      );
     });
 
     it('has correct state', async () => {
@@ -221,7 +227,7 @@ describe('lib/reliers/relier-factory', () => {
       expect(relier.isOAuth()).toBeTruthy();
       expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
-      expect(relier.isTrusted()).toBeFalsy();
+      expect(await relier.isTrusted()).toBeFalsy();
     });
     // TODO: Port remaining tests from content-server
   });
@@ -245,7 +251,7 @@ describe('lib/reliers/relier-factory', () => {
       expect(relier.isOAuth()).toBeTruthy();
       expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
-      expect(relier.isTrusted()).toBeFalsy();
+      expect(await relier.isTrusted()).toBeFalsy();
     });
   });
 
@@ -268,7 +274,7 @@ describe('lib/reliers/relier-factory', () => {
       expect(relier.isOAuth()).toBeTruthy();
       expect(await relier.isSync()).toBeFalsy();
       expect(relier.wantsKeys()).toBeFalsy();
-      expect(relier.isTrusted()).toBeFalsy();
+      expect(await relier.isTrusted()).toBeFalsy();
     });
   });
 });

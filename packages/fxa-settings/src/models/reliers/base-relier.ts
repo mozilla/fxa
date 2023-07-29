@@ -61,7 +61,7 @@ export interface Relier extends RelierData {
   shouldOfferToSync(view: string): boolean;
   wantsKeys(): boolean;
   wantsTwoStepAuthentication(): boolean;
-  isTrusted(): boolean;
+  isTrusted(): Promise<boolean>;
   validate(): void;
   getService(): string | undefined;
   getRedirectUri(): string | undefined;
@@ -199,7 +199,7 @@ export class BaseRelier extends ModelDataProvider implements Relier {
     return this.service;
   }
 
-  isTrusted() {
+  async isTrusted() {
     return true;
   }
 
