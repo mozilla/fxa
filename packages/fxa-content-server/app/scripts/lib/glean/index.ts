@@ -29,14 +29,36 @@ export type GleanMetricsContext = {
   userAgent: any;
 };
 
+const encoder = new TextEncoder();
+
 let gleanEnabled = false;
 let gleanMetricsContext;
 
-const populateProperties = () => {
-  const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
+const hashUid = async (uid) => {
+  const data = encoder.encode(uid);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  const uint8View = new Uint8Array(hash);
+  const hex = uint8View.reduce(
+    (str, byte) => str + ('00' + byte.toString(16)).slice(-2),
+    ''
+  );
+  return hex;
+};
 
-  // TODO when sending metrics for authenticated accounts
-  userIdSha256.set('');
+const populateProperties = async () => {
+  const account = gleanMetricsContext.user.getSignedInAccount();
+
+  // the "signed in" account could just be the most recently used account from
+  // local storage; the user might not have proved that they know the password
+  // of the account
+  if (account.get('sessionToken')) {
+    const hashedUid = await hashUid(account.get('uid'));
+    userIdSha256.set(hashedUid);
+  } else {
+    userIdSha256.set('');
+  }
+
+  const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
 
   oauthClientId.set(gleanMetricsContext.relier.get('clientId') || '');
   service.set(gleanMetricsContext.relier.get('service') || '');
@@ -52,13 +74,13 @@ const populateProperties = () => {
   utm.term.set(flowEventMetadata.utmTerm || '');
 };
 
-const createEventFn = (eventName) => () => {
+const createEventFn = (eventName) => async () => {
   if (!gleanEnabled) {
     return;
   }
 
   name.set(eventName);
-  populateProperties();
+  await populateProperties();
   accountsEvents.submit();
 };
 
