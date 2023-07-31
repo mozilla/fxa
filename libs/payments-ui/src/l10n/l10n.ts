@@ -65,13 +65,18 @@ export async function getBundle(languages: string[] | undefined) {
   const bundles = await generateBundles();
   let l10n: FluentBundle | undefined;
   for (const language in languages) {
-    l10n = bundles.find((bundle) => bundle.locale === language)?.bundle;
+    l10n = bundles.find(
+      (bundle) =>
+        bundle.locale.toLowerCase() === languages[language].toLowerCase()
+    )?.bundle;
 
-    if (l10n) break;
+    if (!!l10n) {
+      break;
+    }
   }
 
   if (!l10n) {
-    l10n = bundles.find((bundle) => bundle.locale === 'fr-FR')?.bundle;
+    l10n = bundles.find((bundle) => bundle.locale === DEFAULT_LOCALE)?.bundle;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -130,7 +130,7 @@ export async function TermsAndPrivacy({
 
   return (
     <>
-      {/* <div>{l10n.getMessage('hello')?.value?.toString()}</div> */}
+      <div>{languages.join(` , `)}</div>
       {terms.map((term) => (
         <GenericTerms {...term} key={term.key} />
       ))}

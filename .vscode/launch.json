@@ -28,6 +28,12 @@
       "autoAttachChildProcesses": true,
       "cwd":"${workspaceFolder}/packages/functional-tests",
       "request": "launch",
-    }
+    },
+    {
+      "name": "Next.js: debug server-side",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "nx serve payments-next"
+    },
   ]
 }
