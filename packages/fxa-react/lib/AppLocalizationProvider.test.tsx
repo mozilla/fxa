@@ -17,6 +17,7 @@ import AppLocalizationProvider from './AppLocalizationProvider';
 describe('<AppLocalizationProvider/>', () => {
   const locales = ['en-GB', 'en-US', 'es-ES'];
   const bundles = ['greetings', 'farewells'];
+  const reportError = () => {};
   function waitUntilTranslated() {
     return waitUntil(() => {
       // @ts-ignore
@@ -48,7 +49,11 @@ describe('<AppLocalizationProvider/>', () => {
 
   it('translate to en-US', async () => {
     const { getByTestId } = render(
-      <AppLocalizationProvider bundles={bundles} userLocales={['en-US']}>
+      <AppLocalizationProvider
+        bundles={bundles}
+        userLocales={['en-US']}
+        reportError={reportError}
+      >
         <main data-testid="result">
           <Localized id="hello">
             <div>untranslated</div>
@@ -66,7 +71,11 @@ describe('<AppLocalizationProvider/>', () => {
 
   it('translate to es-ES', async () => {
     const { getByTestId } = render(
-      <AppLocalizationProvider bundles={bundles} userLocales={['es-ES']}>
+      <AppLocalizationProvider
+        bundles={bundles}
+        userLocales={['es-ES']}
+        reportError={reportError}
+      >
         <main data-testid="result">
           <Localized id="hello">
             <div>untranslated</div>
@@ -85,7 +94,11 @@ describe('<AppLocalizationProvider/>', () => {
 
   it('translate to de', async () => {
     const { getByTestId } = render(
-      <AppLocalizationProvider bundles={bundles} userLocales={['de']}>
+      <AppLocalizationProvider
+        bundles={bundles}
+        userLocales={['de']}
+        reportError={reportError}
+      >
         <main data-testid="result">
           <Localized id="hello">
             <div>untranslated</div>
@@ -105,7 +118,11 @@ describe('<AppLocalizationProvider/>', () => {
 
   it('fallback to text content', async () => {
     const { getByTestId } = render(
-      <AppLocalizationProvider bundles={bundles} userLocales={locales}>
+      <AppLocalizationProvider
+        bundles={bundles}
+        userLocales={locales}
+        reportError={reportError}
+      >
         <Localized id="nonexistent">
           <div data-testid="result">untranslated</div>
         </Localized>
@@ -125,7 +142,11 @@ describe('<AppLocalizationProvider/>', () => {
 
   it('translate to en-NZ currency', async () => {
     const { getByTestId } = render(
-      <AppLocalizationProvider bundles={bundles} userLocales={['en-NZ']}>
+      <AppLocalizationProvider
+        bundles={bundles}
+        userLocales={['en-NZ']}
+        reportError={reportError}
+      >
         <main data-testid="result">
           <Localized id="hello" vars={{ amount: '$US123.00' }}>
             <div>untranslated</div>

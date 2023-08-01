@@ -278,7 +278,10 @@ describe('App component', () => {
 
       ({ history } = renderWithRouter(
         <AppContext.Provider value={mockAppContext({ account, config })}>
-          <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+          <AppLocalizationProvider
+            messages={{ en: ['testo: lol'] }}
+            reportError={() => {}}
+          >
             <App {...{ flowQueryParams }} />
           </AppLocalizationProvider>
         </AppContext.Provider>,

@@ -1103,20 +1103,17 @@ export function getLocalizedMessage(
 
 export function renderWithLocalizationProvider(
   children,
-  messages = { en: ['testo: lol'] }
+  messages: { [key: string]: string[] } = { en: ['testo: lol'] }
 ) {
-  // by default fluent warns about missing messages, but there's no way to
-  // disable it right now.  see
-  // https://github.com/projectfluent/fluent.js/issues/411
   return render(withLocalizationProvider(children, messages));
 }
 
 export function withLocalizationProvider(
   children,
-  messages = { en: ['testo: lol'] }
+  messages: { [key: string]: string[] } = { en: ['testo: lol'] }
 ) {
   return (
-    <AppLocalizationProvider messages={messages}>
+    <AppLocalizationProvider messages={messages} reportError={() => {}}>
       {children}
     </AppLocalizationProvider>
   );

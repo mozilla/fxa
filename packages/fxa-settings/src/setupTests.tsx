@@ -22,7 +22,7 @@ jest.mock('fxa-react/lib/utils', () => {
 });
 
 const mockBundle = getFtlBundleSync('settings', 'en');
-const l10n = new ReactLocalization([mockBundle]);
+const l10n = new ReactLocalization([mockBundle], undefined, () => {});
 const mockL10n = { l10n, test: 'what!' };
 jest.mock('@fluent/react', () => {
   const originalModule = jest.requireActual('@fluent/react');

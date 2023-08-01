@@ -6720,16 +6720,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fluent/react@npm:^0.15.1":
-  version: 0.15.1
-  resolution: "@fluent/react@npm:0.15.1"
+"@fluent/react@npm:^0.15.2":
+  version: 0.15.2
+  resolution: "@fluent/react@npm:0.15.2"
   dependencies:
     "@fluent/sequence": ^0.8.0
     cached-iterable: ^0.3.0
   peerDependencies:
     "@fluent/bundle": ">=0.16.0"
     react: ">=16.8.0"
-  checksum: 0348d36f42bef691ea0a99f1476790f39de23df8f3583c5bb6f21cd7fcc920243650508749f5af7db28adf2008682e688b2f1d271407a9797db95d090ebecd20
+  checksum: 6115b45079e5fee8d2eea5ded9b5b380b0e4146c9663657c82a08a88e113e70fd5a454502dfb7d79dc3154f5864f95c7c57692f8bdcfdf09034afebebfc7cb96
   languageName: node
   linkType: hard
 
@@ -31082,7 +31082,7 @@ fsevents@~2.1.1:
   resolution: "fxa@workspace:."
   dependencies:
     "@faker-js/faker": ^8.0.2
-    "@fluent/react": ^0.15.1
+    "@fluent/react": ^0.15.2
     "@nx/eslint-plugin": ^16.6.0
     "@nx/jest": 16.6.0
     "@nx/js": ^16.6.0

@@ -31,13 +31,26 @@ import {
 } from 'fxa-payments-server/src/lib/formats';
 import { defaultState } from 'fxa-payments-server/src/store/state';
 import { FluentBundle, FluentResource } from '@fluent/bundle';
-import { LocalizationProvider, ReactLocalization } from '@fluent/react';
+import {
+  LocalizationProvider,
+  MarkupParser,
+  ReactLocalization as _ReactLocalization,
+} from '@fluent/react';
 import { updateConfig } from '../../../lib/config';
 import AppContext, { defaultAppContext } from '../../../lib/AppContext';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
 jest.mock('../../../lib/amplitude');
 
 const { queryByTestId, queryByText, queryAllByText, getByTestId } = screen;
+
+class ReactLocalization extends _ReactLocalization {
+  constructor(
+    bundles: Iterable<FluentBundle>,
+    parseMarkup?: MarkupParser | null
+  ) {
+    super(bundles, parseMarkup, () => {});
+  }
+}
 
 const findMockPlan = (planId: string): Plan => {
   const plan = MOCK_PLANS.find((x) => x.plan_id === planId);
