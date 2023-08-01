@@ -242,6 +242,31 @@ describe('/linked_account', () => {
         assert.equal(result.uid, UID);
         assert.ok(result.sessionToken);
       });
+
+      it('with 2fa enabled', async () => {
+        mockDB.getLinkedAccount = sinon.spy(() =>
+          Promise.resolve({
+            id: mockGoogleUser.sub,
+            uid: UID,
+          })
+        );
+
+        mockDB.totpToken = sinon.spy(() =>
+          Promise.resolve({
+            verified: true,
+            enabled: true,
+          })
+        );
+
+        const result = await runTest(route, mockRequest);
+        
+        assert.isTrue(mockDB.totpToken.calledOnce);
+        assert.isTrue(mockDB.createSessionToken.calledOnce);
+        assert.ok(mockDB.createSessionToken.args[0][0].tokenVerificationId);
+        assert.equal(result.uid, UID);
+        assert.ok(result.sessionToken);
+        assert.equal(result.verificationMethod, 'totp-2fa');
+      });
     });
 
     describe('apple auth', () => {

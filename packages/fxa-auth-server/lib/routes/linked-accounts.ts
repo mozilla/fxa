@@ -24,19 +24,20 @@ const appleAud = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
-
+  private otpUtils: any;
   constructor(
     private log: AuthLogger,
     private db: any,
     private config: ConfigType,
     private mailer: any,
-    private profile: ProfileClient
+    private profile: ProfileClient,
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
         config.googleAuthConfig.clientId
       );
     }
+    this.otpUtils = require('./utils/otp')(log, config, db);
   }
 
   // As generated tokens expire after 6 months (180 days) per Apple documentation,
@@ -263,13 +264,22 @@ export class LinkedAccountHandler {
       });
     }
 
+    let verificationMethod, mustVerifySession = false, tokenVerificationId = undefined;
+    const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
+    if (hasTotpToken) {
+      mustVerifySession = true;
+      tokenVerificationId = await random.hex(16);
+      verificationMethod = 'totp-2fa';
+    }
+
     const sessionTokenOptions = {
       uid: accountRecord.uid,
       email: accountRecord.primaryEmail.email,
       emailCode: accountRecord.primaryEmail.emailCode,
       emailVerified: accountRecord.primaryEmail.isVerified,
       verifierSetAt: accountRecord.verifierSetAt,
-      mustVerify: false,
+      mustVerify: mustVerifySession,
+      tokenVerificationId,
       uaBrowser: request.app.ua.browser,
       uaBrowserVersion: request.app.ua.browserVersion,
       uaOS: request.app.ua.os,
@@ -284,6 +294,7 @@ export class LinkedAccountHandler {
       uid: sessionToken.uid,
       sessionToken: sessionToken.data,
       providerUid: userid,
+      ...(verificationMethod ? { verificationMethod } : {}),
     };
   }
 
