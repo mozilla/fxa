@@ -30,7 +30,8 @@
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
-      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
     },
     "typeRoots": [
       "./types",

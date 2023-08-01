@@ -4,10 +4,12 @@
 import { knex, Knex } from 'knex';
 import { promisify } from 'util';
 
-import { ConsoleLogger, Logger } from '@fxa/shared/log';
-import { localStatsD, StatsD } from '@fxa/shared/metrics/statsd';
+import { ConsoleLogger, Logger } from '../../../../../log/src';
+import { localStatsD, StatsD } from '../../../../../metrics/statsd/src';
 
 import { MySQLConfig } from './config';
+
+import { v4 as uuidv4 } from 'uuid';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 
@@ -101,4 +103,8 @@ export function createKnex(
   });
 
   return db;
+}
+
+export function generateFxAUuid() {
+  return uuidv4({}, Buffer.alloc(16)).toString('hex');
 }
