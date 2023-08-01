@@ -266,7 +266,7 @@ const AccountRecoveryConfirmKey = ({
             // uppercase here but don't bother transforming the submit data to match
             inputOnlyClassName="uppercase"
             className="text-start"
-            anchorStart
+            anchorPosition="start"
             autoComplete="off"
             spellCheck={false}
             onChange={() => {

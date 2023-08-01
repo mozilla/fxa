@@ -255,7 +255,7 @@ export const FormPasswordWithBalloons = ({
                 required: true,
                 validate: (value: string) => value === getValues().newPassword,
               })}
-              anchorStart
+              anchorPosition="end"
               tooltipPosition="bottom"
               prefixDataTestId="verify-password"
             />

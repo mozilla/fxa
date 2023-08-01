@@ -256,7 +256,7 @@ const ResetPassword = ({
               autoFocus
               errorText={errorText}
               className="text-start"
-              anchorStart
+              anchorPosition="start"
               autoComplete="off"
               spellCheck={false}
               prefixDataTestId="reset-password"

@@ -68,7 +68,7 @@ const InlineRecoverySetup = ({
                 <InputText
                   label={localizedInputTextLabel}
                   className="tooltip-below recovery-code text-start my-4"
-                  anchorStart
+                  anchorPosition="start"
                   required
                   autoFocus
                   autoComplete="off"

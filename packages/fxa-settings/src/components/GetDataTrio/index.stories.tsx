@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Meta } from '@storybook/react';
 import GetDataTrio, {
   GetDataCopySingleton,
@@ -16,20 +16,32 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
-  <div className="p-10 max-w-xs">
-    <GetDataTrio value="Copy that" />
-  </div>
-);
+export const Default = () => {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  return (
+    <div className="p-10 max-w-xs">
+      <GetDataTrio value="Copy that" {...{ setTooltipVisible }} />
+    </div>
+  );
+};
 
-export const SingleCopyButton = () => (
-  <div className="p-10 max-w-xs">
-    <GetDataCopySingleton value="Copy that" />
-  </div>
-);
+export const SingleCopyButton = () => {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  return (
+    <div className="p-10 max-w-xs">
+      <GetDataCopySingleton value="Copy that" {...{ setTooltipVisible }} />
+    </div>
+  );
+};
 
-export const SingleCopyButtonInline = () => (
-  <div className="p-10 max-w-xs">
-    <GetDataCopySingletonInline value="Copy that" />
-  </div>
-);
+export const SingleCopyButtonInline = () => {
+  const [tooltipVisible, setTooltipVisible] = useState(false);
+  return (
+    <div className="p-10 max-w-xs">
+      <GetDataCopySingletonInline
+        value="Copy that"
+        {...{ setTooltipVisible }}
+      />
+    </div>
+  );
+};

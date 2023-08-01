@@ -14,12 +14,13 @@ const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
 const account = { ...MOCK_ACCOUNT } as unknown as Account;
+const setTooltipVisible = jest.fn();
 
 it('renders Trio as expected', () => {
   window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
     <AppContext.Provider value={{ account }}>
-      <GetDataTrio {...{ value, contentType, url }} />
+      <GetDataTrio {...{ value, contentType, url, setTooltipVisible }} />
     </AppContext.Provider>
   );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
@@ -35,7 +36,7 @@ it('renders single Copy button as expected', () => {
   window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
     <AppContext.Provider value={{ account }}>
-      <GetDataTrio {...{ value, contentType, url }} />
+      <GetDataTrio {...{ value, contentType, url, setTooltipVisible }} />
     </AppContext.Provider>
   );
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
