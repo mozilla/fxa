@@ -33,7 +33,8 @@ test.describe('Firefox Desktop Sync v3 settings', () => {
     );
     await login.respondToWebChannelMessage(customEventDetail);
     await login.fillOutEmailFirstSignIn(email, firstPassword);
-    expect(await login.isSignInCodeHeader()).toBe(true);
+    await login.waitForSignInCodeHeader();
+
     await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
     await login.fillOutSignInCode(email);
     await login.checkWebChannelMessage(FirefoxCommand.Login);

@@ -30,7 +30,7 @@ test.describe('two step auth', () => {
     // Login to verify no prompt for code
     await settings.signOut();
     await login.login(credentials.email, credentials.password);
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293445

@@ -129,7 +129,7 @@ test.describe('Firefox Desktop Sync v3 sign up', () => {
     );
 
     // Verify user lands on the sign in password page
-    expect(await login.isPasswordHeader()).toBe(true);
+    await login.waitForPasswordHeader();
 
     // Verify the correct email is displayed
     expect(await login.getPrefilledEmail()).toContain(credentials.email);

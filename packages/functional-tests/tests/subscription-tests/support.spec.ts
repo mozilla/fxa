@@ -10,7 +10,7 @@ test.describe('support form without valid session', () => {
     await page.goto(`${target.contentServerUrl}/support`, {
       waitUntil: 'load',
     });
-    expect(await login.isEmailHeader()).toBe(true);
+    await login.waitForEmailHeader();
   });
 });
 
@@ -25,7 +25,7 @@ test.describe('support form without active subscriptions', () => {
       waitUntil: 'load',
     });
     await page.waitForURL(/settings/);
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });
 

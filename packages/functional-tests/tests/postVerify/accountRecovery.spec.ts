@@ -42,7 +42,7 @@ test.describe('post verify - account recovery', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
@@ -85,7 +85,7 @@ test.describe('post verify - account recovery', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
@@ -99,7 +99,7 @@ test.describe('post verify - account recovery', () => {
     await postVerify.clickMaybeLater();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('abort account recovery at confirm_recovery_key', async ({
@@ -112,7 +112,7 @@ test.describe('post verify - account recovery', () => {
     await login.fillOutEmailFirstSignIn(email, password);
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
 
     await page.goto(
       `${target.contentServerUrl}/post_verify/account_recovery/add_recovery_key`,
@@ -127,6 +127,6 @@ test.describe('post verify - account recovery', () => {
     await postVerify.clickMaybeLater();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });

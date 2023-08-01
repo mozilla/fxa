@@ -50,7 +50,7 @@ test.describe('post verify - force password change', () => {
     await postVerify.submit();
 
     //Verify logged in on Settings page
-    expect(await login.loginHeader()).toBe(true);
+    expect(await login.isUserLoggedIn()).toBe(true);
   });
 
   test('force change password on login - oauth', async ({
