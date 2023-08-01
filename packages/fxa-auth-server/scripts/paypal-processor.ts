@@ -99,7 +99,7 @@ export async function init() {
         }
       );
     } catch (err) {
-      throw new Error(`Cannot acquire lock to run: ${err.message}`);
+      throw new Error(`Cannot acquire lock to run`, { cause: err });
     }
   } else {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
