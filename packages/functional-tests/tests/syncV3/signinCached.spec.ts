@@ -10,6 +10,7 @@ let syncBrowserPages;
 
 test.describe('sync signin cached', () => {
   test.beforeEach(async ({ target }) => {
+    test.slow();//This test has steps for email rendering that runs slow on stage
     syncBrowserPages = await newPagesForSync(target);
     const { login } = syncBrowserPages;
     email = login.createEmail('sync{id}');
@@ -25,6 +26,7 @@ test.describe('sync signin cached', () => {
   });
 
   test.afterEach(async ({ target }) => {
+    test.slow();//The cleanup was timing out and exceeding 3000ms
     await syncBrowserPages.browser?.close();
     const emails = [email, email2];
     for (const email of emails) {

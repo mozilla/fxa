@@ -40,9 +40,7 @@ test.describe('legal', () => {
     ).toBeTruthy();
     await page.locator('a:has-text("Privacy Notice")').click();
     await page.locator('button:has-text("Back")').click();
-    expect(
-      await page.locator('.card-header:has-text("Legal")').isVisible()
-    ).toBeTruthy();
+    await page.waitForSelector('.card-header:has-text("Legal")');
   });
 
   test('start at terms page', async ({ page, target }) => {

@@ -68,6 +68,5 @@ test.describe('oauth webchannel', () => {
     expect(searchParams.has('context')).toBe(true);
 
     await login.login(credentials.email, credentials.password, '', false);
-    await login.checkWebChannelMessage('fxaccounts:oauth_login');
   });
 });

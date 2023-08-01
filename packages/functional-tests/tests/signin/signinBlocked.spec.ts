@@ -11,6 +11,7 @@ let unverifiedEmail;
 
 test.describe('signin blocked', () => {
   test.beforeEach(async ({ target, pages: { login } }) => {
+    test.slow(); //This test has steps for email rendering that runs slow on stage
     blockedEmail = login.createEmail('blocked{id}');
     await target.auth.signUp(blockedEmail, password, {
       lang: 'en',
@@ -31,6 +32,7 @@ test.describe('signin blocked', () => {
   });
 
   test.afterEach(async ({ target }) => {
+    test.slow(); //The cleanup was timing out and exceeding 3000ms
     const emails = [blockedEmail, email, newEmail, unverifiedEmail];
     for (const email of emails) {
       if (email) {
