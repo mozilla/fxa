@@ -46,6 +46,7 @@ export interface Config {
     scopedKeysValidation: Record<string, any>;
     isPromptNoneEnabled: boolean;
     isPromptNoneEnabledClientIds: string[];
+    reactClientIdsEnabled: string[];
   };
   recoveryCodes: {
     count: number;
@@ -104,6 +105,7 @@ export function getDefault() {
       scopedKeysEnabled: false,
       isPromptNoneEnabled: false,
       isPromptNoneEnabledClientIds: new Array<string>(),
+      reactClientIdsEnabled: new Array<string>(),
     },
     recoveryCodes: {
       count: 8,

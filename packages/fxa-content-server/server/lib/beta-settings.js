@@ -62,6 +62,9 @@ const settingsConfig = {
     isPromptNoneEnabledClientIds: config.get(
       'oauth.prompt_none.enabled_client_ids'
     ),
+    reactClientIdsEnabled: config.get(
+      'oauth.react_feature_flags.enabled_client_ids'
+    ),
   },
   recoveryCodes: {
     count: config.get('recovery_codes.count'),
