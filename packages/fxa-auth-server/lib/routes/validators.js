@@ -203,7 +203,7 @@ module.exports.redirectTo = function redirectTo(base) {
     .custom((value) => {
       let hostnameRegex = '';
       if (base) {
-        hostnameRegex = new RegExp(`(?:\\.|^)${base.replace('.', '\\.')}$`);
+        hostnameRegex = new RegExp(`(?:\\.|^)${base.replaceAll('.', '\\.')}$`);
       }
       // Do your validation
       const isValid = isValidUrl(value, hostnameRegex);
