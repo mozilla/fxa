@@ -1454,7 +1454,7 @@ export class StripeHelper extends StripeHelperBase {
       expand: ['data.customer', 'data.subscription'],
     })) {
       const subscription = invoice.subscription as Stripe.Subscription;
-      if (ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+      if (subscription && ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
         yield invoice;
       }
     }
