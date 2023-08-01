@@ -15,7 +15,6 @@ module.exports = function (grunt) {
         'clean:app',
         'selectconfig:app',
         'l10n-create-json',
-        'l10n-generate-tos-pp:app',
         'serverproc:app',
       ]);
     }

@@ -6,9 +6,7 @@ import _ from 'underscore';
 import AccountRecoveryConfirmKey from '../views/account_recovery_confirm_key';
 
 import Backbone from 'backbone';
-import CannotCreateAccountView from '../views/cannot_create_account';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
-import ClearStorageView from '../views/clear_storage';
 import Cocktail from 'cocktail';
 import CompleteResetPasswordView from '../views/complete_reset_password';
 import CompleteSignUpView from '../views/complete_sign_up';
@@ -16,7 +14,6 @@ import ConfirmResetPasswordView from '../views/confirm_reset_password';
 import ConfirmView from '../views/confirm';
 import ConfirmSignupCodeView from '../views/confirm_signup_code';
 import ConnectAnotherDeviceView from '../views/connect_another_device';
-import CookiesDisabledView from '../views/cookies_disabled';
 import ForceAuthView from '../views/force_auth';
 import IndexView from '../views/index';
 import InlineTotpSetupView from '../views/inline_totp_setup';
@@ -141,14 +138,11 @@ Router = Router.extend({
     },
     'authorization(/)': createViewHandler(RedirectAuthView),
     'cannot_create_account(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'cannot_create_account',
-        CannotCreateAccountView
-      );
+      this.createReactViewHandler('cannot_create_account');
     },
     'choose_what_to_sync(/)': createViewHandler(ChooseWhatToSyncView),
     'clear(/)': function () {
-      this.createReactOrBackboneViewHandler('clear', ClearStorageView);
+      this.createReactViewHandler('clear');
     },
     'complete_reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(
@@ -181,50 +175,46 @@ Router = Router.extend({
     },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
     'cookies_disabled(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'cookies_disabled',
-        CookiesDisabledView,
-        {
-          // HACK: this page uses the history API to navigate back and must go back one page
-          // further if being redirected from content-server. Flow params are not always
-          // available to check against, so we explicitly send in an additional param.
-          contentRedirect: true,
-          // We pass along `disable_local_storage` for functional-tests that hit another page
-          // with this param (synthetically disabling local storage). Without this, tests will
-          // be redirected to this page, but local storage will appear enabled.
-          /* eslint-disable camelcase */
-          ...(Url.searchParam(
-            'disable_local_storage',
-            this.window.location.search
-          ) === '1' && {
-            disable_local_storage: 1,
-          }),
-        }
-      );
+      this.createReactViewHandler('cookies_disabled', {
+        // HACK: this page uses the history API to navigate back and must go back one page
+        // further if being redirected from content-server. Flow params are not always
+        // available to check against, so we explicitly send in an additional param.
+        contentRedirect: true,
+        // We pass along `disable_local_storage` for functional-tests that hit another page
+        // with this param (synthetically disabling local storage). Without this, tests will
+        // be redirected to this page, but local storage will appear enabled.
+        /* eslint-disable camelcase */
+        ...(Url.searchParam(
+          'disable_local_storage',
+          this.window.location.search
+        ) === '1' && {
+          disable_local_storage: 1,
+        }),
+      });
     },
     'force_auth(/)': createViewHandler(ForceAuthView),
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
     'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
     'legal(/)': function () {
-      this.createReactOrBackboneViewHandler('legal', 'legal');
+      this.createReactViewHandler('legal');
     },
     'legal/privacy(/)': function () {
-      this.createReactOrBackboneViewHandler('legal/privacy', 'pp', {
+      this.createReactViewHandler('legal/privacy', 'pp', {
         contentRedirect: true,
       });
     },
     ':lang/legal/privacy(/)': function () {
-      this.createReactOrBackboneViewHandler('legal/privacy', 'pp', {
+      this.createReactViewHandler('legal/privacy', 'pp', {
         contentRedirect: true,
       });
     },
     'legal/terms(/)': function () {
-      this.createReactOrBackboneViewHandler('legal/terms', 'tos', {
+      this.createReactViewHandler('legal/terms', 'tos', {
         contentRedirect: true,
       });
     },
     ':lang/legal/terms(/)': function () {
-      this.createReactOrBackboneViewHandler(`legal/terms`, 'tos', {
+      this.createReactViewHandler('legal/terms', 'tos', {
         contentRedirect: true,
       });
     },
@@ -309,7 +299,7 @@ Router = Router.extend({
         ThirdPartyAuthSetPasswordView
       );
     },
-    
+
     'push/confirm_login(/)': createViewHandler('push/confirm_login'),
     'push/send_login(/)': createViewHandler('push/send_login'),
     'push/completed(/)': createViewHandler('push/completed'),
@@ -514,6 +504,21 @@ Router = Router.extend({
     return false;
   },
 
+  createReactViewHandler(routeName, additionalParams) {
+    const { deviceId, flowBeginTime, flowId } =
+      this.metrics.getFlowEventMetadata();
+
+    const link = `/${routeName}${Url.objToSearchString({
+      showReactApp: true,
+      deviceId,
+      flowBeginTime,
+      flowId,
+      ...additionalParams,
+    })}`;
+
+    this.navigateAway(link);
+  },
+
   createReactOrBackboneViewHandler(
     routeName,
     ViewOrPath,
@@ -522,18 +527,7 @@ Router = Router.extend({
   ) {
     const showReactApp = this.showReactApp(routeName);
     if (showReactApp) {
-      const { deviceId, flowBeginTime, flowId } =
-        this.metrics.getFlowEventMetadata();
-
-      const link = `/${routeName}${Url.objToSearchString({
-        showReactApp,
-        deviceId,
-        flowBeginTime,
-        flowId,
-        ...additionalParams,
-      })}`;
-
-      this.navigateAway(link);
+      this.createReactViewHandler(routeName, additionalParams);
     } else {
       return getView(ViewOrPath).then((View) => {
         return this.showView(View, backboneViewOptions);
