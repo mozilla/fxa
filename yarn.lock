@@ -8947,19 +8947,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nestjs/config@npm:^2.3.1":
-  version: 2.3.1
-  resolution: "@nestjs/config@npm:2.3.1"
+"@nestjs/config@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@nestjs/config@npm:3.0.0"
   dependencies:
-    dotenv: 16.0.3
+    dotenv: 16.1.4
     dotenv-expand: 10.0.0
     lodash: 4.17.21
     uuid: 9.0.0
   peerDependencies:
-    "@nestjs/common": ^7.0.0 || ^8.0.0 || ^9.0.0
+    "@nestjs/common": ^8.0.0 || ^9.0.0 || ^10.0.0
     reflect-metadata: ^0.1.13
-    rxjs: ^6.0.0 || ^7.2.0
-  checksum: 3397b9a9d8492a2520edde2711865025ba6d4385370ab33ef2cd3b19cd868ea9855f2ee7f089a3fda0c60234fdec622ed9916cc94b912e9736ebad2ccfb827a0
+  checksum: e886dc337cd0fa2018aff5088c5ec9f38331aaf47dbd065ff72e6429a14b213c83cb5a9782b5044c3625a89ef4d7bb426b173773b9d09140433820885731ffa0
   languageName: node
   linkType: hard
 
@@ -26186,10 +26185,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dotenv@npm:16.0.3":
-  version: 16.0.3
-  resolution: "dotenv@npm:16.0.3"
-  checksum: afcf03f373d7a6d62c7e9afea6328e62851d627a4e73f2e12d0a8deae1cd375892004f3021883f8aec85932cd2834b091f568ced92b4774625b321db83b827f8
+"dotenv@npm:16.1.4":
+  version: 16.1.4
+  resolution: "dotenv@npm:16.1.4"
+  checksum: c1b2e13df4d374a6a29e134c56c7b040ba20500677fe8b9939ea654f3b3badb9aaa0b172e40e4dfa1233a4177dbb8fb79d84cc79a50ac9c9641fe2ad98c14876
   languageName: node
   linkType: hard
 
@@ -29974,7 +29973,7 @@ fsevents@~2.1.1:
     "@google-cloud/firestore": ^6.6.0
     "@nestjs/cli": ^9.4.0
     "@nestjs/common": ^9.4.1
-    "@nestjs/config": ^2.3.1
+    "@nestjs/config": ^3.0.0
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/platform-express": ^9.4.0
@@ -30461,7 +30460,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^11.0.2
     "@nestjs/cli": ^9.4.0
     "@nestjs/common": ^9.4.1
-    "@nestjs/config": ^2.3.1
+    "@nestjs/config": ^3.0.0
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
@@ -30557,7 +30556,7 @@ fsevents@~2.1.1:
   dependencies:
     "@nestjs/cli": ^9.4.0
     "@nestjs/common": ^9.4.1
-    "@nestjs/config": ^2.3.1
+    "@nestjs/config": ^3.0.0
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
@@ -30975,7 +30974,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.2
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
     "@nestjs/common": ^9.4.1
-    "@nestjs/config": ^2.3.1
+    "@nestjs/config": ^3.0.0
     "@nestjs/core": ^9.2.0
     "@nestjs/graphql": ^8.0.2
     "@nestjs/mapped-types": ^1.2.0
