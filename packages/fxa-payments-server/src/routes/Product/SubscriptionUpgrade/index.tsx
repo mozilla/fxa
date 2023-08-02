@@ -9,6 +9,11 @@ import AppContext from '../../../lib/AppContext';
 
 import { getLocalizedDate, getLocalizedDateString } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
+import {
+  GAEvent,
+  GAPurchaseType,
+  ReactGALog,
+} from '../../../lib/reactga-event';
 
 import { Form, SubmitButton } from '../../../components/fields';
 import { useValidatorState } from '../../../lib/validator';
@@ -36,6 +41,7 @@ export type SubscriptionUpgradeProps = {
   upgradeFromPlan: Plan;
   upgradeFromSubscription: WebSubscription;
   invoicePreview: FirstInvoicePreview;
+  discount?: number;
   isMobile?: boolean;
   updateSubscriptionPlanStatus: SelectorReturns['updateSubscriptionPlanStatus'];
   updateSubscriptionPlanAndRefresh: ProductProps['updateSubscriptionPlanAndRefresh'];
@@ -53,6 +59,7 @@ export const SubscriptionUpgrade = ({
   updateSubscriptionPlanStatus,
   updateSubscriptionPlanAndRefresh,
   resetUpdateSubscriptionPlan,
+  discount,
 }: SubscriptionUpgradeProps) => {
   const { config } = useContext(AppContext);
   const ariaLabelledBy = 'error-plan-change-failed-header';
@@ -103,6 +110,12 @@ export const SubscriptionUpgrade = ({
   const onSubmit = useCallback(
     (ev) => {
       ev.preventDefault();
+      ReactGALog.logEvent({
+        eventName: GAEvent.PurchaseSubmit,
+        plan: selectedPlan,
+        purchaseType: GAPurchaseType.Upgrade,
+        discount,
+      });
       if (validator.allValid()) {
         updateSubscriptionPlanAndRefresh(
           upgradeFromSubscription.subscription_id,
@@ -110,6 +123,12 @@ export const SubscriptionUpgrade = ({
           selectedPlan,
           paymentProvider
         );
+        ReactGALog.logEvent({
+          eventName: GAEvent.Purchase,
+          plan: selectedPlan,
+          purchaseType: GAPurchaseType.Upgrade,
+          discount,
+        });
       }
 
       if (!checkboxSet) {
@@ -124,6 +143,7 @@ export const SubscriptionUpgrade = ({
       selectedPlan,
       paymentProvider,
       checkboxSet,
+      discount,
     ]
   );
 

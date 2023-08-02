@@ -17,6 +17,7 @@ import {
 } from './account';
 import { isExistingStripeCustomer, needsCustomer } from './customer';
 import { GeneralError } from './errors';
+import { GAEvent, GAPurchaseType, ReactGALog } from './reactga-event';
 
 export type RetryStatus = undefined | { invoiceId: string };
 export type PaymentError = undefined | StripeError;
@@ -25,6 +26,7 @@ export type SubscriptionPaymentHandlerParam = {
   name: string;
   email: string;
   card: StripeCardElement | null;
+  discount?: number;
   idempotencyKey: string;
   selectedPlan: Plan;
   customer: Customer | null;
@@ -52,6 +54,7 @@ export async function handlePasswordlessSubscription({
   selectedPlan,
   customer,
   checkoutType,
+  discount,
   retryStatus,
   promotionCode,
   apiCreateCustomer,
@@ -79,6 +82,7 @@ export async function handlePasswordlessSubscription({
       selectedPlan,
       customer,
       checkoutType,
+      discount,
       retryStatus,
       promotionCode,
       apiCreateCustomer,
@@ -103,6 +107,7 @@ export async function handleSubscriptionPayment({
   selectedPlan,
   customer,
   checkoutType,
+  discount,
   retryStatus,
   promotionCode,
   apiCreateCustomer,
@@ -125,6 +130,7 @@ export async function handleSubscriptionPayment({
       });
     return handlePaymentIntent({
       customer,
+      discount,
       invoiceId: createSubscriptionResult.latest_invoice.id,
       invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
@@ -133,6 +139,7 @@ export async function handleSubscriptionPayment({
         createSubscriptionResult.latest_invoice.payment_intent?.client_secret,
       paymentMethodId:
         createSubscriptionResult.latest_invoice.payment_intent?.payment_method,
+      selectedPlan,
       stripe,
       apiDetachFailedPaymentMethod,
       onSuccess,
@@ -188,12 +195,14 @@ export async function handleSubscriptionPayment({
       });
     return handlePaymentIntent({
       customer,
+      discount,
       invoiceId: createSubscriptionResult.latest_invoice.id,
       invoiceStatus: createSubscriptionResult.latest_invoice.status,
       paymentIntentStatus:
         createSubscriptionResult.latest_invoice.payment_intent?.status,
       paymentIntentClientSecret:
         createSubscriptionResult.latest_invoice.payment_intent?.client_secret,
+      selectedPlan,
       ...commonPaymentIntentParams,
     });
   } else {
@@ -206,11 +215,13 @@ export async function handleSubscriptionPayment({
     });
     return handlePaymentIntent({
       customer,
+      discount,
       invoiceId,
       invoiceStatus: retryInvoiceResult.status,
       paymentIntentStatus: retryInvoiceResult.payment_intent.status,
       paymentIntentClientSecret:
         retryInvoiceResult.payment_intent.client_secret,
+      selectedPlan,
       ...commonPaymentIntentParams,
     });
   }
@@ -218,11 +229,13 @@ export async function handleSubscriptionPayment({
 
 export async function handlePaymentIntent({
   customer,
+  discount,
   invoiceId,
   invoiceStatus,
   paymentIntentStatus,
   paymentIntentClientSecret,
   paymentMethodId,
+  selectedPlan,
   stripe,
   apiDetachFailedPaymentMethod,
   onSuccess,
@@ -230,11 +243,13 @@ export async function handlePaymentIntent({
   onRetry,
 }: {
   customer: Customer | null;
+  discount?: number;
   invoiceId: string;
   invoiceStatus: string;
   paymentIntentStatus: string | null | undefined;
   paymentIntentClientSecret: string | null | undefined;
   paymentMethodId: string | undefined;
+  selectedPlan: Plan;
   stripe: Pick<Stripe, 'confirmCardPayment'>;
   apiDetachFailedPaymentMethod: SubscriptionCreateAuthServerAPIs['apiDetachFailedPaymentMethod'];
   onFailure: (error: PaymentError) => void;
@@ -248,6 +263,12 @@ export async function handlePaymentIntent({
 
   switch (paymentIntentStatus) {
     case 'succeeded': {
+      ReactGALog.logEvent({
+        eventName: GAEvent.Purchase,
+        plan: selectedPlan,
+        purchaseType: GAPurchaseType.New,
+        discount,
+      });
       return onSuccess();
     }
     case 'requires_payment_method': {
@@ -279,11 +300,13 @@ export async function handlePaymentIntent({
       }
       return handlePaymentIntent({
         customer,
+        discount,
         invoiceId,
         invoiceStatus,
         paymentIntentStatus: confirmResult.paymentIntent.status,
         paymentIntentClientSecret: confirmResult.paymentIntent.client_secret,
         paymentMethodId,
+        selectedPlan,
         stripe,
         apiDetachFailedPaymentMethod,
         onSuccess,

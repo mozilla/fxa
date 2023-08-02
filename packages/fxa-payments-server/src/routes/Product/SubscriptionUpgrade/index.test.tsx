@@ -25,9 +25,11 @@ import {
 } from '../../../lib/test-utils';
 import { getFtlBundle } from 'fxa-react/lib/test-utils';
 import { FluentBundle, FluentNumber } from '@fluent/bundle';
+import { ReactGALog } from '../../../lib/reactga-event';
 
 import {
   CUSTOMER,
+  MOCK_EVENTS,
   SELECTED_PLAN,
   UPGRADE_FROM_PLAN,
   PROFILE,
@@ -47,6 +49,7 @@ import { deepCopy } from '../../../lib/test-utils';
 
 jest.mock('../../../lib/sentry');
 jest.mock('../../../lib/amplitude');
+jest.mock('../../../lib/reactga-event');
 
 const customerWebSubscription = CUSTOMER.subscriptions[0] as WebSubscription;
 customerWebSubscription.current_period_start =
@@ -289,6 +292,34 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     fireEvent.click(getByTestId('confirm'));
     expect(updateSubscriptionPlanMounted).toBeCalledTimes(1);
     expect(updateSubscriptionPlanEngaged).toBeCalledTimes(1);
+  });
+});
+
+describe('ReactGA4Log - SubscriptionUpgrade', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    return cleanup();
+  });
+
+  it('logs ReactGA4 purchase_submit and purchase events during upgrade', () => {
+    const updateSubscriptionPlanAndRefresh = jest.fn();
+    const { getByTestId } = renderWithLocalizationProvider(
+      <Subject
+        props={{
+          updateSubscriptionPlanAndRefresh,
+        }}
+      />
+    );
+    expect(ReactGALog.logEvent).not.toHaveBeenCalled();
+    fireEvent.click(getByTestId('confirm'));
+    fireEvent.click(getByTestId('submit'));
+    expect(ReactGALog.logEvent).toBeCalledTimes(2);
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseSubmitUpgrade(SELECTED_PLAN)
+    );
+    expect(ReactGALog.logEvent).toBeCalledWith(
+      MOCK_EVENTS.PurchaseUpgrade(SELECTED_PLAN)
+    );
   });
 });
 

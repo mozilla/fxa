@@ -49,6 +49,12 @@ import {
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
 import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
 import { apiInvoicePreview } from '../../lib/apiClient';
+import {
+  GAEvent,
+  GAPaymentType,
+  GAPurchaseType,
+  ReactGALog,
+} from '../../lib/reactga-event';
 import LoadingSpinner, {
   SpinnerType,
 } from 'fxa-react/components/LoadingSpinner';
@@ -100,6 +106,7 @@ export type BasePaymentFormProps = {
   promotionCode?: string;
   invoicePreview?: FirstInvoicePreview;
   disabled?: boolean;
+  discount?: number;
 } & WithLocalizationProps;
 
 export const PaymentForm = ({
@@ -122,7 +129,9 @@ export const PaymentForm = ({
   promotionCode,
   invoicePreview,
   disabled = false,
+  discount,
 }: BasePaymentFormProps) => {
+  const [logGAEvent, setLogGAEvent] = useState<boolean>(false);
   const isStripeCustomer = isExistingStripeCustomer(customer);
 
   const stripe = useStripe();
@@ -218,6 +227,12 @@ export const PaymentForm = ({
       if (!stripe || !elements || !allowSubmit) {
         return;
       }
+      ReactGALog.logEvent({
+        eventName: GAEvent.PurchaseSubmit,
+        plan,
+        purchaseType: GAPurchaseType.New,
+        discount,
+      });
       setLastSubmitNonce(submitNonce);
       const { name } = validator.getValues();
       const card = elements.getElement(CardElement);
@@ -239,8 +254,10 @@ export const PaymentForm = ({
       stripe,
       submitNonce,
       allowSubmit,
+      discount,
       elements,
       isStripeCustomer,
+      plan,
       promotionCode,
     ]
   );
@@ -361,6 +378,22 @@ export const PaymentForm = ({
       )}
     </SubmitButton>
   );
+
+  if (logGAEvent === false) {
+    if (
+      validator.state.fields.name?.value &&
+      validator.state.fields.creditCard?.value?.complete &&
+      validator.allValid()
+    ) {
+      ReactGALog.logEvent({
+        eventName: GAEvent.AddPaymentInfo,
+        paymentType: GAPaymentType.CreditCard,
+        plan,
+        discount,
+      });
+      setLogGAEvent(true);
+    }
+  }
 
   return (
     <Form

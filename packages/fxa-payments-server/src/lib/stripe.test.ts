@@ -4,18 +4,22 @@
 
 import { FXA_SIGNUP_ERROR, handlePasswordlessSignUp } from './account';
 import { handlePasswordlessSubscription, localeToStripeLocale } from './stripe';
-import { NEW_CUSTOMER, PLAN } from './mock-data';
+import { MOCK_EVENTS, NEW_CUSTOMER, PLAN } from './mock-data';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import { ReactGALog } from './reactga-event';
+import { cleanup } from '@testing-library/react';
 
 jest.mock('./account', () => ({
   handlePasswordlessSignUp: jest.fn(),
 }));
 jest.mock('./apiClient');
+jest.mock('../lib/reactga-event');
 
 const stripeOverride = {
   createPaymentMethod: jest.fn().mockResolvedValue({ paymentMethod: {} }),
   confirmCardPayment: jest.fn().mockResolvedValue({}),
 };
+
 const apiClientOverrides = {
   apiCreateCustomer: jest.fn().mockResolvedValue(NEW_CUSTOMER),
   apiCreateSubscriptionWithPaymentMethod: jest.fn().mockResolvedValue({
@@ -47,6 +51,8 @@ describe('handlePasswordlessSubscription', () => {
 
   beforeEach(() => {
     (handlePasswordlessSignUp as jest.Mock).mockClear();
+    (ReactGALog.logEvent as jest.Mock).mockClear();
+    return cleanup();
   });
 
   it('calls handlePasswordlessSignUp then handleSubscriptionPayment on success', async () => {
@@ -73,6 +79,8 @@ describe('handlePasswordlessSubscription', () => {
 
     expect(handlePasswordlessSignUp).toBeCalledWith({ email, clientId });
     expect(onFailure).not.toHaveBeenCalled();
+    expect(ReactGALog.logEvent).toBeCalledTimes(1);
+    expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.PurchaseNew(PLAN));
   });
 
   it('calls the onFailure callback on error', async () => {
@@ -99,6 +107,7 @@ describe('handlePasswordlessSubscription', () => {
 
     expect(handlePasswordlessSignUp).toBeCalledWith({ email, clientId });
     expect(onFailure).toHaveBeenCalledWith(FXA_SIGNUP_ERROR);
+    expect(ReactGALog.logEvent).not.toBeCalled();
   });
 });
 

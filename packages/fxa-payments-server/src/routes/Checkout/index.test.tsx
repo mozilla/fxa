@@ -28,6 +28,7 @@ import {
   CUSTOMER,
   INACTIVE_PLAN_ID,
   MOCK_CURRENCY_ERROR,
+  MOCK_EVENTS,
   MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR,
   MOCK_GENERAL_PAYPAL_ERROR,
   MOCK_STRIPE_CARD_ERROR,
@@ -57,6 +58,7 @@ import {
   apiSignupForNewsletter,
 } from '../../lib/apiClient';
 import { ButtonBaseProps } from '../../components/PayPalButton';
+import { ReactGALog } from '../../lib/reactga-event';
 
 jest.mock('../../lib/apiClient', () => {
   return {
@@ -90,6 +92,8 @@ jest.mock('react-router-dom', () => ({
     productId: mockProductId,
   }),
 }));
+
+jest.mock('../../lib/reactga-event.ts');
 
 describe('routes/Checkout', () => {
   let authServer = '';
@@ -139,6 +143,7 @@ describe('routes/Checkout', () => {
   });
 
   afterEach(() => {
+    jest.clearAllMocks();
     return cleanup();
   });
 
@@ -338,6 +343,17 @@ describe('routes/Checkout', () => {
       });
 
       expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      expect(ReactGALog.logEvent).toBeCalledTimes(4);
+      expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseNew(PLANS[0])
+      );
     });
 
     it('retries apiFetchCustomer', async () => {
@@ -382,6 +398,13 @@ describe('routes/Checkout', () => {
       expect(paymentErrorComponent).toHaveTextContent(
         getFallbackTextByFluentId(getErrorMessageId(FXA_SIGNUP_ERROR))
       );
+      expect(ReactGALog.logEvent).toBeCalledTimes(2);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+      );
     });
 
     it('displays an error when payment failed', async () => {
@@ -412,6 +435,14 @@ describe('routes/Checkout', () => {
       expect(paymentErrorComponent).toBeInTheDocument();
       expect(paymentErrorComponent).toHaveTextContent(
         getFallbackTextByFluentId(getErrorMessageId(MOCK_STRIPE_CARD_ERROR))
+      );
+      expect(ReactGALog.logEvent).toBeCalledTimes(3);
+      expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
       );
     });
 
@@ -445,6 +476,17 @@ describe('routes/Checkout', () => {
           getErrorMessageId(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
         )
       );
+      expect(ReactGALog.logEvent).toBeCalledTimes(4);
+      expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseNew(PLANS[0])
+      );
     });
 
     it('displays a message when fetching customer failed', async () => {
@@ -476,6 +518,17 @@ describe('routes/Checkout', () => {
         getFallbackTextByFluentId(
           getErrorMessageId(MOCK_FXA_POST_PASSWORDLESS_SUB_ERROR)
         )
+      );
+      expect(ReactGALog.logEvent).toBeCalledTimes(4);
+      expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseNew(PLANS[0])
       );
     });
 
@@ -628,6 +681,17 @@ describe('routes/Checkout', () => {
       });
 
       expect(screen.getByTestId('payment-confirmation')).toBeInTheDocument();
+      expect(ReactGALog.logEvent).toBeCalledTimes(4);
+      expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.AddPayPalPaymentInfo(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+      );
+      expect(ReactGALog.logEvent).toBeCalledWith(
+        MOCK_EVENTS.PurchaseNew(PLANS[0])
+      );
     });
 
     it('shows an error when account creation failed', async () => {
@@ -664,6 +728,7 @@ describe('routes/Checkout', () => {
       expect(paymentErrorComponent).toHaveTextContent(
         getFallbackTextByFluentId(getErrorMessageId(FXA_SIGNUP_ERROR))
       );
+      expect(ReactGALog.logEvent).not.toBeCalled();
     });
 
     it('shows an error when failed to get a PayPal checkout token', async () => {
@@ -691,6 +756,8 @@ describe('routes/Checkout', () => {
           email: newAccountEmail,
           clientId: mockConfig.servers.oauth.clientId,
         });
+        expect(ReactGALog.logEvent).toBeCalledTimes(1);
+        expect(ReactGALog.logEvent).toBeCalledWith(MOCK_EVENTS.SignUp);
         expect(updateAPIClientToken).toHaveBeenCalledWith(
           STUB_ACCOUNT_RESULT.access_token
         );
@@ -757,6 +824,10 @@ describe('routes/Checkout', () => {
       await waitForExpect(() => {
         expect(apiCreateCustomer).toHaveBeenCalledTimes(1);
         expect(apiCapturePaypalPayment).toHaveBeenCalledTimes(1);
+        expect(ReactGALog.logEvent).toBeCalledTimes(1);
+        expect(ReactGALog.logEvent).toBeCalledWith(
+          MOCK_EVENTS.PurchaseSubmitNew(PLANS[0])
+        );
         expect(apiFetchProfile).not.toHaveBeenCalled();
         expect(apiFetchCustomer).not.toHaveBeenCalled();
       });
@@ -767,6 +838,7 @@ describe('routes/Checkout', () => {
         getFallbackTextByFluentId(getErrorMessageId(MOCK_GENERAL_PAYPAL_ERROR))
       );
     });
+
     describe('newsletter', () => {
       it('POSTs to /newsletters if the newsletter checkbox is checked when subscription succeeds', async () => {
         const paypalButtonBase = ({
