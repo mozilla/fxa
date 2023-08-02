@@ -11,7 +11,7 @@ export type PositionType = 'top' | 'bottom';
 type TooltipProps = {
   message: string;
   type?: TooltipType;
-  anchorStart?: boolean;
+  anchorPosition?: 'start' | 'middle' | 'end';
   className?: string;
   position?: PositionType;
   prefixDataTestId?: string;
@@ -36,7 +36,7 @@ export const Tooltip = ({
   message,
   className,
   type = 'default',
-  anchorStart = false,
+  anchorPosition = 'middle',
   position = 'top',
   prefixDataTestId,
 }: TooltipProps) => {
@@ -57,18 +57,21 @@ export const Tooltip = ({
         className,
         {
           'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
-            !anchorStart,
-          'ltr:left-0 rtl:right-0': anchorStart,
+            anchorPosition === 'middle',
+          'start-0': anchorPosition === 'start',
+          'end-0': anchorPosition === 'end',
           'bottom-full': position === 'top',
           'top-full': position === 'bottom',
         }
       )}
+      aria-live="polite"
     >
       <span
         className={classNames('absolute', caretClass(type, position), {
           'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
-            !anchorStart,
-          'ltr:left-ten rtl:right-ten w-auto': anchorStart,
+            anchorPosition === 'middle',
+          'start-ten w-auto': anchorPosition === 'start',
+          'end-ten w-auto': anchorPosition === 'end',
           'top-full': position === 'top',
           'bottom-full': position === 'bottom',
         })}

@@ -111,7 +111,7 @@ const FormVerifyCode = ({
         pattern={formAttributes.pattern}
         maxLength={formAttributes.maxLength}
         className="text-start"
-        anchorStart
+        anchorPosition="start"
         autoComplete="off"
         spellCheck={false}
         prefixDataTestId={viewName}

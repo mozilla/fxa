@@ -231,7 +231,7 @@ const Signup = ({
             })}
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
-            anchorStart
+            anchorPosition="start"
           />
         </FtlMsg>
         <FtlMsg id="signup-coppa-check-explanation-link">

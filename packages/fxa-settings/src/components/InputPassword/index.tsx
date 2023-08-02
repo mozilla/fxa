@@ -25,7 +25,7 @@ export const InputPassword = ({
   name,
   prefixDataTestId = '',
   tooltipPosition,
-  anchorStart,
+  anchorPosition,
 }: InputPasswordProps) => {
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
   const [visible, setVisible] = useState<boolean>(false);
@@ -61,7 +61,7 @@ export const InputPassword = ({
         name,
         prefixDataTestId,
         tooltipPosition,
-        anchorStart,
+        anchorPosition,
       }}
     >
       <button

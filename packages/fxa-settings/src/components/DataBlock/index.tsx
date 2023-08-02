@@ -43,14 +43,14 @@ export const DataBlock = ({
 }: DataBlockProps) => {
   const valueIsArray = Array.isArray(value);
   const [performedAction, setPerformedAction] = useState<actions>();
+  const [tooltipVisible, setTooltipVisible] = useState(false);
   const dataTestId = prefixDataTestId
     ? `${prefixDataTestId}-datablock`
     : 'datablock';
   const actionCb: actionFn = (action) => {
     onAction(action);
 
-    // No feedback tooltip displayed for inline copy button
-    if (actionTypeToNotification[action] && !isInline) {
+    if (actionTypeToNotification[action]) {
       setPerformedAction(action);
     }
   };
@@ -82,25 +82,32 @@ export const DataBlock = ({
             {value}
           </span>
         )}
-        {performedAction && (
+        {performedAction && tooltipVisible && (
           <FtlMsg id={`datablock-${performedAction}`} attrs={{ message: true }}>
             <Tooltip
               prefixDataTestId={`datablock-${performedAction}`}
               message={actionTypeToNotification[performedAction]}
-              position="bottom"
+              anchorPosition={isInline ? 'end' : 'middle'}
+              position={isInline ? 'top' : 'bottom'}
               className="mt-1"
             ></Tooltip>
           </FtlMsg>
         )}
         {isInline && (
-          <GetDataCopySingletonInline {...{ value, onAction: actionCb }} />
+          <GetDataCopySingletonInline
+            {...{ value, onAction: actionCb, setTooltipVisible }}
+          />
         )}
       </div>
       {isIOS && !isInline && (
-        <GetDataCopySingleton {...{ value, onAction: actionCb }} />
+        <GetDataCopySingleton
+          {...{ value, onAction: actionCb, setTooltipVisible }}
+        />
       )}
       {!isIOS && !isInline && (
-        <GetDataTrio {...{ value, contentType, onAction: actionCb }} />
+        <GetDataTrio
+          {...{ value, contentType, onAction: actionCb, setTooltipVisible }}
+        />
       )}
     </div>
   );

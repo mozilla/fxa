@@ -32,7 +32,7 @@ export type InputTextProps = {
   autoFocus?: boolean;
   maxLength?: number;
   pattern?: string;
-  anchorStart?: boolean;
+  anchorPosition?: 'start' | 'middle' | 'end';
   spellCheck?: boolean;
   autoComplete?: string;
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
@@ -60,7 +60,7 @@ export const InputText = ({
   autoFocus,
   maxLength,
   pattern,
-  anchorStart,
+  anchorPosition,
   spellCheck,
   autoComplete,
   inputMode,
@@ -160,7 +160,7 @@ export const InputText = ({
       {errorText && (
         <Tooltip
           type="error"
-          {...{ anchorStart }}
+          anchorPosition="start"
           position={tooltipPosition}
           className="-mb-px"
           message={errorText}

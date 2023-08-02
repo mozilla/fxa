@@ -109,7 +109,7 @@ const Signin = ({
 
           {isPasswordNeeded && (
             <InputPassword
-              anchorStart
+              anchorPosition="start"
               className="mb-5 text-start"
               label={localizedPasswordFormLabel}
               hasErrors={error.length > 0}

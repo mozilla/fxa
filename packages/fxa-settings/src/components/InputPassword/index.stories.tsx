@@ -47,7 +47,7 @@ export const WithErrorTooltip = () => (
       label="Still no good"
       hasErrors
       errorText="Anchored at the start, check me out in RTL"
-      anchorStart
+      anchorPosition="start"
     />
     <InputPassword
       label="You might need some practice."

@@ -306,7 +306,7 @@ module.exports = {
         '.caret-bottom-default': {
           borderLeft: '0.75rem solid transparent',
           borderRight: '0.75rem solid transparent',
-          borderTop: '0.75rem solid #3D3D3D',
+          borderTop: '0.75rem solid #5e5e72',
         },
         '.caret-bottom-error': {
           borderLeft: '0.75rem solid transparent',

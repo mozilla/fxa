@@ -27,9 +27,14 @@ export type GetDataTrioProps = {
   value: string | string[];
   contentType?: DownloadContentType;
   onAction?: (type: 'download' | 'copy' | 'print') => void;
+  setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
+export const GetDataCopySingleton = ({
+  value,
+  onAction,
+  setTooltipVisible,
+}: GetDataTrioProps) => {
   return (
     <FtlMsg id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
       <button
@@ -39,7 +44,9 @@ export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
           const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
           await copy(copyValue);
           onAction?.('copy');
+          setTooltipVisible(true);
         }}
+        onBlur={() => setTooltipVisible(false)}
         data-testid="databutton-copy"
         className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
       >
@@ -57,26 +64,34 @@ export const GetDataCopySingleton = ({ value, onAction }: GetDataTrioProps) => {
 export const GetDataCopySingletonInline = ({
   value,
   onAction,
+  setTooltipVisible,
 }: GetDataTrioProps) => {
   return (
-    <FtlMsg id="get-data-trio-copy-2" attrs={{ title: true, ariaLabel: true }}>
-      <button
-        title="Copy"
-        type="button"
-        onClick={async () => {
-          const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
-          await copy(copyValue);
-          onAction?.('copy');
-        }}
-        data-testid="databutton-copy"
-        className="-my-3 -me-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
+    <>
+      <FtlMsg
+        id="get-data-trio-copy-2"
+        attrs={{ title: true, ariaLabel: true }}
       >
-        <InlineCopyIcon
-          aria-label="Copy"
-          className="w-6 h-6 items-center justify-center stroke-current"
-        />
-      </button>
-    </FtlMsg>
+        <button
+          title="Copy"
+          type="button"
+          onClick={async () => {
+            const copyValue = Array.isArray(value) ? value.join('\r\n') : value;
+            await copy(copyValue);
+            onAction?.('copy');
+            setTooltipVisible(true);
+          }}
+          onBlur={() => setTooltipVisible(false)}
+          data-testid="databutton-copy"
+          className="-my-3 -me-4 p-3 rounded text-grey-500 bg-transparent border border-transparent hover:bg-grey-100 active:bg-grey-200 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 focus:bg-grey-50"
+        >
+          <InlineCopyIcon
+            aria-label="Copy"
+            className="w-6 h-6 items-center justify-center stroke-current"
+          />
+        </button>
+      </FtlMsg>
+    </>
   );
 };
 
@@ -99,6 +114,7 @@ export const GetDataTrio = ({
   value,
   contentType,
   onAction,
+  setTooltipVisible,
 }: GetDataTrioProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -137,7 +153,13 @@ export const GetDataTrio = ({
           download={`${primaryEmail.email} ${contentType}.txt`}
           data-testid="databutton-download"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
-          onClick={() => onAction?.('download')}
+          onClick={() => {
+            onAction?.('download');
+            setTooltipVisible(true);
+          }}
+          onBlur={() => {
+            setTooltipVisible(false);
+          }}
         >
           <DownloadIcon
             aria-label="Download"
@@ -148,7 +170,7 @@ export const GetDataTrio = ({
         </a>
       </FtlMsg>
 
-      <GetDataCopySingleton {...{ onAction, value }} />
+      <GetDataCopySingleton {...{ onAction, value, setTooltipVisible }} />
 
       {/** This only opens the page that is responsible
        *   for triggering the print screen.
@@ -163,7 +185,9 @@ export const GetDataTrio = ({
           onClick={() => {
             print();
             onAction?.('print');
+            setTooltipVisible(true);
           }}
+          onBlur={() => setTooltipVisible(false)}
           data-testid="databutton-print"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
         >

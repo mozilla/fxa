@@ -37,7 +37,11 @@ export const Bottom = () => (
 export const BottomAnchoredStart = () => (
   <>
     <p>Default tooltip pointing to this text</p>
-    <Tooltip message="My tooltip message here" position="bottom" anchorStart />
+    <Tooltip
+      message="My tooltip message here"
+      position="bottom"
+      anchorPosition="start"
+    />
   </>
 );
 export const Error = () => (
