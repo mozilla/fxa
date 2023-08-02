@@ -113,7 +113,7 @@
     "@storybook/preset-create-react-app": "^7.1.0",
     "@storybook/react": "^7.1.1",
     "@storybook/react-webpack5": "^7.0.23",
-    "@storybook/testing-library": "^0.0.14-next.2",
+    "@storybook/testing-library": "^0.2.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react-hooks": "^8.0.0",
