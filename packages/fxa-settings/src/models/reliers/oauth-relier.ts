@@ -211,7 +211,6 @@ export class OAuthRelier extends BaseRelier implements OAuthRelierData, Relier {
     }
 
     if (!permissions.length) {
-      console.trace('!!!!!!!!');
       throw new OAuthError(ERRORS.INVALID_PARAMETER.errno, { params: 'scope' });
     }
 
