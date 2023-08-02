@@ -16,6 +16,7 @@ export { PayPalBillingAgreements } from './lib/paypal-ba';
 export { RecoveryKey } from './lib/recovery-key';
 export { RelyingParty } from './lib/relying-party';
 export { SecurityEvent } from './lib/security-event';
+export { setupAccountDatabase } from './lib/setup';
 export { SentEmail } from './lib/sent-email';
 export { SignInCodes } from './lib/sign-in-codes';
 export { CartFields } from './lib/types';
