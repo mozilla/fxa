@@ -12,7 +12,8 @@ import {
   TaxAmount,
   UpdateCartInput,
 } from '../gql';
-import { CartState, SetupCart } from './types';
+import { SetupCart } from './types';
+import { CartState } from '../../../../shared/db/mysql/account/src';
 
 const OFFERING_CONFIG_IDS = [
   'vpn',

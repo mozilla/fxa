@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { CartState } from '../lib/types';
-import { TaxAddress } from './';
-import { Invoice } from './invoice.model';
+import { CartState } from '../../../../shared/db/mysql/account/src';
+import { TaxAddress, Invoice } from './';
 
 registerEnumType(CartState, {
   name: 'CartState',

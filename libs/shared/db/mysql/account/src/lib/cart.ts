@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseModel } from './base';
 import { Account } from './account';
-import { CartState, TaxAddress } from '@fxa/payments/cart';
+import { CartState, TaxAddress } from './types';
 
 export class Cart extends BaseModel {
   static tableName = 'carts';

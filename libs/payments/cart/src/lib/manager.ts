@@ -1,16 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Cart } from '../../../../shared/db/mysql/account/src';
+import { Cart, CartState } from '../../../../shared/db/mysql/account/src';
 import {
   generateFxAUuid,
   uuidTransformer,
 } from '../../../../shared/db/mysql/core/src';
 import { Logger } from '../../../../shared/log/src';
-import { Cart as CartType } from '../gql';
-import { UpdateCartInput } from '../gql/update-cart.input';
-import { InvoiceFactory } from './factories';
-import { CartState, SetupCart } from './types';
+import { Cart as CartType, UpdateCartInput } from '../gql';
+import { InvoiceFactory, SetupCart } from '../';
 
 const DEFAULT_INTERVAL = 'monthly';
 

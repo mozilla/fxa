@@ -3,13 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Cart } from '../../../../shared/db/mysql/account/src';
 
-export enum CartState {
-  START = 'start',
-  PROCESSING = 'processing',
-  SUCCESS = 'success',
-  FAIL = 'fail',
-}
-
 export type SetupCart = Pick<
   Cart,
   | 'uid'

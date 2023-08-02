@@ -11,7 +11,7 @@ import {
   UpdateCartInputFactory,
 } from '../lib/factories';
 import { CartManager } from '../lib/manager';
-import { CartResolver } from './cart.resolver';
+import { CartResolver } from './';
 const fakeSetupCart = jest.fn();
 const fakeRestartCart = jest.fn();
 const fakeCheckoutCart = jest.fn();
