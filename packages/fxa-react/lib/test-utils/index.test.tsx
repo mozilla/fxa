@@ -161,12 +161,12 @@ describe('testL10n', () => {
     let l10n: ReactLocalization;
 
     beforeAll(() => {
-      l10n = new ReactLocalization([bundle]);
+      l10n = new ReactLocalization([bundle], undefined, () => {});
       ftlMsgResolver = new FtlMsgResolver(l10n, true);
     });
 
     it('throws if there are no en bundles', () => {
-      const emptyL10n = new ReactLocalization([]);
+      const emptyL10n = new ReactLocalization([], undefined, () => {});
       const emptyResolver = new FtlMsgResolver(emptyL10n, true);
       expect(() => {
         emptyResolver.getMsg('test-foo', 'foo-bar');

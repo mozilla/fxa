@@ -80,6 +80,7 @@ type Props = {
   children: any;
   // pass messages directly in, used in testing
   messages?: { [key: string]: string[] };
+  reportError?: (error: Error) => void;
 };
 
 export default class AppLocalizationProvider extends Component<Props, State> {
@@ -88,6 +89,7 @@ export default class AppLocalizationProvider extends Component<Props, State> {
     userLocales: ['en'],
     bundles: ['main'],
     children: React.createElement('div'),
+    reportError: undefined,
   };
 
   constructor(props: Props) {
@@ -108,7 +110,9 @@ export default class AppLocalizationProvider extends Component<Props, State> {
           getBundleGenerator(
             Object.keys(this.props.messages),
             this.props.messages
-          )()
+          )(),
+          undefined,
+          this.props.reportError
         ),
       });
       return;
@@ -121,7 +125,13 @@ export default class AppLocalizationProvider extends Component<Props, State> {
       currentLocales,
       bundles
     );
-    this.setState({ l10n: new ReactLocalization(bundleGenerator()) });
+    this.setState({
+      l10n: new ReactLocalization(
+        bundleGenerator(),
+        undefined,
+        this.props.reportError
+      ),
+    });
   }
 
   render() {

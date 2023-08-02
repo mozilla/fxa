@@ -38,7 +38,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@faker-js/faker": "^8.0.2",
-    "@fluent/react": "^0.15.1",
+    "@fluent/react": "^0.15.2",
     "class-validator": "^0.14.0",
     "diffparser": "^2.0.1",
     "hot-shots": "^10.0.0",

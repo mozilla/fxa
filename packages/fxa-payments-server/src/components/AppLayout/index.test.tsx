@@ -12,6 +12,8 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 afterEach(cleanup);
 
+const reportError = () => {};
+
 const {
   product_metadata: {
     'product:termsOfServiceURL': termsOfServiceURL,
@@ -23,7 +25,10 @@ describe('AppLayout', () => {
   const subject = () => {
     return render(
       <AppContext.Provider value={defaultAppContext}>
-        <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+        <AppLocalizationProvider
+          messages={{ en: ['testo: lol'] }}
+          reportError={reportError}
+        >
           <AppLayout>
             <div data-testid="children">
               <TermsAndPrivacy plan={SELECTED_PLAN} />
@@ -83,7 +88,10 @@ describe('SettingsLayout', () => {
 
     return render(
       <AppContext.Provider value={appContextValue}>
-        <AppLocalizationProvider messages={{ en: ['testo: lol'] }}>
+        <AppLocalizationProvider
+          messages={{ en: ['testo: lol'] }}
+          reportError={reportError}
+        >
           <SettingsLayout>
             <div data-testid="children">Testing</div>
           </SettingsLayout>
