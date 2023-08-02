@@ -1,6 +1,6 @@
 # shared-error
 
-This library was generated with [Nx](https://nx.dev).
+This library serves as the base errors used via inheritance throughout the nx integrated libraries and applications. Many third-party libraries use the `verror` package, by extending our own version we can use `instanceOf` checks to easily identify their errors from our own.
 
 ## Building
 

@@ -1,8 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { faker } from '@faker-js/faker';
 import nock from 'nock';
+
+import { faker } from '@faker-js/faker';
 
 import { PayPalClient } from './client';
 import {
@@ -13,7 +14,7 @@ import {
   PAYPAL_VERSION,
   PLACEHOLDER_URL,
 } from './constants';
-import { PayPalClientError } from '@fxa/shared/error';
+import { PayPalClientError, PayPalNVPError } from './error';
 import {
   NVPBAUpdateTransactionResponseFactory,
   NVPDoReferenceTransactionResponseFactory,
@@ -109,7 +110,7 @@ describe('PayPalClient', () => {
         expect(err.name).toEqual('PayPalClientError');
         expect(err.raw).toMatch(/ACK=Failure/);
         expect(err.data.ACK).toEqual('Failure');
-        expect(typeof err.errorCode).toBe('number');
+        expect(typeof err.getPrimaryError().errorCode).toBe('number');
       }
     });
   });
@@ -364,18 +365,17 @@ describe('PayPalClient', () => {
     });
   });
 
-  describe('getListOfPayPalClientErrors', () => {
+  describe('getListOfPayPalNVPErrors', () => {
     const raw = faker.word.words();
 
     it('returns a general error message when no errors are provided', () => {
       const data = NVPErrorResponseFactory({ L: undefined });
-      const actual = client.getListOfPayPalClientErrors(raw, data);
-      const expected = [
-        new PayPalClientError(raw, data, {
-          message:
-            'PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details.',
-        }),
-      ];
+      const nvpError = new PayPalNVPError(raw, data, {
+        message:
+          'PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details.',
+      });
+      const actual = PayPalClient.getListOfPayPalNVPErrors(raw, data);
+      const expected = [nvpError];
       expect(actual).toStrictEqual(expected);
     });
 
@@ -385,13 +385,13 @@ describe('PayPalClient', () => {
       const data = NVPErrorResponseFactory({
         L: [err1, err2],
       });
-      const actual = client.getListOfPayPalClientErrors(raw, data);
+      const actual = PayPalClient.getListOfPayPalNVPErrors(raw, data);
       const expected = [
-        new PayPalClientError(raw, data, {
+        new PayPalNVPError(raw, data, {
           message: err1.LONGMESSAGE,
           errorCode: parseInt(err1.ERRORCODE),
         }),
-        new PayPalClientError(raw, data, {
+        new PayPalNVPError(raw, data, {
           message: err2.LONGMESSAGE,
           errorCode: parseInt(err2.ERRORCODE),
         }),
@@ -407,19 +407,19 @@ describe('PayPalClient', () => {
       const data = NVPErrorResponseFactory({
         L: [err1, err2],
       });
-      const actual = client.getListOfPayPalClientErrors(raw, data);
+      const actual = PayPalClient.getListOfPayPalNVPErrors(raw, data);
       const expected = [
-        new PayPalClientError(raw, data, {
+        new PayPalNVPError(raw, data, {
           message: err2.LONGMESSAGE,
           errorCode: parseInt(err2.ERRORCODE),
         }),
-        new PayPalClientError(raw, data, {
+        new PayPalNVPError(raw, data, {
           message: err1.LONGMESSAGE,
           errorCode: parseInt(err1.ERRORCODE),
         }),
       ];
       // In this case, the order of the array of errors matters.
-      expect(actual).toMatchObject<PayPalClientError[]>(expected);
+      expect(actual).toMatchObject<PayPalNVPError[]>(expected);
     });
   });
 });

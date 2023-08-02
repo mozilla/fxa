@@ -19,6 +19,7 @@ const customer1 = require('./fixtures/stripe/customer1.json');
 const failedDoReferenceTransactionResponse = require('./fixtures/paypal/do_reference_transaction_failure.json');
 const {
   PayPalClientError,
+  PayPalNVPError,
   nvpToObject,
   objectToNVP,
 } = require('../../../../../libs/payments/paypal/src');
@@ -28,7 +29,6 @@ const {
 } = require('../../../lib/payments/paypal/error-codes');
 const { CurrencyHelper } = require('../../../lib/payments/currencies');
 const { CapabilityService } = require('../../../lib/payments/capability');
-const { PayPalNVPError } = require('../../../../../libs/shared/error/src');
 
 const sandbox = sinon.createSandbox();
 

@@ -12,6 +12,7 @@ const { Container } = require('typedi');
 const {
   PayPalClient,
   PayPalClientError,
+  PayPalNVPError,
   RefundType,
   objectToNVP,
   nvpToObject,
@@ -34,7 +35,6 @@ const {
   PAYPAL_APP_ERRORS,
   PAYPAL_RETRY_ERRORS,
 } = require('../../../lib/payments/paypal/error-codes');
-const { PayPalNVPError } = require('../../../../../libs/shared/error/src');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */
