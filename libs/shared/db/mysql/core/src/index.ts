@@ -11,6 +11,5 @@ export {
   generateFxAUuid,
   monitorKnexConnectionPool,
 } from './lib/core';
-export { setupAccountDatabase } from './lib/setup';
 export { runSql } from './lib/tests';
 export { intBoolTransformer, uuidTransformer } from './lib/transformers';
