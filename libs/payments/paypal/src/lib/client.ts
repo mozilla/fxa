@@ -6,36 +6,38 @@ import pRetry from 'p-retry';
 import superagent from 'superagent';
 
 import {
-  PaypalOptions,
-  PaypalMethods,
-  NVPSuccessResponse,
-  NVPSetExpressCheckoutResponse,
-  NVPCreateBillingAgreementResponse,
-  NVPDoReferenceTransactionResponse,
-  NVPRefundTransactionResponse,
-  NVPBAUpdateTransactionResponse,
-  NVPTransactionSearchResponse,
-  SetExpressCheckoutOptions,
+  PayPalClientError,
+  PayPalNVPError,
+} from '../../../../shared/error/src';
+import {
+  PAYPAL_LIVE_API,
+  PAYPAL_LIVE_IPN,
+  PAYPAL_SANDBOX_API,
+  PAYPAL_SANDBOX_IPN,
+  PAYPAL_VERSION,
+  PLACEHOLDER_URL,
+} from './constants';
+import {
+  BAUpdateOptions,
   CreateBillingAgreementOptions,
   DoReferenceTransactionOptions,
-  RefundTransactionOptions,
-  BAUpdateOptions,
-  TransactionSearchOptions,
-  ResponseEvent,
-  RefundType,
+  NVPBAUpdateTransactionResponse,
+  NVPCreateBillingAgreementResponse,
+  NVPDoReferenceTransactionResponse,
   NVPErrorResponse,
+  NVPRefundTransactionResponse,
+  NVPSetExpressCheckoutResponse,
+  NVPSuccessResponse,
+  NVPTransactionSearchResponse,
+  PaypalMethods,
   PaypalNVPAckOptions,
+  PaypalOptions,
+  RefundTransactionOptions,
+  RefundType,
+  ResponseEvent,
+  SetExpressCheckoutOptions,
+  TransactionSearchOptions,
 } from './types';
-
-import {
-  PAYPAL_SANDBOX_API,
-  PAYPAL_LIVE_API,
-  PAYPAL_SANDBOX_IPN,
-  PAYPAL_LIVE_IPN,
-  PLACEHOLDER_URL,
-  PAYPAL_VERSION,
-} from './constants';
-import { PayPalClientError } from './error';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
 
 export class PayPalClient {
@@ -122,8 +124,54 @@ export class PayPalClient {
       return resultObj;
     } else {
       // TypeScript doesn't narrow ACK, necessitating a cast
-      throw new PayPalClientError(result.text, resultObj as NVPErrorResponse);
+      throw new PayPalClientError(
+        PayPalClient.getListOfPayPalClientErrors(
+          result.text,
+          resultObj as NVPErrorResponse
+        ),
+        result.text,
+        resultObj as NVPErrorResponse
+      );
     }
+  }
+
+  public static getListOfPayPalClientErrors(
+    raw: string,
+    data: NVPErrorResponse
+  ) {
+    const errors: PayPalNVPError[] = [];
+    if (!data.L || !data.L.length) {
+      const message =
+        'PayPal NVP returned a non-success ACK. See "this.raw" or "this.data" for more details.';
+      const err = new PayPalNVPError(raw, data, {
+        message,
+      });
+      errors.push(err);
+      return errors;
+    }
+
+    // Sort errors in alphabetical order by SEVERITYCODE
+    // This puts type "Error" before type "Warning".
+    const nvpErrors = data.L.sort((errA, errB) => {
+      if (errA.SEVERITYCODE < errB.SEVERITYCODE) {
+        return -1;
+      }
+      if (errA.SEVERITYCODE > errB.SEVERITYCODE) {
+        return 1;
+      }
+      return 0;
+    });
+
+    for (let i = 0; i < nvpErrors.length; i++) {
+      const message = nvpErrors[i].LONGMESSAGE;
+      const errorCode = parseInt(nvpErrors[i].ERRORCODE);
+      const err = new PayPalNVPError(raw, data, {
+        errorCode,
+        message,
+      });
+      errors.push(err);
+    }
+    return errors;
   }
 
   /**

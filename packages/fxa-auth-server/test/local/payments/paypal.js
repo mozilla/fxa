@@ -34,6 +34,7 @@ const {
   PAYPAL_APP_ERRORS,
   PAYPAL_RETRY_ERRORS,
 } = require('../../../lib/payments/paypal/error-codes');
+const { PayPalNVPError } = require('../../../../../libs/shared/error/src');
 
 describe('PayPalHelper', () => {
   /** @type PayPalHelper */
@@ -170,8 +171,13 @@ describe('PayPalHelper', () => {
     });
 
     it('if doRequest unsuccessful, throws an error', async () => {
+      const nvpError = new PayPalNVPError(
+        'Fake',
+        {},
+        { message: 'oh no', errorCode: 123 }
+      );
       paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError('Fake', {})
+        new PayPalClientError([nvpError], 'hi', {})
       );
       try {
         await paypalHelper.getCheckoutToken(validOptions);
@@ -298,8 +304,13 @@ describe('PayPalHelper', () => {
     });
 
     it('if doRequest unsuccessful, throws an error', async () => {
+      const nvpError = new PayPalNVPError(
+        'Fake',
+        {},
+        { message: 'oh no', errorCode: 123 }
+      );
       paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError('Fake', {})
+        new PayPalClientError([nvpError], 'hi', {})
       );
       try {
         await paypalHelper.chargeCustomer(validOptions);
@@ -364,8 +375,25 @@ describe('PayPalHelper', () => {
     });
 
     it('throws a RefusedError when a refund is refused', async () => {
+      const nvpError = new PayPalNVPError(
+        'Fake',
+        {
+          ACK: 'Failure',
+          L: [
+            {
+              ERRORCODE: '10009',
+              SHORTMESSAGE: 'Transaction refused',
+              LONGMESSAGE: 'This transaction already has a chargeback filed',
+            },
+          ],
+        },
+        {
+          message: 'This transaction already has a chargeback filed',
+          errorCode: 10009,
+        }
+      );
       paypalHelper.client.refundTransaction = sinon.fake.rejects(
-        new PayPalClientError('Fake', {
+        new PayPalClientError([nvpError], 'hi', {
           ACK: 'Failure',
           L: [
             {
@@ -466,8 +494,13 @@ describe('PayPalHelper', () => {
     });
 
     it('ignores paypal client errors', async () => {
+      const nvpError = new PayPalNVPError(
+        'Fake',
+        {},
+        { message: 'oh no', errorCode: 123 }
+      );
       paypalHelper.client.doRequest = sinon.fake.throws(
-        new PayPalClientError('Fake', {})
+        new PayPalClientError([nvpError], 'hi', {})
       );
       const response = await paypalHelper.cancelBillingAgreement('test');
       assert.isNull(response);
@@ -1031,7 +1064,15 @@ describe('PayPalHelper', () => {
         failedResponse.L_ERRORCODE0 = errCode;
         const rawString = objectToNVP(failedResponse);
         const parsedNvpObject = nvpToObject(rawString);
-        const throwErr = new PayPalClientError(rawString, parsedNvpObject);
+        const nvpError = new PayPalNVPError(rawString, parsedNvpObject, {
+          message: parsedNvpObject.L[0].LONGMESSAGE,
+          errorCode: parseInt(parsedNvpObject.L[0].ERRORCODE),
+        });
+        const throwErr = new PayPalClientError(
+          [nvpError],
+          rawString,
+          parsedNvpObject
+        );
         paypalHelper.chargeCustomer = sinon.fake.rejects(throwErr);
         return throwErr;
       }
@@ -1083,7 +1124,7 @@ describe('PayPalHelper', () => {
             'transaction',
             {
               errData: throwErr.data,
-              code: throwErr.errorCode,
+              code: throwErr.getPrimaryError().errorCode,
             },
             throwErr
           );

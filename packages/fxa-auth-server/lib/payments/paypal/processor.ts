@@ -12,12 +12,12 @@ import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook'
 import { reportSentryError } from '../../sentry';
 import { AuthLogger } from '../../types';
 import { StripeHelper } from '../stripe';
-import { PayPalClientError } from '../../../../../libs/payments/paypal/src';
 import {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,
 } from './error-codes';
 import { PayPalHelper, TransactionSearchResult } from './helper';
+import { PayPalClientError } from '../../../../../libs/shared/error/src';
 
 /**
  * Generest a timestamp in seconds that is `hours` before the current
@@ -237,8 +237,9 @@ export class PaypalProcessor {
       });
       return true;
     } catch (err) {
-      if (err instanceof PayPalClientError) {
-        if (err.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
+      if (PayPalClientError.hasPayPalNVPError(err)) {
+        const primaryError = err.getPrimaryError();
+        if (primaryError.errorCode === PAYPAL_BILLING_AGREEMENT_INVALID) {
           const uid = customer.metadata.userid;
           const billingAgreementId =
             this.stripeHelper.getCustomerPaypalAgreement(customer) as string;
@@ -250,7 +251,7 @@ export class PaypalProcessor {
           await this.sendFailedPaymentEmail(invoice);
           return false;
         }
-        if (PAYPAL_SOURCE_ERRORS.includes(err.errorCode ?? 0)) {
+        if (PAYPAL_SOURCE_ERRORS.includes(primaryError.errorCode ?? 0)) {
           await this.sendFailedPaymentEmail(invoice);
           return false;
         }

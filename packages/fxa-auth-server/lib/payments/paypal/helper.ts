@@ -17,7 +17,6 @@ import {
   IpnMessage,
   nvpToObject,
   PayPalClient,
-  PayPalClientError,
   RefundTransactionOptions,
   RefundType,
   SetExpressCheckoutOptions,
@@ -31,6 +30,7 @@ import {
   PAYPAL_RETRY_ERRORS,
   PAYPAL_SOURCE_ERRORS,
 } from './error-codes';
+import { PayPalClientError } from '../../../../../libs/shared/error/src/';
 
 type PaypalHelperOptions = {
   log: Logger;
@@ -124,7 +124,8 @@ export type TransactionSearchResult = {
  * @param err
  */
 function throwPaypalCodeError(err: PayPalClientError) {
-  const code = err.errorCode;
+  const primaryError = err.getPrimaryError();
+  const code = primaryError.errorCode;
   if (!code) {
     throw error.backendServiceFailure(
       'paypal',
@@ -332,7 +333,7 @@ export class PayPalHelper {
     try {
       await this.client.baUpdate({ billingAgreementId, cancel: true });
     } catch (err) {
-      if (!(err instanceof PayPalClientError)) {
+      if (!PayPalClientError.hasPayPalNVPError(err)) {
         throw err;
       }
     }
@@ -496,7 +497,7 @@ export class PayPalHelper {
         any
       ];
     } catch (err) {
-      if (err instanceof PayPalClientError && !batchProcessing) {
+      if (PayPalClientError.hasPayPalNVPError(err) && !batchProcessing) {
         throwPaypalCodeError(err);
       }
       this.log.error('processInvoice', {
@@ -504,6 +505,7 @@ export class PayPalHelper {
         nvpData: err.data,
         invoiceId: invoice.id,
       });
+
       throw err;
     }
     await this.stripeHelper.updatePaymentAttempts(invoice);
@@ -551,14 +553,18 @@ export class PayPalHelper {
     try {
       response = await this.client.refundTransaction(options);
     } catch (err) {
-      if (!(err instanceof PayPalClientError)) {
+      if (!PayPalClientError.hasPayPalNVPError(err)) {
         throw err;
       }
-      if (err.data.L && err.data.L[0].SHORTMESSAGE === 'Transaction refused') {
+      const primaryError = err.getPrimaryError();
+      if (
+        primaryError.data.L &&
+        primaryError.data.L[0].SHORTMESSAGE === 'Transaction refused'
+      ) {
         throw new RefusedError(
-          err.data.L[0].SHORTMESSAGE,
-          err.data.L[0].LONGMESSAGE,
-          err.data.L[0].ERRORCODE
+          primaryError.data.L[0].SHORTMESSAGE,
+          primaryError.data.L[0].LONGMESSAGE,
+          primaryError.data.L[0].ERRORCODE
         );
       }
       throw err;
