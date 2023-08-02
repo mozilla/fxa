@@ -9485,7 +9485,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/devkit@npm:16.6.0":
+"@nx/devkit@npm:16.6.0, @nx/devkit@npm:^16.6.0":
   version: 16.6.0
   resolution: "@nx/devkit@npm:16.6.0"
   dependencies:
@@ -31083,6 +31083,7 @@ fsevents@~2.1.1:
   dependencies:
     "@faker-js/faker": ^8.0.2
     "@fluent/react": ^0.15.1
+    "@nx/devkit": ^16.6.0
     "@nx/eslint-plugin": ^16.6.0
     "@nx/jest": 16.6.0
     "@nx/js": ^16.6.0
