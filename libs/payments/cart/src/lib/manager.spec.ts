@@ -6,10 +6,10 @@ import { NotFoundError } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import { Cart, CartFactory } from '../../../../shared/db/mysql/account/src';
 import { Logger } from '../../../../shared/log/src';
-import { SetupCartFactory, UpdateCartInputFactory } from './factories';
+import { SetupCartFactory, UpdateCartFactory } from './factories';
 import { CartManager, ERRORS } from './manager';
 import { testCartDatabaseSetup } from './tests';
-import { CartState } from './types';
+import { CartState } from '../../../../shared/db/mysql/account/src';
 
 const CART_ID = '8730e0d5939c450286e6e6cc1bbeeab2';
 const RANDOM_ID = uuidv4({}, Buffer.alloc(16)).toString('hex');
@@ -86,20 +86,16 @@ describe('#payments-cart - manager', () => {
 
   describe('updateCart', () => {
     it('should successfully update an existing cart', async () => {
-      const updateCart = UpdateCartInputFactory({
+      const updateCart = UpdateCartFactory({
         id: CART_ID,
-        interval: 'monthly',
-        offeringConfigId: 'randomproduct',
       });
       const cart = await cartManager.updateCart(updateCart);
       expect(cart).toEqual(expect.objectContaining(updateCart));
     });
 
     it('should return null if no cart with provided ID is found', async () => {
-      const updateCart = UpdateCartInputFactory({
+      const updateCart = UpdateCartFactory({
         id: RANDOM_ID,
-        interval: 'monthly',
-        offeringConfigId: 'randomproduct',
       });
       try {
         await cartManager.updateCart(updateCart);

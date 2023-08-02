@@ -4,20 +4,20 @@
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Logger } from '../../../../shared/log/src';
+import { Logger } from '../../../../libs/shared/log/src';
 import {
   CartIdInputFactory,
   SetupCartInputFactory,
   UpdateCartInputFactory,
-} from '../lib/factories';
-import { CartManager } from '../lib/manager';
+} from './lib/factories';
+import { CartManager } from '../../../../libs/payments/cart/src';
 import { CartResolver } from './cart.resolver';
 const fakeSetupCart = jest.fn();
 const fakeRestartCart = jest.fn();
 const fakeCheckoutCart = jest.fn();
 const fakeUpdateCart = jest.fn();
 
-jest.mock('../lib/manager', () => {
+jest.mock('../../../../libs/payments/cart/src', () => {
   // Works and lets you check for constructor calls:
   return {
     CartManager: jest.fn().mockImplementation(() => {

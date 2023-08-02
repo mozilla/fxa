@@ -20,3 +20,15 @@ export type CartFields = Pick<
   | 'email'
   | 'amount'
 >;
+
+export enum CartState {
+  START = 'start',
+  PROCESSING = 'processing',
+  SUCCESS = 'success',
+  FAIL = 'fail',
+}
+
+export interface TaxAddress {
+  countryCode: string;
+  postalCode: string;
+}

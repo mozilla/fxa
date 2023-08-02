@@ -8,6 +8,7 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
+        "rootDir": ".",
         "outputPath": "dist/libs/payments/cart",
         "main": "libs/payments/cart/src/index.ts",
         "tsConfig": "libs/payments/cart/tsconfig.lib.json",
