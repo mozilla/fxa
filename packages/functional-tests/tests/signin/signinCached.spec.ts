@@ -2,15 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 const password = 'passwordzxcv';
 let email;
 let email2;
+let syncBrowserPages;
 
 test.describe('signin cached', () => {
-  test.beforeEach(async ({ target, pages: { login } }) => {
-    test.slow();//This test has steps for email rendering that runs slow on stage
-    await login.clearCache();
+  test.beforeEach(async ({ target }) => {
+    test.slow(); //This test has steps for email rendering that runs slow on stage
+    syncBrowserPages = await newPagesForSync(target);
+    const { login } = syncBrowserPages;
     email = login.createEmail('sync{id}');
     email2 = login.createEmail();
     await target.auth.signUp(email, password, {
@@ -25,23 +27,24 @@ test.describe('signin cached', () => {
 
   test.afterEach(async ({ target }) => {
     test.slow(); //The cleanup was timing out and exceeding 3000ms
-    const emails = [email, email2];
-    for (const email of emails) {
-      if (email) {
-        try {
-          await target.auth.accountDestroy(email, password);
-        } catch (e) {
-          // Handle any errors if needed
-        }
+    await syncBrowserPages.browser?.close();
+    if (email) {
+      // Cleanup any accounts created during the test
+      try {
+        await target.auth.accountDestroy(email, password);
+      } catch (e) {
+        // Handle the error here
+        console.error('An error occurred during account cleanup:', e);
+        // Optionally, rethrow the error to propagate it further
+        throw e;
       }
     }
   });
 
   test('sign in twice, on second attempt email will be cached', async ({
     target,
-    page,
-    pages: { login },
   }) => {
+    const { page, login } = syncBrowserPages;
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -63,9 +66,8 @@ test.describe('signin cached', () => {
 
   test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
     target,
-    page,
-    pages: { login, settings },
   }) => {
+    const { page, login, settings } = syncBrowserPages;
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -92,11 +94,8 @@ test.describe('signin cached', () => {
     expect(primary).toEqual(email);
   });
 
-  test('sign in once, use a different account', async ({
-    target,
-    page,
-    pages: { login },
-  }) => {
+  test('sign in once, use a different account', async ({ target }) => {
+    const { page, login } = syncBrowserPages;
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -123,11 +122,8 @@ test.describe('signin cached', () => {
     expect(await login.getPrefilledEmail()).toContain(email2);
   });
 
-  test('expired cached credentials', async ({
-    target,
-    page,
-    pages: { login },
-  }) => {
+  test('expired cached credentials', async ({ target }) => {
+    const { page, login } = syncBrowserPages;
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -150,11 +146,8 @@ test.describe('signin cached', () => {
     expect(await login.isUserLoggedIn()).toBe(true);
   });
 
-  test('cached credentials that expire while on page', async ({
-    target,
-    page,
-    pages: { login },
-  }) => {
+  test('cached credentials that expire while on page', async ({ target }) => {
+    const { page, login } = syncBrowserPages;
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
@@ -186,9 +179,8 @@ test.describe('signin cached', () => {
 
   test('unverified cached signin redirects to confirm email', async ({
     target,
-    page,
-    pages: { login },
   }) => {
+    const { page, login } = syncBrowserPages;
     const email_unverified = login.createEmail();
     await target.auth.signUp(email_unverified, password, {
       lang: 'en',

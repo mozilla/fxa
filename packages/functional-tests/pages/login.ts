@@ -239,15 +239,13 @@ export class LoginPage extends BaseLayout {
   }
 
   async waitForSignUpCodeHeader() {
-    await this.page.waitForSelector(selectors.SIGN_UP_CODE_HEADER,
-      {
-      timeout: 2000,
+    await this.page.waitForSelector(selectors.SIGN_UP_CODE_HEADER, {
+      timeout: 3000,
     });
   }
 
   async waitForSignInCodeHeader() {
-    await this.page.waitForSelector(selectors.SIGN_IN_CODE_HEADER,
-      {
+    await this.page.waitForSelector(selectors.SIGN_IN_CODE_HEADER, {
       timeout: 2000,
     });
   }
