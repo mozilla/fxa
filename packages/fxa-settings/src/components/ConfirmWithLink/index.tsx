@@ -7,7 +7,7 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 import { MailImage } from '../../components/images';
 import CardHeader from '../CardHeader';
 import { ResendStatus } from '../../lib/types';
-import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from '../Banner';
+import Banner, { BannerType, ResendEmailSuccessBanner } from '../Banner';
 
 export type ConfirmWithLinkProps = {
   confirmWithLinkPageStrings: ConfirmWithLinkPageStrings;
@@ -15,6 +15,7 @@ export type ConfirmWithLinkProps = {
   navigateBackHandler?: () => void;
   resendEmailHandler: () => void;
   resendStatus: ResendStatus;
+  errorMessage?: string;
 };
 
 export type ConfirmWithLinkPageStrings = {
@@ -30,6 +31,7 @@ const ConfirmWithLink = ({
   navigateBackHandler,
   resendEmailHandler,
   resendStatus,
+  errorMessage,
 }: ConfirmWithLinkProps) => {
   // (temporarily?) removed `Open With Webmail` functionality
   // Not currently functional in content-server/prod so requires fix/new utility
@@ -43,7 +45,9 @@ const ConfirmWithLink = ({
       />
 
       {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
-      {resendStatus === ResendStatus['error'] && <ResendLinkErrorBanner />}
+      {resendStatus === ResendStatus['error'] && errorMessage && (
+        <Banner type={BannerType.error}>{errorMessage}</Banner>
+      )}
 
       <div className="flex justify-center">
         <MailImage />
@@ -56,7 +60,7 @@ const ConfirmWithLink = ({
       <div className="flex flex-col gap-3">
         <FtlMsg id="confirm-with-link-resend-link-button">
           <button
-            className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
+            className="mx-auto link-blue text-sm"
             onClick={resendEmailHandler}
           >
             Not in inbox or spam folder? Resend
@@ -65,7 +69,7 @@ const ConfirmWithLink = ({
         {navigateBackHandler && (
           <FtlMsg id="confirm-with-link-back-link">
             <button
-              className="mx-auto link-blue text-sm opacity-0 animate-delayed-fade-in"
+              className="mx-auto link-blue text-sm"
               onClick={navigateBackHandler}
             >
               Back

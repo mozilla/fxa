@@ -9,4 +9,5 @@ complete-reset-password-success-alert = Password set
 # An error occurred while attempting to set a new password (password reset flow)
 # Displayed in an alert bar
 complete-reset-password-error-alert = Sorry, there was a problem setting your password
-complete-reset-password-recovery-key-error = Sorry, there was a problem checking if you have an account recovery key. <hasRecoveryKeyErrorLink>Reset your password with your account recovery key.</hasRecoveryKeyErrorLink>
+complete-reset-password-recovery-key-error-v2 = Sorry, there was a problem checking if you have an account recovery key.
+complete-reset-password-recovery-key-link = Reset your password with your account recovery key.

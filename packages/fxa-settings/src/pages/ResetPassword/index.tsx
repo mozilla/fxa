@@ -10,6 +10,7 @@ import {
   AuthUiErrorNos,
   AuthUiErrors,
   composeAuthUiErrorTranslationId,
+  getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
@@ -126,34 +127,8 @@ const ResetPassword = ({
           });
         }
       } catch (err) {
-        let localizedError;
-        if (err.errno && AuthUiErrorNos[err.errno]) {
-          if (
-            err.errno === AuthUiErrors.THROTTLED.errno &&
-            err.retryAfterLocalized
-          ) {
-            localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(err),
-              AuthUiErrorNos[err.errno].message,
-              { retryAfter: err.retryAfterLocalized }
-            );
-          } else {
-            localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(err),
-              AuthUiErrorNos[err.errno].message
-            );
-          }
-        } else {
-          // TEMPORARY deliberate log to help debug FXA-7347, this should be captured server-side
-          // but for some reason isn't logging to Sentry
-          sentryMetrics.captureException(err);
-          const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-          localizedError = ftlMsgResolver.getMsg(
-            composeAuthUiErrorTranslationId(unexpectedError),
-            unexpectedError.message
-          );
-        }
-        setErrorMessage(localizedError);
+        const errorMessage = getLocalizedErrorMessage(ftlMsgResolver, err);
+        setErrorMessage(errorMessage);
       }
     },
     [account, clearError, ftlMsgResolver, navigateToConfirmPwReset, integration]

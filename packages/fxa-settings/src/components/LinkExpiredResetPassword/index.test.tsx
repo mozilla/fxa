@@ -86,9 +86,7 @@ describe('LinkExpiredResetPassword', () => {
     });
     fireEvent.click(receiveNewLinkButton);
     await waitFor(() => {
-      expect(
-        screen.getByText(`Something went wrong. A new link could not be sent.`)
-      ).toBeInTheDocument();
+      expect(screen.getByText(`Unexpected error`)).toBeInTheDocument();
     });
   });
 });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, ReactElement } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent } from '../../../lib/metrics';
@@ -10,6 +10,7 @@ import {
   IntegrationType,
   useAccount,
   isOAuthIntegration,
+  useFtlMsgResolver,
 } from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
@@ -33,12 +34,15 @@ import {
 } from '../../../lib/storage-utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
-  CompleteResetPasswordErrorType,
   CompleteResetPasswordFormData,
   CompleteResetPasswordLocationState,
   CompleteResetPasswordProps,
   CompleteResetPasswordSubmitData,
 } from './interfaces';
+import {
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from '../../../lib/auth-errors/auth-errors';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -59,10 +63,11 @@ const CompleteResetPassword = ({
   setLinkStatus,
   integration,
   finishOAuthFlowHandler,
-}: CompleteResetPasswordProps) => {
-  const [errorType, setErrorType] = useState(
-    CompleteResetPasswordErrorType.none
-  );
+}:
+  CompleteResetPasswordProps) => {
+  const [bannerMessage, setBannerMessage] = useState<
+    undefined | string | ReactElement
+  >();
   /* Show a loading spinner until all checks complete. Without this, users with a
    * recovery key set or with an expired or damaged link will experience some jank due
    * to an immediate redirect or rerender of this page. */
@@ -73,6 +78,7 @@ const CompleteResetPassword = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: CompleteResetPasswordLocationState;
   };
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({
@@ -125,7 +131,26 @@ const CompleteResetPassword = ({
           });
         }
       } catch (error) {
-        setErrorType(CompleteResetPasswordErrorType['recovery-key']);
+        // If checking for an account recovery key fails,
+        // we provide the user with the option to manually navigate to the account recovery flow
+        setBannerMessage(
+          <>
+            <FtlMsg id="complete-reset-password-recovery-key-error-v2">
+              <p>
+                Sorry, there was a problem checking if you have an account
+                recovery key.
+              </p>
+            </FtlMsg>
+            <FtlMsg id="complete-reset-password-recovery-key-link">
+              <Link
+                to={`/account_recovery_confirm_key${location.search}`}
+                className="link-white underline-offset-4"
+              >
+                Reset your password with your account recovery key.
+              </Link>
+            </FtlMsg>
+          </>
+        );
       }
     };
 
@@ -146,7 +171,7 @@ const CompleteResetPassword = ({
   ]);
 
   const alertSuccessAndNavigate = useCallback(() => {
-    setErrorType(CompleteResetPasswordErrorType.none);
+    setBannerMessage('');
     navigateWithoutRerender(
       `/reset_password_verified${window.location.search}`,
       { replace: true }
@@ -257,8 +282,19 @@ const CompleteResetPassword = ({
         if (!isHardNavigate) {
           alertSuccessAndNavigate();
         }
-      } catch (e) {
-        setErrorType(CompleteResetPasswordErrorType['complete-reset']);
+      } catch (err) {
+        // if the link expired or the reset was completed in another tab/browser
+        // between page load and form submission
+        // on form submission, redirect to link expired page to provide a path to resend a link
+        if (err.errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          setLinkStatus(LinkStatus.expired);
+        } else {
+          const localizedBannerMessage = getLocalizedErrorMessage(
+            ftlMsgResolver,
+            err
+          );
+          setBannerMessage(localizedBannerMessage);
+        }
       }
     },
     [
@@ -267,45 +303,10 @@ const CompleteResetPassword = ({
       location.search,
       alertSuccessAndNavigate,
       finishOAuthFlowHandler,
+      ftlMsgResolver,
+      setLinkStatus,
     ]
   );
-
-  const renderCompleteResetPasswordErrorBanner = () => {
-    return (
-      <Banner type={BannerType.error}>
-        <FtlMsg id="complete-reset-password-error-alert">
-          <p>Sorry, there was a problem setting your password</p>
-        </FtlMsg>
-      </Banner>
-    );
-  };
-
-  const renderRecoveryKeyErrorBanner = () => {
-    const hasRecoveryKeyErrorLink = (
-      <Link
-        to={`/account_recovery_confirm_key${location.search}`}
-        className="link-white"
-      >
-        Reset your password with your account recovery key.
-      </Link>
-    );
-
-    return (
-      <Banner type={BannerType.error}>
-        <FtlMsg
-          id="complete-reset-password-recovery-key-error"
-          elems={{
-            hasRecoveryKeyErrorLink,
-          }}
-        >
-          <p>
-            Sorry, there was a problem checking if you have an account recovery
-            key. {hasRecoveryKeyErrorLink}.
-          </p>
-        </FtlMsg>
-      </Banner>
-    );
-  };
 
   if (showLoadingSpinner) {
     return (
@@ -319,10 +320,9 @@ const CompleteResetPassword = ({
         headingTextFtlId="complete-reset-pw-header"
       />
 
-      {errorType === CompleteResetPasswordErrorType['recovery-key'] &&
-        renderRecoveryKeyErrorBanner()}
-      {errorType === CompleteResetPasswordErrorType['complete-reset'] &&
-        renderCompleteResetPasswordErrorBanner()}
+      {bannerMessage && (
+        <Banner type={BannerType.error}>{bannerMessage}</Banner>
+      )}
 
       <WarningMessage
         warningMessageFtlId="complete-reset-password-warning-message-2"

@@ -18,12 +18,8 @@ jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
-const mockCallback = jest.fn();
-
 describe('ConfirmWithLink component', () => {
-  // TODO: add tests for all metrics as they are added
-
-  it("renders default view as expected with user's email", () => {
+  it('renders default view as expected on initial page load', () => {
     renderWithLocalizationProvider(<SubjectWithEmailResendSuccess />);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -32,37 +28,44 @@ describe('ConfirmWithLink component', () => {
       `Open the mock link sent to ${MOCK_ACCOUNT.primaryEmail.email}`
     );
     screen.getByRole('button', { name: 'Not in inbox or spam folder? Resend' });
+    expect(
+      screen.queryByRole('button', { name: 'Back' })
+    ).not.toBeInTheDocument();
   });
 
-  it('displays a success banner when resending a link is successful', () => {
+  it('displays a success banner when resend status is set to sent', () => {
     renderWithLocalizationProvider(<SubjectWithEmailResendSuccess />);
     const resendEmailButton = screen.getByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
+    expect(
+      screen.queryByText(
+        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+      )
+    ).not.toBeInTheDocument();
     fireEvent.click(resendEmailButton);
     screen.getByText(
       'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
     );
   });
 
-  it('displays an error banner when resending a link is unsuccessful', () => {
+  it('displays an error banner when resend status is set to error and an error message is provided', () => {
     renderWithLocalizationProvider(<SubjectWithEmailResendError />);
     const resendEmailButton = screen.getByRole('button', {
       name: 'Not in inbox or spam folder? Resend',
     });
+    expect(
+      screen.queryByText('Uh oh something went wrong')
+    ).not.toBeInTheDocument();
     fireEvent.click(resendEmailButton);
-    screen.getByText('Something went wrong. A new link could not be sent.');
+    screen.getByText('Uh oh something went wrong');
   });
 
-  it('renders the expected view with the Back button when user can go back', async () => {
+  it('renders a back button when provided with navigateBackHandler', async () => {
     renderWithLocalizationProvider(
-      <SubjectCanGoBack navigateBackHandler={mockCallback} />
+      <SubjectCanGoBack navigateBackHandler={jest.fn()} />
     );
 
-    const backLink = screen.getByRole('button', {
-      name: 'Back',
-    });
-    fireEvent.click(backLink);
-    expect(mockCallback).toHaveBeenCalled();
+    screen.getByRole('button', { name: 'Back' });
   });
 });

@@ -4,8 +4,6 @@
 
 import React from 'react';
 import ConfirmWithLink from '.';
-import AppLayout from '../../components/AppLayout';
-import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import {
   SubjectWithEmailResendError,

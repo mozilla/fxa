@@ -14,7 +14,7 @@ export enum BannerType {
   error = 'error',
 }
 
-type DefaultProps = { type: BannerType; children: ReactElement };
+type DefaultProps = { type: BannerType; children: ReactElement | string };
 
 type OptionalProps =
   | {
@@ -68,16 +68,6 @@ export const ResendEmailSuccessBanner = () => {
       >
         {`Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
     smooth delivery.`}
-      </FtlMsg>
-    </Banner>
-  );
-};
-
-export const ResendLinkErrorBanner = () => {
-  return (
-    <Banner type={BannerType.error}>
-      <FtlMsg id="link-expired-resent-link-error-message">
-        Something went wrong. A new link could not be sent.
       </FtlMsg>
     </Banner>
   );

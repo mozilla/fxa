@@ -19,8 +19,15 @@ import {
 } from '../../../constants';
 import { ResendStatus } from '../../../lib/types';
 import AppLayout from 'fxa-settings/src/components/AppLayout';
-import { useAccount, useInterval } from 'fxa-settings/src/models';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import {
+  useAccount,
+  useFtlMsgResolver,
+  useInterval,
+} from 'fxa-settings/src/models';
+import {
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from 'fxa-settings/src/lib/auth-errors/auth-errors';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 
@@ -39,6 +46,8 @@ export const Confirm = ({
 }: ConfirmProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const ftlMsgResolver = useFtlMsgResolver();
+
   // Show a loading spinner until all checks complete. Without this,
   // users without a session will experience some jank due to an
   // immediate redirect or rerender of this page.
@@ -46,6 +55,7 @@ export const Confirm = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  const [errorMessage, setErrorMessage] = useState<string>();
   const [email, setEmail] = useState('');
 
   const account = useAccount();
@@ -152,8 +162,14 @@ export const Confirm = ({
       // instead of a verification link and navigates to /signup_confirm_code.
       // This avoids adding a (to be discontinued) method to the React Account model.
       await account.sendVerificationCode();
+      setResendStatus(ResendStatus.sent);
     } catch (err) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        err
+      );
       setResendStatus(ResendStatus['error']);
+      setErrorMessage(localizedErrorMessage);
       if (AuthUiErrors['INVALID_TOKEN'].errno === err.errno) {
         logErrorEvent({ viewName, ...err });
         // TODO: When redirectToSignup is changed to use navigate,
@@ -180,6 +196,7 @@ export const Confirm = ({
           email,
           resendEmailHandler,
           resendStatus,
+          errorMessage,
         }}
       />
     </AppLayout>

@@ -2,12 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import CardHeader from '../CardHeader';
 import AppLayout from '../AppLayout';
 import { ResendStatus } from '../../lib/types';
-import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from '../Banner';
+import Banner, { ResendEmailSuccessBanner, BannerType } from '../Banner';
 
 export type LinkExpiredProps = {
   headingText: string;
@@ -16,6 +16,7 @@ export type LinkExpiredProps = {
   messageFtlId: string;
   resendLinkHandler: () => Promise<void>;
   resendStatus: ResendStatus;
+  errorMessage?: string | ReactElement;
 };
 
 export const LinkExpired = ({
@@ -25,13 +26,16 @@ export const LinkExpired = ({
   messageFtlId,
   resendLinkHandler,
   resendStatus,
+  errorMessage,
 }: LinkExpiredProps) => {
   return (
     <AppLayout>
       <CardHeader {...{ headingText, headingTextFtlId }} />
 
       {resendStatus === ResendStatus['sent'] && <ResendEmailSuccessBanner />}
-      {resendStatus === ResendStatus['error'] && <ResendLinkErrorBanner />}
+      {resendStatus === ResendStatus['error'] && errorMessage && (
+        <Banner type={BannerType.error}>{errorMessage}</Banner>
+      )}
 
       <FtlMsg id={messageFtlId}>
         <p className="text-sm my-4">{messageText}</p>

@@ -84,7 +84,6 @@ jest.mock('../../../lib/metrics', () => {
 
 const route = '/reset_password';
 const render = (ui = <Subject />, account = mockAccount()) => {
-  console.log('account in render', account);
   const history = createHistoryWithQuery(route);
   return renderWithRouter(
     ui,

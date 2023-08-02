@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Link, useLocation, useNavigate } from '@reach/router';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { useAccount } from '../../../models';
@@ -16,12 +16,16 @@ import WarningMessage from '../../../components/WarningMessage';
 import { LinkStatus, MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
-import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import {
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from '../../../lib/auth-errors/auth-errors';
 import base32Decode from 'base32-decode';
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { isBase32Crockford } from '../../../lib/utilities';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import Banner, { BannerType } from '../../../components/Banner';
 
 type FormData = {
   recoveryKey: string;
@@ -50,7 +54,8 @@ const AccountRecoveryConfirmKey = ({
   // TODO: grab serviceName from the relier
   const serviceName = MozServices.Default;
 
-  const [recoveryKeyErrorText, setRecoveryKeyErrorText] = useState<string>('');
+  const [tooltipText, setTooltipText] = useState<string>('');
+  const [bannerMessage, setBannerMessage] = useState<string | ReactElement>();
   // The password forgot code can only be used once to retrieve `accountResetToken`
   // so we set its value after the first request for subsequent requests.
   const [fetchedResetToken, setFetchedResetToken] = useState('');
@@ -84,8 +89,8 @@ const AccountRecoveryConfirmKey = ({
     checkPasswordForgotToken(linkModel.token);
   }, [account, linkModel.token, setLinkStatus]);
 
-  const { handleSubmit, register } = useForm<FormData>({
-    mode: 'onBlur',
+  const { handleSubmit, register, formState } = useForm<FormData>({
+    mode: 'onChange',
     criteriaMode: 'all',
     defaultValues: {
       recoveryKey: '',
@@ -98,11 +103,6 @@ const AccountRecoveryConfirmKey = ({
       setIsFocused(true);
     }
   };
-
-  const errorInvalidRecoveryKey = ftlMsgResolver.getMsg(
-    'account-recovery-confirm-key-error-general',
-    'Invalid account recovery key'
-  );
 
   const getRecoveryBundleAndNavigate = useCallback(
     async ({
@@ -161,15 +161,25 @@ const AccountRecoveryConfirmKey = ({
         });
       } catch (error) {
         logViewEvent('flow', `${viewName}.fail`, REACT_ENTRYPOINT);
-
+        // if the link expired or the reset was completed in another tab/browser
+        // between page load and form submission
+        // on form submission, redirect to link expired page to provide a path to resend a link
         if (error.errno === AuthUiErrors.INVALID_TOKEN.errno) {
           setLinkStatus(LinkStatus.expired);
         } else {
           // NOTE: in content-server, we only check for invalid token and invalid recovery
           // key, and note that all other errors are unexpected. However in practice,
-          // users could also trigger an 'invalid hex string: null' message. We may want to
-          // circle back to this but for now serves as a catch-all for other errors.
-          setRecoveryKeyErrorText(errorInvalidRecoveryKey);
+          // users could also trigger (for example) an 'invalid hex string: null' message or throttling errors.
+          // Here, we are using the auth errors library, and unaccounted errors are announced as unexpected.
+          const localizedBannerMessage = getLocalizedErrorMessage(
+            ftlMsgResolver,
+            error
+          );
+          if (error.errno === AuthUiErrors.INVALID_RECOVERY_KEY.errno) {
+            setTooltipText(localizedBannerMessage);
+          } else {
+            setBannerMessage(localizedBannerMessage);
+          }
         }
       } finally {
         setIsLoading(false);
@@ -178,32 +188,28 @@ const AccountRecoveryConfirmKey = ({
     [
       account,
       fetchedResetToken,
+      ftlMsgResolver,
       getRecoveryBundleAndNavigate,
       setLinkStatus,
-      errorInvalidRecoveryKey,
     ]
   );
-
-  const invalidRecoveryKey = (localizedError: string) => {
-    setRecoveryKeyErrorText(localizedError);
-    setIsLoading(false);
-    logViewEvent('flow', `${viewName}.fail`, REACT_ENTRYPOINT);
-  };
 
   const onSubmit = (submitData: SubmitData) => {
     const { recoveryKey } = submitData;
     setIsLoading(true);
+    setBannerMessage(undefined);
     logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
 
-    if (recoveryKey === '') {
-      invalidRecoveryKey(
-        ftlMsgResolver.getMsg(
-          'account-recovery-confirm-key-empty-input-error',
-          'Account recovery key required'
-        )
+    // if the submitted key does not match the expected format,
+    // abort before submitting to the auth server
+    if (recoveryKey.length !== 32 || !isBase32Crockford(recoveryKey)) {
+      const localizedErrorMessage = ftlMsgResolver.getMsg(
+        'auth-error-159',
+        'Invalid account recovery key'
       );
-    } else if (recoveryKey.length !== 32 || !isBase32Crockford(recoveryKey)) {
-      invalidRecoveryKey(errorInvalidRecoveryKey);
+      setTooltipText(localizedErrorMessage);
+      setIsLoading(false);
+      logViewEvent('flow', `${viewName}.fail`, REACT_ENTRYPOINT);
     } else {
       checkRecoveryKey(submitData);
     }
@@ -221,6 +227,11 @@ const AccountRecoveryConfirmKey = ({
         headingText="Reset password with account recovery key"
         {...{ serviceName }}
       />
+
+      {bannerMessage && (
+        <Banner type={BannerType.error}>{bannerMessage}</Banner>
+      )}
+
       <FtlMsg id="account-recovery-confirm-key-instructions">
         <p className="mt-4 text-sm">
           Please enter the one time use account recovery key you stored in a
@@ -259,7 +270,7 @@ const AccountRecoveryConfirmKey = ({
             type="text"
             label="Enter account recovery key"
             name="recoveryKey"
-            errorText={recoveryKeyErrorText}
+            errorText={tooltipText}
             onFocusCb={onFocus}
             autoFocus
             // Crockford base32 encoding is case insensitive, so visually display as
@@ -270,12 +281,12 @@ const AccountRecoveryConfirmKey = ({
             autoComplete="off"
             spellCheck={false}
             onChange={() => {
-              setRecoveryKeyErrorText('');
+              setTooltipText('');
             }}
             prefixDataTestId="account-recovery-confirm-key"
             // We don't have this marked as 'required: true` because we want to validate
             // on submit, not on blur
-            inputRef={register()}
+            inputRef={register({ required: true })}
           />
         </FtlMsg>
 
@@ -283,7 +294,9 @@ const AccountRecoveryConfirmKey = ({
           <button
             type="submit"
             className="cta-primary cta-xl mb-6"
-            disabled={isLoading}
+            disabled={
+              isLoading || !formState.isDirty || !!formState.errors.recoveryKey
+            }
           >
             Confirm account recovery key
           </button>

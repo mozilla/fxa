@@ -82,6 +82,8 @@ export type AuthServerError = Error & {
   errno?: number;
   message?: string;
   code?: number;
+  retryAfter?: number;
+  retryAfterLocalized?: string;
 };
 
 export interface MetricsContext {

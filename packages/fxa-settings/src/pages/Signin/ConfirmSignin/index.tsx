@@ -10,6 +10,8 @@ import ConfirmWithLink, {
 } from '../../../components/ConfirmWithLink';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { ResendStatus } from '../../../lib/types';
+import { useFtlMsgResolver } from '../../../models';
+import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 
 export type ConfirmSigninProps = {
   email: string;
@@ -24,9 +26,12 @@ const ConfirmSignin = ({
 }: RouteComponentProps & ConfirmSigninProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const ftlMsgResolver = useFtlMsgResolver();
+
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const confirmSigninPageText: ConfirmWithLinkPageStrings = {
     headingFtlId: 'confirm-signin-heading',
@@ -39,9 +44,15 @@ const ConfirmSignin = ({
     try {
       // TO-DO: signin confirmation email to user.
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
+      setErrorMessage('');
       setResendStatus(ResendStatus['sent']);
-    } catch (e) {
+    } catch (err) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        err
+      );
       setResendStatus(ResendStatus['error']);
+      setErrorMessage(localizedErrorMessage);
     }
   };
 
@@ -52,6 +63,7 @@ const ConfirmSignin = ({
           email,
           resendEmailHandler,
           resendStatus,
+          errorMessage,
         }}
         confirmWithLinkPageStrings={confirmSigninPageText}
       />
