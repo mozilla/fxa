@@ -7,9 +7,6 @@ import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
 
-import error from '../../error';
-import { CurrencyHelper } from '../currencies';
-import { StripeHelper } from '../stripe';
 import {
   BAUpdateOptions,
   CreateBillingAgreementOptions,
@@ -17,12 +14,16 @@ import {
   IpnMessage,
   nvpToObject,
   PayPalClient,
+  PayPalClientError,
   RefundTransactionOptions,
   RefundType,
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
 } from '../../../../../libs/payments/paypal/src';
+import error from '../../error';
+import { CurrencyHelper } from '../currencies';
+import { StripeHelper } from '../stripe';
 import { RefusedError } from './error';
 import {
   PAYPAL_APP_ERRORS,
@@ -30,7 +31,6 @@ import {
   PAYPAL_RETRY_ERRORS,
   PAYPAL_SOURCE_ERRORS,
 } from './error-codes';
-import { PayPalClientError } from '../../../../../libs/shared/error/src/';
 
 type PaypalHelperOptions = {
   log: Logger;

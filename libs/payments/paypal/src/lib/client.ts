@@ -6,10 +6,6 @@ import pRetry from 'p-retry';
 import superagent from 'superagent';
 
 import {
-  PayPalClientError,
-  PayPalNVPError,
-} from '../../../../shared/error/src';
-import {
   PAYPAL_LIVE_API,
   PAYPAL_LIVE_IPN,
   PAYPAL_SANDBOX_API,
@@ -17,6 +13,7 @@ import {
   PAYPAL_VERSION,
   PLACEHOLDER_URL,
 } from './constants';
+import { PayPalClientError, PayPalNVPError } from './error';
 import {
   BAUpdateOptions,
   CreateBillingAgreementOptions,
@@ -125,7 +122,7 @@ export class PayPalClient {
     } else {
       // TypeScript doesn't narrow ACK, necessitating a cast
       throw new PayPalClientError(
-        PayPalClient.getListOfPayPalClientErrors(
+        PayPalClient.getListOfPayPalNVPErrors(
           result.text,
           resultObj as NVPErrorResponse
         ),
@@ -135,10 +132,7 @@ export class PayPalClient {
     }
   }
 
-  public static getListOfPayPalClientErrors(
-    raw: string,
-    data: NVPErrorResponse
-  ) {
+  public static getListOfPayPalNVPErrors(raw: string, data: NVPErrorResponse) {
     const errors: PayPalNVPError[] = [];
     if (!data.L || !data.L.length) {
       const message =
