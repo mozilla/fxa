@@ -19,5 +19,5 @@ export { SecurityEvent } from './lib/security-event';
 export { setupAccountDatabase } from './lib/setup';
 export { SentEmail } from './lib/sent-email';
 export { SignInCodes } from './lib/sign-in-codes';
-export { CartFields } from './lib/types';
+export { CartFields, CartState, TaxAddress } from './lib/types';
 export { UnblockCodes } from './lib/unblock-codes';

@@ -3,13 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { knex, Knex } from 'knex';
 import { promisify } from 'util';
+import { v4 as uuidv4 } from 'uuid';
 
 import { ConsoleLogger, Logger } from '../../../../../log/src';
 import { localStatsD, StatsD } from '../../../../../metrics/statsd/src';
-
 import { MySQLConfig } from './config';
-
-import { v4 as uuidv4 } from 'uuid';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];
 

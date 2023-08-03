@@ -8,7 +8,6 @@ import { Field, ObjectType } from '@nestjs/graphql';
 })
 export class TaxAddress {
   @Field({
-    nullable: true,
     description: 'Country code for tax',
   })
   public countryCode!: string;

@@ -3,15 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Cart } from '../../../../shared/db/mysql/account/src';
-import { InvoiceFactory } from '../lib/factories';
-import { CartManager } from '../lib/manager';
-import {
-  CartIdInput,
-  Cart as CartType,
-  SetupCartInput,
-  UpdateCartInput,
-} from './index';
+import { Cart } from '../../../../libs/shared/db/mysql/account/src';
+import { InvoiceFactory } from './lib/factories';
+import { CartManager } from '../../../../libs/payments/cart/src';
+import { Cart as CartType } from './model/cart.model';
+import { SetupCartInput } from './dto/input/setup-cart.input';
+import { CartIdInput } from './dto/input/cart-id.input';
+import { UpdateCartInput } from './dto/input/update-cart.input';
 
 @Resolver((of: any) => CartType)
 export class CartResolver {

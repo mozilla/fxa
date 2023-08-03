@@ -25,7 +25,7 @@ import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
 import { LegalResolver } from './legal.resolver';
-import { CartResolver } from '../../../../libs/payments/cart/src';
+import { CartResolver } from './cart.resolver';
 import { Request, Response } from 'express';
 
 const config = Config.getProperties();

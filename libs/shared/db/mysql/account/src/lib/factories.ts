@@ -2,9 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
-import { CartState } from '../../../../../../payments/cart/src';
-import { Cart } from './cart';
-import { CartFields } from './types';
+import { CartFields, CartState, Cart } from '../';
 
 export const CartFactory = (override?: Partial<Cart>): CartFields => ({
   id: faker.string.uuid(),

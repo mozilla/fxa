@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { CartState } from '../lib/types';
-import { TaxAddress } from './';
+import { CartState } from '../../../../../libs/shared/db/mysql/account/src';
+import { TaxAddress } from './tax-address.model';
 import { Invoice } from './invoice.model';
 
 registerEnumType(CartState, {
@@ -48,7 +48,10 @@ export class Cart {
   })
   public taxAddress?: TaxAddress;
 
-  @Field((type) => Invoice, { description: 'The previous invoice' })
+  @Field((type) => Invoice, {
+    nullable: true,
+    description: 'The previous invoice',
+  })
   public previousInvoice?: Invoice;
 
   @Field((type) => Invoice, {
