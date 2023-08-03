@@ -1,14 +1,14 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Cart, CartState } from '../../../../shared/db/mysql/account/src';
+import { Cart, CartState } from '../../../../../shared/db/mysql/account/src';
 import {
   generateFxAUuid,
   uuidTransformer,
-} from '../../../../shared/db/mysql/core/src';
-import { Logger } from '../../../../shared/log/src';
-import { Cart as CartType, UpdateCartInput } from '../gql';
-import { InvoiceFactory, SetupCart } from '../';
+} from '../../../../../shared/db/mysql/core/src';
+import { Logger } from '../../../../../shared/log/src';
+import { InvoiceFactory } from './factories';
+import { SetupCart, UpdateCart, Cart as CartType } from './types';
 
 const DEFAULT_INTERVAL = 'monthly';
 
@@ -86,7 +86,7 @@ export class CartManager {
     };
   }
 
-  public async updateCart(input: UpdateCartInput): Promise<CartType | null> {
+  public async updateCart(input: UpdateCart): Promise<CartType | null> {
     const { id: cartId, ...rest } = input;
     const id = uuidTransformer.to(cartId);
 

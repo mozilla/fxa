@@ -1,19 +1,13 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
-import {
-  Cart,
-  CartIdInput,
-  Invoice,
-  SetupCartInput,
-  Subscription,
-  TaxAddress,
-  TaxAmount,
-  UpdateCartInput,
-} from '../gql';
-import { SetupCart } from './types';
-import { CartState } from '../../../../shared/db/mysql/account/src';
+import { CartState } from '../../../../../shared/db/mysql/account/src';
+import { CartIdInput } from './cart-id.input';
+import { Cart } from './cart.model';
+import { Invoice } from './invoice.model';
+import { SetupCartInput } from './setup-cart.input';
+import { Subscription } from './subscription.model';
+import { TaxAddress } from './tax-address.model';
+import { TaxAmount } from './tax-amount.model';
+import { UpdateCartInput } from './update-cart.input';
 
 const OFFERING_CONFIG_IDS = [
   'vpn',
@@ -87,11 +81,5 @@ export const UpdateCartInputFactory = (
   override?: Partial<UpdateCartInput>
 ): UpdateCartInput => ({
   id: faker.string.uuid(),
-  offeringConfigId: faker.helpers.arrayElement(OFFERING_CONFIG_IDS),
-  ...override,
-});
-
-export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
-  offeringConfigId: faker.helpers.arrayElement(OFFERING_CONFIG_IDS),
   ...override,
 });

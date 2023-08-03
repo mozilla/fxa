@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import knex, { Knex } from 'knex';
-import { runSql } from '../../../../shared/db/mysql/core/src';
-import { setupAccountDatabase } from '../../../../shared/db/mysql/account/src';
+import { runSql } from '../../../../../shared/db/mysql/core/src';
+import { setupAccountDatabase } from '../../../../../shared/db/mysql/account/src';
 
 const CART_TEST_DB = 'testCart';
 const SQL_FILE_LOCATION = '../../../account/src/test';

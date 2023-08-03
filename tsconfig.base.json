@@ -24,6 +24,8 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/payments/cart/graphql": ["libs/payments/cart/graphql/src/index.ts"],
+      "@fxa/payments/cart/manager": ["libs/payments/cart/manager/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
@@ -31,7 +33,6 @@
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
-      "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"]
     },
     "typeRoots": [
