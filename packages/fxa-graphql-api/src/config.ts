@@ -41,6 +41,12 @@ const conf = convict({
       default: 'http://localhost:9000/v1',
     },
   },
+  contentfulApiKey: {
+    doc: 'GraphQL Content API key for Contentful hCMS to fetch RP-provided content',
+    format: String,
+    env: 'CONTENTFUL_API_KEY',
+    default: '',
+  },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',
     format: Array,
