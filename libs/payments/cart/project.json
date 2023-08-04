@@ -22,7 +22,7 @@
         "lintFilePatterns": ["libs/payments/cart/**/*.ts"]
       }
     },
-    "test": {
+    "test-integration": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
@@ -37,5 +37,5 @@
       }
     }
   },
-  "tags": []
+  "tags": ["lib", "payments"]
 }

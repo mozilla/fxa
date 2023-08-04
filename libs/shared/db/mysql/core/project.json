@@ -23,7 +23,7 @@
         "lintFilePatterns": ["libs/shared/db/mysql/core/**/*.ts"]
       }
     },
-    "test": {
+    "test-unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
@@ -38,5 +38,5 @@
       }
     }
   },
-  "tags": []
+  "tags": ["lib", "shared"]
 }

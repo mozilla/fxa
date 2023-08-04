@@ -584,6 +584,20 @@ jobs:
           environment:
             NODE_ENV: test
 
+  integration-test-libs:
+    executor: fullstack-executor
+    resource_class: medium+
+    steps:
+      - git-checkout
+      - restore-workspace
+      - wait-for-infrastructure
+      - run:
+          name: Run unit tests
+          command: npx nx run-many -t test-integration --projects=tag:lib
+          environment:
+            NODE_ENV: test
+
+
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
   integration-test-part:
@@ -790,6 +804,10 @@ workflows:
             - Build (PR)
           post-steps:
             - fail-fast
+      - integration-test-libs:
+          name: Integration Test Libs (PR)
+          requires:
+            - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
           resource_class: xlarge
@@ -810,6 +828,7 @@ workflows:
             - Integration Test 1 (PR)
             - Integration Test 2 (PR)
             - Integration Test 3 (PR)
+            - Integration Test Libs (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
 
@@ -974,6 +993,10 @@ workflows:
           total: 3
           requires:
             - Build
+      - integration-test-libs:
+          name: Integration Test Libs
+          requires:
+            - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
           resource_class: xlarge
@@ -1007,6 +1030,7 @@ workflows:
             - Integration Test 1
             - Integration Test 2
             - Integration Test 3
+            - Integration Test Libs
             - Functional Tests - Playwright
             - Create FxA Image
 
@@ -1065,6 +1089,10 @@ workflows:
             - Build (nightly)
           post-steps:
             - fail-fast
+      - integration-test-libs:
+          name: Integration Test Libs (nightly)
+          requires:
+            - Build (nightly)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
           resource_class: xlarge
@@ -1081,6 +1109,7 @@ workflows:
             - Integration Test 1 (nightly)
             - Integration Test 2 (nightly)
             - Integration Test 3 (nightly)
+            - Integration Test Libs (nightly)
             - Functional Tests - Playwright (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)

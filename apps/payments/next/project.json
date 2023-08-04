@@ -45,7 +45,7 @@
         "buildTarget": "payments-next:build:production"
       }
     },
-    "test": {
+    "test-unit": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
@@ -79,5 +79,5 @@
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     }
   },
-  "tags": []
+  "tags": ["lib", "payments"]
 }

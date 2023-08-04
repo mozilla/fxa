@@ -5,14 +5,7 @@
     "default": {
       "runner": "nx-cloud",
       "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "test-unit",
-          "test-integration",
-          "e2e"
-        ],
+        "cacheableOperations": ["build", "lint", "test-unit", "test-integration", "e2e"],
         "accessToken": "YzRhMzhiNjEtODE0OS00Njg1LTg2NDktMGJlZjBjNmJjMTc1fHJlYWQtb25seQ=="
       }
     }
@@ -25,7 +18,7 @@
     "lint": {
       "inputs": ["default", "{workspaceRoot}/.eslintrc.json"]
     },
-    "test": {
+    "test-unit": {
       "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"]
     }
   },
