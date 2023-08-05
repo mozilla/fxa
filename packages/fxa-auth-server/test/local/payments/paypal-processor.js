@@ -22,7 +22,7 @@ const {
   PayPalNVPError,
   nvpToObject,
   objectToNVP,
-} = require('../../../../../libs/payments/paypal/src');
+} = require('@fxa/payments/paypal');
 const {
   PAYPAL_BILLING_AGREEMENT_INVALID,
   PAYPAL_SOURCE_ERRORS,

@@ -6,7 +6,7 @@ import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
 
-import { PayPalClientError } from '../../../../../libs/payments/paypal/src';
+import { PayPalClientError } from '@fxa/payments/paypal';
 import { ConfigType } from '../../../config';
 import error from '../../error';
 import { StripeWebhookHandler } from '../../routes/subscriptions/stripe-webhook';

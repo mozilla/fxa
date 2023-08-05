@@ -8,7 +8,7 @@ import { tracingConfig } from 'fxa-shared/tracing/config';
 import path from 'path';
 import url from 'url';
 
-import { makeConvictMySQLConfig as makeMySQLConfig } from '../../../libs/shared/db/mysql/core/src/lib/config';
+import { makeConvictMySQLConfig as makeMySQLConfig } from '@fxa/shared/db/mysql/core';
 
 const DEFAULT_SUPPORTED_LANGUAGES = require('./supportedLanguages');
 const ONE_DAY = 1000 * 60 * 60 * 24;

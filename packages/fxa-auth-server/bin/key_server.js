@@ -107,7 +107,7 @@ async function run(config) {
     Container.set(StripeHelper, stripeHelper);
 
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
-      const { PayPalClient } = require('../../../libs/payments/paypal/src');
+      const { PayPalClient } = require('@fxa/payments/paypal');
       const { PayPalHelper } = require('../lib/payments/paypal/helper');
       const paypalClient = new PayPalClient(
         config.subscriptions.paypalNvpSigCredentials

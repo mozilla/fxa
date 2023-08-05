@@ -48,7 +48,7 @@ const { CapabilityService } = require('../../../../lib/payments/capability');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { asyncIterable } = require('../../../mocks');
 const { RefusedError } = require('../../../../lib/payments/paypal/error');
-const { RefundType } = require('../../../../../../libs/payments/paypal/src');
+const { RefundType } = require('@fxa/payments/paypal');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 

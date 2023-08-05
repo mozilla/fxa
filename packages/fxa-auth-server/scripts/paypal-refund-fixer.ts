@@ -8,7 +8,7 @@ import stripe from 'stripe';
 import Container from 'typedi';
 
 import { CurrencyHelper } from '../lib/payments/currencies';
-import { PayPalClient, RefundType } from '../../../libs/payments/paypal/src';
+import { PayPalClient, RefundType } from '@fxa/payments/paypal';
 import { PayPalHelper } from '../lib/payments/paypal/helper';
 import { STRIPE_INVOICE_METADATA, StripeHelper } from '../lib/payments/stripe';
 import { configureSentry } from '../lib/sentry';

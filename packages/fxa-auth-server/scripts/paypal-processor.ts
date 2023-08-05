@@ -9,7 +9,7 @@ import Container from 'typedi';
 import { promisify } from 'util';
 
 import { PayPalHelper } from '../lib/payments/paypal/helper';
-import { PayPalClient } from '../../../libs/payments/paypal/src';
+import { PayPalClient } from '@fxa/payments/paypal';
 import { PaypalProcessor } from '../lib/payments/paypal/processor';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 

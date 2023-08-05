@@ -101,7 +101,7 @@ DB.connect(config).then(async (db) => {
     const { CurrencyHelper } = require('../lib/payments/currencies');
     const { StripeHelper } = require('../lib/payments/stripe');
     const { PayPalHelper } = require('../lib/payments/paypal');
-    const { PayPalClient } = require('../../../libs/payments/paypal/src');
+    const { PayPalClient } = require('@fxa/payments/paypal');
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
     const paypalClient = new PayPalClient(

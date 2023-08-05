@@ -12,7 +12,7 @@
         "outputPath": "dist/libs/shared/db/mysql/core",
         "tsConfig": "libs/shared/db/mysql/core/tsconfig.lib.json",
         "packageJson": "libs/shared/db/mysql/core/package.json",
-        "main": "libs/shared/db/mysql/core/src/index.ts",
+        "main": "libs/shared/db/mysql/core/libs/shared/db/mysql/core/src/index.ts",
         "assets": ["libs/shared/db/mysql/core/*.md"]
       }
     },

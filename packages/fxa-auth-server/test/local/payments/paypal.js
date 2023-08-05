@@ -16,7 +16,7 @@ const {
   RefundType,
   objectToNVP,
   nvpToObject,
-} = require('../../../../../libs/payments/paypal/src');
+} = require('@fxa/payments/paypal');
 const { PayPalHelper, RefusedError } = require('../../../lib/payments/paypal');
 const { mockLog } = require('../../mocks');
 const error = require('../../../lib/error');

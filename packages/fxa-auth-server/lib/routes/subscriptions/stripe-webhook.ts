@@ -18,7 +18,7 @@ import {
 } from '../../../lib/sentry';
 import error from '../../error';
 import { PayPalHelper, RefusedError } from '../../payments/paypal';
-import { RefundType } from '../../../../../libs/payments/paypal/src';
+import { RefundType } from '@fxa/payments/paypal';
 import {
   CUSTOMER_RESOURCE,
   FormattedSubscriptionForEmail,

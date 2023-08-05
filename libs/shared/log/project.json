@@ -12,7 +12,7 @@
         "outputPath": "dist/libs/shared/log",
         "tsConfig": "libs/shared/log/tsconfig.lib.json",
         "packageJson": "libs/shared/log/package.json",
-        "main": "libs/shared/log/src/index.ts",
+        "main": "libs/shared/log/libs/shared/log/src/index.ts",
         "assets": ["libs/shared/log/*.md"]
       }
     },

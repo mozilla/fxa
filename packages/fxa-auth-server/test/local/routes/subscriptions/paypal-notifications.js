@@ -32,7 +32,7 @@ const { PayPalNotificationHandler } = proxyquire(
 const { PayPalHelper } = require('../../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 
-import { RefundType } from '../../../../../../libs/payments/paypal/src';
+import { RefundType } from '@fxa/payments/paypal';
 import { SUBSCRIPTIONS_RESOURCE } from '../../../../lib/payments/stripe';
 
 const ACCOUNT_LOCALE = 'en-US';

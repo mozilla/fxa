@@ -16,7 +16,7 @@ import {
   IpnMerchPmtType,
   isIpnMerchPmt,
   RefundType,
-} from '../../../../../libs/payments/paypal/src';
+} from '@fxa/payments/paypal';
 import { StripeHelper, SUBSCRIPTIONS_RESOURCE } from '../../payments/stripe';
 import { reportSentryError } from '../../sentry';
 import { AuthLogger, AuthRequest } from '../../types';
