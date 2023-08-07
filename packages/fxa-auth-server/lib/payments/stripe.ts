@@ -689,11 +689,7 @@ export class StripeHelper extends StripeHelperBase {
       );
 
       let proratedInvoice;
-      if (
-        isUpgrade &&
-        requestObject.subscription_items?.length &&
-        this.config.subscriptions.stripeInvoiceImmediately
-      ) {
+      if (isUpgrade && requestObject.subscription_items?.length) {
         try {
           requestObject.subscription_proration_behavior = 'always_invoice';
           requestObject.subscription_proration_date = Math.floor(
@@ -1454,7 +1450,10 @@ export class StripeHelper extends StripeHelperBase {
       expand: ['data.customer', 'data.subscription'],
     })) {
       const subscription = invoice.subscription as Stripe.Subscription;
-      if (subscription && ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)) {
+      if (
+        subscription &&
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(subscription.status)
+      ) {
         yield invoice;
       }
     }
@@ -1974,11 +1973,6 @@ export class StripeHelper extends StripeHelperBase {
       plan_change_date: moment().unix(),
     };
 
-    const prorationBehavior = this.config.subscriptions.stripeInvoiceImmediately
-      .enabled
-      ? 'always_invoice'
-      : 'create_prorations';
-
     const updatedSubscription = await this.updateSubscriptionAndBackfill(
       subscription,
       {
@@ -1989,7 +1983,7 @@ export class StripeHelper extends StripeHelperBase {
             plan: newPlanId,
           },
         ],
-        proration_behavior: prorationBehavior,
+        proration_behavior: 'always_invoice',
         metadata: updatedMetadata,
       }
     );
@@ -3137,7 +3131,6 @@ export class StripeHelper extends StripeHelperBase {
       id: invoiceId,
       number: invoiceNumber,
       currency: paymentProratedCurrency,
-      total: invoiceTotalNewInCents,
       amount_due: invoiceAmountDue,
     } = invoice;
 
@@ -3164,87 +3157,8 @@ export class StripeHelper extends StripeHelperBase {
           subscriptionId: subscription.id,
         });
 
-    const {
-      total: nextInvoiceTotal,
-      currency: nextInvoiceCurrency,
-      lines: nextInvoiceLines,
-    } = nextInvoice || {};
-
-    // https://stripe.com/docs/api/invoices/object#invoice_object-lines
-    // as per the Stripe docs, one of the individual line items includes
-    // new plan pricing and tax information without additional fees
-    const upcomingInvoiceLineItem = nextInvoiceLines?.data?.find(
-      (line) => line.type === 'subscription'
-    );
-
-    const {
-      amount: upcomingInvoiceAmount,
-      discount_amounts: upcomingInvoiceDiscountAmounts,
-      tax_amounts: upcomingInvoiceTaxAmounts,
-    } = upcomingInvoiceLineItem || {};
-
-    const {
-      productPaymentCycleNew: productPaymentCycleNew,
-      invoiceTotalOldInCents: invoiceTotalOldInCents,
-    } = baseDetails;
-
-    // remove everything between asterisk in FXA-7796
-    // **************** //
-    const sameBillingCycle = productPaymentCycleOld === productPaymentCycleNew;
-    const sameBillingCondition = sameBillingCycle && !!upcomingInvoiceLineItem;
-
-    const invoiceImmediately =
-      this.config.subscriptions.stripeInvoiceImmediately.enabled;
-
-    // used for newTotalInCents
-    const newListPriceTotalWithoutTax =
-      sameBillingCondition && !!upcomingInvoiceAmount
-        ? upcomingInvoiceAmount
-        : undefined;
-
-    // used for newTotalInCents
-    const newListPriceDiscounts =
-      (sameBillingCondition &&
-        upcomingInvoiceDiscountAmounts?.reduce(
-          (acc, discount) =>
-            discount.amount ? acc + discount.amount : acc + 0,
-          0
-        )) ||
-      0;
-
-    // used for newTotalInCents
-    const newListPriceTotalTaxes = sameBillingCondition
-      ? upcomingInvoiceTaxAmounts?.reduce(
-          (acc, tax) => (tax.inclusive ? acc + 0 : acc + tax.amount),
-          0
-        )
-      : undefined;
-
-    // if same billing cycle and line item exists, add amount and tax for new total
-    // else return the next invoice total
-    const newTotalInCents =
-      sameBillingCycle &&
-      !!newListPriceTotalWithoutTax &&
-      !!newListPriceTotalTaxes
-        ? newListPriceTotalWithoutTax -
-          newListPriceDiscounts +
-          newListPriceTotalTaxes
-        : nextInvoiceTotal;
-
-    // calculated proration
-    // if same billing cycle, return next invoice total minus new plan price
-    // else return amount due on current invoice
-    const paymentProratedInCents = sameBillingCycle
-      ? nextInvoiceTotal - newTotalInCents
-      : invoiceAmountDue;
-
-    // calculated old total
-    // if same billing cycle, get new invoiceTotal
-    // else get current invoiceTotal
-    const oldTotalInCents = sameBillingCycle
-      ? invoiceTotalNewInCents
-      : invoiceTotalOldInCents;
-    // **************** //
+    const { total: nextInvoiceTotal, currency: nextInvoiceCurrency } =
+      nextInvoice || {};
 
     return {
       ...baseDetails,
@@ -3253,25 +3167,14 @@ export class StripeHelper extends StripeHelperBase {
       productNameOld,
       productIconURLOld,
       productPaymentCycleOld,
-      // remove condition and keep invoiceTotalOldInCents as value in FXA-7796
-      paymentAmountOldInCents: !invoiceImmediately
-        ? oldTotalInCents
-        : invoiceTotalOldInCents,
+      paymentAmountOldInCents: baseDetails.invoiceTotalOldInCents,
       paymentAmountOldCurrency: planOld.currency,
-      // remove condition and keep nextInvoiceTotal as value in FXA-7796
-      paymentAmountNewInCents: !invoiceImmediately
-        ? newTotalInCents
-        : nextInvoiceTotal,
+      paymentAmountNewInCents: nextInvoiceTotal,
       paymentAmountNewCurrency: nextInvoiceCurrency,
       invoiceNumber,
       invoiceId,
-      // remove condition and keep invoiceAmountDue as value in FXA-7796
-      paymentProratedInCents: !invoiceImmediately
-        ? paymentProratedInCents
-        : invoiceAmountDue,
+      paymentProratedInCents: invoiceAmountDue,
       paymentProratedCurrency,
-      // remove in FXA-7796
-      invoiceImmediately: invoiceImmediately,
     };
   }
 

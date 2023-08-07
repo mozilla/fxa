@@ -148,7 +148,6 @@ export const Default = storyWithContext({
       ...defaultAppContext.config,
       featureFlags: {
         useStripeAutomaticTax: true,
-        useStripeInvoiceImmediately: true,
       },
     },
   },
@@ -167,7 +166,6 @@ export const DefaultWithInclusiveTax = storyWithContext({
       ...defaultAppContext.config,
       featureFlags: {
         useStripeAutomaticTax: true,
-        useStripeInvoiceImmediately: true,
       },
     },
   },
@@ -186,7 +184,6 @@ export const DefaultWithExclusiveTax = storyWithContext({
       ...defaultAppContext.config,
       featureFlags: {
         useStripeAutomaticTax: true,
-        useStripeInvoiceImmediately: true,
       },
     },
   },
@@ -205,7 +202,6 @@ export const MultipleWithExclusiveTax = storyWithContext({
       ...defaultAppContext.config,
       featureFlags: {
         useStripeAutomaticTax: true,
-        useStripeInvoiceImmediately: true,
       },
     },
   },
@@ -221,9 +217,6 @@ export const LocalizedToPirate = storyWithContext({
     navigatorLanguages: ['xx-pirate'],
     config: {
       ...defaultAppContext.config,
-      featureFlags: {
-        useStripeInvoiceImmediately: true,
-      },
     },
   },
 });
@@ -241,9 +234,6 @@ export const Submitting = storyWithContext({
     ...defaultAppContext,
     config: {
       ...defaultAppContext.config,
-      featureFlags: {
-        useStripeInvoiceImmediately: true,
-      },
     },
   },
 });
@@ -265,9 +255,6 @@ export const InternalServerError = storyWithContext({
     ...defaultAppContext,
     config: {
       ...defaultAppContext.config,
-      featureFlags: {
-        useStripeInvoiceImmediately: true,
-      },
     },
   },
 });

@@ -24,12 +24,6 @@ const conf = convict({
       env: 'SUBSCRIPTIONS_STRIPE_TAX_ENABLED',
       format: Boolean,
     },
-    useStripeInvoiceImmediately: {
-      default: false,
-      doc: 'Enables immediate invoicing for stripe in all subscription upgrades',
-      env: 'SUBSCRIPTIONS_STRIPE_INVOICE_IMMEDIATELY',
-      format: Boolean,
-    }
   },
   amplitude: {
     enabled: {

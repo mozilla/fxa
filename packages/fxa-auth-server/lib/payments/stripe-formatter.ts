@@ -4,7 +4,6 @@
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import { InvoicePreview } from 'fxa-shared/subscriptions/types';
 import { Stripe } from 'stripe';
-import { config } from '../../config';
 
 /**
  * Formats a Stripe Invoice to the FirstInvoicePreview DTO format.
@@ -51,10 +50,7 @@ export function stripeInvoiceToFirstInvoicePreviewDTO(
     };
   }
 
-  if (
-    invoice[1] &&
-    config.getProperties().subscriptions.stripeInvoiceImmediately
-  ) {
+  if (invoice[1]) {
     const proration = invoice[1].lines.data.find(
       (lineItem) => lineItem.proration
     );
