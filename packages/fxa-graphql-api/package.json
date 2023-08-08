@@ -14,13 +14,13 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
-    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --coverage --runInBand --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit && yarn test-e2e",
-    "test": "jest --runInBand --logHeapUsage && yarn test-e2e",
+    "test-unit": "npm run build && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-integration": "npm run build && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml jest --coverage --runInBand --logHeapUsage -t '#integration' --ci --reporters=default --reporters=jest-junit && yarn test-e2e",
+    "test": "npm run build && jest --runInBand --logHeapUsage && yarn test-e2e",
     "test-watch": "jest --watch",
     "test-cov": "jest --coverage",
     "test-debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
-    "test-e2e": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.json --ci --reporters=default --reporters=jest-junit",
+    "test-e2e": "npm run build && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit",
     "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts"
   },
   "repository": {
@@ -100,7 +100,7 @@
     "audit-filter": "^0.5.0",
     "chance": "^1.1.8",
     "esbuild": "^0.17.15",
-    "esbuild-register": "^3.2.0",
+    "esbuild-register": "^3.4.2",
     "eslint": "^7.32.0",
     "jest": "29.3.1",
     "nock": "^13.3.0",
@@ -109,24 +109,5 @@
     "supertest": "^6.3.0",
     "ts-jest": "^29.1.0",
     "typescript": "^4.9.3"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".spec.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": [
-        "ts-jest",
-        {
-          "isolatedModules": true
-        }
-      ]
-    },
-    "coverageDirectory": "./coverage",
-    "testEnvironment": "node"
   }
 }

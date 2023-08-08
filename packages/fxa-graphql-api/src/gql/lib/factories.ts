@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { CartState } from '../../../../../libs/shared/db/mysql/account/src';
+import { CartState } from '@fxa/shared/db/mysql/account';
 import { CartIdInput } from '../dto/input/cart-id.input';
 import { Cart } from '../model/cart.model';
 import { Invoice } from '../model/invoice.model';

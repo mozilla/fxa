@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NotFoundError } from 'objection';
-import { Cart, CartState } from '../../../../shared/db/mysql/account/src';
-import { Logger } from '../../../../shared/log/src';
+import { Cart, CartState } from '@fxa/shared/db/mysql/account';
+import { Logger } from '@fxa/shared/log';
 import { InvoiceFactory } from './factories';
 import { Cart as CartType, SetupCart, UpdateCart } from './types';
 

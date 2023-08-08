@@ -20,7 +20,7 @@ import {
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
   TransactionStatus,
-} from '../../../../../libs/payments/paypal/src';
+} from '@fxa/payments/paypal';
 import error from '../../error';
 import { CurrencyHelper } from '../currencies';
 import { StripeHelper } from '../stripe';

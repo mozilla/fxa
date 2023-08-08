@@ -10,7 +10,7 @@ import { Knex } from 'knex';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { setupAccountDatabase } from '../../../../libs/shared/db/mysql/account/src';
+import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AppConfig } from '../config';
 
 @Injectable()
