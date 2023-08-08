@@ -179,7 +179,14 @@ Router = Router.extend({
     'confirm_signup_code(/)': function () {
       this.createReactOrBackboneViewHandler(
         'confirm_signup_code',
-        ConfirmSignupCodeView
+        ConfirmSignupCodeView,
+        {
+          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+          // this param is passed in to confirm_signup_code too in case the user is redirected
+          // to the React version of this page without having directly arrived from the React
+          // signup flow
+          email: this.user.get('emailFromIndex'),
+        }
       );
     },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
@@ -448,7 +455,15 @@ Router = Router.extend({
         }
       );
     },
-    'signup(/)': createViewHandler(SignUpPasswordView),
+    'signup(/)': function () {
+      this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
+        // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+        email: this.user.get('emailFromIndex'),
+        ...(this.user.get('emailFromIndex') && {
+          emailFromContent: 'true',
+        }),
+      });
+    },
     'signup_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signup_confirmed',

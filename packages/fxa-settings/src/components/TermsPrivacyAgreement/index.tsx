@@ -15,11 +15,11 @@ const TermsPrivacyAgreement = ({
   isPocketClient = false,
 }: TermsPrivacyAgreementProps) => {
   return (
-    <div className="text-grey-500 my-5 text-xs">
+    <div className="text-grey-500 mt-5 text-xs">
       {isPocketClient ? (
         <>
           <FtlMsg id="terms-privacy-agreement-intro">
-            <p className="text-xs">By proceeding, you agree to:</p>
+            <p>By proceeding, you agree to:</p>
           </FtlMsg>
           <ul>
             <FtlMsg
@@ -43,7 +43,7 @@ const TermsPrivacyAgreement = ({
                 ),
               }}
             >
-              <li className="text-xs">
+              <li>
                 Pocket’s{' '}
                 <LinkExternal
                   className="link-grey"
@@ -75,7 +75,7 @@ const TermsPrivacyAgreement = ({
                 ),
               }}
             >
-              <li className="text-xs">
+              <li>
                 Firefox’s{' '}
                 <Link className="link-grey" to="/legal/terms">
                   Terms of Service
@@ -104,7 +104,7 @@ const TermsPrivacyAgreement = ({
             ),
           }}
         >
-          <p className="text-xs">
+          <p>
             By proceeding, you agree to the{' '}
             <Link className="link-grey" to="/legal/terms">
               Terms of Service

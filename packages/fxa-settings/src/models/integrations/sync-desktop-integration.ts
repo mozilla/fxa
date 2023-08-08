@@ -9,6 +9,14 @@ import {
   SyncIntegrationFeatures,
 } from './sync-basic-integration';
 
+export function isSyncDesktopIntegration(integration: {
+  type: IntegrationType;
+}): integration is SyncDesktopIntegration {
+  return (
+    (integration as SyncDesktopIntegration).type === IntegrationType.SyncDesktop
+  );
+}
+
 export class SyncDesktopIntegration extends SyncBasicIntegration<SyncIntegrationFeatures> {
   constructor(data: ModelDataStore) {
     super(data, IntegrationType.SyncDesktop);

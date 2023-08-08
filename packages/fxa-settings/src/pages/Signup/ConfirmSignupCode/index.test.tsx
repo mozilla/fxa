@@ -11,7 +11,7 @@ import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import ConfirmSignupCode, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account, AppContext } from '../../../models';
-import { mockAppContext, MOCK_ACCOUNT } from '../../../models/mocks';
+import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
 import { LocationProvider } from '@reach/router';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -19,17 +19,21 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
+// TODO test for email received from params (if arriving from content-server) in FXA-8303
+const mockLocation = (mockNewsletterSlugs?: string[]) => {
+  return {
+    pathname: `/signup`,
+    state: {
+      email: MOCK_ACCOUNT.primaryEmail.email,
+    },
+  };
+};
+
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
-  useLocation: () => {
-    return {
-      state: {
-        email: MOCK_ACCOUNT.primaryEmail.email,
-      },
-    };
-  },
+  useLocation: () => mockLocation(),
 }));
 
 let account: Account;
@@ -94,7 +98,7 @@ describe('ConfirmSignupCode page', () => {
     renderWithAccount(account);
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
-    fireEvent.change(codeInput, {
+    fireEvent.input(codeInput, {
       target: { value: '123123' },
     });
 
@@ -108,12 +112,35 @@ describe('ConfirmSignupCode page', () => {
       );
     });
   });
+
+  it('submits successfully', async () => {
+    renderWithAccount(account);
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.input(codeInput, {
+      target: { value: '123456' },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(account.verifySession).toHaveBeenCalled();
+      // TODO add test for alertBar in FXA-8303
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+    });
+  });
+
+  // TODO: newsletters submission checks in FXA-8303
+  // it('on success with newsletters selected', () => {
+  // receive newsletter slugs in location state from signup
+  // check that those slugs are sent up
+  // })
 });
 
 describe('ConfirmSignupCode page with error states', () => {
   beforeEach(() => {
     account = {
-      verifySession: jest.fn().mockResolvedValue(false),
+      verifySession: jest.fn().mockResolvedValue(new Error()),
     } as unknown as Account;
   });
 
@@ -137,6 +164,8 @@ describe('ConfirmSignupCode page with error states', () => {
       );
     });
   });
+
+  // TODO add test for expected behaviour on verifySession fail in FXA-8303
 });
 
 describe('Resending a new code from ConfirmSignupCode page', () => {
@@ -164,25 +193,21 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     });
   });
 
-  // TODO: mockResolvedValue(false) does not work - success message is always displayed unless the account is not available (rendered without account)
+  it('displays an error banner when unsuccessful', async () => {
+    account = {
+      sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
+    } as unknown as Account;
 
-  // it('displays an error banner when unsuccessful', async () => {
-  //   account = {
-  //     sendVerificationCode: jest.fn().mockResolvedValue(false),
-  //   } as unknown as Account;
+    renderWithAccount(account);
 
-  //   renderWithAccount(account);
-
-  //   const resendEmailButton = screen.getByRole('button', {
-  //     name: 'Email new code.',
-  //   });
-  //   fireEvent.click(resendEmailButton);
-  //   await waitFor(() => {
-  //     expect(
-  //       screen.getByText(
-  //         'Something went wrong. A new code could not be sent.'
-  //       )
-  //     ).toBeInTheDocument();
-  //   });
-  // });
+    const resendEmailButton = screen.getByRole('button', {
+      name: 'Email new code.',
+    });
+    fireEvent.click(resendEmailButton);
+    await waitFor(() => {
+      expect(
+        screen.getByText('Something went wrong. A new code could not be sent.')
+      ).toBeInTheDocument();
+    });
+  });
 });
