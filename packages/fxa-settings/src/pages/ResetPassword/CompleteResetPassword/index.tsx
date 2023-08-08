@@ -218,18 +218,15 @@ const CompleteResetPassword = ({
           // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
           case IntegrationType.SyncDesktop:
           case IntegrationType.SyncBasic:
-            notifyFirefoxOfLogin(
-              {
-                authAt: accountResetData.authAt,
-                email,
-                keyFetchToken: accountResetData.keyFetchToken,
-                sessionToken: accountResetData.sessionToken,
-                uid: accountResetData.uid,
-                unwrapBKey: accountResetData.unwrapBKey,
-                verified: accountResetData.verified,
-              },
-              sessionIsVerified
-            );
+            notifyFirefoxOfLogin({
+              authAt: accountResetData.authAt,
+              email,
+              keyFetchToken: accountResetData.keyFetchToken,
+              sessionToken: accountResetData.sessionToken,
+              uid: accountResetData.uid,
+              unwrapBKey: accountResetData.unwrapBKey,
+              verified: accountResetData.verified,
+            });
             break;
           case IntegrationType.OAuth:
             // allows a navigation to a "complete" screen or TOTP screen if it is setup

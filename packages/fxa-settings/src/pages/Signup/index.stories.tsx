@@ -3,13 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import Signup, { SignupProps } from '.';
-import AppLayout from '../../components/AppLayout';
+import Signup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
-import { MOCK_ACCOUNT } from '../../models/mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import {
+  createMockSignupOAuthIntegration,
+  createMockSignupSyncDesktopIntegration,
+  createMockSignupWebIntegration,
+  mockBeginSignupHandler,
+  signupQueryParams,
+} from './mocks';
+import { SignupProps } from './interfaces';
+import { SignupQueryParams } from '../../models/pages/signup';
+import { mockUrlQueryData } from '../../models/mocks';
 
 export default {
   title: 'Pages/Signup',
@@ -17,12 +25,20 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const urlQueryData = mockUrlQueryData(signupQueryParams);
+const queryParamModel = new SignupQueryParams(urlQueryData);
+
 const storyWithProps = (props?: Partial<SignupProps>) => {
   const story = () => (
     <LocationProvider>
-      <AppLayout>
-        <Signup email={MOCK_ACCOUNT.primaryEmail.email} />
-      </AppLayout>
+      <Signup
+        {...{
+          integration: createMockSignupWebIntegration(),
+          queryParamModel,
+          beginSignupHandler: mockBeginSignupHandler,
+          ...props,
+        }}
+      />
     </LocationProvider>
   );
   return story;
@@ -30,18 +46,14 @@ const storyWithProps = (props?: Partial<SignupProps>) => {
 
 export const Default = storyWithProps();
 
-export const ForceAuthCantChangeEmail = storyWithProps({
-  canChangeEmail: false,
+export const CantChangeEmail = storyWithProps({
+  integration: createMockSignupOAuthIntegration(),
 });
 
 export const ClientIsPocket = storyWithProps({
-  serviceName: MozServices.Pocket,
+  integration: createMockSignupOAuthIntegration(MozServices.Pocket),
 });
 
 export const ChooseWhatToSyncIsEnabled = storyWithProps({
-  isCWTSEnabled: true,
-});
-
-export const NewslettersAreEnabled = storyWithProps({
-  areNewslettersEnabled: true,
+  integration: createMockSignupSyncDesktopIntegration(),
 });

@@ -13,7 +13,7 @@ confirm-signup-code-heading = Enter confirmation code <span>for your { -product-
 confirm-signup-code-instruction = Enter the code that was sent to { $email } within 5 minutes.
 confirm-signup-code-input-label = Enter 6-digit code
 # Form button to confirm if the confirmation code entered by the user is valid
-confirm-signup-code-confirm-button = Confirm
+confirm-signup-code-submit-button = Confirm
 confirm-signup-code-code-expired = Code expired?
 # Link to resend a new code to the user's email.
 confirm-signup-code-resend-code-link = Email new code.

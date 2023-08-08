@@ -119,7 +119,7 @@ const serviceLogos: {
   ),
 };
 
-// TODO in functional ticket: do we want to check against these unique client IDs instead
+// TODO in FXA-8290: do we want to check against these unique client IDs instead
 // of serviceName? We have a service names enum, but in theory an RP could change their
 // service name and we'd have to update the enum, vs these that don't change.
 // export const POCKET_CLIENTIDS = [

@@ -830,9 +830,17 @@ export class Account implements AccountData {
     );
   }
 
-  async verifySession(code: string) {
+  async verifySession(
+    code: string,
+    options: {
+      service?: string;
+      scopes?: string[];
+      marketingOptIn?: boolean;
+      newsletters?: string[];
+    } = {}
+  ) {
     await this.withLoadingStatus(
-      this.authClient.sessionVerifyCode(sessionToken()!, code)
+      this.authClient.sessionVerifyCode(sessionToken()!, code, options)
     );
     this.apolloClient.cache.modify({
       fields: {

@@ -126,16 +126,19 @@ export class ModelDataProvider {
    */
   tryValidate(): {
     isValid: boolean;
-    error?: ValidationError;
+    error?: ValidationError | ModelValidationErrors;
   } {
-    let error: ValidationError | undefined;
+    let error: ValidationError | ModelValidationErrors | undefined;
     let isValid = true;
     try {
       this.validate();
     } catch (err) {
       console.warn(err);
       isValid = false;
-      if (err instanceof ValidationError) {
+      if (
+        err instanceof ValidationError ||
+        err instanceof ModelValidationErrors
+      ) {
         error = err;
       } else {
         throw err;

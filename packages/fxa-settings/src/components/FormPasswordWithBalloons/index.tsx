@@ -27,6 +27,7 @@ export type FormPasswordWithBalloonsProps = {
   onFocusMetricsEvent?: string;
   loading: boolean;
   children?: React.ReactNode;
+  disableButtonUntilValid?: boolean;
 };
 
 const getTemplateValues = (passwordFormType: PasswordFormType) => {
@@ -74,6 +75,7 @@ export const FormPasswordWithBalloons = ({
   onFocusMetricsEvent,
   loading,
   children,
+  disableButtonUntilValid = false,
 }: FormPasswordWithBalloonsProps) => {
   const passwordValidator = new PasswordValidator(email);
   const [passwordMatchErrorText, setPasswordMatchErrorText] =
@@ -266,7 +268,13 @@ export const FormPasswordWithBalloons = ({
 
         {children}
         <FtlMsg id={templateValues.buttonFtlId}>
-          <button type="submit" className="cta-primary cta-xl">
+          <button
+            type="submit"
+            className="cta-primary cta-xl"
+            disabled={
+              loading || (!formState.isValid && disableButtonUntilValid)
+            }
+          >
             {templateValues.buttonText}
           </button>
         </FtlMsg>
