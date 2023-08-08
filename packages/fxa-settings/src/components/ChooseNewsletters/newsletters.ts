@@ -10,24 +10,24 @@
  */
 export type Newsletter = {
   label: string;
-  slug: string;
+  slug: string[];
   ftlId: string;
 };
 
 export const newsletters: Newsletter[] = [
   {
-    label: 'Get the latest news about Mozilla and Firefox',
-    slug: 'firefox-accounts-journey',
-    ftlId: 'choose-newsletters-option-firefox-accounts-journey',
+    label: 'Security & privacy news and updates',
+    slug: ['security-privacy-news', 'mozilla-accounts'],
+    ftlId: 'choose-newsletters-option-security-privacy',
   },
   {
-    label: 'Take action to keep the internet healthy',
-    slug: 'take-action-for-the-internet',
-    ftlId: 'choose-newsletters-option-take-action-for-the-internet',
+    label: 'Early access to test new products',
+    slug: ['test-pilot'],
+    ftlId: 'choose-newsletters-option-test-pilot',
   },
   {
-    label: 'Be safer and smarter online',
-    slug: 'knowledge-is-power',
-    ftlId: 'choose-newsletters-option-knowledge-is-power',
+    label: 'Help keep the internet healthy',
+    slug: ['take-action-for-the-internet'],
+    ftlId: 'choose-newsletters-option-take-action-for-the-internet-2',
   },
 ];

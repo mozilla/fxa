@@ -2,13 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { useFtlMsgResolver } from '../../models';
+import {
+  isOAuthIntegration,
+  isSyncDesktopIntegration,
+  useFtlMsgResolver,
+} from '../../models';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
 import InputText from '../../components/InputText';
@@ -20,51 +24,35 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import Banner, { BannerType } from '../../components/Banner';
 import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
-
-interface SharedProps {
-  email: string;
-  // canChangeEmail is true if not from relying party or force_auth
-  canChangeEmail?: boolean;
-  serviceName?: MozServices;
-}
-
-// CWTS is enabled if relier is sync or multiService, broker is OAuth
-// CWTS and newsletters cannot both be enabled
-type ConditionalProps =
-  | {
-      isCWTSEnabled?: boolean;
-      areNewslettersEnabled?: never;
-    }
-  | {
-      isCWTSEnabled?: never;
-      areNewslettersEnabled?: boolean;
-    }
-  | {
-      isCWTSEnabled?: never;
-      areNewslettersEnabled?: never;
-    };
-
-export type SignupProps = SharedProps & ConditionalProps;
-
-type FormData = {
-  newPassword: string;
-  confirmPassword: string;
-  userAge: string;
-};
+import AppLayout from '../../components/AppLayout';
+import { SignupFormData, SignupProps } from './interfaces';
+import { sessionToken } from '../../lib/cache';
+import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
 
 export const viewName = 'signup';
 
 const Signup = ({
-  email,
-  canChangeEmail = true,
-  serviceName,
-  isCWTSEnabled,
-  areNewslettersEnabled,
-}: SignupProps & RouteComponentProps) => {
+  integration,
+  queryParams,
+  beginSignupHandler,
+}: SignupProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
+  useEffect(() => {
+    (async () => {
+      setServiceName(await integration.getServiceName());
+    })();
+  });
+
+  const canChangeEmail = !isOAuthIntegration(integration);
+
   const onFocusMetricsEvent = `${viewName}.engage`;
-  const isPocketClient = serviceName === MozServices.Pocket;
+  // TODO, see if this is how we want to check for Pocket
+  const isPocketClient = serviceName.includes(MozServices.Pocket);
+
+  const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
+  const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
   const [ageCheckErrorText, setAgeCheckErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -72,6 +60,8 @@ const Signup = ({
     isAccountSuggestionBannerVisible,
     setIsAccountSuggestionBannerVisible,
   ] = useState<boolean>(isPocketClient);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   // prefill selected sync engines based on defaultChecked state
   const initialSyncEnginesList: string[] = engines
@@ -82,16 +72,19 @@ const Signup = ({
   );
 
   // no newsletters are selected by default
-  const [selectedNewsletters, setSelectedNewsletters] = useState<string[]>([]);
+  const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
+    string[]
+  >([]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
-    useForm<FormData>({
+    useForm<SignupFormData>({
       mode: 'onBlur',
       criteriaMode: 'all',
       defaultValues: {
-        newPassword: '',
+        email: queryParams.email,
+        password: '',
         confirmPassword: '',
-        userAge: '',
+        age: '',
       },
     });
 
@@ -109,10 +102,8 @@ const Signup = ({
     }
   };
 
-  // TODO : only show tooltip on attempted submission
   const onBlurAgeInput = () => {
-    getValues().userAge === '' &&
-      setAgeCheckErrorText(localizedAgeIsRequiredError);
+    getValues().age === '' && setAgeCheckErrorText(localizedAgeIsRequiredError);
   };
 
   /**
@@ -131,23 +122,89 @@ const Signup = ({
    *       - account signup - set password
    *       - handle errors
    **/
-  const onSubmit = useCallback(async ({ newPassword, userAge }: FormData) => {
-    try {
-      // await something
-      // go somwehere, pass email as location state
-    } catch (e) {
-      // do something with the error
-    }
-  }, []);
+  const onSubmit = useCallback(
+    async ({ password, age }: SignupFormData) => {
+      if (Number(age) < 13) {
+        // this is a session cookie. It will go away once:
+        // 1. the user closes the tab
+        // and
+        // 2. the user closes the browser
+        // Both of these have to happen or else the cookie
+        // hangs around like a bad smell.
+
+        // TODO: probably a better way to set this?
+        window.document.cookie = 'tooyoung=1;';
+        navigate('/cannot_create_account');
+        return;
+      }
+      setBeginSignupLoading(true);
+
+      const options =
+        serviceName !== MozServices.Default ? { service: serviceName } : {};
+      const { data, error } = await beginSignupHandler(
+        queryParams.email,
+        password,
+        options
+      );
+
+      setBeginSignupLoading(false);
+
+      if (data) {
+        sessionToken(data.SignUp.sessionToken);
+
+        // TODO: send up selected sync engines
+        if (isSyncDesktopIntegration(integration)) {
+          notifyFirefoxOfLogin({
+            authAt: data.SignUp.authAt,
+            email: queryParams.email,
+            keyFetchToken: data.SignUp.keyFetchToken,
+            sessionToken: data.SignUp.sessionToken,
+            uid: data.SignUp.uid,
+            unwrapBKey: data.unwrapBKey,
+            verified: false,
+          });
+        }
+
+        navigate(`/confirm_signup_code${location.search}`, {
+          state: {
+            email: queryParams.email,
+            selectedNewsletterSlugs,
+            keyFetchToken: data.SignUp.keyFetchToken,
+            unwrapBKey: data.unwrapBKey,
+          },
+        });
+      }
+      if (error) {
+        const { message, ftlId } = error;
+        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+      }
+    },
+    [
+      beginSignupHandler,
+      ftlMsgResolver,
+      navigate,
+      selectedNewsletterSlugs,
+      serviceName,
+      queryParams.email,
+      location.search,
+      integration,
+    ]
+  );
 
   return (
     // TODO: if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT') :
     //       - forceMessage('Account no longer exists. Recreate it?')
-    <>
+    <AppLayout>
       <CardHeader
         headingText="Set your password"
         headingTextFtlId="signup-heading"
       />
+
+      {bannerErrorText && (
+        <Banner type={BannerType.error}>
+          <p>{bannerErrorText}</p>
+        </Banner>
+      )}
 
       {/* AccountSuggestion is only shown to Pocket clients */}
       {isAccountSuggestionBannerVisible && (
@@ -183,13 +240,24 @@ const Signup = ({
       )}
 
       <div className="mt-4 mb-6">
-        <p className="break-all">{email}</p>
+        <p className="break-all">{queryParams.email}</p>
 
         {canChangeEmail && (
           <FtlMsg id="signup-change-email-link">
-            <Link to="/" className="link-blue text-sm">
+            {/* TODO: Replace this with `Link` once index page is Reactified */}
+            <a
+              href="/"
+              className="link-blue text-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                // TODO: this takes users to /signin if they've got an email in
+                // localStorage. Hopefully there's another workaround but might
+                // need to send a param back over to content-server?
+                hardNavigateToContentServer('/');
+              }}
+            >
               Change email
-            </Link>
+            </a>
           </FtlMsg>
         )}
       </div>
@@ -202,18 +270,18 @@ const Signup = ({
           register,
           getValues,
           onFocus,
-          email,
+          email: queryParams.email,
           onFocusMetricsEvent,
         }}
         passwordFormType="signup"
         onSubmit={handleSubmit(onSubmit)}
-        loading={false}
+        loading={beginSignupLoading}
       >
         {/* TODO: original component had a SR-only label that is not straightforward to implement with exisiting InputText component
         SR-only text: "How old are you? To learn why we ask for your age, follow the “why do we ask” link below. */}
         <FtlMsg id="signup-age-check-label" attrs={{ label: true }}>
           <InputText
-            name="userAge"
+            name="age"
             label="How old are you?"
             inputMode="numeric"
             className="text-start mb-4"
@@ -225,10 +293,12 @@ const Signup = ({
                 setAgeCheckErrorText('');
               }
             }}
-            onBlurCb={() => onBlurAgeInput()}
             inputRef={register({
+              pattern: /^[0-9]*$/,
+              maxLength: 3,
               required: true,
             })}
+            onBlurCb={onBlurAgeInput}
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
             anchorPosition="start"
@@ -243,25 +313,23 @@ const Signup = ({
           </LinkExternal>
         </FtlMsg>
 
-        {isCWTSEnabled && (
+        {/* TODO: Update offered engines based on received webchannel message */}
+        {isSyncDesktopIntegration(integration) ? (
           <ChooseWhatToSync
             {...{ engines, selectedEngines, setSelectedEngines }}
           />
-        )}
-
-        {areNewslettersEnabled && (
+        ) : (
           <ChooseNewsletters
-            {...{ newsletters, selectedNewsletters, setSelectedNewsletters }}
+            {...{
+              newsletters,
+              setSelectedNewsletterSlugs,
+            }}
           />
         )}
       </FormPasswordWithBalloons>
 
-      {isPocketClient ? (
-        <TermsPrivacyAgreement isPocketClient />
-      ) : (
-        <TermsPrivacyAgreement />
-      )}
-    </>
+      <TermsPrivacyAgreement {...{ isPocketClient }} />
+    </AppLayout>
   );
 };
 

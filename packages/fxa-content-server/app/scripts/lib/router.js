@@ -448,7 +448,15 @@ Router = Router.extend({
         }
       );
     },
-    'signup(/)': createViewHandler(SignUpPasswordView),
+    'signup(/)': function () {
+      this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
+        // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+        email: this.user.get('emailFromIndex'),
+        ...(this.user.get('emailFromIndex') && {
+          emailFromContent: 'true',
+        }),
+      });
+    },
     'signup_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signup_confirmed',

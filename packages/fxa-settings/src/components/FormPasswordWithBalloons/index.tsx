@@ -266,7 +266,11 @@ export const FormPasswordWithBalloons = ({
 
         {children}
         <FtlMsg id={templateValues.buttonFtlId}>
-          <button type="submit" className="cta-primary cta-xl">
+          <button
+            type="submit"
+            className="cta-primary cta-xl"
+            disabled={loading || !formState.isValid}
+          >
             {templateValues.buttonText}
           </button>
         </FtlMsg>

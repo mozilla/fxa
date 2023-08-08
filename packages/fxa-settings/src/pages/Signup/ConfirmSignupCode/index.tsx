@@ -33,12 +33,11 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { Newsletter } from '../../../components/ChooseNewsletters/newsletters';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 
 export const viewName = 'confirm-signup-code';
 
-type LocationState = { email: string; newsletters?: Newsletter[] };
+type LocationState = { email: string; selectedNewsletterSlugs?: string[] };
 
 const ConfirmSignupCode = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -57,9 +56,7 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
     state: LocationState;
   };
 
-  // email will be obtained from location state (passed in from /signup submit)
-  // in the meantime, here's a hard-coded email
-  const email = location.state?.email || 'potato@potatoes.com';
+  const email = location.state?.email;
 
   const navigateToSignup = () => {
     hardNavigateToContentServer('/');
@@ -133,7 +130,14 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
   async function verifySession(code: string) {
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     try {
-      await account.verifySession(code);
+      const newsletterSlugs = location.state?.selectedNewsletterSlugs;
+      const hasSelectedNewsletters =
+        newsletterSlugs && newsletterSlugs.length > 0;
+
+      const options = hasSelectedNewsletters
+        ? { newsletters: newsletterSlugs }
+        : {};
+      await account.verifySession(code, options);
 
       // FOLLOW-UP: does not yet exist in Settings
       // BEFORE: notifier.trigger('verification.success');
@@ -142,19 +146,23 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
         'verification.success',
         REACT_ENTRYPOINT
       );
-      // FOLLOW-UP: enable once state can be accessed from previous component
       // BEFORE: this.notifier.trigger('flow.event', {event: 'newsletter.subscribed',})
-      // This might just be a logged event, but will depend if subscription is entirely
-      // handled on the signup page or if it should only happen after verification
-      // if (newsletters) {
-      //   logViewEvent(`flow.${viewName}`, 'newsletter.subscribed', REACT_ENTRYPOINT);
-      // }
+
+      if (hasSelectedNewsletters) {
+        logViewEvent(
+          `flow.${viewName}`,
+          'newsletter.subscribed',
+          REACT_ENTRYPOINT
+        );
+      }
 
       // FOLLOW-UP: Broker not yet implemented
       // The broker handles navigation behaviour that varies depending on the relier
       // and may include web channel notifications to ensure the verification is propagated
       // to other tabs
       // await broker.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
+      // This may be taken care of with^ but we need to send a web channel message
+      // to FF to tell it the account was verified
       alertSuccessAndGoForward();
     } catch (e) {
       // TODO log error
