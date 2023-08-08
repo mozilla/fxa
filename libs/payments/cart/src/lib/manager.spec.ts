@@ -10,6 +10,7 @@ import { SetupCartFactory, UpdateCartFactory } from './factories';
 import { CartManager, ERRORS } from './manager';
 import { testCartDatabaseSetup } from './tests';
 import { CartState } from '../../../../shared/db/mysql/account/src';
+import { uuidTransformer } from '../../../../shared/db/mysql/core/src';
 
 const CART_ID = '8730e0d5939c450286e6e6cc1bbeeab2';
 const RANDOM_ID = uuidv4({}, Buffer.alloc(16)).toString('hex');
@@ -50,12 +51,14 @@ describe('#payments-cart - manager', () => {
 
   describe('restartCart', () => {
     it('should successfully set cart state to "START"', async () => {
-      await Cart.query().update({ state: CartState.PROCESSING });
+      await Cart.query()
+        .update({ state: CartState.PROCESSING })
+        .where('id', uuidTransformer.to(CART_ID));
       const cart = await cartManager.restartCart(CART_ID);
       expect(cart?.state).toBe(CartState.START);
     });
 
-    it('should return null if no cart with provided ID is found', async () => {
+    it('should throw NotFoundError if no cart with provided ID is found', async () => {
       try {
         await cartManager.restartCart(RANDOM_ID);
       } catch (error) {
@@ -68,12 +71,14 @@ describe('#payments-cart - manager', () => {
 
   describe('checkoutCart', () => {
     it('should successfully set cart state to "PROCESSING"', async () => {
-      await Cart.query().update({ state: CartState.START });
+      await Cart.query()
+        .update({ state: CartState.START })
+        .where('id', uuidTransformer.to(CART_ID));
       const cart = await cartManager.checkoutCart(CART_ID);
       expect(cart?.state).toBe(CartState.PROCESSING);
     });
 
-    it('should return null if no cart with provided ID is found', async () => {
+    it('should throw NotFoundError if no cart with provided ID is found', async () => {
       try {
         await cartManager.checkoutCart(RANDOM_ID);
       } catch (error) {
@@ -93,7 +98,7 @@ describe('#payments-cart - manager', () => {
       expect(cart).toEqual(expect.objectContaining(updateCart));
     });
 
-    it('should return null if no cart with provided ID is found', async () => {
+    it('should throw NotFoundError if no cart with provided ID is found', async () => {
       const updateCart = UpdateCartFactory({
         id: RANDOM_ID,
       });

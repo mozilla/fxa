@@ -12,7 +12,7 @@ export class Cart extends BaseModel {
   protected $uuidFields = ['id', 'uid'];
 
   // table fields
-  id!: string;
+  readonly id!: string;
   uid?: string;
   state!: CartState;
   errorReasonId?: string;
@@ -20,12 +20,13 @@ export class Cart extends BaseModel {
   interval!: string;
   experiment?: string;
   taxAddress?: TaxAddress;
-  createdAt!: number;
-  updatedAt!: number;
+  readonly createdAt!: number;
+  readonly updatedAt!: number;
   couponCode?: string;
   stripeCustomerId?: string;
   email?: string;
   amount!: number;
+  readonly version!: number;
 
   static relationMappings = {
     account: {
@@ -55,6 +56,7 @@ export class Cart extends BaseModel {
       .throwIfNotFound();
   }
 
+  // TODO - Remove in FXA-8128 in favor of using update
   static async patchById(id: string, items: Partial<Cart>) {
     const cart = await this.findById(id);
     // Patch and fetch instance
@@ -65,9 +67,25 @@ export class Cart extends BaseModel {
       updatedAt: Date.now(),
     });
 
-    // Patch changes to the DB
     await Cart.query().patch(cart).where('id', id);
 
     return cart;
+  }
+
+  async update() {
+    const currentVersion = this.version;
+    this.$set({
+      updatedAt: Date.now(),
+      version: currentVersion + 1,
+    });
+    const updatedRows = await Cart.query()
+      .update(this)
+      .where('id', uuidTransformer.to(this.id))
+      .where('version', currentVersion);
+    if (!updatedRows) {
+      throw new Error('No rows were updated.');
+    }
+
+    return this;
   }
 }
