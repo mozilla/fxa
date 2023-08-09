@@ -50,7 +50,10 @@
     "count": 3
   },
   "showReactApp": {
-    "simpleRoutes": true
+    "simpleRoutes": true,
+    "resetPasswordRoutes": true,
+    "signUpRoutes": true,
+    "signInRoutes": true,
   },
   "featureFlags": {
     "showRecoveryKeyV2": true
