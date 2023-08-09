@@ -38,6 +38,7 @@ import {
 } from '../../../lib/test-utils';
 import { PickPartial } from '../../../lib/types';
 import { ReactGALog } from '../../../lib/reactga-event';
+import { createSubscriptionEngaged } from '../../../lib/amplitude';
 
 jest.mock('../../../lib/hooks', () => {
   const refreshNonceMock = jest.fn().mockImplementation(Math.random);
@@ -48,6 +49,8 @@ jest.mock('../../../lib/hooks', () => {
 });
 
 jest.mock('../../../lib/reactga-event');
+
+jest.mock('../../../lib/amplitude');
 
 type SubjectProps = PickPartial<
   SubscriptionCreateProps,
@@ -150,6 +153,16 @@ describe('routes/Product/SubscriptionCreate', () => {
       )
     ).toBeInTheDocument();
     expect(queryByTestId('coupon-component')).toBeInTheDocument();
+  });
+
+  it('records an "engage" funnel event when the consent checkbox is clicked', async () => {
+    renderWithLocalizationProvider(<Subject />);
+    const { findByTestId } = screen;
+    const checkbox = await findByTestId('confirm');
+    await act(async () => {
+      fireEvent.click(checkbox);
+    });
+    expect(createSubscriptionEngaged).toBeCalledTimes(1);
   });
 
   it('displays checkbox tooltip error when unchecking checkbox', async () => {
