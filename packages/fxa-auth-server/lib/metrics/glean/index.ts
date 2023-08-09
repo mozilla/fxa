@@ -77,6 +77,8 @@ const createEventFn =
       const metricsContext = await request.app.metricsContext;
 
       const metrics = {
+        user_agent: request.headers['user-agent'],
+        ip_address: request.app.clientAddress,
         account_user_id_sha256: '',
         event_name: eventName,
         event_reason: '',
