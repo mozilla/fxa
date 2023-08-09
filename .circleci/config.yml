@@ -261,28 +261,6 @@ commands:
             - fxa-yarn-001-{{ checksum "yarn.lock" }}
             - fxa-yarn-001-
 
-  test-content-server-remote-part:
-    parameters:
-      index:
-        type: integer
-      total:
-        type: integer
-    steps:
-      - git-checkout
-      - provision
-      - run:
-          name: Running test section << parameters.index >> of << parameters.total >>
-          environment:
-            CIRCLE_NODE_INDEX: << parameters.index >>
-            CIRCLE_NODE_TOTAL: << parameters.total >>
-            ACCOUNTS_DOMAIN: << pipeline.parameters.accounts-domain >>
-            PAYMENTS_DOMAIN: << pipeline.parameters.payments-domain >>
-            ACCOUNTS_API_DOMAIN: << pipeline.parameters.accounts-api-domain >>
-            RELIER_DOMAIN: << pipeline.parameters.relier-domain >>
-            UNTRUSTED_RELIER_DOMAIN: << pipeline.parameters.untrusted-relier-domain >>
-          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
-      - store-artifacts
-
   wait-for-infrastructure:
     steps:
       - run:
@@ -621,37 +599,6 @@ jobs:
           index: << parameters.index >>
           total: << parameters.total >>
 
-  # This job is manually triggered for now. see .circleci/README.md
-  test-content-server-remote:
-    executor: smoke-test-executor
-    steps:
-      - git-checkout
-      - provision
-      - run:
-          name: Running test section against a remote target
-          command: ./packages/fxa-content-server/scripts/test-ci-remote.sh
-      - store-artifacts
-
-  # These jobs are manually triggered for now. see .circleci/README.md
-  test-content-server-remote-part-0:
-    executor: smoke-test-executor
-    steps:
-      - test-content-server-remote-part:
-          index: 0
-          total: 3
-  test-content-server-remote-part-1:
-    executor: smoke-test-executor
-    steps:
-      - test-content-server-remote-part:
-          index: 1
-          total: 3
-  test-content-server-remote-part-2:
-    executor: smoke-test-executor
-    steps:
-      - test-content-server-remote-part:
-          index: 2
-          total: 3
-
   # Deprecated - use workflows in conjunction with smoke-tests job instead!
   # This job is manually triggered for now. see .circleci/README.md
   production-smoke-tests:
@@ -836,7 +783,6 @@ workflows:
   production_smoke_tests:
     when: << pipeline.parameters.enable_production_smoke_tests >>
     jobs:
-      # Note that we removed content server tests as it runs on Stage only
       - smoke-tests:
           name: Smoke Test Production - Playwright
           project: production
