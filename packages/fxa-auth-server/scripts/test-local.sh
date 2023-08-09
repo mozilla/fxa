@@ -12,7 +12,7 @@ if [ -z "$FIRESTORE_EMULATOR_HOST" ]; then export FIRESTORE_EMULATOR_HOST="local
 if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep #integration "; fi;
 
-DEFAULT_ARGS="--require esbuild-register --recursive --timeout 5000 --exit"
+DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 5000 --exit"
 
 if [[ ! -e config/secret-key.json ]]; then
   node -r esbuild-register ./scripts/gen_keys.js
