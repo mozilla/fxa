@@ -14,20 +14,11 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext, AppContextValue } from '../../../models';
 import {
+  createMockAccountRecoveryResetPasswordSyncDesktopIntegration,
   mockAccount,
-  mockAuthClient,
-  mockOauthClient,
-  resetMocks,
 } from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import {
-  LocationStateData,
-  StorageData,
-  UrlHashData,
-  UrlQueryData,
-} from '../../../lib/model-data';
-import { ReachRouterWindow } from '../../../lib/window';
 
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryResetPassword',
@@ -41,20 +32,21 @@ const storyWithProps = (ctx: AppContextValue, history?: History) => {
   return (
     <AppContext.Provider value={ctx}>
       <LocationProvider {...{ history }}>
-        <AccountRecoveryResetPassword />
+        <AccountRecoveryResetPassword
+          integration={createMockAccountRecoveryResetPasswordSyncDesktopIntegration()}
+          finishOAuthFlowHandler={() =>
+            Promise.resolve({ redirect: 'someUri' })
+          }
+        />
       </LocationProvider>
     </AppContext.Provider>
   );
 };
 
 function setup() {
-  resetMocks();
   const account = mockAccount();
   const source = createMemorySource('/reset_password');
   const history = createHistory(source);
-  const windowWrapper = new ReachRouterWindow({
-    location: history.location,
-  });
 
   // Create the default url state
   const href = `${baseUrl}`;
@@ -68,14 +60,7 @@ function setup() {
   };
 
   const ctx = mockAppContext({
-    windowWrapper,
     account,
-    locationStateData: new LocationStateData(windowWrapper),
-    urlQueryData: new UrlQueryData(windowWrapper),
-    urlHashData: new UrlHashData(windowWrapper),
-    storageData: new StorageData(windowWrapper),
-    authClient: mockAuthClient(),
-    oauthClient: mockOauthClient(),
   });
 
   return {

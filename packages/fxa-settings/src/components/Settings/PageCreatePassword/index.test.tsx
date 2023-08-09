@@ -10,13 +10,18 @@ import {
 } from '../../../lib/metrics';
 import { PageCreatePassword } from '.';
 import { Account, AlertBarInfo, AppContext } from '../../../models';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSettingsContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import {
   inputNewPassword,
   inputVerifyPassword,
 } from '../../FormPassword/index.test';
 import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../../constants';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -49,15 +54,16 @@ const render = async (shouldError = false) => {
     success: jest.fn(),
     error: jest.fn(),
   } as unknown as AlertBarInfo;
-
+  const settingsContext = mockSettingsContext({ alertBarInfo });
   renderWithRouter(
     <AppContext.Provider
       value={mockAppContext({
         account: shouldError ? accountWithCreateErr : account,
-        alertBarInfo,
       })}
     >
-      <PageCreatePassword />
+      <SettingsContext.Provider value={settingsContext}>
+        <PageCreatePassword />
+      </SettingsContext.Provider>
     </AppContext.Provider>
   );
   return alertBarInfo;

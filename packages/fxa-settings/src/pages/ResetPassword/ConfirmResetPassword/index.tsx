@@ -7,7 +7,7 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
-import { useAccount, useInterval, useRelier } from '../../../models';
+import { isOAuthIntegration, useAccount, useInterval } from '../../../models';
 import AppLayout from '../../../components/AppLayout';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
@@ -15,17 +15,19 @@ import ConfirmWithLink, {
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { setOriginalTabMarker } from '../../../lib/storage-utils';
+import {
+  ConfirmResetPasswordIntegration,
+  ConfirmResetPasswordLocationState,
+} from './interfaces';
 
 export const viewName = 'confirm-reset-password';
 
-export type ConfirmResetPasswordLocationState = {
-  email: string;
-  passwordForgotToken: string;
-};
-
-const ConfirmResetPassword = (_: RouteComponentProps) => {
+const ConfirmResetPassword = ({
+  integration,
+}: {
+  integration: ConfirmResetPasswordIntegration;
+} & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-  const relier = useRelier();
 
   const navigate = useNavigate();
   let { state } = useLocation();
@@ -75,11 +77,11 @@ const ConfirmResetPassword = (_: RouteComponentProps) => {
 
   const resendEmailHandler = async () => {
     try {
-      if (relier.isOAuth()) {
+      if (isOAuthIntegration(integration)) {
         const result = await account.resetPassword(
           email,
-          relier.getService(),
-          relier.getRedirectUri()
+          integration.getService(),
+          integration.getRedirectUri()
         );
         setCurrentPasswordForgotToken(result.passwordForgotToken);
       } else {

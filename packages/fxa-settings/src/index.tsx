@@ -6,10 +6,12 @@ import React from 'react';
 import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import App from './components/App';
-import { readConfigMeta } from './lib/config';
+import config, { readConfigMeta } from './lib/config';
 import { searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
+import { ApolloProvider } from '@apollo/client';
+import { createApolloClient } from './lib/gql';
 import './styles/tailwind.out.css';
 
 interface FlowQueryParams {
@@ -23,7 +25,7 @@ interface FlowQueryParams {
   uniqueUserId?: string;
 }
 
-// temporary until we can safely direct all users to all routes currently in content-server
+// Temporary query params
 export interface QueryParams extends FlowQueryParams {
   showReactApp?: string;
   isInRecoveryKeyExperiment?: string;
@@ -37,6 +39,7 @@ try {
     return document.head.querySelector(name);
   });
 
+  const apolloClient = createApolloClient(config.servers.gql.url);
   const appContext = initializeAppContext();
 
   render(
@@ -47,7 +50,9 @@ try {
             baseDir="/settings/locales"
             userLocales={navigator.languages}
           >
-            <App {...{ flowQueryParams }} />
+            <ApolloProvider client={apolloClient}>
+              <App {...{ flowQueryParams }} />
+            </ApolloProvider>
           </AppLocalizationProvider>
         </AppContext.Provider>
       </AppErrorBoundary>

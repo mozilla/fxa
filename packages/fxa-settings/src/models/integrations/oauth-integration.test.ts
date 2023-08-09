@@ -2,19 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import exp from 'constants';
 import { ModelDataStore, GenericData } from '../../lib/model-data';
-import { OAuthRelier, replaceItemInArray } from './oauth-relier';
+import { OAuthIntegration, replaceItemInArray } from './oauth-integration';
 
-describe('models/reliers/oauth-relier', function () {
+describe('models/integrations/oauth-relier', function () {
   let data: ModelDataStore;
   let oauthData: ModelDataStore;
-  let model: OAuthRelier;
+  let model: OAuthIntegration;
 
   beforeEach(function () {
     data = new GenericData({});
     oauthData = new GenericData({});
-    model = new OAuthRelier(data, oauthData, {
+    model = new OAuthIntegration(data, oauthData, {
       scopedKeysEnabled: true,
       scopedKeysValidation: {},
       isPromptNoneEnabled: true,
@@ -35,8 +34,8 @@ describe('models/reliers/oauth-relier', function () {
       'profile:email profile:uid profile:non_whitelisted';
     const SCOPE_WITH_OPENID = 'profile:email profile:uid openid';
 
-    function getRelierWithScope(scope: string) {
-      const relier = new OAuthRelier(
+    function getIntegrationWithScope(scope: string) {
+      const integration = new OAuthIntegration(
         new GenericData({
           scope,
         }),
@@ -49,52 +48,52 @@ describe('models/reliers/oauth-relier', function () {
         }
       );
 
-      relier.isTrusted = async () => {
+      integration.isTrusted = async () => {
         return true;
       };
 
-      return relier;
+      return integration;
     }
 
     describe('is invalid', () => {
-      function getRelier(scope: string) {
-        return getRelierWithScope(scope);
+      function getIntegration(scope: string) {
+        return getIntegrationWithScope(scope);
       }
 
       it('empty scope', async () => {
-        const relier = getRelier('');
-        await expect(relier.getPermissions()).rejects.toThrow();
+        const integration = getIntegration('');
+        await expect(integration.getPermissions()).rejects.toThrow();
       });
 
       it('whitespace scope', async () => {
-        const relier = getRelier(' ');
-        await expect(relier.getPermissions()).rejects.toThrow();
+        const integration = getIntegration(' ');
+        await expect(integration.getPermissions()).rejects.toThrow();
       });
     });
 
     describe('is valid', () => {
-      function getRelier(scope: string) {
-        return getRelierWithScope(scope);
+      function getIntegration(scope: string) {
+        return getIntegrationWithScope(scope);
       }
 
       it(`normalizes ${SCOPE}`, async () => {
-        const relier = getRelier(SCOPE);
-        expect(await relier.getNormalizedScope()).toEqual(
+        const integration = getIntegration(SCOPE);
+        expect(await integration.getNormalizedScope()).toEqual(
           'profile:email profile:uid'
         );
       });
 
       it(`transforms ${SCOPE} to permissions`, async () => {
-        const relier = getRelier(SCOPE);
-        expect(await relier.getPermissions()).toEqual([
+        const integration = getIntegration(SCOPE);
+        expect(await integration.getPermissions()).toEqual([
           'profile:email',
           'profile:uid',
         ]);
       });
 
       it(`transforms ${SCOPE_WITH_PLUS}`, async () => {
-        const relier = getRelier(SCOPE_WITH_PLUS);
-        expect(await relier.getPermissions()).toEqual([
+        const integration = getIntegration(SCOPE_WITH_PLUS);
+        expect(await integration.getPermissions()).toEqual([
           'profile:email',
           'profile:uid',
         ]);
@@ -102,57 +101,59 @@ describe('models/reliers/oauth-relier', function () {
     });
 
     describe('untrusted reliers', () => {
-      function getRelier(scope: string) {
-        const relier = getRelierWithScope(scope);
-        relier.isTrusted = async () => {
+      function getIntegration(scope: string) {
+        const integration = getIntegrationWithScope(scope);
+        integration.isTrusted = async () => {
           return false;
         };
-        return relier;
+        return integration;
       }
 
       it(`normalizes ${SCOPE_WITH_EXTRAS}`, async () => {
-        const relier = getRelier(SCOPE_WITH_EXTRAS);
-        expect(await relier.getNormalizedScope()).toBe(SCOPE);
+        const integration = getIntegration(SCOPE_WITH_EXTRAS);
+        expect(await integration.getNormalizedScope()).toBe(SCOPE);
       });
 
       it(`normalizes ${SCOPE_WITH_OPENID}`, async () => {
-        const relier = getRelier(SCOPE_WITH_OPENID);
-        expect(await relier.getNormalizedScope()).toBe(SCOPE_WITH_OPENID);
+        const integration = getIntegration(SCOPE_WITH_OPENID);
+        expect(await integration.getNormalizedScope()).toBe(SCOPE_WITH_OPENID);
       });
 
       it(`prohibits ${SCOPE_PROFILE}`, async () => {
-        const relier = getRelier(SCOPE_PROFILE);
-        await expect(relier.getNormalizedScope()).rejects.toThrow();
+        const integration = getIntegration(SCOPE_PROFILE);
+        await expect(integration.getNormalizedScope()).rejects.toThrow();
       });
 
       it(`prohibits ${SCOPE_PROFILE_UNRECOGNIZED}`, async () => {
-        const relier = getRelier(SCOPE_PROFILE_UNRECOGNIZED);
-        await expect(relier.getNormalizedScope()).rejects.toThrow();
+        const integration = getIntegration(SCOPE_PROFILE_UNRECOGNIZED);
+        await expect(integration.getNormalizedScope()).rejects.toThrow();
       });
     });
 
     describe('trusted reliers that do not ask for consent', () => {
-      function getRelier(scope: string) {
-        const relier = getRelierWithScope(scope);
-        relier.wantsConsent = () => {
+      function getIntegration(scope: string) {
+        const integration = getIntegrationWithScope(scope);
+        integration.wantsConsent = () => {
           return false;
         };
-        return relier;
+        return integration;
       }
 
       it(`normalizes ${SCOPE_WITH_EXTRAS}`, async () => {
-        const relier = getRelier(SCOPE_WITH_EXTRAS);
-        expect(await relier.getNormalizedScope()).toEqual(SCOPE_WITH_EXTRAS);
+        const integration = getIntegration(SCOPE_WITH_EXTRAS);
+        expect(await integration.getNormalizedScope()).toEqual(
+          SCOPE_WITH_EXTRAS
+        );
       });
 
       it(`normalizes ${SCOPE_PROFILE}`, async () => {
-        const relier = getRelier(SCOPE_PROFILE);
-        expect(await relier.getNormalizedScope()).toEqual(SCOPE_PROFILE);
+        const integration = getIntegration(SCOPE_PROFILE);
+        expect(await integration.getNormalizedScope()).toEqual(SCOPE_PROFILE);
       });
 
       it(`normalizes ${SCOPE_PROFILE_UNRECOGNIZED}`, async () => {
-        const relier = getRelier(SCOPE_PROFILE_UNRECOGNIZED);
-        expect(await relier.getNormalizedScope()).toEqual(
+        const integration = getIntegration(SCOPE_PROFILE_UNRECOGNIZED);
+        expect(await integration.getNormalizedScope()).toEqual(
           SCOPE_PROFILE_UNRECOGNIZED
         );
       });

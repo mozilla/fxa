@@ -7,8 +7,6 @@ import ThirdPartyAuthCallback from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LocationProvider } from '@reach/router';
-import { AppContext } from '../../../models';
-import { StorageData } from '../../../lib/model-data';
 
 export default {
   title: 'Pages/ThirdPartyAuthCallback',
@@ -16,15 +14,8 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storageData = {
-  get: () => {},
-  set: () => {},
-} as unknown as StorageData;
-
 export const Default = () => (
-  <AppContext.Provider value={{ storageData }}>
-    <LocationProvider>
-      <ThirdPartyAuthCallback />
-    </LocationProvider>
-  </AppContext.Provider>
+  <LocationProvider>
+    <ThirdPartyAuthCallback />
+  </LocationProvider>
 );

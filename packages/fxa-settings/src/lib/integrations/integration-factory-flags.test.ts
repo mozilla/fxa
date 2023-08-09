@@ -5,12 +5,12 @@
 import { createSandbox, SinonSandbox } from 'sinon';
 import { Constants } from '../constants';
 import { StorageData, UrlQueryData } from '../model-data';
-import { DefaultRelierFlags } from './relier-factory-flags';
+import { DefaultIntegrationFlags } from './integration-factory-flags';
 import { ReachRouterWindow } from '../window';
 
-describe('lib/reliers/relier-factory-flags', function () {
+describe('lib/integrations/integration-factory-flags', function () {
   const window = new ReachRouterWindow();
-  let relierFlags: DefaultRelierFlags;
+  let integrationFlags: DefaultIntegrationFlags;
   let queryData: UrlQueryData;
   let storageData: StorageData;
   let sandbox: SinonSandbox;
@@ -23,22 +23,22 @@ describe('lib/reliers/relier-factory-flags', function () {
     sandbox.restore();
     queryData = new UrlQueryData(window);
     storageData = new StorageData(window);
-    relierFlags = new DefaultRelierFlags(queryData, storageData);
+    integrationFlags = new DefaultIntegrationFlags(queryData, storageData);
   });
 
   it('isDevicePairingAsAuthority', () => {
-    expect(relierFlags.isDevicePairingAsAuthority()).toBeFalsy();
+    expect(integrationFlags.isDevicePairingAsAuthority()).toBeFalsy();
     queryData.set(
       'redirect_uri',
       Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI
     );
-    expect(relierFlags.isDevicePairingAsAuthority()).toBeTruthy();
+    expect(integrationFlags.isDevicePairingAsAuthority()).toBeTruthy();
   });
 
   it('isDevicePairingAsSupplicant', () => {
-    expect(relierFlags.isDevicePairingAsSupplicant()).toBeFalsy();
+    expect(integrationFlags.isDevicePairingAsSupplicant()).toBeFalsy();
     sandbox.replaceGetter(queryData, 'pathName', () => '/pair/supplicant');
-    expect(relierFlags.isDevicePairingAsSupplicant()).toBeTruthy();
+    expect(integrationFlags.isDevicePairingAsSupplicant()).toBeTruthy();
   });
 
   describe('isOAuth', () => {
@@ -50,7 +50,7 @@ describe('lib/reliers/relier-factory-flags', function () {
 
     it('when oauth in path', () => {
       sandbox.replaceGetter(queryData, 'pathName', () => '/oauth/');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 1', () => {
@@ -58,7 +58,7 @@ describe('lib/reliers/relier-factory-flags', function () {
       queryData.set('service', 'sync');
       queryData.set('uid', '123');
       queryData.set('code', '123');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 2', () => {
@@ -66,14 +66,14 @@ describe('lib/reliers/relier-factory-flags', function () {
       queryData.set('service', 'sync');
       queryData.set('token', '123');
       queryData.set('code', '123');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is same and verification 3', () => {
       storageData.set('oauth', { client_id: 'sync' });
       queryData.set('service', 'sync');
       sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 1', () => {
@@ -81,7 +81,7 @@ describe('lib/reliers/relier-factory-flags', function () {
       queryData.set('service', 'foo');
       queryData.set('uid', '123');
       queryData.set('code', '123');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 2', () => {
@@ -89,14 +89,14 @@ describe('lib/reliers/relier-factory-flags', function () {
       queryData.set('service', 'foo');
       queryData.set('uid', '123');
       queryData.set('token', '123');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 3', () => {
       storageData.set('oauth', { client_id: 'foo' });
       queryData.set('service', 'foo');
       sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
-      expect(relierFlags.isOAuth()).toBeTruthy();
+      expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     // TODO: OAuth has a complex set of conditions. Add more tests, specifically for negative cases.
@@ -104,22 +104,22 @@ describe('lib/reliers/relier-factory-flags', function () {
 
   it('isSyncService', () => {
     queryData.set('service', Constants.SYNC_SERVICE);
-    expect(relierFlags.isSyncService()).toBeTruthy();
+    expect(integrationFlags.isSyncService()).toBeTruthy();
   });
 
   it('isV3DesktopContext', () => {
     queryData.set('context', Constants.FX_DESKTOP_V3_CONTEXT);
-    expect(relierFlags.isSyncService()).toBeTruthy();
+    expect(integrationFlags.isSyncService()).toBeTruthy();
   });
 
   it('isOAuthSuccessFlow', () => {
     sandbox.replaceGetter(queryData, 'pathName', () => '/oauth/success/foo');
-    expect(relierFlags.isOAuthSuccessFlow().status).toBeTruthy();
-    expect(relierFlags.isOAuthSuccessFlow().clientId).toEqual('foo');
+    expect(integrationFlags.isOAuthSuccessFlow().status).toBeTruthy();
+    expect(integrationFlags.isOAuthSuccessFlow().clientId).toEqual('foo');
   });
 
   it('isOAuthVerificationFlow', () => {
     queryData.set('code', '123');
-    expect(relierFlags.isOAuthVerificationFlow()).toBeTruthy();
+    expect(integrationFlags.isOAuthVerificationFlow()).toBeTruthy();
   });
 });

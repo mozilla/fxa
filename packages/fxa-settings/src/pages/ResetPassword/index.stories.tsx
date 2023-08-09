@@ -3,17 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPassword, { ResetPasswordProps } from '.';
+import ResetPassword from '.';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
+  createMockResetPasswordOAuthIntegration,
+  createMockResetPasswordWebIntegration,
   mockAccountWithThrottledError,
   mockAccountWithUnexpectedError,
 } from './mocks';
 import { renderStoryWithHistory } from '../../lib/storybook-utils';
-import { Account } from '../../models';
+import { Account, IntegrationType } from '../../models';
 import { MOCK_ACCOUNT } from '../../models/mocks';
+import { ResetPasswordProps } from './interfaces';
 
 export default {
   title: 'Pages/ResetPassword',
@@ -25,11 +28,22 @@ type RenderStoryOptions = {
   account?: Account;
   props?: Partial<ResetPasswordProps>;
   queryParams?: string;
+  integrationType?: IntegrationType;
 };
 
-function renderStory({ account, props, queryParams }: RenderStoryOptions = {}) {
+function renderStory({
+  account,
+  props,
+  queryParams,
+  integrationType = IntegrationType.Web,
+}: RenderStoryOptions = {}) {
+  const integration =
+    integrationType === IntegrationType.OAuth
+      ? createMockResetPasswordOAuthIntegration()
+      : createMockResetPasswordWebIntegration();
+
   return renderStoryWithHistory(
-    <ResetPassword {...props} />,
+    <ResetPassword {...props} {...{ integration }} />,
     '/reset_password',
     account,
     queryParams
@@ -39,7 +53,10 @@ function renderStory({ account, props, queryParams }: RenderStoryOptions = {}) {
 export const Default = () => renderStory();
 
 export const WithServiceName = () =>
-  renderStory({ queryParams: `service=${MozServices.MozillaVPN}` });
+  renderStory({
+    integrationType: IntegrationType.OAuth,
+    queryParams: `service=${MozServices.MozillaVPN}`,
+  });
 
 export const WithForceAuth = () =>
   renderStory({

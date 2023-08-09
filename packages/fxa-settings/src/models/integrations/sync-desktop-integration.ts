@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ModelDataStore } from '../../lib/model-data';
 import { IntegrationType } from './base-integration';
 import {
   SyncBasicIntegration,
@@ -9,8 +10,12 @@ import {
 } from './sync-basic-integration';
 
 export class SyncDesktopIntegration extends SyncBasicIntegration<SyncIntegrationFeatures> {
-  constructor() {
-    super(IntegrationType.SyncDesktop);
+  constructor(data: ModelDataStore) {
+    super(data, IntegrationType.SyncDesktop);
     this.setFeatures({ allowUidChange: true });
+  }
+
+  async isSync() {
+    return true;
   }
 }

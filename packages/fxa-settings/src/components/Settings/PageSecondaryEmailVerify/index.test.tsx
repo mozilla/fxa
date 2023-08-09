@@ -6,11 +6,16 @@ import 'mutationobserver-shim';
 import React from 'react';
 import { screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSettingsContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 import { PageSecondaryEmailVerify } from '.';
 import { WindowLocation } from '@reach/router';
 import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 const mockLocation = {
   state: { email: 'johndope@example.com' },
@@ -70,9 +75,12 @@ describe('PageSecondaryEmailVerify', () => {
     const alertBarInfo = {
       success: jest.fn(),
     } as any;
+    const settingsContext = mockSettingsContext({ alertBarInfo });
     const { history } = renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
-        <PageSecondaryEmailVerify location={mockLocation} />
+      <AppContext.Provider value={mockAppContext({ account })}>
+        <SettingsContext.Provider value={settingsContext}>
+          <PageSecondaryEmailVerify location={mockLocation} />
+        </SettingsContext.Provider>
       </AppContext.Provider>
     );
 

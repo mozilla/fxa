@@ -6,6 +6,7 @@ import React from 'react';
 import { Account } from '../../../models';
 import AccountRecoveryConfirmKey from '.';
 import { Meta } from '@storybook/react';
+import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   getSubject,
   mockCompleteResetPasswordParams,
@@ -16,6 +17,7 @@ import { produceComponent } from '../../../models/mocks';
 export default {
   title: 'Pages/ResetPassword/AccountRecoveryConfirmKey',
   component: AccountRecoveryConfirmKey,
+  decorators: [withLocalization],
 } as Meta;
 
 function renderStory(

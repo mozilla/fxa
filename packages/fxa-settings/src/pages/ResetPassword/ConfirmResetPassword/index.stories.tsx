@@ -7,6 +7,7 @@ import ConfirmResetPassword from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
+import { createMockConfirmResetPasswordOAuthIntegration } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/ConfirmResetPassword',
@@ -15,4 +16,9 @@ export default {
 } as Meta;
 
 export const Default = () =>
-  renderStoryWithHistory(<ConfirmResetPassword />, '/confirm_reset_password');
+  renderStoryWithHistory(
+    <ConfirmResetPassword
+      integration={createMockConfirmResetPasswordOAuthIntegration()}
+    />,
+    '/confirm_reset_password'
+  );

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { LocationProvider } from '@reach/router';
-import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import AccountRecoveryResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -13,25 +11,24 @@ import {
   logViewEvent,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { AppContext, AppContextValue, IntegrationType } from '../../../models';
-import * as mocks from './mocks';
-import { mockAppContext } from '../../../models/mocks';
+import { IntegrationType } from '../../../models';
+import {
+  createAppContext,
+  createHistoryWithQuery,
+  mockAppContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-
-let mockHistory = mocks.mockWindowHistory();
-let mockWindowWrapper = mocks.mockWindowWrapper();
-let mockUrlQueryData = mocks.mockUrlQueryData();
-let mockStorageData = mocks.mockStorageData();
-let mockUrlHashData = mocks.mockUrlHashData();
-let mockLocationStateData = mocks.mockLocationStateData();
-let mockRelier = mocks.mockRelier();
-let mockIntegration = mocks.mockIntegration();
-let mockAccount = mocks.mockAccount();
-let mockAuthClient = mocks.mockAuthClient();
-let mockOauthClient = mocks.mockOauthClient();
-let mockNavigate = mocks.mockNavigate();
-let mockNotifier = mocks.mockNotifier();
+import {
+  MOCK_LOCATION_STATE,
+  MOCK_RESET_DATA,
+  MOCK_SEARCH_PARAMS,
+  MOCK_VERIFICATION_INFO,
+  createMockAccountRecoveryResetPasswordOAuthIntegration,
+  createMockAccountRecoveryResetPasswordSyncDesktopIntegration,
+  mockAccount,
+} from './mocks';
+import { AccountRecoveryResetPasswordBaseIntegration } from './interfaces';
 
 const mockUseNavigateWithoutRerender = jest.fn();
 
@@ -40,27 +37,39 @@ jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
   default: () => mockUseNavigateWithoutRerender,
 }));
 
-jest.mock('../../../models/hooks', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('../../../models/hooks'),
-    useNotifier: () => mockNotifier,
-    useAccount: () => mockAccount,
-  };
-});
-
 jest.mock('../../../lib/channels/helpers', () => {
   return {
     notifyFirefoxOfLogin: jest.fn(),
   };
 });
 
+// TODO: better mocking here. LinkValidator sends `params` into page components and
+// we mock those params sent to page components... we want to do these validation
+// checks in the container component instead.
+let mockVerificationInfo = MOCK_VERIFICATION_INFO;
+
+jest.mock('../../../models/verification', () => ({
+  ...jest.requireActual('../../../models/verification'),
+  CreateVerificationInfo: jest.fn(() => mockVerificationInfo),
+}));
+
+let mockSearchParams = MOCK_SEARCH_PARAMS;
+let mockLocationState = MOCK_LOCATION_STATE;
+
+const mockLocation = () => {
+  return {
+    pathname: '/account_recovery_reset_password',
+    search: '?' + new URLSearchParams(mockSearchParams),
+    state: mockLocationState,
+  };
+};
+const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => {
   return {
     __esModule: true,
     ...jest.requireActual('@reach/router'),
-    useLocation: () => mockWindowWrapper.location,
     useNavigate: () => mockNavigate,
+    useLocation: () => mockLocation(),
   };
 });
 
@@ -73,43 +82,40 @@ jest.mock('../../../lib/metrics', () => {
   };
 });
 
+const route = '/reset_password';
+const render = (ui = <Subject />, account = mockAccount()) => {
+  console.log('account in render', account);
+  const history = createHistoryWithQuery(route);
+  return renderWithRouter(
+    ui,
+    {
+      route,
+      history,
+    },
+    mockAppContext({
+      ...createAppContext(),
+      account,
+    })
+  );
+};
+
+const Subject = ({
+  integration = createMockAccountRecoveryResetPasswordSyncDesktopIntegration(),
+}) => (
+  <AccountRecoveryResetPassword
+    {...{ integration }}
+    finishOAuthFlowHandler={() => Promise.resolve({ redirect: 'someUri' })}
+  />
+);
+
 describe('AccountRecoveryResetPassword page', () => {
-  let ctx: AppContextValue;
-
-  function resetMocks() {
-    // Restores default implementations of the mocks
-    mocks.resetMocks();
-
-    // Create new references to mocks
-    mockHistory = mocks.mockWindowHistory();
-    mockWindowWrapper = mocks.mockWindowWrapper();
-    mockUrlQueryData = mocks.mockUrlQueryData();
-    mockStorageData = mocks.mockStorageData();
-    mockUrlHashData = mocks.mockUrlHashData();
-    mockLocationStateData = mocks.mockLocationStateData();
-    mockRelier = mocks.mockRelier();
-    mockIntegration = mocks.mockIntegration();
-    mockAccount = mocks.mockAccount();
-    mockAuthClient = mocks.mockAuthClient();
-    mockOauthClient = mocks.mockOauthClient();
-    mockNavigate = mocks.mockNavigate();
-    mockNotifier = mocks.mockNotifier();
-
-    // Reset the mock implementations
-    jest.restoreAllMocks();
-  }
-
-  async function renderPage() {
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={ctx}>
-        <LocationProvider
-          {...{ history: mockHistory, location: mockHistory.location }}
-        >
-          <AccountRecoveryResetPassword {...{}} />
-        </LocationProvider>
-      </AppContext.Provider>
-    );
-  }
+  let account = mockAccount();
+  beforeEach(() => {
+    mockLocationState = { ...MOCK_LOCATION_STATE };
+    mockSearchParams = { ...MOCK_SEARCH_PARAMS };
+    mockVerificationInfo = { ...MOCK_VERIFICATION_INFO };
+    account = mockAccount();
+  });
 
   async function clickResetPassword() {
     const button = await screen.findByRole('button', {
@@ -139,75 +145,43 @@ describe('AccountRecoveryResetPassword page', () => {
     });
   }
 
-  beforeEach(() => {
-    resetMocks();
-    ctx = mockAppContext({
-      windowWrapper: mockWindowWrapper,
-      urlQueryData: mockUrlQueryData,
-      urlHashData: mockUrlHashData,
-      storageData: mockStorageData,
-      account: mockAccount,
-      authClient: mockAuthClient,
-      locationStateData: mockLocationStateData,
-      oauthClient: mockOauthClient,
-    });
-  });
-
-  afterAll(() => {
-    resetMocks();
-  });
-
-  describe('required recovery key info', () => {
-    async function setEmptyState(key: string) {
-      mockLocationStateData.set(key, '');
-      await renderPage();
-    }
-
-    let mockConsoleWarn: jest.SpyInstance;
-
-    beforeEach(() => {
-      mockConsoleWarn = jest
-        .spyOn(console, 'warn')
-        .mockImplementation(() => {});
-    });
-
-    afterEach(() => {
-      mockConsoleWarn.mockClear();
-    });
-
-    it(`requires kB`, async () => {
-      setEmptyState('kB');
-      expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
-      );
-      expect(mockConsoleWarn).toBeCalled();
-    });
-
-    it(`requires recoveryKeyId`, async () => {
-      setEmptyState('recoveryKeyId');
-      expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
-      );
-      expect(mockConsoleWarn).toBeCalled();
-    });
-
-    it(`requires accountResetToken`, async () => {
-      setEmptyState('accountResetToken');
-      expect(mockNavigate).toBeCalledWith(
-        `/complete_reset_password?${await mockUrlQueryData.toSearchQuery()}`
-      );
-      expect(mockConsoleWarn).toBeCalled();
-    });
-  });
-
   describe('damaged link', () => {
-    beforeEach(async () => {
-      // By setting an invalid email state, we trigger a damaged link state.
-      mockUrlQueryData.set('email', 'foo');
-      await renderPage();
+    describe('required location state recovery key info', () => {
+      it('requires kB', async () => {
+        mockLocationState.kB = '';
+        render();
+        await screen.findByRole('heading', {
+          name: 'Reset password link damaged',
+        });
+      });
+
+      it('requires recoveryKeyId', async () => {
+        mockLocationState.recoveryKeyId = '';
+        render();
+        await screen.findByRole('heading', {
+          name: 'Reset password link damaged',
+        });
+      });
+
+      it('requires accountResetToken', async () => {
+        mockLocationState.accountResetToken = '';
+        render();
+
+        await screen.findByRole('heading', {
+          name: 'Reset password link damaged',
+        });
+      });
     });
 
-    it('shows damaged link message', async () => {
+    it('shows damaged link message with bad param state', async () => {
+      // By setting an invalid email state, we trigger a damaged link state.
+      mockVerificationInfo.email = '';
+      render(
+        <Subject
+          integration={createMockAccountRecoveryResetPasswordOAuthIntegration()}
+        />
+      );
+
       await screen.findByRole('heading', {
         name: 'Reset password link damaged',
       });
@@ -215,8 +189,8 @@ describe('AccountRecoveryResetPassword page', () => {
   });
 
   describe('valid link', () => {
-    beforeEach(async () => {
-      await renderPage();
+    beforeEach(() => {
+      render();
     });
 
     it('has valid l10n', () => {
@@ -260,75 +234,79 @@ describe('AccountRecoveryResetPassword page', () => {
         expect(screen.getByText('Password requirements')).toBeVisible();
       });
     });
+  });
 
-    describe('successful reset', () => {
-      beforeEach(async () => {
-        mockAccount.setLastLogin = jest.fn();
-        mockAccount.resetPasswordWithRecoveryKey = jest
-          .fn()
-          .mockResolvedValue(mocks.MOCK_RESET_DATA);
-        mockAccount.isSessionVerifiedAuthClient = jest.fn();
-        mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
+  describe('successful reset', () => {
+    beforeEach(async () => {
+      account.resetPasswordWithRecoveryKey = jest
+        .fn()
+        .mockResolvedValue(MOCK_RESET_DATA);
+      account.isSessionVerifiedAuthClient = jest.fn();
+      account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
-        await enterPassword('foo12356789!');
-        await clickResetPassword();
-      });
+      render(<Subject />, account);
+      await enterPassword('foo12356789!');
+      await clickResetPassword();
+    });
 
-      it('emits a metric on successful reset', async () => {
-        expect(logViewEvent).toHaveBeenCalledWith(
-          viewName,
-          'verification.success'
-        );
-      });
+    it('emits a metric on successful reset', async () => {
+      expect(logViewEvent).toHaveBeenCalledWith(
+        viewName,
+        'verification.success'
+      );
+    });
 
-      it('calls account API methods', () => {
-        // Check that resetPasswordWithRecoveryKey was the first function called
-        // because it retrieves the session token required by other calls
-        expect(
-          (mockAccount.resetPasswordWithRecoveryKey as jest.Mock).mock.calls[0]
-        ).toBeTruthy();
-        expect(mockAccount.isSessionVerifiedAuthClient).toHaveBeenCalled();
-        expect(mockAccount.hasTotpAuthClient).toHaveBeenCalled();
-      });
+    it('calls account API methods', () => {
+      // Check that resetPasswordWithRecoveryKey was the first function called
+      // because it retrieves the session token required by other calls
+      expect(
+        (account.resetPasswordWithRecoveryKey as jest.Mock).mock.calls[0]
+      ).toBeTruthy();
+      expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
+      expect(account.hasTotpAuthClient).toHaveBeenCalled();
+    });
 
-      it('sets relier state', () => {
-        expect(logViewEvent).toHaveBeenCalledWith(
-          viewName,
-          'verification.success'
-        );
-      });
+    it('sets integration state', () => {
+      expect(logViewEvent).toHaveBeenCalledWith(
+        viewName,
+        'verification.success'
+      );
+    });
+  });
 
-      it('invokes webchannel', () => {
-        expect(mockNotifier.onAccountSignIn).toHaveBeenCalled();
-      });
+  describe('successful reset, SyncDesktop integration', () => {
+    let integration: AccountRecoveryResetPasswordBaseIntegration;
+    // TODO: share setup code with successful reset
+    beforeEach(async () => {
+      integration =
+        createMockAccountRecoveryResetPasswordSyncDesktopIntegration();
+      account.resetPasswordWithRecoveryKey = jest
+        .fn()
+        .mockResolvedValue(MOCK_RESET_DATA);
+      account.isSessionVerifiedAuthClient = jest.fn();
+      account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
-      it('sets last login data', () => {
-        expect(mockAccount.setLastLogin).toHaveBeenCalled();
-      });
+      render(<Subject {...{ integration }} />, account);
+      await enterPassword('foo12356789!');
+      await clickResetPassword();
+    });
 
-      it('sets relier resetPasswordConfirm state', () => {
-        expect(mockRelier.resetPasswordConfirm).toBeTruthy();
-      });
+    it('sets integration resetPasswordConfirm state', () => {
+      expect(integration.data.resetPasswordConfirm).toBeTruthy();
+    });
+    it('calls notifyFirefoxOfLogin', () => {
+      expect(integration.type).toEqual(IntegrationType.SyncDesktop);
+      expect(notifyFirefoxOfLogin).toHaveBeenCalled();
+    });
+  });
 
-      describe('SyncDesktop integration', () => {
-        beforeEach(() => {
-          mockIntegration = mocks.mockIntegration(
-            mocks.syncIntegrationUrlQueryData
-          );
-        });
-        it('calls notifyFirefoxOfLogin', () => {
-          expect(mockIntegration.type).toEqual(IntegrationType.SyncDesktop);
-          expect(notifyFirefoxOfLogin).toHaveBeenCalled();
-        });
-      });
-
-      it('navigates as expected without totp', async () => {
-        await waitFor(() => {
-          expect(mockNavigate).toHaveBeenCalledWith(
-            '/reset_password_with_recovery_key_verified'
-          );
-        });
-      });
+  it('navigates as expected without totp', async () => {
+    await waitFor(() => {
+      expect(mockNavigate).toHaveBeenCalledWith(
+        `/reset_password_with_recovery_key_verified?${new URLSearchParams(
+          MOCK_SEARCH_PARAMS
+        ).toString()}`
+      );
     });
   });
 
@@ -342,13 +320,13 @@ describe('AccountRecoveryResetPassword page', () => {
     });
     beforeEach(async () => {
       window.location.href = originalWindow.href;
-      mockAccount.setLastLogin = jest.fn();
-      mockAccount.resetPasswordWithRecoveryKey = jest
+      account.setLastLogin = jest.fn();
+      account.resetPasswordWithRecoveryKey = jest
         .fn()
-        .mockResolvedValue(mocks.MOCK_RESET_DATA);
-      mockAccount.isSessionVerifiedAuthClient = jest.fn();
-      mockAccount.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
-      await renderPage();
+        .mockResolvedValue(MOCK_RESET_DATA);
+      account.isSessionVerifiedAuthClient = jest.fn();
+      account.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
+      render(<Subject />, account);
 
       await enterPassword('foo12356789!');
       await clickResetPassword();
@@ -365,12 +343,12 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('expired link', () => {
     beforeEach(async () => {
       // A link is deemed expired if the server returns an invalid token error.
-      mockAccount.resetPasswordWithRecoveryKey = jest
+      account.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockRejectedValue(AuthUiErrors['INVALID_TOKEN']);
-      mockAccount.resetPassword = jest.fn();
+      account.resetPassword = jest.fn();
 
-      await renderPage();
+      render(<Subject />, account);
       await enterPassword('foo12356789!');
       await clickResetPassword();
     });

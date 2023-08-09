@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { OAuthClient } from '../oauth/oauth-client';
-import { RelierDelegates } from './interfaces';
+import { IntegrationDelegates } from './interfaces';
 
 /**
- * Default implementations for relier delegate functions
+ * Default implementations for integration delegate functions
  */
-export class DefaultRelierDelegates implements RelierDelegates {
+export class DefaultIntegrationDelegates implements IntegrationDelegates {
   constructor(
     protected readonly authServerUrl: string,
     protected readonly oAuthServerUrl: string

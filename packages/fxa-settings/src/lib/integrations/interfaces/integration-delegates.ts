@@ -5,7 +5,7 @@
 /**
  * Delegates interface that acts as a set of callbacks to fetch external state for the relier factory.
  */
-export interface RelierDelegates {
+export interface IntegrationDelegates {
   getClientInfo: (clientId: any) => Promise<Record<string, unknown>>;
   getProductInfo: (subscriptionId: string) => Promise<{ productName?: string }>;
   getProductIdFromRoute: () => string;

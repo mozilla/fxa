@@ -7,9 +7,14 @@ import React from 'react';
 import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 import PageDisplayName from '.';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSettingsContext,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { HomePath } from '../../../constants';
 import { Account, AppContext } from '../../../models';
+import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
 jest.mock('../../../models/AlertBarInfo');
 const inputDisplayName = async (newName: string) => {
@@ -66,9 +71,12 @@ it('navigates back to settings home and shows a success message on a successful 
   const alertBarInfo = {
     success: jest.fn(),
   } as any;
+  const settingsContext = mockSettingsContext({ alertBarInfo });
   renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account, alertBarInfo })}>
-      <PageDisplayName />
+    <AppContext.Provider value={mockAppContext({ account })}>
+      <SettingsContext.Provider value={settingsContext}>
+        <PageDisplayName />
+      </SettingsContext.Provider>
     </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
@@ -84,14 +92,17 @@ it('displays a general error in the alert bar', async () => {
     setDisplayName: jest.fn().mockRejectedValue(gqlError),
   } as unknown as Account;
   const context = mockAppContext({ account });
+  const settingsContext = mockSettingsContext();
   renderWithRouter(
     <AppContext.Provider value={context}>
-      <PageDisplayName />
+      <SettingsContext.Provider value={settingsContext}>
+        <PageDisplayName />
+      </SettingsContext.Provider>
     </AppContext.Provider>
   );
 
   await submitDisplayName('John Nope');
-  expect(context.alertBarInfo?.error).toBeCalledTimes(1);
+  expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
 });
 
 it('displays the GraphQL error', async () => {

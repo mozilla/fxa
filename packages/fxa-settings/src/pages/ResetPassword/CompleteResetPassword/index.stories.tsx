@@ -7,8 +7,12 @@ import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { Account } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { getSubject, paramsWithMissingEmail } from './mocks';
-import { produceComponent } from '../../../models/mocks';
+import { Subject, paramsWithMissingEmail } from './mocks';
+import {
+  createAppContext,
+  mockAppContext,
+  produceComponent,
+} from '../../../models/mocks';
 // import { resetMocks } from '../AccountRecoveryResetPassword/mocks';
 
 export default {
@@ -26,9 +30,17 @@ function renderStory(
   { account = accountNoRecoveryKey, params }: RenderStoryOptions = {},
   storyName?: string
 ) {
-  // resetMocks();
-  const { Subject, history, appCtx } = getSubject(account, params);
-  const story = () => produceComponent(<Subject />, { history }, appCtx);
+  const story = () =>
+    produceComponent(
+      <Subject />,
+      {},
+      {
+        ...mockAppContext({
+          ...createAppContext(),
+          account,
+        }),
+      }
+    );
   story.storyName = storyName;
   return story();
 }

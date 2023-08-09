@@ -11,6 +11,7 @@ import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
+import { IntegrationType } from '../../models';
 
 const meta = {
   title: 'Components/LinkExpired',
@@ -49,7 +50,10 @@ const mockedProps: LinkExpiredProps = {
 export const Default = () => <LinkExpired {...mockedProps} />;
 
 export const LinkExpiredForResetPassword = () => (
-  <LinkExpiredResetPassword {...{ email, viewName }} />
+  <LinkExpiredResetPassword
+    {...{ email, viewName }}
+    integration={{ type: IntegrationType.Web }}
+  />
 );
 
 export const LinkExpiredForSignin = () => (

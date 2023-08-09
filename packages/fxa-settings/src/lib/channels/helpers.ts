@@ -38,13 +38,13 @@ export function notifyFirefoxOfLogin(
     return;
   }
 
-  // TODO: account for multiservice TODO with relier/integration combination
+  // TODO: account for multiservice TODO with FXA-6488 or follow up
   // const isMultiService = this.relier && this.relier.get('multiService');
   // if (isMultiService) {
   //   loginData = this._formatForMultiServiceBrowser(loginData);
   // }
 
-  // TODO with relier/integration combination or during login tickets.
+  // TODO with FXA-6488 or follow up
   // Only send one login notification per uid to avoid race
   // conditions within the browser. Two attempts to send
   // a login message occur for users that verify while

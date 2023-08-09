@@ -10,6 +10,7 @@ import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '../LinkDamaged';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ModelDataProvider } from '../../lib/model-data';
+import { Integration } from '../../models';
 
 interface LinkValidatorChildrenProps<T> {
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
@@ -20,6 +21,7 @@ interface LinkValidatorProps<T> {
   linkType: LinkType;
   viewName: string;
   getParamsFromModel: () => T;
+  integration: Integration;
   children: (props: LinkValidatorChildrenProps<T>) => React.ReactNode;
 }
 
@@ -28,6 +30,7 @@ const LinkValidator = <TModel extends ModelDataProvider>({
   linkType,
   viewName,
   getParamsFromModel,
+  integration,
 }: LinkValidatorProps<TModel> & RouteComponentProps) => {
   // If `LinkValidator` is a route component receiving `path, then `children`
   // is a React.ReactElement
@@ -68,7 +71,7 @@ const LinkValidator = <TModel extends ModelDataProvider>({
     linkType === LinkType['reset-password'] &&
     email !== undefined
   ) {
-    return <LinkExpiredResetPassword {...{ email, viewName }} />;
+    return <LinkExpiredResetPassword {...{ email, viewName, integration }} />;
   }
 
   if (

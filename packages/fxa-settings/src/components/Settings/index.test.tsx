@@ -6,7 +6,7 @@ import React, { ReactNode } from 'react';
 import { render } from '@testing-library/react';
 import { History } from '@reach/router';
 import App from '.';
-import { Account, AppContext, useInitialState } from '../../models';
+import { Account, AppContext, useInitialSettingsState } from '../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
@@ -19,7 +19,7 @@ import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
-  useInitialState: jest.fn(),
+  useInitialSettingsState: jest.fn(),
 }));
 
 jest.mock('./ScrollToTop', () => ({
@@ -51,7 +51,9 @@ describe('performance metrics', () => {
   });
 
   it('observeNavigationTiming is called when metrics collection is enabled', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+      loading: true,
+    });
     const account = {
       metricsEnabled: true,
       hasPassword: true,
@@ -65,7 +67,9 @@ describe('performance metrics', () => {
   });
 
   it('observeNavigationTiming is not called when metrics collection is disabled', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+      loading: true,
+    });
     const account = {
       metricsEnabled: false,
       hasPassword: true,
@@ -88,7 +92,9 @@ describe('App component', () => {
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({ loading: true });
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+      loading: true,
+    });
     const { getByLabelText } = renderWithRouter(
       <App {...{ flowQueryParams }} />
     );
@@ -97,7 +103,7 @@ describe('App component', () => {
   });
 
   it('renders `LoadingSpinner` component when the error message includes "Invalid token"', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Invalid token' },
     });
     const { getByLabelText } = renderWithRouter(
@@ -108,7 +114,7 @@ describe('App component', () => {
   });
 
   it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
-    (useInitialState as jest.Mock).mockReturnValueOnce({
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });
     const { getByRole } = renderWithRouter(<App {...{ flowQueryParams }} />);
@@ -118,7 +124,7 @@ describe('App component', () => {
     );
   });
 
-  (useInitialState as jest.Mock).mockReturnValue({ loading: false });
+  (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
 
   it('routes to PageSettings', async () => {
     const {

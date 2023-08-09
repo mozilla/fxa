@@ -3,16 +3,24 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useContext, useRef, useEffect, useMemo } from 'react';
-import { AppContext, GET_INITIAL_STATE } from './AppContext';
+import { AppContext } from './contexts/AppContext';
+import {
+  INITIAL_SETTINGS_QUERY,
+  SettingsContext,
+} from './contexts/SettingsContext';
 import { GET_SESSION_VERIFIED, Session } from './Session';
 import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { getDefault } from '../lib/config';
-import { IntegrationFactory } from '../lib/integrations/integration-factory';
-import { DefaultIntegrationFlags } from '../lib/integrations/integration-factory-flags';
-import { DefaultRelierFlags, RelierFactory } from '../lib/reliers';
+import config, { getDefault } from '../lib/config';
+import {
+  DefaultIntegrationFlags,
+  IntegrationFactory,
+} from '../lib/integrations';
+import { ReachRouterWindow } from '../lib/window';
+import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
+import { OAuthClient } from '../lib/oauth';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -45,39 +53,17 @@ export function useAuthClient() {
   return authClient;
 }
 
-export function useRelier() {
-  const {
-    windowWrapper: window,
-    urlQueryData,
-    urlHashData,
-    oauthClient,
-    authClient,
-    storageData,
-  } = useContext(AppContext);
-
-  if (
-    !window ||
-    !urlHashData ||
-    !urlQueryData ||
-    !oauthClient ||
-    !authClient ||
-    !storageData
-  ) {
-    throw new Error(
-      `Are you forgetting an AppContext.Provider or to mock something in app context?\n Context: ${getMissing(
-        {
-          window,
-          urlQueryData,
-          urlHashData,
-          oauthClient,
-          authClient,
-          storageData,
-        }
-      )}`
-    );
-  }
+export function useIntegration() {
+  const authClient = useAuthClient();
 
   return useMemo(() => {
+    const windowWrapper = new ReachRouterWindow();
+    const urlQueryData = new UrlQueryData(windowWrapper);
+    const urlHashData = new UrlHashData(windowWrapper);
+    const storageData = new StorageData(windowWrapper);
+    const oauthClient = new OAuthClient(config.servers.oauth.url);
+
+    // TODO: we shouldn't do this here, move to shared hook or read from config. FXA-6836
     const delegates = {
       getClientInfo: (id: string) => oauthClient.getClientInfo(id),
       getProductInfo: (id: string) => authClient.getProductInfo(id),
@@ -86,53 +72,17 @@ export function useRelier() {
         return re.exec(window.location.pathname)?.[1] || '';
       },
     };
-    const flags = new DefaultRelierFlags(urlQueryData, storageData);
-    const factory = new RelierFactory({
-      window,
+    const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
+    const integrationFactory = new IntegrationFactory({
+      flags,
+      window: windowWrapper,
       delegates,
       data: urlQueryData,
       channelData: urlHashData,
       storageData,
-      flags,
     });
-
-    return factory.getRelier();
-  }, [urlQueryData, storageData, window, urlHashData, oauthClient, authClient]);
-}
-
-export function useIntegration() {
-  const {
-    windowWrapper: window,
-    urlQueryData,
-    storageData,
-  } = useContext(AppContext);
-
-  if (!window || !urlQueryData || !storageData) {
-    throw new Error(
-      `Are you forgetting an AppContext.Provider? Missing: ${getMissing({
-        window,
-        urlQueryData,
-        storageData,
-      })}`
-    );
-  }
-
-  const relier = useRelier();
-  const authClient = useAuthClient();
-
-  return useMemo(() => {
-    const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
-
-    const factory = new IntegrationFactory(
-      flags,
-      relier,
-      authClient,
-      window,
-      urlQueryData
-    );
-
-    return factory.getIntegration();
-  }, [authClient, relier, storageData, urlQueryData, window]);
+    return integrationFactory.getIntegration();
+  }, [authClient]);
 }
 
 export function useSession() {
@@ -186,28 +136,20 @@ export function useConfig() {
   return config;
 }
 
-export function useInitialState() {
+export function useInitialSettingsState() {
   const { apolloClient } = useContext(AppContext);
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  return useQuery(GET_INITIAL_STATE, { client: apolloClient });
+  return useQuery(INITIAL_SETTINGS_QUERY, { client: apolloClient });
 }
 
 export function useAlertBar() {
-  const { alertBarInfo } = useContext(AppContext);
+  const { alertBarInfo } = useContext(SettingsContext);
   if (!alertBarInfo) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
+    throw new Error('Are you forgetting a SettingsContext.Provider?');
   }
   return alertBarInfo;
-}
-
-export function useWindowWrapper() {
-  const { windowWrapper } = useContext(AppContext);
-  if (windowWrapper == null) {
-    throw new Error('windowWrapper never initialized!');
-  }
-  return windowWrapper;
 }
 
 export function useFtlMsgResolver() {
@@ -224,6 +166,7 @@ export function useNotifier() {
   };
 }
 
+// TODO: use apollo-client provided polling, FXA-6991
 /**
  * Hook to run a function on an interval.
  * @param callback - function to call

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloClient, from } from '@apollo/client';
+import { ApolloClient, NormalizedCacheObject, from } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
@@ -44,9 +44,7 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
     // are sent as well, otw we would strip out utms and context params
     const queryParams = new URLSearchParams(window.location.search);
     queryParams.set('redirect_to', window.location.href);
-    window.location.replace(
-      `/signin?${queryParams.toString()}`
-    );
+    window.location.replace(`/signin?${queryParams.toString()}`);
   } else {
     if (!reauth) {
       console.error('graphql errors', graphQLErrors, networkError);
@@ -54,7 +52,12 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
   }
 };
 
+let apolloClientInstance: ApolloClient<NormalizedCacheObject>;
 export function createApolloClient(gqlServerUri: string) {
+  if (apolloClientInstance) {
+    return apolloClientInstance;
+  }
+
   // httpLink makes the actual requests to the server
   const httpLink = new BatchHttpLink({
     uri: `${gqlServerUri}/graphql`,
@@ -73,11 +76,11 @@ export function createApolloClient(gqlServerUri: string) {
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
-  const apolloClient = new ApolloClient({
+  apolloClientInstance = new ApolloClient({
     cache,
     link: from([errorLink, authLink, httpLink]),
     typeDefs,
   });
 
-  return apolloClient;
+  return apolloClientInstance;
 }

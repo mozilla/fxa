@@ -4,13 +4,13 @@
 
 import { UrlQueryData } from '../../lib/model-data';
 import { ReachRouterWindow } from '../../lib/window';
-import { BaseRelier } from './base-relier';
+import { BaseIntegration, IntegrationType } from './base-integration';
 
-describe('BaseRelier Model', function () {
+describe('BaseIntegration Model', function () {
   const window = new ReachRouterWindow();
-  let model: BaseRelier;
+  let model: BaseIntegration;
   beforeEach(function () {
-    model = new BaseRelier(new UrlQueryData(window));
+    model = new BaseIntegration(IntegrationType.Web, new UrlQueryData(window));
   });
 
   describe('isOAuth', function () {

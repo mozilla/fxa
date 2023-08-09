@@ -42,12 +42,7 @@ describe('SigninBounced', () => {
   });
 
   it('renders default content as expected', () => {
-    renderWithRouter(
-      <SigninBounced
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        emailLookupComplete
-      />
-    );
+    renderWithRouter(<SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} />);
     // testAllL10n(screen, bundle, {
     //   email:MOCK_EMAIL,
     // });
@@ -62,33 +57,19 @@ describe('SigninBounced', () => {
 
   it('renders the "Back" button when a user can go back', () => {
     renderWithRouter(
-      <SigninBounced
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        canGoBack
-        emailLookupComplete
-      />
+      <SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} canGoBack />
     );
     const backButton = screen.getByRole('button', { name: 'Back' });
     expect(backButton).toBeInTheDocument();
   });
 
   it('emits the expected metrics on render', async () => {
-    renderWithRouter(
-      <SigninBounced
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        emailLookupComplete
-      />
-    );
+    renderWithRouter(<SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics on the "Create Account" action', () => {
-    renderWithRouter(
-      <SigninBounced
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        emailLookupComplete
-      />
-    );
+    renderWithRouter(<SigninBounced email={MOCK_ACCOUNT.primaryEmail.email} />);
     fireEvent.click(screen.getByTestId('signin-bounced-create-account-btn'));
     expect(logViewEvent).toHaveBeenCalledWith(
       viewName,
@@ -98,12 +79,7 @@ describe('SigninBounced', () => {
   });
 
   it('pushes the user to the /signin page if there is no email address available', () => {
-    renderWithRouter(<SigninBounced emailLookupComplete />);
+    renderWithRouter(<SigninBounced />);
     expect(window.location.href).toBe('/signin');
-  });
-
-  it('does not push the user back to the /signin page until the email has finished being checked', () => {
-    renderWithRouter(<SigninBounced emailLookupComplete={false} />);
-    expect(window.location.href).toBe(originalWindow.href);
   });
 });

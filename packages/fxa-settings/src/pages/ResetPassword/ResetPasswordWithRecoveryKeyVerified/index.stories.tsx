@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import ResetPasswordWithRecoveryKeyVerified, {
-  ResetPasswordWithRecoveryKeyVerifiedProps,
-} from '.';
+import ResetPasswordWithRecoveryKeyVerified from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { Account } from '../../../models';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
+import { createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration } from './mocks';
 
 export default {
   title: 'Pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified',
@@ -19,17 +18,22 @@ export default {
 
 type RenderStoryOptions = {
   account?: Account;
-  props?: ResetPasswordWithRecoveryKeyVerifiedProps;
+  props?: { isSignedIn: boolean };
   queryParams?: string;
 };
 
 function renderStory({
   account,
-  props = { isSignedIn: false },
+  props = {
+    isSignedIn: false,
+  },
   queryParams,
 }: RenderStoryOptions = {}) {
   return renderStoryWithHistory(
-    <ResetPasswordWithRecoveryKeyVerified {...props} />,
+    <ResetPasswordWithRecoveryKeyVerified
+      {...props}
+      integration={createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration()}
+    />,
     '/reset_password_with_recovery_key_verified',
     account,
     queryParams
@@ -37,9 +41,16 @@ function renderStory({
 }
 
 export const DefaultAccountSignedIn = () =>
-  renderStory({ props: { isSignedIn: true } });
+  renderStory({
+    props: {
+      isSignedIn: true,
+    },
+  });
 export const DefaultAccountSignedOut = () => renderStory();
 export const WithSyncAccountSignedIn = () =>
-  renderStory({ props: { isSignedIn: true }, queryParams: `service=sync` });
+  renderStory({
+    props: { isSignedIn: true },
+    queryParams: `service=sync`,
+  });
 export const WithSyncAccountSignedOut = () =>
   renderStory({ queryParams: `service=sync` });

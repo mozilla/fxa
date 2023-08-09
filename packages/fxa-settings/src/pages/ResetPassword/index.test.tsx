@@ -21,6 +21,12 @@ import {
   createHistoryWithQuery,
   renderWithRouter,
 } from '../../models/mocks';
+import { MozServices } from '../../lib/types';
+import {
+  createMockResetPasswordOAuthIntegration,
+  createMockResetPasswordWebIntegration,
+} from './mocks';
+import { MOCK_REDIRECT_URI, MOCK_SERVICE } from '../mocks';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -41,22 +47,8 @@ jest.mock('@reach/router', () => ({
 }));
 
 const route = '/reset_password';
-const render = (ui: any, queryParams = '', account?: Account) => {
-  const history = createHistoryWithQuery(route, queryParams);
-  if (account) {
-    return renderWithRouter(
-      ui,
-      {
-        route,
-        history,
-      },
-      mockAppContext({
-        ...createAppContext(history),
-        account,
-      })
-    );
-  }
-
+const render = (ui: any, account?: Account) => {
+  const history = createHistoryWithQuery(route);
   return renderWithRouter(
     ui,
     {
@@ -64,10 +56,15 @@ const render = (ui: any, queryParams = '', account?: Account) => {
       history,
     },
     mockAppContext({
-      ...createAppContext(history),
+      ...createAppContext(),
+      ...(account && { account }),
     })
   );
 };
+
+const ResetPasswordWithWebIntegration = () => (
+  <ResetPassword integration={createMockResetPasswordWebIntegration()} />
+);
 
 describe('PageResetPassword', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
@@ -77,8 +74,8 @@ describe('PageResetPassword', () => {
   //   bundle = await getFtlBundle('settings');
   // });
 
-  it('renders as expected when no props are provided', async () => {
-    render(<ResetPassword />);
+  it('renders as expected', async () => {
+    render(<ResetPasswordWithWebIntegration />);
     // testAllL10n(screen, bundle);
 
     const headingEl = await screen.findByRole('heading', { level: 1 });
@@ -98,34 +95,27 @@ describe('PageResetPassword', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders a custom service name in the header when it is provided', async () => {
-    render(<ResetPassword />, 'service=sync');
+  it('renders a custom service name in the header', async () => {
+    render(
+      <ResetPassword
+        integration={createMockResetPasswordOAuthIntegration(
+          MozServices.FirefoxSync
+        )}
+      />
+    );
     const headingEl = await screen.findByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
       `Reset password to continue to Firefox Sync`
     );
   });
 
-  it('renders a read-only email but no text input when forceAuth is true', () => {
-    render(
-      <ResetPassword
-        prefillEmail={MOCK_ACCOUNT.primaryEmail.email}
-        forceAuth={true}
-      />
-    );
-    expect(
-      screen.getByTestId('reset-password-force-email')
-    ).toBeInTheDocument();
-    expect(screen.queryByLabelText('Email')).not.toBeInTheDocument();
-  });
-
   it('emits a metrics event on render', async () => {
-    render(<ResetPassword />);
+    render(<ResetPasswordWithWebIntegration />);
     await screen.findByText('Reset password');
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
-  it('submit success', async () => {
+  it('submit success with OAuth integration', async () => {
     const account = {
       resetPassword: jest.fn().mockResolvedValue({
         passwordForgotToken: '123',
@@ -133,8 +123,7 @@ describe('PageResetPassword', () => {
     } as unknown as Account;
 
     render(
-      <ResetPassword />,
-      'client_id=123&service=123Done&resume=123abc&redirect_uri=foo&scope=profile:email',
+      <ResetPassword integration={createMockResetPasswordOAuthIntegration()} />,
       account
     );
 
@@ -155,8 +144,8 @@ describe('PageResetPassword', () => {
 
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email,
-      '123Done',
-      'foo'
+      MOCK_SERVICE,
+      MOCK_REDIRECT_URI
     );
 
     expect(mockNavigate).toHaveBeenCalledWith(
@@ -178,7 +167,7 @@ describe('PageResetPassword', () => {
       }),
     } as unknown as Account;
 
-    render(<ResetPassword />, '', account);
+    render(<ResetPasswordWithWebIntegration />, account);
 
     await waitFor(() =>
       fireEvent.input(screen.getByTestId('reset-password-input-field'), {
@@ -213,7 +202,7 @@ describe('PageResetPassword', () => {
       }),
     } as unknown as Account;
 
-    render(<ResetPassword />, '', account);
+    render(<ResetPasswordWithWebIntegration />, account);
 
     fireEvent.input(await screen.findByTestId('reset-password-input-field'), {
       target: { value: ` ${MOCK_ACCOUNT.primaryEmail.email}` },
@@ -245,7 +234,7 @@ describe('PageResetPassword', () => {
     } as unknown as Account;
 
     it('with an empty email', async () => {
-      render(<ResetPassword />, '', account);
+      render(<ResetPasswordWithWebIntegration />, account);
 
       const button = await screen.findByRole('button', { name: 'Begin reset' });
       fireEvent.click(button);
@@ -259,7 +248,7 @@ describe('PageResetPassword', () => {
     });
 
     it('with an invalid email', async () => {
-      render(<ResetPassword />, '', account);
+      render(<ResetPasswordWithWebIntegration />, account);
       await typeByLabelText('Email')('foxy@gmail.');
 
       const button = await screen.findByRole('button', { name: 'Begin reset' });
@@ -282,7 +271,7 @@ describe('PageResetPassword', () => {
       resetPassword: jest.fn().mockRejectedValue(gqlError),
     } as unknown as Account;
 
-    render(<ResetPassword />, '', account);
+    render(ResetPasswordWithWebIntegration, account);
 
     fireEvent.input(screen.getByTestId('reset-password-input-field'), {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
@@ -310,7 +299,7 @@ describe('PageResetPassword', () => {
         .mockRejectedValue(gqlThrottledErrorWithRetryAfter),
     } as unknown as Account;
 
-    render(<ResetPassword />, '', account);
+    render(<ResetPasswordWithWebIntegration />, account);
 
     const input = await screen.findByTestId('reset-password-input-field');
     fireEvent.input(input, {
@@ -334,7 +323,7 @@ describe('PageResetPassword', () => {
       resetPassword: jest.fn().mockRejectedValue(unexpectedError),
     } as unknown as Account;
 
-    render(<ResetPassword />, '', account);
+    render(<ResetPasswordWithWebIntegration />, account);
 
     fireEvent.input(screen.getByTestId('reset-password-input-field'), {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },

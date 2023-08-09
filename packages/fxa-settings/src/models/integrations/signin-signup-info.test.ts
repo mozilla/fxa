@@ -3,22 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ModelDataStore, GenericData } from '../../lib/model-data';
-import { PairingSupplicantRelier } from './pairing-supplicant-relier';
+import { SignInSignUpInfo } from './signin-signup-info';
 
-describe('models/reliers/pairing-supplicant-relier', function () {
+describe('models/integrations/signin-signup-info', function () {
   let data: ModelDataStore;
-  let storageData: ModelDataStore;
-  let model: PairingSupplicantRelier;
+  let model: SignInSignUpInfo;
 
   beforeEach(function () {
     data = new GenericData({});
-    storageData = new GenericData({});
-    model = new PairingSupplicantRelier(data, storageData, {
-      scopedKeysEnabled: true,
-      scopedKeysValidation: {},
-      isPromptNoneEnabled: true,
-      isPromptNoneEnabledClientIds: [],
-    });
+    model = new SignInSignUpInfo(data);
   });
 
   it('exists', () => {

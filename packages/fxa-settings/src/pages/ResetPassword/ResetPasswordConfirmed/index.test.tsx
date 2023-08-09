@@ -8,33 +8,24 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import ResetPasswordConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import { createMockResetPasswordConfirmWebIntegration } from './mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
 
-jest.mock('../../../models/hooks', () => {
-  return {
-    __esModule: true,
-    ...jest.requireActual('../../../models/hooks'),
-    useRelier: () => ({
-      isSync() {
-        return false;
-      },
-      async getServiceName() {
-        return 'account settings';
-      },
-    }),
-  };
-});
-
 describe('ResetPasswordConfirmed', () => {
   async function renderResetPasswordConfirmed(params: {
     isSignedIn: boolean;
     continueHandler?: Function;
   }) {
-    renderWithLocalizationProvider(<ResetPasswordConfirmed {...params} />);
+    renderWithLocalizationProvider(
+      <ResetPasswordConfirmed
+        {...params}
+        integration={createMockResetPasswordConfirmWebIntegration()}
+      />
+    );
     await waitFor(() => new Promise((r) => setTimeout(r, 100)));
   }
 
