@@ -20,7 +20,8 @@ module.exports = function (
   statsd,
   profile,
   stripeHelper,
-  redis
+  redis,
+  glean
 ) {
   // Various extra helpers.
   const push = require('../push')(log, db, config, statsd);
@@ -71,7 +72,8 @@ module.exports = function (
     subscriptionAccountReminders,
     oauthRawDB,
     stripeHelper,
-    pushbox
+    pushbox,
+    glean
   );
   const oauth = require('./oauth')(
     log,

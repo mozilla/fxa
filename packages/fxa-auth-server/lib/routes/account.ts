@@ -45,6 +45,7 @@ import emailUtils from './utils/email';
 import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
+import { gleanMetrics } from '../metrics/glean';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -79,7 +80,8 @@ export class AccountHandler {
     private subscriptionAccountReminders: any,
     private oauth: any,
     private stripeHelper: StripeHelper,
-    private pushbox: any
+    private pushbox: any,
+    private glean: ReturnType<typeof gleanMetrics>
   ) {
     this.otpUtils = require('./utils/otp')(log, config, db);
     this.skipConfirmationForEmailAddresses = config.signinConfirmation
@@ -1112,6 +1114,10 @@ export class AccountHandler {
 
       await this.signinUtils.cleanupReminders(response, accountRecord);
 
+      if (response.verified) {
+        this.glean.login.success(request, { uid: sessionToken.uid });
+      }
+
       return response;
     };
 
@@ -1681,7 +1687,8 @@ export const accountRoutes = (
   subscriptionAccountReminders: any,
   oauth: any,
   stripeHelper: StripeHelper,
-  pushbox: any
+  pushbox: any,
+  glean: ReturnType<typeof gleanMetrics>
 ) => {
   const accountHandler = new AccountHandler(
     log,
@@ -1697,7 +1704,8 @@ export const accountRoutes = (
     subscriptionAccountReminders,
     oauth,
     stripeHelper,
-    pushbox
+    pushbox,
+    glean
   );
   const routes = [
     {
