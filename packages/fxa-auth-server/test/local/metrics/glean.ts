@@ -26,8 +26,16 @@ const config = {
 };
 
 const request = {
-  app: { isMetricsEnabled: true, metricsContext: {}, ua: {} },
+  app: {
+    isMetricsEnabled: true,
+    metricsContext: {},
+    ua: {},
+    clientAddress: '10.10.10.10',
+  },
   auth: { credentials: {} },
+  headers: {
+    'user-agent': 'ELinks/0.9.3 (textmode; SunOS)',
+  },
   payload: {},
 };
 
@@ -72,10 +80,17 @@ describe('Glean server side events', () => {
       glean = gleanMetrics(config);
     });
 
-    it('defaults to empty strings', async () => {
+    it('defaults', async () => {
       await glean.login.success(request);
       const metrics = recordStub.args[0][0];
+      assert.equal(metrics.user_agent, request.headers['user-agent']);
+      assert.equal(metrics.ip_address, request.app.clientAddress);
+
       delete metrics.event_name; // there's always a name of course
+      delete metrics.user_agent;
+      delete metrics.ip_address;
+
+      // the rest should default to an empty string
       assert.isTrue(Object.values(metrics).every((x) => x === ''));
     });
 
