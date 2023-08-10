@@ -120,3 +120,5 @@ export class WebIntegration extends BaseIntegration {
     return true;
   }
 }
+
+export default WebIntegration;

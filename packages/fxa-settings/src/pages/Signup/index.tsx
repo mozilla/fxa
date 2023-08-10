@@ -35,6 +35,7 @@ import {
 import { sessionToken } from '../../lib/cache';
 import BrandMessaging from '../../components/BrandMessaging';
 import { createPortal } from 'react-dom';
+import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'signup';
 
@@ -60,6 +61,10 @@ const Signup = ({
       setIsAccountSuggestionBannerVisible(isPocketClient(serviceName));
     })();
   });
+
+  useEffect(() => {
+    GleanMetrics.registration.view();
+  }, []);
 
   const canChangeEmail = !isOAuthIntegration(integration);
 

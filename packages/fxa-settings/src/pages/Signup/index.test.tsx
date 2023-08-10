@@ -33,6 +33,7 @@ import {
 } from '../mocks';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
+import GleanMetrics from '../../lib/glean';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -63,6 +64,11 @@ jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
   useLocation: () => mockLocation(),
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { registration: { view: jest.fn() } },
 }));
 
 describe('Signup page', () => {
@@ -191,6 +197,7 @@ describe('Signup page', () => {
 
     await waitFor(() => {
       expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+      expect(GleanMetrics.registration.view).toBeCalledTimes(1);
     });
   });
 
