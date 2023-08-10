@@ -810,7 +810,7 @@ workflows:
             - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
-          resource_class: xlarge
+          resource_class: large
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:
@@ -999,7 +999,7 @@ workflows:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
-          resource_class: xlarge
+          resource_class: large
           filters:
             branches:
               ignore: /.*/
@@ -1095,7 +1095,7 @@ workflows:
             - Build (nightly)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
-          resource_class: xlarge
+          resource_class: large
           requires:
             - Build (nightly)
       - on-complete:
