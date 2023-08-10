@@ -10,8 +10,12 @@
 
  scripts/must-reset.js -e -i ./reset.txt
 
+ reset.txt is a plain text file with one email address per line
+
  This script is used to put user accounts into a "must reset" state. It uses the
  same config file as key_server.js so should be run from a production instance.
+
+ This script does not notify the users.  You'll want to use `bulk-mailer.js` for that.
 
  /*/
 
