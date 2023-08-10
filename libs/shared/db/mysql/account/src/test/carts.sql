@@ -13,6 +13,7 @@ CREATE TABLE `carts` (
   `stripeCustomerId` varchar(32) COLLATE utf8mb4_bin DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `amount` int unsigned NOT NULL,
+  `version` smallint unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `accounts` (`uid`) ON DELETE CASCADE
