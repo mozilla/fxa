@@ -9,7 +9,7 @@
 // whether the password matches, user has MFA enabled, secondary emails and
 // primary email verified.
 //
-// Example input file: /tests/fixtures/users.csv
+// Example input file: ../test/scripts/fixtures/check_users.csv
 //
 // Usage: node scripts/check-users.js -i <input file> -o <output file>
 

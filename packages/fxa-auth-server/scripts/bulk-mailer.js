@@ -4,6 +4,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+/*
+ * If you want to use this script, for example, to send an email to a group of
+ * people who just got their accounts reset (with the must-reset.js script)
+ * try:
+ *
+ *   node scripts/bulk-mailer.js --input ./input.json --method sendPasswordChangeRequiredEmail
+ *
+ * And when you're ready to actually send, add `--send`.  It's critical the
+ * json file ends in .json and is actual json.  The input of this script comes
+ * from the output of `dump-users.js` (because we need the locale in addition
+ * to the email).
+ */
+
 'use strict';
 
 // HACK: Prevent config falling over due to missing secrets
@@ -23,7 +36,7 @@ program
     'Delay in seconds between batches. Defaults to 5',
     parseInt
   )
-  .option('-i, --input <filename>', 'JSON user input file')
+  .option('-i, --input <filename>', 'JSON user input file. Must end in .json.')
   .option('-m, --method <method>', 'Sender method to call')
   .option('-v, --verbose', 'Verbose logging')
   .option('-w, --write [directory]', 'Directory where emails should be stored')
