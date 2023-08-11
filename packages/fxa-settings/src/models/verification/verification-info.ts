@@ -8,7 +8,7 @@ export * from './verification-info';
 
 export type VerificationInfoLinkStatus = 'expired' | 'damaged' | 'valid';
 
-const { isEmail, isRequired, isVerificationCode, isHex, isString, isBoolean } =
+const { isEmail, isRequired, isVerificationCode, isHex, isString } =
   ModelValidation;
 
 export class VerificationInfo extends ModelDataProvider {

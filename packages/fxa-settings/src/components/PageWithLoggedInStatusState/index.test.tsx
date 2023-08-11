@@ -4,7 +4,7 @@
 
 // import React from 'react';
 // import {  screen } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { PageWithLoggedInStatusState } from '.';
+// import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { PageWithLoggedInStatusState } from '.';
 // import { MockComponent } from './mocks';
 import {
   /* Account, AppContext,*/ useInitialSettingsState,

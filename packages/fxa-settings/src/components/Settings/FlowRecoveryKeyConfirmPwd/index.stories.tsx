@@ -60,7 +60,7 @@ const accountWithThrottledErrorOnSubmit = {
 } as unknown as Account;
 
 const StoryWithContext = (account: Account) => {
-  const [formattedRecoveryKey, setFormattedRecoveryKey] = useState<string>('');
+  const [, setFormattedRecoveryKey] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
 
   const localizedBackButtonTitle = ftlMsgResolver.getMsg(

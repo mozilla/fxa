@@ -4,7 +4,7 @@
 
 import React from 'react';
 import Legal, { viewName } from '.';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { usePageViewEvent } from '../../lib/metrics';
 import { FluentBundle } from '@fluent/bundle';

@@ -81,6 +81,9 @@
     "packages/fxa-auth-server/**/*.{ts,tsx}": [
       "eslint"
     ],
+    "packages/fxa-settings/**/*.{ts,tsx}": [
+      "eslint"
+    ],
     "*.css": [
       "prettier --config _dev/.prettierrc --write"
     ],
