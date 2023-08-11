@@ -44,8 +44,8 @@ type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
 // This is defined in the Firefox source code:
 // https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
 type FxAStatusRequest = {
-  service: 'sync'; // ex. 'sync'
-  context: string; // ex. 'fx_desktop_v3'
+  service: string | undefined; // ex. 'sync'
+  context: string | undefined; // ex. 'fx_desktop_v3'
 };
 
 export type FxAStatusResponse = {

@@ -14,6 +14,8 @@ import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { ApolloProvider } from '@apollo/client';
 import { createApolloClient } from './lib/gql';
+import firefox, { FirefoxCommand, SignedInUser } from './lib/channels/firefox';
+import { currentAccount } from './lib/cache';
 import './styles/tailwind.out.css';
 
 export interface FlowQueryParams {
@@ -46,6 +48,30 @@ try {
     sentry: {
       ...config.sentry,
     },
+  });
+  // We do a best effort recovery of the user's signed in state
+  // There is no guarantee the event will be triggered before we
+  // have initialized our GraphQL client, because that depends on the
+  // browser responding to the web channel message quickly enough
+  firefox.addEventListener(FirefoxCommand.FxAStatus, (event) => {
+    const signedInUser = (event as any).detail.signedInUser as
+      | SignedInUser
+      | undefined;
+    if (signedInUser) {
+      currentAccount({
+        ...signedInUser,
+        // The FxA status message does not include the time the user
+        // last signed in, we default it to now
+        lastLogin: Date.now(),
+        metricsEnabled: true,
+      });
+    }
+    firefox.removeEventListener(FirefoxCommand.FxAStatus, null);
+  });
+
+  firefox.fxaStatus({
+    service: flowQueryParams.context === 'fx_desktop_v3' ? 'sync' : undefined,
+    context: flowQueryParams.context,
   });
 
   const apolloClient = createApolloClient(config.servers.gql.url);
