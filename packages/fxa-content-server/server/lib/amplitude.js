@@ -461,6 +461,16 @@ const EVENTS = {
     group: GROUPS.settings,
     event: 'account_recovery_option_download',
   },
+  // Recovery key download was successful
+  'flow.settings.account-recovery.recovery-key.download-success': {
+    group: GROUPS.settings,
+    event: 'account_recovery_download_success',
+  },
+  // An error occured while download the recovery key
+  'flow.settings.account-recovery.recovery-key.download-failed': {
+    group: GROUPS.settings,
+    event: 'account_recovery_download_failed',
+  },
   // A user on the "download" step of the account recovery flow copies their key to their clipboard
   'flow.settings.account-recovery.recovery-key.copy-option': {
     group: GROUPS.settings,
@@ -477,6 +487,10 @@ const EVENTS = {
     event: 'account_recovery_option_print',
   },
   // Save hint page
+  'flow.settings.account-recovery.create-hint.view': {
+    group: GROUPS.settings,
+    event: 'account_recovery_create_hint_view',
+  },
   // A user on the "hint" step of the account recovery flow clicks the submit button to save the hint they entered into the text input
   'flow.settings.account-recovery.create-hint.submit': {
     group: GROUPS.settings,

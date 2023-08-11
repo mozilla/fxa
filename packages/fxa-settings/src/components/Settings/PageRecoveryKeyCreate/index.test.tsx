@@ -12,9 +12,6 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
-import { TextEncoder } from 'util';
-
-Object.assign(global, { TextEncoder });
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -25,6 +22,16 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('@react-pdf/renderer', () => ({
+  PDFDownloadLink: jest.fn(),
+  Font: {
+    register: jest.fn(),
+  },
+  StyleSheet: {
+    create: jest.fn(),
+  },
 }));
 
 jest.mock('base32-encode', () =>

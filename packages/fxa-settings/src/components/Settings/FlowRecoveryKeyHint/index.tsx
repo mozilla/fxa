@@ -54,7 +54,7 @@ export const FlowRecoveryKeyHint = ({
   });
 
   useEffect(() => {
-    logViewEvent(viewName, 'hint-step-view');
+    logViewEvent(`flow.${viewName}`, 'create-hint.view');
   }, [viewName]);
 
   const checkForHintError = (hint: string) => {
@@ -89,7 +89,7 @@ export const FlowRecoveryKeyHint = ({
     const trimmedHint = hint.trim();
 
     if (trimmedHint.length === 0) {
-      logViewEvent(viewName, 'create-hint.skip');
+      logViewEvent(`flow.${viewName}`, 'create-hint.skip');
       navigateForwardAndAlertSuccess();
     } else {
       const hintErrorText = checkForHintError(trimmedHint);
@@ -98,9 +98,9 @@ export const FlowRecoveryKeyHint = ({
         return;
       } else {
         try {
-          logViewEvent(viewName, 'create-hint.submit');
+          logViewEvent(`flow.${viewName}`, 'create-hint.submit');
           await account.updateRecoveryKeyHint(trimmedHint);
-          logViewEvent(viewName, 'create-hint.success');
+          logViewEvent(`flow.${viewName}`, 'create-hint.success');
           navigateForwardAndAlertSuccess();
         } catch (e) {
           let localizedError: string;
@@ -118,7 +118,7 @@ export const FlowRecoveryKeyHint = ({
             );
           }
           setBannerText(localizedError);
-          logViewEvent(viewName, 'create-hint.fail', e);
+          logViewEvent(`flow.${viewName}`, 'create-hint.fail', e);
         } finally {
           setIsLoading(false);
         }
@@ -153,7 +153,7 @@ export const FlowRecoveryKeyHint = ({
       title={localizedPageTitle}
       localizedBackButtonTitle={localizedBackButtonTitle}
       onBackButtonClick={() => {
-        logViewEvent(viewName, 'create-hint.skip');
+        logViewEvent(`flow.${viewName}`, 'create-hint.skip');
         navigateBackward();
       }}
     >

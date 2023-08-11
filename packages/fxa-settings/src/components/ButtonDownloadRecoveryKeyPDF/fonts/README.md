@@ -21,10 +21,9 @@ For most of the locales supported by Firefox accounts (see `supportedLanguages.j
 
 ## Adding new fonts/locales for PDF localization
 
-New fonts (e.g., for additional languages or font weights/styles) must be uploaded to the CDN then registered for use by react-pdf.
+New fonts (e.g., for additional languages or font weights/styles) must be registered for use by react-pdf.
 
 1. Add required font files to `assets/fonts`
-2. Verify if new file types need to be included in the `upload-assets-to-cdn` script. Currently, `*.ttf` and `*.otf` are included - if the fonts have another extension, add it to the upload script.
-3. Submit the PR, get it approved and merge to upload the assets.
-4. Once upload, font urls will start with `https://accounts-static.cdn.mozilla.net/fonts/`
-5. Add a new case to the switch in `ButtonDownloadRecoveryPDF` for the new font(s) (see exisiting examples in the file and consult react-pdf docs: https://react-pdf.org/fonts#register).
+2. Verify if new type declarations need to be added for typescript to recognize the font files as valid import modules. Currently, `*.ttf` and `*.otf` are included - if the fonts have another extension, add it to the `fonts.d.ts`.
+3. Import the font(s) in `ButtonDownloadRecoveryPDF/index.tsx`
+4. Add a new case to the switch in `ButtonDownloadRecoveryPDF/GetRequiredFont.tsx` for the new locale (see exisiting examples in the file and consult react-pdf docs: https://react-pdf.org/fonts#register).
