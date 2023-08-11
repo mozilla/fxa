@@ -12,7 +12,7 @@ export const Subject = (props: ThirdPartyAuthProps) => {
   return (
     <AppContext.Provider value={mockAppContext()}>
       <LocationProvider>
-        <ThirdPartyAuth {...props} />;
+        <ThirdPartyAuth {...props} />
       </LocationProvider>
     </AppContext.Provider>
   );

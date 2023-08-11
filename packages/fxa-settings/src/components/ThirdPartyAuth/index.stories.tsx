@@ -18,7 +18,7 @@ export default {
 export const Default = () => {
   return (
     <AppLayout>
-      <Subject enabled />
+      <Subject enabled showSeparator />
     </AppLayout>
   );
 };
@@ -26,7 +26,15 @@ export const Default = () => {
 export const Disabled = () => {
   return (
     <AppLayout>
-      <Subject />
+      <Subject showSeparator />
+    </AppLayout>
+  );
+};
+
+export const NoSeparator = () => {
+  return (
+    <AppLayout>
+      <Subject enabled showSeparator={false} />
     </AppLayout>
   );
 };
