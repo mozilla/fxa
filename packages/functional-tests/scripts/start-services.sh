@@ -21,6 +21,7 @@ CI=true yarn workspaces foreach \
     --include fxa-profile-server \
     --include fxa-settings \
     run start > ~/.pm2/logs/startup.log
+    #start service finished
 
 # stop services that aren't needed. These are 'watching' services, and they just
 # consume memory. Ideally, we wouldn't even start these, but they are baked into
