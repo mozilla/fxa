@@ -159,7 +159,7 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
   const localAccount = currentAccount();
   const integration = useIntegration();
 
-  console.log('integration! in app', integration);
+  //console.log('integration! in app', integration);
 
   return (
     <Router>
