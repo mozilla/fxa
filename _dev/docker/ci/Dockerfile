@@ -26,7 +26,7 @@ ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
 RUN yarn install --immutable; \
-    yarn gql:allowlist \
+    yarn gql:allowlist; \
     yarn workspaces foreach \
         -pv \
         --topological-dev \
