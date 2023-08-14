@@ -18,3 +18,16 @@ export const name = new StringMetricType({
   lifetime: 'ping',
   disabled: false,
 });
+
+/**
+ * additional context-dependent (on event.name) info, e.g. the cause of an error
+ *
+ * Generated from `event.reason`.
+ */
+export const reason = new StringMetricType({
+  category: 'event',
+  name: 'reason',
+  sendInPings: ['accounts-events'],
+  lifetime: 'ping',
+  disabled: false,
+});

@@ -5,7 +5,7 @@
 import Glean from '@mozilla/glean/web';
 
 import { accountsEvents } from './pings';
-import { name } from './event';
+import * as event from './event';
 import { userIdSha256 } from './account';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
@@ -29,6 +29,13 @@ export type GleanMetricsContext = {
   userAgent: any;
 };
 
+const eventPropertyNames = ['reason'] as const;
+type PropertyNameT = typeof eventPropertyNames;
+type PropertyName = PropertyNameT[number];
+type EventProperties = {
+  [k in PropertyName]?: string;
+};
+
 const encoder = new TextEncoder();
 
 let gleanEnabled = false;
@@ -45,7 +52,7 @@ const hashUid = async (uid) => {
   return hex;
 };
 
-const populateProperties = async () => {
+const populateMetrics = async (properties: EventProperties = {}) => {
   const account = gleanMetricsContext.user.getSignedInAccount();
 
   // the "signed in" account could just be the most recently used account from
@@ -56,6 +63,10 @@ const populateProperties = async () => {
     userIdSha256.set(hashedUid);
   } else {
     userIdSha256.set('');
+  }
+
+  for (const n of eventPropertyNames) {
+    event[n].set(properties[n] || '');
   }
 
   const flowEventMetadata = gleanMetricsContext.metrics.getFlowEventMetadata();
@@ -74,15 +85,17 @@ const populateProperties = async () => {
   utm.term.set(flowEventMetadata.utmTerm || '');
 };
 
-const createEventFn = (eventName) => async () => {
-  if (!gleanEnabled) {
-    return;
-  }
+const createEventFn =
+  (eventName) =>
+  async (properties: EventProperties = {}) => {
+    if (!gleanEnabled) {
+      return;
+    }
 
-  name.set(eventName);
-  await populateProperties();
-  accountsEvents.submit();
-};
+    event.name.set(eventName);
+    await populateMetrics(properties);
+    accountsEvents.submit();
+  };
 
 export const GleanMetrics = {
   initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
@@ -129,6 +142,7 @@ export const GleanMetrics = {
     view: createEventFn('login_view'),
     submit: createEventFn('login_submit'),
     success: createEventFn('login_submit_success'),
+    error: createEventFn('login_submit_frontend_error'),
   },
 
   loginConfirmation: {
