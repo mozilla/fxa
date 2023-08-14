@@ -40,7 +40,6 @@ const FormVerifyCode = ({
   localizedCustomCodeRequiredMessage,
   codeErrorMessage,
   setCodeErrorMessage,
-  setClearMessages,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
 
@@ -100,11 +99,7 @@ const FormVerifyCode = ({
         type="text"
         inputMode="numeric"
         label={localizedLabel}
-        onChange={
-          setClearMessages
-            ? () => setClearMessages(true)
-            : () => setCodeErrorMessage('')
-        }
+        onChange={() => setCodeErrorMessage('')}
         onFocusCb={viewName ? onFocus : undefined}
         errorText={codeErrorMessage}
         autoFocus

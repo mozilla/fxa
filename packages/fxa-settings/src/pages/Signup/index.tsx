@@ -141,7 +141,7 @@ const Signup = ({
 
       const options =
         serviceName !== MozServices.Default ? { service: serviceName } : {};
-      const { data, error } = await beginSignupHandler(
+      const { data, localizedErrorMessage } = await beginSignupHandler(
         queryParamModel.email,
         newPassword,
         options
@@ -188,14 +188,12 @@ const Signup = ({
           replace: true,
         });
       }
-      if (error) {
-        const { message, ftlId } = error;
-        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+      if (localizedErrorMessage) {
+        setBannerErrorText(localizedErrorMessage);
       }
     },
     [
       beginSignupHandler,
-      ftlMsgResolver,
       navigate,
       selectedNewsletterSlugs,
       serviceName,

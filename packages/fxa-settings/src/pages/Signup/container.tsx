@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { Integration, useAuthClient } from '../../models';
+import {
+  Integration,
+  isOAuthIntegration,
+  useAuthClient,
+  useFtlMsgResolver,
+} from '../../models';
 import Signup from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
@@ -13,12 +18,7 @@ import { BeginSignupHandler, BeginSignupResponse } from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
 import { useCallback, useEffect, useState } from 'react';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
-import { GraphQLError } from 'graphql';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-  composeAuthUiErrorTranslationId,
-} from '../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 /*
@@ -49,6 +49,7 @@ const SignupContainer = ({
   integration: Integration;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
 
   const { queryParamModel, validationError } =
@@ -82,6 +83,7 @@ const SignupContainer = ({
   const beginSignupHandler: BeginSignupHandler = useCallback(
     async (email, password, options) => {
       options.verificationMethod = 'email-otp';
+      options.keys = isOAuthIntegration(integration);
       try {
         const { authPW, unwrapBKey } = await getCredentials(email, password);
         const { data } = await beginSignup({
@@ -93,34 +95,16 @@ const SignupContainer = ({
             },
           },
         });
-        return data ? { data: { ...data, unwrapBKey } } : { data: null };
+        return { data: { ...data, unwrapBKey } };
       } catch (error) {
-        const graphQLError: GraphQLError = error.graphQLErrors[0];
-        if (graphQLError && graphQLError.extensions?.errno) {
-          const { errno } = graphQLError.extensions;
-          return {
-            error: {
-              errno,
-              message: AuthUiErrorNos[errno].message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        } else {
-          // TODO: why is `errno` in `AuthServerError` possibly undefined?
-          // might want to grab from `ERRORS.UNEXPECTED_ERROR` instead
-          const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
-          return {
-            data: null,
-            error: {
-              errno,
-              message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        }
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
+        return localizedErrorMessage;
       }
     },
-    [beginSignup]
+    [beginSignup, ftlMsgResolver, integration]
   );
 
   // TODO: probably a better way to read this?

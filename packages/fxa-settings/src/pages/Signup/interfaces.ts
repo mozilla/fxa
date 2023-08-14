@@ -22,6 +22,7 @@ export interface BeginSignupResponse {
 interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;
+  keys?: boolean;
 }
 
 export type BeginSignupHandler = (
@@ -31,12 +32,8 @@ export type BeginSignupHandler = (
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {
-  data?: (BeginSignupResponse & { unwrapBKey: hexstring }) | null;
-  error?: {
-    errno: number;
-    message: string;
-    ftlId: string;
-  };
+  data?: BeginSignupResponse & { unwrapBKey: hexstring };
+  localizedErrorMessage?: string;
 }
 
 export interface SignupProps {

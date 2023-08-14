@@ -237,7 +237,19 @@ Router = Router.extend({
     'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': createViewHandler(SignInPasswordView),
-    'oauth/signup(/)': createViewHandler(SignUpPasswordView),
+    'oauth/signup(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'oauth/signup',
+        SignUpPasswordView,
+        {
+          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+          email: this.user.get('emailFromIndex'),
+          ...(this.user.get('emailFromIndex') && {
+            emailFromContent: 'true',
+          }),
+        }
+      );
+    },
     'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SUCCESSFUL_OAUTH,
     }),
