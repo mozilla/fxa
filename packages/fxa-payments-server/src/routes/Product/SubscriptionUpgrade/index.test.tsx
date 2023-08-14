@@ -284,7 +284,7 @@ describe('routes/Product/SubscriptionUpgrade', () => {
     expect(getByText(expectedMessage)).toBeInTheDocument();
   });
 
-  it('calls updateSubscriptionPlanMounted and updateSubscriptionPlanEngaged', async () => {
+  it('records an "engage" funnel event when the consent checkbox is clicked', async () => {
     const { findByTestId, getByTestId } = renderWithLocalizationProvider(
       <Subject />
     );

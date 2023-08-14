@@ -11,6 +11,7 @@ import classNames from 'classnames';
 
 import { AppContext } from '../../lib/AppContext';
 import {
+  useCallbackOnce,
   useMatchMedia,
   useNonce,
   usePaypalButtonSetup,
@@ -160,14 +161,14 @@ export const Checkout = ({
     [productId, planId, plansByProductId]
   );
 
-  const onFormMounted = useCallback(() => {
+  const onFormMounted = useCallbackOnce(() => {
     Amplitude.createSubscriptionMounted({
       ...selectedPlan,
       checkoutType: CheckoutType.WITHOUT_ACCOUNT,
     });
   }, [selectedPlan]);
 
-  const onFormEngaged = useCallback(() => {
+  const onFormEngaged = useCallbackOnce(() => {
     Amplitude.createSubscriptionEngaged({
       ...selectedPlan,
       checkoutType: CheckoutType.WITHOUT_ACCOUNT,
@@ -439,6 +440,7 @@ export const Checkout = ({
           <PaymentMethodHeader
             plan={selectedPlan}
             onClick={() => {
+              onFormEngaged();
               setCheckboxSet(!checkboxSet);
               setShowTooltip(false);
             }}

@@ -3,7 +3,11 @@ import classNames from 'classnames';
 import { Plan, Profile, Customer } from '../../../store/types';
 import { State as ValidatorState } from '../../../lib/validator';
 
-import { useNonce, usePaypalButtonSetup } from '../../../lib/hooks';
+import {
+  useCallbackOnce,
+  useNonce,
+  usePaypalButtonSetup,
+} from '../../../lib/hooks';
 
 import PlanDetails from '../../../components/PlanDetails';
 import Header from '../../../components/Header';
@@ -97,7 +101,7 @@ export const SubscriptionCreate = ({
   const [checkboxSet, setCheckboxSet] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
-  const onFormMounted = useCallback(
+  const onFormMounted = useCallbackOnce(
     () =>
       Amplitude.createSubscriptionMounted({
         ...selectedPlan,
@@ -106,7 +110,7 @@ export const SubscriptionCreate = ({
     [checkoutType, selectedPlan]
   );
 
-  const onFormEngaged = useCallback(
+  const onFormEngaged = useCallbackOnce(
     () =>
       Amplitude.createSubscriptionEngaged({
         ...selectedPlan,
@@ -305,6 +309,7 @@ export const SubscriptionCreate = ({
           <PaymentMethodHeader
             plan={selectedPlan}
             onClick={() => {
+              onFormEngaged();
               setCheckboxSet(!checkboxSet);
               setShowTooltip(false);
             }}
