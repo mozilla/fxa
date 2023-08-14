@@ -14,12 +14,8 @@ const testsCircleCi = require('./functional_circle')(
   args.groupsCount,
   args.groupNum
 );
-const testsFunctionalSmoke = require('./functional_smoke');
-const testsFunctionalRegression = require('./functional_regression');
-const testsPairing = require('./functional_pairing');
 const testsServer = require('./tests_server');
 const testsServerResources = require('./tests_server_resources');
-const testsSettings = require('./functional_settings');
 
 const fxaAuthRoot = args.fxaAuthRoot || 'http://localhost:9000/v1';
 const fxaContentRoot = args.fxaContentRoot || 'http://localhost:3030/';
@@ -110,19 +106,6 @@ if (args.grep) {
 
 if (args.suites) {
   switch (args.suites) {
-    case 'pairing':
-      config.functionalSuites = testsPairing;
-      config.isTestingPairing = true;
-      break;
-    case 'functional_smoke':
-      config.functionalSuites = testsFunctionalSmoke;
-      break;
-    case 'functional_regression':
-      config.functionalSuites = testsFunctionalRegression;
-      break;
-    case 'settings':
-      config.functionalSuites = testsSettings;
-      break;
     case 'all':
       config.functionalSuites = testsMain;
       break;
