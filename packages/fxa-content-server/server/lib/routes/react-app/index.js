@@ -46,7 +46,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
 
     oauthRoutes: {
       featureFlagOn: showReactApp.oauthRoutes,
-      routes: [],
+      routes: reactRoute.getRoutes(['oauth/signup']),
     },
 
     signInRoutes: {

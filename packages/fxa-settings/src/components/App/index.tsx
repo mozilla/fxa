@@ -37,7 +37,7 @@ import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecovery
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
 
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
-import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
+import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import LinkValidator from '../LinkValidator';
@@ -252,9 +252,13 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
       />
 
       <SignupContainer path="/signup/*" {...{ integration }} />
+      <SignupContainer path="/oauth/signup/*" {...{ integration }} />
 
       <Confirm path="/confirm/*" {...{ sessionTokenId }} />
-      <ConfirmSignupCode path="/confirm_signup_code/*" />
+      <ConfirmSignupCodeContainer
+        path="/confirm_signup_code/*"
+        {...{ integration }}
+      />
 
       <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
     </Router>

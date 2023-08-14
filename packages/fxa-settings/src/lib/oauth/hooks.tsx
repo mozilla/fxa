@@ -15,7 +15,7 @@ import { createEncryptedBundle } from '../crypto/scoped-keys';
 const checkOAuthData = (integration: OAuthIntegration): Error | null => {
   // Ensure a redirect was provided. Without this info, we can't relay the oauth code
   // and state!
-  if (!integration.data.redirectTo) {
+  if (!integration.data.redirectTo && !integration.data.redirectUri) {
     return new OAuthErrorInvalidRedirectUri();
   }
   if (!integration.data.clientId) {

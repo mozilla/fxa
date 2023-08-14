@@ -14,8 +14,9 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const Default = () => (
-  <LocationProvider>
-    <ConfirmSignupCode />
-  </LocationProvider>
-);
+// TODO MOCK integration and finishOAuthHandler
+// export const Default = () => (
+//   <LocationProvider>
+//     <ConfirmSignupCode {...{integration, finishOAuthHandler}} />
+//   </LocationProvider>
+// );

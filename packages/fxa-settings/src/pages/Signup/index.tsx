@@ -26,8 +26,12 @@ import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
-import { sessionToken } from '../../lib/cache';
 import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
+import {
+  StoredAccountData,
+  persistAccount,
+  setCurrentAccount,
+} from '../../lib/storage-utils';
 
 export const viewName = 'signup';
 
@@ -141,7 +145,7 @@ const Signup = ({
 
       const options =
         serviceName !== MozServices.Default ? { service: serviceName } : {};
-      const { data, error } = await beginSignupHandler(
+      const { data, localizedErrorMessage } = await beginSignupHandler(
         queryParams.email,
         password,
         options
@@ -150,7 +154,17 @@ const Signup = ({
       setBeginSignupLoading(false);
 
       if (data) {
-        sessionToken(data.SignUp.sessionToken);
+        const accountData: StoredAccountData = {
+          email: queryParams.email,
+          uid: data.SignUp.uid,
+          lastLogin: new Date(),
+          sessionToken: data.SignUp.sessionToken,
+          verified: false,
+          metricsEnabled: true,
+        };
+
+        persistAccount(accountData);
+        setCurrentAccount(data.SignUp.uid);
 
         // TODO: send up selected sync engines
         if (isSyncDesktopIntegration(integration)) {
@@ -168,20 +182,19 @@ const Signup = ({
         navigate(`/confirm_signup_code${location.search}`, {
           state: {
             email: queryParams.email,
+            sessionToken: data.SignUp.sessionToken,
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
           },
         });
       }
-      if (error) {
-        const { message, ftlId } = error;
-        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+      if (localizedErrorMessage) {
+        setBannerErrorText(localizedErrorMessage);
       }
     },
     [
       beginSignupHandler,
-      ftlMsgResolver,
       navigate,
       selectedNewsletterSlugs,
       serviceName,
@@ -253,6 +266,7 @@ const Signup = ({
                 // TODO: this takes users to /signin if they've got an email in
                 // localStorage. Hopefully there's another workaround but might
                 // need to send a param back over to content-server?
+                // Should we clear localStorage when clicking on "Change email" or "Use another account"?
                 hardNavigateToContentServer('/');
               }}
             >

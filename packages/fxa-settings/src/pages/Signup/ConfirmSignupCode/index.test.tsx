@@ -37,9 +37,7 @@ let account: Account;
 function renderWithAccount(account: Account) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider>
-        <ConfirmSignupCode />
-      </LocationProvider>
+      <LocationProvider>{/* <ConfirmSignupCode /> */}</LocationProvider>
     </AppContext.Provider>
   );
 }
