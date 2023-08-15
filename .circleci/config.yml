@@ -597,7 +597,6 @@ jobs:
           environment:
             NODE_ENV: test
 
-
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
   integration-test-part:
@@ -810,7 +809,7 @@ workflows:
             - Build (PR)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (PR)
-          resource_class: large
+          resource_class: xlarge
           requires:
             - Build (PR)
       - build-and-deploy-storybooks:
@@ -999,7 +998,7 @@ workflows:
             - Build
       - playwright-functional-tests:
           name: Functional Tests - Playwright
-          resource_class: large
+          resource_class: xlarge
           filters:
             branches:
               ignore: /.*/
@@ -1095,7 +1094,7 @@ workflows:
             - Build (nightly)
       - playwright-functional-tests:
           name: Functional Tests - Playwright (nightly)
-          resource_class: large
+          resource_class: xlarge
           requires:
             - Build (nightly)
       - on-complete:

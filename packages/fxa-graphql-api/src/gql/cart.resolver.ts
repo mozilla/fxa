@@ -3,9 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { Cart } from '@fxa/shared/db/mysql/account';
-import { InvoiceFactory } from './lib/factories';
-import { CartManager } from '@fxa/payments/cart';
 import { Cart as CartType } from './model/cart.model';
 import { SetupCartInput } from './dto/input/setup-cart.input';
 import { CartIdInput } from './dto/input/cart-id.input';
@@ -13,24 +10,11 @@ import { UpdateCartInput } from './dto/input/update-cart.input';
 
 @Resolver((of: any) => CartType)
 export class CartResolver {
-  private cartManager: CartManager;
-  constructor(private log: MozLoggerService) {
-    this.cartManager = new CartManager(this.log);
-  }
+  constructor(private log: MozLoggerService) {}
 
   @Query((returns) => CartType, { nullable: true })
   public async cart(): Promise<CartType | null> {
-    // Query just for testing purposes
-    // TODO - To be done in FXA-7521
-    const cart = await Cart.query().first();
-    if (!cart) {
-      return null;
-    }
-
-    return {
-      ...cart,
-      nextInvoice: InvoiceFactory(), // Temporary
-    };
+    return null;
   }
 
   @Mutation((returns) => CartType, { nullable: true })
@@ -38,9 +22,7 @@ export class CartResolver {
     @Args('input', { type: () => SetupCartInput })
     input: SetupCartInput
   ): Promise<CartType | null> {
-    return this.cartManager.setupCart({
-      ...input,
-    });
+    return null;
   }
 
   @Mutation((returns) => CartType, { nullable: true })
@@ -48,7 +30,7 @@ export class CartResolver {
     @Args('input', { type: () => CartIdInput })
     input: CartIdInput
   ): Promise<CartType | null> {
-    return this.cartManager.restartCart(input.id);
+    return null;
   }
 
   @Mutation((returns) => CartType, { nullable: true })
@@ -56,7 +38,7 @@ export class CartResolver {
     @Args('input', { type: () => CartIdInput })
     input: CartIdInput
   ): Promise<CartType | null> {
-    return this.cartManager.checkoutCart(input.id);
+    return null;
   }
 
   @Mutation((returns) => CartType, { nullable: true })
@@ -64,6 +46,6 @@ export class CartResolver {
     @Args('input', { type: () => UpdateCartInput })
     input: UpdateCartInput
   ): Promise<CartType | null> {
-    return this.cartManager.updateCart(input);
+    return null;
   }
 }

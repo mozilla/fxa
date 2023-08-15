@@ -46,6 +46,7 @@ export class Cart extends BaseModel {
       id: generateFxAUuid(),
       createdAt: currentDate,
       updatedAt: currentDate,
+      version: 0,
     });
   }
 
@@ -56,20 +57,16 @@ export class Cart extends BaseModel {
       .throwIfNotFound();
   }
 
-  // TODO - Remove in FXA-8128 in favor of using update
-  static async patchById(id: string, items: Partial<Cart>) {
-    const cart = await this.findById(id);
-    // Patch and fetch instance
-    // Use update if you update the whole row with all its columns. Otherwise, using the patch method is recommended.
-    // https://vincit.github.io/objection.js/api/query-builder/mutate-methods.html#update
-    await cart.$query().patchAndFetch({
-      ...items,
-      updatedAt: Date.now(),
-    });
+  async delete() {
+    return Cart.query()
+      .delete()
+      .where('id', uuidTransformer.to(this.id))
+      .where('version', this.version)
+      .throwIfNotFound();
+  }
 
-    await Cart.query().patch(cart).where('id', id);
-
-    return cart;
+  setCart(cartItems: Partial<Cart>) {
+    this.$set(cartItems);
   }
 
   async update() {
@@ -78,14 +75,9 @@ export class Cart extends BaseModel {
       updatedAt: Date.now(),
       version: currentVersion + 1,
     });
-    const updatedRows = await Cart.query()
+    return Cart.query()
       .update(this)
       .where('id', uuidTransformer.to(this.id))
       .where('version', currentVersion);
-    if (!updatedRows) {
-      throw new Error('No rows were updated.');
-    }
-
-    return this;
   }
 }
