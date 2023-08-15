@@ -44,7 +44,6 @@ export const PlanUpgradeDetails = ({
   const role = isMobile ? undefined : 'complementary';
 
   const showTax = config.featureFlags.useStripeAutomaticTax;
-  const invoiceImmediately = config.featureFlags.useStripeInvoiceImmediately;
 
   const exclusiveTaxRates =
     invoicePreview.tax?.filter(
@@ -77,26 +76,20 @@ export const PlanUpgradeDetails = ({
         {showTax && !!subTotal && !!exclusiveTaxRates.length && (
           <>
             <div className="plan-details-item">
-              {invoiceImmediately ? (
-                <Localized
-                  id={`sub-update-new-plan-${formattedInterval}`}
-                  vars={{
-                    productName: productDetails.name || product_name,
-                  }}
-                >
-                  <div>
-                    {productDetails.name || product_name} (
-                    {formattedInterval.replace(/\w/, (firstLetter) =>
-                      firstLetter.toUpperCase()
-                    )}
-                    )
-                  </div>
-                </Localized>
-              ) : (
-                <Localized id="plan-details-list-price">
-                  <div>List Price</div>
-                </Localized>
-              )}
+              <Localized
+                id={`sub-update-new-plan-${formattedInterval}`}
+                vars={{
+                  productName: productDetails.name || product_name,
+                }}
+              >
+                <div data-testid={`sub-update-new-plan-${formattedInterval}`}>
+                  {productDetails.name || product_name} (
+                  {formattedInterval.replace(/\w/, (firstLetter) =>
+                    firstLetter.toUpperCase()
+                  )}
+                  )
+                </div>
+              </Localized>
 
               <PriceDetails
                 total={subTotal}
@@ -150,13 +143,18 @@ export const PlanUpgradeDetails = ({
           </div>
         )}
 
-        {invoiceImmediately && oneTimeCharge && (
+        {oneTimeCharge && (
           <>
             <hr className="m-0 my-5 unit-row-hr" />
 
             <div className="plan-details-item font-semibold mt-5">
               <Localized id="sub-update-prorated-upgrade">
-                <div className="total-label">Prorated Upgrade</div>
+                <div
+                  className="total-label"
+                  data-testid="sub-update-prorated-upgrade"
+                >
+                  Prorated Upgrade
+                </div>
               </Localized>
 
               <PriceDetails

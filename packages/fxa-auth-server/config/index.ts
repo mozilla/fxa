@@ -903,14 +903,6 @@ const convictConf = convict({
       format: String,
       doc: 'Stripe API key for direct Stripe integration',
     },
-    stripeInvoiceImmediately: {
-      enabled: {
-        default: false,
-        doc: 'Enables immediate invoicing for stripe in all subscription upgrades',
-        env: 'SUBSCRIPTIONS_STRIPE_INVOICE_IMMEDIATELY',
-        format: Boolean,
-      },
-    },
     stripeWebhookPayloadLimit: {
       default: 1048576,
       env: 'STRIPE_WEBHOOK_PAYLOAD_LIMIT',

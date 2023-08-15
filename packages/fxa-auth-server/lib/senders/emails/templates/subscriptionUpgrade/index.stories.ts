@@ -29,20 +29,3 @@ const createStory = subplatStoryWithProps(
 );
 
 export const Default = createStory();
-
-// remove in FXA-7796
-export const SubscriptionUpgradeDifferentBillingCycle = createStory(
-  {},
-  'Subscription upgrade - differnt billing cycle'
-);
-
-// remove in FXA-7796
-export const SubscriptionUpgradeSameBillingCycle = createStory(
-  {
-    paymentAmountNew: '£123,121.00',
-    paymentAmountOld: '¥99,991',
-    productPaymentCycleNew: 'month',
-    paymentProrated: '$5,231.00',
-  },
-  'Subscription upgrade - same billing cycle'
-);

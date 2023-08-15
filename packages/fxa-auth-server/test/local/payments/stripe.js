@@ -129,7 +129,6 @@ const mockConfig = {
   subscriptions: {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
-    stripeInvoiceImmediately: { enabled: false },
     stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
@@ -2093,7 +2092,6 @@ describe('#integration - StripeHelper', () => {
     });
 
     it('retrieves both upcoming invoices with and without proration info', async () => {
-      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = true;
       const stripeStub = sandbox
         .stub(stripeHelper.stripe.invoices, 'retrieveUpcoming')
         .resolves();
@@ -2134,8 +2132,6 @@ describe('#integration - StripeHelper', () => {
         ],
         expand: ['total_tax_amounts.tax_rate'],
       });
-
-      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = false;
     });
   });
 
@@ -3633,7 +3629,7 @@ describe('#integration - StripeHelper', () => {
               plan: 'plan_G93mMKnIFCjZek',
             },
           ],
-          proration_behavior: 'create_prorations',
+          proration_behavior: 'always_invoice',
           metadata: {
             key: 'value',
             previous_plan_id: subscription1.items.data[0].plan.id,
@@ -3658,49 +3654,6 @@ describe('#integration - StripeHelper', () => {
       }
       assert.equal(thrown.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
       sinon.assert.notCalled(stripeHelper.updateSubscriptionAndBackfill);
-    });
-
-    it(`uses 'always_invoice' when the config is enabled`, async () => {
-      stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled = true;
-
-      const unixTimestamp = moment().unix();
-      const subscription = deepCopy(subscription1);
-      subscription.metadata = {
-        key: 'value',
-        previous_plan_id: 'plan_123',
-        plan_change_date: 12345678,
-      };
-
-      sandbox.stub(moment, 'unix').returns(unixTimestamp);
-      sandbox
-        .stub(stripeHelper, 'updateSubscriptionAndBackfill')
-        .resolves(subscription2);
-
-      const actual = await stripeHelper.changeSubscriptionPlan(
-        subscription,
-        'plan_G93mMKnIFCjZek'
-      );
-
-      assert.deepEqual(actual, subscription2);
-      sinon.assert.calledWithExactly(
-        stripeHelper.updateSubscriptionAndBackfill,
-        subscription,
-        {
-          cancel_at_period_end: false,
-          items: [
-            {
-              id: subscription1.items.data[0].id,
-              plan: 'plan_G93mMKnIFCjZek',
-            },
-          ],
-          proration_behavior: 'always_invoice',
-          metadata: {
-            key: 'value',
-            previous_plan_id: subscription1.items.data[0].plan.id,
-            plan_change_date: unixTimestamp,
-          },
-        }
-      );
     });
   });
 
@@ -5963,8 +5916,6 @@ describe('#integration - StripeHelper', () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
           const productIdNew = event.data.object.plan.product;
-          const invoiceImmediately =
-            stripeHelper.config.subscriptions.stripeInvoiceImmediately.enabled;
 
           const baseDetails = {
             ...expectedBaseUpdateDetails,
@@ -6038,29 +5989,13 @@ describe('#integration - StripeHelper', () => {
               event.data.previous_attributes.plan.interval,
             paymentAmountOldCurrency:
               event.data.previous_attributes.plan.currency,
-            paymentAmountOldInCents:
-              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
-                ? upcomingInvoice.total
-                : baseDetails.invoiceTotalOldInCents,
-            paymentAmountNewCurrency:
-              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
-                ? upcomingInvoice.currency
-                : mockInvoice.currency,
-            paymentAmountNewInCents:
-              upcomingInvoice && upcomingInvoice.total && !invoiceImmediately
-                ? upcomingInvoice.total
-                : mockInvoice.total,
-            paymentProratedCurrency:
-              upcomingInvoice && upcomingInvoice.currency && !invoiceImmediately
-                ? upcomingInvoice.currency
-                : mockInvoice.currency,
-            paymentProratedInCents:
-              upcomingInvoice && !invoiceImmediately
-                ? expectedPaymentProratedInCents
-                : mockInvoice.amount_due,
+            paymentAmountOldInCents: baseDetails.invoiceTotalOldInCents,
+            paymentAmountNewCurrency: upcomingInvoice.currency,
+            paymentAmountNewInCents: upcomingInvoice.total,
+            paymentProratedCurrency: mockInvoice.currency,
+            paymentProratedInCents: mockInvoice.amount_due,
             invoiceNumber: mockInvoice.number,
             invoiceId: mockInvoice.id,
-            invoiceImmediately: invoiceImmediately,
           });
         };
 

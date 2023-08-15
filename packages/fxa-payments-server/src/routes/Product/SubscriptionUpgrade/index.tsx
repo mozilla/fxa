@@ -1,11 +1,10 @@
-import React, { useCallback, useEffect, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Localized } from '@fluent/react';
 
 import { Plan, Customer, Profile } from '../../../store/types';
 import { SelectorReturns } from '../../../store/selectors';
 
 import * as Amplitude from '../../../lib/amplitude';
-import AppContext from '../../../lib/AppContext';
 
 import { getLocalizedDate, getLocalizedDateString } from '../../../lib/formats';
 import { useCallbackOnce } from '../../../lib/hooks';
@@ -61,7 +60,6 @@ export const SubscriptionUpgrade = ({
   resetUpdateSubscriptionPlan,
   discount,
 }: SubscriptionUpgradeProps) => {
-  const { config } = useContext(AppContext);
   const ariaLabelledBy = 'error-plan-change-failed-header';
   const ariaDescribedBy = 'error-plan-change-failed-description';
   const validator = useValidatorState();
@@ -201,35 +199,21 @@ export const SubscriptionUpgrade = ({
             {...{ validator, onSubmit }}
           >
             <hr className="my-6" />
-            {config.featureFlags.useStripeInvoiceImmediately ? (
-              <Localized
-                id="sub-update-acknowledgment"
-                vars={{
-                  startingDate: getLocalizedDate(nextInvoiceDate),
-                }}
-              >
-                <p data-testid="sub-update-acknowledgment">
-                  Your plan will change immediately, and you’ll be charged a
-                  prorated amount today for the rest of this billing cycle.
-                  Starting {getLocalizedDateString(nextInvoiceDate)} you’ll be
-                  charged the full amount.
-                </p>
-              </Localized>
-            ) : (
-              <Localized
-                id="sub-update-copy"
-                vars={{
-                  startingDate: getLocalizedDate(nextInvoiceDate),
-                }}
-              >
-                <p data-testid="sub-update-copy">
-                  Your plan will change immediately, and you’ll be charged an
-                  adjusted amount for the rest of your billing cycle. Starting
-                  {getLocalizedDateString(nextInvoiceDate)} you’ll be charged
-                  the full amount.
-                </p>
-              </Localized>
-            )}
+
+            <Localized
+              id="sub-update-acknowledgment"
+              vars={{
+                startingDate: getLocalizedDate(nextInvoiceDate),
+              }}
+            >
+              <p data-testid="sub-update-acknowledgment">
+                Your plan will change immediately, and you’ll be charged a
+                prorated amount today for the rest of this billing cycle.
+                Starting {getLocalizedDateString(nextInvoiceDate)} you’ll be
+                charged the full amount.
+              </p>
+            </Localized>
+
             <hr className="my-6" />
 
             <PaymentConsentCheckbox
