@@ -98,8 +98,12 @@
     "@nx/next": "16.6.0",
     "@nx/node": "16.6.0",
     "@nx/react": "16.6.0",
+    "@nx/storybook": "^16.6.0",
     "@nx/workspace": "16.6.0",
+    "@storybook/addon-essentials": "7.0.26",
+    "@storybook/core-server": "7.0.26",
     "@storybook/html-webpack5": "^7.0.23",
+    "@storybook/nextjs": "7.0.26",
     "@storybook/react-webpack5": "^7.0.23",
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.5.1",
@@ -171,5 +175,5 @@
     "underscore": ">=1.13.2",
     "url-parse": "^1.5.8"
   },
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@3.6.1"
 }

@@ -1,5 +1,6 @@
 import ExampleHeader from '../components/ExampleHeader';
-import './global.css';
+// FIXME: Update alias
+import 'libs/shared/styles/src/lib/styles.css';
 
 export const metadata = {
   title: 'Welcome to payments/next',
