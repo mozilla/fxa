@@ -18,6 +18,7 @@ import sinon from 'sinon';
 import User from 'models/user';
 import View from 'views/sign_in_password';
 import GleanMetrics from '../../../scripts/lib/glean';
+import Glean from '@mozilla/glean/web';
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -34,6 +35,10 @@ describe('views/sign_in_password', () => {
   let view;
 
   beforeEach(() => {
+    sinon.stub(GleanMetrics, 'setEnabled');
+    sinon.stub(Glean, 'initialize');
+    sinon.stub(Glean, 'setUploadEnabled');
+
     account = new Account({ email: EMAIL, metricsEnabled: false });
     broker = new Broker();
     formPrefill = new FormPrefill();
@@ -64,16 +69,15 @@ describe('views/sign_in_password', () => {
     view.destroy();
 
     view = null;
+
+    Glean.setUploadEnabled.restore();
+    Glean.initialize.restore();
+    GleanMetrics.setEnabled.restore();
   });
 
   describe('beforeRender', () => {
     beforeEach(() => {
       sinon.spy(view, 'navigate');
-      sinon.spy(GleanMetrics, 'setEnabled');
-    });
-
-    afterEach(() => {
-      GleanMetrics.setEnabled.restore();
     });
 
     it('redirects to `/` if no account', () => {
@@ -97,7 +101,6 @@ describe('views/sign_in_password', () => {
     });
 
     it('disables Glean metrics on pref', () => {
-      view.beforeRender();
       assert.isTrue(GleanMetrics.setEnabled.calledOnce);
       assert.equal(GleanMetrics.setEnabled.args[0][0], false);
     });

@@ -97,6 +97,7 @@ describe('lib/glean', () => {
   describe('disabled', () => {
     it('does not call Glean.initialize', () => {
       const initStub = sandbox.stub(Glean, 'initialize');
+      sandbox.stub(Glean, 'setUploadEnabled');
       const setEnabledSpy = sandbox.spy(GleanMetrics, 'setEnabled');
       GleanMetrics.initialize(mockConfig);
       sinon.assert.notCalled(initStub);
