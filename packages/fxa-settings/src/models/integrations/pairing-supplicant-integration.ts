@@ -6,11 +6,16 @@ import { OAuthIntegrationData } from '.';
 import { IntegrationType } from './base-integration';
 import { bind } from '../../lib/model-data';
 import { OAuthIntegration, OAuthIntegrationOptions } from './oauth-integration';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 // TODO in the 'Pairing' React epic. This shouldn't have any `feature` overrides but feel
 // free to look at all of that logic with fresh eyes in case we want to do it differently.
 export class PairingSupplicantIntegrationData extends OAuthIntegrationData {
-  @bind([])
+  // TODO - Validation - Should scope be required?
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @bind()
   scope: string | undefined = '';
 }
 

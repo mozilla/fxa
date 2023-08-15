@@ -11,8 +11,12 @@ describe('models/integrations/oauth-relier', function () {
   let model: OAuthIntegration;
 
   beforeEach(function () {
-    data = new GenericData({});
-    oauthData = new GenericData({});
+    data = new GenericData({
+      scope: 'profile',
+    });
+    oauthData = new GenericData({
+      scope: 'profile',
+    });
     model = new OAuthIntegration(data, oauthData, {
       scopedKeysEnabled: true,
       scopedKeysValidation: {},
@@ -61,8 +65,10 @@ describe('models/integrations/oauth-relier', function () {
       }
 
       it('empty scope', async () => {
-        const integration = getIntegration('');
-        await expect(integration.getPermissions()).rejects.toThrow();
+        await expect(async () => {
+          const integration = getIntegration('');
+          const _permissions = await integration.getPermissions();
+        }).rejects.toThrow();
       });
 
       it('whitespace scope', async () => {

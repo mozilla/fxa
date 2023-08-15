@@ -3,28 +3,51 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  IsHexadecimal,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+import {
   bind,
   KeyTransforms as T,
   ModelDataProvider,
-  ModelValidation as V,
 } from '../../lib/model-data';
 
 export class SupplicantInfo extends ModelDataProvider {
-  @bind([V.isAccessType], T.snakeCase)
+  @IsOptional()
+  @IsIn(['offline', 'online'])
+  @bind(T.snakeCase)
   accessType: string | undefined;
 
-  @bind([V.isClientId], T.snakeCase)
+  @IsOptional()
+  @IsHexadecimal()
+  @bind(T.snakeCase)
   clientId: string | undefined;
 
-  @bind([V.isCodeChallenge], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @MinLength(43)
+  @MaxLength(128)
+  @bind(T.snakeCase)
   codeChallenge: string | undefined;
 
-  @bind([V.isCodeChallengeMethod], T.snakeCase)
+  @IsOptional()
+  @IsIn(['S256'])
+  @bind(T.snakeCase)
   codeChallengeMethod: string | undefined;
 
-  @bind([V.isNonEmptyString])
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @bind()
   scope: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @bind()
   state: string | undefined;
 }

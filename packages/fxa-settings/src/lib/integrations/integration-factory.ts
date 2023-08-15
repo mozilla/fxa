@@ -183,8 +183,8 @@ export class IntegrationFactory {
     // Important!
     // FxDesktop declares both `entryPoint` (capital P) and
     // `entrypoint` (lowcase p). Normalize to `entrypoint`.
-    const entryPoint = integration.data.getModelData().get('entryPoint');
-    const entrypoint = integration.data.getModelData().get('entrypoint');
+    const entryPoint = integration.data.getModelData('entryPoint');
+    const entrypoint = integration.data.getModelData('entrypoint');
     if (
       entryPoint != null &&
       entrypoint != null &&

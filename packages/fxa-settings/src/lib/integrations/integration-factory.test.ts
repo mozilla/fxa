@@ -65,6 +65,12 @@ describe('lib/integrations/integration-factory', () => {
       .stub(flags, 'isV3DesktopContext')
       .returns(!!flagOverrides.isV3DesktopContext);
 
+    urlQueryData.set('scope', 'profile');
+    urlQueryData.set('client_id', '123');
+    urlQueryData.set('redirect_uri', 'https://redirect.to');
+
+    urlHashData.set('scope', 'profile');
+
     // Create a factory with current state
     const factory = new IntegrationFactory({
       window,
@@ -74,9 +80,6 @@ describe('lib/integrations/integration-factory', () => {
       flags,
       delegates,
     });
-
-    urlQueryData.set('client_id', '123');
-    urlQueryData.set('redirect_uri', 'https://redirect.to');
 
     // Create the integration
     const integration = factory.getIntegration();

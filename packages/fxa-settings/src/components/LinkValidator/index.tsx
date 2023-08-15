@@ -9,28 +9,36 @@ import { LinkStatus, LinkType } from '../../lib/types';
 import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '../LinkDamaged';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
-import { ModelDataProvider } from '../../lib/model-data';
-import { Integration } from '../../models';
+import { IntegrationType, isOAuthIntegration } from '../../models';
 
-interface LinkValidatorChildrenProps<T> {
+interface LinkValidatorChildrenProps<TModel> {
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-  params: T;
+  linkModel: TModel;
 }
 
-interface LinkValidatorProps<T> {
+interface LinkValidatorIntegration {
+  type: IntegrationType;
+}
+
+interface LinkValidatorProps<TModel> {
   linkType: LinkType;
   viewName: string;
-  getParamsFromModel: () => T;
-  integration: Integration;
-  children: (props: LinkValidatorChildrenProps<T>) => React.ReactNode;
+  createLinkModel: () => TModel;
+  integration: LinkValidatorIntegration;
+  children: (props: LinkValidatorChildrenProps<TModel>) => React.ReactNode;
 }
 
-const LinkValidator = <TModel extends ModelDataProvider>({
-  children,
+interface LinkModel {
+  isValid(): boolean;
+  email: string | undefined;
+}
+
+const LinkValidator = <TModel extends LinkModel>({
   linkType,
   viewName,
-  getParamsFromModel,
   integration,
+  createLinkModel,
+  children,
 }: LinkValidatorProps<TModel> & RouteComponentProps) => {
   // If `LinkValidator` is a route component receiving `path, then `children`
   // is a React.ReactElement
@@ -38,18 +46,9 @@ const LinkValidator = <TModel extends ModelDataProvider>({
     ? (children as React.ReactElement).props.children
     : children;
 
-  const params = getParamsFromModel();
-  const isValid = params.isValid();
-  const email = getEmailFromParams();
-
-  function getEmailFromParams() {
-    const email = params.getModelData().get('email');
-    if (typeof email === 'string') {
-      return email;
-    } else {
-      return undefined;
-    }
-  }
+  const linkModel = createLinkModel();
+  const isValid = linkModel.isValid();
+  const email = linkModel.email;
 
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(
     isValid ? LinkStatus.valid : LinkStatus.damaged
@@ -71,7 +70,18 @@ const LinkValidator = <TModel extends ModelDataProvider>({
     linkType === LinkType['reset-password'] &&
     email !== undefined
   ) {
-    return <LinkExpiredResetPassword {...{ email, viewName, integration }} />;
+    if (isOAuthIntegration(integration)) {
+      const service = integration.getService();
+      const redirectUri = integration.getRedirectUri();
+
+      return (
+        <LinkExpiredResetPassword
+          {...{ viewName, email, service, redirectUri }}
+        />
+      );
+    }
+
+    return <LinkExpiredResetPassword {...{ viewName, email }} />;
   }
 
   if (
@@ -82,7 +92,7 @@ const LinkValidator = <TModel extends ModelDataProvider>({
     return <LinkExpiredSignin {...{ email, viewName }} />;
   }
 
-  return <>{child({ setLinkStatus, params })}</>;
+  return <>{child({ setLinkStatus, linkModel })}</>;
 };
 
 export default LinkValidator;

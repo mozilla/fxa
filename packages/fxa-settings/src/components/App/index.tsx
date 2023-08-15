@@ -187,16 +187,16 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
         path="/account_recovery_confirm_key/*"
         linkType={LinkType['reset-password']}
         viewName="account-recovery-confirm-key"
-        getParamsFromModel={() => {
+        createLinkModel={() => {
           return CreateCompleteResetPasswordLink();
         }}
         {...{ integration }}
       >
-        {({ setLinkStatus, params }) => (
+        {({ setLinkStatus, linkModel }) => (
           <AccountRecoveryConfirmKey
             {...{
               setLinkStatus,
-              params,
+              linkModel,
             }}
           />
         )}

@@ -44,16 +44,16 @@ const CompleteResetPasswordContainer = ({
       path="/complete_reset_password/*"
       linkType={LinkType['reset-password']}
       viewName="complete-reset-password"
-      getParamsFromModel={() => {
+      createLinkModel={() => {
         return CreateCompleteResetPasswordLink();
       }}
       {...{ integration }}
     >
-      {({ setLinkStatus, params }) => (
+      {({ setLinkStatus, linkModel }) => (
         <CompleteResetPassword
           {...{
             setLinkStatus,
-            params,
+            linkModel,
             integration,
             finishOAuthFlowHandler,
           }}

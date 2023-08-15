@@ -3,25 +3,42 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  IsBoolean,
+  IsHexadecimal,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import {
   bind,
   KeyTransforms as T,
   ModelDataProvider,
-  ModelValidation as V,
 } from '../../lib/model-data';
 
 export class ClientInfo extends ModelDataProvider {
-  @bind([V.isString, V.isHex], 'id')
+  @IsOptional()
+  @IsHexadecimal()
+  @bind('id')
   clientId: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  // TODO - Validation - Needs @IsEncodedUrl()
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   imageUri: string | undefined;
 
-  @bind([V.isString, V.isRequired], 'name')
+  @IsOptional()
+  @IsString()
+  @bind('name')
   serviceName: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  // TODO - Validation - Needs @IsEncodedUrl()
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @bind([V.isBoolean])
+  @IsOptional()
+  @IsBoolean()
+  @bind()
   trusted: boolean | undefined;
 }

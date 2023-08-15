@@ -55,7 +55,7 @@ import {
 export const viewName = 'complete-reset-password';
 
 const CompleteResetPassword = ({
-  params,
+  linkModel,
   setLinkStatus,
   integration,
   finishOAuthFlowHandler,
@@ -110,7 +110,7 @@ const CompleteResetPassword = ({
 
     const handleRecoveryKeyStatus = async () => {
       if (!location.state?.lostRecoveryKey) {
-        await checkForRecoveryKeyAndNavigate(params.email);
+        await checkForRecoveryKeyAndNavigate(linkModel.email);
       }
       renderCompleteResetPassword();
     };
@@ -133,14 +133,14 @@ const CompleteResetPassword = ({
       setShowLoadingSpinner(false);
       logPageViewEvent(viewName, REACT_ENTRYPOINT);
     };
-    checkPasswordForgotToken(params.token);
+    checkPasswordForgotToken(linkModel.token);
   }, [
     account,
     navigate,
     location.search,
     location.state?.lostRecoveryKey,
-    params.email,
-    params.token,
+    linkModel.email,
+    linkModel.token,
     setLinkStatus,
     setShowLoadingSpinner,
   ]);
@@ -339,7 +339,7 @@ const CompleteResetPassword = ({
           to correctly save the updated password. Without it,
           the password manager tries to save the old password
           as the username. */}
-      <input type="email" value={params.email} className="hidden" readOnly />
+      <input type="email" value={linkModel.email} className="hidden" readOnly />
       <section className="text-start mt-4">
         <FormPasswordWithBalloons
           {...{
@@ -349,22 +349,22 @@ const CompleteResetPassword = ({
             register,
             getValues,
           }}
-          email={params.email}
+          email={linkModel.email}
           passwordFormType="reset"
           onSubmit={handleSubmit(({ newPassword }) =>
             onSubmit({
               newPassword,
-              token: params.token,
-              code: params.code,
-              email: params.email,
-              emailToHashWith: params.emailToHashWith,
+              token: linkModel.token,
+              code: linkModel.code,
+              email: linkModel.email,
+              emailToHashWith: linkModel.emailToHashWith,
             })
           )}
           loading={false}
           onFocusMetricsEvent={`${viewName}.engage`}
         />
       </section>
-      <LinkRememberPassword email={params.email} />
+      <LinkRememberPassword email={linkModel.email} />
     </AppLayout>
   );
 };

@@ -2,11 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import 'reflect-metadata';
-import {
-  ModelValidationError,
-  ModelValidationErrors,
-} from './model-validation';
-import { ModelDataProvider } from './model-data-provider';
+import { ModelDataProvider, isModelDataProvider } from './model-data-provider';
 
 /**
  * Turns a field name into a lookup key. This can be one of three states.
@@ -52,25 +48,6 @@ const getKey = (keyTransform: KeyTransform, defaultValue: string) => {
 export const bindMetadataKey = Symbol('bind');
 
 /**
- * For a given object that is bound to a data store, rerun all the
- * validation checks on values that bind model fields to the data values held
- * in the data store.
- * @param target - A model that is bound to a data store. The ModelDataProvider is
- *                 the base class, and provides access to the underlying data store.
- */
-export function validateData(target: ModelDataProvider) {
-  for (const key of Object.keys(Object.getPrototypeOf(target))) {
-    // Resolves the @bind decorator
-    const bind = Reflect.getMetadata(bindMetadataKey, target, key);
-
-    // If the @bind decorator was present, run its validation checks
-    if (bind?.validate && bind?.key) {
-      bind.validate(bind.key, target.getModelData().get(bind.key));
-    }
-  }
-}
-
-/**
  * Looks up a list of property names that have bindings on an object
  * @param target
  */
@@ -87,42 +64,23 @@ export function getBoundKeys(target: ModelDataProvider) {
 }
 
 /**
- * Provides the data store for the model, and runs a couple sanity checks on the model state.
- */
-function getModelData(model: ModelDataProvider | any) {
-  if (!(model instanceof ModelDataProvider)) {
-    throw new Error(
-      'Invalid bind! Does the model is not an an instance of ModelDataProvider. Check that the model inherits from ModelDataProvider.'
-    );
-  }
-  const data = model.getModelData();
-  if (data == null) {
-    throw new Error(
-      'Invalid bind! Has the data store for the model been initialized?'
-    );
-  }
-  return data;
-}
-
-/**
  * Represents a validation check
  **/
 export type ValidationCheck = <T>(key: string, value: T) => void;
 
 /**
  * A type script decorator for binding to an underlying data store.
- * @param checks A list of sequential check to validate the state of the underlying value.
  * @param dataKey A key in the underlying data store. Used to bind the field to a key value pair in the data store.
  * @returns A value of type T
  * @example
  *
  *  class User {
- *    @bind([V.isString], 'first_name')
+ *    @bind('first_name')
  *    firstName
  *  }
  *
  */
-export const bind = <T>(checks: ValidationCheck[], dataKey?: KeyTransform) => {
+export const bind = <T>(dataKey?: KeyTransform) => {
   // The actual decorator implementation. Note we have to use 'any' as a
   // return type here because that's the type expected by the TS decorator
   // definition.
@@ -135,38 +93,8 @@ export const bind = <T>(checks: ValidationCheck[], dataKey?: KeyTransform) => {
       throw new Error('Invalid bind! Model inherit from ModelDataProvider!');
     }
 
-    /**
-     * Sequentially executes validation checks.
-     */
-    function validate<T>(key: string, value: unknown): T {
-      const errors = new Array<ModelValidationError>();
-      checks.forEach((check) => {
-        try {
-          // Throws an error if value is bad.
-          value = check(key, value);
-        } catch (err) {
-          if (err instanceof ModelValidationError) {
-            errors.push(err);
-          } else {
-            throw err;
-          }
-        }
-      });
-
-      if (errors.length > 0) {
-        throw new ModelValidationErrors(
-          `Errors in current data store: \n${errors
-            .map((x) => x.toString())
-            .join(';')}`,
-          errors
-        );
-      }
-      return value as T;
-    }
-
     const metadata = {
       memberName,
-      validate,
       key: getKey(dataKey, memberName),
     };
     Reflect.defineMetadata(bindMetadataKey, metadata, model, memberName);
@@ -176,24 +104,34 @@ export const bind = <T>(checks: ValidationCheck[], dataKey?: KeyTransform) => {
     const property = {
       enumerable: true,
       set: function (value: T) {
-        const data = getModelData(this);
-        const key = getKey(dataKey, memberName);
-        const currentValue = data.get(key);
-
-        // Don't bother setting state needlessly. Depending on the data
-        // store writes may or may not be cheap.
-        if (currentValue !== value) {
-          data.set(key, validate(key, value));
+        if (!isModelDataProvider(this)) {
+          throw new InvalidModelInstance();
         }
+
+        const key = getKey(dataKey, memberName);
+        this.setModelData(key, value);
       },
       get: function () {
-        const data = getModelData(this);
+        if (!isModelDataProvider(this)) {
+          throw new InvalidModelInstance();
+        }
+
         const key = getKey(dataKey, memberName);
-        const value = data.get(key);
-        return validate(key, value);
+        return this.getModelData(key);
       },
     };
     Object.defineProperty(model, memberName, property);
     return property;
   };
 };
+
+/**
+ * Error for situations where the model data provider object that backs the @bind is invalid.
+ */
+export class InvalidModelInstance extends Error {
+  constructor() {
+    super(
+      'Invalid bind! Does the model is not an an instance of ModelDataProvider. Check that the model inherits from ModelDataProvider.'
+    );
+  }
+}

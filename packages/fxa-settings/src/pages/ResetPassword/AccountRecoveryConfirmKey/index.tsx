@@ -41,10 +41,10 @@ type SubmitData = {
 export const viewName = 'account-recovery-confirm-key';
 
 const AccountRecoveryConfirmKey = ({
-  params,
+  linkModel,
   setLinkStatus,
 }: {
-  params: CompleteResetPasswordLink;
+  linkModel: CompleteResetPasswordLink;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
 }) => {
   // TODO: grab serviceName from the relier
@@ -81,8 +81,8 @@ const AccountRecoveryConfirmKey = ({
       }
     };
 
-    checkPasswordForgotToken(params.token);
-  }, [account, params.token, setLinkStatus]);
+    checkPasswordForgotToken(linkModel.token);
+  }, [account, linkModel.token, setLinkStatus]);
 
   const { handleSubmit, register } = useForm<FormData>({
     mode: 'onBlur',
@@ -246,10 +246,10 @@ const AccountRecoveryConfirmKey = ({
           const recoveryKeyStripped = recoveryKey.replace(/\s/g, '');
           onSubmit({
             recoveryKey: recoveryKeyStripped,
-            token: params.token,
-            code: params.code,
-            email: params.email,
-            uid: params.uid,
+            token: linkModel.token,
+            code: linkModel.code,
+            email: linkModel.email,
+            uid: linkModel.uid,
           });
         })}
         data-testid="account-recovery-confirm-key-form"

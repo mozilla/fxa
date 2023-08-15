@@ -3,27 +3,35 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  bind,
-  ModelDataProvider,
-  ModelValidation as V,
-} from '../../../lib/model-data';
+  IsEmail,
+  IsHexadecimal,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { bind, ModelDataProvider } from '../../../lib/model-data';
 
 export class CompleteResetPasswordLink extends ModelDataProvider {
-  // TODO: change `isNonEmptyString` to `email` when validation is properly set up.
-  // This is temporary for tests/Storybook so that `email=''` shows a damaged link
-  @bind([V.isNonEmptyString, V.isRequired])
+  @IsOptional()
+  @IsEmail()
+  @bind()
   email: string = '';
 
-  // TODO: add @bind `isEmail` when validation is properly set up.
-  // This should be _optional_ but when this exists it should be an email.
-  emailToHashWith: string = '';
+  @IsOptional()
+  @IsEmail()
+  @bind()
+  emailToHashWith: string | undefined = '';
 
-  @bind([V.isNonEmptyString, V.isRequired])
+  @IsString()
+  @IsNotEmpty()
+  @bind()
   code: string = '';
 
-  @bind([V.isHex, V.isRequired])
+  @IsHexadecimal()
+  @bind()
   token: string = '';
 
-  @bind([V.isHex, V.isRequired])
+  @IsHexadecimal()
+  @bind()
   uid: string = '';
 }

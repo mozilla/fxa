@@ -98,6 +98,17 @@ const AccountRecoveryResetPassword = ({
   }
 
   if (linkStatus === 'expired') {
+    if (isOAuthIntegration(integration)) {
+      const service = integration.getService();
+      const redirectUri = integration.getRedirectUri();
+      return (
+        <LinkExpiredResetPassword
+          email={verificationInfo.email}
+          {...{ viewName, service, redirectUri }}
+        />
+      );
+    }
+
     return (
       <LinkExpiredResetPassword
         email={verificationInfo.email}

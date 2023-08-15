@@ -29,7 +29,7 @@ export interface CompleteResetPasswordLocationState {
 
 export interface CompleteResetPasswordParams {
   email: string;
-  emailToHashWith: string;
+  emailToHashWith: string | undefined;
   code: string;
   token: string;
 }
@@ -44,7 +44,7 @@ export type CompleteResetPasswordIntegration =
   | IntegrationSubsetType;
 
 export interface CompleteResetPasswordProps {
-  params: CompleteResetPasswordLink;
+  linkModel: CompleteResetPasswordLink;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
   integration: CompleteResetPasswordIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './bind-decorator';
-export * from './model-validation';
 export * from './data-stores';
 export * from './model-data-provider';
 export * from './model-data-store';

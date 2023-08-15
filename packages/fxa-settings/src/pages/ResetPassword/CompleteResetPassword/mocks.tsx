@@ -47,7 +47,7 @@ export const paramsWithMissingCode = {
 
 export const paramsWithMissingEmailToHashWith = {
   ...mockCompleteResetPasswordParams,
-  emailToHashWith: '',
+  emailToHashWith: undefined,
 };
 
 export const paramsWithMissingToken = {
@@ -68,7 +68,7 @@ export const Subject = ({
   params = mockCompleteResetPasswordParams,
 }: {
   integrationType?: IntegrationType;
-  params?: Record<string, string>;
+  params?: Record<string, unknown>;
 }) => {
   const urlQueryData = mockUrlQueryData(params);
 
@@ -90,15 +90,15 @@ export const Subject = ({
     <LinkValidator
       linkType={LinkType['reset-password']}
       viewName={'complete-reset-password'}
-      getParamsFromModel={() => {
+      createLinkModel={() => {
         return new CompleteResetPasswordLink(urlQueryData);
       }}
       // TODO worth fixing this type?
       integration={completeResetPasswordIntegration as Integration}
     >
-      {({ setLinkStatus, params }) => (
+      {({ setLinkStatus, linkModel }) => (
         <CompleteResetPassword
-          {...{ setLinkStatus, params }}
+          {...{ setLinkStatus, linkModel }}
           integration={completeResetPasswordIntegration}
           finishOAuthFlowHandler={() =>
             Promise.resolve({ redirect: 'someUri' })
