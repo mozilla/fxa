@@ -10,7 +10,10 @@ describe('models/integrations/channel-info', function () {
   let model: ChannelInfo;
 
   beforeEach(function () {
-    data = new GenericData({});
+    data = new GenericData({
+      channel_id: Buffer.from('id123').toString('base64'),
+      channel_key: Buffer.from('key123').toString('base64'),
+    });
     model = new ChannelInfo(data);
   });
 
@@ -19,11 +22,11 @@ describe('models/integrations/channel-info', function () {
   });
 
   it('binds model to data store', () => {
-    data.set('channel_id', 'foo');
-    data.set('channel_key', 'bar');
+    data.set('channel_id', Buffer.from('foo').toString('base64'));
+    data.set('channel_key', Buffer.from('bar').toString('base64'));
 
-    expect(model.channelId).toEqual('foo');
-    expect(model.channelKey).toEqual('bar');
+    expect(model.channelId).toEqual(Buffer.from('foo').toString('base64'));
+    expect(model.channelKey).toEqual(Buffer.from('bar').toString('base64'));
   });
 
   it('validates', () => {

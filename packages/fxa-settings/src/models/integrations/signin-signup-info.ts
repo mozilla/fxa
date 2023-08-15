@@ -3,10 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
+  IsBase64,
+  IsBoolean,
+  IsEmail,
+  IsHexadecimal,
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+} from 'class-validator';
+import {
   bind,
   KeyTransforms as T,
   ModelDataProvider,
-  ModelValidation as V,
 } from '../../lib/model-data';
 
 // Sign inflow
@@ -14,54 +25,93 @@ import {
 // https://mozilla.github.io/ecosystem-platform/api#tag/OAuth-Server-API-Overview
 
 export class SignInSignUpInfo extends ModelDataProvider {
-  @bind([V.isAccessType], T.snakeCase)
+  @IsOptional()
+  @IsIn(['offline', 'online'])
+  @bind(T.snakeCase)
   accessType: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  @IsString()
+  @IsOptional()
+  @bind(T.snakeCase)
   acrValues: string | undefined;
 
-  @bind([V.isAction], T.snakeCase)
+  // TODO - Validation - Double check actions
+  @IsOptional()
+  @IsIn(['signin', 'signup', 'email', 'force_auth', 'pairing'])
+  @bind(T.snakeCase)
   action: string | undefined;
 
-  @bind([V.isClientId], T.snakeCase)
+  @IsOptional()
+  @IsHexadecimal()
+  @bind(T.snakeCase)
   clientId: string | undefined;
 
-  @bind([V.isCodeChallenge], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   codeChallenge: string | undefined;
 
-  @bind([V.isCodeChallengeMethod], T.snakeCase)
+  @IsOptional()
+  @IsIn(['S256'])
+  @bind(T.snakeCase)
   codeChallengeMethod: string | undefined;
 
-  @bind([V.isKeysJwk], T.snakeCase)
+  @IsOptional()
+  @IsBase64()
+  @bind(T.snakeCase)
   keysJwk: string | undefined;
 
-  @bind([V.isIdToken], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   idTokenHint: string | undefined;
 
-  @bind([V.isEmail], T.snakeCase)
+  @IsOptional()
+  @IsEmail()
+  @bind(T.snakeCase)
   loginHint: string | undefined;
 
-  @bind([V.isGreaterThanZero], T.snakeCase)
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  @bind(T.snakeCase)
   maxAge: number | undefined;
 
-  @bind([V.isPrompt])
+  @IsOptional()
+  @IsIn(['consent', 'none', 'login'])
+  @bind()
   prompt: string | undefined;
 
-  @bind([V.isPairingAuthorityRedirectUri], T.snakeCase)
+  // TODO - Validation - Needs @IsEncodedUrl()
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @bind([V.isUrl], T.snakeCase)
+  // TODO - Validation - Needs @IsEncodedUrl()
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   redirectTo: string | undefined;
 
-  @bind([V.isBoolean], T.snakeCase)
+  @IsOptional()
+  @IsBoolean()
+  @bind(T.snakeCase)
   returnOnError: boolean | undefined;
 
-  @bind([V.isNonEmptyString])
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @bind()
   scope: string | undefined;
 
-  @bind([V.isNonEmptyString])
+  @IsOptional()
+  @IsString()
+  @bind()
   state: string | undefined;
 
-  @bind([V.isEmail])
+  @IsOptional()
+  @IsEmail()
+  @bind()
   email: string | undefined;
 }

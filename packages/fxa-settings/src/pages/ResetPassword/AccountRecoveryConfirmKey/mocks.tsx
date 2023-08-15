@@ -77,14 +77,14 @@ export const getSubject = (
       <LinkValidator
         linkType={LinkType['reset-password']}
         viewName="account-recovery-confirm-key"
-        getParamsFromModel={() => {
+        createLinkModel={() => {
           return new CompleteResetPasswordLink(urlQueryData);
         }}
         // TODO worth fixing this type and adding integrations for AccountRecoveryConfirmKey?
         integration={createMockResetPasswordWebIntegration() as Integration}
       >
-        {({ setLinkStatus, params }) => (
-          <AccountRecoveryConfirmKey {...{ setLinkStatus, params }} />
+        {({ setLinkStatus, linkModel }) => (
+          <AccountRecoveryConfirmKey {...{ setLinkStatus, linkModel }} />
         )}
       </LinkValidator>
     ),

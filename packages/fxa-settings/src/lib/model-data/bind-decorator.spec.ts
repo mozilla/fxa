@@ -2,29 +2,28 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  bind,
-  KeyTransforms as T,
-  getBoundKeys,
-  validateData,
-} from './bind-decorator';
-import { ModelValidation as V } from './model-validation';
+import { bind, KeyTransforms as T, getBoundKeys } from './bind-decorator';
 import { GenericData } from './data-stores';
 import { ModelDataProvider } from './model-data-provider';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 /**
  * Example model for testing bind decorators
  */
 class TestModel extends ModelDataProvider {
-  @bind([], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   testField: string | undefined;
 
-  @bind([V.isNonEmptyString], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @bind(T.snakeCase)
   testValidatedField: string | undefined;
 }
 
 describe('bind-decorator', function () {
-
   it('creates with empty state', () => {
     const data = new GenericData({});
     const model1 = new TestModel(data);
@@ -99,19 +98,55 @@ describe('bind-decorator', function () {
     expect(T.snakeCase('')).toEqual('');
   });
 
-  it('validates', () => {
-    const data = new GenericData({});
-    const model1 = new TestModel(data);
-
-    expect(() => {
-      validateData(model1);
-    }).toThrow();
-  });
-
   it('gets bound keys', () => {
     const data = new GenericData({});
     const model1 = new TestModel(data);
 
     expect(getBoundKeys(model1)).toEqual(['testField', 'testValidatedField']);
+  });
+
+  it('gets data directly', () => {
+    const data = new GenericData({ test_field: 'foo' });
+    const model1 = new TestModel(data);
+    expect(model1.getModelData('test_field')).toEqual('foo');
+  });
+
+  it('sets data directly', () => {
+    const data = new GenericData({ test_field: 'foo' });
+    const model1 = new TestModel(data);
+
+    model1.setModelData('test_field', 'bar');
+    expect(model1.getModelData('test_field')).toEqual('bar');
+  });
+
+  it('returns undefined for unset data marked as optional', () => {
+    const data = new GenericData({});
+    const model1 = new TestModel(data);
+    expect(model1.getModelData('test_field') === undefined).toBeTruthy();
+    expect(model1.getModelData('test_field') !== null).toBeTruthy();
+  });
+
+  it('will not set invalid data directly', () => {
+    const data = new GenericData({});
+    const model1 = new TestModel(data);
+    expect(() => model1.setModelData('test_field', 0)).toThrow();
+  });
+
+  it('will not get invalid data directly', () => {
+    const data = new GenericData({ test_validated_field: '' });
+    const model1 = new TestModel(data);
+    expect(() => model1.getModelData('testValidatedField')).toThrow();
+  });
+
+  it('sets invalid when validate is specified as false', () => {
+    const data = new GenericData({ test_field: 'foo' });
+    const model1 = new TestModel(data);
+    expect(() => model1.setModelData('test_field', 0, false)).not.toThrow();
+  });
+
+  it('gets invalid when validate is specified as false', () => {
+    const data = new GenericData({ test_field: 0 });
+    const model1 = new TestModel(data);
+    expect(() => model1.getModelData('test_field', false)).not.toThrow();
   });
 });

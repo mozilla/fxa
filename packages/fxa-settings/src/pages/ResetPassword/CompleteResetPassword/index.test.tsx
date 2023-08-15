@@ -404,7 +404,7 @@ describe('CompleteResetPassword page', () => {
         render(<Subject />, account);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
-          '/reset_password_verified?email=johndope%40example.com&emailToHashWith=&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
+          '/reset_password_verified?email=johndope%40example.com&emailToHashWith=johndope%40example.com&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
           {
             replace: true,
           }

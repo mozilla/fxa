@@ -6,13 +6,17 @@ import {
   bind,
   KeyTransforms as T,
   ModelDataProvider,
-  ModelValidation as V,
 } from '../../lib/model-data';
+import { IsBase64, IsNotEmpty } from 'class-validator';
 
 export class ChannelInfo extends ModelDataProvider {
-  @bind([V.isChannelId], T.snakeCase)
+  @IsBase64()
+  @IsNotEmpty()
+  @bind(T.snakeCase)
   channelId: string | undefined;
 
-  @bind([V.isChannelKey], T.snakeCase)
+  @IsBase64()
+  @IsNotEmpty()
+  @bind(T.snakeCase)
   channelKey: string | undefined;
 }

@@ -40,12 +40,7 @@ const renderWithHistory = (ui: any, queryParams = '', account?: Account) => {
 };
 
 describe('LinkExpiredResetPassword', () => {
-  const component = (
-    <LinkExpiredResetPassword
-      {...{ email, viewName }}
-      integration={createMockWebIntegration()}
-    />
-  );
+  const component = <LinkExpiredResetPassword {...{ email, viewName }} />;
 
   afterEach(() => {
     jest.clearAllMocks();

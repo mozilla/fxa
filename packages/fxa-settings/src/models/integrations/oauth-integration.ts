@@ -9,16 +9,25 @@ import {
   RelierAccount,
   RelierClientInfo,
 } from './base-integration';
-import {
-  ModelDataStore,
-  bind,
-  KeyTransforms as T,
-  ModelValidation as V,
-} from '../../lib/model-data';
+import { ModelDataStore, bind, KeyTransforms as T } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
 import { ERRORS, OAuthError } from '../../lib/oauth';
 import { IntegrationFlags } from '../../lib/integrations';
 import { BaseIntegrationData } from './web-integration';
+import {
+  IsBoolean,
+  IsEmail,
+  IsHexadecimal,
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
+
+const PKCE_CODE_CHALLENGE_LENGTH = 43;
 
 interface OAuthIntegrationFeatures extends IntegrationFeatures {
   webChannelSupport: boolean;
@@ -45,64 +54,115 @@ export function isOAuthIntegration(integration: {
 
 // TODO: probably move this somewhere else
 export class OAuthIntegrationData extends BaseIntegrationData {
-  @bind([V.isString], T.snakeCase)
+  // TODO - Validation - Can we get a set of known client ids from config or api call? See https://github.com/mozilla/fxa/pull/15677#discussion_r1291534277
+  @IsOptional()
+  @IsHexadecimal()
+  @bind(T.snakeCase)
   clientId: string | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsString()
+  @bind()
   imageUri: string | undefined;
 
-  @bind([V.isBoolean])
+  @IsBoolean()
+  @IsOptional()
+  @bind()
   trusted: boolean | undefined;
 
-  @bind([V.isAccessType], T.snakeCase)
+  @IsOptional()
+  @IsIn(['offline', 'online'])
+  @bind(T.snakeCase)
   accessType: string | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsString()
+  @bind()
   acrValues: string | undefined;
 
-  @bind([V.isAction])
+  // TODO - Validation - Double check actions
+  @IsOptional()
+  @IsIn(['signin', 'signup', 'email', 'force_auth', 'pairing'])
+  @bind()
   action: string | undefined;
 
-  @bind([V.isCodeChallenge], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @MinLength(43)
+  @MaxLength(128)
+  @bind(T.snakeCase)
   codeChallenge: string | undefined;
 
-  @bind([V.isCodeChallengeMethod])
+  @IsOptional()
+  @IsIn(['S256'])
+  @bind(T.snakeCase)
   codeChallengeMethod: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  // TODO - Validation - Should this be base64?
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   keysJwk: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   idTokenHint: string | undefined;
 
-  @bind([V.isGreaterThanZero], T.snakeCase)
+  @IsPositive()
+  @IsOptional()
+  @bind(T.snakeCase)
   maxAge: number | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsString()
+  @bind()
   permissions: string | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsString()
+  @bind()
   prompt: string | undefined;
 
-  @bind([V.isUrl])
+  // TODO - Validation - This should be a URL, but it is encoded and must be decoded in order to validate.
+  @IsOptional()
+  @IsString()
+  @bind()
   redirectTo: string | undefined;
 
-  @bind([V.isUrl], T.snakeCase)
+  // TODO - Validation - This should be a URL, but it is encoded and must be decoded in order to validate.
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
   redirectUrl: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  // TODO - Validation - Needs custom validation, see IsRedirectUriValid in content server.
+  // TODO - Validation - Seems to be required for OAuth
+  @IsString()
+  @IsOptional()
+  @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @bind([V.isString], T.snakeCase)
+  @IsBoolean()
+  @IsOptional()
+  @bind(T.snakeCase)
   returnOnError: boolean | undefined;
 
-  @bind([V.isString])
+  // TODO - Validation - Should scope be required?
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  @bind()
   scope: string | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsString()
+  @bind()
   state: string | undefined;
 
-  @bind([V.isString])
+  @IsOptional()
+  @IsEmail()
+  @bind()
   loginHint: string | undefined;
 }
 

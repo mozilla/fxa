@@ -2,28 +2,41 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelValidation, ModelDataProvider, bind } from '../../lib/model-data';
+import {
+  IsEmail,
+  IsHexadecimal,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
+import { ModelDataProvider, bind } from '../../lib/model-data';
 
 export * from './verification-info';
 
 export type VerificationInfoLinkStatus = 'expired' | 'damaged' | 'valid';
 
-const { isEmail, isRequired, isVerificationCode, isHex, isString, isBoolean } =
-  ModelValidation;
-
 export class VerificationInfo extends ModelDataProvider {
-  @bind([isRequired, isEmail])
+  @IsEmail()
+  @bind()
   email: string = '';
 
-  @bind([isRequired, isEmail])
-  emailToHashWith: string = '';
+  @IsOptional()
+  @IsEmail()
+  @bind()
+  emailToHashWith: string | undefined = '';
 
-  @bind([isRequired, isVerificationCode])
+  @IsHexadecimal()
+  @Length(32)
+  @bind()
   code: string = '';
 
-  @bind([isRequired, isHex])
+  @IsHexadecimal()
+  @bind()
   token: string = '';
 
-  @bind([isRequired, isString])
+  @IsHexadecimal()
+  @Length(32)
+  @bind()
   uid: string = '';
 }

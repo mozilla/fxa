@@ -11,7 +11,7 @@ describe('models/integration/pairing-supplicant-integration', function () {
   let model: PairingSupplicantIntegration;
 
   beforeEach(function () {
-    data = new GenericData({});
+    data = new GenericData({ scope: 'profile' });
     storageData = new GenericData({});
     model = new PairingSupplicantIntegration(data, storageData, {
       scopedKeysEnabled: true,

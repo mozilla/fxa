@@ -50,10 +50,7 @@ const mockedProps: LinkExpiredProps = {
 export const Default = () => <LinkExpired {...mockedProps} />;
 
 export const LinkExpiredForResetPassword = () => (
-  <LinkExpiredResetPassword
-    {...{ email, viewName }}
-    integration={{ type: IntegrationType.Web }}
-  />
+  <LinkExpiredResetPassword {...{ email, viewName }} />
 );
 
 export const LinkExpiredForSignin = () => (

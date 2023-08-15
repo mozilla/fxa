@@ -12,11 +12,6 @@ describe('model-data-provider', function () {
     modelDataProvider = new ModelDataProvider(new GenericData({}));
   });
 
-  it('gets model data accessor', () => {
-    const dataAccessor = modelDataProvider.getModelData();
-    expect(dataAccessor).toBeDefined();
-  });
-
   it('validates', () => {
     expect(() => modelDataProvider.validate()).not.toThrow();
   });

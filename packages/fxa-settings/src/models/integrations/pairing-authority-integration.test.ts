@@ -11,7 +11,9 @@ describe('models/integrations/pairing-authority-relier', function () {
   let model: PairingAuthorityIntegration;
 
   beforeEach(function () {
-    data = new GenericData({});
+    data = new GenericData({
+      scope: 'profile',
+    });
     storageData = new GenericData({});
     model = new PairingAuthorityIntegration(data, storageData, {
       scopedKeysEnabled: true,
