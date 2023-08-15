@@ -7,6 +7,7 @@ import { assert } from 'chai';
 import AuthBroker from 'models/auth_brokers/base';
 import AuthErrors from 'lib/auth-errors';
 import Backbone from 'backbone';
+import Glean from '@mozilla/glean/web';
 import GleanMetrics from '../../../../scripts/lib/glean';
 import OAuthErrors from 'lib/oauth-errors';
 import Relier from 'models/reliers/relier';
@@ -20,6 +21,18 @@ import VerificationReasons from 'lib/verification-reasons';
 const RESUME_TOKEN = 'a big hairy resume token';
 
 describe('views/mixins/signin-mixin', function () {
+  beforeEach(() => {
+    sinon.stub(GleanMetrics, 'setEnabled');
+    sinon.stub(Glean, 'initialize');
+    sinon.stub(Glean, 'setUploadEnabled');
+  });
+
+  afterEach(() => {
+    Glean.setUploadEnabled.restore();
+    Glean.initialize.restore();
+    GleanMetrics.setEnabled.restore();
+  });
+
   it('exports correct interface', function () {
     assert.isObject(SignInMixin);
     assert.lengthOf(Object.keys(SignInMixin), 4);
@@ -574,14 +587,6 @@ describe('views/mixins/signin-mixin', function () {
     });
 
     describe('onSignInSuccess', () => {
-      beforeEach(() => {
-        sinon.spy(GleanMetrics, 'setEnabled');
-      });
-
-      afterEach(() => {
-        GleanMetrics.setEnabled.restore();
-      });
-
       it('updates relier email and uid from account', () => {
         account.set('uid', 'foo');
         account.set('email', 'a@a.com');

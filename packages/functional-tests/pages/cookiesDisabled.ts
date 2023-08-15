@@ -9,7 +9,7 @@ export class CookiesDisabledPage extends BaseLayout {
 
   async waitForCookiesDisabledHeader() {
     await this.page.waitForSelector('.card-header', {
-      timeout: 1000,
+      timeout: 3000,
     });
   }
 

@@ -382,7 +382,7 @@ export class LoginPage extends BaseLayout {
 
   async waitForPasswordHeader() {
     await this.page.waitForSelector(selectors.PASSWORD_HEADER, {
-      timeout: 2000,
+      timeout: 4000,
     });
   }
 

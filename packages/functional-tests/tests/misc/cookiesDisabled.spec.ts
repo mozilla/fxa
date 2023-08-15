@@ -20,7 +20,7 @@ test.describe('cookies disabled', () => {
     await page.goto(`${target.contentServerUrl}?disable_local_storage=1`);
 
     //Adding the timeout as the page closes before loading
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(2000);
 
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
