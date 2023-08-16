@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import { FtlMsg } from 'fxa-react/lib/utils';
@@ -11,9 +11,8 @@ import { useForm } from 'react-hook-form';
 import base32Encode from 'base32-encode';
 import { logViewEvent } from '../../../lib/metrics';
 import {
-  AuthUiErrorNos,
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import InputPassword from '../../InputPassword';
 import { LockImage } from '../../images';
@@ -69,6 +68,8 @@ export const FlowRecoveryKeyConfirmPwd = ({
   const createRecoveryKey = useCallback(async () => {
     const password = getValues('password');
     logViewEvent(`flow.${viewName}`, 'confirm-password.submit');
+    // if there is an error banner, clear it on form submission
+    setBannerText(undefined);
     try {
       const replaceKey = actionType === RecoveryKeyAction.Change;
       const recoveryKey = await account.createRecoveryKey(password, replaceKey);
@@ -77,35 +78,17 @@ export const FlowRecoveryKeyConfirmPwd = ({
       );
       logViewEvent(`flow.${viewName}`, 'confirm-password.success');
       navigateForward();
-    } catch (e) {
-      let localizedError;
+    } catch (err) {
+      const errorMessage = getLocalizedErrorMessage(ftlMsgResolver, err);
 
-      if (e.errno === AuthUiErrors.THROTTLED.errno) {
-        if (e.retryAfterLocalized) {
-          localizedError = ftlMsgResolver.getMsg(
-            composeAuthUiErrorTranslationId(e),
-            AuthUiErrorNos[e.errno].message,
-            { retryAfter: e.retryAfterLocalized }
-          );
-        } else {
-          // For throttling errors where a localized retry after value is not available
-          localizedError = ftlMsgResolver.getMsg(
-            'auth-error-114-generic',
-            AuthUiErrorNos[114].message
-          );
-        }
-      }
-      // For any errors other than throttling
-      else {
-        localizedError = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(e),
-          e.message
-        );
-      }
-      if (e.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
-        setErrorText(localizedError);
+      if (err.errno === AuthUiErrors.INCORRECT_PASSWORD.errno) {
+        // show error in tooltip if password is incorrect
+        // the error will be cleared when the input content is changed
+        setErrorText(errorMessage);
       } else {
-        setBannerText(localizedError);
+        // otherwise show in a banner
+        // the error will persist until the form is re-submitted
+        setBannerText(errorMessage);
       }
       logViewEvent(`flow.${viewName}`, 'confirm-password.fail');
       setIsLoading(false);
@@ -163,7 +146,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
             )}
             onChange={() => {
               errorText && setErrorText(undefined);
-              bannerText && setBannerText(undefined);
             }}
             inputRef={register({
               required: true,
@@ -195,7 +177,6 @@ export const FlowRecoveryKeyConfirmPwd = ({
         </form>
         {actionType === RecoveryKeyAction.Change && (
           <FtlMsg id="flow-recovery-key-info-cancel-link">
-            {/* TODO: Remove feature flag param in FXA-7419 */}
             <Link
               className="link-blue text-sm mx-auto"
               to={HomePath}

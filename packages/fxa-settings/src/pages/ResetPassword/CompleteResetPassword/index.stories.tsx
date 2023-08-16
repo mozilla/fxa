@@ -7,13 +7,18 @@ import { Meta } from '@storybook/react';
 import CompleteResetPassword from '.';
 import { Account } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import { Subject, paramsWithMissingEmail } from './mocks';
+import {
+  Subject,
+  mockAccountNoRecoveryKey,
+  mockAccountWithRecoveryKeyStatusError,
+  mockAccountWithThrottledError,
+  paramsWithMissingEmail,
+} from './mocks';
 import {
   createAppContext,
   mockAppContext,
   produceComponent,
 } from '../../../models/mocks';
-// import { resetMocks } from '../AccountRecoveryResetPassword/mocks';
 
 export default {
   title: 'Pages/ResetPassword/CompleteResetPassword',
@@ -27,7 +32,7 @@ type RenderStoryOptions = {
 };
 
 function renderStory(
-  { account = accountNoRecoveryKey, params }: RenderStoryOptions = {},
+  { account = mockAccountNoRecoveryKey, params }: RenderStoryOptions = {},
   storyName?: string
 ) {
   const story = () =>
@@ -45,18 +50,6 @@ function renderStory(
   return story();
 }
 
-const accountNoRecoveryKey = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  hasRecoveryKey: () => Promise.resolve(false),
-} as unknown as Account;
-
-const accountWithRecoveryKeyStatusError = {
-  resetPasswordStatus: () => Promise.resolve(true),
-  hasRecoveryKey: () => {
-    throw new Error('boop');
-  },
-} as unknown as Account;
-
 const accountWithFalseyResetPasswordStatus = {
   resetPasswordStatus: () => Promise.resolve(false),
 } as unknown as Account;
@@ -70,9 +63,16 @@ export const NoRecoveryKeySet = () => {
 
 export const ErrorCheckingRecoveryKeyStatus = () => {
   return renderStory({
-    account: accountWithRecoveryKeyStatusError,
+    account: mockAccountWithRecoveryKeyStatusError,
   });
 };
+
+export const ThrottledErrorOnSubmit = () => {
+  return renderStory({
+    account: mockAccountWithThrottledError,
+  });
+};
+
 export const WithExpiredLink = () => {
   return renderStory({
     account: accountWithFalseyResetPasswordStatus,
@@ -81,7 +81,7 @@ export const WithExpiredLink = () => {
 
 export const WithDamagedLink = () => {
   return renderStory({
-    account: accountNoRecoveryKey,
+    account: mockAccountNoRecoveryKey,
     params: paramsWithMissingEmail,
   });
 };

@@ -4,6 +4,7 @@
 
 import { AuthServerError } from 'fxa-auth-client/browser';
 import * as Sentry from '@sentry/browser';
+import { FtlMsgResolver } from 'fxa-react/lib/utils';
 
 export type AuthUiError = AuthServerError & { version?: number };
 
@@ -626,6 +627,43 @@ const ERRORS = {
 type ErrorKey = keyof typeof ERRORS;
 type ErrorVal = { errno: number; message: string; version?: number };
 
+export const getLocalizedErrorMessage = (
+  ftlMsgResolver: FtlMsgResolver,
+  err: AuthUiError
+) => {
+  let localizedError: string;
+
+  if (err.errno && AuthUiErrorNos[err.errno]) {
+    if (err.retryAfterLocalized && err.errno === AuthUiErrors.THROTTLED.errno) {
+      // For throttling errors where a localized retry after value is provided
+      localizedError = ftlMsgResolver.getMsg(
+        composeAuthUiErrorTranslationId(err),
+        AuthUiErrorNos[err.errno].message,
+        { retryAfter: err.retryAfterLocalized }
+      );
+    } else if (err.errno === AuthUiErrors.THROTTLED.errno) {
+      // For throttling errors where a localized retry after value is not available
+      localizedError = ftlMsgResolver.getMsg(
+        'auth-error-114-generic',
+        AuthUiErrorNos[114].message
+      );
+    } else {
+      // for all other recognized auth UI errors
+      localizedError = ftlMsgResolver.getMsg(
+        composeAuthUiErrorTranslationId(err),
+        AuthUiErrorNos[err.errno].message
+      );
+    }
+  } else {
+    const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
+    localizedError = ftlMsgResolver.getMsg(
+      composeAuthUiErrorTranslationId(unexpectedError),
+      unexpectedError.message
+    );
+  }
+  return localizedError;
+};
+
 export const composeAuthUiErrorTranslationId = (err: {
   errno?: number;
   message: string;
@@ -634,6 +672,7 @@ export const composeAuthUiErrorTranslationId = (err: {
    * the AuthUiError type, which has all optional fields. Previously this wasn't an issue bc we didn't use
    * a utility.
    */
+
   if (err.errno && err.errno in AuthUiErrorNos) {
     const error = AuthUiErrorNos[err.errno];
     return `auth-error-${err.errno}${error.version ? '-' + error.version : ''}`;

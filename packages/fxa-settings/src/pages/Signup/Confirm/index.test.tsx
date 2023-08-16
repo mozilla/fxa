@@ -125,8 +125,8 @@ describe('Confirm page', () => {
       });
       fireEvent.click(resendEmailButton);
       expect(account.sendVerificationCode).toBeCalled();
-      const successBannerText = `Something went wrong. A new link could not be sent.`;
-      expect(screen.getByText(successBannerText)).toBeInTheDocument();
+      const bannerText = `Unexpected error`;
+      expect(screen.getByText(bannerText)).toBeInTheDocument();
     });
   });
 

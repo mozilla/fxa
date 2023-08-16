@@ -8,7 +8,7 @@ import { ResendStatus } from '../../lib/types';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import AppLayout from '../AppLayout';
 
-const MOCK_STRINGS = {
+export const MOCK_STRINGS = {
   headingFtlId: 'mock-confirmation-heading',
   headingText: 'Confirm something',
   instructionFtlId: 'mock-confirmation-instruction',
@@ -16,7 +16,7 @@ const MOCK_STRINGS = {
 };
 
 export const MOCK_GOBACK_CB = () => {
-  alert('Navigating back! (alert for storybook only)');
+  alert('Navigating back!');
 };
 
 export const SubjectWithEmailResendSuccess = () => {
@@ -45,10 +45,12 @@ export const SubjectWithEmailResendError = () => {
   const [mockResendStatus, setMockResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  const [mockErrorMessage, setMockErrorMessage] = useState('');
 
   const MOCK_EMAIL_RESEND_FAIL = () => {
     Promise.resolve(false);
     setMockResendStatus(ResendStatus.error);
+    setMockErrorMessage('Uh oh something went wrong');
   };
 
   return (
@@ -58,6 +60,7 @@ export const SubjectWithEmailResendError = () => {
         confirmWithLinkPageStrings={MOCK_STRINGS}
         resendEmailHandler={MOCK_EMAIL_RESEND_FAIL}
         resendStatus={mockResendStatus}
+        errorMessage={mockErrorMessage}
       />
     </AppLayout>
   );

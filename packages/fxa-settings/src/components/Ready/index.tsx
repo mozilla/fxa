@@ -73,6 +73,16 @@ const Ready = ({
 
   const templateValues = getTemplateValues(viewName);
 
+  const showReadyToUseService =
+    !isSync && isSignedIn && serviceName && serviceName !== 'account settings';
+
+  const showReadyToUseSettings =
+    !isSync &&
+    isSignedIn &&
+    (!serviceName || serviceName === 'account settings');
+
+  const showAccountReady = !isSync && !isSignedIn;
+
   const startBrowsing = () => {
     const eventName = `${viewName}.start-browsing`;
     logViewEvent(viewName, eventName, REACT_ENTRYPOINT);
@@ -112,19 +122,19 @@ const Ready = ({
             </div>
           </>
         )}
-        {!isSync && isSignedIn && serviceName && (
+        {showReadyToUseService && (
           <FtlMsg id="ready-use-service" vars={{ serviceName }}>
             <p className="my-4 text-sm">{`You’re now ready to use ${serviceName}`}</p>
           </FtlMsg>
         )}
-        {!isSync && isSignedIn && !serviceName && (
+        {showReadyToUseSettings && (
           <FtlMsg id="ready-use-service-default">
             <p className="my-4 text-sm">
               You’re now ready to use account settings
             </p>
           </FtlMsg>
         )}
-        {!isSync && !isSignedIn && (
+        {showAccountReady && (
           <FtlMsg id="ready-account-ready">
             <p className="my-4 text-sm">Your account is ready!</p>
           </FtlMsg>

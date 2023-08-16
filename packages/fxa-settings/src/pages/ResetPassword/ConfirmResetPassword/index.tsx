@@ -7,7 +7,12 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
-import { isOAuthIntegration, useAccount, useInterval } from '../../../models';
+import {
+  isOAuthIntegration,
+  useAccount,
+  useFtlMsgResolver,
+  useInterval,
+} from '../../../models';
 import AppLayout from '../../../components/AppLayout';
 import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
@@ -19,6 +24,7 @@ import {
   ConfirmResetPasswordIntegration,
   ConfirmResetPasswordLocationState,
 } from './interfaces';
+import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 
 export const viewName = 'confirm-reset-password';
 
@@ -28,6 +34,7 @@ const ConfirmResetPassword = ({
   integration: ConfirmResetPasswordIntegration;
 } & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const navigate = useNavigate();
   let { state } = useLocation();
@@ -43,6 +50,7 @@ const ConfirmResetPassword = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  const [errorMessage, setErrorMessage] = useState<string>();
   const [isPolling, setIsPolling] = useState<number | null>(
     POLLING_INTERVAL_MS
   );
@@ -91,8 +99,13 @@ const ConfirmResetPassword = ({
 
       setResendStatus(ResendStatus['sent']);
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
-    } catch (e) {
-      setResendStatus(ResendStatus['error']);
+    } catch (err) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        err
+      );
+      setResendStatus(ResendStatus.error);
+      setErrorMessage(localizedErrorMessage);
     }
   };
 
@@ -106,7 +119,7 @@ const ConfirmResetPassword = ({
   return (
     <AppLayout>
       <ConfirmWithLink
-        {...{ email, resendEmailHandler, resendStatus }}
+        {...{ email, resendEmailHandler, resendStatus, errorMessage }}
         confirmWithLinkPageStrings={confirmResetPasswordStrings}
       />
       <LinkRememberPassword {...{ email }} />

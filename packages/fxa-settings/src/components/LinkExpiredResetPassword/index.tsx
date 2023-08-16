@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useAccount } from '../../models';
+import {
+  useAccount, useFtlMsgResolver,
+} from '../../models';
 import { ResendStatus } from '../../lib/types';
 import { logViewEvent } from 'fxa-settings/src/lib/metrics';
 import { REACT_ENTRYPOINT } from 'fxa-settings/src/constants';
 import { LinkExpired } from '../LinkExpired';
+import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 
 type LinkExpiredResetPasswordProps = {
   viewName: string;
@@ -24,10 +27,12 @@ export const LinkExpiredResetPassword = ({
 }: LinkExpiredResetPasswordProps) => {
   // TODO in FXA-7630 add metrics event and associated tests for users hitting the LinkExpired page
   const account = useAccount();
+  const ftlMsgResolver = useFtlMsgResolver();
 
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  const [errorMessage, setErrorMessage] = useState<string>();
 
   const resendResetPasswordLink = async () => {
     try {
@@ -37,9 +42,15 @@ export const LinkExpiredResetPassword = ({
         await account.resetPassword(email);
       }
       logViewEvent(viewName, 'resend', REACT_ENTRYPOINT);
-      setResendStatus(ResendStatus['sent']);
-    } catch (e) {
-      setResendStatus(ResendStatus['error']);
+      setErrorMessage('');
+      setResendStatus(ResendStatus.sent);
+    } catch (err) {
+      setResendStatus(ResendStatus.error);
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        err
+      );
+      setErrorMessage(localizedErrorMessage);
     }
   };
 
@@ -50,7 +61,7 @@ export const LinkExpiredResetPassword = ({
       messageText="The link you clicked to reset your password is expired."
       messageFtlId="reset-pwd-link-expired-message"
       resendLinkHandler={resendResetPasswordLink}
-      {...{ resendStatus }}
+      {...{ resendStatus, errorMessage }}
     />
   );
 };

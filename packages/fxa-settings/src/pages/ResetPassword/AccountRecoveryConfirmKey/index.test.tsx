@@ -168,165 +168,158 @@ describe('PageAccountRecoveryConfirmKey', () => {
   });
 
   describe('submit', () => {
-    describe('displays error and does not allow submission', () => {
-      it('with an empty recovery key', async () => {
-        renderSubject();
-        fireEvent.click(
-          await screen.findByRole('button', {
-            name: 'Confirm account recovery key',
-          })
-        );
-        await screen.findByText('Account recovery key required');
-        expect(
-          accountWithValidResetToken.getRecoveryKeyBundle
-        ).not.toHaveBeenCalled();
-
-        // clears the error onchange
-        await typeByLabelText('Enter account recovery key')('a');
-        expect(
-          screen.queryByText('Account recovery key required')
-        ).not.toBeInTheDocument();
+    it('does not allow submission with an empty input', async () => {
+      renderSubject();
+      const submitButton = await screen.findByRole('button', {
+        name: 'Confirm account recovery key',
       });
+      expect(submitButton).toBeDisabled();
 
-      it('with less than 32 characters', async () => {
-        renderSubject();
-        const submitButton = await screen.findByRole('button', {
+      // adding text in the field enables the submit button
+      await typeByLabelText('Enter account recovery key')('a');
+      expect(
+        screen.getByRole('button', {
           name: 'Confirm account recovery key',
-        });
-        await typeByLabelText('Enter account recovery key')(
-          MOCK_RECOVERY_KEY.slice(0, -1)
-        );
-        fireEvent.click(submitButton);
-        await screen.findByText('Invalid account recovery key');
-        expect(
-          accountWithValidResetToken.getRecoveryKeyBundle
-        ).not.toHaveBeenCalled();
-
-        // clears the error onchange
-        await typeByLabelText('Enter account recovery key')('');
-        expect(
-          screen.queryByText('Invalid account recovery key')
-        ).not.toBeInTheDocument();
-      });
-
-      it('with more than 32 characters', async () => {
-        renderSubject({ account: accountWithValidResetToken });
-        const submitButton = await screen.findByRole('button', {
-          name: 'Confirm account recovery key',
-        });
-        await typeByLabelText('Enter account recovery key')(
-          `${MOCK_RECOVERY_KEY}V`
-        );
-        fireEvent.click(submitButton);
-        await screen.findByText('Invalid account recovery key');
-        expect(
-          accountWithValidResetToken.getRecoveryKeyBundle
-        ).not.toHaveBeenCalled();
-      });
-
-      it('with invalid Crockford base32', async () => {
-        renderSubject();
-        const submitButton = await screen.findByRole('button', {
-          name: 'Confirm account recovery key',
-        });
-        await typeByLabelText('Enter account recovery key')(
-          `${MOCK_RECOVERY_KEY}L`.slice(1)
-        );
-        fireEvent.click(submitButton);
-        await screen.findByText('Invalid account recovery key');
-        expect(
-          accountWithValidResetToken.getRecoveryKeyBundle
-        ).not.toHaveBeenCalled();
-      });
+        })
+      ).not.toBeDisabled();
     });
 
-    it('submits successfully with spaces in recovery key', async () => {
+    it('with less than 32 characters', async () => {
       renderSubject();
       const submitButton = await screen.findByRole('button', {
         name: 'Confirm account recovery key',
       });
       await typeByLabelText('Enter account recovery key')(
-        MOCK_RECOVERY_KEY.replace(/(.{4})/g, '$1 ')
+        MOCK_RECOVERY_KEY.slice(0, -1)
       );
-
       fireEvent.click(submitButton);
+      await screen.findByText('Invalid account recovery key');
+      expect(
+        accountWithValidResetToken.getRecoveryKeyBundle
+      ).not.toHaveBeenCalled();
 
-      await waitFor(() => {
-        expect(
-          accountWithValidResetToken.getRecoveryKeyBundle
-        ).toHaveBeenCalledWith(
-          MOCK_RESET_TOKEN,
-          MOCK_RECOVERY_KEY,
-          MOCK_ACCOUNT.uid
-        );
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/account_recovery_reset_password?${search}`,
-          {
-            state: {
-              accountResetToken: MOCK_RESET_TOKEN,
-              recoveryKeyId: MOCK_RECOVERY_KEY_ID,
-              kB: MOCK_KB,
-            },
-          }
-        );
-      });
+      // clears the error onchange
+      await typeByLabelText('Enter account recovery key')('');
+      expect(
+        screen.queryByText('Invalid account recovery key')
+      ).not.toBeInTheDocument();
     });
 
-    it('submits successfully after invalid recovery key submission', async () => {
-      const accountWithKeyInvalidOnce = {
-        resetPasswordStatus: jest.fn().mockResolvedValue(true),
-        verifyPasswordForgotToken: jest
-          .fn()
-          .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
-        getRecoveryKeyBundle: jest
-          .fn()
-          .mockImplementationOnce(() => {
-            return Promise.reject(new Error('Oh noes'));
-          })
-          .mockResolvedValue({
-            recoveryData: 'mockRecoveryData',
-            recoveryKeyId: MOCK_RECOVERY_KEY_ID,
-          }),
-      } as unknown as Account;
-
-      renderSubject({ account: accountWithKeyInvalidOnce });
-      await screen.findByRole('heading', {
-        level: 1,
-        name: 'Reset password with account recovery key to continue to account settings',
+    it('displays an error and does not submit with more than 32 characters', async () => {
+      renderSubject({ account: accountWithValidResetToken });
+      const submitButton = await screen.findByRole('button', {
+        name: 'Confirm account recovery key',
       });
-      await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Confirm account recovery key' })
+      await typeByLabelText('Enter account recovery key')(
+        `${MOCK_RECOVERY_KEY}V`
       );
+      fireEvent.click(submitButton);
       await screen.findByText('Invalid account recovery key');
+      expect(
+        accountWithValidResetToken.getRecoveryKeyBundle
+      ).not.toHaveBeenCalled();
+    });
 
-      fireEvent.click(
-        screen.getByRole('button', { name: 'Confirm account recovery key' })
+    it('displays an error and does not submit with invalid Crockford base32', async () => {
+      renderSubject();
+      const submitButton = await screen.findByRole('button', {
+        name: 'Confirm account recovery key',
+      });
+      await typeByLabelText('Enter account recovery key')(
+        `${MOCK_RECOVERY_KEY}L`.slice(1)
       );
+      fireEvent.click(submitButton);
+      await screen.findByText('Invalid account recovery key');
+      expect(
+        accountWithValidResetToken.getRecoveryKeyBundle
+      ).not.toHaveBeenCalled();
+    });
+  });
 
-      // only ever calls `verifyPasswordForgotToken` once despite number of submissions
-      await waitFor(() =>
-        expect(
-          accountWithKeyInvalidOnce.verifyPasswordForgotToken
-        ).toHaveBeenCalledTimes(1)
-      );
+  it('submits successfully with spaces in recovery key', async () => {
+    renderSubject();
+    const submitButton = await screen.findByRole('button', {
+      name: 'Confirm account recovery key',
+    });
+    await typeByLabelText('Enter account recovery key')(
+      MOCK_RECOVERY_KEY.replace(/(.{4})/g, '$1 ')
+    );
+
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
       expect(
-        accountWithKeyInvalidOnce.verifyPasswordForgotToken
-      ).toHaveBeenCalledWith(
-        mockCompleteResetPasswordParams.token,
-        mockCompleteResetPasswordParams.code
-      );
-      expect(
-        accountWithKeyInvalidOnce.getRecoveryKeyBundle
-      ).toHaveBeenCalledTimes(2);
-      expect(
-        accountWithKeyInvalidOnce.getRecoveryKeyBundle
+        accountWithValidResetToken.getRecoveryKeyBundle
       ).toHaveBeenCalledWith(
         MOCK_RESET_TOKEN,
         MOCK_RECOVERY_KEY,
-        mockCompleteResetPasswordParams.uid
+        MOCK_ACCOUNT.uid
+      );
+      expect(mockNavigate).toHaveBeenCalledWith(
+        `/account_recovery_reset_password?${search}`,
+        {
+          state: {
+            accountResetToken: MOCK_RESET_TOKEN,
+            recoveryKeyId: MOCK_RECOVERY_KEY_ID,
+            kB: MOCK_KB,
+          },
+        }
       );
     });
+  });
+
+  it('submits successfully after invalid recovery key submission', async () => {
+    const accountWithKeyInvalidOnce = {
+      resetPasswordStatus: jest.fn().mockResolvedValue(true),
+      verifyPasswordForgotToken: jest
+        .fn()
+        .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
+      getRecoveryKeyBundle: jest
+        .fn()
+        .mockImplementationOnce(() => {
+          return Promise.reject(AuthUiErrors.INVALID_RECOVERY_KEY);
+        })
+        .mockResolvedValue({
+          recoveryData: 'mockRecoveryData',
+          recoveryKeyId: MOCK_RECOVERY_KEY_ID,
+        }),
+    } as unknown as Account;
+
+    renderSubject({ account: accountWithKeyInvalidOnce });
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'Reset password with account recovery key to continue to account settings',
+    });
+    await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm account recovery key' })
+    );
+    await screen.findByText('Invalid account recovery key');
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm account recovery key' })
+    );
+
+    // only ever calls `verifyPasswordForgotToken` once despite number of submissions
+    await waitFor(() =>
+      expect(
+        accountWithKeyInvalidOnce.verifyPasswordForgotToken
+      ).toHaveBeenCalledTimes(1)
+    );
+    expect(
+      accountWithKeyInvalidOnce.verifyPasswordForgotToken
+    ).toHaveBeenCalledWith(
+      mockCompleteResetPasswordParams.token,
+      mockCompleteResetPasswordParams.code
+    );
+    expect(
+      accountWithKeyInvalidOnce.getRecoveryKeyBundle
+    ).toHaveBeenCalledTimes(2);
+    expect(accountWithKeyInvalidOnce.getRecoveryKeyBundle).toHaveBeenCalledWith(
+      MOCK_RESET_TOKEN,
+      MOCK_RECOVERY_KEY,
+      mockCompleteResetPasswordParams.uid
+    );
   });
 
   describe('emits metrics events', () => {
