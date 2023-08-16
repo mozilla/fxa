@@ -4,7 +4,7 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 
-//Add `disable_local_storage` to the URL to synthesize cookies being disabled.
+// Add `disable_local_storage` to the URL to synthesize cookies being disabled.
 test.describe('cookies disabled', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
