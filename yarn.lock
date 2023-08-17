@@ -31414,7 +31414,7 @@ fsevents@~2.1.1:
     mailparser: 0.6.1
     memcached: ^2.2.2
     mjml: ^4.13.0
-    mjml-browser: ^4.13.0
+    mjml-browser: ^4.14.1
     mocha: ^10.0.0
     moment: ^2.29.4
     moment-timezone: ^0.5.35
@@ -42155,10 +42155,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mjml-browser@npm:^4.13.0":
-  version: 4.13.0
-  resolution: "mjml-browser@npm:4.13.0"
-  checksum: 9c672219d3f4df8a498e8bd1ea8869f3d4bd41a30ff5ca77cd33c2f0da9e105faeceabfacc898c54fd405d5e79497f91461d37e139e35a517f7c6f066609f075
+"mjml-browser@npm:^4.14.1":
+  version: 4.14.1
+  resolution: "mjml-browser@npm:4.14.1"
+  checksum: 5439e5938c23b26bb98164294d5f2e1f541ab94bbeed90fe9066f2b0abae7b37651bb7eeb0b5cedf540267e660d27abec7ac2abc35cdc422583cede576a890e9
   languageName: node
   linkType: hard
 
