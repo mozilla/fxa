@@ -4,5 +4,6 @@
 export * from './lib/associated-types';
 export * from './lib/keysley-types';
 export { CartFactory } from './lib/factories';
-export { setupAccountDatabase, AccountDatabase } from './lib/setup';
+export { setupAccountDatabase } from './lib/setup';
 export { testAccountDatabaseSetup } from './lib/tests';
+export type { AccountDatabase } from './lib/setup';

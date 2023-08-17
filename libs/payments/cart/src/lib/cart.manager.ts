@@ -5,8 +5,9 @@ import { NotFoundError } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable } from '@nestjs/common';
 
-import { AccountDatabase, CartState } from '@fxa/shared/db/mysql/account';
-import { Logger } from '@fxa/shared/log';
+import { CartState } from '@fxa/shared/db/mysql/account';
+import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
+import type { Logger } from '@fxa/shared/log';
 
 import {
   CartInvalidStateForActionError,

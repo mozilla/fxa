@@ -3,7 +3,7 @@ const { join } = require('path');
 
 module.exports = {
   presets: [
-    require('../../../libs/shared/styles/tailwind.config.js')
+    require('../../../libs/shared/styles/src/configs/tailwind.config')
   ],
   content: [
     join(
