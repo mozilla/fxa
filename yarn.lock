@@ -32007,7 +32007,7 @@ fsevents@~2.1.1:
     serve-static: ^1.14.2
     sinon: ^9.0.3
     storybook: ^7.0.23
-    storybook-addon-mock: 4.0.0
+    storybook-addon-mock: 4.2.1
     supertest: ^6.3.0
     ts-jest: ^29.1.0
     typedi: ^0.8.0
@@ -52290,9 +52290,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"storybook-addon-mock@npm:4.0.0":
-  version: 4.0.0
-  resolution: "storybook-addon-mock@npm:4.0.0"
+"storybook-addon-mock@npm:4.2.1":
+  version: 4.2.1
+  resolution: "storybook-addon-mock@npm:4.2.1"
   dependencies:
     mock-xmlhttprequest: ^8.1.0
     path-to-regexp: ^6.2.1
@@ -52311,7 +52311,7 @@ resolve@1.1.7:
       optional: true
     react-dom:
       optional: true
-  checksum: 1bc4861309f056754cef1a7510c80967f03e3a4b64558337baa25d730be7d94792c1e3f9949f0cd0e48660d6d8233973288f9f825577edc4ffb470e09cc1cb53
+  checksum: 0b1c96443f7e1ca3a6375ff4b682787673802f1b4cc0b8a536212c3c636512c3b6a19e85c15779228c628a9e2020d61a5533c0f9017b2e7f94855f42936381da
   languageName: node
   linkType: hard
 
