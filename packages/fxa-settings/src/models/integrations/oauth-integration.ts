@@ -16,12 +16,12 @@ import { IntegrationFlags } from '../../lib/integrations';
 import { BaseIntegrationData } from './web-integration';
 import {
   IsBoolean,
+  IsBooleanString,
   IsEmail,
   IsHexadecimal,
   IsIn,
   IsNotEmpty,
   IsOptional,
-  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -109,10 +109,11 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   idTokenHint: string | undefined;
 
-  @IsPositive()
+  // TODO: Validation - this should be converted to a number and then checked if it's >= 0
   @IsOptional()
+  @IsString()
   @bind(T.snakeCase)
-  maxAge: number | undefined;
+  maxAge: string | undefined;
 
   @IsOptional()
   @IsString()
@@ -143,10 +144,10 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   @bind(T.snakeCase)
-  returnOnError: boolean | undefined;
+  returnOnError: 'true' | 'false' | undefined;
 
   // TODO - Validation - Should scope be required?
   @IsOptional()

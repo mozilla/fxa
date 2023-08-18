@@ -26,7 +26,10 @@ export class BaseIntegrationData extends ModelDataProvider {
   context: string | undefined;
 
   @IsOptional()
-  @IsEmail()
+  // TODO - Validation - change this to 'IsEmail'. Requiring this to be an email
+  // causes this to throw when we have a separate model, like a query param or
+  // link model for a page, where we validate this instead.
+  @IsString()
   @bind()
   email: string | undefined;
 

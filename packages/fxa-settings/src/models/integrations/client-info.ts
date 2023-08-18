@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  IsBoolean,
   IsHexadecimal,
   IsOptional,
   IsString,
+  IsBoolean,
 } from 'class-validator';
 import {
   bind,
