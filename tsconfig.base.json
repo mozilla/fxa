@@ -27,6 +27,9 @@
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
+      "@fxa/shared/account/account": [
+        "libs/shared/account/account/src/index.ts"
+      ],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
