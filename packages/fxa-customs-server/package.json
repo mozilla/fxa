@@ -26,7 +26,7 @@
     "make-artifacts-dir": "mkdir -p ../../artifacts/tests/$npm_package_name"
   },
   "dependencies": {
-    "@google-cloud/pubsub": "^2.19.4",
+    "@google-cloud/pubsub": "^4.0.1",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hoek": "^11.0.2",
     "@sentry/node": "^6.19.1",
