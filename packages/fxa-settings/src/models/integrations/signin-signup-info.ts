@@ -4,14 +4,12 @@
 
 import {
   IsBase64,
-  IsBoolean,
+  IsBooleanString,
   IsEmail,
   IsHexadecimal,
   IsIn,
-  IsInt,
   IsNotEmpty,
   IsOptional,
-  IsPositive,
   IsString,
 } from 'class-validator';
 import {
@@ -71,11 +69,11 @@ export class SignInSignUpInfo extends ModelDataProvider {
   @bind(T.snakeCase)
   loginHint: string | undefined;
 
+  // TODO: Validation - this should be converted to a number and then checked if it's >= 0
   @IsOptional()
-  @IsInt()
-  @IsPositive()
+  @IsString()
   @bind(T.snakeCase)
-  maxAge: number | undefined;
+  maxAge: string | undefined;
 
   @IsOptional()
   @IsIn(['consent', 'none', 'login'])
@@ -95,9 +93,9 @@ export class SignInSignUpInfo extends ModelDataProvider {
   redirectTo: string | undefined;
 
   @IsOptional()
-  @IsBoolean()
+  @IsBooleanString()
   @bind(T.snakeCase)
-  returnOnError: boolean | undefined;
+  returnOnError: 'true' | 'false' | undefined;
 
   @IsOptional()
   @IsString()
