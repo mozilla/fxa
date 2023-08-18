@@ -10,6 +10,7 @@ export {
   createKnex,
   generateFxAUuid,
   monitorKnexConnectionPool,
+  createDialect,
 } from './lib/core';
 export { runSql } from './lib/tests';
 export { intBoolTransformer, uuidTransformer } from './lib/transformers';

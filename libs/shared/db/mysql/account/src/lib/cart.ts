@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseModel } from './base';
-import { Account } from './account';
 import { CartState, TaxAddress } from './types';
 import { generateFxAUuid, uuidTransformer } from '../../../core/src';
 
@@ -28,16 +27,7 @@ export class Cart extends BaseModel {
   amount!: number;
   readonly version!: number;
 
-  static relationMappings = {
-    account: {
-      join: {
-        from: 'carts.uid',
-        to: 'accounts.uid',
-      },
-      modelClass: Account,
-      relation: BaseModel.BelongsToOneRelation,
-    },
-  };
+  static relationMappings = {};
 
   static async create(items: Partial<Cart>) {
     const currentDate = Date.now();

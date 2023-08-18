@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { knex, Knex } from 'knex';
+import { MysqlDialect } from 'kysely';
+import { createPool } from 'mysql2';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -105,4 +107,65 @@ export function createKnex(
 
 export function generateFxAUuid() {
   return uuidv4({}, Buffer.alloc(16)).toString('hex');
+}
+
+export async function createDialect(
+  opts: MySQLConfig,
+  log: Logger = new ConsoleLogger(),
+  metrics: StatsD = localStatsD()
+) {
+  log.debug('mysqlDialect', {
+    msg: `mysqlDialect: Creating MysqlDialect`,
+    connLimit: opts.connectionLimitMax,
+  });
+  const pool = createPool({
+    typeCast: typeCasting,
+    charset: 'UTF8MB4_BIN',
+    database: opts.database,
+    host: opts.host,
+    user: opts.user,
+    password: opts.password,
+    port: opts.port,
+    connectionLimit: opts.connectionLimitMax,
+  });
+  pool.on('acquire', (eventId: any) => {
+    metrics.increment('mysqlDialect.acquire');
+  });
+  pool.on('connection', (eventId: any) => {
+    metrics.increment('mysqlDialect.connection');
+  });
+  pool.on('release', (eventId: any) => {
+    metrics.increment('mysqlDialect.release');
+  });
+
+  // Connection setup
+  // Always communicate timestamps in UTC.
+  await pool.promise().query("SET time_zone = '+00:00'");
+  // Always use full 4-byte UTF-8 for communicating unicode.
+  await pool.promise().query('SET NAMES utf8mb4 COLLATE utf8mb4_bin;');
+  // Always have certain modes active. The complexity here is to
+  // preserve any extra modes active by default on the server.
+  // We also try to preserve the order of the existing mode flags,
+  // just in case the order has some obscure effect we don't know about.
+  const [rows] = await pool.promise().query('SELECT @@sql_mode AS mode');
+  const modes = (rows as any)[0].mode.split(',');
+  let needToSetMode = false;
+  for (const requiredMode of REQUIRED_SQL_MODES) {
+    if (modes.indexOf(requiredMode) === -1) {
+      modes.push(requiredMode);
+      needToSetMode = true;
+    }
+  }
+  if (needToSetMode) {
+    log.debug('mysqlDialect', {
+      msg: `mysqlDialect: Setting sql_mode`,
+      mode: modes.join(','),
+    });
+    const mode = modes.join(',');
+    await pool.promise().query("SET SESSION sql_mode = '" + mode + "'");
+  }
+
+  return new MysqlDialect({
+    pool,
+  });
 }
