@@ -11,11 +11,11 @@ export class CartError extends BaseError {
   constructor(message: string, cause?: Error) {
     super(
       {
-        name: 'CartError',
         ...(cause && { cause }),
       },
       message
     );
+    this.name = this.constructor.name;
   }
 }
 

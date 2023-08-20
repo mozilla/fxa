@@ -2,22 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NotFoundError } from 'objection';
-import { Cart, CartState } from '@fxa/shared/db/mysql/account';
+import { v4 as uuidv4 } from 'uuid';
+
+import { AccountDatabase, CartState } from '@fxa/shared/db/mysql/account';
 import { Logger } from '@fxa/shared/log';
-import {
-  FinishCart,
-  FinishErrorCart,
-  SetupCart,
-  UpdateCart,
-} from './cart.types';
+
 import {
   CartInvalidStateForActionError,
   CartNotCreatedError,
   CartNotDeletedError,
   CartNotFoundError,
-  CartNotRestartedError,
   CartNotUpdatedError,
 } from './cart.error';
+import {
+  FinishCart,
+  FinishErrorCart,
+  ResultCart,
+  SetupCart,
+  UpdateCart,
+} from './cart.types';
+import {
+  createCart,
+  deleteCart,
+  fetchCartById,
+  updateCart,
+} from './cart.repository';
 
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
@@ -34,26 +43,14 @@ const isAction = (action: string): action is keyof typeof ACTIONS_VALID_STATE =>
   action in ACTIONS_VALID_STATE;
 
 export class CartManager {
-  private log: Logger;
-  constructor(log: Logger) {
-    this.log = log;
-  }
-
-  private async handleUpdates(cart: Cart) {
-    const updatedRows = await cart.update();
-    if (!updatedRows) {
-      throw new CartNotUpdatedError(cart.id);
-    } else {
-      return cart;
-    }
-  }
+  constructor(private log: Logger, private db: AccountDatabase) {}
 
   /**
    * Ensure that the action being executed has a valid Cart state for
    * that action. For example, updateFreshCart is only allowed on carts
    * with state CartState.START.
    */
-  private checkActionForValidCartState(cart: Cart, action: string) {
+  private checkActionForValidCartState(cart: ResultCart, action: string) {
     const isValid =
       isAction(action) && ACTIONS_VALID_STATE[action].includes(cart.state);
 
@@ -64,99 +61,104 @@ export class CartManager {
     }
   }
 
-  public async createCart(input: SetupCart) {
+  public async createCart(input: SetupCart): Promise<ResultCart> {
+    const now = Date.now();
     try {
-      return await Cart.create({
+      const cart = await createCart(this.db, {
         ...input,
+        taxAddress: input.taxAddress
+          ? JSON.stringify(input.taxAddress)
+          : undefined,
+        id: uuidv4({}, Buffer.alloc(16)),
+        uid: input.uid ? Buffer.from(input.uid, 'hex') : undefined,
         state: CartState.START,
+        createdAt: now,
+        updatedAt: now,
+        version: 0,
       });
+      return {
+        ...cart,
+        id: cart.id.toString('hex'),
+        uid: cart.uid ? cart.uid.toString('hex') : undefined,
+      };
     } catch (error) {
+      console.log(error);
       throw new CartNotCreatedError(input, error);
     }
   }
 
-  public async fetchCartById(id: string) {
+  public async fetchCartById(id: string): Promise<ResultCart> {
     try {
-      return await Cart.findById(id);
+      const cart = await fetchCartById(this.db, Buffer.from(id, 'hex'));
+      return {
+        ...cart,
+        id: cart.id.toString('hex'),
+        uid: cart.uid ? cart.uid.toString('hex') : undefined,
+      };
     } catch (error) {
       const cause = error instanceof NotFoundError ? undefined : error;
       throw new CartNotFoundError(id, cause);
     }
   }
 
-  public async updateFreshCart(cart: Cart, items: UpdateCart) {
+  public async updateFreshCart(cart: ResultCart, items: UpdateCart) {
     this.checkActionForValidCartState(cart, 'updateFreshCart');
 
-    cart.setCart({
-      ...items,
-    });
-
     try {
-      return await this.handleUpdates(cart);
+      await updateCart(this.db, cart, {
+        ...items,
+        taxAddress: items.taxAddress
+          ? JSON.stringify(items.taxAddress)
+          : undefined,
+        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+      });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new CartNotUpdatedError(cart.id, items, cause);
     }
   }
 
-  public async finishCart(cart: Cart, items: FinishCart) {
+  public async finishCart(cart: ResultCart, items: FinishCart) {
     this.checkActionForValidCartState(cart, 'finishCart');
 
-    cart.setCart({
-      state: CartState.SUCCESS,
-      ...items,
-    });
-
     try {
-      return await this.handleUpdates(cart);
+      await updateCart(this.db, cart, {
+        ...items,
+        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+        state: CartState.SUCCESS,
+      });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new CartNotUpdatedError(cart.id, items, cause);
     }
   }
 
-  public async finishErrorCart(cart: Cart, items: FinishErrorCart) {
+  public async finishErrorCart(cart: ResultCart, items: FinishErrorCart) {
     this.checkActionForValidCartState(cart, 'finishErrorCart');
 
-    cart.setCart({
-      state: CartState.FAIL,
-      ...items,
-    });
-
     try {
-      return await this.handleUpdates(cart);
+      await updateCart(this.db, cart, {
+        ...items,
+        uid: items.uid ? Buffer.from(items.uid, 'hex') : undefined,
+        state: CartState.FAIL,
+      });
     } catch (error) {
       const cause = error instanceof CartNotUpdatedError ? undefined : error;
       throw new CartNotUpdatedError(cart.id, items, cause);
     }
   }
 
-  public async deleteCart(cart: Cart) {
+  public async deleteCart(cart: ResultCart) {
     this.checkActionForValidCartState(cart, 'deleteCart');
 
     try {
-      const result = await cart.delete();
-      if (!result) {
+      if (!(await deleteCart(this.db, cart))) {
         throw new CartNotDeletedError(cart.id);
-      } else {
-        return result;
       }
+      return true;
     } catch (error) {
       const cause = error instanceof CartNotDeletedError ? undefined : error;
       throw new CartNotDeletedError(cart.id, cause);
-    }
-  }
-
-  public async restartCart(cart: Cart) {
-    this.checkActionForValidCartState(cart, 'restartCart');
-
-    try {
-      return await Cart.create({
-        ...cart,
-        state: CartState.START,
-      });
-    } catch (error) {
-      throw new CartNotRestartedError(cart.id, error);
     }
   }
 }

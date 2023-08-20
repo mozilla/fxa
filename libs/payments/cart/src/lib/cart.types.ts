@@ -1,41 +1,45 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Cart as CartDB, CartFields } from '@fxa/shared/db/mysql/account';
+import { Cart } from '@fxa/shared/db/mysql/account';
 
+export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
+  readonly id: string;
+  readonly uid?: string;
+};
 export interface TaxAmount {
   title: string;
   amount: number;
 }
 
-export interface Invoice {
-  totalAmount: number;
-  taxAmounts: TaxAmount[];
-}
-
-export type Cart = CartFields & {
-  previousInvoice?: Invoice;
-  nextInvoice: Invoice;
+export type SetupCart = {
+  uid?: string;
+  interval: string;
+  offeringConfigId: string;
+  experiment?: string;
+  taxAddress?: Record<string, string>;
+  couponCode?: string;
+  stripeCustomerId?: string;
+  email: string;
+  amount: number;
 };
 
-export type SetupCart = Pick<
-  CartDB,
-  | 'uid'
-  | 'interval'
-  | 'errorReasonId'
-  | 'offeringConfigId'
-  | 'experiment'
-  | 'taxAddress'
-  | 'couponCode'
-  | 'stripeCustomerId'
-  | 'email'
-  | 'amount'
->;
+export type UpdateCart = {
+  uid?: string;
+  taxAddress?: string;
+  couponCode?: string;
+  email?: string;
+};
 
-export type UpdateCart = Pick<CartDB, 'taxAddress' | 'couponCode' | 'email'>;
+export type FinishCart = {
+  uid?: string;
+  amount?: number;
+  stripeCustomerId?: string;
+};
 
-export type FinishCart = Pick<CartDB, 'uid' | 'amount' | 'stripeCustomerId'>;
-
-export type FinishErrorCart = { errorReasonId: string } & Partial<
-  Pick<CartDB, 'uid' | 'amount' | 'stripeCustomerId'>
->;
+export type FinishErrorCart = {
+  uid?: string;
+  errorReasonId: string;
+  amount?: number;
+  stripeCustomerId?: string;
+};

@@ -22,6 +22,13 @@ export type JsonPrimitive = boolean | null | number | string;
 
 export type JsonValue = JsonArray | JsonObject | JsonPrimitive;
 
+export enum CartState {
+  START = 'start',
+  PROCESSING = 'processing',
+  SUCCESS = 'success',
+  FAIL = 'fail',
+}
+
 export interface AccountCustomers {
   uid: Buffer;
   stripeCustomerId: string | null;
@@ -61,7 +68,7 @@ export interface Accounts {
 export interface Carts {
   id: Buffer;
   uid: Buffer | null;
-  state: 'fail' | 'processing' | 'start' | 'success';
+  state: CartState;
   errorReasonId: string | null;
   offeringConfigId: string;
   interval: string;
@@ -73,7 +80,7 @@ export interface Carts {
   stripeCustomerId: string | null;
   email: string | null;
   amount: number;
-  version: Generated<number>;
+  version: number;
 }
 
 export interface DeviceCommandIdentifiers {

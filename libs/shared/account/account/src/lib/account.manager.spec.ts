@@ -4,18 +4,17 @@
 import { Kysely } from 'kysely';
 
 import { faker } from '@faker-js/faker';
-import { DB } from '@fxa/shared/db/mysql/account';
+import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 
 import { AccountAlreadyExistsError } from './account.error';
 import { AccountManager } from './account.manager';
-import { testAccountDatabaseSetup } from './tests';
 
 describe('accountManager', () => {
   let accountManager: AccountManager;
   let kysleyDb: Kysely<DB>;
 
   beforeAll(async () => {
-    kysleyDb = await testAccountDatabaseSetup();
+    kysleyDb = await testAccountDatabaseSetup(['accounts', 'emails']);
     accountManager = new AccountManager(kysleyDb);
   });
 

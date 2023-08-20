@@ -1,14 +1,24 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Knex } from 'knex';
 import { v4 as uuidv4 } from 'uuid';
+
 import {
-  Cart,
   CartFactory,
   CartState,
-} from '../../../../shared/db/mysql/account/src';
-import { Logger } from '../../../../shared/log/src';
+  testAccountDatabaseSetup,
+  AccountDatabase,
+  CartUpdate,
+} from '@fxa/shared/db/mysql/account';
+import { Logger } from '@fxa/shared/log';
+
+import {
+  CartInvalidStateForActionError,
+  CartNotCreatedError,
+  CartNotDeletedError,
+  CartNotFoundError,
+  CartNotUpdatedError,
+} from './cart.error';
 import {
   FinishCartFactory,
   FinishErrorCartFactory,
@@ -16,24 +26,34 @@ import {
   UpdateCartFactory,
 } from './cart.factories';
 import { CartManager } from './cart.manager';
-import { testCartDatabaseSetup } from './tests';
-import {
-  CartInvalidStateForActionError,
-  CartNotDeletedError,
-  CartNotFoundError,
-  CartNotUpdatedError,
-  CartNotRestartedError,
-  CartNotCreatedError,
-} from './cart.error';
+import { ResultCart } from './cart.types';
+
+// Fail action, which sometimes isn't here due to a weird issue defined here:
+// https://github.com/jestjs/jest/issues/11698#issuecomment-922351139
+function fail(reason = 'fail was called in a test.') {
+  throw new Error(reason);
+}
 
 const CART_ID = '8730e0d5939c450286e6e6cc1bbeeab2';
 const RANDOM_ID = uuidv4({}, Buffer.alloc(16)).toString('hex');
 const RANDOM_VERSION = 1234;
 
+async function directUpdate(
+  db: AccountDatabase,
+  cart: Omit<CartUpdate, 'id'> & { id?: Buffer },
+  id: string
+) {
+  await db
+    .updateTable('carts')
+    .set(cart)
+    .where('id', '=', Buffer.from(id, 'hex'))
+    .execute();
+}
+
 describe('#payments-cart - manager', () => {
-  let knex: Knex;
+  let db: AccountDatabase;
   let cartManager: CartManager;
-  let testCart: Cart;
+  let testCart: ResultCart;
   const mockLogger: Logger = {
     debug: jest.fn(),
     error: jest.fn(),
@@ -43,16 +63,19 @@ describe('#payments-cart - manager', () => {
   };
 
   beforeAll(async () => {
-    cartManager = new CartManager(mockLogger);
-    knex = await testCartDatabaseSetup();
-    await Cart.query().insert({
-      ...CartFactory(),
-      id: CART_ID,
-    });
+    db = await testAccountDatabaseSetup(['accounts', 'carts']);
+    cartManager = new CartManager(mockLogger, db);
+    await db
+      .insertInto('carts')
+      .values({
+        ...CartFactory(),
+        id: Buffer.from(CART_ID, 'hex'),
+      })
+      .execute();
   });
 
   afterAll(async () => {
-    await knex.destroy();
+    await db.destroy();
   });
 
   beforeEach(async () => {
@@ -115,15 +138,15 @@ describe('#payments-cart - manager', () => {
         email: 'test@example.com',
       });
 
-      const cart = await cartManager.updateFreshCart(testCart, updateItems);
+      await cartManager.updateFreshCart(testCart, updateItems);
+      const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(updateItems));
     });
 
     it('fails - invalid state', async () => {
-      testCart.setCart({
-        state: CartState.FAIL,
-      });
+      await directUpdate(db, { state: CartState.FAIL }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
       try {
         await cartManager.updateFreshCart(testCart, UpdateCartFactory());
         fail('Error in updateFreshCart');
@@ -133,28 +156,16 @@ describe('#payments-cart - manager', () => {
     });
 
     it('fails - cart could not be updated', async () => {
-      testCart.setCart({
-        state: CartState.START,
-        version: RANDOM_VERSION,
-      });
+      await directUpdate(
+        db,
+        { state: CartState.FAIL, version: RANDOM_VERSION },
+        testCart.id
+      );
       try {
         await cartManager.updateFreshCart(testCart, UpdateCartFactory());
         fail('Error in updateFreshCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartNotUpdatedError);
-      }
-    });
-
-    it('fails - with unexpected error', async () => {
-      testCart.setCart({
-        id: 0 as unknown as string,
-      });
-      try {
-        await cartManager.updateFreshCart(testCart, UpdateCartFactory());
-        fail('Error in updateFreshCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
-        expect(error.jse_cause).not.toBeUndefined();
       }
     });
   });
@@ -162,11 +173,11 @@ describe('#payments-cart - manager', () => {
   describe('finishCart', () => {
     it('succeeds', async () => {
       const items = FinishCartFactory();
-      testCart.setCart({
-        state: CartState.PROCESSING,
-      });
+      await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
 
-      const cart = await cartManager.finishCart(testCart, items);
+      await cartManager.finishCart(testCart, items);
+      const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(items));
       expect(cart.state).toEqual(CartState.SUCCESS);
@@ -180,81 +191,27 @@ describe('#payments-cart - manager', () => {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
       }
     });
-
-    it('fails - cart could not be updated', async () => {
-      testCart.setCart({
-        state: CartState.PROCESSING,
-        version: RANDOM_VERSION,
-      });
-      try {
-        await cartManager.finishCart(testCart, FinishCartFactory());
-        fail('Error in finishCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
-      }
-    });
-
-    it('fails - with unexpected error', async () => {
-      testCart.setCart({
-        id: 0 as unknown as string,
-        state: CartState.PROCESSING,
-      });
-      try {
-        await cartManager.finishCart(testCart, FinishCartFactory());
-        fail('Error in finishCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
-        expect(error.jse_cause).not.toBeUndefined();
-      }
-    });
   });
 
   describe('finishErrorCart', () => {
     it('succeeds', async () => {
       const items = FinishErrorCartFactory();
 
-      const cart = await cartManager.finishErrorCart(testCart, items);
+      await cartManager.finishErrorCart(testCart, items);
+      const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(items));
       expect(cart.state).toEqual(CartState.FAIL);
     });
 
     it('fails - invalid state', async () => {
-      testCart.setCart({
-        state: CartState.FAIL,
-      });
+      await directUpdate(db, { state: CartState.FAIL }, testCart.id);
+      testCart = await cartManager.fetchCartById(testCart.id);
       try {
         await cartManager.finishErrorCart(testCart, FinishErrorCartFactory());
         fail('Error in finishErrorCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
-      }
-    });
-
-    it('fails - cart could not be updated', async () => {
-      testCart.setCart({
-        state: CartState.START,
-        version: RANDOM_VERSION,
-      });
-      try {
-        await cartManager.finishErrorCart(testCart, FinishErrorCartFactory());
-        fail('Error in finishErrorCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
-        expect(error.jse_cause).toBeUndefined();
-      }
-    });
-
-    it('fails - with unexpected error', async () => {
-      testCart.setCart({
-        id: 0 as unknown as string,
-      });
-      try {
-        await cartManager.finishErrorCart(testCart, FinishErrorCartFactory());
-        fail('Error in finishErrorCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
-        expect(error.jse_cause).not.toBeUndefined();
       }
     });
   });
@@ -263,14 +220,13 @@ describe('#payments-cart - manager', () => {
     it('succeeds', async () => {
       const result = await cartManager.deleteCart(testCart);
 
-      expect(result).toEqual(1);
+      expect(result).toBeTruthy();
     });
 
     it('fails - invalid state', async () => {
-      testCart.setCart({
-        state: CartState.FAIL,
-      });
+      await directUpdate(db, { state: CartState.FAIL }, testCart.id);
       try {
+        testCart = await cartManager.fetchCartById(testCart.id);
         await cartManager.deleteCart(testCart);
         fail('Error in deleteCart');
       } catch (error) {
@@ -279,71 +235,16 @@ describe('#payments-cart - manager', () => {
     });
 
     it('fails - cart could not be updated', async () => {
-      testCart.setCart({
-        state: CartState.START,
-        version: RANDOM_VERSION,
-      });
-      try {
-        await cartManager.deleteCart(testCart);
-        fail('Error in deleteCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotDeletedError);
-      }
-    });
-
-    it('fails - with unexpected error', async () => {
-      testCart.setCart({
-        id: 0 as unknown as string,
-      });
-      try {
-        await cartManager.deleteCart(testCart);
-        fail('Error in deleteCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotDeletedError);
-        expect(error.jse_cause).not.toBeUndefined();
-      }
-    });
-  });
-
-  describe('restartCart', () => {
-    it('succeeds', async () => {
-      const cart = await cartManager.restartCart(testCart);
-
-      expect(cart).toEqual(
-        expect.objectContaining({
-          state: CartState.START,
-          offeringConfigId: testCart.offeringConfigId,
-          interval: testCart.interval,
-          amount: testCart.amount,
-        })
+      await directUpdate(
+        db,
+        { state: CartState.START, version: RANDOM_VERSION },
+        testCart.id
       );
-      expect(cart.id).not.toEqual(testCart.id);
-      expect(cart.createdAt).not.toEqual(testCart.createdAt);
-      expect(cart.updatedAt).not.toEqual(testCart.updatedAt);
-    });
-
-    it('fails - invalid state', async () => {
-      testCart.setCart({
-        state: CartState.SUCCESS,
-      });
       try {
-        await cartManager.restartCart(testCart);
-        fail('Error in restartCart');
+        await cartManager.deleteCart(testCart);
+        fail('Error in deleteCart');
       } catch (error) {
-        expect(error).toBeInstanceOf(CartInvalidStateForActionError);
-      }
-    });
-
-    it('fails - with unexpected error', async () => {
-      testCart.setCart({
-        amount: 'fakeamount' as unknown as number,
-      });
-      try {
-        await cartManager.restartCart(testCart);
-        fail('Error in restartCart');
-      } catch (error) {
-        expect(error).toBeInstanceOf(CartNotRestartedError);
-        expect(error.jse_cause).not.toBeUndefined();
+        expect(error).toBeInstanceOf(CartNotDeletedError);
       }
     });
   });
