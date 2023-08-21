@@ -10,7 +10,7 @@
     "test-production": "NODE_OPTIONS='--dns-result-order=ipv4first' playwright test --project=production"
   },
   "devDependencies": {
-    "@playwright/test": "^1.34.1",
+    "@playwright/test": "^1.37.1",
     "@types/upng-js": "^2",
     "fxa-auth-client": "workspace:*",
     "fxa-content-server": "workspace:*",

@@ -2,6 +2,8 @@
 
 `config.yml` defines the jobs and workflows of our CircleCI deployment.
 
+Additional docs can be found [here](https://mozilla.github.io/ecosystem-platform/how-tos/ci-guidelines#updating-ci-runner-images)
+
 ## Scripts
 
 This directory contains scripts used by `config.yml` to run jobs. More
