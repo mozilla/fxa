@@ -9,7 +9,7 @@
     "test": "test"
   },
   "scripts": {
-    "build": "yarn merge-ftl && yarn emails-scss && tsc --build && cp -R config public lib scripts dist/packages/fxa-auth-server",
+    "build": "yarn merge-ftl && yarn emails-scss && tsc --build && tsc-alias && cp -R config public lib scripts dist/packages/fxa-auth-server",
     "clean": "git clean -fXd",
     "compile": "tsc --noEmit",
     "create-mock-iap": "NODE_ENV=dev FIRESTORE_EMULATOR_HOST=localhost:9090 node -r esbuild-register ./scripts/create-mock-iap-subscriptions.ts",
@@ -220,6 +220,7 @@
     "sinon": "^9.0.3",
     "storybook": "^7.0.23",
     "through": "2.3.8",
+    "tsc-alias": "^1.8.7",
     "type-fest": "^3.12.0",
     "typesafe-node-firestore": "^1.4.1",
     "typescript": "^4.9.3",
