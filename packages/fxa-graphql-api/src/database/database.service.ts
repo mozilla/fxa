@@ -1,7 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { setupAuthDatabase, setupProfileDatabase } from 'fxa-shared/db';
+import {
+  setupAuthDatabase,
+  setupDatabase,
+  setupProfileDatabase,
+} from 'fxa-shared/db';
 import { Account } from 'fxa-shared/db/models/auth';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
@@ -10,7 +14,6 @@ import { Knex } from 'knex';
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AppConfig } from '../config';
 
 @Injectable()
@@ -31,11 +34,7 @@ export class DatabaseService {
       logger,
       metrics
     );
-    this.accountKnex = setupAccountDatabase(
-      dbConfig.mysql.auth,
-      logger,
-      metrics
-    );
+    this.accountKnex = setupDatabase(dbConfig.mysql.auth, logger, metrics);
   }
 
   async dbHealthCheck(): Promise<Record<string, any>> {

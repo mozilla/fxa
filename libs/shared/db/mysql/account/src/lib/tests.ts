@@ -5,14 +5,18 @@ import fs from 'fs';
 import path from 'path';
 import { Kysely, sql } from 'kysely';
 
-import { DB, setupKyselyAccountDatabase } from '@fxa/shared/db/mysql/account';
+import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 
-const ACCOUNT_TEST_DB = 'testAccount';
-const SQL_FILE_LOCATION = '../../../../db/mysql/account/src/test';
+const TEST_DB = 'testAccount';
+const SQL_FILE_LOCATION = '../test';
 
-export async function testAccountDatabaseSetup(): Promise<Kysely<DB>> {
+export type ACCOUNT_TABLES = 'accounts' | 'carts' | 'emails';
+
+export async function testAccountDatabaseSetup(
+  tables: ACCOUNT_TABLES[]
+): Promise<Kysely<DB>> {
   // Create the db if it doesn't exist
-  let db = await setupKyselyAccountDatabase({
+  let db = await setupAccountDatabase({
     host: 'localhost',
     database: '',
     password: '',
@@ -20,20 +24,22 @@ export async function testAccountDatabaseSetup(): Promise<Kysely<DB>> {
     user: 'root',
   });
 
-  await sql`DROP DATABASE IF EXISTS ${sql.table(ACCOUNT_TEST_DB)}`.execute(db);
-  await sql`CREATE DATABASE ${sql.table(ACCOUNT_TEST_DB)}`.execute(db);
+  await sql`DROP DATABASE IF EXISTS ${sql.table(TEST_DB)}`.execute(db);
+  await sql`CREATE DATABASE ${sql.table(TEST_DB)}`.execute(db);
   await db.destroy();
 
-  db = await setupKyselyAccountDatabase({
+  db = await setupAccountDatabase({
     host: 'localhost',
-    database: ACCOUNT_TEST_DB,
+    database: TEST_DB,
     password: '',
     port: 3306,
     user: 'root',
   });
 
-  await runSql(db, [`${SQL_FILE_LOCATION}/accounts.sql`]);
-  await runSql(db, [`${SQL_FILE_LOCATION}/emails.sql`]);
+  await runSql(
+    db,
+    tables.map((x) => `${SQL_FILE_LOCATION}/${x}.sql`)
+  );
 
   return db;
 }

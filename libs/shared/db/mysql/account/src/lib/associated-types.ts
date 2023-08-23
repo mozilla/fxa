@@ -6,8 +6,12 @@
  */
 import { Insertable, Selectable, Updateable } from 'kysely';
 
-import { Accounts } from './keysley-types';
+import { Accounts, Carts } from './keysley-types';
 
 export type Account = Selectable<Accounts>;
 export type NewAccount = Insertable<Accounts>;
 export type AccountUpdate = Updateable<Accounts>;
+
+export type Cart = Selectable<Carts>;
+export type NewCart = Insertable<Carts>;
+export type CartUpdate = Updateable<Carts>;
