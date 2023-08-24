@@ -21,7 +21,7 @@ export const selectors = {
 };
 
 export class ResetPasswordPage extends BaseLayout {
-  public react = false;
+  public react = true;
   readonly path = '';
 
   getEmailValue() {

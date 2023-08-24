@@ -109,7 +109,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
     screen.getByLabelText('Enter account recovery key');
     screen.getByRole('button', { name: 'Confirm account recovery key' });
     screen.getByRole('link', {
-      name: "Don't have an account recovery key?",
+      name: 'Don’t have an account recovery key?',
     });
   });
 
@@ -397,7 +397,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
 
       fireEvent.click(
         screen.getByRole('link', {
-          name: "Don't have an account recovery key?",
+          name: 'Don’t have an account recovery key?',
         })
       );
 

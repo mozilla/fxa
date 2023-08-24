@@ -51,7 +51,7 @@ const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
 // React route groups specified here will effectively be set to
 // 100% roll out in production. Only add group names here once they've
 // been verified in production at the 15% experiment roll out.
-const ALWAYS_SHOWN_REACT_GROUPS = ['simpleRoutes'];
+const ALWAYS_SHOWN_REACT_GROUPS = ['simpleRoutes', 'resetPasswordRoutes'];
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
@@ -147,7 +147,16 @@ Router = Router.extend({
     'complete_reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(
         'complete_reset_password',
-        CompleteResetPasswordView
+        CompleteResetPasswordView,
+        {
+          ...Url.searchParams(this.window.location.search, [
+            'email',
+            'emailToHashWith',
+            'code',
+            'token',
+            'uid',
+          ]),
+        }
       );
     },
     'complete_signin(/)': createViewHandler(CompleteSignUpView, {
