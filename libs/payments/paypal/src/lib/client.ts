@@ -4,6 +4,7 @@
 import { EventEmitter } from 'events';
 import pRetry from 'p-retry';
 import superagent from 'superagent';
+import { Injectable } from '@nestjs/common';
 
 import {
   PAYPAL_LIVE_API,
@@ -37,6 +38,7 @@ import {
 } from './types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
 
+@Injectable()
 export class PayPalClient {
   private url: string;
   private ipnUrl: string;

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NotFoundError } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
+import { Injectable } from '@nestjs/common';
 
 import { AccountDatabase, CartState } from '@fxa/shared/db/mysql/account';
 import { Logger } from '@fxa/shared/log';
@@ -42,6 +43,7 @@ const ACTIONS_VALID_STATE = {
 const isAction = (action: string): action is keyof typeof ACTIONS_VALID_STATE =>
   action in ACTIONS_VALID_STATE;
 
+@Injectable()
 export class CartManager {
   constructor(private log: Logger, private db: AccountDatabase) {}
 
