@@ -82,6 +82,11 @@ test.describe('reset password react', () => {
 
     await page.getByRole('heading', { name: 'Settings', level: 2 }).waitFor();
 
+    // Check that connected service name is not empty!
+    expect(await page.getByTestId('service-name').innerText()).toContain(
+      'Firefox'
+    );
+
     // Cleanup requires setting this value to correct password
     credentials.password = NEW_PASSWORD;
   });
