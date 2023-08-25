@@ -8,6 +8,8 @@ import AccountRecoveryConfirmKey from '.';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
+  createMockOAuthIntegration,
+  createMockWebIntegration,
   getSubject,
   mockCompleteResetPasswordParams,
   paramsWithMissingEmail,
@@ -21,10 +23,14 @@ export default {
 } as Meta;
 
 function renderStory(
-  { account = accountValid, params = mockCompleteResetPasswordParams } = {},
+  {
+    account = accountValid,
+    params = mockCompleteResetPasswordParams,
+    integration = createMockWebIntegration(),
+  } = {},
   storyName?: string
 ) {
-  const { Subject, history, appCtx } = getSubject(account, params);
+  const { Subject, history, appCtx } = getSubject(account, params, integration);
   const story = () => produceComponent(<Subject />, { history }, appCtx);
   story.storyName = storyName;
   return story();
@@ -59,6 +65,12 @@ export const OnConfirmInvalidKey = () => {
   return renderStory({
     account: accountWithInvalidRecoveryKey,
     params: mockCompleteResetPasswordParams,
+  });
+};
+
+export const ThroughRelyingParty = () => {
+  return renderStory({
+    integration: createMockOAuthIntegration(),
   });
 };
 

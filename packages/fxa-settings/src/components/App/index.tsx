@@ -197,6 +197,7 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
             {...{
               setLinkStatus,
               linkModel,
+              integration,
             }}
           />
         )}
