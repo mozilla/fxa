@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { errorHandler } from './gql';
+import { errorHandler, pagesRequiringAuthentication } from './gql';
 import { ErrorResponse } from '@apollo/client/link/error';
 import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
@@ -11,8 +11,8 @@ let errorResponse: ErrorResponse;
 let mockReplace: Mock;
 
 describe('errorHandler', () => {
-  const pageWhichRequiresAuthentication = 'https://accounts.firefox.com/settings';
-  const pageWhichDoesNotRequireAuthentication = 'https://accounts.firefox.com/signin';
+  const pageWhichRequiresAuthentication = pagesRequiringAuthentication[0];
+  const pageWhichDoesNotRequireAuthentication = 'foo';
   beforeAll(() => {
     mockReplace = jest.fn();
     Object.defineProperty(window, 'location', {
@@ -43,7 +43,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-      '/signin?redirect_to=https%3A%2F%2Faccounts.firefox.com%2Fsettings'
+      `/signin?redirect_to=${pageWhichRequiresAuthentication}`
     );
   });
 
@@ -60,7 +60,7 @@ describe('errorHandler', () => {
     errorHandler(errorResponse);
 
     expect(window.location.replace).toHaveBeenCalledWith(
-     '/signin?redirect_to=https%3A%2F%2Faccounts.firefox.com%2Fsettings'
+      `/signin?redirect_to=${pageWhichRequiresAuthentication}`
     );
   });
 
@@ -86,8 +86,7 @@ describe('errorHandler', () => {
       value: {
         replace: mockReplace,
         search: '',
-        pathname: 'signin',
-        href: pageWhichDoesNotRequireAuthentication,
+        pathname: pageWhichDoesNotRequireAuthentication,
       },
     });
 
