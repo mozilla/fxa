@@ -29,7 +29,6 @@ import {
   NVPTransactionSearchResponse,
   PaypalMethods,
   PaypalNVPAckOptions,
-  PaypalOptions,
   RefundTransactionOptions,
   RefundType,
   ResponseEvent,
@@ -37,6 +36,7 @@ import {
   TransactionSearchOptions,
 } from './types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
+import { PaypalClientConfig } from './client.config';
 
 @Injectable()
 export class PayPalClient {
@@ -56,7 +56,7 @@ export class PayPalClient {
     listener: (response: ResponseEvent) => void
   ) => EventEmitter;
 
-  constructor(options: PaypalOptions) {
+  constructor(options: PaypalClientConfig) {
     this.url = options.sandbox ? PAYPAL_SANDBOX_API : PAYPAL_LIVE_API;
     this.ipnUrl = options.sandbox ? PAYPAL_SANDBOX_IPN : PAYPAL_LIVE_IPN;
     this.user = options.user;
