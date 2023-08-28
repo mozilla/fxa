@@ -31,13 +31,15 @@ const OAUTH_DESTROY_POST = {
       Destroy an OAuth access token or refresh token.
 
       This is the "token revocation endpoint" as defined in RFC7009 and should be used by clients to explicitly revoke any OAuth tokens that they are no longer using.
+
+      One of either an authorization header or a client_id is required.
     `,
   ],
   plugins: {
     'hapi-swagger': {
       responses: {
         200: {
-          description: 'No information is returned in the response body.'
+          description: 'No information is returned in the response body.',
         },
         401: {
           description: dedent`
