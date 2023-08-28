@@ -888,8 +888,12 @@ export class AccountHandler {
       // If they're logging in from an IP address on which they recently did
       // another, successfully-verified login, then we can consider this one
       // verified as well without going through the loop again.
+
+      // Convict type introspection fails to properly identify the number here
+      // so we have to cast it to a number.
       const allowedRecency =
-        this.config.securityHistory.ipProfiling.allowedRecency || 0;
+        (this.config.securityHistory.ipProfiling
+          .allowedRecency as unknown as number) || 0;
       if (securityEventVerified && securityEventRecency < allowedRecency) {
         this.log.info('Account.ipprofiling.seenAddress', {
           uid: account.uid,

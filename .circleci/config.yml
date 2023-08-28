@@ -53,7 +53,7 @@ executors:
   tiny-executor:
     resource_class: small
     docker:
-      - image: cimg/node:18.14
+      - image: cimg/node:18.17
 
   # For creating docker builds
   docker-build-executor:
@@ -63,7 +63,7 @@ executors:
         default: medium
       image:
         type: string
-        default: cimg/node:18.14
+        default: cimg/node:18.17
     resource_class: << parameters.resource_class >>
     docker:
       - image: << parameters.image >>
@@ -305,7 +305,7 @@ commands:
     steps:
       - run:
           name: Compiling TypeScript
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
 
   report-coverage:
     # Not currently used. But should be soon once coverage reports are fixed up.
@@ -362,10 +362,10 @@ commands:
     steps:
       - run:
           name: Build Common Typescript Packages
-          command: npx nx run-many --parallel=1 -t build --projects=fxa-shared,fxa-auth-client,fxa-react
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many --parallel=1 -t build --projects=fxa-shared,fxa-auth-client,fxa-react
       - run:
           name: Compile Changed Typescript Packages
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
 
   save-workspace:
     steps:
@@ -565,7 +565,7 @@ jobs:
 
   compile:
     executor: default-executor
-    resource_class: medium
+    resource_class: large
     steps:
       - git-checkout
       - restore-workspace
@@ -894,7 +894,7 @@ workflows:
           name: Deploy CI Images
           executor:
             name: docker-build-executor
-            image: cimg/node:18.14-browsers
+            image: cimg/node:18.17-browsers
           filters:
             branches:
               only:

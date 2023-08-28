@@ -72,7 +72,7 @@
     "uuid": "^9.0.0"
   },
   "engines": {
-    "node": "^18.14.2"
+    "node": "^18.17.1"
   },
   "husky": {
     "hooks": {
@@ -122,7 +122,7 @@
     "@testing-library/react": "^14.0.0",
     "@types/jest": "^29.5.1",
     "@types/mysql": "^2",
-    "@types/node": "^18.16.1",
+    "@types/node": "^18.17.1",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-test-renderer": "^18",
@@ -156,7 +156,7 @@
     "tailwindcss": "^3.3.3",
     "ts-jest": "29.1.0",
     "ts-node": "^10.9.1",
-    "typescript": "^5.0.4"
+    "typescript": "^5.2.2"
   },
   "workspaces": [
     "packages/*"
@@ -168,7 +168,7 @@
     "@grpc/grpc-js": "~1.6.0",
     "@nestjs/cli/typescript": "^4.5.2",
     "@svgr/webpack": "^8.0.1",
-    "@types/node": "^18.14.2",
+    "@types/node": "^18.17.1",
     "@types/react": "^18",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "css-minimizer-webpack-plugin": ">=4 <5",
