@@ -89,6 +89,7 @@ class GetAccountsByEmail {
           accountByEmail: {
             uid: '123',
             createdAt: 1658534643990,
+            verifierSetAt: 1589467100316,
             disabledAt: null,
             locale: testLocale,
             lockedAt: null,
@@ -128,6 +129,7 @@ class GetAccountsByEmail {
       data: {
         accountByEmail: {
           uid: 'a1b2c3',
+          verifierSetAt: 1589467100316,
           email: email,
           emails: [
             {

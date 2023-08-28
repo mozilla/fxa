@@ -10,6 +10,7 @@ export const GET_ACCOUNT_BY_EMAIL = gql`
       uid
       createdAt
       disabledAt
+      verifierSetAt
       lockedAt
       locale
       email
@@ -100,6 +101,7 @@ export const GET_ACCOUNT_BY_UID = gql`
       uid
       createdAt
       disabledAt
+      verifierSetAt
       lockedAt
       locale
       email

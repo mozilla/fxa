@@ -145,6 +145,7 @@ export interface Account {
     disabledAt?: Nullable<number>;
     locale?: Nullable<string>;
     lockedAt?: Nullable<number>;
+    verifierSetAt?: Nullable<number>;
     emails?: Nullable<Email[]>;
     emailBounces?: Nullable<EmailBounce[]>;
     totp?: Nullable<Totp[]>;

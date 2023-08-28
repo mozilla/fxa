@@ -6,7 +6,7 @@ This is the GraphQL server for an internal resource for FxA Admins to access a s
 
 The [GraphQL playground](https://www.apollographql.com/docs/apollo-server/testing/graphql-playground/) for this package is available at [localhost:8095/graphql](http://localhost:8095/graphql), providing a GUI for an up-to-date schema and API docs, as well as a way to test queries and mutations.
 
-The playground requires an `oidc-claim-id-token-email` authorization header. In production this is supplied through an nginx header after LDAP credentials, which have been verified but in development, a dummy email should be supplied in the bottom left-hand corner of the GQL playground labeled "HTTP Headers":
+The playground requires an `oidc-claim-id-token-email` authorization header. In production this is supplied through an nginx header after LDAP credentials have been verified, but in development, a dummy email should be supplied in the bottom left-hand corner of the GQL playground labeled "HTTP Headers":
 
 In addition a `remote-groups` header must also be set to indicate the user's LDAP group membership. Again, in production this will be set by nginx, but in development, a dummy value must be supplied.
 

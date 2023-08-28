@@ -90,6 +90,7 @@ export const Account = ({
   securityEvents,
   linkedAccounts,
   accountEvents,
+  verifierSetAt,
 }: AccountProps) => {
   const createdAtDate = getFormattedDate(createdAt);
   const disabledAtDate = getFormattedDate(disabledAt);
@@ -145,6 +146,11 @@ export const Account = ({
             header="Created At"
             children={`${createdAtDate} (${createdAt})`}
             testId="account-created-at"
+          />
+          <TableRowYHeader
+            header="Password Set"
+            children={verifierSetAt != null && verifierSetAt > 0 ? 'Yes' : 'No'}
+            testId="account-password-set"
           />
           <TableRowYHeader
             header="Locale"
@@ -358,6 +364,7 @@ export const Account = ({
           <TableXHeaders rowHeaders={['Event', 'Timestamp', 'Action']}>
             {linkedAccounts.map((linkedAccount: LinkedAccountType) => (
               <LinkedAccount
+                key={linkedAccount.uid}
                 {...{
                   uid,
                   providerId: linkedAccount.providerId,

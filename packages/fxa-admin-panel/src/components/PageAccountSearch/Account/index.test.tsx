@@ -51,6 +51,7 @@ let accountResponse: AccountProps = {
   createdAt: 1589467100316,
   disabledAt: null,
   lockedAt: null,
+  verifierSetAt: 1589467100316,
   emailBounces: [
     {
       bounceSubType: BounceSubType.NoEmail,
@@ -144,6 +145,34 @@ it('displays when account is locked', async () => {
   expect(getByTestId('account-locked-at')).toHaveTextContent(
     (lockedAccount.lockedAt || '').toString()
   );
+});
+
+it('displays when account password is not set', async () => {
+  const lockedAccount = {
+    ...accountResponse,
+    verifierSetAt: 0,
+  };
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...lockedAccount} />
+    </MockedProvider>
+  );
+
+  expect(getByTestId('account-password-set')).toHaveTextContent('No');
+});
+
+it('displays when account password is set', async () => {
+  const lockedAccount = {
+    ...accountResponse,
+    verifierSetAt: 1589467100316,
+  };
+  const { getByTestId } = render(
+    <MockedProvider>
+      <Account {...lockedAccount} />
+    </MockedProvider>
+  );
+
+  expect(getByTestId('account-password-set')).toHaveTextContent('Yes');
 });
 
 it('displays the unconfirmed account', async () => {
