@@ -29,11 +29,31 @@ export type GleanMetricsContext = {
   userAgent: any;
 };
 
+type SubmitPingFn = () => Promise<void>;
+
 const eventPropertyNames = ['reason'] as const;
 type PropertyNameT = typeof eventPropertyNames;
 type PropertyName = PropertyNameT[number];
 type EventProperties = {
   [k in PropertyName]?: string;
+};
+
+let EXEC_MUTEX = false;
+const lambdas: SubmitPingFn[] = [];
+
+const submitPing = async (fn: SubmitPingFn) => {
+  lambdas.push(fn);
+
+  if (EXEC_MUTEX) return;
+
+  EXEC_MUTEX = true;
+  let f: SubmitPingFn | undefined;
+
+  while ((f = lambdas.shift())) {
+    await f();
+  }
+
+  EXEC_MUTEX = false;
 };
 
 const encoder = new TextEncoder();
@@ -92,9 +112,13 @@ const createEventFn =
       return;
     }
 
-    event.name.set(eventName);
-    await populateMetrics(properties);
-    accountsEvents.submit();
+    const fn = async () => {
+      event.name.set(eventName);
+      await populateMetrics(properties);
+      accountsEvents.submit();
+    };
+
+    submitPing(fn);
   };
 
 export const GleanMetrics = {
