@@ -35,13 +35,6 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@nestjs/common": "^9.4.1",
-    "@nestjs/config": "^3.0.0",
-    "@nestjs/core": "^9.2.0",
-    "@nestjs/graphql": "^8.0.2",
-    "@nestjs/mapped-types": "^1.2.0",
-    "@nestjs/passport": "^9.0.3",
-    "@nestjs/platform-express": "^9.4.0",
     "@sentry/integrations": "^6.19.1",
     "@sentry/node": "^6.19.1",
     "apollo-datasource": "^3.3.1",
@@ -82,7 +75,6 @@
     "tslib": "^2.5.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^9.4.0",
     "@types/body-parser": "^1",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",

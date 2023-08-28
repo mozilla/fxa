@@ -6,7 +6,7 @@
     "prebuild": "rimraf dist && yarn gql:allowlist",
     "copy-gql": "mkdir -p src/config/gql/allowlist && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
     "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
-    "build": "yarn prebuild && yarn nest build && yarn copy-config",
+    "build": "yarn prebuild && nest build && yarn copy-config",
     "compile": "tsc --noEmit",
     "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
@@ -40,11 +40,6 @@
   "dependencies": {
     "@golevelup/ts-jest": "^0.3.2",
     "@google-cloud/firestore": "^6.6.0",
-    "@nestjs/common": "^9.4.1",
-    "@nestjs/config": "^3.0.0",
-    "@nestjs/core": "^9.2.0",
-    "@nestjs/graphql": "^8.0.2",
-    "@nestjs/platform-express": "^9.4.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "convict": "^6.2.4",
@@ -67,7 +62,6 @@
     "tslib": "^2.5.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^9.4.0",
     "@types/chance": "^1.1.2",
     "@types/convict": "^6.1.1",
     "@types/node": "^18.14.2",
