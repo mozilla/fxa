@@ -7,7 +7,6 @@ The Firefox Accounts (fxa) monorepo
 [Getting Started](#getting-started)\
 [Contributing](#contributing)\
 [Documentation](#documentation)
-[Documentation for Scripts](#documentation-for-scripts)
 
 ---
 
