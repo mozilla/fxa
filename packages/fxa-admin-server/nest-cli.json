@@ -15,5 +15,5 @@
       }
     ]
   },
-  "entryFile": "src/packages/admin-server/main.js"
+  "entryFile": "packages/fxa-admin-server/src/main.js"
 }

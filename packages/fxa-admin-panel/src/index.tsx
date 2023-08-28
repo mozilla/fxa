@@ -44,15 +44,17 @@ try {
   const root = createRoot(document.getElementById('root')!);
 
   root.render(
-    <React.StrictMode>
-      <AppErrorBoundary>
-        <ApolloProvider {...{ client }}>
-          <AppLocalizationProvider>
-            <App {...{ config }} />
-          </AppLocalizationProvider>
-        </ApolloProvider>
-      </AppErrorBoundary>
-    </React.StrictMode>
+    // TODO - Add StrictMode - We need to figure out
+    //        why strict mode now appears to be breaking queries.
+    // <React.StrictMode>
+    <AppErrorBoundary>
+      <ApolloProvider {...{ client }}>
+        <AppLocalizationProvider>
+          <App {...{ config }} />
+        </AppLocalizationProvider>
+      </ApolloProvider>
+    </AppErrorBoundary>
+    // </React.StrictMode>
   );
 } catch (error) {
   console.error('Error initializing fxa-admin-panel', error);

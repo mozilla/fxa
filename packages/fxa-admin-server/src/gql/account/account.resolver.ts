@@ -50,6 +50,7 @@ const ACCOUNT_COLUMNS = [
   'createdAt',
   'disabledAt',
   'lockedAt',
+  'verifierSetAt',
   'locale',
 ];
 const EMAIL_COLUMNS = [

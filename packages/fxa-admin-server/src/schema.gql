@@ -140,6 +140,7 @@ type Account {
   disabledAt: Float
   locale: String
   lockedAt: Float
+  verifierSetAt: Float
   emails: [Email!]
   emailBounces: [EmailBounce!]
   totp: [Totp!]

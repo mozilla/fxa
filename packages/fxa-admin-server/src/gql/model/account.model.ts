@@ -36,6 +36,9 @@ export class Account {
   @Field({ nullable: true })
   public lockedAt?: number;
 
+  @Field({ nullable: true })
+  public verifierSetAt?: number;
+
   @Field((type) => [Email], { nullable: true })
   public emails!: Email[];
 
