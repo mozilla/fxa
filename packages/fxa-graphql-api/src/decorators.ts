@@ -4,6 +4,8 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { SessionTokenResult } from './auth/session-token.strategy';
+import { Request } from 'express';
+import { IncomingHttpHeaders } from 'http';
 
 /**
  * Extracts the token from an authenticated user for a GraphQL request.
@@ -39,16 +41,29 @@ export const GqlUserState = createParamDecorator(
  * Extracts headers to be sent to auth-server
  */
 export const GqlXHeaders = createParamDecorator(
-  (data: unknown, context: ExecutionContext): Headers => {
+  (_data: unknown, context: ExecutionContext): Headers => {
     const ctx = GqlExecutionContext.create(context).getContext();
-    const headers: Record<string, string> = {};
-
-    // Set the x-forwarded-for header since the auth-server will use this
-    // to determine client geolocation
-    if (ctx.req?.ip) {
-      headers['x-forwarded-for'] = ctx.req?.ip;
-    }
-
-    return new Headers(headers);
+    return extractRequiredHeaders(ctx.req);
   }
 );
+
+export function extractRequiredHeaders(req?: {
+  ip: string;
+  headers: IncomingHttpHeaders;
+}): Headers {
+  const headers: Record<string, string> = {};
+
+  // Set the x-forwarded-for header since the auth-server will use this
+  // to determine client geolocation
+  if (req?.ip) {
+    headers['x-forwarded-for'] = req?.ip;
+  }
+
+  // Set the user agent headers. Connected devices use this header for display name purposes
+  const ua = req?.headers['user-agent'];
+  if (ua) {
+    headers['user-agent'] = ua;
+  }
+
+  return new Headers(headers);
+}
