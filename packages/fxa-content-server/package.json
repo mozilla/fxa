@@ -130,7 +130,7 @@
     "photon-colors": "1.0.3",
     "postcss-cli": "7.1.1",
     "postcss-loader": "4.2.0",
-    "sass-loader": "^10.0.3",
+    "sass-loader": "^13.3.2",
     "serve-static": "^1.14.2",
     "source-map": "^0.7.3",
     "source-map-loader": "^1.1.1",
