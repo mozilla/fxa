@@ -177,6 +177,9 @@ export class AccountHandler {
     await request.emitMetricsEvent('account.created', {
       uid: account.uid,
     });
+    this.glean.registration.accountCreated(request, {
+      uid: account.uid,
+    });
 
     const geoData = request.app.geo;
     const country = geoData.location && geoData.location.country;

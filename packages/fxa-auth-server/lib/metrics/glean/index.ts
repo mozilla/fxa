@@ -113,6 +113,10 @@ export const gleanMetrics = (config: ConfigType) => {
   });
 
   return {
+    registration: {
+      accountCreated: createEventFn('reg_acc_created'),
+    },
+
     login: {
       success: createEventFn('login_success'),
     },
