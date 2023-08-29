@@ -300,6 +300,18 @@ describe('Glean server side events', () => {
     });
   });
 
+  describe('registration', () => {
+    describe('accountCreated', () => {
+      it('logs a "reg_acc_created" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.registration.accountCreated(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'reg_acc_created');
+      });
+    });
+  });
+
   describe('login', () => {
     describe('success', () => {
       it('logs a "login_success" event', async () => {
