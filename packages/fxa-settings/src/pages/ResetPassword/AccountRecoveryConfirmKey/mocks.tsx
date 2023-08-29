@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { MozServices } from '../../../lib/types';
-import { Account, Integration } from '../../../models';
+import { Account, Integration, IntegrationType } from '../../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,
@@ -17,7 +17,8 @@ import { LinkType } from 'fxa-settings/src/lib/types';
 import LinkValidator from '../../../components/LinkValidator';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import AccountRecoveryConfirmKey from '.';
-import { createMockResetPasswordWebIntegration } from '../mocks';
+import { MOCK_SERVICE } from '../../mocks';
+import { AccountRecoveryConfirmKeyBaseIntegration } from './interfaces';
 
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
 export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
@@ -61,10 +62,27 @@ export const paramsWithMissingToken = {
   token: '',
 };
 
+export function createMockWebIntegration(): AccountRecoveryConfirmKeyBaseIntegration {
+  return {
+    type: IntegrationType.Web,
+    getServiceName: () => Promise.resolve(MozServices.Default),
+  };
+}
+
+export function createMockOAuthIntegration(
+  serviceName = MOCK_SERVICE
+): AccountRecoveryConfirmKeyBaseIntegration {
+  return {
+    type: IntegrationType.OAuth,
+    getServiceName: () => Promise.resolve(serviceName),
+  };
+}
+
 const route = '/account_recovery_confirm_key';
 export const getSubject = (
   account: Account,
-  params: Record<string, string>
+  params: Record<string, string>,
+  integration: AccountRecoveryConfirmKeyBaseIntegration
 ) => {
   const urlQueryData = mockUrlQueryData(params);
   const history = createHistoryWithQuery(
@@ -80,11 +98,12 @@ export const getSubject = (
         createLinkModel={() => {
           return new CompleteResetPasswordLink(urlQueryData);
         }}
-        // TODO worth fixing this type and adding integrations for AccountRecoveryConfirmKey?
-        integration={createMockResetPasswordWebIntegration() as Integration}
+        {...{ integration }}
       >
         {({ setLinkStatus, linkModel }) => (
-          <AccountRecoveryConfirmKey {...{ setLinkStatus, linkModel }} />
+          <AccountRecoveryConfirmKey
+            {...{ setLinkStatus, linkModel, integration }}
+          />
         )}
       </LinkValidator>
     ),

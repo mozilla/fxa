@@ -13,7 +13,6 @@ import { useFtlMsgResolver } from '../../../models/hooks';
 import { InputText } from '../../../components/InputText';
 import CardHeader from '../../../components/CardHeader';
 import WarningMessage from '../../../components/WarningMessage';
-import { LinkStatus, MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import {
@@ -23,36 +22,30 @@ import {
 import base32Decode from 'base32-decode';
 import { decryptRecoveryKeyData } from 'fxa-auth-client/lib/recoveryKey';
 import { isBase32Crockford } from '../../../lib/utilities';
-import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import Banner, { BannerType } from '../../../components/Banner';
-
-type FormData = {
-  recoveryKey: string;
-};
-
-export type RequiredParamsAccountRecoveryConfirmKey = {
-  email: string;
-  token: string;
-  code: string;
-  uid: string;
-};
-
-type SubmitData = {
-  recoveryKey: string;
-} & RequiredParamsAccountRecoveryConfirmKey;
+import {
+  AccountRecoveryConfirmKeyFormData,
+  AccountRecoveryConfirmKeyProps,
+  AccountRecoveryConfirmKeySubmitData,
+} from './interfaces';
+import { LinkStatus } from '../../../lib/types';
 
 export const viewName = 'account-recovery-confirm-key';
 
 const AccountRecoveryConfirmKey = ({
   linkModel,
   setLinkStatus,
-}: {
-  linkModel: CompleteResetPasswordLink;
-  setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
-}) => {
-  // TODO: grab serviceName from the relier
-  const serviceName = MozServices.Default;
+  integration,
+}: AccountRecoveryConfirmKeyProps) => {
+  const [serviceName, setServiceName] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      // TODO: remove async requirements from relier, FXA-6836
+      setServiceName(await integration.getServiceName());
+    })();
+  });
 
   const [tooltipText, setTooltipText] = useState<string>('');
   const [bannerMessage, setBannerMessage] = useState<string | ReactElement>();
@@ -89,13 +82,14 @@ const AccountRecoveryConfirmKey = ({
     checkPasswordForgotToken(linkModel.token);
   }, [account, linkModel.token, setLinkStatus]);
 
-  const { handleSubmit, register, formState } = useForm<FormData>({
-    mode: 'onChange',
-    criteriaMode: 'all',
-    defaultValues: {
-      recoveryKey: '',
-    },
-  });
+  const { handleSubmit, register, formState } =
+    useForm<AccountRecoveryConfirmKeyFormData>({
+      mode: 'onChange',
+      criteriaMode: 'all',
+      defaultValues: {
+        recoveryKey: '',
+      },
+    });
 
   const onFocus = () => {
     if (!isFocused) {
@@ -142,7 +136,13 @@ const AccountRecoveryConfirmKey = ({
   );
 
   const checkRecoveryKey = useCallback(
-    async ({ recoveryKey, token, code, email, uid }: SubmitData) => {
+    async ({
+      recoveryKey,
+      token,
+      code,
+      email,
+      uid,
+    }: AccountRecoveryConfirmKeySubmitData) => {
       try {
         let resetToken = fetchedResetToken;
         if (!resetToken) {
@@ -194,7 +194,7 @@ const AccountRecoveryConfirmKey = ({
     ]
   );
 
-  const onSubmit = (submitData: SubmitData) => {
+  const onSubmit = (submitData: AccountRecoveryConfirmKeySubmitData) => {
     const { recoveryKey } = submitData;
     setIsLoading(true);
     setBannerMessage(undefined);

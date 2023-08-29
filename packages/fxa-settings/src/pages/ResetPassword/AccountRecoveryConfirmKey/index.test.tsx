@@ -19,12 +19,16 @@ import {
   paramsWithMissingCode,
   paramsWithMissingEmail,
   getSubject,
+  createMockWebIntegration,
+  createMockOAuthIntegration,
 } from './mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account } from '../../../models';
 import { typeByLabelText } from '../../../lib/test-utils';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
+import { MozServices } from '../../../lib/types';
+import { MOCK_SERVICE } from '../../mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
@@ -75,8 +79,9 @@ const accountWithValidResetToken = {
 const renderSubject = ({
   account = accountWithValidResetToken,
   params = mockCompleteResetPasswordParams,
+  integration = createMockWebIntegration(),
 } = {}) => {
-  const { Subject, history, appCtx } = getSubject(account, params);
+  const { Subject, history, appCtx } = getSubject(account, params, integration);
   return renderWithRouter(<Subject />, { history }, appCtx);
 };
 
@@ -105,6 +110,18 @@ describe('PageAccountRecoveryConfirmKey', () => {
     screen.getByRole('button', { name: 'Confirm account recovery key' });
     screen.getByRole('link', {
       name: "Don't have an account recovery key?",
+    });
+  });
+
+  describe('serviceName', () => {
+    it('renders the default', async () => {
+      renderSubject();
+      await screen.findByText(`to continue to ${MozServices.Default}`);
+    });
+
+    it('renders non-default', async () => {
+      renderSubject({ integration: createMockOAuthIntegration() });
+      await screen.findByText(`to continue to ${MOCK_SERVICE}`);
     });
   });
 
