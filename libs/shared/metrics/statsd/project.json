@@ -38,5 +38,5 @@
       }
     }
   },
-  "tags": ["lib", "shared"]
+  "tags": ["scope:shared:lib"]
 }

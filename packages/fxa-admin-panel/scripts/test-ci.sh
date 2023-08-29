@@ -1,4 +1,4 @@
 #!/bin/bash -ex
 
-yarn build
-NODE_ENV=test yarn test
+npx nx fxa-admin-panel:build
+NODE_ENV=test npx nx fxa-admin-panel:test

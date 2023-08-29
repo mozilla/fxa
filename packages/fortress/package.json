@@ -44,5 +44,10 @@
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
+  },
+  "nx": {
+    "tags": [
+      "scope:demo"
+    ]
   }
 }

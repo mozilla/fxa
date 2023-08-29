@@ -4,30 +4,35 @@
   "homepage": "https://accounts.firefox.com/settings",
   "private": true,
   "scripts": {
-    "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-storybook": "yarn merge-ftl && NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && yarn legal-clone && LOG_LEVEL=TRACE NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
-    "extract-gql": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
-    "build": "tsc --build ../fxa-react && NODE_ENV=production yarn build-css && yarn legal-clone && yarn merge-ftl && SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
+    "prebuild": "nx l10n-prime && nx legal-prime",
+    "build": "nx build-l10n && nx build-ts && nx build-css && nx build-react",
+    "build-ts": "tsc --build",
+    "build-css": "NODE_ENV=production tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
+    "build-storybook": "NODE_ENV=production STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
+    "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
+    "build-react": "SKIP_PREFLIGHT_CHECK=true INLINE_RUNTIME_CHUNK=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
+    "clean": "rimraf dist",
     "compile": "tsc --noEmit",
-    "clean": "git clean -fXd",
     "eject": "react-scripts eject",
-    "l10n-prime": "yarn l10n:prime fxa-settings",
+    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-settings.json --js --extension=ts ",
     "l10n-bundle": "yarn l10n:bundle fxa-settings branding,react,settings",
-    "legal-clone": "yarn legal:clone fxa-settings",
+    "l10n-prime": "yarn l10n:prime fxa-settings",
+    "l10n-merge": "yarn grunt merge-ftl",
+    "l10n-merge-test": "yarn grunt merge-ftl:test",
+    "legal-prime": "yarn legal:clone fxa-settings",
     "lint": "eslint . .storybook",
-    "restart": "yarn build-css && pm2 restart pm2.config.js",
-    "start": "yarn merge-ftl && yarn build-css && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3000/settings/static/js/bundle.js",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:3000/settings/static/js/bundle.js",
     "stop": "pm2 stop pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "storybook": "yarn legal-clone && STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6008 --no-version-updates",
-    "test": "yarn legal-clone && yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false",
-    "test-watch": "yarn legal-clone && yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true rescripts test",
-    "test-coverage": "yarn legal-clone && yarn test --coverage --watchAll=false",
+    "storybook": "STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6008 --no-version-updates",
+    "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
+    "test-watch": "SKIP_PREFLIGHT_CHECK=true rescripts test",
+    "test-coverage": "yarn test --coverage --watchAll=false",
     "test-unit": "echo No unit tests present for $npm_package_name",
-    "test-integration": "yarn legal-clone && yarn merge-ftl-test && tsc --build ../fxa-react && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
-    "merge-ftl": "yarn l10n-prime && grunt merge-ftl && yarn l10n-bundle",
-    "merge-ftl-test": "yarn l10n-prime && grunt merge-ftl:test",
-    "watch-ftl": "grunt watch-ftl"
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true rescripts test --watchAll=false --ci --runInBand --reporters=default --reporters=jest-junit",
+    "watch-ftl": "grunt watch-ftl",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "jest": {
     "resetMocks": false,
@@ -156,5 +161,10 @@
     "storybook-addon-rtl": "^0.5.0",
     "style-loader": "^1.3.0",
     "webpack": "^5.84.1"
+  },
+  "nx": {
+    "tags": [
+      "scope:frontend"
+    ]
   }
 }

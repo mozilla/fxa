@@ -79,5 +79,5 @@
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     }
   },
-  "tags": ["lib", "payments"]
+  "tags": ["app", "payments"]
 }

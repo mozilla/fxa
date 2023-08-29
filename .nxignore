@@ -1,0 +1,5 @@
+**/.nyc_output
+**/node_modules
+**/browser_modules
+**/.vscode
+**/version.json

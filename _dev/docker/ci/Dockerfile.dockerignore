@@ -12,6 +12,5 @@
 **/artifacts
 **/configs
 **/temp
-
-!project/configs/gql/allowlist/
-
+!**/configs/gql/allowlist
+!**/packages/fxa-react/configs

@@ -1,4 +1,4 @@
 #!/bin/bash -ex
 
-yarn workspace fxa-payments-server build
-NODE_ENV=test yarn workspace fxa-payments-server test
+npx nx fxa-payments-server:build
+NODE_ENV=test npx nx fxa-payments-server:test

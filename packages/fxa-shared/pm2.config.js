@@ -6,18 +6,22 @@ const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
 
-module.exports = {
-  apps: [
-    {
-      name: 'shared-tsc',
-      script: 'yarn tsc --build --watch',
-      cwd: __dirname,
-      max_restarts: '1',
-      env: {
-        PATH,
-      },
-      filter_env: ['npm_'],
-      time: true,
+const apps = [];
+
+if (process.env.CI !== 'true') {
+  apps.push({
+    name: 'shared-tsc',
+    script: 'yarn tsc --build --watch',
+    cwd: __dirname,
+    max_restarts: '1',
+    env: {
+      PATH,
     },
-  ],
+    filter_env: ['npm_'],
+    time: true,
+  });
+}
+
+module.exports = {
+  apps,
 };

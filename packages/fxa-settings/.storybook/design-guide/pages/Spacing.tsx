@@ -2,8 +2,6 @@ import React from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
 import Snippet from '../Snippet';
-import { withLocalization } from 'fxa-react/lib/storybooks';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 const nonIntMap = {
   px: {
@@ -211,4 +209,5 @@ const Spacing = ({ config }) => {
   );
 };
 
-export default (config) => Spacing(config);
+const spacing = (config) => Spacing(config);
+export default spacing;

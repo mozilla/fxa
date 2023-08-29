@@ -33,7 +33,6 @@ secrets.json
 .es5
 .es5cache
 /artifacts
-/packages/test.list
 .last-audit
 .eslintcache
 storybooks-publish
@@ -163,3 +162,6 @@ configs/gql/allowlist
 
 # Next.js
 .next
+
+
+tmp

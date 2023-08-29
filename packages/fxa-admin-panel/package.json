@@ -3,24 +3,25 @@
   "version": "0.0.0",
   "description": "FxA Admin Panel",
   "scripts": {
+    "build": "yarn build-ts-server && yarn build-ts-client && yarn build-css && yarn build-react",
+    "build-ts-client": "tsc --build",
+    "build-ts-server": "tsc -p server/tsconfig.json",
     "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
-    "build-client": "tsc --build ../fxa-react && tsc --build && NODE_ENV=production yarn build-css && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
-    "build-server": "tsc -p server/tsconfig.json",
-    "extract-gql": "persistgraphql src ../../configs/gql/allowlist/fxa-admin-panel.json  --js --extension=ts",
-    "build": "yarn build-client && yarn build-server",
+    "build-react": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
+    "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "eject": "react-scripts eject",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
+    "gql-extract": "persistgraphql src ../../configs/gql/allowlist/fxa-admin-panel.json  --js --extension=ts",
     "lint": "eslint .",
-    "restart": "tsc --build ../fxa-react && yarn build-css && pm2 restart pm2.config.js",
-    "start": "tsc --build ../fxa-react && yarn build-css && pm2 start pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
+    "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
+    "test": "yarn test-unit",
     "test-frontend": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-frontend.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false  rescripts test --coverage --verbose --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
     "test-server": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-server.xml jest --runInBand --coverage --verbose --config server/jest.config.js --forceExit --ci --reporters=default --reporters=jest-junit -t '^(?!.*#integration)'",
-    "test": "CI=true yarn test-frontend && CI=true yarn test-server",
-    "test-unit": "yarn build-css && yarn build-client && yarn test",
-    "test-integration": "echo No integration tests present for $npm_package_name"
+    "test-unit": "CI=true yarn test-frontend && CI=true yarn test-server"
   },
   "browserslist": {
     "production": [
@@ -86,5 +87,10 @@
     "ts-jest": "^29.1.0",
     "typescript": "^5.2.2",
     "webpack": "^5.84.1"
+  },
+  "nx": {
+    "tags": [
+      "scope:frontend"
+    ]
   }
 }

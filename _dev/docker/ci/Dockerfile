@@ -25,15 +25,7 @@ ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 ENV YARN_CHECKSUM_BEHAVIOR=throw
 ENV FXA_AUTO_INSTALL=0
 RUN _scripts/l10n/clone.sh
-RUN yarn install --immutable; \
-    yarn gql:allowlist; \
-    yarn workspaces foreach \
-        -pv \
-        --topological-dev \
-        --include fxa-shared \
-        --include fxa-auth-client \
-        --include fxa-react \
-        run build;
+RUN yarn install --immutable;
 
 # Acts as an intermediate stage for adding the firefox install. Note,
 # that a yarn install must happen first to ensure the correct version

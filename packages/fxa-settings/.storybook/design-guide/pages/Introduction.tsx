@@ -82,4 +82,5 @@ export const Introduction = () => (
   </Page>
 );
 
-export default () => Introduction();
+export const introduction = () => Introduction();
+export default introduction;

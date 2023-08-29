@@ -67,7 +67,7 @@ describe('models/integrations/oauth-relier', function () {
       it('empty scope', async () => {
         await expect(async () => {
           const integration = getIntegration('');
-          const _permissions = await integration.getPermissions();
+          await integration.getPermissions();
         }).rejects.toThrow();
       });
 

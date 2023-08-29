@@ -126,4 +126,5 @@ export const Typography = ({ config }) => {
   );
 };
 
-export default (config) => Typography(config);
+const typography = (config) => Typography(config);
+export default typography;

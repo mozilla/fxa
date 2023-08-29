@@ -1,3 +1,3 @@
 #!/bin/bash -e
 
-yarn test --runInBand
+npx nx fxa-event-broker:test --runInBand

@@ -45,19 +45,7 @@ else
     echo '=============================================================================='
     echo 'Congrats! No changes detected on yarn.lock.'
     echo '------------------------------------------------------------------------------'
-    echo 'Skipping yarn install and running postinstall directly.\n'
+    echo 'Skipping yarn install!\n'
     echo '=============================================================================='
     echo -e '\n\n'
-
-
-    # If we skip the yarn install, postinstall may still be needed on any workspace that have changed
-    # since the base docker image was built. We exclude wome workspaces because their post install is just
-    # another build call, which will be taken care of in a following step.
-    set -x
-    yarn workspaces foreach \
-        --topological-dev \
-        -piv $(cat .lists/postinstall-includes.list) \
-        --exclude=fxa-shared \
-        --exclude=fxa-auth-client \
-        run postinstall
 fi

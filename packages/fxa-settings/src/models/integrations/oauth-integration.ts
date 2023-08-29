@@ -27,8 +27,6 @@ import {
   MinLength,
 } from 'class-validator';
 
-const PKCE_CODE_CHALLENGE_LENGTH = 43;
-
 interface OAuthIntegrationFeatures extends IntegrationFeatures {
   webChannelSupport: boolean;
 }

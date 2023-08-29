@@ -117,12 +117,12 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
   const goHome = useCallback(() => window.history.back(), []);
 
   const account = useAccount();
-  
+
   useEffect(() => {
     if (!account.hasPassword) {
       setSubtitleText('');
     }
-   }, [account.hasPassword]);
+  }, [account.hasPassword]);
 
   const advanceStep = () => {
     // Accounts that do not have a password set, will delete immediately
@@ -225,7 +225,8 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
             >
               <p className="mb-4">
                 If you subscribe to Pocket Premium, please make sure that you{' '}
-                <a>cancel your subscription</a> before deleting your account.
+                <a href="#todo-change-to-button">cancel your subscription</a>{' '}
+                before deleting your account.
               </p>
             </Localized>
             <Localized id="delete-account-acknowledge">

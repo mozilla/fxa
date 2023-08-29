@@ -1,4 +1,3 @@
 #!/bin/bash -ex
 
-yarn workspaces focus fxa-react
-CI=yes NODE_ENV=test yarn test
+CI=yes NODE_ENV=test npx nx fxa-react:test

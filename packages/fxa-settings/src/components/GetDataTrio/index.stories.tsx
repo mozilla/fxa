@@ -17,7 +17,7 @@ export default {
 } as Meta;
 
 export const Default = () => {
-  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [, setTooltipVisible] = useState(false);
   return (
     <div className="p-10 max-w-xs">
       <GetDataTrio value="Copy that" {...{ setTooltipVisible }} />
@@ -26,7 +26,7 @@ export const Default = () => {
 };
 
 export const SingleCopyButton = () => {
-  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [, setTooltipVisible] = useState(false);
   return (
     <div className="p-10 max-w-xs">
       <GetDataCopySingleton value="Copy that" {...{ setTooltipVisible }} />
@@ -35,7 +35,7 @@ export const SingleCopyButton = () => {
 };
 
 export const SingleCopyButtonInline = () => {
-  const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [, setTooltipVisible] = useState(false);
   return (
     <div className="p-10 max-w-xs">
       <GetDataCopySingletonInline

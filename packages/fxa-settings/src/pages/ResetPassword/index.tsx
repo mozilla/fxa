@@ -6,12 +6,7 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-  composeAuthUiErrorTranslationId,
-  getLocalizedErrorMessage,
-} from '../../lib/auth-errors/auth-errors';
+import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import {
@@ -29,7 +24,6 @@ import { InputText } from '../../components/InputText';
 import LinkRememberPassword from '../../components/LinkRememberPassword';
 import WarningMessage from '../../components/WarningMessage';
 import { isEmailValid } from 'fxa-shared/email/helpers';
-import sentryMetrics from 'fxa-shared/lib/sentry';
 import { setOriginalTabMarker } from '../../lib/storage-utils';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';

@@ -11,7 +11,6 @@ import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
 import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
-import { IntegrationType } from '../../models';
 
 const meta = {
   title: 'Components/LinkExpired',
