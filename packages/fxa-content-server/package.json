@@ -3,24 +3,28 @@
   "version": "0.0.0",
   "description": "Firefox Accounts Content Server",
   "scripts": {
-    "build": "tsc --build ../fxa-react && yarn l10n-prime && yarn build-css && NODE_ENV=production grunt build",
-    "build-css": "npx tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
+    "prebuild": "yarn l10n-prime && yarn copy-local-config && yarn check-local-config ",
+    "build": "yarn build-l10n && yarn build-css && yarn build-js",
+    "build-css": "tailwindcss --postcss -i ./app/styles/tailwind.css -o ./app/styles/tailwind.out.css",
+    "build-js": "NODE_ENV=production grunt build",
+    "build-l10n": "yarn l10n-create-json",
+    "check-local-config": "node scripts/check-local-config",
+    "clean": "rimraf dist",
     "compile": "tsc --noEmit",
-    "clean": "git clean -fXd",
+    "copy-local-config": "cp server/config/local.json-dist server/config/local.json",
     "glean-generate": "yarn glean translate ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml -f javascript -o app/scripts/lib/glean",
-    "glean-lint": "yarn glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
-    "postinstall": "cp server/config/local.json-dist server/config/local.json",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "l10n-create-json": "NODE_OPTIONS=--openssl-legacy-provider grunt l10n-create-json",
     "l10n-prime": "yarn l10n:prime fxa-content-server",
-    "lint": "yarn glean-lint && eslint app server tests --cache",
-    "start": "node scripts/check-local-config && yarn l10n-prime && NODE_OPTIONS=--openssl-legacy-provider grunt l10n-create-json && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3030/bundle/app.bundle.js && yarn build-css",
+    "lint": "yarn lint-glean && eslint app server tests --cache",
+    "lint-glean": "yarn glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",
     "stop": "pm2 stop pm2.config.js",
-    "restart": "pm2 restart pm2.config.js && yarn build-css",
+    "restart": "pm2 restart pm2.config.js ",
     "delete": "pm2 delete pm2.config.js",
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
-    "test-circle": "node tests/intern.js --suites=circle --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://oauth-fxaci.dev.lcip.org --fxaUntrustedOauthApp=https://321done-fxaci.dev.lcip.org --fxaProduction=true --bailAfterFirstFailure=true",
     "test-functional": "node tests/intern.js",
     "test-functional-oauth": "node tests/intern.js --grep='oauth'",
     "test-functional-settings": "node tests/intern.js --suites=settings",
@@ -28,8 +32,6 @@
     "test-pairing": "node tests/intern.js --suites=pairing",
     "test-pairing-circle": "node tests/intern.js --suites=pairing --fxaAuthRoot=https://fxaci.dev.lcip.org/auth --fxaEmailRoot=http://restmail.net --fxaOAuthApp=https://123done-fxaci.dev.lcip.org/ --fxaProduction=true --bailAfterFirstFailure=true",
     "test-server": "node tests/intern.js --suites=server",
-    "test-unit": "echo No unit tests present for $npm_package_name",
-    "test-integration": "echo No integration tests present for $npm_package_name",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
@@ -191,5 +193,10 @@
     "xmlhttprequest": "^1.8.0",
     "yargs": "^17.0.1"
   },
-  "readmeFilename": "README.md"
+  "readmeFilename": "README.md",
+  "nx": {
+    "tags": [
+      "scope:frontend"
+    ]
+  }
 }

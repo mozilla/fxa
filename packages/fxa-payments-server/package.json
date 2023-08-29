@@ -3,31 +3,35 @@
   "version": "0.0.0",
   "description": "Firefox Accounts Payments Service",
   "scripts": {
+    "prebuild": "yarn l10n-prime",
+    "build": "yarn build-l10n && yarn build-css && yarn build-ts && yarn build-react",
     "build-css": "npx tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
+    "build-ts": "tsc",
+    "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
+    "build-react": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
+    "build-storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/images storybook-static/ && cp -r public/locales ./storybook-static/locales",
     "compile": "tsc --noEmit",
-    "postinstall": "yarn l10n:prime fxa-payments-server",
-    "clean": "git clean -fXd",
+    "clean": "rimraf dist",
+    "l10n-merge": "yarn grunt merge-ftl",
+    "l10n-merge-test": "yarn grunt merge-ftl:test",
     "l10n-prime": "yarn l10n:prime fxa-payments-server",
     "l10n-bundle": "yarn l10n:bundle fxa-payments-server branding,react,payments",
+    "l10n-watch": "yarn grunt watch-ftl",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "start": "tsc --build ../fxa-react && yarn build-css && yarn merge-ftl && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:3031/__lbheartbeat__",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:3031/__lbheartbeat__",
     "stop": "pm2 stop pm2.config.js",
-    "restart": "tsc --build ../fxa-react && yarn build-css && pm2 restart pm2.config.js",
+    "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "build": "yarn merge-ftl && tsc --build ../fxa-react && NODE_ENV=production yarn build-css && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
     "eject": "react-scripts eject",
     "test": "yarn test-frontend && yarn test-server",
-    "test-frontend": "yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false",
-    "test-frontend-watch": "yarn merge-ftl-test && SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
-    "test-server": "yarn merge-ftl-test && yarn build && jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit",
-    "test-unit": "yarn build && yarn merge-ftl-test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
-    "test-integration": "yarn build && yarn merge-ftl-test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
+    "test-frontend": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false",
+    "test-frontend-watch": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test",
+    "test-server": "jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --verbose --config server/jest.config.js --forceExit -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "test-integration": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-integration.xml SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false rescripts test --watchAll=false --ci --reporters=default --reporters=jest-junit",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6006",
-    "build-storybook": "yarn merge-ftl && NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/images storybook-static/ && cp -r public/locales ./storybook-static/locales",
-    "merge-ftl": "yarn l10n-prime && grunt merge-ftl && yarn l10n-bundle",
-    "merge-ftl-test": "yarn l10n-prime && grunt merge-ftl:test",
-    "watch-ftl": "grunt watch-ftl"
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6006",
+    "watch-ftl": "yarn l10n-watch"
   },
   "eslintConfig": {
     "extends": [
@@ -191,6 +195,11 @@
       "last 1 chrome version",
       "last 1 firefox version",
       "last 1 safari version"
+    ]
+  },
+  "nx": {
+    "tags": [
+      "scope:frontend"
     ]
   }
 }

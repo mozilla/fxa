@@ -6,16 +6,18 @@
   "scripts": {
     "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
+    "clean": "rimraf dist",
+    "prebuild": "mkdir -p var/public",
     "outdated": "npm outdated --depth 0 || exit 0",
-    "start": "yarn make-dirs && pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:1111/__heartbeat__",
+    "build": "echo 'Build not required'",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:1111/__heartbeat__",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
     "test": "scripts/test-local.sh",
-    "test-unit": "yarn make-dirs && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
-    "test-integration": "yarn make-dirs && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-integration.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
-    "format": "prettier --write --config ../../_dev/.prettierrc '**'",
-    "make-dirs": "mkdir -p var/public"
+    "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration' --invert",
+    "test-integration": "mkdir -p var/public && MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-integration.xml node ./scripts/mocha-coverage.js --recursive test/*.js test/routes/*/*.js -g '#integration'",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
     "@hapi/boom": "~10.0.0",
@@ -70,5 +72,10 @@
   "mocha": {
     "reporter": "mocha-multi",
     "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:server"
+    ]
   }
 }

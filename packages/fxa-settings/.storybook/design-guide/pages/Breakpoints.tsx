@@ -130,4 +130,5 @@ const Breakpoints = ({ config }) => {
   );
 };
 
-export default (config) => Breakpoints(config);
+const breakpoints = (config) => Breakpoints(config);
+export default breakpoints;

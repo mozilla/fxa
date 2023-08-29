@@ -4,20 +4,7 @@
 
 import { ApolloError } from 'apollo-server';
 
-export class ThrottledError extends ApolloError {
-  constructor(
-    message: string,
-    code: string,
-    extensions: {
-      errno: number;
-      info: string;
-      retryAfter: number;
-      retryAfterLocalized: string;
-    }
-  ) {
-    super(message, code, extensions);
-  }
-}
+export class ThrottledError extends ApolloError {}
 
 export const PROFILE_INFO_URL =
   'https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#errors';

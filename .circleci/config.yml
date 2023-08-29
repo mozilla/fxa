@@ -54,6 +54,8 @@ executors:
     resource_class: small
     docker:
       - image: cimg/node:18.17
+    environment:
+      HUSKY_SKIP_INSTALL: 1
 
   # For creating docker builds
   docker-build-executor:
@@ -75,16 +77,18 @@ executors:
       YARN_ENABLE_GLOBAL_CACHE: true
       # Enabling hard links saves about 1.2 GB of space in the image.
       YARN_NM_MODE: hardlinks-global
+      HUSKY_SKIP_INSTALL: 1
 
   # Contains prebuilt image with low install overhead. Perfect for the first build
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder
+      - image: mozilla/fxa-circleci:ci-builder-nx
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
+      HUSKY_SKIP_INSTALL: 1
 
   # Contains minimal image for running common jobs like linting or unit tests.
   # This image requires a restored workspace state.
@@ -95,11 +99,12 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner
+      - image: mozilla/fxa-circleci:ci-test-runner-nx
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
+      HUSKY_SKIP_INSTALL: 1
 
   # A minimal image for anything job needs infrastructure. Perfect for integration tests.
   # This image requires a restored workspace state.
@@ -110,7 +115,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner
+      - image: mozilla/fxa-circleci:ci-test-runner-nx
       - image: cimg/mysql:8.0.28
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -122,6 +127,7 @@ executors:
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
       REDIS_PASSWORD: fxa123
+      HUSKY_SKIP_INSTALL: 1
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -132,7 +138,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-nx
       - image: redis
         command: --requirepass fxa123
       - image: memcached
@@ -161,6 +167,7 @@ executors:
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       CUSTOMS_SERVER_URL: none
       REDIS_PASSWORD: fxa123
+      HUSKY_SKIP_INSTALL: 1
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.
@@ -171,10 +178,11 @@ executors:
         default: medium+
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-nx
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
+      HUSKY_SKIP_INSTALL: 1
 
 commands:
   git-clone:
@@ -236,13 +244,9 @@ commands:
           command: |
             ./_scripts/l10n/clone.sh
             ./.circleci/base-install.sh
-            ./.circleci/create-lists.sh
             ./_scripts/create-version-json.sh
-            yarn gql:allowlist
       - store_artifacts:
           path: ./packages/version.json
-      - store_artifacts:
-          path: ./.lists
       - store_artifacts:
           path: ./configs/gql
 
@@ -299,23 +303,22 @@ commands:
     steps:
       - run:
           name: Linting
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t lint
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t lint
 
   compile:
     steps:
       - run:
+          name: Pre building shared libraries
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
+          environment:
+            NODE_ENV: test
+            CI: false
+      - run:
           name: Compiling TypeScript
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
-
-  report-coverage:
-    # Not currently used. But should be soon once coverage reports are fixed up.
-    parameters:
-      list:
-        type: string
-        default: ''
-    steps:
-      - run:
-          command: ./.circleci/report-coverage.sh << parameters.list >>
+          environment:
+            NODE_ENV: test
+            CI: false
 
   run-playwright-tests:
     parameters:
@@ -331,8 +334,9 @@ commands:
             else
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
             fi
-            cd packages/functional-tests
-            TEST_FILES=$(circleci tests glob "tests/**/*.spec.ts")
+            cd packages/functional-tests/tests
+            TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
+            cd ..
             echo $TEST_FILES | circleci tests run --command="xargs yarn playwright test --project=<< parameters.project >>" --verbose --split-by=timings
           environment:
             NODE_OPTIONS: --dns-result-order=ipv4first
@@ -358,56 +362,44 @@ commands:
       - store_test_results:
           path: artifacts/tests
 
-  ts-build:
+  build:
     steps:
       - run:
-          name: Build Common Typescript Packages
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many --parallel=1 -t build --projects=fxa-shared,fxa-auth-client,fxa-react
-      - run:
-          name: Compile Changed Typescript Packages
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=3 -t compile
+          name: Build
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
+          environment:
+            NODE_ENV: test
+            CI: false
 
-  save-workspace:
+  save-init-workspace:
     steps:
       - persist_to_workspace:
           root: /home/circleci/project
           paths:
-            - .lists
             - external
-            - configs/gql/allowlist
             - node_modules
-            - packages
+            - packages/**/node_modules
+            - packages/version.json
+
+  save-build-workspace:
+    steps:
+      - persist_to_workspace:
+          name: Save Build Workspace
+          root: /home/circleci/project
+          paths:
+            - node_modules/.cache/nx
+            - packages/**/dist
+            - packages/**/public
+            - packages/**/src/styles
+            - packages/**/styles
+            - packages/**/vendor
+            - packages/**/var
+            - configs/gql/allowlist
 
   restore-workspace:
     steps:
       - attach_workspace:
           at: /home/circleci/project
-
-  run-tests:
-    parameters:
-      test_name:
-        type: string
-      # Name of file in ./lists folder holding tests to execute in parallel
-      list:
-        type: string
-      # Controls the number of parallel operations and essentially correlates to the --jobs argument of the
-      # parallel command. A value of NONE, indicates the argument is not supplied at all.
-      # For exact usage see:
-      #   https://www.gnu.org/software/parallel/parallel_tutorial.html#number-of-simultaneous-jobs
-      max_jobs:
-        type: string
-        default: 'NONE'
-      index:
-        type: integer
-        default: 0
-      total:
-        type: integer
-        default: 1
-    steps:
-      - run:
-          name: << parameters.test_name >>
-          command: ./.circleci/run-list-parallel.sh  << parameters.list >> << parameters.max_jobs >> << parameters.index >>:<< parameters.total >>
-      - store-artifacts
 
   fail-fast:
     steps:
@@ -415,9 +407,10 @@ commands:
       - run:
           name: Fail Fast
           when: on_fail
-          command: |
-            echo "Canceling workflow as a step resulted in failure"
-            node .circleci/cancel-jobs.mjs;
+          command: echo "DISABLE"
+          # command: |
+          #  echo "Canceling workflow as a step resulted in failure"
+          #  node .circleci/cancel-jobs.mjs;
 
   rebuild-check:
     parameters:
@@ -459,7 +452,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-nx
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -488,10 +481,10 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder
-            docker push mozilla/fxa-circleci:ci-test-runner
-            docker push mozilla/fxa-circleci:ci-functional-test-runner
-            docker push mozilla/fxa-circleci:ci-builder
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-nx
+            docker push mozilla/fxa-circleci:ci-test-runner-nx
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-nx
+            docker push mozilla/fxa-circleci:ci-builder-nx
             wait
 
 jobs:
@@ -528,7 +521,6 @@ jobs:
         type: executor
       force-deploy:
         type: boolean
-        default: false
     executor: << parameters.executor >>
     steps:
       # Run with layer caching to speed up builds
@@ -536,7 +528,7 @@ jobs:
           docker_layer_caching: true
       - git-clone
       - rebuild-check:
-          force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
+          force-deploy: << parameters.force-deploy >>
       - install-test-browsers
       - cache-restore-yarn
       - create-fxa-ci-images
@@ -545,19 +537,27 @@ jobs:
   # The initial step for many pipelines, this step installs packages and does a build on
   # the code. It then stores the resulting state into a CircleCI workspace for later
   # use.
-  build:
+  init:
     executor: build-executor
     resource_class: large
     steps:
       - git-checkout
       - provision
-      - ts-build
-      - save-workspace
+      - save-init-workspace
+
+  build:
+    executor: default-executor
+    resource_class: large
+    steps:
+      - git-checkout
+      - restore-workspace
+      - build
+      - save-build-workspace
 
   # Runs linter on packages that have changes.
   lint:
     executor: default-executor
-    resource_class: medium
+    resource_class: small
     steps:
       - git-checkout
       - restore-workspace
@@ -574,51 +574,54 @@ jobs:
   # Runs unit tests in parallel across packages with changes.
   unit-test:
     executor: default-executor
-    resource_class: large
-    steps:
-      - git-checkout
-      - restore-workspace
-      - run:
-          name: Run unit tests
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t test-unit
-          environment:
-            NODE_ENV: test
-
-  integration-test-libs:
-    executor: fullstack-executor
     resource_class: medium+
     steps:
       - git-checkout
       - restore-workspace
-      - wait-for-infrastructure
+      - run:
+          name: Build shared libs
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: npx nx run-many -t test-integration --projects=tag:lib
+          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
+            CI: false
+      - store-artifacts
 
   # Runs integration tests suites across packages with changes. Integration tests can take
   #  longer to run, so this job supports splitting.
-  integration-test-part:
+  integration-test:
     parameters:
+      target:
+        type: string
+        default: -t test-integration
+      projects:
+        type: string
+        default: --all
+      parallel:
+        type: string
+        default: --parallel=1
+      nx_run:
+        type: string
+        default: run-many
       resource_class:
         type: string
         default: medium
-      index:
-        type: integer
-      total:
-        type: integer
     executor: fullstack-executor
+    resource_class: << parameters.resource_class >>
     steps:
       - git-checkout
       - restore-workspace
       - wait-for-infrastructure
-      - run-tests:
-          test_name: Integration Test (many)
-          list: integration-test.list
-          max_jobs: '1'
-          index: << parameters.index >>
-          total: << parameters.total >>
+      - run:
+          name: Run API Integration Tests
+          command: |
+            npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
+          environment:
+            NODE_ENV: test
+            CI: false
+      - store-artifacts
 
   # This job is manually triggered for now. see .circleci/README.md
   test-content-server-remote:
@@ -684,7 +687,7 @@ jobs:
         default: large
       parallelism:
         type: integer
-        default: 4
+        default: 6
     executor: functional-test-executor
     resource_class: << parameters.resource_class >>
     parallelism: << parameters.parallelism >>
@@ -700,6 +703,8 @@ jobs:
       - run:
           name: Start services for playwright tests
           command: ./packages/functional-tests/scripts/start-services.sh
+          environment:
+            NODE_ENV: test
       - run-playwright-tests:
           project: local
       - store-artifacts
@@ -714,6 +719,16 @@ jobs:
           name: Build and deploy Storybooks
           command: |
             STORYBOOKS_USE_YARN_WORKSPACES=false npx github:mozilla-fxa/storybook-gcp-publisher
+
+  update-yarn-cache:
+    executor: default-executor
+    resource_class: medium+
+    steps:
+      - git-checkout
+      - run:
+          name: Base Install
+          command: ./.circleci/base-install.sh
+      - cache-save-yarn
 
   # A nice way to finalize a workflow. This will also notify jira.
   on-complete:
@@ -736,75 +751,58 @@ workflows:
     # run on PR drafts.
     when: << pipeline.parameters.enable_test_pull_request >>
     jobs:
-      - build:
-          name: Build (PR)
+      - init:
+          name: Init (PR)
           filters:
             branches:
               ignore: /main/
             tags:
               ignore: /.*/
+      - build:
+          name: Build (PR)
+          requires:
+            - Init (PR)
       - lint:
           name: Lint (PR)
           requires:
-            - Build (PR)
+            - Init (PR)
+          post-steps:
+            - fail-fast
       - compile:
           name: Compile (PR)
           requires:
-            - Build (PR)
+            - Init (PR)
+          post-steps:
+            - fail-fast
       - unit-test:
           name: Unit Test (PR)
           requires:
             - Build (PR)
           post-steps:
             - fail-fast
-      - integration-test-part:
-          name: Integration Test 1 (PR)
-          index: 0
-          total: 6
+      - integration-test:
+          name: Integration Test - Frontends (PR)
+          resource_class: large
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:frontend'
           requires:
             - Build (PR)
-      - integration-test-part:
-          name: Integration Test 2 (PR)
-          index: 1
-          total: 6
+      - integration-test:
+          name: Integration Test - Servers (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server'
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 3 (PR)
-          index: 2
-          total: 6
+      - integration-test:
+          name: Integration Test - Servers - Auth (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server:auth'
           requires:
             - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 4 (PR)
-          index: 3
-          total: 6
-          requires:
-            - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 5 (PR)
-          index: 4
-          total: 6
-          requires:
-            - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 6 (PR)
-          index: 5
-          total: 6
-          requires:
-            - Build (PR)
-          post-steps:
-            - fail-fast
-      - integration-test-libs:
-          name: Integration Test Libs (PR)
+      - integration-test:
+          name: Integration Test - Libraries (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (PR)
       - playwright-functional-tests:
@@ -824,10 +822,10 @@ workflows:
             - Lint (PR)
             - Compile (PR)
             - Unit Test (PR)
-            - Integration Test 1 (PR)
-            - Integration Test 2 (PR)
-            - Integration Test 3 (PR)
-            - Integration Test Libs (PR)
+            - Integration Test - Frontends (PR)
+            - Integration Test - Servers (PR)
+            - Integration Test - Servers - Auth (PR)
+            - Integration Test - Libraries (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
 
@@ -901,6 +899,7 @@ workflows:
                 - main
             tags:
               ignore: /.*/
+          force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
 
   deploy_story_book:
     # This workflow is triggered after a PR lands on main. It requires approval.
@@ -925,6 +924,13 @@ workflows:
     # live infrastructure.
     when: << pipeline.parameters.enable_test_and_deploy_tag >>
     jobs:
+      - init:
+          name: Init
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
       - build:
           name: Build
           filters:
@@ -932,6 +938,8 @@ workflows:
               ignore: /.*/
             tags:
               only: /.*/
+          requires:
+            - Init
       - lint:
           name: Lint
           filters:
@@ -940,7 +948,7 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - Build
+            - Init
       - compile:
           name: Compile
           filters:
@@ -949,7 +957,7 @@ workflows:
             tags:
               only: /.*/
           requires:
-            - Build
+            - Init
       - unit-test:
           name: Unit Test
           filters:
@@ -959,41 +967,45 @@ workflows:
               only: /.*/
           requires:
             - Build
-      - integration-test-part:
-          name: Integration Test 1
+      - integration-test:
+          name: Integration Test - Frontends
+          resource_class: large
+          projects: --tag=scope:frontend
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-          index: 0
-          total: 3
           requires:
             - Build
-      - integration-test-part:
-          name: Integration Test 2
+      - integration-test:
+          name: Integration Test - Servers
+          projects: --tag=scope:server
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-          index: 1
-          total: 3
           requires:
             - Build
-      - integration-test-part:
-          name: Integration Test 3
+      - integration-test:
+          name: Integration Test - Servers - Auth
+          projects: --tag=scope:server:auth
           filters:
             branches:
               ignore: /.*/
             tags:
               only: /.*/
-          index: 2
-          total: 3
           requires:
             - Build
-      - integration-test-libs:
-          name: Integration Test Libs
+      - integration-test:
+          name: Integration Test - Libraries
+          projects: --tag=scope:shared*
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
           requires:
             - Build
       - playwright-functional-tests:
@@ -1026,10 +1038,10 @@ workflows:
             - Lint
             - Compile
             - Unit Test
-            - Integration Test 1
-            - Integration Test 2
-            - Integration Test 3
-            - Integration Test Libs
+            - Integration Test - Frontends
+            - Integration Test - Servers
+            - Integration Test - Servers - Auth
+            - Integration Test - Libraries
             - Functional Tests - Playwright
             - Create FxA Image
 
@@ -1043,6 +1055,13 @@ workflows:
             branches:
               only: main
     jobs:
+      - init:
+          name: Init (nightly)
+          filters:
+            branches:
+              only: main
+            tags:
+              ignore: /.*/
       - build:
           name: Build (nightly)
           filters:
@@ -1050,46 +1069,41 @@ workflows:
               only: main
             tags:
               ignore: /.*/
+          requires:
+            - Init (nightly)
       - lint:
           name: Lint (nightly)
           requires:
-            - Build (nightly)
+            - Init (nightly)
       - compile:
           name: Compile (nightly)
           requires:
-            - Build (nightly)
+            - Init (nightly)
       - unit-test:
           name: Unit Test (nightly)
           requires:
             - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 1 (nightly)
-          index: 0
-          total: 3
+      - integration-test:
+          name: Integration Test - Frontends (nightly)
+          resource_class: large
+          projects: --tag=scope:frontend
           requires:
             - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 2 (nightly)
-          index: 1
-          total: 3
+      - integration-test:
+          name: Integration Test - Servers (nightly)
+          projects: --tag=scope:server
           requires:
             - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-part:
-          name: Integration Test 3 (nightly)
-          index: 2
-          total: 3
+      - integration-test:
+          name: Integration Test - Servers - Auth (nightly)
+          projects: --tag=scope:server:auth
+          target: --targets test-integration-local test-integration-remote test-integration-scripts
           requires:
             - Build (nightly)
-          post-steps:
-            - fail-fast
-      - integration-test-libs:
-          name: Integration Test Libs (nightly)
+      - integration-test:
+          name: Integration Test - Libraries (nightly)
+          # TODO - Get payments cart tests working
+          projects: --tag=scope:shared* --exclude=payments-cart
           requires:
             - Build (nightly)
       - playwright-functional-tests:
@@ -1105,10 +1119,10 @@ workflows:
             - Lint (nightly)
             - Compile (nightly)
             - Unit Test (nightly)
-            - Integration Test 1 (nightly)
-            - Integration Test 2 (nightly)
-            - Integration Test 3 (nightly)
-            - Integration Test Libs (nightly)
+            - Integration Test - Frontends (nightly)
+            - Integration Test - Servers (nightly)
+            - Integration Test - Servers - Auth (nightly)
+            - Integration Test - Libraries (nightly)
             - Functional Tests - Playwright (nightly)
       - build-and-deploy-storybooks:
           name: Deploy Storybooks (nightly)

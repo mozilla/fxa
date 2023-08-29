@@ -21,5 +21,14 @@
   },
   "python.pythonPath": "usr/bin/python3",
   "prettier.configPath": "_dev/.prettierrc",
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/storybook-static": true,
+  },
+  "cSpell.words": [
+    "Frontends"
+  ]
 }

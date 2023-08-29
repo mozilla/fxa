@@ -3,14 +3,15 @@
   "version": "0.0.0",
   "description": "FxA GraphQL API",
   "scripts": {
-    "prebuild": "rimraf dist && yarn gql:allowlist",
-    "copy-gql": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
-    "build": "nest build",
+    "prebuild": "yarn clean",
+    "gql-copy": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
+    "build": "yarn compile && nest build",
+    "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "watch": "tsc -w",
-    "start": "pm2 start pm2.config.js && ../../_scripts/check-url.sh localhost:8290/__heartbeat__",
+    "start": "pm2 start pm2.config.js && yarn check:url localhost:8290/__heartbeat__",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
@@ -20,8 +21,9 @@
     "test-watch": "jest --watch",
     "test-cov": "jest --coverage",
     "test-debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand --logHeapUsage",
-    "test-e2e": "npm run build && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit",
-    "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts"
+    "test-e2e": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-e2e.xml jest --runInBand --logHeapUsage --config ./test/jest-e2e.config.js --ci --reporters=default --reporters=jest-junit",
+    "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {
     "type": "git",

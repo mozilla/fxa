@@ -10,7 +10,7 @@
     "stop": "nps --prefix=stop",
     "restart": "nps --prefix=restart",
     "delete": "nps --prefix=delete",
-    "rebuild-packages": "yarn workspaces foreach run build",
+    "rebuild-packages": "nx run-many -t build --all",
     "adb-reverse": "./_scripts/adb-reverse.sh",
     "test": "_scripts/test-package.sh",
     "config-fxios": "node _scripts/config-fxios.js",
@@ -24,7 +24,9 @@
     "l10n:prime": "_scripts/l10n/prime.sh",
     "l10n:bundle": "_scripts/l10n/bundle.sh",
     "legal:clone": "_scripts/clone-legal-docs.sh",
-    "gql:allowlist": "nx run-many -t extract-gql && nx run-many -t copy-gql"
+    "gql:allowlist": "nx run-many -t gql-extract && nx run-many -t gql-copy",
+    "check:mysql": "_scripts/check-mysql.sh",
+    "check:url": "_scripts/check-url.sh"
   },
   "homepage": "https://github.com/mozilla/fxa",
   "bugs": {

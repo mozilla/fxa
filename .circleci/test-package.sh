@@ -17,7 +17,7 @@ if grep -e "$MODULE" -e 'all' "$DIR/../packages/test.list" > /dev/null; then
     time ./scripts/test-ci.sh
   else
     # default action
-    time (NODE_ENV=test yarn workspace $MODULE $TEST)
+    time (NODE_ENV=test npx nx run $MODULE:$TEST)
   fi
 else
   echo -e "\n###################################"

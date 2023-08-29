@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { typeByTestIdFn } from '../../lib/test-utils';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { Subject } from './mocks';
 

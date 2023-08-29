@@ -6,8 +6,10 @@ const PATH = process.env.PATH.split(':')
   .filter((p) => !p.includes(process.env.TMPDIR))
   .join(':');
 
-module.exports = {
-  apps: [
+let apps = [];
+
+if (process.env.CI !== 'true') {
+  apps = [
     {
       name: 'react-tsc',
       script: 'yarn tsc --build --watch',
@@ -38,5 +40,9 @@ module.exports = {
       ignore_watch: ['styles/tailwind.out.css'],
       time: true,
     },
-  ],
+  ];
+}
+
+module.exports = {
+  apps,
 };

@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "lint": "eslint . --ext .mjs",
-    "start": "./bin/fxa-dev-launcher.mjs"
+    "start": "./bin/fxa-dev-launcher.mjs",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "bin": "./bin/fxa-dev-launcher.mjs",
   "repository": {

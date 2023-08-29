@@ -14,7 +14,6 @@ import {
 } from '../../models/mocks';
 import { Account } from '../../models';
 import { FIREFOX_NOREPLY_EMAIL } from 'fxa-settings/src/constants';
-import { createMockWebIntegration } from '../../lib/integrations/mocks';
 
 const viewName = 'example-view-name';
 const email = MOCK_ACCOUNT.primaryEmail.email;

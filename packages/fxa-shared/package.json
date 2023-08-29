@@ -203,11 +203,12 @@
     }
   },
   "scripts": {
-    "postinstall": "yarn build || true",
-    "build": "tsc --build && tsc --build tsconfig.cjs.json && echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && yarn copy-assets && yarn copy-sql",
-    "compile": "tsc --noEmit && yarn copy-assets && yarn copy-sql",
+    "build": "yarn build-ts && yarn copy-assets && yarn copy-sql",
+    "build-ts": "tsc --build && tsc --build tsconfig.cjs.json",
+    "clean": "rm -rf dist",
+    "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
-    "copy-sql": "find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
+    "copy-sql": "echo '{ \"type\": \"module\" }' > ./dist/esm/packages/fxa-shared/db/package.json && find test -name \\*.sql -exec cp \\{\\} dist/esm/packages/fxa-shared/\\{\\} \\; ; find test -name \\*.sql -exec cp \\{\\} dist/cjs/packages/fxa-shared/\\{\\} \\;",
     "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
@@ -365,5 +366,10 @@
   "mocha": {
     "reporter": "mocha-multi",
     "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared:lib"
+    ]
   }
 }

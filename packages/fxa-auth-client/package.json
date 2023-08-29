@@ -34,10 +34,10 @@
   },
   "scripts": {
     "lint": "eslint . --ext .ts",
-    "postinstall": "(tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json) || true",
-    "build": "tsc --build tsconfig.browser.json && tsc --build && tsc --build tsconfig.cjs.json",
-    "compile": "tsc --noEmit",
-    "ts-check": "tsc --noEmit",
+    "build": "yarn build-ts",
+    "build-ts": "tsc --build tsconfig.browser.json && tsc --build tsconfig.cjs.json && tsc --build",
+    "clean": "rimraf dist",
+    "compile": "yarn build-ts",
     "test": "mocha -r esbuild-register test/*",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "test-unit": "MOCHA_FILE=../../artifacts/tests/$npm_package_name/mocha-unit.xml mocha -r esbuild-register test/*",
@@ -72,5 +72,10 @@
   "mocha": {
     "reporter": "mocha-multi",
     "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared:lib"
+    ]
   }
 }

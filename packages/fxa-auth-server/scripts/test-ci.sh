@@ -10,20 +10,13 @@ DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --rec
 if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep #integration "; fi;
 
-node -r esbuild-register ./scripts/gen_keys.js
-node -r esbuild-register ./scripts/gen_vapid_keys.js
-node -r esbuild-register ./scripts/oauth_gen_keys.js
-
-echo 'Updating ftl files'
-# Migrate current strings
-yarn run merge-ftl
-yarn run merge-ftl-test
-
-# Process sass for rendering of email templates
-echo
-yarn run emails-scss
 
 TESTS=(local oauth remote scripts)
+if [ -z "$1" ]; then
+  TESTS=(local oauth remote scripts)
+else
+  TESTS=($1)
+fi
 
 for t in "${TESTS[@]}"; do
   echo -e "\n\nTesting: $t"

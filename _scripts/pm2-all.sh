@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+start=`date +%s`
+
 DIR=$(dirname "$0")
 COMMAND=$1
 cd "$DIR/.."
@@ -10,23 +12,11 @@ then
 fi
 
 mkdir -p artifacts
+npx nx run-many -t start --all --exclude=fxa-dev-launcher --verbose;
 
-echo "building shared fxa projects..."
-if ! nx run-many --targets=fxa-auth-client,fxa-react,fxa-shared --all build --verbose > artifacts/build-shared.log;
-then
-  echo -e "\n###########################################################\n"
-  echo "# fxa couldn't build shared projects. see ./artifacts/build-shared.log for details"
-  echo -e "\n###########################################################\n"
-  exit 1
-fi
+end=`date +%s`
+runtime=$((end-start))
 
-echo "${COMMAND} fxa services and nx projects..."
-if nx run-many --verbose --exclude fxa-dev-launcher --exclude fxa --targets="$COMMAND" > artifacts/start.log;
-then
-  pm2 ls
-else
-  echo -e "\n###########################################################\n"
-  echo "# fxa couldn't start. see ./artifacts/start.log for details"
-  echo -e "\n###########################################################\n"
-  exit 1
-fi
+echo -e "\n###########################################################\n"
+echo "# Stack Started Successfully ! ${runtime}s"
+echo -e "\n###########################################################\n"

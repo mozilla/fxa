@@ -130,4 +130,5 @@ const Colors = ({ config }) => {
   );
 };
 
-export default (config) => Colors(config);
+const colors = (config) => Colors(config);
+export default colors;

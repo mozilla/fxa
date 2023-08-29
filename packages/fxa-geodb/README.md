@@ -93,7 +93,7 @@ Refer to Mocha's [CLI documentation](https://mochajs.org/#command-line-usage) fo
 
 ### Code Coverage
 
-Code coverage is provided with `nyc`, to run coverage, call `yarn-script cover`
+Code coverage is provided with `nyc`, to run coverage, call `yarn cover`
 
 --
 

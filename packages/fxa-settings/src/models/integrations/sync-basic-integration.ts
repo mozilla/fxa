@@ -12,7 +12,6 @@ import { Constants } from '../../lib/constants';
 import { BaseIntegrationData } from './web-integration';
 import {
   IsBase64,
-  IsISO31661Alpha3,
   IsIn,
   IsOptional,
   IsString,

@@ -3,14 +3,15 @@
   "version": "0.0.0",
   "description": "FxA GraphQL Admin Server",
   "scripts": {
-    "prebuild": "rimraf dist && yarn gql:allowlist",
-    "copy-gql": "mkdir -p src/config/gql/allowlist && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
+    "prebuild": "yarn clean",
+    "gql-copy": "mkdir -p src/config/gql/allowlist/ && cp ../../configs/gql/allowlist/*.json src/config/gql/allowlist/.",
+    "build": "nest build && yarn copy-config && yarn gql-copy",
     "copy-config": "cp ./src/config/*.json ./dist/packages/fxa-admin-server/src/config",
-    "build": "yarn prebuild && nest build && yarn copy-config",
+    "clean": "rimraf dist",
     "compile": "tsc --noEmit",
     "lint": "eslint .",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
-    "start": "yarn build && pm2 start pm2.config.js",
+    "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "start-prod": "node dist/packages/fxa-graphql-api/src/main",
     "restart": "pm2 restart pm2.config.js",
@@ -104,5 +105,10 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "nx": {
+    "tags": [
+      "scope:server"
+    ]
   }
 }

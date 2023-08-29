@@ -7,6 +7,7 @@
     "test": "test"
   },
   "scripts": {
+    "clean": "rimraf dist",
     "cover": "nyc _mocha",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "lint": "eslint .",
@@ -50,5 +51,10 @@
   "mocha": {
     "reporter": "mocha-multi",
     "reporterOptions": "spec=-,mocha-junit-reporter=-"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared:service"
+    ]
   }
 }

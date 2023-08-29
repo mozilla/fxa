@@ -8,7 +8,7 @@
     "build": "nest build",
     "compile": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "../../_scripts/check-url.sh localhost:9000/__heartbeat__ && pm2 start pm2.config.js",
+    "start": "yarn check:url localhost:9000/__heartbeat__ && pm2 start pm2.config.js",
     "start-prod": "node dist/packages/fxa-event-broker/src/main",
     "lint": "eslint {src,test}/**/*.ts",
     "test": "jest --runInBand",
@@ -117,5 +117,10 @@
     },
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "nx": {
+    "tags": [
+      "scope:broker"
+    ]
   }
 }

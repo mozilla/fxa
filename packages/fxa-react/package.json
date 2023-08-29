@@ -12,25 +12,28 @@
     "./lib/": "./lib/"
   },
   "scripts": {
+    "prebuild": "nx l10n-prime",
+    "build": "nx build-l10n && nx build-css && nx build-ts",
     "build-css": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
-    "build-storybook": "yarn merge-ftl && NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
-    "build": "tsc --build && yarn merge-ftl",
-    "compile": "tsc --noEmit",
-    "clean": "git clean -fXd",
+    "build-ts": "tsc --build",
+    "build-storybook": "NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
+    "build-l10n": "nx l10n-merge && nx l10n-merge-test",
+    "compile": "nx build-ts",
+    "clean": "rimraf dist",
     "l10n-prime": "yarn l10n:prime fxa-react",
+    "l10n-merge": "yarn grunt merge-ftl",
+    "l10n-merge-test": "yarn grunt merge-ftl:test",
+    "l10n-watch": "yarn grunt watch-ftl",
     "lint": "eslint . .storybook",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "restart": "pm2 restart pm2.config.js",
-    "start": "yarn merge-ftl && pm2 start pm2.config.js",
+    "start": "pm2 start pm2.config.js",
     "stop": "pm2 stop pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "storybook": "yarn merge-ftl && yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6007 --no-version-updates",
-    "test": "yarn merge-ftl-test && JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit ",
-    "test-unit": "yarn test",
-    "test-integration": "echo No integration tests present for $npm_package_name",
-    "merge-ftl": "yarn l10n-prime && grunt merge-ftl",
-    "merge-ftl-test": "yarn l10n-prime && grunt merge-ftl:test",
-    "watch-ftl": "grunt watch-ftl"
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6007 --no-version-updates",
+    "test": "yarn test-unit && yarn test-integration",
+    "test-unit": "JEST_JUNIT_OUTPUT_FILE=../../artifacts/tests/$npm_package_name/jest-unit.xml jest --coverage --runInBand --logHeapUsage --env=jest-environment-jsdom -t '^(?!.*?#integration).*' --ci --reporters=default --reporters=jest-junit",
+    "watch-ftl": "yarn l10n-watch"
   },
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
@@ -104,5 +107,10 @@
   "license": "MPL-2.0",
   "bugs": {
     "url": "https://github.com/mozilla/fxa/issues"
+  },
+  "nx": {
+    "tags": [
+      "scope:shared:lib"
+    ]
   }
 }

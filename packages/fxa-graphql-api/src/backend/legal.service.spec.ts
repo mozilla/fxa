@@ -112,26 +112,26 @@ describe('#unit - LegalService', () => {
   });
 
   describe('invalid files', () => {
-    async function test(fileName: string) {
+    async function testGetDoc(fileName: string) {
       await expect(async () => {
         await service.getDoc('en', fileName);
       }).rejects.toThrow('Invalid file name');
     }
 
     it('rejects empty file name', async () => {
-      await test('');
+      await testGetDoc('');
     });
 
     it('rejects relative path like file name', async () => {
-      await test('../foo.txt');
+      await testGetDoc('../foo.txt');
     });
 
     it('rejects absolute path like file name', async () => {
-      await test('/foo/bar.txt');
+      await testGetDoc('/foo/bar.txt');
     });
 
     it('rejects long file name', async () => {
-      await test('a'.repeat(1000));
+      await testGetDoc('a'.repeat(1000));
     });
   });
 });

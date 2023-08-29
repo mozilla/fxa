@@ -37,5 +37,5 @@
       }
     }
   },
-  "tags": ["lib", "payments"]
+  "tags": ["scope:shared:lib:payments"]
 }

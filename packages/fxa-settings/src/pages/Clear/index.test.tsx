@@ -4,7 +4,7 @@
 
 import React from 'react';
 import Clear from '.';
-import { screen, render } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 describe('Clear', () => {
   it('clears localStorage, sessionStorage, and sets cookie', () => {

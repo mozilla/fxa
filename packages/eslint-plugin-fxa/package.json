@@ -4,7 +4,8 @@
   "description": "eslint plugin for Firefox Accounts",
   "main": "lib/index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "dependencies": {
     "eslint": "6.6.0",
@@ -26,5 +27,10 @@
   "bugs": {
     "url": "https://github.com/mozilla/fxa/issues"
   },
-  "homepage": "https://github.com/mozilla/fxa"
+  "homepage": "https://github.com/mozilla/fxa",
+  "nx": {
+    "tags": [
+      "scope:shared:plugin"
+    ]
+  }
 }
