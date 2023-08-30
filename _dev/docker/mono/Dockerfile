@@ -26,7 +26,7 @@ RUN apt-get update && apt-get install -y \
 # Utilities for fxa services
 FROM fxa-base as fxa-utils
 RUN apt-get update && apt-get install -y \
-    netcat \
+    netcat-traditional \
     openssl \
     jq \
     curl \
