@@ -1080,10 +1080,11 @@ describe('/account/create', () => {
       route,
       uid,
       verificationReminders,
-    } = setup();
+    } = setup({ gleanMetrics: gleanEnabledConfig });
 
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
+    gleanPingFnStub = sinon.stub(glean.registration, 'confirmationEmailSent');
 
     mockRequest.payload.service = 'foo';
 
@@ -1128,6 +1129,8 @@ describe('/account/create', () => {
       );
       args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].service, 'foo');
+
+      sinon.assert.calledOnce(gleanPingFnStub);
 
       assert.equal(verificationReminders.create.callCount, 1);
 
