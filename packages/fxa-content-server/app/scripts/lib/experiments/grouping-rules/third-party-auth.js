@@ -6,8 +6,6 @@
 
 const BaseGroupingRule = require('./base');
 const GROUPS = [
-  'control',
-
   // Treatment branches
   'treatment',
 ];
@@ -15,7 +13,7 @@ const GROUPS = [
 // This experiment is disabled by default. If you would like to go through
 // the flow, load email-first screen and append query params
 // `?forceExperiment=thirdPartyAuth&forceExperimentGroup=treatment`
-const ROLLOUT_RATE = 0.0;
+const ROLLOUT_RATE = 1.0;
 
 module.exports = class ThirdPartyAuth extends BaseGroupingRule {
   constructor() {
