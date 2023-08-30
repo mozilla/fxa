@@ -607,7 +607,7 @@ jobs:
         default: run-many
       resource_class:
         type: string
-        default: medium
+        default: large
     executor: fullstack-executor
     resource_class: << parameters.resource_class >>
     steps:
@@ -970,7 +970,7 @@ workflows:
       - integration-test:
           name: Integration Test - Frontends
           resource_class: large
-          projects: --tag=scope:frontend
+          projects: --exclude '*,!tag:scope:frontend'
           filters:
             branches:
               ignore: /.*/
@@ -980,7 +980,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Servers
-          projects: --tag=scope:server
+          projects: --exclude '*,!tag:scope:server'
           filters:
             branches:
               ignore: /.*/
@@ -990,7 +990,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Servers - Auth
-          projects: --tag=scope:server:auth
+          projects: --exclude '*,!tag:scope:server:auth'
           filters:
             branches:
               ignore: /.*/
@@ -1000,7 +1000,7 @@ workflows:
             - Build
       - integration-test:
           name: Integration Test - Libraries
-          projects: --tag=scope:shared*
+          projects: --exclude '*,!tag:scope:shared:*'
           filters:
             branches:
               ignore: /.*/
@@ -1086,24 +1086,23 @@ workflows:
       - integration-test:
           name: Integration Test - Frontends (nightly)
           resource_class: large
-          projects: --tag=scope:frontend
+          projects: --exclude '*,!tag:scope:frontend'
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers (nightly)
-          projects: --tag=scope:server
+          projects: --exclude '*,!tag:scope:server'
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
-          projects: --tag=scope:server:auth
+          projects: --exclude '*,!tag:scope:server:auth'
           target: --targets test-integration-local test-integration-remote test-integration-scripts
           requires:
             - Build (nightly)
       - integration-test:
           name: Integration Test - Libraries (nightly)
-          # TODO - Get payments cart tests working
-          projects: --tag=scope:shared* --exclude=payments-cart
+          projects: --exclude '*,!tag:scope:shared:*'
           requires:
             - Build (nightly)
       - playwright-functional-tests:
