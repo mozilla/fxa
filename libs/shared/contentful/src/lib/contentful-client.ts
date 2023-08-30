@@ -17,18 +17,16 @@ import {
   ContentfulLocaleError,
 } from './errors';
 import { BaseError } from '@fxa/shared/error';
+import { ContentfulClientConfig } from './contentful-client.config';
 
 @Injectable()
 export class ContentfulClient {
   client = new ApolloClient({
-    uri: `${this.contentfulGraphqlApiUri}?access_token=${this.contentfulGraphqlApiKey}`,
+    uri: `${this.contentfulClientConfig.graphqlApiUri}?access_token=${this.contentfulClientConfig.graphqlApiKey}`,
     cache: new InMemoryCache(),
   });
 
-  constructor(
-    private contentfulGraphqlApiUri: string,
-    private contentfulGraphqlApiKey: string
-  ) {}
+  constructor(private contentfulClientConfig: ContentfulClientConfig) {}
 
   async query<Result, Variables>(
     query: TypedDocumentNode<Result, Variables>,
