@@ -112,7 +112,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       db,
       mailer,
       push,
-      verificationReminders
+      verificationReminders,
+      glean
     );
   const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
   glean = gleanMetrics(config);

@@ -7,11 +7,20 @@
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../../mocks');
+const { gleanMetrics } = require('../../../../lib/metrics/glean');
 
 const TEST_EMAIL = 'test@email.com';
 const TEST_UID = '123123';
 
 let db, log, mailer, push, request, verificationReminders, utils, account;
+
+const gleanConfig = {
+  enabled: false,
+  applicationId: 'accounts_backend_test',
+  channel: 'test',
+  loggerAppName: 'auth-server-tests',
+};
+const glean = gleanMetrics({ gleanMetrics: gleanConfig });
 
 async function setup(options) {
   const log = options.log || mocks.mockLog();
@@ -25,7 +34,8 @@ async function setup(options) {
     db,
     mailer,
     push,
-    verificationReminders
+    verificationReminders,
+    glean
   );
 }
 

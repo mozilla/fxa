@@ -49,7 +49,8 @@ module.exports = function (
     db,
     mailer,
     push,
-    verificationReminders
+    verificationReminders,
+    glean
   );
   // The routing modules themselves.
   const defaults = require('./defaults')(log, config, db);

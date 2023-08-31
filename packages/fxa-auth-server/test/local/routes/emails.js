@@ -16,6 +16,13 @@ const nock = require('nock');
 const proxyquire = require('proxyquire');
 const uuid = require('uuid');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
+const { gleanMetrics } = require('../../../lib/metrics/glean');
+const gleanConfig = {
+  enabled: false,
+  applicationId: 'accounts_backend_test',
+  channel: 'test',
+  loggerAppName: 'auth-server-tests',
+};
 
 const CUSTOMER_1 = require('../payments/fixtures/stripe/customer1.json');
 const CUSTOMER_1_UPDATED = require('../payments/fixtures/stripe/customer1_new_email.json');
@@ -135,6 +142,7 @@ const otpOptions = {
 let zendeskClient;
 let cadReminders;
 let db;
+let glean;
 
 const updateZendeskPrimaryEmail =
   require('../../../lib/routes/emails')._updateZendeskPrimaryEmail;
@@ -163,6 +171,7 @@ const makeRoutes = function (options = {}, requireMocks) {
       /^https:\/\/updates\.push\.services\.mozilla\.com(\/.*)?$/,
   };
   config.otp = otpOptions;
+  config.gleanMetrics = gleanConfig;
 
   const log = options.log || mocks.mockLog();
   db = options.db || mocks.mockDB();
@@ -176,6 +185,8 @@ const makeRoutes = function (options = {}, requireMocks) {
   const verificationReminders =
     options.verificationReminders || mocks.mockVerificationReminders();
   cadReminders = options.cadReminders || mocks.mockCadReminders();
+  glean = gleanMetrics(config);
+
   const signupUtils =
     options.signupUtils ||
     require('../../../lib/routes/utils/signup')(
@@ -183,7 +194,8 @@ const makeRoutes = function (options = {}, requireMocks) {
       db,
       mailer,
       push,
-      verificationReminders
+      verificationReminders,
+      glean
     );
   return proxyquire('../../../lib/routes/emails', requireMocks || {})(
     log,

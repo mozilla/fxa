@@ -320,6 +320,16 @@ describe('Glean server side events', () => {
         assert.equal(metrics['event_name'], 'reg_email_sent');
       });
     });
+
+    describe('accountVerified', () => {
+      it('logs a "rec_acc_verified" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.registration.accountVerified(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'reg_acc_verified');
+      });
+    });
   });
 
   describe('login', () => {
