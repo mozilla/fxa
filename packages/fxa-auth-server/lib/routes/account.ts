@@ -340,6 +340,9 @@ export class AccountHandler {
           uid: account.uid,
           tokenVerificationId,
         });
+        this.glean.registration.confirmationEmailSent(request, {
+          uid: account.uid,
+        });
       }
 
       await this.verificationReminders.create(
