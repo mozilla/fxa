@@ -70,7 +70,7 @@
     "convict-format-with-validator": "^6.2.0",
     "cookie-parser": "1.4.6",
     "crypto-browserify": "^3.12.0",
-    "css-loader": "1.0.0",
+    "css-loader": "6.8.1",
     "duration-js": "4.0.0",
     "expose-loader": "4.1.0",
     "express": "^4.17.3",
