@@ -334,6 +334,7 @@ commands:
             else
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
             fi
+            npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
