@@ -79,8 +79,8 @@
         "{projectRoot}/server/config/local.json",
         "{projectRoot}/var",
         "{projectRoot}/vendor/ejs.js",
-        "{workspaceRoot}/external/l10n",
-        "{workspaceRoot}/external/legal-docs"
+        "{workspaceRoot}/external/l10n/**/*.@(ftl|po|js|json|sh|py|json)",
+        "{workspaceRoot}/external/legal-docs/**/*.@(md|json)"
       ]
     },
     "restart": {
@@ -141,7 +141,7 @@
     "lint": ["{projectRoot}/**/*.@(js|jsx|ts|tsx)"],
     "production": [
       "default",
-      "{workspaceRoot}/external/l10n/**/*.ftl",
+      "{workspaceRoot}/external/l10n/**/*.@(ftl|po)",
       "{workspaceRoot}/external/legal-docs/**/*.md",
       "!{projectRoot}/.eslintrc.json",
       "!{projectRoot}/.storybook/**/*",
