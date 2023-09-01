@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "FxA Admin Panel",
   "scripts": {
-    "build": "yarn build-ts-server && yarn build-ts-client && yarn build-css && yarn build-react",
+    "build": "nx build-css && nx build-react && nx build-ts-client && nx build-ts-server",
     "build-ts-client": "tsc --build",
     "build-ts-server": "tsc -p server/tsconfig.json",
     "build-css": "npx tailwindcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --postcss",
