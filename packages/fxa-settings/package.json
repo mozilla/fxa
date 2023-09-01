@@ -95,7 +95,7 @@
     "graphql": "^15.6.1",
     "lodash.groupby": "^4.6.0",
     "react-async-hook": "^4.0.0",
-    "react-easy-crop": "^4.7.4",
+    "react-easy-crop": "^5.0.0",
     "react-hook-form": "^6.15.8",
     "react-markdown": "^8.0.5",
     "react-scripts": "^5.0.1",
