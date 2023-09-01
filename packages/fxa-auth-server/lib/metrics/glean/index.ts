@@ -120,6 +120,8 @@ export const gleanMetrics = (config: ConfigType) => {
 
     login: {
       success: createEventFn('login_success'),
+      totpSuccess: createEventFn('login_totp_code_success'),
+      totpFailure: createEventFn('login_totp_code_failure'),
     },
   };
 };

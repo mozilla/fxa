@@ -16,7 +16,7 @@ const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../account-events');
 
-module.exports = (log, db, mailer, customs, config) => {
+module.exports = (log, db, mailer, customs, config, glean) => {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
   // Currently, QR codes are rendered with the highest possible
@@ -318,6 +318,7 @@ module.exports = (log, db, mailer, customs, config) => {
         if (isValidCode) {
           log.info('totp.verified', { uid });
           await request.emitMetricsEvent('totpToken.verified', { uid });
+          glean.login.totpSuccess(request, { uid });
 
           accountEventsManager.recordSecurityEvent(db, {
             name: 'account.two_factor_challenge_success',
@@ -327,6 +328,8 @@ module.exports = (log, db, mailer, customs, config) => {
           });
         } else {
           log.info('totp.unverified', { uid });
+          glean.login.totpFailure(request, { uid });
+
           await customs.flag(request.app.clientAddress, {
             email,
             errno: errors.ERRNO.INVALID_EXPIRED_OTP_CODE,

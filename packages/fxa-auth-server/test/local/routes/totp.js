@@ -21,6 +21,9 @@ let log,
   requestOptions,
   mailer,
   accountEventsManager;
+
+const glean = mocks.mockGlean();
+
 const TEST_EMAIL = 'test@email.com';
 const secret = 'KE3TGQTRNIYFO2KOPE4G6ULBOV2FQQTN';
 const sessionId = 'id';
@@ -200,6 +203,10 @@ describe('totp', () => {
   });
 
   describe('/session/verify/totp', () => {
+    afterEach(() => {
+      glean.login.totpSuccess.reset();
+    });
+
     it('should enable and verify TOTP token', () => {
       const authenticator = new otplib.authenticator.Authenticator();
       authenticator.options = Object.assign({}, otplib.authenticator.options, {
@@ -302,6 +309,7 @@ describe('totp', () => {
         code: authenticator.generate(secret),
         service: 'sync',
       };
+
       return setup(
         {
           db: { email: TEST_EMAIL },
@@ -368,6 +376,8 @@ describe('totp', () => {
             tokenId: 'id',
           }
         );
+
+        sinon.assert.calledOnce(glean.login.totpSuccess);
       });
     });
 
@@ -483,6 +493,8 @@ describe('totp', () => {
             tokenId: 'id',
           }
         );
+
+        sinon.assert.calledOnce(glean.login.totpFailure);
       });
     });
   });
@@ -517,7 +529,7 @@ function setup(results, errors, routePath, requestOptions) {
       sharedSecret: secret,
     });
   });
-  routes = makeRoutes({ log, db, customs, mailer });
+  routes = makeRoutes({ log, db, customs, mailer, glean });
   route = getRoute(routes, routePath);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -527,8 +539,15 @@ function setup(results, errors, routePath, requestOptions) {
 function makeRoutes(options = {}) {
   const config = { step: 30, window: 1 };
   Container.set(AccountEventsManager, accountEventsManager);
-  const { log, db, customs, mailer } = options;
-  return require('../../../lib/routes/totp')(log, db, mailer, customs, config);
+  const { log, db, customs, mailer, glean } = options;
+  return require('../../../lib/routes/totp')(
+    log,
+    db,
+    mailer,
+    customs,
+    config,
+    glean
+  );
 }
 
 function runTest(route, request) {
