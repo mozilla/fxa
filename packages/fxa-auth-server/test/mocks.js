@@ -17,6 +17,7 @@ const sinon = require('sinon');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { Container } = require('typedi');
 const { AccountEventsManager } = require('../lib/account-events');
+const { gleanMetrics } = require('../lib/metrics/glean');
 
 const proxyquire = require('proxyquire');
 const amplitudeModule = proxyquire('../lib/metrics/amplitude', {
@@ -218,6 +219,7 @@ module.exports = {
   mockCustoms,
   mockDB,
   mockDevices,
+  mockGlean,
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
   mockMetricsContext,
@@ -901,4 +903,23 @@ function mockAccountEventsManager() {
 
 function unMockAccountEventsManager() {
   Container.remove(AccountEventsManager);
+}
+
+function mockGlean() {
+  const glean = gleanMetrics({
+    gleanMetrics: {
+      enabled: true,
+      applicationId: 'accounts_backend_test',
+      channel: 'test',
+      loggerAppName: 'auth-server-tests',
+    },
+  });
+
+  for (const i in glean) {
+    for (const j in glean[i]) {
+      glean[i][j] = sinon.stub();
+    }
+  }
+
+  return glean;
 }

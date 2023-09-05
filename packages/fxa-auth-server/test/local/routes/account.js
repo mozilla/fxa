@@ -34,15 +34,7 @@ const {
 } = require('../../../lib/routes/utils/account');
 const { AppConfig } = require('../../../lib/types');
 const defaultConfig = require('../../../config').default.getProperties();
-
-const { gleanMetrics } = require('../../../lib/metrics/glean');
-const gleanEnabledConfig = {
-  enabled: true,
-  applicationId: 'accounts_backend_test',
-  channel: 'test',
-  loggerAppName: 'auth-server-tests',
-};
-let glean, gleanPingFnStub;
+const glean = mocks.mockGlean();
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -115,7 +107,6 @@ const makeRoutes = function (options = {}, requireMocks) {
       verificationReminders
     );
   const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
-  glean = gleanMetrics(config);
 
   return accountRoutes(
     log,
@@ -652,9 +643,8 @@ describe('deleteAccountIfUnverified', () => {
 
 describe('/account/create', () => {
   afterEach(() => {
-    if (gleanPingFnStub && gleanPingFnStub.restore) {
-      gleanPingFnStub.restore();
-    }
+    glean.registration.accountCreated.reset();
+    glean.registration.confirmationEmailSent.reset();
   });
 
   function setup(extraConfig) {
@@ -789,11 +779,11 @@ describe('/account/create', () => {
       sessionTokenId,
       uid,
       verificationReminders,
-    } = setup({ gleanMetrics: gleanEnabledConfig });
+    } = setup();
 
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
-    gleanPingFnStub = sinon.stub(glean.registration, 'accountCreated');
+
     return runTest(route, mockRequest, () => {
       assert.equal(
         mockDB.createAccount.callCount,
@@ -1068,7 +1058,7 @@ describe('/account/create', () => {
 
       assert.equal(mockLog.error.callCount, 0);
 
-      sinon.assert.calledOnce(gleanPingFnStub);
+      sinon.assert.calledOnce(glean.registration.accountCreated);
     }).finally(() => Date.now.restore());
   });
 
@@ -1080,11 +1070,10 @@ describe('/account/create', () => {
       route,
       uid,
       verificationReminders,
-    } = setup({ gleanMetrics: gleanEnabledConfig });
+    } = setup();
 
     const now = Date.now();
     sinon.stub(Date, 'now').callsFake(() => now);
-    gleanPingFnStub = sinon.stub(glean.registration, 'confirmationEmailSent');
 
     mockRequest.payload.service = 'foo';
 
@@ -1130,7 +1119,7 @@ describe('/account/create', () => {
       args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].service, 'foo');
 
-      sinon.assert.calledOnce(gleanPingFnStub);
+      sinon.assert.calledOnce(glean.registration.confirmationEmailSent);
 
       assert.equal(verificationReminders.create.callCount, 1);
 
@@ -1910,7 +1899,6 @@ describe('/account/set_password', () => {
 
 describe('/account/login', () => {
   const config = {
-    gleanMetrics: { ...gleanEnabledConfig },
     securityHistory: {
       ipProfiling: {},
     },
@@ -2064,9 +2052,7 @@ describe('/account/login', () => {
   });
 
   afterEach(() => {
-    if (gleanPingFnStub && gleanPingFnStub.restore) {
-      gleanPingFnStub.restore();
-    }
+    glean.login.success.reset();
     mockLog.activityEvent.resetHistory();
     mockLog.flowEvent.resetHistory();
     mockMailer.sendNewDeviceLoginEmail = sinon.spy(() => Promise.resolve([]));
@@ -2990,7 +2976,6 @@ describe('/account/login', () => {
 
       it('skip sign-in confirmation on recently created account', () => {
         setup(true, 0);
-        gleanPingFnStub = sinon.stub(glean.login, 'success');
 
         return runTest(route, mockRequest, (response) => {
           assert.equal(
@@ -3017,7 +3002,7 @@ describe('/account/login', () => {
 
           assert.equal(mockCadReminders.delete.callCount, 1);
 
-          sinon.assert.calledOnce(gleanPingFnStub);
+          sinon.assert.calledOnce(glean.login.success);
         });
       });
 

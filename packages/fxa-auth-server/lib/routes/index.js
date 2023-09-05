@@ -147,7 +147,7 @@ module.exports = function (
     config.signinUnblock,
     customs
   );
-  const totp = require('./totp')(log, db, mailer, customs, config.totp);
+  const totp = require('./totp')(log, db, mailer, customs, config.totp, glean);
   const recoveryCodes = require('./recovery-codes')(
     log,
     db,

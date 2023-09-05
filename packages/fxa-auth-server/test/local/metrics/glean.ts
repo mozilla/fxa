@@ -332,5 +332,22 @@ describe('Glean server side events', () => {
         assert.equal(metrics['event_name'], 'login_success');
       });
     });
+    describe('totp', () => {
+      it('logs a "login_totp_code_success" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.login.totpSuccess(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_totp_code_success');
+      });
+
+      it('logs a "login_totp_code_failure" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.login.totpFailure(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_totp_code_failure');
+      });
+    });
   });
 });
