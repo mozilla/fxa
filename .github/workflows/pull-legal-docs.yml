@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone FxA code repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: fxa
           fetch-depth: 2
 
       - name: Clone legal-docs repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: mozilla/legal-docs
           ref: prod

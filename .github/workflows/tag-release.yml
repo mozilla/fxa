@@ -16,7 +16,7 @@ jobs:
         shell: bash
 
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Fetch all git tags
         run: git fetch --tags origin
