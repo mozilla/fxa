@@ -3630,6 +3630,7 @@ describe('/account/login', () => {
   });
 
   it('fails login when no password set', () => {
+    glean.login.error.reset();
     mockDB.accountRecord = sinon.spy(() => {
       return Promise.resolve({
         verifierSetAt: 0, // no password set
@@ -3644,6 +3645,10 @@ describe('/account/login', () => {
           'db.accountRecord was called'
         );
         assert.equal(err.errno, 210, 'correct errno called');
+        sinon.assert.calledOnce(glean.login.error);
+        sinon.assert.calledWith(glean.login.error, mockRequest, {
+          reason: 'UNABLE_TO_LOGIN_NO_PASSWORD_SET',
+        });
       }
     );
   });

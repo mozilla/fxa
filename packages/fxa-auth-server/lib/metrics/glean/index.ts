@@ -19,6 +19,7 @@ interface MetricsRequest extends Omit<AuthRequest, 'auth'> {
 
 type MetricsData = {
   uid?: string;
+  reason?: string;
 };
 
 let appConfig: ConfigType;
@@ -81,7 +82,7 @@ const createEventFn =
         ip_address: request.app.clientAddress,
         account_user_id_sha256: '',
         event_name: eventName,
-        event_reason: '',
+        event_reason: metricsData?.reason || '',
         relying_party_oauth_client_id: findOauthClientId(request),
         relying_party_service: await findServiceName(request),
         session_device_type: request.app.ua.deviceType || '',
@@ -120,6 +121,7 @@ export const gleanMetrics = (config: ConfigType) => {
 
     login: {
       success: createEventFn('login_success'),
+      error: createEventFn('login_submit_backend_error'),
       totpSuccess: createEventFn('login_totp_code_success'),
       totpFailure: createEventFn('login_totp_code_failure'),
     },
