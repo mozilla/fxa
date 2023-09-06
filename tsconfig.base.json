@@ -26,18 +26,18 @@
     "paths": {
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
-      "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
+      "@fxa/payments/types": ["libs/payments/types/src/index.ts"],
       "@fxa/shared/account/account": [
         "libs/shared/account/account/src/index.ts"
       ],
+      "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
-      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
-      "@fxa/shared/types": ["libs/shared/types/src/index.ts"]
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
     },
     "typeRoots": [
       "./types",
