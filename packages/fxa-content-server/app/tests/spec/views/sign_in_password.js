@@ -177,6 +177,59 @@ describe('views/sign_in_password', () => {
       });
     });
 
+    it('renders as expected when user has a linked account and password', () => {
+      account.set({
+        hasLinkedAccount: true,
+        hasPassword: true,
+      });
+
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
+        assert.lengthOf(view.$('input[type=password]'), 1);
+
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
+
+        assert.lengthOf(view.$('.separator'), 1);
+        assert.lengthOf(view.$('#use-different'), 1);
+      });
+    });
+
+    it('renders as expected when user has a password', () => {
+      account.set({
+        hasLinkedAccount: false,
+        hasPassword: true,
+      });
+
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
+        assert.lengthOf(view.$('input[type=password]'), 1);
+
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
+
+        assert.lengthOf(view.$('.separator'), 1);
+        assert.lengthOf(view.$('#use-different'), 1);
+      });
+    });
+
+    it('renders as expected when user has a password (Sync)', () => {
+      sinon.stub(relier, 'isSync').callsFake(() => true);
+
+      account.set({
+        hasLinkedAccount: false,
+        hasPassword: true,
+      });
+      
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
+        assert.lengthOf(view.$('input[type=password]'), 1);
+
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
+      });
+    });
+
     it('renders TOS as expected when service is pocket', () => {
       relier.set({
         clientId: '749818d3f2e7857f',

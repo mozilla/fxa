@@ -84,13 +84,15 @@ const SignInPasswordView = FormView.extend({
     const account = this.getAccount();
     const hasLinkedAccount = account.get('hasLinkedAccount') ?? false;
     const hasPassword = account.get('hasPassword') ?? true;
-
+    const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
     context.set({
       email: account.get('email'),
       isPasswordNeeded: this.isPasswordNeededForAccount(account) && hasPassword,
       hasLinkedAccountAndNoPassword: hasLinkedAccount && !hasPassword,
+      hasLinkedAccount: hasLinkedAccount,
+      hasPassword: hasPassword,
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
-        isSignup: false,
+        showSeparator: !hasLinkedAccountAndNoPassword,
       }),
     });
   },
