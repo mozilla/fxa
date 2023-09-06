@@ -8,7 +8,10 @@ const inherits = require('util').inherits;
 const OauthError = require('./oauth/error');
 const verror = require('verror');
 
-const { AUTH_SERVER_ERRNOS: ERRNO } = require('fxa-shared/lib/errors');
+const {
+  AUTH_SERVER_ERRNOS: ERRNO,
+  AUTH_SERVER_ERRNOS_REVERSE_MAP,
+} = require('fxa-shared/lib/errors');
 
 const DEFAULTS = {
   code: 500,
@@ -178,6 +181,12 @@ AppError.translate = function (request, response) {
     }
   }
   return error;
+};
+
+AppError.mapErrnoToKey = function (error) {
+  if (error && error.errno && AUTH_SERVER_ERRNOS_REVERSE_MAP[error.errno]) {
+    return AUTH_SERVER_ERRNOS_REVERSE_MAP[error.errno];
+  }
 };
 
 // Helper functions for creating particular response types.

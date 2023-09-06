@@ -346,7 +346,6 @@ describe('subscriptions payPalRoutes', () => {
               'Create subscription with wrong planCurrency should fail.'
             );
           } catch (err) {
-            console.log('>>>>>>>>>>>', err);
             assert.equal(err.errno, error.ERRNO.BACKEND_SERVICE_FAILURE);
             assert.equal(deleteAccountIfUnverifiedStub.calledOnce, true);
           }

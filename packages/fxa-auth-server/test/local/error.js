@@ -111,6 +111,12 @@ describe('AppErrors', () => {
     assert.equal(result.output.payload.message, result.message);
   });
 
+  it('maps an errno to its key', () => {
+    const error = AppError.cannotLoginNoPasswordSet();
+    const actual = AppError.mapErrnoToKey(error);
+    assert.equal(actual, 'UNABLE_TO_LOGIN_NO_PASSWORD_SET');
+  });
+
   it('backend error includes a cause error when supplied', () => {
     const originalError = new Error('Service timed out.');
     const err = AppError.backendServiceFailure(

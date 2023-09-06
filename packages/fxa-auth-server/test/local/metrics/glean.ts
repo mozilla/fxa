@@ -138,6 +138,13 @@ describe('Glean server side events', () => {
           'b2710dc44cb98ec552e189e48b43e460366f1ae40f922bf325e2635b098962e7'
         );
       });
+
+      it('uses the "reason" event property from the data argument', async () => {
+        await glean.login.error(request, { reason: 'too_cool_for_school' });
+        const metrics = recordStub.args[0][0];
+
+        assert.equal(metrics['event_reason'], 'too_cool_for_school');
+      });
     });
 
     describe('oauth', () => {
@@ -301,9 +308,14 @@ describe('Glean server side events', () => {
   });
 
   describe('registration', () => {
+    let glean;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
+
     describe('accountCreated', () => {
       it('logs a "reg_acc_created" event', async () => {
-        const glean = gleanMetrics(config);
         await glean.registration.accountCreated(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -313,7 +325,6 @@ describe('Glean server side events', () => {
 
     describe('confirmationEmailSent', () => {
       it('logs a "reg_email_sent" event', async () => {
-        const glean = gleanMetrics(config);
         await glean.registration.confirmationEmailSent(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -323,18 +334,32 @@ describe('Glean server side events', () => {
   });
 
   describe('login', () => {
+    let glean;
+
+    beforeEach(() => {
+      glean = gleanMetrics(config);
+    });
+
     describe('success', () => {
       it('logs a "login_success" event', async () => {
-        const glean = gleanMetrics(config);
         await glean.login.success(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'login_success');
       });
     });
+
+    describe('error', () => {
+      it('logs a "login_submit_backend_error" event', async () => {
+        await glean.login.error(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_submit_backend_error');
+      });
+    });
+
     describe('totp', () => {
       it('logs a "login_totp_code_success" event', async () => {
-        const glean = gleanMetrics(config);
         await glean.login.totpSuccess(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
@@ -342,7 +367,6 @@ describe('Glean server side events', () => {
       });
 
       it('logs a "login_totp_code_failure" event', async () => {
-        const glean = gleanMetrics(config);
         await glean.login.totpFailure(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
