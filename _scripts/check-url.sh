@@ -3,7 +3,7 @@
 echo "Checking for response from: $1"
 
 
-RETRY=120
+RETRY=240
 for i in $(eval echo "{1..$RETRY}"); do
   if [ "$(curl -s -o /dev/null --silent -w "%{http_code}"  http://$1)" == "${2:-200}" ]; then
     echo "$1 responded in $SECONDS seconds"
