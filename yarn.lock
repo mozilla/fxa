@@ -27606,6 +27606,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"emittery@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "emittery@npm:1.0.1"
+  checksum: d95faee6ffb2e023cadaa6804265fea5298c53d079f170112af8dfae3e141761363ea4510966128259346418e3ec7639310fd75059ecce2423bf8afd07004226
+  languageName: node
+  linkType: hard
+
 "emoji-regex@npm:>=6.0.0 <=6.1.1":
   version: 6.1.1
   resolution: "emoji-regex@npm:6.1.1"
@@ -31371,7 +31378,7 @@ fsevents@~2.1.1:
     dedent: ^0.7.0
     ejs: ^3.1.8
     email-addresses: 4.0.0
-    emittery: ^0.13.1
+    emittery: ^1.0.1
     esbuild: ^0.17.15
     esbuild-register: ^3.3.3
     eslint: ^7.32.0
