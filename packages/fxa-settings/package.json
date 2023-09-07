@@ -92,7 +92,7 @@
     "fxa-crypto-relier": "^2.7.0",
     "fxa-react": "workspace:*",
     "get-orientation": "^1.1.2",
-    "graphql": "^15.6.1",
+    "graphql": "^16.8.0",
     "lodash.groupby": "^4.6.0",
     "react-async-hook": "^4.0.0",
     "react-easy-crop": "^5.0.0",

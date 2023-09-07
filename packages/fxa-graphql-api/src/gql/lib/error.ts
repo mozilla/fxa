@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloError } from 'apollo-server';
+import { GraphQLError } from 'graphql';
 
-export class ThrottledError extends ApolloError {}
+export class ThrottledError extends GraphQLError {}
 
 export const PROFILE_INFO_URL =
   'https://github.com/mozilla/fxa/blob/main/packages/fxa-profile-server/docs/API.md#errors';
@@ -27,23 +27,32 @@ export function CatchGatewayError(
         err.retryAfterLocalized
       ) {
         // Auth Server error when throttled (too many requests error)
-        throw new ThrottledError(err.message, err.code, {
-          errno: err.errno,
-          info: err.info,
-          retryAfter: err.retryAfter,
-          retryAfterLocalized: err.retryAfterLocalized,
+        throw new ThrottledError(err.message, {
+          extensions: {
+            code: err.code,
+            errno: err.errno,
+            info: err.info,
+            retryAfter: err.retryAfter,
+            retryAfterLocalized: err.retryAfterLocalized,
+          },
         });
       } else if (err.code && err.errno && err.message) {
         // Auth Server error (general)
-        throw new ApolloError(err.message, err.code, {
-          errno: err.errno,
-          info: err.info,
+        throw new GraphQLError(err.message, {
+          extensions: {
+            code: err.code,
+            errno: err.errno,
+            info: err.info,
+          },
         });
       } else if (err.status && err.stack && err.response) {
         // Profile Server error
-        throw new ApolloError(err.message, err.status, {
-          errno: err.response.body?.errno,
-          info: PROFILE_INFO_URL,
+        throw new GraphQLError(err.message, {
+          extensions: {
+            status: err.status,
+            errno: err.response.body?.errno,
+            info: PROFILE_INFO_URL,
+          },
         });
       } else {
         throw err;

@@ -50,7 +50,7 @@
     "fxa-auth-client": "workspace:*",
     "fxa-shared": "workspace:*",
     "googleapis": "^109.0.1",
-    "graphql": "^15.6.1",
+    "graphql": "^16.8.0",
     "helmet": "^7.0.0",
     "hot-shots": "^10.0.0",
     "knex": "^2.4.2",

@@ -1,10 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
-import { GraphQLModule } from '@nestjs/graphql';
+
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -16,15 +13,22 @@ import {
 } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 import { join } from 'path';
+
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
+import { GraphQLModule } from '@nestjs/graphql';
+
 import { UserGroupGuard } from './auth/user-group-header.guard';
+import { BackendModule } from './backend/backend.module';
 import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { EventLoggingModule } from './event-logging/event-logging.module';
 import { GqlModule } from './gql/gql.module';
-import { SubscriptionModule } from './subscriptions/subscriptions.module';
 import { NewslettersModule } from './newsletters/newsletters.module';
-import { BackendModule } from './backend/backend.module';
+import { SubscriptionModule } from './subscriptions/subscriptions.module';
 
 const version = getVersionInfo(__dirname);
 
@@ -40,13 +44,13 @@ const version = getVersionInfo(__dirname);
     SubscriptionModule,
     NewslettersModule,
     GqlModule,
-    GraphQLModule.forRootAsync({
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      driver: ApolloDriver,
       imports: [ConfigModule, SentryModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         path: '/graphql',
         useGlobalPrefix: true,
-        debug: configService.get<string>('env') !== 'production',
         playground: configService.get<string>('env') !== 'production',
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         definitions: {
@@ -54,7 +58,6 @@ const version = getVersionInfo(__dirname);
         },
         context: ({ req, connection }: any) =>
           createContext({ req, connection }),
-        plugins: [SentryPlugin],
         fieldResolverEnhancers: ['guards'],
       }),
     }),
@@ -85,6 +88,7 @@ const version = getVersionInfo(__dirname);
       provide: APP_GUARD,
       useClass: UserGroupGuard,
     },
+    SentryPlugin,
   ],
 })
 export class AppModule {}

@@ -55,7 +55,8 @@ export class ContentfulClient {
   ) {
     return new ContentfulError(
       errors.map((error) => {
-        const contentfulErrorCode = error.extensions?.['contentful'].code;
+        const contentfulErrorCode = (error as any).extensions?.['contentful']
+          .code;
 
         if (contentfulErrorCode === 'UNKNOWN_LOCALE') {
           return new ContentfulLocaleError(error, 'Contentful: Unknown Locale');
