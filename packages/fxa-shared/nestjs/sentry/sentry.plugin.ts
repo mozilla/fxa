@@ -24,7 +24,11 @@ import { Plugin } from '@nestjs/apollo';
 import * as Sentry from '@sentry/node';
 import { Transaction } from '@sentry/types';
 
-import { ExtraContext, reportRequestException } from './reporting';
+import {
+  ExtraContext,
+  isApolloError,
+  reportRequestException,
+} from './reporting';
 
 interface Context extends BaseContext {
   transaction: Transaction;
@@ -56,9 +60,12 @@ export class SentryPlugin implements ApolloServerPlugin<Context> {
             continue;
           }
           // Skip errors with a status already set or already reported
-          if ((err.originalError as any)?.status) {
+          if (
+            isApolloError(err) ||
+            (err.originalError && isApolloError(err.originalError))
+          )
             continue;
-          }
+
           const excContexts: ExtraContext[] = [];
           if ((err as any).path?.join) {
             excContexts.push({

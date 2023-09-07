@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { GraphQLError } from 'graphql';
+
 import { Observable } from 'rxjs';
 import { finalize, tap } from 'rxjs/operators';
 
@@ -15,7 +15,7 @@ import {
 import * as Sentry from '@sentry/node';
 import { Transaction } from '@sentry/types';
 
-import { processException } from './reporting';
+import { isApolloError, processException } from './reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -46,9 +46,8 @@ export class SentryInterceptor implements NestInterceptor {
             }
           }
           // Skip ApolloErrors
-          if (exception instanceof GraphQLError) {
-            return;
-          }
+          if (isApolloError(exception)) return;
+
           processException(context, exception);
         },
       }),
