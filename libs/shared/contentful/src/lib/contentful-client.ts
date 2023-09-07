@@ -3,12 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import {
-  ApolloClient,
-  InMemoryCache,
-  ApolloQueryResult,
-  ApolloError,
-} from '@apollo/client';
+import { ApolloClient, InMemoryCache, ApolloQueryResult } from '@apollo/client';
+import { GraphQLError } from 'graphql';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import {
   ContentfulError,
@@ -40,8 +36,8 @@ export class ContentfulClient {
 
       return response;
     } catch (e) {
-      if (e instanceof ApolloError && e.graphQLErrors.length) {
-        throw this.parseErrors(e.graphQLErrors);
+      if (e instanceof GraphQLError && e.locations?.length) {
+        throw this.parseErrors(e.locations);
       }
       if (e instanceof Error) {
         throw new ContentfulError([e]);
