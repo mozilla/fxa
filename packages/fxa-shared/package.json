@@ -287,11 +287,11 @@
   "dependencies": {
     "@fluent/langneg": "^0.6.2",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.1.0",
-    "@nestjs/common": "^9.4.1",
+    "@nestjs/common": "^10.2.4",
     "@nestjs/config": "^3.0.0",
-    "@nestjs/core": "^9.2.0",
+    "@nestjs/core": "^10.2.4",
     "@nestjs/graphql": "^8.0.2",
-    "@nestjs/mapped-types": "^1.2.0",
+    "@nestjs/mapped-types": "^2.0.2",
     "@opentelemetry/api": "~1.4.0",
     "@opentelemetry/auto-instrumentations-node": "~0.37.0",
     "@opentelemetry/context-zone": "~1.13.0",
@@ -339,7 +339,7 @@
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
     "objection": "^3.0.1",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.0",
+    "rxjs": "^7.8.1",
     "stripe": "^11.12.0",
     "superagent": "^8.0.0",
     "typesafe-node-firestore": "^1.4.1"
