@@ -16,10 +16,10 @@ const GROUPS = [
   'treatment',
 ];
 
-// This experiment is disabled by default. If you would like to go through
-// the flow, load email-first screen and append query params
-// `?forceExperiment=newRecoveryKeyUI&forceExperimentGroup=treatment`
-const ROLLOUT_RATE = 0.15;
+// This experiment is enabled by default for all users.
+// To see the old flow, load email-first screen and append query params
+// `?forceExperiment=newRecoveryKeyUI&forceExperimentGroup=control`
+const ROLLOUT_RATE = 1.0;
 
 module.exports = class NewRecoveryKeyUI extends BaseGroupingRule {
   constructor() {
