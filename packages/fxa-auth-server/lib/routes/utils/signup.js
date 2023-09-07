@@ -8,7 +8,7 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 const NOTIFICATION_SCOPES = ScopeSet.fromArray([OAUTH_SCOPE_OLD_SYNC]);
 
-module.exports = (log, db, mailer, push, verificationReminders) => {
+module.exports = (log, db, mailer, push, verificationReminders, glean) => {
   return {
     /**
      * Verify the account with the specified options. This function takes
@@ -47,6 +47,8 @@ module.exports = (log, db, mailer, push, verificationReminders) => {
           planId,
           uid,
         }),
+
+        glean.registration.accountVerified(request, { uid }),
 
         // Verification reminders can *only* be used in email links. We currently don't
         // support them for email codes.
