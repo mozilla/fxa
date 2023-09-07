@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { ApolloClient, InMemoryCache, ApolloQueryResult } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloQueryResult,
+  OperationVariables,
+} from '@apollo/client';
 import { GraphQLError } from 'graphql';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import {
@@ -24,7 +29,7 @@ export class ContentfulClient {
 
   constructor(private contentfulClientConfig: ContentfulClientConfig) {}
 
-  async query<Result, Variables>(
+  async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<ApolloQueryResult<Result> | null> {
