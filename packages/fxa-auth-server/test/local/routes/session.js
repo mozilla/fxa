@@ -12,14 +12,7 @@ const error = require('../../../lib/error');
 const sinon = require('sinon');
 const otplib = require('otplib');
 const assert = require('../../assert');
-
-const { gleanMetrics } = require('../../../lib/metrics/glean');
-const gleanEnabledConfig = {
-  enabled: true,
-  applicationId: 'accounts_backend_test',
-  channel: 'test',
-  loggerAppName: 'auth-server-tests',
-};
+const gleanMock = mocks.mockGlean();
 
 const ROOT_DIR = '../../..';
 
@@ -39,7 +32,7 @@ function makeRoutes(options = {}) {
   const log = options.log || mocks.mockLog();
   const mailer = options.mailer || mocks.mockMailer();
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
-  const glean = options.glean || {};
+  const glean = options.glean || gleanMock;
 
   const Password =
     options.Password || require('../../../lib/crypto/password')(log, config);
@@ -1093,9 +1086,7 @@ describe('/session/verify_code', () => {
     push,
     customs,
     cadReminders,
-    expectedCode,
-    glean,
-    gleanPingFnStub;
+    expectedCode;
 
   function setup(options = {}) {
     db = mocks.mockDB({ ...signupCodeAccount, ...options });
@@ -1105,8 +1096,7 @@ describe('/session/verify_code', () => {
     customs = mocks.mockCustoms();
     customs.check = sinon.spy(() => Promise.resolve(true));
     cadReminders = mocks.mockCadReminders();
-    const config = { gleanMetrics: gleanEnabledConfig };
-    glean = gleanMetrics(config);
+    const config = {};
 
     const routes = makeRoutes({
       log,
@@ -1116,7 +1106,7 @@ describe('/session/verify_code', () => {
       push,
       customs,
       cadReminders,
-      glean,
+      gleanMock,
     });
     route = getRoute(routes, '/session/verify_code');
 
@@ -1143,14 +1133,9 @@ describe('/session/verify_code', () => {
     setup();
   });
 
-  afterEach(() => {
-    if (gleanPingFnStub && gleanPingFnStub.restore) {
-      gleanPingFnStub.restore();
-    }
-  });
-
   it('should verify the account and session with a valid code', async () => {
-    gleanPingFnStub = sinon.stub(glean.registration, 'accountVerified');
+    gleanMock.registration.accountVerified.reset();
+    gleanMock.registration.complete.reset();
     const response = await runTest(route, request);
     assert.deepEqual(response, {});
     assert.calledOnce(customs.check);
@@ -1170,7 +1155,8 @@ describe('/session/verify_code', () => {
       'email-2fa'
     );
     assert.calledOnce(mailer.sendPostVerifyEmail);
-    sinon.assert.calledOnce(gleanPingFnStub);
+    sinon.assert.calledOnce(gleanMock.registration.accountVerified);
+    sinon.assert.calledOnce(gleanMock.registration.complete);
   });
 
   it('should skip verify account and but still verify session with a valid code', async () => {

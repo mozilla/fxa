@@ -341,6 +341,16 @@ describe('Glean server side events', () => {
         assert.equal(metrics['event_name'], 'reg_acc_verified');
       });
     });
+
+    describe('reg_complete', () => {
+      it('logs a "reg_complete" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.registration.complete(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'reg_complete');
+      });
+    });
   });
 
   describe('login', () => {
