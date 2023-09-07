@@ -8,7 +8,7 @@ import { Request } from 'express';
 
 @Injectable()
 export class GqlAuthGuard extends AuthGuard('bearer') {
-  getRequest(context: ExecutionContext): Request {
+  getRequest(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
     return ctx.getContext().req;
   }

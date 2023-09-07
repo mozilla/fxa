@@ -57,7 +57,7 @@
     "pem-jwk": "^2.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^5.0.0",
-    "rxjs": "^7.8.0",
+    "rxjs": "^7.8.1",
     "stripe": "^11.12.0",
     "ts-morph": "^17.0.1",
     "tslib": "^2.5.0"
