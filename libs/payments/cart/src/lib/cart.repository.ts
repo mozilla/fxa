@@ -38,7 +38,7 @@ export async function fetchCartById(db: AccountDatabase, id: Buffer) {
  *
  * This implementation manages the version and enforces optimistic locking
  * using the version field. If the version of the cart in the database does
- * not match the version of the cart passed in, then the update will fail.
+ * not match the version passed in, then the update will fail.
  *
  * Note that the cart passed in is not representative of the database after
  * this function is called. If the updated cart is needed, it should be fetched
@@ -48,20 +48,21 @@ export async function fetchCartById(db: AccountDatabase, id: Buffer) {
  */
 export async function updateCart(
   db: AccountDatabase,
-  cart: ResultCart,
+  cartId: Buffer,
+  version: number,
   update: Omit<CartUpdate, 'id' | 'version'>
 ): Promise<boolean> {
   const updatedRows = await db
     .updateTable('carts')
     .set({
       ...update,
-      version: cart.version + 1,
+      version: version + 1,
     })
-    .where('id', '=', Buffer.from(cart.id, 'hex'))
-    .where('version', '=', cart.version)
+    .where('id', '=', cartId)
+    .where('version', '=', version)
     .executeTakeFirst();
   if (updatedRows.numUpdatedRows === BigInt(0)) {
-    throw new CartNotUpdatedError(cart.id);
+    throw new CartNotUpdatedError(cartId.toString());
   }
   return true;
 }
