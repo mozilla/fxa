@@ -25,7 +25,7 @@
     "stop": "pm2 stop pm2.config.js",
     "restart": "pm2 restart pm2.config.js",
     "delete": "pm2 delete pm2.config.js",
-    "storybook": "STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider start-storybook -p 6008 --no-version-updates",
+    "storybook": "STORYBOOK_BUILD=1 yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6008 --no-version-updates",
     "test": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test-watch": "SKIP_PREFLIGHT_CHECK=true rescripts test",
     "test-coverage": "yarn test --coverage --watchAll=false",
