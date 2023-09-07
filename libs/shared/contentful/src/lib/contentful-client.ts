@@ -4,6 +4,7 @@
 
 import { Injectable } from '@nestjs/common';
 import {
+  ApolloError,
   ApolloClient,
   InMemoryCache,
   ApolloQueryResult,
@@ -41,8 +42,8 @@ export class ContentfulClient {
 
       return response;
     } catch (e) {
-      if (e instanceof GraphQLError && e.locations?.length) {
-        throw this.parseErrors(e.locations);
+      if (e instanceof ApolloError && e.graphQLErrors.length) {
+        throw this.parseErrors(e.graphQLErrors);
       }
       if (e instanceof Error) {
         throw new ContentfulError([e]);
