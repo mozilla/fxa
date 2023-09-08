@@ -454,7 +454,9 @@ export class Account implements AccountData {
       const { account } = data;
       return account as ProfileInfo;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
+        | number
+        | undefined;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -485,7 +487,9 @@ export class Account implements AccountData {
       const { recoveryData } = data.getRecoveryKeyBundle;
       return { recoveryData, recoveryKeyId };
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
+        | number
+        | undefined;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -592,7 +596,9 @@ export class Account implements AccountData {
       // consumed yet
       return true;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
+        | number
+        | undefined;
 
       // Invalid token means the user has completed reset password
       // or that the provided token is stale (expired or replaced with new token)
@@ -637,7 +643,9 @@ export class Account implements AccountData {
       });
       return verifyCodeResult.data.passwordForgotVerifyCode;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
+        | number
+        | undefined;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -702,7 +710,9 @@ export class Account implements AccountData {
       sessionToken(accountReset.sessionToken);
       return accountReset;
     } catch (err) {
-      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno;
+      const errno = (err as ApolloError).graphQLErrors[0].extensions?.errno as
+        | number
+        | undefined;
       if (errno && AuthUiErrorNos[errno]) {
         throw AuthUiErrorNos[errno];
       }
@@ -727,7 +737,7 @@ export class Account implements AccountData {
               displayName() {
                 return displayName;
               },
-              avatar: (existing: Reference, { readField }) => {
+              avatar: (existing, { readField }) => {
                 const id = readField<string>('id', existing);
                 const oldUrl = readField<string>('url', existing);
                 return getNextAvatar(
@@ -800,7 +810,7 @@ export class Account implements AccountData {
           cache.modify({
             id: cache.identify({ __typename: 'Account' }),
             fields: {
-              attachedClients: (existingClients: AttachedClient[]) => {
+              attachedClients: (existingClients) => {
                 const updatedList = [...existingClients];
                 return updatedList.filter(
                   // TODO: should this also go into the AttachedClient model?
@@ -1041,7 +1051,7 @@ export class Account implements AccountData {
             return e;
           });
         },
-        avatar: (existing: Reference, { readField }) => {
+        avatar: (existing, { readField }) => {
           const id = readField<string>('id', existing);
           const oldUrl = readField<string>('url', existing);
           return getNextAvatar(id, oldUrl, email, this.displayName);
