@@ -118,6 +118,7 @@ export const gleanMetrics = (config: ConfigType) => {
       accountCreated: createEventFn('reg_acc_created'),
       confirmationEmailSent: createEventFn('reg_email_sent'),
       accountVerified: createEventFn('reg_acc_verified'),
+      complete: createEventFn('reg_complete'),
     },
 
     login: {
