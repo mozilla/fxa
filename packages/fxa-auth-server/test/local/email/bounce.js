@@ -309,7 +309,7 @@ describe('bounce messages', () => {
         assert.equal(log.info.args[1][0], 'handleBounce');
         assert.equal(log.info.args[1][1].email, 'test@example.com');
         assert.equal(log.info.args[1][1].domain, 'other');
-        assert.equal(log.info.args[1][1].status, '5.0.0');
+        assert.equal(log.info.args[1][1].mailStatus, '5.0.0');
         assert.equal(log.info.args[1][1].action, 'failed');
         assert.equal(
           log.info.args[1][1].diagnosticCode,
@@ -319,7 +319,7 @@ describe('bounce messages', () => {
         assert.equal(log.info.args[2][1].email, 'test@example.com');
         assert.equal(log.info.args[4][0], 'handleBounce');
         assert.equal(log.info.args[4][1].email, 'verified@example.com');
-        assert.equal(log.info.args[4][1].status, '4.0.0');
+        assert.equal(log.info.args[4][1].mailStatus, '4.0.0');
       });
   });
 
