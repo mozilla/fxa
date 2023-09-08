@@ -10,7 +10,6 @@ import {
   ApolloQueryResult,
   OperationVariables,
 } from '@apollo/client';
-import { GraphQLError } from 'graphql';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import {
   ContentfulError,
