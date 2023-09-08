@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import base32Decode from 'base32-decode';
-import { gql, ApolloClient, Reference, ApolloError } from '@apollo/client';
+import { gql, ApolloClient, ApolloError } from '@apollo/client';
 import config from '../lib/config';
 import AuthClient, {
   AUTH_PROVIDER,
