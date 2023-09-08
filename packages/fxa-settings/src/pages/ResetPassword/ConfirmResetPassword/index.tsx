@@ -84,6 +84,7 @@ const ConfirmResetPassword = ({
   }, isPolling);
 
   const resendEmailHandler = async () => {
+    setIsPolling(null);
     try {
       if (isOAuthIntegration(integration)) {
         const result = await account.resetPassword(
@@ -106,6 +107,8 @@ const ConfirmResetPassword = ({
       );
       setResendStatus(ResendStatus.error);
       setErrorMessage(localizedErrorMessage);
+    } finally {
+      setIsPolling(POLLING_INTERVAL_MS);
     }
   };
 
