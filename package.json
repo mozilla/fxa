@@ -129,7 +129,7 @@
     "@storybook/html-webpack5": "^7.0.23",
     "@storybook/react-webpack5": "^7.0.23",
     "@testing-library/react": "^14.0.0",
-    "@types/graphql-upload": "^8.0.5",
+    "@types/graphql-upload": "8.0.12",
     "@types/jest": "^29.5.1",
     "@types/mysql": "^2",
     "@types/node": "^18.17.1",

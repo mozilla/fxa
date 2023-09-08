@@ -16773,15 +16773,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/fs-capacitor@npm:*":
-  version: 2.0.0
-  resolution: "@types/fs-capacitor@npm:2.0.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: 367079834ddb8984e9b740d4219d01cfa9683e8552b1dfda473817e7f2b33d750453adda148d1b99cb67bd6e990fad8bd31e4034b5e9311dfb9803e6f1fbb0dc
-  languageName: node
-  linkType: hard
-
 "@types/generic-pool@npm:^3.1.9":
   version: 3.1.9
   resolution: "@types/generic-pool@npm:3.1.9"
@@ -16839,15 +16830,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/graphql-upload@npm:^8.0.5":
-  version: 8.0.5
-  resolution: "@types/graphql-upload@npm:8.0.5"
+"@types/graphql-upload@npm:8.0.12":
+  version: 8.0.12
+  resolution: "@types/graphql-upload@npm:8.0.12"
   dependencies:
     "@types/express": "*"
-    "@types/fs-capacitor": "*"
     "@types/koa": "*"
-    graphql: ^15.3.0
-  checksum: 33719a5cd25aac0f9e432cfa825e277ffcbcab335a703b34924d25f22f0a5cfe83c5a0508de5a2572162dca12e26ab05cc01be2dc38c0e70b4ae6a2cdd1448c2
+    fs-capacitor: ^8.0.0
+    graphql: 0.13.1 - 16
+  checksum: 394d5e05f4d5a205dc53f66670af28de73bc73b0910e68907e6d01348caeeb27478621cfdb238a71668f0cca7347ed362c2f1a68266da4b823707dc4daba92ee
   languageName: node
   linkType: hard
 
@@ -30967,6 +30958,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-capacitor@npm:^8.0.0":
+  version: 8.0.0
+  resolution: "fs-capacitor@npm:8.0.0"
+  checksum: 531c8c4ac12fe3a75f9564cb3ce41571f148ec81cf111fed04f6921a5a2de1eadacf44497c223dd281243472fe6ccc98005f34674e8e471d6370b7437860f774
+  languageName: node
+  linkType: hard
+
 "fs-constants@npm:^1.0.0":
   version: 1.0.0
   resolution: "fs-constants@npm:1.0.0"
@@ -31858,7 +31856,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/get-stream": 3.0.2
     "@types/graphql": ^14.5.0
-    "@types/graphql-upload": ^8.0.5
+    "@types/graphql-upload": 8.0.12
     "@types/ioredis": ^4.26.4
     "@types/jest": ^29.2.5
     "@types/node": ^18.17.1
@@ -32397,7 +32395,7 @@ fsevents@~2.1.1:
     "@storybook/html-webpack5": ^7.0.23
     "@storybook/react-webpack5": ^7.0.23
     "@testing-library/react": ^14.0.0
-    "@types/graphql-upload": ^8.0.5
+    "@types/graphql-upload": 8.0.12
     "@types/jest": ^29.5.1
     "@types/mysql": ^2
     "@types/node": ^18.17.1
@@ -33685,10 +33683,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^15.3.0":
+"graphql@npm:*":
   version: 15.6.1
   resolution: "graphql@npm:15.6.1"
   checksum: 4c6dcf385f7a87a5103fcb7640394244ae8d1d4ede521085192a1cf1e60115c4f6285d783961575d908709f7ee3e4cdd16b3f7c54eb37499c0420c6301e98968
+  languageName: node
+  linkType: hard
+
+"graphql@npm:0.13.1 - 16, graphql@npm:^16.8.0":
+  version: 16.8.0
+  resolution: "graphql@npm:16.8.0"
+  checksum: d853d4085b0c911a7e2a926c3b0d379934ec61cd4329e70cdf281763102f024fd80a97db7a505b8b04fed9050cb4875f8f518150ea854557a500a0b41dcd7f4e
   languageName: node
   linkType: hard
 
@@ -33698,13 +33703,6 @@ fsevents@~2.1.1:
   dependencies:
     iterall: ^1.1.0
   checksum: f48bae27e9a32641952ff9b8d1a949896805e8997b9c7e6ce3621583b6bae419526d9072480956626ea6830f26c5a8290870164801e02c5aaeeca64c54a7057d
-  languageName: node
-  linkType: hard
-
-"graphql@npm:^16.8.0":
-  version: 16.8.0
-  resolution: "graphql@npm:16.8.0"
-  checksum: d853d4085b0c911a7e2a926c3b0d379934ec61cd4329e70cdf281763102f024fd80a97db7a505b8b04fed9050cb4875f8f518150ea854557a500a0b41dcd7f4e
   languageName: node
   linkType: hard
 
