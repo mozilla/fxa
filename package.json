@@ -55,7 +55,7 @@
     "class-validator": "^0.14.0",
     "diffparser": "^2.0.1",
     "graphql": "^16.8.0",
-    "graphql-upload": "^16.0.2",
+    "graphql-upload": "^14",
     "hot-shots": "^10.0.0",
     "husky": "^4.2.5",
     "knex": "^2.4.2",
