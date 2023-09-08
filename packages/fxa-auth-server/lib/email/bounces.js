@@ -100,7 +100,7 @@ module.exports = function (log, error) {
           domain: emailDomain,
           bounce: !!message.bounce,
           diagnosticCode: recipient.diagnosticCode,
-          status: recipient.status,
+          mailStatus: recipient.status,
         };
         const bounce = {
           email: email,
