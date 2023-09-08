@@ -14,7 +14,7 @@ export const selectors = {
   EMAIL_PREFILLED: '#prefillEmail',
   EMAIL_HEADER: '#fxa-enter-email-header',
   ERROR: '.error',
-  LINK_LOST_RECOVERY_KEY: 'a.lost-recovery-key',
+  LINK_LOST_RECOVERY_KEY: 'a:has-text("Don’t have an account recovery key?")',
   LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
   LINK_USE_DIFFERENT: '#use-different',
   LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
@@ -497,8 +497,14 @@ export class LoginPage extends BaseLayout {
   }
 
   async setNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
+    const config = await this.getConfig();
+    if (config.showReactApp.resetPasswordRoutes === true) {
+      await this.page.getByLabel('New password').fill(password);
+      await this.page.getByLabel('Re-enter password').fill(password);
+    } else {
+      await this.page.locator(selectors.PASSWORD).fill(password);
+      await this.page.locator(selectors.VPASSWORD).fill(password);
+    }
     await this.submit();
   }
 
@@ -633,6 +639,7 @@ export class LoginPage extends BaseLayout {
       'meta[name="fxa-content-server/config"]'
     );
     const config = await metaConfig.getAttribute('content');
+    this.page.goBack();
     return JSON.parse(decodeURIComponent(config));
   }
 

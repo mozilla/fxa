@@ -337,6 +337,8 @@ test.describe('new recovery key test', () => {
     target,
     pages: { page, login, settings },
   }) => {
+    // TODO: There is duplicate coverage in /react-conversion/recoveryKey.spec.ts
+    test.skip(true);
     await settings.signOut();
     // Reset password with recovery key
     await login.setEmail(credentials.email);
@@ -374,6 +376,8 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
+    // TODO: Possibly duplicate coverage in /react-conversion/recoveryKey.spec.ts
+    test.skip(true);
     await settings.goto('isInRecoveryKeyExperiment=true');
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
@@ -399,7 +403,6 @@ test.describe('new recovery key test', () => {
     expect(status).toEqual('Enabled');
 
     await settings.signOut();
-
     // Attempt to use old key to reset password
     await login.setEmail(credentials.email);
     await login.submit();
@@ -448,6 +451,8 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login },
   }) => {
+    // TODO: Possibly duplicate coverage in /react-conversion/recoveryKey.spec.ts
+    test.skip(true);
     await settings.signOut();
 
     await login.setEmail(credentials.email);
@@ -489,6 +494,8 @@ test.describe('new recovery key test', () => {
     page,
     pages: { settings, recoveryKey, login, resetPassword },
   }) => {
+    // TODO: Possibly duplicate coverage in /react-conversion/recoveryKey.spec.ts
+    test.skip(true);
     await settings.signOut();
 
     await login.setEmail(credentials.email);

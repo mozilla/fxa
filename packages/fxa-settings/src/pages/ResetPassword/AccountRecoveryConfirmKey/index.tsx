@@ -317,7 +317,7 @@ const AccountRecoveryConfirmKey = ({
             );
           }}
         >
-          Don't have an account recovery key?
+          Don’t have an account recovery key?
         </Link>
       </FtlMsg>
     </AppLayout>

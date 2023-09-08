@@ -514,7 +514,10 @@ describe('lib/router', () => {
 
   describe('React-related methods', () => {
     beforeEach(() => {
-      const mockAlwaysShownReactGroups = ['simpleRoutes'];
+      const mockAlwaysShownReactGroups = [
+        'simpleRoutes',
+        'resetPasswordRoutes',
+      ];
       sinon
         .stub(router, 'ALWAYS_SHOWN_REACT_GROUPS')
         .value(mockAlwaysShownReactGroups);
@@ -559,7 +562,7 @@ describe('lib/router', () => {
         });
 
         it('when user is not in experiment', () => {
-          assert.isFalse(router.showReactApp('reset_password'));
+          assert.isFalse(router.showReactApp('report_signin'));
         });
 
         it('when routeName is not a simpleRoute, relier is OAuth, and user is in experiment', () => {
@@ -576,7 +579,7 @@ describe('lib/router', () => {
             config,
           });
 
-          assert.isFalse(router.showReactApp('reset_password'));
+          assert.isFalse(router.showReactApp('report_signin'));
         });
       });
     });

@@ -1,6 +1,11 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('OAuth force auth', () => {
+  test.beforeEach(async ({ pages: { login } }) => {
+    const config = await login.getConfig();
+    // TODO: Remove forceAuth tests. React pages don't have this flow.
+    test.skip(config.showReactApp.resetPasswordRoutes === true);
+  });
   test('with a registered email', async ({
     credentials,
     pages: { login, relier },

@@ -22,7 +22,9 @@ test.describe('severity-1 #smoke', () => {
     );
     await page.goto(link, { waitUntil: 'load' });
     await login.setNewPassword(credentials.password);
-    expect(page.url()).toContain(settings.url);
+    // TODO: React reset PW does not currently take users to Settings, FXA-8266
+    // expect(page.url()).toContain(settings.url);
+    expect(page.url()).toContain('reset_password_verified');
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293431
@@ -83,7 +85,10 @@ test.describe('severity-1 #smoke', () => {
     await page.goto(link, { waitUntil: 'load' });
     await login.clickDontHaveRecoveryKey();
     await login.setNewPassword(credentials.password);
-    await settings.waitForAlertBar();
+    // TODO: React reset PW does not currently take users to Settings, FXA-8266
+    // await settings.waitForAlertBar();
+    await settings.goto();
+
     status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Not Set');
   });

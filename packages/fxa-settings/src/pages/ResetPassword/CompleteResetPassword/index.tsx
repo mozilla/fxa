@@ -63,8 +63,7 @@ const CompleteResetPassword = ({
   setLinkStatus,
   integration,
   finishOAuthFlowHandler,
-}:
-  CompleteResetPasswordProps) => {
+}: CompleteResetPasswordProps) => {
   const [bannerMessage, setBannerMessage] = useState<
     undefined | string | ReactElement
   >();
@@ -273,7 +272,7 @@ const CompleteResetPassword = ({
               isHardNavigate = true;
             }
             // TODO: if no TOTP, navigate users to /settings with the alert bar message
-            // for now, just navigate to reset_password_verified
+            // for now, just navigate to reset_password_verified. FXA-8266
             break;
           default:
           // TODO: run unpersistVerificationData in FXA-7308

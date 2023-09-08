@@ -4,8 +4,11 @@ import { EmailHeader, EmailType } from '../../lib/email';
 const NEW_PASSWORD = 'passwordzxcv';
 
 test.describe('Reset password current', () => {
-  test.beforeEach(async () => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
+
+    const config = await login.getConfig();
+    test.skip(config.showReactApp.resetPasswordRoutes === true);
   });
 
   test('can reset password', async ({
