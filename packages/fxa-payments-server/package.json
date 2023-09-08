@@ -65,7 +65,7 @@
     "@storybook/addon-actions": "^7.1.1",
     "@storybook/addon-links": "^7.0.23",
     "@storybook/addon-styling": "^1.3.0",
-    "@storybook/addons": "^7.0.23",
+    "@storybook/addons": "^7.4.0",
     "@storybook/preset-create-react-app": "^7.1.0",
     "@storybook/react": "^7.1.1",
     "@storybook/react-webpack5": "^7.0.23",
