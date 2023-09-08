@@ -1131,23 +1131,14 @@ export class AccountHandler {
       return response;
     };
 
-    try {
-      await checkCustomsAndLoadAccount();
-      await checkEmailAndPassword();
-      await checkSecurityHistory();
-      await checkTotpToken();
-      await createSessionToken();
-      await sendSigninNotifications();
-      await createKeyFetchToken();
-      return await createResponse();
-    } catch (e) {
-      // we use the errno's key here because the human readable error message
-      // can be too verbose, while the short error title is too low resolution
-      // since some errors are grouped under the same title (e.g. "Bad
-      // Request")
-      this.glean.login.error(request, { reason: error.mapErrnoToKey(e) });
-      throw e;
-    }
+    await checkCustomsAndLoadAccount();
+    await checkEmailAndPassword();
+    await checkSecurityHistory();
+    await checkTotpToken();
+    await createSessionToken();
+    await sendSigninNotifications();
+    await createKeyFetchToken();
+    return await createResponse();
   }
 
   async status(request: AuthRequest) {

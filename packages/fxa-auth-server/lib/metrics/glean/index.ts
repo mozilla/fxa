@@ -7,6 +7,7 @@ import { createAccountsEventsEvent } from './server_events';
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
+import * as AppError from '../../error';
 
 // According to @types/hapi, request.auth.credentials.user is of type
 // UserCredentials, which is just {}. That's not actually the case and it
@@ -20,6 +21,12 @@ interface MetricsRequest extends Omit<AuthRequest, 'auth'> {
 type MetricsData = {
   uid?: string;
   reason?: string;
+};
+
+type ErrorLoggerFnParams = {
+  glean: ReturnType<typeof gleanMetrics>;
+  request: AuthRequest;
+  error: AppError;
 };
 
 let appConfig: ConfigType;
@@ -104,7 +111,7 @@ const createEventFn =
       await gleanEventLogger.record(metrics);
     };
 
-export const gleanMetrics = (config: ConfigType) => {
+export function gleanMetrics(config: ConfigType) {
   appConfig = config;
   gleanEventLogger = createAccountsEventsEvent({
     applicationId: config.gleanMetrics.applicationId,
@@ -119,6 +126,7 @@ export const gleanMetrics = (config: ConfigType) => {
       confirmationEmailSent: createEventFn('reg_email_sent'),
       accountVerified: createEventFn('reg_acc_verified'),
       complete: createEventFn('reg_complete'),
+      error: createEventFn('reg_submit_error'),
     },
 
     login: {
@@ -128,4 +136,33 @@ export const gleanMetrics = (config: ConfigType) => {
       totpFailure: createEventFn('login_totp_code_failure'),
     },
   };
+}
+
+const routePathToErrorPingFnMap = {
+  '/account/create': 'registration.error',
+  '/account/login': 'login.error',
+};
+
+const getPingFnWithPath = (path: string) =>
+  Object.entries(routePathToErrorPingFnMap)
+    .find(([k, _]) => path.endsWith(k))
+    ?.at(1);
+
+export const logErrorWithGlean = ({
+  glean,
+  request,
+  error,
+}: ErrorLoggerFnParams) => {
+  const pingFn = getPingFnWithPath(request.path);
+  if (pingFn) {
+    const [funnel, event] = pingFn.split('.');
+    const funnelFns = glean[funnel as keyof ReturnType<typeof gleanMetrics>];
+    funnelFns[event as keyof typeof funnelFns](request, {
+      // we use the errno's key here because the human readable error message
+      // can be too verbose, while the short error title is too low resolution
+      // since some errors are grouped under the same title (e.g. "Bad
+      // Request")
+      reason: AppError.mapErrnoToKey(error),
+    });
+  }
 };
