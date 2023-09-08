@@ -14,6 +14,7 @@ const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
 const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
 const { AppConfig } = require('../../../../lib/types');
+const glean = mocks.mockGlean();
 
 const CLIENT_ADDRESS = '10.0.0.1';
 const TEST_EMAIL = 'test@example.com';
@@ -40,7 +41,8 @@ function makeSigninUtils(options) {
     customs,
     db,
     mailer,
-    cadReminders
+    cadReminders,
+    glean
   );
 }
 
