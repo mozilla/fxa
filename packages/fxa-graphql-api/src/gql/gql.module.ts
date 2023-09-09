@@ -11,7 +11,6 @@ import {
   SentryPlugin,
 } from 'fxa-shared/nestjs/sentry/sentry.plugin';
 import queryComplexity, { simpleEstimator } from 'graphql-query-complexity';
-import { graphqlUploadExpress } from 'graphql-upload';
 import path, { join } from 'path';
 
 import {
@@ -88,8 +87,6 @@ export class GqlModule implements NestModule {
         }
         next();
       })
-      .forRoutes('graphql')
-      .apply(graphqlUploadExpress({ maxFileSize: config.image.maxSize }))
       .forRoutes('graphql');
   }
 }
