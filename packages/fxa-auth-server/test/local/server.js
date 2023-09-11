@@ -15,6 +15,7 @@ const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const { Account } = require('fxa-shared/db/models/auth/account');
+const glean = mocks.mockGlean();
 
 const sandbox = sinon.createSandbox();
 const mockReportValidationError = sandbox.stub();
@@ -113,13 +114,12 @@ describe('lib/server', () => {
   });
 
   describe('set up mocks:', () => {
-    let config, log, routes, Token, response, statsd;
+    let config, log, routes, response, statsd;
 
     beforeEach(() => {
       config = getConfig();
       log = mocks.mockLog();
       routes = getRoutes();
-      Token = require(`${ROOT_DIR}/lib/tokens`)(log, config);
       statsd = { timing: sinon.fake() };
     });
 
@@ -132,7 +132,7 @@ describe('lib/server', () => {
         });
 
         return server
-          .create(log, error, config, routes, db, statsd, Token)
+          .create(log, error, config, routes, db, statsd, glean)
           .then((s) => {
             instance = s;
           });
@@ -595,6 +595,7 @@ describe('lib/server', () => {
             message: 'The request was blocked for security reasons',
           };
           beforeEach(() => {
+            glean.registration.error.reset();
             sinon.stub(Date, 'now').returns(1584397692000);
             response = error.requestBlocked();
             return instance
@@ -624,6 +625,10 @@ describe('lib/server', () => {
 
           it('did not call log.error', () => {
             assert.equal(log.error.callCount, 0);
+          });
+
+          it('did log an error with glean', () => {
+            sinon.assert.calledOnce(glean.registration.error);
           });
         });
 
@@ -711,7 +716,7 @@ describe('lib/server', () => {
         statsd = { increment: sinon.fake(), timing: sinon.fake() };
 
         return server
-          .create(log, error, config, routes, db, statsd, Token)
+          .create(log, error, config, routes, db, statsd, glean)
           .then((s) => {
             instance = s;
             return instance.start().then(() => {

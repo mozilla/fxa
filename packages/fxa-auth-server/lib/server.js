@@ -23,6 +23,7 @@ const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
+const { logErrorWithGlean } = require('./metrics/glean');
 
 function trimLocale(header) {
   if (!header) {
@@ -64,7 +65,7 @@ function logEndpointErrors(response, log) {
   }
 }
 
-async function create(log, error, config, routes, db, statsd) {
+async function create(log, error, config, routes, db, statsd, glean) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config);
@@ -312,6 +313,7 @@ async function create(log, error, config, routes, db, statsd) {
     let response = request.response;
     if (response.isBoom) {
       logEndpointErrors(response, log);
+      logErrorWithGlean({ glean, request, error: response });
 
       // Do not log errors that either aren't a validation error or have a status code below 500
       // ValidationError that are 4xx status are request validation errors

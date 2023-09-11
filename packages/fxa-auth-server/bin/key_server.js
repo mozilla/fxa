@@ -185,7 +185,8 @@ async function run(config) {
     config,
     routes,
     database,
-    statsd
+    statsd,
+    glean
   );
 
   try {
