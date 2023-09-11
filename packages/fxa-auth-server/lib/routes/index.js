@@ -139,7 +139,8 @@ module.exports = function (
     signupUtils,
     mailer,
     push,
-    customs
+    customs,
+    glean
   );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
   const unblockCodes = require('./unblock-codes')(
