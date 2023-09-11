@@ -36,7 +36,7 @@
         "{projectRoot}/locale",
         "{projectRoot}/public",
         "{projectRoot}/src/styles/*.css",
-        "{projectRoot}/test/**/*.ftl",
+        "{projectRoot}/**/*.ftl",
         "{projectRoot}/test/**/client.json"
       ]
     },
