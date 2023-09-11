@@ -183,7 +183,7 @@ export const PlanDetails = ({
       {...{ role }}
       data-testid="plan-details-component"
     >
-      <div className="plan-details-header row-divider-grey-200">
+      <div className="plan-details-header row-divider-grey-200 mt-4">
         <div
           className="plan-details-logo-wrap"
           style={{ ...setWebIconBackground }}
