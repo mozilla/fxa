@@ -7,7 +7,6 @@
       "options": {
         "cacheableOperations": [
           "build",
-          "build-l10n",
           "build-storybook",
           "compile",
           "gql-copy",
