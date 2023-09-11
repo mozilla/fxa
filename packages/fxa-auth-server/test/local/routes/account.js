@@ -77,14 +77,9 @@ const makeRoutes = function (options = {}, requireMocks) {
   };
   const signinUtils =
     options.signinUtils ||
-    require('../../../lib/routes/utils/signin')(
-      log,
-      config,
-      customs,
-      db,
-      mailer,
-      cadReminders
-    );
+    proxyquire('../../../lib/routes/utils/signin', {
+      '../utils/otp': () => ({ generateOtpCode: sinon.stub() }),
+    })(log, config, customs, db, mailer, cadReminders, glean);
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
@@ -3180,6 +3175,23 @@ describe('/account/login', () => {
           );
         });
       });
+    });
+
+    it('logs a Glean pign on verify login code email sent', () => {
+      glean.login.verifyCodeEmailSent.reset();
+      return runTest(
+        route,
+        {
+          ...mockRequest,
+          payload: {
+            ...mockRequest.payload,
+            verificationMethod: 'email-otp',
+          },
+        },
+        () => {
+          sinon.assert.calledOnce(glean.login.verifyCodeEmailSent);
+        }
+      );
     });
   });
 

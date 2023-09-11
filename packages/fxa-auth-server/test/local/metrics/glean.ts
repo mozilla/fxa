@@ -393,5 +393,14 @@ describe('Glean server side events', () => {
         assert.equal(metrics['event_name'], 'login_totp_code_failure');
       });
     });
+
+    describe('verifyCodeEmail', () => {
+      it('logs a "login_email_confirmation_sent" event', async () => {
+        await glean.login.verifyCodeEmailSent(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_email_confirmation_sent');
+      });
+    });
   });
 });
