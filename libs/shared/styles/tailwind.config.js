@@ -2,9 +2,10 @@
 * License, v. 2.0. If a copy of the MPL was not distributed with this
 * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const plugin = require('tailwindcss/plugin');
+const tailwindcssDir = require('tailwindcss-dir');
+
 module.exports = {
-  presets: [],
-  content: [],
   theme: {
     extend: {
       zIndex: {
@@ -68,10 +69,10 @@ module.exports = {
       },
       backgroundImage: {
         /* TODO: be able to reference images here, FXA-5745, this is a workaround/hack
-        * This style lives `fxa-react` since it's used by content-server and Settings, but the
-        * BG image is set in our package TW configs since image paths can't be shared. This will
-        * always be overridden but other packages without this set that use fxa-react shared
-        * styles can't build without this */
+         * This style lives `fxa-react` since it's used by content-server and Settings, but the
+         * BG image is set in our package TW configs since image paths can't be shared. This will
+         * always be overridden but other packages without this set that use fxa-react shared
+         * styles can't build without this */
         'ff-logo': 'none',
       },
       keyframes: {
@@ -268,5 +269,51 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addUtilities }) {
+      const customUtilities = {
+        '.clip-auto': {
+          clip: 'auto',
+        },
+      };
+
+      addUtilities(customUtilities, ['responsive', 'hover', 'focus']);
+    }),
+    plugin(function ({ addComponents }) {
+      const carets = {
+        '.caret-top': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #fff',
+        },
+        '.caret-top-default': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #5e5e72',
+        },
+        '.caret-top-error': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #E22850',
+        },
+        '.caret-bottom': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderBottom: '0.75rem solid #fff',
+        },
+        '.caret-bottom-default': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderTop: '0.75rem solid #5e5e72',
+        },
+        '.caret-bottom-error': {
+          borderLeft: '0.75rem solid transparent',
+          borderRight: '0.75rem solid transparent',
+          borderTop: '0.75rem solid #E22850',
+        },
+      };
+      addComponents(carets);
+    }),
+    tailwindcssDir(),
+  ],
 };
