@@ -401,6 +401,13 @@ describe('Glean server side events', () => {
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'login_email_confirmation_sent');
       });
+
+      it('logs a "login_email_confirmation_success" event', async () => {
+        await glean.login.verifyCodeConfirmed(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_email_confirmation_success');
+      });
     });
   });
 });

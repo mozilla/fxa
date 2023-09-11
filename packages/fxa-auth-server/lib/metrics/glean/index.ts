@@ -127,6 +127,7 @@ export const gleanMetrics = (config: ConfigType) => {
       totpSuccess: createEventFn('login_totp_code_success'),
       totpFailure: createEventFn('login_totp_code_failure'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
+      verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
     },
   };
 };
