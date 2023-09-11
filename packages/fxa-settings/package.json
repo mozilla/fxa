@@ -74,7 +74,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.4.5",
+    "@apollo/client": "^3.8.3",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.10.4",
     "@material-ui/core": "v5.0.0-alpha.24",
