@@ -133,7 +133,7 @@ const CardHeader = (props: CardHeaderProps) => {
 
   if (isDefaultService(props)) {
     const spanElement: ReactElement = (
-      <span className="card-subheader">
+      <span className="card-subheader mt-4">
         to continue to {MozServices.Default}
       </span>
     );
