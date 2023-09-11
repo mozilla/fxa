@@ -283,19 +283,16 @@ export class CapabilityService {
         this.fetchSubscribedPricesFromPlay(uid),
       ]);
 
-    const mapSubscriptions = (planIds: string[]) => {
-      return planIds
-        .map((planId) => allPlansByPlanId[planId])
-        .filter((plan) => plan);
+    const getAbbrevPlansFromPlanIds = (planIds: string[]) => {
+      return planIds.map((planId) => allPlansByPlanId[planId]).filter(Boolean);
     };
 
-    const stripeSubscribedPlans = mapSubscriptions(stripeSubscriptions);
-    const appleIapSubscribedPlans = mapSubscriptions(appleIapSubscriptions);
-    const playIapSubscribedPlans = mapSubscriptions(playIapSubscriptions);
+    const stripeSubscribedPlans =
+      getAbbrevPlansFromPlanIds(stripeSubscriptions);
 
     const iapSubscribedPlans = [
-      ...appleIapSubscribedPlans,
-      ...playIapSubscribedPlans,
+      ...getAbbrevPlansFromPlanIds(appleIapSubscriptions),
+      ...getAbbrevPlansFromPlanIds(playIapSubscriptions),
     ];
 
     // Lookup whether user holds an IAP subscription with a shared product set to the target
@@ -551,69 +548,77 @@ export class CapabilityService {
   }
 
   /**
+   * Fetch the mergedConfig of plans that are configured and subscribed to.
+   */
+  private async configuredSubscribedMergedConfigs(subscribedPrices: string[]) {
+    if (!this.paymentConfigManager) return [];
+    const allPlans = (await this.paymentConfigManager.allPlans()).filter(
+      (plan) => subscribedPrices.includes(plan.stripePriceId ?? '')
+    );
+    // Can't use .map here because TS is unable to infer that paymentConfigManager
+    // is not undefined even though it is checked above as of TS 5.2.2.
+    const result = [];
+    for (const plan of allPlans) {
+      const mergedConfig = this.paymentConfigManager.getMergedConfig(plan);
+      result.push(mergedConfig);
+    }
+    return result;
+  }
+
+  /**
    * Fetch the list of capabilities for the given price ids.
    */
   private async priceIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
-    const allCapabilities: Record<string, Set<string>> = {};
+    let result: ClientIdCapabilityMap = {};
     // Run through all plans and collect capabilities for subscribed products
-    const prices = await this.stripeHelper.allAbbrevPlans();
-    const configuredPlans = this.paymentConfigManager
-      ? await this.paymentConfigManager.allPlans()
-      : [];
-
-    for (const price of prices) {
+    for (const price of await this.stripeHelper.allAbbrevPlans()) {
       if (!subscribedPrices.includes(price.plan_id)) {
         continue;
       }
-      // Add the capabilities for this price and product
-      for (const metadata of [price.plan_metadata, price.product_metadata]) {
-        if (!metadata) {
-          continue;
-        }
-        const capabilityKeys = Object.keys(metadata).filter((key) =>
-          key.startsWith('capabilities')
-        );
-        for (const key of capabilityKeys) {
-          const capabilities = commaSeparatedListToArray(
-            (metadata as any)[key]
-          );
-          const clientId =
-            key === 'capabilities'
-              ? ALL_RPS_CAPABILITIES_KEY
-              : key.split(':')[1].trim();
-          for (const capability of capabilities) {
-            (allCapabilities[clientId] ??= new Set()).add(capability);
-          }
-        }
-      }
+      // Add the capabilities for this price's plan and product
+      result = ClientIdCapabilityMap.merge(
+        result,
+        clientIdCapabilityMapFromMetadata(price.product_metadata)
+      );
+      result = ClientIdCapabilityMap.merge(
+        result,
+        clientIdCapabilityMapFromMetadata(price.plan_metadata || {})
+      );
     }
 
-    for (const plan of configuredPlans) {
-      if (!subscribedPrices.includes(plan.stripePriceId ?? '')) {
-        continue;
-      }
-      if (!this.paymentConfigManager)
-        throw new Error('paymentConfigManager is not initialized');
-      const mergedConfig = this.paymentConfigManager.getMergedConfig(plan);
-
+    for (const mergedConfigPlan of await this.configuredSubscribedMergedConfigs(
+      subscribedPrices
+    )) {
       // Add the capabilities for this price
-      for (const [clientId, capabilities] of Object.entries(
-        mergedConfig.capabilities || {}
-      )) {
-        allCapabilities[clientId] = new Set([
-          ...(allCapabilities[clientId] ?? []),
-          ...capabilities,
-        ]);
-      }
+      result = ClientIdCapabilityMap.merge(
+        result,
+        mergedConfigPlan.capabilities || {}
+      );
     }
 
-    const resultCapabilities: Record<string, string[]> = {};
-    for (const key of Object.keys(allCapabilities)) {
-      resultCapabilities[key] = Array.from(allCapabilities[key]);
-    }
-
-    return resultCapabilities;
+    return result;
   }
+}
+
+function clientIdFromMetadataKey(key: string): string {
+  return key === 'capabilities'
+    ? ALL_RPS_CAPABILITIES_KEY
+    : key.split(':')[1].trim();
+}
+
+function capabilitiesFromMetadataValue(value: string): string[] {
+  return commaSeparatedListToArray(value);
+}
+
+function clientIdCapabilityMapFromMetadata(
+  metadata?: Record<string, string>
+): ClientIdCapabilityMap {
+  return Object.entries(metadata || {})
+    .filter(([key]) => key.startsWith('capabilities'))
+    .reduce((acc, [key, value]) => {
+      acc[clientIdFromMetadataKey(key)] = capabilitiesFromMetadataValue(value);
+      return acc;
+    }, {} as ClientIdCapabilityMap);
 }

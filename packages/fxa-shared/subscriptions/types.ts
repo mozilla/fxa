@@ -1,3 +1,8 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import cloneDeep from 'lodash.clonedeep';
 import { Stripe } from 'stripe';
 
 import {
@@ -14,7 +19,26 @@ export interface RawMetadata {
 }
 
 // A mapping of OAuth client ids to their corresponding capabilities.
-export type ClientIdCapabilityMap = Record<string, string[]>;
+export type ClientIdCapabilityMap = Record<string, readonly string[]>;
+export const ClientIdCapabilityMap = {
+  merge(
+    a: ClientIdCapabilityMap,
+    b: ClientIdCapabilityMap
+  ): ClientIdCapabilityMap {
+    return Object.entries(b).reduce((acc, [clientId, capabilities]) => {
+      if (!acc[clientId]) {
+        acc[clientId] = cloneDeep(capabilities);
+        return acc;
+      }
+      for (const capability of capabilities) {
+        if (!acc[clientId].includes(capability)) {
+          acc[clientId] = [...acc[clientId], capability];
+        }
+      }
+      return acc;
+    }, cloneDeep(a));
+  },
+};
 
 export interface Plan {
   amount: number | null;

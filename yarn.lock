@@ -17185,7 +17185,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/lodash.clonedeep@npm:^4.5.7":
+"@types/lodash.clonedeep@npm:^4, @types/lodash.clonedeep@npm:^4.5.7":
   version: 4.5.7
   resolution: "@types/lodash.clonedeep@npm:4.5.7"
   dependencies:
@@ -32470,6 +32470,7 @@ fsevents@~2.1.1:
     "@types/ip": ^1
     "@types/jest": ^26.0.23
     "@types/js-md5": ^0.4.2
+    "@types/lodash.clonedeep": ^4
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4
     "@types/mocha": ^8.2.2
@@ -32510,6 +32511,7 @@ fsevents@~2.1.1:
     jsdom: 22.1.0
     jsdom-global: 3.0.2
     knex: ^2.4.2
+    lodash.clonedeep: ^4.5.0
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
     mocha: ^10.0.0
