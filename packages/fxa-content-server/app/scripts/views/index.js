@@ -41,7 +41,7 @@ class IndexView extends FormView {
   setInitialContext(context) {
     context.set({
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
-        isSignup: true,
+        showSeparator: true
       }),
     });
   }
