@@ -4,7 +4,7 @@
 
 import { graphql } from '../../__generated__/gql';
 
-export const purchaseWithDetailsOfferingContent = graphql(`
+export const purchaseWithDetailsOfferingContentQuery = graphql(`
   query PurchaseWithDetailsOfferingContent(
     $skip: Int!
     $limit: Int!
