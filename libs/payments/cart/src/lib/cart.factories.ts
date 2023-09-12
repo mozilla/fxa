@@ -30,6 +30,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
 });
 
 export const TaxAmountFactory = (override?: Partial<TaxAmount>): TaxAmount => ({
+  inclusive: false,
   title: faker.location.state({ abbreviated: true }),
   amount: faker.number.int(10000),
   ...override,

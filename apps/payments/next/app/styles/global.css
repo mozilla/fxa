@@ -1,0 +1,16 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import '../../../../../libs/shared/styles/src/lib/index.css';
+@import './containers.css';
+@import './purchase-details.css';
+@import './terms-and-privacy.css';
+
+body {
+  @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900;
+}
+
+.row-divider-grey-200 {
+  @apply border-b border-grey-200;
+}

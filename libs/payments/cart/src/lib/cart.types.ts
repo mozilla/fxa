@@ -3,14 +3,31 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Cart } from '@fxa/shared/db/mysql/account';
 
+export type FinishCart = {
+  uid?: string;
+  amount?: number;
+  stripeCustomerId?: string;
+};
+
+export type FinishErrorCart = {
+  uid?: string;
+  errorReasonId: string;
+  amount?: number;
+  stripeCustomerId?: string;
+};
+
+export interface Invoice {
+  currency: string;
+  listAmount: number;
+  totalAmount: number;
+  taxAmounts: TaxAmount[];
+  discountAmount: number;
+}
+
 export type ResultCart = Readonly<Omit<Cart, 'id' | 'uid'>> & {
   readonly id: string;
   readonly uid?: string;
 };
-export interface TaxAmount {
-  title: string;
-  amount: number;
-}
 
 export type SetupCart = {
   uid?: string;
@@ -24,22 +41,15 @@ export type SetupCart = {
   amount: number;
 };
 
+export interface TaxAmount {
+  title: string;
+  inclusive: boolean;
+  amount: number;
+}
+
 export type UpdateCart = {
   uid?: string;
   taxAddress?: string;
   couponCode?: string;
   email?: string;
-};
-
-export type FinishCart = {
-  uid?: string;
-  amount?: number;
-  stripeCustomerId?: string;
-};
-
-export type FinishErrorCart = {
-  uid?: string;
-  errorReasonId: string;
-  amount?: number;
-  stripeCustomerId?: string;
 };

@@ -12,9 +12,19 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
-  env: {
-    greeting: 'Hello World',
+  experimental: {
+    serverComponentsExternalPackages: ['knex'],
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'accounts-static.cdn.mozilla.net',
+        port: '',
+        pathname: '/product-icons/**',
+      }
+    ]
+  }
 };
 
 const plugins = [
