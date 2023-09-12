@@ -172,7 +172,6 @@ test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
       expect(page.url()).toContain('&flow_begin_time=');
     });
 
-    /*Disabling the test for Fxa-8078
     test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
       pages: { settings, relier, page, subscribe },
     }, { project }) => {
@@ -228,6 +227,6 @@ test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
         return event.type;
       });
       expect(actualEventTypes).toMatchObject(expectedEventTypes);
-    });*/
+    });
   });
 });
