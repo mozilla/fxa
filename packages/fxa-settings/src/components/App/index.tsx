@@ -34,7 +34,7 @@ import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
 
-import ConfirmSignupCode from '../../pages/Signup/ConfirmSignupCode';
+import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
@@ -273,7 +273,10 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
       <SignupContainer path="/oauth/signup/*" {...{ integration }} />
 
       <Confirm path="/confirm/*" {...{ sessionTokenId }} />
-      <ConfirmSignupCode path="/confirm_signup_code/*" />
+      <ConfirmSignupCodeContainer
+        path="/confirm_signup_code/*"
+        {...{ integration }}
+      />
 
       <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
     </Router>

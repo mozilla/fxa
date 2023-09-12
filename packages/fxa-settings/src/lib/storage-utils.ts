@@ -50,6 +50,8 @@ export interface StoredAccountData {
   sessionToken: string;
   metricsEnabled: boolean;
   verified: boolean;
+  alertText?: string;
+  displayName?: string;
 }
 
 /**

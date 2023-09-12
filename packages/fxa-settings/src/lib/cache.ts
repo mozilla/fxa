@@ -3,36 +3,37 @@ import Storage from './storage';
 import { Email } from '../models';
 import { searchParam } from '../lib/utilities';
 import config from './config';
+import { StoredAccountData } from './storage-utils';
 
 const storage = Storage.factory('localStorage');
 
-export interface OldSettingsData {
-  uid: hexstring;
-  sessionToken: hexstring;
-  alertText?: string;
-  displayName?: string;
-  metricsEnabled?: boolean;
-  email?: string;
-}
-
-export function getOldSettingsData({
+// TODO in FXA-8454
+// Add checks to ensure this function cannot produce an object that would violate type safety.
+// Currently, there are no checks to ensure that the values are defined and non-null,
+// which could result in errors at runtime.
+export function getStoredAccountData({
   uid,
   sessionToken,
   alertText,
   displayName,
   metricsEnabled,
-}: Record<string, any>): OldSettingsData {
+  lastLogin,
+  email,
+  verified,
+}: Record<string, any>): StoredAccountData {
   return {
     uid,
     sessionToken,
     alertText,
     displayName,
     metricsEnabled,
+    lastLogin,
+    email,
+    verified,
   };
 }
 
-type LocalAccount = OldSettingsData | undefined;
-type LocalAccounts = Record<hexstring, LocalAccount> | undefined;
+type LocalAccounts = Record<hexstring, StoredAccountData>;
 
 function accounts(accounts?: LocalAccounts) {
   if (accounts) {
@@ -42,7 +43,7 @@ function accounts(accounts?: LocalAccounts) {
   return storage.get('accounts') as LocalAccounts;
 }
 
-export function currentAccount(account?: OldSettingsData) {
+export function currentAccount(account?: StoredAccountData) {
   const all = accounts() || {};
 
   // Current user can be specified in url params (ex. when clicking
