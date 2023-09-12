@@ -4,30 +4,28 @@
 
 import { graphql } from '../../__generated__/gql';
 
-export const capabilityServiceByPriceIdsQuery = graphql(`
+export const capabilityServiceByPlanIdsQuery = graphql(`
   query CapabilityServiceByPriceIds(
     $skip: Int!
     $limit: Int!
-    $priceIds: [String]!
+    $locale: String!
+    $stripePlanIds: [String]!
   ) {
     purchaseCollection(
       skip: $skip
       limit: $limit
-      where: { stripePlanChoices_contains_some: $priceIds }
+      locale: $locale
+      where: { stripePlanChoices_contains_some: $stripePlanIds }
     ) {
       items {
         stripePlanChoices
-        linkedFrom {
-          offeringCollection(skip: 0, limit: 1) {
+        offering {
+          capabilitiesCollection(skip: $skip, limit: $limit) {
             items {
-              capabilitiesCollection(skip: $skip, limit: $limit) {
+              slug
+              servicesCollection(skip: $skip, limit: $limit) {
                 items {
-                  slug
-                  servicesCollection(skip: 0, limit: 1) {
-                    items {
-                      oauthClientId
-                    }
-                  }
+                  oauthClientId
                 }
               }
             }

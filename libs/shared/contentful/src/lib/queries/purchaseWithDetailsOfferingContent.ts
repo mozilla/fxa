@@ -25,21 +25,17 @@ export const purchaseWithDetailsOfferingContentQuery = graphql(`
           subtitle
           webIcon
         }
-        linkedFrom {
-          offeringCollection(skip: $skip, limit: $limit) {
-            items {
-              stripeProductId
-              commonContent {
-                privacyNoticeUrl
-                privacyNoticeDownloadUrl
-                termsOfServiceUrl
-                termsOfServiceDownloadUrl
-                cancellationUrl
-                emailIcon
-                successActionButtonUrl
-                successActionButtonLabel
-              }
-            }
+        offering {
+          stripeProductId
+          commonContent {
+            privacyNoticeUrl
+            privacyNoticeDownloadUrl
+            termsOfServiceUrl
+            termsOfServiceDownloadUrl
+            cancellationUrl
+            emailIcon
+            successActionButtonUrl
+            successActionButtonLabel
           }
         }
       }
