@@ -20,7 +20,7 @@ describe('ChooseWhatToSync component', () => {
     renderWithLocalizationProvider(<Subject />);
     testAllL10n(screen, bundle);
 
-    screen.getByText('Choose what to sync:');
+    screen.getByText('Choose what to sync');
 
     const checkboxes = await screen.findAllByRole('checkbox');
     expect(checkboxes).toHaveLength(engines.length);

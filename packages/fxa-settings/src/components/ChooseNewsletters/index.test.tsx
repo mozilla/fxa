@@ -20,9 +20,7 @@ describe('ChooseNewsletters component', () => {
     renderWithLocalizationProvider(<Subject />);
     testAllL10n(screen, bundle);
 
-    screen.getByText(
-      'Practical knowledge is coming to your inbox. Sign up for more:'
-    );
+    screen.getByText('Get more from Mozilla:');
 
     const checkboxes = await screen.findAllByRole('checkbox');
     expect(checkboxes).toHaveLength(newsletters.length);

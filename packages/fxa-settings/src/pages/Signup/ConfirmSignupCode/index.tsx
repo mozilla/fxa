@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { navigate, RouteComponentProps, useLocation } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import {
   CLEAR_MESSAGES_TIMEOUT,
   REACT_ENTRYPOINT,
@@ -33,12 +33,13 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { Newsletter } from '../../../components/ChooseNewsletters/newsletters';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { ConfirmSignupCodeQueryParams } from '../../../models/pages/confirm-signup-code';
 
 export const viewName = 'confirm-signup-code';
 
-type LocationState = { email: string; newsletters?: Newsletter[] };
+type LocationState = { email: string; selectedNewsletterSlugs?: string[] };
 
 const ConfirmSignupCode = (_: RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
@@ -53,13 +54,18 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
     ResendStatus['not sent']
   );
 
+  const { queryParamModel } = useValidatedQueryParams(
+    ConfirmSignupCodeQueryParams
+  );
+  const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: LocationState;
   };
 
-  // email will be obtained from location state (passed in from /signup submit)
-  // in the meantime, here's a hard-coded email
-  const email = location.state?.email || 'potato@potatoes.com';
+  // retrieve the email either from location state (if arriving from react)
+  // or from queryParams if arriving directly from content-server
+  // this second option can be removed once the /signin flow is fully converted to react
+  const email = location.state?.email || queryParamModel.email;
 
   const navigateToSignup = () => {
     hardNavigateToContentServer('/');
@@ -75,7 +81,7 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
     inputLabelText: 'Enter 6-digit code',
     pattern: '[0-9]{6}',
     maxLength: 6,
-    submitButtonFtlId: 'confirm-signup-code-submit-button',
+    submitButtonFtlId: 'confirm-signup-code-confirm-button',
     submitButtonText: 'Confirm',
   };
 
@@ -126,38 +132,45 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
         'Account confirmed successfully'
       )
     );
-    // TODO redirect elsewhere if relying party
+    // TODO in FXA-6519 redirect elsewhere if relying party
     navigate('/settings', { replace: true });
   }
 
   async function verifySession(code: string) {
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     try {
-      await account.verifySession(code);
+      const newsletterSlugs = location.state?.selectedNewsletterSlugs;
+      const hasSelectedNewsletters =
+        newsletterSlugs && newsletterSlugs.length > 0;
 
-      // FOLLOW-UP: does not yet exist in Settings
-      // BEFORE: notifier.trigger('verification.success');
+      const options = hasSelectedNewsletters
+        ? { newsletters: newsletterSlugs }
+        : {};
+      await account.verifySession(code, options);
+
       logViewEvent(
         `flow.${viewName}`,
         'verification.success',
         REACT_ENTRYPOINT
       );
-      // FOLLOW-UP: enable once state can be accessed from previous component
-      // BEFORE: this.notifier.trigger('flow.event', {event: 'newsletter.subscribed',})
-      // This might just be a logged event, but will depend if subscription is entirely
-      // handled on the signup page or if it should only happen after verification
-      // if (newsletters) {
-      //   logViewEvent(`flow.${viewName}`, 'newsletter.subscribed', REACT_ENTRYPOINT);
-      // }
+
+      if (hasSelectedNewsletters) {
+        logViewEvent(
+          `flow.${viewName}`,
+          'newsletter.subscribed',
+          REACT_ENTRYPOINT
+        );
+      }
 
       // FOLLOW-UP: Broker not yet implemented
       // The broker handles navigation behaviour that varies depending on the relier
       // and may include web channel notifications to ensure the verification is propagated
       // to other tabs
       // await broker.invokeBrokerMethod('afterSignUpConfirmationPoll', account);
+      // This may be taken care of with^ but we need to send a web channel message
+      // to FF to tell it the account was verified. Can be done with FXA-8287 or follow up
       alertSuccessAndGoForward();
     } catch (e) {
-      // TODO log error
       const localizedErrorMessage = ftlMsgResolver.getMsg(
         composeAuthUiErrorTranslationId(e),
         e.message
@@ -172,8 +185,6 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
         setCodeErrorMessage(localizedErrorMessage);
       } else {
         // Any other error messages should be displayed in an error banner
-        // Should we display a generic user-friendly error?
-        // Right now this shows errors like "Invalid parameter in request body"
         setBanner({
           type: BannerType.error,
           children: <p>{localizedErrorMessage}</p>,
@@ -188,14 +199,13 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
   );
 
   // this page shouldn't render if signup was not initiated
-  // BEFORE: if (!this.getAccount) redirect to signup
   if (!email) {
     navigateToSignup();
     return <LoadingSpinner />;
   }
 
-  // FOLLOW-UP: handle bounced emails/blocked accounts
-  // TODO: poll for session verification (does not exist on Settings), and
+  // TODO: handle bounced emails/blocked accounts in FXA-8306
+  // poll for session verification (does not exist on Settings), and
   // - if invalid token + account does not exist (no account for uid) - email bounced
   //   --> Direct the user to sign up again
   // - if the account is blocked (invalid token, but account exists)
