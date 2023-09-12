@@ -35,6 +35,13 @@ export class CartNotFoundError extends CartError {
     this.cartId = cartId;
   }
 }
+export class CartVersionMismatchError extends CartError {
+  cartId: string;
+  constructor(cartId: string) {
+    super('Cart version mismatch');
+    this.cartId = cartId;
+  }
+}
 export class CartNotUpdatedError extends CartError {
   cartId: string;
   data?: FinishCart | FinishErrorCart | UpdateCart;

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Field, ID, ObjectType, registerEnumType } from '@nestjs/graphql';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartState, CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { TaxAddress } from './tax-address.model';
 import { Invoice } from './invoice.model';
 
@@ -28,7 +28,7 @@ export class Cart {
   public state!: CartState;
 
   @Field({ nullable: true, description: 'Error reason ID' })
-  public errorReasonId?: string;
+  public errorReasonId?: CartErrorReasonId;
 
   @Field({ description: 'Offering ID configured in the CMS' })
   public offeringConfigId!: string;

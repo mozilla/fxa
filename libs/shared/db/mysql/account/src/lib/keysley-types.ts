@@ -29,6 +29,10 @@ export enum CartState {
   FAIL = 'fail',
 }
 
+export enum CartErrorReasonId {
+  Unknown = 'unknown',
+}
+
 export interface AccountCustomers {
   uid: Buffer;
   stripeCustomerId: string | null;
@@ -69,7 +73,7 @@ export interface Carts {
   id: Buffer;
   uid: Buffer | null;
   state: CartState;
-  errorReasonId: string | null;
+  errorReasonId: CartErrorReasonId | null;
   offeringConfigId: string;
   interval: string;
   experiment: string | null;
