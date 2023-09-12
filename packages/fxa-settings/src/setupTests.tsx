@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReactLocalization } from '@fluent/react';
-import '@testing-library/jest-dom/extend-expect';
+import '@testing-library/jest-dom';
 import { getFtlBundleSync } from 'fxa-react/lib/test-utils';
 import { FtlMsgProps } from 'fxa-react/lib/utils';
 import { TextEncoder, TextDecoder } from 'util';

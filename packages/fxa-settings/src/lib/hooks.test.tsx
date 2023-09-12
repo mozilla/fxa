@@ -4,7 +4,6 @@
 
 import React, { useRef } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import {
   useFocusOnTriggeringElementOnClose,
   useEscKeydownEffect,

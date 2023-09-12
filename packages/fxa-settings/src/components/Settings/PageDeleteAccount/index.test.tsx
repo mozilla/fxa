@@ -5,7 +5,6 @@
 import React from 'react';
 import 'mutationobserver-shim';
 import { screen, fireEvent, act, within } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../../lib/test-utils';
@@ -63,7 +62,7 @@ describe('PageDeleteAccount', () => {
       .getAllByRole('link')
       .map((item) => item.textContent);
     expect(items).toMatchInlineSnapshot(`
-      Array [
+      [
         "Syncing Firefox data",
         "Mozilla VPN",
         "Firefox Relay",
@@ -165,7 +164,7 @@ describe('PageDeleteAccount', () => {
     );
 
     expect(screen.queryByText('Step 1 of 2')).toBeNull();
-    
+
     await advanceStep();
 
     expect(logViewEvent).toHaveBeenCalledWith(
