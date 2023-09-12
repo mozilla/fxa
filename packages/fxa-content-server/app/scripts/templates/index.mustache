@@ -1,5 +1,5 @@
 <div class="card">
-  <header class="mb-4">
+  <header class="mb-8">
     {{#isSync}}
       <h1 id="fxa-enter-email-header" class="card-header">
         {{#t}}Continue to Firefox accounts{{/t}}
@@ -45,6 +45,9 @@
     {{#isInThirdPartyAuthExperiment}}
       {{^isSync}}
         {{{ unsafeThirdPartyAuthHTML }}}
+        <div id="tos-pp" class="text-grey-500 -mb-2 mt-5 text-xs">
+            {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+        </div>
       {{/isSync}}
       {{#isSync}}
         <p class="text-xs text-grey-500 mb-0 mt-5" id="firefox-family-services">
