@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { BaseLayout } from './layout';
+import { expect } from '../lib/fixtures/standard';
 
 export class RelierPage extends BaseLayout {
   goto(query?: string) {
@@ -112,10 +113,14 @@ export class RelierPage extends BaseLayout {
     });
   }
 
-  getUrl() {
-    return this.page
-      .locator('[data-testid=rp-flow-metrics]')
-      .getAttribute('href');
+  async getUrl() {
+    const expectedPathRegExp = new RegExp(
+      `\\/subscriptions\\/products\\/${this.target.subscriptionConfig.product}\\?plan=${this.target.subscriptionConfig.plan}&service=(\\w+)`,
+      'i'
+    );
+    const subscribeButton = this.page.locator('[data-testid=rp-flow-metrics]');
+    await expect(subscribeButton).toHaveAttribute('href', expectedPathRegExp);
+    return subscribeButton.getAttribute('href');
   }
 
   getRpAcquisitionParams(searchParams) {

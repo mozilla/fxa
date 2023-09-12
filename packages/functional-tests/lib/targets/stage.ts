@@ -10,6 +10,8 @@ const PAYMENTS_DOMAIN =
   'payments-stage.fxa.nonprod.cloudops.mozgcp.net';
 const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'stage-123done.herokuapp.com';
+const SUB_PRODUCT = 'prod_FfiuDs9u11ESbD';
+const SUB_PLAN = 'plan_FfiupsKXZ3mMZ6';
 
 export class StageTarget extends RemoteTarget {
   static readonly target = 'stage';
@@ -17,6 +19,10 @@ export class StageTarget extends RemoteTarget {
   readonly contentServerUrl = `https://${ACCOUNTS_DOMAIN}`;
   readonly paymentsServerUrl = `https://${PAYMENTS_DOMAIN}`;
   readonly relierUrl = `https://${RELIER_DOMAIN}`;
+  readonly subscriptionConfig = {
+    product: SUB_PRODUCT,
+    plan: SUB_PLAN,
+  };
 
   constructor() {
     super(`https://${ACCOUNTS_API_DOMAIN}`);
