@@ -101,7 +101,7 @@ const conf = convict({
       env: 'SENTRY_ENV',
     },
     sampleRate: {
-      doc: 'Rate at which sentry traces are captured.',
+      doc: 'Rate at which sentry errors are captured.',
       default: 1.0,
       format: 'Number',
       env: 'SENTRY_SAMPLE_RATE',
@@ -111,6 +111,12 @@ const conf = convict({
       default: 'fxa-admin-server',
       format: 'String',
       env: 'SENTRY_SERVER_NAME',
+    },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
     },
   },
   subscriptions: {

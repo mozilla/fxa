@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { assert } from 'chai';
-import { BrowserClient } from '@sentry/browser';
+import {
+  BrowserClient,
+  makeFetchTransport,
+  defaultStackParser,
+  makeXHRTransport,
+} from '@sentry/browser';
 import moment from 'moment';
 import sinon from 'sinon';
 
@@ -19,18 +24,17 @@ const MAX_INTEGER = Number.MAX_SAFE_INTEGER;
 const INTEGER_OVERFLOW = Number.MAX_SAFE_INTEGER + 1;
 
 describe('sanitize', function () {
-  let client: BrowserClient;
+  let client: Pick<BrowserClient, 'captureException'>;
   let reporter: MetricErrorReporter;
   let metrics: MetricValidator;
   let fakeSentryCapture: any;
 
   beforeEach(() => {
-    client = new BrowserClient();
-    fakeSentryCapture = sinon.replace(
-      client,
-      'captureException',
-      sinon.fake.returns('')
-    );
+    client = {
+      captureException: () => '',
+    };
+
+    fakeSentryCapture = sinon.spy(client, 'captureException');
     reporter = new MetricErrorReporter(client);
     metrics = new MetricValidator(reporter, {
       maxEventOffset: moment.duration(2, 'days').asMilliseconds(),

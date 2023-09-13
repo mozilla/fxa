@@ -4,6 +4,7 @@
 
 import { Firestore } from '@google-cloud/firestore';
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import {
   Cacheable,
   CacheClearStrategy,
@@ -713,7 +714,7 @@ export class StripeHelper extends StripeHelperBase {
             });
             Sentry.captureMessage(
               `Invoice Preview Error: Prorated Invoice Preview`,
-              Sentry.Severity.Error
+              'error' as SeverityLevel
             );
           });
           this.log.error('subscriptions.previewInvoice.proratedInvoice', error);
@@ -914,7 +915,7 @@ export class StripeHelper extends StripeHelperBase {
             });
             Sentry.captureMessage(
               'Coupon duration does not apply for entire plan interval',
-              Sentry.Severity.Error
+              'error' as SeverityLevel
             );
           });
           return false;
@@ -2174,7 +2175,7 @@ export class StripeHelper extends StripeHelperBase {
         });
         Sentry.captureMessage(
           'Payment charges not found in subscription payment intent on subscription creation.',
-          Sentry.Severity.Warning
+          'warning' as SeverityLevel
         );
       });
     }

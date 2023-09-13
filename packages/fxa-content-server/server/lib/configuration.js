@@ -759,6 +759,12 @@ const conf = (module.exports = convict({
       env: 'SENTRY_SAMPLE_RATE',
       format: Number,
     },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+    },
   },
   sourceMapType: {
     default: 'source-map',

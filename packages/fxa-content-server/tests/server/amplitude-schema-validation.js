@@ -46,7 +46,6 @@ const amplitude = proxyquire(path.resolve('server/lib/amplitude'), {
   },
   '@sentry/node': mockSentry,
 });
-const Sentry = require('@sentry/node');
 
 registerSuite('amplitude json schema validation', {
   beforeEach: function () {
@@ -132,7 +131,7 @@ registerSuite('amplitude json schema validation', {
       assert.isTrue(
         mockSentry.captureMessage.calledOnceWith(
           'Amplitude event failed validation',
-          Sentry.Severity.Error
+          'error'
         )
       );
       assert.isTrue(logger.info.calledOnce);

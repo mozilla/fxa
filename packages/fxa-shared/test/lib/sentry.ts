@@ -71,11 +71,7 @@ describe('lib/sentry', () => {
         'errno100',
         'correct fingerprint'
       );
-      assert.equal(
-        resultData.level,
-        Sentry.Severity.Info,
-        'correct known error level'
-      );
+      assert.equal(resultData.level, 'info', 'correct known error level');
     });
 
     it('properly erases sensitive information from url', () => {

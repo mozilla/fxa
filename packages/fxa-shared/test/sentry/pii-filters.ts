@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as Sentry from '@sentry/node';
+import { ErrorEvent } from '@sentry/types';
 import { SQS } from 'aws-sdk';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -35,13 +36,13 @@ describe('pii-filters', () => {
     ]);
 
     it('filters empty event', () => {
-      let event: Sentry.Event = {};
+      let event: ErrorEvent = { type: undefined };
       event = sentryFilter.filter(event);
-      expect(event).to.deep.equal({});
+      expect(event).to.deep.equal({ type: undefined });
     });
 
     it('filters event', () => {
-      let event: Sentry.Event = {
+      let event: ErrorEvent = {
         message: 'A foo message.',
         contexts: {
           ValidationError: {
@@ -144,7 +145,7 @@ describe('pii-filters', () => {
           email: 'foo@bar.com',
           username: 'foo.bar',
         },
-        type: 'transaction',
+        type: undefined,
         spans: undefined, // Not testing, let's be careful not put PII in spans,
         measurements: undefined, // NA, just numbers
         debug_meta: undefined, // NA, image data
@@ -247,7 +248,7 @@ describe('pii-filters', () => {
           email: FILTERED,
           username: FILTERED,
         },
-        type: 'transaction',
+        type: undefined,
         spans: undefined, // Not testing, let's be careful not put PII in spans,
         measurements: undefined, // NA, just numbers
         debug_meta: undefined, // NA, image data
@@ -342,6 +343,7 @@ describe('pii-filters', () => {
     it('shorts circuits', () => {
       // The fact this runs with out error, indicates badAction was never invoked
       const event = sentryFilter.filter({
+        type: undefined,
         request: {
           url: 'http://foo.bar',
           query_string: {

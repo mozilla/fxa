@@ -63,7 +63,9 @@ export class MetricErrorReporter {
     };
   }
 
-  constructor(protected readonly sentry: Sentry.BrowserClient) {}
+  constructor(
+    protected readonly sentry: Pick<Sentry.BrowserClient, 'captureException'>
+  ) {}
 
   /**
    * Reports an error to sentry.

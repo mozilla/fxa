@@ -210,7 +210,7 @@ describe('lib/amplitude', () => {
         device_id: 'QUUX',
         session_id: 1570000000000,
         app_version: '148.8',
-        country_code: "DE",
+        country_code: 'DE',
         os_name: 'Mac OS X',
         os_version: '10.14',
         language: 'en-US',
@@ -242,14 +242,16 @@ describe('lib/amplitude', () => {
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
         'Amplitude event failed validation',
-        Sentry.Severity.Error
+        'error'
       );
       expect(log.info).toHaveBeenCalledTimes(1);
     });
 
     it('logs/reports all validation errors', () => {
       mockSchemaValidatorFn.mockImplementation(() => {
-        throw new Error('Invalid data: event must have required property \'event_type\', event must have required property \'time\'');
+        throw new Error(
+          "Invalid data: event must have required property 'event_type', event must have required property 'time'"
+        );
       });
       amplitude(mocks.event, mocks.request, {
         ...mocks.data,
@@ -258,7 +260,7 @@ describe('lib/amplitude', () => {
       expect(log.error).toHaveBeenCalledTimes(1);
       expect(log.error.mock.calls[0][0]).toBe('amplitude.validationError');
       expect(log.error.mock.calls[0][1]['err']['message']).toBe(
-        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
+        "Invalid data: event must have required property 'event_type', event must have required property 'time'"
       );
       expect(mockSentry.withScope).toHaveBeenCalledTimes(1);
       expect(scope.setContext).toHaveBeenCalledTimes(1);
@@ -266,12 +268,12 @@ describe('lib/amplitude', () => {
         'amplitude.validationError'
       );
       expect(scope.setContext.mock.calls[0][1]['error']).toBe(
-        'Invalid data: event must have required property \'event_type\', event must have required property \'time\''
+        "Invalid data: event must have required property 'event_type', event must have required property 'time'"
       );
       expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
       expect(mockSentry.captureMessage).toHaveBeenCalledWith(
         'Amplitude event failed validation',
-        Sentry.Severity.Error
+        'error'
       );
       expect(log.info).toHaveBeenCalledTimes(1);
     });

@@ -49,7 +49,7 @@ function beforeSend(data: Sentry.Event): Sentry.Event {
       if (data.tags.errno) {
         data.fingerprint = ['errno' + (data.tags.errno as number)];
         // if it is a known error change the error level to info.
-        data.level = Sentry.Severity.Info;
+        data.level = 'info';
       }
     }
 
@@ -146,6 +146,7 @@ SentryMetrics.prototype = {
       const opts = buildSentryConfig(config, this._logger);
       Sentry.init({
         ...opts,
+        integrations: [new Sentry.BrowserTracing()],
         beforeSend(event: Sentry.Event) {
           event = beforeSend(event);
           if (opts.clientName) {

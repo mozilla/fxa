@@ -1,5 +1,5 @@
 import sentryMetrics from './sentry';
-import { Severity } from '@sentry/browser';
+import { SeverityLevel } from '@sentry/browser';
 
 interface FlowEventParams {
   device_id?: string;
@@ -21,7 +21,7 @@ function shouldSend() {
       'Flow events not initialized - Metrics not captured for checkout flow',
       'flowEvents.initializationError',
       { referrer: document.referrer, url: document.URL },
-      Severity.Warning
+      'warning' as SeverityLevel
     );
   }
   return initialized && window.navigator.sendBeacon;
