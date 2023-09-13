@@ -92,7 +92,7 @@ async function configureSentry(server, config, log) {
             _sentryEvent,
             request.raw.req
           );
-          sentryEvent.level = Sentry.Severity.Error;
+          sentryEvent.level = 'error';
           return sentryEvent;
         });
         scope.setExtra('exception', exception);

@@ -216,6 +216,12 @@ const conf = convict({
       format: 'String',
       env: 'SENTRY_SERVER_NAME',
     },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
+    },
   },
   serviceNotificationQueueUrl: {
     default: '',
@@ -260,5 +266,5 @@ const Config = conf;
 // set to '[object Object]', which NestJS Config grabs if we don' delete it now.
 delete process.env['env'];
 
-export type AppConfig = ReturnType<typeof Config['getProperties']>;
+export type AppConfig = ReturnType<(typeof Config)['getProperties']>;
 export default Config;

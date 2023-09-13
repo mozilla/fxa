@@ -1880,7 +1880,7 @@ describe('DirectStripeRoutes', () => {
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
         `Cannot find a postal code or country for customer.`,
-        Sentry.Severity.Error
+        'error'
       );
     });
 

@@ -51,6 +51,6 @@ export function reportValidationError(
 
   Sentry.withScope((scope) => {
     scope.setContext('validationError', details);
-    Sentry.captureMessage(message, Sentry.Severity.Error);
+    Sentry.captureMessage(message, 'error');
   });
 }

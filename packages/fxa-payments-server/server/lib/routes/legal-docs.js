@@ -169,10 +169,7 @@ module.exports = {
         url: docUrl.href,
         acceptLanguage: req.get('accept-language'),
       });
-      Sentry.captureMessage(
-        `Legal doc redirect failed.`,
-        Sentry.Severity.Warning
-      );
+      Sentry.captureMessage(`Legal doc redirect failed.`, 'warning');
     });
     return res.sendStatus(404).end();
   },

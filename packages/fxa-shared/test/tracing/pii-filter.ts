@@ -48,6 +48,9 @@ describe('scrubs pii', () => {
       this.attributes = attributes;
       this.resource = new Resource(attributes);
     }
+    public readonly droppedAttributesCount: number = 0;
+    public readonly droppedEventsCount: number = 0;
+    public readonly droppedLinksCount: number = 0;
   }
 
   afterEach(() => {

@@ -120,7 +120,7 @@ function reportSentryError(err, request) {
           _sentryEvent,
           request.raw.req
         );
-        sentryEvent.level = Sentry.Severity.Error;
+        sentryEvent.level = 'error';
         return sentryEvent;
       });
     }

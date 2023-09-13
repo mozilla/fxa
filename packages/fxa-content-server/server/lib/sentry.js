@@ -123,7 +123,7 @@ function tryCaptureValidationError(err) {
       Sentry.withScope((scope) => {
         scope.setTag('error_type', 'validation_error');
         scope.setContext('validationError', { validationError });
-        Sentry.captureMessage(message, Sentry.Severity.Error);
+        Sentry.captureMessage(message, 'error');
       });
 
       return true;
