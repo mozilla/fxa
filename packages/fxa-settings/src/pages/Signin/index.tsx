@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -13,6 +14,7 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
 import CardHeader from '../../components/CardHeader';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import BrandMessaging from '../../components/BrandMessaging';
 
 export type SigninProps = {
   email: string;
@@ -79,6 +81,7 @@ const Signin = ({
 
   return (
     <>
+      {createPortal(<BrandMessaging {...{ viewName }} />, document.body)}
       {isPasswordNeeded ? (
         <CardHeader
           headingText="Enter your password"

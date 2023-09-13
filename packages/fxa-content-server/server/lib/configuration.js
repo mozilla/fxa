@@ -278,6 +278,12 @@ const conf = (module.exports = convict({
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
     },
   },
+  brandMessagingMode: {
+    default: 'prelaunch',
+    doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
+    env: 'BRAND_MESSAGING_MODE',
+    format: String,
+  },
   flow_id_expiry: {
     default: '2 hours',
     doc: 'Time after which flow ids are considered stale',

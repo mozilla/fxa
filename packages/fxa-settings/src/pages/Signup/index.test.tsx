@@ -38,6 +38,12 @@ import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  logViewEventOnce: jest.fn(),
+  useMetrics: () => ({
+    usePageViewEvent: jest.fn(),
+    logViewEvent: jest.fn(),
+    logViewEventOnce: jest.fn(),
+  }),
 }));
 
 jest.mock('../../lib/channels/helpers', () => {

@@ -21,6 +21,7 @@ import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import SignUpMixin from './mixins/signup-mixin';
 import GleanMetrics from '../lib/glean';
+import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 
 const t = (msg) => msg;
 
@@ -164,7 +165,8 @@ Cocktail.mixin(
   SignedInNotificationMixin,
   SignUpMixin,
   PocketMigrationMixin,
-  AccountSuggestionMixin
+  AccountSuggestionMixin,
+  BrandMessagingMixin
 );
 
 export default SignUpPasswordView;

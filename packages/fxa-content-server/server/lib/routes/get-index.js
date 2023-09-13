@@ -48,6 +48,7 @@ module.exports = function (config) {
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
   const SHOW_RECOVERY_KEY_V2 = config.get('featureFlags.showRecoveryKeyV2');
+  const BRAND_MESSAGING_MODE = config.get('brandMessagingMode');
 
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
@@ -99,6 +100,7 @@ module.exports = function (config) {
     subscriptions: SUBSCRIPTIONS,
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
     showReactApp: SHOW_REACT_APP,
+    brandMessagingMode: BRAND_MESSAGING_MODE,
     featureFlags: {
       showRecoveryKeyV2: SHOW_RECOVERY_KEY_V2,
     },
