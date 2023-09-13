@@ -4,7 +4,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { SessionTokenResult } from './auth/session-token.strategy';
-import { Request } from 'express';
 import { IncomingHttpHeaders } from 'http';
 
 /**
