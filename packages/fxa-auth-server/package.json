@@ -47,7 +47,7 @@
     "subscription-reminders": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/subscription-reminders.ts",
     "audit-orphaned-stripe-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/audit-orphaned-customers.ts",
     "remove-unverified-accounts": "CONFIG_FILES='config/secrets.json' node -r esbuild-register ./scripts/remove-unverified-accounts.ts",
-    "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6010 --no-version-updates -s ./",
+    "storybook": "NODE_OPTIONS=--openssl-legacy-provider storybook dev -p 6010 --no-version-updates ./",
     "merge-ftl": "nx l10n-merge",
     "merge-ftl-test": "nx l10n-merge",
     "watch-ftl": "nx l10n-watch"
