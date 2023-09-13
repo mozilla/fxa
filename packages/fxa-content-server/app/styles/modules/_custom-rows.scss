@@ -173,7 +173,7 @@
     background-color: white;
     font-weight: normal;
     &:not(:last-of-type) {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     &:hover {
       border-color: #1a1a1a;
@@ -195,13 +195,12 @@
   .separator {
     font-weight: 200;
     font-size: 16px;
-    line-height: 19px;
-    color: #919191;
-    text-transform: uppercase;
+    line-height: 14px;
+    color: #8f8f9d;
     display: flex;
     align-items: center;
     text-align: center;
-    margin: 24px 0 24px 0;
+    margin: 32px 0 32px 0;
   }
 
   .separator::before,
@@ -212,10 +211,10 @@
   }
 
   .separator:not(:empty)::before {
-    margin-right: 2em;
+    margin-right: 8px;
   }
 
   .separator:not(:empty)::after {
-    margin-left: 2em;
+    margin-left: 8px;
   }
 }
