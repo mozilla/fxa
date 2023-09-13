@@ -73,6 +73,7 @@ const settingsConfig = {
   showRecoveryKeyV2: config.get('featureFlags.showRecoveryKeyV2'),
   googleAuthConfig: config.get('googleAuthConfig'),
   appleAuthConfig: config.get('appleAuthConfig'),
+  brandMessagingMode: config.get('brandMessagingMode'),
 };
 
 // Inject Beta Settings meta content

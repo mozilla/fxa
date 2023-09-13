@@ -25,6 +25,7 @@ import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
+import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
@@ -41,7 +42,7 @@ class IndexView extends FormView {
   setInitialContext(context) {
     context.set({
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
-        showSeparator: true
+        showSeparator: true,
       }),
     });
   }
@@ -283,6 +284,7 @@ Cocktail.mixin(
   ServiceMixin,
   ThirdPartyAuthMixin,
   SignedInNotificationMixin,
+  BrandMessagingMixin,
   SyncSuggestionMixin({
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',

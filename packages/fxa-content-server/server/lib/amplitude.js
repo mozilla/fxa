@@ -902,6 +902,18 @@ const FUZZY_EVENTS = new Map([
       },
     },
   ],
+  [
+    /^flow\.?([\w-]+)?\.(brand-messaging-prelaunch-view|brand-messaging-prelaunch-learn-more|brand-messaging-prelaunch-banner-close|brand-messaging-postlaunch-view|brand-messaging-postlaunch-learn-more|brand-messaging-postlaunch-banner-close)$/,
+    {
+      group: GROUPS.branding,
+      event: (eventCategory, eventTarget) => {
+        return `${eventCategory.replace(/-/g, '_')}_${eventTarget.replace(
+          /-/g,
+          '_'
+        )}`;
+      },
+    },
+  ],
 ]);
 
 const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS);

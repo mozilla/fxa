@@ -1,0 +1,53 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.brand-banner-bg {
+  background: linear-gradient(
+    88.76deg,
+    #e4eaf6 3.37%,
+    #dbeef8 39.93%,
+    #daf3f4 65.09%,
+    #e3f6ed 102.21%
+  );
+}
+
+.m-logo {
+  width: 30px;
+  height: 30px;
+
+  div:first-child {
+    @apply absolute;
+    width: 30px;
+    height: 30px;
+    left: calc(50% - 30px / 2 + 0.25px);
+    top: calc(50% - 30px / 2 - 0px);
+
+    img:first-child {
+      @apply absolute;
+      width: 27px;
+      height: 16px;
+      left: calc(50% - 27px / 2 + 0px);
+      top: calc(50% - 16px / 2 - 0px);
+    }
+  }
+}
+
+/*  This class ensures that the top banner which holds in product messaging
+    doesn't obstruct the main card. It also handles the mobile edge cases
+    where we want the banner to stick to the bottom of the screen. The class
+    will be added by the brand messaging control when applicable. */
+body.brand-messaging {
+  @apply pt-24 !important;
+}
+
+@media only screen and (max-width: 480px) {
+  body.brand-messaging {
+    @apply mt-0;
+  }
+
+  #banner-brand-message {
+    top: initial;
+    @apply bottom-0;
+  }
+}

@@ -31,6 +31,7 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
             <div className={classNames('card', widthClass)}>{children}</div>
           </section>
         </main>
+
         <footer className="hidden mobileLandscape:block w-full p-8">
           <LinkExternal
             rel="author"

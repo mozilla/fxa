@@ -21,6 +21,7 @@ import Template from 'templates/force_auth.mustache';
 import Transform from '../lib/transform';
 import UserCardMixin from './mixins/user-card-mixin';
 import Vat from '../lib/vat';
+import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 
 const t = (msg) => msg;
 
@@ -250,7 +251,8 @@ Cocktail.mixin(
   ServiceMixin,
   SignInMixin,
   SignedInNotificationMixin,
-  UserCardMixin
+  UserCardMixin,
+  BrandMessagingMixin
 );
 
 export default View;
