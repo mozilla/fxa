@@ -24,11 +24,6 @@ const Mixin = {
     }
   },
 
-  events: {
-    [`click #close-brand-banner`]: 'onBrandBannerClose',
-    [`click .brand-learn-more`]: 'onBrandLearnMoreClick',
-  },
-
   beforeRender() {
     // Check to see if the user has cleared the brand messaging banner. If so,
     // we don't want to keep showing them this messaging
@@ -41,13 +36,29 @@ const Mixin = {
       (this.mode === 'prelaunch' || this.mode === 'postlaunch')
     ) {
       this.logFlowEvent(`brand-messaging-${this.mode}-view`, this.viewName);
-
-      // hack add some padding to prevent overlap
-      setTimeout(() => {
-        console.log('!!! adding padding2');
-        document.body.classList.add('brand-messaging');
-      }, 300);
+      document.body.classList.add('brand-messaging');
     }
+  },
+
+  afterRender() {
+    setTimeout(() => {
+      /**
+       * Move element up to body, so that it can be sticky header or inline footer.
+       *
+       * Note, we can't use backbone's event object, because moving the elements
+       * unbinds it's events. Instead, directly bind events here.
+       */
+      const el = document.querySelector('#banner-brand-message');
+      if (el) {
+        document.body.append(el);
+        document.querySelector('#close-brand-banner').onclick = () => {
+          this.onBrandBannerClose();
+        };
+        document.querySelector('.brand-learn-more').onclick = () => {
+          this.onBrandLearnMoreClick();
+        };
+      }
+    }, 0);
   },
 
   setInitialContext(context) {
@@ -70,8 +81,8 @@ const Mixin = {
       `${bannerClosedLocalStorageKey}_${this.mode}`,
       this.disableBanner
     );
-    this.$('#banner-brand-message').remove();
-    this.$('body').removeClass('brand-messaging');
+    document.querySelector('#banner-brand-message').remove();
+    document.body.classList.remove('brand-messaging');
     this.logFlowEvent(
       `brand-messaging-${this.mode}-banner-close`,
       this.viewName

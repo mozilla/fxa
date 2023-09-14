@@ -279,7 +279,7 @@ const conf = (module.exports = convict({
     },
   },
   brandMessagingMode: {
-    default: 'prelaunch',
+    default: 'none',
     doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
     env: 'BRAND_MESSAGING_MODE',
     format: String,

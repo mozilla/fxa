@@ -65,40 +65,10 @@
   }
 }
 
-#banner-brand-message {
-  .brand-banner-bg {
-    background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
-  }
-
-  .m-logo {
-    width: 30px;
-    height: 30px;
-    top: 5px;
-    background-color: #000;
-
-    >div:first-child {
-      position: absolute;
-      width: 30px;
-      height: 30px;
-      left: calc(50% - 15px + 0.25px);
-        top: calc(50% - 15px - 0px);
-
-      >img:first-child {
-        position: absolute;
-        width: 27px;
-        height: 16px;
-        left: calc(50% - 13.5px);
-          top: calc(50% - 8px);
-        background: #000;
-      }
-    }
-  }
-
-  @include respond-to('small') {
-    top: initial;
-    bottom: 0;
-  }
+.brand-banner-bg {
+  background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
 }
+
 /** Work around for sticky fixed banner */
 body.brand-messaging {
   padding-top: 9rem;
@@ -109,6 +79,7 @@ body.brand-messaging {
   body.brand-messaging {
     padding-top: inherit;
   }
+
 }
 .choose-what-to-sync {
   .success-email-created {

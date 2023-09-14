@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 module.exports = function (grunt) {
-  const srcPaths = ['.license.header', 'src/**/*.ftl'];
+  const srcPaths = [
+    '../fxa-shared/l10n/branding.ftl',
+    '.license.header',
+    '../fxa-react/components/**/*.ftl',
+    'src/**/*.ftl',
+  ];
   const testPaths = [
     '../fxa-shared/l10n/branding.ftl',
     '../fxa-react/components/**/*.ftl',

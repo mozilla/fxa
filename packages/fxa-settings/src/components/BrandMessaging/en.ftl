@@ -20,7 +20,9 @@ brand-postlaunch-title = We’ve renamed { -product-firefox-accounts } to { -pro
 brand-learn-more = Learn more
 
 # Alt text for close banner image
-brand-close-banner = Close Banner
+brand-close-banner =
+  .alt = Close Banner
 
 # Alt text for 'm' logo in banner header
-brand-m-logo = Mozilla m logo
+brand-m-logo =
+  .alt = { -brand-mozilla } m logo
