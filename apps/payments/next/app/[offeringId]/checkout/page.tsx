@@ -28,20 +28,20 @@ export default async function Index({ params }: { params: CheckoutParams }) {
           purchaseDetails={contentful.purchaseDetails}
         />
       </section>
-      <section
-        aria-label="Payment method and terms and privacy notices"
-        className="component-card border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12"
-      >
-        <p className="h-[640px] flex items-center justify-center">
+      <div className="component-card border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+        <section
+          className="h-[640px] flex items-center justify-center"
+          aria-label="Section under construction"
+        >
           Section Under Construction
-        </p>
+        </section>
         <TermsAndPrivacy
           {...cart}
           {...contentful.commonContent}
           {...contentful.purchaseDetails}
           showFXALinks={true}
         />
-      </section>
+      </div>
     </>
   );
 }

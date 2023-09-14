@@ -28,27 +28,32 @@ function GenericTerms({
   l10n,
 }: GenericTermsProps) {
   return (
-    <div className="legal-blurb" role="group" aria-labelledby={titleId}>
-      <p className="legal-heading" id={titleId}>
+    <div
+      className="clear-both mt-5 text-xs leading-5 text-center"
+      role="group"
+      aria-labelledby={titleId}
+    >
+      <h4 className="m-0 font-semibold text-grey-400" id={titleId}>
         {l10n.getMessage(titleLocalizationId)?.value?.toString() || title}
-      </p>
+      </h4>
 
-      <p>
+      <ul className="flex justify-center gap-4 m-0 text-grey-500">
         {items.map((item) => (
-          <span key={`span-${item.key}`} className="mr-3 last:mr-0">
+          <li key={`span-${item.key}`}>
             <a
               key={`link-${item.key}`}
               href={item.href}
               target="_blank"
               rel="noreferrer"
+              className="text-blue-500 underline"
             >
               {l10n.getMessage(item.localizationId)?.value?.toString() ||
                 item.text}
               <span className="sr-only">Opens in new window</span>
             </a>
-          </span>
+          </li>
         ))}
-      </p>
+      </ul>
     </div>
   );
 }
@@ -99,11 +104,11 @@ export async function TermsAndPrivacy({
   const l10n = await getBundle(languages);
 
   return (
-    <div className="pt-14">
+    <aside className="pt-14" aria-label="Terms and Privacy Notices">
       {terms.map((term) => (
         <GenericTerms {...term} titleId={term.key} key={term.key} l10n={l10n} />
       ))}
-    </div>
+    </aside>
   );
 }
 

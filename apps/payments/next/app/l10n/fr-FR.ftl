@@ -21,9 +21,8 @@ plan-price-interval-6monthly = { $amount } tous les 6 mois
 # $intervalCount (Number) - The interval between payments, in years.
 plan-price-interval-yearly = { $amount } par an
 
-coupon-amount = { $amount }
-tax = { $amount }
-list-price = { $amount }
+list-positive-amount = { $amount }
+list-negative-amount = - { $amount }
 
 terms = Conditions d’utilisation
 privacy = Politique de confidentialité
