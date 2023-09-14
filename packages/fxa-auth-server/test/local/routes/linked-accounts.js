@@ -69,6 +69,7 @@ describe('/linked_account', () => {
           payload: {
             provider: 'google',
             code: '123',
+            service: 'sync',
           },
         });
 
@@ -259,7 +260,7 @@ describe('/linked_account', () => {
         );
 
         const result = await runTest(route, mockRequest);
-        
+
         assert.isTrue(mockDB.totpToken.calledOnce);
         assert.isTrue(mockDB.createSessionToken.calledOnce);
         assert.ok(mockDB.createSessionToken.args[0][0].tokenVerificationId);
