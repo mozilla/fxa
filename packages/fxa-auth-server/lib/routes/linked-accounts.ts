@@ -67,11 +67,15 @@ export class LinkedAccountHandler {
     const requestPayload = request.payload as any;
 
     const provider = requestPayload.provider as Provider;
+    const service = requestPayload.service;
 
     // Currently, FxA supports creating a linked account via the oauth authorization flow
     // This flow returns an `id_token` which is used create/get FxA account.
     let idToken: any;
     const code = requestPayload.code;
+
+    const { deviceId, flowId, flowBeginTime } = await request.app
+      .metricsContext;
 
     switch (provider) {
       case 'google': {
@@ -182,8 +186,6 @@ export class LinkedAccountHandler {
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
         const emailOptions = {
           acceptLanguage: request.app.acceptLanguage,
           deviceId,
@@ -208,6 +210,10 @@ export class LinkedAccountHandler {
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          service,
         });
       } catch (err) {
         this.log.trace(
@@ -254,14 +260,26 @@ export class LinkedAccountHandler {
         );
         await request.emitMetricsEvent('account.verified', {
           uid: accountRecord.uid,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          service,
         });
       }
     } else {
       // This is an existing user and existing FxA user
       accountRecord = await this.db.account(linkedAccountRecord.uid);
-      request.setMetricsFlowCompleteSignal('account.login', 'login');
+      if (service === 'sync') {
+        request.setMetricsFlowCompleteSignal('account.signed', 'login');
+      } else {
+        request.setMetricsFlowCompleteSignal('account.login', 'login');
+      }
       await request.emitMetricsEvent('account.login', {
         uid: accountRecord.uid,
+        deviceId,
+        flowId,
+        flowBeginTime,
+        service,
       });
     }
 
@@ -336,6 +354,7 @@ export const linkedAccountRoutes = (
             provider: validators.thirdPartyProvider,
             code: validators.thirdPartyOAuthCode,
             metricsContext: METRICS_CONTEXT_SCHEMA,
+            service: validators.service.optional(),
           }),
         },
         response: {
