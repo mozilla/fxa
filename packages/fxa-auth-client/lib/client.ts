@@ -603,6 +603,7 @@ export default class AuthClient {
   async verifyAccountThirdParty(
     code: string,
     provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,
+    service?: string,
     metricsContext: MetricsContext = {}
   ): Promise<{
     uid: hexstring;
@@ -612,6 +613,7 @@ export default class AuthClient {
     const payload = {
       code,
       provider,
+      service,
       metricsContext,
     };
     return await this.request('POST', '/linked_account/login', payload);
