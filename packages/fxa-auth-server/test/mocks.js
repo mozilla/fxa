@@ -150,6 +150,7 @@ const MAILER_METHOD_NAMES = [
   'sendPasswordResetAccountRecoveryEmail',
   'sendPasswordResetEmail',
   'sendPostAddAccountRecoveryEmail',
+  'sendPostChangeAccountRecoveryEmail',
   'sendPostAddLinkedAccountEmail',
   'sendPostAddTwoStepAuthenticationEmail',
   'sendPostChangePrimaryEmail',

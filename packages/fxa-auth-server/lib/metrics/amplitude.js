@@ -59,6 +59,7 @@ const EMAIL_TYPES = {
   postAddTwoStepAuthentication: '2fa',
   postRemoveTwoStepAuthentication: '2fa',
   postAddAccountRecovery: 'account_recovery',
+  postChangeAccountRecovery: 'account_recovery',
   postRemoveAccountRecovery: 'account_recovery',
   postConsumeRecoveryCode: '2fa',
   postNewRecoveryCodes: '2fa',

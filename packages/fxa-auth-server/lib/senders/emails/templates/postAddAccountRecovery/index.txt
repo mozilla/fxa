@@ -1,18 +1,9 @@
 postAddAccountRecovery-title2 = "You created a new account recovery key"
 
-postAddAccountRecovery-description-2 = "A new key was created from:"
+postAddAccountRecovery-body-part1 = "Save this key in a safe place — you’ll need it to restore your encrypted browsing data if you forget your password."
 
-<%- include('/partials/userInfo/index.txt') %>
-
-postAddAccountRecovery-not-you = "Not you?"
-
-postAddAccountRecovery-delete-key = "Delete the new key:"
-<%- revokeAccountRecoveryLink %>
-
-postAddAccountRecovery-changd-password = "Change your password:"
-<%- passwordChangeLink %>
+postAddAccountRecovery-body-part2 = "This key can only be used once. After you use it, we’ll automatically create a new one for you. Or you can create a new one any time from your account settings."
 
 <%- include('/partials/manageAccount/index.txt') %>
-<%- include('/partials/automatedEmailNotAuthorized/index.txt') %>
 
-<%- include('/partials/support/index.txt') %>
+<%- include('/partials/automatedEmailRecoveryKey/index.txt', { keyExists:true }) %>

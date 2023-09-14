@@ -40,6 +40,13 @@
   @extend .mb-5;
 }
 
+.text-body-subtext div {
+  @extend .text-xs;
+  @extend .mt-5;
+  @extend .mb-5;
+  text-align: center !important;
+}
+
 .text-body-no-margin div {
   @extend %text-body-common;
 }

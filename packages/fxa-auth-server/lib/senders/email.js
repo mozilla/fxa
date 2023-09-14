@@ -80,6 +80,7 @@ module.exports = function (log, config, bounces) {
     postConsumeRecoveryCode: 'account-consume-recovery-code',
     postNewRecoveryCodes: 'account-replace-recovery-codes',
     postAddAccountRecovery: 'account-recovery-generated',
+    postChangeAccountRecovery: 'account-recovery-changed',
     postRemoveAccountRecovery: 'account-recovery-removed',
     recovery: 'forgot-password',
     unblockCode: 'new-unblock',
@@ -129,6 +130,7 @@ module.exports = function (log, config, bounces) {
     postConsumeRecoveryCode: 'manage-account',
     postNewRecoveryCodes: 'manage-account',
     postAddAccountRecovery: 'manage-account',
+    postChangeAccountRecovery: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
     recovery: 'reset-password',
     unblockCode: 'unblock-code',
@@ -1557,6 +1559,49 @@ module.exports = function (log, config, bounces) {
     });
 
     const templateName = 'postAddAccountRecovery';
+    const links = this._generateSettingLinks(message, templateName);
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Link': links.link,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        androidLink: links.androidLink,
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        iosLink: links.iosLink,
+        ip: message.ip,
+        link: links.link,
+        location: message.location,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
+        revokeAccountRecoveryLinkAttributes:
+          links.revokeAccountRecoveryLinkAttributes,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
+      },
+    });
+  };
+
+  Mailer.prototype.postChangeAccountRecoveryEmail = function (message) {
+    log.trace('mailer.postChangeAccountRecoveryEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'postChangeAccountRecovery';
     const links = this._generateSettingLinks(message, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
