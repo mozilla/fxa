@@ -58,6 +58,8 @@ const permitAdditionalJSImports = (config) => {
     );
   }
 
+  config.resolve.fallback = { fs: false, path: false };
+
   return config;
 };
 
@@ -71,7 +73,20 @@ const suppressRuntimeErrorOverlay = (devServerConfig) => {
   };
 };
 
+const setModuleNameMapper = (config) => {
+  config.transform = {
+    ...config.transform,
+    '^.+\\.tsx?$': ['ts-jest', { isolatedModules: true }],
+  };
+  config.moduleNameMapper = {
+    ...config.moduleNameMapper,
+    '@fxa/shared/l10n': '../../../libs/shared/l10n/src',
+  };
+  return config;
+};
+
 module.exports = {
   permitAdditionalJSImports,
   suppressRuntimeErrorOverlay,
+  setModuleNameMapper,
 };

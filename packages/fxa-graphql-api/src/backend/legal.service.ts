@@ -5,7 +5,7 @@
 import { ConfigService } from '@nestjs/config';
 
 import { AppConfig } from '../config';
-import { determineLocale } from 'fxa-shared/l10n/determineLocale';
+import { determineLocale } from '@fxa/shared/l10n';
 import { Injectable } from '@nestjs/common';
 
 const LEGAL_DOCS_PATH = '/settings/legal-docs';

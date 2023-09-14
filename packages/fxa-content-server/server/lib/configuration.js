@@ -11,8 +11,7 @@ const path = require('path');
 const versionInfo = require('./version');
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const DEFAULT_SUPPORTED_LANGUAGES =
-  require('fxa-shared').l10n.supportedLanguages;
+const DEFAULT_SUPPORTED_LANGUAGES = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));

@@ -15,7 +15,7 @@
     "prebuild": "nx l10n-prime",
     "build": "nx build-l10n && nx build-css && nx build-ts",
     "build-css": "npx tailwindcss -i ./styles/tailwind.css -o ./styles/tailwind.out.css",
-    "build-ts": "tsc --build",
+    "build-ts": "tsc --build && tsc-alias",
     "build-storybook": "NODE_ENV=production yarn build-css && NODE_OPTIONS=--openssl-legacy-provider storybook build && cp -r public/locales ./storybook-static/locales",
     "build-l10n": "nx l10n-merge && nx l10n-merge-test",
     "compile": "nx build-ts",

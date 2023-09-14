@@ -1,5 +1,5 @@
 import { FluentBundle } from '@fluent/bundle';
-import { getBundle } from '@fxa/shared/l10n/fluent';
+import { getBundle } from '@fxa/shared/l10n';
 import { headers } from 'next/headers';
 import {
   GenericTermItem,
