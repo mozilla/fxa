@@ -13,7 +13,21 @@ const nextConfig = {
     svgr: false,
   },
   experimental: {
-    serverComponentsExternalPackages: ['knex'],
+    serverComponentsExternalPackages: [
+      '@fxa/shared/db/mysql/account',
+      '@fxa/shared/db/mysql/core',
+      '@fxa/payments/cart',
+      '@nestjs/core',
+      '@nestjs/common',
+      'class-transformer',
+      'class-validator',
+      'hot-shots',
+      'knex',
+      'kysely',
+      'mysql2',
+      'nest-typed-config',
+      'rxjs',
+    ],
   },
   images: {
     remotePatterns: [
@@ -22,9 +36,9 @@ const nextConfig = {
         hostname: 'accounts-static.cdn.mozilla.net',
         port: '',
         pathname: '/product-icons/**',
-      }
-    ]
-  }
+      },
+    ],
+  },
 };
 
 const plugins = [

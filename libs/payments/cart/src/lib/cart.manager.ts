@@ -3,10 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { NotFoundError } from 'objection';
 import { v4 as uuidv4 } from 'uuid';
-import { Injectable } from '@nestjs/common';
 
-import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { AccountDbProvider, CartState } from '@fxa/shared/db/mysql/account';
+import { Inject, Injectable } from '@nestjs/common';
 
 import {
   CartInvalidStateForActionError,
@@ -17,19 +16,20 @@ import {
   CartVersionMismatchError,
 } from './cart.error';
 import {
+  createCart,
+  deleteCart,
+  fetchCartById,
+  updateCart,
+} from './cart.repository';
+import {
   FinishCart,
   FinishErrorCart,
   ResultCart,
   SetupCart,
   UpdateCart,
 } from './cart.types';
-import {
-  createCart,
-  deleteCart,
-  fetchCartById,
-  updateCart,
-} from './cart.repository';
 
+import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
 // For an action to be executed, the cart state needs to be in one of
 // valid states listed in the array of CartStates below
 const ACTIONS_VALID_STATE = {
@@ -46,7 +46,7 @@ const isAction = (action: string): action is keyof typeof ACTIONS_VALID_STATE =>
 
 @Injectable()
 export class CartManager {
-  constructor(private db: AccountDatabase) {}
+  constructor(@Inject(AccountDbProvider) private db: AccountDatabase) {}
 
   /**
    * Ensure that the action being executed has a valid Cart state for

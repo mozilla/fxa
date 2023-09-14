@@ -1,22 +1,30 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { IsInt, IsOptional, validate } from 'class-validator';
+import { IsInt, IsOptional, IsString, validate } from 'class-validator';
 
 export class MySQLConfig {
+  @IsString()
   database!: string;
+
+  @IsString()
   host!: string;
-  password!: string;
 
   @IsInt()
   port!: number;
 
+  @IsString()
   user!: string;
 
+  @IsString()
+  password!: string;
+
   @IsOptional()
+  @IsInt()
   connectionLimitMin?: number;
 
   @IsOptional()
+  @IsInt()
   connectionLimitMax?: number;
 
   @IsOptional()

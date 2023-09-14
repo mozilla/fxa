@@ -7,6 +7,7 @@ import { createDialect, MySQLConfig } from '../../../core/src';
 import { DB } from './keysley-types';
 
 export type AccountDatabase = Kysely<DB>;
+export const AccountDbProvider = Symbol('AccountDbProvider');
 
 export async function setupAccountDatabase(opts: MySQLConfig) {
   const dialect = await createDialect(opts);
