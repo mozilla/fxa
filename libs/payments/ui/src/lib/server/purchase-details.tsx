@@ -5,11 +5,57 @@ import {
   getLocalizedCurrency,
   getLocalizedCurrencyString,
 } from '@fxa/shared/l10n/fluent';
+import { FluentBundle } from '@fluent/bundle';
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
+import '../../styles/index.css';
 
-export type PurchaseDetailsProps = {
+type ListLabelItemProps = {
+  labelLocalizationId: string;
+  labelFallbackText: string;
+  amount: number;
+  currency: string;
+  l10n: FluentBundle;
+  positiveAmount?: boolean;
+};
+
+export const ListLabelItem = ({
+  labelLocalizationId,
+  labelFallbackText,
+  amount,
+  currency,
+  l10n,
+  positiveAmount = true,
+}: ListLabelItemProps) => {
+  return (
+    <li className="plan-details-item">
+      {l10n.getMessage(labelLocalizationId)?.value?.toString() ||
+        labelFallbackText}
+      <div>
+        {positiveAmount
+          ? getFormattedMsg(
+              l10n,
+              `list-positive-amount`,
+              `${getLocalizedCurrencyString(amount, currency)}`,
+              {
+                amount: getLocalizedCurrency(amount, currency),
+              }
+            )
+          : getFormattedMsg(
+              l10n,
+              `list-negative-amount`,
+              `- ${getLocalizedCurrencyString(amount, currency)}`,
+              {
+                amount: getLocalizedCurrency(amount, currency),
+              }
+            )}
+      </div>
+    </li>
+  );
+};
+
+type PurchaseDetailsProps = {
   interval: string;
   invoice: Invoice;
   purchaseDetails: {
@@ -45,28 +91,26 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
   const l10n = await getBundle(languages);
 
   return (
-    <div
-      className={`component-card px-4 rounded-t-none tablet:rounded-t-lg`}
-      data-testid="plan-details-component"
-    >
-      <div className="plan-details-header row-divider-grey-200">
-        <div className="plan-details-logo-wrap" style={{}}>
-          <Image
-            src={webIcon}
-            alt={productName}
-            data-testid="product-logo"
-            className="plan-details-icon"
-            width={64}
-            height={64}
-          />
-        </div>
+    <div className="component-card text-sm px-4 rounded-t-none tablet:rounded-t-lg">
+      <div className="flex gap-4 my-0 py-4 row-divider-grey-200">
+        <Image
+          src={webIcon}
+          alt={productName}
+          data-testid="product-logo"
+          className="w-16 h-16 rounded-lg"
+          width={64}
+          height={64}
+        />
 
-        <div className="text-start text-sm">
-          <h2 id="plan-details-product" className="plan-details-product">
+        <div className="text-start">
+          <h2
+            id="plan-details-product"
+            className="text-grey-600 font-semibold leading-5 my-0 break-words"
+          >
             {productName}
           </h2>
 
-          <p className="plan-details-description">
+          <p className="text-grey-400 mt-1 mb-0">
             {getFormattedMsg(
               l10n,
               `plan-price-interval-${interval}`,
@@ -76,129 +120,96 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
               }
             )}
             &nbsp;&bull;&nbsp;
-            <span>{subtitle}</span>
+            {subtitle}
           </p>
         </div>
       </div>
 
-      <div data-testid="list">
-        <h3 className="text-sm text-grey-600 font-semibold my-4">
-          {l10n.getMessage('plan-details-header')?.value?.toString() ||
-            `Plan Details`}
-        </h3>
+      <h3 className="text-grey-600 font-semibold my-4">
+        {l10n.getMessage('plan-details-header')?.value?.toString() ||
+          `Plan Details`}
+      </h3>
 
-        <ul className="row-divider-grey-200 text-grey-400 m-0 px-3 text-sm list-disc">
-          {details.map((detail, idx) => (
-            <li className="mb-4 leading-5 marker:text-xs" key={idx}>
-              {detail}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="row-divider-grey-200 py-6">
+      <ul className="row-divider-grey-200 text-grey-400 m-0 px-3 list-disc">
+        {details.map((detail, idx) => (
+          <li className="mb-4 leading-5 marker:text-xs" key={idx}>
+            {detail}
+          </li>
+        ))}
+      </ul>
+
+      <ul className="row-divider-grey-200 py-6">
         {!!listAmount && (
-          <div className="plan-details-item">
-            <div>
-              {l10n.getMessage('plan-details-list-price')?.value?.toString() ||
-                `List Price`}
-            </div>
-            <div>
-              {getFormattedMsg(
-                l10n,
-                `list-price`,
-                getLocalizedCurrencyString(listAmount, currency),
-                {
-                  amount: getLocalizedCurrency(listAmount, currency),
-                }
-              )}
-            </div>
-          </div>
+          <ListLabelItem
+            {...{
+              labelLocalizationId: 'plan-details-list-price',
+              labelFallbackText: 'List Price',
+              amount: listAmount,
+              currency,
+              l10n,
+            }}
+          />
         )}
 
         {!!discountAmount && (
-          <div className="plan-details-item">
-            <div>
-              {l10n.getMessage('coupon-promo-code')?.value?.toString() ||
-                `Promo Code`}
-            </div>
-            <div>
-              {getFormattedMsg(
-                l10n,
-                `coupon-amount`,
-                `- ${getLocalizedCurrencyString(discountAmount, currency)}`,
-                {
-                  amount: getLocalizedCurrency(discountAmount, currency),
-                }
-              )}
-            </div>
-          </div>
+          <ListLabelItem
+            {...{
+              labelLocalizationId: 'coupon-promo-code',
+              labelFallbackText: 'Promo Code',
+              amount: discountAmount,
+              currency,
+              l10n,
+              subtractValue: true,
+            }}
+          />
         )}
 
         {exclusiveTaxRates.length === 1 && (
-          <div className="plan-details-item">
-            <div>
-              {l10n.getMessage('plan-details-tax')?.value?.toString() ||
-                `Taxes and Fees`}
-            </div>
-            <div data-testid="tax-amount">
-              {getFormattedMsg(
-                l10n,
-                `tax`,
-                getLocalizedCurrencyString(
-                  exclusiveTaxRates[0].amount,
-                  currency
-                ),
-                {
-                  amount: getLocalizedCurrency(
-                    exclusiveTaxRates[0].amount,
-                    currency
-                  ),
-                }
-              )}
-            </div>
-          </div>
+          <ListLabelItem
+            {...{
+              labelLocalizationId: 'plan-details-tax',
+              labelFallbackText: 'Taxes and Fees',
+              amount: exclusiveTaxRates[0].amount,
+              currency,
+              l10n,
+            }}
+          />
         )}
 
         {exclusiveTaxRates.length > 1 &&
           exclusiveTaxRates.map((taxRate, idx) => (
-            <div className="plan-details-item">
-              <div>{taxRate.title}</div>
-              <div>
-                {getFormattedMsg(
-                  l10n,
-                  `tax`,
-                  getLocalizedCurrencyString(taxRate.amount, currency),
-                  {
-                    amount: getLocalizedCurrency(taxRate.amount, currency),
-                  }
-                )}
-              </div>
-            </div>
+            <ListLabelItem
+              {...{
+                labelLocalizationId: '',
+                labelFallbackText: taxRate.title,
+                amount: taxRate.amount,
+                currency,
+                l10n,
+              }}
+              key={taxRate.title}
+            />
           ))}
-      </div>
+      </ul>
 
-      <div className="pt-4 pb-6">
-        <div className="plan-details-item font-semibold">
-          <div className="total-label">
-            {l10n.getMessage('plan-details-total-label')?.value?.toString() ||
-              `Total`}
-          </div>
-          <div
-            className="total-price"
-            title={`${totalAmount}`}
-            data-testid="total-price"
-            id="total-price"
-          >
-            {getFormattedMsg(
-              l10n,
-              `plan-price-interval-${interval}`,
-              formatPlanPricing(totalAmount, currency, interval),
-              {
-                amount: getLocalizedCurrency(totalAmount, currency),
-              }
-            )}
-          </div>
-        </div>
+      <div className="plan-details-item pt-4 pb-6 font-semibold">
+        <span className="text-base">
+          {l10n.getMessage('plan-details-total-label')?.value?.toString() ||
+            `Total`}
+        </span>
+        <span
+          className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
+          data-testid="total-price"
+          id="total-price"
+        >
+          {getFormattedMsg(
+            l10n,
+            `plan-price-interval-${interval}`,
+            formatPlanPricing(totalAmount, currency, interval),
+            {
+              amount: getLocalizedCurrency(totalAmount, currency),
+            }
+          )}
+        </span>
       </div>
       {/* TODO - Add InfoBox as part of Coupon Form - Consider adding as child component */}
     </div>
