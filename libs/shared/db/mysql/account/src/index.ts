@@ -8,4 +8,4 @@ export { CartFactory } from './lib/factories';
 export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
 export { testAccountDatabaseSetup } from './lib/tests';
 export type { AccountDatabase } from './lib/setup';
-export { AccountDatabaseFactory } from './lib/account.provider';
+export { AccountDatabaseNestFactory } from './lib/account.provider';
