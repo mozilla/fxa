@@ -28,7 +28,7 @@ test.describe('recovery key react', () => {
       // Check which account recovery key generation flow to use (based on feature flag)
       // TODO in FXA-7419 - remove the condition and else block that goes through the old key generation flow
       if (config.featureFlags.showRecoveryKeyV2 === true) {
-        await settings.goto('isInRecoveryKeyExperiment=true');
+        await settings.goto();
         await settings.recoveryKey.clickCreate();
         // View 1/4 info
         await recoveryKey.clickStart();

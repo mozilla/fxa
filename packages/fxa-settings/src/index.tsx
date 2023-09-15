@@ -28,7 +28,6 @@ interface FlowQueryParams {
 // Temporary query params
 export interface QueryParams extends FlowQueryParams {
   showReactApp?: string;
-  isInRecoveryKeyExperiment?: string;
 }
 
 try {

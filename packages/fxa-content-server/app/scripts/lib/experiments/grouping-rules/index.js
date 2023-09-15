@@ -17,7 +17,6 @@ const experimentGroupingRules = [
   require('./push'),
   require('./third-party-auth'),
   require('./generalized-react-app'),
-  require('./new-recovery-key-UI'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {

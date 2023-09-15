@@ -77,8 +77,6 @@ import SignupContainer from '../../pages/Signup/container';
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
-  const { isInRecoveryKeyExperiment } = flowQueryParams;
-
   const config = useConfig();
 
   // TODO: stop overfetching / improve this, FXA-8098
@@ -87,10 +85,8 @@ export const App = ({
   const account = useAccount();
   const { metricsEnabled } = account;
 
-  // TODO Remove feature flag and experiment logic in FXA-7419
-  const showRecoveryKeyV2 = !!(
-    config.showRecoveryKeyV2 && isInRecoveryKeyExperiment === 'true'
-  );
+  // TODO Remove feature flag in FXA-7419
+  const showRecoveryKeyV2 = config.showRecoveryKeyV2;
 
   useEffect(() => {
     Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
