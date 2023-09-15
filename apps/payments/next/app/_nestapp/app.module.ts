@@ -5,7 +5,7 @@
 import { dotenvLoader, fileLoader, TypedConfigModule } from 'nest-typed-config';
 
 import { CartManager, CartService } from '@fxa/payments/cart';
-import { AccountDatabaseFactory } from '@fxa/shared/db/mysql/account';
+import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { Module } from '@nestjs/common';
 
 import { RootConfig } from './config';
@@ -21,6 +21,6 @@ import { RootConfig } from './config';
     }),
   ],
   controllers: [],
-  providers: [AccountDatabaseFactory, CartService, CartManager],
+  providers: [AccountDatabaseNestFactory, CartService, CartManager],
 })
 export class AppModule {}

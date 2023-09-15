@@ -1,12 +1,13 @@
-import { CartService } from '@fxa/payments/cart';
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 
-import { getCartData, getContentfulContent } from '../../lib/apiClient';
-import { getApp } from '../../nestapp/app';
+import { getCartData, getContentfulContent } from '../../_lib/apiClient';
+import { app } from '../../_nestapp/app';
 
 interface CheckoutParams {
   offeringId: string;
 }
+
+export const dynamic = 'force-dynamic';
 
 export default async function Index({ params }: { params: CheckoutParams }) {
   // TODO - Fetch Cart ID from cookie
@@ -21,7 +22,7 @@ export default async function Index({ params }: { params: CheckoutParams }) {
   const cartData = getCartData(cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
   /* eslint-disable @typescript-eslint/no-unused-vars */
-  const cartService = (await getApp()).get(CartService);
+  const cartService = await app.getCartService();
 
   return (
     <>

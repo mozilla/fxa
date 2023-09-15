@@ -11,7 +11,7 @@ import {
   setupAccountDatabase,
 } from './setup';
 
-export const AccountDatabaseFactory: Provider<AccountDatabase> = {
+export const AccountDatabaseNestFactory: Provider<AccountDatabase> = {
   provide: AccountDbProvider,
   useFactory: (mysqlConfig: MySQLConfig) => {
     return setupAccountDatabase(mysqlConfig);
