@@ -12,7 +12,6 @@ import {
   ContentfulLinkError,
   ContentfulLocaleError,
 } from './errors';
-import { ContentfulClientConfig } from './contentful-client.config';
 
 const ApolloError = jest.requireActual('@apollo/client').ApolloError;
 
@@ -28,17 +27,14 @@ jest.mock('@apollo/client', () => ({
 
 describe('ContentfulClient', () => {
   let contentfulClient: ContentfulClient;
-  let contentfulClientConfig: ContentfulClientConfig;
 
   beforeEach(() => {
-    contentfulClientConfig = new ContentfulClientConfig();
-    Object.defineProperty(contentfulClientConfig, 'graphqlApiKey', {
-      value: faker.string.uuid(),
+    contentfulClient = new ContentfulClient({
+      graphqlApiKey: faker.string.uuid(),
+      graphqlApiUri: faker.string.uuid(),
+      graphqlSpaceId: faker.string.uuid(),
+      graphqlEnvironment: faker.string.uuid(),
     });
-    Object.defineProperty(contentfulClientConfig, 'graphqlApiUri', {
-      value: faker.string.uuid(),
-    });
-    contentfulClient = new ContentfulClient(contentfulClientConfig);
   });
 
   describe('query', () => {

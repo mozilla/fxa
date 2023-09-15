@@ -1,12 +1,14 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
 const CONTENTFUL_GRAPHQL_API_URL = process.env.CONTENTFUL_GRAPHQL_API_URL;
-
 const CONTENTFUL_GRAPHQL_API_KEY = process.env.CONTENTFUL_GRAPHQL_API_KEY;
+const CONTENTFUL_GRAPHQL_SPACE_ID = process.env.CONTENTFUL_GRAPHQL_SPACE_ID;
+const CONTENTFUL_GRAPHQL_ENVIRONMENT =
+  process.env.CONTENTFUL_GRAPHQL_ENVIRONMENT;
 
 const config: CodegenConfig = {
   overwrite: true,
-  schema: `${CONTENTFUL_GRAPHQL_API_URL}?access_token=${CONTENTFUL_GRAPHQL_API_KEY}`,
+  schema: `${CONTENTFUL_GRAPHQL_API_URL}/spaces/${CONTENTFUL_GRAPHQL_SPACE_ID}/environments/${CONTENTFUL_GRAPHQL_ENVIRONMENT}?access_token=${CONTENTFUL_GRAPHQL_API_KEY}`,
   documents: ['libs/shared/contentful/src/lib/queries/*.ts'],
   generates: {
     'libs/shared/contentful/src/__generated__/': {

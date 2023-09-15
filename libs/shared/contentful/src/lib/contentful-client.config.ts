@@ -10,4 +10,10 @@ export class ContentfulClientConfig {
 
   @IsString()
   public readonly graphqlApiKey!: string;
+
+  @IsString()
+  public readonly graphqlSpaceId!: string;
+
+  @IsString()
+  public readonly graphqlEnvironment!: string;
 }

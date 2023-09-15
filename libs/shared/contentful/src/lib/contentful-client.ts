@@ -22,7 +22,7 @@ import { ContentfulClientConfig } from './contentful-client.config';
 @Injectable()
 export class ContentfulClient {
   client = new ApolloClient({
-    uri: `${this.contentfulClientConfig.graphqlApiUri}?access_token=${this.contentfulClientConfig.graphqlApiKey}`,
+    uri: `${this.contentfulClientConfig.graphqlApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}?access_token=${this.contentfulClientConfig.graphqlApiKey}`,
     cache: new InMemoryCache(),
   });
 
