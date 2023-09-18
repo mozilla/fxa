@@ -7,7 +7,7 @@ import { test, expect } from '../../lib/fixtures/standard';
 let email;
 const password = 'passwordzxcv';
 
-test.describe('oauth permissions for trusted reliers', () => {
+test.describe('oauth permissions for trusted reliers - sign up', () => {
   test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
     email = login.createEmail();
@@ -58,20 +58,25 @@ test.describe('oauth permissions for trusted reliers', () => {
 
     //Verify sign up code header
     await login.waitForSignUpCodeHeader();
+  });
+});
 
+test.describe('oauth permissions for trusted reliers - sign in', () => {
+  test.beforeEach(async ({ pages: { login } }) => {
+    test.slow();
+    await login.clearCache();
   });
 
   test('signin without `prompt=consent`', async ({
-    target,
+    credentials,
     pages: { login, relier },
   }) => {
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify logged in to relier
     expect(await relier.isLoggedIn()).toBe(true);
@@ -80,19 +85,19 @@ test.describe('oauth permissions for trusted reliers', () => {
   test('signin with `prompt=consent`', async ({
     target,
     page,
+    credentials,
     pages: { login, relier },
   }) => {
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
     const query = { prompt: 'consent' };
     const queryParam = new URLSearchParams(query);
     await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
       waitUntil: 'load',
     });
     await relier.clickEmailFirst();
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify permissions header
     expect(await login.permissionsHeader()).toBe(true);
@@ -105,15 +110,15 @@ test.describe('oauth permissions for trusted reliers', () => {
   test('signin without `prompt=consent`, then re-signin with `prompt=consent`', async ({
     target,
     page,
+    credentials,
     pages: { login, relier },
   }) => {
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
     await relier.goto();
     await relier.clickEmailFirst();
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify logged in to relier
     expect(await relier.isLoggedIn()).toBe(true);
@@ -135,16 +140,12 @@ test.describe('oauth permissions for trusted reliers', () => {
   });
 
   test('force_auth without `prompt=consent`', async ({
-    target,
+    credentials,
     pages: { login, relier },
   }) => {
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-    await relier.goto(`email=${email}`);
+    await relier.goto(`email=${credentials.email}`);
     await relier.clickForceAuth();
-    await login.setPassword(password);
+    await login.setPassword(credentials.password);
     await login.submit();
 
     //Verify logged in to relier
@@ -154,19 +155,16 @@ test.describe('oauth permissions for trusted reliers', () => {
   test('force_auth with `prompt=consent`', async ({
     target,
     page,
+    credentials,
     pages: { login, relier },
   }) => {
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
     const query = new URLSearchParams({
       prompt: 'consent',
-      email: email,
+      email: credentials.email,
     });
     await page.goto(`${target.relierUrl}/?${query.toString()}`);
     await relier.clickForceAuth();
-    await login.setPassword(password);
+    await login.setPassword(credentials.password);
     await login.submit();
 
     //Verify permissions header
