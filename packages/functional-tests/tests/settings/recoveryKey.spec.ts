@@ -232,7 +232,7 @@ test.describe('new recovery key test', () => {
       const config = await login.getConfig();
       test.skip(config.featureFlags.showRecoveryKeyV2 !== true);
 
-      await settings.goto('isInRecoveryKeyExperiment=true');
+      await settings.goto();
       let status = await settings.recoveryKey.statusText();
       expect(status).toEqual('Not Set');
       await settings.recoveryKey.clickCreate();
@@ -378,7 +378,7 @@ test.describe('new recovery key test', () => {
   }) => {
     // TODO: Possibly duplicate coverage in /react-conversion/recoveryKey.spec.ts
     test.skip(true);
-    await settings.goto('isInRecoveryKeyExperiment=true');
+    await settings.goto();
     // Create new recovery key
     await settings.recoveryKey.clickCreate();
     // View 1/4 info
@@ -537,7 +537,7 @@ test.describe('new recovery key test', () => {
   });
 
   test('revoke recovery key', async ({ pages: { settings } }) => {
-    await settings.goto('isInRecoveryKeyExperiment=true');
+    await settings.goto();
     await settings.recoveryKey.clickDelete();
     await settings.clickModalConfirm();
     await settings.waitForAlertBar();
