@@ -11,6 +11,7 @@ import {
   AdminPanelGuard,
 } from 'fxa-shared/guards';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { MockedProvider } from '@apollo/client/testing';
 
 it('renders without imploding', () => {
   const guard = new AdminPanelGuard(AdminPanelEnv.Prod);
@@ -22,7 +23,9 @@ it('renders without imploding', () => {
     },
   });
   const { queryByTestId } = renderWithLocalizationProvider(
-    <App {...{ config }} />
+    <MockedProvider addTypename={false}>
+      <App {...{ config }} />
+    </MockedProvider>
   );
   expect(queryByTestId('app')).toBeInTheDocument();
 });
