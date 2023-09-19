@@ -555,14 +555,7 @@ export class CapabilityService {
     const allPlans = (await this.paymentConfigManager.allPlans()).filter(
       (plan) => subscribedPrices.includes(plan.stripePriceId ?? '')
     );
-    // Can't use .map here because TS is unable to infer that paymentConfigManager
-    // is not undefined even though it is checked above as of TS 5.2.2.
-    const result = [];
-    for (const plan of allPlans) {
-      const mergedConfig = this.paymentConfigManager.getMergedConfig(plan);
-      result.push(mergedConfig);
-    }
-    return result;
+    return allPlans.map(this.paymentConfigManager.getMergedConfig);
   }
 
   /**
