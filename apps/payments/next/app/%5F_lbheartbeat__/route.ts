@@ -10,7 +10,5 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   await app.getApp();
-  const resp = new NextResponse('{}');
-  resp.headers.set('Content-Type', 'application/json');
-  return resp;
+  return NextResponse.json({});
 }
