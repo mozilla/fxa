@@ -312,13 +312,11 @@ commands:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
           environment:
             NODE_ENV: test
-            CI: false
       - run:
           name: Compiling TypeScript
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
           environment:
             NODE_ENV: test
-            CI: false
 
   run-playwright-tests:
     parameters:
@@ -370,7 +368,6 @@ commands:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
           environment:
             NODE_ENV: test
-            CI: false
 
   save-init-workspace:
     steps:
@@ -587,7 +584,6 @@ jobs:
           command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
-            CI: false
       - store-artifacts
 
   # Runs integration tests suites across packages with changes. Integration tests can take
@@ -621,7 +617,6 @@ jobs:
             npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
-            CI: false
       - store-artifacts
 
   # This job is manually triggered for now. see .circleci/README.md
