@@ -39,6 +39,7 @@ export const GraphQLConfigFactory = async (
   configService: ConfigService<AppConfig>,
   log: MozLoggerService
 ) => ({
+  allowBatchedHttpRequests: true,
   path: '/graphql',
   useGlobalPrefix: true,
   playground: configService.get<string>('env') !== 'production',

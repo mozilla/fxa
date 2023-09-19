@@ -51,6 +51,7 @@ const version = getVersionInfo(__dirname);
       useFactory: async (configService: ConfigService) => ({
         path: '/graphql',
         useGlobalPrefix: true,
+        allowBatchedHttpRequests: true,
         playground: configService.get<string>('env') !== 'production',
         autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
         definitions: {
