@@ -698,7 +698,7 @@ export type ContentfulTag = {
 export type CouponConfig = Entry & {
   __typename?: 'CouponConfig';
   contentfulMetadata: ContentfulMetadata;
-  countries?: Maybe<Scalars['String']['output']>;
+  countries?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   internalName?: Maybe<Scalars['String']['output']>;
   linkedFrom?: Maybe<CouponConfigLinkingCollections>;
   stripePromotionCodes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -737,13 +737,16 @@ export type CouponConfigFilter = {
   AND?: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
   contentfulMetadata?: InputMaybe<ContentfulMetadataFilter>;
-  countries?: InputMaybe<Scalars['String']['input']>;
-  countries_contains?: InputMaybe<Scalars['String']['input']>;
+  countries_contains_all?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_none?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_some?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
   countries_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  countries_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  countries_not?: InputMaybe<Scalars['String']['input']>;
-  countries_not_contains?: InputMaybe<Scalars['String']['input']>;
-  countries_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName?: InputMaybe<Scalars['String']['input']>;
   internalName_contains?: InputMaybe<Scalars['String']['input']>;
   internalName_exists?: InputMaybe<Scalars['Boolean']['input']>;
@@ -809,8 +812,6 @@ export enum CouponConfigLinkingCollectionsOfferingCollectionOrder {
 }
 
 export enum CouponConfigOrder {
-  CountriesAsc = 'countries_ASC',
-  CountriesDesc = 'countries_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -1226,8 +1227,6 @@ export type OfferingCouponConfigCollection = {
 };
 
 export enum OfferingCouponConfigCollectionOrder {
-  CountriesAsc = 'countries_ASC',
-  CountriesDesc = 'countries_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -1355,6 +1354,7 @@ export type OfferingLinkingCollections = {
   __typename?: 'OfferingLinkingCollections';
   entryCollection?: Maybe<EntryCollection>;
   purchaseCollection?: Maybe<PurchaseCollection>;
+  subGroupCollection?: Maybe<SubGroupCollection>;
 };
 
 export type OfferingLinkingCollectionsEntryCollectionArgs = {
@@ -1374,9 +1374,34 @@ export type OfferingLinkingCollectionsPurchaseCollectionArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type OfferingLinkingCollectionsSubGroupCollectionArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<
+    Array<InputMaybe<OfferingLinkingCollectionsSubGroupCollectionOrder>>
+  >;
+  preview?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export enum OfferingLinkingCollectionsPurchaseCollectionOrder {
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  InternalNameAsc = 'internalName_ASC',
+  InternalNameDesc = 'internalName_DESC',
+  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
+  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
+  SysIdAsc = 'sys_id_ASC',
+  SysIdDesc = 'sys_id_DESC',
+  SysPublishedAtAsc = 'sys_publishedAt_ASC',
+  SysPublishedAtDesc = 'sys_publishedAt_DESC',
+  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
+  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+}
+
+export enum OfferingLinkingCollectionsSubGroupCollectionOrder {
+  GroupNameAsc = 'groupName_ASC',
+  GroupNameDesc = 'groupName_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -2095,8 +2120,10 @@ export type SubGroupLinkedFromArgs = {
 export type SubGroupOfferingCollectionArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<Array<InputMaybe<SubGroupOfferingCollectionOrder>>>;
   preview?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<OfferingFilter>;
 };
 
 export type SubGroupCollection = {
@@ -2127,6 +2154,7 @@ export type SubGroupFilter = {
   internalName_not_in?: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  offering?: InputMaybe<CfOfferingNestedFilter>;
   offeringCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
   sys?: InputMaybe<SysFilter>;
 };
@@ -2145,11 +2173,30 @@ export type SubGroupLinkingCollectionsEntryCollectionArgs = {
 
 export type SubGroupOfferingCollection = {
   __typename?: 'SubGroupOfferingCollection';
-  items: Array<Maybe<Entry>>;
+  items: Array<Maybe<Offering>>;
   limit: Scalars['Int']['output'];
   skip: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
 };
+
+export enum SubGroupOfferingCollectionOrder {
+  ApiIdentifierAsc = 'apiIdentifier_ASC',
+  ApiIdentifierDesc = 'apiIdentifier_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  InternalNameAsc = 'internalName_ASC',
+  InternalNameDesc = 'internalName_DESC',
+  StripeProductIdAsc = 'stripeProductId_ASC',
+  StripeProductIdDesc = 'stripeProductId_DESC',
+  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
+  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
+  SysIdAsc = 'sys_id_ASC',
+  SysIdDesc = 'sys_id_DESC',
+  SysPublishedAtAsc = 'sys_publishedAt_ASC',
+  SysPublishedAtDesc = 'sys_publishedAt_DESC',
+  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
+  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+}
 
 export enum SubGroupOrder {
   GroupNameAsc = 'groupName_ASC',
@@ -2366,13 +2413,16 @@ export type CfCouponConfigNestedFilter = {
   AND?: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
   contentfulMetadata?: InputMaybe<ContentfulMetadataFilter>;
-  countries?: InputMaybe<Scalars['String']['input']>;
-  countries_contains?: InputMaybe<Scalars['String']['input']>;
+  countries_contains_all?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_none?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_some?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
   countries_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  countries_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  countries_not?: InputMaybe<Scalars['String']['input']>;
-  countries_not_contains?: InputMaybe<Scalars['String']['input']>;
-  countries_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName?: InputMaybe<Scalars['String']['input']>;
   internalName_contains?: InputMaybe<Scalars['String']['input']>;
   internalName_exists?: InputMaybe<Scalars['Boolean']['input']>;
