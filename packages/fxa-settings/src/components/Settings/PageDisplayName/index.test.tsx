@@ -4,7 +4,6 @@
 
 import 'mutationobserver-shim';
 import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
 import { act, fireEvent, screen } from '@testing-library/react';
 import PageDisplayName from '.';
 import {

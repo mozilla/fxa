@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { screen, fireEvent, act, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
 import { mockAppContext, renderWithRouter } from '../../../models/mocks';
 import { PageSecondaryEmailAdd } from '.';
 import { Account, AppContext } from '../../../models';
