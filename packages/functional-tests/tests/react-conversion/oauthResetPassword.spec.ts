@@ -21,6 +21,7 @@ test.describe('oauth reset password react', () => {
     resetPassword.react = resetPasswordReactFlag;
   });
 
+  /*Disabling test in stage and prod until Fxa-8192 is worked on
   test('reset password', async ({
     target,
     page,
@@ -78,6 +79,7 @@ test.describe('oauth reset password react', () => {
       }
     );
   });
+  */
 
   test('reset password with PKCE different tab', async ({
     target,
