@@ -47,7 +47,9 @@ const FUZZY_EVENTS = new Map([
 const transform = initialize(
   config.get('oauth_client_id_map'),
   {},
-  FUZZY_EVENTS
+  FUZZY_EVENTS,
+  log,
+  Container.has(StatsD) ? Container.get(StatsD) : undefined
 );
 
 // TODO: remove eslint ignore in FXA-6950

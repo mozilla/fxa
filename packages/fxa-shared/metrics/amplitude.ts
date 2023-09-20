@@ -6,6 +6,8 @@ import Ajv from 'ajv';
 import pick from 'lodash.pick';
 import { ParsedUserAgentProperties, ParsedUa, ParsedOs } from './user-agent';
 import { Location } from '../connected-services/models/Location';
+import { ILogger } from '../log';
+import { StatsD } from 'hot-shots';
 
 type AmplitudeEventGroup = typeof GROUPS;
 type AmplitudeEventGroupKey = keyof AmplitudeEventGroup;
@@ -306,6 +308,8 @@ export const amplitude = {
    *                          but here `group` can be a string or a function. If it's
    *                          a function, it will be passed the matched `eventCategory`
    *                          as its argument and should return the group string.
+   * @param {StatsD} statsd   An optional statsd client.
+   * @param {}
    *
    * @returns {Function}      The mapper function.
    */
@@ -324,7 +328,9 @@ export const amplitude = {
         group: AmplitudeEventGroupKey | AmplitudeEventFuzzyEventGroupMapFn;
         event: string | AmplitudeEventFuzzyEventNameMapFn;
       }
-    >
+    >,
+    log?: ILogger,
+    statsd?: StatsD
   ) {
     /**
      * Map from a source event and it's associated data to an amplitude event.
@@ -341,93 +347,98 @@ export const amplitude = {
      *                            ease by perusing the code.
      */
     return (event: { [key: string]: any }, data: EventData) => {
-      if (!event || !data) {
-        return;
-      }
+      try {
+        if (!event || !data) {
+          return;
+        }
 
-      let eventType = event.type;
-      let mapping = events[eventType];
-      let eventCategory, eventTarget;
+        let eventType = event.type;
+        let mapping = events[eventType];
+        let eventCategory, eventTarget;
 
-      if (!mapping) {
-        for (const [key, value] of fuzzyEvents.entries()) {
-          const match = key.exec(eventType);
-          if (match) {
-            mapping = value;
+        if (!mapping) {
+          for (const [key, value] of fuzzyEvents.entries()) {
+            const match = key.exec(eventType);
+            if (match) {
+              mapping = value;
 
-            if (match.length >= 2) {
-              eventCategory = match[1];
-              if (match.length === 3) {
-                eventTarget = match[2];
+              if (match.length >= 2) {
+                eventCategory = match[1];
+                if (match.length === 3) {
+                  eventTarget = match[2];
+                }
               }
+
+              break;
             }
-
-            break;
-          }
-        }
-      }
-
-      if (mapping) {
-        eventType = mapping.event;
-        if (typeof eventType === 'function') {
-          eventType = eventType(eventCategory, eventTarget);
-          if (!eventType) {
-            return;
           }
         }
 
-        let eventGroup = mapping.group;
-        if (typeof eventGroup === 'function') {
-          eventGroup = eventGroup(eventCategory);
-          if (!eventGroup) {
-            return;
+        if (mapping) {
+          eventType = mapping.event;
+          if (typeof eventType === 'function') {
+            eventType = eventType(eventCategory, eventTarget);
+            if (!eventType) {
+              return;
+            }
           }
+
+          let eventGroup = mapping.group;
+          if (typeof eventGroup === 'function') {
+            eventGroup = eventGroup(eventCategory);
+            if (!eventGroup) {
+              return;
+            }
+          }
+
+          let version;
+          try {
+            // @ts-ignore
+            version = /([0-9]+)\.([0-9]+)$/.exec(data.version)[0];
+          } catch (err) {}
+
+          // minimal data should be enabled for routes used by internal
+          // services like profile-server and token-server
+          if (mapping.minimal) {
+            data = {
+              uid: data.uid,
+              service: data.service,
+              version: data.version,
+            };
+          }
+
+          return pruneUnsetValues({
+            op: 'amplitudeEvent',
+            event_type: `${eventGroup} - ${eventType}`,
+            time: event.time,
+            user_id: data.uid,
+            device_id: data.deviceId,
+            session_id: data.flowBeginTime,
+            app_version: version,
+            language: data.lang,
+            country_code: data.countryCode,
+            country: data.country,
+            region: data.region,
+            os_name: data.os,
+            os_version: data.osVersion,
+            device_model: data.formFactor,
+            event_properties: mapEventProperties(
+              eventType,
+              eventGroup as string,
+              eventCategory as string,
+              eventTarget as string,
+              data
+            ),
+            user_properties: mapUserProperties(
+              eventGroup as string,
+              eventCategory as string,
+              data
+            ),
+          });
         }
-
-        let version;
-        try {
-          // @ts-ignore
-          version = /([0-9]+)\.([0-9]+)$/.exec(data.version)[0];
-        } catch (err) {}
-
-        // minimal data should be enabled for routes used by internal
-        // services like profile-server and token-server
-        if (mapping.minimal) {
-          data = {
-            uid: data.uid,
-            service: data.service,
-            version: data.version,
-          };
-        }
-
-        return pruneUnsetValues({
-          op: 'amplitudeEvent',
-          event_type: `${eventGroup} - ${eventType}`,
-          time: event.time,
-          user_id: data.uid,
-          device_id: data.deviceId,
-          session_id: data.flowBeginTime,
-          app_version: version,
-          language: data.lang,
-          country_code: data.countryCode,
-          country: data.country,
-          region: data.region,
-          os_name: data.os,
-          os_version: data.osVersion,
-          device_model: data.formFactor,
-          event_properties: mapEventProperties(
-            eventType,
-            eventGroup as string,
-            eventCategory as string,
-            eventTarget as string,
-            data
-          ),
-          user_properties: mapUserProperties(
-            eventGroup as string,
-            eventCategory as string,
-            data
-          ),
-        });
+      } catch (err) {
+        statsd?.increment('fxa.amplitude.transform.error');
+        log?.error(err);
       }
 
       return;
@@ -441,6 +452,10 @@ export const amplitude = {
       data: EventData
     ) {
       const { serviceName, clientId } = getServiceNameAndClientId(data);
+
+      if (typeof EVENT_PROPERTIES[eventGroup] !== 'function') {
+        throw new Error(`Unknown event group: ${eventGroup}`);
+      }
 
       return Object.assign(
         pruneUnsetValues({
