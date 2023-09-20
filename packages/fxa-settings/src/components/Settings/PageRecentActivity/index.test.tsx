@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import 'mutationobserver-shim';
-import '@testing-library/jest-dom/extend-expect';
 import { act, screen } from '@testing-library/react';
 import { renderWithRouter, mockAppContext } from '../../../models/mocks';
 import React from 'react';

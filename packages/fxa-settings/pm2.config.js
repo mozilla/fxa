@@ -12,7 +12,7 @@ const apps = [];
 apps.push({
   name: 'settings-react',
   cwd: __dirname,
-  script: 'yarn rescripts start',
+  script: 'node scripts/start.js',
   max_restarts: '1',
   min_uptime: '2m',
   env: {

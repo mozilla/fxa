@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import '@testing-library/jest-dom/extend-expect';
 import { fireEvent, screen } from '@testing-library/react';
 import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyInfo from './';
