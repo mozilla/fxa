@@ -6,8 +6,15 @@ import { faker } from '@faker-js/faker';
 import { NetworkStatus } from '@apollo/client';
 import { ApolloQueryResult } from '@apollo/client';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { OfferingQuery } from '../__generated__/graphql';
+import {
+  OfferingQuery,
+  PaginationTestMissingIdsQuery,
+  PaginationTestMissingTotalQuery,
+  PaginationTestQuery,
+  PaginationTestQueryVariables,
+} from '../__generated__/graphql';
 import { PurchaseWithDetailsQuery } from '../__generated__/graphql';
+import { NestedPaginationTestQuery } from '../__generated__/graphql';
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
@@ -37,6 +44,96 @@ export const PurchaseWithDetailsQueryFactory = (
       details: faker.string.sample(),
       webIcon: faker.string.sample(),
     },
+  },
+  ...override,
+});
+
+export const NestedPaginationTestQueryFactory = (
+  override?: Partial<NestedPaginationTestQuery>
+): NestedPaginationTestQuery => ({
+  purchaseCollection: {
+    total: faker.number.int(),
+    items: [
+      {
+        sys: {
+          id: faker.string.uuid(),
+        },
+        stripePlanChoices: [faker.string.uuid()],
+        offering: {
+          capabilitiesCollection: {
+            total: faker.number.int(),
+            items: [
+              {
+                slug: faker.string.uuid(),
+              },
+            ],
+          },
+        },
+      },
+    ],
+  },
+  ...override,
+});
+
+export const PaginationTestQueryFactory = (
+  override?: Partial<PaginationTestQuery>
+): PaginationTestQuery => ({
+  offeringCollection: {
+    total: faker.number.int(),
+    items: [
+      {
+        description: faker.string.sample(),
+      },
+    ],
+  },
+  ...override,
+});
+
+export const PaginationTestMissingIdsQueryFactory = (
+  override?: Partial<PaginationTestMissingIdsQuery>
+): PaginationTestMissingIdsQuery => ({
+  purchaseCollection: {
+    total: faker.number.int(),
+    items: [
+      {
+        stripePlanChoices: [faker.string.uuid()],
+        offering: {
+          capabilitiesCollection: {
+            total: faker.number.int(),
+            items: [
+              {
+                slug: faker.string.uuid(),
+              },
+            ],
+          },
+        },
+      },
+    ],
+  },
+  ...override,
+});
+
+export const PaginationTestMissingTotalQueryFactory = (
+  override?: Partial<PaginationTestMissingTotalQuery>
+): PaginationTestMissingTotalQuery => ({
+  purchaseCollection: {
+    items: [
+      {
+        sys: {
+          id: faker.string.uuid(),
+        },
+        stripePlanChoices: [],
+        offering: {
+          capabilitiesCollection: {
+            items: [
+              {
+                slug: faker.string.uuid(),
+              },
+            ],
+          },
+        },
+      },
+    ],
   },
   ...override,
 });

@@ -13,6 +13,7 @@ import {
   ContentfulLocaleError,
 } from './errors';
 import { ContentfulClientConfig } from './contentful-client.config';
+import { ContentfulPaginationHelper } from './contentful-pagination';
 
 const ApolloError = jest.requireActual('@apollo/client').ApolloError;
 
@@ -29,6 +30,7 @@ jest.mock('@apollo/client', () => ({
 describe('ContentfulClient', () => {
   let contentfulClient: ContentfulClient;
   let contentfulClientConfig: ContentfulClientConfig;
+  let contentfulPaginationHelper: ContentfulPaginationHelper;
 
   beforeEach(() => {
     contentfulClientConfig = new ContentfulClientConfig();
@@ -38,7 +40,11 @@ describe('ContentfulClient', () => {
     Object.defineProperty(contentfulClientConfig, 'graphqlApiUri', {
       value: faker.string.uuid(),
     });
-    contentfulClient = new ContentfulClient(contentfulClientConfig);
+    contentfulPaginationHelper = new ContentfulPaginationHelper();
+    contentfulClient = new ContentfulClient(
+      contentfulClientConfig,
+      contentfulPaginationHelper
+    );
   });
 
   describe('query', () => {

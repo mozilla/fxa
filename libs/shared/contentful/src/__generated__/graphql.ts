@@ -698,7 +698,7 @@ export type ContentfulTag = {
 export type CouponConfig = Entry & {
   __typename?: 'CouponConfig';
   contentfulMetadata: ContentfulMetadata;
-  countries?: Maybe<Scalars['String']['output']>;
+  countries?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   internalName?: Maybe<Scalars['String']['output']>;
   linkedFrom?: Maybe<CouponConfigLinkingCollections>;
   stripePromotionCodes?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
@@ -737,13 +737,16 @@ export type CouponConfigFilter = {
   AND?: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CouponConfigFilter>>>;
   contentfulMetadata?: InputMaybe<ContentfulMetadataFilter>;
-  countries?: InputMaybe<Scalars['String']['input']>;
-  countries_contains?: InputMaybe<Scalars['String']['input']>;
+  countries_contains_all?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_none?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_some?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
   countries_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  countries_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  countries_not?: InputMaybe<Scalars['String']['input']>;
-  countries_not_contains?: InputMaybe<Scalars['String']['input']>;
-  countries_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName?: InputMaybe<Scalars['String']['input']>;
   internalName_contains?: InputMaybe<Scalars['String']['input']>;
   internalName_exists?: InputMaybe<Scalars['Boolean']['input']>;
@@ -809,8 +812,6 @@ export enum CouponConfigLinkingCollectionsOfferingCollectionOrder {
 }
 
 export enum CouponConfigOrder {
-  CountriesAsc = 'countries_ASC',
-  CountriesDesc = 'countries_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -1226,8 +1227,6 @@ export type OfferingCouponConfigCollection = {
 };
 
 export enum OfferingCouponConfigCollectionOrder {
-  CountriesAsc = 'countries_ASC',
-  CountriesDesc = 'countries_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -1355,6 +1354,7 @@ export type OfferingLinkingCollections = {
   __typename?: 'OfferingLinkingCollections';
   entryCollection?: Maybe<EntryCollection>;
   purchaseCollection?: Maybe<PurchaseCollection>;
+  subGroupCollection?: Maybe<SubGroupCollection>;
 };
 
 export type OfferingLinkingCollectionsEntryCollectionArgs = {
@@ -1374,9 +1374,34 @@ export type OfferingLinkingCollectionsPurchaseCollectionArgs = {
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type OfferingLinkingCollectionsSubGroupCollectionArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<
+    Array<InputMaybe<OfferingLinkingCollectionsSubGroupCollectionOrder>>
+  >;
+  preview?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
 export enum OfferingLinkingCollectionsPurchaseCollectionOrder {
   DescriptionAsc = 'description_ASC',
   DescriptionDesc = 'description_DESC',
+  InternalNameAsc = 'internalName_ASC',
+  InternalNameDesc = 'internalName_DESC',
+  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
+  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
+  SysIdAsc = 'sys_id_ASC',
+  SysIdDesc = 'sys_id_DESC',
+  SysPublishedAtAsc = 'sys_publishedAt_ASC',
+  SysPublishedAtDesc = 'sys_publishedAt_DESC',
+  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
+  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+}
+
+export enum OfferingLinkingCollectionsSubGroupCollectionOrder {
+  GroupNameAsc = 'groupName_ASC',
+  GroupNameDesc = 'groupName_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
   SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
@@ -2095,8 +2120,10 @@ export type SubGroupLinkedFromArgs = {
 export type SubGroupOfferingCollectionArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<Array<InputMaybe<SubGroupOfferingCollectionOrder>>>;
   preview?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+  where?: InputMaybe<OfferingFilter>;
 };
 
 export type SubGroupCollection = {
@@ -2127,6 +2154,7 @@ export type SubGroupFilter = {
   internalName_not_in?: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  offering?: InputMaybe<CfOfferingNestedFilter>;
   offeringCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
   sys?: InputMaybe<SysFilter>;
 };
@@ -2145,11 +2173,30 @@ export type SubGroupLinkingCollectionsEntryCollectionArgs = {
 
 export type SubGroupOfferingCollection = {
   __typename?: 'SubGroupOfferingCollection';
-  items: Array<Maybe<Entry>>;
+  items: Array<Maybe<Offering>>;
   limit: Scalars['Int']['output'];
   skip: Scalars['Int']['output'];
   total: Scalars['Int']['output'];
 };
+
+export enum SubGroupOfferingCollectionOrder {
+  ApiIdentifierAsc = 'apiIdentifier_ASC',
+  ApiIdentifierDesc = 'apiIdentifier_DESC',
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  InternalNameAsc = 'internalName_ASC',
+  InternalNameDesc = 'internalName_DESC',
+  StripeProductIdAsc = 'stripeProductId_ASC',
+  StripeProductIdDesc = 'stripeProductId_DESC',
+  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
+  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
+  SysIdAsc = 'sys_id_ASC',
+  SysIdDesc = 'sys_id_DESC',
+  SysPublishedAtAsc = 'sys_publishedAt_ASC',
+  SysPublishedAtDesc = 'sys_publishedAt_DESC',
+  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
+  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+}
 
 export enum SubGroupOrder {
   GroupNameAsc = 'groupName_ASC',
@@ -2366,13 +2413,16 @@ export type CfCouponConfigNestedFilter = {
   AND?: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CfCouponConfigNestedFilter>>>;
   contentfulMetadata?: InputMaybe<ContentfulMetadataFilter>;
-  countries?: InputMaybe<Scalars['String']['input']>;
-  countries_contains?: InputMaybe<Scalars['String']['input']>;
+  countries_contains_all?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_none?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_some?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
   countries_exists?: InputMaybe<Scalars['Boolean']['input']>;
-  countries_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-  countries_not?: InputMaybe<Scalars['String']['input']>;
-  countries_not_contains?: InputMaybe<Scalars['String']['input']>;
-  countries_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
   internalName?: InputMaybe<Scalars['String']['input']>;
   internalName_contains?: InputMaybe<Scalars['String']['input']>;
   internalName_exists?: InputMaybe<Scalars['Boolean']['input']>;
@@ -2611,8 +2661,12 @@ export type CfServiceNestedFilter = {
 };
 
 export type CapabilityServiceByPriceIdsQueryVariables = Exact<{
-  skip: Scalars['Int']['input'];
-  limit: Scalars['Int']['input'];
+  skip__purchaseCollection: Scalars['Int']['input'];
+  limit__purchaseCollection: Scalars['Int']['input'];
+  skip__capabilitiesCollection: Scalars['Int']['input'];
+  limit__capabilitiesCollection: Scalars['Int']['input'];
+  skip__servicesCollection: Scalars['Int']['input'];
+  limit__servicesCollection: Scalars['Int']['input'];
   locale: Scalars['String']['input'];
   stripePlanIds:
     | Array<InputMaybe<Scalars['String']['input']>>
@@ -2623,6 +2677,9 @@ export type CapabilityServiceByPriceIdsQuery = {
   __typename?: 'Query';
   purchaseCollection?: {
     __typename?: 'PurchaseCollection';
+    skip: number;
+    limit: number;
+    total: number;
     items: Array<{
       __typename?: 'Purchase';
       stripePlanChoices?: Array<string | null> | null;
@@ -2630,11 +2687,17 @@ export type CapabilityServiceByPriceIdsQuery = {
         __typename?: 'Offering';
         capabilitiesCollection?: {
           __typename?: 'OfferingCapabilitiesCollection';
+          skip: number;
+          limit: number;
+          total: number;
           items: Array<{
             __typename?: 'Capability';
             slug?: string | null;
             servicesCollection?: {
               __typename?: 'CapabilityServicesCollection';
+              skip: number;
+              limit: number;
+              total: number;
               items: Array<{
                 __typename?: 'Service';
                 oauthClientId?: string | null;
@@ -2644,6 +2707,16 @@ export type CapabilityServiceByPriceIdsQuery = {
         } | null;
       } | null;
     } | null>;
+  } | null;
+};
+
+export type CouponConfigQueryVariables = Exact<{ [key: string]: never }>;
+
+export type CouponConfigQuery = {
+  __typename?: 'Query';
+  couponConfig?: {
+    __typename?: 'CouponConfig';
+    countries?: Array<string | null> | null;
   } | null;
 };
 
@@ -2733,6 +2806,107 @@ export type PurchaseWithDetailsOfferingContentQuery = {
   } | null;
 };
 
+export type NestedPaginationTestQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+export type NestedPaginationTestQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    total: number;
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      sys: { __typename?: 'Sys'; id: string };
+      offering?: {
+        __typename?: 'Offering';
+        capabilitiesCollection?: {
+          __typename?: 'OfferingCapabilitiesCollection';
+          total: number;
+          items: Array<{
+            __typename?: 'Capability';
+            slug?: string | null;
+          } | null>;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
+export type PaginationTestQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+export type PaginationTestQuery = {
+  __typename?: 'Query';
+  offeringCollection?: {
+    __typename?: 'OfferingCollection';
+    total: number;
+    items: Array<{
+      __typename?: 'Offering';
+      description?: string | null;
+    } | null>;
+  } | null;
+};
+
+export type PaginationTestMissingIdsQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+export type PaginationTestMissingIdsQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    total: number;
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      offering?: {
+        __typename?: 'Offering';
+        capabilitiesCollection?: {
+          __typename?: 'OfferingCapabilitiesCollection';
+          total: number;
+          items: Array<{
+            __typename?: 'Capability';
+            slug?: string | null;
+          } | null>;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
+export type PaginationTestMissingTotalQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+}>;
+
+export type PaginationTestMissingTotalQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      sys: { __typename?: 'Sys'; id: string };
+      offering?: {
+        __typename?: 'Offering';
+        capabilitiesCollection?: {
+          __typename?: 'OfferingCapabilitiesCollection';
+          items: Array<{
+            __typename?: 'Capability';
+            slug?: string | null;
+          } | null>;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
 export const CapabilityServiceByPriceIdsDocument = {
   kind: 'Document',
   definitions: [
@@ -2743,7 +2917,10 @@ export const CapabilityServiceByPriceIdsDocument = {
       variableDefinitions: [
         {
           kind: 'VariableDefinition',
-          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'skip__purchaseCollection' },
+          },
           type: {
             kind: 'NonNullType',
             type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
@@ -2753,7 +2930,51 @@ export const CapabilityServiceByPriceIdsDocument = {
           kind: 'VariableDefinition',
           variable: {
             kind: 'Variable',
-            name: { kind: 'Name', value: 'limit' },
+            name: { kind: 'Name', value: 'limit__purchaseCollection' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'skip__capabilitiesCollection' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit__capabilitiesCollection' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'skip__servicesCollection' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit__servicesCollection' },
           },
           type: {
             kind: 'NonNullType',
@@ -2804,7 +3025,7 @@ export const CapabilityServiceByPriceIdsDocument = {
                 name: { kind: 'Name', value: 'skip' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'skip' },
+                  name: { kind: 'Name', value: 'skip__purchaseCollection' },
                 },
               },
               {
@@ -2812,7 +3033,7 @@ export const CapabilityServiceByPriceIdsDocument = {
                 name: { kind: 'Name', value: 'limit' },
                 value: {
                   kind: 'Variable',
-                  name: { kind: 'Name', value: 'limit' },
+                  name: { kind: 'Name', value: 'limit__purchaseCollection' },
                 },
               },
               {
@@ -2847,6 +3068,9 @@ export const CapabilityServiceByPriceIdsDocument = {
             selectionSet: {
               kind: 'SelectionSet',
               selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'skip' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'limit' } },
+                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
                 {
                   kind: 'Field',
                   name: { kind: 'Name', value: 'items' },
@@ -2875,7 +3099,10 @@ export const CapabilityServiceByPriceIdsDocument = {
                                   name: { kind: 'Name', value: 'skip' },
                                   value: {
                                     kind: 'Variable',
-                                    name: { kind: 'Name', value: 'skip' },
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'skip__capabilitiesCollection',
+                                    },
                                   },
                                 },
                                 {
@@ -2883,13 +3110,28 @@ export const CapabilityServiceByPriceIdsDocument = {
                                   name: { kind: 'Name', value: 'limit' },
                                   value: {
                                     kind: 'Variable',
-                                    name: { kind: 'Name', value: 'limit' },
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'limit__capabilitiesCollection',
+                                    },
                                   },
                                 },
                               ],
                               selectionSet: {
                                 kind: 'SelectionSet',
                                 selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'skip' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'limit' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'total' },
+                                  },
                                   {
                                     kind: 'Field',
                                     name: { kind: 'Name', value: 'items' },
@@ -2917,7 +3159,8 @@ export const CapabilityServiceByPriceIdsDocument = {
                                                 kind: 'Variable',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'skip',
+                                                  value:
+                                                    'skip__servicesCollection',
                                                 },
                                               },
                                             },
@@ -2931,7 +3174,8 @@ export const CapabilityServiceByPriceIdsDocument = {
                                                 kind: 'Variable',
                                                 name: {
                                                   kind: 'Name',
-                                                  value: 'limit',
+                                                  value:
+                                                    'limit__servicesCollection',
                                                 },
                                               },
                                             },
@@ -2939,6 +3183,27 @@ export const CapabilityServiceByPriceIdsDocument = {
                                           selectionSet: {
                                             kind: 'SelectionSet',
                                             selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'skip',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'limit',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'total',
+                                                },
+                                              },
                                               {
                                                 kind: 'Field',
                                                 name: {
@@ -2984,6 +3249,38 @@ export const CapabilityServiceByPriceIdsDocument = {
   CapabilityServiceByPriceIdsQuery,
   CapabilityServiceByPriceIdsQueryVariables
 >;
+export const CouponConfigDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CouponConfig' },
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'couponConfig' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'id' },
+                value: { kind: 'StringValue', value: 'asdf', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'countries' } },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<CouponConfigQuery, CouponConfigQueryVariables>;
 export const OfferingDocument = {
   kind: 'Document',
   definitions: [
@@ -3427,4 +3724,497 @@ export const PurchaseWithDetailsOfferingContentDocument = {
 } as unknown as DocumentNode<
   PurchaseWithDetailsOfferingContentQuery,
   PurchaseWithDetailsOfferingContentQueryVariables
+>;
+export const NestedPaginationTestDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'NestedPaginationTest' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'IntValue', value: '1' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'en-US', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'sys' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'id' },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'capabilitiesCollection',
+                              },
+                              arguments: [
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'skip' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'skip' },
+                                  },
+                                },
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'limit' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'limit' },
+                                  },
+                                },
+                              ],
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'total' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'items' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'slug' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  NestedPaginationTestQuery,
+  NestedPaginationTestQueryVariables
+>;
+export const PaginationTestDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'PaginationTest' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'offeringCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'skip' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'en-US', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'description' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<PaginationTestQuery, PaginationTestQueryVariables>;
+export const PaginationTestMissingIdsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'PaginationTestMissingIds' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'IntValue', value: '1' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'en-US', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                { kind: 'Field', name: { kind: 'Name', value: 'total' } },
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'capabilitiesCollection',
+                              },
+                              arguments: [
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'skip' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'skip' },
+                                  },
+                                },
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'limit' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'limit' },
+                                  },
+                                },
+                              ],
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'total' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'items' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'slug' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PaginationTestMissingIdsQuery,
+  PaginationTestMissingIdsQueryVariables
+>;
+export const PaginationTestMissingTotalDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'PaginationTestMissingTotal' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: { kind: 'IntValue', value: '1' },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: { kind: 'StringValue', value: 'en-US', block: false },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'sys' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'id' },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'capabilitiesCollection',
+                              },
+                              arguments: [
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'skip' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'skip' },
+                                  },
+                                },
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'limit' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'limit' },
+                                  },
+                                },
+                              ],
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'items' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'slug' },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PaginationTestMissingTotalQuery,
+  PaginationTestMissingTotalQueryVariables
 >;

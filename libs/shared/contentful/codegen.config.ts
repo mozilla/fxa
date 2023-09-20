@@ -7,7 +7,10 @@ const CONTENTFUL_GRAPHQL_API_KEY = process.env.CONTENTFUL_GRAPHQL_API_KEY;
 const config: CodegenConfig = {
   overwrite: true,
   schema: `${CONTENTFUL_GRAPHQL_API_URL}?access_token=${CONTENTFUL_GRAPHQL_API_KEY}`,
-  documents: ['libs/shared/contentful/src/lib/queries/*.ts'],
+  documents: [
+    'libs/shared/contentful/src/lib/queries/*.ts',
+    'libs/shared/contentful/src/lib/queries/test/*.ts',
+  ],
   generates: {
     'libs/shared/contentful/src/__generated__/': {
       preset: 'client',
