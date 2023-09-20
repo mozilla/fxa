@@ -43,7 +43,6 @@ import VerificationReasons from './verification-reasons';
 import WouldYouLikeToSync from '../views/would_you_like_to_sync';
 import { isAllowed } from 'fxa-shared/configuration/convict-format-allow-list';
 import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
-import RecoveryKeyExperimentMixin from './new-recovery-key-UI-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
@@ -119,7 +118,7 @@ let Router = Backbone.Router.extend({
   },
 });
 
-Cocktail.mixin(Router, ReactExperimentMixin, RecoveryKeyExperimentMixin);
+Cocktail.mixin(Router, ReactExperimentMixin);
 
 Router = Router.extend({
   routes: {
@@ -179,7 +178,14 @@ Router = Router.extend({
     'confirm_signup_code(/)': function () {
       this.createReactOrBackboneViewHandler(
         'confirm_signup_code',
-        ConfirmSignupCodeView
+        ConfirmSignupCodeView,
+        {
+          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+          // this param is passed in to confirm_signup_code too in case the user is redirected
+          // to the React version of this page without having directly arrived from the React
+          // signup flow
+          email: this.user.get('emailFromIndex'),
+        }
       );
     },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
@@ -389,8 +395,6 @@ Router = Router.extend({
         return this.navigateAway(redirectUrl);
       }
 
-      const isInRecoveryKeyExperiment = this.isInNewRecoveryKeyUIExperiment();
-
       // All other flows should redirect to the settings page
       const settingsEndpoint = '/settings';
       const settingsLink = `${settingsEndpoint}${Url.objToSearchString({
@@ -402,7 +406,6 @@ Router = Router.extend({
         isSampledUser,
         service,
         uniqueUserId,
-        ...(isInRecoveryKeyExperiment && { isInRecoveryKeyExperiment }),
       })}`;
       this.navigateAway(settingsLink);
     },
@@ -448,7 +451,15 @@ Router = Router.extend({
         }
       );
     },
-    'signup(/)': createViewHandler(SignUpPasswordView),
+    'signup(/)': function () {
+      this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
+        // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+        email: this.user.get('emailFromIndex'),
+        ...(this.user.get('emailFromIndex') && {
+          emailFromContent: 'true',
+        }),
+      });
+    },
     'signup_confirmed(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signup_confirmed',

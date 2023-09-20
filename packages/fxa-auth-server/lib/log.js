@@ -278,10 +278,7 @@ Lug.prototype.amplitudeEvent = function (data) {
           flow_id: data.user_properties.flow_id,
           error: err.message,
         });
-        Sentry.captureMessage(
-          'Amplitude event failed validation',
-          Sentry.Severity.Error
-        );
+        Sentry.captureMessage('Amplitude event failed validation', 'error');
       });
     }
   }

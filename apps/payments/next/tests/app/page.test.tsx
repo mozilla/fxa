@@ -1,6 +1,5 @@
-import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-
+import { render, screen } from '@testing-library/react';
 import Index from '../../app/page';
 
 describe('Page', () => {
@@ -8,6 +7,6 @@ describe('Page', () => {
     render(await Index());
 
     const header = screen.getByRole('heading', { level: 1 });
-    expect(header).toHaveTextContent('Hello there, Welcome payments/next 👋');
+    expect(header).toHaveTextContent('Welcome');
   });
 });

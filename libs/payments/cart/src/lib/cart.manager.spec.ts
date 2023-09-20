@@ -10,14 +10,13 @@ import {
   AccountDatabase,
   CartUpdate,
 } from '@fxa/shared/db/mysql/account';
-import { Logger } from '@fxa/shared/log';
 
 import {
   CartInvalidStateForActionError,
   CartNotCreatedError,
   CartNotDeletedError,
   CartNotFoundError,
-  CartNotUpdatedError,
+  CartVersionMismatchError,
 } from './cart.error';
 import {
   FinishCartFactory,
@@ -54,17 +53,10 @@ describe('#payments-cart - manager', () => {
   let db: AccountDatabase;
   let cartManager: CartManager;
   let testCart: ResultCart;
-  const mockLogger: Logger = {
-    debug: jest.fn(),
-    error: jest.fn(),
-    info: jest.fn(),
-    trace: jest.fn(),
-    warn: jest.fn(),
-  };
 
   beforeAll(async () => {
     db = await testAccountDatabaseSetup(['accounts', 'carts']);
-    cartManager = new CartManager(mockLogger, db);
+    cartManager = new CartManager(db);
     await db
       .insertInto('carts')
       .values({
@@ -138,7 +130,11 @@ describe('#payments-cart - manager', () => {
         email: 'test@example.com',
       });
 
-      await cartManager.updateFreshCart(testCart, updateItems);
+      await cartManager.updateFreshCart(
+        testCart.id,
+        testCart.version,
+        updateItems
+      );
       const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(updateItems));
@@ -148,7 +144,11 @@ describe('#payments-cart - manager', () => {
       await directUpdate(db, { state: CartState.FAIL }, testCart.id);
       testCart = await cartManager.fetchCartById(testCart.id);
       try {
-        await cartManager.updateFreshCart(testCart, UpdateCartFactory());
+        await cartManager.updateFreshCart(
+          testCart.id,
+          testCart.version,
+          UpdateCartFactory()
+        );
         fail('Error in updateFreshCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
@@ -162,10 +162,14 @@ describe('#payments-cart - manager', () => {
         testCart.id
       );
       try {
-        await cartManager.updateFreshCart(testCart, UpdateCartFactory());
+        await cartManager.updateFreshCart(
+          testCart.id,
+          testCart.version,
+          UpdateCartFactory()
+        );
         fail('Error in updateFreshCart');
       } catch (error) {
-        expect(error).toBeInstanceOf(CartNotUpdatedError);
+        expect(error).toBeInstanceOf(CartVersionMismatchError);
       }
     });
   });
@@ -176,7 +180,7 @@ describe('#payments-cart - manager', () => {
       await directUpdate(db, { state: CartState.PROCESSING }, testCart.id);
       testCart = await cartManager.fetchCartById(testCart.id);
 
-      await cartManager.finishCart(testCart, items);
+      await cartManager.finishCart(testCart.id, testCart.version, items);
       const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(items));
@@ -185,7 +189,11 @@ describe('#payments-cart - manager', () => {
 
     it('fails - invalid state', async () => {
       try {
-        await cartManager.finishCart(testCart, FinishCartFactory());
+        await cartManager.finishCart(
+          testCart.id,
+          testCart.version,
+          FinishCartFactory()
+        );
         fail('Error in finishCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);
@@ -197,7 +205,7 @@ describe('#payments-cart - manager', () => {
     it('succeeds', async () => {
       const items = FinishErrorCartFactory();
 
-      await cartManager.finishErrorCart(testCart, items);
+      await cartManager.finishErrorCart(testCart.id, testCart.version, items);
       const cart = await cartManager.fetchCartById(testCart.id);
 
       expect(cart).toEqual(expect.objectContaining(items));
@@ -208,7 +216,11 @@ describe('#payments-cart - manager', () => {
       await directUpdate(db, { state: CartState.FAIL }, testCart.id);
       testCart = await cartManager.fetchCartById(testCart.id);
       try {
-        await cartManager.finishErrorCart(testCart, FinishErrorCartFactory());
+        await cartManager.finishErrorCart(
+          testCart.id,
+          testCart.version,
+          FinishErrorCartFactory()
+        );
         fail('Error in finishErrorCart');
       } catch (error) {
         expect(error).toBeInstanceOf(CartInvalidStateForActionError);

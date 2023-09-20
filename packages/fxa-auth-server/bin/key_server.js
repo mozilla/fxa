@@ -185,7 +185,8 @@ async function run(config) {
     config,
     routes,
     database,
-    statsd
+    statsd,
+    glean
   );
 
   try {
@@ -204,7 +205,7 @@ async function run(config) {
     server,
     log: log,
     async close() {
-      log.info('shutdown', 'gracefully');
+      log.info('shutdown');
       await server.stop();
       await customs.close();
       statsd.close();

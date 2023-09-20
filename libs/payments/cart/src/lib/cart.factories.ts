@@ -3,10 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import {
   FinishCart,
   FinishErrorCart,
+  ResultCart,
   SetupCart,
+  TaxAddress,
   TaxAmount,
   UpdateCart,
 } from './cart.types';
@@ -30,6 +33,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
 });
 
 export const TaxAmountFactory = (override?: Partial<TaxAmount>): TaxAmount => ({
+  inclusive: false,
   title: faker.location.state({ abbreviated: true }),
   amount: faker.number.int(10000),
   ...override,
@@ -51,6 +55,34 @@ export const FinishCartFactory = (
 export const FinishErrorCartFactory = (
   override?: Partial<FinishErrorCart>
 ): FinishErrorCart => ({
-  errorReasonId: 'error-general',
+  errorReasonId: CartErrorReasonId.Unknown,
+  ...override,
+});
+
+export const TaxAddressFactory = (
+  override?: Partial<TaxAddress>
+): TaxAddress => ({
+  countryCode: faker.location.countryCode(),
+  postalCode: faker.location.zipCode(),
+  ...override,
+});
+
+export const ResultCartFactory = (
+  override?: Partial<ResultCart>
+): ResultCart => ({
+  id: faker.string.uuid(),
+  state: CartState.START,
+  errorReasonId: null,
+  offeringConfigId: faker.string.uuid(),
+  interval: faker.string.numeric(),
+  experiment: null,
+  taxAddress: JSON.stringify(TaxAddressFactory()),
+  createdAt: faker.date.past().getTime(),
+  updatedAt: faker.date.past().getTime(),
+  couponCode: null,
+  stripeCustomerId: faker.string.uuid(),
+  email: faker.internet.email(),
+  amount: faker.number.int(),
+  version: faker.number.int(),
   ...override,
 });

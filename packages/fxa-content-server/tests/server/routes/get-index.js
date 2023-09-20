@@ -124,6 +124,14 @@ registerSuite('routes/get-index', {
                 sentConfig.showReactApp,
                 config.get('showReactApp')
               );
+              assert.deepEqual(
+                sentConfig.brandMessagingMode,
+                config.get('brandMessagingMode')
+              );
+              assert.deepEqual(
+                sentConfig.showPostlaunchBrandMessaging,
+                config.get('showPostlaunchBrandMessaging')
+              );
               assert.equal(
                 sentConfig.webpackPublicPath,
                 `${config.get('static_resource_url')}/${config.get(

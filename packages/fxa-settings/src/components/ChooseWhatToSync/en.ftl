@@ -3,7 +3,7 @@
 
 # Prompt above a checklist of services/information (e.g., passwords, bookmarks, etc.)
 # That users can choose to sync
-choose-what-to-sync-prompt = Choose what to sync:
+choose-what-to-sync-prompt-2 = Choose what to sync
 choose-what-to-sync-option-bookmarks =
   .label = Bookmarks
 choose-what-to-sync-option-history =

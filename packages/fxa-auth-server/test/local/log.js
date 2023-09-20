@@ -12,7 +12,6 @@ const { mockRequest, mockMetricsContext } = require('../mocks');
 const mockAmplitudeConfig = { schemaValidation: true };
 
 let sentryScope, mockSentry;
-const Sentry = require('@sentry/node');
 
 const validEvent = {
   op: 'amplitudeEvent',
@@ -648,7 +647,7 @@ describe('log', () => {
     assert.isTrue(
       mockSentry.captureMessage.calledOnceWith(
         'Amplitude event failed validation',
-        Sentry.Severity.Error
+        'error'
       )
     );
 
@@ -685,7 +684,7 @@ describe('log', () => {
     assert.isTrue(
       mockSentry.captureMessage.calledOnceWith(
         'Amplitude event failed validation',
-        Sentry.Severity.Error
+        'error'
       )
     );
 

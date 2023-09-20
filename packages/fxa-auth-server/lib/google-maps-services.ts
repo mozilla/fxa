@@ -6,6 +6,7 @@ import {
   Status,
 } from '@googlemaps/google-maps-services-js';
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import countries from 'i18n-iso-countries';
 import { Container } from 'typedi';
 
@@ -49,7 +50,7 @@ export class GoogleMapsService {
         scope.setContext('googleMapsService', {
           address,
         });
-        Sentry.captureMessage(error.message, Sentry.Severity.Error);
+        Sentry.captureMessage(error.message, 'error' as SeverityLevel);
       });
       throw error;
     }

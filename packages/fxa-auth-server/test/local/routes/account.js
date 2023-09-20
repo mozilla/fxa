@@ -77,14 +77,9 @@ const makeRoutes = function (options = {}, requireMocks) {
   };
   const signinUtils =
     options.signinUtils ||
-    require('../../../lib/routes/utils/signin')(
-      log,
-      config,
-      customs,
-      db,
-      mailer,
-      cadReminders
-    );
+    proxyquire('../../../lib/routes/utils/signin', {
+      '../utils/otp': () => ({ generateOtpCode: sinon.stub() }),
+    })(log, config, customs, db, mailer, cadReminders, glean);
   if (options.checkPassword) {
     signinUtils.checkPassword = options.checkPassword;
   }
@@ -3181,6 +3176,23 @@ describe('/account/login', () => {
         });
       });
     });
+
+    it('logs a Glean pign on verify login code email sent', () => {
+      glean.login.verifyCodeEmailSent.reset();
+      return runTest(
+        route,
+        {
+          ...mockRequest,
+          payload: {
+            ...mockRequest.payload,
+            verificationMethod: 'email-otp',
+          },
+        },
+        () => {
+          sinon.assert.calledOnce(glean.login.verifyCodeEmailSent);
+        }
+      );
+    });
   });
 
   it('creating too many sessions causes an error to be logged', () => {
@@ -3628,30 +3640,6 @@ describe('/account/login', () => {
       assert.equal(err.output.statusCode, 503);
       assert.equal(err.errno, error.ERRNO.DISABLED_CLIENT_ID);
     }
-  });
-
-  it('fails login when no password set', () => {
-    glean.login.error.reset();
-    mockDB.accountRecord = sinon.spy(() => {
-      return Promise.resolve({
-        verifierSetAt: 0, // no password set
-      });
-    });
-    return runTest(route, mockRequest).then(
-      () => assert.ok(false),
-      (err) => {
-        assert.equal(
-          mockDB.accountRecord.callCount,
-          1,
-          'db.accountRecord was called'
-        );
-        assert.equal(err.errno, 210, 'correct errno called');
-        sinon.assert.calledOnce(glean.login.error);
-        sinon.assert.calledWith(glean.login.error, mockRequest, {
-          reason: 'UNABLE_TO_LOGIN_NO_PASSWORD_SET',
-        });
-      }
-    );
   });
 });
 

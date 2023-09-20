@@ -21,6 +21,7 @@ import ThirdPartyAuthMixin from './mixins/third-party-auth-mixin';
 import ThirdPartyAuth from '../templates/partial/third-party-auth.mustache';
 import UserCardMixin from './mixins/user-card-mixin';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
+import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 
 const SignInPasswordView = FormView.extend({
   template: Template,
@@ -84,13 +85,15 @@ const SignInPasswordView = FormView.extend({
     const account = this.getAccount();
     const hasLinkedAccount = account.get('hasLinkedAccount') ?? false;
     const hasPassword = account.get('hasPassword') ?? true;
-
+    const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
     context.set({
       email: account.get('email'),
       isPasswordNeeded: this.isPasswordNeededForAccount(account) && hasPassword,
       hasLinkedAccountAndNoPassword: hasLinkedAccount && !hasPassword,
+      hasLinkedAccount: hasLinkedAccount,
+      hasPassword: hasPassword,
       unsafeThirdPartyAuthHTML: this.renderTemplate(ThirdPartyAuth, {
-        isSignup: false,
+        showSeparator: !hasLinkedAccountAndNoPassword,
       }),
     });
   },
@@ -143,7 +146,8 @@ Cocktail.mixin(
   SignedInNotificationMixin,
   ThirdPartyAuthMixin,
   UserCardMixin,
-  PocketMigrationMixin
+  PocketMigrationMixin,
+  BrandMessagingMixin
 );
 
 export default SignInPasswordView;

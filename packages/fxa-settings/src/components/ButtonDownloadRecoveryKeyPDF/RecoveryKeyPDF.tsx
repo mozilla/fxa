@@ -39,7 +39,7 @@ export const RecoveryKeyPDF = ({
   email,
   localizedText,
 }: RecoveryKeyPDFProps) => {
-  const { family, sources, direction } = requiredFont;
+  const { family, sources, direction, breakwords } = requiredFont;
 
   Font.register({
     family,
@@ -57,8 +57,32 @@ export const RecoveryKeyPDF = ({
     ],
   });
 
-  // Disable word hyphenation - the default behaviour breaks word without regard to locales' hyphenation rules.
-  Font.registerHyphenationCallback((word: string) => [word]);
+  const splitText = (text: string) => {
+    return text.split(' ');
+  };
+
+  // By default, react-pdf inserts hyphens wherever a word overflows its containers,
+  // without regard to language rules.
+  // For languages such as Chinese and Japanese that do not contain spaces between words,
+  // text should break at the end of the line without adding a hyphen.
+  // Code snippet here was taken from:
+  // https://github.com/diegomura/react-pdf/issues/692#issuecomment-631819389
+  breakwords
+    ? Font.registerHyphenationCallback((word: string) => {
+        if (word.length === 1) {
+          return [word];
+        } else {
+          return Array.from(word).reduce((acc: (string | '')[], char) => {
+            acc = acc.concat([char, '']);
+            return acc;
+          }, []);
+        }
+      })
+    : // For other languages that contain spaces between words, text that would overflow its container
+      // should break at the preceeding space between words, without hyphenation.
+      // See documentation about disabling default hyphenation:
+      // https://react-pdf.org/fonts#registerhyphenationcallback
+      Font.registerHyphenationCallback((word: string) => [word]);
 
   const styles = StyleSheet.create({
     page: {
@@ -131,6 +155,8 @@ export const RecoveryKeyPDF = ({
         <View style={styles.purpleSection}>
           <SecurityShieldSvg />
           <Text style={styles.heading}>{localizedText.heading}</Text>
+          {/* TODO in FXA-8313: Verify formatting of RTL dates - bidirectionality markers are not respected
+          and numeric values are incorrectly reversed (e.g., 3202 instead of 2023) */}
           <Text style={{ fontSize: '10px', marginBottom: '4px' }}>
             {localizedText.dateGenerated}
           </Text>
@@ -164,15 +190,43 @@ export const RecoveryKeyPDF = ({
             </Text>
           </View>
         </View>
-        <View style={{ marginTop: '28px', flexGrow: 1 }}>
-          <Text
+        <View style={{ marginTop: '28px' }}>
+          <View
             style={{
-              fontSize: '14px',
-              lineHeight: 1.5,
+              flexDirection: direction === 'ltr' ? 'row' : 'row-reverse',
+              flexWrap: 'wrap',
             }}
           >
-            {localizedText.instructions}
-          </Text>
+            {direction === 'ltr' ? (
+              <Text
+                style={{
+                  fontSize: '14px',
+                  lineHeight: 1.5,
+                }}
+              >
+                {localizedText.instructions}
+              </Text>
+            ) : (
+              // this is a hack to support RTL text that flows over more than one line
+              // react-pdf does not (yet) support RTL out-of-the-box, and long paragraphs of RTL
+              // text were flowing from the bottom up. This splits the text into an array of words
+              // that can be reflowed from top-right to bottom-left.
+              // TODO in FXA-8313: Verify punctuation incl. parentheses. They may be inverted and misplaced.
+              splitText(localizedText.instructions).map((word, i) => {
+                return (
+                  <Text
+                    style={{
+                      fontSize: '14px',
+                      lineHeight: 1.5,
+                      marginLeft: '4px',
+                    }}
+                  >
+                    {word}
+                  </Text>
+                );
+              })
+            )}
+          </View>
           <Text style={styles.subheading}>{localizedText.storageHeading}</Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             <View style={styles.listItem}>

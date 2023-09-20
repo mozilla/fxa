@@ -25,7 +25,8 @@ module.exports = function (
   signupUtils,
   mailer,
   push,
-  customs
+  customs,
+  glean
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -388,6 +389,7 @@ module.exports = function (
           await signupUtils.verifyAccount(request, account, options);
         } else {
           request.emitMetricsEvent('account.confirmed', { uid });
+          glean.login.verifyCodeConfirmed(request, { uid });
           await signinUtils.cleanupReminders({ verified: true }, account);
           await push.notifyAccountUpdated(uid, devices, 'accountConfirm');
         }

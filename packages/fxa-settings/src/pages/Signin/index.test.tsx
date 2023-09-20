@@ -14,6 +14,13 @@ import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
+  logViewEvent: jest.fn(),
+  logViewEventOnce: jest.fn(),
+  useMetrics: () => ({
+    usePageViewEvent: jest.fn(),
+    logViewEvent: jest.fn(),
+    logViewEventOnce: jest.fn(),
+  }),
 }));
 
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can

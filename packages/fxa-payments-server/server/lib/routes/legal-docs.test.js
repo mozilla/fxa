@@ -173,7 +173,7 @@ describe('lib/routes/legal-docs', () => {
     expect(mockSentry.captureMessage).toHaveBeenCalledTimes(1);
     expect(mockSentry.captureMessage).toHaveBeenCalledWith(
       'Legal doc redirect failed.',
-      Sentry.Severity.Warning
+      'warning'
     );
   });
 

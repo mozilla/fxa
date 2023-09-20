@@ -120,10 +120,7 @@ export const routing = (app: express.Express, logger: Logger) => {
             scope.setContext('joi.validationError', {
               error: validationError.details.get('body')?.message,
             });
-            Sentry.captureMessage(
-              'Joi validation error',
-              Sentry.Severity.Error
-            );
+            Sentry.captureMessage('Joi validation error', 'error');
           });
         }
 

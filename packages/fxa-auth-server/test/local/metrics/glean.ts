@@ -3,15 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import proxyquire from 'proxyquire';
-import sinon from 'sinon';
+import sinon, { SinonStub } from 'sinon';
 import { assert } from 'chai';
+import AppError from '../../../lib/error';
+import mocks from '../../mocks';
 
 const recordStub = sinon.stub();
-const { gleanMetrics } = proxyquire.load('../../../lib/metrics/glean', {
-  './server_events': {
-    createAccountsEventsEvent: () => ({ record: recordStub }),
-  },
-});
+const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
+  '../../../lib/metrics/glean',
+  {
+    './server_events': {
+      createAccountsEventsEvent: () => ({ record: recordStub }),
+    },
+  }
+);
 
 const config = {
   gleanMetrics: {
@@ -351,6 +356,16 @@ describe('Glean server side events', () => {
         assert.equal(metrics['event_name'], 'reg_complete');
       });
     });
+
+    describe('reg_submit_error', () => {
+      it('logs a "reg_submit_error" event', async () => {
+        const glean = gleanMetrics(config);
+        await glean.registration.error(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'reg_submit_error');
+      });
+    });
   });
 
   describe('login', () => {
@@ -391,6 +406,63 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'login_totp_code_failure');
+      });
+    });
+
+    describe('verifyCodeEmail', () => {
+      it('logs a "login_email_confirmation_sent" event', async () => {
+        await glean.login.verifyCodeEmailSent(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_email_confirmation_sent');
+      });
+
+      it('logs a "login_email_confirmation_success" event', async () => {
+        await glean.login.verifyCodeConfirmed(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['event_name'], 'login_email_confirmation_success');
+      });
+    });
+  });
+
+  describe('logErrorWithGlean hapi preResponse error logger', () => {
+    const error = AppError.requestBlocked();
+    const glean = mocks.mockGlean();
+
+    describe('/account/create', () => {
+      it('logs a ping with glean.registration.error', () => {
+        (glean.registration.error as SinonStub).reset();
+        const request = { path: '/account/create' };
+        logErrorWithGlean({
+          glean,
+          request,
+          error,
+        });
+        sinon.assert.calledOnce(glean.registration.error as SinonStub);
+        sinon.assert.calledWithExactly(
+          glean.registration.error as SinonStub,
+          request,
+          { reason: 'REQUEST_BLOCKED' }
+        );
+      });
+    });
+
+    describe('/account/login', () => {
+      it('logs a ping with glean.login.error', () => {
+        (glean.login.error as SinonStub).reset();
+        const request = { path: '/account/login' };
+        logErrorWithGlean({
+          glean,
+          request,
+          error,
+        });
+        sinon.assert.calledOnce(glean.login.error as SinonStub);
+        sinon.assert.calledWithExactly(
+          glean.login.error as SinonStub,
+          request,
+          { reason: 'REQUEST_BLOCKED' }
+        );
       });
     });
   });

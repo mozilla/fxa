@@ -9,13 +9,11 @@ import { Engine } from './sync-engines';
 
 export type ChooseWhatToSyncProps = {
   engines: Engine[];
-  selectedEngines: string[];
   setSelectedEngines: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const ChooseWhatToSync = ({
   engines,
-  selectedEngines,
   setSelectedEngines,
 }: ChooseWhatToSyncProps) => {
   const handleSyncChange =
@@ -32,13 +30,18 @@ const ChooseWhatToSync = ({
 
   return (
     <>
-      <FtlMsg id="choose-what-to-sync-prompt">
-        <p className="text-start mb-1">Choose what to sync:</p>
+      <FtlMsg id="choose-what-to-sync-prompt-2">
+        <h2 className="font-normal mb-4 text-base text-center">
+          Choose what to sync
+        </h2>
       </FtlMsg>
-      <ul className="flex flex-wrap text-start text-sm mb-4">
+      <ul className="flex flex-wrap text-start text-sm mb-4 ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
         {engines.map((engine) => {
           return (
-            <li key={engine.id} className="flex-50%">
+            <li
+              key={engine.id}
+              className="flex-50% rtl:mobileLandscape:pr-6 ltr:mobileLandscape:pl-6 rtl:pr-3 ltr:pl-3"
+            >
               <FtlMsg id={engine.ftlId} attrs={{ label: true }}>
                 <InputCheckboxBlue
                   label={engine.text}

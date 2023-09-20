@@ -12,6 +12,16 @@ module.exports = function (grunt) {
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    // make a copy of the local branding terms available for local development
+    // before they are extracted to the l10n repo
+    // this file will not be included in the string extraction process, so should not lead to duplication
+    copy: {
+      'branding-ftl': {
+        nonull: true,
+        src: '../fxa-shared/l10n/branding.ftl',
+        dest: 'public/locales/en/branding.ftl',
+      },
+    },
     concat: {
       ftl: {
         src: srcPaths,
@@ -38,10 +48,11 @@ module.exports = function (grunt) {
     },
   });
 
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
 
-  grunt.registerTask('merge-ftl', ['concat:ftl']);
+  grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('merge-ftl:test', ['concat:ftl-test']);
   grunt.registerTask('watch-ftl', ['watch:ftl']);
 };

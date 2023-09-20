@@ -278,6 +278,12 @@ const conf = (module.exports = convict({
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
     },
   },
+  brandMessagingMode: {
+    default: 'none',
+    doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
+    env: 'BRAND_MESSAGING_MODE',
+    format: String,
+  },
   flow_id_expiry: {
     default: '2 hours',
     doc: 'Time after which flow ids are considered stale',
@@ -758,6 +764,12 @@ const conf = (module.exports = convict({
       doc: 'Sentry config for client side errors. If not set, then no errors reported.',
       env: 'SENTRY_SAMPLE_RATE',
       format: Number,
+    },
+    tracesSampleRate: {
+      doc: 'Rate at which sentry traces are captured',
+      default: 1.0,
+      format: 'Number',
+      env: 'SENTRY_TRACES_SAMPLE_RATE',
     },
   },
   sourceMapType: {

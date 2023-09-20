@@ -598,7 +598,7 @@ describe('CapabilityService', () => {
       );
       assert.deepEqual(allCapabilities, {
         '*': ['capAll'],
-        c1: ['cap4', 'cap5', 'capZZ', 'capAlpha'],
+        c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
         c2: ['cap5', 'cap6', 'capC', 'capD'],
         c3: ['capD', 'capE'],
       });

@@ -150,9 +150,9 @@ module.exports = (log, db, push, pushbox) => {
       }
 
       if (isPlaceholderDevice) {
-        log.info('device:createPlaceholder', {
+        log.info('device.createPlaceholder', {
           uid: credentials.uid,
-          id: result.id,
+          deviceId: result.id,
         });
       }
       await log.notifyAttachedServices('device:create', request, {

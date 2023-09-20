@@ -35,7 +35,8 @@ module.exports = function (
     customs,
     db,
     mailer,
-    cadReminders
+    cadReminders,
+    glean
   );
   const clientUtils = require('./utils/clients')(log, config);
   const verificationReminders = require('../verification-reminders')(
@@ -138,7 +139,8 @@ module.exports = function (
     signupUtils,
     mailer,
     push,
-    customs
+    customs,
+    glean
   );
   const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
   const unblockCodes = require('./unblock-codes')(

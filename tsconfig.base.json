@@ -24,19 +24,24 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
+      "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
-      "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
+      "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
+      "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
       "@fxa/shared/account/account": [
         "libs/shared/account/account/src/index.ts"
       ],
+      "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
+      "@fxa/shared/l10n/fluent": ["libs/shared/l10n/fluent/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
-      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/styles/*": ["libs/shared/styles/src/lib/*"]
     },
     "typeRoots": [
       "./types",

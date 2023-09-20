@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ServerRoute } from '@hapi/hapi';
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import { Account } from 'fxa-shared/db/models/auth';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import isA from 'joi';
@@ -123,7 +124,7 @@ export class StripeWebhookHandler extends StripeHandler {
         });
         Sentry.captureMessage(
           'Event being handled that is not using latest object from Stripe.',
-          Sentry.Severity.Info
+          'info' as SeverityLevel
         );
       });
     }
@@ -207,7 +208,7 @@ export class StripeWebhookHandler extends StripeHandler {
             });
             Sentry.captureMessage(
               'Unhandled Stripe event received.',
-              Sentry.Severity.Info
+              'info' as SeverityLevel
             );
           });
         }
@@ -736,7 +737,7 @@ export class StripeWebhookHandler extends StripeHandler {
 
       Sentry.withScope((scope) => {
         scope.setContext('planUpdatedEvent', { plan });
-        Sentry.captureMessage(msg, Sentry.Severity.Error);
+        Sentry.captureMessage(msg, 'error' as SeverityLevel);
       });
 
       this.stripeHelper.updateAllPlans(updatedList);

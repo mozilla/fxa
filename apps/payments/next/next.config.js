@@ -12,6 +12,33 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  experimental: {
+    serverComponentsExternalPackages: [
+      '@fxa/shared/db/mysql/account',
+      '@fxa/shared/db/mysql/core',
+      '@fxa/payments/cart',
+      '@nestjs/core',
+      '@nestjs/common',
+      'class-transformer',
+      'class-validator',
+      'hot-shots',
+      'knex',
+      'kysely',
+      'mysql2',
+      'nest-typed-config',
+      'rxjs',
+    ],
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'accounts-static.cdn.mozilla.net',
+        port: '',
+        pathname: '/product-icons/**',
+      },
+    ],
+  },
 };
 
 const plugins = [

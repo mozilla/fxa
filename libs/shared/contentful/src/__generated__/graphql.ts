@@ -1354,6 +1354,7 @@ export enum OfferingIapCollectionOrder {
 export type OfferingLinkingCollections = {
   __typename?: 'OfferingLinkingCollections';
   entryCollection?: Maybe<EntryCollection>;
+  purchaseCollection?: Maybe<PurchaseCollection>;
 };
 
 export type OfferingLinkingCollectionsEntryCollectionArgs = {
@@ -1362,6 +1363,31 @@ export type OfferingLinkingCollectionsEntryCollectionArgs = {
   preview?: InputMaybe<Scalars['Boolean']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
 };
+
+export type OfferingLinkingCollectionsPurchaseCollectionArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  locale?: InputMaybe<Scalars['String']['input']>;
+  order?: InputMaybe<
+    Array<InputMaybe<OfferingLinkingCollectionsPurchaseCollectionOrder>>
+  >;
+  preview?: InputMaybe<Scalars['Boolean']['input']>;
+  skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export enum OfferingLinkingCollectionsPurchaseCollectionOrder {
+  DescriptionAsc = 'description_ASC',
+  DescriptionDesc = 'description_DESC',
+  InternalNameAsc = 'internalName_ASC',
+  InternalNameDesc = 'internalName_DESC',
+  SysFirstPublishedAtAsc = 'sys_firstPublishedAt_ASC',
+  SysFirstPublishedAtDesc = 'sys_firstPublishedAt_DESC',
+  SysIdAsc = 'sys_id_ASC',
+  SysIdDesc = 'sys_id_DESC',
+  SysPublishedAtAsc = 'sys_publishedAt_ASC',
+  SysPublishedAtDesc = 'sys_publishedAt_DESC',
+  SysPublishedVersionAsc = 'sys_publishedVersion_ASC',
+  SysPublishedVersionDesc = 'sys_publishedVersion_DESC',
+}
 
 export enum OfferingOrder {
   ApiIdentifierAsc = 'apiIdentifier_ASC',
@@ -1389,6 +1415,7 @@ export type Purchase = Entry & {
   description?: Maybe<Scalars['String']['output']>;
   internalName?: Maybe<Scalars['String']['output']>;
   linkedFrom?: Maybe<PurchaseLinkingCollections>;
+  offering?: Maybe<Offering>;
   purchaseDetails?: Maybe<PurchaseDetails>;
   stripePlanChoices?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   sys: Sys;
@@ -1407,6 +1434,13 @@ export type PurchaseInternalNameArgs = {
 /** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
 export type PurchaseLinkedFromArgs = {
   allowedLocales?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
+export type PurchaseOfferingArgs = {
+  locale?: InputMaybe<Scalars['String']['input']>;
+  preview?: InputMaybe<Scalars['Boolean']['input']>;
+  where?: InputMaybe<OfferingFilter>;
 };
 
 /** Purchase flow related configuration options. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/purchase) */
@@ -1605,6 +1639,8 @@ export type PurchaseFilter = {
   internalName_not_in?: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  offering?: InputMaybe<CfOfferingNestedFilter>;
+  offering_exists?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseDetails?: InputMaybe<CfPurchaseDetailsNestedFilter>;
   purchaseDetails_exists?: InputMaybe<Scalars['Boolean']['input']>;
   stripePlanChoices_contains_all?: InputMaybe<
@@ -2395,6 +2431,67 @@ export type CfIapNestedFilter = {
   sys?: InputMaybe<SysFilter>;
 };
 
+export type CfOfferingNestedFilter = {
+  AND?: InputMaybe<Array<InputMaybe<CfOfferingNestedFilter>>>;
+  OR?: InputMaybe<Array<InputMaybe<CfOfferingNestedFilter>>>;
+  apiIdentifier?: InputMaybe<Scalars['String']['input']>;
+  apiIdentifier_contains?: InputMaybe<Scalars['String']['input']>;
+  apiIdentifier_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  apiIdentifier_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  apiIdentifier_not?: InputMaybe<Scalars['String']['input']>;
+  apiIdentifier_not_contains?: InputMaybe<Scalars['String']['input']>;
+  apiIdentifier_not_in?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  capabilitiesCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  commonContent_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  contentfulMetadata?: InputMaybe<ContentfulMetadataFilter>;
+  countries_contains_all?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_none?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_contains_some?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  countries_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  couponConfigCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  defaultPurchase_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  description_contains?: InputMaybe<Scalars['String']['input']>;
+  description_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  description_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  description_not?: InputMaybe<Scalars['String']['input']>;
+  description_not_contains?: InputMaybe<Scalars['String']['input']>;
+  description_not_in?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  experimentPurchaseCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  iapCollection_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  internalName?: InputMaybe<Scalars['String']['input']>;
+  internalName_contains?: InputMaybe<Scalars['String']['input']>;
+  internalName_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  internalName_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+  internalName_not?: InputMaybe<Scalars['String']['input']>;
+  internalName_not_contains?: InputMaybe<Scalars['String']['input']>;
+  internalName_not_in?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeProductId?: InputMaybe<Scalars['String']['input']>;
+  stripeProductId_contains?: InputMaybe<Scalars['String']['input']>;
+  stripeProductId_exists?: InputMaybe<Scalars['Boolean']['input']>;
+  stripeProductId_in?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeProductId_not?: InputMaybe<Scalars['String']['input']>;
+  stripeProductId_not_contains?: InputMaybe<Scalars['String']['input']>;
+  stripeProductId_not_in?: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  sys?: InputMaybe<SysFilter>;
+};
+
 export type CfPurchaseDetailsNestedFilter = {
   AND?: InputMaybe<Array<InputMaybe<CfPurchaseDetailsNestedFilter>>>;
   OR?: InputMaybe<Array<InputMaybe<CfPurchaseDetailsNestedFilter>>>;
@@ -2463,6 +2560,7 @@ export type CfPurchaseNestedFilter = {
   internalName_not_in?: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  offering_exists?: InputMaybe<Scalars['Boolean']['input']>;
   purchaseDetails_exists?: InputMaybe<Scalars['Boolean']['input']>;
   stripePlanChoices_contains_all?: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
@@ -2512,6 +2610,43 @@ export type CfServiceNestedFilter = {
   sys?: InputMaybe<SysFilter>;
 };
 
+export type CapabilityServiceByPriceIdsQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+  locale: Scalars['String']['input'];
+  stripePlanIds:
+    | Array<InputMaybe<Scalars['String']['input']>>
+    | InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type CapabilityServiceByPriceIdsQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      offering?: {
+        __typename?: 'Offering';
+        capabilitiesCollection?: {
+          __typename?: 'OfferingCapabilitiesCollection';
+          items: Array<{
+            __typename?: 'Capability';
+            slug?: string | null;
+            servicesCollection?: {
+              __typename?: 'CapabilityServicesCollection';
+              items: Array<{
+                __typename?: 'Service';
+                oauthClientId?: string | null;
+              } | null>;
+            } | null;
+          } | null>;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
 export type OfferingQueryVariables = Exact<{
   id: Scalars['String']['input'];
   locale: Scalars['String']['input'];
@@ -2556,6 +2691,299 @@ export type PurchaseWithDetailsQuery = {
   } | null;
 };
 
+export type PurchaseWithDetailsOfferingContentQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+  locale: Scalars['String']['input'];
+  stripePlanIds:
+    | Array<InputMaybe<Scalars['String']['input']>>
+    | InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type PurchaseWithDetailsOfferingContentQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      purchaseDetails?: {
+        __typename?: 'PurchaseDetails';
+        details?: string | null;
+        productName?: string | null;
+        subtitle?: string | null;
+        webIcon?: string | null;
+      } | null;
+      offering?: {
+        __typename?: 'Offering';
+        stripeProductId?: string | null;
+        commonContent?: {
+          __typename?: 'CommonContent';
+          privacyNoticeUrl?: string | null;
+          privacyNoticeDownloadUrl?: string | null;
+          termsOfServiceUrl?: string | null;
+          termsOfServiceDownloadUrl?: string | null;
+          cancellationUrl?: string | null;
+          emailIcon?: string | null;
+          successActionButtonUrl?: string | null;
+          successActionButtonLabel?: string | null;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
+export const CapabilityServiceByPriceIdsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'CapabilityServiceByPriceIds' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'stripePlanIds' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'skip' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: {
+                        kind: 'Name',
+                        value: 'stripePlanChoices_contains_some',
+                      },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'stripePlanIds' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'capabilitiesCollection',
+                              },
+                              arguments: [
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'skip' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'skip' },
+                                  },
+                                },
+                                {
+                                  kind: 'Argument',
+                                  name: { kind: 'Name', value: 'limit' },
+                                  value: {
+                                    kind: 'Variable',
+                                    name: { kind: 'Name', value: 'limit' },
+                                  },
+                                },
+                              ],
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'items' },
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: { kind: 'Name', value: 'slug' },
+                                        },
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'servicesCollection',
+                                          },
+                                          arguments: [
+                                            {
+                                              kind: 'Argument',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'skip',
+                                              },
+                                              value: {
+                                                kind: 'Variable',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'skip',
+                                                },
+                                              },
+                                            },
+                                            {
+                                              kind: 'Argument',
+                                              name: {
+                                                kind: 'Name',
+                                                value: 'limit',
+                                              },
+                                              value: {
+                                                kind: 'Variable',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'limit',
+                                                },
+                                              },
+                                            },
+                                          ],
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'items',
+                                                },
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'oauthClientId',
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  CapabilityServiceByPriceIdsQuery,
+  CapabilityServiceByPriceIdsQueryVariables
+>;
 export const OfferingDocument = {
   kind: 'Document',
   definitions: [
@@ -2761,4 +3189,242 @@ export const PurchaseWithDetailsDocument = {
 } as unknown as DocumentNode<
   PurchaseWithDetailsQuery,
   PurchaseWithDetailsQueryVariables
+>;
+export const PurchaseWithDetailsOfferingContentDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'PurchaseWithDetailsOfferingContent' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'stripePlanIds' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'skip' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: {
+                        kind: 'Name',
+                        value: 'stripePlanChoices_contains_some',
+                      },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'stripePlanIds' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'purchaseDetails' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'details' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'productName' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'subtitle' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'webIcon' },
+                            },
+                          ],
+                        },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'stripeProductId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'commonContent' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'privacyNoticeUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'privacyNoticeDownloadUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'termsOfServiceUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'termsOfServiceDownloadUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'cancellationUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'emailIcon' },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'successActionButtonUrl',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'successActionButtonLabel',
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  PurchaseWithDetailsOfferingContentQuery,
+  PurchaseWithDetailsOfferingContentQueryVariables
 >;

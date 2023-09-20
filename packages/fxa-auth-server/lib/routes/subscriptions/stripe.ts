@@ -4,6 +4,7 @@
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
@@ -475,7 +476,10 @@ export class StripeHandler {
           error: err,
           msg: err.message,
         });
-        Sentry.captureMessage(`Invoice Preview Error.`, Sentry.Severity.Error);
+        Sentry.captureMessage(
+          `Invoice Preview Error.`,
+          'error' as SeverityLevel
+        );
       });
       this.log.error('subscriptions.previewInvoice', err);
 
@@ -775,7 +779,7 @@ export class StripeHandler {
           });
           Sentry.captureMessage(
             `Cannot find a postal code or country for customer.`,
-            Sentry.Severity.Error
+            'error' as SeverityLevel
           );
         });
       }

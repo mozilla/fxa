@@ -26,6 +26,7 @@ const FOUR_WEEKS = WEEK * 4;
 
 const GROUPS = {
   activity: 'fxa_activity',
+  branding: 'fxa_branding',
   button: 'fxa_rp_button',
   connectDevice: 'fxa_connect_device',
   email: 'fxa_email',
@@ -79,6 +80,7 @@ const EVENT_PROPERTIES = {
   [GROUPS.subCoupon]: NOP,
   [GROUPS.qrConnectDevice]: NOP,
   [GROUPS.thirdPartyAuth]: NOP,
+  [GROUPS.branding]: NOP,
 };
 
 function NOP() {}

@@ -2837,5 +2837,64 @@ registerSuite('amplitude', {
         'fxa_connect_device - pair_notnow_engage'
       );
     },
+
+    'flow.brand-messaging-prelaunch-view': () => {
+      createAmplitudeEvent('flow.signin.brand-messaging-prelaunch-view');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_prelaunch_view'
+      );
+    },
+    'flow.brand-messaging-prelaunch-learn-more': () => {
+      createAmplitudeEvent('flow.signin.brand-messaging-prelaunch-learn-more');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_prelaunch_learn_more'
+      );
+    },
+    'flow.brand-messaging-prelaunch-banner-close': () => {
+      createAmplitudeEvent(
+        'flow.signin.brand-messaging-prelaunch-banner-close'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_prelaunch_banner_close'
+      );
+    },
+    'flow.brand-messaging-postlaunch-view': () => {
+      createAmplitudeEvent('flow.signin.brand-messaging-postlaunch-view');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_postlaunch_view'
+      );
+    },
+    'flow.brand-messaging-postlaunch-learn-more': () => {
+      createAmplitudeEvent('flow.signin.brand-messaging-postlaunch-learn-more');
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_postlaunch_learn_more'
+      );
+    },
+    'flow.brand-messaging-postlaunch-banner-close': () => {
+      createAmplitudeEvent(
+        'flow.signin.brand-messaging-postlaunch-banner-close'
+      );
+
+      assert.equal(logger.info.callCount, 1);
+      assert.equal(
+        logger.info.args[0][1].event_type,
+        'fxa_branding - signin_brand_messaging_postlaunch_banner_close'
+      );
+    },
   },
 });

@@ -9,16 +9,17 @@ import * as uuid from 'uuid';
 import * as random from '../crypto/random';
 import * as jose from 'jose';
 import validators from './validators';
-import Joi from 'joi';
 import {
   Provider,
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
+import isA from 'joi';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+import error from '../error';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
-
-const error = require('../error');
+const HEX_STRING = validators.HEX_STRING;
 
 const appleAud = 'https://appleid.apple.com';
 
@@ -30,7 +31,7 @@ export class LinkedAccountHandler {
     private db: any,
     private config: ConfigType,
     private mailer: any,
-    private profile: ProfileClient,
+    private profile: ProfileClient
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
@@ -66,11 +67,15 @@ export class LinkedAccountHandler {
     const requestPayload = request.payload as any;
 
     const provider = requestPayload.provider as Provider;
+    const service = requestPayload.service;
 
     // Currently, FxA supports creating a linked account via the oauth authorization flow
     // This flow returns an `id_token` which is used create/get FxA account.
     let idToken: any;
     const code = requestPayload.code;
+
+    const { deviceId, flowId, flowBeginTime } = await request.app
+      .metricsContext;
 
     switch (provider) {
       case 'google': {
@@ -181,8 +186,6 @@ export class LinkedAccountHandler {
 
         const geoData = request.app.geo;
         const ip = request.app.clientAddress;
-        const { deviceId, flowId, flowBeginTime } = await request.app
-          .metricsContext;
         const emailOptions = {
           acceptLanguage: request.app.acceptLanguage,
           deviceId,
@@ -207,6 +210,10 @@ export class LinkedAccountHandler {
         request.setMetricsFlowCompleteSignal('account.login', 'login');
         await request.emitMetricsEvent('account.login', {
           uid: accountRecord.uid,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          service,
         });
       } catch (err) {
         this.log.trace(
@@ -253,18 +260,32 @@ export class LinkedAccountHandler {
         );
         await request.emitMetricsEvent('account.verified', {
           uid: accountRecord.uid,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          service,
         });
       }
     } else {
       // This is an existing user and existing FxA user
       accountRecord = await this.db.account(linkedAccountRecord.uid);
-      request.setMetricsFlowCompleteSignal('account.login', 'login');
+      if (service === 'sync') {
+        request.setMetricsFlowCompleteSignal('account.signed', 'login');
+      } else {
+        request.setMetricsFlowCompleteSignal('account.login', 'login');
+      }
       await request.emitMetricsEvent('account.login', {
         uid: accountRecord.uid,
+        deviceId,
+        flowId,
+        flowBeginTime,
+        service,
       });
     }
 
-    let verificationMethod, mustVerifySession = false, tokenVerificationId = undefined;
+    let verificationMethod,
+      mustVerifySession = false,
+      tokenVerificationId = undefined;
     const hasTotpToken = await this.otpUtils.hasTotpToken(accountRecord);
     if (hasTotpToken) {
       mustVerifySession = true;
@@ -328,11 +349,26 @@ export const linkedAccountRoutes = (
       options: {
         ...THIRD_PARTY_AUTH_DOCS.LINKED_ACCOUNT_LOGIN_POST,
         validate: {
-          payload: Joi.object({
+          payload: isA.object({
             idToken: validators.thirdPartyIdToken,
             provider: validators.thirdPartyProvider,
             code: validators.thirdPartyOAuthCode,
             metricsContext: METRICS_CONTEXT_SCHEMA,
+            service: validators.service.optional(),
+          }),
+        },
+        response: {
+          schema: isA.object({
+            uid: isA.string().regex(HEX_STRING).required(),
+            sessionToken: isA.string().regex(HEX_STRING).required(),
+            providerUid: isA
+              .string()
+              .required()
+              .description(DESCRIPTION.providerUid),
+            verificationMethod: isA
+              .string()
+              .optional()
+              .description(DESCRIPTION.verificationMethod),
           }),
         },
       },
@@ -348,8 +384,13 @@ export const linkedAccountRoutes = (
           strategy: 'sessionToken',
         },
         validate: {
-          payload: Joi.object({
+          payload: isA.object({
             provider: validators.thirdPartyProvider,
+          }),
+        },
+        response: {
+          schema: isA.object({
+            success: isA.boolean().required(),
           }),
         },
       },

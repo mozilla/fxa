@@ -53,6 +53,7 @@ import {
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
 import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
 import { QueryParams } from '../..';
+import SignupContainer from '../../pages/Signup/container';
 
 // TODO: FXA-8098
 // export const INITIAL_METRICS_QUERY = gql`
@@ -76,8 +77,6 @@ import { QueryParams } from '../..';
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
-  const { isInRecoveryKeyExperiment } = flowQueryParams;
-
   const config = useConfig();
 
   // TODO: stop overfetching / improve this, FXA-8098
@@ -86,10 +85,8 @@ export const App = ({
   const account = useAccount();
   const { metricsEnabled } = account;
 
-  // TODO Remove feature flag and experiment logic in FXA-7419
-  const showRecoveryKeyV2 = !!(
-    config.showRecoveryKeyV2 && isInRecoveryKeyExperiment === 'true'
-  );
+  // TODO Remove feature flag in FXA-7419
+  const showRecoveryKeyV2 = config.showRecoveryKeyV2;
 
   useEffect(() => {
     Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
@@ -249,6 +246,8 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
         path="/signin_confirmed/*"
         {...{ integration }}
       />
+
+      <SignupContainer path="/signup/*" {...{ integration }} />
 
       <Confirm path="/confirm/*" {...{ sessionTokenId }} />
       <ConfirmSignupCode path="/confirm_signup_code/*" />

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as Sentry from '@sentry/node';
+import { ErrorEvent } from '@sentry/types';
+
 import { SQS } from 'aws-sdk';
 
 import { ILogger } from '../log';
@@ -67,7 +69,7 @@ export class SentryPiiFilter extends FilterBase {
   /**
    * Filter PII from all known sentry fields
    */
-  public filter(event: Sentry.Event) {
+  public filter(event: ErrorEvent) {
     // Target key parts of sentry event structure
     this.scrubMessage(event)
       .scrubContext(event)

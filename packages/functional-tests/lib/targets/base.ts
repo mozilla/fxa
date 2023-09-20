@@ -8,6 +8,11 @@ export type Credentials = Awaited<ReturnType<AuthClient['signUp']>> & {
   secret?: string;
 };
 
+interface SubConfig {
+  product: string;
+  plan: string;
+}
+
 export abstract class BaseTarget {
   readonly auth: AuthClient;
   readonly email: EmailClient;
@@ -15,6 +20,7 @@ export abstract class BaseTarget {
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
   abstract readonly name: TargetName;
+  abstract readonly subscriptionConfig: SubConfig;
 
   constructor(readonly authServerUrl: string, emailUrl?: string) {
     this.auth = new AuthClient(authServerUrl);

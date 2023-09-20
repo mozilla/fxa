@@ -1,4 +1,4 @@
-import { Severity } from '@sentry/browser';
+import { SeverityLevel } from '@sentry/browser';
 import FlowEvent from './flow-event';
 
 import sentryMetrics from './sentry';
@@ -49,7 +49,7 @@ it('captures a warning to sentry if flow metrics fails to initialize', () => {
     'Flow events not initialized - Metrics not captured for checkout flow',
     'flowEvents.initializationError',
     { referrer: '', url: 'http://localhost/' },
-    Severity.Warning
+    'warning' as SeverityLevel
   );
 });
 

@@ -6,6 +6,10 @@ import Storage from './storage';
 
 const ORIGINAL_TAB_KEY = 'originalTab';
 
+function localStorage() {
+  return Storage.factory('localStorage');
+}
+
 function sessionStorage() {
   return Storage.factory('sessionStorage');
 }
@@ -36,4 +40,33 @@ const OAUTH_KEY = 'oauth';
 export function clearOAuthData() {
   const storage = sessionStorage();
   storage.remove(OAUTH_KEY);
+}
+
+// Contains minimal account data needed for SignUp flow
+export interface StoredAccountData {
+  uid: string;
+  lastLogin: number;
+  email: string;
+  sessionToken: string;
+  metricsEnabled: boolean;
+  verified: boolean;
+}
+
+/**
+ * Persists account data to localStorage.
+ */
+export function persistAccount(accountData: StoredAccountData) {
+  const storage = localStorage();
+  const uid = accountData.uid;
+  let accounts = storage.get('accounts') || {};
+
+  // add the account to local storage
+  accounts[uid] = accountData;
+
+  storage.set('accounts', accounts);
+}
+
+export function setCurrentAccount(uid: string) {
+  const storage = localStorage();
+  storage.set('currentAccountUid', uid);
 }

@@ -1384,19 +1384,21 @@ FxaClientWrapper.prototype = {
   verifyAccountThirdParty: withClient(
     (client, relier, token, provider, metricsContext) => {
       return client
-        .verifyAccountThirdParty(token, provider, metricsContext)
+        .verifyAccountThirdParty(
+          token,
+          provider,
+          relier.get('service'),
+          metricsContext
+        )
         .then((accountData) => {
           return getUpdatedSessionData(accountData.email, relier, accountData);
         });
     }
   ),
 
-  createPassword: withClient(
-    (client, token, email, password) => {
-      return client
-        .createPassword(token, email, password)
-    }
-  ),
+  createPassword: withClient((client, token, email, password) => {
+    return client.createPassword(token, email, password);
+  }),
 };
 
 export default FxaClientWrapper;

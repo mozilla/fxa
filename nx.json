@@ -7,7 +7,6 @@
       "options": {
         "cacheableOperations": [
           "build",
-          "build-l10n",
           "build-storybook",
           "compile",
           "gql-copy",
@@ -172,6 +171,9 @@
     "@nx/react": {
       "application": {
         "babel": true
+      },
+      "library": {
+        "unitTestRunner": "jest"
       }
     },
     "@nx/next": {

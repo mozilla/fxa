@@ -1,8 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 export * from './lib/associated-types';
 export * from './lib/keysley-types';
 export { CartFactory } from './lib/factories';
-export { setupAccountDatabase, AccountDatabase } from './lib/setup';
+export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
 export { testAccountDatabaseSetup } from './lib/tests';
+export type { AccountDatabase } from './lib/setup';
+export { AccountDatabaseNestFactory } from './lib/account.provider';

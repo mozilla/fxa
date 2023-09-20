@@ -1,7 +1,8 @@
 <aside class="third-party-auth">
-  {{#isSignup}}
-    <div class="separator">{{#t}}or{{/t}}</div>
-  {{/isSignup}}
+{{#showSeparator}}
+  <div class="separator">{{#t}}or{{/t}}</div>
+{{/showSeparator}}
+    
     <button id="google-login-button" class="button login-button"><span class="google-logo"></span>{{#t}}Continue with Google{{/t}}</button>
     <button id="apple-login-button" class="button login-button"><span class="apple-logo"></span>{{#t}}Continue with Apple{{/t}}</button>
 </aside>

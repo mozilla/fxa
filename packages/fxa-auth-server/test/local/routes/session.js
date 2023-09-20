@@ -77,7 +77,8 @@ function makeRoutes(options = {}) {
     signupUtils,
     mailer,
     push,
-    customs
+    customs,
+    glean
   );
 }
 
@@ -1177,6 +1178,7 @@ describe('/session/verify_code', () => {
     const args = request.emitMetricsEvent.args[1];
     assert.equal(args[0], 'account.confirmed');
     assert.equal(args[1].uid, signupCodeAccount.uid);
+    sinon.assert.calledOnce(gleanMock.login.verifyCodeConfirmed);
   });
 
   it('should fail for invalid code', async () => {

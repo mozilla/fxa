@@ -13,10 +13,14 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel or swc plugin for production.
  */
 const documents = {
+  '\n  query CapabilityServiceByPriceIds(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        offering {\n          capabilitiesCollection(skip: $skip, limit: $limit) {\n            items {\n              slug\n              servicesCollection(skip: $skip, limit: $limit) {\n                items {\n                  oauthClientId\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n':
+    types.CapabilityServiceByPriceIdsDocument,
   '\n  query Offering($id: String!, $locale: String!) {\n    offering(id: $id, locale: $locale) {\n      stripeProductId\n      countries\n      defaultPurchase {\n        purchaseDetails {\n          productName\n          details\n          subtitle\n          webIcon\n        }\n      }\n    }\n  }\n':
     types.OfferingDocument,
   '\n  query PurchaseWithDetails($id: String!, $locale: String!) {\n    purchase(id: $id, locale: $locale) {\n      internalName\n      description\n      purchaseDetails {\n        productName\n        details\n        webIcon\n      }\n    }\n  }\n':
     types.PurchaseWithDetailsDocument,
+  '\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n':
+    types.PurchaseWithDetailsOfferingContentDocument,
 };
 
 /**
@@ -37,6 +41,12 @@ export function graphql(source: string): unknown;
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(
+  source: '\n  query CapabilityServiceByPriceIds(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        offering {\n          capabilitiesCollection(skip: $skip, limit: $limit) {\n            items {\n              slug\n              servicesCollection(skip: $skip, limit: $limit) {\n                items {\n                  oauthClientId\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n'
+): (typeof documents)['\n  query CapabilityServiceByPriceIds(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        offering {\n          capabilitiesCollection(skip: $skip, limit: $limit) {\n            items {\n              slug\n              servicesCollection(skip: $skip, limit: $limit) {\n                items {\n                  oauthClientId\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
   source: '\n  query Offering($id: String!, $locale: String!) {\n    offering(id: $id, locale: $locale) {\n      stripeProductId\n      countries\n      defaultPurchase {\n        purchaseDetails {\n          productName\n          details\n          subtitle\n          webIcon\n        }\n      }\n    }\n  }\n'
 ): (typeof documents)['\n  query Offering($id: String!, $locale: String!) {\n    offering(id: $id, locale: $locale) {\n      stripeProductId\n      countries\n      defaultPurchase {\n        purchaseDetails {\n          productName\n          details\n          subtitle\n          webIcon\n        }\n      }\n    }\n  }\n'];
 /**
@@ -45,6 +55,12 @@ export function graphql(
 export function graphql(
   source: '\n  query PurchaseWithDetails($id: String!, $locale: String!) {\n    purchase(id: $id, locale: $locale) {\n      internalName\n      description\n      purchaseDetails {\n        productName\n        details\n        webIcon\n      }\n    }\n  }\n'
 ): (typeof documents)['\n  query PurchaseWithDetails($id: String!, $locale: String!) {\n    purchase(id: $id, locale: $locale) {\n      internalName\n      description\n      purchaseDetails {\n        productName\n        details\n        webIcon\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n'
+): (typeof documents)['\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n'];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

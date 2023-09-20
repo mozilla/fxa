@@ -19,7 +19,7 @@ const VPASSWORD_INPUT_SELECTOR = '#vpassword';
 
 class SetPassword extends FormView {
   template = Template;
-  
+
   _getPassword() {
     return this.$(PASSWORD_INPUT_SELECTOR).val();
   }
@@ -38,7 +38,7 @@ class SetPassword extends FormView {
       this.showValidationError(this.$(PASSWORD_INPUT_SELECTOR), err, true);
     }
   }
-  
+
   getAccount() {
     return this.getSignedInAccount();
   }
@@ -61,17 +61,17 @@ class SetPassword extends FormView {
     const account = this.getAccount();
     const password = this._getPassword();
 
-    return account.createPassword(account.get('email'), password)
-      .then(() => {
-        // After the user has set a password, initiated the standard Sync
-        // login flow with the password they set.
-        return this.signIn(account, password);
-      });
+    return account.createPassword(account.get('email'), password).then(() => {
+      // After the user has set a password, initiated the standard Sync
+      // login flow with the password they set.
+      return this.signIn(account, password);
+    });
   }
 }
 
 Cocktail.mixin(
   SetPassword,
+  FlowEventsMixin,
   PasswordMixin,
   CWTSOnSignupPasswordMixin,
   PasswordStrengthMixin({
@@ -80,7 +80,6 @@ Cocktail.mixin(
   }),
   ServiceMixin,
   AccountSuggestionMixin,
-  FlowEventsMixin,
   SigninMixin
 );
 

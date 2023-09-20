@@ -6,6 +6,7 @@ import { ApolloServerErrorCode } from '@apollo/server/errors';
 import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
+import { ErrorEvent } from '@sentry/types';
 import { SQS } from 'aws-sdk';
 import { Request } from 'express';
 
@@ -48,10 +49,10 @@ export function isApolloError(err: Error): boolean {
 /**
  * Filters all of an objects string properties to remove tokens.
  *
- * @param obj Object to filter values on
+ * @param event Sentry ErrorEvent
  */
-export function filterObject(obj: Record<string, any>) {
-  return piiFilter.filter(obj);
+export function filterObject(event: ErrorEvent) {
+  return piiFilter.filter(event);
 }
 
 /**
@@ -66,7 +67,10 @@ export function filterObject(obj: Record<string, any>) {
  * @param event A sentry event
  * @returns a sanitized sentry event
  */
-export function filterSentryEvent(event: Sentry.Event, _hint: unknown) {
+export function filterSentryEvent(
+  event: ErrorEvent,
+  _hint: unknown
+): ErrorEvent {
   return piiFilter.filter(event);
 }
 
@@ -102,11 +106,12 @@ export function reportRequestException(
   if (exception.reported) {
     return;
   }
+
   Sentry.withScope((scope: Sentry.Scope) => {
     scope.addEventProcessor((event: Sentry.Event) => {
       if (request) {
         const sentryEvent = Sentry.Handlers.parseRequest(event, request);
-        sentryEvent.level = Sentry.Severity.Error;
+        sentryEvent.level = 'error';
         return sentryEvent;
       }
       return null;
@@ -114,6 +119,7 @@ export function reportRequestException(
     for (const ctx of excContexts) {
       scope.setContext(ctx.name, ctx.fieldData);
     }
+
     Sentry.captureException(exception);
     exception.reported = true;
   });

@@ -10,13 +10,7 @@ export const Subject = () => {
   const initialList: string[] = engines
     .filter((engine) => engine.defaultChecked)
     .map((engine) => engine.text);
-  const [selected, setSelected] = useState<string[]>(initialList);
+  const [, setSelected] = useState<string[]>(initialList);
 
-  return (
-    <ChooseWhatToSync
-      {...{ engines }}
-      selectedEngines={selected}
-      setSelectedEngines={setSelected}
-    />
-  );
+  return <ChooseWhatToSync {...{ engines }} setSelectedEngines={setSelected} />;
 };

@@ -8,7 +8,6 @@ const { CelebrateError } = require('celebrate');
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
-const Sentry = require('@sentry/node');
 
 describe('express/routing:', () => {
   let appMock;
@@ -263,7 +262,7 @@ describe('express/routing:', () => {
       assert.isTrue(
         mockSentry.captureMessage.calledOnceWith(
           'Joi validation error',
-          Sentry.Severity.Error
+          'error'
         )
       );
     });
