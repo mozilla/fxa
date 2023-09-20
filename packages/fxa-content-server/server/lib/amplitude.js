@@ -916,7 +916,7 @@ const FUZZY_EVENTS = new Map([
   ],
 ]);
 
-const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS);
+const transform = initialize(SERVICES, EVENTS, FUZZY_EVENTS, logger, statsd);
 
 module.exports = receiveEvent;
 
