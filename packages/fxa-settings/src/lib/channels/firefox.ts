@@ -202,7 +202,10 @@ export class Firefox extends EventTarget {
   }
 
   // send a message to the browser chrome
-  send(command: FirefoxCommand, data: any, messageId?: string) {
+  send(command: FirefoxCommand, data: any) {
+    // If two messages are created within the same millisecond, Date.now()
+    // returns the same value. Append a suffix that ensures uniqueness
+    const messageId = `${Date.now()}${++messageIdSuffix}`;
     const detail = this.formatEventDetail(command, data, messageId);
     window.dispatchEvent(
       new CustomEvent('WebChannelMessageToChrome', {
