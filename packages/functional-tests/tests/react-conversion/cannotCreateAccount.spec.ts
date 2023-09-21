@@ -5,9 +5,9 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
-test.beforeEach(async ({ pages: { login } }) => {
+test.beforeEach(async ({ pages: { configPage } }) => {
   // This test requires simple react routes to be enabled
-  const config = await login.getConfig();
+  const config = await configPage.getConfig();
   test.skip(config.showReactApp.simpleRoutes !== true);
 });
 

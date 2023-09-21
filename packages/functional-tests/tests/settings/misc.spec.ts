@@ -71,9 +71,9 @@ test.describe('severity-3 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293440
   test('settings data-trio component works #1293423 #1293440', async ({
     credentials,
-    pages: { login, settings, recoveryKey },
+    pages: { configPage, settings, recoveryKey },
   }) => {
-    const config = await login.getConfig();
+    const config = await configPage.getConfig();
     if (config.featureFlags.showRecoveryKeyV2 !== true) {
       await settings.goto();
       await settings.recoveryKey.clickCreate();

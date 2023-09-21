@@ -8,12 +8,12 @@ import { EmailHeader, EmailType } from '../../lib/email';
 test.describe('oauth reset password react', () => {
   let resetPasswordReactFlag = false;
 
-  test.beforeEach(async ({ pages: { login, resetPassword } }) => {
+  test.beforeEach(async ({ pages: { configPage, resetPassword } }) => {
     resetPasswordReactFlag = resetPassword.react;
     resetPassword.react = true;
     test.slow();
 
-    const config = await login.getConfig();
+    const config = await configPage.getConfig();
     test.skip(config.showReactApp.resetPasswordRoutes !== true);
   });
 

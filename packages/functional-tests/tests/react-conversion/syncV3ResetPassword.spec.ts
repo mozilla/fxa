@@ -10,10 +10,10 @@ test.describe.configure({ mode: 'parallel' });
 let syncBrowserPages;
 
 test.describe('Firefox Desktop Sync v3 reset password react', () => {
-  test.beforeEach(async ({ target, pages: { login } }) => {
+  test.beforeEach(async ({ target, pages: { configPage } }) => {
     test.slow();
     // Ensure that the feature flag is enabled
-    const config = await login.getConfig();
+    const config = await configPage.getConfig();
     test.skip(config.showReactApp.resetPasswordRoutes !== true);
 
     syncBrowserPages = await newPagesForSync(target);

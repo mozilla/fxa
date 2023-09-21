@@ -10,11 +10,11 @@ let hint;
 // TODO in FXA-7419 - remove this first describe block that refers to the old account recovery generation flow
 test.describe('old recovery key test', () => {
   test.beforeEach(
-    async ({ credentials, pages: { login, settings, recoveryKey } }) => {
+    async ({ credentials, pages: { configPage, settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
-      const config = await login.getConfig();
+      const config = await configPage.getConfig();
       test.skip(config.featureFlags.showRecoveryKeyV2 === true);
 
       await settings.goto();
@@ -224,12 +224,12 @@ test.describe('old recovery key test', () => {
 // TODO in FXA-7419 - rename describe block (remove "new")
 test.describe('new recovery key test', () => {
   test.beforeEach(
-    async ({ credentials, pages: { login, settings, recoveryKey } }) => {
+    async ({ credentials, pages: { configPage, settings, recoveryKey } }) => {
       // Generating and consuming recovery keys is a slow process
       // Mail delivery can also be slow
       test.slow();
 
-      const config = await login.getConfig();
+      const config = await configPage.getConfig();
       test.skip(config.featureFlags.showRecoveryKeyV2 !== true);
 
       await settings.goto('isInRecoveryKeyExperiment=true');
