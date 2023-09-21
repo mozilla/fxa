@@ -21,6 +21,8 @@ const documents = {
     types.PurchaseWithDetailsDocument,
   '\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n':
     types.PurchaseWithDetailsOfferingContentDocument,
+  '\n  query ServicesWithCapabilities($skip: Int!, $limit: Int!, $locale: String!) {\n    serviceCollection(skip: $skip, limit: $limit, locale: $locale) {\n      items {\n        oauthClientId\n        capabilitiesCollection(skip: $skip, limit: $limit) {\n          items {\n            slug\n          }\n        }\n      }\n    }\n  }\n':
+    types.ServicesWithCapabilitiesDocument,
 };
 
 /**
@@ -61,6 +63,12 @@ export function graphql(
 export function graphql(
   source: '\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n'
 ): (typeof documents)['\n  query PurchaseWithDetailsOfferingContent(\n    $skip: Int!\n    $limit: Int!\n    $locale: String!\n    $stripePlanIds: [String]!\n  ) {\n    purchaseCollection(\n      skip: $skip\n      limit: $limit\n      locale: $locale\n      where: { stripePlanChoices_contains_some: $stripePlanIds }\n    ) {\n      items {\n        stripePlanChoices\n        purchaseDetails {\n          details\n          productName\n          subtitle\n          webIcon\n        }\n        offering {\n          stripeProductId\n          commonContent {\n            privacyNoticeUrl\n            privacyNoticeDownloadUrl\n            termsOfServiceUrl\n            termsOfServiceDownloadUrl\n            cancellationUrl\n            emailIcon\n            successActionButtonUrl\n            successActionButtonLabel\n          }\n        }\n      }\n    }\n  }\n'];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(
+  source: '\n  query ServicesWithCapabilities($skip: Int!, $limit: Int!, $locale: String!) {\n    serviceCollection(skip: $skip, limit: $limit, locale: $locale) {\n      items {\n        oauthClientId\n        capabilitiesCollection(skip: $skip, limit: $limit) {\n          items {\n            slug\n          }\n        }\n      }\n    }\n  }\n'
+): (typeof documents)['\n  query ServicesWithCapabilities($skip: Int!, $limit: Int!, $locale: String!) {\n    serviceCollection(skip: $skip, limit: $limit, locale: $locale) {\n      items {\n        oauthClientId\n        capabilitiesCollection(skip: $skip, limit: $limit) {\n          items {\n            slug\n          }\n        }\n      }\n    }\n  }\n'];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};
