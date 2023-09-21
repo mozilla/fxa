@@ -105,6 +105,13 @@ export function isMobileDevice(client?: AttachedClient) {
   return /mobi/i.test(navigator.userAgent);
 }
 
+export function shouldSendFxAStatus(context?: string) {
+  // Mobile clients may have a user that the setting page doesn't know about
+  // this is common if the mobile client signed in using pairing and thus the
+  // settings page does not yet have the session token for the user.
+  return context === 'oauth_webchannel_v1';
+}
+
 // Crockford base32 Regex. Case insensitive and excludes I, L, O, U
 const B32_STRING = /^[0-9A-HJ-KM-NP-TV-Z]+$/i;
 export function isBase32Crockford(value: string) {

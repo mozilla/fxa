@@ -9,12 +9,12 @@ import { render } from 'react-dom';
 import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import App from './components/App';
 import config, { readConfigMeta } from './lib/config';
-import { searchParams } from './lib/utilities';
+import { shouldSendFxAStatus, searchParams } from './lib/utilities';
 import { AppContext, initializeAppContext } from './models';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { ApolloProvider } from '@apollo/client';
 import { createApolloClient } from './lib/gql';
-import firefox, { FirefoxCommand, SignedInUser } from './lib/channels/firefox';
+import firefox from './lib/channels/firefox';
 import { currentAccount } from './lib/cache';
 import './styles/tailwind.out.css';
 
@@ -49,51 +49,56 @@ try {
       ...config.sentry,
     },
   });
-  // We do a best effort recovery of the user's signed in state
-  // There is no guarantee the event will be triggered before we
-  // have initialized our GraphQL client, because that depends on the
-  // browser responding to the web channel message quickly enough
-  firefox.addEventListener(FirefoxCommand.FxAStatus, (event) => {
-    const signedInUser = (event as any).detail.signedInUser as
-      | SignedInUser
-      | undefined;
-    if (signedInUser) {
-      currentAccount({
-        ...signedInUser,
-        // The FxA status message does not include the time the user
-        // last signed in, we default it to now
-        lastLogin: Date.now(),
-        metricsEnabled: true,
-      });
-    }
-    firefox.removeEventListener(FirefoxCommand.FxAStatus, null);
-  });
 
-  firefox.fxaStatus({
-    service: flowQueryParams.context === 'fx_desktop_v3' ? 'sync' : undefined,
-    context: flowQueryParams.context,
-  });
+  const completeInitialization = () => {
+    const apolloClient = createApolloClient(config.servers.gql.url);
+    const appContext = initializeAppContext();
 
-  const apolloClient = createApolloClient(config.servers.gql.url);
-  const appContext = initializeAppContext();
+    render(
+      <React.StrictMode>
+        <AppErrorBoundary>
+          <AppContext.Provider value={appContext}>
+            <AppLocalizationProvider
+              baseDir="/settings/locales"
+              userLocales={navigator.languages}
+            >
+              <ApolloProvider client={apolloClient}>
+                <App {...{ flowQueryParams }} />
+              </ApolloProvider>
+            </AppLocalizationProvider>
+          </AppContext.Provider>
+        </AppErrorBoundary>
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+  };
 
-  render(
-    <React.StrictMode>
-      <AppErrorBoundary>
-        <AppContext.Provider value={appContext}>
-          <AppLocalizationProvider
-            baseDir="/settings/locales"
-            userLocales={navigator.languages}
-          >
-            <ApolloProvider client={apolloClient}>
-              <App {...{ flowQueryParams }} />
-            </ApolloProvider>
-          </AppLocalizationProvider>
-        </AppContext.Provider>
-      </AppErrorBoundary>
-    </React.StrictMode>,
-    document.getElementById('root')
-  );
+  if (shouldSendFxAStatus(flowQueryParams.context)) {
+    firefox
+      .fxaStatus({
+        service:
+          flowQueryParams.context === 'fx_desktop_v3' ? 'sync' : undefined,
+        context: flowQueryParams.context,
+      })
+      .then((message) => {
+        const signedInUser = message.signedInUser;
+        if (signedInUser) {
+          currentAccount({
+            ...signedInUser,
+            // The FxA status message does not include the time the user
+            // last signed in, we default it to now
+            lastLogin: Date.now(),
+            metricsEnabled: true,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error requesting FxA status from browser', error);
+      })
+      .finally(() => completeInitialization());
+  } else {
+    completeInitialization();
+  }
 } catch (error) {
   console.error('Error initializing FXA Settings', error);
 }

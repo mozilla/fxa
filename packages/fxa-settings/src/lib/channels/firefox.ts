@@ -15,19 +15,28 @@ export enum FirefoxCommand {
   CanLinkAccount = 'fxaccounts:can_link_account',
 }
 
-export interface FirefoxMessage {
+const DEFAULT_SEND_TIMEOUT_LENGTH_MS: number = 5 * 1000; // 5 seconds in milliseconds
+
+export interface FirefoxMessageDetail {
   id: string;
-  message?: {
-    command: FirefoxCommand;
-    data: Record<string, any> & {
-      error?: {
-        message: string;
-        stack: string;
-      };
+  message?: FirefoxMessage;
+}
+
+export interface FirefoxMessage {
+  command: FirefoxCommand;
+  data: Record<string, any> & {
+    error?: {
+      message: string;
+      stack: string;
     };
-    messageId: string;
-    error?: string;
   };
+  messageId: string;
+  error?: string;
+}
+
+export interface FirefoxMessageError {
+  error?: string;
+  stack?: string;
 }
 
 interface ProfileUid {
@@ -39,13 +48,13 @@ interface ProfileMetricsEnabled {
 }
 
 type Profile = ProfileUid | ProfileMetricsEnabled;
-type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
+type FirefoxEvent = CustomEvent<FirefoxMessageDetail | string>;
 
 // This is defined in the Firefox source code:
 // https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
 type FxAStatusRequest = {
-  service: string | undefined; // ex. 'sync'
-  context: string | undefined; // ex. 'fx_desktop_v3'
+  service?: string; // ex. 'sync'
+  context?: string; // ex. 'fx_desktop_v3'
 };
 
 export type FxAStatusResponse = {
@@ -121,12 +130,80 @@ function createMessageId() {
   return `${Date.now()}${++messageIdSuffix}`;
 }
 
+interface WebChannelRequest {
+  command: FirefoxCommand;
+  messageId: string;
+  timeoutId?: number;
+  reject(reason?: any): void;
+  resolve(value?: any): void;
+}
+
+interface OutstandingRequestOptions {
+  window: Window;
+  sendTimeoutLength?: number;
+}
+
+/**
+ * OutstandingRequests manages all Firefox WebChannel requests that
+ * the web application is waiting for a response for.
+ *
+ * This is particularly useful for the fxastatus request, where the the
+ * web application is requesting the signed in user data from the browser.
+ */
+class OutstandingRequests {
+  private window_: Window;
+  private sendTimeoutLength: number;
+  private requests: { [key: string]: WebChannelRequest };
+  constructor(options: OutstandingRequestOptions) {
+    this.window_ = options.window;
+    this.requests = {};
+    this.sendTimeoutLength =
+      options.sendTimeoutLength || DEFAULT_SEND_TIMEOUT_LENGTH_MS;
+  }
+
+  add(messageId: string, request: WebChannelRequest) {
+    this.remove(messageId);
+    request.timeoutId = this.window_.setTimeout(() => {
+      request.reject();
+      this.remove(messageId);
+    }, this.sendTimeoutLength);
+    this.requests[messageId] = request;
+  }
+
+  resolve(message: FirefoxMessage) {
+    const outstanding = this.requests[message.messageId];
+    if (outstanding) {
+      outstanding.resolve(message.data);
+      this.remove(message.messageId);
+    }
+  }
+
+  reject(messageId: string, error: FirefoxMessageError) {
+    const outstanding = this.requests[messageId];
+    if (outstanding) {
+      outstanding.reject(error);
+      this.remove(messageId);
+    }
+  }
+
+  remove(messageId: string) {
+    const outstanding = this.requests[messageId];
+    if (outstanding) {
+      this.window_.clearTimeout(outstanding.timeoutId);
+      delete this.requests[messageId];
+    }
+  }
+}
+
 export class Firefox extends EventTarget {
   private broadcastChannel?: BroadcastChannel;
+  private outstandingRequests: OutstandingRequests;
   readonly id: string;
   constructor() {
     super();
     this.id = 'account_updates';
+    this.outstandingRequests = new OutstandingRequests({ window });
+
     if (typeof BroadcastChannel !== 'undefined') {
       this.broadcastChannel = new BroadcastChannel('firefox_accounts');
       this.broadcastChannel.addEventListener('message', (event) =>
@@ -151,7 +228,7 @@ export class Firefox extends EventTarget {
     try {
       const detail =
         typeof event.detail === 'string'
-          ? (JSON.parse(event.detail) as FirefoxMessage)
+          ? (JSON.parse(event.detail) as FirefoxMessageDetail)
           : event.detail;
       if (detail.id !== this.id) {
         return;
@@ -163,10 +240,12 @@ export class Firefox extends EventTarget {
             message: message.error || message.data.error?.message,
             stack: message.data.error?.stack,
           };
+          this.outstandingRequests.reject(message.messageId, error);
           this.dispatchEvent(
             new CustomEvent(FirefoxCommand.Error, { detail: error })
           );
         } else {
+          this.outstandingRequests.resolve(message);
           this.dispatchEvent(
             new CustomEvent(message.command, { detail: message.data })
           );
@@ -201,17 +280,37 @@ export class Firefox extends EventTarget {
     return JSON.stringify(detail);
   }
 
-  // send a message to the browser chrome
+  // Send a message to the browser chrome
+  // does not wait for a response
   send(command: FirefoxCommand, data: any) {
-    // If two messages are created within the same millisecond, Date.now()
-    // returns the same value. Append a suffix that ensures uniqueness
-    const messageId = `${Date.now()}${++messageIdSuffix}`;
-    const detail = this.formatEventDetail(command, data, messageId);
+    const detail = this.formatEventDetail(command, data);
     window.dispatchEvent(
       new CustomEvent('WebChannelMessageToChrome', {
         detail,
       })
     );
+  }
+
+  // Request a message from the browser chrome
+  // returns a promise that resolves when a response arrives
+  // rejects if an error is received from the browser, or
+  // if the request times out.
+  request<T>(command: FirefoxCommand, data: any): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const messageId = createMessageId();
+      const detail = this.formatEventDetail(command, data, messageId);
+      this.outstandingRequests.add(messageId, {
+        command,
+        messageId,
+        resolve,
+        reject,
+      });
+      window.dispatchEvent(
+        new CustomEvent('WebChannelMessageToChrome', {
+          detail,
+        })
+      );
+    });
   }
 
   // broadcast a message to other tabs
@@ -250,8 +349,8 @@ export class Firefox extends EventTarget {
     this.broadcast(FirefoxCommand.ProfileChanged, profile);
   }
 
-  fxaStatus(options: FxAStatusRequest) {
-    this.send(FirefoxCommand.FxAStatus, options);
+  fxaStatus(options: FxAStatusRequest): Promise<FxAStatusResponse> {
+    return this.request(FirefoxCommand.FxAStatus, options);
   }
 
   async fxaLogin(options: FxALoginRequest): Promise<void> {
