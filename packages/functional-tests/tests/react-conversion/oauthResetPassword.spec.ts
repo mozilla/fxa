@@ -121,6 +121,7 @@ test.describe('oauth reset password react', () => {
       },
       {
         action: 'emailFirst',
+        newTab: true,
         accountRecoveryKey,
       }
     );
