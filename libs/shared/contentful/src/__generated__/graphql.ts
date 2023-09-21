@@ -2783,6 +2783,30 @@ export type PurchaseWithDetailsOfferingContentQuery = {
   } | null;
 };
 
+export type ServicesWithCapabilitiesQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+  locale: Scalars['String']['input'];
+}>;
+
+export type ServicesWithCapabilitiesQuery = {
+  __typename?: 'Query';
+  serviceCollection?: {
+    __typename?: 'ServiceCollection';
+    items: Array<{
+      __typename?: 'Service';
+      oauthClientId?: string | null;
+      capabilitiesCollection?: {
+        __typename?: 'ServiceCapabilitiesCollection';
+        items: Array<{
+          __typename?: 'Capability';
+          slug?: string | null;
+        } | null>;
+      } | null;
+    } | null>;
+  } | null;
+};
+
 export const CapabilityServiceByPriceIdsDocument = {
   kind: 'Document',
   definitions: [
@@ -3477,4 +3501,145 @@ export const PurchaseWithDetailsOfferingContentDocument = {
 } as unknown as DocumentNode<
   PurchaseWithDetailsOfferingContentQuery,
   PurchaseWithDetailsOfferingContentQueryVariables
+>;
+export const ServicesWithCapabilitiesDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'ServicesWithCapabilities' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'serviceCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'skip' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'oauthClientId' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'capabilitiesCollection' },
+                        arguments: [
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'skip' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'skip' },
+                            },
+                          },
+                          {
+                            kind: 'Argument',
+                            name: { kind: 'Name', value: 'limit' },
+                            value: {
+                              kind: 'Variable',
+                              name: { kind: 'Name', value: 'limit' },
+                            },
+                          },
+                        ],
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'items' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: { kind: 'Name', value: 'slug' },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  ServicesWithCapabilitiesQuery,
+  ServicesWithCapabilitiesQueryVariables
 >;
