@@ -26,6 +26,7 @@
     "paths": {
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
