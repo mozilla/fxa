@@ -4,9 +4,9 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import AppLayout from '../AppLayout';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { BrandMessagingPortal } from '.';
+import AppLayout from '../Settings/AppLayout';
 
 export default {
   title: 'Components/BrandMessaging',
