@@ -23,15 +23,5 @@
     <mj-text css-class="text-body align-left">
       <span data-l10n-id="passwordChangeRequired-different-password"><b>Important:</b> Pick a different password than what you were previously using and make sure that it is different from your email account.</span>
     </mj-text>
-
-    <mj-text css-class="text-body-lg-bottom-margin align-left">
-      <span data-l10n-id="passwordChangeRequired-signoff">
-        Best,
-      </span>
-      <br />
-      <span data-l10n-id="passwordChangeRequired-signoff-name">
-        The Firefox accounts team
-      </span>
-    </mj-text>
   </mj-column>
 </mj-section>

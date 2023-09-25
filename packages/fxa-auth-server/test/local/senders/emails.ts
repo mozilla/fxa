@@ -234,7 +234,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['html', [
       { test: 'include', expected: 'It takes two to sync' },
       { test: 'include', expected: 'Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!' },
-      { test: 'include', expected: 'It only takes a sec to sync.' },
       { test: 'include', expected: decodeUrl(configHref('syncUrl', 'cad-reminder-first', 'connect-device')) },
       { test: 'include', expected: decodeUrl(config.smtp.androidUrl) },
       { test: 'include', expected: decodeUrl(config.smtp.iosUrl) },
@@ -252,7 +251,6 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ['text', [
       { test: 'include', expected: 'It takes two to sync' },
       { test: 'include', expected: 'Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!' },
-      { test: 'include', expected: 'It only takes a sec to sync.' },
       { test: 'include', expected: `Mozilla Privacy Policy\n${configUrl('privacyUrl', 'cad-reminder-first', 'privacy')}` },
       { test: 'include', expected: config.smtp.syncUrl },
       { test: 'notInclude', expected: config.smtp.androidUrl },

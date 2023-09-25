@@ -13,10 +13,6 @@
     <mj-text css-class="text-body">
       <span data-l10n-id="cadReminderFirst-description-1">Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!</span>
     </mj-text>
-
-    <mj-text css-class="text-body">
-      <span data-l10n-id="cadReminderFirst-description-2">It only takes a sec to sync.</span>
-    </mj-text>
   </mj-column>
 </mj-section>
 

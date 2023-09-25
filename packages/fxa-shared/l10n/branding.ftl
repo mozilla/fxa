@@ -25,7 +25,12 @@
 -product-mozilla-account = Mozilla account
 
 # "accounts" can and should be localized, "Mozilla" must be treated as a brand. Plural "Mozilla accounts" is used when referring to something affecting all Mozilla accounts, not just the individual's account.
--product-mozilla-accounts = Mozilla accounts
+# "accounts" should be lowercase in almost all cases. Uppercase is reserved for special use cases where headline case is necessary, for example legal document names and references.
+-product-mozilla-accounts =
+    { $capitalization ->
+       *[lowercase] Mozilla accounts
+        [uppercase] Mozilla Accounts
+    }
 
 # "account" should be localized and lowercase, "Firefox" must be treated as a brand.
 # This is used to refer to a user's account, e.g. "update your Firefox account ..."
