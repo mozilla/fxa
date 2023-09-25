@@ -297,7 +297,9 @@ describe('lib/glean', () => {
         // the ping submissions are await'd internally in GleanMetrics...
         await new Promise((resovle) =>
           setTimeout(() => {
-            sinon.assert.calledOnce(setuserIdSha256Stub);
+            sinon.assert.calledTwice(setuserIdSha256Stub);
+            // it sets a default of '' first
+            sinon.assert.calledWith(setuserIdSha256Stub, '');
             sinon.assert.calledWith(
               setuserIdSha256Stub,
               '7ca0172850c53065046beeac3cdec3fe921532dbfebdf7efeb5c33d019cd7798'

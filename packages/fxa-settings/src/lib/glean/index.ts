@@ -109,11 +109,14 @@ const populateMetrics = async (properties: EventProperties) => {
     event[n].set(properties[n] || '');
   }
 
-  if (metricsContext.account?.uid) {
-    const hashedUid = await hashUid(metricsContext.account.uid);
-    userIdSha256.set(hashedUid);
-  } else {
-    userIdSha256.set('');
+  userIdSha256.set('');
+  try {
+    if (metricsContext.account?.uid) {
+      const hashedUid = await hashUid(metricsContext.account.uid);
+      userIdSha256.set(hashedUid);
+    }
+  } catch (e) {
+    // noop
   }
 
   oauthClientId.set(metricsContext.integration.data.clientId || '');
