@@ -69,6 +69,7 @@ describe('views/authorization', function () {
     });
 
     sinon.spy(view, 'replaceCurrentPage');
+    sinon.spy(view, 'navigateAway');
   }
 
   describe('beforeRender', () => {
@@ -84,10 +85,7 @@ describe('views/authorization', function () {
 
     it('handles default action', () => {
       return view.render().then(() => {
-        assert.ok(
-          view.replaceCurrentPage.calledOnceWith('/oauth/'),
-          'called with proper action'
-        );
+        assert.ok(view.navigateAway.calledOnce, 'called with proper action');
       });
     });
 
