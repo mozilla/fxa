@@ -1,0 +1,45 @@
+{
+  "name": "payments-eligibility",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/payments/eligibility/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "rootDir": ".",
+        "outputPath": "dist/libs/payments/eligibility",
+        "tsConfig": "libs/payments/eligibility/tsconfig.lib.json",
+        "packageJson": "libs/payments/eligibility/package.json",
+        "main": "libs/payments/eligibility/src/index.ts",
+        "assets": ["libs/payments/eligibility/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/payments/eligibility/**/*.ts",
+          "libs/payments/eligibility/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/payments/eligibility/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": ["scope:shared:lib:payments"]
+}
