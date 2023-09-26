@@ -617,6 +617,7 @@ jobs:
             npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
+          no_output_timeout: 20m
       - store-artifacts
 
   # This job is manually triggered for now. see .circleci/README.md
