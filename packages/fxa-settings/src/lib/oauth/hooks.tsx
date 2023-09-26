@@ -185,8 +185,23 @@ export function useFinishOAuthFlowHandler(
     [authClient, integration]
   );
 
-  // We can't return early because `useCallback` can't be set conditionally
-  if (isOAuthIntegration(integration)) {
+  /* TODO: Possibly create SyncMobile integration if we need more special cases
+   * for sync mobile, or, probably remove 'isOAuthVerificationDifferentBrowser'
+   * 'isOAuthVerificationSameBrowser' checks when reset PW no longer uses links.
+   *
+   * `service=sync` is passed when `context` is `fx_desktop_v3` (Sync desktop) or
+   * when context is `fx_ios_v1` (which we don't support, iOS 1.0 ... < 2.0). See:
+   * https://mozilla.github.io/ecosystem-platform/relying-parties/reference/query-parameters#service
+   *
+   * However, mobile Sync reset PW can pass a 'service' param without a 'clientId' that
+   * acts as a clientId, and we currently consider this an OAuth flow (in Backbone as well)
+   * that does not want to redirect. For this case, ensure `integration.data.service`
+   * does not exist, because we otherwise do not want to check other OAuth data
+   * are present and do not want to provide back `finishOAuthFlowHandler`.
+   *
+   * P.S. we can't return early regardless because `useCallback` can't be set conditionally.
+   */
+  if (isOAuthIntegration(integration) && !integration.data.service) {
     const oAuthDataError = checkOAuthData(integration);
     return { oAuthDataError, finishOAuthFlowHandler };
   }
