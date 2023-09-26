@@ -12,13 +12,13 @@ test.describe('recovery key react', () => {
     async ({
       target,
       credentials,
-      pages: { login, settings, recoveryKey },
+      pages: { login, configPage, settings, recoveryKey },
     }) => {
       // Generating and consuming recovery keys is a slow process
       test.slow();
 
       // Ensure that the react reset password route feature flag is enabled
-      const config = await login.getConfig();
+      const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
 
       await settings.goto();

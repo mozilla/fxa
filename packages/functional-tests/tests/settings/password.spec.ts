@@ -32,12 +32,12 @@ test.describe('severity-1 #smoke', () => {
     target,
     credentials,
     page,
-    pages: { settings, login, recoveryKey },
+    pages: { settings, login, configPage, recoveryKey },
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
 
     // TODO in FXA-7419 - remove config definition
-    const config = await login.getConfig();
+    const config = await configPage.getConfig();
 
     await settings.goto();
     let status = await settings.recoveryKey.statusText();

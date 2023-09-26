@@ -270,6 +270,7 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
       />
 
       <SignupContainer path="/signup/*" {...{ integration }} />
+      <SignupContainer path="/oauth/signup/*" {...{ integration }} />
 
       <Confirm path="/confirm/*" {...{ sessionTokenId }} />
       <ConfirmSignupCode path="/confirm_signup_code/*" />
