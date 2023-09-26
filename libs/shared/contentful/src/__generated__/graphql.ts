@@ -2697,6 +2697,49 @@ export type CapabilityServiceByPriceIdsQuery = {
   } | null;
 };
 
+export type EligibilityContentByPlanIdsQueryVariables = Exact<{
+  skip: Scalars['Int']['input'];
+  limit: Scalars['Int']['input'];
+  locale: Scalars['String']['input'];
+  stripePlanIds:
+    | Array<InputMaybe<Scalars['String']['input']>>
+    | InputMaybe<Scalars['String']['input']>;
+}>;
+
+export type EligibilityContentByPlanIdsQuery = {
+  __typename?: 'Query';
+  purchaseCollection?: {
+    __typename?: 'PurchaseCollection';
+    items: Array<{
+      __typename?: 'Purchase';
+      stripePlanChoices?: Array<string | null> | null;
+      offering?: {
+        __typename?: 'Offering';
+        stripeProductId?: string | null;
+        countries?: Array<string | null> | null;
+        linkedFrom?: {
+          __typename?: 'OfferingLinkingCollections';
+          subGroupCollection?: {
+            __typename?: 'SubGroupCollection';
+            items: Array<{
+              __typename?: 'SubGroup';
+              groupName?: string | null;
+              offeringCollection?: {
+                __typename?: 'SubGroupOfferingCollection';
+                items: Array<{
+                  __typename?: 'Offering';
+                  stripeProductId?: string | null;
+                  countries?: Array<string | null> | null;
+                } | null>;
+              } | null;
+            } | null>;
+          } | null;
+        } | null;
+      } | null;
+    } | null>;
+  } | null;
+};
+
 export type OfferingQueryVariables = Exact<{
   id: Scalars['String']['input'];
   locale: Scalars['String']['input'];
@@ -3057,6 +3100,292 @@ export const CapabilityServiceByPriceIdsDocument = {
 } as unknown as DocumentNode<
   CapabilityServiceByPriceIdsQuery,
   CapabilityServiceByPriceIdsQueryVariables
+>;
+export const EligibilityContentByPlanIdsDocument = {
+  kind: 'Document',
+  definitions: [
+    {
+      kind: 'OperationDefinition',
+      operation: 'query',
+      name: { kind: 'Name', value: 'EligibilityContentByPlanIds' },
+      variableDefinitions: [
+        {
+          kind: 'VariableDefinition',
+          variable: { kind: 'Variable', name: { kind: 'Name', value: 'skip' } },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'limit' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: { kind: 'NamedType', name: { kind: 'Name', value: 'Int' } },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'locale' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'NamedType',
+              name: { kind: 'Name', value: 'String' },
+            },
+          },
+        },
+        {
+          kind: 'VariableDefinition',
+          variable: {
+            kind: 'Variable',
+            name: { kind: 'Name', value: 'stripePlanIds' },
+          },
+          type: {
+            kind: 'NonNullType',
+            type: {
+              kind: 'ListType',
+              type: {
+                kind: 'NamedType',
+                name: { kind: 'Name', value: 'String' },
+              },
+            },
+          },
+        },
+      ],
+      selectionSet: {
+        kind: 'SelectionSet',
+        selections: [
+          {
+            kind: 'Field',
+            name: { kind: 'Name', value: 'purchaseCollection' },
+            arguments: [
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'skip' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'skip' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'limit' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'limit' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'locale' },
+                value: {
+                  kind: 'Variable',
+                  name: { kind: 'Name', value: 'locale' },
+                },
+              },
+              {
+                kind: 'Argument',
+                name: { kind: 'Name', value: 'where' },
+                value: {
+                  kind: 'ObjectValue',
+                  fields: [
+                    {
+                      kind: 'ObjectField',
+                      name: {
+                        kind: 'Name',
+                        value: 'stripePlanChoices_contains_some',
+                      },
+                      value: {
+                        kind: 'Variable',
+                        name: { kind: 'Name', value: 'stripePlanIds' },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            selectionSet: {
+              kind: 'SelectionSet',
+              selections: [
+                {
+                  kind: 'Field',
+                  name: { kind: 'Name', value: 'items' },
+                  selectionSet: {
+                    kind: 'SelectionSet',
+                    selections: [
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'stripePlanChoices' },
+                      },
+                      {
+                        kind: 'Field',
+                        name: { kind: 'Name', value: 'offering' },
+                        selectionSet: {
+                          kind: 'SelectionSet',
+                          selections: [
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'stripeProductId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'countries' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: { kind: 'Name', value: 'linkedFrom' },
+                              selectionSet: {
+                                kind: 'SelectionSet',
+                                selections: [
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'subGroupCollection',
+                                    },
+                                    arguments: [
+                                      {
+                                        kind: 'Argument',
+                                        name: { kind: 'Name', value: 'skip' },
+                                        value: {
+                                          kind: 'Variable',
+                                          name: { kind: 'Name', value: 'skip' },
+                                        },
+                                      },
+                                      {
+                                        kind: 'Argument',
+                                        name: { kind: 'Name', value: 'limit' },
+                                        value: {
+                                          kind: 'Variable',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'limit',
+                                          },
+                                        },
+                                      },
+                                    ],
+                                    selectionSet: {
+                                      kind: 'SelectionSet',
+                                      selections: [
+                                        {
+                                          kind: 'Field',
+                                          name: {
+                                            kind: 'Name',
+                                            value: 'items',
+                                          },
+                                          selectionSet: {
+                                            kind: 'SelectionSet',
+                                            selections: [
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'groupName',
+                                                },
+                                              },
+                                              {
+                                                kind: 'Field',
+                                                name: {
+                                                  kind: 'Name',
+                                                  value: 'offeringCollection',
+                                                },
+                                                arguments: [
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'skip',
+                                                    },
+                                                    value: {
+                                                      kind: 'Variable',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'skip',
+                                                      },
+                                                    },
+                                                  },
+                                                  {
+                                                    kind: 'Argument',
+                                                    name: {
+                                                      kind: 'Name',
+                                                      value: 'limit',
+                                                    },
+                                                    value: {
+                                                      kind: 'Variable',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'limit',
+                                                      },
+                                                    },
+                                                  },
+                                                ],
+                                                selectionSet: {
+                                                  kind: 'SelectionSet',
+                                                  selections: [
+                                                    {
+                                                      kind: 'Field',
+                                                      name: {
+                                                        kind: 'Name',
+                                                        value: 'items',
+                                                      },
+                                                      selectionSet: {
+                                                        kind: 'SelectionSet',
+                                                        selections: [
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'stripeProductId',
+                                                            },
+                                                          },
+                                                          {
+                                                            kind: 'Field',
+                                                            name: {
+                                                              kind: 'Name',
+                                                              value:
+                                                                'countries',
+                                                            },
+                                                          },
+                                                        ],
+                                                      },
+                                                    },
+                                                  ],
+                                                },
+                                              },
+                                            ],
+                                          },
+                                        },
+                                      ],
+                                    },
+                                  },
+                                ],
+                              },
+                            },
+                          ],
+                        },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+} as unknown as DocumentNode<
+  EligibilityContentByPlanIdsQuery,
+  EligibilityContentByPlanIdsQueryVariables
 >;
 export const OfferingDocument = {
   kind: 'Document',
