@@ -100,12 +100,7 @@ const render = (ui = <Subject />, account = mockAccount()) => {
 
 const Subject = ({
   integration = createMockAccountRecoveryResetPasswordSyncDesktopIntegration(),
-}) => (
-  <AccountRecoveryResetPassword
-    {...{ integration }}
-    finishOAuthFlowHandler={() => Promise.resolve({ redirect: 'someUri' })}
-  />
-);
+}) => <AccountRecoveryResetPassword {...{ integration }} />;
 
 describe('AccountRecoveryResetPassword page', () => {
   let account = mockAccount();
@@ -261,8 +256,6 @@ describe('AccountRecoveryResetPassword page', () => {
       expect(
         (account.resetPasswordWithRecoveryKey as jest.Mock).mock.calls[0]
       ).toBeTruthy();
-      expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
-      expect(account.hasTotpAuthClient).toHaveBeenCalled();
     });
 
     it('sets integration state', () => {
@@ -306,36 +299,6 @@ describe('AccountRecoveryResetPassword page', () => {
           MOCK_SEARCH_PARAMS
         ).toString()}`
       );
-    });
-  });
-
-  describe('successful reset with totp', () => {
-    // Window mocks not needed once this page doesn't use `hardNavigateToContentServer`
-    const originalWindow = window.location;
-    beforeAll(() => {
-      // @ts-ignore
-      delete window.location;
-      window.location = { ...originalWindow, href: '' };
-    });
-    beforeEach(async () => {
-      window.location.href = originalWindow.href;
-      account.setLastLogin = jest.fn();
-      account.resetPasswordWithRecoveryKey = jest
-        .fn()
-        .mockResolvedValue(MOCK_RESET_DATA);
-      account.isSessionVerifiedAuthClient = jest.fn();
-      account.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
-      render(<Subject />, account);
-
-      await enterPassword('foo12356789!');
-      await clickResetPassword();
-    });
-    afterAll(() => {
-      window.location = originalWindow;
-    });
-
-    it('navigates as expected', async () => {
-      expect(window.location.href).toContain('/signin_totp_code');
     });
   });
 

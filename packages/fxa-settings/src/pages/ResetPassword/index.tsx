@@ -107,8 +107,7 @@ const ResetPassword = ({
           integration.saveOAuthState();
           const result = await account.resetPassword(
             email,
-            integration.getService(),
-            integration.getRedirectUri()
+            integration.getService()
           );
           navigateToConfirmPwReset({
             passwordForgotToken: result.passwordForgotToken,

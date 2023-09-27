@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { IntegrationSubsetType } from '../../../lib/integrations';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { LinkStatus } from '../../../lib/types';
 import { IntegrationType, OAuthIntegrationData } from '../../../models';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
@@ -47,5 +46,4 @@ export interface CompleteResetPasswordProps {
   linkModel: CompleteResetPasswordLink;
   setLinkStatus: React.Dispatch<React.SetStateAction<LinkStatus>>;
   integration: CompleteResetPasswordIntegration;
-  finishOAuthFlowHandler: FinishOAuthFlowHandler;
 }
