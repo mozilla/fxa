@@ -16,6 +16,12 @@ import { LocationProvider } from '@reach/router';
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  logViewEventOnce: jest.fn(),
+  useMetrics: () => ({
+    usePageViewEvent: jest.fn(),
+    logViewEvent: jest.fn(),
+    logViewEventOnce: jest.fn(),
+  }),
 }));
 
 // TODO test for email received from params (if arriving from content-server) in FXA-8303

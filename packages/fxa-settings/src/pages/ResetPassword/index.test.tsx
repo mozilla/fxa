@@ -276,7 +276,7 @@ describe('PageResetPassword', () => {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
     await screen.findByText('Unknown account');
   });
 
