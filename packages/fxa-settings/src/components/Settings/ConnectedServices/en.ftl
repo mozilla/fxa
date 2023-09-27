@@ -47,11 +47,13 @@ cs-disconnect-lost-advice-content-2 = Since your device was lost or stolen, to
   keep your information safe, you should change your { -product-firefox-account } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
+cs-disconnect-lost-advice-content-3 = Since your device was lost or stolen, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also look for information from your device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
   suspicious, to keep your information safe, you should change your { -product-firefox-account }
   password in your account settings. You should also change any other
   passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
+cs-disconnect-suspicious-advice-content-2 = If the disconnected device is indeed suspicious, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also change any other passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 
 cs-sign-out-button = Sign out
 
