@@ -778,6 +778,12 @@ const conf = (module.exports = convict({
     env: 'SOURCE_MAP_TYPE',
     format: String,
   },
+  webpackModeOverride: {
+    default: undefined,
+    doc: 'Tells webpack how to optimize build. See https://webpack.js.org/configuration/mode/',
+    env: 'WEBPACK_MODE_OVERRIDE',
+    format: String,
+  },
   statsd: {
     enabled: {
       doc: 'Enable StatsD',
