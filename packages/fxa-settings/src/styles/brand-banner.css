@@ -12,22 +12,3 @@
     #e3f6ed 102.21%
   );
 }
-
-/** At widths less than 540, text starts wrapping, and more padding is needing */
-@media only screen and (max-width: 540px) {
-  body.brand-messaging {
-    @apply pt-28;
-  }
-}
-
-/** By default a bit of padding is needed to offset the banner at top of page. */
-body.brand-messaging {
-  @apply pt-18;
-}
-
-/** On screens smaller than 480, footer drops to bottom, so no padding is needed */
-@media only screen and (max-width: 480px) {
-  body.brand-messaging {
-    @apply pt-0;
-  }
-}

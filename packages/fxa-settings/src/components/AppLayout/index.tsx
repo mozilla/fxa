@@ -21,6 +21,7 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
   const { l10n } = useLocalization();
   return (
     <>
+      <div id="body-top" className="w-full hidden mobileLandscape:block"></div>
       <Head {...{ title }} />
       <div
         className="flex min-h-screen flex-col items-center"
@@ -49,6 +50,10 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
           </LinkExternal>
         </footer>
       </div>
+      <div
+        id="body-bottom"
+        className="w-full block mobileLandscape:hidden"
+      ></div>
     </>
   );
 };

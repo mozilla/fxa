@@ -36,6 +36,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { ConfirmSignupCodeQueryParams } from '../../../models/pages/confirm-signup-code';
+import { BrandMessagingPortal } from '../../../components/BrandMessaging';
 
 export const viewName = 'confirm-signup-code';
 
@@ -213,6 +214,7 @@ const ConfirmSignupCode = (_: RouteComponentProps) => {
 
   return (
     <AppLayout title={localizedPageTitle}>
+      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="confirm-signup-code-heading"

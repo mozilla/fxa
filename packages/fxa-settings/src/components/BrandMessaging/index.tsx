@@ -7,11 +7,33 @@ import { useConfig } from '../../models';
 import { useMetrics } from '../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Localized } from '@fluent/react';
+import { createPortal } from 'react-dom';
 
 export const bannerClosedLocalStorageKey =
   '__fxa_storage.fxa_disable_brand_banner';
 
-const BrandMessaging = ({
+export type BrandMessagingProps = {
+  mode?: string;
+  viewName: string;
+};
+
+export const BrandMessagingPortal = (props: BrandMessagingProps) => {
+  const bodyTop = document.querySelector('#body-top');
+  const bodyBottom = document.querySelector('#body-bottom');
+
+  if (bodyTop == null || bodyBottom == null) {
+    return <></>;
+  }
+
+  return (
+    <>
+      {createPortal(<BrandMessaging {...props} />, bodyTop)}
+      {createPortal(<BrandMessaging {...props} />, bodyBottom)}
+    </>
+  );
+};
+
+export const BrandMessaging = ({
   mode,
   viewName,
 }: {
@@ -69,8 +91,8 @@ const BrandMessaging = ({
 
   return (
     <div
-      id="banner-brand-message"
-      className="w-full relative mobileLandscape:absolute mobileLandscape:top-0 mobileLandscape:left-0"
+      className="banner-brand-message w-full fixed bottom-0 mobileLandscape:top-0 mobileLandscape:relative"
+      role="banner"
     >
       <div className="flex relative justify-center p-2 brand-banner-bg">
         {mode === 'prelaunch' && (
@@ -154,4 +176,3 @@ const BrandMessaging = ({
     </div>
   );
 };
-export default BrandMessaging;
