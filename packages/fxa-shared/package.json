@@ -316,7 +316,7 @@
     "@sentry/node": "^7.66.0",
     "accept-language-parser": "^1.5.0",
     "ajv": "^8.11.2",
-    "apollo-server": "^2.26.0",
+    "apollo-server": "^3.12.1",
     "app-store-server-api": "^0.7.0",
     "aws-sdk": "^2.1397.0",
     "buf": "^0.1.1",
