@@ -94,7 +94,7 @@ describe('#integration - db', function () {
         assert.equal(info['character_set_database'], 'utf8mb3');
 
         assert.equal(info['collation_connection'], 'utf8mb4_unicode_ci');
-        assert.equal(info['collation_database'], 'utf8_unicode_ci');
+        assert.equal(info['collation_database'], 'utf8mb3_unicode_ci');
       });
     });
   });
