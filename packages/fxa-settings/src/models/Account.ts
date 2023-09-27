@@ -559,17 +559,26 @@ export class Account implements AccountData {
     service?: string,
     redirectTo?: string
   ): Promise<PasswordForgotSendCodePayload> {
-    let serviceName;
-    if (service && service === MozServices.FirefoxSync) {
-      serviceName = 'sync';
-    } else {
-      serviceName = service;
-    }
-    const result = await this.authClient.passwordForgotSendCode(email, {
-      service: serviceName,
+    let options: {
+      service?: string;
+      resume?: string;
+      redirectTo?: string;
+    } = {
       resume: 'e30=', // base64 json for {}
-      redirectTo,
-    });
+    };
+
+    // Important! Only set service when it's Firefox Sync
+    if (service && service === MozServices.FirefoxSync) {
+      options.service = 'sync';
+    } else {
+      options.service = service;
+    }
+
+    if (redirectTo) {
+      options.redirectTo = redirectTo;
+    }
+
+    const result = await this.authClient.passwordForgotSendCode(email, options);
     return result;
   }
 

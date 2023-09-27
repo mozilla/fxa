@@ -160,6 +160,7 @@ const AccountRecoveryConfirmKey = ({
           email,
         });
       } catch (error) {
+        setIsLoading(false);
         logViewEvent('flow', `${viewName}.fail`, REACT_ENTRYPOINT);
         // if the link expired or the reset was completed in another tab/browser
         // between page load and form submission
@@ -181,8 +182,6 @@ const AccountRecoveryConfirmKey = ({
             setBannerMessage(localizedBannerMessage);
           }
         }
-      } finally {
-        setIsLoading(false);
       }
     },
     [
@@ -191,6 +190,7 @@ const AccountRecoveryConfirmKey = ({
       ftlMsgResolver,
       getRecoveryBundleAndNavigate,
       setLinkStatus,
+      setIsLoading,
     ]
   );
 

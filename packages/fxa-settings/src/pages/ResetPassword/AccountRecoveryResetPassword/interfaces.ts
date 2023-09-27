@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
   BaseIntegrationData,
   IntegrationType,
@@ -13,7 +12,6 @@ import {
 
 export type AccountRecoveryResetPasswordProps = {
   integration: AccountRecoveryResetPasswordIntegration;
-  finishOAuthFlowHandler: FinishOAuthFlowHandler;
 } & RouteComponentProps;
 
 export interface AccountRecoveryResetPasswordFormData {

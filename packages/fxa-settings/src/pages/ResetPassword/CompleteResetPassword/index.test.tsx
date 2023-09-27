@@ -386,19 +386,7 @@ describe('CompleteResetPassword page', () => {
         window.location = originalWindow;
       });
 
-      it('account has TOTP', async () => {
-        account = {
-          ...account,
-          hasTotpAuthClient: jest.fn().mockResolvedValue(true),
-        } as unknown as Account;
-
-        render(<Subject />, account);
-        await enterPasswordAndSubmit();
-
-        expect(window.location.href).toContain('/signin_totp_code');
-      });
-
-      it('account does not have TOTP', async () => {
+      it('navigates to reset_password_verified', async () => {
         render(<Subject />, account);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(

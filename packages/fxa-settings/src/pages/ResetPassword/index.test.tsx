@@ -143,8 +143,7 @@ describe('PageResetPassword', () => {
 
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email,
-      MOCK_SERVICE,
-      MOCK_REDIRECT_URI
+      MOCK_SERVICE
     );
 
     expect(mockNavigate).toHaveBeenCalledWith(
@@ -276,7 +275,7 @@ describe('PageResetPassword', () => {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
     await screen.findByText('Unknown account');
   });
 

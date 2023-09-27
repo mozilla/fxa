@@ -125,9 +125,6 @@ export const Subject = ({
         <CompleteResetPassword
           {...{ setLinkStatus, linkModel }}
           integration={completeResetPasswordIntegration}
-          finishOAuthFlowHandler={() =>
-            Promise.resolve({ redirect: 'someUri' })
-          }
         />
       )}
     </LinkValidator>

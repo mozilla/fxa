@@ -141,7 +141,6 @@ test.describe('oauth reset password react', () => {
       },
       {
         action: 'emailFirst',
-        totp: true,
       }
     );
   });
@@ -160,15 +159,7 @@ async function openRelier({ pages: { settings, relier } }) {
 async function addTotpFlow({ credentials, pages: { totp, settings } }) {
   await settings.goto();
   await settings.totp.clickAdd();
-  const secret = await totp.useQRCode();
-  if (secret) {
-    credentials.secret = secret;
-  }
-  await totp.submit();
-  const recoveryCodes = await totp.getRecoveryCodes();
-  await totp.submit();
-  await totp.setRecoveryCode(recoveryCodes[0]);
-  await totp.submit();
+  await totp.enable(credentials);
 }
 
 /**
@@ -208,10 +199,9 @@ async function passwordResetFlow(
     action?: 'emailFirst' | 'scopedKeys' | 'pkce';
     newTab?: boolean;
     accountRecoveryKey?: string;
-    totp?: boolean;
   }
 ) {
-  const { action, newTab, accountRecoveryKey, totp } = opts;
+  const { action, newTab, accountRecoveryKey } = opts;
 
   // Decide which flow to start from 123done
   if (action == null || action === 'emailFirst') {
@@ -284,36 +274,22 @@ async function passwordResetFlow(
   }
   await resetPassword.resetNewPassword(credentials.password);
 
-  // This is an alternate flow. The account is expecting to have 2FA, ie totp enabled.
-  if (totp) {
-    await page.waitForURL(/signin_totp_code/);
-    await login.setTotp(credentials.secret);
-  }
-
   // Step 4 - Verify the end state. The user should either be:
-  //  - logged into the relying party
-  //  - or see a nice success message in fxa
-  if (newTab) {
-    await isSuccessMessageDisplayed({ page });
-  } else {
-    await isRelierLoggedIn({ page, pages: { relier } });
-  }
-}
-
-/** Checks that the relier (ie 123 Done) is showing a logged in state. */
-async function isRelierLoggedIn({ page, pages: { relier } }) {
-  await page.waitForLoadState();
-  const isLoggedIn = await relier.isLoggedIn();
-  expect(isLoggedIn).toBe(true);
+  // See a nice success message in fxa. Note, that we used to redirect the user back to
+  // the relier in some cases, but we've decided to just show the success message for now
+  // And let the user re-authenticate with the relier.
+  await isSuccessMessageDisplayed({ page });
 }
 
 /** Checks that the reset password success screen is being displayed. */
 async function isSuccessMessageDisplayed({ page }) {
-  // The user should get a verification message and the orginating
+  // The user should get a verification message and the originating
   // service's name should be displayed.
-  await page.waitForURL(/reset_password_verified/);
-  await page.getByText('Your password has been reset');
-  await page.getByText('You’re now ready to use 123Done');
+  await page.waitForURL(
+    /(reset_password_verified|reset_password_with_recovery_key_verified)/
+  );
+  await page.getByText('Your password has been reset').waitFor();
+  await page.getByText(/.*123done.*/i).waitFor();
 }
 
 /** Checks that the version of the app being used is the React Version. */

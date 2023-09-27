@@ -20,8 +20,16 @@ export class TotpPage extends SettingsLayout {
       new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),
       img.width,
       img.height
-    );
+    ) || { data: null };
+    if (data === null) {
+      throw new Error('No QR code found');
+    }
+
     const secret = new URL(data).searchParams.get('secret');
+    if (secret === null) {
+      throw new Error('No secret found in QR code');
+    }
+
     const code = await getCode(secret);
     await this.page.fill('input[type=text]', code);
     return secret;
@@ -60,17 +68,33 @@ export class TotpPage extends SettingsLayout {
   }
 
   async enable(credentials: Credentials, method: 'qr' | 'manual' = 'manual') {
+    await this.waitForStep(1, 3);
     const secret =
       method === 'qr' ? await this.useQRCode() : await this.useManualCode();
     await this.submit();
+    await this.waitForStep(2, 3);
     const recoveryCodes = await this.getRecoveryCodes();
     await this.submit();
+    await this.waitForStep(3, 3);
     await this.setRecoveryCode(recoveryCodes[0]);
     await this.submit();
-    credentials.secret = secret === null ? undefined : secret;
+    await this.waitForEnabled();
+    if (credentials) {
+      credentials.secret = secret === null ? undefined : secret;
+    }
     return {
       secret,
       recoveryCodes,
     };
+  }
+
+  async waitForStep(step: number, of: number) {
+    await this.page.getByText(`STEP ${step} of ${of}`).waitFor();
+  }
+
+  async waitForEnabled() {
+    await this.page
+      .getByTestId(`two-step-disable-button-unit-row-modal`)
+      .waitFor();
   }
 }

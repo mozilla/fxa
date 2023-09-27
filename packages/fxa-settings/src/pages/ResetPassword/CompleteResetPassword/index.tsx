@@ -19,19 +19,10 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import {
-  FtlMsg,
-  hardNavigateToContentServer,
-  hardNavigate,
-} from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkStatus } from '../../../lib/types';
 import useNavigateWithoutRerender from '../../../lib/hooks/useNavigateWithoutRerender';
 import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
-import {
-  clearOAuthData,
-  clearOriginalTab,
-  isOriginalTab,
-} from '../../../lib/storage-utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   CompleteResetPasswordFormData,
@@ -62,7 +53,6 @@ const CompleteResetPassword = ({
   linkModel,
   setLinkStatus,
   integration,
-  finishOAuthFlowHandler,
 }: CompleteResetPasswordProps) => {
   const [bannerMessage, setBannerMessage] = useState<
     undefined | string | ReactElement
@@ -207,7 +197,7 @@ const CompleteResetPassword = ({
          * We may also want to consider putting a different error message in place for when
          * PW reset succeeds, but one of these fails. At the moment, the try/catch in Account
          * just returns false for these if the request fails. */
-        const [sessionIsVerified, hasTotp] = await Promise.all([
+        const [sessionIsVerified] = await Promise.all([
           account.isSessionVerifiedAuthClient(),
           account.hasTotpAuthClient(),
         ]);
@@ -231,45 +221,14 @@ const CompleteResetPassword = ({
           case IntegrationType.OAuth:
             // allows a navigation to a "complete" screen or TOTP screen if it is setup
             // TODO: check if relier has state
-            if (hasTotp) {
-              // finishing OAuth flow occurs on this page after entering TOTP
-              // TODO: probably need to pass some params
-              hardNavigateToContentServer(
-                `/signin_totp_code${location.search}`
-              );
-              isHardNavigate = true;
-            } else if (sessionIsVerified && isOAuthIntegration(integration)) {
-              // todo use type guard, FXA-8111
-              const { redirect } = await finishOAuthFlowHandler(
-                integration.data.uid || account.uid,
-                accountResetData.sessionToken,
-                accountResetData.keyFetchToken,
-                accountResetData.unwrapBKey
-              );
-
-              // Clear local / session storage
-              clearOAuthData();
-
-              // If the user is on the same tab throughout the process, then
-              // just send them back to the relying party. Otherwise log them in
-              // behind the scenes and show a success message.
-              if (isOriginalTab()) {
-                clearOriginalTab();
-                hardNavigate(redirect);
-                return;
-              }
+            if (sessionIsVerified && isOAuthIntegration(integration)) {
+              // TODO: Consider redirecting back to RP, after success message is displayed.
+              // NOTE: To fully sign in, totp must performed if 2FA is enabled.
             }
             break;
           case IntegrationType.Web:
-            if (hasTotp) {
-              // take users to Settings after entering TOTP
-              hardNavigateToContentServer(
-                `/signin_totp_code${location.search}`
-              );
-              isHardNavigate = true;
-            }
-            // TODO: if no TOTP, navigate users to /settings with the alert bar message
-            // for now, just navigate to reset_password_verified. FXA-8266
+            // TODO: Consider redirecting back to settings after success message is displayed.
+            // NOTE: To fully sign in, totp must performed if 2FA is enabled.
             break;
           default:
           // TODO: run unpersistVerificationData in FXA-7308
@@ -296,9 +255,7 @@ const CompleteResetPassword = ({
     [
       account,
       integration,
-      location.search,
       alertSuccessAndNavigate,
-      finishOAuthFlowHandler,
       ftlMsgResolver,
       setLinkStatus,
     ]
