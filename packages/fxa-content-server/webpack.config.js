@@ -9,8 +9,9 @@ const config = require('./server/lib/configuration').getProperties();
 const CopyPlugin = require('copy-webpack-plugin');
 
 const ENV = config.env;
+const WEBPACK_MODE_OVERRIDE = config.webpackModeOverride;
 const webpackConfig = {
-  mode: ENV,
+  mode: WEBPACK_MODE_OVERRIDE || ENV,
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',
