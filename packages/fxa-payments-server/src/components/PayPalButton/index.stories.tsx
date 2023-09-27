@@ -6,6 +6,7 @@ import { CUSTOMER, PLAN } from '../../lib/mock-data';
 import { PickPartial } from '../../lib/types';
 import { Meta } from '@storybook/react';
 import { CheckoutType } from 'fxa-shared/subscriptions/types';
+import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 export default {
   title: 'Routes/Product/PaypalButton',
@@ -61,7 +62,15 @@ const Subject = ({
 
 const storyWithContext = (storyName?: string, disabled?: boolean) => {
   const story = () => (
-    <Subject disabled={disabled} checkoutType={CheckoutType.WITHOUT_ACCOUNT} />
+    <AppLocalizationProvider
+      baseDir="./locales"
+      userLocales={navigator.languages}
+    >
+      <Subject
+        disabled={disabled}
+        checkoutType={CheckoutType.WITHOUT_ACCOUNT}
+      />
+    </AppLocalizationProvider>
   );
   if (storyName) story.storyName = storyName;
   return story;
