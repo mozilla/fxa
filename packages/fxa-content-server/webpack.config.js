@@ -9,9 +9,8 @@ const config = require('./server/lib/configuration').getProperties();
 const CopyPlugin = require('copy-webpack-plugin');
 
 const ENV = config.env;
-const WEBPACK_MODE_OVERRIDE = config.webpackModeOverride;
 const webpackConfig = {
-  mode: WEBPACK_MODE_OVERRIDE || ENV,
+  mode: 'development', // TODO: Revert once debugging is done
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',

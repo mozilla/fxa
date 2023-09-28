@@ -30,14 +30,7 @@ class AuthorizationView extends BaseView {
     } else {
       // if no action is specified, let oauth-index decide based on
       // current user signed in state.
-      // this.replaceCurrentPage('/oauth/');
-
-      // This is an attempt to fix an issue in OSX Sonoma & Safari private mode with `Advanced Fringerprinting Protection` enabled.
-      // Previously oauth query params were lost after redirecting to `/oauth/` page.
-      const searchParams = new URLSearchParams(this.window.location.search);
-      this.navigateAway(
-        this.window.origin + '/oauth/?' + searchParams.toString()
-      );
+      this.replaceCurrentPage('/oauth/');
     }
   }
 
