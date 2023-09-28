@@ -72,8 +72,10 @@ try {
       document.getElementById('root')
     );
   };
-
-  if (shouldSendFxAStatus(flowQueryParams.context)) {
+  if (
+    config.sendFxAStatusOnSettings &&
+    shouldSendFxAStatus(flowQueryParams.context)
+  ) {
     firefox
       .fxaStatus({
         service:

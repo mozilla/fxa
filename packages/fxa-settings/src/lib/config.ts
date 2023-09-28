@@ -77,6 +77,7 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
+  sendFxAStatusOnSettings: boolean;
 }
 
 export function getDefault() {
@@ -134,6 +135,7 @@ export function getDefault() {
       redirectUri: '',
       authorizationEndpoint: '',
     },
+<<<<<<< HEAD
     brandMessagingMode: 'prelaunch',
     glean: {
       enabled: false,
@@ -145,6 +147,9 @@ export function getDefault() {
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
+=======
+    sendFxAStatusOnSettings: false,
+>>>>>>> c47545e55e (Feature flags the fxa status message on settings page)
   } as Config;
 }
 
