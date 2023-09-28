@@ -309,7 +309,7 @@
     "@opentelemetry/instrumentation-xml-http-request": "~0.39.1",
     "@opentelemetry/plugin-react-load": "~0.28.0",
     "@opentelemetry/sdk-trace-base": "~1.7.0",
-    "@opentelemetry/sdk-trace-node": "~1.7.0",
+    "@opentelemetry/sdk-trace-node": "~1.17.0",
     "@opentelemetry/sdk-trace-web": "~1.13.0",
     "@sentry/browser": "^7.66.0",
     "@sentry/integrations": "^7.66.0",
