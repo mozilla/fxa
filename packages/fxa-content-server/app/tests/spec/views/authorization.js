@@ -85,7 +85,10 @@ describe('views/authorization', function () {
 
     it('handles default action', () => {
       return view.render().then(() => {
-        assert.ok(view.navigateAway.calledOnce, 'called with proper action');
+        assert.ok(
+          view.replaceCurrentPage.calledOnce,
+          'called with proper action'
+        );
       });
     });
 
