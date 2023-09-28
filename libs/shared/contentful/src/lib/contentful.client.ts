@@ -15,9 +15,9 @@ import {
   ContentfulExecutionError,
   ContentfulLinkError,
   ContentfulLocaleError,
-} from './errors';
+} from './contentful.error';
 import { BaseError } from '@fxa/shared/error';
-import { ContentfulClientConfig } from './contentful-client.config';
+import { ContentfulClientConfig } from './contentful.client.config';
 
 @Injectable()
 export class ContentfulClient {
