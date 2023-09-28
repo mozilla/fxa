@@ -12214,7 +12214,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-trace-base@npm:1.17.0, @opentelemetry/sdk-trace-base@npm:^1.0.0":
+"@opentelemetry/sdk-trace-base@npm:1.17.0, @opentelemetry/sdk-trace-base@npm:^1.0.0, @opentelemetry/sdk-trace-base@npm:~1.17.0":
   version: 1.17.0
   resolution: "@opentelemetry/sdk-trace-base@npm:1.17.0"
   dependencies:
@@ -12227,7 +12227,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/sdk-trace-base@npm:1.7.0, @opentelemetry/sdk-trace-base@npm:~1.7.0":
+"@opentelemetry/sdk-trace-base@npm:1.7.0":
   version: 1.7.0
   resolution: "@opentelemetry/sdk-trace-base@npm:1.7.0"
   dependencies:
@@ -35047,7 +35047,7 @@ fsevents@~2.1.1:
     "@opentelemetry/instrumentation-user-interaction": ~0.32.1
     "@opentelemetry/instrumentation-xml-http-request": ~0.39.1
     "@opentelemetry/plugin-react-load": ~0.28.0
-    "@opentelemetry/sdk-trace-base": ~1.7.0
+    "@opentelemetry/sdk-trace-base": ~1.17.0
     "@opentelemetry/sdk-trace-node": ~1.7.0
     "@opentelemetry/sdk-trace-web": ~1.13.0
     "@sentry/browser": ^7.66.0
