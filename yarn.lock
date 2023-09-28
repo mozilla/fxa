@@ -57147,11 +57147,12 @@ resolve@1.1.7:
   linkType: hard
 
 "systeminformation@npm:^5.7":
-  version: 5.7.4
-  resolution: "systeminformation@npm:5.7.4"
+  version: 5.21.9
+  resolution: "systeminformation@npm:5.21.9"
   bin:
     systeminformation: lib/cli.js
-  conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos)
+  checksum: 33f8ee313f4e15d5dfde98e071110c5ee377dace8e34d5a4775224efd4cc1005771898a99a4f20ef4948c5249ad4ad961c10f10f235a11c3042399e879677b87
+  conditions: (os=darwin | os=linux | os=win32 | os=freebsd | os=openbsd | os=netbsd | os=sunos | os=android)
   languageName: node
   linkType: hard
 
