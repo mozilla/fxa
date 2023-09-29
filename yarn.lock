@@ -15202,7 +15202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/blocks@npm:7.0.26, @storybook/blocks@npm:^7.0.24":
+"@storybook/blocks@npm:7.0.26":
   version: 7.0.26
   resolution: "@storybook/blocks@npm:7.0.26"
   dependencies:
@@ -15269,7 +15269,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/blocks@npm:7.4.5":
+"@storybook/blocks@npm:7.4.5, @storybook/blocks@npm:^7.4.5":
   version: 7.4.5
   resolution: "@storybook/blocks@npm:7.4.5"
   dependencies:
@@ -34831,7 +34831,7 @@ fsevents@~2.1.1:
     "@storybook/addon-links": ^7.0.23
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.4.0
-    "@storybook/blocks": ^7.0.24
+    "@storybook/blocks": ^7.4.5
     "@storybook/preset-create-react-app": ^7.1.0
     "@storybook/react": ^7.1.1
     "@storybook/react-webpack5": ^7.0.23
