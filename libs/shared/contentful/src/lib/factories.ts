@@ -71,6 +71,7 @@ export const PurchaseWithDetailsQueryFactory = (
   override?: Partial<PurchaseWithDetailsQuery>
 ): PurchaseWithDetailsQuery => ({
   purchase: {
+    internalName: faker.string.sample(),
     description: faker.string.sample(),
     purchaseDetails: {
       productName: faker.string.sample(),

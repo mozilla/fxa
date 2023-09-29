@@ -20,3 +20,28 @@ export const offeringQuery = graphql(`
     }
   }
 `);
+
+export interface EligibilityContentByPlanIdsResult {
+  purchaseCollection: {
+    items: {
+      stripePlanChoices: string[];
+      offering: {
+        stripeProductId: string;
+        countries: string[];
+        linkedFrom: {
+          subGroupCollection: {
+            items: {
+              groupName: string;
+              offeringCollection: {
+                items: {
+                  stripeProductId: string;
+                  countries: string[];
+                }[];
+              };
+            }[];
+          };
+        };
+      };
+    }[];
+  };
+}

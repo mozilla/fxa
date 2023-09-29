@@ -13,10 +13,7 @@ const config: CodegenConfig = {
   generates: {
     'libs/shared/contentful/src/__generated__/': {
       preset: 'client',
-      plugins: ['typescript'],
       config: {
-        maybeValue: 'T',
-        defaultMapper: 'T',
         avoidOptionals: true,
       },
     },

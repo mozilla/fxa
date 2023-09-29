@@ -41,27 +41,33 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
   }
 `);
 
+export interface EligibilitySubgroupOfferingResult {
+  stripeProductId: string;
+  countries: string[];
+}
+
+export interface EligibilitySubgroupResult {
+  groupName: string;
+  offeringCollection: {
+    items: EligibilitySubgroupOfferingResult[];
+  };
+}
+
+export interface EligibilityOfferingResult {
+  stripeProductId: string;
+  countries: string[];
+  linkedFrom: {
+    subGroupCollection: {
+      items: EligibilitySubgroupResult[];
+    };
+  };
+}
+
 export interface EligibilityContentByPlanIdsResult {
   purchaseCollection: {
     items: {
       stripePlanChoices: string[];
-      offering: {
-        stripeProductId: string;
-        countries: string[];
-        linkedFrom: {
-          subGroupCollection: {
-            items: {
-              groupName: string;
-              offeringCollection: {
-                items: {
-                  stripeProductId: string;
-                  countries: string[];
-                }[];
-              };
-            }[];
-          };
-        };
-      };
+      offering: EligibilityOfferingResult;
     }[];
   };
 }

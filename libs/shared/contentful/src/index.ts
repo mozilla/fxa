@@ -9,7 +9,6 @@ export * from './lib/factories';
 export {
   EligibilityContentByPlanIdsResult,
   EligibilityOfferingResult,
-  EligibilityPurchaseResult,
-  EligibilitySubGroupOfferingResult,
-  EligibilitySubGroupResult,
+  EligibilitySubgroupResult,
+  EligibilitySubgroupOfferingResult,
 } from './lib/queries/eligibility-content-by-plan-ids';
