@@ -31,7 +31,7 @@ export class ContentfulClient {
   async query<Result, Variables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
-  ): Promise<ApolloQueryResult<Result> | null> {
+  ): Promise<ApolloQueryResult<Result>> {
     try {
       const response = await this.client.query<Result, Variables>({
         query,

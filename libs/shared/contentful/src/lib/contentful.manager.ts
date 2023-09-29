@@ -8,11 +8,12 @@ import { validate } from 'class-validator';
 import { Injectable } from '@nestjs/common';
 
 import { ContentfulClient } from './contentful.client';
-import { ContentfulResultProcessingError } from './contentful.error';
 import {
-  eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsResult,
+  eligibilityContentByPlanIdsQuery,
 } from './queries/eligibility-content-by-plan-ids';
+import { EligibilityContentByPlanIdsQuery } from '../__generated__/graphql';
+import { DeepNonNullable } from './types';
 
 @Injectable()
 export class ContentfulManager {
@@ -30,19 +31,7 @@ export class ContentfulManager {
         stripePlanIds,
       }
     );
-    if (!queryResult) {
-      return { purchases: [] };
-    }
 
-    const result = plainToClass(
-      EligibilityContentByPlanIdsResult,
-      queryResult.data
-    );
-    const validationErrors = await validate(result);
-    if (validationErrors.length > 0) {
-      throw new ContentfulResultProcessingError(validationErrors);
-    }
-
-    return result;
+    return queryResult.data as DeepNonNullable<EligibilityContentByPlanIdsQuery>;
   }
 }
