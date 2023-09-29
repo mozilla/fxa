@@ -58,10 +58,13 @@ class IndexView extends FormView {
   beforeRender() {
     const account = this.getAccount();
     const relierEmail = this.relier.get('email');
+    const prefillEmailFromReact = this.relier.get('prefillEmail');
     if (account) {
       this.formPrefill.set(account.pick('email'));
     } else if (relierEmail) {
       this.formPrefill.set('email', relierEmail);
+    } else if (prefillEmailFromReact) {
+      this.formPrefill.set('email', prefillEmailFromReact);
     }
   }
 
@@ -142,7 +145,13 @@ class IndexView extends FormView {
         // The relier email set used as the prefill email in beforeRender.
         this.showValidationErrors();
       }
-    } else if (this.allowSuggestedAccount(suggestedAccount)) {
+      // Don't redirect to `/signin` if the React query param `prefillEmail`
+      // exists. This signals to content-server we want to stay on the index
+      // screen with that email prefilled.
+    } else if (
+      this.allowSuggestedAccount(suggestedAccount) &&
+      !this.relier.get('prefillEmail')
+    ) {
       this.replaceCurrentPage('signin', {
         account: suggestedAccount,
       });

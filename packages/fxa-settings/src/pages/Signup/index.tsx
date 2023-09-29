@@ -271,11 +271,17 @@ const Signup = ({
               className="link-blue text-sm"
               onClick={(e) => {
                 e.preventDefault();
-                // TODO in FXA-8307: this takes users to /signin if they've got an email in
-                // localStorage. Hopefully there's another workaround but might
-                // need to send a param back over to content-server to force load /
-                // and give the option to enter another email address
-                hardNavigateToContentServer('/');
+                const params = new URLSearchParams(location.search);
+                // Tell content-server to stay on index and prefill the email
+                params.set('prefillEmail', queryParamModel.email);
+                // Passing back the 'email' param causes various behaviors in
+                // content-server since it marks the email as "coming from a RP".
+                // Also remove `emailFromContent` since we pass that when coming
+                // from content-server to Backbone, see Signup container component
+                // for more info.
+                params.delete('emailFromContent');
+                params.delete('email');
+                hardNavigateToContentServer(`/?${params.toString()}`);
               }}
             >
               Change email

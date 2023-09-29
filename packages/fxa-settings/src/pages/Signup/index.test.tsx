@@ -34,6 +34,7 @@ import {
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
 import GleanMetrics from '../../lib/glean';
+import * as utils from 'fxa-react/lib/utils';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -105,6 +106,34 @@ describe('Signup page', () => {
     // Checkboxes have their own test
     expect(firefoxTermsLink).toHaveAttribute('href', '/legal/terms');
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
+  });
+
+  describe('hardNavigateToContentServer', () => {
+    let hardNavigateToContentServerSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      hardNavigateToContentServerSpy = jest
+        .spyOn(utils, 'hardNavigateToContentServer')
+        .mockImplementation(() => {});
+    });
+    afterEach(() => {
+      hardNavigateToContentServerSpy.mockRestore();
+    });
+
+    it('allows users to change their email', async () => {
+      renderWithLocalizationProvider(<Subject />);
+
+      await waitFor(() => {
+        fireEvent.click(
+          screen.getByRole('link', {
+            name: 'Change email',
+          })
+        );
+      });
+      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
+      );
+    });
   });
 
   it('allows users to show and hide password input', async () => {
