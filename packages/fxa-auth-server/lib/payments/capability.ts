@@ -16,7 +16,6 @@ import {
 import Stripe from 'stripe';
 import Container from 'typedi';
 
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import error from '../error';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { authEvents } from '../events';
@@ -27,6 +26,7 @@ import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-pu
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
 import { PaymentConfigManager } from './configuration/manager';
+import { clientIdCapabilityMapFromMetadata } from './utils';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 
@@ -593,25 +593,4 @@ export class CapabilityService {
 
     return result;
   }
-}
-
-function clientIdFromMetadataKey(key: string): string {
-  return key === 'capabilities'
-    ? ALL_RPS_CAPABILITIES_KEY
-    : key.split(':')[1].trim();
-}
-
-function capabilitiesFromMetadataValue(value: string): string[] {
-  return commaSeparatedListToArray(value);
-}
-
-function clientIdCapabilityMapFromMetadata(
-  metadata?: Record<string, string>
-): ClientIdCapabilityMap {
-  return Object.entries(metadata || {})
-    .filter(([key]) => key.startsWith('capabilities'))
-    .reduce((acc, [key, value]) => {
-      acc[clientIdFromMetadataKey(key)] = capabilitiesFromMetadataValue(value);
-      return acc;
-    }, {} as ClientIdCapabilityMap);
 }

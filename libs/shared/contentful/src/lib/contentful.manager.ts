@@ -4,12 +4,19 @@
 
 import { Injectable } from '@nestjs/common';
 
-import { EligibilityContentByPlanIdsQuery } from '../__generated__/graphql';
+import {
+  EligibilityContentByPlanIdsQuery,
+  ServicesWithCapabilitiesQuery,
+} from '../__generated__/graphql';
 import { ContentfulClient } from './contentful.client';
 import {
   eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsResultUtil,
 } from './queries/eligibility-content-by-plan-ids';
+import {
+  servicesWithCapabilitiesQuery,
+  ServicesWithCapabilitiesResultUtil,
+} from './queries/services-with-capabilities';
 import { DeepNonNullable } from './types';
 
 @Injectable()
@@ -24,13 +31,25 @@ export class ContentfulManager {
       {
         skip: 0,
         limit: 100,
-        locale: 'en-US',
+        locale: 'en',
         stripePlanIds,
       }
     );
 
     return new EligibilityContentByPlanIdsResultUtil(
       queryResult.data as DeepNonNullable<EligibilityContentByPlanIdsQuery>
+    );
+  }
+
+  async getServicesWithCapabilities(): Promise<ServicesWithCapabilitiesResultUtil> {
+    const queryResult = await this.client.query(servicesWithCapabilitiesQuery, {
+      skip: 0,
+      limit: 100,
+      locale: 'en',
+    });
+
+    return new ServicesWithCapabilitiesResultUtil(
+      queryResult.data as DeepNonNullable<ServicesWithCapabilitiesQuery>
     );
   }
 }

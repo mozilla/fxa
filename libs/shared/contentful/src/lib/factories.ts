@@ -10,12 +10,17 @@ import {
   EligibilityContentByPlanIdsQuery,
   OfferingQuery,
   PurchaseWithDetailsQuery,
+  ServicesWithCapabilitiesQuery,
 } from '../__generated__/graphql';
 import {
   EligibilityOfferingResult,
   EligibilitySubgroupOfferingResult,
   EligibilitySubgroupResult,
 } from './queries/eligibility-content-by-plan-ids';
+import {
+  CapabilitiesResult,
+  ServiceResult,
+} from './queries/services-with-capabilities';
 import { ContentfulErrorResponse } from './types';
 
 export const EligibilityContentByPlanIdsQueryFactory = (
@@ -135,6 +140,39 @@ export const PurchaseWithDetailsQueryFactory = (
   },
   ...override,
 });
+
+export const ServicesWithCapabilitiesQueryFactory = (
+  override?: Partial<ServicesWithCapabilitiesQuery>
+): ServicesWithCapabilitiesQuery => ({
+  serviceCollection: {
+    items: [
+      {
+        oauthClientId: faker.string.sample(),
+        capabilitiesCollection: {
+          items: [
+            {
+              slug: faker.string.sample(),
+            },
+          ],
+        },
+      },
+    ],
+  },
+  ...override,
+});
+
+export const ServiceResultFactory = (
+  override?: Partial<ServiceResult>,
+  capabilitiesCollection?: CapabilitiesResult[]
+): ServiceResult[] => [
+  {
+    oauthClientId: faker.string.sample(),
+    capabilitiesCollection: {
+      items: [...(capabilitiesCollection ?? [])],
+    },
+    ...override,
+  },
+];
 
 /**
  * Generates a graphql response from the contentful client based on the passed query.
