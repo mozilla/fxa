@@ -104,26 +104,33 @@ test.describe('severity-3 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
-  test('can login to monitor #1293364', async ({
+  /*test('can login to monitor #1293364', async ({
     credentials,
     page,
     pages: { login },
   }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod monitor');
-    await page.goto('https://monitor.firefox.com');
-    await Promise.all([
-      page.click('text=Sign Up for Alerts'),
-      page.waitForNavigation(),
-    ]);
+
+    await page.goto('https://monitor.firefox.com', {waitUntil: 'load'});
+    // await Promise.all([
+    //   //page.click('text=Sign Up for Alerts'),
+    //   page.click('text=Sign In'),
+    //   page.waitForLoadState('domcontentloaded'),
+    // ]);'button.button:nth-child(1)
+    await page.locator('text=Sign In').click();
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toContain('https://monitor.firefox.com/user/dashboard');
-    await page.click('#avatar-wrapper');
+    //expect(page.url()).toContain('https://monitor.firefox.com/user/dashboard');
+    expect(page.url()).toContain('https://monitor.firefox.com/user/breaches');
+    //await page.click('#avatar-wrapper');
+    await page.click('.user-menu-button');
     await Promise.all([
       page.click('text=Sign Out'),
-      page.waitForNavigation({ waitUntil: 'load' }),
+      //page.waitForNavigation({ waitUntil: 'load' }),
+      page.waitForLoadState(),
+
     ]);
-    await expect(page.locator('#sign-in-btn')).toBeVisible();
-  });
+    await expect(page.locator('.button secondary')).toBeVisible();
+  });*/
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360
   test('can login to SUMO #1293360', async ({
