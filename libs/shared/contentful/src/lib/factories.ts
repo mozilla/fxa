@@ -2,15 +2,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { ApolloQueryResult, NetworkStatus } from '@apollo/client';
 import { faker } from '@faker-js/faker';
-import { NetworkStatus } from '@apollo/client';
-import { ApolloQueryResult } from '@apollo/client';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+
 import {
+  EligibilityContentByPlanIdsQuery,
   OfferingQuery,
   PurchaseWithDetailsQuery,
-  EligibilityContentByPlanIdsQuery,
 } from '../__generated__/graphql';
+import {
+  EligibilityOfferingResult,
+  EligibilitySubgroupOfferingResult,
+  EligibilitySubgroupResult,
+} from './queries/eligibility-content-by-plan-ids';
 import { ContentfulErrorResponse } from './types';
 
 export const EligibilityContentByPlanIdsQueryFactory = (
@@ -49,6 +54,54 @@ export const EligibilityContentByPlanIdsQueryFactory = (
     ...override,
   };
 };
+
+export const EligibilityOfferingResultFactory = (
+  override?: Partial<EligibilityOfferingResult>,
+  subGroupCollectionExtension?: EligibilitySubgroupResult[],
+  subGroupOfferingCollectionExtension?: EligibilitySubgroupOfferingResult[]
+): EligibilityOfferingResult => ({
+  stripeProductId: faker.string.sample(),
+  countries: [faker.string.sample()],
+  linkedFrom: {
+    subGroupCollection: {
+      items: [
+        {
+          groupName: faker.string.sample(),
+          offeringCollection: {
+            items: [
+              {
+                stripeProductId: faker.string.sample(),
+                countries: [faker.string.sample()],
+              },
+              ...(subGroupOfferingCollectionExtension ?? []),
+            ],
+          },
+        },
+        ...(subGroupCollectionExtension ?? []),
+      ],
+    },
+  },
+  ...override,
+});
+
+export const EligibilitySubgroupResultFactory = (
+  override?: Partial<EligibilitySubgroupResult>,
+  offeringCollection?: EligibilitySubgroupOfferingResult[]
+): EligibilitySubgroupResult => ({
+  groupName: faker.string.sample(),
+  offeringCollection: {
+    items: [...(offeringCollection ?? [])],
+  },
+  ...override,
+});
+
+export const EligibilitySubgroupOfferingResultFactory = (
+  override?: Partial<EligibilitySubgroupOfferingResult>
+): EligibilitySubgroupOfferingResult => ({
+  stripeProductId: faker.string.sample(),
+  countries: [faker.string.sample()],
+  ...override,
+});
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
