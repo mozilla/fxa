@@ -3,43 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
-const password = 'passwordzxcv';
-let email;
 
 test.describe('post verify - account recovery', () => {
   test.beforeEach(async ({ target, pages: { login } }) => {
     // Generating and consuming recovery keys is a slow process
     test.slow();
-    email = login.createEmail();
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
     await login.clearCache();
-  });
-
-  test.afterEach(async ({ target }) => {
-    if (email) {
-      // Cleanup any accounts created during the test
-      try {
-        await target.auth.accountDestroy(email, password);
-      } catch (e) {
-        // Handle the error here
-        console.error('An error occurred during account cleanup:', e);
-        // Optionally, rethrow the error to propagate it further
-        throw e;
-      }
-    }
   });
 
   test('create account recovery', async ({
     target,
+    credentials,
     pages: { page, login, postVerify },
   }) => {
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify logged in on Settings page
     expect(await login.isUserLoggedIn()).toBe(true);
@@ -53,7 +36,7 @@ test.describe('post verify - account recovery', () => {
     expect(await postVerify.isAccountRecoveryHeader()).toBe(true);
 
     //Add recovery key
-    await postVerify.addRecoveryKey(password);
+    await postVerify.addRecoveryKey(credentials.password);
     await postVerify.submit();
 
     // Store key to be used later
@@ -77,12 +60,16 @@ test.describe('post verify - account recovery', () => {
 
   test('abort account recovery at add_recovery_key', async ({
     target,
+    credentials,
     pages: { page, login, postVerify },
   }) => {
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify logged in on Settings page
     expect(await login.isUserLoggedIn()).toBe(true);
@@ -104,12 +91,16 @@ test.describe('post verify - account recovery', () => {
 
   test('abort account recovery at confirm_recovery_key', async ({
     target,
+    credentials,
     pages: { page, login, postVerify },
   }) => {
     await page.goto(target.contentServerUrl, {
       waitUntil: 'load',
     });
-    await login.fillOutEmailFirstSignIn(email, password);
+    await login.fillOutEmailFirstSignIn(
+      credentials.email,
+      credentials.password
+    );
 
     //Verify logged in on Settings page
     expect(await login.isUserLoggedIn()).toBe(true);
@@ -123,7 +114,7 @@ test.describe('post verify - account recovery', () => {
     expect(await postVerify.isAccountRecoveryHeader()).toBe(true);
 
     //Add recovery key
-    await postVerify.addRecoveryKey(password);
+    await postVerify.addRecoveryKey(credentials.password);
     await postVerify.clickMaybeLater();
 
     //Verify logged in on Settings page
