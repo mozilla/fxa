@@ -9,10 +9,16 @@ const CONTENTFUL_GRAPHQL_ENVIRONMENT =
 const config: CodegenConfig = {
   overwrite: true,
   schema: `${CONTENTFUL_GRAPHQL_API_URL}/spaces/${CONTENTFUL_GRAPHQL_SPACE_ID}/environments/${CONTENTFUL_GRAPHQL_ENVIRONMENT}?access_token=${CONTENTFUL_GRAPHQL_API_KEY}`,
-  documents: ['libs/shared/contentful/src/lib/queries/*.ts'],
+  documents: [
+    'libs/shared/contentful/src/lib/queries/*.ts',
+    'libs/shared/contentful/src/lib/queries/**/*.ts',
+  ],
   generates: {
     'libs/shared/contentful/src/__generated__/': {
       preset: 'client',
+      config: {
+        avoidOptionals: true,
+      },
     },
   },
 };

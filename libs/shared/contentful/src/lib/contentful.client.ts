@@ -15,9 +15,9 @@ import {
   ContentfulExecutionError,
   ContentfulLinkError,
   ContentfulLocaleError,
-} from './errors';
+} from './contentful.error';
 import { BaseError } from '@fxa/shared/error';
-import { ContentfulClientConfig } from './contentful-client.config';
+import { ContentfulClientConfig } from './contentful.client.config';
 
 @Injectable()
 export class ContentfulClient {
@@ -31,7 +31,7 @@ export class ContentfulClient {
   async query<Result, Variables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
-  ): Promise<ApolloQueryResult<Result> | null> {
+  ): Promise<ApolloQueryResult<Result>> {
     try {
       const response = await this.client.query<Result, Variables>({
         query,

@@ -6,8 +6,48 @@ import { faker } from '@faker-js/faker';
 import { NetworkStatus } from '@apollo/client';
 import { ApolloQueryResult } from '@apollo/client';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { OfferingQuery } from '../__generated__/graphql';
-import { PurchaseWithDetailsQuery } from '../__generated__/graphql';
+import {
+  OfferingQuery,
+  PurchaseWithDetailsQuery,
+  EligibilityContentByPlanIdsQuery,
+} from '../__generated__/graphql';
+
+export const EligibilityContentByPlanIdsQueryFactory = (
+  override?: Partial<EligibilityContentByPlanIdsQuery>
+): EligibilityContentByPlanIdsQuery => {
+  const stripeProductId = faker.string.sample();
+  return {
+    purchaseCollection: {
+      items: [
+        {
+          stripePlanChoices: [faker.string.sample()],
+          offering: {
+            stripeProductId,
+            countries: [faker.string.sample()],
+            linkedFrom: {
+              subGroupCollection: {
+                items: [
+                  {
+                    groupName: faker.string.sample(),
+                    offeringCollection: {
+                      items: [
+                        {
+                          stripeProductId,
+                          countries: [faker.string.sample()],
+                        },
+                      ],
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        },
+      ],
+    },
+    ...override,
+  };
+};
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
@@ -31,6 +71,7 @@ export const PurchaseWithDetailsQueryFactory = (
   override?: Partial<PurchaseWithDetailsQuery>
 ): PurchaseWithDetailsQuery => ({
   purchase: {
+    internalName: faker.string.sample(),
     description: faker.string.sample(),
     purchaseDetails: {
       productName: faker.string.sample(),

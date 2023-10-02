@@ -4,14 +4,14 @@
 
 import { faker } from '@faker-js/faker';
 import { ApolloQueryResult } from '@apollo/client';
-import { ContentfulClient } from './contentful-client';
+import { ContentfulClient } from './contentful.client';
 import { offeringQuery } from './queries/offering';
 import { OfferingQuery } from '../__generated__/graphql';
 import {
   ContentfulError,
   ContentfulLinkError,
   ContentfulLocaleError,
-} from './errors';
+} from './contentful.error';
 
 const ApolloError = jest.requireActual('@apollo/client').ApolloError;
 
