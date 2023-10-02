@@ -5,41 +5,43 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
-test.describe('oauth reset password', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    test.slow();
+test.describe('severity-1 #smoke', () => {
+  test.describe('oauth reset password', () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      test.slow();
 
-    const config = await configPage.getConfig();
-    test.skip(config.showReactApp.resetPasswordRoutes === true);
-    test.skip(config.showReactApp.oauthRoutes === true);
-  });
+      const config = await configPage.getConfig();
+      test.skip(config.showReactApp.resetPasswordRoutes === true);
+      test.skip(config.showReactApp.oauthRoutes === true);
+    });
 
-  test('reset password happy path', async ({
-    target,
-    page,
-    credentials,
-    pages: { login, relier, resetPassword },
-  }) => {
-    await relier.goto();
-    await relier.clickEmailFirst();
-    await login.setEmail(credentials.email);
-    await login.submit();
-    await login.clickForgotPassword();
+    test('reset password happy path', async ({
+      target,
+      page,
+      credentials,
+      pages: { login, relier, resetPassword },
+    }) => {
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await login.setEmail(credentials.email);
+      await login.submit();
+      await login.clickForgotPassword();
 
-    // Verify reset password header
-    await resetPassword.resetPasswordHeader();
+      // Verify reset password header
+      await resetPassword.resetPasswordHeader();
 
-    await resetPassword.fillOutResetPassword(credentials.email);
+      await resetPassword.fillOutResetPassword(credentials.email);
 
-    const link = await target.email.waitForEmail(
-      credentials.email,
-      EmailType.recovery,
-      EmailHeader.link
-    );
-    await page.goto(link);
-    await resetPassword.resetNewPassword(credentials.password);
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link);
+      await resetPassword.resetNewPassword(credentials.password);
 
-    // Verify logged in
-    expect(await relier.isLoggedIn()).toBe(true);
+      // Verify logged in
+      expect(await relier.isLoggedIn()).toBe(true);
+    });
   });
 });

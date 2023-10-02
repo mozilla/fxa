@@ -9,161 +9,171 @@ let email;
 let newEmail;
 let unverifiedEmail;
 
-test.describe('signin blocked', () => {
-  test.beforeEach(async ({ target, pages: { login } }) => {
-    test.slow(); //This test has steps for email rendering that runs slow on stage
-    blockedEmail = login.createEmail('blocked{id}');
-    await target.auth.signUp(blockedEmail, password, {
-      lang: 'en',
-      preVerified: 'true',
+test.describe('severity-2 #smoke', () => {
+  test.describe('signin blocked', () => {
+    test.beforeEach(async ({ target, pages: { login } }) => {
+      test.slow(); //This test has steps for email rendering that runs slow on stage
+      blockedEmail = login.createEmail('blocked{id}');
+      await target.auth.signUp(blockedEmail, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      email = await login.createEmail();
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      newEmail = login.createEmail('blocked{id}');
+      unverifiedEmail = login.createEmail('blocked{id}');
+      await target.auth.signUp(unverifiedEmail, password, {
+        lang: 'en',
+        preVerified: 'false',
+      });
+      await login.clearCache();
     });
-    email = await login.createEmail();
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-    newEmail = login.createEmail('blocked{id}');
-    unverifiedEmail = login.createEmail('blocked{id}');
-    await target.auth.signUp(unverifiedEmail, password, {
-      lang: 'en',
-      preVerified: 'false',
-    });
-    await login.clearCache();
-  });
 
-  test.afterEach(async ({ target }) => {
-    test.slow(); //The cleanup was timing out and exceeding 3000ms
-    const emails = [blockedEmail, email, newEmail, unverifiedEmail];
-    for (const email of emails) {
-      if (email) {
-        try {
-          await target.auth.accountDestroy(email, password);
-        } catch (e) {
-          // Handle any errors if needed
+    test.afterEach(async ({ target }) => {
+      test.slow(); //The cleanup was timing out and exceeding 3000ms
+      const emails = [blockedEmail, email, newEmail, unverifiedEmail];
+      for (const email of emails) {
+        if (email) {
+          try {
+            await target.auth.accountDestroy(email, password);
+          } catch (e) {
+            // Handle any errors if needed
+          }
         }
       }
-    }
-  });
-
-  test('valid code entered', async ({ target, page, pages: { login } }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
     });
-    await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Verify sign in block header
-    await login.waitForSigninUnblockHeader();
-    expect(await login.getUnblockEmail()).toContain(blockedEmail);
+    test('valid code entered', async ({ target, page, pages: { login } }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Unblock the email
-    await login.unblock(blockedEmail);
+      //Verify sign in block header
+      await login.waitForSigninUnblockHeader();
+      expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
+      //Unblock the email
+      await login.unblock(blockedEmail);
 
-  test('incorrect code entered', async ({ target, page, pages: { login } }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Verify sign in block header
-    await login.waitForSigninUnblockHeader();
-    expect(await login.getUnblockEmail()).toContain(blockedEmail);
-    await login.enterUnblockCode('incorrect');
+    test('incorrect code entered', async ({
+      target,
+      page,
+      pages: { login },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Verify tooltip error
-    expect(await login.getTooltipError()).toContain(
-      'Invalid authorization code'
-    );
+      //Verify sign in block header
+      await login.waitForSigninUnblockHeader();
+      expect(await login.getUnblockEmail()).toContain(blockedEmail);
+      await login.enterUnblockCode('incorrect');
 
-    //Unblock the email
-    await login.unblock(blockedEmail);
+      //Verify tooltip error
+      expect(await login.getTooltipError()).toContain(
+        'Invalid authorization code'
+      );
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
+      //Unblock the email
+      await login.unblock(blockedEmail);
 
-  test('resend', async ({ target, page, pages: { login, resetPassword } }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Verify sign in block header
-    await login.waitForSigninUnblockHeader();
-    expect(await login.getUnblockEmail()).toContain(blockedEmail);
+    test('resend', async ({
+      target,
+      page,
+      pages: { login, resetPassword },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
-    //Click resend link
-    await resetPassword.clickResend();
+      //Verify sign in block header
+      await login.waitForSigninUnblockHeader();
+      expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
-    //Verify success message
-    expect(await resetPassword.resendSuccessMessage()).toContain(
-      'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
-    );
+      //Click resend link
+      await resetPassword.clickResend();
 
-    //Unblock the email
-    await login.unblock(blockedEmail);
+      //Verify success message
+      expect(await resetPassword.resendSuccessMessage()).toContain(
+        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+      );
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
+      //Unblock the email
+      await login.unblock(blockedEmail);
 
-  test('with primary email changed', async ({
-    target,
-    page,
-    pages: { login, settings, secondaryEmail },
-  }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutEmailFirstSignIn(email, password);
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
+    test('with primary email changed', async ({
+      target,
+      page,
+      pages: { login, settings, secondaryEmail },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(email, password);
 
-    await settings.goto();
-    await settings.secondaryEmail.clickAdd();
-    await secondaryEmail.addAndVerify(newEmail);
-    await settings.secondaryEmail.clickMakePrimary();
-    await settings.signOut();
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
 
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      await settings.goto();
+      await settings.secondaryEmail.clickAdd();
+      await secondaryEmail.addAndVerify(newEmail);
+      await settings.secondaryEmail.clickMakePrimary();
+      await settings.signOut();
+
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(newEmail, password);
+
+      //Verify sign in block header
+      await login.waitForSigninUnblockHeader();
+      expect(await login.getUnblockEmail()).toContain(newEmail);
+
+      //Unblock the email
+      await login.unblock(newEmail);
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutEmailFirstSignIn(newEmail, password);
 
-    //Verify sign in block header
-    await login.waitForSigninUnblockHeader();
-    expect(await login.getUnblockEmail()).toContain(newEmail);
+    test('unverified', async ({ target, page, pages: { login } }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
 
-    //Unblock the email
-    await login.unblock(newEmail);
+      //Verify sign in block header
+      await login.waitForSigninUnblockHeader();
+      expect(await login.getUnblockEmail()).toContain(unverifiedEmail);
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
+      //Unblock the email
+      await login.unblock(unverifiedEmail);
 
-  test('unverified', async ({ target, page, pages: { login } }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      //Verify confirm code header
+      await login.waitForSignUpCodeHeader();
+
+      await login.fillOutSignInCode(unverifiedEmail);
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
-
-    //Verify sign in block header
-    await login.waitForSigninUnblockHeader();
-    expect(await login.getUnblockEmail()).toContain(unverifiedEmail);
-
-    //Unblock the email
-    await login.unblock(unverifiedEmail);
-
-    //Verify confirm code header
-    await login.waitForSignUpCodeHeader();
-
-    await login.fillOutSignInCode(unverifiedEmail);
-
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
   });
 });
