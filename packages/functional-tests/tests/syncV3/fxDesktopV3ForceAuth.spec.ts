@@ -13,181 +13,185 @@ let syncBrowserPages;
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe('Desktop Sync V3 force auth', () => {
-  test.beforeEach(async ({ target }) => {
-    test.slow();
-    syncBrowserPages = await newPagesForSync(target);
-  });
-
-  test.afterEach(async () => {
-    await syncBrowserPages.browser?.close();
-  });
-
-  test('sync v3 with a registered email, no uid', async ({
-    credentials,
-    target,
-  }) => {
-    const {
-      fxDesktopV3ForceAuth,
-      login,
-      connectAnotherDevice,
-      signinTokenCode,
-    } = syncBrowserPages;
-
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
-      uid: undefined,
+test.describe('severity-1 #smoke', () => {
+  test.describe('Desktop Sync V3 force auth', () => {
+    test.beforeEach(async ({ target }) => {
+      test.slow();
+      syncBrowserPages = await newPagesForSync(target);
     });
-    await login.setPassword(credentials.password);
-    await login.submit();
-    expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage(
-      'fxaccounts:can_link_account'
-    );
-    await login.fillOutSignInCode(credentials.email);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
-  });
 
-  test('sync v3 with a registered email, registered uid', async ({
-    credentials,
-    target,
-  }) => {
-    const {
-      fxDesktopV3ForceAuth,
-      login,
-      connectAnotherDevice,
-      signinTokenCode,
-    } = syncBrowserPages;
-
-    await fxDesktopV3ForceAuth.open(credentials);
-    await login.setPassword(credentials.password);
-    await login.submit();
-    expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage(
-      'fxaccounts:can_link_account'
-    );
-    await login.fillOutSignInCode(credentials.email);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
-  });
-
-  test('sync v3 with a registered email, unregistered uid', async ({
-    credentials,
-    target,
-  }) => {
-    const {
-      fxDesktopV3ForceAuth,
-      login,
-      connectAnotherDevice,
-      signinTokenCode,
-    } = syncBrowserPages;
-
-    const uid = makeUid();
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, { uid });
-    await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
-    await login.setPassword(credentials.password);
-    await login.submit();
-    expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage(
-      'fxaccounts:can_link_account'
-    );
-    await login.fillOutSignInCode(credentials.email);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
-  });
-
-  test('sync v3 with an unregistered email, no uid', async ({
-    credentials,
-    target,
-  }) => {
-    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
-
-    const email = `sync${Math.random()}@restmail.net`;
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
-      email,
-      uid: undefined,
+    test.afterEach(async () => {
+      await syncBrowserPages.browser?.close();
     });
-    const error = await login.signInError();
-    expect(error).toContain('Recreate');
-    const emailInputValue = await login.getEmailInput();
-    expect(emailInputValue).toBe(email);
-    const emailInput = await login.getEmailInputElement();
-    expect(emailInput.isDisabled());
-    await expect(
-      await (await login.getUseDifferentAccountLink()).count()
-    ).toEqual(0);
-    await login.fillOutFirstSignUp(email, credentials.password, {
-      enterEmail: false,
+
+    test('sync v3 with a registered email, no uid', async ({
+      credentials,
+      target,
+    }) => {
+      const {
+        fxDesktopV3ForceAuth,
+        login,
+        connectAnotherDevice,
+        signinTokenCode,
+      } = syncBrowserPages;
+
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        uid: undefined,
+      });
+      await login.setPassword(credentials.password);
+      await login.submit();
+      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(
+        'fxaccounts:can_link_account'
+      );
+      await login.fillOutSignInCode(credentials.email);
+      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
-    await fxDesktopV3ForceAuth.checkWebChannelMessage(
-      'fxaccounts:can_link_account'
-    );
-    await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
-  });
 
-  test('sync v3 with an unregistered email, registered uid', async ({
-    credentials,
-    target,
-  }) => {
-    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+    test('sync v3 with a registered email, registered uid', async ({
+      credentials,
+      target,
+    }) => {
+      const {
+        fxDesktopV3ForceAuth,
+        login,
+        connectAnotherDevice,
+        signinTokenCode,
+      } = syncBrowserPages;
 
-    const email = `sync${Math.random()}@restmail.net`;
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
-      email,
+      await fxDesktopV3ForceAuth.open(credentials);
+      await login.setPassword(credentials.password);
+      await login.submit();
+      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(
+        'fxaccounts:can_link_account'
+      );
+      await login.fillOutSignInCode(credentials.email);
+      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
-    const error = await login.signInError();
-    expect(error).toContain('Recreate');
-    const emailInputValue = await login.getEmailInput();
-    expect(emailInputValue).toBe(email);
-    const emailInput = await login.getEmailInputElement();
-    expect(emailInput.isDisabled());
-    await expect(
-      await (await login.getUseDifferentAccountLink()).count()
-    ).toEqual(0);
-  });
 
-  test('sync v3 with an unregistered email, unregistered uid', async ({
-    credentials,
-    target,
-  }) => {
-    const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+    test('sync v3 with a registered email, unregistered uid', async ({
+      credentials,
+      target,
+    }) => {
+      const {
+        fxDesktopV3ForceAuth,
+        login,
+        connectAnotherDevice,
+        signinTokenCode,
+      } = syncBrowserPages;
 
-    const email = `sync${Math.random()}@restmail.net`;
-    const uid = makeUid();
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
-      email,
-      uid,
+      const uid = makeUid();
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        uid,
+      });
+      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
+      await login.setPassword(credentials.password);
+      await login.submit();
+      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(
+        'fxaccounts:can_link_account'
+      );
+      await login.fillOutSignInCode(credentials.email);
+      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
-    const error = await login.signInError();
-    expect(error).toContain('Recreate');
-    const emailInputValue = await login.getEmailInput();
-    expect(emailInputValue).toBe(email);
-    const emailInput = await login.getEmailInputElement();
-    expect(emailInput.isDisabled());
-    await expect(
-      await (await login.getUseDifferentAccountLink()).count()
-    ).toEqual(0);
-  });
 
-  test('blocked with an registered email, unregistered uid', async ({
-    credentials,
-    target,
-  }) => {
-    const { fxDesktopV3ForceAuth, login, connectAnotherDevice } =
-      syncBrowserPages;
+    test('sync v3 with an unregistered email, no uid', async ({
+      credentials,
+      target,
+    }) => {
+      const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
 
-    const uid = makeUid();
-    await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
-      uid,
+      const email = `sync${Math.random()}@restmail.net`;
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        email,
+        uid: undefined,
+      });
+      const error = await login.signInError();
+      expect(error).toContain('Recreate');
+      const emailInputValue = await login.getEmailInput();
+      expect(emailInputValue).toBe(email);
+      const emailInput = await login.getEmailInputElement();
+      expect(emailInput.isDisabled());
+      await expect(
+        await (await login.getUseDifferentAccountLink()).count()
+      ).toEqual(0);
+      await login.fillOutFirstSignUp(email, credentials.password, {
+        enterEmail: false,
+      });
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(
+        'fxaccounts:can_link_account'
+      );
+      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
-    await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
-    await login.setPassword(credentials.password);
-    await login.submit();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage(
-      'fxaccounts:can_link_account'
-    );
-    await login.unblock(credentials.email);
-    expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
-    await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+
+    test('sync v3 with an unregistered email, registered uid', async ({
+      credentials,
+      target,
+    }) => {
+      const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+
+      const email = `sync${Math.random()}@restmail.net`;
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        email,
+      });
+      const error = await login.signInError();
+      expect(error).toContain('Recreate');
+      const emailInputValue = await login.getEmailInput();
+      expect(emailInputValue).toBe(email);
+      const emailInput = await login.getEmailInputElement();
+      expect(emailInput.isDisabled());
+      await expect(
+        await (await login.getUseDifferentAccountLink()).count()
+      ).toEqual(0);
+    });
+
+    test('sync v3 with an unregistered email, unregistered uid', async ({
+      credentials,
+      target,
+    }) => {
+      const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
+
+      const email = `sync${Math.random()}@restmail.net`;
+      const uid = makeUid();
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        email,
+        uid,
+      });
+      const error = await login.signInError();
+      expect(error).toContain('Recreate');
+      const emailInputValue = await login.getEmailInput();
+      expect(emailInputValue).toBe(email);
+      const emailInput = await login.getEmailInputElement();
+      expect(emailInput.isDisabled());
+      await expect(
+        await (await login.getUseDifferentAccountLink()).count()
+      ).toEqual(0);
+    });
+
+    test('blocked with an registered email, unregistered uid', async ({
+      credentials,
+      target,
+    }) => {
+      const { fxDesktopV3ForceAuth, login, connectAnotherDevice } =
+        syncBrowserPages;
+
+      const uid = makeUid();
+      await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
+        uid,
+      });
+      await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
+      await login.setPassword(credentials.password);
+      await login.submit();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage(
+        'fxaccounts:can_link_account'
+      );
+      await login.unblock(credentials.email);
+      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+    });
   });
 });

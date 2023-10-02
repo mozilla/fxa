@@ -1,112 +1,120 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { EmailHeader, EmailType } from '../../lib/email';
 import { test, expect } from '../../lib/fixtures/standard';
 
-test.describe('OAuth signin token code', () => {
-  function toQueryString(obj) {
-    return Object.entries(obj)
-      .map((x) => `${x[0]}=${x[1]}`)
-      .join('&');
-  }
-
-  /* Email for fake account */
-  let email = '';
-
-  /* Password for fake account */
-  const password = 'passwordzxcv';
-
-  /* eslint-disable camelcase */
-  const queryParameters = {
-    client_id: '7f368c6886429f19',
-    code_challenge: 'aSOwsmuRBE1ZIVtiW6bzKMaf47kCFl7duD6ZWAXdnJo',
-    code_challenge_method: 'S256',
-    forceUA:
-      'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
-
-    keys_jwk:
-      'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOiJQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdXU5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
-    redirect_uri: 'https://mozilla.github.io/notes/fxa/android-redirect.html',
-    scope: 'profile https://identity.mozilla.com/apps/notes',
-  };
-  /* eslint-enable camelcase */
-
-  test.beforeEach(async ({ target }, { project }) => {
-    // The `sync` prefix is needed to force confirmation.
-    email = `sync${Math.random()}@restmail.net`;
-    await target.createAccount(email, password);
-  });
-
-  test.afterEach(async ({ target }) => {
-    if (email) {
-      // Cleanup any accounts created during the test
-      try {
-        await target.auth.accountDestroy(email, password);
-      } catch (e) {}
+test.describe('severity-2 #smoke', () => {
+  test.describe('OAuth signin token code', () => {
+    function toQueryString(obj) {
+      return Object.entries(obj)
+        .map((x) => `${x[0]}=${x[1]}`)
+        .join('&');
     }
-  });
 
-  test('verified - invalid token', async ({
-    page,
-    pages: { login, relier, signinTokenCode },
-  }) => {
-    await relier.goto(toQueryString(queryParameters));
+    /* Email for fake account */
+    let email = '';
 
-    // Click the Email First flow, which should direct to the sign in page
-    await relier.clickEmailFirst();
+    /* Password for fake account */
+    const password = 'passwordzxcv';
 
-    // Enter email, then enter password
-    await login.fillOutEmailFirstSignIn(email, password);
+    /* eslint-disable camelcase */
+    const queryParameters = {
+      client_id: '7f368c6886429f19',
+      code_challenge: 'aSOwsmuRBE1ZIVtiW6bzKMaf47kCFl7duD6ZWAXdnJo',
+      code_challenge_method: 'S256',
+      forceUA:
+        'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Mobile Safari/537.36',
 
-    // Check that the sign in page is show, and is asking for a sign in code
-    expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      keys_jwk:
+        'eyJrdHkiOiJFQyIsImtpZCI6Im9DNGFudFBBSFZRX1pmQ09RRUYycTRaQlZYblVNZ2xISGpVRzdtSjZHOEEiLCJjcnYiOiJQLTI1NiIsIngiOiJDeUpUSjVwbUNZb2lQQnVWOTk1UjNvNTFLZVBMaEg1Y3JaQlkwbXNxTDk0IiwieSI6IkJCWDhfcFVZeHpTaldsdXU5MFdPTVZwamIzTlpVRDAyN0xwcC04RW9vckEifQ',
+      redirect_uri: 'https://mozilla.github.io/notes/fxa/android-redirect.html',
+      scope: 'profile https://identity.mozilla.com/apps/notes',
+    };
+    /* eslint-enable camelcase */
 
-    // This will cause the token become 'invalid' and ultimately cause an
-    // INVALID_TOKEN error to be thrown.
-    await login.destroySession(email);
-    await page.waitForURL(/oauth\/signin/);
-    // Destroying the session should direct user back to sign in page
-    await login.passwordHeader.waitFor({ state: 'visible' });
-  });
+    test.beforeEach(async ({ target }, { project }) => {
+      // The `sync` prefix is needed to force confirmation.
+      email = `sync${Math.random()}@restmail.net`;
+      await target.createAccount(email, password);
+    });
 
-  test('verified - valid code', async ({
-    target,
-    page,
-    pages: { login, relier, signinTokenCode },
-  }) => {
-    await relier.goto(toQueryString(queryParameters));
+    test.afterEach(async ({ target }) => {
+      if (email) {
+        // Cleanup any accounts created during the test
+        try {
+          await target.auth.accountDestroy(email, password);
+        } catch (e) {}
+      }
+    });
 
-    // Click the Email First flow, which should direct to the sign in page
-    await relier.clickEmailFirst();
+    test('verified - invalid token', async ({
+      page,
+      pages: { login, relier, signinTokenCode },
+    }) => {
+      await relier.goto(toQueryString(queryParameters));
 
-    // Enter email, then enter password
-    await login.fillOutEmailFirstSignIn(email, password);
+      // Click the Email First flow, which should direct to the sign in page
+      await relier.clickEmailFirst();
 
-    // Enter invalid code, ensure it doesn't work
-    await signinTokenCode.input.fill('000000');
-    await signinTokenCode.submit.click();
-    await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
+      // Enter email, then enter password
+      await login.fillOutEmailFirstSignIn(email, password);
 
-    // Resend the code
-    await signinTokenCode.resendLink.click();
-    await signinTokenCode.successMessage.waitFor({ state: 'visible' });
-    await expect(signinTokenCode.successMessage).toBeVisible();
-    await expect(signinTokenCode.successMessage).toContainText('Email resent.');
+      // Check that the sign in page is show, and is asking for a sign in code
+      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
 
-    // Correctly submits the token code and navigates to oauth page
-    await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
+      // This will cause the token become 'invalid' and ultimately cause an
+      // INVALID_TOKEN error to be thrown.
+      await login.destroySession(email);
+      await page.waitForURL(/oauth\/signin/);
+      // Destroying the session should direct user back to sign in page
+      await login.passwordHeader.waitFor({ state: 'visible' });
+    });
 
-    const code = await target.email.waitForEmail(
-      email,
-      EmailType.verifyLoginCode,
-      EmailHeader.signinCode
-    );
-    await signinTokenCode.input.fill(code);
-    await signinTokenCode.submit.click();
-    await page.waitForLoadState();
+    test('verified - valid code', async ({
+      target,
+      page,
+      pages: { login, relier, signinTokenCode },
+    }) => {
+      await relier.goto(toQueryString(queryParameters));
 
-    const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
-    await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toBeVisible();
-    await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toContainText(
-      'Notes by Firefox'
-    );
+      // Click the Email First flow, which should direct to the sign in page
+      await relier.clickEmailFirst();
+
+      // Enter email, then enter password
+      await login.fillOutEmailFirstSignIn(email, password);
+
+      // Enter invalid code, ensure it doesn't work
+      await signinTokenCode.input.fill('000000');
+      await signinTokenCode.submit.click();
+      await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
+
+      // Resend the code
+      await signinTokenCode.resendLink.click();
+      await signinTokenCode.successMessage.waitFor({ state: 'visible' });
+      await expect(signinTokenCode.successMessage).toBeVisible();
+      await expect(signinTokenCode.successMessage).toContainText(
+        'Email resent.'
+      );
+
+      // Correctly submits the token code and navigates to oauth page
+      await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
+
+      const code = await target.email.waitForEmail(
+        email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.input.fill(code);
+      await signinTokenCode.submit.click();
+      await page.waitForLoadState();
+
+      const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
+      await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toBeVisible();
+      await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toContainText(
+        'Notes by Firefox'
+      );
+    });
   });
 });
