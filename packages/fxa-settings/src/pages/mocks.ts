@@ -12,5 +12,6 @@ export const MOCK_SERVICE = MozServices.FirefoxMonitor;
 export const MOCK_SESSION_TOKEN = 'sessionToken';
 export const MOCK_UNWRAP_BKEY = 'unwrapBKey';
 export const MOCK_KEY_FETCH_TOKEN = 'keyFetchToken';
+export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_AUTH_AT = 12345;
 export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';

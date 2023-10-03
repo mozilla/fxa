@@ -146,9 +146,10 @@ const AccountRecoveryConfirmKey = ({
       try {
         let resetToken = fetchedResetToken;
         if (!resetToken) {
-          const { accountResetToken } = await account.verifyPasswordForgotToken(
+          const accountResetToken = await account.passwordForgotVerifyCode(
             token,
-            code
+            code,
+            true
           );
           setFetchedResetToken(accountResetToken);
           resetToken = accountResetToken;
@@ -308,7 +309,10 @@ const AccountRecoveryConfirmKey = ({
           to={`/complete_reset_password${location.search}`}
           className="link-blue text-sm"
           id="lost-recovery-key"
-          state={{ lostRecoveryKey: true }}
+          state={{
+            lostRecoveryKey: true,
+            accountResetToken: fetchedResetToken,
+          }}
           onClick={() => {
             logViewEvent(
               'flow',

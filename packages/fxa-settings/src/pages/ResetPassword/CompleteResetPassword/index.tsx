@@ -86,7 +86,13 @@ const CompleteResetPassword = ({
    * If users clicked the link leading back to this page from `account_recovery_confirm_key`,
    * we assume the user has lost the key and pass along a `lostRecoveryKey` flag
    * so we don't perform the check and redirect again.
+   *
    * If the link is -not- valid, we render link expired or link damaged.
+   *
+   * Additionally, the user can submit an invalid account recovery key and receive back
+   * an `accountResetToken`, then follow the link back to this page. In this case, we
+   * should _not_ check if the 'token' parameter is valid, since it will be invalid after
+   * this token is provided to us.
    */
   useEffect(() => {
     const checkPasswordForgotToken = async (token: string) => {
@@ -147,12 +153,19 @@ const CompleteResetPassword = ({
       setShowLoadingSpinner(false);
       logPageViewEvent(viewName, REACT_ENTRYPOINT);
     };
-    checkPasswordForgotToken(linkModel.token);
+    // If a user comes from AccountRecoveryConfirmKey and attempted a recovery key
+    // submission, 'token' was already verified and used to fetch the reset token
+    if (!location.state?.accountResetToken) {
+      checkPasswordForgotToken(linkModel.token);
+    } else {
+      renderCompleteResetPassword();
+    }
   }, [
     account,
     navigate,
     location.search,
     location.state?.lostRecoveryKey,
+    location.state?.accountResetToken,
     linkModel.email,
     linkModel.token,
     setLinkStatus,
@@ -187,7 +200,8 @@ const CompleteResetPassword = ({
           token,
           code,
           emailToUse,
-          newPassword
+          newPassword,
+          location.state?.accountResetToken
         );
 
         /* NOTE: Session check/totp check must come after completeResetPassword since those
@@ -255,6 +269,7 @@ const CompleteResetPassword = ({
     [
       account,
       integration,
+      location.state?.accountResetToken,
       alertSuccessAndNavigate,
       ftlMsgResolver,
       setLinkStatus,
