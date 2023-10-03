@@ -24,6 +24,7 @@ export type CompleteResetPasswordSubmitData = {
 
 export interface CompleteResetPasswordLocationState {
   lostRecoveryKey: boolean;
+  accountResetToken: string;
 }
 
 export interface CompleteResetPasswordParams {

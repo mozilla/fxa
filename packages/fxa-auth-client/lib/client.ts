@@ -507,7 +507,7 @@ export default class AuthClient {
     code: string,
     passwordForgotToken: hexstring,
     options: {
-      accountResetWithoutRecoveryKey?: boolean;
+      accountResetWithRecoveryKey?: boolean;
     } = {},
     headers: Headers = new Headers()
   ) {

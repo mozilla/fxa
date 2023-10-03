@@ -624,8 +624,39 @@ export class Account implements AccountData {
   }
 
   /**
+   * TODO: Remove this once we update the GQL endpoint to accept the
+   *  `accountResetWithRecoveryKey` option and fix graphql-api not reporting
+   *  the correct IP address.
+   *
+   * @param token passwordForgotToken
+   * @param code code
+   * @param accountResetWithRecoveryKey is account being reset with recovery key?
+   * */
+  async passwordForgotVerifyCode(
+    token: string,
+    code: string,
+    accountResetWithRecoveryKey = false
+  ): Promise<string> {
+    // TODO: There is a bug in Backbone and React reset PW around `accountResetWithRecoveryKey`.
+    // We attempt to validate the `code` and `token` provided here, but because the
+    // `accountResetToken` can only be fetched once but uses the `accountResetWithRecoveryKey`
+    // option, auth-server fails to send an email if the user has a recovery key, attempts
+    // to use it unsuccessfully, and then goes through a normal reset via the link back
+    // to a normal reset if a user can't use their key.
+    const { accountResetToken } =
+      await this.authClient.passwordForgotVerifyCode(code, token, {
+        accountResetWithRecoveryKey,
+      });
+    return accountResetToken;
+  }
+
+  /**
    * Verify a passwordForgotToken, which returns an accountResetToken that can
    * be used to perform the actual password reset.
+   *
+   * NOTE! and TODO: this is currently unused. We need to update the GQL
+   * endpoint to accept the `accountResetWithRecoveryKey` option and
+   * fix graphql-api not reporting the correct IP address.
    *
    * @param token passwordForgotToken
    * @param code code
@@ -669,7 +700,8 @@ export class Account implements AccountData {
     token: string,
     code: string,
     email: string,
-    newPassword: string
+    newPassword: string,
+    resetToken?: string
   ): Promise<any> {
     try {
       // TODO: Temporary workaround (use auth-client directly) for GraphQL not
@@ -678,10 +710,8 @@ export class Account implements AccountData {
       //   token,
       //   code
       // );
-      const { accountResetToken } =
-        await this.authClient.passwordForgotVerifyCode(code, token, {
-          accountResetWithoutRecoveryKey: true,
-        });
+      const accountResetToken =
+        resetToken || (await this.passwordForgotVerifyCode(token, code));
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
