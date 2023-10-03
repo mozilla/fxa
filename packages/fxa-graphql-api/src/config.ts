@@ -42,7 +42,13 @@ const conf = convict({
     },
   },
   contentful: {
-    apiUrl: {
+    cdnUrl: {
+      doc: 'Base URL for Content Delivery API (https://www.contentful.com/developers/docs/references/content-delivery-api//)',
+      format: String,
+      env: 'CONTENTFUL_CDN_API_URL',
+      default: '',
+    },
+    graphqlUrl: {
       doc: 'Base URL for GraphQL Content API (https://www.contentful.com/developers/docs/references/graphql/)',
       format: String,
       env: 'CONTENTFUL_GRAPHQL_API_URL',
@@ -273,5 +279,5 @@ conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 const Config = conf;
 
-export type AppConfig = ReturnType<typeof Config['getProperties']>;
+export type AppConfig = ReturnType<(typeof Config)['getProperties']>;
 export default Config;

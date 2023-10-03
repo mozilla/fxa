@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/contentful.client';
-export * from './lib/contentful.manager';
+export * from './lib/contentful.client.config';
 export * from './lib/contentful.error';
+export * from './lib/contentful.manager';
 export * from './lib/factories';
 export * from './lib/queries/eligibility-content-by-plan-ids';
