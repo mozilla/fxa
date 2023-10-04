@@ -36,7 +36,7 @@ const Mixin = {
       (this.mode === 'prelaunch' || this.mode === 'postlaunch');
 
     if (this.enabled) {
-      this.logFlowEvent(`brand-messaging-${this.mode}-view`, this.viewName);
+      this.logFlowEventOnce(`brand-messaging-${this.mode}-view`, this.viewName);
       document.body.classList.add('brand-messaging');
     }
   },
