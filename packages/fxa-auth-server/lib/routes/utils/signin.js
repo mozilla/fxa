@@ -295,19 +295,25 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
         }
       }
 
-      function sendEmail() {
+      async function sendEmail() {
+        log.info('account.signin.sendEmail', {
+          uid: accountRecord.uid,
+          isUnverifiedAccount,
+          mustVerifySession,
+        });
+
         // For unverified accounts, we always re-send the account verification email.
         if (isUnverifiedAccount) {
-          return sendVerifyAccountEmail();
+          return await sendVerifyAccountEmail();
         }
         // If the session needs to be verified, send the sign-in confirmation email.
         if (mustVerifySession) {
-          return sendVerifySessionEmail();
+          return await sendVerifySessionEmail();
         }
         // Otherwise, no email is necessary.
       }
 
-      function sendVerifyAccountEmail() {
+      async function sendVerifyAccountEmail() {
         if (verificationMethod === 'email-otp') {
           return sendVerifyLoginCodeEmail();
         }
@@ -316,8 +322,8 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
         const emailCode =
           sessionToken.tokenVerificationId ||
           accountRecord.primaryEmail.emailCode;
-        return mailer
-          .sendVerifyEmail([], accountRecord, {
+        try {
+          await mailer.sendVerifyEmail([], accountRecord, {
             code: emailCode,
             service,
             redirectTo,
@@ -335,21 +341,27 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
             uaOSVersion: request.app.ua.osVersion,
             uaDeviceType: request.app.ua.deviceType,
             uid: sessionToken.uid,
-          })
-          .then(() => request.emitMetricsEvent('email.verification.sent'));
+          });
+          await request.emitMetricsEvent('email.verification.sent');
+        } catch (err) {
+          log.error('mailer.verification.error', {
+            err,
+          });
+          throw err;
+        }
       }
 
-      function sendVerifySessionEmail() {
+      async function sendVerifySessionEmail() {
         // If this login requires a confirmation, check to see if a specific method was specified in
         // the request. If none was specified, use the `email` verificationMethod.
         switch (verificationMethod) {
           case 'email':
             // Sends an email containing a link to verify login
-            return sendVerifyLoginEmail();
+            return await sendVerifyLoginEmail();
           case 'email-2fa':
           case 'email-otp':
             // Sends an email containing a code that can verify a login
-            return sendVerifyLoginCodeEmail();
+            return await sendVerifyLoginCodeEmail();
           case 'email-captcha':
             // `email-captcha` is a custom verification method used only for
             // unblock codes. We do not need to send a verification email
@@ -360,7 +372,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
             // application.
             break;
           default:
-            return sendVerifyLoginEmail();
+            return await sendVerifyLoginEmail();
         }
       }
 
@@ -397,7 +409,9 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
           );
           await request.emitMetricsEvent('email.confirmation.sent');
         } catch (err) {
-          log.error('mailer.confirmation.error', { err });
+          log.error('mailer.confirmation.error', {
+            err,
+          });
           throw emailUtils.sendError(err, isUnverifiedAccount);
         }
       }
@@ -410,32 +424,40 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
         const secret = accountRecord.primaryEmail.emailCode;
         const code = otpUtils.generateOtpCode(secret, otpOptions);
         const { location, timeZone } = request.app.geo;
-        await mailer.sendVerifyLoginCodeEmail(
-          accountRecord.emails,
-          accountRecord,
-          {
-            acceptLanguage: request.app.acceptLanguage,
-            code,
-            deviceId,
-            flowId,
-            flowBeginTime,
-            ip,
-            location,
-            redirectTo,
-            resume,
-            service,
-            timeZone,
-            uaBrowser: request.app.ua.browser,
-            uaBrowserVersion: request.app.ua.browserVersion,
-            uaOS: request.app.ua.os,
-            uaOSVersion: request.app.ua.osVersion,
-            uaDeviceType: request.app.ua.deviceType,
-            uid: sessionToken.uid,
-          }
-        );
 
-        request.emitMetricsEvent('email.tokencode.sent');
-        glean.login.verifyCodeEmailSent(request, { uid: sessionToken.uid });
+        try {
+          await mailer.sendVerifyLoginCodeEmail(
+            accountRecord.emails,
+            accountRecord,
+            {
+              acceptLanguage: request.app.acceptLanguage,
+              code,
+              deviceId,
+              flowId,
+              flowBeginTime,
+              ip,
+              location,
+              redirectTo,
+              resume,
+              service,
+              timeZone,
+              uaBrowser: request.app.ua.browser,
+              uaBrowserVersion: request.app.ua.browserVersion,
+              uaOS: request.app.ua.os,
+              uaOSVersion: request.app.ua.osVersion,
+              uaDeviceType: request.app.ua.deviceType,
+              uid: sessionToken.uid,
+            }
+          );
+
+          await request.emitMetricsEvent('email.tokencode.sent');
+          await glean.login.verifyCodeEmailSent(request, {
+            uid: sessionToken.uid,
+          });
+        } catch (err) {
+          log.error('mailer.tokencode.error', { err });
+          throw err;
+        }
       }
 
       function recordSecurityEvent() {
