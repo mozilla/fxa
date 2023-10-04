@@ -9,6 +9,28 @@ import LinkRememberPassword from '.';
 import { MOCK_ACCOUNT } from '../../models/mocks';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
+import { MOCK_CLIENT_ID } from '../../pages/mocks';
+import { LocationProvider } from '@reach/router';
+
+const mockLocation = () => {
+  return {
+    search: '?' + new URLSearchParams({ client_id: MOCK_CLIENT_ID }),
+  };
+};
+
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useLocation: () => mockLocation(),
+}));
+
+const Subject = ({
+  email = MOCK_ACCOUNT.primaryEmail.email,
+  forceAuth = false,
+}) => (
+  <LocationProvider>
+    <LinkRememberPassword {...{ email, forceAuth }} />
+  </LocationProvider>
+);
 
 describe('LinkRememberPassword', () => {
   let bundle: FluentBundle;
@@ -17,9 +39,7 @@ describe('LinkRememberPassword', () => {
   });
 
   it('renders', () => {
-    renderWithLocalizationProvider(
-      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
-    );
+    renderWithLocalizationProvider(<Subject />);
     testAllL10n(screen, bundle);
 
     expect(
@@ -27,10 +47,8 @@ describe('LinkRememberPassword', () => {
     ).toBeInTheDocument();
   });
 
-  it('links to signin if not forceAuth', () => {
-    renderWithLocalizationProvider(
-      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} />
-    );
+  it('links to signin if not forceAuth, appends parameters', () => {
+    renderWithLocalizationProvider(<Subject />);
 
     const rememberPasswordLink = screen.getByRole('link', {
       name: 'Remember your password? Sign in',
@@ -39,21 +57,19 @@ describe('LinkRememberPassword', () => {
 
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      '/signin?email=johndope%40example.com'
+      '/signin?client_id=123&email=johndope%40example.com'
     );
   });
 
-  it('links to force_auth if forceAuth is true', () => {
-    renderWithLocalizationProvider(
-      <LinkRememberPassword email={MOCK_ACCOUNT.primaryEmail.email} forceAuth />
-    );
+  it('links to force_auth if forceAuth is true, appends parameters', () => {
+    renderWithLocalizationProvider(<Subject forceAuth={true} />);
 
     const rememberPasswordLink = screen.getByRole('link', {
       name: 'Remember your password? Sign in',
     });
     expect(rememberPasswordLink).toHaveAttribute(
       'href',
-      '/force_auth?email=johndope%40example.com'
+      '/force_auth?client_id=123&email=johndope%40example.com'
     );
   });
 });
