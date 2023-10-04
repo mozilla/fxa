@@ -9,6 +9,6 @@ payment-cc =
 payment-cancel-btn = Cancel
 payment-update-btn = Update
 payment-pay-btn = Pay now
-payment-pay-with-paypal-btn = Pay with { -brand-name-paypal }
+payment-pay-with-paypal-btn-2 = Pay with { -brand-paypal }
 
 payment-validate-name-error = Please enter your name

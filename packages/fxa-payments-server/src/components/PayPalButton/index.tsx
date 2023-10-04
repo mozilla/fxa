@@ -251,7 +251,7 @@ export const PaypalButton = ({
 
   return (
     <div data-testid="pay-with-other">
-      <Localized id="pay-with-heading-paypal">
+      <Localized id="pay-with-heading-paypal-2">
         <p className="pay-with-heading mt-14">Pay with PayPal</p>
       </Localized>
       <Suspense fallback={<div>Loading...</div>}>

@@ -258,7 +258,7 @@ export const PaymentUpdateForm = ({
             <Localized id="sub-route-payment-modal-heading">
               <h2 id={ariaLabelledBy}>Invalid billing information</h2>
             </Localized>
-            <Localized id="sub-route-payment-modal-message">
+            <Localized id="sub-route-payment-modal-message-2">
               <p id={ariaDescribedBy}>
                 There seems to be an error with your PayPal account, we need you
                 to take the necessary steps to resolve this payment issue.
