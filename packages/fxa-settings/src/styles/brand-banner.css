@@ -12,3 +12,7 @@
     #e3f6ed 102.21%
   );
 }
+
+.brand-messaging {
+  @apply mb-32;
+}
