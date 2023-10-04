@@ -129,7 +129,7 @@ const mockConfig = {
   subscriptions: {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
-    stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
+    stripeApiKey: 'blah',
   },
   subhub: {
     enabled: true,
