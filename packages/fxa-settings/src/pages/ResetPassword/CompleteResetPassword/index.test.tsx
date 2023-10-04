@@ -24,6 +24,7 @@ import {
   mockAppContext,
   renderWithRouter,
 } from '../../../models/mocks';
+import { MOCK_RESET_TOKEN } from '../../mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -43,6 +44,7 @@ jest.mock('../../../lib/metrics', () => ({
 
 let account: Account;
 let lostRecoveryKey: boolean;
+let accountResetToken: string | undefined;
 const mockNavigate = jest.fn();
 
 const mockSearchParams = {
@@ -61,6 +63,7 @@ const mockLocation = () => {
     search,
     state: {
       lostRecoveryKey,
+      accountResetToken,
     },
   };
 };
@@ -355,7 +358,8 @@ describe('CompleteResetPassword page', () => {
         token,
         code,
         emailToHashWith,
-        PASSWORD
+        PASSWORD,
+        undefined
       );
     });
     it('submits with email if emailToHashWith is missing', async () => {
@@ -367,7 +371,24 @@ describe('CompleteResetPassword page', () => {
         token,
         code,
         email,
-        PASSWORD
+        PASSWORD,
+        undefined
+      );
+    });
+
+    it('submits with accountResetToken if available', async () => {
+      lostRecoveryKey = true;
+      accountResetToken = MOCK_RESET_TOKEN;
+      render(<Subject />, account);
+      const { token, emailToHashWith, code } = mockCompleteResetPasswordParams;
+
+      await enterPasswordAndSubmit();
+      expect(account.completeResetPassword).toHaveBeenCalledWith(
+        token,
+        code,
+        emailToHashWith,
+        PASSWORD,
+        MOCK_RESET_TOKEN
       );
     });
 

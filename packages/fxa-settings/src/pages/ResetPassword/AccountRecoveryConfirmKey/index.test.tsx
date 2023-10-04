@@ -70,9 +70,7 @@ const accountWithValidResetToken = {
     recoveryData: 'mockRecoveryData',
     recoveryKeyId: MOCK_RECOVERY_KEY_ID,
   }),
-  verifyPasswordForgotToken: jest
-    .fn()
-    .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
+  passwordForgotVerifyCode: jest.fn().mockResolvedValue(MOCK_RESET_TOKEN),
 } as unknown as Account;
 
 const renderSubject = ({
@@ -127,7 +125,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
   it('renders the component as expected when provided with an expired link', async () => {
     const accountWithTokenError = {
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
-      verifyPasswordForgotToken: jest.fn().mockImplementation(() => {
+      passwordForgotVerifyCode: jest.fn().mockImplementation(() => {
         throw AuthUiErrors.INVALID_TOKEN;
       }),
     } as unknown as Account;
@@ -287,9 +285,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
   it('submits successfully after invalid recovery key submission', async () => {
     const accountWithKeyInvalidOnce = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      verifyPasswordForgotToken: jest
-        .fn()
-        .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
+      passwordForgotVerifyCode: jest.fn().mockResolvedValue(MOCK_RESET_TOKEN),
       getRecoveryKeyBundle: jest
         .fn()
         .mockImplementationOnce(() => {
@@ -316,17 +312,18 @@ describe('PageAccountRecoveryConfirmKey', () => {
       screen.getByRole('button', { name: 'Confirm account recovery key' })
     );
 
-    // only ever calls `verifyPasswordForgotToken` once despite number of submissions
+    // only ever calls `passwordForgotVerifyCode` once despite number of submissions
     await waitFor(() =>
       expect(
-        accountWithKeyInvalidOnce.verifyPasswordForgotToken
+        accountWithKeyInvalidOnce.passwordForgotVerifyCode
       ).toHaveBeenCalledTimes(1)
     );
     expect(
-      accountWithKeyInvalidOnce.verifyPasswordForgotToken
+      accountWithKeyInvalidOnce.passwordForgotVerifyCode
     ).toHaveBeenCalledWith(
       mockCompleteResetPasswordParams.token,
-      mockCompleteResetPasswordParams.code
+      mockCompleteResetPasswordParams.code,
+      true
     );
     expect(
       accountWithKeyInvalidOnce.getRecoveryKeyBundle
