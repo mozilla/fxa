@@ -168,7 +168,7 @@
     "nx": "^16.9.1",
     "nx-cloud": "16.4.0",
     "persistgraphql": "^0.3.11",
-    "postcss": "^8.4.27",
+    "postcss": "^8.4.31",
     "react-test-renderer": "^18.2.0",
     "reflect-metadata": "^0.1.13",
     "stylelint": "^15.10.1",
