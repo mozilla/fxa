@@ -7,50 +7,54 @@ import { test, expect } from '../../lib/fixtures/standard';
 const PASSWORD = 'passwordzxcv';
 let email;
 
-test.describe('Sign up with code', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
-    test.slow();
-    email = login.createEmail();
-    await login.clearCache();
-  });
-
-  test('bounced email', async ({ target, page, pages: { login } }) => {
-    const client = await login.getFxaClient(target);
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+test.describe('severity-1 #smoke', () => {
+  test.describe('Sign up with code', () => {
+    test.beforeEach(async ({ pages: { login } }) => {
+      test.slow();
+      email = login.createEmail();
+      await login.clearCache();
     });
-    await login.fillOutFirstSignUp(email, PASSWORD);
 
-    await client.accountDestroy(email, PASSWORD);
-    await login.waitForPasswordHeader();
-  });
+    test('bounced email', async ({ target, page, pages: { login } }) => {
+      const client = await login.getFxaClient(target);
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutFirstSignUp(email, PASSWORD);
 
-  test('valid code then click back', async ({
-    target,
-    page,
-    pages: { login },
-  }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      await client.accountDestroy(email, PASSWORD);
+      await login.waitForPasswordHeader();
     });
-    await login.fillOutFirstSignUp(email, PASSWORD, {waitForNavOnSubmit: false});
-    await page.goBack({waitUntil: 'load'});
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
 
-  test('invalid code', async ({
-    target,
-    page,
-    pages: { login, signinTokenCode },
-  }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+    test('valid code then click back', async ({
+      target,
+      page,
+      pages: { login },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutFirstSignUp(email, PASSWORD, {
+        waitForNavOnSubmit: false,
+      });
+      await page.goBack({ waitUntil: 'load' });
+      expect(await login.isUserLoggedIn()).toBe(true);
     });
-    await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
-    await login.setCode('1234');
-    await signinTokenCode.clickSubmitButton();
-    expect(await login.getTooltipError()).toContain(
-      'Invalid or expired confirmation code'
-    );
+
+    test('invalid code', async ({
+      target,
+      page,
+      pages: { login, signinTokenCode },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.setCode('1234');
+      await signinTokenCode.clickSubmitButton();
+      expect(await login.getTooltipError()).toContain(
+        'Invalid or expired confirmation code'
+      );
+    });
   });
 });

@@ -8,111 +8,113 @@ let email;
 let email2;
 let syncBrowserPages;
 
-test.describe('sync signin cached', () => {
-  test.beforeEach(async ({ target }) => {
-    test.slow();//This test has steps for email rendering that runs slow on stage
-    syncBrowserPages = await newPagesForSync(target);
-    const { login } = syncBrowserPages;
-    email = login.createEmail('sync{id}');
-    email2 = login.createEmail();
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
+test.describe('severity-2 #smoke', () => {
+  test.describe('sync signin cached', () => {
+    test.beforeEach(async ({ target }) => {
+      test.slow(); //This test has steps for email rendering that runs slow on stage
+      syncBrowserPages = await newPagesForSync(target);
+      const { login } = syncBrowserPages;
+      email = login.createEmail('sync{id}');
+      email2 = login.createEmail();
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await target.auth.signUp(email2, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
     });
-    await target.auth.signUp(email2, password, {
-      lang: 'en',
-      preVerified: 'true',
-    });
-  });
 
-  test.afterEach(async ({ target }) => {
-    test.slow();//The cleanup was timing out and exceeding 3000ms
-    await syncBrowserPages.browser?.close();
-    const emails = [email, email2];
-    for (const email of emails) {
-      if (email) {
-        try {
-          await target.auth.accountDestroy(email, password);
-        } catch (e) {
-          // Handle any errors if needed
+    test.afterEach(async ({ target }) => {
+      test.slow(); //The cleanup was timing out and exceeding 3000ms
+      await syncBrowserPages.browser?.close();
+      const emails = [email, email2];
+      for (const email of emails) {
+        if (email) {
+          try {
+            await target.auth.accountDestroy(email, password);
+          } catch (e) {
+            // Handle any errors if needed
+          }
         }
       }
-    }
-  });
-
-  test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
-    target,
-  }) => {
-    const { page, login, connectAnotherDevice } = syncBrowserPages;
-    await page.goto(
-      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
-    );
-    await login.fillOutEmailFirstSignIn(email, password);
-
-    //Verify sign up code header is visible
-    await login.waitForSignInCodeHeader();
-
-    const query = { email: email2 };
-    const queryParam = new URLSearchParams(query);
-    await page.goto(
-      `${
-        target.contentServerUrl
-      }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
-    );
-
-    //Check prefilled email
-    expect(await login.getPrefilledEmail()).toContain(email2);
-    await login.setPassword(password);
-    await login.clickSubmit();
-    await connectAnotherDevice.clickNotNow();
-
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-
-    //Reset prefill and context
-    await login.clearSessionStorage();
-
-    //Testing to make sure cached signin comes back after a refresh
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
     });
-    expect(await login.getPrefilledEmail()).toContain(email);
-    await login.useDifferentAccountLink();
-    await login.waitForEmailHeader();
-  });
 
-  test('sign in with desktop context then no context, desktop credentials should persist', async ({
-    target,
-  }) => {
-    const { page, login } = syncBrowserPages;
-    await page.goto(
-      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
-    );
-    await login.fillOutEmailFirstSignIn(email, password);
+    test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
+      target,
+    }) => {
+      const { page, login, connectAnotherDevice } = syncBrowserPages;
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+      );
+      await login.fillOutEmailFirstSignIn(email, password);
 
-    //Verify sign up code header is visible
-    await login.waitForSignInCodeHeader();
+      //Verify sign up code header is visible
+      await login.waitForSignInCodeHeader();
 
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      const query = { email: email2 };
+      const queryParam = new URLSearchParams(query);
+      await page.goto(
+        `${
+          target.contentServerUrl
+        }?context=fx_desktop_v3&service=sync&action=email&${queryParam.toString()}`
+      );
+
+      //Check prefilled email
+      expect(await login.getPrefilledEmail()).toContain(email2);
+      await login.setPassword(password);
+      await login.clickSubmit();
+      await connectAnotherDevice.clickNotNow();
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
+
+      //Reset prefill and context
+      await login.clearSessionStorage();
+
+      //Testing to make sure cached signin comes back after a refresh
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      expect(await login.getPrefilledEmail()).toContain(email);
+      await login.useDifferentAccountLink();
+      await login.waitForEmailHeader();
     });
-    expect(await login.getPrefilledEmail()).toContain(email);
-    await login.useDifferentAccountLink();
-    await login.waitForEmailHeader();
-    await login.fillOutEmailFirstSignIn(email2, password);
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
+    test('sign in with desktop context then no context, desktop credentials should persist', async ({
+      target,
+    }) => {
+      const { page, login } = syncBrowserPages;
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+      );
+      await login.fillOutEmailFirstSignIn(email, password);
 
-    //Reset prefill and context
-    await login.clearSessionStorage();
+      //Verify sign up code header is visible
+      await login.waitForSignInCodeHeader();
 
-    //Testing to make sure cached signin comes back after a refresh
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      expect(await login.getPrefilledEmail()).toContain(email);
+      await login.useDifferentAccountLink();
+      await login.waitForEmailHeader();
+      await login.fillOutEmailFirstSignIn(email2, password);
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
+
+      //Reset prefill and context
+      await login.clearSessionStorage();
+
+      //Testing to make sure cached signin comes back after a refresh
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      expect(await login.getPrefilledEmail()).toContain(email);
+      await login.useDifferentAccountLink();
+      await login.waitForEmailHeader();
     });
-    expect(await login.getPrefilledEmail()).toContain(email);
-    await login.useDifferentAccountLink();
-    await login.waitForEmailHeader();
   });
 });
