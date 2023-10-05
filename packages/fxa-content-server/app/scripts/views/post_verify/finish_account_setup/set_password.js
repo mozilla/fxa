@@ -57,7 +57,7 @@ class SetPassword extends FormView {
       productName: decodeURIComponent(
         this._verificationInfo.get('product_name').replace(/\+/g, ' ')
       ),
-      isLinkValid: !this._verificationInfo.isValid(),
+      isLinkValid: this._verificationInfo.isValid(),
     });
   }
 

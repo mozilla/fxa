@@ -9,19 +9,21 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export type TermsPrivacyAgreementProps = {
   isPocketClient?: boolean;
+  isMonitorClient?: boolean;
 };
 
 const TermsPrivacyAgreement = ({
   isPocketClient = false,
+  isMonitorClient = false,
 }: TermsPrivacyAgreementProps) => {
-  return (
-    <div className="text-grey-500 mt-5 text-xs">
-      {isPocketClient ? (
-        <>
-          <FtlMsg id="terms-privacy-agreement-intro">
-            <p>By proceeding, you agree to:</p>
-          </FtlMsg>
-          <ul>
+  if (isPocketClient || isMonitorClient) {
+    return (
+      <div className="text-grey-500 mt-5 text-xs">
+        <FtlMsg id="terms-privacy-agreement-intro">
+          <p>By proceeding, you agree to:</p>
+        </FtlMsg>
+        <ul>
+          {isPocketClient && (
             <FtlMsg
               id="terms-privacy-agreement-pocket"
               elems={{
@@ -60,35 +62,65 @@ const TermsPrivacyAgreement = ({
                 </LinkExternal>
               </li>
             </FtlMsg>
+          )}
+          {isMonitorClient && (
             <FtlMsg
-              id="terms-privacy-agreement-firefox"
+              id="terms-privacy-agreement-monitor"
               elems={{
-                firefoxTos: (
-                  <Link className="link-grey" to="/legal/terms">
-                    Terms of Service
-                  </Link>
-                ),
-                firefoxPrivacy: (
-                  <Link className="link-grey" to="/legal/privacy">
-                    Privacy Notice
-                  </Link>
+                monitorTos: (
+                  <LinkExternal
+                    className="link-grey"
+                    href="https://www.mozilla.org/privacy/firefox-monitor/"
+                  >
+                    Terms of Service and Privacy Notice
+                  </LinkExternal>
                 ),
               }}
             >
               <li>
-                Firefox’s{' '}
+                Firefox Monitor's{' '}
+                <LinkExternal
+                  className="link-grey"
+                  href="https://www.mozilla.org/privacy/firefox-monitor/"
+                >
+                  Terms of Service and Privacy Notice
+                </LinkExternal>
+              </li>
+            </FtlMsg>
+          )}
+          {/* Included for both Pocket and Monitor */}
+          <FtlMsg
+            id="terms-privacy-agreement-firefox"
+            elems={{
+              firefoxTos: (
                 <Link className="link-grey" to="/legal/terms">
                   Terms of Service
-                </Link>{' '}
-                and{' '}
+                </Link>
+              ),
+              firefoxPrivacy: (
                 <Link className="link-grey" to="/legal/privacy">
                   Privacy Notice
                 </Link>
-              </li>
-            </FtlMsg>
-          </ul>
-        </>
-      ) : (
+              ),
+            }}
+          >
+            <li>
+              Firefox’s{' '}
+              <Link className="link-grey" to="/legal/terms">
+                Terms of Service
+              </Link>{' '}
+              and{' '}
+              <Link className="link-grey" to="/legal/privacy">
+                Privacy Notice
+              </Link>
+            </li>
+          </FtlMsg>
+        </ul>
+      </div>
+    );
+  } else {
+    return (
+      <div className="text-grey-500 mt-5 text-xs">
         <FtlMsg
           id="terms-privacy-agreement-default"
           elems={{
@@ -116,9 +148,9 @@ const TermsPrivacyAgreement = ({
             .
           </p>
         </FtlMsg>
-      )}
-    </div>
-  );
+      </div>
+    );
+  }
 };
 
 export default TermsPrivacyAgreement;

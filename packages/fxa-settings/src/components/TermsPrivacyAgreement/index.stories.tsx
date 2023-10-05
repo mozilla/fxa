@@ -25,3 +25,9 @@ export const PocketClient = () => (
     <TermsPrivacyAgreement isPocketClient />
   </AppLayout>
 );
+
+export const MonitorClient = () => (
+  <AppLayout>
+    <TermsPrivacyAgreement isMonitorClient />
+  </AppLayout>
+);

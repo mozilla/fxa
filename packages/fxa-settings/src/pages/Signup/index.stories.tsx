@@ -54,6 +54,10 @@ export const ClientIsPocket = storyWithProps({
   integration: createMockSignupOAuthIntegration(MozServices.Pocket),
 });
 
+export const ClientIsMonitor = storyWithProps({
+  integration: createMockSignupOAuthIntegration(MozServices.FirefoxMonitor),
+});
+
 export const ChooseWhatToSyncIsEnabled = storyWithProps({
   integration: createMockSignupSyncDesktopIntegration(),
 });
