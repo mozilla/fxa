@@ -97,6 +97,19 @@ describe('views/index', () => {
       });
     });
 
+    it('prefills the email with React prefillEmail=email and does not navigate', () => {
+      const prefillEmail = 'mycoolemail@gmail.com';
+      relier.set('prefillEmail', prefillEmail);
+
+      return view
+        .render()
+        .then(() => view.afterVisible())
+        .then(() => {
+          assert.isFalse(view.navigate.called);
+          assert.equal(view.$(Selectors.EMAIL).val(), prefillEmail);
+        });
+    });
+
     describe('account has bounced', () => {
       it('prefills the email, shows a tooltip', () => {
         const bouncedAccount = user.initAccount({
