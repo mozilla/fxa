@@ -51,14 +51,16 @@ export function currentAccount(account?: StoredAccountData) {
   const forceUid = searchParam('uid', window.location.search);
   if (forceUid && all[forceUid]) {
     storage.set('currentAccountUid', forceUid);
+  } else if (account?.uid) {
+    storage.set('currentAccountUid', account.uid);
   }
 
-  const uid = storage.get('currentAccountUid') as hexstring;
   if (account) {
     all[account.uid] = account;
     accounts(all);
     return account;
   }
+  const uid = storage.get('currentAccountUid') as hexstring;
   return all[uid];
 }
 
