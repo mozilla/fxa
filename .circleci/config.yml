@@ -307,11 +307,15 @@ commands:
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
-              export GREP="--grep=severity-1"
+              GREP="--grep=\"severity-1\""
+            elif [[ "<< parameters.project >>" == "stage" ]]; then
+              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
+              GREP="--grep=\"severity-(1|2)\""
             else
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
-              export GREP="--grep=severity-(1|2)"
+              GREP=""
             fi
+            echo "targeting project << parameters.project >> $GREP"
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
