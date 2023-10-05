@@ -307,10 +307,10 @@ commands:
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
-              export GREP="--grep="severity-1"
+              export GREP="--grep=severity-1"
             else
               export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
-              export GREP="--grep="severity-(1|2)"
+              export GREP="--grep=severity-(1|2)"
             fi
             npx nx build fxa-auth-client
             cd packages/functional-tests/tests
