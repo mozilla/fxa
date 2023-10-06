@@ -223,9 +223,9 @@ describe('POST /recoveryKey', () => {
       );
     });
 
-    it('called mailer.sendPostAddAccountRecoveryEmail correctly', () => {
-      assert.equal(mailer.sendPostAddAccountRecoveryEmail.callCount, 1);
-      const args = mailer.sendPostAddAccountRecoveryEmail.args[0];
+    it('called mailer.sendPostChangeAccountRecoveryEmail correctly', () => {
+      assert.equal(mailer.sendPostChangeAccountRecoveryEmail.callCount, 1);
+      const args = mailer.sendPostChangeAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, email);
     });

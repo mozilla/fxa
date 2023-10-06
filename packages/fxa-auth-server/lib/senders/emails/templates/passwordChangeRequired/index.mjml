@@ -12,16 +12,17 @@
 
 <mj-section>
   <mj-column>
-    <mj-text css-class="text-body align-left">
+    <mj-text css-class="text-body">
       <span data-l10n-id="passwordChangeRequired-suspicious-activity">We detected suspicious behavior on your Firefox account. To prevent unauthorized access to your Firefox account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution.</span>
     </mj-text>
 
-    <mj-text css-class="text-body align-left">
+    <mj-text css-class="text-body">
       <span data-l10n-id="passwordChangeRequired-sign-in">Sign back into any device or service where you use your Firefox account and follow the steps that will be presented to you.</span>
     </mj-text>
 
-    <mj-text css-class="text-body align-left">
+    <mj-text css-class="text-body">
       <span data-l10n-id="passwordChangeRequired-different-password"><b>Important:</b> Pick a different password than what you were previously using and make sure that it is different from your email account.</span>
     </mj-text>
+
   </mj-column>
 </mj-section>

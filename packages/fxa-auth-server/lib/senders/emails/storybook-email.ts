@@ -48,7 +48,6 @@ const storybookEmail = ({
   partial,
   template,
   layout = 'fxa',
-  acceptLanguage = 'en',
   doc,
   variables,
   direction,
@@ -56,7 +55,7 @@ const storybookEmail = ({
   const container = document.createElement('article') as HTMLDivElement;
   container.classList.add('email-template');
   container.innerHTML = '<p class="message">Loading email...</p>';
-  renderUsingMJML({ template, layout, acceptLanguage, variables })
+  renderUsingMJML({ template, layout, variables })
     .then(({ html, text, subject }) => {
       container.innerHTML = `
         <header>
@@ -91,15 +90,14 @@ const storybookEmail = ({
 async function renderUsingMJML({
   template,
   layout,
-  acceptLanguage,
   variables,
 }: {
   template: string;
   layout: string;
-  acceptLanguage: string;
   variables: Record<string, any>;
 }): Promise<Record<any, string>> {
   const renderer = new Renderer(new BrowserRendererBindings());
+  const acceptLanguage = navigator.language || 'en';
 
   return renderer.renderEmail({
     template,
@@ -110,7 +108,11 @@ async function renderUsingMJML({
 }
 
 const Template: Story<StorybookEmailArgs> = (args, context) =>
-  storybookEmail({ ...args, direction: context.globals.direction });
+  storybookEmail({
+    ...args,
+    acceptLanguage: context.globals.acceptLanguage,
+    direction: context.globals.direction,
+  });
 
 export const storyWithProps = (
   templateName: string,

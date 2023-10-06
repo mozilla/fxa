@@ -73,6 +73,28 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
           );
         }
 
+        async function sendKeyChangeEmail() {
+          const account = await db.account(uid);
+          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const emailOptions = {
+            acceptLanguage,
+            ip,
+            location: geo.location,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          };
+          await mailer.sendPostChangeAccountRecoveryEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
+
         async function postKeyCreation() {
           log.info('account.recoveryKey.created', { uid });
 
@@ -100,7 +122,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
               request,
               account: { uid },
             });
-            sendKeyCreationEmail();
+            sendKeyChangeEmail();
           }
         }
 
