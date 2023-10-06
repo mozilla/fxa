@@ -128,7 +128,7 @@
     "@nx/react": "^16.9.1",
     "@nx/storybook": "^16.9.1",
     "@nx/workspace": "^16.9.1",
-    "@storybook/addon-essentials": "^7.4.5",
+    "@storybook/addon-essentials": "^7.4.6",
     "@storybook/addon-styling": "^1.3.7",
     "@storybook/core-common": "^7.4.5",
     "@storybook/core-server": "^7.4.5",
