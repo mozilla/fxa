@@ -21,6 +21,14 @@ import {
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
 import { OAuthClient } from '../lib/oauth';
+import {
+  GET_LOCAL_SIGNED_IN_STATUS,
+  INITIAL_METRICS_QUERY,
+} from '../components/App/gql';
+import {
+  MetricsData,
+  SignedInAccountStatus,
+} from '../components/App/interfaces';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -142,6 +150,28 @@ export function useInitialSettingsState() {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
   return useQuery(INITIAL_SETTINGS_QUERY, { client: apolloClient });
+}
+
+// TODO: FXA-8286, test pattern for container components, which will determine
+// how we want to handle `useQuery` (e.g., directly) and tests.
+export function useInitialMetricsQueryState() {
+  const { apolloClient } = useContext(AppContext);
+  if (!apolloClient) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+  return useQuery<MetricsData>(INITIAL_METRICS_QUERY, { client: apolloClient });
+}
+
+// TODO: FXA-8286, test pattern for container components, which will determine
+// how we want to handle `useQuery` (e.g., directly) and tests.
+export function useLocalSignedInQueryState() {
+  const { apolloClient } = useContext(AppContext);
+  if (!apolloClient) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
+  }
+  return useQuery<SignedInAccountStatus>(GET_LOCAL_SIGNED_IN_STATUS, {
+    client: apolloClient,
+  });
 }
 
 export function useAlertBar() {

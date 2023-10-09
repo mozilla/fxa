@@ -3,22 +3,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { RouteComponentProps, Router } from '@reach/router';
+import { RouteComponentProps, Router, useLocation } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import { currentAccount, sessionToken } from '../../lib/cache';
 import {
-  useAccount,
   useConfig,
+  useInitialMetricsQueryState,
   useIntegration,
-  useInitialSettingsState,
+  useLocalSignedInQueryState,
 } from '../../models';
 import * as Metrics from '../../lib/metrics';
 
 import sentryMetrics from 'fxa-shared/lib/sentry';
-
-import { PageWithLoggedInStatusState } from '../PageWithLoggedInStatusState';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
@@ -42,7 +40,7 @@ import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import LinkValidator from '../LinkValidator';
-import { LinkType } from 'fxa-settings/src/lib/types';
+import { LinkType, MozServices } from 'fxa-settings/src/lib/types';
 import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import WebChannelExample from '../../pages/WebChannelExample';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
@@ -56,74 +54,72 @@ import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/Acc
 import { QueryParams } from '../..';
 import SignupContainer from '../../pages/Signup/container';
 import GleanMetrics from '../../lib/glean';
+import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 
 const Settings = lazy(() => import('../Settings'));
 
-// TODO: FXA-8098
-// export const INITIAL_METRICS_QUERY = gql`
-//   query GetInitialMetricsState {
-//     account {
-//       recoveryKey
-//       metricsEnabled
-//       emails {
-//         email
-//         isPrimary
-//         verified
-//       }
-//       totp {
-//         exists
-//         verified
-//       }
-//     }
-//   }
-// `;
+// TODO: FXA-8305, DRY this up in the codebase
+const fullPageLoadingSpinner = (
+  <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+);
 
 export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const config = useConfig();
-
-  // TODO: stop overfetching / improve this, FXA-8098
-  const [isSignedIn, setIsSignedIn] = useState<boolean>();
-  const { loading, error } = useInitialSettingsState();
-  const account = useAccount();
   const integration = useIntegration();
-  const { metricsEnabled } = account;
+
+  const { loading, data } = useInitialMetricsQueryState();
+  // Because this query depends on the result of an initial query (in this case,
+  // metrics), we need to run it separately.
+  const { data: isSignedInData } = useLocalSignedInQueryState();
+
+  const isSignedIn = isSignedInData?.isSignedIn;
 
   useMemo(() => {
     GleanMetrics.initialize(
       {
         ...config.glean,
-        enabled: metricsEnabled || !isSignedIn,
+        enabled: data?.metricsEnabled || !isSignedIn,
         appDisplayVersion: config.version,
         channel: config.glean.channel,
       },
-      { flowQueryParams, account, userAgent: navigator.userAgent, integration }
+      {
+        flowQueryParams,
+        account: { metricsEnabled: data?.metricsEnabled, uid: data?.uid },
+        userAgent: navigator.userAgent,
+        integration,
+      }
     );
   }, [
     config.glean,
     config.version,
-    metricsEnabled,
+    data?.metricsEnabled,
+    data?.uid,
     isSignedIn,
     flowQueryParams,
-    account,
     integration,
   ]);
 
   useEffect(() => {
-    Metrics.init(metricsEnabled || !isSignedIn, flowQueryParams);
-    if (metricsEnabled) {
-      Metrics.initUserPreferences(account);
+    Metrics.init(data?.metricsEnabled || !isSignedIn, flowQueryParams);
+    if (data?.metricsEnabled) {
+      Metrics.initUserPreferences({
+        recoveryKey: data.recoveryKey,
+        hasSecondaryVerifiedEmail:
+          data.emails.length > 1 && data.emails[1].verified,
+        totpActive: data.totp.exists && data.totp.verified,
+      });
     }
-  }, [account, metricsEnabled, isSignedIn, flowQueryParams, config]);
-
-  useEffect(() => {
-    if (!loading && error?.message.includes('Invalid token')) {
-      setIsSignedIn(false);
-    } else if (!loading && !error) {
-      setIsSignedIn(true);
-    }
-  }, [error, loading]);
+  }, [
+    data?.metricsEnabled,
+    data?.emails,
+    data?.totp,
+    data?.recoveryKey,
+    isSignedIn,
+    flowQueryParams,
+    config,
+  ]);
 
   useEffect(() => {
     if (!loading) {
@@ -134,7 +130,7 @@ export const App = ({
       // who opt to have metrics enabled.
       // A bit of chicken and egg but it could be possible that we miss some
       // errors while the page is loading and user is being fetched.
-      if (metricsEnabled || !isSignedIn) {
+      if (data?.metricsEnabled || !isSignedIn) {
         sentryMetrics.configure({
           release: config.version,
           sentry: {
@@ -145,36 +141,76 @@ export const App = ({
         sentryMetrics.disable();
       }
     }
-  }, [metricsEnabled, config.sentry, config.version, loading, isSignedIn]);
+  }, [
+    data?.metricsEnabled,
+    config.sentry,
+    config.version,
+    loading,
+    isSignedIn,
+  ]);
 
+  if (loading || isSignedIn === undefined) {
+    return fullPageLoadingSpinner;
+  }
+
+  // TODO: Do we like passing `isSignedIn` here, or query in page components instead?
+  // If we want to query in the Settings for example, we can after FXA-8286 (first
+  // container component test coverage) and we follow the pattern set for tests.
+  // Can be looked at in FXA-7626 or FXA-7184
   return (
     <Router basepath="/">
-      <AuthAndAccountSetupRoutes path="/*" />
-      <SettingsRoutes path="/settings/*" />
+      <AuthAndAccountSetupRoutes {...{ isSignedIn }} path="/*" />
+      <SettingsRoutes {...{ isSignedIn }} path="/settings/*" />
     </Router>
   );
 };
 
-const SettingsRoutes = (_: RouteComponentProps) => {
-  // TODO: FXA-8098
-  // const { loading, error } = useInitialSettingsState();
-  const settingsContext = initializeSettingsContext();
+const SettingsRoutes = ({
+  isSignedIn,
+}: { isSignedIn: boolean } & RouteComponentProps) => {
+  const location = useLocation();
+  if (isSignedIn === false) {
+    hardNavigateToContentServer(
+      `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
+    );
+    return fullPageLoadingSpinner;
+  }
 
+  const settingsContext = initializeSettingsContext();
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Suspense fallback={<LoadingSpinner />}>
-          <Settings path="/settings/*" />
+        <Suspense fallback={fullPageLoadingSpinner}>
+          <Settings path="/settings/*" {...{ isSignedIn }} />
         </Suspense>
       </ScrollToTop>
     </SettingsContext.Provider>
   );
 };
 
-const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
+const AuthAndAccountSetupRoutes = ({
+  isSignedIn,
+}: { isSignedIn: boolean } & RouteComponentProps) => {
   const sessionTokenId = sessionToken();
   const localAccount = currentAccount();
   const integration = useIntegration();
+
+  // TODO: remove async requirements from relier, FXA-6836
+  // The approach here may change or we'll want to update other components to receive
+  // `serviceName` from this instead of calling integration.getServiceName() within pages
+  const [serviceName, setServiceName] = useState<MozServices>();
+  useEffect(() => {
+    (async () => {
+      // TODO: MozServices / string discrepancy, FXA-6802
+      setServiceName((await integration.getServiceName()) as MozServices);
+    })();
+  });
+
+  if (serviceName === undefined) {
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  }
 
   return (
     <Router>
@@ -227,44 +263,38 @@ const AuthAndAccountSetupRoutes = (_: RouteComponentProps) => {
 
       <SigninReported path="/signin_reported/*" />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
-      {/* Pages using the Ready view need to be accessible to logged out viewers,
-       * but need to be able to check if the user is logged in or logged out,
-       * so they are wrapped in this component.
-       */}
-      <PageWithLoggedInStatusState
-        Page={ResetPasswordConfirmed}
+
+      <ResetPasswordConfirmed
         path="/reset_password_verified/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
-      <PageWithLoggedInStatusState
-        Page={ResetPasswordWithRecoveryKeyVerified}
+
+      <ResetPasswordWithRecoveryKeyVerified
         path="/reset_password_with_recovery_key_verified/*"
-        {...{ integration }}
+        {...{ integration, isSignedIn }}
       />
-      <PageWithLoggedInStatusState
-        Page={PrimaryEmailVerified}
+
+      <PrimaryEmailVerified
         path="/primary_email_verified/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
-      <PageWithLoggedInStatusState
-        Page={SignupConfirmed}
+
+      <SignupConfirmed
         path="/signup_verified/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
-      <PageWithLoggedInStatusState
-        Page={SignupConfirmed}
+      <SignupConfirmed
         path="/signup_confirmed/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
-      <PageWithLoggedInStatusState
-        Page={SigninConfirmed}
+
+      <SigninConfirmed
         path="/signin_verified/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
-      <PageWithLoggedInStatusState
-        Page={SigninConfirmed}
+      <SigninConfirmed
         path="/signin_confirmed/*"
-        {...{ integration }}
+        {...{ isSignedIn, serviceName }}
       />
 
       <SignupContainer path="/signup/*" {...{ integration }} />

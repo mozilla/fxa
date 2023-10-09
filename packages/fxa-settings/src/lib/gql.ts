@@ -2,28 +2,70 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloClient, NormalizedCacheObject, from } from '@apollo/client';
+import {
+  ApolloClient,
+  ApolloLink,
+  NormalizedCacheObject,
+  from,
+} from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { ErrorHandler, onError } from '@apollo/client/link/error';
 import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
+import { GraphQLError } from 'graphql';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import sentryMetrics from 'fxa-shared/lib/sentry';
 
-export const pagesRequiringAuthentication = ['settings'];
+/**
+ * These operation names either require auth with a valid session token
+ * or give back a valid session token (e.g. the user was signed in).
+ * See comment above GET_LOCAL_SIGNED_IN_STATUS definition.
+ *
+ * We can improve or revisit this in FXA-7626 or FXA-7184.
+ */
+const sessionTokenOperationNames = [
+  'GetInitialMetricsState',
+  'GetInitialSettingsState',
+  'SignUp',
+];
+
+const isUnauthorizedError = (error: GraphQLError) =>
+  error.message === 'Invalid token' &&
+  error.extensions?.response.error === 'Unauthorized';
+
+const afterwareLink = new ApolloLink((operation, forward) => {
+  return forward(operation).map((response) => {
+    // The error link handles GQL errors and network errors. This handles
+    // successful queries and checks to see if we should update the `isSignedIn` state.
+    const successWithAuth =
+      !response.errors &&
+      operation.query.definitions.some((definition) => {
+        return (
+          definition.kind === 'OperationDefinition' &&
+          definition.name?.value &&
+          sessionTokenOperationNames.includes(definition.name.value)
+        );
+      });
+
+    if (successWithAuth) {
+      cache.writeQuery({
+        query: GET_LOCAL_SIGNED_IN_STATUS,
+        data: { isSignedIn: true },
+      });
+    }
+    return response;
+  });
+});
 
 export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
-  let reauth = false;
-
-  const currentPageRequiresAuthentication = pagesRequiringAuthentication.some(
-    (urlSnippet) => {
-      // We check if the url for the current page contains the path of a page which requires authentication
-      return window?.location?.pathname.includes(urlSnippet);
-    }
-  );
-
   if (graphQLErrors) {
     for (const error of graphQLErrors) {
-      if (error.message === 'Invalid token') {
-        reauth = true;
+      if (isUnauthorizedError(error)) {
+        cache.writeQuery({
+          query: GET_LOCAL_SIGNED_IN_STATUS,
+          data: { isSignedIn: false },
+        });
+        // TODO: Improve in FXA-7626
       } else if (error.message === 'Must verify') {
         // TODO in FXA-76726
         // Move this redirect behaviour to only apply to Settings context,
@@ -35,20 +77,11 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
         }
       }
     }
+    console.error('graphQLErrors', graphQLErrors);
   }
-  if (networkError && 'statusCode' in networkError) {
-    if (networkError.statusCode === 401) {
-      reauth = true;
-    }
-  }
-  if (reauth && currentPageRequiresAuthentication) {
-    window.location.replace(
-      `/signin?redirect_to=${encodeURIComponent(window.location.pathname)}`
-    );
-  } else {
-    if (!reauth) {
-      console.error('graphql errors', graphQLErrors, networkError);
-    }
+  if (networkError) {
+    sentryMetrics.captureException(networkError);
+    console.error('networkError', networkError);
   }
 };
 
@@ -63,7 +96,6 @@ export function createApolloClient(gqlServerUri: string) {
     uri: `${gqlServerUri}/graphql`,
   });
 
-  // authLink sets the Authentication header on outgoing requests
   const authLink = setContext((_, { headers }) => {
     return {
       headers: {
@@ -78,7 +110,7 @@ export function createApolloClient(gqlServerUri: string) {
 
   apolloClientInstance = new ApolloClient({
     cache,
-    link: from([errorLink, authLink, httpLink]),
+    link: from([errorLink, authLink, afterwareLink, httpLink]),
     typeDefs,
   });
 

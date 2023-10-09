@@ -41,15 +41,13 @@ export const Settings = (_: RouteComponentProps) => {
 
   const { loading, error } = useInitialSettingsState();
 
-  // In case of an invalid token the page will redirect,
-  // but to prevent a flash of the error message we show
-  // the spinner.
-  if (loading || error?.message.includes('Invalid token')) {
+  if (loading) {
     return (
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
   }
 
+  // This error check includes a network error
   if (error) {
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }

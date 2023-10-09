@@ -102,18 +102,7 @@ describe('App component', () => {
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
-  it('renders `LoadingSpinner` component when the error message includes "Invalid token"', () => {
-    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
-      error: { message: 'Invalid token' },
-    });
-    const { getByLabelText } = renderWithRouter(
-      <App {...{ flowQueryParams }} />
-    );
-
-    expect(getByLabelText('Loading…')).toBeInTheDocument();
-  });
-
-  it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
+  it('renders `AppErrorDialog` component when settings query errors', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });

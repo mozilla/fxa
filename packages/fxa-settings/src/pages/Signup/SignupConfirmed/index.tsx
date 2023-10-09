@@ -11,7 +11,6 @@ import { MozServices } from '../../../lib/types';
 type SignupConfirmedProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
-  isSync: boolean;
   serviceName?: MozServices;
 };
 
@@ -20,13 +19,10 @@ export const viewName = 'signup-confirmed';
 const SignupConfirmed = ({
   continueHandler,
   isSignedIn,
-  isSync,
   serviceName,
 }: SignupConfirmedProps & RouteComponentProps) => (
   <AppLayout>
-    <Ready
-      {...{ continueHandler, isSignedIn, isSync, viewName, serviceName }}
-    />
+    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
   </AppLayout>
 );
 
