@@ -16,7 +16,15 @@
         "development": {
           "outputPath": "apps/payments/next"
         },
-        "production": {}
+        "production": {
+          "assets": [
+            {
+              "input": "apps/payments/next",
+              "glob": ".env.production.json",
+              "output": "./../"
+            }
+          ]
+        }
       }
     },
     "serve": {
