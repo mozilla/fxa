@@ -190,6 +190,7 @@ describe('/linked_account', () => {
               uaOSVersion: '10.13',
               uaDeviceType: null,
               uaFormFactor: null,
+              providerId: 1,
             })
           )
         );

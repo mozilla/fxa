@@ -834,7 +834,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        36,
+        37,
         'was called with correct number of options'
       );
       assert.equal(
@@ -957,7 +957,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        36,
+        37,
         'was called with correct number of options'
       );
       assert.equal(

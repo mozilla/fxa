@@ -23,7 +23,7 @@ export enum Proc {
   CreateRecoveryCode = 'createRecoveryCode_3',
   CreateRecoveryKey = 'createRecoveryKey_4',
   CreateSecurityEvent = 'createSecurityEvent_3',
-  CreateSessionToken = 'createSessionToken_9',
+  CreateSessionToken = 'createSessionToken_10',
   CreateSigninCode = 'createSigninCode_2',
   CreateTotpToken = 'createTotpToken_1',
   CreateUnblockCode = 'createUnblockCode_1',
