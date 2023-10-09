@@ -1,7 +1,5 @@
 // This file was created by react-scripts' (create-react-app) eject script.
 
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -344,6 +342,7 @@ module.exports = function (webpackEnv) {
           ]
         ),
       ],
+      fallback: { fs: false, path: false },
     },
     module: {
       strictExportPresence: true,

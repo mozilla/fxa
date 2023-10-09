@@ -7,7 +7,9 @@
         "libs/shared/db/mysql/account/src/index"
       ],
       "@fxa/payments/cart": ["libs/payments/cart/src/index"],
-      "@fxa/shared/log": ["libs/shared/log/src/index"]
+      "@fxa/shared/log": ["libs/shared/log/src/index"],
+      "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
+      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"]
     }
   }
 }

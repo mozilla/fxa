@@ -204,7 +204,7 @@
   },
   "scripts": {
     "build": "yarn build-ts && yarn copy-assets && yarn copy-sql",
-    "build-ts": "tsc --build && tsc --build tsconfig.cjs.json",
+    "build-ts": "tsc --build && tsc-alias && tsc --build tsconfig.cjs.json && tsc-alias -p tsconfig.cjs.json",
     "clean": "rm -rf dist",
     "compile": "yarn build-ts",
     "copy-assets": "cp -r ./db/luaScripts ./dist/esm/packages/fxa-shared/db/luaScripts; cp -r ./db/luaScripts ./dist/cjs/packages/fxa-shared/db/luaScripts",
@@ -347,6 +347,7 @@
     "rxjs": "^7.8.1",
     "stripe": "^11.12.0",
     "superagent": "^8.0.0",
+    "tsc-alias": "^1.8.7",
     "typesafe-node-firestore": "^1.4.1"
   },
   "jest": {

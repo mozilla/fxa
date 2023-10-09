@@ -11,7 +11,7 @@ module.exports = function (grunt) {
   grunt.config('copy', {
     'branding-ftl': {
       nonull: true,
-      src: '../fxa-shared/l10n/branding.ftl',
+      src: '../../libs/shared/l10n/src/lib/branding.ftl',
       dest: 'public/locales/en/branding.ftl',
     },
   });

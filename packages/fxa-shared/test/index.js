@@ -16,8 +16,6 @@ describe('index:', () => {
   it('exports the correct interface', () => {
     assert.isArray(index.email.popularDomains);
     assert.isObject(index.metrics.amplitude);
-    assert.isArray(index.l10n.supportedLanguages);
-    assert.isFunction(index.l10n.localizeTimestamp);
     assert.isFunction(index.oauth.scopes.fromString);
     assert.isFunction(index.oauth.scopes.fromURLEncodedString);
     assert.isFunction(index.subscriptions.metadata.metadataFromPlan);
