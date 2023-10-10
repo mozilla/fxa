@@ -10,7 +10,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 const ENV = config.env;
 const webpackConfig = {
-  mode: 'development', // TODO: Revert once debugging is done
+  mode: ENV,
   context: path.resolve(__dirname, 'app/scripts'),
   entry: {
     app: './app.js',
