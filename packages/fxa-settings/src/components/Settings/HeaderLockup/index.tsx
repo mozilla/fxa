@@ -25,7 +25,7 @@ export const HeaderLockup = () => {
   const left = (
     <>
       <button
-        className="desktop:hidden ltr:mr-6 rtl:ml-6 w-8 h-6 self-center"
+        className="desktop:hidden me-6 p-2 self-center -m-2 z-[1] rounded hover:bg-grey-100"
         data-testid="header-menu"
         aria-label={localizedMenuText}
         title={localizedMenuText}
@@ -33,7 +33,11 @@ export const HeaderLockup = () => {
         aria-expanded={navRevealedState}
         onClick={() => setNavState(!navRevealedState)}
       >
-        {navRevealedState ? <Close /> : <Menu />}
+        {navRevealedState ? (
+          <Close className="text-purple-900 w-8" />
+        ) : (
+          <Menu className="text-purple-900 w-8" />
+        )}
         {navRevealedState && <Nav />}
       </button>
       <Localized id="header-back-to-top-link" attrs={{ title: true }}>
@@ -59,21 +63,20 @@ export const HeaderLockup = () => {
   );
   const right = (
     <>
-      <div className="rounded border-transparent hover:bg-grey-200 p-1">
-        <LinkExternal
-          href="https://support.mozilla.org"
+      <LinkExternal
+        href="https://support.mozilla.org"
+        title={localizedHelpText}
+        data-testid="header-sumo-link"
+        className="inline-block relative p-2 -m-2 z-[1] rounded hover:bg-grey-100"
+      >
+        <Help
+          aria-label={localizedHelpText}
           title={localizedHelpText}
-          data-testid="header-sumo-link"
-        >
-          <Help
-            aria-label={localizedHelpText}
-            title={localizedHelpText}
-            role="img"
-            className="w-5"
-            data-testid="header-help"
-          />
-        </LinkExternal>
-      </div>
+          role="img"
+          className="w-5 text-purple-900"
+          data-testid="header-help"
+        />
+      </LinkExternal>
       <BentoMenu />
       <DropDownAvatarMenu />
     </>

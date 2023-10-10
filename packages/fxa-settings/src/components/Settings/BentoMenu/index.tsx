@@ -36,7 +36,7 @@ export const BentoMenu = () => {
   );
 
   return (
-    <div className="relative self-center flex" ref={bentoMenuInsideRef}>
+    <div className="relative self-center flex mx-2" ref={bentoMenuInsideRef}>
       <button
         onClick={toggleRevealed}
         data-testid="drop-down-bento-menu-toggle"
@@ -44,9 +44,9 @@ export const BentoMenu = () => {
         aria-label={bentoMenuTitle}
         aria-expanded={!!isRevealed}
         aria-haspopup="menu"
-        className="rounded p-1 w-7 mx-2 border-transparent hover:bg-grey-200 transition-standard desktop:mx-8"
+        className="rounded p-2 mx-2 border-transparent hover:bg-grey-100 transition-standard desktop:mx-8"
       >
-        <BentoIcon />
+        <BentoIcon className="w-5 text-purple-900" />
       </button>
 
       {isRevealed && (
@@ -63,7 +63,7 @@ export const BentoMenu = () => {
                 <CloseIcon
                   width="16"
                   height="16"
-                  className="absolute top-5 right-5 mobileLandscape:hidden"
+                  className="absolute top-5 right-5 mobileLandscape:hidden fill-current"
                 />
               </button>
               <div className="mt-12 text-center p-8 pt-2 pb-2 mobileLandscape:mt-0">
