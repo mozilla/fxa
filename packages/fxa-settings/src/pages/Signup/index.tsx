@@ -38,10 +38,13 @@ import { BrandMessagingPortal } from '../../components/BrandMessaging';
 
 export const viewName = 'signup';
 
-// TODO, confirm this is how we want to check for Pocket
+// TODO, confirm this is how we want to check for Relying Parties (Monitor/Pocket)
 // There's a similar TODO in CardHeader. FXA-8290
 const isPocketClient = (serviceName: string) =>
   serviceName.includes(MozServices.Pocket);
+
+const isMonitorClient = (serviceName: string) =>
+  serviceName.includes(MozServices.FirefoxMonitor);
 
 const Signup = ({
   integration,
@@ -357,7 +360,10 @@ const Signup = ({
         )}
       </FormPasswordWithBalloons>
 
-      <TermsPrivacyAgreement isPocketClient={isPocketClient(serviceName)} />
+      <TermsPrivacyAgreement
+        isPocketClient={isPocketClient(serviceName)}
+        isMonitorClient={isMonitorClient(serviceName)}
+      />
     </AppLayout>
   );
 };

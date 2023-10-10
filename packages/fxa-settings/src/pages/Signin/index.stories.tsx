@@ -63,3 +63,11 @@ export const IsPocketClient = () => (
     serviceName={MozServices.Pocket}
   />
 );
+
+export const IsMonitorClient = () => (
+  <SigninWithProvider
+    email={MOCK_EMAIL}
+    isPasswordNeeded={false}
+    serviceName={MozServices.FirefoxMonitor}
+  />
+);
