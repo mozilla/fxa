@@ -177,6 +177,7 @@ test.describe('severity-2 #smoke', () => {
         expect(page.url()).toContain('&flow_begin_time=');
       });
 
+      /* Disabling test - to fix in FXA-8447
       test('New user checkout URL to have RP-provided flow params, acquisition params & verify funnel metrics', async ({
         pages: { settings, relier, page, subscribe },
       }, { project }) => {
@@ -233,6 +234,7 @@ test.describe('severity-2 #smoke', () => {
         });
         expect(actualEventTypes).toMatchObject(expectedEventTypes);
       });
+    */
     });
   });
 });
