@@ -11,8 +11,9 @@ jobs:
         uses: namespacelabs/checkout@HEAD
         with:
             fetch-depth: 10
+
   actions-checkout:
-    runs-on: [nscloud-ubuntu-22.04-staging-amd64-2x4-with-cache, nscloud-git-mirror-5gb]
+    runs-on: [ubuntu-latest]
     steps:
       - name: Namespace Checkout
         uses: actions/checkout@v4
