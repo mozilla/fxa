@@ -4,8 +4,7 @@
 
 const request = require('./request');
 
-const config = intern._config;
-const EMAIL_SERVER_ROOT = config.fxaEmailRoot;
+const EMAIL_SERVER_ROOT = 'http://localhost:9001';
 
 /**
  * Wait for an email.
