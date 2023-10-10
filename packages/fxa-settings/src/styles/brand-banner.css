@@ -14,5 +14,5 @@
 }
 
 .brand-messaging {
-  @apply mb-32;
+  @apply mb-32 mobileLandscape:mb-0;
 }
