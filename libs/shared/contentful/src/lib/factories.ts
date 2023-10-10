@@ -11,6 +11,7 @@ import {
   PurchaseWithDetailsQuery,
   EligibilityContentByPlanIdsQuery,
 } from '../__generated__/graphql';
+import { ContentfulErrorResponse } from './types';
 
 export const EligibilityContentByPlanIdsQueryFactory = (
   override?: Partial<EligibilityContentByPlanIdsQuery>
@@ -97,5 +98,14 @@ export const ContentfulClientQueryFactory = <Result, Variables>(
   data: data, // Must be used to negotiate the type inference for Result
   loading: false,
   networkStatus: NetworkStatus.ready,
+  ...override,
+});
+
+export const ContentfulCDNErrorFactory = (
+  override?: ContentfulErrorResponse
+): ContentfulErrorResponse => ({
+  sys: { type: 'Error', id: faker.string.sample() },
+  message: faker.string.sample(),
+  requestId: faker.string.uuid(),
   ...override,
 });

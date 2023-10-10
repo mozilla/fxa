@@ -16,6 +16,7 @@ describe('ContentfulManager', () => {
   beforeEach(async () => {
     (ContentfulClient as jest.Mock).mockClear();
     mockClient = new ContentfulClient({
+      cdnApiUri: 'test',
       graphqlApiKey: 'test',
       graphqlApiUri: 'test',
       graphqlEnvironment: 'test',

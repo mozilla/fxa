@@ -14,6 +14,24 @@ export class ContentfulError extends BaseMultiError {
 }
 
 /**
+ * Thrown when errors are returned in the Contentful CDN response
+ */
+export class ContentfulCDNError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}
+
+/**
+ * https://www.contentful.com/developers/docs/references/graphql/#/reference/graphql-errors
+ */
+export class ContentfulCDNExecutionError extends ContentfulCDNError {
+  constructor(...args: ConstructorParameters<typeof ContentfulQueryError>) {
+    super(...args);
+  }
+}
+
+/**
  * Thrown when errors are returned in the Contentful GraphQL response
  */
 export class ContentfulQueryError extends BaseError {

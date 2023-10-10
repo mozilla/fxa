@@ -6,6 +6,9 @@ import { IsString, IsUrl } from 'class-validator';
 
 export class ContentfulClientConfig {
   @IsUrl()
+  public readonly cdnApiUri!: string;
+
+  @IsUrl()
   public readonly graphqlApiUri!: string;
 
   @IsString()
