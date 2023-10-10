@@ -29,7 +29,7 @@ automatedEmailRecoveryKey-origin-device-OS-only = This request came from { $uaOS
 
 automatedEmailRecoveryKey-delete-key-change-pwd = If this wasn’t you, <a data-l10n-name="revokeAccountRecoveryLink">delete the new key</a> and <a data-l10n-name="passwordChangeLink">change your password</a>.
 automatedEmailRecoveryKey-change-pwd-only = If this wasn’t you, <a data-l10n-name="passwordChangeLink">change your password</a>.
-automatedEmailRecoveryKey-more-info = For more info, visit <a data-l10n-name="supportLink">Mozilla Support</a>.
+automatedEmailRecoveryKey-more-info = For more info, visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.
 
 # Colon is followed by user device info on a separate line (e.g., "Firefox Nightly on Mac OSX 10.11")
 automatedEmailRecoveryKey-origin-plaintext = This request came from:

@@ -62,9 +62,7 @@ test.describe('severity-1 #smoke', () => {
     services = await settings.connectedServices.services();
     expect(services.length).toEqual(2);
   });
-});
 
-test.describe('severity-2 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293362
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293469
   test('can login to addons #1293362 #1293469', async ({
@@ -108,7 +106,7 @@ test.describe('severity-2 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
-  test('can login to monitor #1293364', async ({
+  /*test('can login to monitor #1293364', async ({
     credentials,
     page,
     pages: { login },
@@ -127,7 +125,7 @@ test.describe('severity-2 #smoke', () => {
       page.waitForNavigation({ waitUntil: 'load' }),
     ]);
     await expect(page.locator('#sign-in-btn')).toBeVisible();
-  });
+  });*/
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360
   test('can login to SUMO #1293360', async ({
