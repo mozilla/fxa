@@ -354,6 +354,12 @@ const convictConf = convict({
         env: 'MAILER_PORT',
       },
     },
+    brandMessagingMode: {
+      doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
+      format: String,
+      default: 'none',
+      env: 'BRAND_MESSAGING_MODE',
+    },
     host: {
       doc: 'SMTP host for sending email',
       default: 'localhost',
