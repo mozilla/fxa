@@ -17,7 +17,7 @@ const {
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
-const { determineLocale } = require('@fxa/shared/l10n');
+const { determineLocale } = require('../../../../libs/shared/l10n/src');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
 
