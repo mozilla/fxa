@@ -10,7 +10,7 @@ jobs:
       - name: Namespace Checkout
         uses: namespacelabs/checkout@HEAD
         with:
-            fetch-depth: 10
+            fetch-depth: 0
 
   actions-checkout:
     runs-on: [ubuntu-latest]
