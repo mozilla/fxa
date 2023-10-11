@@ -174,6 +174,8 @@ describe('views/sign_in_password', () => {
         // only renders if service is pocket
         assert.lengthOf(view.$('#pocket-pp'), 0);
         assert.lengthOf(view.$('#pocket-tos'), 0);
+        // only renders if service is monitor
+        assert.lengthOf(view.$('#monitor-tos'), 0);
       });
     });
 
@@ -220,7 +222,7 @@ describe('views/sign_in_password', () => {
         hasLinkedAccount: false,
         hasPassword: true,
       });
-      
+
       return view.render().then(() => {
         assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
         assert.lengthOf(view.$('input[type=password]'), 1);
@@ -246,6 +248,27 @@ describe('views/sign_in_password', () => {
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#pocket-pp'), 1);
         assert.lengthOf(view.$('#pocket-tos'), 1);
+        assert.lengthOf(view.$('#monitor-tos'), 0);
+      });
+    });
+
+    it('renders TOS as expected when service is monitor', () => {
+      relier.set({
+        clientId: '802d56ef2a9af9fa',
+      });
+      // Monitor TOS should always show for monitor clients despite
+      // linked account / password state
+      account.set({
+        hasLinkedAccount: true,
+        hasPassword: false,
+      });
+
+      return view.render().then(() => {
+        assert.lengthOf(view.$('#fxa-pp'), 1);
+        assert.lengthOf(view.$('#fxa-tos'), 1);
+        assert.lengthOf(view.$('#pocket-pp'), 0);
+        assert.lengthOf(view.$('#pocket-tos'), 0);
+        assert.lengthOf(view.$('#monitor-tos'), 1);
       });
     });
   });

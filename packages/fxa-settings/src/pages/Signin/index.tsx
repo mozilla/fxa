@@ -31,6 +31,7 @@ const Signin = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const isPocketClient = serviceName === MozServices.Pocket;
+  const isMonitorClient = serviceName === MozServices.FirefoxMonitor;
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -140,7 +141,7 @@ const Signin = ({
          */}
         <ThirdPartyAuth {...{ enabled: false }} />
 
-        <TermsPrivacyAgreement {...{ isPocketClient }} />
+        <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
 
         <div className="flex justify-between">
           <FtlMsg id="signin-use-a-different-account">
