@@ -5,24 +5,22 @@
 import {
   EligibilityContentByPlanIdsResult,
   EligibilityOfferingResult,
-  EligibilitySubgroupResult,
+  EligibilityPurchaseResult,
 } from './types';
 
 export class EligibilityContentByPlanIdsResultUtil {
-  constructor(private rawResult: EligibilityContentByPlanIdsResult) {}
+  private purchaseByPlanId: Record<string, EligibilityPurchaseResult> = {};
 
-  getOfferingForPlanId(planId: string): EligibilityOfferingResult | undefined {
-    return this.rawResult.purchaseCollection.items.find((purchase) =>
-      purchase.stripePlanChoices.includes(planId)
-    )?.offering;
+  constructor(private rawResult: EligibilityContentByPlanIdsResult) {
+    for (const purchase of rawResult.purchaseCollection.items) {
+      for (const planId of purchase.stripePlanChoices) {
+        this.purchaseByPlanId[planId] = purchase;
+      }
+    }
   }
 
-  getSubgroupsForPlanId(planId: string): EligibilitySubgroupResult[] {
-    return (
-      this.rawResult.purchaseCollection.items.find((purchase) =>
-        purchase.stripePlanChoices.includes(planId)
-      )?.offering.linkedFrom.subGroupCollection.items || []
-    );
+  offeringForPlanId(planId: string): EligibilityOfferingResult | undefined {
+    return this.purchaseByPlanId[planId]?.offering;
   }
 
   get purchaseCollection() {
