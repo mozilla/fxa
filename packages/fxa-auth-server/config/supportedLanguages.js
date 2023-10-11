@@ -7,4 +7,4 @@
 // The list below should be kept in sync with:
 // https://github.com/mozilla/fxa/blob/main/libs/shared/l10n/src/lib/supportedLanguages.json
 
-module.exports = require('@fxa/shared/l10n').supportedLanguages;
+module.exports = require('../../../libs/shared/l10n/src').supportedLanguages;
