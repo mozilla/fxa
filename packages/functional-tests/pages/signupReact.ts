@@ -35,7 +35,6 @@ export class SignupReactPage extends BaseLayout {
   async setAge(value: string) {
     const ageInput = await this.page.getByLabel('How old are you?');
     await ageInput.fill(value);
-    await ageInput.blur();
   }
 
   async setCode(value: string) {
