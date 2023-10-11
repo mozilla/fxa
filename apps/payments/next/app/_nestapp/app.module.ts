@@ -18,17 +18,12 @@ import { RootConfig } from './config';
         fileLoader(),
         dotenvLoader({
           separator: '__',
-          ignoreEnvFile: true,
+          keyTransformer: (key) =>
+            key
+              .toLowerCase()
+              .replace(/(?<!_)_([a-z])/g, (_, p1) => p1.toUpperCase()),
         }),
       ],
-      normalize(config) {
-        config.mysqlConfig.port = parseInt(config.mysqlConfig.port, 10);
-        config.mysqlConfig.connectionLimitMax = parseInt(
-          config.mysqlConfig.connectionLimitMax,
-          10
-        );
-        return config;
-      },
     }),
   ],
   controllers: [],

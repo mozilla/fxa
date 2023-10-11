@@ -33,11 +33,12 @@ const RESOURCES = {
 
 async function generateBundles() {
   const fetchedMessages: [string, FluentResource][] = [];
+  // Temporary work to read l10n files from public/l10n
+  // Better solution is required
+  const dirRelativeToPublicFolder = 'l10n';
+  const dir = path.resolve('./public', dirRelativeToPublicFolder);
   for (const locale in RESOURCES) {
-    const ftlPath = path.join(
-      __dirname,
-      `../../../../../app/l10n/${locale}.ftl`
-    );
+    const ftlPath = `${dir}/${locale}.ftl`;
     const ftlFile = fs.readFileSync(ftlPath, 'utf8');
 
     // const response = await fetch(String(ftl[locale]));
