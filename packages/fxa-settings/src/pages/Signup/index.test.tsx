@@ -239,15 +239,12 @@ describe('Signup page', () => {
       fireEvent.input(screen.getByLabelText('Password'), {
         target: { value: MOCK_PASSWORD },
       });
-      fireEvent.blur(passwordInput);
       fireEvent.input(screen.getByLabelText('Repeat password'), {
         target: { value: MOCK_PASSWORD },
       });
-      fireEvent.blur(repeatPasswordInput);
       fireEvent.input(ageInput, {
         target: { value: age },
       });
-      fireEvent.blur(ageInput);
 
       await waitFor(() => {
         expect(
