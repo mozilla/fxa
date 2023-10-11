@@ -390,6 +390,13 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype.send = async function (message) {
+    // Make sure brandMessagingMode always reflects the current config state.
+
+    if (message && message.templateValues) {
+      message.templateValues.brandMessagingMode =
+        config.smtp.brandMessagingMode;
+    }
+
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,

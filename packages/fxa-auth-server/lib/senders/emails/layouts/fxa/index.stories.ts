@@ -24,3 +24,17 @@ export const ThroughSyncFlow = createStory(
   },
   'Email triggered through sync flow'
 );
+
+export const MessagingNotThroughSyncFlowWithBrandMessaging = createStory(
+  {
+    brandMessagingMode: 'postlaunch',
+  },
+  'Email not triggered through sync flow with brand messaging'
+);
+
+export const MessagingThroughSyncFlowWithBrandMessaging = createStory(
+  {
+    brandMessagingMode: 'postlaunch',
+  },
+  'Email triggered through sync flow with brand messaging'
+);

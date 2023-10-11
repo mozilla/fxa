@@ -1,3 +1,6 @@
+<%- include('/partials/brandMessaging/index.txt') %>
+
+
 <%- body %>
 Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 
