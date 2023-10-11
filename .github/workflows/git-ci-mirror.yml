@@ -7,19 +7,39 @@ jobs:
   git-mirror:
     runs-on: [nscloud-ubuntu-22.04-staging-amd64-2x4-with-cache, nscloud-git-mirror-5gb]
     steps:
-      - name: Namespace Checkout
-        uses: namespacelabs/checkout@HEAD
+      - uses: namespacelabs/checkout@HEAD
+        name: Checkout [Pull Request]
+        if: ${{ github.event_name == 'pull_request' }}
         with:
-            fetch-depth: 5
+          # By default, PRs will be checked-out based on the Merge Commit, but we want the actual branch HEAD.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: namespacelabs/checkout@HEAD
+        name: Checkout [Default Branch]
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          fetch-depth: 0
+
       - run: |
           git log -10
 
   actions-checkout:
     runs-on: [ubuntu-latest]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Checkout [Pull Request]
+        if: ${{ github.event_name == 'pull_request' }}
         with:
-            fetch-depth: 5
+          # By default, PRs will be checked-out based on the Merge Commit, but we want the actual branch HEAD.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - uses: actions/checkout@v4
+        name: Checkout [Default Branch]
+        if: ${{ github.event_name != 'pull_request' }}
+        with:
+          fetch-depth: 0
+
       - run: |
           git log -10
