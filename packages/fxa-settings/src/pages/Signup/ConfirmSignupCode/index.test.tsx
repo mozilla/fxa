@@ -7,11 +7,13 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import ConfirmSignupCode, { viewName } from '.';
+import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account, AppContext } from '../../../models';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
+import { mockAppContext } from '../../../models/mocks';
+import { MOCK_AUTH_ERROR, Subject } from './mocks';
+import { StoredAccountData } from '../../../lib/storage-utils';
+import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -24,31 +26,37 @@ jest.mock('../../../lib/metrics', () => ({
   }),
 }));
 
-// TODO test for email received from params (if arriving from content-server) in FXA-8303
-const mockLocation = (mockNewsletterSlugs?: string[]) => {
-  return {
-    pathname: `/signup`,
-    state: {
-      email: MOCK_ACCOUNT.primaryEmail.email,
-    },
-  };
-};
-
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation(),
+}));
+
+const MOCK_STORED_ACCOUNT: StoredAccountData = {
+  uid: MOCK_UID,
+  lastLogin: Date.now(),
+  email: MOCK_EMAIL,
+  sessionToken: MOCK_SESSION_TOKEN,
+  metricsEnabled: true,
+  verified: false,
+};
+
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  currentAccount: () => MOCK_STORED_ACCOUNT,
+}));
+
+jest.mock('../../../lib/storage-utils', () => ({
+  ...jest.requireActual('../../../lib/storage-utils'),
+  persistAccount: jest.fn(),
 }));
 
 let account: Account;
 
-function renderWithAccount(account: Account) {
+function renderWithAccount(account: Account, newsletterSlugs?: string[]) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider>
-        <ConfirmSignupCode />
-      </LocationProvider>
+      <Subject {...{ newsletterSlugs }} />
     </AppContext.Provider>
   );
 }
@@ -118,7 +126,7 @@ describe('ConfirmSignupCode page', () => {
     });
   });
 
-  it('submits successfully', async () => {
+  it('submits successfully without newsletters', async () => {
     renderWithAccount(account);
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
@@ -130,16 +138,47 @@ describe('ConfirmSignupCode page', () => {
     fireEvent.click(submitButton);
     await waitFor(() => {
       expect(account.verifySession).toHaveBeenCalled();
-      // TODO add test for alertBar in FXA-8303
+      expect(logViewEvent).toHaveBeenCalledTimes(3);
+      expect(logViewEvent).not.toHaveBeenCalledWith(
+        'flow',
+        'newsletter.subscribed',
+        {
+          entrypoint_variation: 'react',
+        }
+      );
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
 
-  // TODO: newsletters submission checks in FXA-8303
-  // it('on success with newsletters selected', () => {
-  // receive newsletter slugs in location state from signup
-  // check that those slugs are sent up
-  // })
+  it('submits successfully with newsletters', async () => {
+    // newsletter slugs are selected on the previous page
+    // and received via location state as an a array of strings
+    const mockNewsletterArray = ['mock-slug-1'];
+    renderWithAccount(account, mockNewsletterArray);
+    const mockCode = '123456';
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.input(codeInput, {
+      target: { value: mockCode },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(account.verifySession).toHaveBeenCalledWith(mockCode, {
+        newsletters: mockNewsletterArray,
+      });
+      expect(logViewEvent).toHaveBeenCalledTimes(4);
+      expect(logViewEvent).toHaveBeenCalledWith(
+        'flow',
+        'newsletter.subscribed',
+        {
+          entrypoint_variation: 'react',
+        }
+      );
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+    });
+  });
 });
 
 describe('ConfirmSignupCode page with error states', () => {
@@ -200,7 +239,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
 
   it('displays an error banner when unsuccessful', async () => {
     account = {
-      sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
+      sendVerificationCode: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR),
     } as unknown as Account;
 
     renderWithAccount(account);
@@ -210,9 +249,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     });
     fireEvent.click(resendEmailButton);
     await waitFor(() => {
-      expect(
-        screen.getByText('Something went wrong. A new code could not be sent.')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Unexpected error')).toBeInTheDocument();
     });
   });
 });

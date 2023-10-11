@@ -12,46 +12,55 @@ export class SignupReactPage extends BaseLayout {
     );
   }
 
-  get passwordHeader() {
-    return this.page.getByText('Set your password');
+  async setEmail(value: string) {
+    const emailInput = await this.page.getByRole('textbox', { name: 'email' });
+    return emailInput.fill(value);
   }
 
-  setEmail(value: string) {
-    return this.page.fill('[name="email"]', value);
-  }
-  setPassword(value: string) {
-    return this.page.fill('[name="newPassword"]', value);
+  async setPassword(value: string) {
+    const newPasswordInput = await this.page.getByRole('textbox', {
+      // simple text string was matching both password inputs
+      name: /^Password$/,
+    });
+    return newPasswordInput.fill(value);
   }
 
-  setPasswordConfirm(value: string) {
-    return this.page.fill('[name="confirmPassword"]', value);
+  async setPasswordConfirm(value: string) {
+    const confirmPasswordInput = await this.page.getByRole('textbox', {
+      name: 'Repeat password',
+    });
+    return confirmPasswordInput.fill(value);
   }
 
   async setAge(value: string) {
-    await this.page.fill('[name="age"]', value);
-    return this.page.locator('[name="age"]').blur();
+    const ageInput = await this.page.getByLabel('How old are you?');
+    await ageInput.fill(value);
+    await ageInput.blur();
+  }
+
+  async setCode(value: string) {
+    const codeInput = await this.page.getByLabel('Enter 6-digit code');
+    return codeInput.fill(value);
+  }
+
+  async fillOutEmailFirst(email: string) {
+    await this.setEmail(email);
+    await this.submit('Sign up or sign in');
   }
 
   async fillOutSignupForm(password: string) {
     await this.setPassword(password);
     await this.setPasswordConfirm(password);
     await this.setAge('21');
-    await this.submit();
-    await this.page.waitForURL(/confirm_signup_code/);
+    await this.submit('Create account');
   }
 
   async fillOutCodeForm(code: string) {
-    await this.page.fill('[name="code"]', code);
-    return this.submit();
+    await this.setCode(code);
+    await this.submit('Confirm');
   }
 
-  async fillOutEmailFirst(email: string) {
-    await this.setEmail(email);
-    await this.submit();
-    await this.page.waitForURL(/signup/);
-  }
-
-  async submit() {
-    await this.page.locator('button[type="submit"]').click();
+  async submit(label: string) {
+    await this.page.getByRole('button', { name: label }).click();
   }
 }

@@ -10,7 +10,11 @@ import AuthClient, {
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/browser';
-import { currentAccount, getOldSettingsData, sessionToken } from '../lib/cache';
+import {
+  currentAccount,
+  getStoredAccountData,
+  sessionToken,
+} from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
@@ -737,7 +741,7 @@ export class Account implements AccountData {
           },
         },
       });
-      currentAccount(getOldSettingsData(accountReset));
+      currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
       return accountReset;
     } catch (err) {
@@ -923,7 +927,7 @@ export class Account implements AccountData {
     );
   }
 
-  /* TODO: Remove this and use GQL instead. We can't check for verified sessions
+  /* TODO in FXA-7626: Remove this and use GQL instead. We can't check for verified sessions
    * unless you've already got one (oof) in at least the PW reset flow due to
    * sessionToken.mustVerify which was added here: https://github.com/mozilla/fxa/pull/7512
    * The unverified session token returned by a password reset contains `mustVerify`
@@ -1296,7 +1300,7 @@ export class Account implements AccountData {
       { kB: opts.kB },
       { sessionToken: true, keys: true }
     );
-    currentAccount(currentAccount(getOldSettingsData(data)));
+    currentAccount(currentAccount(getStoredAccountData(data)));
     sessionToken(data.sessionToken);
     const cache = this.apolloClient.cache;
     cache.modify({

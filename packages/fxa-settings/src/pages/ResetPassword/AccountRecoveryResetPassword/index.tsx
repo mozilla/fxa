@@ -222,13 +222,8 @@ const AccountRecoveryResetPassword = ({
           });
           break;
         case IntegrationType.OAuth:
-          // TODO: Considering providing a way to redirect user back to RP.
+          // TODO: Consider providing a way to redirect user back to RP.
           break;
-        case IntegrationType.Web:
-          // no-op, don't run default
-          break;
-        default:
-        // TODO: run unpersistVerificationData when reliers are combined
       }
 
       alertSuccess();

@@ -242,10 +242,8 @@ const CompleteResetPassword = ({
             break;
           case IntegrationType.Web:
             // TODO: Consider redirecting back to settings after success message is displayed.
-            // NOTE: To fully sign in, totp must performed if 2FA is enabled.
+            // NOTE: To fully sign in, totp must be performed if 2FA is enabled.
             break;
-          default:
-          // TODO: run unpersistVerificationData in FXA-7308
         }
 
         if (!isHardNavigate) {

@@ -189,7 +189,6 @@ const Signup = ({
 
         navigate(`/confirm_signup_code${location.search}`, {
           state: {
-            email: queryParamModel.email,
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,

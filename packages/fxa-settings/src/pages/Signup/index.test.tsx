@@ -337,7 +337,6 @@ describe('Signup page', () => {
           `/confirm_signup_code${mockLocation().search}`,
           {
             state: {
-              email: MOCK_EMAIL,
               keyFetchToken: MOCK_KEY_FETCH_TOKEN,
               // we expect three newsletter options, but 4 slugs should be passed
               // because the first newsletter checkbox subscribes the user to 2 newsletters
@@ -381,7 +380,6 @@ describe('Signup page', () => {
         `/confirm_signup_code${mockLocation().search}`,
         {
           state: {
-            email: MOCK_EMAIL,
             keyFetchToken: MOCK_KEY_FETCH_TOKEN,
             selectedNewsletterSlugs: [],
             unwrapBKey: MOCK_UNWRAP_BKEY,

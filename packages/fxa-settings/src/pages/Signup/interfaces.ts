@@ -22,6 +22,7 @@ export interface BeginSignupResponse {
 interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;
+  keys?: boolean;
 }
 
 export type BeginSignupHandler = (

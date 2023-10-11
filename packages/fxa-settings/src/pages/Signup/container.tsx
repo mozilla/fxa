@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { Integration, useAuthClient } from '../../models';
+import { Integration, isOAuthIntegration, useAuthClient } from '../../models';
 import Signup from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
@@ -82,6 +82,7 @@ const SignupContainer = ({
   const beginSignupHandler: BeginSignupHandler = useCallback(
     async (email, password, options) => {
       options.verificationMethod = 'email-otp';
+      options.keys = isOAuthIntegration(integration);
       try {
         const { authPW, unwrapBKey } = await getCredentials(email, password);
         const { data } = await beginSignup({
@@ -120,7 +121,7 @@ const SignupContainer = ({
         }
       }
     },
-    [beginSignup]
+    [beginSignup, integration]
   );
 
   // TODO: probably a better way to read this?
@@ -140,9 +141,6 @@ const SignupContainer = ({
 
   if (validationError) {
     hardNavigateToContentServer('/');
-    // Helps prevent some jank for first render since we'd otherwise
-    // attempt to return <Signup />
-    return pageSpinner;
   }
 
   return <Signup {...{ integration, queryParamModel, beginSignupHandler }} />;
