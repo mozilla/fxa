@@ -1,6 +1,8 @@
 subplat-header-firefox-logo = <img data-l10n-name="fxa-logo-firefox" alt="{ -brand-firefox } logo">
 subplat-header-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="{ -brand-mozilla } logo">
+subplat-header-mozilla-logo-2 = <img data-l10n-name="subplat-mozilla-logo" alt="{ -brand-mozilla } logo">
 subplat-footer-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="{ -brand-mozilla } logo">
+subplat-footer-mozilla-logo-2 = <img data-l10n-name="mozilla-logo-footer" alt="{ -brand-mozilla } logo">
 subplat-automated-email = This is an automated email; if you received it in error, no action is required.
 subplat-privacy-notice = Privacy notice
 subplat-privacy-plaintext = Privacy notice:
@@ -42,6 +44,8 @@ subplat-privacy-policy = { -brand-mozilla } Privacy Policy
 subplat-privacy-policy-plaintext = { subplat-privacy-policy }:
 subplat-cloud-terms = { -product-firefox-cloud } Terms of Service
 subplat-cloud-terms-plaintext = { subplat-cloud-terms }:
+subplat-moz-terms = { -product-mozilla-accounts(capitalization:"uppercase") } Terms of Service
+subplat-moz-terms-plaintext = { subplat-moz-terms }:
 subplat-legal = Legal
 subplat-legal-plaintext = { subplat-legal }:
 subplat-privacy = Privacy

@@ -125,7 +125,7 @@ export const pushboxApi = (
      * This inserts into the pushbox database or relays the request to the
      * Pushbox service, encoding rich objects down into a string for storage.
      *
-     * @param {String} uid - Firefox Account uid
+     * @param {String} uid - Mozilla account uid
      * @param {String} deviceId
      * @param {string} topic
      * @param {Object} data - data object to serialize into storage

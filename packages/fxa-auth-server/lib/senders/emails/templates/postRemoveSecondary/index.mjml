@@ -14,10 +14,10 @@
   <mj-column>
     <mj-text css-class="text-body">
       <span
-        data-l10n-id="postRemoveSecondary-description"
+        data-l10n-id="postRemoveSecondary-description-2"
         data-l10n-args="<%= JSON.stringify({secondaryEmail}) %>">
         You have successfully removed <%- secondaryEmail %> as a secondary
-        email from your Firefox account. Security notifications and sign-in
+        email from your Mozilla account. Security notifications and sign-in
         confirmations will no longer be delivered to this address.
       </span>
     </mj-text>

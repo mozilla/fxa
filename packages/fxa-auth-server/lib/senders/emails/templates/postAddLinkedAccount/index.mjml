@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="postAddLinkedAccount-title" data-l10n-args="<%= JSON.stringify({providerName}) %>">Your <%- providerName %> account has been linked to your Firefox account</span>
+      <span data-l10n-id="postAddLinkedAccount-title-2" data-l10n-args="<%= JSON.stringify({providerName}) %>">Your <%- providerName %> account has been linked to your Mozilla account</span>
     </mj-text>
   </mj-column>
 </mj-section>

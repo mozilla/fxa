@@ -32,11 +32,11 @@
             </mj-text>
           <% } %>
           <% if (!locals.sync) { %>
-            <mj-image css-class="fxa-logo"
-              width="60px"
-              src="https://accounts-static.cdn.mozilla.net/product-icons/firefox-logo.png"
-              alt="Firefox logo"
-              title="Firefox logo">
+            <mj-image css-class="mozilla-logo"
+              width="120px"
+              src="https://accounts-static.cdn.mozilla.net/product-icons/mozilla-logo.png"
+              alt="Mozilla logo"
+              title="Mozilla logo">
             </mj-image>
           <% } else { %>
             <mj-image css-class="sync-img"
@@ -59,7 +59,7 @@
             <a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a>
           </mj-text>
           <mj-text css-class="text-footer">
-            <a class="link-blue" data-l10n-id="fxa-service-url" href="https://www.mozilla.org/about/legal/terms/services/">Firefox Cloud Terms of Service</a>
+            <a class="link-blue" data-l10n-id="moz-accounts-terms-url" href="https://www.mozilla.org/about/legal/terms/services/">Mozilla Accounts Terms of Service</a>
           </mj-text>
         </mj-column>
       </mj-section>

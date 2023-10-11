@@ -25,6 +25,14 @@ export const LayoutNoProduct = createStory(
   'Reminder short form - no specified product'
 );
 
+export const LayoutNoProductWithBrandMessaging = createStory(
+  {
+    reminderShortForm: true,
+    brandMessagingMode: 'postlaunch',
+  },
+  'Reminder short form - no specified product - with brand messaging'
+);
+
 export const LayoutMultipleProducts = createStory(
   {
     subscriptions: [
@@ -36,20 +44,23 @@ export const LayoutMultipleProducts = createStory(
       },
     ],
   },
-  'Default - With brand messaging'
+  'Multiple products - No brand messaging'
 );
 
-export const LayoutMultipleProductsWithBrandMessaging = createStory({
-  subscriptions: [
-    {
-      productName: 'Firefox Fortress',
-    },
-    {
-      productName: 'Mozilla VPN',
-    },
-  ],
-  brandMessagingMode: 'postlaunch',
-});
+export const LayoutMultipleProductsWithBrandMessaging = createStory(
+  {
+    subscriptions: [
+      {
+        productName: 'Firefox Fortress',
+      },
+      {
+        productName: 'Mozilla VPN',
+      },
+    ],
+    brandMessagingMode: 'postlaunch',
+  },
+  'Multiple products - With brand messaging'
+);
 
 export const LayoutWithProduct = createStory(
   {

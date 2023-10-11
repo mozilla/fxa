@@ -19,8 +19,8 @@
     <%- include ('/partials/paymentPlanDetails/index.mjml') %>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionAccountFinishSetup-content-create-2">
-        Next, you’ll create a Firefox account password to start using your new subscription.
+      <span data-l10n-id="subscriptionAccountFinishSetup-content-create-3">
+        Next, you’ll create a Mozilla account password to start using your new subscription.
       </span>
     </mj-text>
   </mj-column>
