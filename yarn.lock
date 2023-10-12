@@ -34904,7 +34904,7 @@ fsevents@~2.1.1:
     resolve: ^1.20.0
     resolve-url-loader: ^4.0.0
     sass-loader: ^12.3.0
-    semver: ^7.3.5
+    semver: ^7.5.2
     sinon: ^15.0.1
     source-map-loader: ^3.0.0
     storybook: ^7.0.23
@@ -35135,7 +35135,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     replace-in-file: ^7.0.1
     rxjs: ^7.8.1
-    semver: ^7.5.3
+    semver: ^7.5.2
     stylelint: ^15.10.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^12.0.0
@@ -54503,7 +54503,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"semver@npm:^7.0.0, semver@npm:^7.5.1, semver@npm:^7.5.4":
+"semver@npm:^7.0.0, semver@npm:^7.5.1, semver@npm:^7.5.2, semver@npm:^7.5.4":
   version: 7.5.4
   resolution: "semver@npm:7.5.4"
   dependencies:
