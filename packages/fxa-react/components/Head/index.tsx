@@ -13,11 +13,11 @@ const Head = ({ title }: { title?: string }) => {
       <title>
         {title
           ? l10n.getString(
-              'app-page-title',
+              'app-page-title-2',
               { title },
-              `${title} | Firefox Accounts`
+              `${title} | Mozilla accounts`
             )
-          : l10n.getString('app-default-title', null, 'Firefox Accounts')}
+          : l10n.getString('app-default-title-2', null, 'Mozilla accounts')}
       </title>
     </Helmet>
   );

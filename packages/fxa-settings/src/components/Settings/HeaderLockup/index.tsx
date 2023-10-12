@@ -50,9 +50,9 @@ export const HeaderLockup = () => {
         >
           <LogoLockup>
             <>
-              <Localized id="header-title">
+              <Localized id="header-title-2">
                 <span className="font-bold ltr:mr-2 rtl:ml-2">
-                  Firefox Account
+                  Mozilla account
                 </span>
               </Localized>
             </>

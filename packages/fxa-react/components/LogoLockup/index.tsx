@@ -4,7 +4,7 @@
 
 import React, { ReactElement } from 'react';
 import { Localized } from '@fluent/react';
-import logo from '../../images/ff-logo.svg';
+import logo from '../../images/moz-m-logo.svg';
 
 type LogoLockupProps = {
   children: string | ReactElement;
@@ -14,12 +14,12 @@ type LogoLockupProps = {
 export const LogoLockup = ({ children, className = '' }: LogoLockupProps) => {
   return (
     <>
-      <Localized id="app-logo-alt">
+      <Localized id="app-logo-alt-3">
         <img
           src={logo}
           data-testid="logo"
           className="h-10 w-10 ltr:mr-4 rtl:ml-4"
-          alt="Firefox logo"
+          alt="Mozilla m logo"
         />
       </Localized>
       <h1
