@@ -11,6 +11,7 @@ import * as jose from 'jose';
 import validators from './validators';
 import {
   Provider,
+  PROVIDER,
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
@@ -67,6 +68,7 @@ export class LinkedAccountHandler {
     const requestPayload = request.payload as any;
 
     const provider = requestPayload.provider as Provider;
+    const providerId = PROVIDER[provider];
     const service = requestPayload.service;
 
     // Currently, FxA supports creating a linked account via the oauth authorization flow
@@ -307,6 +309,7 @@ export class LinkedAccountHandler {
       uaOSVersion: request.app.ua.osVersion,
       uaDeviceType: request.app.ua.deviceType,
       uaFormFactor: request.app.ua.formFactor,
+      providerId,
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
