@@ -139,6 +139,9 @@ if (require.main === module) {
         status: 'error',
       });
     })
+    .then(() => {
+      return Sentry.close(2000);
+    })
     .finally(() => {
       process.exit(exitStatus);
     });

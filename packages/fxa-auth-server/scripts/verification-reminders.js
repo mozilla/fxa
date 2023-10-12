@@ -47,6 +47,9 @@ run()
       monitorSlug: 'verification-reminders',
       status: 'ok',
     });
+    return Sentry.close(2000);
+  })
+  .then(() => {
     process.exit(0);
   })
   .catch((err) => {
@@ -56,6 +59,9 @@ run()
       monitorSlug: 'verification-reminders',
       status: 'error',
     });
+    return Sentry.close(2000);
+  })
+  .then(() => {
     process.exit(1);
   });
 

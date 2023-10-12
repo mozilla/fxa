@@ -60,6 +60,17 @@ if (require.main === module) {
   });
 
   init()
+    .then((result) => {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'subscription-reminders',
+        status: 'ok',
+      });
+      return Sentry.close(2000);
+    })
+    .then(() => {
+      process.exit(0);
+    })
     .catch((err) => {
       console.error(err);
       Sentry.captureCheckIn({
@@ -67,14 +78,9 @@ if (require.main === module) {
         monitorSlug: 'subscription-reminders',
         status: 'error',
       });
-      process.exit(1);
+      return Sentry.close(2000);
     })
-    .then((result) => {
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'subscription-reminders',
-        status: 'ok',
-      });
-      process.exit(result);
+    .then(() => {
+      process.exit(1);
     });
 }
