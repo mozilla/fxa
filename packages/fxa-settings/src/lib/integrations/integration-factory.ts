@@ -20,6 +20,7 @@ import {
   StorageData,
   UrlHashData,
   UrlQueryData,
+  convertToDataStore,
 } from '../model-data';
 import { OAuthError } from '../oauth';
 import { ReachRouterWindow } from '../window';
@@ -264,7 +265,9 @@ export class IntegrationFactory {
 
     try {
       const serviceInfo = await this.delegates.getClientInfo(clientId);
-      const clientInfo = new ClientInfo(new GenericData(serviceInfo));
+      const clientInfo = new ClientInfo(
+        new GenericData(convertToDataStore(serviceInfo))
+      );
       return clientInfo;
     } catch (err) {
       if (

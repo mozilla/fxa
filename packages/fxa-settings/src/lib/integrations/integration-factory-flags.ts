@@ -129,7 +129,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   private _getSavedClientId() {
-    const oauth = this.storageData.get('oauth');
+    const oauth = JSON.parse(this.storageData.get('oauth') || `{}`);
     if (
       typeof oauth === 'object' &&
       oauth != null &&

@@ -118,6 +118,19 @@ export abstract class Integration<
       }
     }
 
+    // TODO: Not 100% sure about this
+    // If the service is the same as the client info id, then use that service name
+    if (this.clientInfo) {
+      const clientInfo = await this.clientInfo;
+      if (
+        clientInfo?.clientId &&
+        clientInfo?.serviceName &&
+        clientInfo?.clientId === this.data.service
+      ) {
+        return clientInfo.serviceName;
+      }
+    }
+
     // Fallback to defacto service names
     switch (this.data.service) {
       case MozServices.FirefoxSync:
