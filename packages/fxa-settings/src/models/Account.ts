@@ -9,6 +9,7 @@ import AuthClient, {
   AUTH_PROVIDER,
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
+  getCredentials,
 } from 'fxa-auth-client/browser';
 import {
   currentAccount,
@@ -716,11 +717,12 @@ export class Account implements AccountData {
       // );
       const accountResetToken =
         resetToken || (await this.passwordForgotVerifyCode(token, code));
+      const credentials = await getCredentials(email, newPassword);
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
         mutation: gql`
-          mutation accountReset($input: AccountResetInput!) {
+          mutation accountResetAuthPW($input: AccountResetInput!) {
             accountReset(input: $input) {
               clientMutationId
               sessionToken
@@ -735,12 +737,12 @@ export class Account implements AccountData {
         variables: {
           input: {
             accountResetToken,
-            email,
-            newPassword,
+            newPasswordAuthPW: credentials.authPW,
             options: { sessionToken: true, keys: true },
           },
         },
       });
+      accountReset.unwrapBKey = credentials.unwrapBKey;
       currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
       return accountReset;
