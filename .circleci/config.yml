@@ -376,6 +376,8 @@ commands:
             - packages/**/styles
             - packages/**/vendor
             - packages/**/var
+            - packages/**/locales
+            - packages/**/emails/css
             - configs/gql/allowlist
 
   restore-workspace:
@@ -666,9 +668,13 @@ jobs:
       - git-checkout
       - restore-workspace
       - run:
-          name: Build and deploy Storybooks
+          name: Build Storybooks
           command: |
-            STORYBOOKS_USE_YARN_WORKSPACES=false npx github:mozilla-fxa/storybook-gcp-publisher
+            npx nx run-many -t build-storybook
+      - run:
+          name: Publish Storybooks
+          command: |
+            STORYBOOKS_USE_YARN_WORKSPACES=false STORYBOOKS_SKIP_BUILD=true LOG_LEVEL=TRACE npx github:mozilla-fxa/storybook-gcp-publisher
 
   update-yarn-cache:
     executor: default-executor
