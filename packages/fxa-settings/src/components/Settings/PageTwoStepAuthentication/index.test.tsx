@@ -150,7 +150,7 @@ describe('step 2', () => {
     );
     expect(screen.getByTestId('databutton-download')).toHaveAttribute(
       'download',
-      expect.stringContaining('Firefox backup authentication codes')
+      expect.stringContaining('Backup authentication codes')
     );
   });
 

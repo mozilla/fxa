@@ -27,9 +27,9 @@ describe('DataCollection', () => {
     const { container } = renderWithLocalizationProvider(<DataCollection />);
 
     expect(container).toHaveTextContent('Data Collection and Use');
-    expect(container).toHaveTextContent('Help improve Firefox Accounts');
+    expect(container).toHaveTextContent('Help improve Mozilla accounts');
     expect(container).toHaveTextContent(
-      'Allow Firefox Accounts to send technical and interaction data to Mozilla.'
+      'Allow Mozilla accounts to send technical and interaction data to Mozilla.'
     );
     expect(
       screen.getByTestId('link-external-telemetry-opt-out')

@@ -233,10 +233,10 @@ const AccountRecoveryConfirmKey = ({
         <Banner type={BannerType.error}>{bannerMessage}</Banner>
       )}
 
-      <FtlMsg id="account-recovery-confirm-key-instructions">
+      <FtlMsg id="account-recovery-confirm-key-instructions-2">
         <p className="mt-4 text-sm">
           Please enter the one time use account recovery key you stored in a
-          safe place to regain access to your Firefox Account.
+          safe place to regain access to your Mozilla account.
         </p>
       </FtlMsg>
       <WarningMessage

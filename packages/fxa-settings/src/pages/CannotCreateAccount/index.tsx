@@ -30,9 +30,9 @@ const CannotCreateAccount = (_: RouteComponentProps) => {
           headingTextFtlId="cannot-create-account-header"
         />
       </span>
-      <FtlMsg id="cannot-create-account-requirements">
+      <FtlMsg id="cannot-create-account-requirements-2">
         <p className="text-sm mb-9">
-          You must meet certain age requirements to create a Firefox account.
+          You must meet certain age requirements to create a Mozilla account.
         </p>
       </FtlMsg>
       <LinkExternal

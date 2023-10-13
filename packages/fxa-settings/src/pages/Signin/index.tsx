@@ -85,7 +85,7 @@ const Signin = ({
       {isPasswordNeeded ? (
         <CardHeader
           headingText="Enter your password"
-          headingAndSubheadingFtlId="signin-password-needed-header"
+          headingAndSubheadingFtlId="signin-password-needed-header-2"
         />
       ) : (
         <CardHeader

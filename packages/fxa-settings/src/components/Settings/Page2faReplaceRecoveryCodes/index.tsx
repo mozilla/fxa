@@ -145,7 +145,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   value={recoveryCodes}
                   separator=" "
                   onCopy={copyRecoveryCodes}
-                  contentType="Firefox backup authentication codes"
+                  contentType="Backup authentication codes"
                 />
               ) : (
                 <LoadingSpinner />

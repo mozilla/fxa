@@ -23,9 +23,9 @@ export const DropDownAvatarMenu = () => {
   const dropDownId = 'drop-down-avatar-menu';
   const { l10n } = useLocalization();
   const dropDownMenuTitle = l10n.getString(
-    'drop-down-menu-title',
+    'drop-down-menu-title-2',
     null,
-    'Firefox account menu'
+    'Mozilla account menu'
   );
 
   const signOut = async () => {
