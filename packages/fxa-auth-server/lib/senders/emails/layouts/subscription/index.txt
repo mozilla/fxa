@@ -1,3 +1,10 @@
+<% if (locals.brandMessagingMode == 'postlaunch') { %>
+brand-banner-message = "Did you know we changed our name from Firefox accounts to Mozilla accounts? Learn more"
+
+https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts
+
+<% } %>
+
 <%- body %>
 
 <% if (!locals.wasDeleted) { %>
