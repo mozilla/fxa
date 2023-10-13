@@ -10,6 +10,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
 import Banner, { BannerType } from '../Banner';
+import { MozServices } from '../../lib/types';
 
 export type ReadyProps = {
   continueHandler?: Function;
@@ -74,12 +75,12 @@ const Ready = ({
   const templateValues = getTemplateValues(viewName);
 
   const showReadyToUseService =
-    !isSync && isSignedIn && serviceName && serviceName !== 'account settings';
+    !isSync && isSignedIn && serviceName && serviceName !== MozServices.Default;
 
   const showReadyToUseSettings =
     !isSync &&
     isSignedIn &&
-    (!serviceName || serviceName === 'account settings');
+    (!serviceName || serviceName === MozServices.Default);
 
   const showAccountReady = !isSync && !isSignedIn;
 

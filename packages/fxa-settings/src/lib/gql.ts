@@ -26,18 +26,9 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
         reauth = true;
       } else if (error.message === 'Must verify') {
         // TODO in FXA-76726
-        // Any place we reference `account`, like `account.sendVerificationCode()` in
-        // ConfirmSignupCode, (over)fetches account data. When we finish refactoring
-        // ConfirmSignupCode to the container component pattern, this will no longer
-        // be a problem, but for now, we do not want to redirect on that page when
-        // there's an authentication problem; we just want to redirect to /signin
-        // if the account is not in localStorage, which is handled in ConfirmSignupCode
-        // container. So, for now, we don't care about that page here. We'll still
-        // likely want to modify this for cases where the service is NOT sync.
-        if (
-          window.location &&
-          !window.location.pathname.includes('confirm_signup_code')
-        ) {
+        // Move this redirect behaviour to only apply to Settings context,
+        // we do not want to redirect for other contexts (such as Signup or Reset password)
+        if (window.location && window.location.pathname.includes('settings')) {
           return window.location.replace(
             `/signin_token_code?action=email&service=sync`
           );

@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// TODO replace harcoded list with database query in FXA-8533
+
 export const MONITOR_CLIENTIDS = [
   '802d56ef2a9af9fa', // Firefox Monitor
   '946bfd23df91404c', // Firefox Monitor stage

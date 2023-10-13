@@ -317,7 +317,7 @@ export default class AuthClient {
 
   /**
    * This function is intended for a service that will proxy the sign-up
-   * request.  When signing up from a client with access to the plaintext
+   * request. When signing up from a client with access to the plaintext
    * password, use `signUp` above.
    */
   async signUpWithAuthPW(
@@ -326,7 +326,7 @@ export default class AuthClient {
     options: SignUpOptions,
     headers: Headers = new Headers()
   ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
-    const payloadOptions = ({ keys, lang, ...rest }: any) => rest;
+    const payloadOptions = ({ keys, lang, ...rest }: SignUpOptions) => rest;
     const payload = {
       email,
       authPW,

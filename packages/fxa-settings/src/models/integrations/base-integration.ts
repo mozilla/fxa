@@ -133,6 +133,9 @@ export abstract class Integration<
       case MozServices.Pocket:
         return MozServices.Pocket;
 
+      case MozServices.TestService:
+        return MozServices.TestService;
+
       default:
         return MozServices.Default;
     }

@@ -30,6 +30,7 @@ const Signin = ({
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  // TODO in FXA-6488 use the integration's client id (instead of service name) to determine if client is Pocket or Monitor
   const isPocketClient = serviceName === MozServices.Pocket;
   const isMonitorClient = serviceName === MozServices.FirefoxMonitor;
   const [error, setError] = useState('');

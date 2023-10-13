@@ -192,8 +192,9 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.data.redirectUri;
   }
 
+  // prefer client id if available (for oauth) otherwise fallback to service (e.g. for sync)
   getService() {
-    return this.data.service || this.data.clientId;
+    return this.data.clientId || this.data.service;
   }
 
   restoreOAuthState() {

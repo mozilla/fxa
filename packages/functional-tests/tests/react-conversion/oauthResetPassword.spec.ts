@@ -278,10 +278,10 @@ test.describe('severity-1 #smoke', () => {
     }
     await resetPassword.resetNewPassword(credentials.password);
 
-    // Step 4 - Verify the end state. The user should either be:
-    // See a nice success message in fxa. Note, that we used to redirect the user back to
-    // the relier in some cases, but we've decided to just show the success message for now
-    // And let the user re-authenticate with the relier.
+    // Step 4 - Verify the end state. The user should see a nice success message in fxa.
+    // Note: We used to redirect the user back to the relier in some cases
+    // but we've decided to just show the success message for now
+    // and let the user re-authenticate with the relier.
     await isSuccessMessageDisplayed({ page });
   }
 
