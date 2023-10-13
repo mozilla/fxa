@@ -524,7 +524,7 @@ describe('#integration - AccountResolver', () => {
           'x-forwarded-for': '123.123.123.123',
         });
         const now = Date.now();
-        authClient.accountReset = jest.fn().mockResolvedValue({
+        authClient.accountResetAuthPW = jest.fn().mockResolvedValue({
           clientMutationId: 'testid',
           uid: 'uid',
           verified: true,
@@ -533,12 +533,11 @@ describe('#integration - AccountResolver', () => {
           keyFetchToken: 'keyFetchToken',
         });
         const result = await resolver.accountReset(headers, {
-          email: 'up@dog.com',
-          newPassword: 'password',
+          newPasswordAuthPW: 'passwordAuthPW',
           accountResetToken: 'token',
           options: {},
         });
-        expect(authClient.accountReset).toBeCalledTimes(1);
+        expect(authClient.accountResetAuthPW).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
           uid: 'uid',

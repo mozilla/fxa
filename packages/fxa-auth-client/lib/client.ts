@@ -534,6 +534,8 @@ export default class AuthClient {
     );
   }
 
+  // TODO: Once password reset react is 100% and stable in production
+  // we can remove this.
   async accountReset(
     email: string,
     newPassword: string,
@@ -562,6 +564,30 @@ export default class AuthClient {
       accountData.unwrapBKey = credentials.unwrapBKey;
     }
     return accountData;
+  }
+
+  async accountResetAuthPW(
+    newPasswordAuthPW: string,
+    accountResetToken: hexstring,
+    options: {
+      keys?: boolean;
+      sessionToken?: boolean;
+    } = {},
+    headers: Headers = new Headers()
+  ) {
+    const payloadOptions = ({ keys, ...rest }: any) => rest;
+    const payload = {
+      authPW: newPasswordAuthPW,
+      ...payloadOptions(options),
+    };
+    return await this.hawkRequest(
+      'POST',
+      pathWithKeys('/account/reset', options.keys),
+      accountResetToken,
+      tokenType.accountResetToken,
+      payload,
+      headers
+    );
   }
 
   async finishSetup(
