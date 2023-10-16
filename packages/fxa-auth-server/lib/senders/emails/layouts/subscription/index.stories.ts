@@ -14,6 +14,7 @@ const createStory = subplatStoryWithProps(
   'The Subscription Platform email base layout.',
   {
     subject: 'N/A',
+    brandMessagingMode: 'none',
   }
 );
 
@@ -35,8 +36,20 @@ export const LayoutMultipleProducts = createStory(
       },
     ],
   },
-  'Multiple products'
+  'Default - With brand messaging'
 );
+
+export const LayoutMultipleProductsWithBrandMessaging = createStory({
+  subscriptions: [
+    {
+      productName: 'Firefox Fortress',
+    },
+    {
+      productName: 'Mozilla VPN',
+    },
+  ],
+  brandMessagingMode: 'postlaunch',
+});
 
 export const LayoutWithProduct = createStory(
   {
