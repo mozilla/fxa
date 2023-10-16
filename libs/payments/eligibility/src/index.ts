@@ -4,3 +4,4 @@
 
 export * from './lib/eligibility.manager';
 export * from './lib/eligibility.types';
+export { intervalComparison } from './lib/utils';

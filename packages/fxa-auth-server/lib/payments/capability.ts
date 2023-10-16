@@ -1,7 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import assert from 'assert';
 import { getUidAndEmailByStripeCustomerId } from 'fxa-shared/db/models/auth';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getSubscriptionUpdateEligibility,
@@ -13,28 +18,31 @@ import {
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
-import { CapabilityManager } from '@fxa/payments/capability';
-import * as Sentry from '@sentry/node';
-import { SeverityLevel } from '@sentry/types';
-import _ from 'lodash';
+import { isEqual } from 'lodash';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
+import { CapabilityManager } from '@fxa/payments/capability';
+import {
+  EligibilityManager,
+  IntervalComparison,
+  intervalComparison,
+  OfferingComparison,
+} from '@fxa/payments/eligibility';
+import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
+
 import error from '../error';
-import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { authEvents } from '../events';
 import { AuthLogger, AuthRequest, ProfileClient } from '../types';
-import { PlayBilling } from './iap/google-play/play-billing';
+import { PaymentConfigManager } from './configuration/manager';
+import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
+import { PlayBilling } from './iap/google-play/play-billing';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
-import { PaymentConfigManager } from './configuration/manager';
 import { clientIdCapabilityMapFromMetadata } from './utils';
-import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
-import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -62,6 +70,7 @@ export class CapabilityService {
   private paymentConfigManager?: PaymentConfigManager;
   private capabilityManager?: CapabilityManager;
   private sentryLogCounter = new Map<string, number>();
+  private eligibilityManager?: EligibilityManager;
 
   constructor() {
     // TODO: the mock stripeHelper here fixes this specific instance when
@@ -86,6 +95,9 @@ export class CapabilityService {
     }
     if (Container.has(CapabilityManager)) {
       this.capabilityManager = Container.get(CapabilityManager);
+    }
+    if (Container.has(EligibilityManager)) {
+      this.eligibilityManager = Container.get(EligibilityManager);
     }
 
     this.log = Container.get(AuthLogger);
@@ -250,20 +262,10 @@ export class CapabilityService {
     ];
   }
 
-  /**
-   * Determine the subscription eligibility path for a user for a given plan,
-   * considering existing IAP subscriptions in the process.
-   * Will throw an error if the targetPlanId does not match with a known plan
-   */
-  public async getPlanEligibility(
-    uid: string,
-    targetPlanId: string,
-    useFirestoreProductConfigs = false
-  ): Promise<SubscriptionChangeEligibility> {
+  async allAbbrevPlansByPlanId(): Promise<Record<string, AbbrevPlan>> {
     const allPlans = await this.stripeHelper.allAbbrevPlans();
-
     // Create a map of planId: abbrevPlan for speed/ease of lookup later without iterating
-    const allPlansByPlanId: { [key: string]: AbbrevPlan } = allPlans.reduce(
+    const allPlansByPlanId: Record<string, AbbrevPlan> = allPlans.reduce(
       (acc, plan) => {
         return {
           ...acc,
@@ -272,20 +274,13 @@ export class CapabilityService {
       },
       {}
     );
+    return allPlansByPlanId;
+  }
 
-    const targetPlan = allPlansByPlanId[targetPlanId];
-
-    if (!targetPlan) throw error.unknownSubscriptionPlan(targetPlanId);
-
-    const { productSet: targetProductSet } = productUpgradeFromProductConfig(
-      targetPlan,
-      useFirestoreProductConfigs
-    );
-
-    if (!targetProductSet) {
-      return [SubscriptionEligibilityResult.INVALID, undefined];
-    }
-
+  async getAllSubscribedAbbrevPlans(
+    uid: string,
+    allPlansByPlanId: { [key: string]: AbbrevPlan }
+  ) {
     // Fetch all user's subscriptions from all sources
     const [stripeSubscriptions, appleIapSubscriptions, playIapSubscriptions] =
       await Promise.all([
@@ -305,8 +300,156 @@ export class CapabilityService {
       ...getAbbrevPlansFromPlanIds(appleIapSubscriptions),
       ...getAbbrevPlansFromPlanIds(playIapSubscriptions),
     ];
+    return [stripeSubscribedPlans, iapSubscribedPlans];
+  }
 
-    // Lookup whether user holds an IAP subscription with a shared product set to the target
+  /**
+   * Determine the subscription eligibility path for a user for a given plan,
+   * considering existing IAP subscriptions in the process.
+   *
+   * This method compares the Stripe Metadata provided eligibility results with
+   * the Eligibility Managers results if it is defined. Otherwise it returns the
+   * Stripe Metadata results.
+   *
+   * Will throw an error if the targetPlanId does not match with a known plan
+   */
+  public async getPlanEligibility(
+    uid: string,
+    targetPlanId: string,
+    useFirestoreProductConfigs = false
+  ): Promise<SubscriptionChangeEligibility> {
+    const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
+
+    const targetPlan = allPlansByPlanId[targetPlanId];
+    if (!targetPlan) throw error.unknownSubscriptionPlan(targetPlanId);
+
+    const [stripeSubscribedPlans, iapSubscribedPlans] =
+      await this.getAllSubscribedAbbrevPlans(uid, allPlansByPlanId);
+
+    const stripeEligibilityResult = await this.eligibilityFromStripeMetadata(
+      stripeSubscribedPlans,
+      iapSubscribedPlans,
+      targetPlan,
+      useFirestoreProductConfigs
+    );
+    if (!this.eligibilityManager) return stripeEligibilityResult;
+
+    try {
+      const eligibilityManagerResult =
+        await this.eligibilityFromEligibilityManager(
+          stripeSubscribedPlans,
+          iapSubscribedPlans,
+          targetPlan
+        );
+      if (isEqual(stripeEligibilityResult, eligibilityManagerResult))
+        return stripeEligibilityResult;
+
+      if (this.logToSentry('getPlanEligibility.NoMatch')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('getPlanEligibility', {
+            eligibilityManagerResult,
+            stripeEligibilityResult,
+            uid,
+            targetPlanId,
+          });
+          Sentry.captureMessage(
+            `Eligibility mismatch for ${uid} on ${targetPlanId}`,
+            'error' as SeverityLevel
+          );
+        });
+      }
+    } catch (error) {
+      this.log.error('subscriptions.getPlanEligibility', { error: error });
+      Sentry.captureException(error);
+    }
+    return stripeEligibilityResult;
+  }
+
+  /**
+   * Utilizes the EligibilityManager to determine if a user is eligible to
+   * subscribe to a plan and then maps the evaluation to the same subscription
+   * change eligilibity results as the Stripe Metadata based evaluation.
+   */
+  async eligibilityFromEligibilityManager(
+    stripeSubscribedPlans: AbbrevPlan[],
+    iapSubscribedPlans: AbbrevPlan[],
+    targetPlan: AbbrevPlan
+  ): Promise<SubscriptionChangeEligibility> {
+    if (!this.eligibilityManager)
+      return [SubscriptionEligibilityResult.INVALID];
+    const iapProductIds = iapSubscribedPlans.map((p) => p.product_id);
+    const planIds = [
+      ...stripeSubscribedPlans.map((p) => p.plan_id),
+      ...iapSubscribedPlans.map((p) => p.plan_id),
+    ];
+    const overlaps = await this.eligibilityManager.getOfferingOverlap(
+      planIds,
+      [],
+      targetPlan.plan_id
+    );
+
+    // No overlap, we can create a new subscription
+    if (!overlaps.length) return [SubscriptionEligibilityResult.CREATE];
+
+    // Users with IAP Offering overlaps should not be allowed to proceed
+    if (
+      overlaps.some(
+        (overlap) =>
+          overlap.type === 'offering' &&
+          iapProductIds.includes(overlap.offeringProductId)
+      )
+    )
+      return [SubscriptionEligibilityResult.BLOCKED_IAP];
+
+    // Multiple existing overlapping plans, we can't merge them
+    if (overlaps.length > 1) return [SubscriptionEligibilityResult.INVALID];
+
+    const overlap = overlaps[0];
+    assert(
+      overlap.type === 'plan',
+      'Unexpected overlap type, only plans are compared.'
+    );
+    const overlapAbbrev = stripeSubscribedPlans.find(
+      (p) => p.plan_id === overlap.planId
+    );
+
+    if (overlap.comparison === OfferingComparison.DOWNGRADE)
+      return [SubscriptionEligibilityResult.DOWNGRADE, overlapAbbrev];
+
+    if (!overlapAbbrev || overlapAbbrev.plan_id === targetPlan.plan_id)
+      return [SubscriptionEligibilityResult.INVALID];
+
+    // Any interval change that is lower than the existing plans interval is
+    // a downgrade. Otherwise its considered an upgrade.
+    if (
+      intervalComparison(
+        { unit: overlapAbbrev.interval, count: overlapAbbrev.interval_count },
+        { unit: targetPlan.interval, count: targetPlan.interval_count }
+      ) === IntervalComparison.SHORTER
+    )
+      return [SubscriptionEligibilityResult.DOWNGRADE, overlapAbbrev];
+
+    return [SubscriptionEligibilityResult.UPGRADE, overlapAbbrev];
+  }
+
+  /**
+   * Utilizes Stripe Metadata to determine if a user is eligible to subscribe to
+   * a plan.
+   */
+  async eligibilityFromStripeMetadata(
+    stripeSubscribedPlans: AbbrevPlan[],
+    iapSubscribedPlans: AbbrevPlan[],
+    targetPlan: AbbrevPlan,
+    useFirestoreProductConfigs = false
+  ): Promise<SubscriptionChangeEligibility> {
+    const { productSet: targetProductSet } = productUpgradeFromProductConfig(
+      targetPlan,
+      useFirestoreProductConfigs
+    );
+
+    if (!targetProductSet) return [SubscriptionEligibilityResult.INVALID];
+
+    // Lookup whether user holds an IAP subscription with a shared productSet to the target
     const iapRoadblock = iapSubscribedPlans.some((abbrevPlan) => {
       const { productSet } = productUpgradeFromProductConfig(
         abbrevPlan,
@@ -318,9 +461,7 @@ export class CapabilityService {
 
     // Users with an IAP subscription to the productSet that we're trying to subscribe
     // to should not be allowed to proceed
-    if (iapRoadblock) {
-      return [SubscriptionEligibilityResult.BLOCKED_IAP, undefined];
-    }
+    if (iapRoadblock) return [SubscriptionEligibilityResult.BLOCKED_IAP];
 
     const isSubscribedToProductSet = stripeSubscribedPlans.some(
       (abbrevPlan) => {
@@ -333,9 +474,8 @@ export class CapabilityService {
       }
     );
 
-    if (!isSubscribedToProductSet) {
-      return [SubscriptionEligibilityResult.CREATE, undefined];
-    }
+    if (!isSubscribedToProductSet)
+      return [SubscriptionEligibilityResult.CREATE];
 
     // Use the upgradeEligibility helper to check if any of our existing plans are
     // elegible for an upgrade and if so the user can upgrade that existing plan to the desired plan
@@ -346,16 +486,13 @@ export class CapabilityService {
         useFirestoreProductConfigs
       );
 
-      if (eligibility === SubscriptionUpdateEligibility.UPGRADE) {
+      if (eligibility === SubscriptionUpdateEligibility.UPGRADE)
         return [SubscriptionEligibilityResult.UPGRADE, abbrevPlan];
-      }
 
-      if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE) {
+      if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE)
         return [SubscriptionEligibilityResult.DOWNGRADE, abbrevPlan];
-      }
     }
-
-    return [SubscriptionEligibilityResult.INVALID, undefined];
+    return [SubscriptionEligibilityResult.INVALID];
   }
 
   /**
@@ -679,9 +816,8 @@ export class CapabilityService {
     try {
       const clientsFromContentful = await this.capabilityManager.getClients();
 
-      if (_.isEqual(clientsFromContentful, clientsFromStripe)) {
+      if (isEqual(clientsFromContentful, clientsFromStripe))
         return clientsFromContentful;
-      }
 
       if (this.logToSentry('getClients.NoMatch')) {
         Sentry.withScope((scope) => {
