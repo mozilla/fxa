@@ -40,6 +40,8 @@ export type Scalars = {
   HexColor: { input: any; output: any };
   /** The 'Quality' type represents quality as whole numeric values between `1` and `100`. */
   Quality: { input: any; output: any };
+  _Any: { input: any; output: any };
+  _FieldSet: { input: any; output: any };
 };
 
 /** Represents a binary file in a space. An asset can be any file type. */
@@ -418,6 +420,8 @@ export type CommonContent = Entry & {
   emailIcon: Maybe<Scalars['String']['output']>;
   internalName: Maybe<Scalars['String']['output']>;
   linkedFrom: Maybe<CommonContentLinkingCollections>;
+  newsletterLabelTextCode: Maybe<Scalars['String']['output']>;
+  newsletterSlug: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   privacyNoticeDownloadUrl: Maybe<Scalars['String']['output']>;
   privacyNoticeUrl: Maybe<Scalars['String']['output']>;
   successActionButtonLabel: Maybe<Scalars['String']['output']>;
@@ -445,6 +449,16 @@ export type CommonContentInternalNameArgs = {
 /** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
 export type CommonContentLinkedFromArgs = {
   allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
+export type CommonContentNewsletterLabelTextCodeArgs = {
+  locale: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
+export type CommonContentNewsletterSlugArgs = {
+  locale: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Content used on multiple pages, not specific to a certain component. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/commonContent) */
@@ -514,6 +528,27 @@ export type CommonContentFilter = {
   internalName_not_in: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  newsletterLabelTextCode: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_contains: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_exists: InputMaybe<Scalars['Boolean']['input']>;
+  newsletterLabelTextCode_in: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterLabelTextCode_not: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_not_contains: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_not_in: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_all: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_none: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_some: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_exists: InputMaybe<Scalars['Boolean']['input']>;
   privacyNoticeDownloadUrl: InputMaybe<Scalars['String']['input']>;
   privacyNoticeDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
   privacyNoticeDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
@@ -634,6 +669,8 @@ export enum CommonContentOrder {
   EmailIconDesc = 'emailIcon_DESC',
   InternalNameAsc = 'internalName_ASC',
   InternalNameDesc = 'internalName_DESC',
+  NewsletterLabelTextCodeAsc = 'newsletterLabelTextCode_ASC',
+  NewsletterLabelTextCodeDesc = 'newsletterLabelTextCode_DESC',
   PrivacyNoticeDownloadUrlAsc = 'privacyNoticeDownloadUrl_ASC',
   PrivacyNoticeDownloadUrlDesc = 'privacyNoticeDownloadUrl_DESC',
   PrivacyNoticeUrlAsc = 'privacyNoticeUrl_ASC',
@@ -1720,6 +1757,8 @@ export enum PurchaseOrder {
 
 export type Query = {
   __typename?: 'Query';
+  _entities: Array<Maybe<_Entity>>;
+  _service: _Service;
   asset: Maybe<Asset>;
   assetCollection: Maybe<AssetCollection>;
   capability: Maybe<Capability>;
@@ -1741,6 +1780,10 @@ export type Query = {
   serviceCollection: Maybe<ServiceCollection>;
   subGroup: Maybe<SubGroup>;
   subGroupCollection: Maybe<SubGroupCollection>;
+};
+
+export type Query_EntitiesArgs = {
+  representations: Array<Scalars['_Any']['input']>;
 };
 
 export type QueryAssetArgs = {
@@ -2196,6 +2239,8 @@ export type Sys = {
   environmentId: Scalars['String']['output'];
   firstPublishedAt: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['String']['output'];
+  /** The locale that was requested - mainly used for Apollo Federation. */
+  locale: Maybe<Scalars['String']['output']>;
   publishedAt: Maybe<Scalars['DateTime']['output']>;
   publishedVersion: Maybe<Scalars['Int']['output']>;
   spaceId: Scalars['String']['output'];
@@ -2244,6 +2289,22 @@ export type SysFilter = {
   publishedVersion_not_in: InputMaybe<
     Array<InputMaybe<Scalars['Float']['input']>>
   >;
+};
+
+export type _Entity =
+  | Capability
+  | CommonContent
+  | CouponConfig
+  | Iap
+  | Offering
+  | Purchase
+  | PurchaseDetails
+  | Service
+  | SubGroup;
+
+export type _Service = {
+  __typename?: '_Service';
+  sdl: Maybe<Scalars['String']['output']>;
 };
 
 export type CfCapabilityNestedFilter = {
@@ -2306,6 +2367,27 @@ export type CfCommonContentNestedFilter = {
   internalName_not_in: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  newsletterLabelTextCode: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_contains: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_exists: InputMaybe<Scalars['Boolean']['input']>;
+  newsletterLabelTextCode_in: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterLabelTextCode_not: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_not_contains: InputMaybe<Scalars['String']['input']>;
+  newsletterLabelTextCode_not_in: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_all: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_none: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_contains_some: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  newsletterSlug_exists: InputMaybe<Scalars['Boolean']['input']>;
   privacyNoticeDownloadUrl: InputMaybe<Scalars['String']['input']>;
   privacyNoticeDownloadUrl_contains: InputMaybe<Scalars['String']['input']>;
   privacyNoticeDownloadUrl_exists: InputMaybe<Scalars['Boolean']['input']>;
