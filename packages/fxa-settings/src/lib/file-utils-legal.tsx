@@ -6,7 +6,7 @@ import { GET_LEGAL_DOC } from '../models';
 import { ApolloClient } from '@apollo/client';
 
 export enum LegalDocFile {
-  privacy = 'mozilla_privacy_policy',
+  privacy = 'firefox_privacy_notice',
   terms = 'firefox_cloud_services_tos',
 }
 
