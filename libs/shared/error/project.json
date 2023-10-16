@@ -8,9 +8,8 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/shared/error",
-        "main": "libs/shared/error/libs/shared/error/src/index.ts",
+        "main": "libs/shared/error/src/index.ts",
         "tsConfig": "libs/shared/error/tsconfig.lib.json",
         "assets": ["libs/shared/error/*.md"]
       }

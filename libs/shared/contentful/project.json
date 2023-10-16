@@ -14,7 +14,6 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/shared/contentful",
         "main": "libs/shared/contentful/src/index.ts",
         "tsConfig": "libs/shared/contentful/tsconfig.lib.json",

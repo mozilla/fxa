@@ -9,7 +9,8 @@
       "@fxa/payments/cart": ["libs/payments/cart/src/index"],
       "@fxa/shared/log": ["libs/shared/log/src/index"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index"],
-      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"]
+      "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index"]
     }
   }
 }

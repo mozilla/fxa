@@ -5,7 +5,7 @@
 import {
   ContentfulManager,
   EligibilityOfferingResult,
-} from '../../../../shared/contentful/src';
+} from '@fxa/shared/contentful';
 import { Injectable } from '@nestjs/common';
 
 import { OfferingComparison, OfferingOverlapResult } from './eligibility.types';
