@@ -663,7 +663,7 @@ jobs:
 
   build-and-deploy-storybooks:
     executor: default-executor
-    resource_class: medium+
+    resource_class: large
     steps:
       - git-checkout
       - restore-workspace
