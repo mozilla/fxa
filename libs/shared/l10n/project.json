@@ -8,9 +8,8 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/shared/l10n",
-        "main": "libs/shared/l10n/libs/shared/l10n/src/index.ts",
+        "main": "libs/shared/l10n/src/index.ts",
         "tsConfig": "libs/shared/l10n/tsconfig.lib.json",
         "assets": ["libs/shared/l10n/*.md"]
       }

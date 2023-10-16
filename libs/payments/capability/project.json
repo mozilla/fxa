@@ -8,7 +8,6 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/payments/capability",
         "tsConfig": "libs/payments/capability/tsconfig.lib.json",
         "packageJson": "libs/payments/capability/package.json",
