@@ -263,7 +263,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </p>
           </Localized>
 
-          <div className="mt-4 mb-6" data-testid="recovery-key-input">
+          <div className="mt-4 mb-6" data-testid="totp-input">
             <Localized id="tfa-input-enter-totp-v2" attrs={{ label: true }}>
               <InputText
                 name="totp"

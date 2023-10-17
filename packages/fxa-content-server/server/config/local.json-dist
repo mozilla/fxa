@@ -54,8 +54,5 @@
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true
-  },
-  "featureFlags": {
-    "showRecoveryKeyV2": true
   }
 }

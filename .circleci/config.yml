@@ -306,13 +306,10 @@ commands:
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
           command: |
             if [[ "<< parameters.project >>" == "production" ]]; then
-              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
               GREP="--grep=\"severity-1\""
             elif [[ "<< parameters.project >>" == "stage" ]]; then
-              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
               GREP="--grep=\"severity-(1|2)\""
             else
-              export FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2=true
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"

@@ -16,18 +16,24 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
-      test.skip(config.showReactApp.signUpRoutes !== true);
-      email = login.createEmail('signup_react{id}');
+      if (config.showReactApp.signUpRoutes !== true) {
+        test.skip();
+        email = undefined;
+      } else {
+        email = login.createEmail('signup_react{id}');
+      }
     });
 
     test.afterEach(async ({ target }) => {
-      try {
-        await target.auth.accountDestroy(email, PASSWORD);
-      } catch (e) {
-        // Handle the error here
-        console.error('An error occurred during account cleanup:', e);
-        // Optionally, rethrow the error to propagate it further
-        throw e;
+      if (email) {
+        try {
+          await target.auth.accountDestroy(email, PASSWORD);
+        } catch (e) {
+          // Handle the error here
+          console.error('An error occurred during account cleanup:', e);
+          // Optionally, rethrow the error to propagate it further
+          throw e;
+        }
       }
     });
 

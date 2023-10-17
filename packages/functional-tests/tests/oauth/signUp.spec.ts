@@ -57,7 +57,8 @@ test.describe('severity-1 #smoke', () => {
         'Your confirmation email was just returned. Mistyped email?'
       );
 
-      await login.clearEmailTextBox();
+      await login.setEmail('');
+
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header

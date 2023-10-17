@@ -107,4 +107,12 @@ export class ResetPasswordReactPage extends BaseLayout {
     }
     return parsedLink.toString();
   }
+
+  async clickDontHaveRecoveryKey(page: BaseLayout['page'] = this.page) {
+    const forgotKeyLink = await page.getByRole('link', {
+      name: 'Don’t have an account recovery key?',
+    });
+    await forgotKeyLink.waitFor();
+    await forgotKeyLink.click();
+  }
 }

@@ -26,36 +26,24 @@ test.describe('severity-1 #smoke', () => {
         let status = await settings.recoveryKey.statusText();
         expect(status).toEqual('Not Set');
 
-        // Check which account recovery key generation flow to use (based on feature flag)
-        // TODO in FXA-7419 - remove the condition and else block that goes through the old key generation flow
-        if (config.featureFlags.showRecoveryKeyV2 === true) {
-          await settings.goto();
-          await settings.recoveryKey.clickCreate();
-          // View 1/4 info
-          await recoveryKey.clickStart();
-          // View 2/4 confirm password and generate key
-          await recoveryKey.setPassword(credentials.password);
-          await recoveryKey.submit();
+        await settings.goto();
+        await settings.recoveryKey.clickCreate();
+        // View 1/4 info
+        await recoveryKey.clickStart();
+        // View 2/4 confirm password and generate key
+        await recoveryKey.setPassword(credentials.password);
+        await recoveryKey.submit();
 
-          // View 3/4 key download
-          // Store key to be used later
-          key = await recoveryKey.getKey();
-          await recoveryKey.clickNext();
+        // View 3/4 key download
+        // Store key to be used later
+        key = await recoveryKey.getKey();
+        await recoveryKey.clickNext();
 
-          // View 4/4 hint
-          // store hint to be used later
-          hint = 'secret key location';
-          await recoveryKey.setHint(hint);
-          await recoveryKey.clickFinish();
-        } else {
-          await settings.recoveryKey.clickCreate();
-          await recoveryKey.setPassword(credentials.password);
-          await recoveryKey.submit();
-
-          // Store key to be used later
-          key = await recoveryKey.getKey();
-          await recoveryKey.clickClose();
-        }
+        // View 4/4 hint
+        // store hint to be used later
+        hint = 'secret key location';
+        await recoveryKey.setHint(hint);
+        await recoveryKey.clickFinish();
 
         // Verify status as 'enabled'
         status = await settings.recoveryKey.statusText();
@@ -139,6 +127,7 @@ test.describe('severity-1 #smoke', () => {
       // Cleanup requires setting this value to correct password
       credentials.password = NEW_PASSWORD;
 
+      // After using a recovery key to reset password, expect to be prompted to create a new one
       await page
         .getByRole('button', { name: 'Generate a new account recovery key' })
         .click();

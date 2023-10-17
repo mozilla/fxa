@@ -41,14 +41,6 @@ export class RecoveryKeyPage extends SettingsLayout {
     ]);
   }
 
-  // TODO in FXA-7419 - delete this method
-  clickClose() {
-    return Promise.all([
-      this.page.locator('[data-testid=close-button]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
-  }
-
   async clickStart() {
     return this.page.getByRole('button', { name: 'Get started' }).click();
   }
