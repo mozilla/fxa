@@ -51,7 +51,7 @@ const TEMPLATE_INFO = {
   },
   PRIMARY_EMAIL_VERIFIED: {
     emailReadyText: t(
-      'You are now ready to make changes to your Firefox Account.'
+      'You are now ready to make changes to your Mozilla account.'
     ),
     headerId: 'fxa-sign-up-complete-header',
     headerTitle: t('Primary email confirmed'),

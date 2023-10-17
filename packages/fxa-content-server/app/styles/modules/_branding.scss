@@ -1,9 +1,6 @@
 #main-content::before {
   $firefox-standalone-logo-size-large: 82px;
   $firefox-standalone-logo-size-small: 56px;
-  background-image: image-url('firefox-logo.svg');
-  background-position: center center;
-  background-repeat: no-repeat;
   content: '';
   left: 0;
   position: absolute;
@@ -35,28 +32,23 @@
   }
 }
 
-#about-mozilla {
-  @include respond-to('big') {
-    background: image-url('mozilla.svg') no-repeat center center;
-    cursor: pointer;
-    display: block;
-    height: 48px;
-    margin: 24px 0;
-    transition: opacity $short-transition;
-    width: 128px;
-
-    &:hover {
-      opacity: 1;
-    }
-
-    &:focus {
-      outline-color: $html-background-color;
-    }
-  }
+#mozilla-header {
+  width: 100%;
+  padding: 0 2rem;
 
   @include respond-to('small') {
-    display: none;
+    width: auto;
+    margin: auto 0;
+    padding-top: 24px;
   }
+}
+#about-mozilla {
+  background: image-url('mozilla.svg') no-repeat center center;
+  cursor: pointer;
+  display: block;
+  height: 32px;
+  transition: opacity $short-transition;
+  width: 128px;
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS

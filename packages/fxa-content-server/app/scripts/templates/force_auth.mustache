@@ -3,9 +3,7 @@
   <header>
     <h1 id="fxa-force-auth-header" class="card-header">
       {{#isSync}}
-        {{#unsafeTranslate}}
-          Enter your password <span class="card-subheader" id="subheader">for your Firefox account</span>
-        {{/unsafeTranslate}}
+        {{#unsafeTranslate}}Enter your password <span class="card-subheader" id="subheader">for your Mozilla account</span>{{/unsafeTranslate}}
       {{/isSync}}
       {{^isSync}}
         <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
@@ -66,6 +64,6 @@
   </section>
 </div>
 
-<!-- New L10N Strings
-{{#unsafeTranslate}}Enter your password <span class="card-subheader" id="subheader">for your Mozilla account</span>{{/unsafeTranslate}}
+<!-- Old L10N Strings - TBR
+{{#unsafeTranslate}}Enter your password <span class="card-subheader" id="subheader">for your Firefox account</span>{{/unsafeTranslate}}
 -->

@@ -1,7 +1,6 @@
 // this needs to be overridden,
 // or done in a way that doesn't kill these everywhere
 body.settings #fox-logo,
-body.settings #static-footer,
 body.settings .sign-in {
   display: none;
 }
@@ -73,7 +72,7 @@ body.settings #stage .settings {
   }
 
   #fxa-manage-account {
-    background-image: image-url('firefox-logo.svg');
+    background-image: image-url('moz-m-logo.svg');
     background-repeat: no-repeat;
     margin: 0;
 

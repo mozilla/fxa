@@ -128,7 +128,7 @@ describe('views/ready', function () {
         assert.ok(view.$(SIGNUP_COMPLETE.HEADER).length);
         assert.equal(
           view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
-          'You are now ready to make changes to your Firefox Account.'
+          'You are now ready to make changes to your Mozilla account.'
         );
         assert.lengthOf(view.$('.btn-goto-account'), 1);
         relier.isSync.restore();
@@ -276,7 +276,7 @@ describe('views/ready', function () {
       sinon.stub(relier, 'isSync').callsFake(() => false);
       assert.equal(
         view.$(SIGNIN_COMPLETE.SERVICE_NAME).text(),
-        'You are now ready to use Account Settings'
+        'You are now ready to use account settings'
       );
     });
 
