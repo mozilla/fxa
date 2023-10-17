@@ -36,7 +36,7 @@ interface ButtonDownloadRecoveryKeyPDFProps {
 
 export const getFilename = (email: string) => {
   const date = new Date().toISOString().split('T')[0];
-  const prefix = 'Firefox-Recovery-Key';
+  const prefix = 'Mozilla-Recovery-Key';
   // Windows has a max directory length of 260 characters (including path)
   // filename should be kept much shorter (maxLength is arbitrary).
   let filename = `${prefix}_${date}_${email}`.substring(0, 71) + `.pdf`;

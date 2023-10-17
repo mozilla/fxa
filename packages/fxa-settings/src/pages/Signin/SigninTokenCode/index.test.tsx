@@ -32,7 +32,7 @@ describe('PageSigninTokenCode', () => {
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter confirmation code for your Firefox account'
+      'Enter confirmation code for your Mozilla account'
     );
     screen.getByLabelText('Enter 6-digit code');
 

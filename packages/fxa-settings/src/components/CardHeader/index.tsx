@@ -228,7 +228,7 @@ const CardHeader = (props: CardHeaderProps) => {
 
   if (isBasicWithDefaultSubheading(props)) {
     const spanElem = (
-      <span className="card-subheader">for your Firefox account</span>
+      <span className="card-subheader">for your Mozilla account</span>
     );
     return (
       <FtlMsg id={props.headingAndSubheadingFtlId} elems={{ span: spanElem }}>

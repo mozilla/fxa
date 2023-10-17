@@ -31,8 +31,8 @@ export const BentoMenu = () => {
   const ftlMsgResolver = useFtlMsgResolver();
 
   const bentoMenuTitle = ftlMsgResolver.getMsg(
-    'bento-menu-title',
-    'Firefox Bento Menu'
+    'bento-menu-title-2',
+    'Mozilla Bento Menu'
   );
 
   return (

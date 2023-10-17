@@ -29,14 +29,14 @@ export const DataCollection = () => {
 
       const alertArgs: [string, null, string] = account.metricsEnabled
         ? [
-            'dc-opt-in-success',
+            'dc-opt-in-success-2',
             null,
-            'Thanks! Sharing this data helps us improve Firefox Accounts.',
+            'Thanks! Sharing this data helps us improve Mozilla accounts.',
           ]
         : [
-            'dc-opt-out-success',
+            'dc-opt-out-success-2',
             null,
-            'Opt out successful. Firefox Accounts won’t send technical or interaction data to Mozilla.',
+            'Opt out successful. Mozilla accounts won’t send technical or interaction data to Mozilla.',
           ];
       alertBar.success(l10n.getString.apply(l10n, alertArgs));
     } catch (err) {
@@ -61,15 +61,15 @@ export const DataCollection = () => {
       <div className="bg-white tablet:rounded-xl shadow px-4 tablet:px-6 pt-7 pb-5">
         <div className="flex mb-4">
           <div className="flex-5 tablet:flex-7 ltr:pr-6 tablet:ltr:pr-12 rtl:pl-6 tablet:rtl:pl-12">
-            <Localized id="dc-subheader">
+            <Localized id="dc-subheader-2">
               <h3 className="font-header mb-4">
-                Help improve Firefox Accounts
+                Help improve Mozilla accounts
               </h3>
             </Localized>
 
             <p className="text-sm">
-              <Localized id="dc-subheader-content">
-                Allow Firefox Accounts to send technical and interaction data to
+              <Localized id="dc-subheader-content-2">
+                Allow Mozilla accounts to send technical and interaction data to
                 Mozilla.
               </Localized>{' '}
               <LinkExternal

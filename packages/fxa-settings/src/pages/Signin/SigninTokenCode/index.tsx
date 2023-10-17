@@ -79,7 +79,7 @@ const SigninTokenCode = ({
     <>
       <CardHeader
         headingText="Enter confirmation code"
-        headingAndSubheadingFtlId="signin-token-code-heading"
+        headingAndSubheadingFtlId="signin-token-code-heading-2"
       />
 
       {/* {resendStatus === ResendStatus["sent"] && <ResendEmailSuccessBanner />}

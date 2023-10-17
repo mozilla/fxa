@@ -321,7 +321,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
-                contentType="Firefox backup authentication codes"
+                contentType="Backup authentication codes"
               ></DataBlock>
             </div>
           </div>

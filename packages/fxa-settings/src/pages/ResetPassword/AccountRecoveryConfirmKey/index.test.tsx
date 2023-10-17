@@ -100,7 +100,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
     });
 
     screen.getByText(
-      'Please enter the one time use account recovery key you stored in a safe place to regain access to your Firefox Account.'
+      'Please enter the one time use account recovery key you stored in a safe place to regain access to your Mozilla account.'
     );
     screen.getByTestId('warning-message-container');
     screen.getByLabelText('Enter account recovery key');

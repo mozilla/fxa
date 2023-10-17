@@ -42,7 +42,7 @@ describe('Signin', () => {
     // testAllL10n(screen, bundle);
 
     const signinHeader = screen.getByRole('heading', {
-      name: 'Enter your password for your Firefox account',
+      name: 'Enter your password for your Mozilla account',
     });
     const passwordInputForm = screen.getByLabelText('Password');
     const firefoxTermsLink: HTMLElement = screen.getByRole('link', {

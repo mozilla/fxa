@@ -308,7 +308,7 @@ test.describe('severity-1 #smoke', () => {
       const filename = dl.suggestedFilename();
       expect(filename.length).toBeLessThanOrEqual(75);
       expect(filename).toBe(
-        `Firefox-Recovery-Key_${date}_${credentials.email}.pdf`
+        `Mozilla-Recovery-Key_${date}_${credentials.email}.pdf`
       );
 
       // Test uses try/finally to ensure the downloaded file is deleted after tests

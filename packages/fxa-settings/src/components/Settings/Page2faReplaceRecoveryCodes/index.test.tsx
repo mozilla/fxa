@@ -68,7 +68,7 @@ it('renders', async () => {
 
   expect(screen.getByTestId('databutton-download')).toHaveAttribute(
     'download',
-    expect.stringContaining('Firefox backup authentication codes')
+    expect.stringContaining('Backup authentication codes')
   );
   expect(settingsContext.alertBarInfo?.error).not.toBeCalled();
 });

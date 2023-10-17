@@ -187,9 +187,9 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         <VerifiedSessionGuard onDismiss={goHome} onError={goHome} />
         {!confirmed && (
           <div className="my-4 text-sm" data-testid="delete-account-confirm">
-            <Localized id="delete-account-confirm-title-3">
+            <Localized id="delete-account-confirm-title-4">
               <p className="mb-4">
-                You may have connected your Firefox account to one or more of
+                You may have connected your Mozilla account to one or more of
                 the following Mozilla products or services that keep you secure
                 and productive on the web:
               </p>

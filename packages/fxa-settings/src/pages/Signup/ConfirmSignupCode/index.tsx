@@ -255,7 +255,7 @@ const ConfirmSignupCode = ({
       <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Enter confirmation code"
-        headingAndSubheadingFtlId="confirm-signup-code-heading"
+        headingAndSubheadingFtlId="confirm-signup-code-heading-2"
       />
 
       {banner.type && banner.children && (
