@@ -36,6 +36,8 @@ export const purchaseWithDetailsOfferingContentQuery = graphql(`
             emailIcon
             successActionButtonUrl
             successActionButtonLabel
+            newsletterLabelTextCode
+            newsletterSlug
           }
         }
       }
