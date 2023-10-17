@@ -2840,6 +2840,8 @@ export type PurchaseWithDetailsOfferingContentQuery = {
           emailIcon: string | null;
           successActionButtonUrl: string | null;
           successActionButtonLabel: string | null;
+          newsletterLabelTextCode: string | null;
+          newsletterSlug: Array<string | null> | null;
         } | null;
       } | null;
     } | null>;
@@ -3748,6 +3750,20 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                                     name: {
                                       kind: 'Name',
                                       value: 'successActionButtonLabel',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'newsletterLabelTextCode',
+                                    },
+                                  },
+                                  {
+                                    kind: 'Field',
+                                    name: {
+                                      kind: 'Name',
+                                      value: 'newsletterSlug',
                                     },
                                   },
                                 ],
