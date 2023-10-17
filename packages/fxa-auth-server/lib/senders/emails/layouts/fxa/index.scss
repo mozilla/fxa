@@ -9,12 +9,13 @@
   margin: global.$s-0 auto !important;
 }
 
-.fxa-logo {
-  padding: global.$s-5 global.$s-0 !important;
-  height: 60px !important;
+.mozilla-logo {
+  padding: global.$s-10 global.$s-0 !important;
   margin: 0 auto !important;
   display: block !important;
+  align-items: center;
 }
+
 
 .sync-img {
   padding: global.$s-5 global.$s-0 !important;

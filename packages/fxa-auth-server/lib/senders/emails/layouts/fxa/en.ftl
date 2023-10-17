@@ -8,6 +8,5 @@ fxa-header-mozilla-logo = <img data-l10n-name="mozilla-logo" alt="{ -brand-mozil
 fxa-header-sync-devices-image = <img data-l10n-name="sync-devices-image" alt="Sync devices">
 body-devices-image = <img data-l10n-name="devices-image" alt="Devices">
 fxa-privacy-url = { -brand-mozilla } Privacy Policy
-moz-accounts-privacy-url = { -product-mozilla-accounts(capitalization:"uppercase") } Privacy Policy
 fxa-service-url = { -product-firefox-cloud } Terms of Service
 moz-accounts-terms-url = { -product-mozilla-accounts(capitalization:"uppercase") } Terms of Service

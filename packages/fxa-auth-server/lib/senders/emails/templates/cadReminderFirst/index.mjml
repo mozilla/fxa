@@ -11,7 +11,7 @@
     <mj-image width="240px" css-class="graphic-devices" alt="Devices" src="https://accounts-static.cdn.mozilla.net/other/graphic-laptop-mobile.png"></mj-image>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="cadReminderFirst-description-1">Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox. It’s like having magic in your Firefox account!</span>
+      <span data-l10n-id="cadReminderFirst-description-v2">Take your tabs across all your devices. Get your bookmarks, passwords, and other data everywhere you use Firefox.</span>
     </mj-text>
   </mj-column>
 </mj-section>

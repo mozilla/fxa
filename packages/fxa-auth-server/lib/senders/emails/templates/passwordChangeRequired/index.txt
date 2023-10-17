@@ -1,8 +1,8 @@
 passwordChangeRequired-title = "Password Change Required"
 
-passwordChangeRequired-suspicious-activity = "We detected suspicious behavior on your Firefox account. To prevent unauthorized access to your Firefox account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution."
+passwordChangeRequired-suspicious-activity-2 = "We detected suspicious behavior on your Mozilla account. To prevent unauthorized access to your Mozilla account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution."
 
-passwordChangeRequired-sign-in = "Sign back into any device or service where you use your Firefox account and follow the steps that will be presented to you."
+passwordChangeRequired-sign-in-2 = "Sign back into any device or service where you use your Mozilla account and follow the steps that will be presented to you."
 
 passwordChangeRequired-different-password-plaintext = "Important: Pick a different password than what you were previously using and make sure that it is different from your email account."
 

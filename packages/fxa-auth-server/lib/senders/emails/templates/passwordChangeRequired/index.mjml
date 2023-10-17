@@ -13,11 +13,11 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordChangeRequired-suspicious-activity">We detected suspicious behavior on your Firefox account. To prevent unauthorized access to your Firefox account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution.</span>
+      <span data-l10n-id="passwordChangeRequired-suspicious-activity-2">We detected suspicious behavior on your Mozilla account. To prevent unauthorized access to your Mozilla account, we’ve disconnected all devices on your account and are requiring you to change your password as a precaution.</span>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordChangeRequired-sign-in">Sign back into any device or service where you use your Firefox account and follow the steps that will be presented to you.</span>
+      <span data-l10n-id="passwordChangeRequired-sign-in-2">Sign back into any device or service where you use your Mozilla account and follow the steps that will be presented to you.</span>
     </mj-text>
 
     <mj-text css-class="text-body">

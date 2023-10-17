@@ -1,6 +1,6 @@
 recovery-title-2 = "Forgot your password?"
 
-recovery-request-origin = "We received a request for a password change on your Firefox account from:"
+recovery-request-origin-2 = "We received a request for a password change on your Mozilla account from:"
 
 <%- include('/partials/userInfo/index.txt') %>
 

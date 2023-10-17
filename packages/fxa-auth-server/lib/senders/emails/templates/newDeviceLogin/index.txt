@@ -1,4 +1,4 @@
-newDeviceLogin-title-2 = "Your Firefox account was used to sign in"
+newDeviceLogin-title-3 = "Your Mozilla account was used to sign in"
 
 <%- include('/partials/userInfo/index.txt') %>
 

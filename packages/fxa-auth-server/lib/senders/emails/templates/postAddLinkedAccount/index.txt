@@ -1,6 +1,4 @@
-postAddLinkedAccount-subject = "New account linked to Firefox"
-
-postAddLinkedAccount-title = "Your <%- providerName %> account has been linked to your Firefox account"
+postAddLinkedAccount-title-2 = "Your <%- providerName %> account has been linked to your Mozilla account"
 
 <%- include('/partials/userInfo/index.txt') %>
 
