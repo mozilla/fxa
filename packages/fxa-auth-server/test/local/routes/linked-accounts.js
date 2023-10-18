@@ -22,13 +22,14 @@ const makeRoutes = function (options = {}, requireMocks) {
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || mocks.mockMailer();
   const profile = options.profile || mocks.mockProfile();
+  const statsd = options.statsd || { increment: sinon.spy() };
 
   const { linkedAccountRoutes } = proxyquire(
     '../../../lib/routes/linked-accounts',
     requireMocks || {}
   );
 
-  return linkedAccountRoutes(log, db, config, mailer, profile);
+  return linkedAccountRoutes(log, db, config, mailer, profile, statsd);
 };
 
 function runTest(route, request, assertions) {
@@ -41,8 +42,9 @@ function runTest(route, request, assertions) {
   }).then(assertions);
 }
 
-describe('/linked_account', () => {
-  let mockLog, mockDB, mockMailer, mockRequest, route, axiosMock;
+describe('/linked_account', function () {
+  this.timeout(5000);
+  let mockLog, mockDB, mockMailer, mockRequest, route, axiosMock, statsd;
 
   const UID = 'fxauid';
 
@@ -55,7 +57,6 @@ describe('/linked_account', () => {
 
       beforeEach(async () => {
         mockLog = mocks.mockLog();
-        mockLog.info = sinon.spy();
         mockDB = mocks.mockDB({
           email: mockGoogleUser.email,
           uid: UID,
@@ -72,6 +73,7 @@ describe('/linked_account', () => {
             service: 'sync',
           },
         });
+        statsd = { increment: sinon.spy() };
 
         const OAuth2ClientMock = class OAuth2Client {
           verifyIdToken() {
@@ -97,6 +99,7 @@ describe('/linked_account', () => {
               db: mockDB,
               log: mockLog,
               mailer: mockMailer,
+              statsd,
             },
             {
               'google-auth-library': {
@@ -119,6 +122,7 @@ describe('/linked_account', () => {
             db: mockDB,
             log: mockLog,
             mailer: mockMailer,
+            statsd,
           }),
           '/linked_account/login'
         );
@@ -285,7 +289,6 @@ describe('/linked_account', () => {
 
       beforeEach(async () => {
         mockLog = mocks.mockLog();
-        mockLog.info = sinon.spy();
         mockDB = mocks.mockDB({
           email: mockAppleUser.email,
           uid: UID,
@@ -345,6 +348,7 @@ describe('/linked_account', () => {
             db: mockDB,
             log: mockLog,
             mailer: mockMailer,
+            statsd,
           }),
           '/linked_account/login'
         );
@@ -471,7 +475,6 @@ describe('/linked_account', () => {
 
     beforeEach(async () => {
       mockLog = mocks.mockLog();
-      mockLog.info = sinon.spy();
       mockDB = mocks.mockDB({
         email: mockGoogleUser.email,
         uid: UID,
@@ -505,6 +508,7 @@ describe('/linked_account', () => {
             config: mockConfig,
             db: mockDB,
             log: mockLog,
+            statsd,
           },
           {
             'google-auth-library': {
@@ -520,6 +524,97 @@ describe('/linked_account', () => {
       const result = await runTest(route, mockRequest);
       assert.isTrue(mockDB.deleteLinkedAccount.calledOnceWith(UID));
       assert.isTrue(result.success);
+    });
+  });
+
+  describe('/linked_account/webhook/google_event_receiver', () => {
+    let mockLog, mockDB, mockRequest, route;
+
+    function makeJWT(type = 'test') {
+      switch (type) {
+        case 'test':
+          return {
+            iss: 'https://accounts.google.com/',
+            aud: '123456789-abcedfgh.apps.googleusercontent.com',
+            iat: 1508184845,
+            jti: '756E69717565206964656E746966696572',
+            events: {
+              'https://schemas.openid.net/secevent/risc/event-type/verification':
+                {
+                  state: 'Celo',
+                },
+            },
+          };
+        default:
+          // Invalid event type
+          return {
+            iss: 'https://accounts.google.com/',
+            aud: '123456789-abcedfgh.apps.googleusercontent.com',
+            iat: 1508184845,
+            jti: '756E69717565206964656E746966696572',
+            events: {
+              'https://schemas.openid.net/secevent/risc/event-type/unknown': {
+                abc: '123',
+              },
+            },
+          };
+      }
+    }
+
+    function setupTest(options) {
+      mockLog = mocks.mockLog();
+      mockDB = mocks.mockDB();
+      const mockConfig = {
+        googleAuthConfig: { clientId: 'OooOoo' },
+      };
+      mockRequest = mocks.mockRequest({
+        payload: [],
+      });
+
+      route = getRoute(
+        makeRoutes(
+          {
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+            statsd,
+          },
+          {
+            './utils/third-party-events': {
+              validateSecurityToken: () =>
+                options.validateSecurityToken || makeJWT(),
+              isValidClientId: () => true,
+              getGooglePublicKey: () => {},
+            },
+          }
+        ),
+        '/linked_account/webhook/google_event_receiver'
+      );
+    }
+
+    it('handles test event', async () => {
+      setupTest({ validateSecurityToken: makeJWT() });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(mockLog.debug, 'Received test event: Celo');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/verification'
+      );
+    });
+
+    it('handles unknown event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('unknown event') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Received unknown event: https://schemas.openid.net/secevent/risc/event-type/unknown'
+      );
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.unknownEventType.https://schemas.openid.net/secevent/risc/event-type/unknown'
+      );
     });
   });
 });
