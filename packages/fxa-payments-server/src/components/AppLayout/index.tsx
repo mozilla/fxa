@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useContext, useState } from 'react';
 import { AppContext } from '../../lib/AppContext';
+import logo from '../../images/moz-m-logo.svg';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 
@@ -76,9 +77,17 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
       <div className="settings">
         <div id="fxa-settings-header-wrapper">
           <header id="fxa-settings-header">
+            <Localized id="app-logo-alt-3">
+              <img
+                src={logo}
+                data-testid="logo"
+                className="h-10 w-10 ltr:mr-4 rtl:ml-4"
+                alt="Mozilla m logo"
+              />
+            </Localized>
             <h1 id="fxa-manage-account">
-              <Localized id="project-brand">
-                <span className="fxa-account-title">Firefox Accounts</span>
+              <Localized id="settings-project-header-title">
+                <span className="fxa-account-title">Mozilla account</span>
               </Localized>
             </h1>
             {/*

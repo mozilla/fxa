@@ -1,6 +1,6 @@
 import React from 'react';
 import { Profile } from '../../store/types';
-import firefoxLogo from '../../images/firefox-logo-combined.svg';
+import mozillaLogo from '../../images/moz-logo-bw-rgb.svg';
 import { useLocalization } from '@fluent/react';
 
 export type HeaderProps = {
@@ -32,8 +32,8 @@ export const Header = ({ profile, className = 'default' }: HeaderProps) => {
     >
       <div data-testid="branding">
         <img
-          src={firefoxLogo}
-          alt={l10n.getString('brand-name-firefox-logo', null, 'Firefox logo')}
+          src={mozillaLogo}
+          alt={l10n.getString('brand-name-mozilla-logo', null, 'Mozilla logo')}
           className="w-[120px]"
         />
       </div>

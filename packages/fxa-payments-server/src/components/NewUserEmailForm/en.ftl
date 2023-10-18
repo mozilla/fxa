@@ -1,5 +1,6 @@
 ## Component - NewUserEmailForm
 
+# TODO: Remove once new branding sticks
 new-user-sign-in-link = Already have a { -brand-name-firefox } account? <a>Sign in</a>
 new-user-sign-in-link-2 = Already have a { -product-mozilla-account }? <a>Sign in</a>
 # "Required" to indicate that the user must use the checkbox below this text to
