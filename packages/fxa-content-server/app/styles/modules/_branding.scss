@@ -35,6 +35,7 @@
 #mozilla-header {
   width: 100%;
   padding: 0 2rem;
+  margin-bottom: 2rem;
 
   @include respond-to('small') {
     width: auto;
@@ -64,6 +65,9 @@
     padding-top: 3rem;
     margin-bottom: 5rem;
   }
+                                #mozilla-header {
+                                  padding-top: 2rem;
+                                }
 }
 
 .banner-brand-message {
