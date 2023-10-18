@@ -158,8 +158,12 @@ export const KeySvg = (props: { direction: 'rtl' | 'ltr' }) => {
 
 export const MozillaLogoSvg = () => {
   return (
-    <Svg viewBox="0 0 2000 571.9" height="22" preserveAspectRatio="true">
-      <Rect y="0" width="2000" height="571.9" style={{ fill: 'black' }} />
+    <Svg
+      viewBox="0 0 2000 571.9"
+      style={{ height: '22', width: '77' }}
+      preserveAspectRatio="true"
+    >
+      <Rect width="2000" height="571.9" style={{ fill: 'black' }} />
       <Path
         d="M1910.2,410.5c-3.9,1.1-7.2,1.7-10.5,1.7c-11.7,0-17.2-5-17.2-19.4V284.1c0-57.1-45.5-84.9-99.3-84.9
 		c-41.1,0-63.2,5-107.1,22.7l-9.8,57.6l57.1,6.1l8.1-28.2c11.7-6.1,23.3-7.2,38.3-7.2c40.5,0,41.1,30.5,41.1,56v8.3

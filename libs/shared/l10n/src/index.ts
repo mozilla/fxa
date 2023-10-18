@@ -5,6 +5,7 @@ export {
   getLocalizedDateString,
 } from './lib/formatters';
 export { getBundle, getFormattedMsg } from './lib/l10n';
+export * from './lib/determine-direction';
 export * from './lib/determine-locale';
 export * from './lib/localize-timestamp';
 export * from './lib/other-languages';
