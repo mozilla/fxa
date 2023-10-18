@@ -147,6 +147,24 @@ describe('lib/glean', () => {
     });
   });
 
+  describe('initialization error', () => {
+    it('disables Glean', async () => {
+      const config = { ...mockConfig, enabled: true };
+      const initStub = sandbox.stub(Glean, 'initialize').throws();
+      GleanMetrics.initialize(config, mockMetricsContext);
+      sinon.assert.calledOnce(initStub);
+      expect(config.enabled).toBe(false);
+      GleanMetrics.registration.view();
+
+      await new Promise((resovle) =>
+        setTimeout(() => {
+          sinon.assert.notCalled(setuserIdSha256Stub);
+          resovle(undefined);
+        }, 20)
+      );
+    });
+  });
+
   describe('enabled', () => {
     it('calls Glean.initialize when enabled', () => {
       const initStub = sandbox.stub(Glean, 'initialize');
