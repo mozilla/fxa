@@ -698,3 +698,7 @@ export default _.extend({}, Errors, {
     return {};
   },
 });
+
+export const legacyL10nStrings = [
+  t('Firefox Accounts can only be placed into an IFRAME on approved sites'),
+];
