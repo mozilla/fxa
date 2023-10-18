@@ -417,8 +417,8 @@ export const Checkout = ({
           )}
           data-testid="subscription-create"
         >
-          <Localized id="new-user-step-1">
-            <h2 className="mt-10 text-lg">1. Create a Firefox account</h2>
+          <Localized id="new-user-step-1-2">
+            <h2 className="mt-10 text-lg">1. Create a Mozilla account</h2>
           </Localized>
 
           <NewUserEmailForm

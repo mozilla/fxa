@@ -88,14 +88,6 @@ body.settings #stage .settings {
     @include respond-to('big') {
       background-size: 36px auto;
       line-height: 63px;
-
-      html[dir='ltr'] & {
-        padding-left: 48px;
-      }
-
-      html[dir='rtl'] & {
-        padding-right: 48px;
-      }
     }
 
     @include respond-to('small') {
