@@ -200,7 +200,6 @@ Cocktail.mixin(
 
 export const legacyL10nStrings = [
   t('You are now ready to make changes to your Firefox Account.'),
-  t('Firefox Accounts can only be placed into an IFRAME on approved sites'),
 ];
 
 export default View;
