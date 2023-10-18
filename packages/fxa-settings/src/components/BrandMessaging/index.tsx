@@ -98,7 +98,10 @@ export const BrandMessaging = ({
     >
       <div className="flex relative justify-center p-2 brand-banner-bg border border-transparent">
         {mode === 'prelaunch' && (
-          <div className="flex" data-testid="brand-prelaunch">
+          <div
+            className="flex ltr:ml-auto rtl:mr-auto"
+            data-testid="brand-prelaunch"
+          >
             <div className="flex-none relative">
               <Localized id="brand-m-logo" attrs={{ alt: true }}>
                 <img
@@ -134,7 +137,10 @@ export const BrandMessaging = ({
         )}
 
         {mode === 'postlaunch' && (
-          <div className="flex" data-testid="brand-postlaunch">
+          <div
+            className="flex ltr:ml-auto rtl:mr-auto"
+            data-testid="brand-postlaunch"
+          >
             <div>
               <p className="text-sm font-bold">
                 <FtlMsg id="brand-postlaunch-title">
@@ -155,7 +161,7 @@ export const BrandMessaging = ({
             </div>
           </div>
         )}
-        <div className="flex justify-end mx-2 my-1">
+        <div className="flex justify-end mx-2 my-1 ml-auto rtl:justify-left rtl:ml-4 rtl:mr-auto">
           <FtlMsg
             id="brand-banner-dismiss-button-2"
             attrs={{ ariaLabel: true }}

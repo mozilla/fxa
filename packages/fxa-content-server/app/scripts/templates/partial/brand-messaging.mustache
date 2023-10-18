@@ -3,7 +3,7 @@
     <div class="banner-brand-message w-full">
         <div class="flex justify-center p-2 brand-banner-bg">
             {{#showPrelaunch}}
-            <div class="flex">
+            <div class="flex ltr:ml-auto rtl:mr-auto">
                 <div class="flex-none relative">
                     <img
                         class="w-8 h-8 bg-black m-4 mt-1"
@@ -23,7 +23,7 @@
             </div>
             {{/showPrelaunch}}
             {{#showPostlaunch}}
-            <div class="flex"/>
+            <div class="flex ltr:ml-auto rtl:mr-auto"/>
                 <div>
                     <p class="text-sm font-bold">
                         {{#t}}We’ve renamed Firefox accounts to Mozilla accounts. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.{{/t}}
@@ -32,7 +32,7 @@
                 </div>
             </div>
             {{/showPostlaunch}}
-            <div class="flex justify-right order-last rtl:justify-left m-4 mt-1 mb-1">
+            <div class="flex justify-right order-last m-4 mt-1 mb-1 ml-auto rtl:justify-left rtl:ml-4 rtl:mr-auto">
                 <button
                     class="close-brand-banner w-4 h-4"
                     aria-label="{{#t}}Close Banner{{/t}}"
