@@ -92,7 +92,7 @@ describe('views/index', () => {
       return view.render().then(() => {
         assert.include(
           view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
-          'A Firefox account also unlocks access to more privacy-protecting products from Mozilla.'
+          'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.'
         );
       });
     });
@@ -228,7 +228,7 @@ describe('views/index', () => {
           return view.render().then(() => {
             assert.include(
               view.$(Selectors.HEADER).text(),
-              'Continue to Firefox accounts'
+              'Continue to your Mozilla account'
             );
             assert.include(
               view.$(Selectors.SYNC_DESCRIPTION).text(),

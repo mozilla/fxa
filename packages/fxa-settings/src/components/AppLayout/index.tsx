@@ -27,13 +27,7 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1 pt-14">
-          <section>
-            <div className={classNames('card', widthClass)}>{children}</div>
-          </section>
-        </main>
-
-        <footer className="hidden mobileLandscape:block w-full p-8">
+        <div className="w-full">
           <LinkExternal
             rel="author"
             href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
@@ -45,10 +39,15 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
                 null,
                 'Mozilla logo'
               )}
-              className="w-32"
+              className="h-20 p-6 mx-auto mobileLandscape:mx-0"
             />
           </LinkExternal>
-        </footer>
+        </div>
+        <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
+          <section>
+            <div className={classNames('card', widthClass)}>{children}</div>
+          </section>
+        </main>
       </div>
       <div id="body-bottom" className="w-full block mobileLandscape:hidden" />
     </>

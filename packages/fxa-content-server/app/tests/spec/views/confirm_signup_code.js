@@ -94,7 +94,7 @@ describe('views/confirm_signup_code', () => {
       );
       assert.include(
         view.$(Selectors.SUB_HEADER).text(),
-        'for your Firefox account',
+        'for your Mozilla account',
         'has subheader'
       );
       assert.include(

@@ -143,7 +143,7 @@ describe('views/sign_in_password', () => {
       assert.include(view.$(Selectors.HEADER).text(), 'Enter your password');
       assert.include(
         view.$(Selectors.SUB_HEADER_ENTER_PW).text(),
-        'for your Firefox account'
+        'for your Mozilla account'
       );
       assert.lengthOf(view.$('input[type=email]'), 1);
       assert.equal(view.$('input[type=email]').val(), EMAIL);
