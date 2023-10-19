@@ -49,6 +49,7 @@ export function Service({
       Icon = <PocketIcon data-testid="pocket-icon" />;
       break;
     case 'Firefox Monitor':
+    case 'Mozilla Monitor':
       serviceLink = 'https://monitor.firefox.com/';
       Icon = <MonitorIcon data-testid="monitor-icon" />;
       break;
@@ -61,6 +62,7 @@ export function Service({
       Icon = <FPNIcon data-testid="fpn-icon" />;
       break;
     case 'Firefox Relay':
+    case 'Mozilla Relay':
       serviceLink = 'https://relay.firefox.com/';
       Icon = <RelayIcon data-testid="relay-icon" />;
       break;
