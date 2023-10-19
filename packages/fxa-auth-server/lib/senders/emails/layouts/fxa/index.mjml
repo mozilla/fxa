@@ -56,7 +56,7 @@
         <mj-column>
           <mj-text css-class="text-footer">Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105</mj-text>
           <mj-text css-class="text-footer">
-            <a class="link-blue" data-l10n-id="fxa-privacy-url" href="<%- privacyUrl %>">Mozilla Privacy Policy</a>
+            <a class="link-blue" data-l10n-id="moz-accounts-privacy-url-2" href="<%- privacyUrl %>">Mozilla Accounts Privacy Notice</a>
           </mj-text>
           <mj-text css-class="text-footer">
             <a class="link-blue" data-l10n-id="moz-accounts-terms-url" href="https://www.mozilla.org/about/legal/terms/services/">Mozilla Accounts Terms of Service</a>

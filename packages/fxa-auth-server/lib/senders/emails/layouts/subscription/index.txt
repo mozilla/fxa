@@ -44,7 +44,7 @@ subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>
 <% } %>
 <% } else { %>
-subplat-privacy-policy-plaintext = "Mozilla Privacy Policy:"
+subplat-privacy-policy-plaintext-2 = "Mozilla Accounts Privacy Notice:"
 <%- privacyUrl %>
 
 subplat-moz-terms-plaintext = "Mozilla Accounts Terms Of Service:"

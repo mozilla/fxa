@@ -454,9 +454,9 @@ const convictConf = convict({
       env: 'REDIRECT_DOMAIN',
     },
     privacyUrl: {
-      doc: 'url to Mozilla privacy page',
+      doc: 'url to Mozilla Accounts privacy page',
       format: String,
-      default: 'https://www.mozilla.org/privacy',
+      default: 'https://www.mozilla.org/privacy/mozilla-accounts/',
     },
     passwordManagerInfoUrl: {
       doc: 'url to Firefox password manager information',

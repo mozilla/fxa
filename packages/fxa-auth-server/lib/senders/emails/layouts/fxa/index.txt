@@ -4,7 +4,7 @@
 <%- body %>
 Mozilla. 149 New Montgomery St, 4th Floor, San Francisco, CA 94105
 
-fxa-privacy-url = "Mozilla Privacy Policy"
+moz-accounts-privacy-url-2 = "Mozilla Accounts Privacy Notice"
 <%- privacyUrl %>
 
 moz-accounts-terms-url = "Mozilla Accounts Terms of Service"

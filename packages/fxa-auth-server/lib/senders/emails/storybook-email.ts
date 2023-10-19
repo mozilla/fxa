@@ -28,7 +28,7 @@ const commonArgs = {
     'https://apps.apple.com/us/app/firefox-private-safe-browser/id989804926',
   supportUrl:
     'https://support.mozilla.org/kb/im-having-problems-my-firefox-account',
-  privacyUrl: 'https://www.mozilla.org/privacy',
+  privacyUrl: 'https://www.mozilla.org/privacy/mozilla-accounts/',
 };
 
 const subplatCommonArgs = {
