@@ -1669,7 +1669,7 @@ const convictConf = convict({
   totp: {
     serviceName: {
       doc: 'Default service name to appear in authenticator',
-      default: 'Firefox',
+      default: 'Mozilla',
       format: 'String',
       env: 'TOTP_SERVICE_NAME',
     },
