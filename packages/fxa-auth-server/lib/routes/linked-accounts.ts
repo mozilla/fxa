@@ -19,20 +19,30 @@ import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import error from '../error';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import {
+  getGooglePublicKey,
+  isValidClientId,
+  validateSecurityToken,
+  eventHandlers,
+  handleOtherEventType,
+} from './utils/third-party-events';
 
 const HEX_STRING = validators.HEX_STRING;
 
-const appleAud = 'https://appleid.apple.com';
+const APPLE_AUD = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
   private otpUtils: any;
+  private goooglePublicKey: any;
+
   constructor(
     private log: AuthLogger,
     private db: any,
     private config: ConfigType,
     private mailer: any,
-    private profile: ProfileClient
+    private profile: ProfileClient,
+    private statsd: { increment: (value: string) => void }
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
@@ -56,12 +66,66 @@ export class LinkedAccountHandler {
       .setProtectedHeader({ alg: 'ES256', kid: keyId })
       .setIssuedAt()
       .setIssuer(teamId)
-      .setAudience(appleAud)
+      .setAudience(APPLE_AUD)
       .setExpirationTime('1m')
       .setSubject(clientId)
       .sign(ecPrivateKey);
 
     return jwt;
+  }
+
+  async handleGoogleSET(request: AuthRequest) {
+    this.statsd.increment('handleGoogleSET.received');
+
+    const tokenBuffer = request.payload as ArrayBuffer;
+    const token = tokenBuffer.toString();
+
+    if (!this.goooglePublicKey) {
+      this.goooglePublicKey = await getGooglePublicKey(token);
+    }
+
+    try {
+      // We should ignore events from other clients.
+      if (!isValidClientId(token, this.config.googleAuthConfig.clientId)) {
+        this.statsd.increment('handleGoogleSET.mismatchClientId');
+        this.log.debug('handleGoogleSET.mismatchClientId', {
+          clientId: this.config.googleAuthConfig.clientId,
+        });
+        return {};
+      }
+
+      const jwtPayload = await validateSecurityToken(
+        token,
+        this.config.googleAuthConfig.clientId,
+        this.goooglePublicKey
+      );
+      this.statsd.increment('handleGoogleSET.decoded');
+
+      // Process each event type
+      for (const eventType in jwtPayload.events) {
+        if (eventHandlers[eventType as keyof typeof eventHandlers]) {
+          eventHandlers[eventType as keyof typeof eventHandlers](
+            jwtPayload.events[eventType],
+            this.log
+          );
+          this.statsd.increment(`handleGoogleSET.processed.${eventType}`);
+          this.log.debug('handleGoogleSET.processed', {
+            eventType,
+          });
+        } else {
+          // Log that an unknown event type was received and ignore it
+          handleOtherEventType(eventType, this.log);
+          this.statsd.increment(
+            `handleGoogleSET.unknownEventType.${eventType}`
+          );
+        }
+      }
+    } catch (err) {
+      this.statsd.increment('handleGoogleEvent.validationError');
+      throw err;
+    }
+
+    return {};
   }
 
   async loginOrCreateAccount(request: AuthRequest) {
@@ -341,9 +405,17 @@ export const linkedAccountRoutes = (
   db: any,
   config: ConfigType,
   mailer: any,
-  profile: ProfileClient
+  profile: ProfileClient,
+  statsd: any
 ) => {
-  const handler = new LinkedAccountHandler(log, db, config, mailer, profile);
+  const handler = new LinkedAccountHandler(
+    log,
+    db,
+    config,
+    mailer,
+    profile,
+    statsd
+  );
 
   return [
     {
@@ -398,6 +470,19 @@ export const linkedAccountRoutes = (
         },
       },
       handler: (request: AuthRequest) => handler.unlinkAccount(request),
+    },
+    {
+      method: 'POST',
+      path: '/linked_account/webhook/google_event_receiver',
+      options: {
+        payload: {
+          // Security events use the content type application/secevent+jwt,
+          // It isn't clearly documented, but the payload is a JWT buffer.
+          parse: 'gunzip',
+          allow: 'application/secevent+jwt',
+        },
+      },
+      handler: async (request: AuthRequest) => handler.handleGoogleSET(request),
     },
   ];
 };
