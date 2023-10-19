@@ -41,7 +41,12 @@ export const AlertBar = () => {
         role="alert"
         data-testid="alert-bar"
       >
-        <div tabIndex={0} ref={tabFenceRef} data-testid="alert-bar-tab-fence">
+        <div
+          tabIndex={0}
+          ref={tabFenceRef}
+          data-testid="alert-bar-tab-fence"
+          className="outline-none"
+        >
           <div
             data-testid="alert-bar-inner"
             // Transparent border is for Windows HCM - to ensure there is a border around the alert when background color is removed

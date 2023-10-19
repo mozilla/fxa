@@ -68,7 +68,12 @@ export const Modal = ({
           )}
           ref={modalInsideRef}
         >
-          <div tabIndex={0} ref={tabFenceRef} data-testid="modal-tab-fence">
+          <div
+            tabIndex={0}
+            ref={tabFenceRef}
+            data-testid="modal-tab-fence"
+            className="outline-none"
+          >
             <div className="flex justify-end pe-2 py-2">
               <button
                 data-testid="modal-dismiss"
