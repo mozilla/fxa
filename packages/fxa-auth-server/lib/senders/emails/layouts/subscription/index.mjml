@@ -101,7 +101,7 @@
             </mj-text>
           <% } else { %>
             <mj-text css-class="footer-text">
-              <a href="<%- privacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-policy">Mozilla Privacy Policy</a>
+              <a href="<%- privacyUrl %>" class="footer-link" data-l10n-id="subplat-privacy-policy-2">Mozilla Accounts Privacy Notice</a>
                 &nbsp;&nbsp;&bull;&nbsp;&nbsp;
 
               <a href="<%- subscriptionTermsUrl %>" class="footer-link" data-l10n-id="subplat-moz-terms">Mozilla Accounts Terms of Service</a>
