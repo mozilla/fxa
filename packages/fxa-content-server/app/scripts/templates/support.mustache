@@ -1,7 +1,12 @@
 <div id="fxa-settings-header-wrapper">
   <header id="fxa-settings-header">
-    <h1 id="fxa-manage-account" class="text-xl">
-      <span class="fxa-account-title font-bold ltr:mr-2 rtl:ml-2">{{#t}}Mozilla account{{/t}}</span>
+    <h1 class="flex flex-row">
+        <img
+            class="w-8 h-8 bg-black me-4"
+            src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMC43NjkyMjYiIHk9IjAuNzY5MjI2IiB3aWR0aD0iMzAuNDYxNSIgaGVpZ2h0PSIzMC40NjE1IiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjcuNzMxNCAyMC41MDg0SDI5LjY0NDFWMjMuNjE1NEgyMy42MTIxVjE1LjI3NDVDMjMuNjEyMSAxMi42NTY3IDIyLjc3ODEgMTEuNjcyOCAyMS4xNTkyIDExLjY3MjhDMTkuMTk3MiAxMS42NzI4IDE4LjQxMjQgMTMuMTYwOSAxOC40MTI0IDE1LjIxMzlWMjAuNDQ5NkgyMC4zMjUxVjIzLjU2MDRIMTQuMzAwOFYxNS4yNjg5QzE0LjMwMDggMTIuNjUxIDEzLjQ2NjcgMTEuNjY3MSAxMS44NDc4IDExLjY2NzFDOS44ODU4MyAxMS42NjcxIDguNzg4MjUgMTMuMTU1MiA4Ljc4ODI1IDE1LjIwODJWMjAuNDQzOUgxMS44MzY0VjIzLjU2MDRIMy4wMTQxNFYyMC40NTM0SDQuODIyNThWMTIuMzU3MkgyLjkyNjk0VjguNjU0OThIOC4zNzY5VjEwLjk5NDJDOS41MDExOSA5LjMyNDQ0IDExLjM5OTMgOC4zNDMyMiAxMy40MTE3IDguMzkxNDlDMTUuNTIxNCA4LjI3NjQ3IDE3LjQzOTkgOS42MDg1NCAxOC4wNjkzIDExLjYyNTRDMTguNzQ2NyA5LjY0MzQ2IDIwLjYzNSA4LjMzMjg3IDIyLjcyODggOC4zOTE0OUMyNC4xMDE5IDguMzI4NzkgMjUuNDM1MSA4Ljg2MzI2IDI2LjM4NDYgOS44NTcxNkMyNy4zMzQyIDEwLjg1MTEgMjcuODA3MyAxMi4yMDcyIDI3LjY4MjEgMTMuNTc2MVYyMC41MDg0SDI3LjczMTRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+            alt="{{#t}}Mozilla m logo{{/t}}"
+        />
+      <span class="font-bold text-xl">{{#t}}Mozilla account{{/t}}</span>
     </h1>
   </header>
 
@@ -19,12 +24,12 @@
 <div id="fxa-settings">
   <div id="fxa-settings-content" class="card !text-left before:content-none">
 
-    <header id="fxa-settings-profile-header-wrapper">
+    <section id="fxa-settings-profile-header-wrapper">
       <div class="avatar-wrapper avatar-settings-view nohover"></div>
       <div id="fxa-settings-profile-header">
       {{{ unsafeHeaderHTML }}}
       </div>
-    </header>
+    </section>
     <div class="child-views">
       <div class="settings-child-view support">
         <div class="settings-unit">

@@ -226,19 +226,9 @@
     width: 100%;
   }
 
-  #fxa-settings-header-wrapper {
-    flex-direction: row;
-  }
-
-  #fxa-settings-header {
-    flex: 1 1;
-    margin-bottom: 0;
-    width: inherit;
-  }
-
   .breadcrumbs {
-    margin: 0;
-    padding: 0;
+    margin-bottom: 16px;
+    padding: 8px 16px;
   }
 
   .subscription-management .payment-update .payment {

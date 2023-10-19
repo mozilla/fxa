@@ -75,28 +75,22 @@ export const SettingsLayout = ({ children }: { children: ReactNode }) => {
   return (
     <AppLayout>
       <div className="settings">
-        <div id="fxa-settings-header-wrapper">
-          <header id="fxa-settings-header">
-            <Localized id="app-logo-alt-3">
-              <img
-                src={logo}
-                data-testid="logo"
-                className="h-10 w-10 ltr:mr-4 rtl:ml-4"
-                alt="Mozilla m logo"
-              />
+        <header id="fxa-settings-header">
+          <Localized id="app-logo-alt-3">
+            <img
+              src={logo}
+              data-testid="logo"
+              className="h-10 w-10 me-4"
+              alt="Mozilla m logo"
+            />
+          </Localized>
+          <h1 className="text-xl">
+            <Localized id="settings-project-header-title">
+              <span>Mozilla account</span>
             </Localized>
-            <h1 id="fxa-manage-account">
-              <Localized id="settings-project-header-title">
-                <span className="fxa-account-title">Mozilla account</span>
-              </Localized>
-            </h1>
-            {/*
-              * TODO: We can't actually sign out of FxA from here. Maybe back to settings?
-              <button id="signout" className="settings-button secondary-button">Sign out</button>
-              */}
-          </header>
-          {breadcrumbs}
-        </div>
+          </h1>
+        </header>
+        {breadcrumbs}
 
         <div id="fxa-settings" className="mb-12">
           <div id="fxa-settings-content">{children}</div>

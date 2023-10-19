@@ -5,7 +5,6 @@
   left: 0;
   position: absolute;
   width: 100%;
-  z-index: $fox-logo-zindex;
 
   @include respond-to('big') {
     background-size: auto $firefox-standalone-logo-size-large;
