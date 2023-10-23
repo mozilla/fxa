@@ -23,7 +23,11 @@ body {
 
   &.settings {
     justify-content: flex-start;
-    padding: 0;
+    padding-top: 0;
+
+    & #mozilla-header {
+      display:none;
+    }
   }
 
   @include respond-to('small') {
