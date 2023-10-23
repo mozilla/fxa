@@ -290,7 +290,7 @@
   "dependencies": {
     "@fluent/langneg": "^0.6.2",
     "@google-cloud/opentelemetry-cloud-trace-exporter": "^2.1.0",
-    "@mozilla/glean": "^2.0.0",
+    "@mozilla/glean": "^2.0.5",
     "@nestjs/common": "^10.2.4",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.2.4",
