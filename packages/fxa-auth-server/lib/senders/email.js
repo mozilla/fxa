@@ -434,7 +434,7 @@ module.exports = function (log, config, bounces) {
         to,
         template,
       });
-      throw err;
+      return;
     }
 
     if (this.sesConfigurationSet) {
