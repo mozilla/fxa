@@ -14,6 +14,7 @@ import {
 } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 import { FontData, getRequiredFont } from './requiredFont';
+import { determineLocale } from 'fxa-shared/l10n/determineLocale';
 
 export interface LocalizedRecoveryKeyPdfContent {
   heading: string;
@@ -52,7 +53,9 @@ export const ButtonDownloadRecoveryKeyPDF = ({
   const account = useAccount();
   const email = account.primaryEmail.email;
   const keyCreated = Date.now();
-  const currentLanguage = navigator.language;
+  const currentLanguage = determineLocale(
+    window.navigator.languages.join(', ')
+  );
   const ftlMsgResolver = useFtlMsgResolver();
 
   const alertBar = useAlertBar();
