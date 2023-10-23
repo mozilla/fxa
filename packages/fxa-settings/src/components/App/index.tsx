@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { RouteComponentProps, Router } from '@reach/router';
 import { ScrollToTop } from '../Settings/ScrollToTop';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+
 import { currentAccount, sessionToken } from '../../lib/cache';
 import {
   useAccount,
@@ -17,7 +19,6 @@ import * as Metrics from '../../lib/metrics';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 
 import { PageWithLoggedInStatusState } from '../PageWithLoggedInStatusState';
-import Settings from '../Settings';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
@@ -55,6 +56,8 @@ import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/Acc
 import { QueryParams } from '../..';
 import SignupContainer from '../../pages/Signup/container';
 import GleanMetrics from '../../lib/glean';
+
+const Settings = lazy(() => import('../Settings'));
 
 // TODO: FXA-8098
 // export const INITIAL_METRICS_QUERY = gql`
@@ -160,7 +163,9 @@ const SettingsRoutes = (_: RouteComponentProps) => {
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Settings path="/settings/*" />
+        <Suspense fallback={<LoadingSpinner />}>
+          <Settings path="/settings/*" />
+        </Suspense>
       </ScrollToTop>
     </SettingsContext.Provider>
   );
