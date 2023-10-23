@@ -136,7 +136,7 @@ export const BrandMessaging = ({
         {mode === 'postlaunch' && (
           <div className="flex ms-auto" data-testid="brand-postlaunch">
             <div>
-              <p className="text-sm font-bold">
+              <p className="text-start text-xs font-semibold">
                 <FtlMsg id="brand-postlaunch-title">
                   We’ve renamed Firefox accounts to Mozilla accounts. You’ll
                   still sign in with the same username and password, and there
