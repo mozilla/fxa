@@ -58,7 +58,7 @@
     "@types/node": "^18.18.2",
     "@types/node-fetch": "^2.5.7",
     "@types/prettier": "^2",
-    "asmcrypto.js": "^0.22.0",
+    "asmcrypto.js": "^2.3.2",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.2.0",
     "eslint": "^8.38.0",

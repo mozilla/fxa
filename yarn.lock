@@ -22783,13 +22783,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asmcrypto.js@npm:^0.22.0":
-  version: 0.22.0
-  resolution: "asmcrypto.js@npm:0.22.0"
-  checksum: 1fa4fba514443d25a787ee75935ff9a523628956f698987e16fe81519a71d42d3c484a660bb7d3271904f6c211c097cb551408de7d13294a334e9b6c3f00b78a
-  languageName: node
-  linkType: hard
-
 "asmcrypto.js@npm:^2.3.2":
   version: 2.3.2
   resolution: "asmcrypto.js@npm:2.3.2"
@@ -33964,7 +33957,7 @@ fsevents@~2.1.1:
     "@types/prettier": ^2
     abab: ^2.0.6
     abort-controller: ^3.0.0
-    asmcrypto.js: ^0.22.0
+    asmcrypto.js: ^2.3.2
     esbuild: ^0.17.15
     esbuild-register: ^3.2.0
     eslint: ^8.38.0
@@ -34178,7 +34171,7 @@ fsevents@~2.1.1:
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
     "@types/sinon-express-mock": 1.3.9
-    asmcrypto.js: ^0.22.0
+    asmcrypto.js: ^2.3.2
     audit-filter: ^0.5.0
     babel-eslint: ^10.1.0
     babel-loader: ^9.1.3
