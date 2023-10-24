@@ -528,48 +528,85 @@ describe('/linked_account', function () {
   });
 
   describe('/linked_account/webhook/google_event_receiver', () => {
+    const SUB = '7375626A656374';
     let mockLog, mockDB, mockRequest, route;
 
     function makeJWT(type = 'test') {
+      const baseEvent = {
+        iss: 'https://accounts.google.com/',
+        aud: '123456789-abcedfgh.apps.googleusercontent.com',
+        iat: 1508184845,
+        jti: '756E69717565206964656E746966696572',
+      };
+      const event = {
+        subject: {
+          subject_type: 'iss-sub',
+          iss: 'https://accounts.google.com/',
+          sub: SUB,
+        },
+        reason: 'hijacking',
+      };
       switch (type) {
         case 'test':
-          return {
-            iss: 'https://accounts.google.com/',
-            aud: '123456789-abcedfgh.apps.googleusercontent.com',
-            iat: 1508184845,
-            jti: '756E69717565206964656E746966696572',
-            events: {
-              'https://schemas.openid.net/secevent/risc/event-type/verification':
-                {
-                  state: 'Celo',
-                },
-            },
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/verification':
+              { state: 'Celo' },
           };
+          return baseEvent;
+        case 'sessionRevoked':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked':
+              event,
+          };
+          return baseEvent;
+        case 'accountDisabled':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/account-disabled':
+              event,
+          };
+          return baseEvent;
+        case 'accountEnabled':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/account-enabled':
+              event,
+          };
+          return baseEvent;
         default:
           // Invalid event type
-          return {
-            iss: 'https://accounts.google.com/',
-            aud: '123456789-abcedfgh.apps.googleusercontent.com',
-            iat: 1508184845,
-            jti: '756E69717565206964656E746966696572',
-            events: {
-              'https://schemas.openid.net/secevent/risc/event-type/unknown': {
-                abc: '123',
-              },
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/unknown': {
+              abc: '123',
             },
           };
+          return baseEvent;
       }
     }
 
     function setupTest(options) {
       mockLog = mocks.mockLog();
-      mockDB = mocks.mockDB();
+      mockDB = mocks.mockDB({
+        uid: UID,
+        sessions: [
+          {
+            id: 'sessionTokenId1',
+            uid: UID,
+            providerId: 1, // Google based session
+          },
+          {
+            id: 'sessionTokenId2',
+            uid: UID,
+            providerId: null, // FxA based session
+          },
+        ],
+      });
+      mockDB.getLinkedAccount = sinon.spy(() => Promise.resolve({ uid: UID }));
       const mockConfig = {
         googleAuthConfig: { clientId: 'OooOoo' },
       };
       mockRequest = mocks.mockRequest({
         payload: [],
       });
+      statsd = { increment: sinon.spy() };
 
       route = getRoute(
         makeRoutes(
@@ -600,6 +637,60 @@ describe('/linked_account', function () {
       assert.calledWithExactly(
         statsd.increment,
         'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/verification'
+      );
+    });
+
+    it('handles session revoked event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('sessionRevoked') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.getLinkedAccount, SUB, 'google');
+      assert.calledOnceWithExactly(mockDB.sessions, UID);
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: 'fxauid',
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/sessions-revoked'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+    });
+
+    it('handles account disabled event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('accountDisabled') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.getLinkedAccount, SUB, 'google');
+      assert.calledOnceWithExactly(mockDB.sessions, UID);
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: UID,
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-disabled'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+      assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
+    });
+
+    it('handles account enabled event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('accountEnabled') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.notCalled(mockDB.getLinkedAccount);
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-enabled'
       );
     });
 
