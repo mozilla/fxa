@@ -9946,9 +9946,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@mozilla/glean@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@mozilla/glean@npm:2.0.0"
+"@mozilla/glean@npm:^2.0.0, @mozilla/glean@npm:^2.0.5":
+  version: 2.0.5
+  resolution: "@mozilla/glean@npm:2.0.5"
   dependencies:
     fflate: ^0.8.0
     jose: ^4.0.4
@@ -9956,7 +9956,7 @@ __metadata:
     uuid: ^9.0.0
   bin:
     glean: dist/cli/cli.js
-  checksum: a5803e4da00fa391a71b0357d8b50b4af3c87e30fea5f7aa317060570a4d5a7511b2c63c6ff75b0d9bb14e2163a70753733b99fab4cd7cb320218dc08db8faf3
+  checksum: a8e9d536bbdc2eef562fc6fbe42a5ceea27fac933437ac731ac5f2550630e40dd6a42f8de634cd065e3fc2e66071a9ccc7c440f20efa3c7a65dbac34115e50a5
   languageName: node
   linkType: hard
 
@@ -34171,7 +34171,7 @@ fsevents@~2.1.1:
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.22.5
     "@babel/preset-typescript": ^7.22.5
-    "@mozilla/glean": ^2.0.0
+    "@mozilla/glean": ^2.0.5
     "@sentry/browser": ^7.66.0
     "@sentry/node": ^7.66.0
     "@types/backbone": ^1.4.10
@@ -34801,7 +34801,7 @@ fsevents@~2.1.1:
     "@emotion/react": ^11.11.1
     "@emotion/styled": ^11.10.4
     "@material-ui/core": v5.0.0-alpha.24
-    "@mozilla/glean": ^2.0.0
+    "@mozilla/glean": ^2.0.5
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.3
     "@reach/router": ^1.3.4
     "@react-pdf/renderer": ^3.1.12
@@ -34929,7 +34929,7 @@ fsevents@~2.1.1:
   dependencies:
     "@fluent/langneg": ^0.6.2
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
-    "@mozilla/glean": ^2.0.0
+    "@mozilla/glean": ^2.0.5
     "@nestjs/common": ^10.2.4
     "@nestjs/config": ^3.0.0
     "@nestjs/core": ^10.2.4
