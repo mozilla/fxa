@@ -31,24 +31,24 @@
   }
 }
 
-#mozilla-header {
+.mozilla-header {
   width: 100%;
-  padding: 0 2rem;
-  margin-bottom: 2rem;
+  padding: 0 1.5rem;
+  margin-bottom: 1.5rem;
 
   @include respond-to('small') {
     width: auto;
     margin: auto 0;
-    padding-top: 24px;
+    padding-top: 1.5rem;
   }
 }
 #about-mozilla {
   background: image-url('mozilla.svg') no-repeat center center;
   cursor: pointer;
   display: block;
-  height: 32px;
+  height: 2rem;
   transition: opacity $short-transition;
-  width: 128px;
+  width: 7rem;
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS
@@ -64,9 +64,9 @@
     padding-top: 3rem;
     margin-bottom: 5rem;
   }
-                                #mozilla-header {
-                                  padding-top: 2rem;
-                                }
+  .mozilla-header {
+    padding-top: 1.5rem;
+  }
 }
 
 .banner-brand-message {
