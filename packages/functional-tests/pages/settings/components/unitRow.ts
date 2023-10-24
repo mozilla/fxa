@@ -95,11 +95,6 @@ export class RecoveryKeyRow extends UnitRow {
       .getByRole('button', { name: 'Delete account recovery key' })
       .click();
   }
-
-  // TODO FXA-7419 delete this function
-  clickRemove() {
-    return this.clickShowModal();
-  }
 }
 
 export class TotpRow extends UnitRow {

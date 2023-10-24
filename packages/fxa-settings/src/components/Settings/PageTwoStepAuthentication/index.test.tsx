@@ -85,7 +85,7 @@ describe('step 1', () => {
     });
     expect(screen.getByTestId('flow-container')).toBeInTheDocument();
     expect(screen.getByTestId('flow-container-back-btn')).toBeInTheDocument();
-    expect(screen.getByTestId('totp-input-field')).toBeInTheDocument();
+    expect(screen.getByTestId('totp-input')).toBeInTheDocument();
     expect(screen.getByTestId('submit-totp')).toBeInTheDocument();
   });
 
@@ -403,7 +403,7 @@ describe('back button', () => {
     await act(async () => {
       await fireEvent.click(screen.getByTestId('flow-container-back-btn'));
     });
-    expect(screen.getByTestId('totp-input-field')).toBeInTheDocument();
+    expect(screen.getByTestId('totp-input')).toBeInTheDocument();
     expect(screen.getByTestId('submit-totp')).toBeInTheDocument();
   });
 });

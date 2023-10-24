@@ -69,28 +69,4 @@ test.describe('severity-2 #smoke', () => {
     await page.keyboard.press('Escape');
     await expect(settings.bentoMenu).toBeHidden();
   });
-
-  // TODO in FXA-7419 - delete this test, no longer needed with new flow
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293423
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293440
-  test('settings data-trio component works #1293423 #1293440', async ({
-    credentials,
-    pages: { configPage, settings, recoveryKey },
-  }) => {
-    const config = await configPage.getConfig();
-    if (config.featureFlags.showRecoveryKeyV2 !== true) {
-      await settings.goto();
-      await settings.recoveryKey.clickCreate();
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
-      const dl = await recoveryKey.dataTrio.clickDownload();
-      expect(dl.suggestedFilename()).toBe(
-        `${credentials.email} Firefox account recovery key.txt`
-      );
-      const clipboard = await recoveryKey.dataTrio.clickCopy();
-      expect(clipboard).toEqual(await recoveryKey.getKey());
-      const printed = await recoveryKey.dataTrio.clickPrint();
-      expect(printed).toBe(true);
-    }
-  });
 });

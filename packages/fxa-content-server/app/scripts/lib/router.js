@@ -280,24 +280,6 @@ Router = Router.extend({
     'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
     'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
     'pair/unsupported(/)': createViewHandler('pair/unsupported'),
-    'post_verify/account_recovery/add_recovery_key': createViewHandler(
-      'post_verify/account_recovery/add_recovery_key'
-    ),
-    'post_verify/account_recovery/confirm_password': createViewHandler(
-      'post_verify/account_recovery/confirm_password'
-    ),
-    'post_verify/account_recovery/confirm_recovery_key': createViewHandler(
-      'post_verify/account_recovery/confirm_recovery_key'
-    ),
-    'post_verify/account_recovery/save_recovery_key': createViewHandler(
-      'post_verify/account_recovery/save_recovery_key'
-    ),
-    'post_verify/account_recovery/verified_recovery_key': createViewHandler(
-      'post_verify/verified',
-      {
-        type: VerificationReasons.RECOVERY_KEY,
-      }
-    ),
     'post_verify/finish_account_setup/set_password': createViewHandler(
       'post_verify/finish_account_setup/set_password'
     ),

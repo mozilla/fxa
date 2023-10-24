@@ -17,9 +17,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('bounced email', async ({ target, page, pages: { login } }) => {
       const client = await login.getFxaClient(target);
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutFirstSignUp(email, PASSWORD);
 
       await client.accountDestroy(email, PASSWORD);

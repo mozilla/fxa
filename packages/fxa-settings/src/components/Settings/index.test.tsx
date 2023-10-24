@@ -170,17 +170,6 @@ describe('App component', () => {
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
 
-  it('routes to PageRecoveryKeyAdd', async () => {
-    const {
-      getByTestId,
-      history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
-
-    await navigate(HomePath + '/account_recovery');
-
-    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
-  });
-
   it('routes to PageSecondaryEmailAdd', async () => {
     const {
       getByTestId,
@@ -211,7 +200,7 @@ describe('App component', () => {
 
     await navigate(HomePath + '/two_step_authentication');
 
-    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
+    expect(getByTestId('totp-input')).toBeInTheDocument();
   });
 
   it('routes to Page2faReplaceRecoveryCodes', async () => {
@@ -295,7 +284,7 @@ describe('App component', () => {
       ));
     });
 
-    it('redirects PageRecoveryKeyAdd', async () => {
+    it('redirects PageRecoveryKeyCreate', async () => {
       await history.navigate(HomePath + '/account_recovery');
       expect(history.location.pathname).toBe('/settings');
     });

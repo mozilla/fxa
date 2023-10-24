@@ -70,7 +70,6 @@ const settingsConfig = {
     count: config.get('recovery_codes.count'),
     length: config.get('recovery_codes.length'),
   },
-  showRecoveryKeyV2: config.get('featureFlags.showRecoveryKeyV2'),
   googleAuthConfig: config.get('googleAuthConfig'),
   appleAuthConfig: config.get('appleAuthConfig'),
   brandMessagingMode: config.get('brandMessagingMode'),

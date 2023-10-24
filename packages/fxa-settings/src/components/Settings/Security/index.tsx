@@ -36,11 +36,7 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   );
 };
 
-export const Security = ({
-  showRecoveryKeyV2,
-}: {
-  showRecoveryKeyV2?: boolean;
-}) => {
+export const Security = () => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
@@ -85,7 +81,7 @@ export const Security = ({
         </Localized>
         <hr className="unit-row-hr" />
 
-        <UnitRowRecoveryKey {...{ showRecoveryKeyV2 }} />
+        <UnitRowRecoveryKey />
         <hr className="unit-row-hr" />
         <UnitRowTwoStepAuth />
 

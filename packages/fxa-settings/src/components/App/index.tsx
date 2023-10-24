@@ -87,9 +87,6 @@ export const App = ({
   const integration = useIntegration();
   const { metricsEnabled } = account;
 
-  // TODO Remove feature flag in FXA-7419
-  const showRecoveryKeyV2 = config.showRecoveryKeyV2;
-
   useMemo(() => {
     GleanMetrics.initialize(
       {
@@ -150,16 +147,12 @@ export const App = ({
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes path="/*" />
-      <SettingsRoutes path="/settings/*" {...{ showRecoveryKeyV2 }} />
+      <SettingsRoutes path="/settings/*" />
     </Router>
   );
 };
 
-const SettingsRoutes = ({
-  showRecoveryKeyV2,
-}: {
-  showRecoveryKeyV2?: boolean;
-} & RouteComponentProps) => {
+const SettingsRoutes = (_: RouteComponentProps) => {
   // TODO: FXA-8098
   // const { loading, error } = useInitialSettingsState();
   const settingsContext = initializeSettingsContext();
@@ -167,7 +160,7 @@ const SettingsRoutes = ({
   return (
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
-        <Settings path="/settings/*" {...{ showRecoveryKeyV2 }} />
+        <Settings path="/settings/*" />
       </ScrollToTop>
     </SettingsContext.Provider>
   );

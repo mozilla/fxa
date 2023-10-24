@@ -44,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
       credentials.password = newPassword;
       await login.setEmail(credentials.email);
-      await changePassword.clickSignIn();
+      await login.clickSubmit();
       await login.setPassword(credentials.password);
       await login.submit();
       const primaryEmail = await settings.primaryEmail.statusText();

@@ -214,12 +214,6 @@ const conf = (module.exports = convict({
         format: 'int',
       },
     },
-    showRecoveryKeyV2: {
-      default: false,
-      doc: 'Enable users to see the new recovery key flow in settings',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2',
-    },
   },
   showReactApp: {
     simpleRoutes: {
