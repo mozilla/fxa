@@ -6,6 +6,12 @@
 
 const { config } = require('../config');
 
+const { CapabilityManager } = require('@fxa/payments/capability');
+const {
+  ContentfulClient,
+  ContentfulManager,
+} = require('@fxa/shared/contentful');
+
 // Must be required and initialized right away
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 TracingProvider.init(
@@ -103,6 +109,26 @@ async function run(config) {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
+    if (
+      config.contentful &&
+      config.contentful.cdnApiUri &&
+      config.contentful.graphqlUrl &&
+      config.contentful.apiKey &&
+      config.contentful.spaceId &&
+      config.contentful.environment
+    ) {
+      const contentfulClient = new ContentfulClient({
+        cdnApiUri: config.contentful.cdnApiUri,
+        graphqlApiUri: config.contentful.graphqlUrl,
+        graphqlApiKey: config.contentful.apiKey,
+        graphqlSpaceId: config.contentful.spaceId,
+        graphqlEnvironment: config.contentful.environment,
+      });
+      const contentfulManager = new ContentfulManager(contentfulClient);
+      const capabilityManager = new CapabilityManager(contentfulManager);
+      Container.set(CapabilityManager, capabilityManager);
+    }
+
     const { createStripeHelper } = require('../lib/payments/stripe');
     stripeHelper = createStripeHelper(log, config, statsd);
     Container.set(StripeHelper, stripeHelper);

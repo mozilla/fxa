@@ -8,3 +8,4 @@ export * from './lib/contentful.error';
 export * from './lib/contentful.manager';
 export * from './lib/factories';
 export * from './lib/queries/eligibility-content-by-plan-ids';
+export * from './lib/queries/services-with-capabilities';

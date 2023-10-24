@@ -5,23 +5,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { ContentfulClient } from './contentful.client';
 import { ContentfulManager } from './contentful.manager';
-import { EligibilityContentByPlanIdsQueryFactory } from './factories';
-
-jest.mock('./contentful.client');
-
+import {
+  EligibilityContentByPlanIdsQueryFactory,
+  ServicesWithCapabilitiesQueryFactory,
+} from './factories';
+import {
+  EligibilityContentByPlanIdsResultUtil,
+  ServicesWithCapabilitiesResultUtil,
+} from '../../src';
 describe('ContentfulManager', () => {
   let manager: ContentfulManager;
   let mockClient: ContentfulClient;
 
   beforeEach(async () => {
-    (ContentfulClient as jest.Mock).mockClear();
-    mockClient = new ContentfulClient({
-      cdnApiUri: 'test',
-      graphqlApiKey: 'test',
-      graphqlApiUri: 'test',
-      graphqlEnvironment: 'test',
-      graphqlSpaceId: 'test',
-    });
+    mockClient = {} as any;
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: ContentfulClient, useValue: mockClient },
@@ -38,8 +35,13 @@ describe('ContentfulManager', () => {
 
   describe('getPurchaseDetailsForEligibility', () => {
     it('should return empty result', async () => {
+      mockClient.query = jest.fn().mockReturnValue({
+        data: {
+          purchaseCollection: { items: [] },
+        },
+      });
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
-      expect(result).toBeDefined();
+      expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(result.purchaseCollection.items).toHaveLength(0);
     });
 
@@ -48,11 +50,32 @@ describe('ContentfulManager', () => {
       mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
       const planId = result.purchaseCollection.items[0].stripePlanChoices[0];
-      expect(result).toBeDefined();
+      expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(
         result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
       ).toHaveLength(1);
       expect(result.offeringForPlanId(planId)).toBeDefined();
+    });
+  });
+
+  describe('getServicesWithCapabilities', () => {
+    it('should return results', async () => {
+      mockClient.query = jest.fn().mockReturnValue({
+        data: {
+          serviceCollection: { items: [] },
+        },
+      });
+      const result = await manager.getServicesWithCapabilities();
+      expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
+      expect(result.serviceCollection.items).toHaveLength(0);
+    });
+
+    it('should return successfully with services and capabilities', async () => {
+      const queryData = ServicesWithCapabilitiesQueryFactory();
+      mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
+      const result = await manager.getServicesWithCapabilities();
+      expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
+      expect(result.serviceCollection.items).toHaveLength(1);
     });
   });
 });

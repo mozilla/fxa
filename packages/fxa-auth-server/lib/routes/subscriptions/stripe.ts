@@ -1,6 +1,9 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import _ from 'lodash';
+import { CapabilityManager } from '@fxa/payments/capability';
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
@@ -8,6 +11,7 @@ import { SeverityLevel } from '@sentry/types';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
+  ClientIdCapabilityMap,
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
@@ -39,7 +43,10 @@ import { AuthLogger, AuthRequest, TaxAddress } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import { generateIdempotencyKey } from '../../payments/utils';
+import {
+  clientIdCapabilityMapFromMetadata,
+  generateIdempotencyKey,
+} from '../../payments/utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
@@ -80,6 +87,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
+  capabilityManager?: CapabilityManager;
   capabilityService: CapabilityService;
 
   constructor(
@@ -96,7 +104,9 @@ export class StripeHandler {
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
-
+    if (Container.has(CapabilityManager)) {
+      this.capabilityManager = Container.get(CapabilityManager);
+    }
     this.capabilityService = Container.get(CapabilityService);
   }
 
@@ -141,15 +151,12 @@ export class StripeHandler {
   /**
    * Retrieve the client capabilities
    */
-  async getClients(request: AuthRequest) {
-    this.log.begin('subscriptions.getClients', request);
-    const capabilitiesByClientId: { [clientId: string]: string[] } = {};
+  async getClientsFromStripe() {
+    let result: ClientIdCapabilityMap = {};
 
-    const plans = await this.stripeHelper.allAbbrevPlans();
     const planConfigs = await this.stripeHelper.allMergedPlanConfigs();
-
     const capabilitiesForAll: string[] = [];
-    for (const plan of plans) {
+    for (const plan of await this.stripeHelper.allAbbrevPlans()) {
       const metadata = metadataFromPlan(plan);
       const pConfig = planConfigs?.[plan.plan_id] || {};
 
@@ -158,38 +165,75 @@ export class StripeHandler {
         ...(pConfig.capabilities?.[ALL_RPS_CAPABILITIES_KEY] || [])
       );
 
-      const capabilityKeys = Object.keys(metadata).filter((key) =>
-        key.startsWith('capabilities:')
+      result = ClientIdCapabilityMap.merge(
+        result,
+        clientIdCapabilityMapFromMetadata(metadata || {}, 'capabilities:')
       );
-      for (const key of capabilityKeys) {
-        const clientId = key.split(':')[1];
-        const capabilities = commaSeparatedListToArray((metadata as any)[key]);
-        capabilitiesByClientId[clientId] = (
-          capabilitiesByClientId[clientId] || []
-        ).concat(capabilities);
-      }
+
       if (pConfig.capabilities) {
         Object.keys(pConfig.capabilities)
           .filter((x) => x !== ALL_RPS_CAPABILITIES_KEY)
           .forEach(
             (clientId) =>
-              (capabilitiesByClientId[clientId] = (
-                capabilitiesByClientId[clientId] || []
-              ).concat(pConfig.capabilities?.[clientId]))
+              (result[clientId] = (result[clientId] || []).concat(
+                pConfig.capabilities?.[clientId]
+              ))
           );
       }
     }
 
-    return Object.entries(capabilitiesByClientId).map(
-      ([clientId, capabilities]) => {
-        // Merge dupes with Set
-        const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
-        return {
-          clientId,
-          capabilities: [...capabilitySet],
-        };
+    return Object.entries(result).map(([clientId, capabilities]) => {
+      // Merge dupes with Set
+      const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
+      return {
+        clientId,
+        capabilities: [...capabilitySet],
+      };
+    });
+  }
+
+  async getClients(request: AuthRequest) {
+    this.log.begin('subscriptions.getClients', request);
+
+    const clientsFromStripe = await this.getClientsFromStripe();
+
+    if (!this.capabilityManager) {
+      Sentry.withScope((scope) => {
+        scope.setContext('getClients', {
+          msg: `CapabilityManager not found.`,
+        });
+        Sentry.captureMessage(
+          `CapabilityManager not found.`,
+          'error' as SeverityLevel
+        );
+      });
+
+      return clientsFromStripe;
+    }
+
+    try {
+      const clientsFromContentful = await this.capabilityManager.getClients();
+
+      if (_.isEqual(clientsFromContentful, clientsFromStripe)) {
+        return clientsFromContentful;
       }
-    );
+
+      Sentry.withScope((scope) => {
+        scope.setContext('getClients', {
+          contentful: clientsFromContentful,
+          stripe: clientsFromStripe,
+        });
+        Sentry.captureMessage(
+          `Returned Stripe as clients did not match.`,
+          'error' as SeverityLevel
+        );
+      });
+
+      return clientsFromStripe;
+    } catch (error) {
+      this.log.error('subscriptions.getClients', { error: error });
+      throw error;
+    }
   }
 
   async deleteSubscription(request: AuthRequest) {
