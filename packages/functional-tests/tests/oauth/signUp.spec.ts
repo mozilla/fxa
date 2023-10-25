@@ -80,10 +80,11 @@ test.describe('severity-1 #smoke', () => {
       target,
       page,
       pages: { relier },
-    }) => {
-      await page.goto(
-        `${target.contentServerUrl}/oauth/success/dcdb5ae7add825d2`
-      );
+    }, { project }) => {
+      // Our production clientId for 123Done is different from localhost and stage
+      const clientId =
+        project.name === 'production' ? '3c32bf6654542211' : 'dcdb5ae7add825d2';
+      await page.goto(`${target.contentServerUrl}/oauth/success/${clientId}`);
 
       //Verify oauth success header
       expect(await relier.isOauthSuccessHeader()).toBe(true);
