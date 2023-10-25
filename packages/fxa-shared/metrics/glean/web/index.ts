@@ -54,4 +54,9 @@ export const eventsMap = {
     submit: 'login_totp_code_submit',
     success: 'login_totp_code_success_view',
   },
+
+  resetPassword: {
+    view: 'password_reset_view',
+    submit: 'password_reset_submit',
+  },
 };
