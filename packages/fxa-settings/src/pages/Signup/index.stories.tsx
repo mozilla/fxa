@@ -6,7 +6,6 @@ import React from 'react';
 import Signup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
-import { MozServices } from '../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   createMockSignupOAuthIntegration,
@@ -18,6 +17,10 @@ import {
 import { SignupProps } from './interfaces';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { mockUrlQueryData } from '../../models/mocks';
+import {
+  MONITOR_CLIENTIDS,
+  POCKET_CLIENTIDS,
+} from '../../models/integrations/client-matching';
 
 export default {
   title: 'Pages/Signup',
@@ -51,11 +54,11 @@ export const CantChangeEmail = storyWithProps({
 });
 
 export const ClientIsPocket = storyWithProps({
-  integration: createMockSignupOAuthIntegration(MozServices.Pocket),
+  integration: createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0]),
 });
 
 export const ClientIsMonitor = storyWithProps({
-  integration: createMockSignupOAuthIntegration(MozServices.FirefoxMonitor),
+  integration: createMockSignupOAuthIntegration(MONITOR_CLIENTIDS[0]),
 });
 
 export const ChooseWhatToSyncIsEnabled = storyWithProps({

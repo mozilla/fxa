@@ -9,7 +9,11 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { useMutation } from '@apollo/client';
-import { BeginSignupHandler, BeginSignupResponse } from './interfaces';
+import {
+  BeginSignUpOptions,
+  BeginSignupHandler,
+  BeginSignupResponse,
+} from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
 import { useCallback, useEffect, useState } from 'react';
 import { getCredentials } from 'fxa-auth-client/lib/crypto';
@@ -20,6 +24,7 @@ import {
   composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { MozServices } from '../../lib/types';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -80,9 +85,14 @@ const SignupContainer = ({
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
   const beginSignupHandler: BeginSignupHandler = useCallback(
-    async (email, password, options) => {
-      options.verificationMethod = 'email-otp';
-      options.keys = isOAuthIntegration(integration);
+    async (email, password) => {
+      const service = integration.getService();
+      const options: BeginSignUpOptions = {
+        verificationMethod: 'email-otp',
+        // keys must be true to receive keyFetchToken for oAuth
+        keys: isOAuthIntegration(integration),
+        service: service !== MozServices.Default ? service : undefined,
+      };
       try {
         const { authPW, unwrapBKey } = await getCredentials(email, password);
         const { data } = await beginSignup({

@@ -11,7 +11,6 @@ import {
   useFtlMsgResolver,
 } from '../../models';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
 import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
@@ -35,16 +34,13 @@ import {
 import { sessionToken } from '../../lib/cache';
 import GleanMetrics from '../../lib/glean';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import {
+  isClientMonitor,
+  isClientPocket,
+} from '../../models/integrations/client-matching';
+import { MozServices } from '../../lib/types';
 
 export const viewName = 'signup';
-
-// TODO, confirm this is how we want to check for Relying Parties (Monitor/Pocket)
-// There's a similar TODO in CardHeader. FXA-8290
-const isPocketClient = (serviceName: string) =>
-  serviceName.includes(MozServices.Pocket);
-
-const isMonitorClient = (serviceName: string) =>
-  serviceName.includes(MozServices.FirefoxMonitor);
 
 const Signup = ({
   integration,
@@ -52,17 +48,6 @@ const Signup = ({
   beginSignupHandler,
 }: SignupProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
-  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
-  useEffect(() => {
-    (async () => {
-      // TODO: remove async requirements from relier, FXA-6836. This causes some
-      // unnecessary rerenders with banner state (`useReducer` does not help)
-      const serviceName = await integration.getServiceName();
-      setServiceName(serviceName);
-      setIsAccountSuggestionBannerVisible(isPocketClient(serviceName));
-    })();
-  });
 
   useEffect(() => {
     GleanMetrics.registration.view();
@@ -83,6 +68,20 @@ const Signup = ({
   ] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const [client, setClient] = useState<MozServices | undefined>(undefined);
+
+  useEffect(() => {
+    if (isOAuthIntegration(integration)) {
+      const clientId = integration.getService();
+      if (isClientPocket(clientId)) {
+        setClient(MozServices.Pocket);
+        setIsAccountSuggestionBannerVisible(true);
+      }
+      if (isClientMonitor(clientId)) {
+        setClient(MozServices.FirefoxMonitor);
+      }
+    }
+  }, [integration]);
 
   // prefill selected sync engines based on defaultChecked state
   const initialSyncEnginesList: string[] = engines
@@ -148,15 +147,10 @@ const Signup = ({
       }
       setBeginSignupLoading(true);
 
-      const options =
-        serviceName !== MozServices.Default ? { service: serviceName } : {};
       const { data, error } = await beginSignupHandler(
         queryParamModel.email,
-        newPassword,
-        options
+        newPassword
       );
-
-      setBeginSignupLoading(false);
 
       if (data) {
         // Persist account data to local storage to match parity with content-server
@@ -199,6 +193,8 @@ const Signup = ({
       if (error) {
         const { message, ftlId } = error;
         setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+        // if the request errored, loading state must be marked as false to reenable submission
+        setBeginSignupLoading(false);
       }
     },
     [
@@ -206,7 +202,6 @@ const Signup = ({
       ftlMsgResolver,
       navigate,
       selectedNewsletterSlugs,
-      serviceName,
       queryParamModel.email,
       location.search,
       integration,
@@ -283,6 +278,9 @@ const Signup = ({
                 // for more info.
                 params.delete('emailFromContent');
                 params.delete('email');
+                // make sure the user returns to the React flow after changing the email
+                params.set('forceExperiment', 'generalizedReactApp');
+                params.set('forceExperimentGroup', 'react');
                 hardNavigateToContentServer(`/?${params.toString()}`);
               }}
             >
@@ -360,8 +358,8 @@ const Signup = ({
       </FormPasswordWithBalloons>
 
       <TermsPrivacyAgreement
-        isPocketClient={isPocketClient(serviceName)}
-        isMonitorClient={isMonitorClient(serviceName)}
+        isPocketClient={client === MozServices.Pocket}
+        isMonitorClient={client === MozServices.FirefoxMonitor}
       />
     </AppLayout>
   );

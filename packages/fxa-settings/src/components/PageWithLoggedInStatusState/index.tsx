@@ -5,6 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { Integration, useInitialSettingsState } from '../../models';
 import { RouteComponentProps } from '@reach/router';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 // TODO: revisit this component in FXA-8098, do we need it?
 // We should at least see if we want to check for `isSync()` instead
@@ -32,18 +33,22 @@ export const PageWithLoggedInStatusState = (
     } else if (!loading && !error) {
       setIsSignedIn(true);
     }
-    try {
-      if (integration.data.service === 'sync') {
-        setIsSync(true);
-      } else {
-        setIsSync(false);
-      }
-      setServiceName(integration.data.service);
-    } catch {
+    if (integration.data.service === 'sync') {
+      setIsSync(true);
+    } else {
       setIsSync(false);
+      (async () => {
+        const name = await integration.getServiceName();
+        setServiceName(name);
+      })();
     }
   }, [error, loading, integration, setIsSync, isSync]);
 
+  if (loading) {
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  }
   return (
     // TODO: ResetPasswordConfirmed needs 'integration' but could also just take the
     // serviceName if we use integration.serviceName. Look @ in FXA-8098
