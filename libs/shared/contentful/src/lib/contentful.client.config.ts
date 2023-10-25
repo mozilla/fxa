@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsString, IsUrl } from 'class-validator';
+import { IsNumber, IsString, IsUrl } from 'class-validator';
 
 export class ContentfulClientConfig {
   @IsUrl()
@@ -19,4 +19,7 @@ export class ContentfulClientConfig {
 
   @IsString()
   public readonly graphqlEnvironment!: string;
+
+  @IsNumber()
+  public readonly cacheTTL?: number;
 }
