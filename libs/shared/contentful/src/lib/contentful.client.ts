@@ -23,6 +23,8 @@ import {
 } from './contentful.error';
 import { ContentfulErrorResponse } from './types';
 
+const DEFAULT_CACHE_TTL = 300000; // Milliseconds
+
 @Injectable()
 export class ContentfulClient {
   client = new ApolloClient({
@@ -31,7 +33,9 @@ export class ContentfulClient {
   });
   private locales: string[] = [];
 
-  constructor(private contentfulClientConfig: ContentfulClientConfig) {}
+  constructor(private contentfulClientConfig: ContentfulClientConfig) {
+    this.setupCacheBust();
+  }
 
   async getLocale(acceptLanguage: string): Promise<string> {
     const contentfulLocales = await this.getLocales();
@@ -123,5 +127,14 @@ export class ContentfulClient {
         );
       })
     );
+  }
+
+  private setupCacheBust() {
+    const cacheTTL = this.contentfulClientConfig.cacheTTL || DEFAULT_CACHE_TTL;
+
+    setInterval(() => {
+      this.locales = [];
+      this.client.clearStore();
+    }, cacheTTL);
   }
 }
