@@ -808,11 +808,19 @@ module.exports = function (log, config, bounces) {
     };
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      const clientName = clientInfo.name;
+      let clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
       );
+
+      /**
+       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
+       * the service is not sync we must be more general. A user could be signing directly into settings.
+       */
+      if (clientName === 'Firefox' && message.service !== 'sync') {
+        clientName = 'Mozilla';
+      }
 
       return this.send({
         ...message,
@@ -875,7 +883,15 @@ module.exports = function (log, config, bounces) {
       'X-Signin-Verify-Code': message.code,
     };
 
-    const { name: serviceName } = await oauthClientInfo.fetch(message.service);
+    let { name: serviceName } = await oauthClientInfo.fetch(message.service);
+
+    /**
+     * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
+     * the service is not sync we must be more general. A user could be signing directly into settings.
+     */
+    if (serviceName === 'Firefox' && message.service !== 'sync') {
+      serviceName = 'Mozilla';
+    }
 
     return this.send({
       ...message,
@@ -1201,11 +1217,19 @@ module.exports = function (log, config, bounces) {
     };
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      const clientName = clientInfo.name;
+      let clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
       );
+
+      /**
+       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
+       * the service is not sync we must be more general. A user could be signing directly into settings.
+       */
+      if (clientName === 'Firefox' && message.service !== 'sync') {
+        clientName = 'Mozilla';
+      }
 
       return this.send({
         ...message,
