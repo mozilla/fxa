@@ -56,7 +56,7 @@ export enum Proc {
   ResetAccount = 'resetAccount_16',
   ResetAccountTokens = 'resetAccountTokens_1',
   SessionWithDevice = 'sessionWithDevice_19',
-  Sessions = 'sessions_12',
+  Sessions = 'sessions_13',
   SetPrimaryEmail = 'setPrimaryEmail_6',
   TotpToken = 'totpToken_2',
   UpdateDevice = 'updateDevice_6',

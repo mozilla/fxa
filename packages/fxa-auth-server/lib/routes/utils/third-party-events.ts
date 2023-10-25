@@ -5,6 +5,7 @@
 import jwt from 'jsonwebtoken';
 import { jwk2pem } from 'pem-jwk';
 import axios from 'axios';
+import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
 
 const RISC_CONFIG_URI =
   'https://accounts.google.com/.well-known/risc-configuration';
@@ -31,15 +32,87 @@ export type JWTSETPayload = {
   events: SETEvents;
 };
 
+async function getUidFromSub(sub: string, db: any, provider: Provider) {
+  const { uid } = await db.getLinkedAccount(sub, provider);
+  return uid;
+}
+async function revokeThirdPartySessions(
+  uid: string,
+  provider: Provider,
+  log: any,
+  db: any
+) {
+  const sessions = await db.sessions(uid);
+
+  // Revoke all sessions created from third party logins
+  let deletedCount = 0;
+  for (const session of sessions) {
+    if (session.providerId === PROVIDER[provider]) {
+      await db.deleteSessionToken(session);
+      deletedCount++;
+    }
+  }
+
+  log.debug(`Revoked ${deletedCount} third party sessions for user ${uid}`);
+}
+
 // See events at https://developers.google.com/identity/protocols/risc#supported_event_types
 export const eventHandlers = {
   'https://schemas.openid.net/secevent/risc/event-type/verification':
     handleTestEvent,
+  'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked':
+    handleSessionsRevokedEvent,
+  'https://schemas.openid.net/secevent/risc/event-type/account-disabled':
+    handleAccountDisabledEvent,
+  'https://schemas.openid.net/secevent/risc/event-type/account-enabled':
+    handleAccountEnabledEvent,
 };
 
 function handleTestEvent(eventDetails: SETEvent, log: any) {
   log.debug(`Received test event: ${eventDetails.state}`);
 }
+
+/**
+ * Handle the sessions revoked event. Google recommends that we revoke all third
+ * party sessions.
+ *
+ * @param eventDetails
+ * @param log
+ * @param db
+ */
+async function handleSessionsRevokedEvent(
+  eventDetails: SETEvent,
+  log: any,
+  db: any
+) {
+  const { sub } = eventDetails.subject;
+  const uid = await getUidFromSub(sub, db, 'google');
+  await revokeThirdPartySessions(uid, 'google', log, db);
+}
+
+/**
+ * Handle the account disabled event. Google recommends that we revoke all
+ * third party sessions and unlink the account.
+ *
+ * @param eventDetails
+ * @param log
+ * @param db
+ */
+async function handleAccountDisabledEvent(
+  eventDetails: SETEvent,
+  log: any,
+  db: any
+) {
+  const { sub } = eventDetails.subject;
+  const uid = await getUidFromSub(sub, db, 'google');
+  await revokeThirdPartySessions(uid, 'google', log, db);
+  await db.deleteLinkedAccount(uid, 'google');
+}
+
+/**
+ * Handle the account enabled event. For now we don't do anything.
+ */
+async function handleAccountEnabledEvent() {}
 
 export function handleOtherEventType(eventType: string, log: any) {
   log.debug(`Received unknown event: ${eventType}`);

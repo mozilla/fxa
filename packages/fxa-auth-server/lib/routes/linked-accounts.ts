@@ -104,9 +104,10 @@ export class LinkedAccountHandler {
       // Process each event type
       for (const eventType in jwtPayload.events) {
         if (eventHandlers[eventType as keyof typeof eventHandlers]) {
-          eventHandlers[eventType as keyof typeof eventHandlers](
+          await eventHandlers[eventType as keyof typeof eventHandlers](
             jwtPayload.events[eventType],
-            this.log
+            this.log,
+            this.db
           );
           this.statsd.increment(`handleGoogleSET.processed.${eventType}`);
           this.log.debug('handleGoogleSET.processed', {
