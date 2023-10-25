@@ -27,10 +27,11 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
         data-testid="app"
       >
         <div id="body-top" className="w-full hidden mobileLandscape:block" />
-        <div className="w-full">
+        <header className="w-full px-6 pt-16 pb-0 mobileLandscape:py-6">
           <LinkExternal
             rel="author"
             href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+            className="mobileLandscape:inline-block"
           >
             <img
               src={mozLogo}
@@ -39,10 +40,10 @@ export const AppLayout = ({ title, children, widthClass }: AppLayoutProps) => {
                 null,
                 'Mozilla logo'
               )}
-              className="h-20 p-6 mx-auto mobileLandscape:mx-0"
+              className="h-auto w-28 mx-auto mobileLandscape:mx-0"
             />
           </LinkExternal>
-        </div>
+        </header>
         <main className="mobileLandscape:flex mobileLandscape:items-center mobileLandscape:flex-1">
           <section>
             <div className={classNames('card', widthClass)}>{children}</div>
