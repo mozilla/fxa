@@ -1,6 +1,6 @@
 passwordResetAccountRecovery-subject-2 = Your password has been reset
 passwordResetAccountRecovery-title-2 = Password reset successfully
-# Details of the device, location, IP address, and date/time that used account recovery key follow.
+# Details of the device and date/time that used account recovery key follow.
 passwordResetAccountRecovery-description-2 = You used your account recovery key to update your password from:
 # Text for button action to initiate creating new account recovery key
 passwordResetAccountRecovery-action-2 = Create a new account recovery key
