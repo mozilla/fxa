@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import _ from 'lodash';
-import { CapabilityManager } from '@fxa/payments/capability';
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
@@ -11,13 +9,11 @@ import { SeverityLevel } from '@sentry/types';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
-  ClientIdCapabilityMap,
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
-import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   DeepPartial,
@@ -33,7 +29,6 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import { StripeHelper } from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
@@ -43,15 +38,11 @@ import { AuthLogger, AuthRequest, TaxAddress } from '../../types';
 import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
-import {
-  clientIdCapabilityMapFromMetadata,
-  generateIdempotencyKey,
-} from '../../payments/utils';
+import { generateIdempotencyKey } from '../../payments/utils';
 import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
-import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
 
@@ -87,10 +78,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 
 export class StripeHandler {
   subscriptionAccountReminders: any;
-  capabilityManager?: CapabilityManager;
   capabilityService: CapabilityService;
-
-  private sentryLogCounter = new Map<string, number>();
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -106,9 +94,6 @@ export class StripeHandler {
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
-    if (Container.has(CapabilityManager)) {
-      this.capabilityManager = Container.get(CapabilityManager);
-    }
     this.capabilityService = Container.get(CapabilityService);
   }
 
@@ -150,106 +135,10 @@ export class StripeHandler {
     });
   }
 
-  /**
-   * Retrieve the client capabilities
-   */
-  async getClientsFromStripe() {
-    let result: ClientIdCapabilityMap = {};
-
-    const planConfigs = await this.stripeHelper.allMergedPlanConfigs();
-    const capabilitiesForAll: string[] = [];
-    for (const plan of await this.stripeHelper.allAbbrevPlans()) {
-      const metadata = metadataFromPlan(plan);
-      const pConfig = planConfigs?.[plan.plan_id] || {};
-
-      capabilitiesForAll.push(
-        ...commaSeparatedListToArray(metadata.capabilities || ''),
-        ...(pConfig.capabilities?.[ALL_RPS_CAPABILITIES_KEY] || [])
-      );
-
-      result = ClientIdCapabilityMap.merge(
-        result,
-        clientIdCapabilityMapFromMetadata(metadata || {}, 'capabilities:')
-      );
-
-      if (pConfig.capabilities) {
-        Object.keys(pConfig.capabilities)
-          .filter((x) => x !== ALL_RPS_CAPABILITIES_KEY)
-          .forEach(
-            (clientId) =>
-              (result[clientId] = (result[clientId] || []).concat(
-                pConfig.capabilities?.[clientId]
-              ))
-          );
-      }
-    }
-
-    return Object.entries(result).map(([clientId, capabilities]) => {
-      // Merge dupes with Set
-      const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
-      return {
-        clientId,
-        capabilities: [...capabilitySet],
-      };
-    });
-  }
-
-  /**
-   * Only log every $sampleRate events
-   */
-  private logToSentry(eventId: string, sampleRate = 100) {
-    const counter = this.sentryLogCounter.get(eventId) || 0;
-    this.sentryLogCounter.set(eventId, counter + 1);
-    // Use counter without increment, so that first Sentry event is logged
-    return !(counter % sampleRate);
-  }
-
   async getClients(request: AuthRequest) {
     this.log.begin('subscriptions.getClients', request);
 
-    const clientsFromStripe = await this.getClientsFromStripe();
-
-    if (!this.capabilityManager) {
-      if (this.logToSentry('getClients.CapabilityManagerNotFound')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('getClients', {
-            msg: `CapabilityManager not found.`,
-          });
-          Sentry.captureMessage(
-            `CapabilityManager not found.`,
-            'error' as SeverityLevel
-          );
-        });
-      }
-
-      return clientsFromStripe;
-    }
-
-    try {
-      const clientsFromContentful = await this.capabilityManager.getClients();
-
-      if (_.isEqual(clientsFromContentful, clientsFromStripe)) {
-        return clientsFromContentful;
-      }
-
-      if (this.logToSentry('getClients.NoMatch')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('getClients', {
-            contentful: clientsFromContentful,
-            stripe: clientsFromStripe,
-          });
-          Sentry.captureMessage(
-            `Returned Stripe as clients did not match.`,
-            'error' as SeverityLevel
-          );
-        });
-      }
-
-      return clientsFromStripe;
-    } catch (error) {
-      this.log.error('subscriptions.getClients', { error: error });
-      throw error;
-    }
+    return this.capabilityService.getClients();
   }
 
   async deleteSubscription(request: AuthRequest) {

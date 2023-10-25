@@ -38,7 +38,6 @@ const { StripeHandler: DirectStripeRoutes } = proxyquire(
 
 const accountUtils = require('../../../../lib/routes/utils/account.ts');
 const { AuthLogger, AppConfig } = require('../../../../lib/types');
-const { CapabilityManager } = require('@fxa/payments/capability');
 const { CapabilityService } = require('../../../../lib/payments/capability');
 const { PlayBilling } = require('../../../../lib/payments/iap/google-play');
 const {
@@ -48,9 +47,6 @@ const {
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
-const {
-  ALL_RPS_CAPABILITIES_KEY,
-} = require('fxa-shared/subscriptions/configuration/base');
 
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
 const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
@@ -67,7 +63,6 @@ const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
 const mockCapabilityService = {};
-const mockCapabilityManager = {};
 
 let config, log, db, customs, push, mailer, profile;
 
@@ -81,51 +76,7 @@ const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const NOW = Date.now();
 const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
-const PLANS = [
-  {
-    plan_id: 'firefox_pro_basic_823',
-    product_id: 'firefox_pro_basic',
-    product_name: 'Firefox Pro Basic',
-    interval: 'week',
-    amount: '123',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      emailIconURL: 'http://example.com/image.jpg',
-      successActionButtonURL: 'http://getfirefox.com',
-      capabilities: 'exampleCap0',
-      'capabilities:client1': 'exampleCap1',
-      promotionCodes: 'earlybirds',
-    },
-  },
-  {
-    plan_id: 'firefox_pro_basic_999',
-    product_id: 'firefox_pro_pro',
-    product_name: 'Firefox Pro Pro',
-    interval: 'month',
-    amount: '456',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      'capabilities:client2': 'exampleCap2, exampleCap4',
-    },
-  },
-  {
-    plan_id: PLAN_ID_1,
-    product_id: 'prod_G93l8Yn7XJHYUs',
-    product_name: 'FN Tier 1',
-    interval: 'month',
-    amount: 499,
-    current: 'usd',
-    plan_metadata: {
-      'capabilities:client1': 'exampleCap3',
-      // NOTE: whitespace in capabilities list should be flexible for human entry
-      'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
-      promotionCodes: 'gettheworms?',
-    },
-    product_metadata: {},
-  },
-];
+const PLANS = mocks.mockPlans;
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const ACTIVE_SUBSCRIPTIONS = [
   {
@@ -141,23 +92,7 @@ const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
 
-const mockContentfulClients = [
-  {
-    capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-    clientId: 'client1',
-  },
-  {
-    capabilities: [
-      'exampleCap0',
-      'exampleCap2',
-      'exampleCap4',
-      'exampleCap5',
-      'exampleCap6',
-      'exampleCap7',
-    ],
-    clientId: 'client2',
-  },
-];
+const mockContentfulClients = mocks.mockContentfulClients;
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -236,11 +171,10 @@ describe('subscriptions stripeRoutes', () => {
 
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
-    Container.set(CapabilityService, mockCapabilityService);
 
-    mockCapabilityManager.getClients = sinon.stub();
-    mockCapabilityManager.getClients.resolves(mockContentfulClients);
-    Container.set(CapabilityManager, mockCapabilityManager);
+    mockCapabilityService.getClients = sinon.stub();
+    mockCapabilityService.getClients.resolves(mockContentfulClients);
+    Container.set(CapabilityService, mockCapabilityService);
 
     log = mocks.mockLog();
     customs = mocks.mockCustoms();
@@ -485,11 +419,9 @@ describe('DirectStripeRoutes', () => {
       SubscriptionEligibilityResult.CREATE,
       undefined,
     ]);
+    mockCapabilityService.getClients = sinon.stub();
+    mockCapabilityService.getClients.resolves(mockContentfulClients);
     Container.set(CapabilityService, mockCapabilityService);
-
-    mockCapabilityManager.getClients = sinon.stub();
-    mockCapabilityManager.getClients.resolves(mockContentfulClients);
-    Container.set(CapabilityManager, mockCapabilityManager);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -569,188 +501,10 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('getClients', () => {
-    describe('getClientsFromStripe', () => {
-      it('returns the clients and their capabilities', async () => {
-        directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-
-        const expected = [
-          {
-            capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-            clientId: 'client1',
-          },
-          {
-            capabilities: [
-              'exampleCap0',
-              'exampleCap2',
-              'exampleCap4',
-              'exampleCap5',
-              'exampleCap6',
-              'exampleCap7',
-            ],
-            clientId: 'client2',
-          },
-        ];
-
-        const actual = await directStripeRoutesInstance.getClientsFromStripe();
-        assert.deepEqual(
-          actual,
-          expected,
-          'Clients were not returned correctly'
-        );
-      });
-
-      it('adds the capabilities from the Firestore config document when available', async () => {
-        directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-        const mockPlanConfigs = {
-          firefox_pro_basic_999: {
-            capabilities: {
-              [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
-              client2: ['wibble', 'quux'],
-            },
-          },
-        };
-        directStripeRoutesInstance.stripeHelper.allMergedPlanConfigs.resolves(
-          mockPlanConfigs
-        );
-        const expected = [
-          {
-            capabilities: [
-              'exampleCap0',
-              'goodnewseveryone',
-              'exampleCap1',
-              'exampleCap3',
-            ],
-            clientId: 'client1',
-          },
-          {
-            capabilities: [
-              'exampleCap0',
-              'goodnewseveryone',
-              'exampleCap2',
-              'exampleCap4',
-              'wibble',
-              'quux',
-              'exampleCap5',
-              'exampleCap6',
-              'exampleCap7',
-            ],
-            clientId: 'client2',
-          },
-        ];
-        const actual = await directStripeRoutesInstance.getClientsFromStripe();
-        assert.deepEqual(actual, expected);
-      });
-    });
-
-    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
-
-      Container.remove(CapabilityManager);
-
-      const stripeHelperMock = sandbox.createStubInstance(StripeHelper);
-      const directStripeRoutes = new DirectStripeRoutes(
-        log,
-        db,
-        config,
-        customs,
-        push,
-        mailer,
-        profile,
-        stripeHelperMock
-      );
-
-      directStripeRoutes.stripeHelper.allAbbrevPlans.resolves(PLANS);
-
-      const mockClientsFromStripe =
-        await directStripeRoutes.getClientsFromStripe();
-
-      const clients = await directStripeRoutes.getClients();
-      assert.deepEqual(clients, mockClientsFromStripe);
-
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        msg: `CapabilityManager not found.`,
-      });
-
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-        `CapabilityManager not found.`,
-        'error'
-      );
-
-      // Test logToSentry logic. Remove if no longer necessary
-      await directStripeRoutes.getClients();
-
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        msg: `CapabilityManager not found.`,
-      });
-    });
-
-    it('returns results from Contentful when it matches Stripe', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
-
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-
-      const mockClientsFromContentful =
-        await mockCapabilityManager.getClients();
-
-      const mockClientsFromStripe =
-        await directStripeRoutesInstance.getClientsFromStripe();
-
-      assert.deepEqual(mockClientsFromContentful, mockClientsFromStripe);
-
-      const clients = await directStripeRoutesInstance.getClients();
-      assert.deepEqual(clients, mockClientsFromContentful);
-
-      sinon.assert.notCalled(Sentry.withScope);
-      sinon.assert.notCalled(sentryScope.setContext);
-      sinon.assert.notCalled(Sentry.captureMessage);
-    });
-
-    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
-      const sentryScope = { setContext: sandbox.stub() };
-      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
-      sandbox.stub(Sentry, 'captureMessage');
-
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-
-      mockCapabilityManager.getClients.resolves({
-        capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-        clientId: 'client1',
-      });
-
-      const mockClientsFromContentful =
-        await mockCapabilityManager.getClients();
-
-      const mockClientsFromStripe =
-        await directStripeRoutesInstance.getClientsFromStripe();
-
-      assert.notDeepEqual(mockClientsFromContentful, mockClientsFromStripe);
-
-      const clients = await directStripeRoutesInstance.getClients();
-      assert.deepEqual(clients, mockClientsFromStripe);
-
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
-        stripe: mockClientsFromStripe,
-      });
-
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-        `Returned Stripe as clients did not match.`,
-        'error'
-      );
-
-      // Test logToSentry logic. Remove if no longer necessary
-      await directStripeRoutesInstance.getClients();
-
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
-        stripe: mockClientsFromStripe,
-      });
+    it('returns client capabilities', async () => {
+      const expected = await mockCapabilityService.getClients();
+      const res = await directStripeRoutesInstance.getClients();
+      assert.deepEqual(res, expected);
     });
   });
 

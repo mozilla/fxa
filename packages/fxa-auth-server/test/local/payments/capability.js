@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
-const { mockLog } = require('../../mocks');
+const { mockContentfulClients, mockLog, mockPlans } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
@@ -28,8 +28,15 @@ const proxyquire = require('proxyquire').noPreserveCache();
 
 const authDbModule = require('fxa-shared/db/models/auth');
 const {
+  ALL_RPS_CAPABILITIES_KEY,
+} = require('fxa-shared/subscriptions/configuration/base');
+const {
   PurchaseQueryError,
 } = require('../../../lib/payments/iap/google-play/types');
+const {
+  CapabilityManager,
+} = require('../../../../../libs/payments/capability/src');
+const Sentry = require('@sentry/node');
 
 const mockAuthEvents = {};
 
@@ -75,6 +82,7 @@ describe('CapabilityService', () => {
   let mockProfileClient;
   let mockPaymentConfigManager;
   let mockConfigPlans;
+  let mockCapabilityManager;
 
   beforeEach(async () => {
     mockAuthEvents.on = sinon.fake.returns({});
@@ -144,6 +152,10 @@ describe('CapabilityService', () => {
         },
       },
     ]);
+    mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
+    mockCapabilityManager = {
+      getClients: sinon.fake.resolves(mockContentfulClients),
+    };
     log = mockLog();
     Container.set(AuthLogger, log);
     Container.set(StripeHelper, mockStripeHelper);
@@ -151,6 +163,7 @@ describe('CapabilityService', () => {
     Container.set(AppleIAP, mockAppleIAP);
     Container.set(ProfileClient, mockProfileClient);
     Container.set(PaymentConfigManager, mockPaymentConfigManager);
+    Container.set(CapabilityManager, mockCapabilityManager);
     capabilityService = new CapabilityService();
   });
 
@@ -672,6 +685,175 @@ describe('CapabilityService', () => {
         ];
         await assertExpectedCapabilities(clientId, expected);
       }
+    });
+  });
+  describe('getClients', () => {
+    beforeEach(() => {
+      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockPlans);
+    });
+
+    describe('getClientsFromStripe', () => {
+      it('returns the clients and their capabilities', async () => {
+        const expected = [
+          {
+            capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+            clientId: 'client1',
+          },
+          {
+            capabilities: [
+              'exampleCap0',
+              'exampleCap2',
+              'exampleCap4',
+              'exampleCap5',
+              'exampleCap6',
+              'exampleCap7',
+            ],
+            clientId: 'client2',
+          },
+        ];
+        const actual = await capabilityService.getClientsFromStripe();
+        assert.deepEqual(
+          actual,
+          expected,
+          'Clients were not returned correctly'
+        );
+      });
+
+      it('adds the capabilities from the Firestore config document when available', async () => {
+        const mockPlanConfigs = {
+          firefox_pro_basic_999: {
+            capabilities: {
+              [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
+              client2: ['wibble', 'quux'],
+            },
+          },
+        };
+        mockStripeHelper.allMergedPlanConfigs = sinon.spy(
+          async () => mockPlanConfigs
+        );
+        const expected = [
+          {
+            capabilities: [
+              'exampleCap0',
+              'goodnewseveryone',
+              'exampleCap1',
+              'exampleCap3',
+            ],
+            clientId: 'client1',
+          },
+          {
+            capabilities: [
+              'exampleCap0',
+              'goodnewseveryone',
+              'exampleCap2',
+              'exampleCap4',
+              'wibble',
+              'quux',
+              'exampleCap5',
+              'exampleCap6',
+              'exampleCap7',
+            ],
+            clientId: 'client2',
+          },
+        ];
+        const actual = await capabilityService.getClientsFromStripe();
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      Container.remove(CapabilityManager);
+
+      let mockCapabilityService = {};
+      mockCapabilityService = new CapabilityService();
+
+      const mockClientsFromStripe =
+        await mockCapabilityService.getClientsFromStripe();
+
+      const clients = await mockCapabilityService.getClients();
+
+      assert.deepEqual(clients, mockClientsFromStripe);
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        msg: `CapabilityManager not found.`,
+      });
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityManager not found.`,
+        'error'
+      );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await mockCapabilityService.getClients();
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        msg: `CapabilityManager not found.`,
+      });
+    });
+
+    it('returns results from Contentful when it matches Stripe', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      const mockClientsFromContentful =
+        await mockCapabilityManager.getClients();
+
+      const mockClientsFromStripe =
+        await capabilityService.getClientsFromStripe();
+
+      assert.deepEqual(mockClientsFromContentful, mockClientsFromStripe);
+
+      const clients = await capabilityService.getClients();
+      assert.deepEqual(clients, mockClientsFromContentful);
+
+      sinon.assert.notCalled(Sentry.withScope);
+      sinon.assert.notCalled(sentryScope.setContext);
+      sinon.assert.notCalled(Sentry.captureMessage);
+    });
+
+    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      mockCapabilityManager.getClients = sinon.fake.resolves({
+        capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+        clientId: 'client1',
+      });
+
+      const mockClientsFromContentful =
+        await mockCapabilityManager.getClients();
+
+      const mockClientsFromStripe =
+        await capabilityService.getClientsFromStripe();
+
+      assert.notDeepEqual(mockClientsFromContentful, mockClientsFromStripe);
+
+      const clients = await capabilityService.getClients();
+      assert.deepEqual(clients, mockClientsFromStripe);
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        contentful: mockClientsFromContentful,
+        stripe: mockClientsFromStripe,
+      });
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `Returned Stripe as clients did not match.`,
+        'error'
+      );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await capabilityService.getClients();
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        contentful: mockClientsFromContentful,
+        stripe: mockClientsFromStripe,
+      });
     });
   });
 });
