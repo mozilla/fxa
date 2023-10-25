@@ -90,6 +90,8 @@ export class StripeHandler {
   capabilityManager?: CapabilityManager;
   capabilityService: CapabilityService;
 
+  private sentryLogCounter = new Map<string, number>();
+
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
     //        inheriting classes thus this interface join.
@@ -192,21 +194,33 @@ export class StripeHandler {
     });
   }
 
+  /**
+   * Only log every $sampleRate events
+   */
+  private logToSentry(eventId: string, sampleRate = 100) {
+    const counter = this.sentryLogCounter.get(eventId) || 0;
+    this.sentryLogCounter.set(eventId, counter + 1);
+    // Use counter without increment, so that first Sentry event is logged
+    return !(counter % sampleRate);
+  }
+
   async getClients(request: AuthRequest) {
     this.log.begin('subscriptions.getClients', request);
 
     const clientsFromStripe = await this.getClientsFromStripe();
 
     if (!this.capabilityManager) {
-      Sentry.withScope((scope) => {
-        scope.setContext('getClients', {
-          msg: `CapabilityManager not found.`,
+      if (this.logToSentry('getClients.CapabilityManagerNotFound')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('getClients', {
+            msg: `CapabilityManager not found.`,
+          });
+          Sentry.captureMessage(
+            `CapabilityManager not found.`,
+            'error' as SeverityLevel
+          );
         });
-        Sentry.captureMessage(
-          `CapabilityManager not found.`,
-          'error' as SeverityLevel
-        );
-      });
+      }
 
       return clientsFromStripe;
     }
@@ -218,16 +232,18 @@ export class StripeHandler {
         return clientsFromContentful;
       }
 
-      Sentry.withScope((scope) => {
-        scope.setContext('getClients', {
-          contentful: clientsFromContentful,
-          stripe: clientsFromStripe,
+      if (this.logToSentry('getClients.NoMatch')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('getClients', {
+            contentful: clientsFromContentful,
+            stripe: clientsFromStripe,
+          });
+          Sentry.captureMessage(
+            `Returned Stripe as clients did not match.`,
+            'error' as SeverityLevel
+          );
         });
-        Sentry.captureMessage(
-          `Returned Stripe as clients did not match.`,
-          'error' as SeverityLevel
-        );
-      });
+      }
 
       return clientsFromStripe;
     } catch (error) {
