@@ -12,7 +12,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
     let email;
 
-    test.beforeEach(async ({ pages: { configPage, login } }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }, { project }) => {
       test.slow();
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
@@ -22,6 +22,8 @@ test.describe('severity-1 #smoke', () => {
       } else {
         email = login.createEmail('signup_react{id}');
       }
+
+      test.skip(project.name === 'production', 'skip for production');
     });
 
     test.afterEach(async ({ target }) => {
