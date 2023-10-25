@@ -678,6 +678,13 @@ describe('DirectStripeRoutes', () => {
         `CapabilityManager not found.`,
         'error'
       );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await directStripeRoutes.getClients();
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        msg: `CapabilityManager not found.`,
+      });
     });
 
     it('returns results from Contentful when it matches Stripe', async () => {
@@ -736,6 +743,14 @@ describe('DirectStripeRoutes', () => {
         `Returned Stripe as clients did not match.`,
         'error'
       );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await directStripeRoutesInstance.getClients();
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        contentful: mockClientsFromContentful,
+        stripe: mockClientsFromStripe,
+      });
     });
   });
 
