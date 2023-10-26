@@ -16,8 +16,7 @@
           "test-e2e",
           "test-integration",
           "test-unit"
-        ],
-        "accessToken": "YWYzOTViMDQtNDE4Ny00MGU5LWFlMWItZTBiODA2YTIwYzMzfHJlYWQ="
+        ]
       }
     }
   },
