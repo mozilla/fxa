@@ -54,7 +54,7 @@ export function Service({
       Icon = <MonitorIcon data-testid="monitor-icon" />;
       break;
     case 'Firefox Lockwise':
-      serviceLink = 'https://www.mozilla.org/en-US/firefox/lockwise/';
+      serviceLink = 'https://www.mozilla.org/firefox/lockwise/';
       Icon = <LockwiseIcon data-testid="lockwise-icon" />;
       break;
     case 'Firefox Private Network':
@@ -68,7 +68,7 @@ export function Service({
       break;
     case 'Firefox Sync':
       serviceLink =
-        'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer';
+        'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer';
       Icon = <SyncIcon data-testid="sync-icon" />;
       break;
     case 'MDN Plus':

@@ -35,7 +35,7 @@ describe('DataCollection', () => {
       screen.getByTestId('link-external-telemetry-opt-out')
     ).toHaveAttribute(
       'href',
-      'https://www.mozilla.org/en-US/privacy/firefox/#firefox-accounts'
+      'https://www.mozilla.org/privacy/firefox/#firefox-accounts'
     );
   });
 
