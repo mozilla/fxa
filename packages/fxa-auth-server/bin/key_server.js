@@ -111,14 +111,14 @@ async function run(config) {
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
     if (
       config.contentful &&
-      config.contentful.cdnApiUri &&
+      config.contentful.cdnUrl &&
       config.contentful.graphqlUrl &&
       config.contentful.apiKey &&
       config.contentful.spaceId &&
       config.contentful.environment
     ) {
       const contentfulClient = new ContentfulClient({
-        cdnApiUri: config.contentful.cdnApiUri,
+        cdnApiUri: config.contentful.cdnUrl,
         graphqlApiUri: config.contentful.graphqlUrl,
         graphqlApiKey: config.contentful.apiKey,
         graphqlSpaceId: config.contentful.spaceId,
