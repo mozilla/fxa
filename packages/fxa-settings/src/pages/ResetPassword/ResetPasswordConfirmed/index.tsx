@@ -7,6 +7,7 @@ import { RouteComponentProps } from '@reach/router';
 import Ready from '../../../components/Ready';
 import AppLayout from '../../../components/AppLayout';
 import { ResetPasswordConfirmedProps } from './interfaces';
+import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'reset-password-confirmed';
 
@@ -17,6 +18,10 @@ const ResetPasswordConfirmed = ({
 }: ResetPasswordConfirmedProps & RouteComponentProps) => {
   const [serviceName, setServiceName] = useState<string>();
   const [isSync, setIsSync] = useState<boolean>();
+
+  useEffect(() => {
+    GleanMetrics.resetPassword.createNewSuccess();
+  }, []);
 
   useEffect(() => {
     (async () => {

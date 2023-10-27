@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
+import GleanMetrics from '../../../lib/glean';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import ResetPasswordConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -15,7 +16,16 @@ jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { resetPassword: { createNewSuccess: jest.fn() } },
+}));
+
 describe('ResetPasswordConfirmed', () => {
+  beforeEach(() => {
+    (GleanMetrics.resetPassword.createNewSuccess as jest.Mock).mockReset();
+  });
+
   async function renderResetPasswordConfirmed(params: {
     isSignedIn: boolean;
     continueHandler?: Function;
@@ -44,6 +54,7 @@ describe('ResetPasswordConfirmed', () => {
   it('emits the expected metrics on render', async () => {
     await renderResetPasswordConfirmed({ isSignedIn: false });
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.resetPassword.createNewSuccess).toBeCalledTimes(1);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', async () => {

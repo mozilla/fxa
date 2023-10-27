@@ -34,6 +34,7 @@ import {
   AuthUiErrors,
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../../lib/glean';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -68,6 +69,10 @@ const CompleteResetPassword = ({
     state: CompleteResetPasswordLocationState;
   };
   const ftlMsgResolver = useFtlMsgResolver();
+
+  useEffect(() => {
+    GleanMetrics.resetPassword.createNewView();
+  }, []);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<CompleteResetPasswordFormData>({

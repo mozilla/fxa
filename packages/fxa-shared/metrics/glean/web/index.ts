@@ -58,5 +58,7 @@ export const eventsMap = {
   resetPassword: {
     view: 'password_reset_view',
     submit: 'password_reset_submit',
+    createNewView: 'password_reset_create_new_view',
+    createNewSuccess: 'password_reset_create_new_success',
   },
 };
