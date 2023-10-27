@@ -242,6 +242,17 @@ export class LinkedAccountHandler {
     );
 
     if (!linkedAccountRecord) {
+      // Something has gone wrong! We shouldn't hit a case where we have an unlinked without
+      // an email set in the idToken. Failing hard and fast. Logging more info
+      if (!email) {
+        this.log.error('linked_account.no_email_in_id_token', {
+          provider,
+          userid,
+          name,
+        });
+        throw error.thirdPartyAccountError();
+      }
+
       try {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
