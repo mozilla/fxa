@@ -409,7 +409,6 @@ module.exports = function (
       handler: async function (request) {
         log.begin('Session.resend_code', request);
         const sessionToken = request.auth.credentials;
-        const ip = request.app.clientAddress;
 
         request.emitMetricsEvent('session.resend_code');
         const metricsContext = await request.gatherMetricsContext({});
@@ -444,8 +443,6 @@ module.exports = function (
         const options = {
           acceptLanguage: account.locale || request.app.locale,
           code,
-          ip,
-          location: request.app.geo.location,
           timeZone: request.app.geo.timeZone,
           uaBrowser: sessionToken.uaBrowser,
           uaBrowserVersion: sessionToken.uaBrowserVersion,
