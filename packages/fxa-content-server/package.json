@@ -137,7 +137,7 @@
     "verror": "1.10.1",
     "webcrypto-liner": "1.4.0",
     "webpack": "^5.78.0",
-    "webpack-cli": "^5.0.1"
+    "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
     "@babel/cli": "^7.23.0",
