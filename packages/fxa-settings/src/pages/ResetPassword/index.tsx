@@ -28,6 +28,7 @@ import { setOriginalTabMarker } from '../../lib/storage-utils';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'reset-password';
 
@@ -55,6 +56,10 @@ const ResetPassword = ({
       setServiceName(name);
     })();
   }, [integration]);
+
+  useEffect(() => {
+    GleanMetrics.resetPassword.view();
+  }, []);
 
   const { control, getValues, handleSubmit, register } =
     useForm<ResetPasswordFormData>({
@@ -143,6 +148,7 @@ const ResetPassword = ({
         ftlMsgResolver.getMsg('auth-error-1011', 'Valid email required')
       );
     } else {
+      GleanMetrics.resetPassword.submit();
       submitEmail(sanitizedEmail);
     }
   }, [ftlMsgResolver, getValues, submitEmail]);
