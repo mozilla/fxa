@@ -96,7 +96,7 @@ describe('views/pair/auth_totp', () => {
       return view.render().then(() => {
         $('#container').html(view.el);
         view.$('.totp-code').val(TOTP_CODE);
-        const serviceElText = view.$('.service').text();
+        const serviceElText = view.$('.card-subheader').text();
         assert.include(serviceElText, 'Continue to');
         assert.notInclude(serviceElText, '%(serviceName)');
         return view.submit().then(() => {
