@@ -127,7 +127,8 @@ module.exports = function (
     signinUtils,
     push,
     config,
-    oauthRawDB
+    oauthRawDB,
+    glean
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(

@@ -137,6 +137,10 @@ export function gleanMetrics(config: ConfigType) {
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
     },
+
+    resetPassword: {
+      emailSent: createEventFn('password_reset_email_sent'),
+    },
   };
 }
 
@@ -158,7 +162,10 @@ export const logErrorWithGlean = ({
   const pingFn = getPingFnWithPath(request.path);
   if (pingFn) {
     const [funnel, event] = pingFn.split('.');
-    const funnelFns = glean[funnel as keyof ReturnType<typeof gleanMetrics>];
+    const funnelFns =
+      glean[
+        funnel as keyof Omit<ReturnType<typeof gleanMetrics>, 'resetPassword'>
+      ];
     funnelFns[event as keyof typeof funnelFns](request, {
       // we use the errno's key here because the human readable error message
       // can be too verbose, while the short error title is too low resolution

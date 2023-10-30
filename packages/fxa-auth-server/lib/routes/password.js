@@ -30,7 +30,8 @@ module.exports = function (
   signinUtils,
   push,
   config,
-  oauth
+  oauth,
+  glean
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
 
@@ -104,7 +105,7 @@ module.exports = function (
                           };
                         });
                     });
-                })
+                });
             },
             (err) => {
               if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
@@ -262,8 +263,16 @@ module.exports = function (
                 })
                 .then(() => {
                   // NOTE: Not quite sure of the difference between these two events:
-                  recordSecurityEvent('account.password_reset_success', { db, request, account:passwordChangeToken });
-                  recordSecurityEvent('account.password_changed', { db, request, account:passwordChangeToken })
+                  recordSecurityEvent('account.password_reset_success', {
+                    db,
+                    request,
+                    account: passwordChangeToken,
+                  });
+                  recordSecurityEvent('account.password_changed', {
+                    db,
+                    request,
+                    account: passwordChangeToken,
+                  });
                 })
                 .then(() => {
                   return result;
@@ -542,6 +551,7 @@ module.exports = function (
           .then(() =>
             request.emitMetricsEvent('password.forgot.send_code.completed')
           )
+          .then(() => glean.resetPassword.emailSent(request))
           .then(() => ({
             passwordForgotToken: passwordForgotToken.data,
             ttl: passwordForgotToken.ttl(),
@@ -646,7 +656,10 @@ module.exports = function (
             );
           })
           .then(() => {
-            recordSecurityEvent('account.password_reset_requested', { db, request } );
+            recordSecurityEvent('account.password_reset_requested', {
+              db,
+              request,
+            });
           })
           .then(() => {
             return {
@@ -810,7 +823,11 @@ module.exports = function (
           verifierVersion
         );
 
-        recordSecurityEvent('account.password_added', { db, request, account:{uid} } );
+        recordSecurityEvent('account.password_added', {
+          db,
+          request,
+          account: { uid },
+        });
 
         return passwordCreated;
       },
