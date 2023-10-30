@@ -146,6 +146,7 @@ const Signup = ({
         return;
       }
       setBeginSignupLoading(true);
+      GleanMetrics.registration.submit();
 
       const { data, error } = await beginSignupHandler(
         queryParamModel.email,

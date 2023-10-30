@@ -14,7 +14,6 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
 import { viewName } from '.';
-import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import {
   BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE,
@@ -70,7 +69,7 @@ jest.mock('@reach/router', () => ({
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { registration: { view: jest.fn() } },
+  default: { registration: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 describe('Signup page', () => {
@@ -302,6 +301,7 @@ describe('Signup page', () => {
         await waitFor(() => {
           expect(document.cookie).toBe('tooyoung=1;');
         });
+        expect(GleanMetrics.registration.submit).not.toBeCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
         expect(mockBeginSignupHandler).not.toBeCalled();
       });
@@ -349,6 +349,16 @@ describe('Signup page', () => {
             replace: true,
           }
         );
+      });
+    });
+
+    it('emits a metrics event on submit', async () => {
+      renderWithLocalizationProvider(<Subject />);
+      await fillOutForm();
+      submit();
+
+      await waitFor(() => {
+        expect(GleanMetrics.registration.submit).toBeCalledTimes(1);
       });
     });
 
