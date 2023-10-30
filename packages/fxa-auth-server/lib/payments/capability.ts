@@ -13,6 +13,10 @@ import {
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
+import { CapabilityManager } from '@fxa/payments/capability';
+import * as Sentry from '@sentry/node';
+import { SeverityLevel } from '@sentry/types';
+import _ from 'lodash';
 import Stripe from 'stripe';
 import Container from 'typedi';
 
@@ -28,6 +32,8 @@ import { StripeHelper } from './stripe';
 import { PaymentConfigManager } from './configuration/manager';
 import { clientIdCapabilityMapFromMetadata } from './utils';
 import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import { productUpgradeFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 
 function hex(blob: Buffer | string): string {
@@ -54,6 +60,8 @@ export class CapabilityService {
   private stripeHelper: StripeHelper;
   private profileClient: ProfileClient;
   private paymentConfigManager?: PaymentConfigManager;
+  private capabilityManager?: CapabilityManager;
+  private sentryLogCounter = new Map<string, number>();
 
   constructor() {
     // TODO: the mock stripeHelper here fixes this specific instance when
@@ -75,6 +83,9 @@ export class CapabilityService {
     }
     if (Container.has(PaymentConfigManager)) {
       this.paymentConfigManager = Container.get(PaymentConfigManager);
+    }
+    if (Container.has(CapabilityManager)) {
+      this.capabilityManager = Container.get(CapabilityManager);
     }
 
     this.log = Container.get(AuthLogger);
@@ -592,5 +603,108 @@ export class CapabilityService {
     }
 
     return result;
+  }
+
+  /**
+   * Retrieve the client capabilities from Stripe
+   */
+  async getClientsFromStripe() {
+    let result: ClientIdCapabilityMap = {};
+
+    const planConfigs = await this.stripeHelper.allMergedPlanConfigs();
+    const capabilitiesForAll: string[] = [];
+    for (const plan of await this.stripeHelper.allAbbrevPlans()) {
+      const metadata = metadataFromPlan(plan);
+      const pConfig = planConfigs?.[plan.plan_id] || {};
+
+      capabilitiesForAll.push(
+        ...commaSeparatedListToArray(metadata.capabilities || ''),
+        ...(pConfig.capabilities?.[ALL_RPS_CAPABILITIES_KEY] || [])
+      );
+
+      result = ClientIdCapabilityMap.merge(
+        result,
+        clientIdCapabilityMapFromMetadata(metadata || {}, 'capabilities:')
+      );
+
+      if (pConfig.capabilities) {
+        Object.keys(pConfig.capabilities)
+          .filter((x) => x !== ALL_RPS_CAPABILITIES_KEY)
+          .forEach(
+            (clientId) =>
+              (result[clientId] = (result[clientId] || []).concat(
+                pConfig.capabilities?.[clientId]
+              ))
+          );
+      }
+    }
+
+    return Object.entries(result).map(([clientId, capabilities]) => {
+      // Merge dupes with Set
+      const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
+      return {
+        clientId,
+        capabilities: [...capabilitySet],
+      };
+    });
+  }
+
+  /**
+   * Only log every $sampleRate events
+   */
+  private logToSentry(eventId: string, sampleRate = 100) {
+    const counter = this.sentryLogCounter.get(eventId) || 0;
+    this.sentryLogCounter.set(eventId, counter + 1);
+    // Use counter without increment, so that first Sentry event is logged
+    return !(counter % sampleRate);
+  }
+
+  /**
+   * Retrieve the client capabilities
+   */
+  async getClients() {
+    const clientsFromStripe = await this.getClientsFromStripe();
+
+    if (!this.capabilityManager) {
+      if (this.logToSentry('getClients.CapabilityManagerNotFound')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('getClients', {
+            msg: `CapabilityManager not found.`,
+          });
+          Sentry.captureMessage(
+            `CapabilityManager not found.`,
+            'error' as SeverityLevel
+          );
+        });
+      }
+
+      return clientsFromStripe;
+    }
+
+    try {
+      const clientsFromContentful = await this.capabilityManager.getClients();
+
+      if (_.isEqual(clientsFromContentful, clientsFromStripe)) {
+        return clientsFromContentful;
+      }
+
+      if (this.logToSentry('getClients.NoMatch')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('getClients', {
+            contentful: clientsFromContentful,
+            stripe: clientsFromStripe,
+          });
+          Sentry.captureMessage(
+            `Returned Stripe as clients did not match.`,
+            'error' as SeverityLevel
+          );
+        });
+      }
+
+      return clientsFromStripe;
+    } catch (error) {
+      this.log.error('subscriptions.getClients', { error: error });
+      throw error;
+    }
   }
 }
