@@ -10,6 +10,7 @@ import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
 import { Localized } from '@fluent/react';
 import { createPortal } from 'react-dom';
 import logo from 'fxa-react/images/moz-m-logo.svg';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export const bannerClosedLocalStorageKey =
   '__fxa_storage.fxa_disable_brand_banner';
@@ -75,10 +76,6 @@ export const BrandMessaging = ({
 
   function onClickLearnMore() {
     logViewEventOnce(`flow.${viewName}`, `brand-messaging-${mode}-learn-more`);
-    window.open(
-      'https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts',
-      '_blank'
-    );
   }
 
   function onClickCloseBanner() {
@@ -90,6 +87,16 @@ export const BrandMessaging = ({
     localStorage.setItem(`${bannerClosedLocalStorageKey}_${mode}`, 'true');
     setBannerClosed('true');
   }
+
+  const learnMoreLink = (
+    <LinkExternal
+      href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts"
+      onClick={onClickLearnMore}
+      className="underline cursor-pointer hover:text-blue-900"
+    >
+      <FtlMsg id="brand-learn-more">Learn more</FtlMsg>
+    </LinkExternal>
+  );
 
   return (
     <div
@@ -120,14 +127,7 @@ export const BrandMessaging = ({
                   there are no other changes to the products that you use.
                 </FtlMsg>
                 &nbsp;
-                <span
-                  role="link"
-                  tabIndex={0}
-                  className="brand-learn-more underline cursor-pointer"
-                  onClick={onClickLearnMore}
-                >
-                  <FtlMsg id="brand-learn-more">Learn more</FtlMsg>
-                </span>
+                {learnMoreLink}
               </p>
             </div>
           </div>
@@ -143,14 +143,7 @@ export const BrandMessaging = ({
                   are no other changes to the products that you use.
                 </FtlMsg>
                 &nbsp;
-                <span
-                  role="link"
-                  tabIndex={0}
-                  className="brand-learn-more underline cursor-pointer"
-                  onClick={onClickLearnMore}
-                >
-                  <FtlMsg id="brand-learn-more">Learn more</FtlMsg>
-                </span>
+                {learnMoreLink}
               </p>
             </div>
           </div>
