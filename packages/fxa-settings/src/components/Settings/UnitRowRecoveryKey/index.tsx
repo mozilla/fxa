@@ -18,15 +18,13 @@ export const UnitRowRecoveryKey = () => {
 
   const recoveryKey = account.recoveryKey;
   const alertBar = useAlertBar();
-  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
-  const [modalRevealed, hideModal] = useBooleanState();
+  const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const ftlMsgResolver = useFtlMsgResolver();
 
   const deleteRecoveryKey = useCallback(async () => {
     try {
       await account.deleteRecoveryKey();
-      setDeleteModalVisible(false);
       hideModal();
       alertBar.success(
         ftlMsgResolver.getMsg(
@@ -37,7 +35,6 @@ export const UnitRowRecoveryKey = () => {
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
-      setDeleteModalVisible(false);
       alertBar.error(
         ftlMsgResolver.getMsg(
           'rk-remove-error-2',
@@ -84,7 +81,7 @@ export const UnitRowRecoveryKey = () => {
             title={localizedDeleteRKIconButton}
             classNames="inline-block mobileLandscape:hidden ms-1"
             disabled={!recoveryKey || account.loading}
-            onClick={() => setDeleteModalVisible(true)}
+            onClick={revealModal}
           />
         )
       }
@@ -95,7 +92,7 @@ export const UnitRowRecoveryKey = () => {
             title={localizedDeleteRKIconButton}
             classNames="hidden mobileLandscape:inline-block ms-1"
             disabled={!recoveryKey || account.loading}
-            onClick={() => setDeleteModalVisible(true)}
+            onClick={revealModal}
           />
         )
       }
@@ -105,7 +102,7 @@ export const UnitRowRecoveryKey = () => {
           Restore your information when you forget your password.
         </p>
       </FtlMsg>
-      {(deleteModalVisible || modalRevealed) && (
+      {modalRevealed && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
           onError={(error) => {
@@ -122,7 +119,6 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={() => {
               hideModal();
-              setDeleteModalVisible(false);
             }}
             onConfirm={() => {
               setIsLoading(true);
