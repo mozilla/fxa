@@ -14,6 +14,7 @@ import { mockAppContext } from '../../../models/mocks';
 import { MOCK_AUTH_ERROR, Subject } from './mocks';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -30,6 +31,11 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { signupConfirmation: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 const MOCK_STORED_ACCOUNT: StoredAccountData = {
@@ -96,6 +102,7 @@ describe('ConfirmSignupCode page', () => {
   it('emits a metrics event on render', async () => {
     renderWithAccount(account);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.signupConfirmation.view).toHaveBeenCalledTimes(1);
 
     //  Input field is autofocused on render and should emit an 'engage' event metric
     await waitFor(() => {
@@ -123,6 +130,7 @@ describe('ConfirmSignupCode page', () => {
         'verification.success',
         REACT_ENTRYPOINT
       );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -146,6 +154,7 @@ describe('ConfirmSignupCode page', () => {
           entrypoint_variation: 'react',
         }
       );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
@@ -176,6 +185,7 @@ describe('ConfirmSignupCode page', () => {
           entrypoint_variation: 'react',
         }
       );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
@@ -206,6 +216,7 @@ describe('ConfirmSignupCode page with error states', () => {
       expect(screen.getByTestId('tooltip')).toHaveTextContent(
         'Confirmation code is required'
       );
+      expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
     });
   });
 

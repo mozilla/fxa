@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
@@ -39,6 +39,7 @@ import firefox from '../../../lib/channels/firefox';
 import { StoredAccountData, persistAccount } from '../../../lib/storage-utils';
 import { BrandMessagingPortal } from '../../../components/BrandMessaging';
 import { currentAccount } from '../../../lib/cache';
+import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'confirm-signup-code';
 
@@ -63,6 +64,10 @@ const ConfirmSignupCode = ({
   );
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    GleanMetrics.signupConfirmation.view();
+  }, []);
 
   const [banner, setBanner] = useState<Partial<BannerProps>>({
     type: undefined,
@@ -109,6 +114,7 @@ const ConfirmSignupCode = ({
 
   async function verifySession(code: string) {
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
+    GleanMetrics.signupConfirmation.submit();
     try {
       const hasSelectedNewsletters = newsletters && newsletters.length > 0;
 
