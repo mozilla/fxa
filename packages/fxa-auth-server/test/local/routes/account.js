@@ -206,6 +206,8 @@ describe('/account/reset', () => {
     route = getRoute(accountRoutes, '/account/reset');
 
     clientAddress = mockRequest.app.clientAddress;
+    glean.resetPassword.accountReset.reset();
+    glean.resetPassword.createNewSuccess.reset();
   });
 
   describe('reset account with account recovery key', () => {
@@ -428,6 +430,20 @@ describe('/account/reset', () => {
       );
       let args = mockLog.activityEvent.args[0];
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
+      sinon.assert.calledOnceWithExactly(
+        glean.resetPassword.accountReset,
+        mockRequest,
+        {
+          uid,
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        glean.resetPassword.createNewSuccess,
+        mockRequest,
+        {
+          uid,
+        }
+      );
       assert.deepEqual(
         args[0],
         {
