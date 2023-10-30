@@ -66,6 +66,21 @@ export const eventHandlers = {
     handleAccountDisabledEvent,
   'https://schemas.openid.net/secevent/risc/event-type/account-enabled':
     handleAccountEnabledEvent,
+  'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked':
+    handleSessionsRevokedEvent,
+
+  // Since we don't store refresh tokens, we can't revoke it. Instead,
+  // lets handle this like a sessions-revoked event.
+  'https://schemas.openid.net/secevent/oauth/event-type/token-revoked':
+    handleSessionsRevokedEvent,
+
+  // We don't support purging accounts, so lets handle this like an account-disabled
+  // event, ie revoke all third party sessions and unlink the account.
+  'https://schemas.openid.net/secevent/risc/event-type/account-purged':
+    handleAccountDisabledEvent,
+
+  'https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required':
+    handleSessionsRevokedEvent,
 };
 
 function handleTestEvent(eventDetails: SETEvent, log: any) {
@@ -110,7 +125,7 @@ async function handleAccountDisabledEvent(
 }
 
 /**
- * Handle the account enabled event. For now we don't do anything.
+ * Handle the account enabled event. For now, we don't do anything.
  */
 async function handleAccountEnabledEvent() {}
 
