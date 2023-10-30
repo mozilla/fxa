@@ -18,10 +18,10 @@
 
     <div class="flex">
       {{#hasFirefoxViewSupport}}
-        <a id="open-firefox-view" class="cta-primary cta-xl">{{#t}}See tabs from synced devices{{/t}}</a>
+        <button id="open-firefox-view" class="cta-primary cta-xl">{{#t}}See tabs from synced devices{{/t}}</button>
       {{/hasFirefoxViewSupport}}
       {{^hasFirefoxViewSupport}}
-        <a href="/settings#connected-services" class="cta-primary cta-xl">{{#t}}Manage devices{{/t}}</a>
+        <button id="open-connected-services" class="cta-primary cta-xl">{{#t}}Manage devices{{/t}}</button>
       {{/hasFirefoxViewSupport}}
     </div>
   </section>
