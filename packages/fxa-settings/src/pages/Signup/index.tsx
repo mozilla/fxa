@@ -132,6 +132,7 @@ const Signup = ({
   // to avoid breaking dashboards.
   const onSubmit = useCallback(
     async ({ newPassword, age }: SignupFormData) => {
+      GleanMetrics.registration.submit();
       if (Number(age) < 13) {
         // this is a session cookie. It will go away once:
         // 1. the user closes the tab
@@ -146,7 +147,6 @@ const Signup = ({
         return;
       }
       setBeginSignupLoading(true);
-      GleanMetrics.registration.submit();
 
       const { data, error } = await beginSignupHandler(
         queryParamModel.email,
@@ -154,6 +154,8 @@ const Signup = ({
       );
 
       if (data) {
+        GleanMetrics.registration.success();
+
         // Persist account data to local storage to match parity with content-server
         // this allows the recent account to be used for /signin
         const accountData: StoredAccountData = {
