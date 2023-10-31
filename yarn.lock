@@ -35153,7 +35153,7 @@ fsevents@~2.1.1:
     mocha-multi: ^1.1.7
     mysql: ^2.18.1
     mysql2: ^3.6.0
-    nest-typed-config: ^2.8.0
+    nest-typed-config: ^2.9.1
     next: ^13.5.3
     node-fetch: ^2.6.7
     nps: ^5.10.0
@@ -39519,6 +39519,13 @@ fsevents@~2.1.1:
   version: 1.0.1
   resolution: "is-potential-custom-element-name@npm:1.0.1"
   checksum: ced7bbbb6433a5b684af581872afe0e1767e2d1146b2207ca0068a648fb5cab9d898495d1ac0583524faaf24ca98176a7d9876363097c2d14fee6dd324f3a1ab
+  languageName: node
+  linkType: hard
+
+"is-primitive@npm:^3.0.1":
+  version: 3.0.1
+  resolution: "is-primitive@npm:3.0.1"
+  checksum: c4da6a6e6d487f31d85b9259b67695fffcc75dca6c9612b0a002e3050c734227b9911be09b877539ec6309710229c19f4edd0f9e26ed2a67924ee0916baf0bed
   languageName: node
   linkType: hard
 
@@ -43931,7 +43938,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lodash.set@npm:4.3.2, lodash.set@npm:^4.3.2":
+"lodash.set@npm:^4.3.2":
   version: 4.3.2
   resolution: "lodash.set@npm:4.3.2"
   checksum: a9122f49eef9f2d0fc9061a33d87f8e5b8c6b23d46e8b9e9ce1529d3588d79741bd1145a3abdfa3b13082703e65af27ff18d8a07bfc22b9be32f3fc36f763f70
@@ -46627,9 +46634,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"nest-typed-config@npm:^2.8.0":
-  version: 2.8.0
-  resolution: "nest-typed-config@npm:2.8.0"
+"nest-typed-config@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "nest-typed-config@npm:2.9.1"
   dependencies:
     "@iarna/toml": ">= 2.2.5"
     "@nestjs/axios": ">= 0.1.0"
@@ -46642,8 +46649,8 @@ fsevents@~2.1.1:
     dotenv-expand: ">= 10.0.0"
     lodash.frompairs: 4.0.1
     lodash.merge: 4.6.2
-    lodash.set: 4.3.2
     parse-json: ">= 5.2.0"
+    set-value: ^4.1.0
     yaml: ">= 1.10.2"
   peerDependencies:
     "@nestjs/common": ">= 6.10.0 < 11"
@@ -46664,7 +46671,7 @@ fsevents@~2.1.1:
       optional: true
     yaml:
       optional: true
-  checksum: e603fa8cfea52957fb6e937c9da98f6c8b359241403ed9871ddc69010aa1d123f73fb17809c9688194682d22e23a735185ab342cd4578e67656fba5350899919
+  checksum: 05184d142af35b7591acda96130aa3912cb745d649f7251ce1c914111f75b30d92a4a137dc2f47f7fade414d4da4a059ef266fdb79adde321c61a13f63d2f594
   languageName: node
   linkType: hard
 
@@ -54818,6 +54825,16 @@ resolve@1.1.7:
     is-plain-object: ^2.0.3
     split-string: ^3.0.1
   checksum: 09a4bc72c94641aeae950eb60dc2755943b863780fcc32e441eda964b64df5e3f50603d5ebdd33394ede722528bd55ed43aae26e9df469b4d32e2292b427b601
+  languageName: node
+  linkType: hard
+
+"set-value@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "set-value@npm:4.1.0"
+  dependencies:
+    is-plain-object: ^2.0.4
+    is-primitive: ^3.0.1
+  checksum: 2b4f0f222538ae4c1f4171a5014c113649631c86ed81d1ac0c2df406d0a974d8006412ce1d7844c531268f1c66eb912f7eae7245ab3114e34357f1ff9d6dc697
   languageName: node
   linkType: hard
 
