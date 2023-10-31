@@ -7,6 +7,7 @@ import SigninConfirmed from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MozServices } from '../../../lib/types';
 
 export default {
   title: 'Pages/Signin/SigninConfirmed',
@@ -16,18 +17,18 @@ export default {
 
 export const DefaultSignedIn = () => (
   <LocationProvider>
-    <SigninConfirmed isSignedIn isSync={false} />
+    <SigninConfirmed isSignedIn />
   </LocationProvider>
 );
 
 export const DefaultSignedOut = () => (
   <LocationProvider>
-    <SigninConfirmed isSignedIn={false} isSync={false} />
+    <SigninConfirmed isSignedIn={false} />
   </LocationProvider>
 );
 
 export const IsSync = () => (
   <LocationProvider>
-    <SigninConfirmed isSignedIn={false} isSync />
+    <SigninConfirmed isSignedIn={false} serviceName={MozServices.FirefoxSync} />
   </LocationProvider>
 );

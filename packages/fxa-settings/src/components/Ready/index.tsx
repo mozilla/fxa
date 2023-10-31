@@ -17,7 +17,6 @@ export type ReadyProps = {
   isSignedIn: boolean;
   serviceName?: string;
   viewName: ViewNameType;
-  isSync?: boolean;
   errorMessage?: string;
 };
 
@@ -66,11 +65,14 @@ const Ready = ({
   continueHandler,
   errorMessage,
   isSignedIn,
-  isSync,
-  serviceName,
+  serviceName = MozServices.Default,
   viewName,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+
+  // TODO: Do we want to check isSyncDesktopIntegration instead?
+  // This component in general could use some clean up...
+  const isSync = serviceName === MozServices.FirefoxSync;
 
   const templateValues = getTemplateValues(viewName);
 

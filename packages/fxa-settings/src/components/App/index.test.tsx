@@ -3,36 +3,38 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { ReactNode } from 'react';
-import { act } from '@testing-library/react';
+import { act, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import App from '.';
 import * as Metrics from '../../lib/metrics';
 import {
   AppContext,
-  useAccount,
-  useInitialSettingsState,
+  useInitialMetricsQueryState,
+  useLocalSignedInQueryState,
   useIntegration,
+  useInitialSettingsState,
+  Account,
 } from '../../models';
-import { createAppContext, mockAppContext } from '../../models/mocks';
+import {
+  MOCK_ACCOUNT,
+  createAppContext,
+  mockAppContext,
+  renderWithRouter,
+} from '../../models/mocks';
 import GleanMetrics from '../../lib/glean';
 import config from '../../lib/config';
+import * as utils from 'fxa-react/lib/utils';
 
 jest.mock('../../models', () => ({
   ...jest.requireActual('../../models'),
+  useInitialMetricsQueryState: jest.fn(),
+  useLocalSignedInQueryState: jest.fn(),
   useInitialSettingsState: jest.fn(),
-  useAccount: jest.fn(),
   useIntegration: jest.fn(),
 }));
 
 jest.mock('react-markdown', () => {});
 jest.mock('rehype-raw', () => {});
-
-jest.mock('fxa-react/lib/AppLocalizationProvider', () => ({
-  __esModule: true,
-  default: ({ children }: { children: ReactNode }) => (
-    <section data-testid="AppLocalizationProvider">{children}</section>
-  ),
-}));
 
 jest.mock('../Settings/ScrollToTop', () => ({
   __esModule: true,
@@ -46,12 +48,34 @@ jest.mock('../../lib/glean', () => ({
   default: { initialize: jest.fn() },
 }));
 
-const mockAccount = {
-  metricsEnabled: true,
+const mockMetricsQueryAccountAmplitude = {
   recoveryKey: true,
   totpActive: true,
   hasSecondaryVerifiedEmail: false,
 };
+
+const mockMetricsQueryAccountResult = {
+  uid: 'abc123',
+  recoveryKey: true,
+  metricsEnabled: true,
+  emails: [
+    {
+      email: 'blabidi@blabidiboo.com',
+      isPrimary: true,
+      verified: true,
+    },
+  ],
+  totp: {
+    exists: true,
+    verified: true,
+  },
+};
+
+const mockMetricsQueryAccountGlean = {
+  uid: 'abc123',
+  metricsEnabled: true,
+};
+
 const DEVICE_ID = 'yoyo';
 const BEGIN_TIME = 123456;
 const FLOW_ID = 'abc123';
@@ -80,8 +104,10 @@ describe('metrics', () => {
   });
 
   it('Initializes metrics flow data when present', async () => {
-    (useAccount as jest.Mock).mockReturnValue(mockAccount);
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: true });
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+      data: mockMetricsQueryAccountResult,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
     const flowInit = jest.spyOn(Metrics, 'init');
     const userPreferencesInit = jest.spyOn(Metrics, 'initUserPreferences');
 
@@ -100,16 +126,20 @@ describe('metrics', () => {
       flowId: FLOW_ID,
       flowBeginTime: BEGIN_TIME,
     });
-    expect(userPreferencesInit).toHaveBeenCalledWith(mockAccount);
+    expect(userPreferencesInit).toHaveBeenCalledWith(
+      mockMetricsQueryAccountAmplitude
+    );
     expect(window.location.replace).not.toHaveBeenCalled();
   });
 });
 
 describe('glean', () => {
   it('Initializes glean', async () => {
-    (useAccount as jest.Mock).mockReturnValue(mockAccount);
-    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: true });
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+      data: mockMetricsQueryAccountResult,
+    });
     (useIntegration as jest.Mock).mockReturnValue({});
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
 
     await act(async () => {
       renderWithLocalizationProvider(
@@ -124,16 +154,144 @@ describe('glean', () => {
     expect(GleanMetrics.initialize).toHaveBeenCalledWith(
       {
         ...config.glean,
-        enabled: mockAccount.metricsEnabled,
+        enabled: mockMetricsQueryAccountGlean.metricsEnabled,
         appDisplayVersion: config.version,
         channel: config.glean.channel,
       },
       {
         flowQueryParams: updatedFlowQueryParams,
-        account: mockAccount,
+        account: mockMetricsQueryAccountGlean,
         userAgent: navigator.userAgent,
         integration: {},
       }
     );
+  });
+});
+
+describe('loading spinner states', () => {
+  it('when initial metrics query is loading', async () => {
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+      loading: true,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+  });
+
+  it('when signed in status has not been set yet', async () => {
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+      loading: false,
+    });
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+      data: undefined,
+    });
+
+    await act(async () => {
+      renderWithLocalizationProvider(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>
+      );
+    });
+
+    expect(screen.getByLabelText('Loading…')).toBeInTheDocument();
+  });
+});
+
+describe('SettingsRoutes', () => {
+  let hardNavigateToContentServerSpy: jest.SpyInstance;
+  const settingsPath = '/settings';
+  jest.mock('@reach/router', () => ({
+    ...jest.requireActual('@reach/router'),
+    useLocation: () => {
+      return {
+        pathname: settingsPath,
+      };
+    },
+  }));
+
+  beforeEach(() => {
+    hardNavigateToContentServerSpy = jest
+      .spyOn(utils, 'hardNavigateToContentServer')
+      .mockImplementation(() => {});
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
+      loading: false,
+    });
+    (useIntegration as jest.Mock).mockReturnValue({
+      getServiceName: jest.fn(),
+    });
+  });
+  afterEach(() => {
+    hardNavigateToContentServerSpy.mockRestore();
+  });
+  it('redirects to /signin if isSignedIn is false', async () => {
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+      data: { isSignedIn: false },
+    });
+
+    let navigateResult: Promise<void>;
+    await act(async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider
+          value={{ ...mockAppContext(), ...createAppContext() }}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+      navigateResult = navigate(settingsPath);
+    });
+
+    await act(() => navigateResult);
+
+    await waitFor(() => {
+      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+        `/signin?redirect_to=${encodeURIComponent(settingsPath)}`
+      );
+    });
+  });
+  it('does not redirect if isSignedIn is true', async () => {
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+      data: { isSignedIn: true },
+    });
+    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+
+    let navigateResult: Promise<void>;
+    await act(async () => {
+      const {
+        history: { navigate },
+      } = renderWithRouter(
+        <AppContext.Provider
+          value={mockAppContext({
+            account: MOCK_ACCOUNT as unknown as Account,
+          })}
+        >
+          <App flowQueryParams={updatedFlowQueryParams} />
+        </AppContext.Provider>,
+        { route: '/' }
+      );
+      navigateResult = navigate(settingsPath);
+    });
+
+    await act(() => navigateResult);
+
+    await waitFor(() => {
+      expect(hardNavigateToContentServerSpy).not.toHaveBeenCalled();
+    });
+    expect(screen.getByTestId('settings-profile')).toBeInTheDocument();
   });
 });

@@ -24,14 +24,13 @@ import {
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
-import { useAccount } from '../../models/hooks';
 import { FlowQueryParams } from '../..';
 import { Integration } from '../../models';
 
 type DeviceTypes = 'mobile' | 'tablet' | 'desktop';
 export type GleanMetricsContext = {
   flowQueryParams: FlowQueryParams;
-  account?: ReturnType<typeof useAccount>;
+  account?: { uid?: hexstring; metricsEnabled?: boolean };
   userAgent: string;
   integration: Integration;
 };

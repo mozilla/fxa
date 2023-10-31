@@ -22,6 +22,7 @@ import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { GET_SESSION_VERIFIED } from './Session';
 import { MozServices } from '../lib/types';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 
 export interface DeviceLocation {
   city: string | null;
@@ -893,6 +894,14 @@ export class Account implements AccountData {
           return { verified: true };
         },
       },
+    });
+    // TODO: Move this to ConfirmSignupCode container component
+    // If we can use GQL here when we do that, also be sure to add
+    // the operation name to the auth list in `lib/gql.ts`.
+    // Look @ in FXA-7626 or FXA-7184
+    this.apolloClient.cache.writeQuery({
+      query: GET_LOCAL_SIGNED_IN_STATUS,
+      data: { isSignedIn: true },
     });
   }
 
