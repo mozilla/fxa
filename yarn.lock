@@ -34989,7 +34989,7 @@ fsevents@~2.1.1:
     class-validator: ^0.14.0
     classnames: ^2.3.1
     css-loader: ^6.8.1
-    css-minimizer-webpack-plugin: ^3.2.0
+    css-minimizer-webpack-plugin: ^5.0.1
     dotenv: ^10.0.0
     dotenv-expand: ^5.1.0
     eslint: ^7.32.0
