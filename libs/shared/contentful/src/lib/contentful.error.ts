@@ -39,30 +39,3 @@ export class ContentfulQueryError extends BaseError {
     super(...args);
   }
 }
-
-/**
- * https://www.contentful.com/developers/docs/references/graphql/#/reference/graphql-errors
- */
-export class ContentfulExecutionError extends ContentfulQueryError {
-  constructor(...args: ConstructorParameters<typeof ContentfulQueryError>) {
-    super(...args);
-  }
-}
-
-/**
- * https://www.contentful.com/developers/docs/references/graphql/#/reference/graphql-errors
- */
-export class ContentfulLocaleError extends ContentfulQueryError {
-  constructor(...args: ConstructorParameters<typeof ContentfulQueryError>) {
-    super(...args);
-  }
-}
-
-/**
- * https://www.contentful.com/developers/docs/references/graphql/#/reference/graphql-errors
- */
-export class ContentfulLinkError extends ContentfulQueryError {
-  constructor(...args: ConstructorParameters<typeof ContentfulQueryError>) {
-    super(...args);
-  }
-}
