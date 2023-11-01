@@ -134,7 +134,6 @@ export class ContentfulClient {
 
     setInterval(() => {
       this.locales = [];
-      this.client.clearStore();
     }, cacheTTL);
   }
 }
