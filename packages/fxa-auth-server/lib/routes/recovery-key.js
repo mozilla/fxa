@@ -14,7 +14,15 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
 const isA = require('joi');
 
-module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
+module.exports = (
+  log,
+  db,
+  Password,
+  verifierVersion,
+  customs,
+  mailer,
+  glean
+) => {
   return [
     {
       method: 'POST',
@@ -280,6 +288,8 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
 
         const { recoveryData } = await db.getRecoveryKey(uid, recoveryKeyId);
+
+        glean.resetPassword.recoveryKeySuccess(request, { uid });
 
         return { recoveryData };
       },
