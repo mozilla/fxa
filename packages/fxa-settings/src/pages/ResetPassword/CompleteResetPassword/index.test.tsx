@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import GleanMetrics from '../../../lib/glean';
 import { Account, IntegrationType } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -40,6 +41,11 @@ const PASSWORD = 'passwordzxcv';
 jest.mock('../../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { resetPassword: { createNewView: jest.fn() } },
 }));
 
 let account: Account;
@@ -114,6 +120,8 @@ describe('CompleteResetPassword page', () => {
       hasTotpAuthClient: jest.fn().mockResolvedValue(false),
       isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
+
+    (GleanMetrics.resetPassword.createNewView as jest.Mock).mockReset();
   });
 
   afterEach(() => {
@@ -194,6 +202,7 @@ describe('CompleteResetPassword page', () => {
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
     it('with missing code', async () => {
       render(<Subject params={paramsWithMissingCode} />, account);
@@ -202,6 +211,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
     it('with missing email', async () => {
       render(<Subject params={paramsWithMissingEmail} />, account);
@@ -210,6 +220,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
   });
 
@@ -225,6 +236,7 @@ describe('CompleteResetPassword page', () => {
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
+    expect(GleanMetrics.resetPassword.createNewView).toBeCalledTimes(1);
   });
 
   describe('errors', () => {
