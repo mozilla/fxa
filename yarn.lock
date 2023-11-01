@@ -27529,13 +27529,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"confusing-browser-globals@npm:^1.0.10":
-  version: 1.0.10
-  resolution: "confusing-browser-globals@npm:1.0.10"
-  checksum: 7ccdc44c2ca419cf6576c3e4336106e18d1c5337f547e461342f51aec4a10f96fdfe45414b522be3c7d24ea0b62bf4372cd37768022e4d6161707ffb2c0987e6
-  languageName: node
-  linkType: hard
-
 "confusing-browser-globals@npm:^1.0.11, confusing-browser-globals@npm:^1.0.9":
   version: 1.0.11
   resolution: "confusing-browser-globals@npm:1.0.11"
@@ -31068,32 +31061,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-react-app@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "eslint-config-react-app@npm:6.0.0"
-  dependencies:
-    confusing-browser-globals: ^1.0.10
-  peerDependencies:
-    "@typescript-eslint/eslint-plugin": ^4.0.0
-    "@typescript-eslint/parser": ^4.0.0
-    babel-eslint: ^10.0.0
-    eslint: ^7.5.0
-    eslint-plugin-flowtype: ^5.2.0
-    eslint-plugin-import: ^2.22.0
-    eslint-plugin-jest: ^24.0.0
-    eslint-plugin-jsx-a11y: ^6.3.1
-    eslint-plugin-react: ^7.20.3
-    eslint-plugin-react-hooks: ^4.0.8
-    eslint-plugin-testing-library: ^3.9.0
-  peerDependenciesMeta:
-    eslint-plugin-jest:
-      optional: true
-    eslint-plugin-testing-library:
-      optional: true
-  checksum: b265852455b1c10e9c5f0cebe199306fffc7f8e1b6548fcb0bccdc4415c288dfee8ab10717122a32275b91130dfb482dcbbc87d2fb79d8728d4c2bfa889f0915
-  languageName: node
-  linkType: hard
-
 "eslint-config-react-app@npm:^7.0.1":
   version: 7.0.1
   resolution: "eslint-config-react-app@npm:7.0.1"
@@ -34011,7 +33978,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dateformat: ^4.6.3
     eslint: ^7.32.0
-    eslint-config-react-app: ^6.0.0
+    eslint-config-react-app: ^7.0.1
     eslint-plugin-import: ^2.28.0
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
@@ -34762,7 +34729,7 @@ fsevents@~2.1.1:
     convict-format-with-validator: ^6.2.0
     dayjs: ^1.11.5
     eslint: ^7.32.0
-    eslint-config-react-app: ^6.0.0
+    eslint-config-react-app: ^7.0.1
     eslint-plugin-import: ^2.28.0
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
@@ -34993,7 +34960,7 @@ fsevents@~2.1.1:
     dotenv: ^10.0.0
     dotenv-expand: ^5.1.0
     eslint: ^7.32.0
-    eslint-config-react-app: ^6.0.0
+    eslint-config-react-app: ^7.0.1
     eslint-plugin-jest: ^27.2.1
     eslint-plugin-react: ^7.32.2
     eslint-webpack-plugin: ^3.1.1
