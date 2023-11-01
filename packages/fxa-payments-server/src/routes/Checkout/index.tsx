@@ -207,6 +207,10 @@ export const Checkout = ({
             // every time.  new stub account, new customer, new invoice, etc.
             setRetryStatus(undefined);
             setSubscriptionError({ type: 'card_error', code: 'card_declined' });
+            // Only set In Progress to false on subscription error
+            // This is to prevent the Submit button from momentarily flashing as enabled
+            // before navigating to the success screen.
+            setInProgress(false);
           },
         });
         if (subscribeToNewsletter) {
@@ -220,9 +224,12 @@ export const Checkout = ({
           // an error property on error.
           const err = typeof error.error === 'string' ? error : error.error;
           setSubscriptionError(err);
+          // Only set In Progress to false on subscription error
+          // This is to prevent the Submit button from momentarily flashing as enabled
+          // before navigating to the success screen.
+          setInProgress(false);
         }
       }
-      setInProgress(false);
       refreshSubmitNonce();
     },
     [
