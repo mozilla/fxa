@@ -559,6 +559,30 @@ describe('/linked_account', function () {
               event,
           };
           return baseEvent;
+        case 'tokensRevoked':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked':
+              event,
+          };
+          return baseEvent;
+        case 'tokenRevoked':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/oauth/event-type/token-revoked':
+              event,
+          };
+          return baseEvent;
+        case 'accountPurged':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/account-purged':
+              event,
+          };
+          return baseEvent;
+        case 'passwordChanged':
+          baseEvent.events = {
+            'https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required':
+              event,
+          };
+          return baseEvent;
         case 'accountDisabled':
           baseEvent.events = {
             'https://schemas.openid.net/secevent/risc/event-type/account-disabled':
@@ -654,6 +678,87 @@ describe('/linked_account', function () {
       assert.calledWithExactly(
         statsd.increment,
         'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/sessions-revoked'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+    });
+
+    it('handles tokens revoked event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('tokensRevoked') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.getLinkedAccount, SUB, 'google');
+      assert.calledOnceWithExactly(mockDB.sessions, UID);
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: 'fxauid',
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+    });
+
+    it('handles token revoked event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('tokenRevoked') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.getLinkedAccount, SUB, 'google');
+      assert.calledOnceWithExactly(mockDB.sessions, UID);
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: 'fxauid',
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/oauth/event-type/token-revoked'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+    });
+
+    it('handles account purged event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('accountPurged') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: UID,
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-purged'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+      assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'google');
+    });
+
+    it('handles credentials changed event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('passwordChanged') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleGoogleSET.received');
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: 'fxauid',
+        providerId: 1,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleGoogleSET.processed.https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required'
       );
       assert.calledWithExactly(
         mockLog.debug,
