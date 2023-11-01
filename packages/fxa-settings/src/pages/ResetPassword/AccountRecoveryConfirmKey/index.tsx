@@ -6,6 +6,7 @@ import { Link, useLocation, useNavigate } from '@reach/router';
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 import { useAccount } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -71,6 +72,7 @@ const AccountRecoveryConfirmKey = ({
 
           setShowLoadingSpinner(false);
           logPageViewEvent(viewName, REACT_ENTRYPOINT);
+          GleanMetrics.resetPassword.recoveryKeyView();
         } else {
           setLinkStatus(LinkStatus.expired);
         }
@@ -200,6 +202,7 @@ const AccountRecoveryConfirmKey = ({
     setIsLoading(true);
     setBannerMessage(undefined);
     logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
+    GleanMetrics.resetPassword.recoveryKeySubmit();
 
     // if the submitted key does not match the expected format,
     // abort before submitting to the auth server
