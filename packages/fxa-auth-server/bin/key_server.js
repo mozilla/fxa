@@ -125,6 +125,7 @@ async function run(config) {
         graphqlEnvironment: config.contentful.environment,
       });
       const contentfulManager = new ContentfulManager(contentfulClient);
+      Container.set(ContentfulManager, contentfulManager);
       const capabilityManager = new CapabilityManager(contentfulManager);
       Container.set(CapabilityManager, capabilityManager);
     }
