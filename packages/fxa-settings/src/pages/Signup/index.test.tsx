@@ -69,7 +69,9 @@ jest.mock('@reach/router', () => ({
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { registration: { view: jest.fn(), submit: jest.fn() } },
+  default: {
+    registration: { view: jest.fn(), submit: jest.fn(), success: jest.fn() },
+  },
 }));
 
 describe('Signup page', () => {
@@ -301,7 +303,8 @@ describe('Signup page', () => {
         await waitFor(() => {
           expect(document.cookie).toBe('tooyoung=1;');
         });
-        expect(GleanMetrics.registration.submit).not.toBeCalled();
+        expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
         expect(mockBeginSignupHandler).not.toBeCalled();
       });
@@ -383,6 +386,8 @@ describe('Signup page', () => {
 
       expect(notifyFirefoxOfLogin).not.toBeCalled();
 
+      expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+
       expect(mockNavigate).toHaveBeenCalledWith(
         `/confirm_signup_code${mockLocation().search}`,
         {
@@ -418,6 +423,8 @@ describe('Signup page', () => {
         );
       });
 
+      expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+
       expect(notifyFirefoxOfLogin).toBeCalledWith({
         authAt: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.authAt,
         email: MOCK_EMAIL,
@@ -450,7 +457,9 @@ describe('Signup page', () => {
           MOCK_PASSWORD
         );
       });
+      expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
     });
+
     it('on fail', async () => {
       const mockBeginSignupHandler = jest
         .fn()
@@ -464,6 +473,8 @@ describe('Signup page', () => {
       submit();
 
       await screen.findByText(BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE.error.message);
+      expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });
   });
 });
