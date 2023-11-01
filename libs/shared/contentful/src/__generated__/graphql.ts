@@ -1120,6 +1120,7 @@ export type Offering = Entry & {
   iapCollection: Maybe<OfferingIapCollection>;
   internalName: Maybe<Scalars['String']['output']>;
   linkedFrom: Maybe<OfferingLinkingCollections>;
+  stripeLegacyPlans: Maybe<Array<Maybe<Scalars['String']['output']>>>;
   stripeProductId: Maybe<Scalars['String']['output']>;
   sys: Sys;
 };
@@ -1203,6 +1204,11 @@ export type OfferingInternalNameArgs = {
 /** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
 export type OfferingLinkedFromArgs = {
   allowedLocales: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+};
+
+/** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
+export type OfferingStripeLegacyPlansArgs = {
+  locale: InputMaybe<Scalars['String']['input']>;
 };
 
 /** Offering configuration. [See type definition](https://app.contentful.com/spaces/l7gqxxg5i1gg/content_types/offering) */
@@ -1338,6 +1344,16 @@ export type OfferingFilter = {
   internalName_not_in: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  stripeLegacyPlans_contains_all: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_contains_none: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_contains_some: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_exists: InputMaybe<Scalars['Boolean']['input']>;
   stripeProductId: InputMaybe<Scalars['String']['input']>;
   stripeProductId_contains: InputMaybe<Scalars['String']['input']>;
   stripeProductId_exists: InputMaybe<Scalars['Boolean']['input']>;
@@ -2576,6 +2592,16 @@ export type CfOfferingNestedFilter = {
   internalName_not_in: InputMaybe<
     Array<InputMaybe<Scalars['String']['input']>>
   >;
+  stripeLegacyPlans_contains_all: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_contains_none: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_contains_some: InputMaybe<
+    Array<InputMaybe<Scalars['String']['input']>>
+  >;
+  stripeLegacyPlans_exists: InputMaybe<Scalars['Boolean']['input']>;
   stripeProductId: InputMaybe<Scalars['String']['input']>;
   stripeProductId_contains: InputMaybe<Scalars['String']['input']>;
   stripeProductId_exists: InputMaybe<Scalars['Boolean']['input']>;
@@ -2830,6 +2856,7 @@ export type PurchaseWithDetailsOfferingContentQuery = {
       offering: {
         __typename?: 'Offering';
         stripeProductId: string | null;
+        stripeLegacyPlans: Array<string | null> | null;
         commonContent: {
           __typename?: 'CommonContent';
           privacyNoticeUrl: string | null;
@@ -3632,13 +3659,59 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                   fields: [
                     {
                       kind: 'ObjectField',
-                      name: {
-                        kind: 'Name',
-                        value: 'stripePlanChoices_contains_some',
-                      },
+                      name: { kind: 'Name', value: 'OR' },
                       value: {
-                        kind: 'Variable',
-                        name: { kind: 'Name', value: 'stripePlanIds' },
+                        kind: 'ListValue',
+                        values: [
+                          {
+                            kind: 'ObjectValue',
+                            fields: [
+                              {
+                                kind: 'ObjectField',
+                                name: {
+                                  kind: 'Name',
+                                  value: 'stripePlanChoices_contains_some',
+                                },
+                                value: {
+                                  kind: 'Variable',
+                                  name: {
+                                    kind: 'Name',
+                                    value: 'stripePlanIds',
+                                  },
+                                },
+                              },
+                            ],
+                          },
+                          {
+                            kind: 'ObjectValue',
+                            fields: [
+                              {
+                                kind: 'ObjectField',
+                                name: { kind: 'Name', value: 'offering' },
+                                value: {
+                                  kind: 'ObjectValue',
+                                  fields: [
+                                    {
+                                      kind: 'ObjectField',
+                                      name: {
+                                        kind: 'Name',
+                                        value:
+                                          'stripeLegacyPlans_contains_some',
+                                      },
+                                      value: {
+                                        kind: 'Variable',
+                                        name: {
+                                          kind: 'Name',
+                                          value: 'stripePlanIds',
+                                        },
+                                      },
+                                    },
+                                  ],
+                                },
+                              },
+                            ],
+                          },
+                        ],
                       },
                     },
                   ],
@@ -3692,6 +3765,13 @@ export const PurchaseWithDetailsOfferingContentDocument = {
                             {
                               kind: 'Field',
                               name: { kind: 'Name', value: 'stripeProductId' },
+                            },
+                            {
+                              kind: 'Field',
+                              name: {
+                                kind: 'Name',
+                                value: 'stripeLegacyPlans',
+                              },
                             },
                             {
                               kind: 'Field',

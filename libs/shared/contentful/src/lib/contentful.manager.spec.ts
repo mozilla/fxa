@@ -13,6 +13,8 @@ import {
   EligibilityContentByPlanIdsResultUtil,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
+import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
+import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 describe('ContentfulManager', () => {
   let manager: ContentfulManager;
   let mockClient: ContentfulClient;
@@ -76,6 +78,47 @@ describe('ContentfulManager', () => {
       const result = await manager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(1);
+    });
+  });
+
+  describe('getPurchaseWithDetailsOfferingContentByPlanIds', () => {
+    it('should return empty result', async () => {
+      mockClient.query = jest.fn().mockReturnValue({
+        data: {
+          purchaseCollection: { items: [] },
+        },
+      });
+      mockClient.getLocale = jest.fn().mockResolvedValue('en');
+      const result =
+        await manager.getPurchaseWithDetailsOfferingContentByPlanIds(
+          ['test'],
+          'en'
+        );
+      expect(result).toBeInstanceOf(PurchaseWithDetailsOfferingContentUtil);
+      expect(result.purchaseCollection.items).toHaveLength(0);
+    });
+
+    it('should return successfully with purchase details and offering', async () => {
+      const queryData =
+        PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
+      const queryDataItem = queryData.purchaseCollection.items[0];
+      mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
+      mockClient.getLocale = jest.fn().mockResolvedValue('en');
+      const result =
+        await manager.getPurchaseWithDetailsOfferingContentByPlanIds(
+          ['test'],
+          'en'
+        );
+      const planId = result.purchaseCollection.items[0].stripePlanChoices?.[0];
+      expect(result).toBeInstanceOf(PurchaseWithDetailsOfferingContentUtil);
+      expect(
+        result.transformedPurchaseWithCommonContentForPlanId(planId ?? '')
+          ?.offering
+      ).toEqual(queryDataItem.offering);
+      expect(
+        result.transformedPurchaseWithCommonContentForPlanId(planId ?? '')
+          ?.purchaseDetails
+      ).toEqual(result.purchaseDetailsTransform(queryDataItem.purchaseDetails));
     });
   });
 });
