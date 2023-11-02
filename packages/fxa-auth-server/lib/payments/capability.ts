@@ -667,15 +667,10 @@ export class CapabilityService {
 
     if (!this.capabilityManager) {
       if (this.logToSentry('getClients.CapabilityManagerNotFound')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('getClients', {
-            msg: `CapabilityManager not found.`,
-          });
-          Sentry.captureMessage(
-            `CapabilityManager not found.`,
-            'error' as SeverityLevel
-          );
-        });
+        Sentry.captureMessage(
+          `CapabilityManager not found.`,
+          'error' as SeverityLevel
+        );
       }
 
       return clientsFromStripe;
@@ -691,20 +686,25 @@ export class CapabilityService {
       if (this.logToSentry('getClients.NoMatch')) {
         Sentry.withScope((scope) => {
           scope.setContext('getClients', {
-            contentful: clientsFromContentful,
-            stripe: clientsFromStripe,
+            contentful: clientsFromContentful.map((service) => ({
+              ...service,
+              capabilities: service.capabilities.length,
+            })),
+            stripe: clientsFromStripe.map((service) => ({
+              ...service,
+              capabilities: service.capabilities.length,
+            })),
           });
           Sentry.captureMessage(
-            `Returned Stripe as clients did not match.`,
+            `CapabilityService.getClients - Returned Stripe as clients did not match.`,
             'error' as SeverityLevel
           );
         });
       }
-
-      return clientsFromStripe;
     } catch (error) {
       this.log.error('subscriptions.getClients', { error: error });
-      throw error;
+      Sentry.captureException(error);
     }
+    return clientsFromStripe;
   }
 }
