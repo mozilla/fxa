@@ -762,8 +762,6 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
-      const sentryScope = { setContext: sinon.stub() };
-      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sinon.stub(Sentry, 'captureMessage');
 
       Container.remove(CapabilityManager);
@@ -778,9 +776,6 @@ describe('CapabilityService', () => {
 
       assert.deepEqual(clients, mockClientsFromStripe);
 
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        msg: `CapabilityManager not found.`,
-      });
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
         `CapabilityManager not found.`,
@@ -790,9 +785,11 @@ describe('CapabilityService', () => {
       // Test logToSentry logic. Remove if no longer necessary
       await mockCapabilityService.getClients();
 
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        msg: `CapabilityManager not found.`,
-      });
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityManager not found.`,
+        'error'
+      );
     });
 
     it('returns results from Contentful when it matches Stripe', async () => {
@@ -821,10 +818,12 @@ describe('CapabilityService', () => {
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sinon.stub(Sentry, 'captureMessage');
 
-      mockCapabilityManager.getClients = sinon.fake.resolves({
-        capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-        clientId: 'client1',
-      });
+      mockCapabilityManager.getClients = sinon.fake.resolves([
+        {
+          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+          clientId: 'client1',
+        },
+      ]);
 
       const mockClientsFromContentful =
         await mockCapabilityManager.getClients();
@@ -838,12 +837,18 @@ describe('CapabilityService', () => {
       assert.deepEqual(clients, mockClientsFromStripe);
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
-        stripe: mockClientsFromStripe,
+        contentful: mockClientsFromContentful.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+        stripe: mockClientsFromStripe.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
       });
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
-        `Returned Stripe as clients did not match.`,
+        `CapabilityService.getClients - Returned Stripe as clients did not match.`,
         'error'
       );
 
@@ -851,8 +856,14 @@ describe('CapabilityService', () => {
       await capabilityService.getClients();
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful,
-        stripe: mockClientsFromStripe,
+        contentful: mockClientsFromContentful.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+        stripe: mockClientsFromStripe.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
       });
     });
   });
