@@ -57,11 +57,6 @@ describe('#integration - remote password forgot', function () {
       })
       .then((emailData) => {
         assert.equal(
-          emailData.html.indexOf('IP address') > -1,
-          true,
-          'contains ip location data'
-        );
-        assert.equal(
           emailData.headers['x-flow-begin-time'],
           opts.metricsContext.flowBeginTime,
           'flow begin time set'

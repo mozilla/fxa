@@ -53,11 +53,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         async function sendKeyCreationEmail() {
           const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const { acceptLanguage, clientAddress: geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
-            ip,
-            location: geo.location,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
@@ -75,11 +73,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         async function sendKeyChangeEmail() {
           const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const { acceptLanguage, clientAddress: geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
-            ip,
-            location: geo.location,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
@@ -220,11 +216,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             await request.emitMetricsEvent('recoveryKey.created', { uid });
 
             const account = await db.account(uid);
-            const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+            const { acceptLanguage, clientAddress: geo, ua } = request.app;
             const emailOptions = {
               acceptLanguage,
-              ip,
-              location: geo.location,
               timeZone: geo.timeZone,
               uaBrowser: ua.browser,
               uaBrowserVersion: ua.browserVersion,
@@ -448,11 +442,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         const account = await db.account(uid);
 
-        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+        const { acceptLanguage, clientAddress: geo, ua } = request.app;
         const emailOptions = {
           acceptLanguage,
-          ip,
-          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,

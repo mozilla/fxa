@@ -215,7 +215,6 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
       const service = request.payload.service || request.query.service;
       const redirectTo = request.payload.redirectTo;
       const resume = request.payload.resume;
-      const ip = request.app.clientAddress;
       const isUnverifiedAccount = !accountRecord.primaryEmail.isVerified;
 
       let sessions;
@@ -332,8 +331,6 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
             deviceId,
             flowId,
             flowBeginTime,
-            ip,
-            location: request.app.geo.location,
             timeZone: request.app.geo.timeZone,
             uaBrowser: request.app.ua.browser,
             uaBrowserVersion: request.app.ua.browserVersion,
@@ -393,8 +390,6 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
               deviceId,
               flowId,
               flowBeginTime,
-              ip,
-              location: geoData.location,
               redirectTo: redirectTo,
               resume: resume,
               service: service,
@@ -423,7 +418,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
 
         const secret = accountRecord.primaryEmail.emailCode;
         const code = otpUtils.generateOtpCode(secret, otpOptions);
-        const { location, timeZone } = request.app.geo;
+        const { timeZone } = request.app.geo;
 
         try {
           await mailer.sendVerifyLoginCodeEmail(
@@ -435,8 +430,6 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
               deviceId,
               flowId,
               flowBeginTime,
-              ip,
-              location,
               redirectTo,
               resume,
               service,
@@ -464,7 +457,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
         accountEventsManager.recordSecurityEvent(db, {
           name: 'account.login',
           uid: accountRecord.uid,
-          ipAddr: ip,
+          ipAddr: request.app.clientAddress,
           tokenId: sessionToken.id,
         });
       }

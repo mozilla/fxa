@@ -15,16 +15,6 @@
         <%- include('/partials/userDevice/index.mjml') %>
         <br />
       <% } %>
-      <% if (locals.location) { %>
-        <%- include('/partials/userLocation/index.mjml') %>
-        <br />
-      <% } %>
-      <% if (locals.ip) { %>
-        <span data-l10n-id="user-ip" data-l10n-args="<%= JSON.stringify({ip}) %>">
-          IP address: <%- ip %>
-        </span>
-        <br />
-      <% } %>
       <% if (locals.date) { %>
         <%- date %>
         <br />
