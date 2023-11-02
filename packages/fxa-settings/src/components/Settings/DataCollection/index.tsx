@@ -73,7 +73,7 @@ export const DataCollection = () => {
                 Mozilla.
               </Localized>{' '}
               <LinkExternal
-                href="https://www.mozilla.org/privacy/firefox/#firefox-accounts"
+                href="https://www.mozilla.org/privacy/mozilla-accounts/"
                 className="link-blue"
                 data-testid="link-external-telemetry-opt-out"
               >
