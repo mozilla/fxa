@@ -43,7 +43,7 @@ const renderWithContext = (
 };
 
 describe('UnitRowRecoveryKey', () => {
-  it('renders version 2 as expected when account recovery key is set', () => {
+  it('renders as expected when account recovery key is set', () => {
     renderWithContext(accountHasRecoveryKey);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
@@ -60,7 +60,7 @@ describe('UnitRowRecoveryKey', () => {
     });
   });
 
-  it('renders version 2 as expected when account recovery key is not set', () => {
+  it('renders as expected when account recovery key is not set', () => {
     renderWithContext(accountWithoutRecoveryKey);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
@@ -71,7 +71,7 @@ describe('UnitRowRecoveryKey', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 
-  it('disables key creation in version 2 when account has no password', () => {
+  it('disables key creation when account has no password', () => {
     renderWithContext(accountWithoutPassword);
     screen.getByRole('heading', { name: 'Account recovery key' });
     expect(
@@ -89,7 +89,7 @@ describe('UnitRowRecoveryKey', () => {
     });
   });
 
-  describe('delete account recovery key in version 2', () => {
+  describe('delete account recovery key', () => {
     const expectRevokeEvent = (event: string) => {
       expect(Metrics.logViewEvent).toHaveBeenCalledWith(
         'flow.settings.account-recovery',
