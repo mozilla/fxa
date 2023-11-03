@@ -288,7 +288,7 @@ const conf = convict({
         doc: 'port for redis server',
       },
       password: {
-        default: 'fxa123',
+        default: '',
         env: 'REDIS_PASSWORD',
         format: String,
         sensitive: true,

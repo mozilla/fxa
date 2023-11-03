@@ -171,7 +171,7 @@ const conf = (module.exports = convict({
         format: String,
       },
       password: {
-        default: 'fxa123',
+        default: '',
         doc: 'Redis password',
         env: 'REDIS_PASSWORD',
         sensitive: true,
