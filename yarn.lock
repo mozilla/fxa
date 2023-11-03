@@ -35499,7 +35499,7 @@ fsevents@~2.1.1:
     react-hook-form: ^6.15.8
     react-markdown: ^8.0.5
     react-refresh: ^0.11.0
-    react-webcam: ^7.0.0
+    react-webcam: ^7.2.0
     reflect-metadata: ^0.1.13
     rehype-raw: ^6.1.1
     resolve: ^1.20.0
@@ -53197,13 +53197,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"react-webcam@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "react-webcam@npm:7.0.0"
+"react-webcam@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "react-webcam@npm:7.2.0"
   peerDependencies:
     react: ">=16.2.0"
     react-dom: ">=16.2.0"
-  checksum: 2241beacdbe55cdfd74e34290fbadb915d202ddccdf366a65d84f002872bc85789baec5ed548915c3eaf93a37bca61b6a6c77cd029ed7ee215adae5fd80b1b09
+  checksum: 55aecc9e33ea711525f9b68a7c14c9cf4089777b9edd6d9c93813568d701a101f3da09ffd7df04b64eca8c9783a37830522376049589699c6015555ec8d7ccd8
   languageName: node
   linkType: hard
 
