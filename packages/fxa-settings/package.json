@@ -173,7 +173,7 @@
     "react-dev-utils": "^12.0.1",
     "react-easy-crop": "^5.0.0",
     "react-hook-form": "^6.15.8",
-    "react-markdown": "^8.0.5",
+    "react-markdown": "^9.0.0",
     "react-refresh": "^0.11.0",
     "react-webcam": "^7.0.0",
     "reflect-metadata": "^0.1.13",
