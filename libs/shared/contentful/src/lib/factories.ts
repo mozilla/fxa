@@ -195,8 +195,8 @@ export const ContentfulClientQueryFactory = <Result, Variables>(
 export const ContentfulCDNErrorFactory = (
   override?: ContentfulErrorResponse
 ): ContentfulErrorResponse => ({
-  sys: { type: 'Error', id: faker.string.sample() },
-  message: faker.string.sample(),
+  sys: { type: 'Error', id: faker.string.alpha() },
+  message: faker.string.alpha(),
   requestId: faker.string.uuid(),
   ...override,
 });

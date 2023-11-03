@@ -6,16 +6,21 @@ import { Injectable } from '@nestjs/common';
 
 import {
   EligibilityContentByPlanIdsQuery,
+  PurchaseWithDetailsOfferingContentQuery,
   ServicesWithCapabilitiesQuery,
 } from '../__generated__/graphql';
 import { ContentfulClient } from './contentful.client';
 import {
-  eligibilityContentByPlanIdsQuery,
   EligibilityContentByPlanIdsResultUtil,
+  eligibilityContentByPlanIdsQuery,
 } from './queries/eligibility-content-by-plan-ids';
 import {
-  servicesWithCapabilitiesQuery,
+  PurchaseWithDetailsOfferingContentUtil,
+  purchaseWithDetailsOfferingContentQuery,
+} from './queries/purchase-with-details-offering-content';
+import {
   ServicesWithCapabilitiesResultUtil,
+  servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
 import { DeepNonNullable } from './types';
 
@@ -50,6 +55,26 @@ export class ContentfulManager {
 
     return new ServicesWithCapabilitiesResultUtil(
       queryResult.data as DeepNonNullable<ServicesWithCapabilitiesQuery>
+    );
+  }
+
+  async getPurchaseWithDetailsOfferingContentByPlanIds(
+    stripePlanIds: string[],
+    acceptLanguage: string
+  ): Promise<PurchaseWithDetailsOfferingContentUtil> {
+    const locale = await this.client.getLocale(acceptLanguage);
+    const queryResult = await this.client.query(
+      purchaseWithDetailsOfferingContentQuery,
+      {
+        skip: 0,
+        limit: 100,
+        locale,
+        stripePlanIds,
+      }
+    );
+
+    return new PurchaseWithDetailsOfferingContentUtil(
+      queryResult.data as DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>
     );
   }
 }
