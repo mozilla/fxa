@@ -645,7 +645,11 @@ describe('/linked_account', function () {
               validateSecurityToken: () =>
                 options.validateSecurityToken || makeJWT(),
               isValidClientId: () => true,
-              getGooglePublicKey: () => {},
+              getGooglePublicKey: () => {
+                return {
+                  pem: 'somekey',
+                };
+              },
             },
           }
         ),
@@ -810,6 +814,150 @@ describe('/linked_account', function () {
       assert.calledWithExactly(
         statsd.increment,
         'handleGoogleSET.unknownEventType.https://schemas.openid.net/secevent/risc/event-type/unknown'
+      );
+    });
+  });
+
+  describe('/linked_account/webhook/apple_event_receiver', () => {
+    const SUB = '7375626A656374';
+    let mockLog, mockDB, mockRequest, route;
+
+    function makeJWT(type = 'test') {
+      const baseEvent = {
+        iss: 'https://appleid.apple.com',
+        aud: 'teamId',
+        iat: 1508184845,
+        jti: '756E69717565206964656E746966696572',
+        events: {
+          type: 'email-disabled',
+          sub: SUB,
+          email: 'ep9ks2tnph@privaterelay.appleid.com',
+          is_private_email: 'true',
+          event_time: 1508184845,
+        },
+      };
+      baseEvent.events.type = type;
+      return baseEvent;
+    }
+
+    function setupTest(options) {
+      mockLog = mocks.mockLog();
+      mockDB = mocks.mockDB({
+        uid: UID,
+        sessions: [
+          {
+            id: 'sessionTokenId1',
+            uid: UID,
+            providerId: 2, // Apple based session
+          },
+          {
+            id: 'sessionTokenId2',
+            uid: UID,
+            providerId: null, // FxA based session
+          },
+        ],
+      });
+      mockDB.getLinkedAccount = sinon.spy(() => Promise.resolve({ uid: UID }));
+      const mockConfig = {
+        appleAuthConfig: { clientId: 'OooOoo', teamId: 'teamId' },
+      };
+      mockRequest = mocks.mockRequest({
+        payload: [],
+      });
+      statsd = { increment: sinon.spy() };
+
+      route = getRoute(
+        makeRoutes(
+          {
+            config: mockConfig,
+            db: mockDB,
+            log: mockLog,
+            statsd,
+          },
+          {
+            './utils/third-party-events': {
+              validateSecurityToken: () =>
+                options.validateSecurityToken || makeJWT(),
+              isValidClientId: () => true,
+              getApplePublicKey: () => {
+                return {
+                  pem: 'somekey',
+                };
+              },
+            },
+          }
+        ),
+        '/linked_account/webhook/apple_event_receiver'
+      );
+    }
+
+    it('handles email disabled event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('email-disabled') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.notCalled(mockDB.getLinkedAccount);
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.email-disabled'
+      );
+    });
+
+    it('handles email enabled event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('email-enabled') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.notCalled(mockDB.getLinkedAccount);
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.email-enabled'
+      );
+    });
+
+    it('handles consent revoked event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('consent-revoked') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: UID,
+        providerId: 2,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.consent-revoked'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+      assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.consent-revoked'
+      );
+    });
+
+    it('handles account delete event', async () => {
+      setupTest({ validateSecurityToken: makeJWT('account-delete') });
+      await runTest(route, mockRequest);
+      assert.calledWithExactly(statsd.increment, 'handleAppleSET.received');
+      assert.calledOnceWithExactly(mockDB.deleteSessionToken, {
+        id: 'sessionTokenId1',
+        uid: UID,
+        providerId: 2,
+      });
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.account-delete'
+      );
+      assert.calledWithExactly(
+        mockLog.debug,
+        'Revoked 1 third party sessions for user fxauid'
+      );
+      assert.calledWithExactly(mockDB.deleteLinkedAccount, UID, 'apple');
+      assert.calledWithExactly(
+        statsd.increment,
+        'handleAppleSET.processed.account-delete'
       );
     });
   });

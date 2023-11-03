@@ -21,10 +21,14 @@ import error from '../error';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
 import {
   getGooglePublicKey,
+  getApplePublicKey,
   isValidClientId,
   validateSecurityToken,
-  eventHandlers,
-  handleOtherEventType,
+  googleEventHandlers,
+  handleGoogleOtherEventType,
+  GoogleJWTSETPayload,
+  AppleJWTSETPayload,
+  appleEventHandlers,
 } from './utils/third-party-events';
 
 const HEX_STRING = validators.HEX_STRING;
@@ -35,6 +39,7 @@ export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
   private otpUtils: any;
   private goooglePublicKey: any;
+  private applePublicKey: any;
 
   constructor(
     private log: AuthLogger,
@@ -74,6 +79,49 @@ export class LinkedAccountHandler {
     return jwt;
   }
 
+  async handleAppleSET(request: AuthRequest) {
+    this.statsd.increment('handleAppleSET.received');
+
+    const tokenBuffer = request.payload as ArrayBuffer;
+    const token = tokenBuffer.toString();
+
+    if (!this.applePublicKey) {
+      this.applePublicKey = await getApplePublicKey(token);
+    }
+
+    try {
+      const { clientId, teamId } = this.config.appleAuthConfig;
+      const jwtPayload = (await validateSecurityToken(
+        token,
+        clientId,
+        this.applePublicKey.pem,
+        teamId
+      )) as AppleJWTSETPayload;
+      this.statsd.increment('handleAppleSET.decoded');
+
+      const eventType = jwtPayload.events.type;
+
+      if (appleEventHandlers[eventType as keyof typeof appleEventHandlers]) {
+        await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
+          jwtPayload.events,
+          this.log,
+          this.db
+        );
+        this.statsd.increment(`handleAppleSET.processed.${eventType}`);
+        this.log.debug(`handleAppleSET.processed`, {
+          eventType,
+        });
+      } else {
+        this.statsd.increment(`handleAppleSET.unknownEventType.${eventType}`);
+      }
+    } catch (err) {
+      this.statsd.increment('handleAppleSET.validationError');
+      throw err;
+    }
+
+    return {};
+  }
+
   async handleGoogleSET(request: AuthRequest) {
     this.statsd.increment('handleGoogleSET.received');
 
@@ -94,35 +142,36 @@ export class LinkedAccountHandler {
         return {};
       }
 
-      const jwtPayload = await validateSecurityToken(
+      const jwtPayload = (await validateSecurityToken(
         token,
         this.config.googleAuthConfig.clientId,
-        this.goooglePublicKey
-      );
+        this.goooglePublicKey.pem,
+        this.goooglePublicKey.issuer
+      )) as GoogleJWTSETPayload;
       this.statsd.increment('handleGoogleSET.decoded');
 
       // Process each event type
       for (const eventType in jwtPayload.events) {
-        if (eventHandlers[eventType as keyof typeof eventHandlers]) {
-          await eventHandlers[eventType as keyof typeof eventHandlers](
-            jwtPayload.events[eventType],
-            this.log,
-            this.db
-          );
+        if (
+          googleEventHandlers[eventType as keyof typeof googleEventHandlers]
+        ) {
+          await googleEventHandlers[
+            eventType as keyof typeof googleEventHandlers
+          ](jwtPayload.events[eventType], this.log, this.db);
           this.statsd.increment(`handleGoogleSET.processed.${eventType}`);
           this.log.debug('handleGoogleSET.processed', {
             eventType,
           });
         } else {
           // Log that an unknown event type was received and ignore it
-          handleOtherEventType(eventType, this.log);
+          handleGoogleOtherEventType(eventType, this.log);
           this.statsd.increment(
             `handleGoogleSET.unknownEventType.${eventType}`
           );
         }
       }
     } catch (err) {
-      this.statsd.increment('handleGoogleEvent.validationError');
+      this.statsd.increment('handleGoogleSET.validationError');
       throw err;
     }
 
@@ -495,6 +544,19 @@ export const linkedAccountRoutes = (
         },
       },
       handler: async (request: AuthRequest) => handler.handleGoogleSET(request),
+    },
+    {
+      method: 'POST',
+      path: '/linked_account/webhook/apple_event_receiver',
+      options: {
+        payload: {
+          // Security events use the content type application/secevent+jwt,
+          // It isn't clearly documented, but the payload is a JWT buffer.
+          parse: 'gunzip',
+          allow: 'application/secevent+jwt',
+        },
+      },
+      handler: async (request: AuthRequest) => handler.handleAppleSET(request),
     },
   ];
 };

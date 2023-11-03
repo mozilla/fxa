@@ -10,7 +10,9 @@ import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
 const RISC_CONFIG_URI =
   'https://accounts.google.com/.well-known/risc-configuration';
 
-export type SETEvent = {
+const APPLE_PUBLIC_KEYS = 'https://appleid.apple.com/auth/keys';
+
+export type GoogleSETEvent = {
   subject: {
     subject_type: string;
     iss: string;
@@ -20,16 +22,32 @@ export type SETEvent = {
   state?: string; // Only present for test events
 };
 
-export type SETEvents = {
-  [key: string]: SETEvent;
+export type GoogleSETEvents = {
+  [key: string]: GoogleSETEvent;
 };
 
-export type JWTSETPayload = {
+export type GoogleJWTSETPayload = {
   iss: string;
   aud: string;
   iat: number;
   jti: string;
-  events: SETEvents;
+  events: GoogleSETEvents;
+};
+
+export type AppleSETEvent = {
+  type: string;
+  sub: string;
+  email?: string;
+  is_private_email?: boolean;
+  event_time: number;
+};
+
+export type AppleJWTSETPayload = {
+  iss: string;
+  aud: string;
+  iat: number;
+  jti: string;
+  events: AppleSETEvent;
 };
 
 async function getUidFromSub(sub: string, db: any, provider: Provider) {
@@ -57,33 +75,84 @@ async function revokeThirdPartySessions(
 }
 
 // See events at https://developers.google.com/identity/protocols/risc#supported_event_types
-export const eventHandlers = {
+export const googleEventHandlers = {
   'https://schemas.openid.net/secevent/risc/event-type/verification':
-    handleTestEvent,
+    handleGoogleTestEvent,
   'https://schemas.openid.net/secevent/risc/event-type/sessions-revoked':
-    handleSessionsRevokedEvent,
+    handleGoogleSessionsRevokedEvent,
   'https://schemas.openid.net/secevent/risc/event-type/account-disabled':
-    handleAccountDisabledEvent,
+    handleGoogleAccountDisabledEvent,
   'https://schemas.openid.net/secevent/risc/event-type/account-enabled':
-    handleAccountEnabledEvent,
+    handleGoogleAccountEnabledEvent,
   'https://schemas.openid.net/secevent/oauth/event-type/tokens-revoked':
-    handleSessionsRevokedEvent,
+    handleGoogleSessionsRevokedEvent,
 
   // Since we don't store refresh tokens, we can't revoke it. Instead,
   // lets handle this like a sessions-revoked event.
   'https://schemas.openid.net/secevent/oauth/event-type/token-revoked':
-    handleSessionsRevokedEvent,
+    handleGoogleSessionsRevokedEvent,
 
   // We don't support purging accounts, so lets handle this like an account-disabled
   // event, ie revoke all third party sessions and unlink the account.
   'https://schemas.openid.net/secevent/risc/event-type/account-purged':
-    handleAccountDisabledEvent,
+    handleGoogleAccountDisabledEvent,
 
   'https://schemas.openid.net/secevent/risc/event-type/account-credential-change-required':
-    handleSessionsRevokedEvent,
+    handleGoogleSessionsRevokedEvent,
 };
 
-function handleTestEvent(eventDetails: SETEvent, log: any) {
+// See https://developer.apple.com/documentation/sign_in_with_apple/processing_changes_for_sign_in_with_apple_accounts
+export const appleEventHandlers = {
+  // We don't support disabling/enabling emails, so noop for now
+  'email-disabled': handleNoopEvent,
+  'email-enabled': handleNoopEvent,
+
+  'consent-revoked': handleAppleConsentRevokedEvent,
+  'account-delete': handleAppleAccountDeleteEvent,
+};
+
+/**
+ * Handle the consent revoked event. Apple recommends that we revoke all sessions
+ * and unlink the account.
+ *
+ * @param eventDetails
+ * @param log
+ * @param db
+ * @returns Promise<void>)
+ */
+async function handleAppleConsentRevokedEvent(
+  eventDetails: AppleSETEvent,
+  log: any,
+  db: any
+) {
+  const sub = eventDetails.sub;
+  const uid = await getUidFromSub(sub, db, 'apple');
+  await revokeThirdPartySessions(uid, 'apple', log, db);
+  await db.deleteLinkedAccount(uid, 'apple');
+}
+
+/**
+ * Handle the account delete event. Apple recommends that we revoke all sessions
+ * and unlink the account.
+ *
+ * @param eventDetails
+ * @param log
+ * @param db
+ */
+async function handleAppleAccountDeleteEvent(
+  eventDetails: AppleSETEvent,
+  log: any,
+  db: any
+) {
+  const sub = eventDetails.sub;
+  const uid = await getUidFromSub(sub, db, 'apple');
+  await revokeThirdPartySessions(uid, 'apple', log, db);
+  await db.deleteLinkedAccount(uid, 'apple');
+}
+
+function handleNoopEvent() {}
+
+function handleGoogleTestEvent(eventDetails: GoogleSETEvent, log: any) {
   log.debug(`Received test event: ${eventDetails.state}`);
 }
 
@@ -95,8 +164,8 @@ function handleTestEvent(eventDetails: SETEvent, log: any) {
  * @param log
  * @param db
  */
-async function handleSessionsRevokedEvent(
-  eventDetails: SETEvent,
+async function handleGoogleSessionsRevokedEvent(
+  eventDetails: GoogleSETEvent,
   log: any,
   db: any
 ) {
@@ -113,8 +182,8 @@ async function handleSessionsRevokedEvent(
  * @param log
  * @param db
  */
-async function handleAccountDisabledEvent(
-  eventDetails: SETEvent,
+async function handleGoogleAccountDisabledEvent(
+  eventDetails: GoogleSETEvent,
   log: any,
   db: any
 ) {
@@ -127,19 +196,48 @@ async function handleAccountDisabledEvent(
 /**
  * Handle the account enabled event. For now, we don't do anything.
  */
-async function handleAccountEnabledEvent() {}
+async function handleGoogleAccountEnabledEvent() {}
 
-export function handleOtherEventType(eventType: string, log: any) {
+export function handleGoogleOtherEventType(eventType: string, log: any) {
   log.debug(`Received unknown event: ${eventType}`);
 }
 
+/**
+ *  Get Apple's public key from their public key endpoint.
+ *
+ *  Ref: https://developer.apple.com/documentation/sign_in_with_apple/fetch_apple_s_public_key_for_verifying_token_signature
+ *
+ * @param token
+ */
+export async function getApplePublicKey(token: string) {
+  const appleCerts = await axios.get(APPLE_PUBLIC_KEYS);
+  const jwtHeader = jwt.decode(token, { complete: true })?.header;
+  const keyId = jwtHeader?.kid;
+  if (!keyId) {
+    throw new Error('No valid keyId found.');
+  }
+
+  const publicKey = appleCerts.data.keys.find(
+    (key: { kid: string }) => key.kid === keyId
+  );
+
+  if (!publicKey) {
+    throw new Error('Public key certificate not found.');
+  }
+
+  return {
+    pem: jwk2pem(publicKey),
+  };
+}
 /**
  * Get Google's public key from their RISC configuration.
  *
  * @param token
  * @returns {Promise<{pem: string, issuer: string}>}
  */
-export async function getGooglePublicKey(token: string) {
+export async function getGooglePublicKey(
+  token: string
+): Promise<{ pem: string; issuer: string }> {
   const riscConfig = await axios.get(RISC_CONFIG_URI);
   const { jwks_uri: jwksUri, issuer } = riscConfig.data;
 
@@ -165,36 +263,38 @@ export async function getGooglePublicKey(token: string) {
 }
 
 /**
- * Validate a JWT security token against Google's public key.
+ * Validate a JWT security token against public key.
  *
  * @param token
  * @param clientId
- * @param publicKey
- * @returns {Promise<JWTSETPayload>}
+ * @param publicKeyPem
+ * @param issuer
+ * @returns {Promise}
  */
 export async function validateSecurityToken(
   token: string,
   clientId: string,
-  publicKey: { pem: any; issuer: string }
-): Promise<JWTSETPayload> {
+  publicKeyPem: any,
+  issuer: string
+) {
   // Decode the token, validating its signature, audience, and issuer
-  return jwt.verify(token, publicKey.pem, {
+  return jwt.verify(token, publicKeyPem, {
     algorithms: ['RS256'],
     audience: [clientId],
-    issuer: publicKey.issuer,
-  }) as JWTSETPayload;
+    issuer: issuer,
+  });
 }
 
 /**
  * Check to see if the JWT token aud value matches the client ID. We
- * should ignore events from other clients.
+ * should ignore events from other clients. Currently specific to Google.
  *
  * @param token
  * @param clientId
  */
 export function isValidClientId(token: string, clientId: string) {
   const decoded = jwt.decode(token, { complete: true }) as {
-    payload: JWTSETPayload;
+    payload: GoogleJWTSETPayload;
   };
   return decoded && decoded.payload.aud.includes(clientId);
 }
