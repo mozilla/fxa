@@ -14787,18 +14787,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-links@npm:^7.0.23":
-  version: 7.0.26
-  resolution: "@storybook/addon-links@npm:7.0.26"
+"@storybook/addon-links@npm:^7.5.2":
+  version: 7.5.2
+  resolution: "@storybook/addon-links@npm:7.5.2"
   dependencies:
-    "@storybook/client-logger": 7.0.26
-    "@storybook/core-events": 7.0.26
+    "@storybook/client-logger": 7.5.2
+    "@storybook/core-events": 7.5.2
     "@storybook/csf": ^0.1.0
     "@storybook/global": ^5.0.0
-    "@storybook/manager-api": 7.0.26
-    "@storybook/preview-api": 7.0.26
-    "@storybook/router": 7.0.26
-    "@storybook/types": 7.0.26
+    "@storybook/manager-api": 7.5.2
+    "@storybook/preview-api": 7.5.2
+    "@storybook/router": 7.5.2
+    "@storybook/types": 7.5.2
     prop-types: ^15.7.2
     ts-dedent: ^2.0.0
   peerDependencies:
@@ -14809,7 +14809,7 @@ __metadata:
       optional: true
     react-dom:
       optional: true
-  checksum: 4c8f8f6cc2a2024489c2eb97abfb48449c8f516f5b16123ca47b7f0ebe56b854fec7a144121d525a709c84b3d1298d953eefae57995adfc977a00fb9416e0998
+  checksum: 10ec8b6abaf66720379c3373816922ff458e05aef259057c165293b35d3633e83947a90bfb1dca0b226d9fda4a27f74be82afa7e0a8f4b8a636fb12f60595126
   languageName: node
   linkType: hard
 
@@ -35095,7 +35095,7 @@ fsevents@~2.1.1:
     "@sentry/browser": ^7.66.0
     "@sentry/node": ^7.66.0
     "@storybook/addon-actions": ^7.1.1
-    "@storybook/addon-links": ^7.0.23
+    "@storybook/addon-links": ^7.5.2
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/preset-create-react-app": ^7.1.0
@@ -35247,7 +35247,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.6.2
     "@storybook/addon-actions": ^7.1.1
-    "@storybook/addon-links": ^7.0.23
+    "@storybook/addon-links": ^7.5.2
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/react": ^7.1.1
@@ -35319,7 +35319,7 @@ fsevents@~2.1.1:
     "@storybook/addon-actions": ^7.1.1
     "@storybook/addon-essentials": ^7.4.6
     "@storybook/addon-interactions": ^7.0.24
-    "@storybook/addon-links": ^7.0.23
+    "@storybook/addon-links": ^7.5.2
     "@storybook/addon-styling": ^1.3.0
     "@storybook/addons": ^7.5.2
     "@storybook/blocks": ^7.0.24
