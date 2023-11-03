@@ -66,7 +66,7 @@ describe('lib/integrations/integration-factory', () => {
       .returns(!!flagOverrides.isV3DesktopContext);
 
     urlQueryData.set('scope', 'profile');
-    urlQueryData.set('client_id', '123');
+    urlQueryData.set('client_id', '720bc80adfa6988d');
     urlQueryData.set('redirect_uri', 'https://redirect.to');
 
     urlHashData.set('scope', 'profile');
@@ -126,11 +126,11 @@ describe('lib/integrations/integration-factory', () => {
       },
       async getClientInfo(clientId: string) {
         return {
-          client_id: '123',
+          client_id: '720bc80adfa6988d',
           redirect_uri: 'https://redirect.to',
           name: 'foo',
           image_uri: 'https://redirect.to/foo',
-          trusted: false,
+          trusted: 'false',
         };
       },
     };
@@ -241,6 +241,7 @@ describe('lib/integrations/integration-factory', () => {
     beforeAll(async () => {
       await mockSearchParams({
         redirect_uri: 'foo',
+        clientId: '720bc80adfa6988d',
       });
       integration = await setup<PairingSupplicantIntegration>(
         { isDevicePairingAsSupplicant: true },

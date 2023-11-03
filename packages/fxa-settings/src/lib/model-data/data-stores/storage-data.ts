@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReachRouterWindow } from '../../window';
-import { ModelDataStore } from '../model-data-store';
+import { RawData, ModelDataStore } from '../model-data-store';
 
 // TODO: Adapt to using ../../storage implementation. We need a way to migrate / deal with the namespace issue though.
 
@@ -14,7 +14,7 @@ export class StorageData extends ModelDataStore {
   private static readonly NAMESPACE = '__fxa_session';
   private static readonly PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
-  private state: Record<string, unknown>;
+  private state: Record<string, RawData>;
 
   constructor(private window: ReachRouterWindow) {
     super();
@@ -101,11 +101,11 @@ export class StorageData extends ModelDataStore {
     return Object.keys(this.state);
   }
 
-  public get(key: string) {
+  public get(key: string): RawData {
     return this.state[key];
   }
 
-  public set(key: string, value: unknown) {
+  public set(key: string, value: RawData) {
     this.state[key] = value;
   }
 }

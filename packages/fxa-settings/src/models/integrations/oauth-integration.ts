@@ -16,12 +16,13 @@ import { IntegrationFlags } from '../../lib/integrations';
 import { BaseIntegrationData } from './web-integration';
 import {
   IsBoolean,
-  IsBooleanString,
   IsEmail,
   IsHexadecimal,
   IsIn,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
+  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -107,11 +108,11 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   idTokenHint: string | undefined;
 
-  // TODO: Validation - this should be converted to a number and then checked if it's >= 0
   @IsOptional()
-  @IsString()
+  @IsNumber()
+  @IsPositive()
   @bind(T.snakeCase)
-  maxAge: string | undefined;
+  maxAge: number | undefined;
 
   @IsOptional()
   @IsString()
@@ -142,10 +143,10 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @IsBooleanString()
+  @IsBoolean()
   @IsOptional()
   @bind(T.snakeCase)
-  returnOnError: 'true' | 'false' | undefined;
+  returnOnError: boolean | undefined;
 
   // TODO - Validation - Should scope be required?
   @IsOptional()
@@ -214,11 +215,14 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   saveOAuthState() {
-    this.storageData.set('oauth', {
-      client_id: this.data.clientId,
-      scope: this.data.scope,
-      state: this.data.state,
-    });
+    this.storageData.set(
+      'oauth',
+      JSON.stringify({
+        client_id: this.data.clientId,
+        scope: this.data.scope,
+        state: this.data.state,
+      })
+    );
     this.storageData.persist();
   }
 
@@ -312,6 +316,11 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   async getPermissions() {
+    // TODO: Not 100% sure about this...
+    if (!this.data.scope) {
+      return [];
+    }
+
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
     if (await this.isTrusted()) {

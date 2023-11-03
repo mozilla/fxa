@@ -54,7 +54,7 @@ describe('lib/integrations/integration-factory-flags', function () {
     });
 
     it('when browser is same and verification 1', () => {
-      storageData.set('oauth', { client_id: 'sync' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'sync' }));
       queryData.set('service', 'sync');
       queryData.set('uid', '123');
       queryData.set('code', '123');
@@ -62,7 +62,7 @@ describe('lib/integrations/integration-factory-flags', function () {
     });
 
     it('when browser is same and verification 2', () => {
-      storageData.set('oauth', { client_id: 'sync' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'sync' }));
       queryData.set('service', 'sync');
       queryData.set('token', '123');
       queryData.set('code', '123');
@@ -70,14 +70,14 @@ describe('lib/integrations/integration-factory-flags', function () {
     });
 
     it('when browser is same and verification 3', () => {
-      storageData.set('oauth', { client_id: 'sync' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'sync' }));
       queryData.set('service', 'sync');
       sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
       expect(integrationFlags.isOAuth()).toBeTruthy();
     });
 
     it('when browser is different and verification 1', () => {
-      storageData.set('oauth', { client_id: 'foo' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'foo' }));
       queryData.set('service', 'foo');
       queryData.set('uid', '123');
       queryData.set('code', '123');
@@ -85,7 +85,7 @@ describe('lib/integrations/integration-factory-flags', function () {
     });
 
     it('when browser is different and verification 2', () => {
-      storageData.set('oauth', { client_id: 'foo' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'foo' }));
       queryData.set('service', 'foo');
       queryData.set('uid', '123');
       queryData.set('token', '123');
@@ -93,7 +93,7 @@ describe('lib/integrations/integration-factory-flags', function () {
     });
 
     it('when browser is different and verification 3', () => {
-      storageData.set('oauth', { client_id: 'foo' });
+      storageData.set('oauth', JSON.stringify({ client_id: 'foo' }));
       queryData.set('service', 'foo');
       sandbox.replaceGetter(queryData, 'pathName', () => '/report_signin/');
       expect(integrationFlags.isOAuth()).toBeTruthy();

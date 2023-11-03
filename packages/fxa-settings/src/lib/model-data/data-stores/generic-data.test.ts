@@ -20,4 +20,10 @@ describe('generic-data', () => {
     const data = new GenericData({});
     expect(data.requiresSync()).toBeFalsy();
   });
+
+  it('will not accept nested objects', () => {
+    expect(() => {
+      new GenericData({ foo: { bar: 'baz' } } as any);
+    }).toThrowError();
+  });
 });

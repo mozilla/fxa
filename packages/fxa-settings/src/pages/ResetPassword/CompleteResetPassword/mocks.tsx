@@ -93,7 +93,7 @@ export const Subject = ({
   params = mockCompleteResetPasswordParams,
 }: {
   integrationType?: IntegrationType;
-  params?: Record<string, unknown>;
+  params?: Record<string, string | undefined>;
 }) => {
   const urlQueryData = mockUrlQueryData(params);
 
