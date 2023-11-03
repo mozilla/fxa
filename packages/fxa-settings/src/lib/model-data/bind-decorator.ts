@@ -4,15 +4,30 @@
 import { ModelDataProvider, isModelDataProvider } from './model-data-provider';
 import 'reflect-metadata';
 
-export type dataType =
-  // The value should retrieved as a string
-  | 'string'
-  // The value should be retrieved as a boolean
-  | 'boolean'
-  // The value should be retrieved as a number
-  | 'number'
-  // The value should be retrieved as an object
-  | 'object';
+/**
+ * This DataType type is list of types that a values held in the data store can be coerced into.
+ *
+ * Models hold data in their data store as strings. When it's time to access a model property, we use reflection
+ * to the property's data type, and then convert the stored string to this type accordingly.
+ *
+ * For example if a model that looks like:
+ *
+ * class A {
+ *   @bind()
+ *   public number x;
+ *
+ *   @bind()
+ *   public Foo y;
+ * }
+ *
+ * Internally the value for x will be held as a string, e.g. '7.5'. When the value is retrieved, it will be
+ * converted to a number, e.g. 7.5.
+ *
+ * Similarly the y property would be held a json object, eg '{ bar: 1 }', and then converted to Foo of
+ * type object when it is accessed, e.g. { bar: 1 }
+ *
+ */
+export type DataType = 'string' | 'boolean' | 'number' | 'object';
 
 /**
  * Turns a field name into a lookup key. This can be one of three states.
@@ -146,7 +161,7 @@ export class InvalidModelInstance extends Error {
     );
   }
 }
-function writeRawValue(value: any, dataType: dataType | undefined) {
+function writeRawValue(value: any, dataType: DataType | undefined) {
   if (dataType !== undefined && typeof value !== dataType) {
     throw new Error(
       `Data type mismatch! Type safety violated! Cannot assign ${typeof value} to ${dataType}.`
@@ -166,7 +181,7 @@ function writeRawValue(value: any, dataType: dataType | undefined) {
  */
 function coerceValue(
   value: string | undefined,
-  dataType: dataType | undefined
+  dataType: DataType | undefined
 ): string | boolean | number | any | null {
   if (value == null) {
     return value;
@@ -192,11 +207,10 @@ function coerceValue(
     // Value is a string with unknown data type or data type of object
     try {
       return JSON.parse(value);
-    } catch {
-      console.warn(`Cannot JSON parse value! ${value}`);
+    } catch (e) {
+      console.error(`Cannot JSON parse value! ${value}`);
+      throw e;
     }
-
-    return value;
   }
 
   throw new Error(
@@ -210,7 +224,7 @@ function coerceValue(
  * @param memberName - property / member name
  * @returns The expected data type of the property
  */
-function getType(target: any, memberName: string): dataType {
+function getType(target: any, memberName: string): DataType {
   const designType = Reflect.getMetadata(
     'design:type',
     target,

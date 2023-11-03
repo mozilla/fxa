@@ -13,7 +13,7 @@ export type DataStore = Record<string, RawData>;
  * this eludes type checking. This function ensures that the data is in the correct format.
  * @param data
  */
-export function convertToDataStore(data: any): DataStore {
+export function convertToDataStore(data: Record<string, any>): DataStore {
   const clone = JSON.parse(JSON.stringify(data));
   for (const k in clone) {
     if (typeof clone[k] === 'object') {

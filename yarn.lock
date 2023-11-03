@@ -5405,7 +5405,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-typescript@npm:^7.23.2":
+"@babel/preset-typescript@npm:^7.23.0, @babel/preset-typescript@npm:^7.23.2":
   version: 7.23.2
   resolution: "@babel/preset-typescript@npm:7.23.2"
   dependencies:
