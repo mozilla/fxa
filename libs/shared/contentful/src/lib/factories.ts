@@ -7,106 +7,10 @@ import { faker } from '@faker-js/faker';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 import {
-  EligibilityContentByPlanIdsQuery,
   OfferingQuery,
   PurchaseWithDetailsQuery,
-  ServicesWithCapabilitiesQuery,
 } from '../__generated__/graphql';
-import {
-  EligibilityOfferingResult,
-  EligibilitySubgroupOfferingResult,
-  EligibilitySubgroupResult,
-} from './queries/eligibility-content-by-plan-ids';
-import {
-  CapabilitiesResult,
-  ServiceResult,
-} from './queries/services-with-capabilities';
 import { ContentfulErrorResponse } from './types';
-
-export const EligibilityContentByPlanIdsQueryFactory = (
-  override?: Partial<EligibilityContentByPlanIdsQuery>
-): EligibilityContentByPlanIdsQuery => {
-  const stripeProductId = faker.string.sample();
-  return {
-    purchaseCollection: {
-      items: [
-        {
-          stripePlanChoices: [faker.string.sample()],
-          offering: {
-            stripeProductId,
-            countries: [faker.string.sample()],
-            linkedFrom: {
-              subGroupCollection: {
-                items: [
-                  {
-                    groupName: faker.string.sample(),
-                    offeringCollection: {
-                      items: [
-                        {
-                          stripeProductId,
-                          countries: [faker.string.sample()],
-                        },
-                      ],
-                    },
-                  },
-                ],
-              },
-            },
-          },
-        },
-      ],
-    },
-    ...override,
-  };
-};
-
-export const EligibilityOfferingResultFactory = (
-  override?: Partial<EligibilityOfferingResult>,
-  subGroupCollectionExtension?: EligibilitySubgroupResult[],
-  subGroupOfferingCollectionExtension?: EligibilitySubgroupOfferingResult[]
-): EligibilityOfferingResult => ({
-  stripeProductId: faker.string.sample(),
-  countries: [faker.string.sample()],
-  linkedFrom: {
-    subGroupCollection: {
-      items: [
-        {
-          groupName: faker.string.sample(),
-          offeringCollection: {
-            items: [
-              {
-                stripeProductId: faker.string.sample(),
-                countries: [faker.string.sample()],
-              },
-              ...(subGroupOfferingCollectionExtension ?? []),
-            ],
-          },
-        },
-        ...(subGroupCollectionExtension ?? []),
-      ],
-    },
-  },
-  ...override,
-});
-
-export const EligibilitySubgroupResultFactory = (
-  override?: Partial<EligibilitySubgroupResult>,
-  offeringCollection?: EligibilitySubgroupOfferingResult[]
-): EligibilitySubgroupResult => ({
-  groupName: faker.string.sample(),
-  offeringCollection: {
-    items: [...(offeringCollection ?? [])],
-  },
-  ...override,
-});
-
-export const EligibilitySubgroupOfferingResultFactory = (
-  override?: Partial<EligibilitySubgroupOfferingResult>
-): EligibilitySubgroupOfferingResult => ({
-  stripeProductId: faker.string.sample(),
-  countries: [faker.string.sample()],
-  ...override,
-});
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
@@ -140,39 +44,6 @@ export const PurchaseWithDetailsQueryFactory = (
   },
   ...override,
 });
-
-export const ServicesWithCapabilitiesQueryFactory = (
-  override?: Partial<ServicesWithCapabilitiesQuery>
-): ServicesWithCapabilitiesQuery => ({
-  serviceCollection: {
-    items: [
-      {
-        oauthClientId: faker.string.sample(),
-        capabilitiesCollection: {
-          items: [
-            {
-              slug: faker.string.sample(),
-            },
-          ],
-        },
-      },
-    ],
-  },
-  ...override,
-});
-
-export const ServiceResultFactory = (
-  override?: Partial<ServiceResult>,
-  capabilitiesCollection?: CapabilitiesResult[]
-): ServiceResult[] => [
-  {
-    oauthClientId: faker.string.sample(),
-    capabilitiesCollection: {
-      items: [...(capabilitiesCollection ?? [])],
-    },
-    ...override,
-  },
-];
 
 /**
  * Generates a graphql response from the contentful client based on the passed query.

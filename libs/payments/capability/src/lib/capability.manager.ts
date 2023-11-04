@@ -38,6 +38,8 @@ export class CapabilityManager {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<Record<string, string[]>> {
+    if (!subscribedPrices.length) return {};
+
     const purchaseDetails =
       await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
         [...subscribedPrices]

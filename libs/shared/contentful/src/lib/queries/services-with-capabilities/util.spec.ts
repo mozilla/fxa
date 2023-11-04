@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ServicesWithCapabilitiesQueryFactory } from '../../factories';
-import { ServicesWithCapabilitiesResult } from './types';
-import { ServicesWithCapabilitiesResultUtil } from './util';
+import {
+  ServicesWithCapabilitiesQueryFactory,
+  ServicesWithCapabilitiesResult,
+  ServicesWithCapabilitiesResultUtil,
+} from '.';
 
 describe('ServicesWithCapabilitiesResultUtil', () => {
   it('should create a util from response', () => {
