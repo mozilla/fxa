@@ -27,4 +27,41 @@ export class CapabilityManager {
       ),
     }));
   }
+
+  /**
+   * Fetch the list of capabilities for the given price ids.
+   *
+   * Returns Record<string, string[]>
+   * Keys are clientIds
+   * Values are capabilitySlugs[]
+   */
+  async planIdsToClientCapabilities(
+    subscribedPrices: string[]
+  ): Promise<Record<string, string[]>> {
+    const purchaseDetails =
+      await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        [...subscribedPrices]
+      );
+
+    const result: Record<string, string[]> = {};
+
+    for (const subscribedPrice of subscribedPrices) {
+      const capabilityOffering =
+        purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
+
+      if (!capabilityOffering) continue;
+
+      for (const capabilityCollection of capabilityOffering
+        .capabilitiesCollection.items) {
+        for (const capability of capabilityCollection.servicesCollection
+          .items) {
+          result[capability.oauthClientId] ||= [];
+
+          result[capability.oauthClientId].push(capabilityCollection.slug);
+        }
+      }
+    }
+
+    return result;
+  }
 }
