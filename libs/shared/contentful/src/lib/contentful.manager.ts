@@ -8,8 +8,14 @@ import {
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
   ServicesWithCapabilitiesQuery,
+  CapabilityServiceByPlanIdsQuery,
 } from '../__generated__/graphql';
 import { ContentfulClient } from './contentful.client';
+
+import {
+  capabilityServiceByPlanIdsQuery,
+  CapabilityServiceByPlanIdsResultUtil,
+} from './queries/capability-service-by-plan-ids';
 import {
   EligibilityContentByPlanIdsResultUtil,
   eligibilityContentByPlanIdsQuery,
@@ -27,6 +33,24 @@ import { DeepNonNullable } from './types';
 @Injectable()
 export class ContentfulManager {
   constructor(private client: ContentfulClient) {}
+
+  async getPurchaseDetailsForCapabilityServiceByPlanIds(
+    stripePlanIds: string[]
+  ): Promise<CapabilityServiceByPlanIdsResultUtil> {
+    const queryResult = await this.client.query(
+      capabilityServiceByPlanIdsQuery,
+      {
+        skip: 0,
+        limit: 100,
+        locale: 'en',
+        stripePlanIds,
+      }
+    );
+
+    return new CapabilityServiceByPlanIdsResultUtil(
+      queryResult.data as DeepNonNullable<CapabilityServiceByPlanIdsQuery>
+    );
+  }
 
   async getPurchaseDetailsForEligibility(
     stripePlanIds: string[]
