@@ -165,7 +165,8 @@ module.exports = function (
     Password,
     config.verifierVersion,
     customs,
-    mailer
+    mailer,
+    glean
   );
   const subscriptions = require('./subscriptions').default(
     log,

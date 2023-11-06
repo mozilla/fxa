@@ -45,7 +45,7 @@ const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
 const findOauthClientId = (request: MetricsRequest): string =>
-  request.auth.credentials?.client_id || request.payload.client_id || '';
+  request.auth.credentials?.client_id || request.payload?.client_id || '';
 
 const findServiceName = async (request: MetricsRequest) => {
   const metricsContext = await request.app.metricsContext;
@@ -142,6 +142,7 @@ export function gleanMetrics(config: ConfigType) {
       emailSent: createEventFn('password_reset_email_sent'),
       createNewSuccess: createEventFn('password_reset_create_new_success'),
       accountReset: createEventFn('account_password_reset'),
+      recoveryKeySuccess: createEventFn('password_reset_recovery_key_success'),
     },
   };
 }

@@ -11,7 +11,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const errors = require('../../../lib/error');
 
-let log, db, customs, mailer, routes, route, request, response;
+let log, db, customs, mailer, glean, routes, route, request, response;
 const email = 'test@email.com';
 const recoveryKeyId = '000000';
 const recoveryData = '11111111111';
@@ -542,6 +542,14 @@ describe('GET /recoveryKey/{recoveryKeyId}', () => {
       assert.equal(args[0], uid);
       assert.equal(args[1], recoveryKeyId);
     });
+
+    it('logged a Glean event', () => {
+      sinon.assert.calledOnceWithExactly(
+        glean.resetPassword.recoveryKeySuccess,
+        request,
+        { uid }
+      );
+    });
   });
 
   describe('fails to return recovery data with recoveryKeyId mismatch', () => {
@@ -1031,7 +1039,8 @@ function setup(results, errors, path, requestOptions) {
   db = mocks.mockDB(results.db, errors.db);
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
-  routes = makeRoutes({ log, db, customs, mailer });
+  glean = mocks.mockGlean();
+  routes = makeRoutes({ log, db, customs, mailer, glean });
   route = getRoute(routes, path, requestOptions.method);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -1051,7 +1060,8 @@ function makeRoutes(options = {}) {
     Password,
     config.verifierVersion,
     customs,
-    mailer
+    mailer,
+    glean
   );
 }
 
