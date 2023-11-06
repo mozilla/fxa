@@ -4915,8 +4915,8 @@ describe('#integration - StripeHelper', () => {
     const planName = 'Example Plan';
     const productId = 'prod_00000000000000';
     const productName = 'Example Product';
-    const planEmailIconURL = 'http://example.com/icon';
-    const successActionButtonURL = 'http://example.com/success';
+    const planEmailIconURL = 'http://example.com/icon-new';
+    const successActionButtonURL = 'http://example.com/download-new';
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
     const privacyNoticeURL =
@@ -5176,6 +5176,7 @@ describe('#integration - StripeHelper', () => {
           emailIconURL: planEmailIconURL,
           'product:privacyNoticeURL': privacyNoticeURL,
           'product:termsOfServiceURL': termsOfServiceURL,
+          productOrder: '0',
         },
         showPaymentMethod: true,
         showTaxAmount: false,
@@ -5557,6 +5558,7 @@ describe('#integration - StripeHelper', () => {
               emailIconURL: planEmailIconURL,
               'product:privacyNoticeURL': privacyNoticeURL,
               'product:termsOfServiceURL': termsOfServiceURL,
+              productOrder: '0',
             },
           },
         ],
@@ -5655,6 +5657,27 @@ describe('#integration - StripeHelper', () => {
         productOrder: '0',
       },
     };
+
+    beforeEach(() => {
+      mockAllAbbrevPlans.unshift(
+        {
+          ...eventCustomerSubscriptionUpdated.data.previous_attributes.plan,
+          plan_id:
+            eventCustomerSubscriptionUpdated.data.previous_attributes.plan.id,
+          product_id: expectedBaseUpdateDetails.productId,
+          plan_metadata:
+            eventCustomerSubscriptionUpdated.data.previous_attributes.plan
+              .metadata,
+        },
+        {
+          ...eventCustomerSubscriptionUpdated.data.object.plan,
+          plan_id: eventCustomerSubscriptionUpdated.data.object.plan.id,
+          product_id: expectedBaseUpdateDetails.productIdNew,
+          plan_metadata:
+            eventCustomerSubscriptionUpdated.data.object.plan.metadata,
+        }
+      );
+    });
 
     describe('extractSubscriptionUpdateEventDetailsForEmail', () => {
       const mockReactivationDetails = 'mockReactivationDetails';
@@ -5954,11 +5977,13 @@ describe('#integration - StripeHelper', () => {
               ...event.data.previous_attributes.plan,
               plan_id: event.data.previous_attributes.plan.id,
               product_id: productIdOld,
+              plan_metadata: event.data.previous_attributes.plan.metadata,
             },
             {
               ...event.data.object.plan,
               plan_id: event.data.object.plan.id,
               product_id: productIdNew,
+              plan_metadata: event.data.object.plan.metadata,
             }
           );
 
@@ -6063,11 +6088,13 @@ describe('#integration - StripeHelper', () => {
             ...event.data.previous_attributes.plan,
             plan_id: event.data.previous_attributes.plan.id,
             product_id: productIdOld,
+            plan_metadata: event.data.previous_attributes.plan.metadata,
           },
           {
             ...event.data.object.plan,
             plan_id: event.data.object.plan.id,
             product_id: productIdNew,
+            plan_metadata: event.data.object.plan.metadata,
           }
         );
 

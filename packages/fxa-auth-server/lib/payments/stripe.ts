@@ -2597,7 +2597,14 @@ export class StripeHelper extends StripeHelperBase {
       invoiceDiscountAmountInCents || discountType || discountDuration;
 
     const { id: planId, nickname: planName } = plan;
-    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+    const abbrevPlan = await this.findAbbrevPlanById(planId);
+    const productMetadata = this.mergeMetadata(
+      {
+        ...plan,
+        metadata: abbrevPlan.plan_metadata,
+      },
+      abbrevProduct
+    );
 
     // Use Firestore product configs if that exist
     const planConfig: Partial<PlanConfig> = await this.maybeGetPlanConfig(
@@ -2668,7 +2675,14 @@ export class StripeHelper extends StripeHelperBase {
     const planConfig = await this.maybeGetPlanConfig(plan.id);
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const { id: planId, nickname: planName } = plan;
-    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
+    const abbrevPlan = await this.findAbbrevPlanById(planId);
+    const productMetadata = this.mergeMetadata(
+      {
+        ...plan,
+        metadata: abbrevPlan.plan_metadata,
+      },
+      abbrevProduct
+    );
     const { emailIconURL: planEmailIconURL = '', successActionButtonURL } =
       productMetadata;
 
@@ -2870,7 +2884,14 @@ export class StripeHelper extends StripeHelperBase {
     } = planNew;
     const { product_id: productIdNew, product_name: productNameNew } =
       abbrevProductNew;
-    const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
+    const abbrevPlanNew = await this.findAbbrevPlanById(planNew.id);
+    const productNewMetadata = this.mergeMetadata(
+      {
+        ...planNew,
+        metadata: abbrevPlanNew.plan_metadata,
+      },
+      abbrevProductNew
+    );
     const {
       productOrder: productOrderNew,
       emailIconURL: productIconURLNew = '',
@@ -3139,10 +3160,17 @@ export class StripeHelper extends StripeHelperBase {
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
     const { product_id: productIdOld, product_name: productNameOld } =
       abbrevProductOld;
+    const abbrevPlanOld = await this.findAbbrevPlanById(planOld.id);
     const {
       productOrder: productOrderOld,
       emailIconURL: productIconURLOld = '',
-    } = this.mergeMetadata(planOld, abbrevProductOld);
+    } = this.mergeMetadata(
+      {
+        ...planOld,
+        metadata: abbrevPlanOld.plan_metadata,
+      },
+      abbrevProductOld
+    );
 
     const updateType =
       parseInt(productOrderNew) > parseInt(productOrderOld)
