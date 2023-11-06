@@ -145,7 +145,7 @@ const mockConfig = {
 const mockRedisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD || 'fxa123',
+  password: process.env.REDIS_PASSWORD || '',
   maxPending: 1000,
   retryCount: 5,
   initialBackoff: '100 milliseconds',
