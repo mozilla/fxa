@@ -34661,7 +34661,7 @@ fsevents@~2.1.1:
     fxa-geodb: "workspace:*"
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^9.1.0
+    google-auth-library: ^9.2.0
     googleapis: ^109.0.1
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
@@ -35021,7 +35021,7 @@ fsevents@~2.1.1:
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
-    google-auth-library: ^9.1.0
+    google-auth-library: ^9.2.0
     graphql: ^15.6.1
     hot-shots: ^10.0.0
     jest: 27.5.1
@@ -36737,9 +36737,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"google-auth-library@npm:^9.1.0":
-  version: 9.1.0
-  resolution: "google-auth-library@npm:9.1.0"
+"google-auth-library@npm:^9.2.0":
+  version: 9.2.0
+  resolution: "google-auth-library@npm:9.2.0"
   dependencies:
     base64-js: ^1.3.0
     ecdsa-sig-formatter: ^1.0.11
@@ -36747,8 +36747,7 @@ fsevents@~2.1.1:
     gcp-metadata: ^6.0.0
     gtoken: ^7.0.0
     jws: ^4.0.0
-    lru-cache: ^6.0.0
-  checksum: 8208f718f22c76e5655fa289c7aeb06a1f0be768ad0e17183a14aa2d6f2167e70921ad4c5a0497824e7277a06f8878c491f47c6b0594996e801642a53b0e69e9
+  checksum: 0da686964a769c79b5a1f7e518cb885f7c433edd50c8adf5cc310bfce607235184ebe6f9bc5290618d760c25e4ce1e273d444c9914c815353faa9d9dea37d1b3
   languageName: node
   linkType: hard
 
