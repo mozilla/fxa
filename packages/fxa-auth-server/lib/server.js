@@ -68,7 +68,7 @@ function logEndpointErrors(response, log) {
 async function create(log, error, config, routes, db, statsd, glean) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
-  const metricsEvents = require('./metrics/events')(log, config);
+  const metricsEvents = require('./metrics/events')(log, config, glean);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
 
   // Hawk needs to calculate request signatures based on public URL,

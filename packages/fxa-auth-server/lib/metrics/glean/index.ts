@@ -136,6 +136,7 @@ export function gleanMetrics(config: ConfigType) {
       totpFailure: createEventFn('login_totp_code_failure'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
+      complete: createEventFn('login_complete'),
     },
 
     resetPassword: {
