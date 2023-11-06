@@ -138,13 +138,10 @@ test.describe('severity-1 #smoke', () => {
 
     await page.goto('https://support.mozilla.org/en-US/');
 
+    await Promise.all([page.click('text=Sign In/Up'), page.waitForLoadState()]);
     await Promise.all([
-      page.click('text=Sign In/Up'),
-      page.waitForNavigation(),
-    ]);
-    await Promise.all([
-      page.click('text=Continue with Firefox Accounts'),
-      page.waitForNavigation(),
+      page.click('text=Sign In or Sign Up'),
+      page.waitForLoadState(),
     ]);
     await login.login(credentials.email, credentials.password);
 
