@@ -5864,7 +5864,6 @@ describe('#integration - StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice,
           undefined,
-          event.data.object.plan.metadata.productOrder,
           oldPlan
         );
       });
@@ -5890,7 +5889,6 @@ describe('#integration - StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice,
           undefined,
-          event.data.object.plan.metadata.productOrder,
           oldPlan
         );
       });
@@ -5930,11 +5928,7 @@ describe('#integration - StripeHelper', () => {
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest =
-        (
-          isUpgrade,
-          upcomingInvoice = undefined,
-          expectedPaymentProratedInCents = 0
-        ) =>
+        (upcomingInvoice = undefined, expectedPaymentProratedInCents = 0) =>
         async () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
@@ -5987,26 +5981,19 @@ describe('#integration - StripeHelper', () => {
             }
           );
 
-          event.data.object.plan.metadata.productOrder = isUpgrade ? 2 : 1;
-          event.data.previous_attributes.plan.metadata.productOrder = isUpgrade
-            ? 1
-            : 2;
-
           const result =
             await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
               event.data.object,
               baseDetails,
               mockInvoice,
               upcomingInvoice,
-              event.data.object.plan.metadata.productOrder,
               event.data.previous_attributes.plan
             );
 
           assert.deepEqual(result, {
             ...baseDetails,
             productIdNew,
-            updateType:
-              SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
+            updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
             productIdOld,
             productNameOld,
             productIconURLOld,
@@ -6026,15 +6013,7 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade',
-        commonTest(true, {
-          currency: 'usd',
-          total: 1234,
-        })
-      );
-
-      it(
-        'extracts expected details for a subscription downgrade',
-        commonTest(false, {
+        commonTest({
           currency: 'usd',
           total: 1234,
         })
@@ -6104,7 +6083,6 @@ describe('#integration - StripeHelper', () => {
             baseDetails,
             mockInvoice,
             undefined,
-            event.data.object.plan.metadata.productOrder,
             event.data.previous_attributes.plan
           );
 
@@ -6116,7 +6094,7 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade with pending invoice items',
-        commonTest(false, {
+        commonTest({
           currency: 'usd',
           total: 1234,
           lines: {
