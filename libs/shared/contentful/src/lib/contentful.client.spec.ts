@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { ApolloQueryResult } from '@apollo/client';
+import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClient } from './contentful.client';
 import { offeringQuery } from './queries/offering';
 import { OfferingQuery } from '../__generated__/graphql';
@@ -180,7 +181,6 @@ describe('ContentfulClient', () => {
   });
 
   describe('getLocale', () => {
-    const DEFAULT_LOCALE = 'en';
     const ACCEPT_LANGUAGE = 'en-US,fr-FR;q=0.7,de-DE;q=0.3';
     const MOCK_DATA = {
       items: [{ code: 'en' }, { code: 'fr-FR' }],

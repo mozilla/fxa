@@ -12,6 +12,7 @@ import { BaseError } from '@fxa/shared/error';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Injectable } from '@nestjs/common';
 import { determineLocale } from '@fxa/shared/l10n';
+import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClientConfig } from './contentful.client.config';
 import {
   ContentfulCDNError,
@@ -39,7 +40,11 @@ export class ContentfulClient {
 
   async getLocale(acceptLanguage: string): Promise<string> {
     const contentfulLocales = await this.getLocales();
-    return determineLocale(acceptLanguage, contentfulLocales);
+    const result = determineLocale(acceptLanguage, contentfulLocales);
+    if (result === 'en') {
+      return DEFAULT_LOCALE;
+    }
+    return result;
   }
 
   async query<Result, Variables>(

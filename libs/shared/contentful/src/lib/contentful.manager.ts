@@ -10,6 +10,7 @@ import {
   ServicesWithCapabilitiesQuery,
   CapabilityServiceByPlanIdsQuery,
 } from '../__generated__/graphql';
+import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClient } from './contentful.client';
 
 import {
@@ -42,7 +43,7 @@ export class ContentfulManager {
       {
         skip: 0,
         limit: 100,
-        locale: 'en',
+        locale: DEFAULT_LOCALE,
         stripePlanIds,
       }
     );
@@ -60,7 +61,7 @@ export class ContentfulManager {
       {
         skip: 0,
         limit: 100,
-        locale: 'en',
+        locale: DEFAULT_LOCALE,
         stripePlanIds,
       }
     );
@@ -74,7 +75,7 @@ export class ContentfulManager {
     const queryResult = await this.client.query(servicesWithCapabilitiesQuery, {
       skip: 0,
       limit: 100,
-      locale: 'en',
+      locale: DEFAULT_LOCALE,
     });
 
     return new ServicesWithCapabilitiesResultUtil(
