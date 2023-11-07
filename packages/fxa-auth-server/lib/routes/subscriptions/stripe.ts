@@ -210,8 +210,8 @@ export class StripeHandler {
       throw error.unknownSubscription();
     }
 
-    const plan = singlePlan(subscription);
-    if (!plan) {
+    const currentPlan = singlePlan(subscription);
+    if (!currentPlan) {
       throw error.internalValidationError(
         'updateSubscription',
         { subscription: subscription.id },
@@ -219,13 +219,17 @@ export class StripeHandler {
       );
     }
 
-    const currentPlanId = plan.id;
-
-    // Verify the plan is a valid update for this subscription.
-    await this.stripeHelper.verifyPlanUpdateForSubscription(
-      currentPlanId,
+    const eligibility = await this.capabilityService.getPlanEligibility(
+      uid,
       planId
     );
+
+    const eligibleForUpgrade =
+      eligibility[0] === SubscriptionEligibilityResult.UPGRADE;
+    const isUpgradeForCurrentPlan = eligibility[1]?.plan_id === currentPlan.id;
+    if (!eligibleForUpgrade || !isUpgradeForCurrentPlan) {
+      throw error.invalidPlanUpdate();
+    }
 
     // Verify the new plan currency and customer currency are compatible.
     // Stripe does not allow customers to change currency after a currency is set, which

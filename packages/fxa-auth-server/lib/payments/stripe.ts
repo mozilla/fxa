@@ -41,7 +41,6 @@ import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getMinimumAmount,
-  getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import {
@@ -51,7 +50,6 @@ import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
   PaypalPaymentError,
-  SubscriptionUpdateEligibility,
   WebSubscription,
   InvoicePreview,
 } from 'fxa-shared/subscriptions/types';
@@ -1874,68 +1872,6 @@ export class StripeHelper extends StripeHelperBase {
       customer.tax?.automatic_tax === 'supported' ||
       customer.tax?.automatic_tax === 'not_collecting'
     );
-  }
-
-  /**
-   * Verify that the `planId` is a valid upgrade for the `currentPlanId`.
-   *
-   * Throws an error if its an invalid upgrade.
-   */
-  async verifyPlanUpdateForSubscription(
-    currentPlanId: string,
-    newPlanId: string
-  ): Promise<void> {
-    if (currentPlanId === newPlanId) {
-      throw error.subscriptionAlreadyChanged();
-    }
-
-    const allPlans = await this.allAbbrevPlans();
-    const currentPlan = allPlans.find((plan) => plan.plan_id === currentPlanId);
-    const newPlan = allPlans.find((plan) => plan.plan_id === newPlanId);
-
-    if (!newPlan || !currentPlan) {
-      throw error.unknownSubscriptionPlan();
-    }
-
-    // getSubscriptionUpdateEligibility is used in both the front and back end,
-    // and it was updated to take a third arugment to branch between Stripe
-    // metadata and Firestore configs.  But on the server side, we'd like to
-    // have a graceful fallback, so we cheat a little by copying the upgrade
-    // config values from the Firestore configs into the metadata if they exist.
-    // TODO remove when getSubscriptionUpdateEligibility's updated to use only
-    // Firestore based configs
-    if (
-      currentPlan.configuration?.productSet &&
-      currentPlan.configuration?.productOrder
-    ) {
-      currentPlan.plan_metadata ??= {};
-      currentPlan.plan_metadata['productSet'] =
-        currentPlan.configuration.productSet.join(',');
-      currentPlan.plan_metadata[
-        'productOrder'
-      ] = `${currentPlan.configuration.productOrder}`;
-    }
-    if (
-      newPlan.configuration?.productSet &&
-      newPlan.configuration?.productOrder
-    ) {
-      newPlan.plan_metadata ??= {};
-      newPlan.plan_metadata['productSet'] =
-        newPlan.configuration.productSet.join(',');
-      newPlan.plan_metadata[
-        'productOrder'
-      ] = `${newPlan.configuration.productOrder}`;
-    }
-
-    const planUpdateEligibility = getSubscriptionUpdateEligibility(
-      currentPlan,
-      newPlan
-    );
-
-    // We only allow upgrades
-    if (planUpdateEligibility !== SubscriptionUpdateEligibility.UPGRADE) {
-      throw error.invalidPlanUpdate();
-    }
   }
 
   async updateSubscriptionAndBackfill(
