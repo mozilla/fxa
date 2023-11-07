@@ -4,14 +4,13 @@
 const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const routesHelpers = require('./helpers/routesHelpers');
-const fxaShared = require('fxa-shared');
+const languages = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
 const dnshook = require('./lib/dnshook');
 
 var checkHeaders = routesHelpers.checkHeaders;
 var extractAndCheckUrls = routesHelpers.extractAndCheckUrls;
 var makeRequest = routesHelpers.makeRequest;
 
-var languages = fxaShared.l10n.supportedLanguages;
 var httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var hookDns = process.env.FXA_DNS_ELB && process.env.FXA_DNS_ALIAS;
