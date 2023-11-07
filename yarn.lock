@@ -13671,6 +13671,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry-internal/tracing@npm:7.77.0":
+  version: 7.77.0
+  resolution: "@sentry-internal/tracing@npm:7.77.0"
+  dependencies:
+    "@sentry/core": 7.77.0
+    "@sentry/types": 7.77.0
+    "@sentry/utils": 7.77.0
+  checksum: dc6162db6d426212440abd66f9e37a4ce1849a79dd067158091702b273f3312ea131984c7aad58708745340b2a0ddb652b898c27dbf409d8691dbd4ee8a9ebde
+  languageName: node
+  linkType: hard
+
 "@sentry/browser@npm:^7.66.0":
   version: 7.66.0
   resolution: "@sentry/browser@npm:7.66.0"
@@ -13696,6 +13707,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/core@npm:7.77.0":
+  version: 7.77.0
+  resolution: "@sentry/core@npm:7.77.0"
+  dependencies:
+    "@sentry/types": 7.77.0
+    "@sentry/utils": 7.77.0
+  checksum: f76e83ba5da4710b87b5e03f747ac5b5f93c93814447d29e1863b6bd3734d87f3a8fb197060a9a8370430d1d47b5c8c33dc86acc7f7b212322630e280435c6d8
+  languageName: node
+  linkType: hard
+
 "@sentry/integrations@npm:^7.66.0":
   version: 7.66.0
   resolution: "@sentry/integrations@npm:7.66.0"
@@ -13708,19 +13729,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^7.66.0":
-  version: 7.66.0
-  resolution: "@sentry/node@npm:7.66.0"
+"@sentry/node@npm:^7.77.0":
+  version: 7.77.0
+  resolution: "@sentry/node@npm:7.77.0"
   dependencies:
-    "@sentry-internal/tracing": 7.66.0
-    "@sentry/core": 7.66.0
-    "@sentry/types": 7.66.0
-    "@sentry/utils": 7.66.0
-    cookie: ^0.4.1
+    "@sentry-internal/tracing": 7.77.0
+    "@sentry/core": 7.77.0
+    "@sentry/types": 7.77.0
+    "@sentry/utils": 7.77.0
     https-proxy-agent: ^5.0.0
-    lru_map: ^0.3.3
-    tslib: ^2.4.1 || ^1.9.3
-  checksum: 5f3fec1cec663905140671886c5360a9306fe1766c369f4d4220ef9cedaf73431fcb29bd9910fa2fb9e5f08ba50bf6f9f6320d9cf05d43304439fc19da3ea7c8
+  checksum: 11034db59a547f3b35208f601fa4704dc7ef6e1f9730136562c1764de8f7b286b355b701711febb44b972ed7009b3467c21ffda15f07024f7dee36979ca9e1c1
   languageName: node
   linkType: hard
 
@@ -13742,6 +13760,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:7.77.0":
+  version: 7.77.0
+  resolution: "@sentry/types@npm:7.77.0"
+  checksum: ff8047425d4b0caae9221a9fa52fa0122ddf23b51152b7d71914f6465cf72dc3fdf00b7db16e3e95b4a1d2d429824d91ed586b1abac6d5286bd7800504e30824
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:7.66.0":
   version: 7.66.0
   resolution: "@sentry/utils@npm:7.66.0"
@@ -13749,6 +13774,15 @@ __metadata:
     "@sentry/types": 7.66.0
     tslib: ^2.4.1 || ^1.9.3
   checksum: b33d89c18cfcac1bf4bf20453f6ebd5229911a3264b32f25d6591cfab303c86da9b06ce46e8f3490f391c7b4efe5ddd153e5dffe8b2316cf605daa789da0c39c
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:7.77.0":
+  version: 7.77.0
+  resolution: "@sentry/utils@npm:7.77.0"
+  dependencies:
+    "@sentry/types": 7.77.0
+  checksum: 000bb1caec44812dc39a8026ecba78c14a8332f15cb78d2935c91a7ba8d61eab9553a791a4af528a113ca90b83db6e81791e3562b2559b76596accc69e4d57ad
   languageName: node
   linkType: hard
 
@@ -25531,7 +25565,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "browserid-verifier@workspace:packages/browserid-verifier"
   dependencies:
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     async: 3.2.4
     audit-filter: 0.5.0
     body-parser: ^1.20.1
@@ -28006,7 +28040,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cookie@npm:0.4.1, cookie@npm:^0.4.0, cookie@npm:^0.4.1":
+"cookie@npm:0.4.1, cookie@npm:^0.4.0":
   version: 0.4.1
   resolution: "cookie@npm:0.4.1"
   checksum: bd7c47f5d94ab70ccdfe8210cde7d725880d2fcda06d8e375afbdd82de0c8d3b73541996e9ce57d35f67f672c4ee6d60208adec06b3c5fc94cebb85196084cf8
@@ -34451,7 +34485,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@rescripts/cli": 0.0.16
     "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@testing-library/jest-dom": ^5.16.5
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
@@ -34506,7 +34540,7 @@ fsevents@~2.1.1:
   dependencies:
     "@golevelup/ts-jest": ^0.3.2
     "@google-cloud/firestore": ^6.6.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
     "@types/node": ^18.18.2
@@ -34596,7 +34630,7 @@ fsevents@~2.1.1:
     "@hapi/hoek": ^11.0.2
     "@mozilla/glean": ^2.0.0
     "@sentry/integrations": ^7.66.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@storybook/addon-controls": ^7.0.23
     "@storybook/addon-docs": ^7.0.23
     "@storybook/addon-toolbars": ^7.0.23
@@ -34771,7 +34805,7 @@ fsevents@~2.1.1:
     "@babel/preset-typescript": ^7.23.2
     "@mozilla/glean": ^2.0.5
     "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/backbone": ^1.4.10
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
@@ -34929,7 +34963,7 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.19.4
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/dedent": ^0
     audit-filter: ^0.5.0
     bl: 6.0.0
@@ -34989,7 +35023,7 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.19.4
     "@grpc/grpc-js": ^1.1.3
     "@hapi/hoek": ^11.0.2
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.12
@@ -35073,7 +35107,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/body-parser": ^1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -35182,7 +35216,7 @@ fsevents@~2.1.1:
     "@fluent/langneg": ^0.6.2
     "@rescripts/cli": ~0.0.16
     "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@storybook/addon-actions": ^7.1.1
     "@storybook/addon-links": ^7.5.2
     "@storybook/addon-styling": ^1.3.0
@@ -35289,7 +35323,7 @@ fsevents@~2.1.1:
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 7.1.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@types/sharp": ^0
     audit-filter: ^0.5.0
     aws-sdk: ^2.1485.0
@@ -35553,7 +35587,7 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-web": ~1.13.0
     "@sentry/browser": ^7.66.0
     "@sentry/integrations": ^7.66.0
-    "@sentry/node": ^7.66.0
+    "@sentry/node": ^7.77.0
     "@type-cacheable/core": ^11.0.0
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/accept-language-parser": ^1.5.3
@@ -44943,13 +44977,6 @@ fsevents@~2.1.1:
     lodash.clonedeep: ^4.5.0
     lru-cache: ~4.0.0
   checksum: 8dd076e39afeb2e079287758344ba87cde278f630447e823650320e41a9e3dd8bd91ed375fa7585af95c4ae0473ba18e2fe6f12cbde7f69fc109f2ddd60423b3
-  languageName: node
-  linkType: hard
-
-"lru_map@npm:^0.3.3":
-  version: 0.3.3
-  resolution: "lru_map@npm:0.3.3"
-  checksum: ca9dd43c65ed7a4f117c548028101c5b6855e10923ea9d1f635af53ad20c5868ff428c364d454a7b57fe391b89c704982275410c3c5099cca5aeee00d76e169a
   languageName: node
   linkType: hard
 
