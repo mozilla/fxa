@@ -29290,7 +29290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dedent@npm:^1.0.0":
+"dedent@npm:^1.0.0, dedent@npm:^1.5.1":
   version: 1.5.1
   resolution: "dedent@npm:1.5.1"
   peerDependencies:
@@ -34650,7 +34650,7 @@ fsevents@~2.1.1:
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    dedent: ^0.7.0
+    dedent: ^1.5.1
     ejs: ^3.1.8
     email-addresses: 4.0.0
     emittery: ^0.13.1
@@ -34939,7 +34939,7 @@ fsevents@~2.1.1:
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    dedent: ^0.7.0
+    dedent: ^1.5.1
     deep-equal: 2.2.0
     eslint: ^7.32.0
     fxa-shared: "workspace:*"

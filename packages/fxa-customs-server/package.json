@@ -37,7 +37,7 @@
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
-    "dedent": "^0.7.0",
+    "dedent": "^1.5.1",
     "deep-equal": "2.2.0",
     "hapi-swagger": "^17.1.0",
     "ip": "^1.1.8",
