@@ -21,8 +21,8 @@ describe('BentoMenu', () => {
 
     const toggleButton = screen.getByTestId('drop-down-bento-menu-toggle');
 
-    expect(toggleButton).toHaveAttribute('title', 'Mozilla Bento Menu');
-    expect(toggleButton).toHaveAttribute('aria-label', 'Mozilla Bento Menu');
+    expect(toggleButton).toHaveAttribute('title', 'Mozilla products');
+    expect(toggleButton).toHaveAttribute('aria-label', 'Mozilla products');
     expect(toggleButton).toHaveAttribute('aria-haspopup', 'menu');
     expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
     expect(screen.queryByTestId(dropDownId)).not.toBeInTheDocument();
