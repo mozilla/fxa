@@ -9,15 +9,15 @@ import { ResetPasswordWithRecoveryKeyVerifiedIntegration } from './interfaces';
 export function createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration(): ResetPasswordWithRecoveryKeyVerifiedIntegration {
   return {
     type: IntegrationType.Web,
-    getServiceName: () => Promise.resolve(MozServices.Default),
-    isSync: () => Promise.resolve(false),
+    getServiceName: () => MozServices.Default,
+    isSync: () => false,
   };
 }
 
 export function createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration(): ResetPasswordWithRecoveryKeyVerifiedIntegration {
   return {
     type: IntegrationType.SyncDesktop,
-    getServiceName: () => Promise.resolve(MozServices.FirefoxSync),
-    isSync: () => Promise.resolve(true),
+    getServiceName: () => MozServices.FirefoxSync,
+    isSync: () => true,
   };
 }

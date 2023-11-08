@@ -39,15 +39,7 @@ const AccountRecoveryConfirmKey = ({
   setLinkStatus,
   integration,
 }: AccountRecoveryConfirmKeyProps) => {
-  const [serviceName, setServiceName] = useState<string>();
-
-  useEffect(() => {
-    (async () => {
-      // TODO: remove async requirements from relier, FXA-6836
-      setServiceName(await integration.getServiceName());
-    })();
-  });
-
+  const serviceName = integration.getServiceName();
   const [tooltipText, setTooltipText] = useState<string>('');
   const [bannerMessage, setBannerMessage] = useState<string | ReactElement>();
   // The password forgot code can only be used once to retrieve `accountResetToken`

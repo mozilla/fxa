@@ -10,10 +10,11 @@ import {
   OAuthIntegration,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
+  RelierClientInfo,
+  RelierSubscriptionInfo,
   SyncDesktopIntegration,
 } from '../../models/integrations';
 import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
-import { IntegrationDelegates } from '../integrations/interfaces';
 import { IntegrationFactory, DefaultIntegrationFlags } from '../integrations';
 import { ReachRouterWindow } from '../window';
 
@@ -39,7 +40,8 @@ describe('lib/integrations/integration-factory', () => {
   let urlQueryData: UrlQueryData;
   let urlHashData: UrlHashData;
   let storageData: StorageData;
-  let delegates: IntegrationDelegates;
+  let clientInfo: RelierClientInfo;
+  let productInfo: RelierSubscriptionInfo;
 
   /**
    * Initial setup for factory tests. Checks that factory methods were invoked and factory produced correct integration type.
@@ -78,7 +80,8 @@ describe('lib/integrations/integration-factory', () => {
       channelData: urlHashData,
       storageData,
       flags,
-      delegates,
+      clientInfo,
+      productInfo,
     });
 
     // Create the integration
@@ -114,25 +117,17 @@ describe('lib/integrations/integration-factory', () => {
     // instance being created by the factory
     flags = new DefaultIntegrationFlags(urlQueryData, storageData);
 
-    // Delegates are used by the factory as callbacks to get external data.
-    // This stops the factory from becoming concerned with out to fetch external
-    // state which makes testing simpler, and unit testing possible.
-    delegates = {
-      getProductIdFromRoute() {
-        return '123';
-      },
-      async getProductInfo(_subscriptionId: string) {
-        return { productName: 'foo' };
-      },
-      async getClientInfo(clientId: string) {
-        return {
-          client_id: '720bc80adfa6988d',
-          redirect_uri: 'https://redirect.to',
-          name: 'foo',
-          image_uri: 'https://redirect.to/foo',
-          trusted: 'false',
-        };
-      },
+    productInfo = {
+      subscriptionProductId: '123',
+      subscriptionProductName: 'foo',
+    };
+
+    clientInfo = {
+      serviceName: 'foo',
+      clientId: '720bc80adfa6988d',
+      redirectUri: 'https://redirect.to',
+      imageUri: 'https://redirect.to/foo',
+      trusted: false,
     };
   });
 
@@ -150,9 +145,9 @@ describe('lib/integrations/integration-factory', () => {
     it('has correct state`', async () => {
       expect(integration.type).toEqual(IntegrationType.Web);
       expect(integration.isOAuth()).toBeFalsy();
-      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
-      expect(await integration.isTrusted()).toBeTruthy();
+      expect(integration.isTrusted()).toBeTruthy();
     });
 
     // TODO: Remove with approval.
@@ -183,12 +178,12 @@ describe('lib/integrations/integration-factory', () => {
       );
     });
 
-    it('has correct state', async () => {
+    it('has correct state', () => {
       expect(integration.type).toEqual(IntegrationType.SyncDesktop);
       expect(integration.isOAuth()).toBeFalsy();
-      expect(await integration.isSync()).toBeTruthy();
+      expect(integration.isSync()).toBeTruthy();
       expect(integration.wantsKeys()).toBeTruthy();
-      expect(await integration.isTrusted()).toBeTruthy();
+      expect(integration.isTrusted()).toBeTruthy();
     });
 
     it('populates model from the search parameters', async () => {
@@ -228,9 +223,9 @@ describe('lib/integrations/integration-factory', () => {
     it('has correct state', async () => {
       expect(integration.type).toEqual(IntegrationType.OAuth);
       expect(integration.isOAuth()).toBeTruthy();
-      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
-      expect(await integration.isTrusted()).toBeFalsy();
+      expect(integration.isTrusted()).toBeFalsy();
     });
     // TODO: Port remaining tests from content-server
   });
@@ -250,12 +245,12 @@ describe('lib/integrations/integration-factory', () => {
       );
     });
 
-    it('has correct state', async () => {
+    it('has correct state', () => {
       expect(integration.type).toEqual(IntegrationType.PairingSupplicant);
       expect(integration.isOAuth()).toBeTruthy();
-      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
-      expect(await integration.isTrusted()).toBeFalsy();
+      expect(integration.isTrusted()).toBeFalsy();
     });
   });
 
@@ -276,9 +271,9 @@ describe('lib/integrations/integration-factory', () => {
       });
       expect(integration.type).toEqual(IntegrationType.PairingAuthority);
       expect(integration.isOAuth()).toBeTruthy();
-      expect(await integration.isSync()).toBeFalsy();
+      expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
-      expect(await integration.isTrusted()).toBeFalsy();
+      expect(integration.isTrusted()).toBeFalsy();
     });
   });
 });

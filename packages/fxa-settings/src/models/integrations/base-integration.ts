@@ -79,15 +79,20 @@ export abstract class Integration<
   public features: T = {} as T;
   // TODO fix data type
   public data: any;
-  /** Lazy loaded client info. */
-  clientInfo: Promise<RelierClientInfo> | undefined;
-  /** Lazy loaded subscription info. */
-  subscriptionInfo: Promise<RelierSubscriptionInfo> | undefined;
+  clientInfo: RelierClientInfo | undefined;
+  subscriptionInfo: RelierSubscriptionInfo | undefined;
 
   // TODO fix data type
-  constructor(type: IntegrationType, data: any) {
+  constructor(
+    type: IntegrationType,
+    data: any,
+    clientInfo?: RelierClientInfo,
+    subscriptionInfo?: RelierSubscriptionInfo | undefined
+  ) {
     this.type = type;
     this.data = data;
+    this.clientInfo = clientInfo;
+    this.subscriptionInfo = subscriptionInfo;
   }
 
   protected setFeatures(features: Partial<T>) {
@@ -99,36 +104,24 @@ export abstract class Integration<
     return false;
   }
 
-  async isSync(): Promise<boolean> {
+  isSync(): boolean {
     return false;
   }
 
-  async getClientInfo(): Promise<RelierClientInfo | undefined> {
-    return undefined;
-  }
-
-  async getServiceName(): Promise<string> {
+  getServiceName(): string {
     // If the service is not defined, then check the client info
-    if (!this.data.service) {
-      if (this.clientInfo) {
-        const clientInfo = await this.clientInfo;
-        if (clientInfo?.serviceName) {
-          return clientInfo.serviceName;
-        }
-      }
+    if (!this.data.service && this.clientInfo?.serviceName) {
+      return this.clientInfo.serviceName;
     }
 
     // TODO: Not 100% sure about this
     // If the service is the same as the client info id, then use that service name
-    if (this.clientInfo) {
-      const clientInfo = await this.clientInfo;
-      if (
-        clientInfo?.clientId &&
-        clientInfo?.serviceName &&
-        clientInfo?.clientId === this.data.service
-      ) {
-        return clientInfo.serviceName;
-      }
+    if (
+      this.clientInfo?.clientId &&
+      this.clientInfo?.serviceName &&
+      this.clientInfo?.clientId === this.data.service
+    ) {
+      return this.clientInfo.serviceName;
     }
 
     // Fallback to defacto service names
@@ -172,7 +165,7 @@ export abstract class Integration<
     return this.data.service;
   }
 
-  async isTrusted() {
+  isTrusted() {
     return true;
   }
 

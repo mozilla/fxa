@@ -121,7 +121,7 @@ const ConfirmSignupCode = ({
       const options = {
         ...(hasSelectedNewsletters && { ...{ newsletters } }),
         ...(isOAuthIntegration(integration) && {
-          scopes: await integration.getPermissions(),
+          scopes: integration.getPermissions(),
           service: integration.getService(),
         }),
       };
