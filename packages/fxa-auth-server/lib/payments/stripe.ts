@@ -2892,10 +2892,7 @@ export class StripeHelper extends StripeHelperBase {
       },
       abbrevProductNew
     );
-    const {
-      productOrder: productOrderNew,
-      emailIconURL: productIconURLNew = '',
-    } = productNewMetadata;
+    const { emailIconURL: productIconURLNew = '' } = productNewMetadata;
     const planConfig = await this.maybeGetPlanConfig(planIdNew);
 
     const productPaymentCycleNew = this.stripePlanToPaymentCycle(planNew);
@@ -2971,7 +2968,6 @@ export class StripeHelper extends StripeHelperBase {
         baseDetails,
         invoice,
         upcomingInvoiceWithInvoiceItem,
-        productOrderNew,
         planOld
       );
     }
@@ -3146,7 +3142,6 @@ export class StripeHelper extends StripeHelperBase {
     baseDetails: any,
     invoice: Stripe.Invoice,
     upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined,
-    productOrderNew: string,
     planOld: Stripe.Plan
   ) {
     const {
@@ -3161,21 +3156,13 @@ export class StripeHelper extends StripeHelperBase {
     const { product_id: productIdOld, product_name: productNameOld } =
       abbrevProductOld;
     const abbrevPlanOld = await this.findAbbrevPlanById(planOld.id);
-    const {
-      productOrder: productOrderOld,
-      emailIconURL: productIconURLOld = '',
-    } = this.mergeMetadata(
+    const { emailIconURL: productIconURLOld = '' } = this.mergeMetadata(
       {
         ...planOld,
         metadata: abbrevPlanOld.plan_metadata,
       },
       abbrevProductOld
     );
-
-    const updateType =
-      parseInt(productOrderNew) > parseInt(productOrderOld)
-        ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
-        : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 
     const productPaymentCycleOld = this.stripePlanToPaymentCycle(planOld);
 
@@ -3191,7 +3178,7 @@ export class StripeHelper extends StripeHelperBase {
 
     return {
       ...baseDetails,
-      updateType,
+      updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
       productIdOld,
       productNameOld,
       productIconURLOld,
