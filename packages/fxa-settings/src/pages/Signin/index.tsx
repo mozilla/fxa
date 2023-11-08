@@ -30,6 +30,9 @@ const Signin = ({
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  // TODO: Send `fxaccounts:can_link_account` web channel message.
+  // Throw a console log in web-channel.js 'send' to see.
+
   // TODO in FXA-6488 use the integration's client id (instead of service name) to determine if client is Pocket or Monitor
   const isPocketClient = serviceName === MozServices.Pocket;
   const isMonitorClient = serviceName === MozServices.FirefoxMonitor;

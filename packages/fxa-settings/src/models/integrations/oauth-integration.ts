@@ -248,6 +248,13 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return true;
   }
 
+  // TODO: Sync mobile currently uses the OAuth integration for key derivation.
+  // Whenever desktop FF moves to this as well (e.g. from context=fx_desktop_v3
+  // to context=oauth_webchannel_v1) in SYNC-3768, we can refactor this and the
+  // SyncDesktop integration accordingly - maybe we'll only need one Sync
+  // integration once we no longer need to support desktop_v3. For now,
+  // `isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync`
+  // is the equivalent of this method's check.
   isSync() {
     return this.clientInfo?.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
   }

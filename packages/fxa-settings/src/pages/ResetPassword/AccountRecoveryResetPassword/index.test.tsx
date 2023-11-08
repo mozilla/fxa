@@ -18,7 +18,7 @@ import {
   mockAppContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import firefox from '../../../lib/channels/firefox';
 import {
   MOCK_LOCATION_STATE,
   MOCK_RESET_DATA,
@@ -36,12 +36,6 @@ jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
   __esModule: true,
   default: () => mockUseNavigateWithoutRerender,
 }));
-
-jest.mock('../../../lib/channels/helpers', () => {
-  return {
-    notifyFirefoxOfLogin: jest.fn(),
-  };
-});
 
 // TODO: better mocking here. LinkValidator sends `params` into page components and
 // we mock those params sent to page components... we want to do these validation
@@ -269,6 +263,7 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('successful reset, SyncDesktop integration', () => {
     let integration: AccountRecoveryResetPasswordBaseIntegration;
     // TODO: share setup code with successful reset
+    let fxaLoginSignedInUserSpy: jest.SpyInstance;
     beforeEach(async () => {
       integration =
         createMockAccountRecoveryResetPasswordSyncDesktopIntegration();
@@ -277,6 +272,7 @@ describe('AccountRecoveryResetPassword page', () => {
         .mockResolvedValue(MOCK_RESET_DATA);
       account.isSessionVerifiedAuthClient = jest.fn();
       account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
+      fxaLoginSignedInUserSpy = jest.spyOn(firefox, 'fxaLoginSignedInUser');
 
       render(<Subject {...{ integration }} />, account);
       await enterPassword('foo12356789!');
@@ -286,9 +282,9 @@ describe('AccountRecoveryResetPassword page', () => {
     it('sets integration resetPasswordConfirm state', () => {
       expect(integration.data.resetPasswordConfirm).toBeTruthy();
     });
-    it('calls notifyFirefoxOfLogin', () => {
+    it('calls fxaLoginSignedInUserSpy', () => {
       expect(integration.type).toEqual(IntegrationType.SyncDesktop);
-      expect(notifyFirefoxOfLogin).toHaveBeenCalled();
+      expect(fxaLoginSignedInUserSpy).toHaveBeenCalled();
     });
   });
 

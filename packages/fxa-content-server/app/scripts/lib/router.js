@@ -190,13 +190,17 @@ Router = Router.extend({
       * `signin` to React's `confirm_signup_code`. For this case, we want to use the
       * Backbone `confirm_signup_code` until `signin` is Reactified. See:
       * https://github.com/mozilla/fxa/pull/15839/files#r1344333026
+      *
+      * Later comment: additionally, we need `keyFetchToken` and `unwrapBKey` to send a
+      * webchannel message to the browser for Sync. For this case, we will also show
+      * Backbone's `confirm_signup_code` until `signin` is Reactified.
       * */
 
       const routeName = 'confirm_signup_code';
       // Users that have already reached React Signup will be navigated in-app to this
-      // page next (in React). This check handles the OAuth flow when the previous page
-      // was Backbone `/signin` - always show Backbone `confirm_signup_code`.
-      if (this.relier.isOAuth()) {
+      // page next (in React). This check handles the OAuth flow and Sync flow when the
+      // previous page was Backbone `/signin` - always show Backbone `confirm_signup_code`.
+      if (this.relier.isOAuth() || this.relier.isSync()) {
         return getView(routeName).then((View) => {
           return this.showView(View);
         });
@@ -464,6 +468,7 @@ Router = Router.extend({
     },
     'signup(/)': function () {
       this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
+        ...Url.searchParams(this.window.location.search),
         // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
         email: this.user.get('emailFromIndex'),
         ...(this.user.get('emailFromIndex') && {

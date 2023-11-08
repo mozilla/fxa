@@ -5,7 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { IntegrationType, isSyncDesktopIntegration } from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
 import {
@@ -23,6 +23,7 @@ import {
   SignupIntegration,
   SignupOAuthIntegration,
 } from './interfaces';
+import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
 
 export const MOCK_SEARCH_PARAMS = {
   email: MOCK_EMAIL,
@@ -104,6 +105,9 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
+          isSync: isSyncDesktopIntegration(integration),
+          isSyncMobileWebChannel: false,
+          webChannelEngines: getSyncEngineIds(),
         }}
       />
     </LocationProvider>

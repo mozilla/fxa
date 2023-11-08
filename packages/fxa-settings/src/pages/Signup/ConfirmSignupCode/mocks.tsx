@@ -51,7 +51,13 @@ export const Subject = ({
           newsletterSlugs,
           integration,
         }}
-        finishOAuthFlowHandler={() => Promise.resolve({ redirect: 'someUri' })}
+        finishOAuthFlowHandler={() =>
+          Promise.resolve({
+            redirect: 'someUri',
+            code: 'someCode',
+            state: 'someState',
+          })
+        }
       />
     </LocationProvider>
   );

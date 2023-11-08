@@ -51,11 +51,6 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     );
   }
 
-  // TODO remove in favor of isServiceSync
-  isSyncService() {
-    return this._isService(Constants.SYNC_SERVICE);
-  }
-
   isV3DesktopContext() {
     return this.searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
   }

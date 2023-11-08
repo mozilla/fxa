@@ -95,10 +95,10 @@ test.describe('severity-1 #smoke', () => {
       await relier.signOut();
     });
 
-    // TODO: finalize and enable test in FXA-8287
-    test.skip('signup oauth webchannel', async ({
-      pages: { page, login, relier, signupReact },
-      target,
+    // TODO: This isn't working because we're checking for sync mobile webchannel in the page
+    // by checking against the client ID. This client ID is 123done and not Sync.
+    test.skip('signup oauth webchannel (sync mobile)', async ({
+      pages: { login, relier },
     }) => {
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
@@ -111,42 +111,42 @@ test.describe('severity-1 #smoke', () => {
         }
       );
 
-      await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
+      const email = login.createEmail();
+
+      await relier.goto(
+        'context=oauth_webchannel_v1&automatedBrowser=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react'
+      );
       await relier.clickEmailFirst();
+
+      // We used to have this, not sure if we want it or not.
+      // wait for navigation, and get search params
+      // await page.waitForURL(/oauth\//);
+      // const url = page.url();
+      // const params = new URLSearchParams(url.substring(url.indexOf('?') + 1));
+
+      // // reload email-first page with React experiment params
+      // await signupReact.goto('/', params);
+      // // fill out email first form
+      // await signupReact.fillOutEmailFirst(email);
+      // await signupReact.fillOutSignupForm(PASSWORD);
+
+      await login.setEmail(email);
+      await login.submit();
+      // do we need to check that we're on the signup page?
 
       await login.respondToWebChannelMessage(customEventDetail);
 
-      // TODO: CTWS has not been implemented yet, probably better to pull into signupReact page
-      // await login.waitForCWTSEngineHeader();
-      // expect(await login.isCWTSEngineBookmarks()).toBe(true);
-      // expect(await login.isCWTSEngineHistory()).toBe(true);
+      // the CWTS form is on the same signup page
+      await login.waitForCWTSEngineHeader();
+      expect(await login.isCWTSEngineBookmarks()).toBe(true);
+      expect(await login.isCWTSEngineHistory()).toBe(true);
+      expect(await login.isCWTSEngineCreditCards()).toBe(false);
 
-      // wait for navigation, and get search params
-      await page.waitForURL(/oauth\//);
-      const url = page.url();
-      const params = new URLSearchParams(url.substring(url.indexOf('?') + 1));
-
-      // reload email-first page with React experiment params
-      await signupReact.goto('/', params);
-
-      await signupReact.fillOutEmailFirst(email);
-      await signupReact.fillOutSignupForm(PASSWORD);
-
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
-
-      // TODO: CTWS has not been implemented yet
-      // await login.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
-
-      // expect to be redirected to relier after confirming signup code
-      await page.waitForURL(target.relierUrl);
-      expect(await relier.isLoggedIn()).toBe(true);
-      await relier.signOut();
+      await login.fillOutFirstSignUp(email, PASSWORD, {
+        enterEmail: false,
+        waitForNavOnSubmit: false,
+      });
+      await login.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
     test('signup sync', async ({ target }) => {

@@ -21,6 +21,7 @@ import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
+import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
 
 export default {
   title: 'Pages/Signup',
@@ -39,6 +40,9 @@ const storyWithProps = (props?: Partial<SignupProps>) => {
           integration: createMockSignupWebIntegration(),
           queryParamModel,
           beginSignupHandler: mockBeginSignupHandler,
+          webChannelEngines: getSyncEngineIds(),
+          isSyncMobileWebChannel: false,
+          isSync: false,
           ...props,
         }}
       />
@@ -63,4 +67,5 @@ export const ClientIsMonitor = storyWithProps({
 
 export const ChooseWhatToSyncIsEnabled = storyWithProps({
   integration: createMockSignupSyncDesktopIntegration(),
+  isSync: true,
 });
