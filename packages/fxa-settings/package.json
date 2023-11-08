@@ -118,7 +118,7 @@
     "@apollo/client": "^3.4.5",
     "@babel/core": "^7.16.0",
     "@emotion/react": "^11.11.1",
-    "@emotion/styled": "^11.10.4",
+    "@emotion/styled": "^11.11.0",
     "@material-ui/core": "v5.0.0-alpha.24",
     "@mozilla/glean": "^2.0.5",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
