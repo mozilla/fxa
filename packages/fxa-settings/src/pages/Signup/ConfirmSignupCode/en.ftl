@@ -13,6 +13,8 @@ confirm-signup-code-heading = Enter confirmation code <span>for your { -product-
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
 confirm-signup-code-heading-2 = Enter confirmation code <span>for your { -product-mozilla-account }</span>
+# { $serviceName } represents the custom service currently being used
+confirm-signup-code-for-custom-service-heading-2 = Enter confirmation code <span> for { $serviceName }</span>
 # { $email } represents the email that the user entered to sign in
 confirm-signup-code-instruction = Enter the code that was sent to { $email } within 5 minutes.
 confirm-signup-code-input-label = Enter 6-digit code

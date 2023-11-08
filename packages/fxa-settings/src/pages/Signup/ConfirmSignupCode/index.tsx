@@ -244,6 +244,16 @@ const ConfirmSignupCode = ({
     }
   }
 
+  const cardHeaderProps = isOAuthIntegration(integration)
+    ? {
+        headingWithCustomServiceFtlId:
+          'confirm-signup-code-custom-service-heading-2',
+        serviceName: integration.getServiceName() as MozServices,
+      }
+    : {
+        headingAndSubheadingFtlId: 'confirm-signup-code-heading-2',
+      };
+
   const localizedPageTitle = ftlMsgResolver.getMsg(
     'confirm-signup-code-page-title',
     'Enter confirmation code'
@@ -259,10 +269,8 @@ const ConfirmSignupCode = ({
   return (
     <AppLayout title={localizedPageTitle}>
       <BrandMessagingPortal {...{ viewName }} />
-      <CardHeader
-        headingText="Enter confirmation code"
-        headingAndSubheadingFtlId="confirm-signup-code-heading-2"
-      />
+
+      <CardHeader headingText="Enter confirmation code" {...cardHeaderProps} />
 
       {banner.type && banner.children && (
         <Banner type={banner.type}>{banner.children}</Banner>
