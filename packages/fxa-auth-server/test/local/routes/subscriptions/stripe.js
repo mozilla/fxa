@@ -1970,7 +1970,12 @@ describe('DirectStripeRoutes', () => {
       const expected = { subscriptionId: subscriptionId };
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
-      directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
+        plan.id,
+      ]);
+
       directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
 
       sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
@@ -1982,9 +1987,33 @@ describe('DirectStripeRoutes', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('throws an error when the new plan is not an upgrade', async () => {
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.INVALID,
+      ]);
+
+      try {
+        await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
+        assert.fail('Update subscription with invalid plan should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+        assert.equal(err.message, 'Subscription plan is not a valid update');
+      }
+    });
+
     it("throws an error when the new plan currency doesn't match the customer's currency.", async () => {
       plan.currency = 'EUR';
       directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
+        plan.id,
+      ]);
 
       try {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
