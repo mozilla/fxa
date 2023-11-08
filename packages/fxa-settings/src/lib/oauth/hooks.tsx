@@ -55,7 +55,7 @@ async function constructKeysJwe(
     const clientKeyData = await authClient.getOAuthScopedKeyData(
       sessionToken,
       integration.data.clientId,
-      await integration.getNormalizedScope()
+      integration.getNormalizedScope()
     );
 
     if (clientKeyData && Object.keys(clientKeyData).length > 0) {
@@ -86,7 +86,7 @@ async function constructOAuthCode(
     acr_values: integration.data.acrValues,
     code_challenge: integration.data.codeChallenge,
     code_challenge_method: integration.data.codeChallengeMethod,
-    scope: await integration.getNormalizedScope(),
+    scope: integration.getNormalizedScope(),
   };
   if (keysJwe) {
     opts.keys_jwe = keysJwe;

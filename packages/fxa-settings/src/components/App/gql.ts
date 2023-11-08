@@ -53,3 +53,30 @@ export const GET_LOCAL_SIGNED_IN_STATUS = gql`
     isSignedIn @client
   }
 `;
+
+/**
+ * This query fetches the current relying parties client information.
+ */
+export const GET_CLIENT_INFO = gql`
+  query GetClientInfo($input: String!) {
+    clientInfo(input: $input) {
+      clientId
+      imageUri
+      redirectUri
+      serviceName
+      trusted
+    }
+  }
+`;
+
+/**
+ * This query fetches the current subscription product information.
+ */
+export const GET_PRODUCT_INFO = gql`
+  query GetProductInfo($input: String!) {
+    productInfo(input: $input) {
+      subscriptionProductId
+      subscriptionProductName
+    }
+  }
+`;

@@ -104,7 +104,7 @@ export class SyncBasicIntegration<
     return true;
   }
 
-  async isSync() {
+  isSync() {
     return true;
   }
 }

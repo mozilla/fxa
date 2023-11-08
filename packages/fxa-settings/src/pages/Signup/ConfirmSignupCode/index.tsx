@@ -32,7 +32,7 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
-import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { MozServices, ResendStatus } from 'fxa-settings/src/lib/types';
 import { isOAuthIntegration, isSyncDesktopIntegration } from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
@@ -121,7 +121,7 @@ const ConfirmSignupCode = ({
       const options = {
         ...(hasSelectedNewsletters && { ...{ newsletters } }),
         ...(isOAuthIntegration(integration) && {
-          scopes: await integration.getPermissions(),
+          scopes: integration.getPermissions(),
           service: integration.getService(),
         }),
       };

@@ -52,7 +52,7 @@ describe('models/integrations/oauth-relier', function () {
         }
       );
 
-      integration.isTrusted = async () => {
+      integration.isTrusted = () => {
         return true;
       };
 
@@ -64,16 +64,18 @@ describe('models/integrations/oauth-relier', function () {
         return getIntegrationWithScope(scope);
       }
 
-      it('empty scope', async () => {
-        await expect(async () => {
+      it('empty scope', () => {
+        expect(() => {
           const integration = getIntegration('');
-          await integration.getPermissions();
-        }).rejects.toThrow();
+          integration.getPermissions();
+        }).toThrow();
       });
 
       it('whitespace scope', async () => {
         const integration = getIntegration(' ');
-        await expect(integration.getPermissions()).rejects.toThrow();
+        expect(() => {
+          integration.getPermissions();
+        }).toThrow();
       });
     });
 
@@ -82,16 +84,16 @@ describe('models/integrations/oauth-relier', function () {
         return getIntegrationWithScope(scope);
       }
 
-      it(`normalizes ${SCOPE}`, async () => {
+      it(`normalizes ${SCOPE}`, () => {
         const integration = getIntegration(SCOPE);
-        expect(await integration.getNormalizedScope()).toEqual(
+        expect(integration.getNormalizedScope()).toEqual(
           'profile:email profile:uid'
         );
       });
 
-      it(`transforms ${SCOPE} to permissions`, async () => {
+      it(`transforms ${SCOPE} to permissions`, () => {
         const integration = getIntegration(SCOPE);
-        expect(await integration.getPermissions()).toEqual([
+        expect(integration.getPermissions()).toEqual([
           'profile:email',
           'profile:uid',
         ]);
@@ -109,30 +111,34 @@ describe('models/integrations/oauth-relier', function () {
     describe('untrusted reliers', () => {
       function getIntegration(scope: string) {
         const integration = getIntegrationWithScope(scope);
-        integration.isTrusted = async () => {
+        integration.isTrusted = () => {
           return false;
         };
         return integration;
       }
 
-      it(`normalizes ${SCOPE_WITH_EXTRAS}`, async () => {
+      it(`normalizes ${SCOPE_WITH_EXTRAS}`, () => {
         const integration = getIntegration(SCOPE_WITH_EXTRAS);
-        expect(await integration.getNormalizedScope()).toBe(SCOPE);
+        expect(integration.getNormalizedScope()).toBe(SCOPE);
       });
 
-      it(`normalizes ${SCOPE_WITH_OPENID}`, async () => {
+      it(`normalizes ${SCOPE_WITH_OPENID}`, () => {
         const integration = getIntegration(SCOPE_WITH_OPENID);
-        expect(await integration.getNormalizedScope()).toBe(SCOPE_WITH_OPENID);
+        expect(integration.getNormalizedScope()).toBe(SCOPE_WITH_OPENID);
       });
 
-      it(`prohibits ${SCOPE_PROFILE}`, async () => {
+      it(`prohibits ${SCOPE_PROFILE}`, () => {
         const integration = getIntegration(SCOPE_PROFILE);
-        await expect(integration.getNormalizedScope()).rejects.toThrow();
+        expect(() => {
+          integration.getNormalizedScope();
+        }).toThrow();
       });
 
-      it(`prohibits ${SCOPE_PROFILE_UNRECOGNIZED}`, async () => {
+      it(`prohibits ${SCOPE_PROFILE_UNRECOGNIZED}`, () => {
         const integration = getIntegration(SCOPE_PROFILE_UNRECOGNIZED);
-        await expect(integration.getNormalizedScope()).rejects.toThrow();
+        expect(() => {
+          integration.getNormalizedScope();
+        }).toThrow();
       });
     });
 
@@ -147,19 +153,17 @@ describe('models/integrations/oauth-relier', function () {
 
       it(`normalizes ${SCOPE_WITH_EXTRAS}`, async () => {
         const integration = getIntegration(SCOPE_WITH_EXTRAS);
-        expect(await integration.getNormalizedScope()).toEqual(
-          SCOPE_WITH_EXTRAS
-        );
+        expect(integration.getNormalizedScope()).toEqual(SCOPE_WITH_EXTRAS);
       });
 
-      it(`normalizes ${SCOPE_PROFILE}`, async () => {
+      it(`normalizes ${SCOPE_PROFILE}`, () => {
         const integration = getIntegration(SCOPE_PROFILE);
-        expect(await integration.getNormalizedScope()).toEqual(SCOPE_PROFILE);
+        expect(integration.getNormalizedScope()).toEqual(SCOPE_PROFILE);
       });
 
-      it(`normalizes ${SCOPE_PROFILE_UNRECOGNIZED}`, async () => {
+      it(`normalizes ${SCOPE_PROFILE_UNRECOGNIZED}`, () => {
         const integration = getIntegration(SCOPE_PROFILE_UNRECOGNIZED);
-        expect(await integration.getNormalizedScope()).toEqual(
+        expect(integration.getNormalizedScope()).toEqual(
           SCOPE_PROFILE_UNRECOGNIZED
         );
       });

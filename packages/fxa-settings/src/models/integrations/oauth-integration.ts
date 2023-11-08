@@ -20,9 +20,8 @@ import {
   IsHexadecimal,
   IsIn,
   IsNotEmpty,
-  IsNumber,
+  IsInt,
   IsOptional,
-  IsPositive,
   IsString,
   MaxLength,
   MinLength,
@@ -109,8 +108,7 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   idTokenHint: string | undefined;
 
   @IsOptional()
-  @IsNumber()
-  @IsPositive()
+  @IsInt()
   @bind(T.snakeCase)
   maxAge: number | undefined;
 
@@ -226,46 +224,36 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     this.storageData.persist();
   }
 
-  async getServiceName() {
-    const permissions = await this.getPermissions();
+  getServiceName() {
+    const permissions = this.getPermissions();
     if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
       return Constants.RELIER_SYNC_SERVICE_NAME;
     }
 
     // If the clientId and the service are the same, prefer the clientInfo
     if (this.data.service && this.data.clientId === this.data.service) {
-      const clientInfo = await this.clientInfo;
-      if (clientInfo?.serviceName) {
-        return clientInfo.serviceName;
+      if (this.clientInfo?.serviceName) {
+        return this.clientInfo.serviceName;
       }
     }
 
-    return await super.getServiceName();
+    return super.getServiceName();
   }
 
-  async getClientInfo(): Promise<RelierClientInfo | undefined> {
-    if (this.clientInfo) {
-      const info = await this.clientInfo;
-      return info;
-    }
-    return undefined;
+  getClientInfo(): RelierClientInfo | undefined {
+    return this.clientInfo;
   }
 
   isOAuth() {
     return true;
   }
 
-  async isSync() {
-    if (this.clientInfo == null) {
-      return false;
-    }
-
-    const clientInfo = await this.clientInfo;
-    return clientInfo.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
+  isSync() {
+    return this.clientInfo?.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
   }
 
-  async isTrusted() {
-    return (await this.clientInfo)?.trusted === true;
+  isTrusted() {
+    return this.clientInfo?.trusted === true;
   }
 
   wantsConsent() {
@@ -315,7 +303,7 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return wantsScopeThatHasKeys;
   }
 
-  async getPermissions() {
+  getPermissions() {
     // TODO: Not 100% sure about this...
     if (!this.data.scope) {
       return [];
@@ -323,7 +311,7 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
-    if (await this.isTrusted()) {
+    if (this.isTrusted()) {
       // We have to normalize `profile` into is expanded sub-scopes
       // in order to show the consent screen.
       if (this.wantsConsent()) {
@@ -344,8 +332,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return permissions;
   }
 
-  async getNormalizedScope() {
-    const permissions = await this.getPermissions();
+  getNormalizedScope() {
+    const permissions = this.getPermissions();
     return permissions.join(' ');
   }
 
