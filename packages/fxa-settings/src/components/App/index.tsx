@@ -67,16 +67,23 @@ export const App = ({
   flowQueryParams,
 }: { flowQueryParams: QueryParams } & RouteComponentProps) => {
   const config = useConfig();
-  const integration = useIntegration();
 
-  const { loading, data } = useInitialMetricsQueryState();
+  // GQL call for minimal metrics data
+  const { loading: metricsLoading, data } = useInitialMetricsQueryState() ?? {};
+
   // Because this query depends on the result of an initial query (in this case,
   // metrics), we need to run it separately.
   const { data: isSignedInData } = useLocalSignedInQueryState();
+  const integration = useIntegration();
 
   const isSignedIn = isSignedInData?.isSignedIn;
 
   useMemo(() => {
+    // Don't initialize until integration is ready!
+    if (!integration) {
+      return;
+    }
+
     GleanMetrics.initialize(
       {
         ...config.glean,
@@ -122,7 +129,8 @@ export const App = ({
   ]);
 
   useEffect(() => {
-    if (!loading) {
+    // Don't initialize until integration is ready!
+    if (!metricsLoading) {
       // Previously, when Sentry was just loaded in Settings, we only enabled
       // Sentry once we know the user's metrics preferences (and of course,
       // only when the user was logged in, since all users in Settings are.)
@@ -145,11 +153,12 @@ export const App = ({
     data?.metricsEnabled,
     config.sentry,
     config.version,
-    loading,
+    metricsLoading,
     isSignedIn,
   ]);
 
-  if (loading || isSignedIn === undefined) {
+  // Wait until metrics is done loading, integration has been created, and isSignedIn has been determined.
+  if (metricsLoading || !integration || isSignedIn === undefined) {
     return fullPageLoadingSpinner;
   }
 
@@ -195,18 +204,19 @@ const AuthAndAccountSetupRoutes = ({
   const localAccount = currentAccount();
   const integration = useIntegration();
 
-  // TODO: remove async requirements from relier, FXA-6836
-  // The approach here may change or we'll want to update other components to receive
-  // `serviceName` from this instead of calling integration.getServiceName() within pages
   const [serviceName, setServiceName] = useState<MozServices>();
-  useEffect(() => {
-    (async () => {
-      // TODO: MozServices / string discrepancy, FXA-6802
-      setServiceName((await integration.getServiceName()) as MozServices);
-    })();
-  });
 
-  if (serviceName === undefined) {
+  useEffect(() => {
+    // Don't initialize until integration is ready!
+    if (!integration) {
+      return;
+    }
+    // TODO: MozServices / string discrepancy, FXA-6802
+    setServiceName(integration.getServiceName() as MozServices);
+  }, [integration]);
+
+  // Show loading spinner until integration is ready and service name has been determined.
+  if (!integration || serviceName === undefined) {
     return (
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );

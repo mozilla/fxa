@@ -8,7 +8,6 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
   useAccount,
@@ -49,13 +48,7 @@ const ResetPassword = ({
   // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
   setOriginalTabMarker();
 
-  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
-  useEffect(() => {
-    (async () => {
-      const name = await integration.getServiceName();
-      setServiceName(name);
-    })();
-  }, [integration]);
+  const serviceName = integration.getServiceName();
 
   useEffect(() => {
     GleanMetrics.resetPassword.view();

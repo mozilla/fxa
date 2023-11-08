@@ -39,6 +39,12 @@ const SignupConfirmCodeContainer = ({
     integration
   );
 
+  if (!integration) {
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
+  }
+
   // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
     return (

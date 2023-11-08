@@ -13,6 +13,8 @@ import {
   useLocalSignedInQueryState,
   useIntegration,
   useInitialSettingsState,
+  useClientInfoState,
+  useProductInfoState,
   Account,
 } from '../../models';
 import {
@@ -30,6 +32,8 @@ jest.mock('../../models', () => ({
   useInitialMetricsQueryState: jest.fn(),
   useLocalSignedInQueryState: jest.fn(),
   useInitialSettingsState: jest.fn(),
+  useClientInfoState: jest.fn(),
+  useProductInfoState: jest.fn(),
   useIntegration: jest.fn(),
 }));
 
@@ -269,6 +273,14 @@ describe('SettingsRoutes', () => {
       data: { isSignedIn: true },
     });
     (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
+    (useClientInfoState as jest.Mock).mockReturnValue({
+      loading: false,
+      data: {},
+    });
+    (useProductInfoState as jest.Mock).mockReturnValue({
+      loading: false,
+      data: {},
+    });
 
     let navigateResult: Promise<void>;
     await act(async () => {

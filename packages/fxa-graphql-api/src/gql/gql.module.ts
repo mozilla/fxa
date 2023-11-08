@@ -25,6 +25,8 @@ import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { SessionResolver } from './session.resolver';
 import { LegalResolver } from './legal.resolver';
+import { SubscriptionResolver } from './subscription.resolver';
+import { ClientInfoResolver } from './clientInfo.resolver';
 import { Request, Response } from 'express';
 
 const config = Config.getProperties();
@@ -66,7 +68,14 @@ export const GraphQLConfigFactory = async (
 
 @Module({
   imports: [BackendModule, CustomsModule],
-  providers: [AccountResolver, CustomsService, SessionResolver, LegalResolver],
+  providers: [
+    AccountResolver,
+    CustomsService,
+    SessionResolver,
+    LegalResolver,
+    ClientInfoResolver,
+    SubscriptionResolver,
+  ],
 })
 export class GqlModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
