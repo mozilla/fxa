@@ -8,6 +8,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import Ready from '.';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
 import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { MOCK_SERVICE } from '../../pages/mocks';
@@ -15,6 +16,13 @@ import { MOCK_SERVICE } from '../../pages/mocks';
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    resetPassword: { createNewSuccess: jest.fn() },
+  },
 }));
 
 const continueHandler = jest.fn();
@@ -26,6 +34,10 @@ describe('Ready', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
+  beforeEach(() => {
+    (GleanMetrics.resetPassword.createNewSuccess as jest.Mock).mockClear();
+  });
 
   it('renders as expected with default values', () => {
     renderWithLocalizationProvider(<Ready {...{ viewName, isSignedIn }} />);
@@ -127,6 +139,9 @@ describe('Ready', () => {
   it('emits a metrics event on render', () => {
     renderWithLocalizationProvider(<Ready {...{ viewName, isSignedIn }} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.resetPassword.createNewSuccess).toHaveBeenCalledTimes(
+      1
+    );
   });
 
   it('emits a metrics event when a user clicks `Continue`', () => {

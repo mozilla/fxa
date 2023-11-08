@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
@@ -11,6 +11,7 @@ import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
 import Banner, { BannerType } from '../Banner';
 import { MozServices } from '../../lib/types';
+import GleanMetrics from '../../lib/glean';
 
 export type ReadyProps = {
   continueHandler?: Function;
@@ -92,6 +93,12 @@ const Ready = ({
     const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
     navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
   };
+
+  useEffect(() => {
+    if (viewName === 'reset-password-confirmed') {
+      GleanMetrics.resetPassword.createNewSuccess();
+    }
+  }, [viewName]);
 
   return (
     <>
