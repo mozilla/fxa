@@ -45,7 +45,9 @@ jest.mock('../../../lib/metrics', () => ({
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
-  default: { resetPassword: { createNewView: jest.fn() } },
+  default: {
+    resetPassword: { createNewView: jest.fn(), createNewSubmit: jest.fn() },
+  },
 }));
 
 let account: Account;
@@ -359,6 +361,7 @@ describe('CompleteResetPassword page', () => {
       ).toBeTruthy();
       expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
       expect(account.hasTotpAuthClient).toHaveBeenCalled();
+      expect(GleanMetrics.resetPassword.createNewSubmit).toBeCalledTimes(1);
     });
 
     it('submits with emailToHashWith if present', async () => {

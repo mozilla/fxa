@@ -198,6 +198,8 @@ const CompleteResetPassword = ({
         // how account password hashing works previously.
         const emailToUse = emailToHashWith || email;
 
+        GleanMetrics.resetPassword.createNewSubmit();
+
         const accountResetData = await account.completeResetPassword(
           token,
           code,
