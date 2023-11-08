@@ -117,7 +117,7 @@
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/typescript-document-nodes": "4.0.1",
     "@nestjs/cli": "^9.4.0",
-    "@nestjs/schematics": "^9.2.0",
+    "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.4",
     "@nx/cypress": "^16.9.1",
     "@nx/eslint-plugin": "^16.9.1",
