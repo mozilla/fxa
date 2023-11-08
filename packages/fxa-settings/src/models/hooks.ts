@@ -168,7 +168,8 @@ export function useClientInfoState() {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
-  const clientId = urlQueryData.get('client_id') || urlQueryData.get('service');
+  const clientId =
+    urlQueryData.get('client_id') || urlQueryData.get('service') || '';
   return useQuery<{ clientInfo: RelierClientInfo }>(GET_CLIENT_INFO, {
     client: apolloClient,
     variables: { input: clientId },

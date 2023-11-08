@@ -62,6 +62,9 @@ const ConfirmSignupCode = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
+  // TODO: Sync mobile cleanup, see note in oauth-integration isSync
+  const isSyncMobileWebChannel =
+    isOAuthIntegration(integration) && integration.isSync();
 
   const navigate = useNavigate();
 
@@ -139,33 +142,16 @@ const ConfirmSignupCode = ({
       storedAccount.verified = true;
       persistAccount(storedAccount);
 
-      // TODO: Verify in FXA-8287 if this login web channel message is only
-      // needed for sync integration. Right now this attempts to send it
-      // despite the integration type, but it requires `keyfetchToken` and
-      // `unwrapBKey`, which may not be present if the user directly
-      // hits the page or is redirected from Backbone `/login` ->
-      // `/confirm_signup_code`.  We may want a similar tweak to the
-      // one described in the container / Backbone's router.js.
-      if (keyFetchToken && unwrapBKey) {
-        firefox.fxaLogin({
-          authAt: Date.now(),
-          email,
-          sessionToken,
-          uid,
-          verified: true,
-          keyFetchToken,
-          unwrapBKey,
-        });
-      }
-
       if (hasSelectedNewsletters) {
         // to match parity with content-server event, viewName is NOT included
         logViewEvent(`flow`, 'newsletter.subscribed', REACT_ENTRYPOINT);
       }
 
       if (isSyncDesktopIntegration(integration)) {
-        // Tell FF the account is verified with webchannel event, FXA-8287
-        // hardNavigateToContentServer('/connect_another_device')
+        // Connect another device tells Sync the user is signed in
+        hardNavigateToContentServer(
+          `/connect_another_device${window.location.search}`
+        );
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
@@ -184,18 +170,31 @@ const ConfirmSignupCode = ({
           hardNavigateToContentServer(`oauth/signin${window.location.search}`);
           return;
         } else {
-          const { redirect } = await finishOAuthFlowHandler(
+          const { redirect, code, state } = await finishOAuthFlowHandler(
             integration.data.uid,
             sessionToken,
             // yes, non-null operator is gross, but it's temporary.
-            // see note above firefox.fxaLogin / in container
+            // see note in container component / router.js for this page, once
+            // we've converted the index page we can remove
             keyFetchToken!,
             unwrapBKey!
           );
 
-          // Navigate to relying party
-          hardNavigate(redirect);
-          return;
+          if (isSyncMobileWebChannel) {
+            firefox.fxaOAuthLogin({
+              // TODO: is this 'action' correct?
+              action: 'signup',
+              code,
+              redirect,
+              state,
+            });
+            // Mobile sync will close the web view, so nothing else to do
+            return;
+          } else {
+            // Navigate to relying party
+            hardNavigate(redirect);
+            return;
+          }
         }
       } else {
         // TODO: Check if we ever want to show 'signup_confirmed' (Ready view)

@@ -9,7 +9,6 @@ export interface IntegrationFlags {
   isDevicePairingAsAuthority(): boolean;
   isDevicePairingAsSupplicant(): boolean;
   isOAuth(): boolean;
-  isSyncService(): boolean;
   isV3DesktopContext(): boolean;
   isOAuthSuccessFlow(): { status: boolean; clientId: string };
   isOAuthVerificationFlow(): boolean;

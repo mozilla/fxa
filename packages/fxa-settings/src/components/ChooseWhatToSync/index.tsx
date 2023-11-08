@@ -5,26 +5,27 @@
 import React, { ChangeEvent } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import InputCheckboxBlue from '../InputCheckboxBlue';
-import { Engine } from './sync-engines';
+import { EngineConfig } from './sync-engines';
 
 export type ChooseWhatToSyncProps = {
-  engines: Engine[];
-  setSelectedEngines: React.Dispatch<React.SetStateAction<string[]>>;
+  offeredSyncEngineConfigs: EngineConfig[];
+  setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
 const ChooseWhatToSync = ({
-  engines,
-  setSelectedEngines,
+  offeredSyncEngineConfigs,
+  setDeclinedSyncEngines,
 }: ChooseWhatToSyncProps) => {
   const handleSyncChange =
-    (labelText: string) => (event: ChangeEvent<HTMLInputElement>) => {
+    (changedEngineId: string) => (event: ChangeEvent<HTMLInputElement>) => {
       const { checked } = event.target;
-      setSelectedEngines((existing) => {
+      setDeclinedSyncEngines((existing) => {
         if (checked) {
-          return [...existing, labelText];
-        } else {
-          return [...existing.filter((text) => text !== labelText)];
+          return existing.filter((engineId) => engineId !== changedEngineId);
+        } else if (!existing.includes(changedEngineId)) {
+          return [...existing, changedEngineId];
         }
+        return existing;
       });
     };
 
@@ -36,18 +37,18 @@ const ChooseWhatToSync = ({
         </h2>
       </FtlMsg>
       <ul className="flex flex-wrap text-start text-sm mb-4 ltr:mobileLandscape:ml-6 rtl:mobileLandscape:mr-6">
-        {engines.map((engine) => {
+        {offeredSyncEngineConfigs.map((engineConfig) => {
           return (
             <li
-              key={engine.id}
+              key={engineConfig.id}
               className="flex-50% rtl:mobileLandscape:pr-6 ltr:mobileLandscape:pl-6 rtl:pr-3 ltr:pl-3"
             >
-              <FtlMsg id={engine.ftlId} attrs={{ label: true }}>
+              <FtlMsg id={engineConfig.ftlId} attrs={{ label: true }}>
                 <InputCheckboxBlue
-                  label={engine.text}
-                  prefixDataTestId={engine.id}
-                  defaultChecked={engine.defaultChecked}
-                  onChange={handleSyncChange(engine.text)}
+                  label={engineConfig.text}
+                  prefixDataTestId={engineConfig.id}
+                  defaultChecked={engineConfig.defaultChecked}
+                  onChange={handleSyncChange(engineConfig.id)}
                 />
               </FtlMsg>
             </li>

@@ -115,7 +115,7 @@ export class IntegrationFactory {
       return this.createOAuthIntegration(data, storageData);
     } else if (flags.isV3DesktopContext()) {
       return this.createSyncDesktopIntegration(data);
-    } else if (flags.isSyncService()) {
+    } else if (flags.isServiceSync()) {
       return this.createSyncBasicIntegration(data);
     } else {
       // Default

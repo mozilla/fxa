@@ -43,6 +43,9 @@ export interface SignupProps {
   integration: SignupIntegration;
   queryParamModel: SignupQueryParams;
   beginSignupHandler: BeginSignupHandler;
+  webChannelEngines: string[] | undefined;
+  isSyncMobileWebChannel: boolean;
+  isSync: boolean;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;

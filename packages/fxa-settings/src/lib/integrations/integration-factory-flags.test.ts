@@ -102,14 +102,14 @@ describe('lib/integrations/integration-factory-flags', function () {
     // TODO: OAuth has a complex set of conditions. Add more tests, specifically for negative cases.
   });
 
-  it('isSyncService', () => {
+  it('isServiceSync', () => {
     queryData.set('service', Constants.SYNC_SERVICE);
-    expect(integrationFlags.isSyncService()).toBeTruthy();
+    expect(integrationFlags.isServiceSync()).toBeTruthy();
   });
 
   it('isV3DesktopContext', () => {
     queryData.set('context', Constants.FX_DESKTOP_V3_CONTEXT);
-    expect(integrationFlags.isSyncService()).toBeTruthy();
+    expect(integrationFlags.isServiceSync()).toBeTruthy();
   });
 
   it('isOAuthSuccessFlow', () => {

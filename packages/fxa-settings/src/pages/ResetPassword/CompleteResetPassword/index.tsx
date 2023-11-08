@@ -22,7 +22,7 @@ import Banner, { BannerType } from '../../../components/Banner';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { LinkStatus } from '../../../lib/types';
 import useNavigateWithoutRerender from '../../../lib/hooks/useNavigateWithoutRerender';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import firefox from '../../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   CompleteResetPasswordFormData,
@@ -226,7 +226,7 @@ const CompleteResetPassword = ({
           // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
           case IntegrationType.SyncDesktop:
           case IntegrationType.SyncBasic:
-            notifyFirefoxOfLogin({
+            firefox.fxaLoginSignedInUser({
               authAt: accountResetData.authAt,
               email,
               keyFetchToken: accountResetData.keyFetchToken,

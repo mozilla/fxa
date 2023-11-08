@@ -25,7 +25,6 @@ import {
 import { useAccount } from '../../../models/hooks';
 import { LinkStatus } from '../../../lib/types';
 import { IntegrationType, isOAuthIntegration } from '../../../models';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
 import {
   AccountRecoveryResetPasswordBannerState,
   AccountRecoveryResetPasswordFormData,
@@ -33,6 +32,7 @@ import {
   AccountRecoveryResetPasswordProps,
 } from './interfaces';
 import { CreateVerificationInfo } from '../../../models/verification';
+import firefox from '../../../lib/channels/firefox';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -211,7 +211,7 @@ const AccountRecoveryResetPassword = ({
         // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
         case IntegrationType.SyncDesktop:
         case IntegrationType.SyncBasic:
-          notifyFirefoxOfLogin({
+          firefox.fxaLoginSignedInUser({
             authAt: accountResetData.authAt,
             email,
             keyFetchToken: accountResetData.keyFetchToken,

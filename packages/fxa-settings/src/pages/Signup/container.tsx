@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useNavigate } from '@reach/router';
-import { Integration, isOAuthIntegration, useAuthClient } from '../../models';
+import {
+  Integration,
+  isOAuthIntegration,
+  isSyncDesktopIntegration,
+  useAuthClient,
+} from '../../models';
 import Signup from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
@@ -25,6 +30,11 @@ import {
 } from '../../lib/auth-errors/auth-errors';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../../lib/types';
+import firefox, {
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels/firefox';
+import { Constants } from '../../lib/constants';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -50,8 +60,10 @@ import { MozServices } from '../../lib/types';
 
 const SignupContainer = ({
   integration,
+  serviceName,
 }: {
   integration: Integration;
+  serviceName: MozServices;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigate = useNavigate();
@@ -62,6 +74,18 @@ const SignupContainer = ({
   // Since we may perform an async call on initial render that can affect what is rendered,
   // return a spinner on first render.
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
+  const [webChannelEngines, setWebChannelEngines] = useState<
+    string[] | undefined
+  >();
+
+  // TODO: Sync mobile cleanup, see note in oauth-integration isSync
+  const isSyncMobile =
+    isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync;
+  const isSyncMobileWebChannel =
+    isSyncMobile && integration.features.webChannelSupport;
+  const isSyncDesktop = isSyncDesktopIntegration(integration);
+  const isSyncWebChannel = isSyncMobileWebChannel || isSyncDesktop;
+  const isSync = isSyncMobile || isSyncDesktop;
 
   useEffect(() => {
     (async () => {
@@ -75,12 +99,66 @@ const SignupContainer = ({
             hardNavigateToContentServer(
               `/signin?email=${queryParamModel.email}`
             );
+            // TODO: Probably move this to the Index page onsubmit once
+            // the index page is converted to React, we need to run it in
+            // signup and signin for Sync
+          } else if (isSyncWebChannel) {
+            firefox.fxaCanLinkAccount({ email: queryParamModel.email });
           }
+        } else if (isSyncWebChannel) {
+          // TODO: Probably move this to the Index page onsubmit once
+          // the index page is converted to React, we need to run it in
+          // signup and signin for Sync
+          firefox.fxaCanLinkAccount({ email: queryParamModel.email });
         }
       }
       setShowLoadingSpinner(false);
     })();
   });
+
+  useEffect(() => {
+    // This sends a webchannel message to the browser to prompt a response
+    // that we listen for.
+    // TODO: In content-server, we send this on app-start for all integration types.
+    // Do we want to move this somewhere else once the index page is Reactified?
+    if (isSyncWebChannel) {
+      firefox.addEventListener(
+        FirefoxCommand.FxAStatus,
+        handleFxAStatusSyncEngineEvent
+      );
+
+      // requestAnimationFrame ensures the event listener is added first
+      // otherwise, there is a race condition
+      requestAnimationFrame(() =>
+        firefox.send(FirefoxCommand.FxAStatus, {
+          // TODO: Improve getting 'context', probably set this on the integration
+          context: isSyncDesktop
+            ? Constants.FX_DESKTOP_V3_CONTEXT
+            : Constants.OAUTH_CONTEXT,
+          isPairing: false,
+          service: Constants.SYNC_SERVICE,
+        })
+      );
+    }
+  });
+
+  const handleFxAStatusSyncEngineEvent = (event: any) => {
+    const status = event.detail as FxAStatusResponse;
+    if (!webChannelEngines && status.capabilities.engines) {
+      // choose_what_to_sync may be disabled for mobile sync, see:
+      // https://github.com/mozilla/application-services/issues/1761
+      if (
+        isSyncDesktop ||
+        (isSyncMobile && status.capabilities.choose_what_to_sync)
+      ) {
+        setWebChannelEngines(status.capabilities.engines);
+        firefox.removeEventListener(
+          FirefoxCommand.FxAStatus,
+          handleFxAStatusSyncEngineEvent
+        );
+      }
+    }
+  };
 
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
@@ -89,8 +167,8 @@ const SignupContainer = ({
       const service = integration.getService();
       const options: BeginSignUpOptions = {
         verificationMethod: 'email-otp',
-        // keys must be true to receive keyFetchToken for oAuth
-        keys: isOAuthIntegration(integration),
+        // keys must be true to receive keyFetchToken for oAuth and syncDesktop
+        keys: isOAuthIntegration(integration) || isSyncDesktop,
         service: service !== MozServices.Default ? service : undefined,
       };
       try {
@@ -131,7 +209,7 @@ const SignupContainer = ({
         }
       }
     },
-    [beginSignup, integration]
+    [beginSignup, integration, isSyncDesktop]
   );
 
   // TODO: probably a better way to read this?
@@ -151,9 +229,21 @@ const SignupContainer = ({
 
   if (validationError) {
     hardNavigateToContentServer('/');
+    return pageSpinner;
   }
 
-  return <Signup {...{ integration, queryParamModel, beginSignupHandler }} />;
+  return (
+    <Signup
+      {...{
+        integration,
+        queryParamModel,
+        beginSignupHandler,
+        webChannelEngines,
+        isSyncMobileWebChannel,
+        isSync,
+      }}
+    />
+  );
 };
 
 export default SignupContainer;

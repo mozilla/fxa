@@ -65,12 +65,11 @@ type SyncIntegrationTypes =
   | IntegrationType.SyncBasic
   | IntegrationType.SyncDesktop;
 
-// TODO: we may only need sync-desktop-integration once we no longer use reset PW links?
 /**
- * This integration offers very basic Sync page support _without_ browser communication
+ * This integration offers basic Sync page support _without_ browser communication
  * via webchannels. Currently it is only used 1) when a user is on a verification page
- * through Sync in a different browser, and 2) as a base class for desktop Sync support,
- * which has webchannel support.
+ * through Sync in a different browser, which will no longer be the case once we use
+ * codes for reset PW, and 2) as a base class for sync desktop.
  */
 export class SyncBasicIntegration<
   T extends SyncIntegrationFeatures
@@ -83,7 +82,6 @@ export class SyncBasicIntegration<
     super(type, new SyncBasicIntegrationData(data));
     this.setFeatures({
       sendChangePasswordNotice: false,
-      syncOptional: false,
       ...features,
     });
   }
@@ -94,10 +92,6 @@ export class SyncBasicIntegration<
     } else {
       return 'Firefox';
     }
-  }
-
-  shouldOfferToSync(view: string) {
-    return this.data.service !== 'sync' && view !== 'force-auth';
   }
 
   wantsKeys() {

@@ -138,7 +138,7 @@ export type FinishOAuthFlowHandler = (
   sessionToken: string,
   keyFetchToken: string,
   unwrapKB: string
-) => Promise<{ redirect: string }>;
+) => Promise<{ redirect: string; code: string; state: string }>;
 
 type FinishOAuthFlowHandlerResult = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
@@ -190,6 +190,9 @@ export function useFinishOAuthFlowHandler(
 
       return {
         redirect: redirectUrl.href,
+        // sync mobile needs these values
+        code: oAuthCode.code,
+        state: oAuthCode.state,
       };
     },
     [authClient, integration]
