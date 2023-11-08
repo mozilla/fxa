@@ -34529,7 +34529,7 @@ fsevents@~2.1.1:
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
     googleapis: ^109.0.1
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     helmet: ^7.0.0
     hot-shots: ^10.0.0
     jest: 29.3.1
@@ -35022,7 +35022,7 @@ fsevents@~2.1.1:
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
     google-auth-library: ^9.2.0
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     hot-shots: ^10.0.0
     jest: 27.5.1
     joi: ^17.8.3
@@ -35110,7 +35110,7 @@ fsevents@~2.1.1:
     fxa-profile-server: "workspace:*"
     fxa-shared: "workspace:*"
     get-stream: ^6.0.1
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     graphql-parse-resolve-info: ^4.13.0
     graphql-query-complexity: 0.8.0
     graphql-tools: ^8.3.6
@@ -35469,7 +35469,7 @@ fsevents@~2.1.1:
     fxa-react: "workspace:*"
     fxa-shared: "workspace:*"
     get-orientation: ^1.1.2
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
     grunt-contrib-concat: ^2.1.0
@@ -35596,7 +35596,7 @@ fsevents@~2.1.1:
     express: ^4.17.3
     find-up: ^5.0.0
     generic-pool: ^3.8.2
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     hot-shots: ^10.0.0
     ioredis: ^4.28.2
     ip: ^1.1.8
@@ -35702,7 +35702,7 @@ fsevents@~2.1.1:
     eslint-plugin-jsx-a11y: 6.7.1
     eslint-plugin-react: ^7.32.2
     eslint-plugin-react-hooks: 4.6.0
-    graphql: ^15.6.1
+    graphql: ^16.8.1
     hot-shots: ^10.0.0
     husky: ^4.2.5
     jest: ^29.5.0
@@ -37086,7 +37086,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"graphql@npm:*, graphql@npm:^15.3.0, graphql@npm:^15.6.1":
+"graphql@npm:*, graphql@npm:^15.3.0":
   version: 15.6.1
   resolution: "graphql@npm:15.6.1"
   checksum: 4c6dcf385f7a87a5103fcb7640394244ae8d1d4ede521085192a1cf1e60115c4f6285d783961575d908709f7ee3e4cdd16b3f7c54eb37499c0420c6301e98968
@@ -37099,6 +37099,13 @@ fsevents@~2.1.1:
   dependencies:
     iterall: ^1.1.0
   checksum: f48bae27e9a32641952ff9b8d1a949896805e8997b9c7e6ce3621583b6bae419526d9072480956626ea6830f26c5a8290870164801e02c5aaeeca64c54a7057d
+  languageName: node
+  linkType: hard
+
+"graphql@npm:^16.8.1":
+  version: 16.8.1
+  resolution: "graphql@npm:16.8.1"
+  checksum: 8d304b7b6f708c8c5cc164b06e92467dfe36aff6d4f2cf31dd19c4c2905a0e7b89edac4b7e225871131fd24e21460836b369de0c06532644d15b461d55b1ccc0
   languageName: node
   linkType: hard
 
