@@ -2,9 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EligibilityContentByPlanIdsQueryFactory } from '../../factories';
-import { EligibilityContentByPlanIdsResult } from './types';
-import { EligibilityContentByPlanIdsResultUtil } from './util';
+import {
+  EligibilityContentByPlanIdsQueryFactory,
+  EligibilityContentByPlanIdsResult,
+  EligibilityContentByPlanIdsResultUtil,
+} from '.';
 
 describe('EligibilityContentByPlanIdsResultUtil', () => {
   it('should create a util from response', () => {

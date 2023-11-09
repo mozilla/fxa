@@ -7,10 +7,8 @@ import { ContentfulClient } from './contentful.client';
 import { ContentfulManager } from './contentful.manager';
 import {
   EligibilityContentByPlanIdsQueryFactory,
-  ServicesWithCapabilitiesQueryFactory,
-} from './factories';
-import {
   EligibilityContentByPlanIdsResultUtil,
+  ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
