@@ -68,7 +68,7 @@
     }
   }
 
-  .profile-image {
+  .avatar-image {
     @include respond-to('big') {
       height: 64px;
       width: 64px;
