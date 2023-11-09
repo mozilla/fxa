@@ -102,7 +102,17 @@ export class StorageData extends ModelDataStore {
   }
 
   public get(key: string): RawData {
-    return this.state[key];
+    const value = this.state[key];
+
+    if (typeof value === 'string') {
+      return value;
+    }
+
+    // Protects against legacy state in local storage. It's possible that
+    // content server wrote a complex object into a key value pair held in
+    // local storage. Since we now assume that all objects are stored as
+    // strings, if we encounter an object, convert it to a string value.
+    return JSON.stringify(value);
   }
 
   public set(key: string, value: RawData) {
