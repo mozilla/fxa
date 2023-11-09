@@ -39,13 +39,11 @@ test.describe('severity-1 #smoke', () => {
       // Verify confirm password reset page rendered
       await resetPasswordReact.confirmResetPasswordHeadingVisible();
 
-      // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
-      let link = await target.email.waitForEmail(
+      const link = await target.email.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
       );
-      link = `${link}&showReactApp=true`;
 
       // Open link in a new window
       const diffPage = await context.newPage();
@@ -115,12 +113,11 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.confirmResetPasswordHeadingVisible();
 
       // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
-      let link = await target.email.waitForEmail(
+      const link = await target.email.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
       );
-      link = `${link}&showReactApp=true`;
 
       // Open link in a new window
       const diffPage = await context.newPage();
