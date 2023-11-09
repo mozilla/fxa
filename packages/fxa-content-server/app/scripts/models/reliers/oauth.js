@@ -191,6 +191,8 @@ var OAuthRelier = Relier.extend({
         client_id: this.getSearchParam('service'), //eslint-disable-line camelcase
         service: this.getSearchParam('service'),
       };
+    } else if (typeof resumeObj === 'string') {
+      resumeObj = JSON.parse(resumeObj);
     }
 
     var result = Transform.transformUsingSchema(
