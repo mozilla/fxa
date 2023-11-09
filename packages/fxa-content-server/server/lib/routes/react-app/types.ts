@@ -21,6 +21,7 @@ export interface ReactRouteGroup {
     // only server-side react route groups contain the route definition
     definition?: RouteDefinition;
   }[];
+  fullProdRollout: boolean;
 }
 
 export interface GetRouteDefinition {

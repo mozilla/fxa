@@ -11,11 +11,11 @@ import Metrics from 'lib/metrics';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import Router from 'lib/router';
-import SignInPasswordView from 'views/sign_in_password';
-import InlineTotpSetupView from 'views/inline_totp_setup';
+import SignInPasswordView from '../../../scripts/views/sign_in_password';
 import sinon from 'sinon';
 import User from 'models/user';
-import WindowMock from '../../mocks/window';
+import View from 'tests/mocks/view';
+import WindowMock from 'tests/mocks/window';
 
 describe('lib/router', () => {
   let broker;
@@ -29,16 +29,41 @@ describe('lib/router', () => {
   var windowMock;
   var config;
 
-  const showReactAppAll = {
-    simpleRoutes: true,
-    resetPasswordRoutes: true,
-    oauthRoutes: true,
-    signInRoutes: true,
-    signUpRoutes: true,
-    pairRoutes: true,
-    postVerifyOtherRoutes: true,
-    postVerifyCADViaQRRoutes: true,
-    webChannelExampleRoutes: true,
+  // environment variables and routes groups are mocked to decouple from values
+  // that are changing as we gradually roll out these routes to react in production
+  const mockShowReactAppConfig = {
+    alwaysOnRoutes: true,
+    sometimesOnRoutes: true,
+    neverOnRoutes: false,
+    emergencyOffRoutes: false,
+    fullProdUndefinedRoutes: true,
+  };
+
+  const mockReactRouteGroups = {
+    alwaysOnRoutes: {
+      featureFlagOn: mockShowReactAppConfig.alwaysOnRoutes,
+      routes: ['alwaysOnRoute'],
+      fullProdRollout: true,
+    },
+    sometimesOnRoutes: {
+      featureFlagOn: mockShowReactAppConfig.sometimesOnRoutes,
+      routes: ['sometimesOnRoute', 'view'],
+      fullProdRollout: false,
+    },
+    neverOnRoutes: {
+      featureFlagOn: mockShowReactAppConfig.neverOnRoutes,
+      routes: ['neverOnRoute'],
+      fullProdRollout: false,
+    },
+    emergencyOffRoutes: {
+      featureFlagOn: mockShowReactAppConfig.emergencyOffRoutes,
+      routes: ['emergencyOffRoute'],
+      fullProdRollout: true,
+    },
+    fullProdUndefinedRoutes: {
+      featureFlagOn: mockShowReactAppConfig.fullProdUndefinedRoutes,
+      routes: ['fullProdUndefinedRoute'],
+    },
   };
 
   beforeEach(() => {
@@ -55,7 +80,7 @@ describe('lib/router', () => {
       window: windowMock,
     });
 
-    config = { showReactApp: showReactAppAll };
+    config = { showReactApp: mockShowReactAppConfig };
 
     router = new Router({
       broker,
@@ -73,6 +98,8 @@ describe('lib/router', () => {
         navigateUrl = url;
         navigateOptions = options;
       });
+
+    sinon.stub(router, 'getReactRouteGroups').returns(mockReactRouteGroups);
   });
 
   afterEach(() => {
@@ -345,30 +372,25 @@ describe('lib/router', () => {
 
   describe('pathToViewName', () => {
     it('strips leading /', () => {
-      assert.equal(router.fragmentToViewName('/signin'), 'signin');
+      assert.equal(router.fragmentToViewName('/view'), 'view');
     });
 
     it('strips trailing /', () => {
-      assert.equal(router.fragmentToViewName('signup/'), 'signup');
+      assert.equal(router.fragmentToViewName('view/'), 'view');
     });
 
     it('converts middle / to .', () => {
-      assert.equal(router.fragmentToViewName('/legal/tos/'), 'legal.tos');
+      assert.equal(router.fragmentToViewName('/view/subview/'), 'view.subview');
     });
 
     it('converts _ to -', () => {
-      assert.equal(
-        router.fragmentToViewName('complete_sign_up'),
-        'complete-sign-up'
-      );
+      assert.equal(router.fragmentToViewName('view_name'), 'view-name');
     });
 
     it('strips search parameters', () => {
       assert.equal(
-        router.fragmentToViewName(
-          'complete_sign_up?email=testuser@testuser.com'
-        ),
-        'complete-sign-up'
+        router.fragmentToViewName('view_name?param=example_param'),
+        'view-name'
       );
     });
   });
@@ -406,28 +428,27 @@ describe('lib/router', () => {
 
   describe('getCurrentPage', () => {
     it('returns the current screen URL based on Backbone.history.fragment', () => {
-      Backbone.history.fragment = 'settings';
-      assert.equal(router.getCurrentPage(), 'settings');
+      Backbone.history.fragment = 'view';
+      assert.equal(router.getCurrentPage(), 'view');
     });
 
     it('strips any query parameters from the fragment', () => {
-      Backbone.history.fragment = 'force_auth?email=testuser@testuser.com';
-      assert.equal(router.getCurrentPage(), 'force_auth');
+      Backbone.history.fragment = 'view_name?param=example_param';
+      assert.equal(router.getCurrentPage(), 'view_name');
     });
 
     it('strips leading `/` from the fragment', () => {
-      Backbone.history.fragment = '/force_auth';
-      assert.equal(router.getCurrentPage(), 'force_auth');
+      Backbone.history.fragment = '/view_name';
+      assert.equal(router.getCurrentPage(), 'view_name');
     });
 
     it('strips trailing `/` from the fragment', () => {
-      Backbone.history.fragment = 'force_auth/';
-      assert.equal(router.getCurrentPage(), 'force_auth');
+      Backbone.history.fragment = 'view_name/';
+      assert.equal(router.getCurrentPage(), 'view_name');
     });
   });
 
   describe('createViewHandler', () => {
-    function View() {}
     var viewConstructorOptions = {};
 
     beforeEach(() => {
@@ -514,72 +535,60 @@ describe('lib/router', () => {
 
   describe('React-related methods', () => {
     beforeEach(() => {
-      const mockAlwaysShownReactGroups = [
-        'simpleRoutes',
-        'resetPasswordRoutes',
-      ];
-      sinon
-        .stub(router, 'ALWAYS_SHOWN_REACT_GROUPS')
-        .value(mockAlwaysShownReactGroups);
+      sinon.spy(router, 'showReactApp');
     });
+
     describe('showReactApp', () => {
-      beforeEach(() => {
-        sinon.spy(router, 'showReactApp');
-      });
-
       describe('returns true', () => {
-        it('when routeName is included in react group route and user is in experiment', () => {
+        it('when feature flag is on, route is not fully rolled out in production, but user is in experiment group', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
-          assert.isTrue(router.showReactApp('cannot_create_account'));
+          assert.isTrue(router.showReactApp('sometimesOnRoute'));
         });
 
-        it('when routeName is in ALWAYS_SHOWN_REACT_GROUPS and user is not in experiment', () => {
-          assert.isTrue(router.showReactApp('legal'));
+        it('when feature flag is on, full prod rollout is undefined, but user is in experiment group', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          assert.isTrue(router.showReactApp('fullProdUndefinedRoute'));
         });
 
-        it('when routeName is a simpleRoute, relier is OAuth, and user is in experiment', () => {
-          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+        // enrolment in experiment is irrelevant if fully rolled out in production
+        it('when feature flag is on, route is fully rolled out in production, but user is not in experiment group', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
+          assert.isTrue(router.showReactApp('alwaysOnRoute'));
+        });
+
+        it('when feature flag is on, relier is OAuth, and user is in experiment group', () => {
           const modifiedRelier = relier;
           modifiedRelier.isOAuth = () => true;
-          router = new Router({
-            broker,
-            metrics,
-            notifier,
-            relier: modifiedRelier,
-            user,
-            window: windowMock,
-            config,
-          });
-
-          assert.isTrue(router.showReactApp('legal'));
+          router.relier = modifiedRelier;
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          assert.isTrue(router.showReactApp('sometimesOnRoute'));
         });
       });
 
       describe('returns false', () => {
-        it('when routeName is not included in react group route and user is in experiment', () => {
+        it('when route is not included in react group route', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
           assert.isFalse(router.showReactApp('whatever'));
         });
 
-        it('when user is not in experiment', () => {
-          assert.isFalse(router.showReactApp('report_signin'));
+        it('when feature flag is off, but user is in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
+          assert.isFalse(router.showReactApp('neverOnRoute'));
         });
 
-        it('when routeName is not a simpleRoute, relier is OAuth, and user is in experiment', () => {
+        it('when feature flag is off, even for route fully rolled out to production and user in experiment', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
-          const modifiedRelier = relier;
-          modifiedRelier.isOAuth = () => true;
-          router = new Router({
-            broker,
-            metrics,
-            notifier,
-            relier: modifiedRelier,
-            user,
-            window: windowMock,
-            config,
-          });
+          assert.isFalse(router.showReactApp('emergencyOffRoute'));
+        });
 
-          assert.isFalse(router.showReactApp('report_signin'));
+        it('when feature flag is on, full prod rollout is undefined, and user is not experiment group', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
+          assert.isFalse(router.showReactApp('fullProdUndefinedRoute'));
+        });
+
+        it('when feature flag is on, route is not fully rolled out to production, and user is not in experiment', () => {
+          sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
+          assert.isFalse(router.showReactApp('sometimesOnRoute'));
         });
       });
     });
@@ -597,28 +606,26 @@ describe('lib/router', () => {
 
       it('navigates away with param when React conditions are met', () => {
         sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
-        routeHandler = router.createReactViewHandler('cannot_create_account');
+        routeHandler = router.createReactOrBackboneViewHandler('view');
 
         assert.equal(router.navigate.callCount, 0);
         assert.equal(router.navigateAway.callCount, 1);
         const args = router.navigateAway.args[0];
         assert.lengthOf(args, 1);
-        assert.equal(args[0], '/cannot_create_account?showReactApp=true');
+        assert.equal(args[0], '/view?showReactApp=true');
       });
       it('renders Backbone view when React conditions are not met', () => {
+        sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
         routeHandler = router.createReactOrBackboneViewHandler(
-          'inline_totp_setup',
-          InlineTotpSetupView,
+          'view',
+          View,
           additionalParams,
           viewConstructorOptions
         );
         assert.equal(router.navigateAway.callCount, 0);
         return routeHandler.then(() => {
           assert.isTrue(
-            router.showView.calledWith(
-              InlineTotpSetupView,
-              viewConstructorOptions
-            )
+            router.showView.calledWith(View, viewConstructorOptions)
           );
         });
       });

@@ -9,6 +9,14 @@ const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
  * or setting `routes` with `.getRoutes` on the react route object.
  *
+ * If a routeGroup should always be rendered with React in production, set `fullProdRollout` to true.
+ * These routes can still be turned off on SRE side by switching featureFlagOn to false
+ * on stage or prod for the relevant route if needed. React will ALWAYS be off for the routeGroup
+ * if featureFlagOn is set to false.
+ *
+ * NOTE however that routes that have been sunset in content-server (i.e, simple routes) can no longer
+ * fall back to backbone.
+ *
  * When setting a regex, the corresponding matches for `router.js` must be set in
  * `react-route-client.js`.
  *  @type {import("./types").GetReactRouteGroups}
@@ -29,6 +37,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // * /<locale>/legal/privacy
         TERMS_PRIVACY_REGEX,
       ]),
+      fullProdRollout: true,
     },
 
     resetPasswordRoutes: {
@@ -42,11 +51,13 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'account_recovery_confirm_key',
         'account_recovery_reset_password',
       ]),
+      fullProdRollout: true,
     },
 
     oauthRoutes: {
       featureFlagOn: showReactApp.oauthRoutes,
       routes: [],
+      fullProdRollout: false,
     },
 
     signInRoutes: {
@@ -57,6 +68,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_verified',
         'signin_bounced',
       ]),
+      fullProdRollout: false,
     },
 
     signUpRoutes: {
@@ -70,31 +82,37 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signup_verified',
         'oauth/signup',
       ]),
+      fullProdRollout: false,
     },
 
     pairRoutes: {
       featureFlagOn: showReactApp.pairRoutes,
       routes: [],
+      fullProdRollout: false,
     },
 
     postVerifyOtherRoutes: {
       featureFlagOn: showReactApp.postVerifyOtherRoutes,
       routes: [],
+      fullProdRollout: false,
     },
 
     postVerifyCADViaQRRoutes: {
       featureFlagOn: showReactApp.postVerifyCADViaQRRoutes,
       routes: [],
+      fullProdRollout: false,
     },
 
     postVerifyThirdPartyAuthRoutes: {
       featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
       routes: reactRoute.getRoutes(['post_verify/third_party_auth/callback']),
+      fullProdRollout: false,
     },
 
     webChannelExampleRoutes: {
       featureFlagOn: showReactApp.webChannelExampleRoutes,
       routes: reactRoute.getRoutes(['web_channel_example']),
+      fullProdRollout: false,
     },
   };
 };
