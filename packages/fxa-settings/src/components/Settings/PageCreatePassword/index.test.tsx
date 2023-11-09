@@ -22,6 +22,7 @@ import {
 import { act, fireEvent, screen } from '@testing-library/react';
 import { HomePath } from '../../../constants';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
+import { LinkedAccountProviderIds } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -32,7 +33,15 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation(),
 }));
+
+let mockLocationState = {};
+const mockLocation = () => {
+  return {
+    state: mockLocationState,
+  };
+};
 
 const account = {
   primaryEmail: {
@@ -157,5 +166,23 @@ describe('PageCreatePassword', () => {
     });
     expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
     expect(alertBarInfo.success).toHaveBeenCalledWith('Password set');
+  });
+
+  describe('location state', () => {
+    afterEach(() => {
+      mockLocationState = {};
+    });
+    it('redirects with linked account state if present', async () => {
+      mockLocationState = {
+        wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
+      };
+      await createPassword();
+      expect(mockNavigate).toHaveBeenCalledWith(HomePath + '#password', {
+        replace: true,
+        state: {
+          wantsUnlinkProviderId: LinkedAccountProviderIds.Google,
+        },
+      });
+    });
   });
 });

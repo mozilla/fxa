@@ -16,7 +16,7 @@ test.describe('severity-1 #smoke', () => {
     // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
     test('add and remove totp', async ({
       credentials,
-      pages: { settings, totp, login },
+      pages: { settings, totp, login, page },
     }) => {
       await settings.goto();
       let status = await settings.totp.statusText();
@@ -28,7 +28,8 @@ test.describe('severity-1 #smoke', () => {
       expect(status).toEqual('Enabled');
       await settings.totp.clickDisable();
       await settings.clickModalConfirm();
-      await settings.waitForAlertBar();
+      // wait for alert bar message
+      await page.getByText('Two-step authentication disabled').waitFor();
       status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
 
