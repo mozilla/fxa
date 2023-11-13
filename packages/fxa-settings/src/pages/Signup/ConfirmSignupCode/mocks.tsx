@@ -23,17 +23,19 @@ export const MOCK_AUTH_ERROR = {
   message: 'Something broke',
 };
 
-function createMockWebIntegration(): ConfirmSignupCodeBaseIntegration {
+export const MOCK_SIGNUP_CODE = '123456';
+
+export function createMockWebIntegration({
+  redirectTo = undefined,
+}: { redirectTo?: string } = {}): ConfirmSignupCodeBaseIntegration {
   return {
     type: IntegrationType.Web,
-    data: { uid: MOCK_UID },
+    data: { uid: MOCK_UID, redirectTo },
   };
 }
 
-const MOCK_WEB_INTEGRATION = createMockWebIntegration();
-
 export const Subject = ({
-  integration = MOCK_WEB_INTEGRATION,
+  integration = createMockWebIntegration(),
   newsletterSlugs,
 }: {
   integration?: ConfirmSignupCodeIntegration;

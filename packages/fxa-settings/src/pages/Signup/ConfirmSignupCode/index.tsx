@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   AuthUiErrors,
@@ -33,13 +33,18 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
-import { isOAuthIntegration, isSyncDesktopIntegration } from '../../../models';
+import {
+  isOAuthIntegration,
+  isSyncDesktopIntegration,
+  isWebIntegration,
+} from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
 import { StoredAccountData, persistAccount } from '../../../lib/storage-utils';
 import { BrandMessagingPortal } from '../../../components/BrandMessaging';
 import { currentAccount } from '../../../lib/cache';
 import GleanMetrics from '../../../lib/glean';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'confirm-signup-code';
 
@@ -56,6 +61,7 @@ const ConfirmSignupCode = ({
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
   const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation();
   const alertBar = useAlertBar();
   const account = useAccount();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
@@ -67,6 +73,7 @@ const ConfirmSignupCode = ({
     isOAuthIntegration(integration) && integration.isSync();
 
   const navigate = useNavigate();
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
   useEffect(() => {
     GleanMetrics.signupConfirmation.view();
@@ -150,7 +157,7 @@ const ConfirmSignupCode = ({
       if (isSyncDesktopIntegration(integration)) {
         // Connect another device tells Sync the user is signed in
         hardNavigateToContentServer(
-          `/connect_another_device${window.location.search}`
+          `/connect_another_device${location.search}`
         );
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
@@ -167,7 +174,7 @@ const ConfirmSignupCode = ({
 
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          hardNavigateToContentServer(`oauth/signin${window.location.search}`);
+          hardNavigateToContentServer(`oauth/signin${location.search}`);
           return;
         } else {
           const { redirect, code, state } = await finishOAuthFlowHandler(
@@ -196,16 +203,31 @@ const ConfirmSignupCode = ({
             return;
           }
         }
-      } else {
-        // TODO: Check if we ever want to show 'signup_confirmed' (Ready view)
-        // Backbone had a base navigation behaviour navigating there
-        alertBar.success(
-          ftlMsgResolver.getMsg(
-            'confirm-signup-code-success-alert',
-            'Account confirmed successfully'
-          )
-        );
-        navigate('/settings', { replace: true });
+      } else if (isWebIntegration(integration)) {
+        // SubPlat redirect
+        if (integration.data.redirectTo) {
+          if (webRedirectCheck.isValid()) {
+            hardNavigate(integration.data.redirectTo);
+          } else {
+            // Even if the code submission is successful, show the user this error
+            // message if the redirect is invalid to match parity with content-server.
+            // This may but may be revisited when we look at our signup flows as a whole.
+            setBanner({
+              type: BannerType.error,
+              children: <p>{webRedirectCheck.getLocalizedErrorMessage()}</p>,
+            });
+          }
+        } else {
+          // TODO: Check if we ever want to show 'signup_confirmed' (Ready view)
+          // Backbone had a base navigation behaviour navigating there
+          alertBar.success(
+            ftlMsgResolver.getMsg(
+              'confirm-signup-code-success-alert',
+              'Account confirmed successfully'
+            )
+          );
+          navigate(`/settings${location.search}`, { replace: true });
+        }
       }
     } catch (error) {
       let localizedErrorMessage: string;
