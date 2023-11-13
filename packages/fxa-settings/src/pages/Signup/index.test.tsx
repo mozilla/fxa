@@ -235,11 +235,15 @@ describe('Signup page', () => {
     });
 
     fireEvent.focus(screen.getByLabelText('Password'));
+    fireEvent.focus(screen.getByLabelText('How old are you?'));
 
     await waitFor(() => {
-      expect(GleanMetrics.registration.engage).toBeCalledTimes(1);
+      expect(GleanMetrics.registration.engage).toBeCalledTimes(2);
       expect(GleanMetrics.registration.engage).toBeCalledWith({
         reason: 'password',
+      });
+      expect(GleanMetrics.registration.engage).toBeCalledWith({
+        reason: 'age',
       });
     });
   });

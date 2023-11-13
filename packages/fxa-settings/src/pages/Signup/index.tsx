@@ -90,6 +90,7 @@ const Signup = ({
     string[]
   >([]);
   const [client, setClient] = useState<MozServices | undefined>(undefined);
+  const [hasAgeInputFocused, setHasAgeInputFocused] = useState<boolean>(false);
 
   useEffect(() => {
     if (isOAuthIntegration(integration)) {
@@ -161,6 +162,13 @@ const Signup = ({
     if (!isFocused) {
       logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
+    }
+  };
+
+  const onFocusAgeInput = () => {
+    if (!hasAgeInputFocused) {
+      GleanMetrics.registration.engage({ reason: 'age' });
+      setHasAgeInputFocused(true);
     }
   };
 
@@ -400,6 +408,7 @@ const Signup = ({
               maxLength: 3,
               required: true,
             })}
+            onFocusCb={onFocusAgeInput}
             onBlurCb={onBlurAgeInput}
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
