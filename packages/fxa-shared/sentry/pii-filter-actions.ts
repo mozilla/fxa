@@ -325,6 +325,6 @@ export const CommonPiiActions = {
    * Matches uid, session, oauth and other common tokens which we would prefer not to include in Sentry reports.
    */
   tokenValues: new PiiRegexFilter(
-    /[a-fA-F0-9]{16,}|[a-fA-F0-9]{32,}|[a-fA-F0-9]{64,}/gim
+    /[a-fA-F0-9]{32,}|[a-fA-F0-9]{64,}/gim
   ),
 };
