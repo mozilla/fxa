@@ -20,6 +20,7 @@ import {
   logErrorEvent,
   logViewEvent,
   setUserPreference,
+  settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { useAccount } from '../../../models/hooks';
@@ -72,6 +73,10 @@ const AccountRecoveryResetPassword = ({
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(
     linkIsValid ? LinkStatus.valid : LinkStatus.damaged
   );
+
+  const onFocusMetricsEvent = () => {
+    logViewEvent(settingsViewName, `${viewName}.engage`);
+  };
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<AccountRecoveryResetPasswordFormData>({
@@ -176,7 +181,7 @@ const AccountRecoveryResetPassword = ({
           )}
           email={verificationInfo.email}
           loading={false}
-          onFocusMetricsEvent={`${viewName}.engage`}
+          onFocusMetricsEvent={onFocusMetricsEvent}
         />
       </section>
 

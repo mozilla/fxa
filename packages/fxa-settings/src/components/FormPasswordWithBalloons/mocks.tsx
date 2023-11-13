@@ -45,7 +45,7 @@ export const Subject = ({ passwordFormType }: SubjectProps) => {
       onSubmit={handleSubmit(onFormSubmit)}
       email={MOCK_ACCOUNT.primaryEmail.email}
       loading={false}
-      onFocusMetricsEvent="test-event"
+      onFocusMetricsEvent={() => {}}
     />
   );
 };

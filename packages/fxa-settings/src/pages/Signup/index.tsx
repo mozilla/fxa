@@ -10,7 +10,11 @@ import {
   isSyncDesktopIntegration,
   useFtlMsgResolver,
 } from '../../models';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
@@ -65,7 +69,10 @@ const Signup = ({
 
   const canChangeEmail = !isOAuthIntegration(integration);
 
-  const onFocusMetricsEvent = `${viewName}.engage`;
+  const onFocusMetricsEvent = () => {
+    logViewEvent(settingsViewName, `${viewName}.engage`);
+    GleanMetrics.registration.engage({ reason: 'password' });
+  };
 
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
@@ -152,7 +159,7 @@ const Signup = ({
 
   const onFocus = () => {
     if (!isFocused) {
-      logViewEvent('flow', onFocusMetricsEvent, REACT_ENTRYPOINT);
+      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
     }
   };

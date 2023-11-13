@@ -5,7 +5,11 @@
 import React, { useCallback, useState, useEffect, ReactElement } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import { logPageViewEvent } from '../../../lib/metrics';
+import {
+  logPageViewEvent,
+  logViewEvent,
+  settingsViewName,
+} from '../../../lib/metrics';
 import {
   IntegrationType,
   useAccount,
@@ -182,6 +186,10 @@ const CompleteResetPassword = ({
     );
   }, [navigateWithoutRerender]);
 
+  const onFocusMetricsEvent = () => {
+    logViewEvent(settingsViewName, `${viewName}.engage`);
+  };
+
   const onSubmit = useCallback(
     async ({
       newPassword,
@@ -331,7 +339,7 @@ const CompleteResetPassword = ({
             })
           )}
           loading={false}
-          onFocusMetricsEvent={`${viewName}.engage`}
+          onFocusMetricsEvent={onFocusMetricsEvent}
         />
       </section>
       <LinkRememberPassword email={linkModel.email} />
