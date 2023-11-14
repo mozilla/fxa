@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { /* useAccount, */ useFtlMsgResolver } from '../../../models';
@@ -13,6 +13,7 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
+import GleanMetrics from '../../../lib/glean';
 // import { ResendStatus } from "fxa-settings/src/lib/types";
 // import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from "fxa-settings/src/components/Banner";
 
@@ -48,6 +49,10 @@ const SigninTokenCode = ({
     submitButtonText: 'Confirm',
   };
 
+  useEffect(() => {
+    GleanMetrics.loginConfirmation.view();
+  }, []);
+
   const handleResendCode = async () => {
     // try {
     // TODO: add resend code action
@@ -58,10 +63,18 @@ const SigninTokenCode = ({
     // }
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     try {
+      GleanMetrics.loginConfirmation.submit();
       // Check confirmation code
+
       // Log success event
+      // The await of isDone is not entirely necessary when we are not
+      // redirecting the user to an RP.  However at the time of implementation
+      // for the Glean ping the redirect logic has not been implemented.
+      GleanMetrics.loginConfirmation.success();
+      await GleanMetrics.isDone();
+
       // Check if isForcePasswordChange
     } catch (e) {
       // TODO: error handling, error message confirmation

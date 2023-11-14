@@ -540,4 +540,17 @@ describe('lib/glean', () => {
       sinon.assert.calledWith(setEnabledStub, false);
     });
   });
+
+  describe('isDone', () => {
+    it('resolves', async () => {
+      GleanMetrics.registration.view();
+      GleanMetrics.registration.submit();
+      GleanMetrics.registration.success();
+      GleanMetrics.login.view();
+      GleanMetrics.login.submit();
+      GleanMetrics.login.success();
+      await GleanMetrics.isDone();
+      expect(true).toBeTruthy();
+    });
+  });
 });
