@@ -34,9 +34,9 @@ export const HeaderLockup = () => {
         onClick={() => setNavState(!navRevealedState)}
       >
         {navRevealedState ? (
-          <Close className="text-purple-900 w-8" />
+          <Close className="text-violet-900 w-8" />
         ) : (
-          <Menu className="text-purple-900 w-8" />
+          <Menu className="text-violet-900 w-8" />
         )}
         {navRevealedState && <Nav />}
       </button>
@@ -73,7 +73,7 @@ export const HeaderLockup = () => {
           aria-label={localizedHelpText}
           title={localizedHelpText}
           role="img"
-          className="w-5 text-purple-900"
+          className="w-5 text-violet-900"
           data-testid="header-help"
         />
       </LinkExternal>
