@@ -25,7 +25,7 @@
     "test-cov": "jest --coverage",
     "test-debug": "node --inspect-brk -r tsconfig-paths/register -r esbuild-register node_modules/.bin/jest --runInBand",
     "test-e2e": "jest --runInBand --config ./test/jest-e2e.json --forceExit",
-    "email-bounce": "node -r esbuild-register ./scripts/email-bounce.ts"
+    "email-bounce": "node -r esbuild-register ./src/scripts/email-bounce.ts"
   },
   "repository": {
     "type": "git",
