@@ -14,6 +14,7 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import CardHeader from '../../components/CardHeader';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import GleanMetrics from '../../lib/glean';
 
 export type SigninProps = {
   email: string;
@@ -59,6 +60,11 @@ const Signin = ({
   // TODO: The user-card mixin does some fancy footwork listening to see if you access token changes
   // because it's possible for the access token to be invalidated when we display the avatar image.
   // if we get the notification of a change, we re-render the card.
+
+  const onForgotPasswordClick = () => {
+    GleanMetrics.login.forgotPassword();
+    return true;
+  };
 
   const onSubmit = useCallback(async () => {
     try {
@@ -154,7 +160,11 @@ const Signin = ({
             </Link>
           </FtlMsg>
           <FtlMsg id="signin-forgot-password">
-            <Link to="/reset_password" className="text-sm link-blue">
+            <Link
+              to="/reset_password"
+              className="text-sm link-blue"
+              onClick={onForgotPasswordClick}
+            >
               Forgot password?
             </Link>
           </FtlMsg>
