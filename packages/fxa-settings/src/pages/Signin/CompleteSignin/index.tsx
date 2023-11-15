@@ -76,7 +76,7 @@ const CompleteSignin = ({
               <FtlMsg id="validating-signin">
                 <p className="text-base">Validating sign-in…</p>
               </FtlMsg>
-              <LoadingSpinner className="flex items-center flex-col justify-center mt-4 select-none" />
+              <LoadingSpinner fullScreen />
             </>
           )}
         </div>

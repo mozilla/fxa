@@ -7,6 +7,7 @@ import * as ConfirmSignupCodeModule from './index';
 import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
 import * as CacheModule from '../../../lib/cache';
+import * as ApolloModule from '@apollo/client';
 import * as ReachRouterModule from '@reach/router';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
@@ -16,7 +17,13 @@ import AuthClient from 'fxa-auth-client/browser';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SignupConfirmCodeContainer from './container';
-import { Integration, IntegrationType } from '../../../models';
+import { Integration } from '../../../models';
+import {
+  MOCK_EMAIL,
+  MOCK_KEY_FETCH_TOKEN,
+  MOCK_SESSION_TOKEN,
+  MOCK_UNWRAP_BKEY,
+} from '../../mocks';
 
 // Setup mocks
 
@@ -28,10 +35,49 @@ jest.mock('../../../models', () => {
   };
 });
 
+const mockNavigate = jest.fn();
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useNavigate: () => mockNavigate,
+}));
+
 // Global instances
 let integration: Integration;
 let mockAuthClient = new AuthClient('localhost:9000');
 let currentProps: any | undefined;
+let mockEmailBounceStatusQuery = jest.fn();
+
+function mockLocation(
+  originIsSignup: boolean = true,
+  withIntegrationProps: boolean = true
+) {
+  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
+    return {
+      state: {
+        origin: originIsSignup ? 'signup' : null,
+        selectedNewsletterSlugs: 'slugs',
+        keyFetchToken: withIntegrationProps ? MOCK_KEY_FETCH_TOKEN : null,
+        unwrapBKey: withIntegrationProps ? MOCK_UNWRAP_BKEY : null,
+      },
+    } as ReturnType<typeof ReachRouterModule.useLocation>;
+  });
+}
+
+function mockEmailBounceQuery() {
+  mockEmailBounceStatusQuery.mockImplementation(() => {
+    return {
+      data: {
+        emailBounceStatus: {
+          hasHardBounce: false,
+        },
+      },
+    };
+  });
+
+  jest
+    .spyOn(ApolloModule, 'useQuery')
+    .mockReturnValue(mockEmailBounceStatusQuery());
+}
 
 // Setup default mocks
 function applyMocks() {
@@ -47,7 +93,7 @@ function applyMocks() {
       currentProps = props;
       return <div>confirm signup code mock</div>;
     });
-  jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
+  jest.spyOn(LoadingSpinnerModule, 'default').mockImplementation(() => {
     return <div>loading spinner mock</div>;
   });
 
@@ -72,27 +118,19 @@ function applyMocks() {
         oAuthDataError: null,
       };
     });
-  jest.spyOn(URLSearchParams.prototype, 'delete');
   jest.spyOn(CacheModule, 'currentAccount').mockImplementation(() => {
     return {
-      email: 'foo@mozilla.com',
-      sessionToken: 'st123',
-      uid: 'uid123',
+      email: MOCK_EMAIL,
+      sessionToken: MOCK_SESSION_TOKEN,
     } as StoredAccountData;
   });
-  jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-    return {
-      state: {
-        selectedNewsletterSlugs: 'slugs',
-        keyFetchToken: 'kft123',
-        unwrapBKey: 'bk123',
-      },
-    } as ReturnType<typeof ReachRouterModule.useLocation>;
-  });
+  mockLocation();
   jest.spyOn(SentryModule.default, 'captureException');
   jest
     .spyOn(ReactUtils, 'hardNavigateToContentServer')
     .mockImplementation(() => {});
+
+  mockEmailBounceQuery();
 }
 
 async function render(text?: string) {
@@ -115,14 +153,47 @@ describe('confirm-singup-container', () => {
     it('renders as expected', async () => {
       await render();
 
-      expect(currentProps?.email).toEqual('foo@mozilla.com');
-      expect(currentProps?.uid).toEqual('uid123');
-      expect(currentProps?.sessionToken).toEqual('st123');
+      expect(currentProps?.email).toEqual(MOCK_EMAIL);
+      expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
       expect(currentProps?.integration).toBeDefined();
       expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
       expect(currentProps?.newsletterSlugs).toEqual('slugs');
-      expect(currentProps?.keyFetchToken).toEqual('kft123');
-      expect(currentProps?.unwrapBKey).toEqual('bk123');
+      expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
+      expect(currentProps?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY);
+    });
+  });
+
+  describe('email bounce query', () => {
+    beforeEach(() => {
+      mockEmailBounceStatusQuery.mockImplementation(() => {
+        return {
+          data: {
+            emailBounceStatus: {
+              hasHardBounce: true,
+            },
+          },
+        };
+      });
+      jest
+        .spyOn(ApolloModule, 'useQuery')
+        .mockReturnValue(mockEmailBounceStatusQuery());
+    });
+
+    it('redirects to email-first signup if there is a bounce on signup', async () => {
+      await render();
+      expect(mockEmailBounceStatusQuery).toBeCalled();
+      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
+        '/?bouncedEmail=johndope%40example.com'
+      );
+    });
+
+    it('redirects to signin_bounced if there is a bounce that is not on signup', async () => {
+      mockLocation(false);
+      await render();
+      expect(mockEmailBounceStatusQuery).toBeCalled();
+      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
+        '/signin_bounced?bouncedEmail=johndope%40example.com'
+      );
     });
   });
 
@@ -132,31 +203,17 @@ describe('confirm-singup-container', () => {
         return {} as StoredAccountData;
       });
       await render('loading spinner mock');
-      expect(URLSearchParams.prototype.delete).toBeCalledWith('email');
-      expect(URLSearchParams.prototype.delete).toBeCalledWith(
-        'emailFromContent'
-      );
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
-        expect.stringMatching(/^\/\?*./)
+        expect.stringMatching('/')
       );
     });
 
     it('has no keyFetchToken or unwrapBKey and is an oauth integration', async () => {
-      integration.type = IntegrationType.OAuth;
-      jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
-        return {
-          state: {
-            selectedNewsletterSlugs: 'slugs',
-          },
-        } as ReturnType<typeof ReachRouterModule.useLocation>;
-      });
+      mockLocation(true, false);
       await render('loading spinner mock');
       expect(SentryModule.default.captureException).toBeCalled();
-      expect(URLSearchParams.prototype.delete).toBeCalledWith(
-        'emailFromContent'
-      );
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
-        expect.stringMatching(/^\/signin\?*./)
+        expect.stringMatching('/')
       );
     });
 

@@ -21,6 +21,7 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
     email = undefined;
   } else {
     email = login.createEmail('signup_react{id}');
+        await login.clearCache();
   }
 });
 
@@ -67,6 +68,36 @@ test.describe('severity-1 #smoke', () => {
       // Verify logged into settings page
       await page.waitForURL(/settings/);
       await settings.signOut();
+    });
+
+    // TODO this test is skipped until we sort out
+    // how to record an email bounce for testing
+    test.skip('signup, bounce email', async ({
+      page,
+      target,
+      pages: { login, signupReact },
+    }) => {
+      await signupReact.goto();
+      await signupReact.fillOutEmailFirst(email);
+      await signupReact.fillOutSignupForm(PASSWORD);
+
+      //Verify sign up code header
+      await page.waitForURL(/confirm_signup_code/);
+      await signupReact.confirmCodeHeading();
+
+      // Record an harb bounce in the db
+
+      // if a hard bounce is recorded, the page should redirect to email-first sign-in
+      // with an error message
+      await page.waitForURL(/`${target.contentServerUrl}`/);
+
+      expect(
+        page.getByRole('heading', { name: /Enter your email/ })
+      ).toBeVisible();
+      //Verify error message
+      expect(await login.getTooltipError()).toContain(
+        'Your confirmation email was just returned. Mistyped email?'
+      );
     });
 
     test('signup oauth', async ({

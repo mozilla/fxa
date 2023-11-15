@@ -16,6 +16,7 @@ import AuthClient, { deriveHawkCredentials } from 'fxa-auth-client';
 import {
   Account,
   AccountOptions,
+  EmailBounce,
   SessionToken,
 } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
@@ -85,6 +86,7 @@ import { Account as AccountType } from './model/account';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { FinishedSetupAccountPayload } from './dto/payload/finished-setup-account';
 import { FinishSetupInput } from './dto/input/finish-setup';
+import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -459,6 +461,19 @@ export class AccountResolver {
     return Account.findByUid(uid, options);
   }
 
+  @Query((returns) => EmailBounceStatusPayload, {
+    description: 'Check if bounces exist for an account, using email address.',
+  })
+  @CatchGatewayError
+  public async emailBounceStatus(
+    @Args('input', { type: () => String! })
+    input: string
+  ): Promise<EmailBounceStatusPayload> {
+    const bounces = await EmailBounce.findByEmail(input);
+    const hasHardBounce = bounces.some((bounce) => bounce.bounceType === 1);
+    return { hasHardBounce };
+  }
+
   @Mutation((returns) => PasswordForgotSendCodePayload, {
     description: 'Send a password reset email.',
   })
@@ -601,7 +616,6 @@ export class AccountResolver {
       const account = await Account.findByUid(input.uid);
       return { exists: !!account };
     }
-
     return { exists: false };
   }
 

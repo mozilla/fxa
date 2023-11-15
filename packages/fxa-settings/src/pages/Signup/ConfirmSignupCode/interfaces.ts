@@ -14,6 +14,7 @@ import {
 import { StoredAccountData } from '../../../lib/storage-utils';
 
 export type LocationState = {
+  origin: 'signup' | undefined;
   selectedNewsletterSlugs?: string[];
   keyFetchToken?: string;
   unwrapBKey?: string;
@@ -28,8 +29,8 @@ export type ConfirmSignupCodeContainerProps = {
 
 export type ConfirmSignupCodeProps = {
   email: string;
-  sessionToken: hexstring;
   uid: hexstring;
+  sessionToken: hexstring;
   integration: ConfirmSignupCodeIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   newsletterSlugs?: string[];
@@ -63,3 +64,7 @@ export interface ConfirmSignupCodeOAuthIntegration {
 export type ConfirmSignupCodeIntegration =
   | ConfirmSignupCodeOAuthIntegration
   | ConfirmSignupCodeBaseIntegration;
+
+export interface GetEmailBounceStatusResponse {
+  emailBounceStatus: { hasHardBounce: boolean };
+}

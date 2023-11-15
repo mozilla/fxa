@@ -243,6 +243,7 @@ export const Signup = ({
 
         navigate(`/confirm_signup_code${location.search}`, {
           state: {
+            origin: 'signup',
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
