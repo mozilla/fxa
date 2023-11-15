@@ -29,6 +29,7 @@ secrets.json
 **/version.json
 **/storybook-static
 *.sass-cache
+.nx/cache
 **/schema.gql
 *.map
 *.swp

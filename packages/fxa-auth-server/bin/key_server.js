@@ -7,6 +7,7 @@
 const { config } = require('../config');
 
 const { CapabilityManager } = require('@fxa/payments/capability');
+const { EligibilityManager } = require('@fxa/payments/eligibility');
 const {
   ContentfulClient,
   ContentfulManager,
@@ -126,7 +127,9 @@ async function run(config) {
       });
       const contentfulManager = new ContentfulManager(contentfulClient);
       const capabilityManager = new CapabilityManager(contentfulManager);
+      const eligibilityManager = new EligibilityManager(contentfulManager);
       Container.set(CapabilityManager, capabilityManager);
+      Container.set(EligibilityManager, eligibilityManager);
     }
 
     const { createStripeHelper } = require('../lib/payments/stripe');

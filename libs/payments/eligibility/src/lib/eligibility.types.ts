@@ -9,18 +9,33 @@ export enum OfferingComparison {
   DOWNGRADE = 'downgrade',
 }
 
+// Used to represent an interval comparison to another interval
+export enum IntervalComparison {
+  SAME = 'same',
+  LONGER = 'longer',
+  SHORTER = 'shorter',
+}
+
 export type OfferingOverlapBaseResult = {
   comparison: OfferingComparison;
+  type: string;
 };
 
 export type OfferingOverlapPlanResult = OfferingOverlapBaseResult & {
   planId: string;
+  type: 'plan';
 };
 
 export type OfferingOverlapProductResult = OfferingOverlapBaseResult & {
   offeringProductId: string;
+  type: 'offering';
 };
 
 export type OfferingOverlapResult =
   | OfferingOverlapPlanResult
   | OfferingOverlapProductResult;
+
+export type Interval = {
+  unit: 'day' | 'week' | 'month' | 'year';
+  count: number;
+};

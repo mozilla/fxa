@@ -36,6 +36,12 @@ const {
 const {
   CapabilityManager,
 } = require('../../../../../libs/payments/capability/src');
+const {
+  EligibilityManager,
+} = require('../../../../../libs/payments/eligibility/src');
+const {
+  SubscriptionEligibilityResult,
+} = require('fxa-shared/subscriptions/types');
 const Sentry = require('@sentry/node');
 
 const mockAuthEvents = {};
@@ -453,22 +459,9 @@ describe('CapabilityService', () => {
           productOrder: 2,
         },
       },
-      {
-        plan_id: 'plan_NOPRODUCTORDER',
-        product_id: 'prod_ABCDEF',
-        product_metadata: {
-          productSet: 'set1,set2',
-        },
-      },
-      {
-        plan_id: 'plan_NOPRODUCTSET',
-        product_id: 'prod_ABCDEF',
-        product_metadata: {},
-      },
     ];
 
     beforeEach(() => {
-      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockAbbrevPlans);
       capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
         []
       );
@@ -480,6 +473,7 @@ describe('CapabilityService', () => {
 
     it('throws an error for an invalid targetPlanId', async () => {
       let error;
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves([]);
       try {
         await capabilityService.getPlanEligibility(UID, 'invalid-id');
       } catch (e) {
@@ -488,51 +482,315 @@ describe('CapabilityService', () => {
       assert.equal(error.message, 'Unknown subscription plan');
     });
 
-    it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-      capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
-        ['plan_123456']
+    it('returns the eligibility from Stripe if eligibilityManager is not found', async () => {
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+        plan_123456: mockAbbrevPlans[0],
+      });
+      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
+        SubscriptionEligibilityResult.CREATE,
+      ]);
+      const expected = [SubscriptionEligibilityResult.CREATE];
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_123456'
       );
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'blocked_iap');
+      assert.deepEqual(actual, expected);
     });
 
-    it('returns create for targetPlan with productSet user is not subscribed to', async () => {
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'create');
-    });
+    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
 
-    it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_123456',
+      Container.set(EligibilityManager, {});
+      capabilityService = new CapabilityService();
+
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+        plan_123456: mockAbbrevPlans[0],
+      });
+      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
       ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'upgrade');
+      capabilityService.getAllSubscribedAbbrevPlans = sinon.fake.resolves([
+        mockAbbrevPlans[1],
+        [],
+      ]);
+      capabilityService.eligibilityFromEligibilityManager = sinon.fake.resolves(
+        [SubscriptionEligibilityResult.CREATE]
+      );
+      capabilityService.logToSentry = sinon.fake.returns(true);
+
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_123456'
+      );
+      assert.deepEqual(actual, [SubscriptionEligibilityResult.UPGRADE]);
+
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'getPlanEligibility',
+        {
+          eligibilityManagerResult: [SubscriptionEligibilityResult.CREATE],
+          stripeEligibilityResult: [SubscriptionEligibilityResult.UPGRADE],
+          uid: UID,
+          targetPlanId: 'plan_123456',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `Eligibility mismatch for uid8675309 on plan_123456`,
+        'error'
+      );
+    });
+  });
+
+  describe('elibility', () => {
+    const mockPlanTier1ShortInterval = {
+      plan_id: 'plan_123456',
+      product_id: 'prod_123456',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 1,
+      },
+      interval: 'week',
+      interval_count: 1,
+    };
+    const mockPlanTier1LongInterval = {
+      plan_id: 'plan_876543',
+      product_id: 'prod_876543',
+      product_metadata: {
+        productSet: 'set2,set3',
+        productOrder: 1,
+      },
+      interval: 'week',
+      interval_count: 2,
+    };
+    const mockPlanTier2ShortInterval = {
+      plan_id: 'plan_ABCDEF',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 2,
+      },
+      interval: 'week',
+      interval_count: 1,
+    };
+    const mockPlanTier2LongInterval = {
+      plan_id: 'plan_GHIJKL',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 2,
+      },
+      interval: 'month',
+      interval_count: 1,
+    };
+    const mockPlanNoProductOrder = {
+      plan_id: 'plan_NOPRODUCTORDER',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+      },
+    };
+
+    describe('FromEligibilityManager', () => {
+      let mockEligibilityManager;
+
+      beforeEach(() => {
+        mockEligibilityManager = {};
+        Container.set(EligibilityManager, mockEligibilityManager);
+        capabilityService = new CapabilityService();
+      });
+
+      it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'same',
+            offeringProductId: mockPlanTier1ShortInterval.product_id,
+            type: 'offering',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [],
+            [mockPlanTier1ShortInterval],
+            mockPlanTier1LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.BLOCKED_IAP);
+      });
+
+      it('returns create for targetPlan with offering user is not subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.CREATE);
+      });
+
+      it('returns upgrade for targetPlan with offering user is subscribed to a lower tier of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier2LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with offering user is subscribed to a higher tier of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'downgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns upgrade for targetPlan with offering user is subscribed to a higher interval of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier1LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with shorter interval but higher tier than user is subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1LongInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        Container.set(EligibilityManager, mockEligibilityManager);
+        capabilityService = new CapabilityService();
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1LongInterval],
+            [],
+            mockPlanTier2ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns invalid for targetPlan with same offering user is subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.INVALID);
+      });
     });
 
-    it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_ABCDEF',
-      ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_123456')
-      )[0];
-      assert.equal(actual, 'downgrade');
-    });
+    describe('FromStripeMetadata', () => {
+      it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
+        capabilityService.fetchSubscribedPricesFromAppStore =
+          sinon.fake.resolves(['plan_123456']);
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [],
+            [mockPlanTier2LongInterval],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.BLOCKED_IAP);
+      });
 
-    it('returns invalid for targetPlan with no product order', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_ABCDEF',
-      ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_NOPRODUCTORDER')
-      )[0];
-      assert.equal(actual, 'invalid');
+      it('returns create for targetPlan with productSet user is not subscribed to', async () => {
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.CREATE);
+      });
+
+      it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier1ShortInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier2LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier2LongInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns invalid for targetPlan with no product order', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier2LongInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanNoProductOrder
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.INVALID);
+      });
     });
   });
 

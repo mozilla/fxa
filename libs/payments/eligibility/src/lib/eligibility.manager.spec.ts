@@ -249,10 +249,12 @@ describe('EligibilityManager', () => {
       expect(result[0]).toEqual({
         comparison: OfferingComparison.DOWNGRADE,
         offeringProductId: 'prod_test3',
+        type: 'offering',
       });
       expect(result[1]).toEqual({
         comparison: OfferingComparison.UPGRADE,
         planId: 'plan_test',
+        type: 'plan',
       });
     });
   });
