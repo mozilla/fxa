@@ -241,6 +241,31 @@ export class StripeHelper extends StripeHelperBase {
     this.initStripe();
   }
 
+  async checkStripeAPIKey() {
+    try {
+      await this.stripe.customers.list({ limit: 1 });
+    } catch (error) {
+      if (error.type === 'StripeAuthenticationError') {
+        this.log.error('checkStripeAPIKey', {
+          error,
+          rawMesage: error.raw.message,
+        });
+        if (['dev', 'development'].includes(this.config.env)) {
+          console.error(`
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-----------------------------------!!!
+!!!-----------------------------------!!!
+!!!--- Stripe Authentication Error ---!!!
+!!!---- Check your Stripe API Key ----!!!
+!!!-----------------------------------!!!
+!!!-----------------------------------!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+`);
+        }
+      }
+    }
+  }
+
   /**
    * Validates state of stripe plan
    * @param plan
@@ -3381,5 +3406,7 @@ export class StripeHelper extends StripeHelperBase {
  * Create a Stripe Helper with built-in caching.
  */
 export function createStripeHelper(log: any, config: any, statsd: StatsD) {
-  return new StripeHelper(log, config, statsd);
+  const stripeHelper = new StripeHelper(log, config, statsd);
+  stripeHelper.checkStripeAPIKey();
+  return stripeHelper;
 }

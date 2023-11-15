@@ -9,7 +9,7 @@ import { setupFirestore } from '../firestore-db';
 import { CurrencyHelper } from '../payments/currencies';
 import { configureSentry } from '../sentry';
 import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
-import { StripeHelper } from './stripe';
+import { StripeHelper, createStripeHelper } from './stripe';
 
 import convictConf from '../../config';
 const config = convictConf.getProperties();
@@ -74,7 +74,7 @@ export async function setupProcessingTaskObjects(processName: string) {
 
   const currencyHelper = new CurrencyHelper(config);
   Container.set(CurrencyHelper, currencyHelper);
-  const stripeHelper = new StripeHelper(log, config, statsd);
+  const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
   return {

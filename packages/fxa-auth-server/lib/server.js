@@ -65,6 +65,22 @@ function logEndpointErrors(response, log) {
   }
 }
 
+function translateStripeErrors(response) {
+  if (response?.type === 'StripeAuthenticationError') {
+    response.output = {
+      statusCode: response.statusCode,
+      payload: {
+        ...response.output.payload,
+        statusCode: response.statusCode,
+        error: response.type,
+        message: response.message,
+      },
+    };
+  }
+
+  return response;
+}
+
 async function create(log, error, config, routes, db, statsd, glean) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
@@ -323,6 +339,10 @@ async function create(log, error, config, routes, db, statsd, glean) {
         response.output.statusCode >= 500
       ) {
         logValidationError(response, log);
+      }
+
+      if (config.env !== 'prod') {
+        translateStripeErrors(response);
       }
 
       response = error.translate(request, response);
