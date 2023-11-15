@@ -42,6 +42,7 @@ type GleanMetricsT = {
     context: GleanMetricsContext
   ) => void;
   setEnabled: (enabled: boolean) => void;
+  isDone: () => Promise<void>;
 } & {
   [k in EventMapKeys]: { [k: string]: PingFn };
 };
@@ -148,7 +149,10 @@ const createEventFn =
     submitPing(fn);
   };
 
-export const GleanMetrics: Pick<GleanMetricsT, 'initialize' | 'setEnabled'> = {
+export const GleanMetrics: Pick<
+  GleanMetricsT,
+  'initialize' | 'setEnabled' | 'isDone'
+> = {
   initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
     // Starting with glean.js v2, accessing localStorage during
@@ -179,6 +183,25 @@ export const GleanMetrics: Pick<GleanMetricsT, 'initialize' | 'setEnabled'> = {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
   },
+
+  /**
+   * The ping calls are awaited internally for ease of use and that works in
+   * most cases.  But in the scenario where we want to wait for the pings to
+   * finish before we unload the page, we are doing so, crudely, here.  Do not
+   * emit more pings after calling this function.
+   */
+  isDone: () =>
+    new Promise((resolve) => {
+      const checkForEmptyFnList = () => {
+        if (lambdas.length === 0) {
+          resolve();
+        } else {
+          setTimeout(checkForEmptyFnList, 100);
+        }
+      };
+
+      checkForEmptyFnList();
+    }),
 };
 
 for (const [page, events] of Object.entries(eventsMap)) {

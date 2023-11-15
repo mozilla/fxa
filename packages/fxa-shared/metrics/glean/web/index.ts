@@ -48,6 +48,7 @@ export const eventsMap = {
   loginConfirmation: {
     view: 'login_email_confirmation_view',
     submit: 'login_email_confirmation_submit',
+    success: 'login_email_confirmation_success_view',
   },
 
   totpForm: {
