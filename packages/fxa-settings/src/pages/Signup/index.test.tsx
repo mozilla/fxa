@@ -68,7 +68,12 @@ jest.mock('@reach/router', () => ({
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
   default: {
-    registration: { view: jest.fn(), submit: jest.fn(), success: jest.fn() },
+    registration: {
+      view: jest.fn(),
+      engage: jest.fn(),
+      submit: jest.fn(),
+      success: jest.fn(),
+    },
   },
 }));
 
@@ -221,12 +226,21 @@ describe('Signup page', () => {
     expect(checkboxes).toHaveLength(3);
   });
 
-  it('emits a metrics event on render', async () => {
+  it('emits metrics events', async () => {
     renderWithLocalizationProvider(<Subject />);
 
     await waitFor(() => {
       expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
       expect(GleanMetrics.registration.view).toBeCalledTimes(1);
+    });
+
+    fireEvent.focus(screen.getByLabelText('Password'));
+
+    await waitFor(() => {
+      expect(GleanMetrics.registration.engage).toBeCalledTimes(1);
+      expect(GleanMetrics.registration.engage).toBeCalledWith({
+        reason: 'password',
+      });
     });
   });
 

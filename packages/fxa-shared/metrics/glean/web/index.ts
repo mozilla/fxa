@@ -28,6 +28,7 @@ export const eventsMap = {
 
   registration: {
     view: 'reg_view',
+    engage: 'reg_engage',
     submit: 'reg_submit',
     success: 'reg_submit_success',
   },
