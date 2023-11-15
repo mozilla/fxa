@@ -130,7 +130,7 @@ const SigninBounced = ({
           </section>
         </>
       ) : (
-        <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center select-none" />
+        <LoadingSpinner fullScreen />
       )}
     </AppLayout>
   );

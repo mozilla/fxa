@@ -25,7 +25,7 @@ const SignInBouncedView = BaseView.extend({
   },
 
   beforeRender() {
-    if (!this.model.has('email')) {
+    if (!this.model.has('email') && !this.getSearchParam('bouncedEmail')) {
       // This may occur if the user has refreshed the page. In that case,
       // we have no context for properly rendering the view, so kick them
       // out to /signin where they can start again.
@@ -35,7 +35,7 @@ const SignInBouncedView = BaseView.extend({
 
   setInitialContext(context) {
     context.set({
-      email: this.model.get('email'),
+      email: this.model.get('email') || this.getSearchParam('bouncedEmail'),
       escapedSupportLinkAttrs:
         'id="support" href="https://support.mozilla.org/" target="_blank" data-flow-event="link.support"',
     });
