@@ -62,7 +62,7 @@
     "mysql": "^2.18.1",
     "mysql2": "^3.6.0",
     "nest-typed-config": "^2.9.1",
-    "next": "^13.5.3",
+    "next": "^14.0.2",
     "node-fetch": "^2.6.7",
     "nps": "^5.10.0",
     "objection": "^3.0.1",
