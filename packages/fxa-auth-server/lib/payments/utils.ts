@@ -40,3 +40,18 @@ export function generateIdempotencyKey(params: string[]) {
 export function roundTime(date = new Date()) {
   return Math.round(date.getTime() / (1000 * 60)).toString();
 }
+
+export function sortClientCapabilities(
+  obj: Record<string, string[]> | Record<string, readonly string[]>
+): Record<string, string[]> | Record<string, readonly string[]> {
+  return Object.keys(obj)
+    .sort()
+    .reduce<Record<string, string[]> | Record<string, readonly string[]>>(
+      (accumulator, key) => {
+        accumulator[key] = Array.from(obj[key]).sort();
+
+        return accumulator;
+      },
+      {}
+    );
+}
