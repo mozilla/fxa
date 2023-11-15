@@ -41,7 +41,7 @@
   "dependencies": {
     "@golevelup/ts-jest": "^0.3.2",
     "@google-cloud/firestore": "^6.6.0",
-    "@sentry/node": "^7.66.0",
+    "@sentry/node": "^7.79.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "convict": "^6.2.4",

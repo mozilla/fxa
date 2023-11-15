@@ -28,7 +28,7 @@ async function bootstrap() {
   const proxyConfig = config.get('proxy') as AppConfig['proxy'];
 
   // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
+  // app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

@@ -23,8 +23,10 @@ async function configureSentry(server, config, log) {
     },
     logger
   );
+
   Sentry.init({
     ...opts,
+    instrumenter: 'otel',
     integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
     beforeSend(event, _hint) {
       event = tagCriticalEvent(event);

@@ -30,7 +30,7 @@
     "@google-cloud/pubsub": "^2.19.4",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hoek": "^11.0.2",
-    "@sentry/node": "^7.66.0",
+    "@sentry/node": "^7.79.0",
     "bl": "6.0.0",
     "bluebird": "^3.7.2",
     "bunyan": "^1.8.15",

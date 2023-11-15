@@ -20,7 +20,7 @@ convict.addFormats(require('convict-format-with-validator'));
 const convictConf = convict({
   env: {
     doc: 'The current node.js environment',
-    default: 'prod',
+    default: 'dev',
     format: ['dev', 'test', 'stage', 'prod'],
     env: 'NODE_ENV',
   },

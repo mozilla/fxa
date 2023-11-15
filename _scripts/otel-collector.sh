@@ -26,10 +26,14 @@ then
     -e GOOGLE_APPLICATION_CREDENTIALS=/etc/otel/key.json \
     -e EXPORTERS=$EXPORTERS \
     -e TRACING_GCP_PROJECT=$TRACING_GCP_PROJECT \
+    -p 1888:1888 \
+    -p 8888:8888 \
+    -p 8889:8889 \
+    -p 13133:13133 \
     -p 4317:4317 \
     -p 4318:4318 \
-    -p 55681:55681 \
-    otel/opentelemetry-collector-contrib:0.61.0 --config=/etc/otel/config.yaml
+    -p 55679:55679 \
+    otel/opentelemetry-collector-contrib:0.88.0 --config=/etc/otel/config.yaml
 else
   echo -e "The open telemtry collector did not start, because it is not enabled. Set env TRACING_OTEL_COLLECTOR_ENABLED=true to enable. Running an open telemetry collector is optional! \n"
 fi

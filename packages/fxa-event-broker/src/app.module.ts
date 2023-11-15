@@ -39,12 +39,7 @@ const version = getVersionInfo(__dirname);
     SentryModule.forRootAsync({
       imports: [ConfigModule, LoggerModule],
       inject: [ConfigService, MozLoggerService],
-      useFactory: (configService: ConfigService<AppConfig>) => ({
-        sentryConfig: {
-          sentry: configService.get('sentry'),
-          version: version.version,
-        },
-      }),
+      useFactory: SentryModule.init,
     }),
     QueueworkerModule,
     PubsubProxyModule,

@@ -27,5 +27,8 @@ export type SentryConfigOpts = {
 
     /** The tracing sample rate. Setting this above 0 will aso result in performance metrics being captured. */
     tracesSampleRate?: number;
+
+    /** The type of instrumentation to use to capture traces & spans */
+    instrumenter?: 'sentry' | 'otel';
   };
 };

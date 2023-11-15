@@ -37,7 +37,7 @@
   "homepage": "https://github.com/mozilla/fxa#readme",
   "readmeFilename": "README.md",
   "dependencies": {
-    "@sentry/node": "^7.66.0",
+    "@sentry/node": "^7.79.0",
     "apollo-datasource": "^3.3.1",
     "apollo-server": "^2.26.0",
     "apollo-server-express": "^2.26.0",

@@ -16,6 +16,11 @@ import { addOtlpTraceExporter } from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
 import { createNodeProvider } from './providers/node-provider';
 
+import {
+  SentrySpanProcessor,
+  SentryPropagator,
+} from '@sentry/opentelemetry-node';
+
 const log_type = 'node-tracing';
 const tracer_name = 'fxa-tracer';
 
@@ -68,7 +73,12 @@ export class NodeTracingInitializer {
         }),
       ],
     });
-    this.provider.register();
+
+    // We always propagate to sentry
+    this.provider.addSpanProcessor(new SentrySpanProcessor());
+    this.provider.register({
+      propagator: new SentryPropagator(),
+    });
   }
 
   public startSpan(name: string, action: () => void) {

@@ -46,7 +46,7 @@ async function bootstrap() {
   }
 
   // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
+  // app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

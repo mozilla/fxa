@@ -5,7 +5,6 @@
 import * as Sentry from '@sentry/browser';
 import Logger from './logger';
 import { buildSentryConfig, SentryConfigOpts, tagFxaName } from '../sentry';
-import { options } from 'superagent';
 
 // HACK: allow tests to stub this function from Sentry
 // https://stackoverflow.com/questions/35240469/how-to-mock-the-imports-of-an-es6-module
@@ -146,6 +145,7 @@ SentryMetrics.prototype = {
       const opts = buildSentryConfig(config, this._logger);
       Sentry.init({
         ...opts,
+        instrumenter: 'sentry',
         integrations: [new Sentry.BrowserTracing()],
         beforeSend(event: Sentry.Event) {
           event = beforeSend(event);

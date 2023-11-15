@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Injectable, Scope } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ILogger } from '../../log';
 import mozlog, { Logger as MozLogger, LoggerFactory } from 'mozlog';
 
 let logFactory: LoggerFactory;
 
 @Injectable({ scope: Scope.TRANSIENT })
-export class MozLoggerService {
+export class MozLoggerService implements ILogger {
   private mozlog: MozLogger;
 
   constructor(configService: ConfigService) {

@@ -6,16 +6,10 @@ receivers:
 exporters:
   logging:
     loglevel: debug
-  jaeger:
-    endpoint: "jaeger.fxa:14250"
+  otlphttp:
+    endpoint: "jaeger.fxa:43180"
     tls:
       insecure: true
-  googlecloud:
-    project: '${TRACING_GCP_PROJECT}'
-    retry_on_failure:
-      enabled: false
-    log:
-      default_log_name: opentelemetry.io/collector-exported-log
 
 processors:
   batch:

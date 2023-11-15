@@ -39,8 +39,10 @@ if (sentryConfig.dsn) {
     },
     log
   );
+
   Sentry.init({
     ...opts,
+    instrumenter: 'otel',
     beforeSend(event, _hint) {
       event = tagCriticalEvent(event);
       event = tagFxaName(event, opts.serverName);

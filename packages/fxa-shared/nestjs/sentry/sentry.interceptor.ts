@@ -9,27 +9,78 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { Span, Transaction } from '@sentry/types';
+import {
+  catchError,
+  finalize,
+  Observable,
+  OperatorFunction,
+  tap,
+  throwError,
+} from 'rxjs';
+import { SentryService } from './sentry.service';
 import { ApolloError } from 'apollo-server';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { finalize } from 'rxjs/operators';
-
+import { MozLoggerService } from '../logger/logger.service';
+import { ExecuteCommandSessionConfigurationCommandString } from 'aws-sdk/clients/codecatalyst';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { processException } from './reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
+  constructor(
+    private sentryService: SentryService,
+    private log: MozLoggerService
+  ) {
+    this.log.info('sentry-interceptor', { msg: `!!! starting interceptor!` });
+  }
+
+  getRequest(context: ExecutionContext) {
+    // First try an http request
+    const httpRequest = context.switchToHttp().getRequest();
+    if (httpRequest) {
+      this.log.info('sentry-interceptor', { msg: '!!! http request found' });
+      return { request: httpRequest, type: 'http' };
+    }
+
+    // Fallback to gql
+    const gqlContext = GqlExecutionContext.create(context);
+    const gqlRequest = gqlContext.getContext()?.req;
+    if (gqlRequest) {
+      this.log.info('sentry-interceptor', { msg: '!!! gql request found' });
+      return { request: gqlRequest, type: 'gql' };
+    }
+
+    this.log.info('sentry-interceptor', { msg: '!!! not request found' });
+    return {
+      request: undefined,
+      type: undefined,
+    };
+  }
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    // If there is http context request start a transaction for it. Note that this will not
-    // pick up graphql queries
-    const req = context.switchToHttp().getRequest();
-    let transaction: Transaction;
-    if (req) {
-      transaction = Sentry.startTransaction({
+    this.log.info('sentry-interceptor', { msg: `!!! intercepting!`, context });
+    const { request, type } = this.getRequest(context);
+
+    let span: Sentry.Span | undefined;
+    if (request && type === 'http') {
+      span = this.sentryService.getRequestSpan(request, {
         op: 'nestjs.http',
-        name: `${context.switchToHttp().getRequest().method} ${
-          context.switchToHttp().getRequest().path
-        }`,
+        name: `${request.method} ${request.path}`,
+      });
+    }
+    if (request && type === 'gql') {
+      span = this.sentryService.getRequestSpan(request, {
+        op: 'nestjs.gql',
+        name: `${request.method} ${request.path}`,
+      });
+    }
+
+    if (span) {
+      this.log.info('sentry-interceptor', {
+        msg: `sentry span created!`,
+      });
+    } else {
+      this.log.info('sentry-interceptor', {
+        msg: 'could not create sentry span',
       });
     }
 
@@ -53,7 +104,13 @@ export class SentryInterceptor implements NestInterceptor {
         },
       }),
       finalize(() => {
-        transaction?.finish();
+        span?.finish();
+
+        if (span) {
+          this.log.info('sentry-interceptor', {
+            msg: `sentry span finalized!`,
+          });
+        }
       })
     );
   }

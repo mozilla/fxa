@@ -4,11 +4,8 @@
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-import * as tracing from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
 import { Request, Response } from 'express';
-import mozLog from 'mozlog';
 import bodyParser from 'body-parser';
 import { AppModule } from './app.module';
 import Config from './config';
@@ -17,12 +14,6 @@ import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 const appConfig = Config.getProperties();
 
 async function bootstrap() {
-  // Initialize tracing first
-  tracing.init(
-    appConfig.tracing,
-    mozLog(Config.getProperties().log)(Config.getProperties().log.app)
-  );
-
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;
@@ -77,9 +68,6 @@ async function bootstrap() {
     origin: appConfig.env === 'development' ? '*' : appConfig.corsOrigin,
     methods: ['OPTIONS', 'POST'],
   });
-
-  // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
 
   // Starts listening for shutdown hooks
   app.enableShutdownHooks();

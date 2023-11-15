@@ -39,7 +39,7 @@ describe('tracing exports', () => {
       },
       otel: {
         enabled: true,
-        url: 'http://localhost:4138/v1/traces',
+        url: 'http://0.0.0.0:4318/v1/traces',
         concurrencyLimit: 10,
       },
       gcp: {

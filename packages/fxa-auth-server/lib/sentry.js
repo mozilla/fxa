@@ -182,6 +182,7 @@ async function configureSentry(server, config, processName = 'key_server') {
 
     Sentry.init({
       ...opts,
+      instrumenter: 'otel',
       beforeSend(event, hint) {
         event = tagFxaName(event, opts.serverName);
         event = filterSentryEvent(event, hint);

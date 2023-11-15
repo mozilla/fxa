@@ -66,10 +66,8 @@ import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 
 async function bootstrap() {
   // app is initialized
-
   // Add sentry as error reporter
-  app.useGlobalInterceptors(new SentryInterceptor());
-
+  // app.useGlobalInterceptors(new SentryInterceptor());
   // remaining app setup
 }
 ```
@@ -87,18 +85,9 @@ const version = getVersionInfo(__dirname);
   imports: [
     // .. app imports ..
     SentryModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService<AppConfig>) => {
-        const sentry = configService.get('sentry');
-        return {
-          dsn: sentry.dsn,
-          environment: sentry.env,
-          serverName: sentry.serverName,
-          release: version.version,
-          sampleRate: sentry.sampleRate,
-        };
-      },
+      imports: [ConfigModule, LoggerModule],
+      inject: [ConfigService, MozLoggerService],
+      useFactory: SentryModule.init,
     }),
     // .. remaining imports, etc.
   ],

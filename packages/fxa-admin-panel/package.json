@@ -37,8 +37,8 @@
   },
   "dependencies": {
     "@apollo/client": "^3.4.5",
-    "@sentry/browser": "^7.66.0",
-    "@sentry/node": "^7.66.0",
+    "@sentry/browser": "^7.79.0",
+    "@sentry/node": "^7.79.0",
     "body-parser": "^1.20.1",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",

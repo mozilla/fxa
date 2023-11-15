@@ -19,7 +19,7 @@ then
     -p 43170:4317 \
     -p 43180:4318 \
     -p 14250:14250 \
-    jaegertracing/all-in-one:latest
+    jaegertracing/all-in-one:1.50
 else
   echo -e "Jaeger did not start, because it is not enabled. Set env TRACING_OTEL_EXPORTER_ENABLED=true to enable. Running Jaeger is optional! \n"
 fi

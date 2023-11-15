@@ -5,7 +5,10 @@
 import cors from './cors';
 import routing from './routing';
 
-export const express = () => ({
+export const express: () => {
+  cors: typeof cors;
+  routing: typeof routing;
+} = () => ({
   cors,
   routing,
 });

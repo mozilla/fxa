@@ -132,8 +132,10 @@ function SentryMetrics(config) {
 
   try {
     const opts = buildSentryConfig(config, this._logger);
+    opts.instrumenter = 'sentry';
     Sentry.init({
       ...opts,
+      instrumenter: 'sentry',
       integrations: [new Sentry.BrowserTracing()],
       beforeSend(event) {
         event = tagFxaName(event, opts.clientName);

@@ -132,8 +132,10 @@ module.exports = () => {
       },
       logger
     );
+
     Sentry.init({
       ...opts,
+      instrumenter: 'otel',
       beforeSend(event) {
         event = tagCriticalEvent(event);
         event = tagFxaName(event, opts.serverName);
