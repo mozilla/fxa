@@ -152,7 +152,7 @@
     "@storybook/addon-docs": "^7.0.23",
     "@storybook/addon-toolbars": "^7.0.23",
     "@storybook/html": "^7.5.2",
-    "@storybook/html-webpack5": "^7.0.23",
+    "@storybook/html-webpack5": "^7.5.3",
     "@types/async-retry": "^1",
     "@types/babel__core": "7.1.14",
     "@types/babel__preset-env": "^7",
