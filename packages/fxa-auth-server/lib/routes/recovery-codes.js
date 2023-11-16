@@ -12,7 +12,7 @@ const RECOVERY_CODES_DOCS =
 
 const RECOVERY_CODE_SANE_MAX_LENGTH = 20;
 
-module.exports = (log, db, config, customs, mailer) => {
+module.exports = (log, db, config, customs, mailer, glean) => {
   const codeConfig = config.recoveryCodes;
   const RECOVERY_CODE_COUNT = (codeConfig && codeConfig.count) || 8;
 
@@ -205,6 +205,7 @@ module.exports = (log, db, config, customs, mailer) => {
         log.info('account.recoveryCode.verified', { uid });
 
         await request.emitMetricsEvent('recoveryCode.verified', { uid });
+        glean.login.recoveryCodeSuccess(request, { uid });
 
         return { remaining };
       },

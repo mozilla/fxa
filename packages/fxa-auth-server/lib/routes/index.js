@@ -157,7 +157,8 @@ module.exports = function (
     db,
     config.totp,
     customs,
-    mailer
+    mailer,
+    glean
   );
   const recoveryKey = require('./recovery-key')(
     log,

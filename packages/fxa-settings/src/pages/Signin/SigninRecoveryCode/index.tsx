@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
@@ -16,6 +16,7 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import GleanMetrics from '../../../lib/glean';
 
 export type SigninRecoveryCodeProps = {
   email: string;
@@ -29,6 +30,9 @@ const SigninRecoveryCode = ({
   serviceName,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  useEffect(() => {
+    GleanMetrics.loginBackupCode.view();
+  }, []);
 
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -46,10 +50,18 @@ const SigninRecoveryCode = ({
     submitButtonText: 'Confirm',
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     try {
+      GleanMetrics.loginBackupCode.submit();
+
       // Check recovery code
       // Log success event
+      GleanMetrics.loginBackupCode.success();
+      // The await of isDone is not entirely necessary when we are not
+      // redirecting the user to an RP.  However at the time of implementation
+      // for the Glean ping the redirect logic has not been implemented.
+      await GleanMetrics.isDone();
+
       // Check if isForcePasswordChange
     } catch (e) {
       // TODO: error handling, error message confirmation
