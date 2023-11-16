@@ -42,6 +42,7 @@ export interface ConfirmSignupCodeBaseIntegration {
   type: IntegrationType;
   data: {
     uid: BaseIntegrationData['uid'];
+    redirectTo: BaseIntegrationData['redirectTo'];
   };
 }
 
@@ -49,6 +50,7 @@ export interface ConfirmSignupCodeOAuthIntegration {
   type: IntegrationType.OAuth;
   data: {
     uid: OAuthIntegrationData['uid'];
+    redirectTo: OAuthIntegrationData['redirectTo'];
   };
   getService: () => ReturnType<OAuthIntegration['getService']>;
   getRedirectUri: () => ReturnType<OAuthIntegration['getService']>;

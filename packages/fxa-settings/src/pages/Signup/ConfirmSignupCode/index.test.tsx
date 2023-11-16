@@ -11,10 +11,18 @@ import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account, AppContext } from '../../../models';
 import { mockAppContext } from '../../../models/mocks';
-import { MOCK_AUTH_ERROR, Subject } from './mocks';
+import {
+  MOCK_AUTH_ERROR,
+  MOCK_SIGNUP_CODE,
+  Subject,
+  createMockWebIntegration,
+} from './mocks';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
+import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { ConfirmSignupCodeIntegration } from './interfaces';
+import * as utils from 'fxa-react/lib/utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -38,6 +46,8 @@ jest.mock('../../../lib/glean', () => ({
   default: { signupConfirmation: { view: jest.fn(), submit: jest.fn() } },
 }));
 
+jest.mock('../../../lib/hooks/useWebRedirect');
+
 const MOCK_STORED_ACCOUNT: StoredAccountData = {
   uid: MOCK_UID,
   lastLogin: Date.now(),
@@ -59,10 +69,18 @@ jest.mock('../../../lib/storage-utils', () => ({
 
 let account: Account;
 
-function renderWithAccount(account: Account, newsletterSlugs?: string[]) {
+function renderWithAccount({
+  account,
+  newsletterSlugs,
+  integration,
+}: {
+  account: Account;
+  newsletterSlugs?: string[];
+  integration?: ConfirmSignupCodeIntegration;
+}) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <Subject {...{ newsletterSlugs }} />
+      <Subject {...{ newsletterSlugs, integration }} />
     </AppContext.Provider>
   );
 }
@@ -74,6 +92,15 @@ describe('ConfirmSignupCode page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+  const submit = (code = MOCK_SIGNUP_CODE) => {
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.input(codeInput, {
+      target: { value: code },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+  };
 
   beforeEach(() => {
     account = {
@@ -86,7 +113,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithAccount(account);
+    renderWithAccount({ account });
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -100,7 +127,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('emits a metrics event on render', async () => {
-    renderWithAccount(account);
+    renderWithAccount({ account });
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
     expect(GleanMetrics.signupConfirmation.view).toHaveBeenCalledTimes(1);
 
@@ -115,15 +142,9 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('emits a metrics event on successful form submission', async () => {
-    renderWithAccount(account);
+    renderWithAccount({ account });
+    submit();
 
-    const codeInput = screen.getByLabelText('Enter 6-digit code');
-    fireEvent.input(codeInput, {
-      target: { value: '123123' },
-    });
-
-    const submitButton = screen.getByRole('button', { name: 'Confirm' });
-    fireEvent.click(submitButton);
     await waitFor(() => {
       expect(logViewEvent).toHaveBeenCalledWith(
         `flow.${viewName}`,
@@ -135,15 +156,9 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('submits successfully without newsletters', async () => {
-    renderWithAccount(account);
+    renderWithAccount({ account });
+    submit();
 
-    const codeInput = screen.getByLabelText('Enter 6-digit code');
-    fireEvent.input(codeInput, {
-      target: { value: '123456' },
-    });
-
-    const submitButton = screen.getByRole('button', { name: 'Confirm' });
-    fireEvent.click(submitButton);
     await waitFor(() => {
       expect(account.verifySession).toHaveBeenCalled();
       expect(logViewEvent).toHaveBeenCalledTimes(3);
@@ -155,7 +170,6 @@ describe('ConfirmSignupCode page', () => {
         }
       );
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
 
@@ -163,18 +177,11 @@ describe('ConfirmSignupCode page', () => {
     // newsletter slugs are selected on the previous page
     // and received via location state as an a array of strings
     const mockNewsletterArray = ['mock-slug-1'];
-    renderWithAccount(account, mockNewsletterArray);
-    const mockCode = '123456';
+    renderWithAccount({ account, newsletterSlugs: mockNewsletterArray });
+    submit();
 
-    const codeInput = screen.getByLabelText('Enter 6-digit code');
-    fireEvent.input(codeInput, {
-      target: { value: mockCode },
-    });
-
-    const submitButton = screen.getByRole('button', { name: 'Confirm' });
-    fireEvent.click(submitButton);
     await waitFor(() => {
-      expect(account.verifySession).toHaveBeenCalledWith(mockCode, {
+      expect(account.verifySession).toHaveBeenCalledWith(MOCK_SIGNUP_CODE, {
         newsletters: mockNewsletterArray,
       });
       expect(logViewEvent).toHaveBeenCalledTimes(4);
@@ -187,6 +194,61 @@ describe('ConfirmSignupCode page', () => {
       );
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+    });
+  });
+
+  describe('Web integration on submission', () => {
+    const localizedErrorMessage = 'bloopity bleep';
+
+    let hardNavigateSpy: jest.SpyInstance;
+    beforeEach(() => {
+      hardNavigateSpy = jest
+        .spyOn(utils, 'hardNavigate')
+        .mockImplementation(() => {});
+    });
+
+    afterEach(() => {
+      hardNavigateSpy.mockRestore();
+    });
+
+    it('with valid redirectTo', async () => {
+      const redirectTo = 'surprisinglyValid!';
+      const integration = createMockWebIntegration({ redirectTo });
+      (useWebRedirect as jest.Mock).mockReturnValue({
+        isValid: () => true,
+        getLocalizedErrorMessage: () => localizedErrorMessage,
+      });
+      renderWithAccount({ account, integration });
+      submit();
+
+      await waitFor(() => {
+        expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo);
+      });
+    });
+
+    it('with invalid redirectTo', async () => {
+      const integration = createMockWebIntegration({
+        redirectTo: 'sadlyInvalid',
+      });
+      (useWebRedirect as jest.Mock).mockReturnValue({
+        isValid: () => false,
+        getLocalizedErrorMessage: () => localizedErrorMessage,
+      });
+      renderWithAccount({ account, integration });
+      submit();
+
+      await screen.findByText(localizedErrorMessage);
+    });
+
+    it('without redirectTo', async () => {
+      renderWithAccount({ account });
+      submit();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/settings', {
+          replace: true,
+        });
+      });
     });
   });
 });
@@ -203,7 +265,7 @@ describe('ConfirmSignupCode page with error states', () => {
   });
 
   it('renders an error tooltip when the form is submitted without a code', async () => {
-    renderWithAccount(account);
+    renderWithAccount({ account });
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
     fireEvent.change(codeInput, {
@@ -233,7 +295,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
       sendVerificationCode: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
 
-    renderWithAccount(account);
+    renderWithAccount({ account });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',
@@ -253,7 +315,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
       sendVerificationCode: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR),
     } as unknown as Account;
 
-    renderWithAccount(account);
+    renderWithAccount({ account });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',
