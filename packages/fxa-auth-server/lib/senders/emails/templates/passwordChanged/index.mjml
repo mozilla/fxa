@@ -9,7 +9,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="passwordChanged-description">Your Firefox account password was successfully changed from the following device:</span>
+      <span data-l10n-id="passwordChanged-description-2">Your Mozilla account password was successfully changed from the following device:</span>
     </mj-text>
   </mj-column>
 </mj-section>

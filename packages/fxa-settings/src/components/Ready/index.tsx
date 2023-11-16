@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
@@ -10,13 +10,14 @@ import { REACT_ENTRYPOINT } from '../../constants';
 import { HeartsVerifiedImage } from '../../components/images';
 import CardHeader from '../CardHeader';
 import Banner, { BannerType } from '../Banner';
+import { MozServices } from '../../lib/types';
+import GleanMetrics from '../../lib/glean';
 
 export type ReadyProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
   serviceName?: string;
   viewName: ViewNameType;
-  isSync?: boolean;
   errorMessage?: string;
 };
 
@@ -65,21 +66,24 @@ const Ready = ({
   continueHandler,
   errorMessage,
   isSignedIn,
-  isSync,
-  serviceName,
+  serviceName = MozServices.Default,
   viewName,
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  // TODO: Do we want to check isSyncDesktopIntegration instead?
+  // This component in general could use some clean up...
+  const isSync = serviceName === MozServices.FirefoxSync;
+
   const templateValues = getTemplateValues(viewName);
 
   const showReadyToUseService =
-    !isSync && isSignedIn && serviceName && serviceName !== 'account settings';
+    !isSync && isSignedIn && serviceName && serviceName !== MozServices.Default;
 
   const showReadyToUseSettings =
     !isSync &&
     isSignedIn &&
-    (!serviceName || serviceName === 'account settings');
+    (!serviceName || serviceName === MozServices.Default);
 
   const showAccountReady = !isSync && !isSignedIn;
 
@@ -89,6 +93,12 @@ const Ready = ({
     const FXA_PRODUCT_PAGE_URL = 'https://www.mozilla.org/firefox/accounts';
     navigate(FXA_PRODUCT_PAGE_URL, { replace: true });
   };
+
+  useEffect(() => {
+    if (viewName === 'reset-password-confirmed') {
+      GleanMetrics.resetPassword.createNewSuccess();
+    }
+  }, [viewName]);
 
   return (
     <>

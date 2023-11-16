@@ -1,4 +1,8 @@
-import { test, expect, newPages } from '../../lib/fixtures/standard';
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293407
@@ -53,7 +57,7 @@ test.describe('severity-1 #smoke', () => {
   });
 });
 
-test.describe('severity-3 #smoke', () => {
+test.describe('severity-2 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293501
   test('settings bento menu #1293501', async ({
     page,
@@ -64,29 +68,5 @@ test.describe('severity-3 #smoke', () => {
     await expect(settings.bentoMenu).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(settings.bentoMenu).toBeHidden();
-  });
-
-  // TODO in FXA-7419 - delete this test, no longer needed with new flow
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293423
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293440
-  test('settings data-trio component works #1293423 #1293440', async ({
-    credentials,
-    pages: { login, settings, recoveryKey },
-  }) => {
-    const config = await login.getConfig();
-    if (config.featureFlags.showRecoveryKeyV2 !== true) {
-      await settings.goto();
-      await settings.recoveryKey.clickCreate();
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
-      const dl = await recoveryKey.dataTrio.clickDownload();
-      expect(dl.suggestedFilename()).toBe(
-        `${credentials.email} Firefox account recovery key.txt`
-      );
-      const clipboard = await recoveryKey.dataTrio.clickCopy();
-      expect(clipboard).toEqual(await recoveryKey.getKey());
-      const printed = await recoveryKey.dataTrio.clickPrint();
-      expect(printed).toBe(true);
-    }
   });
 });

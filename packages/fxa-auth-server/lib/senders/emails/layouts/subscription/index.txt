@@ -1,3 +1,10 @@
+<% if (locals.brandMessagingMode == 'postlaunch') { %>
+brand-banner-message = "Did you know we changed our name from Firefox accounts to Mozilla accounts? Learn more"
+
+https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts
+
+<% } %>
+
 <%- body %>
 
 <% if (!locals.wasDeleted) { %>
@@ -5,17 +12,17 @@ subplat-automated-email = "This is an automated email; if you received it in err
 <% } %>
 
 <% if (locals.productName) { %>
-subplat-explainer-specific = "You’re receiving this email because <%- email %> has a Firefox account and you signed up for <%- productName %>."
+subplat-explainer-specific-2 = "You’re receiving this email because <%- email %> has a Mozilla account and you signed up for <%- productName %>."
 <% } else if (locals.reminderShortForm) { %>
-subplat-explainer-reminder-form = "You’re receiving this email because <%- email %> has a Firefox account."
+subplat-explainer-reminder-form-2 = "You’re receiving this email because <%- email %> has a Mozilla account."
 <% } else if (locals.wasDeleted) { %>
-subplat-explainer-was-deleted = "You’re receiving this email because <%- email %> was registered for a Firefox account."
+subplat-explainer-was-deleted-2 = "You’re receiving this email because <%- email %> was registered for a Mozilla account."
 <% } else { %>
-subplat-explainer-multiple = "You’re receiving this email because <%- email %> has a Firefox account and you have subscribed to multiple products."
+subplat-explainer-multiple-2 = "You’re receiving this email because <%- email %> has a Mozilla account and you have subscribed to multiple products."
 <% } %>
 
 <% if (!locals.reminderShortForm && !locals.wasDeleted) { %>
-subplat-manage-account-plaintext = "Manage your Firefox account settings by visiting your account: <%- accountSettingsUrl %>"
+subplat-manage-account-plaintext-2 = "Manage your Mozilla account settings by visiting your account: <%- accountSettingsUrl %>"
 <% if (locals.productName || locals.subscriptions?.length > 0) { %>
 subplat-terms-policy-plaintext = "Terms and cancellation policy:"
 <%- subscriptionTermsUrl %>
@@ -37,10 +44,10 @@ subplat-update-billing-plaintext = "Update billing information:"
 <%- updateBillingUrl %>
 <% } %>
 <% } else { %>
-subplat-privacy-policy-plaintext = "Mozilla Privacy Policy:"
+subplat-privacy-policy-plaintext-2 = "Mozilla Accounts Privacy Notice:"
 <%- privacyUrl %>
 
-subplat-cloud-terms-plaintext = "Firefox Cloud Terms Of Service:"
+subplat-moz-terms-plaintext = "Mozilla Accounts Terms Of Service:"
 <%- subscriptionTermsUrl %>
 <% } %>
 

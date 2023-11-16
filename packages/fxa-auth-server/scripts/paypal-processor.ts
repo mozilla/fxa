@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import program from 'commander';
 import { StatsD } from 'hot-shots';
+import * as Sentry from '@sentry/node';
 import Redis from 'ioredis';
 import Redlock, { RedlockAbortSignal } from 'redlock';
 import Container from 'typedi';
@@ -17,6 +18,8 @@ const pckg = require('../package.json');
 const config = require('../config').default.getProperties();
 const PAYPAL_PROCESSOR_LOCK = 'fxa-paypal-processor-lock';
 const DEFAULT_LOCK_DURATION_MS = 300000;
+
+Sentry.init({});
 
 export async function init() {
   // Load program options
@@ -115,12 +118,29 @@ export async function init() {
 
 if (require.main === module) {
   let exitStatus = 1;
+  const checkInId = Sentry.captureCheckIn({
+    monitorSlug: 'paypal-processsor',
+    status: 'in_progress',
+  });
   init()
     .then((result) => {
       exitStatus = result;
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'paypal-processsor',
+        status: 'ok',
+      });
     })
     .catch((err) => {
       console.error(err);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'paypal-processsor',
+        status: 'error',
+      });
+    })
+    .then(() => {
+      return Sentry.close(2000);
     })
     .finally(() => {
       process.exit(exitStatus);

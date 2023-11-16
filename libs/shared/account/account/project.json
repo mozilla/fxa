@@ -12,7 +12,7 @@
         "outputPath": "dist/libs/shared/account/account",
         "tsConfig": "libs/shared/account/account/tsconfig.lib.json",
         "packageJson": "libs/shared/account/account/package.json",
-        "main": "libs/shared/account/account/src/index.ts",
+        "main": "libs/shared/account/account/libs/shared/account/account/src/index.ts",
         "assets": ["libs/shared/account/account/*.md"]
       }
     },
@@ -20,9 +20,7 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": [
-          "libs/shared/account/account/**/*.ts"
-        ]
+        "lintFilePatterns": ["libs/shared/account/account/**/*.ts"]
       }
     },
     "test-integration": {

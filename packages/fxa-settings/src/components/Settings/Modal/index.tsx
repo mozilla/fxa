@@ -63,7 +63,7 @@ export const Modal = ({
         <div
           data-testid="modal-content-container"
           className={classNames(
-            'max-w-md bg-white mx-auto rounded-xl',
+            'max-w-md bg-white mx-auto rounded-xl border border-transparent',
             className
           )}
           ref={modalInsideRef}
@@ -73,64 +73,65 @@ export const Modal = ({
             ref={tabFenceRef}
             data-testid="modal-tab-fence"
             className="outline-none"
-          />
-          <div className="flex justify-end pe-2 py-2">
-            <button
-              data-testid="modal-dismiss"
-              onClick={(event) => onDismiss()}
-              title={ftlMsgResolver.getMsg('modal-close-title', 'Close')}
-            >
-              <CloseIcon className="w-4 h-4 m-3" role="img" />
-            </button>
-          </div>
-
-          <div
-            aria-describedby={descId}
-            aria-labelledby={headerId}
-            className="px-6 tablet:px-10 pb-10"
-            data-testid="modal-information"
-            role="dialog"
           >
-            {children}
+            <div className="flex justify-end pe-2 py-2">
+              <button
+                data-testid="modal-dismiss"
+                onClick={(event) => onDismiss()}
+                title={ftlMsgResolver.getMsg('modal-close-title', 'Close')}
+              >
+                <CloseIcon className="w-4 h-4 m-3 fill-current" />
+              </button>
+            </div>
 
-            {hasButtons && (
-              <div className="flex justify-center mx-auto mt-6 max-w-64">
-                {hasCancelButton && (
-                  <FtlMsg id="modal-cancel-button">
-                    <button
-                      className="cta-neutral mx-2 flex-1 cta-base-p"
-                      data-testid="modal-cancel"
-                      onClick={(event) => onDismiss()}
+            <div
+              aria-describedby={descId}
+              aria-labelledby={headerId}
+              className="px-6 tablet:px-10 pb-10"
+              data-testid="modal-information"
+              role="dialog"
+            >
+              {children}
+
+              {hasButtons && (
+                <div className="flex justify-center mx-auto mt-6 max-w-64">
+                  {hasCancelButton && (
+                    <FtlMsg id="modal-cancel-button">
+                      <button
+                        className="cta-neutral mx-2 flex-1 cta-base-p"
+                        data-testid="modal-cancel"
+                        onClick={(event) => onDismiss()}
+                      >
+                        Cancel
+                      </button>
+                    </FtlMsg>
+                  )}
+
+                  {route && (
+                    <Link
+                      className={classNames('mx-2 flex-1', confirmBtnClassName)}
+                      data-testid="modal-confirm"
+                      to={`${route}${location.search}`}
                     >
-                      Cancel
+                      {confirmText || localizedDefaultConfirmText}
+                    </Link>
+                  )}
+
+                  {onConfirm && (
+                    <button
+                      className={classNames('mx-2 flex-1', confirmBtnClassName)}
+                      data-testid="modal-confirm"
+                      onClick={(event) => {
+                        onConfirm();
+                      }}
+                      disabled={isLoading}
+                    >
+                      {confirmText || localizedDefaultConfirmText}
                     </button>
-                  </FtlMsg>
-                )}
-
-                {route && (
-                  <Link
-                    className={classNames('mx-2 flex-1', confirmBtnClassName)}
-                    data-testid="modal-confirm"
-                    to={`${route}${location.search}`}
-                  >
-                    {confirmText || localizedDefaultConfirmText}
-                  </Link>
-                )}
-
-                {onConfirm && (
-                  <button
-                    className={classNames('mx-2 flex-1', confirmBtnClassName)}
-                    data-testid="modal-confirm"
-                    onClick={(event) => {
-                      onConfirm();
-                    }}
-                    disabled={isLoading}
-                  >
-                    {confirmText || localizedDefaultConfirmText}
-                  </button>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -23,6 +23,8 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
+const { CapabilityManager } = require('@fxa/payments/capability');
+
 const validClients = config.oauthServer.clients.filter(
   (client) => client.trusted && client.canGrant && client.publicClient
 );
@@ -50,6 +52,7 @@ describe('#integration - remote subscriptions:', function () {
     const mockStripeHelper = {};
     const mockPlaySubscriptions = {};
     const mockAppStoreSubscriptions = {};
+    const mockCapabilityManager = {};
     const mockProfileClient = {};
 
     before(async () => {
@@ -104,6 +107,8 @@ describe('#integration - remote subscriptions:', function () {
       Container.set(ProfileClient, mockProfileClient);
       Container.remove(CapabilityService);
       Container.set(CapabilityService, new CapabilityService());
+      mockCapabilityManager.getClients = () => {};
+      Container.set(CapabilityManager, mockCapabilityManager);
 
       server = await testServerFactory.start(config, false, {
         authServerMockDependencies: {

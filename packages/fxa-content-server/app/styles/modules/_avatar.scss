@@ -67,6 +67,18 @@
       width: 50px;
     }
   }
+
+  .avatar-image {
+    @include respond-to('big') {
+      height: 64px;
+      width: 64px;
+    }
+
+    @include respond-to('small') {
+      height: 50px;
+      width: 50px;
+    }
+  }
 }
 
 #done {

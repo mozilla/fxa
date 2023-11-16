@@ -8,11 +8,10 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "rootDir": ".",
         "outputPath": "dist/libs/shared/db/mysql/account",
         "tsConfig": "libs/shared/db/mysql/account/tsconfig.lib.json",
         "packageJson": "libs/shared/db/mysql/account/package.json",
-        "main": "libs/shared/db/mysql/account/libs/shared/db/mysql/account/src/index.ts",
+        "main": "libs/shared/db/mysql/account/src/index.ts",
         "assets": ["libs/shared/db/mysql/account/*.md"]
       }
     },

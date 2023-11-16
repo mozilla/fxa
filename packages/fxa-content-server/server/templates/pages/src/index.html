@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-        <title>{{#t}}Firefox Accounts{{/t}}</title>
+        <title>{{#t}}Mozilla accounts{{/t}}</title>
         <meta name="description" content="" />
         <meta name="referrer" content="origin" />
         <meta name="robots" content="noindex,nofollow" />
@@ -28,6 +28,8 @@
         data-flow-begin="{{flowBeginTime}}"
         data-static-resource-host="{{{staticResourceUrl}}}"
     >
+        <div id="body-top" role="banner" class="w-full"></div>
+
         <div id="loading-spinner">
             <img
                 alt="{{#t}}Loading{{/t}}"
@@ -35,31 +37,30 @@
             />
         </div>
 
-        <div class="hidden mobileLandscape:block">
-        </div>
-
+        <header class="mozilla-header">
+            <a
+            id="about-mozilla"
+            rel="author"
+            target="_blank"
+            href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+            aria-label="{{#t}}Mozilla logo{{/t}}"
+            ></a>
+        </header>
 
         <div id="stage">
             <div id="main-content" class="card"></div>
         </div>
 
-        <div id="static-footer">
-            <a
-                id="about-mozilla"
-                rel="author"
-                target="_blank"
-                href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-            ></a>
-        </div>
-
-        <div class="block mobileLandscape:hidden">
-        </div>
+        <div id="body-bottom" role="banner" class="w-full mt-12"></div>
 
         <noscript>
-            {{#t}}Firefox Accounts requires JavaScript.{{/t}}
+            {{#t}}Mozilla accounts require JavaScript.{{/t}}
         </noscript>
 
         <script type="text/javascript" src="{{ bundlePath }}/appDependencies.bundle.js"></script>
         <script type="text/javascript" src="{{ bundlePath }}/app.bundle.js"></script>
     </body>
+<!-- Old L10N Strings - TBR
+{{#t}}Firefox Accounts requires JavaScript.{{/t}}
+-->
 </html>

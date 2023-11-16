@@ -125,8 +125,13 @@ const serviceLogos: {
 // export const POCKET_CLIENTIDS = [
 //   '7377719276ad44ee', // pocket-mobile
 //   '749818d3f2e7857f', // pocket-web
-//   'dcdb5ae7add825d2', // pocket-web
 // ];
+// This also applies to Monitor
+// export const MONITOR_CLIENTIDS = [
+// '802d56ef2a9af9fa', // Firefox Monitor
+// '946bfd23df91404c', // Firefox Monitor stage
+// 'edd29a80019d61a1', // Firefox Monitor local dev
+// };
 
 const CardHeader = (props: CardHeaderProps) => {
   const { headingText } = props;
@@ -223,7 +228,7 @@ const CardHeader = (props: CardHeaderProps) => {
 
   if (isBasicWithDefaultSubheading(props)) {
     const spanElem = (
-      <span className="card-subheader">for your Firefox account</span>
+      <span className="card-subheader">for your Mozilla account</span>
     );
     return (
       <FtlMsg id={props.headingAndSubheadingFtlId} elems={{ span: spanElem }}>

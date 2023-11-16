@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import GleanMetrics from '../../../lib/glean';
 import { Account, IntegrationType } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -17,13 +18,14 @@ import {
   paramsWithSyncDesktop,
   Subject,
 } from './mocks';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import firefox from '../../../lib/channels/firefox';
 import {
   createAppContext,
   createHistoryWithQuery,
   mockAppContext,
   renderWithRouter,
 } from '../../../models/mocks';
+import { MOCK_RESET_TOKEN } from '../../mocks';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
@@ -41,8 +43,16 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    resetPassword: { createNewView: jest.fn(), createNewSubmit: jest.fn() },
+  },
+}));
+
 let account: Account;
 let lostRecoveryKey: boolean;
+let accountResetToken: string | undefined;
 const mockNavigate = jest.fn();
 
 const mockSearchParams = {
@@ -61,15 +71,10 @@ const mockLocation = () => {
     search,
     state: {
       lostRecoveryKey,
+      accountResetToken,
     },
   };
 };
-
-jest.mock('../../../lib/channels/helpers', () => {
-  return {
-    notifyFirefoxOfLogin: jest.fn(),
-  };
-});
 
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
@@ -111,6 +116,8 @@ describe('CompleteResetPassword page', () => {
       hasTotpAuthClient: jest.fn().mockResolvedValue(false),
       isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
+
+    (GleanMetrics.resetPassword.createNewView as jest.Mock).mockReset();
   });
 
   afterEach(() => {
@@ -191,6 +198,7 @@ describe('CompleteResetPassword page', () => {
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
     it('with missing code', async () => {
       render(<Subject params={paramsWithMissingCode} />, account);
@@ -199,6 +207,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
     it('with missing email', async () => {
       render(<Subject params={paramsWithMissingEmail} />, account);
@@ -207,6 +216,7 @@ describe('CompleteResetPassword page', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.createNewView).not.toBeCalled();
     });
   });
 
@@ -222,6 +232,7 @@ describe('CompleteResetPassword page', () => {
       'complete-reset-password',
       REACT_ENTRYPOINT
     );
+    expect(GleanMetrics.resetPassword.createNewView).toBeCalledTimes(1);
   });
 
   describe('errors', () => {
@@ -344,6 +355,7 @@ describe('CompleteResetPassword page', () => {
       ).toBeTruthy();
       expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
       expect(account.hasTotpAuthClient).toHaveBeenCalled();
+      expect(GleanMetrics.resetPassword.createNewSubmit).toBeCalledTimes(1);
     });
 
     it('submits with emailToHashWith if present', async () => {
@@ -355,7 +367,8 @@ describe('CompleteResetPassword page', () => {
         token,
         code,
         emailToHashWith,
-        PASSWORD
+        PASSWORD,
+        undefined
       );
     });
     it('submits with email if emailToHashWith is missing', async () => {
@@ -367,7 +380,24 @@ describe('CompleteResetPassword page', () => {
         token,
         code,
         email,
-        PASSWORD
+        PASSWORD,
+        undefined
+      );
+    });
+
+    it('submits with accountResetToken if available', async () => {
+      lostRecoveryKey = true;
+      accountResetToken = MOCK_RESET_TOKEN;
+      render(<Subject />, account);
+      const { token, emailToHashWith, code } = mockCompleteResetPasswordParams;
+
+      await enterPasswordAndSubmit();
+      expect(account.completeResetPassword).toHaveBeenCalledWith(
+        token,
+        code,
+        emailToHashWith,
+        PASSWORD,
+        MOCK_RESET_TOKEN
       );
     });
 
@@ -386,19 +416,7 @@ describe('CompleteResetPassword page', () => {
         window.location = originalWindow;
       });
 
-      it('account has TOTP', async () => {
-        account = {
-          ...account,
-          hasTotpAuthClient: jest.fn().mockResolvedValue(true),
-        } as unknown as Account;
-
-        render(<Subject />, account);
-        await enterPasswordAndSubmit();
-
-        expect(window.location.href).toContain('/signin_totp_code');
-      });
-
-      it('account does not have TOTP', async () => {
+      it('navigates to reset_password_verified', async () => {
         render(<Subject />, account);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
@@ -410,7 +428,11 @@ describe('CompleteResetPassword page', () => {
       });
     });
     describe('SyncDesktop integration', () => {
-      it('calls notifyFirefoxOfLogin', async () => {
+      it('calls fxaLoginSignedInUser', async () => {
+        const fxaLoginSignedInUserSpy = jest.spyOn(
+          firefox,
+          'fxaLoginSignedInUser'
+        );
         render(
           <Subject
             integrationType={IntegrationType.SyncDesktop}
@@ -420,7 +442,7 @@ describe('CompleteResetPassword page', () => {
         );
         await enterPasswordAndSubmit();
 
-        expect(notifyFirefoxOfLogin).toBeCalled();
+        expect(fxaLoginSignedInUserSpy).toBeCalled();
       });
     });
   });

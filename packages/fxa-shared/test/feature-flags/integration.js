@@ -15,7 +15,7 @@ describe('#integration - featureFlags integration:', () => {
       interval: 10000,
       host: process.env.REDIS_HOST || 'localhost',
       port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD || 'fxa123',
+      password: process.env.REDIS_PASSWORD || '',
     };
     log = { info() {}, warn() {}, error() {} };
     featureFlags = initialise(config, log, {});

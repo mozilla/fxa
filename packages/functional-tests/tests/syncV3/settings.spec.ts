@@ -12,120 +12,122 @@ let syncBrowserPages;
 
 test.describe.configure({ mode: 'parallel' });
 
-test.describe('Firefox Desktop Sync v3 settings', () => {
-  test.beforeEach(async ({ target }) => {
-    test.slow();
-    syncBrowserPages = await newPagesForSync(target);
-    const { login, connectAnotherDevice, page } = syncBrowserPages;
-    email = login.createEmail('sync{id}');
-    await target.auth.signUp(email, firstPassword, {
-      lang: 'en',
-      preVerified: 'true',
+test.describe('severity-2 #smoke', () => {
+  test.describe('Firefox Desktop Sync v3 settings', () => {
+    test.beforeEach(async ({ target }) => {
+      test.slow();
+      syncBrowserPages = await newPagesForSync(target);
+      const { login, connectAnotherDevice, page } = syncBrowserPages;
+      email = login.createEmail('sync{id}');
+      await target.auth.signUp(email, firstPassword, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      const customEventDetail = createCustomEventDetail(
+        FirefoxCommand.LinkAccount,
+        {
+          ok: true,
+        }
+      );
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
+      );
+      await login.respondToWebChannelMessage(customEventDetail);
+      await login.fillOutEmailFirstSignIn(email, firstPassword);
+      await login.waitForSignInCodeHeader();
+
+      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+      await login.fillOutSignInCode(email);
+      await login.checkWebChannelMessage(FirefoxCommand.Login);
+      expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
     });
-    const customEventDetail = createCustomEventDetail(
-      FirefoxCommand.LinkAccount,
-      {
-        ok: true,
+
+    test.afterEach(async ({ target }, test) => {
+      await syncBrowserPages.browser?.close();
+      if (email) {
+        // Cleanup any accounts created during the test
+        try {
+          await target.auth.accountDestroy(email, secondPassword);
+        } catch (e) {
+          // Handle the error here
+          console.error('An error occurred during account cleanup:', e);
+          // Optionally, rethrow the error to propagate it further
+          throw e;
+        }
       }
-    );
-    await page.goto(
-      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-    );
-    await login.respondToWebChannelMessage(customEventDetail);
-    await login.fillOutEmailFirstSignIn(email, firstPassword);
-    await login.waitForSignInCodeHeader();
-
-    await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-    await login.fillOutSignInCode(email);
-    await login.checkWebChannelMessage(FirefoxCommand.Login);
-    expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
-  });
-
-  test.afterEach(async ({ target }, test) => {
-    await syncBrowserPages.browser?.close();
-    if (email) {
-      // Cleanup any accounts created during the test
-      try {
-        await target.auth.accountDestroy(email, secondPassword);
-      } catch (e) {
-        // Handle the error here
-        console.error('An error occurred during account cleanup:', e);
-        // Optionally, rethrow the error to propagate it further
-        throw e;
-      }
-    }
-  });
-
-  test('sign in, change the password', async ({ target }) => {
-    const { changePassword, settings, page } = syncBrowserPages;
-
-    //Goto settings sync url
-    await page.goto(
-      `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
-    );
-
-    //Change password
-    await settings.password.clickChange();
-    await changePassword.fillOutChangePassword(firstPassword, secondPassword);
-    await changePassword.submit();
-
-    //Verify success message
-    expect(await changePassword.changePasswordSuccess()).toContain(
-      'Password updated'
-    );
-  });
-
-  test('sign in, change the password by browsing directly to settings', async ({
-    target,
-  }) => {
-    const { login, changePassword, settings } = syncBrowserPages;
-
-    //Goto settings non-sync url
-    await settings.goto();
-
-    //Change password
-    await settings.password.clickChange();
-    await login.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
-    await changePassword.fillOutChangePassword(firstPassword, secondPassword);
-    await changePassword.submit();
-
-    //Verify success message
-    expect(await changePassword.changePasswordSuccess()).toContain(
-      'Password updated'
-    );
-  });
-});
-
-test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
-  test('sign in, delete the account', async ({ target }) => {
-    syncBrowserPages = await newPagesForSync(target);
-    const { login, settings, deleteAccount, page } = syncBrowserPages;
-    test.slow();
-    email = login.createEmail('sync{id}');
-    await target.auth.signUp(email, firstPassword, {
-      lang: 'en',
-      preVerified: 'true',
     });
-    await page.goto(
-      `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
-    );
-    await login.fillOutEmailFirstSignIn(email, firstPassword);
-    await login.fillOutSignInCode(email);
 
-    //Go to setting page
-    await page.goto(
-      `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
-    );
-    //Click Delete account
-    await settings.clickDeleteAccount();
-    await deleteAccount.checkAllBoxes();
-    await deleteAccount.clickContinue();
+    test('sign in, change the password', async ({ target }) => {
+      const { changePassword, settings, page } = syncBrowserPages;
 
-    //Enter password
-    await deleteAccount.setPassword(firstPassword);
-    await deleteAccount.submit();
+      //Goto settings sync url
+      await page.goto(
+        `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
+      );
 
-    const success = await page.waitForSelector('.success');
-    expect(await success.isVisible()).toBeTruthy();
+      //Change password
+      await settings.password.clickChange();
+      await changePassword.fillOutChangePassword(firstPassword, secondPassword);
+      await changePassword.submit();
+
+      //Verify success message
+      expect(await changePassword.changePasswordSuccess()).toContain(
+        'Password updated'
+      );
+    });
+
+    test('sign in, change the password by browsing directly to settings', async ({
+      target,
+    }) => {
+      const { login, changePassword, settings } = syncBrowserPages;
+
+      //Goto settings non-sync url
+      await settings.goto();
+
+      //Change password
+      await settings.password.clickChange();
+      await login.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
+      await changePassword.fillOutChangePassword(firstPassword, secondPassword);
+      await changePassword.submit();
+
+      //Verify success message
+      expect(await changePassword.changePasswordSuccess()).toContain(
+        'Password updated'
+      );
+    });
+  });
+
+  test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
+    test('sign in, delete the account', async ({ target }) => {
+      syncBrowserPages = await newPagesForSync(target);
+      const { login, settings, deleteAccount, page } = syncBrowserPages;
+      test.slow();
+      email = login.createEmail('sync{id}');
+      await target.auth.signUp(email, firstPassword, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
+      );
+      await login.fillOutEmailFirstSignIn(email, firstPassword);
+      await login.fillOutSignInCode(email);
+
+      //Go to setting page
+      await page.goto(
+        `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
+      );
+      //Click Delete account
+      await settings.clickDeleteAccount();
+      await deleteAccount.checkAllBoxes();
+      await deleteAccount.clickContinue();
+
+      //Enter password
+      await deleteAccount.setPassword(firstPassword);
+      await deleteAccount.submit();
+
+      const success = await page.waitForSelector('.success');
+      expect(await success.isVisible()).toBeTruthy();
+    });
   });
 });

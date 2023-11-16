@@ -20,6 +20,8 @@ export async function getContentfulContent(offering: string, locale: string) {
   const commonContent = {
     cancellationUrl: contentfulCommonContent.cancellationUrl,
     emailIcon: contentfulCommonContent.emailIcon,
+    newsletterLabelTextCode: contentfulCommonContent.newsletterLabelTextCode,
+    newsletterSlug: contentfulCommonContent.newsletterSlug,
     privacyNoticeDownloadUrl: contentfulCommonContent.privacyNoticeDownloadUrl,
     privacyNoticeUrl: contentfulCommonContent.privacyNoticeUrl,
     successActionButtonLabel: contentfulCommonContent.successActionButtonLabel,

@@ -18,7 +18,7 @@ import {
   mockAppContext,
   renderWithRouter,
 } from '../../../models/mocks';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import firefox from '../../../lib/channels/firefox';
 import {
   MOCK_LOCATION_STATE,
   MOCK_RESET_DATA,
@@ -36,12 +36,6 @@ jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
   __esModule: true,
   default: () => mockUseNavigateWithoutRerender,
 }));
-
-jest.mock('../../../lib/channels/helpers', () => {
-  return {
-    notifyFirefoxOfLogin: jest.fn(),
-  };
-});
 
 // TODO: better mocking here. LinkValidator sends `params` into page components and
 // we mock those params sent to page components... we want to do these validation
@@ -100,12 +94,7 @@ const render = (ui = <Subject />, account = mockAccount()) => {
 
 const Subject = ({
   integration = createMockAccountRecoveryResetPasswordSyncDesktopIntegration(),
-}) => (
-  <AccountRecoveryResetPassword
-    {...{ integration }}
-    finishOAuthFlowHandler={() => Promise.resolve({ redirect: 'someUri' })}
-  />
-);
+}) => <AccountRecoveryResetPassword {...{ integration }} />;
 
 describe('AccountRecoveryResetPassword page', () => {
   let account = mockAccount();
@@ -261,8 +250,6 @@ describe('AccountRecoveryResetPassword page', () => {
       expect(
         (account.resetPasswordWithRecoveryKey as jest.Mock).mock.calls[0]
       ).toBeTruthy();
-      expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
-      expect(account.hasTotpAuthClient).toHaveBeenCalled();
     });
 
     it('sets integration state', () => {
@@ -276,6 +263,7 @@ describe('AccountRecoveryResetPassword page', () => {
   describe('successful reset, SyncDesktop integration', () => {
     let integration: AccountRecoveryResetPasswordBaseIntegration;
     // TODO: share setup code with successful reset
+    let fxaLoginSignedInUserSpy: jest.SpyInstance;
     beforeEach(async () => {
       integration =
         createMockAccountRecoveryResetPasswordSyncDesktopIntegration();
@@ -284,6 +272,7 @@ describe('AccountRecoveryResetPassword page', () => {
         .mockResolvedValue(MOCK_RESET_DATA);
       account.isSessionVerifiedAuthClient = jest.fn();
       account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
+      fxaLoginSignedInUserSpy = jest.spyOn(firefox, 'fxaLoginSignedInUser');
 
       render(<Subject {...{ integration }} />, account);
       await enterPassword('foo12356789!');
@@ -293,9 +282,9 @@ describe('AccountRecoveryResetPassword page', () => {
     it('sets integration resetPasswordConfirm state', () => {
       expect(integration.data.resetPasswordConfirm).toBeTruthy();
     });
-    it('calls notifyFirefoxOfLogin', () => {
+    it('calls fxaLoginSignedInUserSpy', () => {
       expect(integration.type).toEqual(IntegrationType.SyncDesktop);
-      expect(notifyFirefoxOfLogin).toHaveBeenCalled();
+      expect(fxaLoginSignedInUserSpy).toHaveBeenCalled();
     });
   });
 
@@ -306,36 +295,6 @@ describe('AccountRecoveryResetPassword page', () => {
           MOCK_SEARCH_PARAMS
         ).toString()}`
       );
-    });
-  });
-
-  describe('successful reset with totp', () => {
-    // Window mocks not needed once this page doesn't use `hardNavigateToContentServer`
-    const originalWindow = window.location;
-    beforeAll(() => {
-      // @ts-ignore
-      delete window.location;
-      window.location = { ...originalWindow, href: '' };
-    });
-    beforeEach(async () => {
-      window.location.href = originalWindow.href;
-      account.setLastLogin = jest.fn();
-      account.resetPasswordWithRecoveryKey = jest
-        .fn()
-        .mockResolvedValue(MOCK_RESET_DATA);
-      account.isSessionVerifiedAuthClient = jest.fn();
-      account.hasTotpAuthClient = jest.fn().mockResolvedValue(true);
-      render(<Subject />, account);
-
-      await enterPassword('foo12356789!');
-      await clickResetPassword();
-    });
-    afterAll(() => {
-      window.location = originalWindow;
-    });
-
-    it('navigates as expected', async () => {
-      expect(window.location.href).toContain('/signin_totp_code');
     });
   });
 

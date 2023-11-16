@@ -101,7 +101,6 @@ export const FlowRecoveryKeyInfo = ({
 
       {action === RecoveryKeyAction.Change && (
         <FtlMsg id="flow-recovery-key-info-cancel-link">
-          {/* TODO: Remove feature flag param in FXA-7419 */}
           <Link
             className="link-blue text-sm mx-auto mt-4"
             to={HomePath}

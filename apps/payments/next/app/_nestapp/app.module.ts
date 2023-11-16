@@ -15,8 +15,14 @@ import { RootConfig } from './config';
     TypedConfigModule.forRoot({
       schema: RootConfig,
       load: [
-        dotenvLoader({ separator: '__', ignoreEnvFile: true }),
         fileLoader(),
+        dotenvLoader({
+          separator: '__',
+          keyTransformer: (key) =>
+            key
+              .toLowerCase()
+              .replace(/(?<!_)_([a-z])/g, (_, p1) => p1.toUpperCase()),
+        }),
       ],
     }),
   ],

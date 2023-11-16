@@ -10,6 +10,10 @@ module.exports = {
     },
   },
   transform: {
-    "fxa-shared/*": [ "ts-jest", { "isolatedModules": true } ]
+    "fxa-shared/*": [ "ts-jest", { "isolatedModules": true } ],
+    "libs/shared/l10n/src": [ "ts-jest", { "isolatedModules": true } ],
+  },
+  moduleNameMapper: {
+    "@fxa/shared/l10n": "../../../libs/shared/l10n/src",
   }
 };

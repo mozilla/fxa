@@ -8,8 +8,6 @@ import popularDomains from './email/popularDomains.json';
 import BaseGroupingRule from './experiments/base';
 import express from './express';
 import featureFlags from './feature-flags';
-import { localizeTimestamp } from './l10n/localizeTimestamp';
-import supportedLanguages from './l10n/supportedLanguages.json';
 import amplitude from './metrics/amplitude';
 import flowPerformance from './metrics/flow-performance';
 import navigationTimingSchema from './metrics/navigation-timing-validation';
@@ -33,10 +31,6 @@ module.exports = {
   },
   express,
   featureFlags,
-  l10n: {
-    localizeTimestamp,
-    supportedLanguages,
-  },
   metrics: {
     amplitude,
     flowPerformance,

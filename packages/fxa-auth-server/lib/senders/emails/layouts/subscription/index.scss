@@ -43,9 +43,8 @@
   @extend .mb-6;
 }
 
-.fxa-logo-firefox {
+.subplat-mozilla-logo {
   padding: global.$s-5 global.$s-0 !important;
-  height: 56px !important;
   display: block !important;
 
   // overrides the 13px inline font-size default for MJML images
@@ -55,7 +54,7 @@
   }
 }
 
-.mozilla-logo {
+.mozilla-logo-footer {
   padding: global.$s-8 global.$s-0 !important;
   height: 34px !important;
   display: block !important;

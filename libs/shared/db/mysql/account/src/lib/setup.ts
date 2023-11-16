@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Kysely } from 'kysely';
 
-import { createDialect, MySQLConfig } from '../../../core/src';
+import { createDialect, MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { DB } from './keysley-types';
 
 export type AccountDatabase = Kysely<DB>;

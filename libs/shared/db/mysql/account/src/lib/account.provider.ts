@@ -4,7 +4,7 @@
 
 import { Provider } from '@nestjs/common';
 
-import { MySQLConfig } from '../../../core/src';
+import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import {
   AccountDatabase,
   AccountDbProvider,

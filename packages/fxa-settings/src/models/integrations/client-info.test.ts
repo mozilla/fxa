@@ -23,14 +23,13 @@ describe('models/integrations/client-info', function () {
     data.set('image_uri', 'https://redirect.to/foo/profile/bar.png');
     data.set('name', 'foo');
     data.set('redirect_uri', 'https://redirect.to');
-    data.set('trusted', true);
+    data.set('trusted', 'true');
 
     expect(model.clientId).toEqual('123ABC');
     expect(model.imageUri).toEqual('https://redirect.to/foo/profile/bar.png');
     expect(model.serviceName).toEqual('foo');
     expect(model.redirectUri).toEqual('https://redirect.to');
     expect(model.trusted).toEqual(true);
-    expect(model.clientId).toEqual('123ABC');
   });
 
   it('validates', () => {

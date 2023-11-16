@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="newDeviceLogin-title-2">Your Firefox account was used to sign in</span>
+      <span data-l10n-id="newDeviceLogin-title-3">Your Mozilla account was used to sign in</span>
     </mj-text>
   </mj-column>
 </mj-section>

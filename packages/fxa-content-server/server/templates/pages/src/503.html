@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>{{#t}}Firefox Accounts{{/t}}</title>
+    <title>{{#t}}Mozilla accounts{{/t}}</title>
     <meta name="description" content="" />
     <meta
       name="viewport"
@@ -12,22 +12,36 @@
     <meta name="referrer" content="origin" />
     <meta name="robots" content="noindex,nofollow" />
 
-    <!-- build:css(.tmp) /styles/main.css -->
-    <link rel="stylesheet" href="/styles/main.css" />
-    <!-- endbuild -->
+     <!-- build:css(.tmp) /styles/main.css -->
+     <link rel="stylesheet" href="/styles/main.css" />
+     <!-- endbuild -->
+     <!-- build:css(.tmp) /styles/tailwind.out.css -->
+     <link rel="stylesheet" href="/styles/tailwind.out.css" />
+     <!-- endbuild -->
   </head>
   <body class="static" data-static-resource-host="{{{staticResourceUrl}}}">
+    <header class="mozilla-header">
+      <a
+      id="about-mozilla"
+      rel="author"
+      target="_blank"
+      href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
+      aria-label="{{#t}}Mozilla logo{{/t}}"
+      ></a>
+    </header>
     <div id="stage">
       <div id="main-content" class="card">
         <header>
-          <h1 id="fxa-503-header">
+          <h1 id="fxa-503-header" class="card-header">
             {{#t}}Server busy, try again soon{{/t}}
           </h1>
         </header>
 
         <section>
-          {{#t}}We are currently under heavy strain and are working to return
-          the system to normal as soon as possible.{{/t}}
+          <p>
+            {{#t}}We are currently under heavy strain and are working to return
+            the system to normal as soon as possible.{{/t}}
+          </p>
         </section>
 
         <div class="button-row">
@@ -36,15 +50,6 @@
           >
         </div>
       </div>
-    </div>
-
-    <div id="static-footer">
-      <a
-        id="about-mozilla"
-        rel="author"
-        target="_blank"
-        href="https://www.mozilla.org/about/?utm_source=firefox-accounts&amp;utm_medium=Referral"
-      ></a>
     </div>
   </body>
 </html>

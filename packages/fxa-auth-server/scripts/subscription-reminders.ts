@@ -5,6 +5,7 @@ import program from 'commander';
 import { StatsD } from 'hot-shots';
 import Container from 'typedi';
 import { promisify } from 'util';
+import * as Sentry from '@sentry/node';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
@@ -14,6 +15,8 @@ const config = require('../config').default.getProperties();
 
 const DEFAULT_PLAN_LENGTH = 180;
 const DEFAULT_REMINDER_LENGTH = 14;
+
+Sentry.init({});
 
 async function init() {
   program
@@ -51,10 +54,33 @@ async function init() {
 }
 
 if (require.main === module) {
+  const checkInId = Sentry.captureCheckIn({
+    monitorSlug: 'subscription-reminders',
+    status: 'in_progress',
+  });
+
   init()
+    .then((result) => {
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'subscription-reminders',
+        status: 'ok',
+      });
+      return Sentry.close(2000);
+    })
+    .then(() => {
+      process.exit(0);
+    })
     .catch((err) => {
       console.error(err);
-      process.exit(1);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'subscription-reminders',
+        status: 'error',
+      });
+      return Sentry.close(2000);
     })
-    .then((result) => process.exit(result));
+    .then(() => {
+      process.exit(1);
+    });
 }

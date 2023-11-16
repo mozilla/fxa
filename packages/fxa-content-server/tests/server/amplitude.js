@@ -753,19 +753,6 @@ registerSuite('amplitude', {
       );
     },
 
-    // TODO remove in FXA-7419, print option not available in new UI
-    'flow.settings.account-recovery.recovery-key.print-option': () => {
-      createAmplitudeEvent(
-        'flow.settings.account-recovery.recovery-key.print-option'
-      );
-
-      assert.equal(logger.info.callCount, 1);
-      assert.equal(
-        logger.info.args[0][1].event_type,
-        'fxa_pref - account_recovery_option_print'
-      );
-    },
-
     'flow.settings.account-recovery.create-hint.submit': () => {
       createAmplitudeEvent('flow.settings.account-recovery.create-hint.submit');
 
@@ -1388,16 +1375,6 @@ registerSuite('amplitude', {
       assert.equal(arg.event_type, 'fxa_connect_device - view');
       assert.equal(arg.event_properties.connect_device_flow, 'signin');
       assert.equal(arg.event_properties.connect_device_os, undefined);
-    },
-
-    'screen.add-recovery-key': () => {
-      createAmplitudeEvent('screen.add-recovery-key');
-
-      assert.equal(logger.info.callCount, 1);
-      assert.equal(
-        logger.info.args[0][1].event_type,
-        'fxa_activity - add_recovery_key_view'
-      );
     },
 
     'flow.connect-another-device.link.app-store.foo': () => {

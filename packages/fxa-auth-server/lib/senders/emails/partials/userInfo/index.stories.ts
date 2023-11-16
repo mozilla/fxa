@@ -4,11 +4,7 @@
 
 import { Meta } from '@storybook/html';
 import { storyWithProps } from '../../storybook-email';
-import {
-  MOCK_USER_INFO,
-  MOCK_USER_INFO_ALL,
-  MOCK_USER_INFO_TRUNCATED,
-} from './mocks';
+import { MOCK_USER_INFO, MOCK_USER_INFO_ALL } from './mocks';
 
 export default {
   title: 'Stateful partials/userInfo',
@@ -16,7 +12,7 @@ export default {
 
 const createStory = storyWithProps(
   '_storybook',
-  'This partial displays user information in various states, depending on what we choose to show in each email template. Check "<b>location</b>" and "<b>userDevice</b>" stories for location and device data varieties.</b>',
+  'This partial displays user information in various states, depending on what we choose to show in each email template. Check "<b>userDevice</b>" stories for device data varieties.</b>',
   {
     layout: null,
     subject: 'N/A',
@@ -28,19 +24,12 @@ export const UserInfoAll = createStory(
   {
     ...MOCK_USER_INFO_ALL,
   },
-  'All user info: primary email, device, location, IP, date, and time'
+  'All user info: primary email, device, date, and time'
 );
 
-export const UserInfo = createStory(
+export const UserInfoNoEmail = createStory(
   {
     ...MOCK_USER_INFO,
   },
-  'Some user info (most commonly used): device, location, IP, date, and time'
-);
-
-export const UserInfoTruncated = createStory(
-  {
-    ...MOCK_USER_INFO_TRUNCATED,
-  },
-  'Some user info: device, location, and time'
+  'Some user info (most commonly used): device, date, and time'
 );

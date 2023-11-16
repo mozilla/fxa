@@ -2,9 +2,68 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import {
+  CapabilitiesResult,
+  ContentfulManager,
+  ServiceResult,
+} from '@fxa/shared/contentful';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CapabilityManager {
-  constructor() {}
+  constructor(private contentfulManager: ContentfulManager) {}
+
+  async getClients() {
+    const clients: ServiceResult[] = (
+      await this.contentfulManager.getServicesWithCapabilities()
+    ).getServices();
+
+    if (!clients) return [];
+
+    return clients.map((client: ServiceResult) => ({
+      clientId: client.oauthClientId,
+      capabilities: client.capabilitiesCollection.items.map(
+        (capability: CapabilitiesResult) => capability.slug
+      ),
+    }));
+  }
+
+  /**
+   * Fetch the list of capabilities for the given price ids.
+   *
+   * Returns Record<string, string[]>
+   * Keys are clientIds
+   * Values are capabilitySlugs[]
+   */
+  async planIdsToClientCapabilities(
+    subscribedPrices: string[]
+  ): Promise<Record<string, string[]>> {
+    if (!subscribedPrices.length) return {};
+
+    const purchaseDetails =
+      await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+        [...subscribedPrices]
+      );
+
+    const result: Record<string, string[]> = {};
+
+    for (const subscribedPrice of subscribedPrices) {
+      const capabilityOffering =
+        purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
+
+      if (!capabilityOffering) continue;
+
+      for (const capabilityCollection of capabilityOffering
+        .capabilitiesCollection.items) {
+        for (const capability of capabilityCollection.servicesCollection
+          .items) {
+          result[capability.oauthClientId] ||= [];
+
+          result[capability.oauthClientId].push(capabilityCollection.slug);
+        }
+      }
+    }
+
+    return result;
+  }
 }

@@ -7,68 +7,70 @@ let email;
 const password = 'password';
 const newPassword = 'new_password';
 
-test.describe('post verify - force password change', () => {
-  test.beforeEach(async ({ target, pages: { login } }) => {
-    test.slow();
-    email = login.createEmail('forcepwdchange{id}');
-    await target.auth.signUp(email, password, {
-      lang: 'en',
-      preVerified: 'true',
+test.describe('severity-2 #smoke', () => {
+  test.describe('post verify - force password change', () => {
+    test.beforeEach(async ({ target, pages: { login } }) => {
+      test.slow();
+      email = login.createEmail('forcepwdchange{id}');
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await login.clearCache();
     });
-    await login.clearCache();
-  });
 
-  test.afterEach(async ({ target }) => {
-    if (email) {
-      // Cleanup any accounts created during the test
-      try {
-        await target.auth.accountDestroy(email, newPassword);
-      } catch (e) {
-        // Handle the error here
-        console.error('An error occurred during account cleanup:', e);
-        // Optionally, rethrow the error to propagate it further
-        throw e;
+    test.afterEach(async ({ target }) => {
+      if (email) {
+        // Cleanup any accounts created during the test
+        try {
+          await target.auth.accountDestroy(email, newPassword);
+        } catch (e) {
+          // Handle the error here
+          console.error('An error occurred during account cleanup:', e);
+          // Optionally, rethrow the error to propagate it further
+          throw e;
+        }
       }
-    }
-  });
-
-  test('navigate to page directly and can change password', async ({
-    target,
-    pages: { page, login, postVerify },
-  }) => {
-    await page.goto(target.contentServerUrl, {
-      waitUntil: 'load',
     });
-    await login.fillOutEmailFirstSignIn(email, password);
-    await login.fillOutSignInCode(email);
 
-    //Verify force password change header
-    expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
+    test('navigate to page directly and can change password', async ({
+      target,
+      pages: { page, login, postVerify },
+    }) => {
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutSignInCode(email);
 
-    //Fill out change password
-    await postVerify.fillOutChangePassword(password, newPassword);
-    await postVerify.submit();
+      //Verify force password change header
+      expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
 
-    //Verify logged in on Settings page
-    expect(await login.isUserLoggedIn()).toBe(true);
-  });
+      //Fill out change password
+      await postVerify.fillOutChangePassword(password, newPassword);
+      await postVerify.submit();
 
-  test('force change password on login - oauth', async ({
-    pages: { login, postVerify, relier },
-  }) => {
-    await relier.goto();
-    await relier.clickEmailFirst();
-    await login.fillOutEmailFirstSignIn(email, password);
-    await login.fillOutSignInCode(email);
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
+    });
 
-    //Verify force password change header
-    expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
+    test('force change password on login - oauth', async ({
+      pages: { login, postVerify, relier },
+    }) => {
+      await relier.goto();
+      await relier.clickEmailFirst();
+      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutSignInCode(email);
 
-    //Fill out change password
-    await postVerify.fillOutChangePassword(password, newPassword);
-    await postVerify.submit();
+      //Verify force password change header
+      expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
 
-    //Verify logged in on relier page
-    expect(await relier.isLoggedIn()).toBe(true);
+      //Fill out change password
+      await postVerify.fillOutChangePassword(password, newPassword);
+      await postVerify.submit();
+
+      //Verify logged in on relier page
+      expect(await relier.isLoggedIn()).toBe(true);
+    });
   });
 });

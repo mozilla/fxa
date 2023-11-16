@@ -13,8 +13,8 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionAccountDeletion-content-cancelled" data-l10n-args="<%= JSON.stringify({productName, invoiceTotal, invoiceDateOnly}) %>">
-        You recently deleted your Firefox account. As a result, we’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>.
+      <span data-l10n-id="subscriptionAccountDeletion-content-cancelled-2" data-l10n-args="<%= JSON.stringify({productName, invoiceTotal, invoiceDateOnly}) %>">
+        You recently deleted your Mozilla account. As a result, we’ve cancelled your <%- productName %> subscription. Your final payment of <%- invoiceTotal %> was paid on <%- invoiceDateOnly %>.
       </span>
     </mj-text>
   </mj-column>

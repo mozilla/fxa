@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionAccountFinishSetup',
-  'Sent to a user after they purchased the product through the password-less flow without an existing Firefox account.',
+  'Sent to a user after they purchased the product through the password-less flow without an existing Mozilla account.',
   {
     productName: 'Firefox Fortress',
     icon: 'https://accounts-static.cdn.mozilla.net/product-icons/mozilla-vpn-email.png',

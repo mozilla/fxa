@@ -8,7 +8,7 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
-const { mockLog } = require('../../mocks');
+const { mockContentfulClients, mockLog, mockPlans } = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
@@ -28,8 +28,21 @@ const proxyquire = require('proxyquire').noPreserveCache();
 
 const authDbModule = require('fxa-shared/db/models/auth');
 const {
+  ALL_RPS_CAPABILITIES_KEY,
+} = require('fxa-shared/subscriptions/configuration/base');
+const {
   PurchaseQueryError,
 } = require('../../../lib/payments/iap/google-play/types');
+const {
+  CapabilityManager,
+} = require('../../../../../libs/payments/capability/src');
+const {
+  EligibilityManager,
+} = require('../../../../../libs/payments/eligibility/src');
+const {
+  SubscriptionEligibilityResult,
+} = require('fxa-shared/subscriptions/types');
+const Sentry = require('@sentry/node');
 
 const mockAuthEvents = {};
 
@@ -75,6 +88,7 @@ describe('CapabilityService', () => {
   let mockProfileClient;
   let mockPaymentConfigManager;
   let mockConfigPlans;
+  let mockCapabilityManager;
 
   beforeEach(async () => {
     mockAuthEvents.on = sinon.fake.returns({});
@@ -144,6 +158,10 @@ describe('CapabilityService', () => {
         },
       },
     ]);
+    mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
+    mockCapabilityManager = {
+      getClients: sinon.fake.resolves(mockContentfulClients),
+    };
     log = mockLog();
     Container.set(AuthLogger, log);
     Container.set(StripeHelper, mockStripeHelper);
@@ -151,6 +169,7 @@ describe('CapabilityService', () => {
     Container.set(AppleIAP, mockAppleIAP);
     Container.set(ProfileClient, mockProfileClient);
     Container.set(PaymentConfigManager, mockPaymentConfigManager);
+    Container.set(CapabilityManager, mockCapabilityManager);
     capabilityService = new CapabilityService();
   });
 
@@ -440,22 +459,9 @@ describe('CapabilityService', () => {
           productOrder: 2,
         },
       },
-      {
-        plan_id: 'plan_NOPRODUCTORDER',
-        product_id: 'prod_ABCDEF',
-        product_metadata: {
-          productSet: 'set1,set2',
-        },
-      },
-      {
-        plan_id: 'plan_NOPRODUCTSET',
-        product_id: 'prod_ABCDEF',
-        product_metadata: {},
-      },
     ];
 
     beforeEach(() => {
-      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockAbbrevPlans);
       capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
         []
       );
@@ -467,6 +473,7 @@ describe('CapabilityService', () => {
 
     it('throws an error for an invalid targetPlanId', async () => {
       let error;
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves([]);
       try {
         await capabilityService.getPlanEligibility(UID, 'invalid-id');
       } catch (e) {
@@ -475,51 +482,315 @@ describe('CapabilityService', () => {
       assert.equal(error.message, 'Unknown subscription plan');
     });
 
-    it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
-      capabilityService.fetchSubscribedPricesFromAppStore = sinon.fake.resolves(
-        ['plan_123456']
+    it('returns the eligibility from Stripe if eligibilityManager is not found', async () => {
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+        plan_123456: mockAbbrevPlans[0],
+      });
+      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
+        SubscriptionEligibilityResult.CREATE,
+      ]);
+      const expected = [SubscriptionEligibilityResult.CREATE];
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_123456'
       );
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'blocked_iap');
+      assert.deepEqual(actual, expected);
     });
 
-    it('returns create for targetPlan with productSet user is not subscribed to', async () => {
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'create');
-    });
+    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
 
-    it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_123456',
+      Container.set(EligibilityManager, {});
+      capabilityService = new CapabilityService();
+
+      capabilityService.allAbbrevPlansByPlanId = sinon.fake.resolves({
+        plan_123456: mockAbbrevPlans[0],
+      });
+      capabilityService.eligibilityFromStripeMetadata = sinon.fake.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
       ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_ABCDEF')
-      )[0];
-      assert.equal(actual, 'upgrade');
+      capabilityService.getAllSubscribedAbbrevPlans = sinon.fake.resolves([
+        mockAbbrevPlans[1],
+        [],
+      ]);
+      capabilityService.eligibilityFromEligibilityManager = sinon.fake.resolves(
+        [SubscriptionEligibilityResult.CREATE]
+      );
+      capabilityService.logToSentry = sinon.fake.returns(true);
+
+      const actual = await capabilityService.getPlanEligibility(
+        UID,
+        'plan_123456'
+      );
+      assert.deepEqual(actual, [SubscriptionEligibilityResult.UPGRADE]);
+
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'getPlanEligibility',
+        {
+          eligibilityManagerResult: [SubscriptionEligibilityResult.CREATE],
+          stripeEligibilityResult: [SubscriptionEligibilityResult.UPGRADE],
+          uid: UID,
+          targetPlanId: 'plan_123456',
+        }
+      );
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `Eligibility mismatch for uid8675309 on plan_123456`,
+        'error'
+      );
+    });
+  });
+
+  describe('elibility', () => {
+    const mockPlanTier1ShortInterval = {
+      plan_id: 'plan_123456',
+      product_id: 'prod_123456',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 1,
+      },
+      interval: 'week',
+      interval_count: 1,
+    };
+    const mockPlanTier1LongInterval = {
+      plan_id: 'plan_876543',
+      product_id: 'prod_876543',
+      product_metadata: {
+        productSet: 'set2,set3',
+        productOrder: 1,
+      },
+      interval: 'week',
+      interval_count: 2,
+    };
+    const mockPlanTier2ShortInterval = {
+      plan_id: 'plan_ABCDEF',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 2,
+      },
+      interval: 'week',
+      interval_count: 1,
+    };
+    const mockPlanTier2LongInterval = {
+      plan_id: 'plan_GHIJKL',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+        productOrder: 2,
+      },
+      interval: 'month',
+      interval_count: 1,
+    };
+    const mockPlanNoProductOrder = {
+      plan_id: 'plan_NOPRODUCTORDER',
+      product_id: 'prod_ABCDEF',
+      product_metadata: {
+        productSet: 'set1,set2',
+      },
+    };
+
+    describe('FromEligibilityManager', () => {
+      let mockEligibilityManager;
+
+      beforeEach(() => {
+        mockEligibilityManager = {};
+        Container.set(EligibilityManager, mockEligibilityManager);
+        capabilityService = new CapabilityService();
+      });
+
+      it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'same',
+            offeringProductId: mockPlanTier1ShortInterval.product_id,
+            type: 'offering',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [],
+            [mockPlanTier1ShortInterval],
+            mockPlanTier1LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.BLOCKED_IAP);
+      });
+
+      it('returns create for targetPlan with offering user is not subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.CREATE);
+      });
+
+      it('returns upgrade for targetPlan with offering user is subscribed to a lower tier of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier2LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with offering user is subscribed to a higher tier of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'downgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns upgrade for targetPlan with offering user is subscribed to a higher interval of', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier1LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with shorter interval but higher tier than user is subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1LongInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        Container.set(EligibilityManager, mockEligibilityManager);
+        capabilityService = new CapabilityService();
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1LongInterval],
+            [],
+            mockPlanTier2ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns invalid for targetPlan with same offering user is subscribed to', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual = (
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.INVALID);
+      });
     });
 
-    it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_ABCDEF',
-      ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_123456')
-      )[0];
-      assert.equal(actual, 'downgrade');
-    });
+    describe('FromStripeMetadata', () => {
+      it('returns blocked_iap for targetPlan with productSet the user is subscribed to with IAP', async () => {
+        capabilityService.fetchSubscribedPricesFromAppStore =
+          sinon.fake.resolves(['plan_123456']);
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [],
+            [mockPlanTier2LongInterval],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.BLOCKED_IAP);
+      });
 
-    it('returns invalid for targetPlan with no product order', async () => {
-      capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves([
-        'plan_ABCDEF',
-      ]);
-      const actual = (
-        await capabilityService.getPlanEligibility(UID, 'plan_NOPRODUCTORDER')
-      )[0];
-      assert.equal(actual, 'invalid');
+      it('returns create for targetPlan with productSet user is not subscribed to', async () => {
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.CREATE);
+      });
+
+      it('returns upgrade for targetPlan with productSet user is subscribed to a lower tier of', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier1ShortInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier2LongInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.UPGRADE);
+      });
+
+      it('returns downgrade for targetPlan with productSet user is subscribed to a higher tier of', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier2LongInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanTier1ShortInterval
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.DOWNGRADE);
+      });
+
+      it('returns invalid for targetPlan with no product order', async () => {
+        capabilityService.fetchSubscribedPricesFromStripe = sinon.fake.resolves(
+          [mockPlanTier2LongInterval.plan_id]
+        );
+        const actual = (
+          await capabilityService.eligibilityFromStripeMetadata(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanNoProductOrder
+          )
+        )[0];
+        assert.equal(actual, SubscriptionEligibilityResult.INVALID);
+      });
     });
   });
 
@@ -672,6 +943,186 @@ describe('CapabilityService', () => {
         ];
         await assertExpectedCapabilities(clientId, expected);
       }
+    });
+  });
+  describe('getClients', () => {
+    beforeEach(() => {
+      mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockPlans);
+    });
+
+    describe('getClientsFromStripe', () => {
+      it('returns the clients and their capabilities', async () => {
+        const expected = [
+          {
+            capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+            clientId: 'client1',
+          },
+          {
+            capabilities: [
+              'exampleCap0',
+              'exampleCap2',
+              'exampleCap4',
+              'exampleCap5',
+              'exampleCap6',
+              'exampleCap7',
+            ],
+            clientId: 'client2',
+          },
+        ];
+        const actual = await capabilityService.getClientsFromStripe();
+        assert.deepEqual(
+          actual,
+          expected,
+          'Clients were not returned correctly'
+        );
+      });
+
+      it('adds the capabilities from the Firestore config document when available', async () => {
+        const mockPlanConfigs = {
+          firefox_pro_basic_999: {
+            capabilities: {
+              [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
+              client2: ['wibble', 'quux'],
+            },
+          },
+        };
+        mockStripeHelper.allMergedPlanConfigs = sinon.spy(
+          async () => mockPlanConfigs
+        );
+        const expected = [
+          {
+            capabilities: [
+              'exampleCap0',
+              'goodnewseveryone',
+              'exampleCap1',
+              'exampleCap3',
+            ],
+            clientId: 'client1',
+          },
+          {
+            capabilities: [
+              'exampleCap0',
+              'goodnewseveryone',
+              'exampleCap2',
+              'exampleCap4',
+              'wibble',
+              'quux',
+              'exampleCap5',
+              'exampleCap6',
+              'exampleCap7',
+            ],
+            clientId: 'client2',
+          },
+        ];
+        const actual = await capabilityService.getClientsFromStripe();
+        assert.deepEqual(actual, expected);
+      });
+    });
+
+    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
+      sinon.stub(Sentry, 'captureMessage');
+
+      Container.remove(CapabilityManager);
+
+      let mockCapabilityService = {};
+      mockCapabilityService = new CapabilityService();
+
+      const mockClientsFromStripe =
+        await mockCapabilityService.getClientsFromStripe();
+
+      const clients = await mockCapabilityService.getClients();
+
+      assert.deepEqual(clients, mockClientsFromStripe);
+
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityManager not found.`,
+        'error'
+      );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await mockCapabilityService.getClients();
+
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityManager not found.`,
+        'error'
+      );
+    });
+
+    it('returns results from Contentful when it matches Stripe', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      const mockClientsFromContentful =
+        await mockCapabilityManager.getClients();
+
+      const mockClientsFromStripe =
+        await capabilityService.getClientsFromStripe();
+
+      assert.deepEqual(mockClientsFromContentful, mockClientsFromStripe);
+
+      const clients = await capabilityService.getClients();
+      assert.deepEqual(clients, mockClientsFromContentful);
+
+      sinon.assert.notCalled(Sentry.withScope);
+      sinon.assert.notCalled(sentryScope.setContext);
+      sinon.assert.notCalled(Sentry.captureMessage);
+    });
+
+    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      mockCapabilityManager.getClients = sinon.fake.resolves([
+        {
+          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+          clientId: 'client1',
+        },
+      ]);
+
+      const mockClientsFromContentful =
+        await mockCapabilityManager.getClients();
+
+      const mockClientsFromStripe =
+        await capabilityService.getClientsFromStripe();
+
+      assert.notDeepEqual(mockClientsFromContentful, mockClientsFromStripe);
+
+      const clients = await capabilityService.getClients();
+      assert.deepEqual(clients, mockClientsFromStripe);
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        contentful: mockClientsFromContentful.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+        stripe: mockClientsFromStripe.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+      });
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityService.getClients - Returned Stripe as clients did not match.`,
+        'error'
+      );
+
+      // Test logToSentry logic. Remove if no longer necessary
+      await capabilityService.getClients();
+
+      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
+        contentful: mockClientsFromContentful.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+        stripe: mockClientsFromStripe.map((service) => ({
+          ...service,
+          capabilities: service.capabilities.length,
+        })),
+      });
     });
   });
 });

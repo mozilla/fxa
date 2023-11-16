@@ -1,6 +1,4 @@
 <% if (locals.primaryEmail) { %><%- primaryEmail %><% } %>
 <% if (locals.device) { %><% const device = include('/partials/userDevice/index.txt') %><%- device.trim() %><% } %>
-<% if (locals.location) { %><% const location = include('/partials/userLocation/index.txt') %><%- location.trim() %><% } %>
-<% if (locals.ip) { %> user-ip = "IP address: <%- ip %>" <% } %>
 <% if (locals.date) { %><%- date %><% } %>
 <% if (locals.time) { %><%- time %><% } %>

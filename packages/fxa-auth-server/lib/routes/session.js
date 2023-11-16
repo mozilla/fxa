@@ -409,7 +409,6 @@ module.exports = function (
       handler: async function (request) {
         log.begin('Session.resend_code', request);
         const sessionToken = request.auth.credentials;
-        const ip = request.app.clientAddress;
 
         request.emitMetricsEvent('session.resend_code');
         const metricsContext = await request.gatherMetricsContext({});
@@ -444,8 +443,6 @@ module.exports = function (
         const options = {
           acceptLanguage: account.locale || request.app.locale,
           code,
-          ip,
-          location: request.app.geo.location,
           timeZone: request.app.geo.timeZone,
           uaBrowser: sessionToken.uaBrowser,
           uaBrowserVersion: sessionToken.uaBrowserVersion,
@@ -529,17 +526,17 @@ module.exports = function (
 
         // If/when we use .localizeStrings in other files, probably move where strings are
         // maintained to separate file?
-        const titleFtlId = 'session-verify-send-push-title';
-        const bodyFtlId = 'session-verify-send-push-body';
+        const titleFtlId = 'session-verify-send-push-title-2';
+        const bodyFtlId = 'session-verify-send-push-body-2';
 
         const ftlIdMsgs = [
           {
             id: titleFtlId,
-            message: 'Logging in to Firefox accounts?',
+            message: 'Logging in to your Mozilla account?',
           },
           {
             id: bodyFtlId,
-            message: 'Click here to verify it’s you',
+            message: 'Click here to confirm it’s you',
           },
         ];
         const localizedStrings = await localizer.localizeStrings(

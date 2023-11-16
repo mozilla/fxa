@@ -13,13 +13,13 @@ import { FtlMsg } from 'fxa-react/lib/utils';
 
 export type DownloadContentType =
   | 'Firefox account recovery key'
-  | 'Firefox backup authentication codes'
+  | 'Backup authentication codes'
   | 'Firefox';
 
 const DownloadContentTypeL10nMapping: Record<DownloadContentType, string> = {
   Firefox: 'get-data-trio-title-firefox',
-  'Firefox backup authentication codes':
-    'get-data-trio-title-firefox-backup-verification-codes',
+  'Backup authentication codes':
+    'get-data-trio-title-backup-verification-codes',
   'Firefox account recovery key': 'get-data-trio-title-firefox-recovery-key',
 };
 

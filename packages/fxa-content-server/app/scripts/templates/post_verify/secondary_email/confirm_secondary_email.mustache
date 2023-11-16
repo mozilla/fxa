@@ -1,9 +1,9 @@
 <div id="main-content" class="card confirm-signup">
     <header>
-        <h1 id="fxa-confirm-secondary-email-header">
+        <h1 id="fxa-confirm-secondary-email-header" class="card-header">
             {{#serviceName}}
                 <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Enter confirmation code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                {{#t}}Enter confirmation code{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
             {{/serviceName}}
             {{^serviceName}}
                 {{#t}}Enter confirmation code{{/t}}

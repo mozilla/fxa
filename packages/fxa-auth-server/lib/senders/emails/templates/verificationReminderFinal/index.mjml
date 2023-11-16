@@ -5,7 +5,7 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-sub-body">
-      <span data-l10n-id="verificationReminderFinal-description">A couple of weeks ago you created a Firefox account, but never confirmed it. For your security, we will delete the account if not verified in the next 24 hours.</span>
+      <span data-l10n-id="verificationReminderFinal-description-2">A couple of weeks ago you created a Mozilla account, but never confirmed it. For your security, we will delete the account if not verified in the next 24 hours.</span>
     </mj-text>
   </mj-column>
 </mj-section>

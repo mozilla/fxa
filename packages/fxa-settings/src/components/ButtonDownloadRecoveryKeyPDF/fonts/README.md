@@ -9,7 +9,7 @@ Noto is a collection of fonts with multiple weights and widths in sans, serif, m
 Read more: https://fonts.google.com/noto
 These fonts are licensed under the [Open Font License](https://scripts.sil.org/cms/scripts/page.php?site_id=nrsi&id=OFL).
 
-For most of the locales supported by Firefox accounts (see `supportedLanguages.json`), we can default to the standard Noto Sans, with a few exceptions that require specific fonts:
+For most of the locales supported by Mozilla accounts (see `supportedLanguages.json`), we can default to the standard Noto Sans, with a few exceptions that require specific fonts:
 
 - Chinese: Noto Sans SC
 - Georgian: Noto Sans Georgian

@@ -1,11 +1,9 @@
-postRemoveAccountRecovery-title-2 = "You deleted your account recovery key."
+postRemoveAccountRecovery-title-3 = "You deleted your account recovery key"
 
-postRemoveAccountRecovery-description-2 = "It was deleted from:"
+postRemoveAccountRecovery-body-part1 = "Your account recovery key is required to restore your encrypted browsing data if you forget your password."
 
-<%- include('/partials/userInfo/index.txt') %>
-
-postRemoveAccountRecovery-invalid-2 = "You need an account recovery key to recover your Firefox data if you forget your password. "
+postRemoveAccountRecovery-body-part2 = "If you haven’t already, create a new account recovery key in your account settings to prevent losing your saved passwords, bookmarks, browsing history, and more."
 
 <%- include('/partials/manageAccount/index.txt') %>
 
-<%- include('/partials/automatedEmailChangePassword/index.txt') %>
+<%- include('/partials/automatedEmailRecoveryKey/index.txt', {keyExists:false}) %>
