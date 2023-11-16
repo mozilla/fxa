@@ -65,7 +65,6 @@ export class SessionToken extends BaseToken {
   verificationMethod?: number;
   verifiedAt?: number;
   mustVerify!: boolean;
-  providerId?: number;
 
   // joined fields (from sessionWithDevice_# stored proc)
   emailVerified!: boolean;
@@ -115,7 +114,6 @@ export class SessionToken extends BaseToken {
     uaFormFactor,
     tokenVerificationId,
     mustVerify,
-    providerId,
   }: Pick<
     SessionToken,
     | 'uid'
@@ -128,7 +126,6 @@ export class SessionToken extends BaseToken {
     | 'uaFormFactor'
     | 'tokenVerificationId'
     | 'mustVerify'
-    | 'providerId'
   > & {
     id: string;
     data: string;
@@ -147,7 +144,8 @@ export class SessionToken extends BaseToken {
       uaFormFactor ?? null,
       uuidTransformer.to(tokenVerificationId),
       !!mustVerify,
-      providerId ?? null
+      null, // we no longer set token verification code
+      null // we no longer set token verification code expiresAt
     );
   }
 

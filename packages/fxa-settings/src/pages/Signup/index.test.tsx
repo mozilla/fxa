@@ -14,6 +14,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../lib/metrics';
 import { viewName } from '.';
+import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
 import {
   BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE,
@@ -24,21 +25,14 @@ import {
   createMockSignupSyncDesktopIntegration,
 } from './mocks';
 import {
-  MOCK_CLIENT_ID,
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_PASSWORD,
+  MOCK_SERVICE,
   MOCK_UNWRAP_BKEY,
 } from '../mocks';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
-import firefox from '../../lib/channels/firefox';
-import GleanMetrics from '../../lib/glean';
-import * as utils from 'fxa-react/lib/utils';
-import { POCKET_CLIENTIDS } from '../../models/integrations/client-matching';
-import {
-  getSyncEngineIds,
-  syncEngineConfigs,
-} from '../../components/ChooseWhatToSync/sync-engines';
+import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -50,6 +44,12 @@ jest.mock('../../lib/metrics', () => ({
     logViewEventOnce: jest.fn(),
   }),
 }));
+
+jest.mock('../../lib/channels/helpers', () => {
+  return {
+    notifyFirefoxOfLogin: jest.fn(),
+  };
+});
 
 const mockLocation = () => {
   return {
@@ -63,18 +63,6 @@ jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
   useLocation: () => mockLocation(),
-}));
-
-jest.mock('../../lib/glean', () => ({
-  __esModule: true,
-  default: {
-    registration: {
-      view: jest.fn(),
-      engage: jest.fn(),
-      submit: jest.fn(),
-      success: jest.fn(),
-    },
-  },
 }));
 
 describe('Signup page', () => {
@@ -113,34 +101,6 @@ describe('Signup page', () => {
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
   });
 
-  describe('hardNavigateToContentServer', () => {
-    let hardNavigateToContentServerSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      hardNavigateToContentServerSpy = jest
-        .spyOn(utils, 'hardNavigateToContentServer')
-        .mockImplementation(() => {});
-    });
-    afterEach(() => {
-      hardNavigateToContentServerSpy.mockRestore();
-    });
-
-    it('allows users to change their email', async () => {
-      renderWithLocalizationProvider(<Subject />);
-
-      await waitFor(() => {
-        fireEvent.click(
-          screen.getByRole('link', {
-            name: 'Change email',
-          })
-        );
-      });
-      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
-        `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
-      );
-    });
-  });
-
   it('allows users to show and hide password input', async () => {
     renderWithLocalizationProvider(<Subject />);
 
@@ -168,7 +128,7 @@ describe('Signup page', () => {
   it('shows an info banner and Pocket-specific TOS when client is Pocket', async () => {
     renderWithLocalizationProvider(
       <Subject
-        integration={createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0])}
+        integration={createMockSignupOAuthIntegration(MozServices.Pocket)}
       />
     );
 
@@ -226,41 +186,32 @@ describe('Signup page', () => {
     expect(checkboxes).toHaveLength(3);
   });
 
-  it('emits metrics events', async () => {
+  it('emits a metrics event on render', async () => {
     renderWithLocalizationProvider(<Subject />);
 
     await waitFor(() => {
       expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-      expect(GleanMetrics.registration.view).toBeCalledTimes(1);
-    });
-
-    fireEvent.focus(screen.getByLabelText('Password'));
-    fireEvent.focus(screen.getByLabelText('How old are you?'));
-
-    await waitFor(() => {
-      expect(GleanMetrics.registration.engage).toBeCalledTimes(2);
-      expect(GleanMetrics.registration.engage).toBeCalledWith({
-        reason: 'password',
-      });
-      expect(GleanMetrics.registration.engage).toBeCalledWith({
-        reason: 'age',
-      });
     });
   });
 
   describe('handles submission', () => {
     async function fillOutForm(age = '13') {
+      const passwordInput = await screen.findByLabelText('Password');
+      const repeatPasswordInput = screen.getByLabelText('Repeat password');
       const ageInput = screen.getByLabelText('How old are you?');
 
       fireEvent.input(screen.getByLabelText('Password'), {
         target: { value: MOCK_PASSWORD },
       });
+      fireEvent.blur(passwordInput);
       fireEvent.input(screen.getByLabelText('Repeat password'), {
         target: { value: MOCK_PASSWORD },
       });
+      fireEvent.blur(repeatPasswordInput);
       fireEvent.input(ageInput, {
         target: { value: age },
       });
+      fireEvent.blur(ageInput);
 
       await waitFor(() => {
         expect(
@@ -317,8 +268,6 @@ describe('Signup page', () => {
         await waitFor(() => {
           expect(document.cookie).toBe('tooyoung=1;');
         });
-        expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
-        expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
         expect(mockBeginSignupHandler).not.toBeCalled();
       });
@@ -352,6 +301,7 @@ describe('Signup page', () => {
           `/confirm_signup_code${mockLocation().search}`,
           {
             state: {
+              email: MOCK_EMAIL,
               keyFetchToken: MOCK_KEY_FETCH_TOKEN,
               // we expect three newsletter options, but 4 slugs should be passed
               // because the first newsletter checkbox subscribes the user to 2 newsletters
@@ -369,186 +319,100 @@ describe('Signup page', () => {
       });
     });
 
-    it('emits a metrics event on submit', async () => {
-      renderWithLocalizationProvider(<Subject />);
+    it('on success with Web integration', async () => {
+      const mockBeginSignupHandler = jest
+        .fn()
+        .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+
+      renderWithLocalizationProvider(
+        <Subject beginSignupHandler={mockBeginSignupHandler} />
+      );
+
       await fillOutForm();
       submit();
 
       await waitFor(() => {
-        expect(GleanMetrics.registration.submit).toBeCalledTimes(1);
+        expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+          MOCK_EMAIL,
+          MOCK_PASSWORD,
+          {}
+        );
       });
+
+      expect(notifyFirefoxOfLogin).not.toBeCalled();
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        `/confirm_signup_code${mockLocation().search}`,
+        {
+          state: {
+            email: MOCK_EMAIL,
+            keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+            selectedNewsletterSlugs: [],
+            unwrapBKey: MOCK_UNWRAP_BKEY,
+          },
+          replace: true,
+        }
+      );
     });
 
-    describe('integrations', () => {
-      let fxaLoginSpy: jest.SpyInstance;
-      beforeEach(() => {
-        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
-      });
-      it('on success with Web integration', async () => {
-        const mockBeginSignupHandler = jest
-          .fn()
-          .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+    it('on success with Sync integration', async () => {
+      const mockBeginSignupHandler = jest
+        .fn()
+        .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupSyncDesktopIntegration()}
+          beginSignupHandler={mockBeginSignupHandler}
+        />
+      );
 
-        renderWithLocalizationProvider(
-          <Subject beginSignupHandler={mockBeginSignupHandler} />
-        );
+      await fillOutForm();
+      // TODO: CWTS, FXA-8287 (probably need tests for none/all selected)
+      submit();
 
-        await fillOutForm();
-        submit();
-
-        await waitFor(() => {
-          expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-        });
-
-        expect(fxaLoginSpy).not.toBeCalled();
-        expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
-
-        expect(mockNavigate).toHaveBeenCalledWith(
-          `/confirm_signup_code${mockLocation().search}`,
-          {
-            state: {
-              keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-              selectedNewsletterSlugs: [],
-              unwrapBKey: MOCK_UNWRAP_BKEY,
-            },
-            replace: true,
-          }
+      await waitFor(() => {
+        expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+          MOCK_EMAIL,
+          MOCK_PASSWORD,
+          { service: MozServices.FirefoxSync }
         );
       });
 
-      describe('on success with Sync integration', () => {
-        const commonFxaLoginOptions = {
-          email: MOCK_EMAIL,
-          keyFetchToken:
-            BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.keyFetchToken,
-          sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.sessionToken,
-          uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.uid,
-          unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
-          verified: false,
-        };
-        const offeredEngines = getSyncEngineIds();
-
-        let mockBeginSignupHandler: jest.Mock;
-        beforeEach(() => {
-          mockBeginSignupHandler = jest
-            .fn()
-            .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
-          renderWithLocalizationProvider(
-            <Subject
-              integration={createMockSignupSyncDesktopIntegration()}
-              beginSignupHandler={mockBeginSignupHandler}
-            />
-          );
-        });
-        it('all CWTS options selected (default)', async () => {
-          await fillOutForm();
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD
-            );
-          });
-
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: [],
-                offeredEngines,
-              },
-            },
-          });
-          expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
-        });
-        it('some CWTS options selected', async () => {
-          await fillOutForm();
-
-          // deselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-          fireEvent.click(screen.getByText('Preferences'));
-          fireEvent.click(screen.getByText('Bookmarks'));
-          // reselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD
-            );
-          });
-
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: ['prefs', 'bookmarks'],
-                offeredEngines,
-              },
-            },
-          });
-        });
-        it('zero CWTS options selected', async () => {
-          await fillOutForm();
-
-          act(() => {
-            syncEngineConfigs.forEach((engineConfig) => {
-              fireEvent.click(screen.getByText(engineConfig.text));
-            });
-          });
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD
-            );
-          });
-
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: offeredEngines,
-                offeredEngines,
-              },
-            },
-          });
-        });
-      });
-
-      it('on success with OAuth integration', async () => {
-        const mockBeginSignupHandler = jest
-          .fn()
-          .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
-
-        renderWithLocalizationProvider(
-          <Subject
-            integration={createMockSignupOAuthIntegration(MOCK_CLIENT_ID)}
-            beginSignupHandler={mockBeginSignupHandler}
-          />
-        );
-        await fillOutForm();
-        submit();
-
-        expect(fxaLoginSpy).not.toBeCalled();
-
-        await waitFor(() => {
-          expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-            MOCK_EMAIL,
-            MOCK_PASSWORD
-          );
-        });
-        expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+      expect(notifyFirefoxOfLogin).toBeCalledWith({
+        authAt: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.authAt,
+        email: MOCK_EMAIL,
+        keyFetchToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.keyFetchToken,
+        sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.sessionToken,
+        uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.uid,
+        unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
+        verified: false,
       });
     });
+    it('on success with OAuth integration', async () => {
+      const mockBeginSignupHandler = jest
+        .fn()
+        .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
 
+      renderWithLocalizationProvider(
+        <Subject
+          integration={createMockSignupOAuthIntegration()}
+          beginSignupHandler={mockBeginSignupHandler}
+        />
+      );
+      await fillOutForm();
+      submit();
+
+      expect(notifyFirefoxOfLogin).not.toBeCalled();
+
+      await waitFor(() => {
+        expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+          MOCK_EMAIL,
+          MOCK_PASSWORD,
+          { service: MOCK_SERVICE }
+        );
+      });
+      // TODO: other tests here in OAuth ticket (FXA-6519)
+    });
     it('on fail', async () => {
       const mockBeginSignupHandler = jest
         .fn()
@@ -562,8 +426,6 @@ describe('Signup page', () => {
       submit();
 
       await screen.findByText(BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE.error.message);
-      expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
-      expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });
   });
 });

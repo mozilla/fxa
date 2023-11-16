@@ -202,10 +202,6 @@ exports.create = async function createServer() {
                   logger.error('oauth.error', err);
                   return reject(AppError.oauthError(err));
                 }
-                if (body == null) {
-                  logger.error('oauth.error', 'no response body');
-                  return reject(AppError.oauthError('no response body'));
-                }
                 if (body.code >= 400) {
                   logger.debug('unauthorized', body);
                   return reject(AppError.unauthorized(body.message));

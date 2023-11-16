@@ -120,11 +120,6 @@ function makeApp() {
     })
   );
 
-  app.use(
-    helmet.referrerPolicy({
-      policy: 'no-referrer',
-    })
-  );
   app.use(helmet.xssFilter());
   app.use(
     helmet.hsts({

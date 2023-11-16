@@ -65,7 +65,7 @@ export const paramsWithMissingToken = {
 export function createMockWebIntegration(): AccountRecoveryConfirmKeyBaseIntegration {
   return {
     type: IntegrationType.Web,
-    getServiceName: () => MozServices.Default,
+    getServiceName: () => Promise.resolve(MozServices.Default),
   };
 }
 
@@ -74,7 +74,7 @@ export function createMockOAuthIntegration(
 ): AccountRecoveryConfirmKeyBaseIntegration {
   return {
     type: IntegrationType.OAuth,
-    getServiceName: () => serviceName,
+    getServiceName: () => Promise.resolve(serviceName),
   };
 }
 

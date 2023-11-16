@@ -117,7 +117,7 @@ export function usePaypalButtonSetup(
 }
 
 export function useReactGA4Setup(config: Config, productId: string) {
-  const { enabled, measurementId, supportedProductIds, debugMode } =
+  const { enabled, measurementId, supportedProductIds, testMode } =
     config.googleAnalytics;
 
   useEffect(() => {
@@ -138,26 +138,14 @@ export function useReactGA4Setup(config: Config, productId: string) {
     );
 
     try {
-      // Deny all consent types to disable cookies
-      // https://developers.google.com/tag-platform/devguides/privacy#consent_mode_terminology
-      ReactGA.gtag('consent', 'default', {
-        ad_storage: 'denied',
-        analytics_storage: 'denied',
-        functionality_storage: 'denied',
-        personalization_storage: 'denied',
-        security_storage: 'denied',
-      });
-
       ReactGA.initialize(measurementId, {
         nonce: cspNonce,
-        gtagOptions: {
-          debug_mode: debugMode,
-        },
+        testMode,
       });
     } catch (error) {
       console.error('Error initializing GA script\n', error);
     }
-  }, [enabled, measurementId, supportedProductIds, debugMode, productId]);
+  }, [enabled, measurementId, supportedProductIds, testMode, productId]);
 }
 
 export const enum CouponInfoBoxMessageType {

@@ -19,5 +19,3 @@ export { AccountStatusPayload } from './account-status';
 export { RecoveryKeyBundlePayload } from './recovery-key';
 export { PasswordChangePayload } from './password-change';
 export { LegalDoc } from './legal';
-export { ClientInfo } from './client-info';
-export { SubscriptionProductInfo } from './subscription-product-info';

@@ -9,13 +9,12 @@
   margin: global.$s-0 auto !important;
 }
 
-.mozilla-logo {
-  padding: global.$s-10 global.$s-0 !important;
+.fxa-logo {
+  padding: global.$s-5 global.$s-0 !important;
+  height: 60px !important;
   margin: 0 auto !important;
   display: block !important;
-  align-items: center;
 }
-
 
 .sync-img {
   padding: global.$s-5 global.$s-0 !important;
@@ -39,13 +38,6 @@
 .text-body div {
   @extend %text-body-common;
   @extend .mb-5;
-}
-
-.text-body-subtext div {
-  @extend .text-xs;
-  @extend .mt-5;
-  @extend .mb-5;
-  text-align: center !important;
 }
 
 .text-body-no-margin div {

@@ -32,8 +32,6 @@ export async function fetchFromContentful() {
         cancellationUrl: '',
         emailIcon:
           'https://accounts-static.cdn.mozilla.net/product-icons/123-done-pro-email.png',
-        newsletterLabelTextCode: 'snp',
-        newsletterSlug: ['mozilla-accounts', 'security-privacy-news'],
         privacyNoticeDownloadUrl:
           'https://accounts-static.cdn.mozilla.net/legal/mozilla_vpn_privacy_notice',
         privacyNoticeUrl: 'https://www.mozilla.org/privacy/mozilla-vpn/',

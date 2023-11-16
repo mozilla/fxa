@@ -8,6 +8,7 @@ import { MozServices } from '../../../lib/types';
 import { Meta } from '@storybook/react';
 import { renderStoryWithHistory } from '../../../lib/storybook-utils';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { createMockResetPasswordConfirmWebIntegration } from './mocks';
 import { ResetPasswordConfirmedProps } from './interfaces';
 
 export default {
@@ -22,7 +23,7 @@ function renderStory(
 ) {
   const defaultProps: ResetPasswordConfirmedProps = {
     isSignedIn: true,
-    serviceName: MozServices.Default,
+    integration: createMockResetPasswordConfirmWebIntegration(),
   };
 
   const props: ResetPasswordConfirmedProps = {
@@ -41,10 +42,7 @@ function renderStory(
 export const DefaultSignedIn = () => renderStory({ isSignedIn: true }, ``);
 
 export const DefaultIsSync = () =>
-  renderStory(
-    { isSignedIn: true, serviceName: MozServices.FirefoxSync },
-    'service=sync'
-  );
+  renderStory({ isSignedIn: true }, 'service=sync');
 
 export const DefaultSignedOut = () =>
   renderStory({ isSignedIn: false }, 'service=');

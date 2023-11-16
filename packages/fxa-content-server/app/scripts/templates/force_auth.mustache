@@ -3,7 +3,9 @@
   <header>
     <h1 id="fxa-force-auth-header" class="card-header">
       {{#isSync}}
-        {{#unsafeTranslate}}Enter your password <span class="card-subheader" id="subheader">for your Mozilla account</span>{{/unsafeTranslate}}
+        {{#unsafeTranslate}}
+          Enter your password <span class="card-subheader" id="subheader">for your Firefox account</span>
+        {{/unsafeTranslate}}
       {{/isSync}}
       {{^isSync}}
         <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
@@ -33,28 +35,9 @@
       </div>
     </form>
 
-      <div id="tos-pp" class="text-grey-500 my-5 text-xs">
-        {{#isPocketClient}}
-          {{#unsafeTranslate}}
-            By proceeding, you agree to:<br />
-            Pocket’s <a class="link-grey" id="pocket-tos" href="https://getpocket.com/tos/">Terms of Service</a> and <a id="pocket-pp" class="link-grey" href="https://getpocket.com/privacy/">Privacy Notice</a><br />
-            Firefox’s <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
-          {{/unsafeTranslate}}
-        {{/isPocketClient}}
-        {{^isPocketClient}}
-          {{#isMonitorClient}}
-            {{#unsafeTranslate}}
-              By proceeding, you agree to:<br />
-              Firefox Monitor’s <a class="link-grey" id="monitor-tos" href="https://www.mozilla.org/privacy/firefox-monitor/">Terms of Service and Privacy Notice</a><br />
-              Firefox’s <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
-            {{/unsafeTranslate}}
-          {{/isMonitorClient}}
-          {{^isMonitorClient}}
-            {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
-          {{/isMonitorClient}}
-        {{/isPocketClient}}
-      </div>
-
+    <div id="tos-pp" class="text-grey-500 my-5 text-xs">
+      {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+    </div>
 
     <div class="flex justify-between">
       <a href="/" id="use-different" class="link-blue" data-flow-event="use-different-account">{{#t}}Use a different account{{/t}}</a>
@@ -63,7 +46,3 @@
     {{/fatalError}}
   </section>
 </div>
-
-<!-- Old L10N Strings - TBR
-{{#unsafeTranslate}}Enter your password <span class="card-subheader" id="subheader">for your Firefox account</span>{{/unsafeTranslate}}
--->

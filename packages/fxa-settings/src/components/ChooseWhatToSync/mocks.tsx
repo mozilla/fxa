@@ -4,15 +4,13 @@
 
 import React, { useState } from 'react';
 import ChooseWhatToSync from '.';
-import { syncEngineConfigs } from './sync-engines';
+import { engines } from './sync-engines';
 
 export const Subject = () => {
-  const [, setDeclined] = useState<string[]>([]);
+  const initialList: string[] = engines
+    .filter((engine) => engine.defaultChecked)
+    .map((engine) => engine.text);
+  const [, setSelected] = useState<string[]>(initialList);
 
-  return (
-    <ChooseWhatToSync
-      offeredSyncEngineConfigs={syncEngineConfigs}
-      setDeclinedSyncEngines={setDeclined}
-    />
-  );
+  return <ChooseWhatToSync {...{ engines }} setSelectedEngines={setSelected} />;
 };

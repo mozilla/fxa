@@ -31,8 +31,6 @@ const remoteAddress =
 const geolocate = require('fxa-shared/express/geo-locate').geolocate(geodb)(
   remoteAddress
 )(log);
-// TODO - FXA-8413 - Delete file. Replaced by @fxa/shared/l10n
-// const { determineLocale } = require('@fxa/shared/l10n');
 const {determineLocale} = require('fxa-shared/l10n/determineLocale')
 
 const FUZZY_EVENTS = new Map([
@@ -49,9 +47,7 @@ const FUZZY_EVENTS = new Map([
 const transform = initialize(
   config.get('oauth_client_id_map'),
   {},
-  FUZZY_EVENTS,
-  log,
-  Container.has(StatsD) ? Container.get(StatsD) : undefined
+  FUZZY_EVENTS
 );
 
 // TODO: remove eslint ignore in FXA-6950

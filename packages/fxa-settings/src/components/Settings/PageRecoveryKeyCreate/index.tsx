@@ -47,6 +47,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     'Back to settings'
   );
 
+  // TODO: Remove feature flag param in FXA-7419
   const navigateBackward = () => {
     navigate(`${HomePath}${location.search}`);
   };
@@ -56,6 +57,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
+      // TODO: Remove feature flag param in FXA-7419
       navigate(`${HomePath}${location.search}`);
     }
   };

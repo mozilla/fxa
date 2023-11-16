@@ -1,4 +1,4 @@
-# Mozilla Accounts Settings
+# Firefox Accounts Settings
 
 ## Table of Contents
 

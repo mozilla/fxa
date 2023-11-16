@@ -117,9 +117,9 @@ const conf = convict({
       env: 'GA_SUPPORTED_STRIPE_PRODUCT_IDS',
       format: String,
     },
-    debugMode: {
+    testMode: {
       default: false,
-      doc: 'Toggle Google Analytics gtag debug mode. (Not to be confused with librayr react-ga testMode',
+      doc: 'Toggle Google Analytics test/debug mode',
       env: 'GA_TEST_MODE',
       format: Boolean,
     },

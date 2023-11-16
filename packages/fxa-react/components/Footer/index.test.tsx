@@ -23,11 +23,11 @@ describe('Footer', () => {
     );
     expect(screen.getByTestId('link-privacy')).toHaveAttribute(
       'href',
-      'https://www.mozilla.org/privacy/websites/'
+      'https://www.mozilla.org/en-US/privacy/websites/'
     );
     expect(screen.getByTestId('link-terms')).toHaveAttribute(
       'href',
-      'https://www.mozilla.org/about/legal/terms/services/'
+      'https://www.mozilla.org/en-US/about/legal/terms/services/'
     );
   });
 });

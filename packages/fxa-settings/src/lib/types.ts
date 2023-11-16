@@ -20,7 +20,6 @@ export enum MozServices {
   FirefoxSync = 'Firefox Sync',
   MozillaVPN = 'Mozilla VPN',
   Pocket = 'Pocket',
-  TestService = '123Done',
 }
 
 // Information about a device

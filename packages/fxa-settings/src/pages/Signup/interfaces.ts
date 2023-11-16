@@ -19,15 +19,15 @@ export interface BeginSignupResponse {
 }
 
 // full list @ fxa-auth-client/lib/client.ts, probably port over?
-export interface BeginSignUpOptions {
+interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;
-  keys?: boolean;
 }
 
 export type BeginSignupHandler = (
   password: string,
-  email: string
+  email: string,
+  options: BeginSignUpOptions
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {
@@ -43,9 +43,6 @@ export interface SignupProps {
   integration: SignupIntegration;
   queryParamModel: SignupQueryParams;
   beginSignupHandler: BeginSignupHandler;
-  webChannelEngines: string[] | undefined;
-  isSyncMobileWebChannel: boolean;
-  isSync: boolean;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;
@@ -54,12 +51,12 @@ export interface SignupOAuthIntegration {
   type: IntegrationType.OAuth;
   getRedirectUri: () => ReturnType<OAuthIntegration['getRedirectUri']>;
   saveOAuthState: () => ReturnType<OAuthIntegration['saveOAuthState']>;
-  getService: () => ReturnType<OAuthIntegration['getService']>;
+  getServiceName: () => ReturnType<OAuthIntegration['getServiceName']>;
 }
 
 export interface SignupBaseIntegration {
   type: IntegrationType;
-  getService: () => ReturnType<BaseIntegration['getService']>;
+  getServiceName: () => ReturnType<BaseIntegration['getServiceName']>;
 }
 
 export interface SignupFormData {

@@ -124,12 +124,12 @@ describe('Renderer', () => {
       const result = await renderer.localizeAndRender(
         undefined,
         {
-          id: 'verifyShortCode-title-3',
-          message: 'Open the internet with Mozilla',
+          id: 'verifyShortCode-title-2',
+          message: 'Open the internet with Firefox',
         },
         rendererContext
       );
-      assert.equal(result, 'Apri Internet con Mozilla');
+      assert.equal(result, 'Esplora Internet con Firefox');
     });
   });
 });

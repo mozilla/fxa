@@ -1,0 +1,212 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+const fs = require('fs');
+const intern = require('intern').default;
+const args = require('yargs').argv;
+const firefoxProfile = require('./tools/firefox_profile');
+
+// Tests
+const testsMain = require('./functional');
+const testsCircleCi = require('./functional_circle')(
+  testsMain,
+  args.groupsCount,
+  args.groupNum
+);
+const testsFunctionalSmoke = require('./functional_smoke');
+const testsFunctionalRegression = require('./functional_regression');
+const testsPairing = require('./functional_pairing');
+const testsServer = require('./tests_server');
+const testsServerResources = require('./tests_server_resources');
+const testsSettings = require('./functional_settings');
+
+const fxaAuthRoot = args.fxaAuthRoot || 'http://localhost:9000/v1';
+const fxaContentRoot = args.fxaContentRoot || 'http://localhost:3030/';
+const fxaOAuthRoot = args.fxaOAuthRoot || 'http://localhost:9000';
+const fxaProfileRoot = args.fxaProfileRoot || 'http://localhost:1111';
+const fxaTokenRoot = args.fxaTokenRoot || 'http://localhost:5000/token';
+const fxaEmailRoot = args.fxaEmailRoot || 'http://localhost:9001';
+const fxaOAuthApp = args.fxaOAuthApp || 'http://localhost:8080/';
+const fxaUntrustedOauthApp =
+  args.fxaUntrustedOauthApp || 'http://localhost:10139/';
+const fxaPaymentsRoot = args.fxaPaymentsRoot || 'http://localhost:3031/';
+const output = args.output || 'test-results.xml';
+const fxaSettingsV2Root = args.fxaSettingsV2Root || `${fxaContentRoot}settings`;
+
+// "fxaProduction" is a little overloaded in how it is used in the tests.
+// Sometimes it means real "stage" or real production configuration, but
+// sometimes it also means fxa-dev style boxes like "latest". Configuration
+// parameter "fxaDevBox" can be used as a crude way to distinguish between
+// two.
+const fxaProduction = !!args.fxaProduction;
+const fxaDevBox = !!args.fxaDevBox;
+
+const fxaToken = args.fxaToken || 'http://';
+const asyncTimeout = parseInt(args.asyncTimeout || 10000, 10);
+
+// On Circle, we bail after the first failure.
+// args.bailAfterFirstFailure comes in as a string.
+const bailAfterFirstFailure = args.bailAfterFirstFailure === 'true';
+
+const testProductId = args.testProductId || 'prod_GqM9ToKK62qjkK';
+const testPlanId = args.testPlanId || 'plan_GqM9N6qyhvxaVk';
+
+// Intern specific options are here: https://theintern.io/docs.html#Intern/4/docs/docs%2Fconfiguration.md/properties
+const config = {
+  asyncTimeout: asyncTimeout,
+  bail: bailAfterFirstFailure,
+  defaultTimeout: 45000, // 30 seconds just isn't long enough for some tests.
+  environments: {
+    browserName: 'firefox',
+    fixSessionCapabilities: 'no-detect',
+    usesHandleParameter: true,
+  },
+  filterErrorStack: true,
+  functionalSuites: testsMain,
+
+  fxaAuthRoot: fxaAuthRoot,
+  fxaContentRoot: fxaContentRoot,
+  fxaSettingsV2Root: fxaSettingsV2Root,
+  fxaDevBox: fxaDevBox,
+  fxaEmailRoot: fxaEmailRoot,
+  fxaOAuthApp: fxaOAuthApp,
+  fxaOAuthRoot: fxaOAuthRoot,
+  fxaProduction: fxaProduction,
+  fxaProfileRoot: fxaProfileRoot,
+  fxaToken: fxaToken,
+  fxaTokenRoot: fxaTokenRoot,
+  fxaUntrustedOauthApp: fxaUntrustedOauthApp,
+  fxaPaymentsRoot,
+
+  pageLoadTimeout: 30000,
+  reporters: [
+    {
+      name: 'junit',
+      options: {
+        filename: output,
+      },
+    },
+    'runner',
+  ],
+  serverPort: 9091,
+  serverUrl: 'http://localhost:9091',
+  socketPort: 9077,
+  tunnelOptions: {
+    drivers: [
+      {
+        name: 'firefox',
+      },
+    ],
+  },
+
+  testProductId,
+  testPlanId,
+};
+
+if (args.grep) {
+  config.grep = new RegExp(args.grep, 'i');
+}
+
+if (args.suites) {
+  switch (args.suites) {
+    case 'pairing':
+      config.functionalSuites = testsPairing;
+      config.isTestingPairing = true;
+      break;
+    case 'functional_smoke':
+      config.functionalSuites = testsFunctionalSmoke;
+      break;
+    case 'functional_regression':
+      config.functionalSuites = testsFunctionalRegression;
+      break;
+    case 'settings':
+      config.functionalSuites = testsSettings;
+      break;
+    case 'all':
+      config.functionalSuites = testsMain;
+      break;
+    case 'circle':
+      config.functionalSuites = testsCircleCi;
+      console.log('Running tests:', config.functionalSuites);
+      break;
+    case 'server':
+    case 'server-resources':
+      config.functionalSuites = [];
+      config.node = {
+        suites: testsServer,
+      };
+      config.tunnelOptions = {};
+      config.environments = {
+        browserName: 'node',
+      };
+      config.reporters = 'pretty';
+      if (args.suites === 'server-resources') {
+        config.node.suites = testsServerResources;
+      }
+      break;
+  }
+}
+
+if (args.unit) {
+  config.functionalSuites.unshift('tests/functional/mocha.js');
+}
+
+if (args.groups !== undefined && args.groupIndex !== undefined) {
+  const index = args.groupIndex;
+  const groups = args.groups;
+  const groupSize = Math.ceil(config.functionalSuites.length / groups);
+  const originalSuiteSize = config.functionalSuites.length;
+  const targeted = config.functionalSuites.splice(groupSize * index, groupSize);
+
+  console.log(`Running group ${args.groupIndex + 1} of ${args.groups}.`);
+  console.log(
+    `Running ${targeted.length} of ${originalSuiteSize} tests suites.`
+  );
+
+  // Target a 'block' of tests to run
+  config.functionalSuites = targeted;
+}
+
+config.capabilities = {};
+config.capabilities['moz:firefoxOptions'] = {};
+// to create a profile, give it the `config` option.
+config.capabilities['moz:firefoxOptions'].profile = firefoxProfile(config); //eslint-disable-line camelcase
+// uncomment to show devtools on launch
+// config.capabilities['moz:firefoxOptions'].args = ['-devtools'];
+
+// custom Firefox binary location, if specified then the default is ignored.
+// ref: https://code.google.com/p/selenium/wiki/DesiredCapabilities#WebDriver
+if (args.firefoxBinary) {
+  config.capabilities['moz:firefoxOptions'].binary = args.firefoxBinary; //eslint-disable-line camelcase
+}
+
+const failed = [];
+
+intern.on('suiteEnd', (test) => {
+  if (test.error) {
+    failed.push(test);
+  }
+});
+
+intern.on('testEnd', (test) => {
+  if (test.error) {
+    failed.push(test);
+  }
+});
+
+intern.on('afterRun', () => {
+  if (failed.length) {
+    // This text output is used later to target tests to rerun. The value
+    // is essentially just a big regex. Note that that the postfixed $
+    // helps the regex be more precisely.
+    fs.writeFileSync('rerun.txt', failed.map((f) => `${f.name}$`).join('|'));
+  }
+});
+
+intern.configure(config);
+intern.run().catch((e) => {
+  // This might not throw, BUG filed: https://github.com/theintern/intern/issues/868
+  console.log(e);
+  process.exit(1);
+});

@@ -14,7 +14,7 @@
   }
 
   &::before {
-    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''];
+    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''] bg-ff-logo;
   }
 
   &-header {

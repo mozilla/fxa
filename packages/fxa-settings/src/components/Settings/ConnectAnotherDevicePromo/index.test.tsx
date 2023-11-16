@@ -17,7 +17,7 @@ describe('Connect another device Promo', () => {
     ).toBeTruthy();
     expect(await screen.findByTestId('download-link')).toHaveAttribute(
       'href',
-      'https://www.mozilla.org/firefox/mobile/'
+      'https://www.mozilla.org/en-US/firefox/mobile/'
     );
     expect(screen.getByTestId('play-store-link')).toHaveAttribute(
       'href',

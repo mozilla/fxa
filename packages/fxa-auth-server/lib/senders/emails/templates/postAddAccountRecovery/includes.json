@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postAddAccountRecovery-subject-3",
-    "message": "New account recovery key created"
+    "id": "postAddAccountRecovery-subject-2",
+    "message": "Account recovery key created"
   },
   "action": {
     "id": "postAddAccountRecovery-action",

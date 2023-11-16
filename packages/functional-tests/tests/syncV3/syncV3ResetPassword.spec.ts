@@ -8,10 +8,10 @@ import { EmailHeader, EmailType } from '../../lib/email';
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Firefox Desktop Sync v3 reset password', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
+  test.beforeEach(async ({ pages: { login } }) => {
     test.slow();
 
-    const config = await configPage.getConfig();
+    const config = await login.getConfig();
     test.skip(config.showReactApp.resetPasswordRoutes === true);
   });
 

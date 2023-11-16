@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
@@ -14,6 +13,7 @@ import {
 } from 'fxa-shared/subscriptions/types';
 import * as invoiceDTO from 'fxa-shared/dto/auth/payments/invoice';
 import * as couponDTO from 'fxa-shared/dto/auth/payments/coupon';
+import { metadataFromPlan } from 'fxa-shared/subscriptions/metadata';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   DeepPartial,
@@ -29,6 +29,7 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
+import { commaSeparatedListToArray } from 'fxa-shared/lib/utils';
 import { StripeHelper } from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
@@ -43,6 +44,7 @@ import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
+import { ALL_RPS_CAPABILITIES_KEY } from 'fxa-shared/subscriptions/configuration/base';
 import { CapabilityService } from '../../payments/capability';
 import Container from 'typedi';
 
@@ -94,6 +96,7 @@ export class StripeHandler {
   ) {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
+
     this.capabilityService = Container.get(CapabilityService);
   }
 
@@ -135,10 +138,58 @@ export class StripeHandler {
     });
   }
 
+  /**
+   * Retrieve the client capabilities
+   */
   async getClients(request: AuthRequest) {
     this.log.begin('subscriptions.getClients', request);
+    const capabilitiesByClientId: { [clientId: string]: string[] } = {};
 
-    return this.capabilityService.getClients();
+    const plans = await this.stripeHelper.allAbbrevPlans();
+    const planConfigs = await this.stripeHelper.allMergedPlanConfigs();
+
+    const capabilitiesForAll: string[] = [];
+    for (const plan of plans) {
+      const metadata = metadataFromPlan(plan);
+      const pConfig = planConfigs?.[plan.plan_id] || {};
+
+      capabilitiesForAll.push(
+        ...commaSeparatedListToArray(metadata.capabilities || ''),
+        ...(pConfig.capabilities?.[ALL_RPS_CAPABILITIES_KEY] || [])
+      );
+
+      const capabilityKeys = Object.keys(metadata).filter((key) =>
+        key.startsWith('capabilities:')
+      );
+      for (const key of capabilityKeys) {
+        const clientId = key.split(':')[1];
+        const capabilities = commaSeparatedListToArray((metadata as any)[key]);
+        capabilitiesByClientId[clientId] = (
+          capabilitiesByClientId[clientId] || []
+        ).concat(capabilities);
+      }
+      if (pConfig.capabilities) {
+        Object.keys(pConfig.capabilities)
+          .filter((x) => x !== ALL_RPS_CAPABILITIES_KEY)
+          .forEach(
+            (clientId) =>
+              (capabilitiesByClientId[clientId] = (
+                capabilitiesByClientId[clientId] || []
+              ).concat(pConfig.capabilities?.[clientId]))
+          );
+      }
+    }
+
+    return Object.entries(capabilitiesByClientId).map(
+      ([clientId, capabilities]) => {
+        // Merge dupes with Set
+        const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
+        return {
+          clientId,
+          capabilities: [...capabilitySet],
+        };
+      }
+    );
   }
 
   async deleteSubscription(request: AuthRequest) {
@@ -210,8 +261,8 @@ export class StripeHandler {
       throw error.unknownSubscription();
     }
 
-    const currentPlan = singlePlan(subscription);
-    if (!currentPlan) {
+    const plan = singlePlan(subscription);
+    if (!plan) {
       throw error.internalValidationError(
         'updateSubscription',
         { subscription: subscription.id },
@@ -219,17 +270,13 @@ export class StripeHandler {
       );
     }
 
-    const eligibility = await this.capabilityService.getPlanEligibility(
-      uid,
+    const currentPlanId = plan.id;
+
+    // Verify the plan is a valid update for this subscription.
+    await this.stripeHelper.verifyPlanUpdateForSubscription(
+      currentPlanId,
       planId
     );
-
-    const eligibleForUpgrade =
-      eligibility[0] === SubscriptionEligibilityResult.UPGRADE;
-    const isUpgradeForCurrentPlan = eligibility[1]?.plan_id === currentPlan.id;
-    if (!eligibleForUpgrade || !isUpgradeForCurrentPlan) {
-      throw error.invalidPlanUpdate();
-    }
 
     // Verify the new plan currency and customer currency are compatible.
     // Stripe does not allow customers to change currency after a currency is set, which

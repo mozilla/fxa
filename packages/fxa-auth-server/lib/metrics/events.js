@@ -82,7 +82,7 @@ function shouldLogFlowEvent(event, service) {
   return true;
 }
 
-module.exports = (log, config, glean) => {
+module.exports = (log, config) => {
   const amplitude = require('./amplitude')(log, config);
 
   return {
@@ -139,10 +139,6 @@ module.exports = (log, config, glean) => {
           event: 'flow.complete',
         });
         await amplitude('flow.complete', request, data, metricsContext);
-
-        if (metricsContext.flowType === 'login') {
-          glean.login.complete(request, { uid: data?.uid ?? '' });
-        }
 
         return request.clearMetricsContext();
       }

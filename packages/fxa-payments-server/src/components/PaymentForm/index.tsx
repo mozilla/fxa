@@ -211,9 +211,6 @@ export const PaymentForm = ({
   const onPaypalFormSubmit = useCallback(
     async (ev: React.FormEvent<HTMLFormElement>) => {
       ev.preventDefault();
-      if (!allowSubmit) {
-        return;
-      }
       setLastSubmitNonce(submitNonce);
       (onSubmitForParent as PaypalSubmitHandler)({
         priceId: plan!.plan_id,
@@ -221,7 +218,7 @@ export const PaymentForm = ({
         promotionCode: promotionCode,
       });
     },
-    [onSubmitForParent, submitNonce, plan, promotionCode, allowSubmit]
+    [onSubmitForParent, submitNonce, plan, promotionCode]
   );
 
   const onStripeFormSubmit = useCallback(
@@ -269,9 +266,6 @@ export const PaymentForm = ({
     [PaymentProviders.stripe]: onStripeFormSubmit,
     [PaymentProviders.paypal]: onPaypalFormSubmit,
   });
-
-  const disabledStyles =
-    'payment-button-disabled after:bg-white after:opacity-50 after:z-[100] border-none';
 
   const paymentSource =
     plan && isExistingCustomer(customer) ? (
@@ -334,9 +328,7 @@ export const PaymentForm = ({
 
       <SubmitButton
         data-testid="submit"
-        className={`payment-button cta-primary h-10 mobileLandscape:h-12 cursor-pointer ${
-          inProgress && disabledStyles
-        }`}
+        className="payment-button cta-primary h-10 mobileLandscape:h-12 cursor-pointer"
         name="submit"
         aria-disabled={inProgress}
       >
@@ -357,9 +349,7 @@ export const PaymentForm = ({
   ) : (
     <SubmitButton
       data-testid="submit"
-      className={`payment-button cta-primary !font-bold w-full mt-8 h-12 cursor-pointer mb-5 ${
-        !allowSubmit && disabledStyles
-      }`}
+      className="payment-button cta-primary !font-bold w-full mt-8 h-12 cursor-pointer mb-5"
       name="submit"
       aria-disabled={!allowSubmit}
     >

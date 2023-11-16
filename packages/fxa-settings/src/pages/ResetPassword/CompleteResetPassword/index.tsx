@@ -5,11 +5,7 @@
 import React, { useCallback, useState, useEffect, ReactElement } from 'react';
 import { Link, useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
-import {
-  logPageViewEvent,
-  logViewEvent,
-  settingsViewName,
-} from '../../../lib/metrics';
+import { logPageViewEvent } from '../../../lib/metrics';
 import {
   IntegrationType,
   useAccount,
@@ -23,10 +19,19 @@ import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import AppLayout from '../../../components/AppLayout';
 import Banner, { BannerType } from '../../../components/Banner';
-import { FtlMsg } from 'fxa-react/lib/utils';
+import {
+  FtlMsg,
+  hardNavigateToContentServer,
+  hardNavigate,
+} from 'fxa-react/lib/utils';
 import { LinkStatus } from '../../../lib/types';
 import useNavigateWithoutRerender from '../../../lib/hooks/useNavigateWithoutRerender';
-import firefox from '../../../lib/channels/firefox';
+import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
+import {
+  clearOAuthData,
+  clearOriginalTab,
+  isOriginalTab,
+} from '../../../lib/storage-utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import {
   CompleteResetPasswordFormData,
@@ -38,7 +43,6 @@ import {
   AuthUiErrors,
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
-import GleanMetrics from '../../../lib/glean';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -58,6 +62,7 @@ const CompleteResetPassword = ({
   linkModel,
   setLinkStatus,
   integration,
+  finishOAuthFlowHandler,
 }: CompleteResetPasswordProps) => {
   const [bannerMessage, setBannerMessage] = useState<
     undefined | string | ReactElement
@@ -91,13 +96,7 @@ const CompleteResetPassword = ({
    * If users clicked the link leading back to this page from `account_recovery_confirm_key`,
    * we assume the user has lost the key and pass along a `lostRecoveryKey` flag
    * so we don't perform the check and redirect again.
-   *
    * If the link is -not- valid, we render link expired or link damaged.
-   *
-   * Additionally, the user can submit an invalid account recovery key and receive back
-   * an `accountResetToken`, then follow the link back to this page. In this case, we
-   * should _not_ check if the 'token' parameter is valid, since it will be invalid after
-   * this token is provided to us.
    */
   useEffect(() => {
     const checkPasswordForgotToken = async (token: string) => {
@@ -157,21 +156,13 @@ const CompleteResetPassword = ({
     const renderCompleteResetPassword = () => {
       setShowLoadingSpinner(false);
       logPageViewEvent(viewName, REACT_ENTRYPOINT);
-      GleanMetrics.resetPassword.createNewView();
     };
-    // If a user comes from AccountRecoveryConfirmKey and attempted a recovery key
-    // submission, 'token' was already verified and used to fetch the reset token
-    if (!location.state?.accountResetToken) {
-      checkPasswordForgotToken(linkModel.token);
-    } else {
-      renderCompleteResetPassword();
-    }
+    checkPasswordForgotToken(linkModel.token);
   }, [
     account,
     navigate,
     location.search,
     location.state?.lostRecoveryKey,
-    location.state?.accountResetToken,
     linkModel.email,
     linkModel.token,
     setLinkStatus,
@@ -185,10 +176,6 @@ const CompleteResetPassword = ({
       { replace: true }
     );
   }, [navigateWithoutRerender]);
-
-  const onFocusMetricsEvent = () => {
-    logViewEvent(settingsViewName, `${viewName}.engage`);
-  };
 
   const onSubmit = useCallback(
     async ({
@@ -206,14 +193,11 @@ const CompleteResetPassword = ({
         // how account password hashing works previously.
         const emailToUse = emailToHashWith || email;
 
-        GleanMetrics.resetPassword.createNewSubmit();
-
         const accountResetData = await account.completeResetPassword(
           token,
           code,
           emailToUse,
-          newPassword,
-          location.state?.accountResetToken
+          newPassword
         );
 
         /* NOTE: Session check/totp check must come after completeResetPassword since those
@@ -223,7 +207,7 @@ const CompleteResetPassword = ({
          * We may also want to consider putting a different error message in place for when
          * PW reset succeeds, but one of these fails. At the moment, the try/catch in Account
          * just returns false for these if the request fails. */
-        const [sessionIsVerified] = await Promise.all([
+        const [sessionIsVerified, hasTotp] = await Promise.all([
           account.isSessionVerifiedAuthClient(),
           account.hasTotpAuthClient(),
         ]);
@@ -234,7 +218,7 @@ const CompleteResetPassword = ({
           // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
           case IntegrationType.SyncDesktop:
           case IntegrationType.SyncBasic:
-            firefox.fxaLoginSignedInUser({
+            notifyFirefoxOfLogin({
               authAt: accountResetData.authAt,
               email,
               keyFetchToken: accountResetData.keyFetchToken,
@@ -247,15 +231,48 @@ const CompleteResetPassword = ({
           case IntegrationType.OAuth:
             // allows a navigation to a "complete" screen or TOTP screen if it is setup
             // TODO: check if relier has state
-            if (sessionIsVerified && isOAuthIntegration(integration)) {
-              // TODO: Consider redirecting back to RP, after success message is displayed.
-              // NOTE: To fully sign in, totp must performed if 2FA is enabled.
+            if (hasTotp) {
+              // finishing OAuth flow occurs on this page after entering TOTP
+              // TODO: probably need to pass some params
+              hardNavigateToContentServer(
+                `/signin_totp_code${location.search}`
+              );
+              isHardNavigate = true;
+            } else if (sessionIsVerified && isOAuthIntegration(integration)) {
+              // todo use type guard, FXA-8111
+              const { redirect } = await finishOAuthFlowHandler(
+                integration.data.uid || account.uid,
+                accountResetData.sessionToken,
+                accountResetData.keyFetchToken,
+                accountResetData.unwrapBKey
+              );
+
+              // Clear local / session storage
+              clearOAuthData();
+
+              // If the user is on the same tab throughout the process, then
+              // just send them back to the relying party. Otherwise log them in
+              // behind the scenes and show a success message.
+              if (isOriginalTab()) {
+                clearOriginalTab();
+                hardNavigate(redirect);
+                return;
+              }
             }
             break;
           case IntegrationType.Web:
-            // TODO: Consider redirecting back to settings after success message is displayed.
-            // NOTE: To fully sign in, totp must be performed if 2FA is enabled.
+            if (hasTotp) {
+              // take users to Settings after entering TOTP
+              hardNavigateToContentServer(
+                `/signin_totp_code${location.search}`
+              );
+              isHardNavigate = true;
+            }
+            // TODO: if no TOTP, navigate users to /settings with the alert bar message
+            // for now, just navigate to reset_password_verified. FXA-8266
             break;
+          default:
+          // TODO: run unpersistVerificationData in FXA-7308
         }
 
         if (!isHardNavigate) {
@@ -279,8 +296,9 @@ const CompleteResetPassword = ({
     [
       account,
       integration,
-      location.state?.accountResetToken,
+      location.search,
       alertSuccessAndNavigate,
+      finishOAuthFlowHandler,
       ftlMsgResolver,
       setLinkStatus,
     ]
@@ -339,7 +357,7 @@ const CompleteResetPassword = ({
             })
           )}
           loading={false}
-          onFocusMetricsEvent={onFocusMetricsEvent}
+          onFocusMetricsEvent={`${viewName}.engage`}
         />
       </section>
       <LinkRememberPassword email={linkModel.email} />

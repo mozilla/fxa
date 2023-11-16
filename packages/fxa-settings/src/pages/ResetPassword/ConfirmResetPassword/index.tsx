@@ -89,7 +89,8 @@ const ConfirmResetPassword = ({
       if (isOAuthIntegration(integration)) {
         const result = await account.resetPassword(
           email,
-          integration.getService()
+          integration.getService(),
+          integration.getRedirectUri()
         );
         setCurrentPasswordForgotToken(result.passwordForgotToken);
       } else {

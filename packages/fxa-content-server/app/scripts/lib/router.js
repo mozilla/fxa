@@ -176,37 +176,17 @@ Router = Router.extend({
       type: VerificationReasons.SIGN_IN,
     }),
     'confirm_signup_code(/)': function () {
-      /* If a user initiates the OAuth Signup flow in React (e.g. they create an account
-      * through an RP), they will be navigated to the React version of `confirm_signup_code`
-      * and can be redirected to that RP after signup completion as expected.
-      *
-      * *However*, `keyFetchToken` and `unwrapBKey`, which are used on `confirm_signup_code`
-      * in the OAuth flow, are provided to us when a user creates an unverified account.
-      * We do not want to pass these params back and forth between Backbone and React.
-      * We can also retrieve these when a user signs in.
-
-      * This means users that have previously created an account but did not verify it
-      * and are in the OAuth flow will be in a problematic state when going from Backbone's
-      * `signin` to React's `confirm_signup_code`. For this case, we want to use the
-      * Backbone `confirm_signup_code` until `signin` is Reactified. See:
-      * https://github.com/mozilla/fxa/pull/15839/files#r1344333026
-      *
-      * Later comment: additionally, we need `keyFetchToken` and `unwrapBKey` to send a
-      * webchannel message to the browser for Sync. For this case, we will also show
-      * Backbone's `confirm_signup_code` until `signin` is Reactified.
-      * */
-
-      const routeName = 'confirm_signup_code';
-      // Users that have already reached React Signup will be navigated in-app to this
-      // page next (in React). This check handles the OAuth flow and Sync flow when the
-      // previous page was Backbone `/signin` - always show Backbone `confirm_signup_code`.
-      if (this.relier.isOAuth() || this.relier.isSync()) {
-        return getView(routeName).then((View) => {
-          return this.showView(View);
-        });
-      } else {
-        this.createReactOrBackboneViewHandler(routeName, ConfirmSignupCodeView);
-      }
+      this.createReactOrBackboneViewHandler(
+        'confirm_signup_code',
+        ConfirmSignupCodeView,
+        {
+          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
+          // this param is passed in to confirm_signup_code too in case the user is redirected
+          // to the React version of this page without having directly arrived from the React
+          // signup flow
+          email: this.user.get('emailFromIndex'),
+        }
+      );
     },
     'connect_another_device(/)': createViewHandler(ConnectAnotherDeviceView),
     'cookies_disabled(/)': function () {
@@ -256,20 +236,7 @@ Router = Router.extend({
     'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
     'oauth/signin(/)': createViewHandler(SignInPasswordView),
-    'oauth/signup(/)': function () {
-      this.createReactOrBackboneViewHandler(
-        'oauth/signup',
-        SignUpPasswordView,
-        {
-          // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
-          email: this.user.get('emailFromIndex'),
-          ...(this.user.get('emailFromIndex') && {
-            emailFromContent: 'true',
-          }),
-          ...Url.searchParams(this.window.location.search),
-        }
-      );
-    },
+    'oauth/signup(/)': createViewHandler(SignUpPasswordView),
     'oauth/success/:client_id(/)': createViewHandler(ReadyView, {
       type: VerificationReasons.SUCCESSFUL_OAUTH,
     }),
@@ -284,6 +251,24 @@ Router = Router.extend({
     'pair/supp/allow(/)': createViewHandler('pair/supp_allow'),
     'pair/supp/wait_for_auth(/)': createViewHandler('pair/supp_wait_for_auth'),
     'pair/unsupported(/)': createViewHandler('pair/unsupported'),
+    'post_verify/account_recovery/add_recovery_key': createViewHandler(
+      'post_verify/account_recovery/add_recovery_key'
+    ),
+    'post_verify/account_recovery/confirm_password': createViewHandler(
+      'post_verify/account_recovery/confirm_password'
+    ),
+    'post_verify/account_recovery/confirm_recovery_key': createViewHandler(
+      'post_verify/account_recovery/confirm_recovery_key'
+    ),
+    'post_verify/account_recovery/save_recovery_key': createViewHandler(
+      'post_verify/account_recovery/save_recovery_key'
+    ),
+    'post_verify/account_recovery/verified_recovery_key': createViewHandler(
+      'post_verify/verified',
+      {
+        type: VerificationReasons.RECOVERY_KEY,
+      }
+    ),
     'post_verify/finish_account_setup/set_password': createViewHandler(
       'post_verify/finish_account_setup/set_password'
     ),
@@ -468,7 +453,6 @@ Router = Router.extend({
     },
     'signup(/)': function () {
       this.createReactOrBackboneViewHandler('signup', SignUpPasswordView, {
-        ...Url.searchParams(this.window.location.search),
         // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
         email: this.user.get('emailFromIndex'),
         ...(this.user.get('emailFromIndex') && {
@@ -516,12 +500,6 @@ Router = Router.extend({
     'would_you_like_to_sync(/)': createViewHandler(WouldYouLikeToSync),
   },
 
-  /**
-   * Checks that 1) the feature flag is on, 2) the route is included in
-   * react-app/index.js, and 3) that the user is in the React experiment.
-   * @param routeName string
-   * @returns boolean
-   * */
   showReactApp(routeName) {
     for (const routeGroup in this.reactRouteGroups) {
       if (

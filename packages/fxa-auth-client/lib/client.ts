@@ -317,7 +317,7 @@ export default class AuthClient {
 
   /**
    * This function is intended for a service that will proxy the sign-up
-   * request. When signing up from a client with access to the plaintext
+   * request.  When signing up from a client with access to the plaintext
    * password, use `signUp` above.
    */
   async signUpWithAuthPW(
@@ -326,7 +326,7 @@ export default class AuthClient {
     options: SignUpOptions,
     headers: Headers = new Headers()
   ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
-    const payloadOptions = ({ keys, lang, ...rest }: SignUpOptions) => rest;
+    const payloadOptions = ({ keys, lang, ...rest }: any) => rest;
     const payload = {
       email,
       authPW,
@@ -507,7 +507,7 @@ export default class AuthClient {
     code: string,
     passwordForgotToken: hexstring,
     options: {
-      accountResetWithRecoveryKey?: boolean;
+      accountResetWithoutRecoveryKey?: boolean;
     } = {},
     headers: Headers = new Headers()
   ) {
@@ -534,8 +534,6 @@ export default class AuthClient {
     );
   }
 
-  // TODO: Once password reset react is 100% and stable in production
-  // we can remove this.
   async accountReset(
     email: string,
     newPassword: string,
@@ -564,30 +562,6 @@ export default class AuthClient {
       accountData.unwrapBKey = credentials.unwrapBKey;
     }
     return accountData;
-  }
-
-  async accountResetAuthPW(
-    newPasswordAuthPW: string,
-    accountResetToken: hexstring,
-    options: {
-      keys?: boolean;
-      sessionToken?: boolean;
-    } = {},
-    headers: Headers = new Headers()
-  ) {
-    const payloadOptions = ({ keys, ...rest }: any) => rest;
-    const payload = {
-      authPW: newPasswordAuthPW,
-      ...payloadOptions(options),
-    };
-    return await this.hawkRequest(
-      'POST',
-      pathWithKeys('/account/reset', options.keys),
-      accountResetToken,
-      tokenType.accountResetToken,
-      payload,
-      headers
-    );
   }
 
   async finishSetup(

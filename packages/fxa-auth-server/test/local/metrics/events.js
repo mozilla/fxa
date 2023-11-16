@@ -14,8 +14,6 @@ const log = {
   info: sinon.spy(),
   trace: sinon.spy(),
 };
-const mocks = require('../../mocks');
-const glean = mocks.mockGlean();
 const proxyquire = require('proxyquire');
 const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
   'fxa-shared/db/models/auth': {
@@ -26,23 +24,16 @@ const amplitudeModule = proxyquire('../../../lib/metrics/amplitude', {
 });
 const events = proxyquire('../../../lib/metrics/events', {
   './amplitude': amplitudeModule,
-})(
-  log,
-  {
-    amplitude: { rawEvents: false },
-    oauth: {
-      clientIds: {},
-    },
-    verificationReminders: {},
+})(log, {
+  amplitude: { rawEvents: false },
+  oauth: {
+    clientIds: {},
   },
-  glean
-);
+  verificationReminders: {},
+});
+const mocks = require('../../mocks');
 
 describe('metrics/events', () => {
-  beforeEach(() => {
-    glean.login.complete.reset();
-  });
-
   afterEach(() => {
     log.activityEvent.resetHistory();
     log.amplitudeEvent.resetHistory();
@@ -1208,47 +1199,6 @@ describe('metrics/events', () => {
     return events.emit.call(request, 'account.signed', data).then(() => {
       assert.equal(request.app.metricsEventUid, data.uid);
     });
-  });
-
-  it('.emit on login flow complete', () => {
-    const time = Date.now();
-    sinon.stub(Date, 'now').callsFake(() => time);
-    const metricsContext = mocks.mockMetricsContext();
-    const request = mocks.mockRequest({
-      credentials: {
-        uid: 'deadbeef',
-      },
-      metricsContext,
-      payload: {
-        metricsContext: {
-          entrypoint: 'wibble',
-          entrypointExperiment: 'exp',
-          entrypointVariation: 'var',
-          flowId: 'bar',
-          flowBeginTime: time - 1000,
-          flowCompleteSignal: 'account.signed',
-          flowType: 'login',
-          planId: 'planId',
-          productId: 'productId',
-          utmCampaign: 'utm campaign',
-          utmContent: 'utm content',
-          utmMedium: 'utm medium',
-          utmSource: 'utm source',
-          utmTerm: 'utm term',
-        },
-        service: 'baz',
-      },
-    });
-    return events.emit
-      .call(request, 'account.signed', { uid: 'quux' })
-      .then(() => {
-        sinon.assert.calledOnceWithExactly(glean.login.complete, request, {
-          uid: 'quux',
-        });
-      })
-      .finally(() => {
-        Date.now.restore();
-      });
   });
 
   it('.emitRouteFlowEvent with matching route and response.statusCode', () => {

@@ -23,7 +23,7 @@ export class SyncDesktopIntegration extends SyncBasicIntegration<SyncIntegration
     this.setFeatures({ allowUidChange: true });
   }
 
-  isSync() {
+  async isSync() {
     return true;
   }
 }

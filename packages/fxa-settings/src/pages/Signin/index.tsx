@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -13,7 +14,7 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
 import CardHeader from '../../components/CardHeader';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import BrandMessaging from '../../components/BrandMessaging';
 
 export type SigninProps = {
   email: string;
@@ -30,12 +31,7 @@ const Signin = ({
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  // TODO: Send `fxaccounts:can_link_account` web channel message.
-  // Throw a console log in web-channel.js 'send' to see.
-
-  // TODO in FXA-6488 use the integration's client id (instead of service name) to determine if client is Pocket or Monitor
   const isPocketClient = serviceName === MozServices.Pocket;
-  const isMonitorClient = serviceName === MozServices.FirefoxMonitor;
   const [error, setError] = useState('');
   const [password, setPassword] = useState('');
   const ftlMsgResolver = useFtlMsgResolver();
@@ -85,11 +81,11 @@ const Signin = ({
 
   return (
     <>
-      <BrandMessagingPortal {...{ viewName }} />,
+      {createPortal(<BrandMessaging {...{ viewName }} />, document.body)}
       {isPasswordNeeded ? (
         <CardHeader
           headingText="Enter your password"
-          headingAndSubheadingFtlId="signin-password-needed-header-2"
+          headingAndSubheadingFtlId="signin-password-needed-header"
         />
       ) : (
         <CardHeader
@@ -145,7 +141,7 @@ const Signin = ({
          */}
         <ThirdPartyAuth {...{ enabled: false }} />
 
-        <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
+        <TermsPrivacyAgreement {...{ isPocketClient }} />
 
         <div className="flex justify-between">
           <FtlMsg id="signin-use-a-different-account">

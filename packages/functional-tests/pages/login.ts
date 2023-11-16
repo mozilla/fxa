@@ -14,7 +14,7 @@ export const selectors = {
   EMAIL_PREFILLED: '#prefillEmail',
   EMAIL_HEADER: '#fxa-enter-email-header',
   ERROR: '.error',
-  LINK_LOST_RECOVERY_KEY: '.lost-recovery-key',
+  LINK_LOST_RECOVERY_KEY: 'a:has-text("Don’t have an account recovery key?")',
   LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
   LINK_USE_DIFFERENT: '#use-different',
   LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
@@ -484,8 +484,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async clickDontHaveRecoveryKey() {
-    const link = await this.page.locator(selectors.LINK_LOST_RECOVERY_KEY);
-    await link.click();
+    await this.page.locator(selectors.LINK_LOST_RECOVERY_KEY).click();
     await this.page.waitForURL(/complete_reset_password/);
   }
 
@@ -498,8 +497,14 @@ export class LoginPage extends BaseLayout {
   }
 
   async setNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
+    const config = await this.getConfig();
+    if (config.showReactApp.resetPasswordRoutes === true) {
+      await this.page.getByLabel('New password').fill(password);
+      await this.page.getByLabel('Re-enter password').fill(password);
+    } else {
+      await this.page.locator(selectors.PASSWORD).fill(password);
+      await this.page.locator(selectors.VPASSWORD).fill(password);
+    }
     await this.submit();
   }
 
@@ -606,6 +611,8 @@ export class LoginPage extends BaseLayout {
   }
 
   async denormalizeStoredEmail(email: string) {
+    const account = await this.getAccountFromFromLocalStorage(email);
+
     return this.page.evaluate((uid) => {
       const accounts = JSON.parse(
         localStorage.getItem('__fxa_storage.accounts') || '{}'
@@ -623,5 +630,21 @@ export class LoginPage extends BaseLayout {
 
       localStorage.setItem('__fxa_storage.accounts', JSON.stringify(accounts));
     }, email);
+  }
+
+  async getConfig() {
+    // Content server config is stored in the `meta` tag of the html page.
+    // We can check this tag to see if the content server has enabled this React feature flag.
+    await this.goto();
+    const metaConfig = this.page.locator(
+      'meta[name="fxa-content-server/config"]'
+    );
+    const config = await metaConfig.getAttribute('content');
+    this.page.goBack();
+    return JSON.parse(decodeURIComponent(config));
+  }
+
+  async clearEmailTextBox() {
+    return this.page.locator(selectors.EMAIL).fill('');
   }
 }

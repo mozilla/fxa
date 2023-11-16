@@ -5,6 +5,6 @@
 'use strict';
 
 // The list below should be kept in sync with:
-// https://github.com/mozilla/fxa/blob/main/libs/shared/l10n/src/lib/supportedLanguages.json
+// https://github.com/mozilla/fxa/blob/main/packages/fxa-shared/l10n/supportedLanguages.json
 
-module.exports = require('../../../libs/shared/l10n/src').supportedLanguages;
+module.exports = require('fxa-shared').l10n.supportedLanguages;

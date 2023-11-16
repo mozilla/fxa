@@ -503,8 +503,9 @@ export class AccountResolver {
     @Args('input', { type: () => AccountResetInput })
     input: AccountResetInput
   ): Promise<AccountResetPayload> {
-    const result = await this.authAPI.accountResetAuthPW(
-      input.newPasswordAuthPW,
+    const result = await this.authAPI.accountReset(
+      input.email,
+      input.newPassword,
       input.accountResetToken,
       input.options,
       headers

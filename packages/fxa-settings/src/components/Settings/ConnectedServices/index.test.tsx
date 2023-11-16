@@ -149,7 +149,7 @@ describe('Connected Services', () => {
         expect(result.icon).toBeTruthy();
         expect(result.link).toHaveAttribute(
           'href',
-          'https://www.mozilla.org/firefox/lockwise/'
+          'https://www.mozilla.org/en-US/firefox/lockwise/'
         );
       }
     );
@@ -231,7 +231,7 @@ describe('Connected Services', () => {
       expect(result.icon).toBeTruthy();
       expect(result.link).toHaveAttribute(
         'href',
-        'https://support.mozilla.org/kb/how-do-i-set-sync-my-computer'
+        'https://support.mozilla.org/en-US/kb/how-do-i-set-sync-my-computer'
       );
     });
   });

@@ -19,15 +19,11 @@ body {
   font-size: $base-font;
   justify-content: center;
   min-height: 100vh;
-  padding: 2rem 0 0;
+  padding: 48px 0 0;
 
   &.settings {
     justify-content: flex-start;
-    padding-top: 0;
-
-    & .mozilla-header {
-      display: none;
-    }
+    padding: 0;
   }
 
   @include respond-to('small') {

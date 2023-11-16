@@ -65,7 +65,7 @@ export const PaymentConsentCheckbox = ({
 
   return (
     <Localized
-      id="payment-confirm-with-legal-links-static-2"
+      id="payment-confirm-with-legal-links-static"
       elems={{
         termsOfServiceLink: (
           <LinkExternal href={termsOfService}>Terms of Service</LinkExternal>
@@ -86,8 +86,8 @@ export const PaymentConsentCheckbox = ({
           validateCheckbox(value, focused, props)
         }
       >
-        I authorize Mozilla to charge my payment method for the amount shown,
-        according to{' '}
+        I authorize Mozilla, maker of Firefox products, to charge my payment
+        method for the amount shown, according to{' '}
         <LinkExternal href={termsOfService}>Terms of Service</LinkExternal> and{' '}
         <LinkExternal href={privacyNotice}>Privacy Notice</LinkExternal>, until
         I cancel my subscription.

@@ -79,7 +79,10 @@ export class AccountResetInput {
   public accountResetToken!: string;
 
   @Field()
-  public newPasswordAuthPW!: string;
+  public email!: string;
+
+  @Field()
+  public newPassword!: string;
 
   @Field({ nullable: true })
   public options?: AccountResetInputOptions;

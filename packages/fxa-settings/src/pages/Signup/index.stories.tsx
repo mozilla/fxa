@@ -6,6 +6,7 @@ import React from 'react';
 import Signup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
+import { MozServices } from '../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   createMockSignupOAuthIntegration,
@@ -17,11 +18,6 @@ import {
 import { SignupProps } from './interfaces';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { mockUrlQueryData } from '../../models/mocks';
-import {
-  MONITOR_CLIENTIDS,
-  POCKET_CLIENTIDS,
-} from '../../models/integrations/client-matching';
-import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
 
 export default {
   title: 'Pages/Signup',
@@ -40,9 +36,6 @@ const storyWithProps = (props?: Partial<SignupProps>) => {
           integration: createMockSignupWebIntegration(),
           queryParamModel,
           beginSignupHandler: mockBeginSignupHandler,
-          webChannelEngines: getSyncEngineIds(),
-          isSyncMobileWebChannel: false,
-          isSync: false,
           ...props,
         }}
       />
@@ -58,14 +51,9 @@ export const CantChangeEmail = storyWithProps({
 });
 
 export const ClientIsPocket = storyWithProps({
-  integration: createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0]),
-});
-
-export const ClientIsMonitor = storyWithProps({
-  integration: createMockSignupOAuthIntegration(MONITOR_CLIENTIDS[0]),
+  integration: createMockSignupOAuthIntegration(MozServices.Pocket),
 });
 
 export const ChooseWhatToSyncIsEnabled = storyWithProps({
   integration: createMockSignupSyncDesktopIntegration(),
-  isSync: true,
 });

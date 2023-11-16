@@ -25,8 +25,6 @@ import { BackendModule } from '../backend/backend.module';
 import Config, { AppConfig } from '../config';
 import { AccountResolver } from './account.resolver';
 import { LegalResolver } from './legal.resolver';
-import { SubscriptionResolver } from './subscription.resolver';
-import { ClientInfoResolver } from './clientInfo.resolver';
 import { SessionResolver } from './session.resolver';
 
 const config = Config.getProperties();
@@ -72,8 +70,6 @@ export const GraphQLConfigFactory = async (
     CustomsService,
     SessionResolver,
     LegalResolver,
-    ClientInfoResolver,
-    SubscriptionResolver,
     SentryPlugin,
   ],
 })

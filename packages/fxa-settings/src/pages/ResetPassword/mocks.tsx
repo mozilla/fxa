@@ -43,7 +43,7 @@ export const mockAccountWithUnexpectedError = {
 export function createMockResetPasswordWebIntegration(): ResetPasswordBaseIntegration {
   return {
     type: IntegrationType.Web,
-    getServiceName: () => MozServices.Default,
+    getServiceName: () => Promise.resolve(MozServices.Default),
   };
 }
 
@@ -55,6 +55,6 @@ export function createMockResetPasswordOAuthIntegration(
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
     getService: () => serviceName,
-    getServiceName: () => serviceName,
+    getServiceName: () => Promise.resolve(serviceName),
   };
 }

@@ -13,7 +13,6 @@ import CWTSOnSignupPasswordMixin from '../../mixins/cwts-on-signup-password';
 import ServiceMixin from '../../mixins/service-mixin';
 import AccountSuggestionMixin from '../../mixins/account-suggestion-mixin';
 import SigninMixin from '../../mixins/signin-mixin';
-import BrandMessagingMixin from '../../mixins/brand-messaging-mixin';
 
 const PASSWORD_INPUT_SELECTOR = '#password';
 const VPASSWORD_INPUT_SELECTOR = '#vpassword';
@@ -81,8 +80,7 @@ Cocktail.mixin(
   }),
   ServiceMixin,
   AccountSuggestionMixin,
-  SigninMixin,
-  BrandMessagingMixin
+  SigninMixin
 );
 
 export default SetPassword;

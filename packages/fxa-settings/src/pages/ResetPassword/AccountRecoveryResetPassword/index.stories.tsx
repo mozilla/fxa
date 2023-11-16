@@ -34,6 +34,9 @@ const storyWithProps = (ctx: AppContextValue, history?: History) => {
       <LocationProvider {...{ history }}>
         <AccountRecoveryResetPassword
           integration={createMockAccountRecoveryResetPasswordSyncDesktopIntegration()}
+          finishOAuthFlowHandler={() =>
+            Promise.resolve({ redirect: 'someUri' })
+          }
         />
       </LocationProvider>
     </AppContext.Provider>

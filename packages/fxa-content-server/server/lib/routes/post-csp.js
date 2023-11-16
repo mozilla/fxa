@@ -18,6 +18,7 @@ const {
 
 const INTEGER_TYPE = validation.TYPES.INTEGER;
 const STRING_TYPE = validation.TYPES.LONG_STRING;
+const LONG_URI_TYPE = validation.TYPES.LONG_URI;
 
 const BODY_SCHEMA = {
   'csp-report': joi
@@ -32,7 +33,7 @@ const BODY_SCHEMA = {
       disposition: STRING_TYPE.optional(),
       // CSP 2, 3 required
       // Allow 'about:srcdoc', see https://bugzilla.mozilla.org/show_bug.cgi?id=1073952#c22
-      'document-uri': STRING_TYPE.allow('').optional(),
+      'document-uri': LONG_URI_TYPE.required().allow('about:srcdoc'),
       // CSP 2 required, but not always sent
       'effective-directive': STRING_TYPE.optional(),
       // CSP 2 optional

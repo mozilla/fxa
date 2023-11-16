@@ -5,7 +5,7 @@
 module.exports = function (grunt) {
   const srcPaths = ['.license.header', 'src/**/*.ftl'];
   const testPaths = [
-    '../../libs/shared/l10n/src/lib/branding.ftl',
+    '../fxa-shared/l10n/branding.ftl',
     '../fxa-react/components/**/*.ftl',
     'src/**/*.ftl',
   ];
@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     copy: {
       'branding-ftl': {
         nonull: true,
-        src: '../../libs/shared/l10n/src/lib/branding.ftl',
+        src: '../fxa-shared/l10n/branding.ftl',
         dest: 'public/locales/en/branding.ftl',
       },
     },

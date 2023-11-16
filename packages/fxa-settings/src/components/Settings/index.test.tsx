@@ -102,7 +102,18 @@ describe('App component', () => {
     expect(getByLabelText('Loading…')).toBeInTheDocument();
   });
 
-  it('renders `AppErrorDialog` component when settings query errors', () => {
+  it('renders `LoadingSpinner` component when the error message includes "Invalid token"', () => {
+    (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
+      error: { message: 'Invalid token' },
+    });
+    const { getByLabelText } = renderWithRouter(
+      <App {...{ flowQueryParams }} />
+    );
+
+    expect(getByLabelText('Loading…')).toBeInTheDocument();
+  });
+
+  it('renders `AppErrorDialog` component when there is an error other than "Invalid token"', () => {
     (useInitialSettingsState as jest.Mock).mockReturnValueOnce({
       error: { message: 'Error' },
     });
@@ -159,6 +170,17 @@ describe('App component', () => {
     expect(getByTestId('change-password-requirements')).toBeInTheDocument();
   });
 
+  it('routes to PageRecoveryKeyAdd', async () => {
+    const {
+      getByTestId,
+      history: { navigate },
+    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+
+    await navigate(HomePath + '/account_recovery');
+
+    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
+  });
+
   it('routes to PageSecondaryEmailAdd', async () => {
     const {
       getByTestId,
@@ -189,7 +211,7 @@ describe('App component', () => {
 
     await navigate(HomePath + '/two_step_authentication');
 
-    expect(getByTestId('totp-input')).toBeInTheDocument();
+    expect(getByTestId('recovery-key-input')).toBeInTheDocument();
   });
 
   it('routes to Page2faReplaceRecoveryCodes', async () => {
@@ -273,7 +295,7 @@ describe('App component', () => {
       ));
     });
 
-    it('redirects PageRecoveryKeyCreate', async () => {
+    it('redirects PageRecoveryKeyAdd', async () => {
       await history.navigate(HomePath + '/account_recovery');
       expect(history.location.pathname).toBe('/settings');
     });

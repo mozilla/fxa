@@ -561,6 +561,7 @@ module.exports = (
         const sessionToken = request.auth.credentials;
         const uid = sessionToken.uid;
         const primaryEmail = sessionToken.email;
+        const ip = request.app.clientAddress;
         const { email } = request.payload;
         const emailData = {
           email: email,
@@ -617,6 +618,8 @@ module.exports = (
             acceptLanguage: request.app.acceptLanguage,
             email: emailData.email,
             primaryEmail,
+            ip,
+            location: geoData.location,
             timeZone: geoData.timeZone,
             uaBrowser: sessionToken.uaBrowser,
             uaBrowserVersion: sessionToken.uaBrowserVersion,
@@ -630,11 +633,7 @@ module.exports = (
           throw emailUtils.sendError(err, true);
         }
 
-        recordSecurityEvent('account.secondary_email_added', {
-          db,
-          request,
-          account,
-        });
+        recordSecurityEvent('account.secondary_email_added', { db, request, account });
 
         return {};
 
@@ -726,7 +725,7 @@ module.exports = (
 
         await db.deleteEmail(uid, normalizeEmail(email));
 
-        recordSecurityEvent('account.secondary_email_removed', { db, request });
+        recordSecurityEvent('account.secondary_email_removed', { db, request })
 
         await db.resetAccountTokens(uid);
 
@@ -860,10 +859,7 @@ module.exports = (
             uid,
           });
 
-          recordSecurityEvent('account.primary_secondary_swapped', {
-            db,
-            request,
-          });
+          recordSecurityEvent('account.primary_secondary_swapped', { db, request } )
         }
 
         return {};
@@ -892,6 +888,7 @@ module.exports = (
         log.begin('Account.RecoveryEmailSecondaryResend', request);
 
         const sessionToken = request.auth.credentials;
+        const ip = request.app.clientAddress;
         const geoData = request.app.geo;
         const { email } = request.payload;
 
@@ -931,6 +928,8 @@ module.exports = (
         const mailerOpts = {
           code,
           deviceId,
+          ip,
+          location: geoData.location,
           timeZone: geoData.timeZone,
           timestamp: Date.now(),
           acceptLanguage: request.app.acceptLanguage,

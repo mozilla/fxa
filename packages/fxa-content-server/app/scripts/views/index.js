@@ -26,7 +26,6 @@ import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import BrandMessagingMixin from './mixins/brand-messaging-mixin';
-import MonitorClientMixin from './mixins/monitor-client-mixin';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
@@ -59,13 +58,10 @@ class IndexView extends FormView {
   beforeRender() {
     const account = this.getAccount();
     const relierEmail = this.relier.get('email');
-    const prefillEmailFromReact = this.relier.get('prefillEmail');
     if (account) {
       this.formPrefill.set(account.pick('email'));
     } else if (relierEmail) {
       this.formPrefill.set('email', relierEmail);
-    } else if (prefillEmailFromReact) {
-      this.formPrefill.set('email', prefillEmailFromReact);
     }
   }
 
@@ -146,13 +142,7 @@ class IndexView extends FormView {
         // The relier email set used as the prefill email in beforeRender.
         this.showValidationErrors();
       }
-      // Don't redirect to `/signin` if the React query param `prefillEmail`
-      // exists. This signals to content-server we want to stay on the index
-      // screen with that email prefilled.
-    } else if (
-      this.allowSuggestedAccount(suggestedAccount) &&
-      !this.relier.get('prefillEmail')
-    ) {
+    } else if (this.allowSuggestedAccount(suggestedAccount)) {
       this.replaceCurrentPage('signin', {
         account: suggestedAccount,
       });
@@ -299,8 +289,7 @@ Cocktail.mixin(
     entrypoint: 'fxa:enter_email',
     flowEvent: 'link.signin',
   }),
-  PocketMigrationMixin,
-  MonitorClientMixin
+  PocketMigrationMixin
 );
 
 export default IndexView;

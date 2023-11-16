@@ -51,7 +51,7 @@ export const Tooltip = ({
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white
          rounded text-xs font-header font-bold
-          shadow-tooltip-grey-drop border-transparent border border-solid
+          shadow-tooltip-grey-drop
          `,
         type === 'error' ? 'bg-red-600' : 'bg-grey-500',
         className,

@@ -27,15 +27,15 @@ describe('DataCollection', () => {
     const { container } = renderWithLocalizationProvider(<DataCollection />);
 
     expect(container).toHaveTextContent('Data Collection and Use');
-    expect(container).toHaveTextContent('Help improve Mozilla accounts');
+    expect(container).toHaveTextContent('Help improve Firefox Accounts');
     expect(container).toHaveTextContent(
-      'Allow Mozilla accounts to send technical and interaction data to Mozilla.'
+      'Allow Firefox Accounts to send technical and interaction data to Mozilla.'
     );
     expect(
       screen.getByTestId('link-external-telemetry-opt-out')
     ).toHaveAttribute(
       'href',
-      'https://www.mozilla.org/privacy/mozilla-accounts/'
+      'https://www.mozilla.org/en-US/privacy/firefox/#firefox-accounts'
     );
   });
 

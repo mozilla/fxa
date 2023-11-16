@@ -263,7 +263,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
             </p>
           </Localized>
 
-          <div className="mt-4 mb-6" data-testid="totp-input">
+          <div className="mt-4 mb-6" data-testid="recovery-key-input">
             <Localized id="tfa-input-enter-totp-v2" attrs={{ label: true }}>
               <InputText
                 name="totp"
@@ -321,7 +321,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 separator=" "
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
-                contentType="Backup authentication codes"
+                contentType="Firefox backup authentication codes"
               ></DataBlock>
             </div>
           </div>

@@ -22,8 +22,6 @@ import Transform from '../lib/transform';
 import UserCardMixin from './mixins/user-card-mixin';
 import Vat from '../lib/vat';
 import BrandMessagingMixin from './mixins/brand-messaging-mixin';
-import PocketMigrationMixin from './mixins/pocket-migration-mixin';
-import MonitorClientMixin from './mixins/monitor-client-mixin';
 
 const t = (msg) => msg;
 
@@ -254,9 +252,7 @@ Cocktail.mixin(
   SignInMixin,
   SignedInNotificationMixin,
   UserCardMixin,
-  BrandMessagingMixin,
-  PocketMigrationMixin,
-  MonitorClientMixin
+  BrandMessagingMixin
 );
 
 export default View;

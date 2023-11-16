@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReachRouterWindow } from '../../window';
-import { RawData, ModelDataStore } from '../model-data-store';
+import { ModelDataStore } from '../model-data-store';
 
 // TODO: Adapt to using ../../storage implementation. We need a way to migrate / deal with the namespace issue though.
 
@@ -14,7 +14,7 @@ export class StorageData extends ModelDataStore {
   private static readonly NAMESPACE = '__fxa_session';
   private static readonly PERSIST_TO_LOCAL_STORAGE = ['oauth'];
 
-  private state: Record<string, RawData>;
+  private state: Record<string, unknown>;
 
   constructor(private window: ReachRouterWindow) {
     super();
@@ -101,21 +101,11 @@ export class StorageData extends ModelDataStore {
     return Object.keys(this.state);
   }
 
-  public get(key: string): RawData {
-    const value = this.state[key];
-
-    if (typeof value === 'string') {
-      return value;
-    }
-
-    // Protects against legacy state in local storage. It's possible that
-    // content server wrote a complex object into a key value pair held in
-    // local storage. Since we now assume that all objects are stored as
-    // strings, if we encounter an object, convert it to a string value.
-    return JSON.stringify(value);
+  public get(key: string) {
+    return this.state[key];
   }
 
-  public set(key: string, value: RawData) {
+  public set(key: string, value: unknown) {
     this.state[key] = value;
   }
 }

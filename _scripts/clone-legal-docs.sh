@@ -161,7 +161,7 @@ case "$MODULE" in
         mkdir -p "$MODULE/public/legal-docs"
         cd "$MODULE/public/legal-docs"
         copy_json
-        copy_md "mozilla_accounts_privacy_notice" # legal/privacy page
+        copy_md "firefox_privacy_notice" # legal/privacy page
         copy_md "firefox_cloud_services_tos" # legal/terms page
         ;;
 esac

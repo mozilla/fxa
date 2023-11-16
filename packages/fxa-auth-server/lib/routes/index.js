@@ -127,8 +127,7 @@ module.exports = function (
     signinUtils,
     push,
     config,
-    oauthRawDB,
-    glean
+    oauthRawDB
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(
@@ -165,8 +164,7 @@ module.exports = function (
     Password,
     config.verifierVersion,
     customs,
-    mailer,
-    glean
+    mailer
   );
   const subscriptions = require('./subscriptions').default(
     log,
@@ -183,14 +181,7 @@ module.exports = function (
   const util = require('./util')(log, config, config.smtp.redirectDomain);
 
   const { linkedAccountRoutes } = require('./linked-accounts');
-  const linkedAccounts = linkedAccountRoutes(
-    log,
-    db,
-    config,
-    mailer,
-    profile,
-    statsd
-  );
+  const linkedAccounts = linkedAccountRoutes(log, db, config, mailer, profile);
 
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {

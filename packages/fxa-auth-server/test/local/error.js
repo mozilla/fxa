@@ -21,8 +21,7 @@ describe('AppErrors', () => {
     assert.equal(AppError.missingRequestParameter.length, 1);
   });
 
-  it('converts an OauthError into AppError when not an oauth route', function () {
-    this.timeout(5000);
+  it('converts an OauthError into AppError when not an oauth route', () => {
     const oauthError = OauthError.invalidAssertion();
     assert.equal(oauthError.errno, 104);
     const result = AppError.translate(

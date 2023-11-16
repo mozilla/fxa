@@ -1,8 +1,8 @@
-verificationReminderSecond-title-3 = "Don’t miss out on Mozilla!"
+verificationReminderSecond-title-2 = "Don’t miss out on Firefox!"
 
-verificationReminderSecond-description-4 = "A few days ago you created a Mozilla account, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted."
+verificationReminderSecond-description-3 = "A few days ago you created a Firefox account, but never confirmed it. Please confirm your account in the next 10 days or it will be automatically deleted."
 
-verificationReminderSecond-second-description-3 = "Your Mozilla account lets you sync your Firefox experience across devices and unlocks access to more privacy-protecting products from Mozilla."
+verificationReminderSecond-second-description = "Your Firefox account lets you sync your info across devices and unlocks access to more privacy-protecting products from Mozilla."
 
 verificationReminderSecond-sub-description-2 = "Be part of our mission to transform the internet into a place that’s open for everyone."
 

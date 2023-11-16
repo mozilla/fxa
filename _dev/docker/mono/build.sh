@@ -19,7 +19,7 @@ VERSION=$(echo "${VERSION}" | sed 's/^v//')
 function patchVersion() {
   if [ -f "package.json" ]; then
     echo "Updating version in $(pwd)/package.json to ${VERSION}"
-    jq ".version = \"$VERSION\"" package.json > ver_tmp && mv ver_tmp package.json
+    jq ".version = \"$VERSION\"" package.json > tmp && mv tmp package.json
   else
     echo "$(pwd)/package.json not found!"
   fi
@@ -32,7 +32,7 @@ done
 # `npx yarn` because `npm i -g yarn` needs sudo
 npx yarn install
 npx yarn gql:allowlist
-NODE_OPTIONS="--max-old-space-size=7168" SKIP_PREFLIGHT_CHECK=true npx nx run-many -t build --all --verbose --skip-nx-cache
+NODE_OPTIONS="--max-old-space-size=7168" SKIP_PREFLIGHT_CHECK=true npx nx run-many -t build --all --verbose
 
 # This will reduce packages to only production dependencies
 npx yarn workspaces focus --production --all

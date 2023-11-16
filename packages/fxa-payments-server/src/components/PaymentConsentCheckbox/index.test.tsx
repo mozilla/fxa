@@ -83,7 +83,7 @@ describe('components/PaymentConsentCheckbox', () => {
         const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
 
         expect(legalCheckbox.props.children.props.children[0]).toBe(
-          'I authorize Mozilla to charge my payment method for the amount shown, according to'
+          'I authorize Mozilla, maker of Firefox products, to charge my payment method for the amount shown, according to'
         );
         expect(legalCheckbox.props.children.props.children[1]).toBe(' ');
         expect(legalCheckbox.props.children.props.children[2].props.href).toBe(
@@ -108,7 +108,7 @@ describe('components/PaymentConsentCheckbox', () => {
       it('renders Localized for a plan with correct props and displays correct default string', async () => {
         const plan_id = 'plan_daily';
         const plan = findMockPlan(plan_id);
-        const expectedMsgId = 'payment-confirm-with-legal-links-static-2';
+        const expectedMsgId = 'payment-confirm-with-legal-links-static';
 
         runTests(plan, expectedMsgId);
       });

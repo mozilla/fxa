@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReachRouterWindow } from '../../window';
-import { ModelDataStore, RawData } from '../model-data-store';
+import { ModelDataStore } from '../model-data-store';
 
 /**
  * An abstract base class for persisting state in the URL.
@@ -28,21 +28,50 @@ export abstract class UrlData extends ModelDataStore {
     return this.getParams().keys();
   }
 
-  get(key: string): RawData {
+  get(key: string): unknown {
     const params = this.getParams();
     const value = params?.get(key);
-    return value === null ? undefined : value;
+    if (value == null) {
+      return null;
+    }
+
+    if (isJson(value)) {
+      return JSON.parse(value);
+    }
+    return value;
   }
 
-  set(key: string, val: RawData): void {
-    if (val == null) {
+  set(key: string, val: unknown): void {
+    let raw = toStringOrJsonString(val);
+
+    if (raw == null) {
       return;
     }
+
     // Get current state from URL
     const params = this.getParams();
-    params.set(key, val);
+    params.set(key, raw);
 
     // Write back to url.
     this.setParams(params);
   }
+}
+
+export function isJson(value: string) {
+  return /^["\\|\\{]/.test(value);
+}
+
+export function toStringOrJsonString(value: unknown) {
+  let raw: string | undefined;
+
+  if (typeof value === 'string') {
+    raw = value;
+  } else if (typeof value === 'number') {
+    raw = value.toString();
+  } else if (typeof value === 'boolean') {
+    raw = value.toString();
+  } else if (typeof value === 'object') {
+    raw = JSON.stringify(value);
+  }
+  return raw;
 }

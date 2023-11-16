@@ -164,13 +164,12 @@ export const getRequiredFont = (language: string) => {
         breakwords: false,
       };
       break;
-    // Punjabi (India)
+    // Punjabi
     // Noto Sans variant of this font was not working as expected and was preventing PDF generation
     // Replaced with Noto Serif version
-    // NOTE: Punjabi (Pakistan) - pa-PK - is not currently supported and falls back to Punjabi (India)
-    // If Punjabi (Pakistan) becomes supported, and will need its own script (Shamukhi) and direction (RTL)
     case 'pa':
     case 'pa-in':
+    case 'pa-pk':
       requiredFont = {
         family: 'Noto Serif Gurmukhi',
         sources: [
@@ -190,7 +189,7 @@ export const getRequiredFont = (language: string) => {
             weight: 'bold',
           },
         ],
-        direction: 'ltr',
+        direction: 'rtl',
         breakwords: false,
       };
       break;

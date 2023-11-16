@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import mozillaLogo from '../images/moz-logo-bw-rgb.svg';
+import firefoxLogo from '../images/firefox-logo-combined.svg';
 import './styles/global.css';
 
 // TODO - Replace these placeholders as part of FXA-8227
 export const metadata = {
-  title: 'Mozilla accounts',
-  description: 'Mozilla accounts',
+  title: 'Firefox accounts',
+  description: 'Firefox accounts',
 };
 
 export default function RootLayout({
@@ -22,8 +22,8 @@ export default function RootLayout({
           data-testid="header"
         >
           <Image
-            src={mozillaLogo}
-            alt="Mozilla logo"
+            src={firefoxLogo}
+            alt="Firefox logo"
             className="object-contain"
             data-testid="branding"
             width={120}

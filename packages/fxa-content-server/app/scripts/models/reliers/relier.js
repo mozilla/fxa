@@ -67,8 +67,6 @@ const QUERY_PARAMETER_SCHEMA = {
   flow_id: Vat.string().renameTo('flowId'),
   flow_begin_time: Vat.string().renameTo('flowBeginTime'),
   device_id: Vat.string().renameTo('deviceId'),
-  // Temporary parameter for React app -> Backbone app communication
-  prefillEmail: Vat.string(),
 };
 
 const EMAIL_FIRST_EMAIL_SCHEMA = {

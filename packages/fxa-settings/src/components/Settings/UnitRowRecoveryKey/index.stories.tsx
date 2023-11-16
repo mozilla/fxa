@@ -9,7 +9,7 @@ import { LocationProvider } from '@reach/router';
 import UnitRowRecoveryKey from '.';
 import { Account, AppContext } from 'fxa-settings/src/models';
 import { mockAppContext } from 'fxa-settings/src/models/mocks';
-import { Config } from '../../../lib/config';
+import { Config, getDefault } from '../../../lib/config';
 
 export default {
   title: 'Components/Settings/UnitRowRecoveryKey',
@@ -32,6 +32,12 @@ const accountWithoutPassword = {
   recoveryKey: false,
 } as unknown as Account;
 
+// Remove featureFlagConfig in FXA-7419
+const featureFlagConfig = {
+  ...getDefault(),
+  showRecoveryKeyV2: true,
+} as unknown as Config;
+
 const storyWithContext = (
   account: Partial<Account>,
   config?: Partial<Config>
@@ -47,15 +53,24 @@ const storyWithContext = (
   );
   return story;
 };
+// Remove first three stories in FXA-7419
+export const HasAccountRecoveryKey = storyWithContext(accountHasRecoveryKey);
 
-export const HasAccountRecoveryKeyVersion = storyWithContext(
-  accountHasRecoveryKey
+export const NoAccountRecoveryKey = storyWithContext(accountWithoutRecoveryKey);
+
+export const DisabledStateNoPassword = storyWithContext(accountWithoutPassword);
+
+export const HasAccountRecoveryKeyVersion2 = storyWithContext(
+  accountHasRecoveryKey,
+  featureFlagConfig
 );
 
-export const NoAccountRecoveryKeyVersion = storyWithContext(
-  accountWithoutRecoveryKey
+export const NoAccountRecoveryKeyVersion2 = storyWithContext(
+  accountWithoutRecoveryKey,
+  featureFlagConfig
 );
 
-export const DisabledStateNoPasswordVersion = storyWithContext(
-  accountWithoutPassword
+export const DisabledStateNoPasswordVersion2 = storyWithContext(
+  accountWithoutPassword,
+  featureFlagConfig
 );

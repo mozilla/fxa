@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ApolloQueryResult, NetworkStatus } from '@apollo/client';
 import { faker } from '@faker-js/faker';
+import { NetworkStatus } from '@apollo/client';
+import { ApolloQueryResult } from '@apollo/client';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
-
-import {
-  OfferingQuery,
-  PurchaseWithDetailsQuery,
-} from '../__generated__/graphql';
-import { ContentfulErrorResponse } from './types';
+import { OfferingQuery } from '../__generated__/graphql';
+import { PurchaseWithDetailsQuery } from '../__generated__/graphql';
 
 export const OfferingQueryFactory = (
   override?: Partial<OfferingQuery>
@@ -34,7 +31,6 @@ export const PurchaseWithDetailsQueryFactory = (
   override?: Partial<PurchaseWithDetailsQuery>
 ): PurchaseWithDetailsQuery => ({
   purchase: {
-    internalName: faker.string.sample(),
     description: faker.string.sample(),
     purchaseDetails: {
       productName: faker.string.sample(),
@@ -60,14 +56,5 @@ export const ContentfulClientQueryFactory = <Result, Variables>(
   data: data, // Must be used to negotiate the type inference for Result
   loading: false,
   networkStatus: NetworkStatus.ready,
-  ...override,
-});
-
-export const ContentfulCDNErrorFactory = (
-  override?: ContentfulErrorResponse
-): ContentfulErrorResponse => ({
-  sys: { type: 'Error', id: faker.string.alpha() },
-  message: faker.string.alpha(),
-  requestId: faker.string.uuid(),
   ...override,
 });

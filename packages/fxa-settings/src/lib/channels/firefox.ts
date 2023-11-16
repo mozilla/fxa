@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
@@ -12,7 +8,6 @@ export enum FirefoxCommand {
   Loaded = 'fxaccounts:loaded',
   Error = 'fxError',
   OAuthLogin = 'fxaccounts:oauth_login',
-  CanLinkAccount = 'fxaccounts:can_link_account',
 }
 
 export interface FirefoxMessage {
@@ -53,7 +48,6 @@ export type FxAStatusResponse = {
     engines: string[];
     multiService: boolean;
     pairing: boolean;
-    choose_what_to_sync?: boolean;
   };
   clientId?: string;
   signedInUser?: SignedInUser;
@@ -66,23 +60,8 @@ export type SignedInUser = {
   verified: boolean;
 };
 
-export type FxALoginRequest = {
-  email: string;
-  keyFetchToken: hexstring;
-  sessionToken: hexstring;
-  uid: hexstring;
-  unwrapBKey: string;
-  verified: boolean;
-  services?: {
-    sync: {
-      offeredEngines: string[];
-      declinedEngines: string[];
-    };
-  };
-};
-
 // ref: [FxAccounts.sys.mjs](https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccounts.sys.mjs#910)
-export type FxALoginSignedInUserRequest = {
+export type FxALoginRequest = {
   authAt: number;
   email: string;
   keyFetchToken: hexstring;
@@ -97,11 +76,6 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-};
-
-// ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230
-export type FxACanLinkAccount = {
-  email: string;
 };
 
 export class Firefox extends EventTarget {
@@ -238,10 +212,6 @@ export class Firefox extends EventTarget {
     this.send(FirefoxCommand.Login, options);
   }
 
-  fxaLoginSignedInUser(options: FxALoginSignedInUserRequest) {
-    this.send(FirefoxCommand.Login, options);
-  }
-
   fxaLogout(options: { uid: string }) {
     this.send(FirefoxCommand.Logout, options);
   }
@@ -252,10 +222,6 @@ export class Firefox extends EventTarget {
 
   fxaOAuthLogin(options: FxAOAuthLogin) {
     this.send(FirefoxCommand.OAuthLogin, options);
-  }
-
-  fxaCanLinkAccount(options: FxACanLinkAccount) {
-    this.send(FirefoxCommand.Login, options);
   }
 }
 

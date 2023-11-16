@@ -59,7 +59,7 @@ export const DataBlock = ({
     <div className="flex flex-col items-center">
       <div
         className={classNames(
-          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10 border border-transparent',
+          'relative flex rounded-lg px-6 font-mono text-center text-sm font-bold text-black bg-gradient-to-tr from-blue-600/10 to-purple-500/10',
           valueIsArray ? 'max-w-sm py-4' : 'max-w-lg py-5',
           isInline ? 'flex-nowrap w-full my-2' : 'flex-wrap mb-8'
         )}

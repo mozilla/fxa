@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { NewUserEmailForm } from './index';
 import { Meta } from '@storybook/react';
-import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 
 export default {
   title: 'components/NewUserEmailForm',
@@ -56,16 +55,11 @@ const storyWithContext = (
   newsletterLabelTextCode?: string
 ) => {
   const story = () => (
-    <AppLocalizationProvider
-      baseDir="./locales"
-      userLocales={navigator.languages}
-    >
-      <WrapNewUserEmailForm
-        accountExistsReturnValue={accountExistsReturnValue}
-        invalidDomain={invalidDomain}
-        newsletterLabelTextCode={newsletterLabelTextCode}
-      />
-    </AppLocalizationProvider>
+    <WrapNewUserEmailForm
+      accountExistsReturnValue={accountExistsReturnValue}
+      invalidDomain={invalidDomain}
+      newsletterLabelTextCode={newsletterLabelTextCode}
+    />
   );
 
   if (storyName) story.storyName = storyName;

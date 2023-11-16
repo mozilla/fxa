@@ -177,7 +177,7 @@ describe('/views/force_auth', function () {
         assert.isFalse(view.navigate.called);
         assert.equal(
           view.$(Selectors.SUB_HEADER).text(),
-          'Continue to account settings'
+          'Continue to Account Settings'
         );
         assert.equal(view.$(Selectors.EMAIL).val(), email);
         assert.equal(view.$(Selectors.EMAIL_NOT_EDITABLE).text(), email);
@@ -200,7 +200,7 @@ describe('/views/force_auth', function () {
 
           assert.include(
             view.$(Selectors.SUB_HEADER_SYNC).text(),
-            'for your Mozilla account'
+            'for your Firefox account'
           );
         });
       });

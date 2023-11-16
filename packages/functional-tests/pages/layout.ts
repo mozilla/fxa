@@ -16,7 +16,7 @@ export abstract class BaseLayout {
 
   goto(
     waitUntil: 'networkidle' | 'domcontentloaded' | 'load' = 'load',
-    query?: string | URLSearchParams
+    query?: string
   ) {
     const url = query ? `${this.url}?${query}` : this.url;
     return this.page.goto(url, { waitUntil });

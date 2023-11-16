@@ -41,6 +41,7 @@ import { PlanConfig } from 'fxa-shared/subscriptions/configuration/plan';
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
   getMinimumAmount,
+  getSubscriptionUpdateEligibility,
   singlePlan,
 } from 'fxa-shared/subscriptions/stripe';
 import {
@@ -50,6 +51,7 @@ import {
   PAYPAL_PAYMENT_ERROR_FUNDING_SOURCE,
   PAYPAL_PAYMENT_ERROR_MISSING_AGREEMENT,
   PaypalPaymentError,
+  SubscriptionUpdateEligibility,
   WebSubscription,
   InvoicePreview,
 } from 'fxa-shared/subscriptions/types';
@@ -1874,6 +1876,68 @@ export class StripeHelper extends StripeHelperBase {
     );
   }
 
+  /**
+   * Verify that the `planId` is a valid upgrade for the `currentPlanId`.
+   *
+   * Throws an error if its an invalid upgrade.
+   */
+  async verifyPlanUpdateForSubscription(
+    currentPlanId: string,
+    newPlanId: string
+  ): Promise<void> {
+    if (currentPlanId === newPlanId) {
+      throw error.subscriptionAlreadyChanged();
+    }
+
+    const allPlans = await this.allAbbrevPlans();
+    const currentPlan = allPlans.find((plan) => plan.plan_id === currentPlanId);
+    const newPlan = allPlans.find((plan) => plan.plan_id === newPlanId);
+
+    if (!newPlan || !currentPlan) {
+      throw error.unknownSubscriptionPlan();
+    }
+
+    // getSubscriptionUpdateEligibility is used in both the front and back end,
+    // and it was updated to take a third arugment to branch between Stripe
+    // metadata and Firestore configs.  But on the server side, we'd like to
+    // have a graceful fallback, so we cheat a little by copying the upgrade
+    // config values from the Firestore configs into the metadata if they exist.
+    // TODO remove when getSubscriptionUpdateEligibility's updated to use only
+    // Firestore based configs
+    if (
+      currentPlan.configuration?.productSet &&
+      currentPlan.configuration?.productOrder
+    ) {
+      currentPlan.plan_metadata ??= {};
+      currentPlan.plan_metadata['productSet'] =
+        currentPlan.configuration.productSet.join(',');
+      currentPlan.plan_metadata[
+        'productOrder'
+      ] = `${currentPlan.configuration.productOrder}`;
+    }
+    if (
+      newPlan.configuration?.productSet &&
+      newPlan.configuration?.productOrder
+    ) {
+      newPlan.plan_metadata ??= {};
+      newPlan.plan_metadata['productSet'] =
+        newPlan.configuration.productSet.join(',');
+      newPlan.plan_metadata[
+        'productOrder'
+      ] = `${newPlan.configuration.productOrder}`;
+    }
+
+    const planUpdateEligibility = getSubscriptionUpdateEligibility(
+      currentPlan,
+      newPlan
+    );
+
+    // We only allow upgrades
+    if (planUpdateEligibility !== SubscriptionUpdateEligibility.UPGRADE) {
+      throw error.invalidPlanUpdate();
+    }
+  }
+
   async updateSubscriptionAndBackfill(
     subscription: Stripe.Subscription,
     newProps: Stripe.SubscriptionUpdateParams
@@ -2533,14 +2597,7 @@ export class StripeHelper extends StripeHelperBase {
       invoiceDiscountAmountInCents || discountType || discountDuration;
 
     const { id: planId, nickname: planName } = plan;
-    const abbrevPlan = await this.findAbbrevPlanById(planId);
-    const productMetadata = this.mergeMetadata(
-      {
-        ...plan,
-        metadata: abbrevPlan.plan_metadata,
-      },
-      abbrevProduct
-    );
+    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
 
     // Use Firestore product configs if that exist
     const planConfig: Partial<PlanConfig> = await this.maybeGetPlanConfig(
@@ -2611,14 +2668,7 @@ export class StripeHelper extends StripeHelperBase {
     const planConfig = await this.maybeGetPlanConfig(plan.id);
     const { product_id: productId, product_name: productName } = abbrevProduct;
     const { id: planId, nickname: planName } = plan;
-    const abbrevPlan = await this.findAbbrevPlanById(planId);
-    const productMetadata = this.mergeMetadata(
-      {
-        ...plan,
-        metadata: abbrevPlan.plan_metadata,
-      },
-      abbrevProduct
-    );
+    const productMetadata = this.mergeMetadata(plan, abbrevProduct);
     const { emailIconURL: planEmailIconURL = '', successActionButtonURL } =
       productMetadata;
 
@@ -2820,15 +2870,11 @@ export class StripeHelper extends StripeHelperBase {
     } = planNew;
     const { product_id: productIdNew, product_name: productNameNew } =
       abbrevProductNew;
-    const abbrevPlanNew = await this.findAbbrevPlanById(planNew.id);
-    const productNewMetadata = this.mergeMetadata(
-      {
-        ...planNew,
-        metadata: abbrevPlanNew.plan_metadata,
-      },
-      abbrevProductNew
-    );
-    const { emailIconURL: productIconURLNew = '' } = productNewMetadata;
+    const productNewMetadata = this.mergeMetadata(planNew, abbrevProductNew);
+    const {
+      productOrder: productOrderNew,
+      emailIconURL: productIconURLNew = '',
+    } = productNewMetadata;
     const planConfig = await this.maybeGetPlanConfig(planIdNew);
 
     const productPaymentCycleNew = this.stripePlanToPaymentCycle(planNew);
@@ -2904,6 +2950,7 @@ export class StripeHelper extends StripeHelperBase {
         baseDetails,
         invoice,
         upcomingInvoiceWithInvoiceItem,
+        productOrderNew,
         planOld
       );
     }
@@ -3078,6 +3125,7 @@ export class StripeHelper extends StripeHelperBase {
     baseDetails: any,
     invoice: Stripe.Invoice,
     upcomingInvoiceWithInvoiceItem: Stripe.UpcomingInvoice | undefined,
+    productOrderNew: string,
     planOld: Stripe.Plan
   ) {
     const {
@@ -3091,14 +3139,15 @@ export class StripeHelper extends StripeHelperBase {
     const abbrevProductOld = await this.expandAbbrevProductForPlan(planOld);
     const { product_id: productIdOld, product_name: productNameOld } =
       abbrevProductOld;
-    const abbrevPlanOld = await this.findAbbrevPlanById(planOld.id);
-    const { emailIconURL: productIconURLOld = '' } = this.mergeMetadata(
-      {
-        ...planOld,
-        metadata: abbrevPlanOld.plan_metadata,
-      },
-      abbrevProductOld
-    );
+    const {
+      productOrder: productOrderOld,
+      emailIconURL: productIconURLOld = '',
+    } = this.mergeMetadata(planOld, abbrevProductOld);
+
+    const updateType =
+      parseInt(productOrderNew) > parseInt(productOrderOld)
+        ? SUBSCRIPTION_UPDATE_TYPES.UPGRADE
+        : SUBSCRIPTION_UPDATE_TYPES.DOWNGRADE;
 
     const productPaymentCycleOld = this.stripePlanToPaymentCycle(planOld);
 
@@ -3114,7 +3163,7 @@ export class StripeHelper extends StripeHelperBase {
 
     return {
       ...baseDetails,
-      updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
+      updateType,
       productIdOld,
       productNameOld,
       productIconURLOld,

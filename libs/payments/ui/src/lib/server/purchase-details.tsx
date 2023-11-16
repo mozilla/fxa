@@ -4,7 +4,7 @@ import {
   getFormattedMsg,
   getLocalizedCurrency,
   getLocalizedCurrencyString,
-} from '@fxa/shared/l10n';
+} from '@fxa/shared/l10n/fluent';
 import { FluentBundle } from '@fluent/bundle';
 import { headers } from 'next/headers';
 import Image from 'next/image';

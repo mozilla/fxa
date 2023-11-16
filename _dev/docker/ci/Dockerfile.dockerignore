@@ -8,8 +8,6 @@
 **/Library
 **/_dev/docker
 **/.circleci
-**/.env
-**/*.env
 **/.npm
 **/artifacts
 **/configs

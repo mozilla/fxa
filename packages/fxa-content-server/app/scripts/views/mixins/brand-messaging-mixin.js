@@ -31,64 +31,34 @@ const Mixin = {
       `${bannerClosedLocalStorageKey}_${this.mode}`
     );
 
-    this.enabled =
+    if (
       this.disableBanner == null &&
-      (this.mode === 'prelaunch' || this.mode === 'postlaunch');
-
-    if (this.enabled) {
-      this.logFlowEventOnce(`brand-messaging-${this.mode}-view`, this.viewName);
+      (this.mode === 'prelaunch' || this.mode === 'postlaunch')
+    ) {
+      this.logFlowEvent(`brand-messaging-${this.mode}-view`, this.viewName);
       document.body.classList.add('brand-messaging');
     }
   },
 
   afterRender() {
-    if (!this.enabled) {
-      return;
-    }
-
     setTimeout(() => {
-      const brandMessageNode = document.querySelector('.banner-brand-message');
-      const insertBanner = (selector) => {
-        const container = document.querySelector(selector);
-
-        // Clears out text incase of double render scenario...
-        container.innerText = '';
-        const clone = brandMessageNode.cloneNode(true);
-        container.append(clone);
-      };
-
-      const bindClickHandlers = () => {
-        /**
-         * Note, we can't use backbone's event object, because moving the elements
-         * unbinds its events. Instead, directly bind events here.
-         */
-        document.querySelectorAll('.close-brand-banner').forEach((x) => {
-          x.onclick = () => {
-            this.onBrandBannerClose();
-          };
-        });
-        document.querySelectorAll('.brand-learn-more').forEach((x) => {
-          x.onclick = () => {
-            this.onBrandLearnMoreClick();
-          };
-        });
-      };
-
-      if (brandMessageNode) {
-        /**
-         * Inject the brand message into the top and bottom of the page.
-         */
-        insertBanner('#body-top');
-        insertBanner('#body-bottom');
-        bindClickHandlers();
-      } else {
-        /**
-         * Recursive call. If the node doesn't exist, try again. There appear to be
-         * some race condition in backbones 'afterRender' method.
-         */
-        this.afterRender();
+      /**
+       * Move element up to body, so that it can be sticky header or inline footer.
+       *
+       * Note, we can't use backbone's event object, because moving the elements
+       * unbinds it's events. Instead, directly bind events here.
+       */
+      const el = document.querySelector('#banner-brand-message');
+      if (el) {
+        document.body.append(el);
+        document.querySelector('#close-brand-banner').onclick = () => {
+          this.onBrandBannerClose();
+        };
+        document.querySelector('.brand-learn-more').onclick = () => {
+          this.onBrandLearnMoreClick();
+        };
       }
-    }, 100);
+    }, 0);
   },
 
   setInitialContext(context) {
@@ -111,9 +81,8 @@ const Mixin = {
       `${bannerClosedLocalStorageKey}_${this.mode}`,
       this.disableBanner
     );
-    document
-      .querySelectorAll('.banner-brand-message')
-      .forEach((x) => x.remove());
+    document.querySelector('#banner-brand-message').remove();
+    document.body.classList.remove('brand-messaging');
     this.logFlowEvent(
       `brand-messaging-${this.mode}-banner-close`,
       this.viewName
@@ -122,6 +91,10 @@ const Mixin = {
 
   onBrandLearnMoreClick() {
     this.logFlowEvent(`brand-messaging-${this.mode}-learn-more`, this.viewName);
+    window.open(
+      'https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts',
+      '_blank'
+    );
   },
 };
 

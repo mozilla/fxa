@@ -123,7 +123,7 @@ const expectedMergedConfig = {
     enabled: false,
     measurementId: '',
     supportedProductIds: 'prod_GqM9ToKK62qjkK',
-    debugMode: false,
+    testMode: false,
   },
   lang: '',
   legalDocLinks: {

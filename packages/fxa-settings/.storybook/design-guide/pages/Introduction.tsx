@@ -9,7 +9,7 @@ export const Introduction = () => (
     <div className="flex">
       <div className="max-w-3xl pr-6">
         <p className="mb-4">
-          The Mozilla accounts design guide is designed to be a central place
+          The Firefox Accounts design guide is designed to be a central place
           for engineers to reference convenience classes provided by{' '}
           <LinkExternal
             href="https://tailwindcss.com/"

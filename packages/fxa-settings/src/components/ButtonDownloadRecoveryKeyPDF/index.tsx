@@ -14,7 +14,6 @@ import {
 } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../lib/metrics';
 import { FontData, getRequiredFont } from './requiredFont';
-import { determineLocale } from 'fxa-shared/l10n/determineLocale';
 
 export interface LocalizedRecoveryKeyPdfContent {
   heading: string;
@@ -37,7 +36,7 @@ interface ButtonDownloadRecoveryKeyPDFProps {
 
 export const getFilename = (email: string) => {
   const date = new Date().toISOString().split('T')[0];
-  const prefix = 'Mozilla-Recovery-Key';
+  const prefix = 'Firefox-Recovery-Key';
   // Windows has a max directory length of 260 characters (including path)
   // filename should be kept much shorter (maxLength is arbitrary).
   let filename = `${prefix}_${date}_${email}`.substring(0, 71) + `.pdf`;
@@ -53,9 +52,7 @@ export const ButtonDownloadRecoveryKeyPDF = ({
   const account = useAccount();
   const email = account.primaryEmail.email;
   const keyCreated = Date.now();
-  const currentLanguage = determineLocale(
-    window.navigator.languages.join(', ')
-  );
+  const currentLanguage = navigator.language;
   const ftlMsgResolver = useFtlMsgResolver();
 
   const alertBar = useAlertBar();

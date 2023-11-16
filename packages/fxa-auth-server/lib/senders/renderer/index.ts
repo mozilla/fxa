@@ -17,7 +17,6 @@ const RTL_LOCALES = [
   'syr',
   'ur',
   'ug',
-  'pa',
 ];
 
 export interface GlobalTemplateValues {

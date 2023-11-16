@@ -1,3 +1,11 @@
+// this needs to be overridden,
+// or done in a way that doesn't kill these everywhere
+body.settings #fox-logo,
+body.settings #static-footer,
+body.settings .sign-in {
+  display: none;
+}
+
 body.settings .loading {
   position: relative;
   top: 150px;
@@ -46,17 +54,66 @@ body.settings #stage .settings {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-bottom:32px;
+
+  @include respond-to('big') {
+    height: 96px;
+  }
 
   @include respond-to('small') {
-    padding-inline-start: 16px;
-    padding-bottom:16px;
+    flex-direction: row;
+    height: 64px;
   }
 
   #fxa-settings-header {
     @include respond-to('small') {
       flex: 1 1;
-      padding:16px 0;
+      margin-bottom: 0;
+      width: inherit;
+    }
+  }
+
+  #fxa-manage-account {
+    background-image: image-url('firefox-logo.svg');
+    background-repeat: no-repeat;
+    margin: 0;
+
+    html[dir='ltr'] & {
+      background-position: left center;
+    }
+
+    html[dir='rtl'] & {
+      background-position: right center;
+    }
+
+    @include respond-to('big') {
+      background-size: 36px auto;
+      line-height: 63px;
+
+      html[dir='ltr'] & {
+        padding-left: 48px;
+      }
+
+      html[dir='rtl'] & {
+        padding-right: 48px;
+      }
+    }
+
+    @include respond-to('small') {
+      background-size: 32px auto;
+      height: 48px;
+      line-height: 50px;
+
+      & .fxa-account-title {
+        display: none;
+      }
+
+      html[dir='ltr'] & {
+        padding-left: 36px;
+      }
+
+      html[dir='rtl'] & {
+        padding-right: 36px;
+      }
     }
   }
 
@@ -413,17 +470,17 @@ section.modal-panel {
 
 .breadcrumbs {
   margin-top: 0;
-  padding-inline-start: 32px;
+  padding-left: 32px;
   width: 100%;
 
   @include respond-to('small') {
     margin-bottom: 0;
-    margin-inline-start: 0;
+    margin-left: 0;
     padding: 0;
   }
 
   li {
-    float: inline-start;
+    float: left;
     list-style: none;
     margin: 0;
     padding: 0;

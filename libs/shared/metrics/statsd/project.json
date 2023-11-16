@@ -8,10 +8,11 @@
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/shared/metrics/statsd",
+        "rootDir": ".",
+        "outputPath": "dist/shared/metrics/statsd",
         "tsConfig": "libs/shared/metrics/statsd/tsconfig.lib.json",
         "packageJson": "libs/shared/metrics/statsd/package.json",
-        "main": "libs/shared/metrics/statsd/src/index.ts",
+        "main": "libs/shared/metrics/statsd/libs/shared/metrics/statsd/src/index.ts",
         "assets": ["libs/shared/metrics/statsd/*.md"]
       }
     },

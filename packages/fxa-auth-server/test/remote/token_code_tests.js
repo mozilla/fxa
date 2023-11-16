@@ -214,11 +214,13 @@ describe('#integration - remote tokenCodes', function () {
     const originalCode = emailData.headers['x-verify-short-code'];
 
     assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+    assert.include(emailData.html, 'IP address');
 
     await client.resendVerifyShortCodeEmail();
 
     emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyLoginCode');
+    assert.include(emailData.html, 'IP address');
 
     assert.notEqual(
       originalMessageId,

@@ -1,7 +1,3 @@
-/* This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
@@ -62,7 +58,9 @@ test.describe('severity-1 #smoke', () => {
     services = await settings.connectedServices.services();
     expect(services.length).toEqual(2);
   });
+});
 
+test.describe('severity-3 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293362
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293469
   test('can login to addons #1293362 #1293469', async ({
@@ -106,7 +104,7 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
-  /*test('can login to monitor #1293364', async ({
+  test('can login to monitor #1293364', async ({
     credentials,
     page,
     pages: { login },
@@ -125,7 +123,7 @@ test.describe('severity-1 #smoke', () => {
       page.waitForNavigation({ waitUntil: 'load' }),
     ]);
     await expect(page.locator('#sign-in-btn')).toBeVisible();
-  });*/
+  });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360
   test('can login to SUMO #1293360', async ({
@@ -138,10 +136,13 @@ test.describe('severity-1 #smoke', () => {
 
     await page.goto('https://support.mozilla.org/en-US/');
 
-    await Promise.all([page.click('text=Sign In/Up'), page.waitForLoadState()]);
     await Promise.all([
-      page.click('text=Sign In or Sign Up'),
-      page.waitForLoadState(),
+      page.click('text=Sign In/Up'),
+      page.waitForNavigation(),
+    ]);
+    await Promise.all([
+      page.click('text=Continue with Firefox Accounts'),
+      page.waitForNavigation(),
     ]);
     await login.login(credentials.email, credentials.password);
 

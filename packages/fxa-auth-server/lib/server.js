@@ -19,7 +19,7 @@ const { HEX_STRING } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
 const { Account } = require('fxa-shared/db/models/auth');
-const { determineLocale } = require('../../../libs/shared/l10n/src');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 const {
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
@@ -68,7 +68,7 @@ function logEndpointErrors(response, log) {
 async function create(log, error, config, routes, db, statsd, glean) {
   const getGeoData = require('./geodb')(log);
   const metricsContext = require('./metrics/context')(log, config);
-  const metricsEvents = require('./metrics/events')(log, config, glean);
+  const metricsEvents = require('./metrics/events')(log, config);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
 
   // Hawk needs to calculate request signatures based on public URL,
@@ -131,7 +131,7 @@ async function create(log, error, config, routes, db, statsd, glean) {
     routes: {
       cors: {
         additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        additionalHeaders: ['sentry-trace', 'baggage'],
+        additionalHeaders: ['sentry-trace'],
         // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
         // which is more forgiving of missing Origin header.
         origin: config.corsOrigin[0] === '*' ? 'ignore' : config.corsOrigin,

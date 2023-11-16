@@ -51,10 +51,12 @@ module.exports = (log, db, config, customs, mailer) => {
         );
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: geo, ua } = request.app;
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
           acceptLanguage,
+          ip,
+          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,
@@ -102,10 +104,12 @@ module.exports = (log, db, config, customs, mailer) => {
         await db.updateRecoveryCodes(uid, recoveryCodes);
 
         const account = await db.account(uid);
-        const { acceptLanguage, clientAddress: geo, ua } = request.app;
+        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
 
         await mailer.sendPostNewRecoveryCodesEmail(account.emails, account, {
           acceptLanguage,
+          ip,
+          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,

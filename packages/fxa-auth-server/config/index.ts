@@ -354,12 +354,6 @@ const convictConf = convict({
         env: 'MAILER_PORT',
       },
     },
-    brandMessagingMode: {
-      doc: 'The type of messaging to show. Options are prelaunch, postlaunch, or none',
-      format: String,
-      default: 'none',
-      env: 'BRAND_MESSAGING_MODE',
-    },
     host: {
       doc: 'SMTP host for sending email',
       default: 'localhost',
@@ -454,9 +448,9 @@ const convictConf = convict({
       env: 'REDIRECT_DOMAIN',
     },
     privacyUrl: {
-      doc: 'url to Mozilla Accounts privacy page',
+      doc: 'url to Mozilla privacy page',
       format: String,
-      default: 'https://www.mozilla.org/privacy/mozilla-accounts/',
+      default: 'https://www.mozilla.org/privacy',
     },
     passwordManagerInfoUrl: {
       doc: 'url to Firefox password manager information',
@@ -1669,7 +1663,7 @@ const convictConf = convict({
   totp: {
     serviceName: {
       doc: 'Default service name to appear in authenticator',
-      default: 'Mozilla',
+      default: 'Firefox',
       format: 'String',
       env: 'TOTP_SERVICE_NAME',
     },
@@ -1982,39 +1976,6 @@ const convictConf = convict({
       default: 'fxa-auth-api',
       doc: 'Used to form the mozlog logger name',
       env: 'AUTH_GLEAN_LOGGER_APP_NAME',
-      format: String,
-    },
-  },
-
-  contentful: {
-    cdnUrl: {
-      doc: 'Base URL for Content Delivery API (https://www.contentful.com/developers/docs/references/content-delivery-api/)',
-      format: String,
-      env: 'CONTENTFUL_CDN_API_URL',
-      default: '',
-    },
-    graphqlUrl: {
-      default: '',
-      doc: 'Base URL for GraphQL Content API (https://www.contentful.com/developers/docs/references/graphql/)',
-      env: 'CONTENTFUL_GRAPHQL_API_URL',
-      format: String,
-    },
-    apiKey: {
-      default: '',
-      doc: 'GraphQL Content API key for Contentful hCMS to fetch RP-provided content (https://www.contentful.com/developers/docs/references/authentication/)',
-      env: 'CONTENTFUL_GRAPHQL_API_KEY',
-      format: String,
-    },
-    spaceId: {
-      default: '',
-      doc: 'Alphanumeric id used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/references/content-management-api/#/reference/spaces)',
-      env: 'CONTENTFUL_GRAPHQL_SPACE_ID',
-      format: String,
-    },
-    environment: {
-      default: '',
-      doc: 'Environment alias used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/concepts/multiple-environments/)',
-      env: 'CONTENTFUL_GRAPHQL_ENVIRONMENT',
       format: String,
     },
   },

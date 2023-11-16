@@ -21,11 +21,7 @@
 
 # “Accounts” can be localized, “Firefox” must be treated as a brand.
 # 'Firefox Accounts' refers to the service
-# TODO - Remove once branding sticks
 project-brand = Firefox Accounts
-
-# Mozilla account settings header title, appears at top of settings page next to Mozilla "m" logo
-settings-project-header-title = { -product-mozilla-account }
 
 ## Brands cannot be transliterated or translated. Decelension should be avoided where possible.
 

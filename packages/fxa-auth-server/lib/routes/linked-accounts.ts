@@ -11,7 +11,6 @@ import * as jose from 'jose';
 import validators from './validators';
 import {
   Provider,
-  PROVIDER,
   PROVIDER_NAME,
 } from 'fxa-shared/db/models/auth/linked-account';
 import THIRD_PARTY_AUTH_DOCS from '../../docs/swagger/third-party-auth-api';
@@ -19,35 +18,20 @@ import isA from 'joi';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
 import error from '../error';
 import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
-import {
-  getGooglePublicKey,
-  getApplePublicKey,
-  isValidClientId,
-  validateSecurityToken,
-  googleEventHandlers,
-  handleGoogleOtherEventType,
-  GoogleJWTSETPayload,
-  AppleJWTSETPayload,
-  appleEventHandlers,
-} from './utils/third-party-events';
 
 const HEX_STRING = validators.HEX_STRING;
 
-const APPLE_AUD = 'https://appleid.apple.com';
+const appleAud = 'https://appleid.apple.com';
 
 export class LinkedAccountHandler {
   private googleAuthClient?: OAuth2Client;
   private otpUtils: any;
-  private goooglePublicKey: any;
-  private applePublicKey: any;
-
   constructor(
     private log: AuthLogger,
     private db: any,
     private config: ConfigType,
     private mailer: any,
-    private profile: ProfileClient,
-    private statsd: { increment: (value: string) => void }
+    private profile: ProfileClient
   ) {
     if (config.googleAuthConfig && config.googleAuthConfig.clientId) {
       this.googleAuthClient = new OAuth2Client(
@@ -71,7 +55,7 @@ export class LinkedAccountHandler {
       .setProtectedHeader({ alg: 'ES256', kid: keyId })
       .setIssuedAt()
       .setIssuer(teamId)
-      .setAudience(APPLE_AUD)
+      .setAudience(appleAud)
       .setExpirationTime('1m')
       .setSubject(clientId)
       .sign(ecPrivateKey);
@@ -79,110 +63,10 @@ export class LinkedAccountHandler {
     return jwt;
   }
 
-  async handleAppleSET(request: AuthRequest) {
-    this.statsd.increment('handleAppleSET.received');
-
-    const tokenBuffer = request.payload as ArrayBuffer;
-    const token = tokenBuffer.toString();
-
-    if (!this.applePublicKey) {
-      this.applePublicKey = await getApplePublicKey(token);
-    }
-
-    try {
-      const { clientId, teamId } = this.config.appleAuthConfig;
-      const jwtPayload = (await validateSecurityToken(
-        token,
-        clientId,
-        this.applePublicKey.pem,
-        teamId
-      )) as AppleJWTSETPayload;
-      this.statsd.increment('handleAppleSET.decoded');
-
-      const eventType = jwtPayload.events.type;
-
-      if (appleEventHandlers[eventType as keyof typeof appleEventHandlers]) {
-        await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
-          jwtPayload.events,
-          this.log,
-          this.db
-        );
-        this.statsd.increment(`handleAppleSET.processed.${eventType}`);
-        this.log.debug(`handleAppleSET.processed`, {
-          eventType,
-        });
-      } else {
-        this.statsd.increment(`handleAppleSET.unknownEventType.${eventType}`);
-      }
-    } catch (err) {
-      this.statsd.increment('handleAppleSET.validationError');
-      throw err;
-    }
-
-    return {};
-  }
-
-  async handleGoogleSET(request: AuthRequest) {
-    this.statsd.increment('handleGoogleSET.received');
-
-    const tokenBuffer = request.payload as ArrayBuffer;
-    const token = tokenBuffer.toString();
-
-    if (!this.goooglePublicKey) {
-      this.goooglePublicKey = await getGooglePublicKey(token);
-    }
-
-    try {
-      // We should ignore events from other clients.
-      if (!isValidClientId(token, this.config.googleAuthConfig.clientId)) {
-        this.statsd.increment('handleGoogleSET.mismatchClientId');
-        this.log.debug('handleGoogleSET.mismatchClientId', {
-          clientId: this.config.googleAuthConfig.clientId,
-        });
-        return {};
-      }
-
-      const jwtPayload = (await validateSecurityToken(
-        token,
-        this.config.googleAuthConfig.clientId,
-        this.goooglePublicKey.pem,
-        this.goooglePublicKey.issuer
-      )) as GoogleJWTSETPayload;
-      this.statsd.increment('handleGoogleSET.decoded');
-
-      // Process each event type
-      for (const eventType in jwtPayload.events) {
-        if (
-          googleEventHandlers[eventType as keyof typeof googleEventHandlers]
-        ) {
-          await googleEventHandlers[
-            eventType as keyof typeof googleEventHandlers
-          ](jwtPayload.events[eventType], this.log, this.db);
-          this.statsd.increment(`handleGoogleSET.processed.${eventType}`);
-          this.log.debug('handleGoogleSET.processed', {
-            eventType,
-          });
-        } else {
-          // Log that an unknown event type was received and ignore it
-          handleGoogleOtherEventType(eventType, this.log);
-          this.statsd.increment(
-            `handleGoogleSET.unknownEventType.${eventType}`
-          );
-        }
-      }
-    } catch (err) {
-      this.statsd.increment('handleGoogleSET.validationError');
-      throw err;
-    }
-
-    return {};
-  }
-
   async loginOrCreateAccount(request: AuthRequest) {
     const requestPayload = request.payload as any;
 
     const provider = requestPayload.provider as Provider;
-    const providerId = PROVIDER[provider];
     const service = requestPayload.service;
 
     // Currently, FxA supports creating a linked account via the oauth authorization flow
@@ -291,17 +175,6 @@ export class LinkedAccountHandler {
     );
 
     if (!linkedAccountRecord) {
-      // Something has gone wrong! We shouldn't hit a case where we have an unlinked without
-      // an email set in the idToken. Failing hard and fast. Logging more info
-      if (!email) {
-        this.log.error('linked_account.no_email_in_id_token', {
-          provider,
-          userid,
-          name,
-        });
-        throw error.thirdPartyAccountError();
-      }
-
       try {
         // This is a new third party account linking an existing FxA account
         accountRecord = await this.db.accountRecord(email);
@@ -434,7 +307,6 @@ export class LinkedAccountHandler {
       uaOSVersion: request.app.ua.osVersion,
       uaDeviceType: request.app.ua.deviceType,
       uaFormFactor: request.app.ua.formFactor,
-      providerId,
     };
 
     const sessionToken = await this.db.createSessionToken(sessionTokenOptions);
@@ -466,17 +338,9 @@ export const linkedAccountRoutes = (
   db: any,
   config: ConfigType,
   mailer: any,
-  profile: ProfileClient,
-  statsd: any
+  profile: ProfileClient
 ) => {
-  const handler = new LinkedAccountHandler(
-    log,
-    db,
-    config,
-    mailer,
-    profile,
-    statsd
-  );
+  const handler = new LinkedAccountHandler(log, db, config, mailer, profile);
 
   return [
     {
@@ -531,32 +395,6 @@ export const linkedAccountRoutes = (
         },
       },
       handler: (request: AuthRequest) => handler.unlinkAccount(request),
-    },
-    {
-      method: 'POST',
-      path: '/linked_account/webhook/google_event_receiver',
-      options: {
-        payload: {
-          // Security events use the content type application/secevent+jwt,
-          // It isn't clearly documented, but the payload is a JWT buffer.
-          parse: 'gunzip',
-          allow: 'application/secevent+jwt',
-        },
-      },
-      handler: async (request: AuthRequest) => handler.handleGoogleSET(request),
-    },
-    {
-      method: 'POST',
-      path: '/linked_account/webhook/apple_event_receiver',
-      options: {
-        payload: {
-          // Security events use the content type application/secevent+jwt,
-          // It isn't clearly documented, but the payload is a JWT buffer.
-          parse: 'gunzip',
-          allow: 'application/secevent+jwt',
-        },
-      },
-      handler: async (request: AuthRequest) => handler.handleAppleSET(request),
     },
   ];
 };

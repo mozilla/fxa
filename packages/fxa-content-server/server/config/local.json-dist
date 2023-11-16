@@ -43,7 +43,7 @@
   "allowed_parent_origins": ["http://localhost:8080"],
   "sourceMapType": "cheap-source-map",
   "csp": {
-    "enabled": false,
+    "enabled": true,
     "reportUri": "/_/csp-violation"
   },
   "recovery_codes": {
@@ -54,5 +54,8 @@
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true
+  },
+  "featureFlags": {
+    "showRecoveryKeyV2": true
   }
 }

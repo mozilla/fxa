@@ -30,9 +30,8 @@ export const FlowContainer = ({
     ? localizedBackButtonTitle
     : ftlMsgResolver.getMsg('flow-container-back', 'Back');
   return (
-    // Transparent border is for Windows HCM - to ensure there is a visible border around the card
     <div
-      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl border border-transparent"
+      className="max-w-lg mx-auto mt-6 p-10 tablet:my-10 flex flex-col items-start bg-white shadow tablet:rounded-xl"
       data-testid="flow-container"
     >
       <Head title={title} />
@@ -44,7 +43,7 @@ export const FlowContainer = ({
           title={backButtonTitle}
           className="me-4 tablet:me-0 tablet:p-4 tablet:absolute tablet:-start-24"
         >
-          <BackArrow className="w-6 h-auto text-grey-400 rtl:transform rtl:-scale-x-100" />
+          <BackArrow className="w-6 h-auto fill-grey-400 rtl:transform rtl:-scale-x-100" />
         </button>
         <h1 className="font-header text-lg">{title}</h1>
       </div>

@@ -10,7 +10,6 @@ module.exports = {
   },
   moduleNameMapper: {
     '\\.(css|scss)$': 'identity-obj-proxy',
-    '@fxa/shared/l10n': '../../../libs/shared/l10n/src',
   },
   testPathIgnorePatterns: ['/dist/', '/node_modules/'],
   // Matches create-react-app

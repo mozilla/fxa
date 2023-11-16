@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionAccountDeletion',
-  'Sent when a user with an active subscription deletes their Mozilla account.',
+  'Sent when a user with an active subscription deletes their Firefox account.',
   {
     productName: 'Firefox Fortress',
     isCancellationEmail: true,

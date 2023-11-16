@@ -1,9 +1,9 @@
 <div id="main-content" class="card add-secondary-email">
     <header>
-        <h1 id="fxa-add-secondary-email-header" class="card-header">
+        <h1 id="fxa-add-secondary-email-header">
             {{#serviceName}}
                 <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Add a secondary email address{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                {{#t}}Add a secondary email address{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
             {{/serviceName}}
             {{^serviceName}}
                 {{#t}}Add a secondary email address{{/t}}

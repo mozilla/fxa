@@ -6,7 +6,6 @@ import { Link, useLocation, useNavigate } from '@reach/router';
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
-import GleanMetrics from '../../../lib/glean';
 import { useAccount } from '../../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
@@ -39,7 +38,15 @@ const AccountRecoveryConfirmKey = ({
   setLinkStatus,
   integration,
 }: AccountRecoveryConfirmKeyProps) => {
-  const serviceName = integration.getServiceName();
+  const [serviceName, setServiceName] = useState<string>();
+
+  useEffect(() => {
+    (async () => {
+      // TODO: remove async requirements from relier, FXA-6836
+      setServiceName(await integration.getServiceName());
+    })();
+  });
+
   const [tooltipText, setTooltipText] = useState<string>('');
   const [bannerMessage, setBannerMessage] = useState<string | ReactElement>();
   // The password forgot code can only be used once to retrieve `accountResetToken`
@@ -64,7 +71,6 @@ const AccountRecoveryConfirmKey = ({
 
           setShowLoadingSpinner(false);
           logPageViewEvent(viewName, REACT_ENTRYPOINT);
-          GleanMetrics.resetPassword.recoveryKeyView();
         } else {
           setLinkStatus(LinkStatus.expired);
         }
@@ -140,10 +146,9 @@ const AccountRecoveryConfirmKey = ({
       try {
         let resetToken = fetchedResetToken;
         if (!resetToken) {
-          const accountResetToken = await account.passwordForgotVerifyCode(
+          const { accountResetToken } = await account.verifyPasswordForgotToken(
             token,
-            code,
-            true
+            code
           );
           setFetchedResetToken(accountResetToken);
           resetToken = accountResetToken;
@@ -155,7 +160,6 @@ const AccountRecoveryConfirmKey = ({
           email,
         });
       } catch (error) {
-        setIsLoading(false);
         logViewEvent('flow', `${viewName}.fail`, REACT_ENTRYPOINT);
         // if the link expired or the reset was completed in another tab/browser
         // between page load and form submission
@@ -177,6 +181,8 @@ const AccountRecoveryConfirmKey = ({
             setBannerMessage(localizedBannerMessage);
           }
         }
+      } finally {
+        setIsLoading(false);
       }
     },
     [
@@ -185,7 +191,6 @@ const AccountRecoveryConfirmKey = ({
       ftlMsgResolver,
       getRecoveryBundleAndNavigate,
       setLinkStatus,
-      setIsLoading,
     ]
   );
 
@@ -194,7 +199,6 @@ const AccountRecoveryConfirmKey = ({
     setIsLoading(true);
     setBannerMessage(undefined);
     logViewEvent('flow', `${viewName}.submit`, REACT_ENTRYPOINT);
-    GleanMetrics.resetPassword.recoveryKeySubmit();
 
     // if the submitted key does not match the expected format,
     // abort before submitting to the auth server
@@ -228,10 +232,10 @@ const AccountRecoveryConfirmKey = ({
         <Banner type={BannerType.error}>{bannerMessage}</Banner>
       )}
 
-      <FtlMsg id="account-recovery-confirm-key-instructions-2">
+      <FtlMsg id="account-recovery-confirm-key-instructions">
         <p className="mt-4 text-sm">
           Please enter the one time use account recovery key you stored in a
-          safe place to regain access to your Mozilla account.
+          safe place to regain access to your Firefox Account.
         </p>
       </FtlMsg>
       <WarningMessage
@@ -304,10 +308,7 @@ const AccountRecoveryConfirmKey = ({
           to={`/complete_reset_password${location.search}`}
           className="link-blue text-sm"
           id="lost-recovery-key"
-          state={{
-            lostRecoveryKey: true,
-            accountResetToken: fetchedResetToken,
-          }}
+          state={{ lostRecoveryKey: true }}
           onClick={() => {
             logViewEvent(
               'flow',

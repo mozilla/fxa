@@ -34,7 +34,7 @@ export function ConnectAnotherDevicePromo() {
             br: <br />,
             linkExternal: (
               <LinkExternal
-                href="https://www.mozilla.org/firefox/mobile/"
+                href="https://www.mozilla.org/en-US/firefox/mobile/"
                 className="link-blue"
                 data-testid="download-link"
               >
@@ -47,7 +47,7 @@ export function ConnectAnotherDevicePromo() {
             Find Firefox in the Google Play and App Store or
             <br />
             <LinkExternal
-              href="https://www.mozilla.org/firefox/mobile/"
+              href="https://www.mozilla.org/en-US/firefox/mobile/"
               className="link-blue"
               data-testid="download-link"
             >

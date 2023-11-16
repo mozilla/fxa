@@ -5,7 +5,7 @@
 'use strict';
 
 const leftpad = require('leftpad');
-const { determineLocale } = require('../../../../libs/shared/l10n/src');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
 module.exports = class UserRecordNormalizer {
   /**

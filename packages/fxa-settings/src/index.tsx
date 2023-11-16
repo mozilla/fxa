@@ -14,7 +14,7 @@ import { ApolloProvider } from '@apollo/client';
 import { createApolloClient } from './lib/gql';
 import './styles/tailwind.out.css';
 
-export interface FlowQueryParams {
+interface FlowQueryParams {
   broker?: string;
   context?: string;
   deviceId?: string;

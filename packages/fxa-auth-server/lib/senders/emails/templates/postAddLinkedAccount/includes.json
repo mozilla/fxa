@@ -1,7 +1,7 @@
 {
   "subject": {
-    "id": "postAddLinkedAccount-subject-2",
-    "message": "New account linked to your Mozilla account"
+    "id": "postAddLinkedAccount-subject",
+    "message": "New account linked to Firefox"
   },
   "action": {
     "id": "postAddLinkedAccount-action",

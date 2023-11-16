@@ -2,27 +2,26 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { ModelDataStore, RawData } from '../model-data-store';
+import { ModelDataStore } from '../model-data-store';
 
 /**
  * A simple generic data store. Good for testing or simple state management.
  * Stores state in record object.
  */
 export class GenericData extends ModelDataStore {
-  constructor(protected readonly state: Record<string, RawData>) {
+  constructor(protected readonly state: Record<string, unknown>) {
     super();
-    this.checkDataStore();
   }
 
-  public getKeys(): Iterable<string> {
+  public getKeys() {
     return Object.keys(this.state);
   }
 
-  public get(key: string): RawData {
+  public get(key: string) {
     return this.state[key];
   }
 
-  public set(key: string, value: RawData): void {
+  public set(key: string, value: unknown) {
     this.state[key] = value;
   }
 }

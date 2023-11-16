@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { determineLocale, localizeTimestamp } from '@fxa/shared/l10n';
+import { determineLocale } from '../l10n/determineLocale';
+import { localizeTimestamp } from '../l10n/localizeTimestamp';
 import { ILogger } from '../log';
 import { AttachedClient } from './models/AttachedClient';
 import { ClientFormatterConfig } from './models/ClientFormatterConfig';

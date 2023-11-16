@@ -35,6 +35,7 @@ describe('#integration - remote account create with sign-up code', function () {
 
     emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+    assert.include(emailData.html, 'IP address');
 
     await client.verifyShortCodeEmail(
       emailData.headers['x-verify-short-code'],
@@ -63,6 +64,7 @@ describe('#integration - remote account create with sign-up code', function () {
 
     emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+    assert.include(emailData.html, 'IP address');
 
     await client.verifyShortCodeEmail(emailData.headers['x-verify-short-code']);
 
@@ -121,6 +123,7 @@ describe('#integration - remote account create with sign-up code', function () {
 
     emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+    assert.include(emailData.html, 'IP address');
 
     const invalidCode = emailData.headers['x-verify-short-code'] + 1;
 
@@ -142,11 +145,13 @@ describe('#integration - remote account create with sign-up code', function () {
     const originalCode = emailData.headers['x-verify-short-code'];
 
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+    assert.include(emailData.html, 'IP address');
 
     await client.resendVerifyShortCodeEmail();
 
     emailData = await server.mailbox.waitForEmail(email);
     assert.equal(emailData.headers['x-template-name'], 'verifyShortCode');
+    assert.include(emailData.html, 'IP address');
 
     assert.notEqual(
       originalMessageId,

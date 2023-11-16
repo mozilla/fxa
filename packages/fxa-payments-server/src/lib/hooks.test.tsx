@@ -112,7 +112,7 @@ describe('useReactGA4Setup', () => {
       enabled: true,
       measurementId: '123',
       supportedProductIds: 'prod_GqM9ToKK62qjkK',
-      debugMode: false,
+      testMode: false,
     },
   } as Config;
   const Subject = ({
@@ -209,9 +209,7 @@ describe('useReactGA4Setup', () => {
       config.googleAnalytics.measurementId,
       {
         nonce: '',
-        gtagOptions: {
-          debug_mode: false,
-        },
+        testMode: config.googleAnalytics.testMode,
       }
     );
     expect(queryByTestId('success')?.textContent).toEqual('Render success');
@@ -232,19 +230,17 @@ describe('useReactGA4Setup', () => {
       config.googleAnalytics.measurementId,
       {
         nonce: '',
-        gtagOptions: {
-          debug_mode: false,
-        },
+        testMode: config.googleAnalytics.testMode,
       }
     );
     expect(queryByTestId('success')?.textContent).toEqual('Render success');
   });
 
-  it('successfully initialize ReactGA4 - with debugMode enabled', () => {
+  it('successfully initialize ReactGA4 - with testMode enabled', () => {
     const config = {
       googleAnalytics: {
         ...mockConfig.googleAnalytics,
-        debugMode: true,
+        testMode: true,
       },
     } as Config;
     const { queryByTestId } = renderWithLocalizationProvider(
@@ -255,9 +251,7 @@ describe('useReactGA4Setup', () => {
       config.googleAnalytics.measurementId,
       {
         nonce: '',
-        gtagOptions: {
-          debug_mode: true,
-        },
+        testMode: true,
       }
     );
     expect(queryByTestId('success')?.textContent).toEqual('Render success');

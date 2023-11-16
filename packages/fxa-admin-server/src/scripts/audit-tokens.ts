@@ -4,7 +4,6 @@
 
 import program from 'commander';
 import { StatsD } from 'hot-shots';
-import * as Sentry from '@sentry/node';
 import {
   setupAuthDatabase,
   setupDatabase,
@@ -41,8 +40,6 @@ function getKnex(table: string) {
     throw new Error(`Unsupported table! ${table}.`);
   }
 }
-
-Sentry.init({});
 
 const logFactory = mozlog(config.log);
 let log: ILogger = logFactory('default');
@@ -481,20 +478,8 @@ export async function run() {
 if (require.main === module) {
   process.on('exit', (code) => log.info('exit', { code }));
 
-  const checkInId = Sentry.captureCheckIn({
-    monitorSlug: 'audit-tokens',
-    status: 'in_progress',
-  });
-
   run()
-    .then((result) => {
-      log.info('result', { result });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'ok',
-      });
-    })
+    .then((result) => log.info('result', { result }))
     .then(() => {
       // Make sure statsd closes cleanly so we don't lose any metrics
       return new Promise((resolve) => {
@@ -510,14 +495,6 @@ if (require.main === module) {
     })
     .catch((error) => {
       log.error('audit-tokens', { error });
-      Sentry.captureCheckIn({
-        checkInId,
-        monitorSlug: 'audit-tokens',
-        status: 'error',
-      });
-    })
-    .then(() => {
-      return Sentry.close(2000);
     })
     .finally(process.exit);
 }

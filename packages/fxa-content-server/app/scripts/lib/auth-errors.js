@@ -414,7 +414,7 @@ var ERRORS = {
   ILLEGAL_IFRAME_PARENT: {
     errno: 1022,
     message: t(
-      'Mozilla accounts can only be placed into an IFRAME on approved sites'
+      'Firefox Accounts can only be placed into an IFRAME on approved sites'
     ),
   },
   INVALID_EMAIL: {
@@ -698,7 +698,3 @@ export default _.extend({}, Errors, {
     return {};
   },
 });
-
-export const legacyL10nStrings = [
-  t('Firefox Accounts can only be placed into an IFRAME on approved sites'),
-];

@@ -9,7 +9,6 @@ const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
 const additionalJSImports = {
   'fxa-react': resolve(__dirname, '../'),
   'fxa-shared': resolve(__dirname, '../../fxa-shared'),
-  '@fxa/shared/l10n': resolve(__dirname, '../../../libs/shared/l10n/src'),
 };
 
 const customizeWebpackConfig = ({ config }) => ({
@@ -30,11 +29,6 @@ const customizeWebpackConfig = ({ config }) => ({
     extensions: [...config.resolve.extensions, '.svg', '.scss', '.css', '.png'],
     // Add aliases to some packages shared across the project
     alias: { ...config.resolve.alias, ...additionalJSImports },
-    fallback: {
-      ...config.fallback,
-      fs: false,
-      path: false,
-    },
   },
   module: {
     ...config.module,

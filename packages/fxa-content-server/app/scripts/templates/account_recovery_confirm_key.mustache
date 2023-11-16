@@ -20,9 +20,9 @@
 
     {{^isLinkExpired}}
         <header>
-            <h1 id="fxa-recovery-key-confirm" class="card-header">
+            <h1 id="fxa-recovery-key-confirm">
                 <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-                {{#t}}Reset password with account recovery key{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+                {{#t}}Reset password with account recovery key{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
             </h1>
         </header>
 
@@ -31,7 +31,7 @@
 
             <form novalidate>
                 <p class="description">
-                    {{#t}}Please enter the one time use account recovery key you stored in a safe place to regain access to your Mozilla account.{{/t}}
+                    {{#t}}Please enter the one time use account recovery key you stored in a safe place to regain access to your Firefox Account.{{/t}}
                 </p>
                 <p class="description">
                     {{#unsafeTranslate}}<span class="note">NOTE:</span> If you reset your password and don't have account recovery key saved, some of your data will be erased (including synced server data like history and bookmarks).{{/unsafeTranslate}}
@@ -50,7 +50,3 @@
         </section>
     {{/isLinkExpired}}
 </div>
-
-<!-- Old L10N Strings - TBR
-{{#t}}Please enter the one time use account recovery key you stored in a safe place to regain access to your Firefox Account.{{/t}}
--->

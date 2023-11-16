@@ -8,7 +8,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
 import { Subject } from './mocks';
-import { syncEngineConfigs } from './sync-engines';
+import { engines } from './sync-engines';
 
 describe('ChooseWhatToSync component', () => {
   let bundle: FluentBundle;
@@ -22,6 +22,6 @@ describe('ChooseWhatToSync component', () => {
     screen.getByText('Choose what to sync');
 
     const checkboxes = await screen.findAllByRole('checkbox');
-    expect(checkboxes).toHaveLength(syncEngineConfigs.length);
+    expect(checkboxes).toHaveLength(engines.length);
   });
 });

@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { ReachRouterWindow } from '../../window';
-import { RawData } from '../model-data-store';
 import { StorageData } from './storage-data';
 
 describe('storage-data', () => {
@@ -41,17 +40,5 @@ describe('storage-data', () => {
     // Load by default
     const data3 = new StorageData(window);
     expect(data3.get('foo')).toEqual('bar');
-  });
-
-  it('protects against legacy state', () => {
-    const data1 = new StorageData(window);
-
-    // Side step type safety to mimic legacy state. Content server may
-    // have written data akin to this.
-    data1.set('foo', { x: { bar: 'baz' } } as unknown as RawData);
-
-    const value = data1.get('foo');
-
-    expect(value).toEqual(JSON.stringify({ x: { bar: 'baz' } }));
   });
 });

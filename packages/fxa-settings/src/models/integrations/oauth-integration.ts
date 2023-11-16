@@ -16,11 +16,11 @@ import { IntegrationFlags } from '../../lib/integrations';
 import { BaseIntegrationData } from './web-integration';
 import {
   IsBoolean,
+  IsBooleanString,
   IsEmail,
   IsHexadecimal,
   IsIn,
   IsNotEmpty,
-  IsInt,
   IsOptional,
   IsString,
   MaxLength,
@@ -107,10 +107,11 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   idTokenHint: string | undefined;
 
+  // TODO: Validation - this should be converted to a number and then checked if it's >= 0
   @IsOptional()
-  @IsInt()
+  @IsString()
   @bind(T.snakeCase)
-  maxAge: number | undefined;
+  maxAge: string | undefined;
 
   @IsOptional()
   @IsString()
@@ -141,10 +142,10 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @bind(T.snakeCase)
   redirectUri: string | undefined;
 
-  @IsBoolean()
+  @IsBooleanString()
   @IsOptional()
   @bind(T.snakeCase)
-  returnOnError: boolean | undefined;
+  returnOnError: 'true' | 'false' | undefined;
 
   // TODO - Validation - Should scope be required?
   @IsOptional()
@@ -191,9 +192,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.data.redirectUri;
   }
 
-  // prefer client id if available (for oauth) otherwise fallback to service (e.g. for sync)
   getService() {
-    return this.data.clientId || this.data.service;
+    return this.data.service || this.data.clientId;
   }
 
   restoreOAuthState() {
@@ -213,54 +213,54 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   saveOAuthState() {
-    this.storageData.set(
-      'oauth',
-      JSON.stringify({
-        client_id: this.data.clientId,
-        scope: this.data.scope,
-        state: this.data.state,
-      })
-    );
+    this.storageData.set('oauth', {
+      client_id: this.data.clientId,
+      scope: this.data.scope,
+      state: this.data.state,
+    });
     this.storageData.persist();
   }
 
-  getServiceName() {
-    const permissions = this.getPermissions();
+  async getServiceName() {
+    const permissions = await this.getPermissions();
     if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
       return Constants.RELIER_SYNC_SERVICE_NAME;
     }
 
     // If the clientId and the service are the same, prefer the clientInfo
     if (this.data.service && this.data.clientId === this.data.service) {
-      if (this.clientInfo?.serviceName) {
-        return this.clientInfo.serviceName;
+      const clientInfo = await this.clientInfo;
+      if (clientInfo?.serviceName) {
+        return clientInfo.serviceName;
       }
     }
 
-    return super.getServiceName();
+    return await super.getServiceName();
   }
 
-  getClientInfo(): RelierClientInfo | undefined {
-    return this.clientInfo;
+  async getClientInfo(): Promise<RelierClientInfo | undefined> {
+    if (this.clientInfo) {
+      const info = await this.clientInfo;
+      return info;
+    }
+    return undefined;
   }
 
   isOAuth() {
     return true;
   }
 
-  // TODO: Sync mobile currently uses the OAuth integration for key derivation.
-  // Whenever desktop FF moves to this as well (e.g. from context=fx_desktop_v3
-  // to context=oauth_webchannel_v1) in SYNC-3768, we can refactor this and the
-  // SyncDesktop integration accordingly - maybe we'll only need one Sync
-  // integration once we no longer need to support desktop_v3. For now,
-  // `isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync`
-  // is the equivalent of this method's check.
-  isSync() {
-    return this.clientInfo?.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
+  async isSync() {
+    if (this.clientInfo == null) {
+      return false;
+    }
+
+    const clientInfo = await this.clientInfo;
+    return clientInfo.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
   }
 
-  isTrusted() {
-    return this.clientInfo?.trusted === true;
+  async isTrusted() {
+    return (await this.clientInfo)?.trusted === true;
   }
 
   wantsConsent() {
@@ -310,15 +310,10 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return wantsScopeThatHasKeys;
   }
 
-  getPermissions() {
-    // TODO: Not 100% sure about this...
-    if (!this.data.scope) {
-      return [];
-    }
-
+  async getPermissions() {
     // Ported from content server, search for _normalizeScopesAndPermissions
     let permissions = Array.from(scopeStrToArray(this.data.scope || ''));
-    if (this.isTrusted()) {
+    if (await this.isTrusted()) {
       // We have to normalize `profile` into is expanded sub-scopes
       // in order to show the consent screen.
       if (this.wantsConsent()) {
@@ -339,8 +334,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return permissions;
   }
 
-  getNormalizedScope() {
-    const permissions = this.getPermissions();
+  async getNormalizedScope() {
+    const permissions = await this.getPermissions();
     return permissions.join(' ');
   }
 

@@ -206,8 +206,6 @@ describe('/account/reset', () => {
     route = getRoute(accountRoutes, '/account/reset');
 
     clientAddress = mockRequest.app.clientAddress;
-    glean.resetPassword.accountReset.reset();
-    glean.resetPassword.createNewSuccess.reset();
   });
 
   describe('reset account with account recovery key', () => {
@@ -430,20 +428,6 @@ describe('/account/reset', () => {
       );
       let args = mockLog.activityEvent.args[0];
       assert.equal(args.length, 1, 'log.activityEvent was passed one argument');
-      sinon.assert.calledOnceWithExactly(
-        glean.resetPassword.accountReset,
-        mockRequest,
-        {
-          uid,
-        }
-      );
-      sinon.assert.calledOnceWithExactly(
-        glean.resetPassword.createNewSuccess,
-        mockRequest,
-        {
-          uid,
-        }
-      );
       assert.deepEqual(
         args[0],
         {
@@ -1041,6 +1025,8 @@ describe('/account/create', () => {
       );
       args = mockMailer.sendVerifyEmail.args[0];
       assert.equal(args[2].acceptLanguage, 'en-US');
+      assert.equal(args[2].location.city, 'Mountain View');
+      assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
       assert.equal(args[2].uaBrowser, 'Firefox Mobile');
       assert.equal(args[2].uaBrowserVersion, '9');
@@ -2335,6 +2321,8 @@ describe('/account/login', () => {
       );
       args = mockMailer.sendVerifyLoginEmail.args[0];
       assert.equal(args[2].acceptLanguage, 'en-US');
+      assert.equal(args[2].location.city, 'Mountain View');
+      assert.equal(args[2].location.country, 'United States');
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
       assert.equal(args[2].uaBrowser, 'Firefox');
       assert.equal(args[2].uaBrowserVersion, '50');
@@ -2521,6 +2509,14 @@ describe('/account/login', () => {
         assert.equal(
           mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
           'en-US'
+        );
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,
+          'Mountain View'
+        );
+        assert.equal(
+          mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country,
+          'United States'
         );
         assert.equal(
           mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone,
@@ -2958,6 +2954,14 @@ describe('/account/login', () => {
           assert.equal(
             mockMailer.sendVerifyLoginEmail.getCall(0).args[2].acceptLanguage,
             'en-US'
+          );
+          assert.equal(
+            mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.city,
+            'Mountain View'
+          );
+          assert.equal(
+            mockMailer.sendVerifyLoginEmail.getCall(0).args[2].location.country,
+            'United States'
           );
           assert.equal(
             mockMailer.sendVerifyLoginEmail.getCall(0).args[2].timeZone,

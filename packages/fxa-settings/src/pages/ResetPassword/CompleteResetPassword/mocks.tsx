@@ -93,7 +93,7 @@ export const Subject = ({
   params = mockCompleteResetPasswordParams,
 }: {
   integrationType?: IntegrationType;
-  params?: Record<string, string | undefined>;
+  params?: Record<string, unknown>;
 }) => {
   const urlQueryData = mockUrlQueryData(params);
 
@@ -125,6 +125,9 @@ export const Subject = ({
         <CompleteResetPassword
           {...{ setLinkStatus, linkModel }}
           integration={completeResetPasswordIntegration}
+          finishOAuthFlowHandler={() =>
+            Promise.resolve({ redirect: 'someUri' })
+          }
         />
       )}
     </LinkValidator>

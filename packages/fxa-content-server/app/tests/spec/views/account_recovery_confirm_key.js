@@ -86,7 +86,7 @@ describe('views/account_recovery_confirm_key', () => {
       assert.lengthOf(view.$('#account-recovery-confirm-password'), 1);
       assert.include(
         view.$('#fxa-recovery-key-confirm').text(),
-        'account settings'
+        'Account Settings'
       );
       assert.lengthOf(view.$('#recovery-key'), 1);
       assert.lengthOf(view.$('#submit-btn'), 1);

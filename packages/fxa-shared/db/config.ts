@@ -77,7 +77,7 @@ export function makeRedisConfig() {
       doc: 'IP address or host name for Redis server',
     },
     password: {
-      default: '',
+      default: 'fxa123',
       env: 'REDIS_PASSWORD',
       format: String,
       sensitive: true,

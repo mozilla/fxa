@@ -4,7 +4,9 @@
 
 // NOTE: Ported from scoped-keys.js in content server. Minor typescript adaptions applied.
 
-import fxaCryptoDeriver from './deriver';
+// TOOD: Why can't this be imported?
+const fxaCryptoDeriver = require('fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver');
+const fxaDeriverUtils = new fxaCryptoDeriver.DeriverUtils();
 
 /**
  * Derive scoped keys and create an encrypted bundle for key transport
@@ -21,18 +23,18 @@ export async function createEncryptedBundle(
   scopedKeyData: Record<string, any>,
   keysJwk: string
 ) {
-  const deriveKeys = Object.keys(scopedKeyData).map(
-    async (key) => await deriveScopedKeys(kB, uid, scopedKeyData[key])
+  const deriveKeys = Object.keys(scopedKeyData).map((key) =>
+    deriveScopedKeys(kB, uid, scopedKeyData[key])
   );
 
-  return Promise.all(deriveKeys).then(async (derivedKeys) => {
+  return Promise.all(deriveKeys).then((derivedKeys) => {
     const bundleObject: any = {};
 
-    derivedKeys.forEach((derivedKey: any) => {
+    derivedKeys.forEach((derivedKey) => {
       bundleObject[derivedKey.scope] = derivedKey;
     });
 
-    return await encryptBundle(bundleObject, keysJwk);
+    return encryptBundle(bundleObject, keysJwk);
   });
 }
 
@@ -44,9 +46,7 @@ export async function createEncryptedBundle(
  * without stringifying the `bundleObject`.
  * @returns {Promise} A promise that will resolve into an encrypted bundle of scoped keys
  */
-async function encryptBundle(bundleObject: any, keysJwk: any) {
-  const cryptoDeriver = await fxaCryptoDeriver();
-  const fxaDeriverUtils = new cryptoDeriver.deriverutils();
+function encryptBundle(bundleObject: any, keysJwk: any) {
   return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
 }
 
@@ -59,13 +59,12 @@ async function encryptBundle(bundleObject: any, keysJwk: any) {
  * @returns {Promise} A promise that will resolve with an object having a scoped key
  *   The key is represented as a JWK object.
  */
-async function deriveScopedKeys(inputKey: any, uid: string, keyData: any) {
+function deriveScopedKeys(inputKey: any, uid: string, keyData: any) {
   required(inputKey, 'input key');
   required(uid, 'uid');
   required(keyData, 'key data');
 
-  const cryptoDeriver = await fxaCryptoDeriver();
-  const scopedKeys = new cryptoDeriver.ScopedKeys();
+  const scopedKeys = new fxaCryptoDeriver.ScopedKeys();
 
   return scopedKeys.deriveScopedKey({
     identifier: keyData.identifier,

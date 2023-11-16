@@ -4,16 +4,37 @@
 
 import { RouteComponentProps } from '@reach/router';
 import CompleteResetPassword from '.';
-import { Integration } from '../../../models';
+import { Integration, useAuthClient } from '../../../models';
 import LinkValidator from '../../../components/LinkValidator';
 import { LinkType } from '../../../lib/types';
 import { CreateCompleteResetPasswordLink } from '../../../models/reset-password/verification/factory';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import AppLayout from '../../../components/AppLayout';
+import { CardHeader } from '@material-ui/core';
 
 const CompleteResetPasswordContainer = ({
   integration,
 }: {
   integration: Integration;
 } & RouteComponentProps) => {
+  const authClient = useAuthClient();
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
+
+  // TODO: UX for this, FXA-8106
+  if (oAuthDataError) {
+    return (
+      <AppLayout>
+        <CardHeader
+          headingText="Unexpected error"
+          headingTextFtlId="auth-error-999"
+        />
+      </AppLayout>
+    );
+  }
+
   // TODO: possibly rethink LinkValidator approach as it's a lot of layers with
   // the new container approach. We want to handle validation here while still sharing
   // logic with other container components and probably rendering CompleteResetPassword
@@ -34,6 +55,7 @@ const CompleteResetPasswordContainer = ({
             setLinkStatus,
             linkModel,
             integration,
+            finishOAuthFlowHandler,
           }}
         />
       )}

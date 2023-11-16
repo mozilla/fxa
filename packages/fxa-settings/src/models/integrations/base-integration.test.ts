@@ -20,8 +20,8 @@ describe('BaseIntegration Model', function () {
   });
 
   describe('isSync', function () {
-    it('returns `false`', function () {
-      expect(model.isSync()).toBeFalsy();
+    it('returns `false`', async function () {
+      expect(await model.isSync()).toBeFalsy();
     });
   });
 
@@ -32,8 +32,8 @@ describe('BaseIntegration Model', function () {
   });
 
   describe('isTrusted', function () {
-    it('returns `true`', () => {
-      expect(model.isTrusted()).toBeTruthy();
+    it('returns `true`', async () => {
+      expect(await model.isTrusted()).toBeTruthy();
     });
   });
 

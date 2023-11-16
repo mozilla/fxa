@@ -83,7 +83,7 @@ describe('getFilename function', () => {
     const date = new Date().toISOString().split('T')[0];
 
     expect(filename).toContain(
-      `Mozilla-Recovery-Key_${date}_${account.primaryEmail.email}.pdf`
+      `Firefox-Recovery-Key_${date}_${account.primaryEmail.email}.pdf`
     );
     expect(filename.length).toBeLessThanOrEqual(75);
   });
@@ -96,14 +96,14 @@ describe('getFilename function', () => {
     // Filename should be created from current date
     const date = new Date().toISOString().split('T')[0];
 
-    const fullFilename = `Mozilla-Recovery-Key_${date}_${longEmail}.pdf`;
+    const fullFilename = `Firefox-Recovery-Key_${date}_${longEmail}.pdf`;
     // Full filename would be longer than 75 char if not truncated
     expect(fullFilename.length).toBeGreaterThan(75);
 
     // Actual filename is truncated
     expect(filename.length).toBeLessThanOrEqual(75);
     // filename still contains full prefix and date
-    expect(filename).toContain('Mozilla-Recovery-Key');
+    expect(filename).toContain('Firefox-Recovery-Key');
     expect(filename).toContain(date);
   });
 });

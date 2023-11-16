@@ -45,7 +45,7 @@ const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
 const findOauthClientId = (request: MetricsRequest): string =>
-  request.auth.credentials?.client_id || request.payload?.client_id || '';
+  request.auth.credentials?.client_id || request.payload.client_id || '';
 
 const findServiceName = async (request: MetricsRequest) => {
   const metricsContext = await request.app.metricsContext;
@@ -136,14 +136,6 @@ export function gleanMetrics(config: ConfigType) {
       totpFailure: createEventFn('login_totp_code_failure'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
-      complete: createEventFn('login_complete'),
-    },
-
-    resetPassword: {
-      emailSent: createEventFn('password_reset_email_sent'),
-      createNewSuccess: createEventFn('password_reset_create_new_success'),
-      accountReset: createEventFn('account_password_reset'),
-      recoveryKeySuccess: createEventFn('password_reset_recovery_key_success'),
     },
   };
 }
@@ -166,10 +158,7 @@ export const logErrorWithGlean = ({
   const pingFn = getPingFnWithPath(request.path);
   if (pingFn) {
     const [funnel, event] = pingFn.split('.');
-    const funnelFns =
-      glean[
-        funnel as keyof Omit<ReturnType<typeof gleanMetrics>, 'resetPassword'>
-      ];
+    const funnelFns = glean[funnel as keyof ReturnType<typeof gleanMetrics>];
     funnelFns[event as keyof typeof funnelFns](request, {
       // we use the errno's key here because the human readable error message
       // can be too verbose, while the short error title is too low resolution

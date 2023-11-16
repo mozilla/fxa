@@ -7,7 +7,7 @@ export interface Config {
     enabled: boolean;
     measurementId: string;
     supportedProductIds: string;
-    debugMode: boolean;
+    testMode: boolean;
   };
   lang: string;
   legalDocLinks: {
@@ -61,7 +61,7 @@ export function defaultConfig(): Config {
       enabled: false,
       measurementId: '',
       supportedProductIds: 'prod_GqM9ToKK62qjkK',
-      debugMode: false,
+      testMode: false,
     },
     lang: '',
     legalDocLinks: {

@@ -16,7 +16,8 @@
           "test-e2e",
           "test-integration",
           "test-unit"
-        ]
+        ],
+        "accessToken": "YzRhMzhiNjEtODE0OS00Njg1LTg2NDktMGJlZjBjNmJjMTc1fHJlYWQtb25seQ=="
       }
     }
   },
@@ -150,14 +151,7 @@
       "!{projectRoot}/jest.config.@(js|ts)",
       "!{projectRoot}/tsconfig.+(spec|storybook).json"
     ],
-    "sharedGlobals": [
-      {
-        "runtime": "node -v"
-      },
-      {
-        "runtime": "tsc -v"
-      }
-    ],
+    "sharedGlobals": [{ "runtime": "node -v" }, { "runtime": "tsc -v" }],
     "test": ["default", "{workspaceRoot}/jest.preset.js"],
     "typescript": [
       "{projectRoot}/**/*.@(ts|tsx)",

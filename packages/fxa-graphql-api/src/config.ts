@@ -41,37 +41,11 @@ const conf = convict({
       default: 'http://localhost:9000/v1',
     },
   },
-  contentful: {
-    cdnUrl: {
-      doc: 'Base URL for Content Delivery API (https://www.contentful.com/developers/docs/references/content-delivery-api//)',
-      format: String,
-      env: 'CONTENTFUL_CDN_API_URL',
-      default: '',
-    },
-    graphqlUrl: {
-      doc: 'Base URL for GraphQL Content API (https://www.contentful.com/developers/docs/references/graphql/)',
-      format: String,
-      env: 'CONTENTFUL_GRAPHQL_API_URL',
-      default: '',
-    },
-    apiKey: {
-      doc: 'GraphQL Content API key for Contentful hCMS to fetch RP-provided content (https://www.contentful.com/developers/docs/references/authentication/)',
-      format: String,
-      env: 'CONTENTFUL_GRAPHQL_API_KEY',
-      default: '',
-    },
-    spaceId: {
-      doc: 'Alphanumeric id used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/references/content-management-api/#/reference/spaces)',
-      format: String,
-      env: 'CONTENTFUL_GRAPHQL_SPACE_ID',
-      default: '',
-    },
-    environment: {
-      doc: 'Environment alias used for instantiating the ContentfulClient (https://www.contentful.com/developers/docs/concepts/multiple-environments/)',
-      format: String,
-      env: 'CONTENTFUL_GRAPHQL_ENVIRONMENT',
-      default: '',
-    },
+  contentfulApiKey: {
+    doc: 'GraphQL Content API key for Contentful hCMS to fetch RP-provided content',
+    format: String,
+    env: 'CONTENTFUL_API_KEY',
+    default: '',
   },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',

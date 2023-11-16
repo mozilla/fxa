@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { validateSync, ValidationError } from 'class-validator';
-import { ModelDataStore, RawData } from './model-data-store';
+import { ModelDataStore } from './model-data-store';
 
 /**
  * Type guard for validating model
@@ -33,15 +33,10 @@ export class ModelDataProvider {
    * @param validate Whether or not to validate. Optional and defaults to true.
    * @returns underlying data
    */
-  setModelData(key: string, value: RawData, validate = true) {
+  setModelData(key: string, value: unknown, validate = true) {
     if (this.modelData == null) {
       throw new Error(
         'Invalid bind! Has the data store for the model been initialized?'
-      );
-    }
-    if (typeof value !== 'string') {
-      throw new Error(
-        'Model data not serialized! Convert to string before storing!'
       );
     }
     const currentValue = this.modelData.get(key);

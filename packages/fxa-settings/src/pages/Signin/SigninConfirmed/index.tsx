@@ -11,6 +11,7 @@ import AppLayout from '../../../components/AppLayout';
 type SigninConfirmedProps = {
   continueHandler?: Function;
   isSignedIn: boolean;
+  isSync: boolean;
   serviceName?: MozServices;
 };
 
@@ -19,10 +20,13 @@ export const viewName = 'signin-confirmed';
 const SigninConfirmed = ({
   continueHandler,
   isSignedIn,
+  isSync,
   serviceName,
 }: SigninConfirmedProps & RouteComponentProps) => (
   <AppLayout>
-    <Ready {...{ continueHandler, isSignedIn, viewName, serviceName }} />
+    <Ready
+      {...{ continueHandler, isSignedIn, isSync, viewName, serviceName }}
+    />
   </AppLayout>
 );
 

@@ -222,7 +222,7 @@ describe('views/base', function () {
         return '<div>no titles anywhere</div>';
       };
       return view.render().then(function () {
-        assert.equal(view.titleFromView(), 'Mozilla Accounts Unit Tests');
+        assert.equal(view.titleFromView(), 'Firefox Accounts Unit Tests');
       });
     });
 

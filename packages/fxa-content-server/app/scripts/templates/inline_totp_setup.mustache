@@ -1,9 +1,9 @@
 <div id="main-content" class="card inline-totp-setup">
   {{#showIntro}}
     <header>
-      <h1 id="fxa-inline-totp-setup" class="card-header">
+      <h1 id="fxa-inline-totp-setup">
         <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-        {{#t}}Enable two-step authentication{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+        {{#t}}Enable two-step authentication{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
       </h1>
     </header>
     <section>
@@ -25,15 +25,15 @@
   {{^showIntro}}
     <header>
       {{#showQRImage}}
-        <h1 id="fxa-totp-qr-image" class="card-header">
+        <h1 id="fxa-totp-qr-image">
           <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-          {{#t}}Scan authentication code{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+          {{#t}}Scan authentication code{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
         </h1>
       {{/showQRImage}}
       {{^showQRImage}}
-        <h1 id="fxa-totp-code-text" class="card-header">
+        <h1 id="fxa-totp-code-text">
           <!-- L10N: For languages structured like English, the second phrase can read "to continue to %(serviceName)s" -->
-          {{#t}}Enter code manually{{/t}} <span class="card-subheader">{{#t}}Continue to %(serviceName)s{{/t}}</span>
+          {{#t}}Enter code manually{{/t}} <span class="service">{{#t}}Continue to %(serviceName)s{{/t}}</span>
         </h1>
       {{/showQRImage}}
     </header>

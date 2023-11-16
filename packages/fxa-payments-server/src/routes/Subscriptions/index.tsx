@@ -545,7 +545,7 @@ const ProfileBanner = ({
 }: ProfileProps) => (
   <header id="fxa-settings-profile-header-wrapper">
     <div className="avatar-wrapper avatar-settings-view nohover">
-      <img src={avatar} alt={displayName || email} className="avatar-image" />
+      <img src={avatar} alt={displayName || email} className="w-16 h-16" />
     </div>
     <div id="fxa-settings-profile-header">
       <h1 className="card-header">{displayName ? displayName : email}</h1>

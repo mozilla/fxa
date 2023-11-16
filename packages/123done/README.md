@@ -3,7 +3,6 @@
 ## Running locally
 
 1. Complete prerequisites for running [FxA](https://github.com/mozilla/fxa#getting-started)
-1. Create a `secrets.json` file in 123done root folder and specify the `client_secret` value.
 1. Run the server: `yarn start`
 1. Visit it in your browser: `http://localhost:8080/`
 1. Hack and reload! (web resources don't require a server restart)

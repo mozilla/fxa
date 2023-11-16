@@ -4,9 +4,9 @@
 
 /* Remove this component class in favor of components with TW classes directly
  * applied after content-server no longer needs it */
-/* Transparent border around card is for Windows HCM mode */
+
 .card {
-  @apply relative text-center w-full border border-transparent mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-12 pt-9 mobileLandscape:shadow-card-grey-drop mb-6;
+  @apply relative text-center w-full mobileLandscape:w-120 mobileLandscape:bg-white rounded-xl px-8 pb-10 pt-33 mobileLandscape:pt-20 mobileLandscape:shadow-card-grey-drop;
 
   /* HACK until content-server no longer needs .card, otherwise component classes take precedence */
   &.card-xl {
@@ -14,7 +14,7 @@
   }
 
   &::before {
-    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''];
+    @apply h-16 mobileLandscape:h-20 left-0 block absolute bg-center bg-no-repeat w-full bg-contain top-8 mobileLandscape:-top-10 content-[''] bg-ff-logo;
   }
 
   &-header {

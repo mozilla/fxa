@@ -1,10 +1,14 @@
 #main-content::before {
   $firefox-standalone-logo-size-large: 82px;
   $firefox-standalone-logo-size-small: 56px;
+  background-image: image-url('firefox-logo.svg');
+  background-position: center center;
+  background-repeat: no-repeat;
   content: '';
   left: 0;
   position: absolute;
   width: 100%;
+  z-index: $fox-logo-zindex;
 
   @include respond-to('big') {
     background-size: auto $firefox-standalone-logo-size-large;
@@ -31,24 +35,28 @@
   }
 }
 
-.mozilla-header {
-  width: 100%;
-  padding: 0 1.5rem;
-  margin-bottom: 1.5rem;
+#about-mozilla {
+  @include respond-to('big') {
+    background: image-url('mozilla.svg') no-repeat center center;
+    cursor: pointer;
+    display: block;
+    height: 48px;
+    margin: 24px 0;
+    transition: opacity $short-transition;
+    width: 128px;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus {
+      outline-color: $html-background-color;
+    }
+  }
 
   @include respond-to('small') {
-    width: auto;
-    margin: auto 0;
-    padding-top: 1.5rem;
+    display: none;
   }
-}
-#about-mozilla {
-  background: image-url('mozilla.svg') no-repeat center center;
-  cursor: pointer;
-  display: block;
-  height: 2rem;
-  transition: opacity $short-transition;
-  width: 7rem;
 
   // Links to external sites cannot be opened when signing in
   // to Sync on Firefox for iOS
@@ -57,54 +65,22 @@
   }
 }
 
-.brand-messaging {
-  padding-top: 0;
-
-  @include respond-to('small') {
-    padding-top: 3rem;
-    margin-bottom: 5rem;
-  }
-  .mozilla-header {
-    padding-top: 1.5rem;
-  }
-}
-
-.banner-brand-message {
-
-  @include respond-to('big') {
-    position: relative;
-  }
-
-    /** Make it fixed to keep the banner sticky on mobile and ensure
-      it doesn't get cut off by the folding line. */
-  @include respond-to('small') {
-    position: fixed;
-      bottom: 0;
-  }
-}
-
-#body-top {
-  @include respond-to('small') {
-    display: none;
-  }
-}
-
-#body-top .brand-messaging {
-  @include respond-to('small') {
-    padding-top: initial;
-  }
-}
-
-#body-bottom {
-  @include respond-to('big') {
-    display: none;
-  }
-}
-
 .brand-banner-bg {
   background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
 }
 
+/** Work around for sticky fixed banner */
+body.brand-messaging {
+  padding-top: 9rem;
+}
+
+/** On mobile banner moves to bottom, so we can undo padding hack above */
+@media screen and (max-width:480px) {
+  body.brand-messaging {
+    padding-top: inherit;
+  }
+
+}
 .choose-what-to-sync {
   .success-email-created {
     margin-bottom: 26px;

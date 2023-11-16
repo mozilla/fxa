@@ -9,15 +9,20 @@ import { logViewEvent } from '../../../lib/metrics';
 import Modal from '../Modal';
 import UnitRow from '../UnitRow';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { ButtonIconTrash } from '../ButtonIcon';
+import { ButtonIconReload, ButtonIconTrash } from '../ButtonIcon';
 import { HomePath } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-export const UnitRowRecoveryKey = () => {
+export const UnitRowRecoveryKey = ({
+  showRecoveryKeyV2,
+}: {
+  showRecoveryKeyV2?: boolean;
+}) => {
   const account = useAccount();
 
   const recoveryKey = account.recoveryKey;
   const alertBar = useAlertBar();
+  const [deleteModalVisible, setDeleteModalVisible] = useState<boolean>(false);
   const [modalRevealed, revealModal, hideModal] = useBooleanState();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const ftlMsgResolver = useFtlMsgResolver();
@@ -25,6 +30,7 @@ export const UnitRowRecoveryKey = () => {
   const deleteRecoveryKey = useCallback(async () => {
     try {
       await account.deleteRecoveryKey();
+      setDeleteModalVisible(false);
       hideModal();
       alertBar.success(
         ftlMsgResolver.getMsg(
@@ -35,6 +41,7 @@ export const UnitRowRecoveryKey = () => {
       logViewEvent('flow.settings.account-recovery', 'confirm-revoke.success');
     } catch (e) {
       hideModal();
+      setDeleteModalVisible(false);
       alertBar.error(
         ftlMsgResolver.getMsg(
           'rk-remove-error-2',
@@ -46,6 +53,11 @@ export const UnitRowRecoveryKey = () => {
       setIsLoading(false);
     }
   }, [account, hideModal, alertBar, ftlMsgResolver]);
+
+  const localizedRefreshRkText = ftlMsgResolver.getMsg(
+    'rk-refresh-key-1',
+    'Refresh account recovery key'
+  );
 
   const localizedDeleteRKIconButton = ftlMsgResolver.getMsg(
     'unit-row-recovery-key-delete-icon-button-title',
@@ -63,10 +75,26 @@ export const UnitRowRecoveryKey = () => {
           ? ftlMsgResolver.getMsg('rk-enabled', 'Enabled')
           : ftlMsgResolver.getMsg('rk-not-set', 'Not Set')
       }
-      route={`${HomePath}/account_recovery`}
+      // TODO Remove condition in FXA-7419 and only keep v2
+      route={
+        showRecoveryKeyV2
+          ? `${HomePath}/account_recovery`
+          : recoveryKey
+          ? undefined
+          : `${HomePath}/account_recovery`
+      }
+      // Remove this attribute when v1 phased out in FXA-7419
+      revealModal={
+        showRecoveryKeyV2 ? undefined : recoveryKey ? revealModal : undefined
+      }
+      // TODO Remove condition in FXA-7419 and only keep v2
       ctaText={
-        recoveryKey
-          ? ftlMsgResolver.getMsg('rk-action-change-button', 'Change')
+        showRecoveryKeyV2
+          ? recoveryKey
+            ? ftlMsgResolver.getMsg('rk-action-change-button', 'Change')
+            : ftlMsgResolver.getMsg('rk-action-create', 'Create')
+          : recoveryKey
+          ? ftlMsgResolver.getMsg('rk-action-remove', 'Remove')
           : ftlMsgResolver.getMsg('rk-action-create', 'Create')
       }
       disabled={!account.hasPassword}
@@ -76,23 +104,44 @@ export const UnitRowRecoveryKey = () => {
       )}
       alertBarRevealed
       headerContent={
-        recoveryKey && (
-          <ButtonIconTrash
-            title={localizedDeleteRKIconButton}
+        // TODO Remove condition in FXA-7419 and only keep v2
+        showRecoveryKeyV2 ? (
+          recoveryKey && (
+            <ButtonIconTrash
+              title={localizedDeleteRKIconButton}
+              classNames="inline-block mobileLandscape:hidden ms-1"
+              disabled={!recoveryKey || account.loading}
+              onClick={() => setDeleteModalVisible(true)}
+            />
+          )
+        ) : (
+          <ButtonIconReload
+            title={localizedRefreshRkText}
             classNames="inline-block mobileLandscape:hidden ms-1"
-            disabled={!recoveryKey || account.loading}
-            onClick={revealModal}
+            disabled={account.loading}
+            onClick={() => account.refresh('recovery')}
           />
         )
       }
       // if there is a recovery key for the account, show the trash icon
       actionContent={
-        recoveryKey && (
-          <ButtonIconTrash
-            title={localizedDeleteRKIconButton}
+        // TODO Remove condition in FXA-7419 and only keep v2
+        showRecoveryKeyV2 ? (
+          recoveryKey && (
+            <ButtonIconTrash
+              title={localizedDeleteRKIconButton}
+              classNames="hidden mobileLandscape:inline-block ms-1"
+              disabled={!recoveryKey || account.loading}
+              onClick={() => setDeleteModalVisible(true)}
+            />
+          )
+        ) : (
+          <ButtonIconReload
+            title={localizedRefreshRkText}
             classNames="hidden mobileLandscape:inline-block ms-1"
-            disabled={!recoveryKey || account.loading}
-            onClick={revealModal}
+            testId="recovery-key-refresh"
+            disabled={account.loading || !account.hasPassword}
+            onClick={() => account.refresh('recovery')}
           />
         )
       }
@@ -102,7 +151,7 @@ export const UnitRowRecoveryKey = () => {
           Restore your information when you forget your password.
         </p>
       </FtlMsg>
-      {modalRevealed && (
+      {(deleteModalVisible || modalRevealed) && (
         <VerifiedSessionGuard
           onDismiss={hideModal}
           onError={(error) => {
@@ -119,6 +168,7 @@ export const UnitRowRecoveryKey = () => {
           <Modal
             onDismiss={() => {
               hideModal();
+              setDeleteModalVisible(false);
             }}
             onConfirm={() => {
               setIsLoading(true);

@@ -51,6 +51,11 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     );
   }
 
+  // TODO remove in favor of isServiceSync
+  isSyncService() {
+    return this._isService(Constants.SYNC_SERVICE);
+  }
+
   isV3DesktopContext() {
     return this.searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
   }
@@ -124,7 +129,7 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   private _getSavedClientId() {
-    const oauth = JSON.parse(this.storageData.get('oauth') || '{}');
+    const oauth = this.storageData.get('oauth');
     if (
       typeof oauth === 'object' &&
       oauth != null &&

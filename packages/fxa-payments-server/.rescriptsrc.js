@@ -5,11 +5,9 @@
 const {
   permitAdditionalJSImports,
   suppressRuntimeErrorOverlay,
-  setModuleNameMapper,
 } = require('fxa-react/configs/rescripts');
 
 module.exports = {
   webpack: permitAdditionalJSImports,
   devServer: suppressRuntimeErrorOverlay,
-  jest: setModuleNameMapper,
 };

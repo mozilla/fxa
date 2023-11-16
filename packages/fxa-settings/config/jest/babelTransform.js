@@ -18,11 +18,6 @@ const hasJsxRuntime = (() => {
 })();
 
 module.exports = babelJest.createTransformer({
-  plugins: [
-    'babel-plugin-transform-typescript-metadata',
-    ['@babel/plugin-proposal-decorators', { version: 'legacy' }],
-    ['@babel/plugin-proposal-class-properties', { loose: true }],
-  ],
   presets: [
     [
       require.resolve('babel-preset-react-app'),

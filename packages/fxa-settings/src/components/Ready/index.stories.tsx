@@ -20,6 +20,7 @@ const ReadyWithLayout = ({
   isSignedIn,
   serviceName,
   viewName,
+  isSync,
   errorMessage,
 }: ReadyProps) => {
   return (
@@ -30,6 +31,7 @@ const ReadyWithLayout = ({
           continueHandler,
           isSignedIn,
           serviceName,
+          isSync,
           errorMessage,
         }}
       />
@@ -48,7 +50,7 @@ export const ResetPasswordConfirmForLoggedOutUser = () => (
 export const ResetPasswordConfirmedWithRelyingParty = () => (
   <ReadyWithLayout
     isSignedIn
-    serviceName={MozServices.MozillaVPN}
+    serviceName={MozServices.FirefoxSync}
     viewName="reset-password-confirmed"
   />
 );
@@ -76,7 +78,7 @@ export const IsSync = () => (
   <ReadyWithLayout
     isSignedIn
     viewName="reset-password-with-recovery-key-verified"
-    serviceName={MozServices.FirefoxSync}
+    isSync
   />
 );
 
@@ -84,6 +86,7 @@ export const WithErrorMessage = () => (
   <ReadyWithLayout
     isSignedIn
     viewName="reset-password-with-recovery-key-verified"
+    isSync
     errorMessage="But something else went wrong"
   />
 );

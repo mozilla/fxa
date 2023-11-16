@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Type } from 'class-transformer';
 import { IsInt, IsOptional, IsString, validate } from 'class-validator';
 
 export class MySQLConfig {
@@ -12,7 +11,6 @@ export class MySQLConfig {
   host!: string;
 
   @IsInt()
-  @Type(() => Number)
   port!: number;
 
   @IsString()
@@ -23,17 +21,14 @@ export class MySQLConfig {
 
   @IsOptional()
   @IsInt()
-  @Type(() => Number)
   connectionLimitMin?: number;
 
   @IsOptional()
   @IsInt()
-  @Type(() => Number)
   connectionLimitMax?: number;
 
   @IsOptional()
   @IsInt()
-  @Type(() => Number)
   acquireTimeoutMillis?: number;
 }
 

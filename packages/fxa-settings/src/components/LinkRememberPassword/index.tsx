@@ -4,7 +4,6 @@
 
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { useLocation } from '@reach/router';
 
 export type LinkRememberPasswordProps = {
   email?: string;
@@ -15,20 +14,15 @@ const LinkRememberPassword = ({
   email,
   forceAuth = false,
 }: LinkRememberPasswordProps) => {
-  const location = useLocation();
-  const params = new URLSearchParams(location.search);
+  const linkTarget = `${forceAuth ? '/force_auth' : '/signin'}`;
+  let target = linkTarget;
   if (email) {
-    params.set('email', email);
+    target = `${linkTarget}?email=${encodeURIComponent(email)}`;
   }
-  const linkHref = `${
-    forceAuth ? '/force_auth' : '/signin'
-  }?${params.toString()}`;
-
   return (
     <div className="text-sm mt-6">
       <FtlMsg id="remember-pw-link">
-        {/* TODO: use Link component once signin is Reactified */}
-        <a href={linkHref} className="link-blue text-sm" id="remember-password">
+        <a href={target} className="link-blue text-sm" id="remember-password">
           Remember your password? Sign in
         </a>
       </FtlMsg>

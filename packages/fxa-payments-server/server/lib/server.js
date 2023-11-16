@@ -73,7 +73,7 @@ module.exports = () => {
       enabled: config.get('googleAnalytics.enabled'),
       measurementId: config.get('googleAnalytics.measurementId'),
       supportedProductIds: config.get('googleAnalytics.supportedProductIds'),
-      debugMode: config.get('googleAnalytics.debugMode'),
+      testMode: config.get('googleAnalytics.testMode'),
     },
     legalDocLinks: {
       privacyNotice: config.get('legalDocLinks.privacyNotice'),

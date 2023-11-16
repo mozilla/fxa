@@ -1,4 +1,4 @@
-import { getLocalizedCurrencyString } from '@fxa/shared/l10n';
+import { getLocalizedCurrencyString } from '@fxa/shared/l10n/fluent';
 import { Stripe } from 'stripe';
 
 export type PlanInterval = Stripe.Plan['interval']; // TODO - Replace once FXA-7507 lands

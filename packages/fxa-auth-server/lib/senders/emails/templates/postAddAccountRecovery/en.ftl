@@ -1,7 +1,10 @@
-postAddAccountRecovery-subject-3 = New account recovery key created
+postAddAccountRecovery-subject-2 = Account recovery key created
 postAddAccountRecovery-title2 = You created a new account recovery key
-# Key here refers to account recovery key
-postAddAccountRecovery-body-part1 = Save this key in a safe place — you’ll need it to restore your encrypted browsing data if you forget your password.
-# Key here refers to account recovery key
-postAddAccountRecovery-body-part2 = This key can only be used once. After you use it, we’ll automatically create a new one for you. Or you can create a new one any time from your account settings.
+# Information on the browser and device triggering this string follows.
+postAddAccountRecovery-description-2 = A new key was created from:
+# This is asking whether the person who took the action is the recipient of the email.
+postAddAccountRecovery-not-you = Not you?
+postAddAccountRecovery-change = <a data-l10n-name="revokeAccountRecoveryLink">Delete the new key</a> and <a data-l10n-name="passwordChangeLink">change your password</a>
 postAddAccountRecovery-action = Manage account
+postAddAccountRecovery-delete-key = Delete the new key:
+postAddAccountRecovery-changd-password = Change your password:

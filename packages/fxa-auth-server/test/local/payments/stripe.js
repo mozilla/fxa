@@ -129,7 +129,7 @@ const mockConfig = {
   subscriptions: {
     cacheTtlSeconds: 10,
     productConfigsFirestore: { enabled: true },
-    stripeApiKey: 'blah',
+    stripeApiKey: 'sk_test_4eC39HqLyjWDarjtT1zdp7dc',
   },
   subhub: {
     enabled: true,
@@ -145,7 +145,7 @@ const mockConfig = {
 const mockRedisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD || '',
+  password: process.env.REDIS_PASSWORD || 'fxa123',
   maxPending: 1000,
   retryCount: 5,
   initialBackoff: '100 milliseconds',
@@ -3484,6 +3484,87 @@ describe('#integration - StripeHelper', () => {
     });
   });
 
+  describe('verifyPlanUpdateForSubscription', () => {
+    it('does nothing for a valid upgrade', async () => {
+      assert.isUndefined(
+        await stripeHelper.verifyPlanUpdateForSubscription(
+          'plan_G93lTs8hfK7NNG',
+          'plan_G93mMKnIFCjZek'
+        )
+      );
+    });
+
+    it('throws an invalidPlanUpdate when it is a downgrade', async () => {
+      try {
+        await stripeHelper.verifyPlanUpdateForSubscription(
+          'plan_G93mMKnIFCjZek',
+          'plan_G93lTs8hfK7NNG'
+        );
+        assert.fail('An invalidPlanUpdate should have been thrown.');
+      } catch (e) {
+        assert.equal(e.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+      }
+    });
+
+    describe('when the upgrade is invalid', () => {
+      it('throws an invalidPlanUpdate error', async () => {
+        return stripeHelper
+          .verifyPlanUpdateForSubscription(
+            'plan_G93lTs8hfK7NNG',
+            'plan_F4G9jB3x5i6Dpj'
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            (err) => {
+              assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+            }
+          );
+      });
+    });
+
+    describe('when the current plan specified does not exist', () => {
+      it('thows an unknownSubscriptionPlan error', async () => {
+        return stripeHelper
+          .verifyPlanUpdateForSubscription('plan_bad', 'plan_F4G9jB3x5i6Dpj')
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            (err) => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+            }
+          );
+      });
+    });
+
+    describe('when the new plan specified does not exist', () => {
+      it('thows an unknownSubscriptionPlan error', async () => {
+        return stripeHelper
+          .verifyPlanUpdateForSubscription('plan_F4G9jB3x5i6Dpj', 'plan_bad')
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            (err) => {
+              assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_PLAN);
+            }
+          );
+      });
+    });
+
+    describe('when the current plan and the new plan are the same', () => {
+      it('thows a subscriptionAlreadyChanged error', async () => {
+        return stripeHelper
+          .verifyPlanUpdateForSubscription(
+            'plan_G93lTs8hfK7NNG',
+            'plan_G93lTs8hfK7NNG'
+          )
+          .then(
+            () => Promise.reject(new Error('Method expected to reject')),
+            (err) => {
+              assert.equal(err.errno, error.ERRNO.SUBSCRIPTION_ALREADY_CHANGED);
+            }
+          );
+      });
+    });
+  });
+
   describe('updateSubscriptionAndBackfill', () => {
     it('updates and backfills', async () => {
       const subscription = deepCopy(subscription1);
@@ -4834,8 +4915,8 @@ describe('#integration - StripeHelper', () => {
     const planName = 'Example Plan';
     const productId = 'prod_00000000000000';
     const productName = 'Example Product';
-    const planEmailIconURL = 'http://example.com/icon-new';
-    const successActionButtonURL = 'http://example.com/download-new';
+    const planEmailIconURL = 'http://example.com/icon';
+    const successActionButtonURL = 'http://example.com/success';
     const sourceId = eventCustomerSourceExpiring.data.object.id;
     const chargeId = 'ch_1GVm24BVqmGyQTMaUhRAfUmA';
     const privacyNoticeURL =
@@ -5095,7 +5176,6 @@ describe('#integration - StripeHelper', () => {
           emailIconURL: planEmailIconURL,
           'product:privacyNoticeURL': privacyNoticeURL,
           'product:termsOfServiceURL': termsOfServiceURL,
-          productOrder: '0',
         },
         showPaymentMethod: true,
         showTaxAmount: false,
@@ -5477,7 +5557,6 @@ describe('#integration - StripeHelper', () => {
               emailIconURL: planEmailIconURL,
               'product:privacyNoticeURL': privacyNoticeURL,
               'product:termsOfServiceURL': termsOfServiceURL,
-              productOrder: '0',
             },
           },
         ],
@@ -5576,27 +5655,6 @@ describe('#integration - StripeHelper', () => {
         productOrder: '0',
       },
     };
-
-    beforeEach(() => {
-      mockAllAbbrevPlans.unshift(
-        {
-          ...eventCustomerSubscriptionUpdated.data.previous_attributes.plan,
-          plan_id:
-            eventCustomerSubscriptionUpdated.data.previous_attributes.plan.id,
-          product_id: expectedBaseUpdateDetails.productId,
-          plan_metadata:
-            eventCustomerSubscriptionUpdated.data.previous_attributes.plan
-              .metadata,
-        },
-        {
-          ...eventCustomerSubscriptionUpdated.data.object.plan,
-          plan_id: eventCustomerSubscriptionUpdated.data.object.plan.id,
-          product_id: expectedBaseUpdateDetails.productIdNew,
-          plan_metadata:
-            eventCustomerSubscriptionUpdated.data.object.plan.metadata,
-        }
-      );
-    });
 
     describe('extractSubscriptionUpdateEventDetailsForEmail', () => {
       const mockReactivationDetails = 'mockReactivationDetails';
@@ -5783,6 +5841,7 @@ describe('#integration - StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice,
           undefined,
+          event.data.object.plan.metadata.productOrder,
           oldPlan
         );
       });
@@ -5808,6 +5867,7 @@ describe('#integration - StripeHelper', () => {
           expectedBaseUpdateDetails,
           mockInvoice,
           undefined,
+          event.data.object.plan.metadata.productOrder,
           oldPlan
         );
       });
@@ -5847,7 +5907,11 @@ describe('#integration - StripeHelper', () => {
 
     describe('extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail', () => {
       const commonTest =
-        (upcomingInvoice = undefined, expectedPaymentProratedInCents = 0) =>
+        (
+          isUpgrade,
+          upcomingInvoice = undefined,
+          expectedPaymentProratedInCents = 0
+        ) =>
         async () => {
           const event = deepCopy(eventCustomerSubscriptionUpdated);
           const productIdOld = event.data.previous_attributes.plan.product;
@@ -5890,15 +5954,18 @@ describe('#integration - StripeHelper', () => {
               ...event.data.previous_attributes.plan,
               plan_id: event.data.previous_attributes.plan.id,
               product_id: productIdOld,
-              plan_metadata: event.data.previous_attributes.plan.metadata,
             },
             {
               ...event.data.object.plan,
               plan_id: event.data.object.plan.id,
               product_id: productIdNew,
-              plan_metadata: event.data.object.plan.metadata,
             }
           );
+
+          event.data.object.plan.metadata.productOrder = isUpgrade ? 2 : 1;
+          event.data.previous_attributes.plan.metadata.productOrder = isUpgrade
+            ? 1
+            : 2;
 
           const result =
             await stripeHelper.extractSubscriptionUpdateUpgradeDowngradeDetailsForEmail(
@@ -5906,13 +5973,15 @@ describe('#integration - StripeHelper', () => {
               baseDetails,
               mockInvoice,
               upcomingInvoice,
+              event.data.object.plan.metadata.productOrder,
               event.data.previous_attributes.plan
             );
 
           assert.deepEqual(result, {
             ...baseDetails,
             productIdNew,
-            updateType: SUBSCRIPTION_UPDATE_TYPES.UPGRADE,
+            updateType:
+              SUBSCRIPTION_UPDATE_TYPES[isUpgrade ? 'UPGRADE' : 'DOWNGRADE'],
             productIdOld,
             productNameOld,
             productIconURLOld,
@@ -5932,7 +6001,15 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade',
-        commonTest({
+        commonTest(true, {
+          currency: 'usd',
+          total: 1234,
+        })
+      );
+
+      it(
+        'extracts expected details for a subscription downgrade',
+        commonTest(false, {
           currency: 'usd',
           total: 1234,
         })
@@ -5986,13 +6063,11 @@ describe('#integration - StripeHelper', () => {
             ...event.data.previous_attributes.plan,
             plan_id: event.data.previous_attributes.plan.id,
             product_id: productIdOld,
-            plan_metadata: event.data.previous_attributes.plan.metadata,
           },
           {
             ...event.data.object.plan,
             plan_id: event.data.object.plan.id,
             product_id: productIdNew,
-            plan_metadata: event.data.object.plan.metadata,
           }
         );
 
@@ -6002,6 +6077,7 @@ describe('#integration - StripeHelper', () => {
             baseDetails,
             mockInvoice,
             undefined,
+            event.data.object.plan.metadata.productOrder,
             event.data.previous_attributes.plan
           );
 
@@ -6013,7 +6089,7 @@ describe('#integration - StripeHelper', () => {
 
       it(
         'extracts expected details for a subscription upgrade with pending invoice items',
-        commonTest({
+        commonTest(false, {
           currency: 'usd',
           total: 1234,
           lines: {

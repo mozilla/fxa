@@ -1,9 +1,0 @@
-{
-  "extends": "../tsconfig.json",
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts"],
-  "compilerOptions": {
-    "paths": {
-      "@fxa/shared/l10n": ["libs/shared/l10n/src/index.js"]
-    }
-  }
-}

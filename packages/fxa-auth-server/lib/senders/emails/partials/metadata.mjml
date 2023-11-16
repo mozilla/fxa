@@ -17,7 +17,7 @@
         },
         "publisher": {
           "@type": "Organization",
-          "name": "Mozilla accounts",
+          "name": "Firefox accounts",
           "url": "https://accounts.firefox.com/"
         }
       }

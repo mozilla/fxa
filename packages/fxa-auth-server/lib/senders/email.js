@@ -17,7 +17,7 @@ const {
 const { productDetailsFromPlan } = require('fxa-shared').subscriptions.metadata;
 const Renderer = require('./renderer').default;
 const { NodeRendererBindings } = require('./renderer/bindings-node');
-const { determineLocale } = require('../../../../libs/shared/l10n/src');
+const { determineLocale } = require('fxa-shared/l10n/determineLocale');
 
 const TEMPLATE_VERSIONS = require('./emails/templates/_versions.json');
 
@@ -80,7 +80,6 @@ module.exports = function (log, config, bounces) {
     postConsumeRecoveryCode: 'account-consume-recovery-code',
     postNewRecoveryCodes: 'account-replace-recovery-codes',
     postAddAccountRecovery: 'account-recovery-generated',
-    postChangeAccountRecovery: 'account-recovery-changed',
     postRemoveAccountRecovery: 'account-recovery-removed',
     recovery: 'forgot-password',
     unblockCode: 'new-unblock',
@@ -130,7 +129,6 @@ module.exports = function (log, config, bounces) {
     postConsumeRecoveryCode: 'manage-account',
     postNewRecoveryCodes: 'manage-account',
     postAddAccountRecovery: 'manage-account',
-    postChangeAccountRecovery: 'manage-account',
     postRemoveAccountRecovery: 'manage-account',
     recovery: 'reset-password',
     unblockCode: 'unblock-code',
@@ -390,13 +388,6 @@ module.exports = function (log, config, bounces) {
   };
 
   Mailer.prototype.send = async function (message) {
-    // Make sure brandMessagingMode always reflects the current config state.
-
-    if (message && message.templateValues) {
-      message.templateValues.brandMessagingMode =
-        config.smtp.brandMessagingMode;
-    }
-
     log.trace(`mailer.${message.template}`, {
       email: message.email,
       uid: message.uid,
@@ -434,7 +425,7 @@ module.exports = function (log, config, bounces) {
         to,
         template,
       });
-      return;
+      throw err;
     }
 
     if (this.sesConfigurationSet) {
@@ -559,7 +550,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         date: date,
         email: message.email,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         oneClickLink: links.oneClickLink,
         privacyUrl: links.privacyUrl,
         serviceName: serviceName,
@@ -606,6 +599,8 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -758,6 +753,8 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         reportSignInLink: links.reportSignInLink,
         reportSignInLinkAttributes: links.reportSignInLinkAttributes,
@@ -802,19 +799,11 @@ module.exports = function (log, config, bounces) {
     };
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      let clientName = clientInfo.name;
+      const clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
       );
-
-      /**
-       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-       * the service is not sync we must be more general. A user could be signing directly into settings.
-       */
-      if (clientName === 'Firefox' && message.service !== 'sync') {
-        clientName = 'Mozilla';
-      }
 
       return this.send({
         ...message,
@@ -825,7 +814,9 @@ module.exports = function (log, config, bounces) {
           date,
           device: this._formatUserAgentInfo(message),
           email: message.email,
+          ip: message.ip,
           link: links.link,
+          location: message.location,
           oneClickLink: links.oneClickLink,
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -875,15 +866,7 @@ module.exports = function (log, config, bounces) {
       'X-Signin-Verify-Code': message.code,
     };
 
-    let { name: serviceName } = await oauthClientInfo.fetch(message.service);
-
-    /**
-     * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-     * the service is not sync we must be more general. A user could be signing directly into settings.
-     */
-    if (serviceName === 'Firefox' && message.service !== 'sync') {
-      serviceName = 'Mozilla';
-    }
+    const { name: serviceName } = await oauthClientInfo.fetch(message.service);
 
     return this.send({
       ...message,
@@ -894,6 +877,8 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -954,7 +939,9 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.primaryEmail,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         oneClickLink: links.oneClickLink,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -992,6 +979,8 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         primaryEmail: message.primaryEmail,
@@ -1049,7 +1038,9 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,
@@ -1083,6 +1074,8 @@ module.exports = function (log, config, bounces) {
       templateValues: {
         date,
         device: this._formatUserAgentInfo(message),
+        ip: message.ip,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         resetLinkAttributes: links.resetLinkAttributes,
@@ -1172,7 +1165,9 @@ module.exports = function (log, config, bounces) {
       templateValues: {
         date,
         device: this._formatUserAgentInfo(message),
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1197,19 +1192,11 @@ module.exports = function (log, config, bounces) {
     };
 
     return oauthClientInfo.fetch(message.service).then((clientInfo) => {
-      let clientName = clientInfo.name;
+      const clientName = clientInfo.name;
       const [time, date] = this._constructLocalTimeString(
         message.timeZone,
         message.acceptLanguage
       );
-
-      /**
-       * Edge case. We assume the service is firefox, which is true when the service is sync. However, if
-       * the service is not sync we must be more general. A user could be signing directly into settings.
-       */
-      if (clientName === 'Firefox' && message.service !== 'sync') {
-        clientName = 'Mozilla';
-      }
 
       return this.send({
         ...message,
@@ -1219,8 +1206,9 @@ module.exports = function (log, config, bounces) {
           clientName,
           date,
           device: this._formatUserAgentInfo(message),
-
+          ip: message.ip,
           link: links.link,
+          location: message.location,
           passwordChangeLink: links.passwordChangeLink,
           passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
           privacyUrl: links.privacyUrl,
@@ -1392,8 +1380,10 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
+        ip: message.ip,
         iosLink: links.iosLink,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1431,7 +1421,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1469,7 +1461,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1507,7 +1501,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         numberRemaining: message.numberRemaining,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
@@ -1581,48 +1577,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        ip: message.ip,
         link: links.link,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
-        privacyUrl: links.privacyUrl,
-        revokeAccountRecoveryLink: links.revokeAccountRecoveryLink,
-        revokeAccountRecoveryLinkAttributes:
-          links.revokeAccountRecoveryLinkAttributes,
-        supportLinkAttributes: links.supportLinkAttributes,
-        supportUrl: links.supportUrl,
-        time,
-      },
-    });
-  };
-
-  Mailer.prototype.postChangeAccountRecoveryEmail = function (message) {
-    log.trace('mailer.postChangeAccountRecoveryEmail', {
-      email: message.email,
-      uid: message.uid,
-    });
-
-    const templateName = 'postChangeAccountRecovery';
-    const links = this._generateSettingLinks(message, templateName);
-    const [time, date] = this._constructLocalTimeString(
-      message.timeZone,
-      message.acceptLanguage
-    );
-
-    const headers = {
-      'X-Link': links.link,
-    };
-
-    return this.send({
-      ...message,
-      headers,
-      template: templateName,
-      templateValues: {
-        androidLink: links.androidLink,
-        date,
-        device: this._formatUserAgentInfo(message),
-        email: message.email,
-        iosLink: links.iosLink,
-        link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1663,7 +1620,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosLink: links.iosLink,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         passwordChangeLink: links.passwordChangeLink,
         passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
@@ -1704,7 +1663,9 @@ module.exports = function (log, config, bounces) {
         device: this._formatUserAgentInfo(message),
         email: message.email,
         iosUrl: links.iosLink,
+        ip: message.ip,
         link: links.link,
+        location: message.location,
         privacyUrl: links.privacyUrl,
         productName: 'Firefox',
         passwordChangeLink: links.passwordChangeLink,

@@ -116,7 +116,8 @@ describe('ConfirmResetPassword page', () => {
 
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_EMAIL,
-      MOCK_SERVICE
+      MOCK_SERVICE,
+      MOCK_REDIRECT_URI
     );
     expect(logViewEvent).toHaveBeenCalledWith(
       'confirm-reset-password',

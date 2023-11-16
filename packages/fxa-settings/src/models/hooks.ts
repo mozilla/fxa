@@ -13,24 +13,14 @@ import { clearSignedInAccountUid } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
-import { getDefault } from '../lib/config';
+import config, { getDefault } from '../lib/config';
 import {
   DefaultIntegrationFlags,
   IntegrationFactory,
 } from '../lib/integrations';
 import { ReachRouterWindow } from '../lib/window';
 import { StorageData, UrlHashData, UrlQueryData } from '../lib/model-data';
-import {
-  GET_LOCAL_SIGNED_IN_STATUS,
-  INITIAL_METRICS_QUERY,
-  GET_PRODUCT_INFO,
-  GET_CLIENT_INFO,
-} from '../components/App/gql';
-import {
-  MetricsData,
-  SignedInAccountStatus,
-} from '../components/App/interfaces';
-import { RelierClientInfo, RelierSubscriptionInfo } from './integrations';
+import { OAuthClient } from '../lib/oauth';
 
 export function useAccount() {
   const { account } = useContext(AppContext);
@@ -64,33 +54,35 @@ export function useAuthClient() {
 }
 
 export function useIntegration() {
-  const clientInfoState = useClientInfoState();
-  const productInfoState = useProductInfoState();
+  const authClient = useAuthClient();
 
   return useMemo(() => {
-    // If we are still loading data, just return an null integration
-    if (clientInfoState.loading || productInfoState.loading) {
-      return null;
-    }
-
     const windowWrapper = new ReachRouterWindow();
     const urlQueryData = new UrlQueryData(windowWrapper);
     const urlHashData = new UrlHashData(windowWrapper);
     const storageData = new StorageData(windowWrapper);
+    const oauthClient = new OAuthClient(config.servers.oauth.url);
 
+    // TODO: we shouldn't do this here, move to shared hook or read from config. FXA-6836
+    const delegates = {
+      getClientInfo: (id: string) => oauthClient.getClientInfo(id),
+      getProductInfo: (id: string) => authClient.getProductInfo(id),
+      getProductIdFromRoute: () => {
+        const re = new RegExp('/subscriptions/products/(.*)');
+        return re.exec(window.location.pathname)?.[1] || '';
+      },
+    };
     const flags = new DefaultIntegrationFlags(urlQueryData, storageData);
     const integrationFactory = new IntegrationFactory({
       flags,
       window: windowWrapper,
-      clientInfo: clientInfoState.data?.clientInfo,
-      productInfo: productInfoState.data?.productInfo,
+      delegates,
       data: urlQueryData,
       channelData: urlHashData,
       storageData,
     });
-
     return integrationFactory.getIntegration();
-  }, [clientInfoState, productInfoState]);
+  }, [authClient]);
 }
 
 export function useSession() {
@@ -150,57 +142,6 @@ export function useInitialSettingsState() {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
   return useQuery(INITIAL_SETTINGS_QUERY, { client: apolloClient });
-}
-
-// TODO: FXA-8286, test pattern for container components, which will determine
-// how we want to handle `useQuery` (e.g., directly) and tests.
-export function useInitialMetricsQueryState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  return useQuery<MetricsData>(INITIAL_METRICS_QUERY, { client: apolloClient });
-}
-
-export function useClientInfoState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  const urlQueryData = new UrlQueryData(new ReachRouterWindow());
-  const clientId =
-    urlQueryData.get('client_id') || urlQueryData.get('service') || '';
-  return useQuery<{ clientInfo: RelierClientInfo }>(GET_CLIENT_INFO, {
-    client: apolloClient,
-    variables: { input: clientId },
-  });
-}
-
-export function useProductInfoState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  const productId =
-    new RegExp('/subscriptions/products/(.*)').exec(
-      window.location.pathname
-    )?.[1] || '';
-  return useQuery<{ productInfo: RelierSubscriptionInfo }>(GET_PRODUCT_INFO, {
-    client: apolloClient,
-    variables: { input: productId },
-  });
-}
-
-// TODO: FXA-8286, test pattern for container components, which will determine
-// how we want to handle `useQuery` (e.g., directly) and tests.
-export function useLocalSignedInQueryState() {
-  const { apolloClient } = useContext(AppContext);
-  if (!apolloClient) {
-    throw new Error('Are you forgetting an AppContext.Provider?');
-  }
-  return useQuery<SignedInAccountStatus>(GET_LOCAL_SIGNED_IN_STATUS, {
-    client: apolloClient,
-  });
 }
 
 export function useAlertBar() {

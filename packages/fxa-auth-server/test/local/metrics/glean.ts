@@ -41,6 +41,7 @@ const request = {
   headers: {
     'user-agent': 'ELinks/0.9.3 (textmode; SunOS)',
   },
+  payload: {},
 };
 
 describe('Glean server side events', () => {

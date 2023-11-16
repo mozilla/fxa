@@ -23,9 +23,9 @@ export const DropDownAvatarMenu = () => {
   const dropDownId = 'drop-down-avatar-menu';
   const { l10n } = useLocalization();
   const dropDownMenuTitle = l10n.getString(
-    'drop-down-menu-title-2',
+    'drop-down-menu-title',
     null,
-    'Mozilla account menu'
+    'Firefox account menu'
   );
 
   const signOut = async () => {
@@ -56,7 +56,7 @@ export const DropDownAvatarMenu = () => {
           aria-label={dropDownMenuTitle}
           aria-expanded={!!isRevealed}
           aria-haspopup="menu"
-          className="rounded-full border border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
+          className="rounded-full border-2 border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
         >
           <Avatar className="w-10 rounded-full" />
         </button>

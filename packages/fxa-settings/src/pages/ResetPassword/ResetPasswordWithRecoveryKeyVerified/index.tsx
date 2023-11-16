@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { logViewEvent } from '../../../lib/metrics';
@@ -44,8 +44,14 @@ const ResetPasswordWithRecoveryKeyVerified = ({
     navigate('/settings', { replace: true });
   };
 
-  const isSync = integration.isSync();
-  const serviceName = integration.getServiceName();
+  const [isSync, setIsSync] = useState<boolean>();
+  const [serviceName, setServiceName] = useState<string>();
+  useEffect(() => {
+    (async () => {
+      setIsSync(await integration.isSync());
+      setServiceName(await integration.getServiceName());
+    })();
+  });
 
   return (
     <AppLayout title={localizedPageTitle}>

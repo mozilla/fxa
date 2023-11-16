@@ -5,10 +5,10 @@
 import React from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
 import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { useLocalization } from '@fluent/react';
 import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '@apollo/client';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
-import { useLocalization } from '@fluent/react';
 
 export const typeClasses = {
   success: 'text-grey-900 bg-green-500 success',
@@ -34,45 +34,43 @@ export const AlertBar = () => {
       id="alert-bar-root"
       data-testid="alert-bar-root"
       className="fixed z-10"
-      ref={insideRef}
     >
       <div
         className="flex fixed justify-center mt-2 mx-2 right-0 left-0"
         role="alert"
         data-testid="alert-bar"
+        ref={insideRef}
       >
         <div
-          tabIndex={0}
-          ref={tabFenceRef}
-          data-testid="alert-bar-tab-fence"
-          className="outline-none"
+          data-testid="alert-bar-inner"
+          className={`max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded font-bold text-sm ${
+            typeClasses[alertType()]
+          }`}
         >
           <div
-            data-testid="alert-bar-inner"
-            // Transparent border is for Windows HCM - to ensure there is a border around the alert when background color is removed
-            className={`max-w-2xl w-full desktop:min-w-sm flex shadow-md rounded font-bold text-sm border border-transparent ${
-              typeClasses[alertType()]
-            }`}
-          >
-            <div className="flex-1 py-2 px-8 text-center">
-              <p data-testid="alert-bar-content">{alertContent()}</p>
-            </div>
-            <div className="flex">
-              <button
-                data-testid="alert-bar-dismiss"
-                className={`self-center rounded-r h-full px-1 ${
-                  typeClasses[alertType()]
-                } hover:bg-black/20 active:bg-black/30`}
-                onClick={() => alertVisible(false)}
-                title={l10n.getString(
-                  'alert-bar-close-message',
-                  null,
-                  'Close message'
-                )}
-              >
-                <CloseIcon className="w-3 h-3 m-2 fill-current" />
-              </button>
-            </div>
+            tabIndex={0}
+            ref={tabFenceRef}
+            data-testid="alert-bar-tab-fence"
+            className="outline-none"
+          />
+          <div className="flex-1 py-2 px-8 text-center">
+            <p data-testid="alert-bar-content">{alertContent()}</p>
+          </div>
+          <div className="flex">
+            <button
+              data-testid="alert-bar-dismiss"
+              className={`self-center rounded-r h-full px-1 ${
+                typeClasses[alertType()]
+              } hover:bg-black/20 active:bg-black/30`}
+              onClick={() => alertVisible(false)}
+              title={l10n.getString(
+                'alert-bar-close-message',
+                null,
+                'Close message'
+              )}
+            >
+              <CloseIcon className="w-3 h-3 m-2 fill-current" />
+            </button>
           </div>
         </div>
       </div>

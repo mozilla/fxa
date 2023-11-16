@@ -54,12 +54,10 @@ describe('getRequiredFont', () => {
     expect(requiredFont.direction).toEqual('ltr');
   });
 
-  // Punjabi (India) uses Gurmukhi script and is written left-to-right
-  // Punjabi (Pakistan) - pa-PK - is currently unsupported and uses Shahmukhi script and is written right-to-left
   it('returns the expected font data when the language is Punjabi', async () => {
     const requiredFont = getRequiredFont('pa');
     expect(requiredFont.family).toEqual('Noto Serif Gurmukhi');
-    expect(requiredFont.direction).toEqual('ltr');
+    expect(requiredFont.direction).toEqual('rtl');
   });
 
   it('returns the expected font data when the language is Thai', async () => {
