@@ -84,7 +84,7 @@ export const FormPassword = ({
 
   return (
     <form {...{ onSubmit }}>
-      <Localized id="pw-requirements">
+      <Localized id="password-strength-balloon-heading">
         <h2>Password requirements</h2>
       </Localized>
       <ul

@@ -27,18 +27,41 @@ const verificationReminders = require(`${LIB_DIR}/verification-reminders`)(
   log,
   config
 );
+const Sentry = require('@sentry/node');
 
 const cadReminders = require(`${LIB_DIR}/cad-reminders`)(config, log);
 const subscriptionAccountReminders =
   require(`${LIB_DIR}/subscription-account-reminders`)(log, config);
 
+Sentry.init({});
+const checkInId = Sentry.captureCheckIn({
+  monitorSlug: 'verification-reminders',
+  status: 'in_progress',
+});
+
 run()
   .then(() => {
     log.info('verificationReminders.done', {});
+    Sentry.captureCheckIn({
+      checkInId,
+      monitorSlug: 'verification-reminders',
+      status: 'ok',
+    });
+    return Sentry.close(2000);
+  })
+  .then(() => {
     process.exit(0);
   })
   .catch((err) => {
     log.error('verificationReminders.fatal', { err });
+    Sentry.captureCheckIn({
+      checkInId,
+      monitorSlug: 'verification-reminders',
+      status: 'error',
+    });
+    return Sentry.close(2000);
+  })
+  .then(() => {
     process.exit(1);
   });
 

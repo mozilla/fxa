@@ -7,6 +7,7 @@ import PrimaryEmailVerified, { PrimaryEmailVerifiedProps } from '.';
 import { Meta } from '@storybook/react';
 import { MOCK_SERVICE } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MozServices } from '../../../lib/types';
 
 export default {
   title: 'Pages/Signup/PrimaryEmailVerified',
@@ -21,21 +22,18 @@ const storyWithProps = (props: PrimaryEmailVerifiedProps) => {
 
 export const BasicSignedIn = storyWithProps({
   isSignedIn: true,
-  isSync: false,
 });
 
 export const BasicSignedOut = storyWithProps({
   isSignedIn: false,
-  isSync: false,
 });
 
 export const BasicWithServiceName = storyWithProps({
   serviceName: MOCK_SERVICE,
   isSignedIn: false,
-  isSync: false,
 });
 
 export const BasicIsSync = storyWithProps({
   isSignedIn: true,
-  isSync: true,
+  serviceName: MozServices.FirefoxSync,
 });

@@ -451,7 +451,7 @@ export class StripeWebhookHandler extends StripeHandler {
         // case.
         //
         // If we can retreive the subscription and customer, but the account record
-        // cannot be retrieved from the db, the user has deleted their firefox
+        // cannot be retrieved from the db, the user has deleted their Mozilla
         // account which subsequently deletes their subscription from stripe.
         !account ||
         !(

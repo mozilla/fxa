@@ -46,7 +46,6 @@
   header {
     margin-bottom: 15px;
 
-    h1,
     h2,
     h3 {
       @include header-font();
@@ -54,8 +53,7 @@
       margin: 0;
     }
 
-    h1 {
-      @include title30();
+        h1 {
       color: $header-color;
       line-height: 26px;
 
@@ -224,6 +222,7 @@
     box-shadow: none;
     padding: 15px 0 10px;
     width: 100%;
+    border-radius:0;
   }
 
   &.animate-shadow {
@@ -235,13 +234,12 @@
 #fxa-settings-header {
   align-items: center;
   display: flex;
-  justify-content: space-between;
   margin: 0 auto;
   white-space: nowrap;
   width: 100%;
 
   @include respond-to('big') {
-    padding: 0 32px;
+    padding: 16px 32px;
   }
 
   @include respond-to('small') {
@@ -256,13 +254,6 @@
 .fxa-404-p {
   line-height: 1.5em;
   margin: 0;
-}
-
-#static-footer {
-  align-items: center;
-  display: flex;
-  padding: 0 32px;
-  width: 100%;
 }
 
 #stage {

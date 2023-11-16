@@ -60,8 +60,6 @@ module.exports = (log, db, mailer, config, customs) => {
           unblockCode,
           flowId,
           flowBeginTime,
-          ip: request.app.clientAddress,
-          location: request.app.geo.location,
           timeZone: request.app.geo.timeZone,
           uaBrowser,
           uaBrowserVersion,

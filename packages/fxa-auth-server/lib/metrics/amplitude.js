@@ -14,6 +14,8 @@
 
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
+const config = require('../../config').default.getProperties();
+const logger = require('../log')(config.log.level, 'amplitude');
 
 const { GROUPS, initialize } =
   require('fxa-shared/metrics/amplitude').amplitude;
@@ -57,6 +59,7 @@ const EMAIL_TYPES = {
   postAddTwoStepAuthentication: '2fa',
   postRemoveTwoStepAuthentication: '2fa',
   postAddAccountRecovery: 'account_recovery',
+  postChangeAccountRecovery: 'account_recovery',
   postRemoveAccountRecovery: 'account_recovery',
   postConsumeRecoveryCode: '2fa',
   postNewRecoveryCodes: '2fa',
@@ -183,7 +186,9 @@ module.exports = (log, config) => {
   const transformEvent = initialize(
     config.oauth.clientIds,
     EVENTS,
-    FUZZY_EVENTS
+    FUZZY_EVENTS,
+    logger,
+    Container.has(StatsD) ? Container.get(StatsD) : undefined
   );
 
   return receiveEvent;

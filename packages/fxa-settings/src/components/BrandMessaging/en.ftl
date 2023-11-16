@@ -3,8 +3,8 @@
 
 # This aria-label applies to the dismiss/close button of the banner
 # This text is for screen-readers
-brand-banner-dismiss-button =
-  .aria-label = Close
+brand-banner-dismiss-button-2 =
+  .aria-label = Close banner
 
 # This message is displayed as the title element in the banner, prior to actually launching the new brand
 brand-prelaunch-title = { -product-firefox-accounts } will be renamed { -product-mozilla-accounts } on Nov 1

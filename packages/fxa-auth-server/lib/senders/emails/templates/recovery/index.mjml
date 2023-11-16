@@ -9,8 +9,8 @@ can obtain one at http://mozilla.org/MPL/2.0/. %>
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="recovery-request-origin">
-        We received a request for a password change on your Firefox account from:
+      <span data-l10n-id="recovery-request-origin-2">
+        We received a request for a password change on your Mozilla account from:
       </span>
     </mj-text>
   </mj-column>

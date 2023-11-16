@@ -24,6 +24,8 @@ export default {
 
   /**
    * Get the prefill email.
+   * Note this does not account for our temporary React `prefillEmail` query
+   * parameter for clarity - let this function deal with Backbone concerns.
    *
    * @returns {String}
    */

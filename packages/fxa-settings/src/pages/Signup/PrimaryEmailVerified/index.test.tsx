@@ -24,9 +24,7 @@ describe('PrimaryEmailVerified page', () => {
   // });
 
   it('renders the page as expected when the user is signed in', () => {
-    renderWithLocalizationProvider(
-      <PrimaryEmailVerified isSignedIn isSync={false} />
-    );
+    renderWithLocalizationProvider(<PrimaryEmailVerified isSignedIn />);
     // testAllL10n(screen, bundle);
 
     screen.getByText('Primary email confirmed');
@@ -36,9 +34,7 @@ describe('PrimaryEmailVerified page', () => {
   });
 
   it('renders the page as expected when the user is signed out', () => {
-    renderWithLocalizationProvider(
-      <PrimaryEmailVerified isSignedIn={false} isSync={false} />
-    );
+    renderWithLocalizationProvider(<PrimaryEmailVerified isSignedIn={false} />);
     // testAllL10n(screen, bundle);
 
     screen.getByText('Your account is ready!');
@@ -46,20 +42,14 @@ describe('PrimaryEmailVerified page', () => {
 
   it('show the service name when it is passed in', () => {
     renderWithLocalizationProvider(
-      <PrimaryEmailVerified
-        isSignedIn
-        serviceName={MOCK_SERVICE}
-        isSync={false}
-      />
+      <PrimaryEmailVerified isSignedIn serviceName={MOCK_SERVICE} />
     );
 
     screen.getByText(`You’re now ready to use ${MOCK_SERVICE}`);
   });
 
   it('emits the expected metrics on render', () => {
-    renderWithLocalizationProvider(
-      <PrimaryEmailVerified isSignedIn isSync={false} />
-    );
+    renderWithLocalizationProvider(<PrimaryEmailVerified isSignedIn />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

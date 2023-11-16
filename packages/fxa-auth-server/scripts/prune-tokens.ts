@@ -6,6 +6,7 @@ import program from 'commander';
 import { setupDatabase } from 'fxa-shared/db';
 import { BaseAuthModel } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
+import * as Sentry from '@sentry/node';
 import moment from 'moment';
 import { SessionToken } from 'fxa-shared/db/models/auth/session-token';
 const { PruneTokens } = require('fxa-shared/db/models/auth');
@@ -26,6 +27,7 @@ function parseDuration(duration: string | number) {
 const config = require('../config').default.getProperties();
 const statsd = new StatsD(config.statsd);
 const log = require('../lib/log')(config.log.level, 'prune-tokens', statsd);
+Sentry.init({});
 
 export async function init() {
   // Setup utilities
@@ -298,9 +300,19 @@ if (require.main === module) {
     log.info('exit', { code });
   });
 
+  const checkInId = Sentry.captureCheckIn({
+    monitorSlug: 'prune-tokens',
+    status: 'in_progress',
+  });
+
   init()
     .then((result) => {
       log.info('result', { result });
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'prune-tokens',
+        status: 'ok',
+      });
     })
     .then(() => {
       // Make sure statsd closes cleanly so we don't lose any metrics
@@ -317,6 +329,14 @@ if (require.main === module) {
     })
     .catch((err) => {
       log.error(err);
+      Sentry.captureCheckIn({
+        checkInId,
+        monitorSlug: 'prune-tokens',
+        status: 'error',
+      });
+    })
+    .then(() => {
+      return Sentry.close(2000);
     })
     .finally(() => {
       process.exit();

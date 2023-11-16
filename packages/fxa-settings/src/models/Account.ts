@@ -9,14 +9,20 @@ import AuthClient, {
   AUTH_PROVIDER,
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
+  getCredentials,
 } from 'fxa-auth-client/browser';
-import { currentAccount, getOldSettingsData, sessionToken } from '../lib/cache';
+import {
+  currentAccount,
+  getStoredAccountData,
+  sessionToken,
+} from '../lib/cache';
 import firefox from '../lib/channels/firefox';
 import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { GET_SESSION_VERIFIED } from './Session';
 import { MozServices } from '../lib/types';
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 
 export interface DeviceLocation {
   city: string | null;
@@ -563,17 +569,26 @@ export class Account implements AccountData {
     service?: string,
     redirectTo?: string
   ): Promise<PasswordForgotSendCodePayload> {
-    let serviceName;
-    if (service && service === MozServices.FirefoxSync) {
-      serviceName = 'sync';
-    } else {
-      serviceName = service;
-    }
-    const result = await this.authClient.passwordForgotSendCode(email, {
-      service: serviceName,
+    let options: {
+      service?: string;
+      resume?: string;
+      redirectTo?: string;
+    } = {
       resume: 'e30=', // base64 json for {}
-      redirectTo,
-    });
+    };
+
+    // Important! Only set service when it's Firefox Sync
+    if (service && service === MozServices.FirefoxSync) {
+      options.service = 'sync';
+    } else {
+      options.service = service;
+    }
+
+    if (redirectTo) {
+      options.redirectTo = redirectTo;
+    }
+
+    const result = await this.authClient.passwordForgotSendCode(email, options);
     return result;
   }
 
@@ -621,8 +636,39 @@ export class Account implements AccountData {
   }
 
   /**
+   * TODO: Remove this once we update the GQL endpoint to accept the
+   *  `accountResetWithRecoveryKey` option and fix graphql-api not reporting
+   *  the correct IP address.
+   *
+   * @param token passwordForgotToken
+   * @param code code
+   * @param accountResetWithRecoveryKey is account being reset with recovery key?
+   * */
+  async passwordForgotVerifyCode(
+    token: string,
+    code: string,
+    accountResetWithRecoveryKey = false
+  ): Promise<string> {
+    // TODO: There is a bug in Backbone and React reset PW around `accountResetWithRecoveryKey`.
+    // We attempt to validate the `code` and `token` provided here, but because the
+    // `accountResetToken` can only be fetched once but uses the `accountResetWithRecoveryKey`
+    // option, auth-server fails to send an email if the user has a recovery key, attempts
+    // to use it unsuccessfully, and then goes through a normal reset via the link back
+    // to a normal reset if a user can't use their key.
+    const { accountResetToken } =
+      await this.authClient.passwordForgotVerifyCode(code, token, {
+        accountResetWithRecoveryKey,
+      });
+    return accountResetToken;
+  }
+
+  /**
    * Verify a passwordForgotToken, which returns an accountResetToken that can
    * be used to perform the actual password reset.
+   *
+   * NOTE! and TODO: this is currently unused. We need to update the GQL
+   * endpoint to accept the `accountResetWithRecoveryKey` option and
+   * fix graphql-api not reporting the correct IP address.
    *
    * @param token passwordForgotToken
    * @param code code
@@ -668,7 +714,8 @@ export class Account implements AccountData {
     token: string,
     code: string,
     email: string,
-    newPassword: string
+    newPassword: string,
+    resetToken?: string
   ): Promise<any> {
     try {
       // TODO: Temporary workaround (use auth-client directly) for GraphQL not
@@ -677,15 +724,14 @@ export class Account implements AccountData {
       //   token,
       //   code
       // );
-      const { accountResetToken } =
-        await this.authClient.passwordForgotVerifyCode(code, token, {
-          accountResetWithoutRecoveryKey: true,
-        });
+      const accountResetToken =
+        resetToken || (await this.passwordForgotVerifyCode(token, code));
+      const credentials = await getCredentials(email, newPassword);
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
         mutation: gql`
-          mutation accountReset($input: AccountResetInput!) {
+          mutation accountResetAuthPW($input: AccountResetInput!) {
             accountReset(input: $input) {
               clientMutationId
               sessionToken
@@ -700,13 +746,13 @@ export class Account implements AccountData {
         variables: {
           input: {
             accountResetToken,
-            email,
-            newPassword,
+            newPasswordAuthPW: credentials.authPW,
             options: { sessionToken: true, keys: true },
           },
         },
       });
-      currentAccount(getOldSettingsData(accountReset));
+      accountReset.unwrapBKey = credentials.unwrapBKey;
+      currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
       return accountReset;
     } catch (err) {
@@ -859,6 +905,14 @@ export class Account implements AccountData {
         },
       },
     });
+    // TODO: Move this to ConfirmSignupCode container component
+    // If we can use GQL here when we do that, also be sure to add
+    // the operation name to the auth list in `lib/gql.ts`.
+    // Look @ in FXA-7626 or FXA-7184
+    this.apolloClient.cache.writeQuery({
+      query: GET_LOCAL_SIGNED_IN_STATUS,
+      data: { isSignedIn: true },
+    });
   }
 
   async verifyAccountThirdParty(
@@ -894,7 +948,7 @@ export class Account implements AccountData {
     );
   }
 
-  /* TODO: Remove this and use GQL instead. We can't check for verified sessions
+  /* TODO in FXA-7626: Remove this and use GQL instead. We can't check for verified sessions
    * unless you've already got one (oof) in at least the PW reset flow due to
    * sessionToken.mustVerify which was added here: https://github.com/mozilla/fxa/pull/7512
    * The unverified session token returned by a password reset contains `mustVerify`
@@ -1267,7 +1321,7 @@ export class Account implements AccountData {
       { kB: opts.kB },
       { sessionToken: true, keys: true }
     );
-    currentAccount(currentAccount(getOldSettingsData(data)));
+    currentAccount(currentAccount(getStoredAccountData(data)));
     sessionToken(data.sessionToken);
     const cache = this.apolloClient.cache;
     cache.modify({

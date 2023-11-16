@@ -17,6 +17,9 @@ class PairAuthCompleteView extends FormView {
 
   events = assign(this.events, {
     'click #open-firefox-view': preventDefaultThen('openFirefoxView'),
+    'click #open-connected-services': preventDefaultThen(
+      'openConnectedServices'
+    ),
   });
 
   initialize(options) {
@@ -57,6 +60,10 @@ class PairAuthCompleteView extends FormView {
       // TODO: What is the correct entrypoint value?
       entryPoint: 'preferences',
     });
+  }
+
+  openConnectedServices() {
+    this.navigateAway('/settings#connected-services');
   }
 
   _hasFirefoxViewSupport() {

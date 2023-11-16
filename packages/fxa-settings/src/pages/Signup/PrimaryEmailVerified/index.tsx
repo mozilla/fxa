@@ -11,7 +11,6 @@ import AppLayout from '../../../components/AppLayout';
 export type PrimaryEmailVerifiedProps = {
   serviceName?: MozServices;
   isSignedIn: boolean;
-  isSync: boolean;
 };
 
 export const viewName = 'primary-email-verified';
@@ -19,11 +18,10 @@ export const viewName = 'primary-email-verified';
 const PrimaryEmailVerified = ({
   serviceName,
   isSignedIn,
-  isSync,
 }: PrimaryEmailVerifiedProps & RouteComponentProps) => {
   return (
     <AppLayout>
-      <Ready {...{ viewName, serviceName, isSync, isSignedIn }} />
+      <Ready {...{ viewName, serviceName, isSignedIn }} />
     </AppLayout>
   );
 };

@@ -9,14 +9,14 @@
 		</mj-text>
 
 		<mj-text css-class="text-body">
-			<span data-l10n-id="fraudulentAccountDeletion-content">
-				Recently, a Firefox account was created and a subscription was charged using this email address. As we do with all new accounts, we asked that you confirm your account by first validating this email address.
+			<span data-l10n-id="fraudulentAccountDeletion-content-part1-v2">
+				Recently, a Mozilla account was created and a subscription was charged using this email address. As we do with all new accounts, we asked that you confirm your account by first validating this email address.
 			</span>
 		</mj-text>
 
 		<mj-text css-class="text-body">
-			<span data-l10n-id="fraudulentAccountDeletion-content-2">
-				At present, we see that the account was never confirmed. Since this step was not completed, we are not sure if this was an authorized subscription. As a result, the Firefox account registered to this email address was deleted and your subscription was canceled with all charges reimbursed.
+			<span data-l10n-id="fraudulentAccountDeletion-content-part2-v2">
+				At present, we see that the account was never confirmed. Since this step was not completed, we are not sure if this was an authorized subscription. As a result, the Mozilla account registered to this email address was deleted and your subscription was canceled with all charges reimbursed.
 			</span>
 		</mj-text>
 

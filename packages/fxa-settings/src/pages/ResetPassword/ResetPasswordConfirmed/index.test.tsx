@@ -8,7 +8,7 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import ResetPasswordConfirmed, { viewName } from '.';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { createMockResetPasswordConfirmWebIntegration } from './mocks';
+import { MozServices } from '../../../lib/types';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -16,21 +16,25 @@ jest.mock('../../../lib/metrics', () => ({
 }));
 
 describe('ResetPasswordConfirmed', () => {
-  async function renderResetPasswordConfirmed(params: {
-    isSignedIn: boolean;
-    continueHandler?: Function;
-  }) {
-    renderWithLocalizationProvider(
-      <ResetPasswordConfirmed
-        {...params}
-        integration={createMockResetPasswordConfirmWebIntegration()}
-      />
-    );
+  async function renderResetPasswordConfirmed(
+    props: {
+      isSignedIn: boolean;
+      serviceName: MozServices;
+      continueHandler?: Function;
+    } = {
+      isSignedIn: false,
+      serviceName: MozServices.Default,
+    }
+  ) {
+    renderWithLocalizationProvider(<ResetPasswordConfirmed {...props} />);
     await waitFor(() => new Promise((r) => setTimeout(r, 100)));
   }
 
-  it('renders Ready component as expected', async () => {
-    await renderResetPasswordConfirmed({ isSignedIn: true });
+  it('renders Ready component as expected when signed in', async () => {
+    await renderResetPasswordConfirmed({
+      isSignedIn: true,
+      serviceName: MozServices.Default,
+    });
     const passwordResetConfirmation = screen.getByText(
       'Your password has been reset'
     );
@@ -42,13 +46,14 @@ describe('ResetPasswordConfirmed', () => {
   });
 
   it('emits the expected metrics on render', async () => {
-    await renderResetPasswordConfirmed({ isSignedIn: false });
+    await renderResetPasswordConfirmed();
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', async () => {
     await renderResetPasswordConfirmed({
       isSignedIn: false,
+      serviceName: MozServices.Default,
       continueHandler: () => {},
     });
     const passwordResetContinueButton = screen.getByText('Continue');

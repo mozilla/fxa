@@ -9,8 +9,8 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="subscriptionAccountReminderFirst-content-info-2">
-        A few days ago you created a Firefox account but never confirmed it. We hope you’ll finish setting up your account, so you can use your new subscription.
+      <span data-l10n-id="subscriptionAccountReminderFirst-content-info-3">
+        A few days ago you created a Mozilla account but never confirmed it. We hope you’ll finish setting up your account, so you can use your new subscription.
       </span>
     </mj-text>
 

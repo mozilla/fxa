@@ -1,6 +1,6 @@
 verifySecondaryCode-title-2 = "Confirm secondary email"
 
-verifySecondaryCode-explainer = "A request to use <%- email %> as a secondary email address has been made from the following Firefox account:"
+verifySecondaryCode-explainer-2 = "A request to use <%- email %> as a secondary email address has been made from the following Mozilla account:"
 
 <%- include('/partials/userInfo/index.txt') %>
 

@@ -1,6 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { test, expect } from '../../lib/fixtures/standard';
 
-test.describe('severity-2 #smoke', () => {
+test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293498
   test('settings avatar drop-down #1293498', async ({
     credentials,

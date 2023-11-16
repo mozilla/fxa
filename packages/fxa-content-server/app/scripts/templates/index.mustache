@@ -3,7 +3,7 @@
   <header class="mb-8">
     {{#isSync}}
       <h1 id="fxa-enter-email-header" class="card-header">
-        {{#t}}Continue to Firefox accounts{{/t}}
+        {{#t}}Continue to your Mozilla account{{/t}}
       </h1>
       <p class="mt-1 mb-9" id="subheader">
         {{#t}}Sync your passwords, tabs, and bookmarks everywhere you use Firefox.{{/t}}
@@ -46,21 +46,59 @@
     {{#isInThirdPartyAuthExperiment}}
       {{^isSync}}
         {{{ unsafeThirdPartyAuthHTML }}}
-        <div id="tos-pp" class="text-grey-500 -mb-2 mt-5 text-xs">
-            {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
-        </div>
-      {{/isSync}}
-      {{#isSync}}
-        <p class="text-xs text-grey-500 mb-0 mt-5" id="firefox-family-services">
-          {{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
-        </p>
       {{/isSync}}
     {{/isInThirdPartyAuthExperiment}}
 
     {{^isInThirdPartyAuthExperiment}}
-      <p class="text-xs text-grey-500 mb-0 mt-5" id="firefox-family-services">
-        {{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
-      </p>
+      {{^isSync}}
+        <div class="text-xs text-grey-500 mb-0 mt-5">
+          <p id="firefox-family-services">
+            {{#t}}A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+          </p>
+        </div>
+      {{/isSync}}
     {{/isInThirdPartyAuthExperiment}}
+
+    <div class="text-xs text-grey-500 mb-0 mt-5">
+      {{#isSync}}
+        <p id="firefox-family-services" class="mb-2">
+          {{#t}}A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+        </p>
+      {{/isSync}}
+      {{#isPocketClient}}
+        {{#unsafeTranslate}}
+          By proceeding, you agree to:<br />
+          Pocket’s <a class="link-grey" id="pocket-tos" href="https://getpocket.com/tos/">Terms of Service</a> and <a id="pocket-pp" class="link-grey" href="https://getpocket.com/privacy/">Privacy Notice</a><br />
+          Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+        {{/unsafeTranslate}}
+      {{/isPocketClient}}
+      {{^isPocketClient}}
+        {{#isMonitorClient}}
+          {{#unsafeTranslate}}
+            By proceeding, you agree to:<br />
+            Firefox Monitor’s <a class="link-grey" id="monitor-tos" href="https://www.mozilla.org/privacy/firefox-monitor/">Terms of Service and Privacy Notice</a><br />
+            Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+          {{/unsafeTranslate}}
+        {{/isMonitorClient}}
+        {{^isMonitorClient}}
+          {{#unsafeTranslate}}By proceeding, you agree to the <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>.{{/unsafeTranslate}}
+        {{/isMonitorClient}}
+      {{/isPocketClient}}
+    </div>
+
   </section>
 </div>
+<!-- Old L10N Strings - TBR
+{{#t}}Continue to Firefox accounts{{/t}}
+{{#t}}A Firefox account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
+{{#unsafeTranslate}}
+  By proceeding, you agree to:<br />
+  Pocket’s <a class="link-grey" id="pocket-tos" href="https://getpocket.com/tos/">Terms of Service</a> and <a id="pocket-pp" class="link-grey" href="https://getpocket.com/privacy/">Privacy Notice</a><br />
+  Firefox’s <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+{{/unsafeTranslate}}
+{{#unsafeTranslate}}
+  By proceeding, you agree to:<br />
+  Firefox Monitor’s <a class="link-grey" id="monitor-tos" href="https://www.mozilla.org/privacy/firefox-monitor/">Terms of Service and Privacy Notice</a><br />
+  Mozilla Accounts <a class="link-grey" id="fxa-tos" href="/legal/terms">Terms of Service</a> and <a class="link-grey" id="fxa-pp" href="/legal/privacy">Privacy Notice</a>
+{{/unsafeTranslate}}
+-->

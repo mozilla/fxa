@@ -5,19 +5,28 @@
 import { useLocalization } from '@fluent/react';
 import React from 'react';
 import { Helmet } from 'react-helmet';
+import { determineLocale } from 'fxa-shared/l10n/determineLocale';
+import { determineDirection } from 'fxa-shared/l10n/determineDirection';
+
+const supportedUserLocale = determineLocale(
+  window.navigator.languages.join(', ')
+);
+const localeDirection = determineDirection(supportedUserLocale);
 
 const Head = ({ title }: { title?: string }) => {
   const { l10n } = useLocalization();
   return (
-    <Helmet>
+    <Helmet
+      htmlAttributes={{ lang: supportedUserLocale, dir: localeDirection }}
+    >
       <title>
         {title
           ? l10n.getString(
-              'app-page-title',
+              'app-page-title-2',
               { title },
-              `${title} | Firefox Accounts`
+              `${title} | Mozilla accounts`
             )
-          : l10n.getString('app-default-title', null, 'Firefox Accounts')}
+          : l10n.getString('app-default-title-2', null, 'Mozilla accounts')}
       </title>
     </Helmet>
   );

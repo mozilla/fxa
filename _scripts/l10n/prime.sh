@@ -1,7 +1,6 @@
 #!/bin/bash -e
 
-# Walks the l10n folder structure and combines ftl files into single master file.
-# This reduces the number of requests needed by a client.
+# Pulls the latest localization files into a target workspace.
 
 PACKAGE=$1
 FOLDER="public/locales"

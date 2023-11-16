@@ -32,7 +32,7 @@ export const Footer = () => {
         <Localized id="app-footer-privacy-notice">
           <LinkExternal
             data-testid="link-privacy"
-            href="https://www.mozilla.org/en-US/privacy/websites/"
+            href="https://www.mozilla.org/privacy/websites/"
             className="transition-standard text-xs hover:text-grey-500 hover:underline mobileLandscape:self-end"
           >
             Website Privacy Notice
@@ -43,7 +43,7 @@ export const Footer = () => {
         <Localized id="app-footer-terms-of-service">
           <LinkExternal
             data-testid="link-terms"
-            href="https://www.mozilla.org/en-US/about/legal/terms/services/"
+            href="https://www.mozilla.org/about/legal/terms/services/"
             className="transition-standard text-xs mobileLandscape:self-end hover:text-grey-500 hover:underline"
           >
             Terms of Service

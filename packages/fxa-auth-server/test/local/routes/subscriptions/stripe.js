@@ -47,9 +47,6 @@ const {
 
 const { filterCustomer, filterSubscription, filterInvoice, filterIntent } =
   require('fxa-shared').subscriptions.stripe;
-const {
-  ALL_RPS_CAPABILITIES_KEY,
-} = require('fxa-shared/subscriptions/configuration/base');
 
 const subscription2 = require('../../payments/fixtures/stripe/subscription2.json');
 const cancelledSubscription = require('../../payments/fixtures/stripe/subscription_cancelled.json');
@@ -79,51 +76,7 @@ const TEST_EMAIL = 'test@email.com';
 const UID = uuid.v4({}, Buffer.alloc(16)).toString('hex');
 const NOW = Date.now();
 const PLAN_ID_1 = 'plan_G93lTs8hfK7NNG';
-const PLANS = [
-  {
-    plan_id: 'firefox_pro_basic_823',
-    product_id: 'firefox_pro_basic',
-    product_name: 'Firefox Pro Basic',
-    interval: 'week',
-    amount: '123',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      emailIconURL: 'http://example.com/image.jpg',
-      successActionButtonURL: 'http://getfirefox.com',
-      capabilities: 'exampleCap0',
-      'capabilities:client1': 'exampleCap1',
-      promotionCodes: 'earlybirds',
-    },
-  },
-  {
-    plan_id: 'firefox_pro_basic_999',
-    product_id: 'firefox_pro_pro',
-    product_name: 'Firefox Pro Pro',
-    interval: 'month',
-    amount: '456',
-    currency: 'usd',
-    plan_metadata: {},
-    product_metadata: {
-      'capabilities:client2': 'exampleCap2, exampleCap4',
-    },
-  },
-  {
-    plan_id: PLAN_ID_1,
-    product_id: 'prod_G93l8Yn7XJHYUs',
-    product_name: 'FN Tier 1',
-    interval: 'month',
-    amount: 499,
-    current: 'usd',
-    plan_metadata: {
-      'capabilities:client1': 'exampleCap3',
-      // NOTE: whitespace in capabilities list should be flexible for human entry
-      'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
-      promotionCodes: 'gettheworms?',
-    },
-    product_metadata: {},
-  },
-];
+const PLANS = mocks.mockPlans;
 const SUBSCRIPTION_ID_1 = 'sub-8675309';
 const ACTIVE_SUBSCRIPTIONS = [
   {
@@ -138,6 +91,8 @@ const ACTIVE_SUBSCRIPTIONS = [
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
+
+const mockContentfulClients = mocks.mockContentfulClients;
 
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
@@ -216,6 +171,9 @@ describe('subscriptions stripeRoutes', () => {
 
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
+
+    mockCapabilityService.getClients = sinon.stub();
+    mockCapabilityService.getClients.resolves(mockContentfulClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     log = mocks.mockLog();
@@ -461,6 +419,8 @@ describe('DirectStripeRoutes', () => {
       SubscriptionEligibilityResult.CREATE,
       undefined,
     ]);
+    mockCapabilityService.getClients = sinon.stub();
+    mockCapabilityService.getClients.resolves(mockContentfulClients);
     Container.set(CapabilityService, mockCapabilityService);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
@@ -541,71 +501,10 @@ describe('DirectStripeRoutes', () => {
   });
 
   describe('getClients', () => {
-    it('returns the clients and their capabilities', async () => {
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-
-      const expected = [
-        {
-          clientId: 'client1',
-          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
-        },
-        {
-          clientId: 'client2',
-          capabilities: [
-            'exampleCap0',
-            'exampleCap2',
-            'exampleCap4',
-            'exampleCap5',
-            'exampleCap6',
-            'exampleCap7',
-          ],
-        },
-      ];
-
-      const actual = await directStripeRoutesInstance.getClients();
-      assert.deepEqual(actual, expected, 'Clients were not returned correctly');
-    });
-
-    it('adds the capabilities from the Firestore config document when available', async () => {
-      directStripeRoutesInstance.stripeHelper.allAbbrevPlans.resolves(PLANS);
-      const mockPlanConfigs = {
-        firefox_pro_basic_999: {
-          capabilities: {
-            [ALL_RPS_CAPABILITIES_KEY]: ['goodnewseveryone'],
-            client2: ['wibble', 'quux'],
-          },
-        },
-      };
-      directStripeRoutesInstance.stripeHelper.allMergedPlanConfigs.resolves(
-        mockPlanConfigs
-      );
-      const expected = [
-        {
-          clientId: 'client1',
-          capabilities: [
-            'exampleCap0',
-            'goodnewseveryone',
-            'exampleCap1',
-            'exampleCap3',
-          ],
-        },
-        {
-          clientId: 'client2',
-          capabilities: [
-            'exampleCap0',
-            'goodnewseveryone',
-            'exampleCap2',
-            'exampleCap4',
-            'wibble',
-            'quux',
-            'exampleCap5',
-            'exampleCap6',
-            'exampleCap7',
-          ],
-        },
-      ];
-      const actual = await directStripeRoutesInstance.getClients();
-      assert.deepEqual(actual, expected);
+    it('returns client capabilities', async () => {
+      const expected = await mockCapabilityService.getClients();
+      const res = await directStripeRoutesInstance.getClients();
+      assert.deepEqual(res, expected);
     });
   });
 
@@ -2071,7 +1970,12 @@ describe('DirectStripeRoutes', () => {
       const expected = { subscriptionId: subscriptionId };
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
-      directStripeRoutesInstance.stripeHelper.verifyPlanUpdateForSubscription.resolves();
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
+        plan.id,
+      ]);
+
       directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
 
       sinon.stub(directStripeRoutesInstance, 'customerChanged').resolves();
@@ -2083,9 +1987,33 @@ describe('DirectStripeRoutes', () => {
       assert.deepEqual(actual, expected);
     });
 
+    it('throws an error when the new plan is not an upgrade', async () => {
+      directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.INVALID,
+      ]);
+
+      try {
+        await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
+        assert.fail('Update subscription with invalid plan should fail.');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.INVALID_PLAN_UPDATE);
+        assert.equal(err.message, 'Subscription plan is not a valid update');
+      }
+    });
+
     it("throws an error when the new plan currency doesn't match the customer's currency.", async () => {
       plan.currency = 'EUR';
       directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
+
+      mockCapabilityService.getPlanEligibility = sinon.stub();
+      mockCapabilityService.getPlanEligibility.resolves([
+        SubscriptionEligibilityResult.UPGRADE,
+        plan.id,
+      ]);
 
       try {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);

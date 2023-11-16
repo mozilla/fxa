@@ -30,7 +30,7 @@ describe('models/integrations/channel-info', function () {
   });
 
   it('validates', () => {
-    data.set('channel_id', {});
+    data.set('channel_id', '{}');
     expect(() => {
       model.validate();
     }).toThrow();

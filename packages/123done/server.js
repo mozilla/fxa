@@ -12,7 +12,7 @@ const logger = morgan('short');
 
 // create a connection to the redis datastore
 let db = new Redis({
-  password: process.env.REDIS_PASSWORD || 'fxa123',
+  password: process.env.REDIS_PASSWORD || '',
 });
 
 db.on('error', function () {

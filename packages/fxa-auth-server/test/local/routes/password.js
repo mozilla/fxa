@@ -5,7 +5,7 @@
 'use strict';
 
 const sinon = require('sinon');
-const {assert} = require('chai');
+const { assert } = require('chai');
 
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
@@ -15,6 +15,7 @@ const crypto = require('crypto');
 const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const random = require('../../../lib/crypto/random');
+const glean = mocks.mockGlean();
 
 const TEST_EMAIL = 'foo@gmail.com';
 
@@ -49,7 +50,8 @@ function makeRoutes(options = {}) {
     config,
     {
       removePublicAndCanGrantTokens: () => {},
-    }
+    },
+    glean
   );
 }
 
@@ -58,16 +60,16 @@ function runRoute(routes, name, request) {
 }
 
 describe('/password', () => {
-
   let mockAccountEventsManager;
 
   beforeEach(() => {
     mockAccountEventsManager = mocks.mockAccountEventsManager();
-  })
+    glean.resetPassword.emailSent.reset();
+  });
 
   afterEach(() => {
     mocks.unMockAccountEventsManager();
-  })
+  });
 
   it('/forgot/send_code', () => {
     const mockCustoms = mocks.mockCustoms();
@@ -193,6 +195,11 @@ describe('/password', () => {
       assert.equal(args[2].timeZone, 'America/Los_Angeles');
       assert.equal(args[2].uid, uid);
       assert.equal(args[2].deviceId, 'wibble');
+
+      sinon.assert.calledOnceWithExactly(
+        glean.resetPassword.emailSent,
+        mockRequest
+      );
     });
   });
 
@@ -283,9 +290,9 @@ describe('/password', () => {
           name: 'account.password_reset_requested',
           ipAddr: '63.245.221.32',
           uid: mockRequest.auth.credentials.uid,
-          tokenId: undefined
+          tokenId: undefined,
         })
-      )
+      );
     });
   });
 
@@ -571,7 +578,7 @@ describe('/password', () => {
             name: 'account.password_changed',
             ipAddr: '63.245.221.32',
             uid: mockRequest.auth.credentials.uid,
-            tokenId: mockRequest.auth.credentials.id
+            tokenId: mockRequest.auth.credentials.id,
           })
         );
 
@@ -582,7 +589,7 @@ describe('/password', () => {
             name: 'account.password_reset_success',
             ipAddr: '63.245.221.32',
             uid: mockRequest.auth.credentials.uid,
-            tokenId: mockRequest.auth.credentials.id
+            tokenId: mockRequest.auth.credentials.id,
           })
         );
       });
@@ -736,7 +743,7 @@ describe('/password', () => {
           name: 'account.password_added',
           ipAddr: '63.245.221.32',
           uid: mockRequest.auth.credentials.uid,
-          tokenId: mockRequest.auth.credentials.id
+          tokenId: mockRequest.auth.credentials.id,
         })
       );
     });

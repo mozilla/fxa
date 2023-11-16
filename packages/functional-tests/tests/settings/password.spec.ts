@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
@@ -7,24 +11,36 @@ test.describe('severity-1 #smoke', () => {
     target,
     credentials,
     page,
-    pages: { settings, login },
+    pages: { configPage, login, resetPasswordReact, settings },
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
+    const config = await configPage.getConfig();
     await page.goto(target.contentServerUrl + '/reset_password', {
       waitUntil: 'load',
     });
-    await login.setEmail(credentials.email);
-    await login.submit();
-    const link = await target.email.waitForEmail(
-      credentials.email,
-      EmailType.recovery,
-      EmailHeader.link
-    );
-    await page.goto(link, { waitUntil: 'load' });
-    await login.setNewPassword(credentials.password);
-    // TODO: React reset PW does not currently take users to Settings, FXA-8266
-    // expect(page.url()).toContain(settings.url);
-    expect(page.url()).toContain('reset_password_verified');
+    if (config.showReactApp.resetPasswordRoutes === true) {
+      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link, { waitUntil: 'load' });
+      await resetPasswordReact.submitNewPassword(credentials.password);
+      // TODO: React reset PW does not currently take users to Settings, FXA-8266
+      await resetPasswordReact.resetPwdConfirmedHeadingVisible();
+    } else {
+      await login.setEmail(credentials.email);
+      await login.clickSubmit();
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link, { waitUntil: 'load' });
+      await login.setNewPassword(credentials.password);
+      await settings.waitForAlertBar();
+    }
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293431
@@ -32,62 +48,61 @@ test.describe('severity-1 #smoke', () => {
     target,
     credentials,
     page,
-    pages: { settings, login, recoveryKey },
+    pages: { settings, login, configPage, recoveryKey, resetPasswordReact },
   }, { project }) => {
     test.slow(project.name !== 'local', 'email delivery can be slow');
-
-    // TODO in FXA-7419 - remove config definition
-    const config = await login.getConfig();
+    const config = await configPage.getConfig();
 
     await settings.goto();
     let status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Not Set');
 
-    // Create recovery key
-    // TODO in FXA-7419 - remove condition and only keep new recovery key flow (remove content of else block)
-    if (config.featureFlags.showRecoveryKeyV2 === true) {
-      await settings.goto();
+    await settings.recoveryKey.clickCreate();
+    // View 1/4 info
+    await recoveryKey.clickStart();
+    // View 2/4 confirm password and generate key
+    await recoveryKey.setPassword(credentials.password);
+    await recoveryKey.submit();
 
-      await settings.recoveryKey.clickCreate();
-      // View 1/4 info
-      await recoveryKey.clickStart();
-      // View 2/4 confirm password and generate key
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
+    // See download key page but click next without saving the key
+    await recoveryKey.clickNext();
 
-      // See download key page but click next without saving the key
-      await recoveryKey.clickNext();
+    // See hint page but finish the flow without saving a hint
+    await recoveryKey.clickFinish();
 
-      // See hint page but finish the flow without saving a hint
-      await recoveryKey.clickFinish();
-
-      // Verify status as 'enabled'
-      status = await settings.recoveryKey.statusText();
-      expect(status).toEqual('Enabled');
-    } else {
-      await settings.recoveryKey.clickCreate();
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
-      await settings.signOut();
-    }
+    // Verify status as 'enabled'
+    status = await settings.recoveryKey.statusText();
+    expect(status).toEqual('Enabled');
 
     await page.goto(target.contentServerUrl + '/reset_password', {
       waitUntil: 'load',
     });
-    await login.setEmail(credentials.email);
-    await login.submit();
-    let link = await target.email.waitForEmail(
-      credentials.email,
-      EmailType.recovery,
-      EmailHeader.link
-    );
-    link = `${link}&showReactApp=false`;
-    await page.goto(link, { waitUntil: 'load' });
-    await login.clickDontHaveRecoveryKey();
-    await login.setNewPassword(credentials.password);
-    // TODO: React reset PW does not currently take users to Settings, FXA-8266
-    // await settings.waitForAlertBar();
-    await settings.goto();
+    if (config.showReactApp.resetPasswordRoutes === true) {
+      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link, { waitUntil: 'load' });
+      await resetPasswordReact.clickDontHaveRecoveryKey();
+      await resetPasswordReact.submitNewPassword(credentials.password);
+      // TODO: React reset PW does not currently take users to Settings, FXA-8266
+      await resetPasswordReact.resetPwdConfirmedHeadingVisible();
+      await settings.goto();
+    } else {
+      await login.setEmail(credentials.email);
+      await login.clickSubmit();
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link, { waitUntil: 'load' });
+      await login.clickDontHaveRecoveryKey();
+      await login.setNewPassword(credentials.password);
+      await settings.waitForAlertBar();
+    }
 
     status = await settings.recoveryKey.statusText();
     expect(status).toEqual('Not Set');

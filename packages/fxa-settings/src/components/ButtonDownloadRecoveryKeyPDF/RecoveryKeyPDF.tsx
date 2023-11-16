@@ -6,7 +6,6 @@ import React from 'react';
 import {
   Document,
   Font,
-  Image,
   Link,
   Page,
   StyleSheet,
@@ -21,9 +20,9 @@ import {
   LockSvg,
   PrinterSvg,
   SecurityShieldSvg,
+  MozillaLogoSvg,
 } from './VectorImagesForPdf';
 import notoSansMonoSemiBold from './fonts/NotoSansMono-SemiBold.ttf';
-import firefoxLogo from './images/firefox-logo-wordmark.png';
 import { FontData } from './requiredFont';
 
 interface RecoveryKeyPDFProps {
@@ -144,13 +143,7 @@ export const RecoveryKeyPDF = ({
             flexDirection: direction === 'ltr' ? 'row' : 'row-reverse',
           }}
         >
-          <Image
-            src={firefoxLogo}
-            style={{
-              height: '22px',
-              width: '68px',
-            }}
-          />
+          <MozillaLogoSvg />
         </View>
         <View style={styles.purpleSection}>
           <SecurityShieldSvg />

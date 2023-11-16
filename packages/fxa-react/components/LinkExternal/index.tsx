@@ -13,6 +13,7 @@ type LinkExternalProps = {
   'data-testid'?: string;
   rel?: 'noopener noreferrer' | 'author';
   tabIndex?: number;
+  onClick?: () => void;
 };
 
 export const LinkExternal = ({
@@ -23,6 +24,7 @@ export const LinkExternal = ({
   'data-testid': testid = 'link-external',
   rel = 'noopener noreferrer',
   tabIndex,
+  onClick,
 }: LinkExternalProps) => (
   <a
     data-testid={testid}
@@ -33,6 +35,7 @@ export const LinkExternal = ({
       title,
       rel,
       tabIndex,
+      onClick,
     }}
   >
     {children}

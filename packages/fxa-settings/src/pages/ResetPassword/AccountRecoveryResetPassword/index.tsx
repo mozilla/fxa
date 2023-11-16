@@ -4,11 +4,7 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from '@reach/router';
-import {
-  FtlMsg,
-  hardNavigate,
-  hardNavigateToContentServer,
-} from 'fxa-react/lib/utils';
+import { FtlMsg } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
 
 import AppLayout from '../../../components/AppLayout';
@@ -24,17 +20,12 @@ import {
   logErrorEvent,
   logViewEvent,
   setUserPreference,
+  settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
 import { useAccount } from '../../../models/hooks';
 import { LinkStatus } from '../../../lib/types';
 import { IntegrationType, isOAuthIntegration } from '../../../models';
-import { notifyFirefoxOfLogin } from '../../../lib/channels/helpers';
-import {
-  clearOAuthData,
-  clearOriginalTab,
-  isOriginalTab,
-} from '../../../lib/storage-utils';
 import {
   AccountRecoveryResetPasswordBannerState,
   AccountRecoveryResetPasswordFormData,
@@ -42,6 +33,7 @@ import {
   AccountRecoveryResetPasswordProps,
 } from './interfaces';
 import { CreateVerificationInfo } from '../../../models/verification';
+import firefox from '../../../lib/channels/firefox';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -53,7 +45,6 @@ export const viewName = 'account-recovery-reset-password';
 
 const AccountRecoveryResetPassword = ({
   integration,
-  finishOAuthFlowHandler,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -82,6 +73,10 @@ const AccountRecoveryResetPassword = ({
   const [linkStatus, setLinkStatus] = useState<LinkStatus>(
     linkIsValid ? LinkStatus.valid : LinkStatus.damaged
   );
+
+  const onFocusMetricsEvent = () => {
+    logViewEvent(settingsViewName, `${viewName}.engage`);
+  };
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<AccountRecoveryResetPasswordFormData>({
@@ -186,7 +181,7 @@ const AccountRecoveryResetPassword = ({
           )}
           email={verificationInfo.email}
           loading={false}
-          onFocusMetricsEvent={`${viewName}.engage`}
+          onFocusMetricsEvent={onFocusMetricsEvent}
         />
       </section>
 
@@ -210,9 +205,6 @@ const AccountRecoveryResetPassword = ({
       const accountResetData = await account.resetPasswordWithRecoveryKey(
         options
       );
-      // must come after completeResetPassword since that receives the sessionToken
-      // required for this check
-      const sessionIsVerified = await account.isSessionVerifiedAuthClient();
 
       // TODO: do we need this? Is integration data the right place for it if so?
       integration.data.resetPasswordConfirm = true;
@@ -224,7 +216,7 @@ const AccountRecoveryResetPassword = ({
         // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
         case IntegrationType.SyncDesktop:
         case IntegrationType.SyncBasic:
-          notifyFirefoxOfLogin({
+          firefox.fxaLoginSignedInUser({
             authAt: accountResetData.authAt,
             email,
             keyFetchToken: accountResetData.keyFetchToken,
@@ -235,32 +227,8 @@ const AccountRecoveryResetPassword = ({
           });
           break;
         case IntegrationType.OAuth:
-          // TODO just use type guard instead of switch, FXA-8111
-          if (sessionIsVerified && isOAuthIntegration(integration)) {
-            const { redirect } = await finishOAuthFlowHandler(
-              integration.data.uid || account.uid,
-              accountResetData.sessionToken,
-              accountResetData.keyFetchToken,
-              accountResetData.unwrapBKey
-            );
-
-            // Clear session / local storage states
-            clearOAuthData();
-
-            // If the user is on a single tab throughout this process, just redirect them
-            // back to the relying party. Otherwise, show them a success message
-            if (isOriginalTab()) {
-              clearOriginalTab();
-              hardNavigate(redirect);
-              return;
-            }
-          }
+          // TODO: Consider providing a way to redirect user back to RP.
           break;
-        case IntegrationType.Web:
-          // no-op, don't run default
-          break;
-        default:
-        // TODO: run unpersistVerificationData when reliers are combined
       }
 
       alertSuccess();
@@ -283,19 +251,9 @@ const AccountRecoveryResetPassword = ({
   }
 
   async function navigateAway() {
-    // TODO / refactor: the initial account result with useAccount() does not
-    // contain account data due to no session token. Users receive the session
-    // token on PW reset, so we can query here for it.
-    const hasTotp = await account.hasTotpAuthClient();
-
     setUserPreference('account-recovery', false);
     logViewEvent(viewName, 'recovery-key-consume.success');
-
-    if (hasTotp) {
-      hardNavigateToContentServer(`/signin_totp_code${location.search}`);
-    } else {
-      navigate(`/reset_password_with_recovery_key_verified${location.search}`);
-    }
+    navigate(`/reset_password_with_recovery_key_verified${location.search}`);
   }
 };
 

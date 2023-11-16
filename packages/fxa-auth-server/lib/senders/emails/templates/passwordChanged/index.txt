@@ -1,6 +1,6 @@
 passwordChanged-title = "Password changed successfully"
 
-passwordChanged-description = "Your Firefox account password was successfully changed from the following device:"
+passwordChanged-description-2 = "Your Mozilla account password was successfully changed from the following device:"
 
 <%- include('/partials/userInfo/index.txt') %>
 

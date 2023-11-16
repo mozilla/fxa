@@ -71,7 +71,7 @@ describe('App', () => {
     ['AppLocalizationProvider', 'StripeProvider', 'Subscriptions'].forEach(
       (testid) => expect(screen.queryByTestId(testid)).toBeInTheDocument()
     );
-    ['Firefox Accounts', 'Account Home', 'Subscriptions'].forEach((text) =>
+    ['Mozilla account', 'Account Home', 'Subscriptions'].forEach((text) =>
       expect(screen.queryByText(text)).toBeInTheDocument()
     );
   });

@@ -71,7 +71,7 @@ module.exports = {
   OAUTH_WEBCHANNEL_REDIRECT:
     'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
 
-  RELIER_DEFAULT_SERVICE_NAME: 'Account Settings',
+  RELIER_DEFAULT_SERVICE_NAME: 'account settings',
   RELIER_SYNC_SERVICE_NAME: 'Firefox Sync',
   RELIER_KEYS_LENGTH: 32,
   RELIER_KEYS_CONTEXT_INFO_PREFIX: 'identity.mozilla.com/picl/v1/oauth/',

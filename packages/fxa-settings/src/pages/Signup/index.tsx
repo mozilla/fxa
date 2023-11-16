@@ -10,14 +10,23 @@ import {
   isSyncDesktopIntegration,
   useFtlMsgResolver,
 } from '../../models';
-import { logViewEvent, usePageViewEvent } from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
+import {
+  logViewEvent,
+  settingsViewName,
+  usePageViewEvent,
+} from '../../lib/metrics';
 import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
 import InputText from '../../components/InputText';
 import ChooseWhatToSync from '../../components/ChooseWhatToSync';
-import { engines } from '../../components/ChooseWhatToSync/sync-engines';
+import {
+  EngineConfig,
+  defaultDesktopSyncEngineConfigs,
+  getSyncEngineIds,
+  syncEngineConfigs,
+  webChannelDesktopEngineConfigs,
+} from '../../components/ChooseWhatToSync/sync-engines';
 import ChooseNewsletters from '../../components/ChooseNewsletters';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
 import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
@@ -26,48 +35,47 @@ import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
-import { notifyFirefoxOfLogin } from '../../lib/channels/helpers';
 import {
   StoredAccountData,
   persistAccount,
   setCurrentAccount,
 } from '../../lib/storage-utils';
 import { sessionToken } from '../../lib/cache';
-import BrandMessaging from '../../components/BrandMessaging';
-import { createPortal } from 'react-dom';
+import GleanMetrics from '../../lib/glean';
+import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import {
+  isClientMonitor,
+  isClientPocket,
+} from '../../models/integrations/client-matching';
+import { MozServices } from '../../lib/types';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import firefox from '../../lib/channels/firefox';
 
 export const viewName = 'signup';
-
-// TODO, confirm this is how we want to check for Pocket
-// There's a similar TODO in CardHeader. FXA-8290
-const isPocketClient = (serviceName: string) =>
-  serviceName.includes(MozServices.Pocket);
 
 const Signup = ({
   integration,
   queryParamModel,
   beginSignupHandler,
+  webChannelEngines,
+  isSyncMobileWebChannel,
+  isSync,
 }: SignupProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
   useEffect(() => {
-    (async () => {
-      // TODO: remove async requirements from relier, FXA-6836. This causes some
-      // unnecessary rerenders with banner state (`useReducer` does not help)
-      const serviceName = await integration.getServiceName();
-      setServiceName(serviceName);
-      setIsAccountSuggestionBannerVisible(isPocketClient(serviceName));
-    })();
-  });
+    GleanMetrics.registration.view();
+  }, []);
 
   const canChangeEmail = !isOAuthIntegration(integration);
 
-  const onFocusMetricsEvent = `${viewName}.engage`;
+  const onFocusMetricsEvent = () => {
+    logViewEvent(settingsViewName, `${viewName}.engage`);
+    GleanMetrics.registration.engage({ reason: 'password' });
+  };
 
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
   const [bannerErrorText, setBannerErrorText] = useState<string>('');
-
   const [ageCheckErrorText, setAgeCheckErrorText] = useState<string>('');
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const [
@@ -76,23 +84,64 @@ const Signup = ({
   ] = useState<boolean>(false);
   const navigate = useNavigate();
   const location = useLocation();
-
-  // prefill selected sync engines based on defaultChecked state
-  const initialSyncEnginesList: string[] = engines
-    .filter((engine) => engine.defaultChecked)
-    .map((engine) => engine.text);
-  const [selectedEngines, setSelectedEngines] = useState<string[]>(
-    initialSyncEnginesList
-  );
-
+  const [declinedSyncEngines, setDeclinedSyncEngines] = useState<string[]>([]);
   // no newsletters are selected by default
   const [selectedNewsletterSlugs, setSelectedNewsletterSlugs] = useState<
     string[]
   >([]);
+  const [client, setClient] = useState<MozServices | undefined>(undefined);
+  const [hasAgeInputFocused, setHasAgeInputFocused] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isOAuthIntegration(integration)) {
+      const clientId = integration.getService();
+      if (isClientPocket(clientId)) {
+        setClient(MozServices.Pocket);
+        setIsAccountSuggestionBannerVisible(true);
+      }
+      if (isClientMonitor(clientId)) {
+        setClient(MozServices.FirefoxMonitor);
+      }
+    }
+  }, [integration]);
+
+  const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] = useState<
+    EngineConfig[] | undefined
+  >();
+
+  useEffect(() => {
+    if (webChannelEngines) {
+      if (isSyncDesktopIntegration(integration)) {
+        // Desktop web channel message sends additional engines
+        setOfferedSyncEngineConfigs([
+          ...defaultDesktopSyncEngineConfigs,
+          ...webChannelDesktopEngineConfigs.filter((engine) =>
+            webChannelEngines.includes(engine.id)
+          ),
+        ]);
+      } else if (isSyncMobileWebChannel) {
+        // Mobile web channel message sends all engines
+        setOfferedSyncEngineConfigs(
+          syncEngineConfigs.filter((engine) =>
+            webChannelEngines.includes(engine.id)
+          )
+        );
+      }
+    }
+  }, [integration, isSyncMobileWebChannel, webChannelEngines]);
+
+  useEffect(() => {
+    if (offeredSyncEngineConfigs) {
+      const defaultDeclinedSyncEngines = offeredSyncEngineConfigs
+        .filter((engineConfig) => !engineConfig.defaultChecked)
+        .map((engineConfig) => engineConfig.id);
+      setDeclinedSyncEngines(defaultDeclinedSyncEngines);
+    }
+  }, [offeredSyncEngineConfigs, setDeclinedSyncEngines]);
 
   const { handleSubmit, register, getValues, errors, formState, trigger } =
     useForm<SignupFormData>({
-      mode: 'onBlur',
+      mode: 'onChange',
       criteriaMode: 'all',
       defaultValues: {
         email: queryParamModel.email,
@@ -111,8 +160,15 @@ const Signup = ({
 
   const onFocus = () => {
     if (!isFocused) {
-      logViewEvent('flow', onFocusMetricsEvent, REACT_ENTRYPOINT);
+      logViewEvent('flow', `${viewName}.engage`, REACT_ENTRYPOINT);
       setIsFocused(true);
+    }
+  };
+
+  const onFocusAgeInput = () => {
+    if (!hasAgeInputFocused) {
+      GleanMetrics.registration.engage({ reason: 'age' });
+      setHasAgeInputFocused(true);
     }
   };
 
@@ -126,6 +182,7 @@ const Signup = ({
   // to avoid breaking dashboards.
   const onSubmit = useCallback(
     async ({ newPassword, age }: SignupFormData) => {
+      GleanMetrics.registration.submit();
       if (Number(age) < 13) {
         // this is a session cookie. It will go away once:
         // 1. the user closes the tab
@@ -141,17 +198,14 @@ const Signup = ({
       }
       setBeginSignupLoading(true);
 
-      const options =
-        serviceName !== MozServices.Default ? { service: serviceName } : {};
       const { data, error } = await beginSignupHandler(
         queryParamModel.email,
-        newPassword,
-        options
+        newPassword
       );
 
-      setBeginSignupLoading(false);
-
       if (data) {
+        GleanMetrics.registration.success();
+
         // Persist account data to local storage to match parity with content-server
         // this allows the recent account to be used for /signin
         const accountData: StoredAccountData = {
@@ -167,22 +221,28 @@ const Signup = ({
         setCurrentAccount(data.SignUp.uid);
         sessionToken(data.SignUp.sessionToken);
 
-        // TODO: send up selected sync engines, FXA-8287
         if (isSyncDesktopIntegration(integration)) {
-          notifyFirefoxOfLogin({
-            authAt: data.SignUp.authAt,
+          const offeredSyncEngines = getSyncEngineIds(
+            offeredSyncEngineConfigs || []
+          );
+          firefox.fxaLogin({
             email: queryParamModel.email,
             keyFetchToken: data.SignUp.keyFetchToken,
             sessionToken: data.SignUp.sessionToken,
             uid: data.SignUp.uid,
             unwrapBKey: data.unwrapBKey,
             verified: false,
+            services: {
+              sync: {
+                offeredEngines: offeredSyncEngines,
+                declinedEngines: declinedSyncEngines,
+              },
+            },
           });
         }
 
         navigate(`/confirm_signup_code${location.search}`, {
           state: {
-            email: queryParamModel.email,
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
@@ -193,6 +253,8 @@ const Signup = ({
       if (error) {
         const { message, ftlId } = error;
         setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+        // if the request errored, loading state must be marked as false to reenable submission
+        setBeginSignupLoading(false);
       }
     },
     [
@@ -200,18 +262,41 @@ const Signup = ({
       ftlMsgResolver,
       navigate,
       selectedNewsletterSlugs,
-      serviceName,
+      offeredSyncEngineConfigs,
+      declinedSyncEngines,
       queryParamModel.email,
       location.search,
       integration,
     ]
   );
 
+  const showCWTS = () => {
+    if (isSyncDesktopIntegration(integration) || isSyncMobileWebChannel) {
+      if (offeredSyncEngineConfigs) {
+        return (
+          <ChooseWhatToSync
+            {...{
+              offeredSyncEngineConfigs,
+              setDeclinedSyncEngines,
+            }}
+          />
+        );
+      } else {
+        // Waiting to receive webchannel message from browser
+        return <LoadingSpinner className="flex justify-center mb-4" />;
+      }
+    } else {
+      // Display nothing if Sync flow that does not support webchannels
+      // or if CWTS is disabled
+      return <></>;
+    }
+  };
+
   return (
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      {createPortal(<BrandMessaging {...{ viewName }} />, document.body)}
+      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Set your password"
         headingTextFtlId="signup-heading"
@@ -267,11 +352,17 @@ const Signup = ({
               className="link-blue text-sm"
               onClick={(e) => {
                 e.preventDefault();
-                // TODO in FXA-8307: this takes users to /signin if they've got an email in
-                // localStorage. Hopefully there's another workaround but might
-                // need to send a param back over to content-server to force load /
-                // and give the option to enter another email address
-                hardNavigateToContentServer('/');
+                const params = new URLSearchParams(location.search);
+                // Tell content-server to stay on index and prefill the email
+                params.set('prefillEmail', queryParamModel.email);
+                // Passing back the 'email' param causes various behaviors in
+                // content-server since it marks the email as "coming from a RP".
+                // Also remove `emailFromContent` since we pass that when coming
+                // from content-server to Backbone, see Signup container component
+                // for more info.
+                params.delete('emailFromContent');
+                params.delete('email');
+                hardNavigateToContentServer(`/?${params.toString()}`);
               }}
             >
               Change email
@@ -317,6 +408,7 @@ const Signup = ({
               maxLength: 3,
               required: true,
             })}
+            onFocusCb={onFocusAgeInput}
             onBlurCb={onBlurAgeInput}
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
@@ -332,11 +424,8 @@ const Signup = ({
           </LinkExternal>
         </FtlMsg>
 
-        {/* TODO: Update offered engines based on received webchannel message, FXA-8287 */}
-        {isSyncDesktopIntegration(integration) ? (
-          <ChooseWhatToSync
-            {...{ engines, selectedEngines, setSelectedEngines }}
-          />
+        {isSync ? (
+          showCWTS()
         ) : (
           <ChooseNewsletters
             {...{
@@ -347,7 +436,10 @@ const Signup = ({
         )}
       </FormPasswordWithBalloons>
 
-      <TermsPrivacyAgreement isPocketClient={isPocketClient(serviceName)} />
+      <TermsPrivacyAgreement
+        isPocketClient={client === MozServices.Pocket}
+        isMonitorClient={client === MozServices.FirefoxMonitor}
+      />
     </AppLayout>
   );
 };

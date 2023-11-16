@@ -5,6 +5,17 @@
 'use strict';
 
 module.exports = function (grunt) {
+  // make a copy of the local branding terms available for local development
+  // before they are extracted to the l10n repo
+  // this file will not be included in the string extraction process, so should not lead to duplication
+  grunt.config('copy', {
+    'branding-ftl': {
+      nonull: true,
+      src: '../../libs/shared/l10n/src/lib/branding.ftl',
+      dest: 'public/locales/en/branding.ftl',
+    },
+  });
+
   grunt.config('concat', {
     ftl: {
       src: ['lib/l10n/server.ftl', 'lib/**/senders/emails/**/en.ftl'],
@@ -29,7 +40,7 @@ module.exports = function (grunt) {
     },
   });
 
-  grunt.registerTask('merge-ftl', ['concat:ftl']);
+  grunt.registerTask('merge-ftl', ['copy:branding-ftl', 'concat:ftl']);
   grunt.registerTask('merge-ftl:test', ['concat:ftl-test']);
   grunt.registerTask('watch-ftl', ['watch:ftl']);
 };

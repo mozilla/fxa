@@ -92,9 +92,22 @@ describe('views/index', () => {
       return view.render().then(() => {
         assert.include(
           view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
-          'A Firefox account also unlocks access to more privacy-protecting products from Mozilla.'
+          'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.'
         );
       });
+    });
+
+    it('prefills the email with React prefillEmail=email and does not navigate', () => {
+      const prefillEmail = 'mycoolemail@gmail.com';
+      relier.set('prefillEmail', prefillEmail);
+
+      return view
+        .render()
+        .then(() => view.afterVisible())
+        .then(() => {
+          assert.isFalse(view.navigate.called);
+          assert.equal(view.$(Selectors.EMAIL).val(), prefillEmail);
+        });
     });
 
     describe('account has bounced', () => {
@@ -215,7 +228,7 @@ describe('views/index', () => {
           return view.render().then(() => {
             assert.include(
               view.$(Selectors.HEADER).text(),
-              'Continue to Firefox accounts'
+              'Continue to your Mozilla account'
             );
             assert.include(
               view.$(Selectors.SYNC_DESCRIPTION).text(),

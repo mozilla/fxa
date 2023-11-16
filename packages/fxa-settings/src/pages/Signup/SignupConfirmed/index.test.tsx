@@ -23,9 +23,7 @@ describe('SignupConfirmed', () => {
   //   bundle = await getFtlBundle('settings');
   // });
   it('renders Ready component as expected', () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmed isSignedIn isSync={false} />
-    );
+    renderWithLocalizationProvider(<SignupConfirmed isSignedIn />);
     // testAllL10n(screen, bundle);
 
     const signupConfirmation = screen.getByText('Account confirmed');
@@ -41,15 +39,13 @@ describe('SignupConfirmed', () => {
   });
 
   it('emits the expected metrics on render', () => {
-    renderWithLocalizationProvider(
-      <SignupConfirmed isSignedIn isSync={false} />
-    );
+    renderWithLocalizationProvider(<SignupConfirmed isSignedIn />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 
   it('emits the expected metrics when a user clicks `Continue`', () => {
     renderWithLocalizationProvider(
-      <SignupConfirmed isSignedIn isSync={false} {...{ continueHandler }} />
+      <SignupConfirmed isSignedIn {...{ continueHandler }} />
     );
     const passwordResetContinueButton = screen.getByText('Continue');
 

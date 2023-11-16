@@ -8,22 +8,22 @@ import {
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
   Integration,
-  RelierSubscriptionInfo,
   SyncBasicIntegration,
   SyncDesktopIntegration,
   WebIntegration,
+  RelierClientInfo,
+  RelierSubscriptionInfo,
 } from '../../models/integrations';
 import { Constants } from '../constants';
 import {
   ModelDataStore,
-  GenericData,
   StorageData,
   UrlHashData,
   UrlQueryData,
 } from '../model-data';
 import { OAuthError } from '../oauth';
 import { ReachRouterWindow } from '../window';
-import { IntegrationFlags, IntegrationDelegates } from './interfaces';
+import { IntegrationFlags } from './interfaces';
 import { DefaultIntegrationFlags } from '.';
 import config from '../config';
 
@@ -68,12 +68,15 @@ export class IntegrationFactory {
   protected readonly data: ModelDataStore;
   protected readonly channelData: ModelDataStore;
   protected readonly storageData: ModelDataStore;
-  protected readonly delegates: IntegrationDelegates;
+  protected readonly clientInfo?: RelierClientInfo;
+  protected readonly productInfo?: RelierSubscriptionInfo;
+  protected readonly loading?: boolean;
   public readonly flags: IntegrationFlags;
 
   constructor(opts: {
     window: ReachRouterWindow;
-    delegates: IntegrationDelegates;
+    productInfo?: RelierSubscriptionInfo;
+    clientInfo?: RelierClientInfo;
     data?: ModelDataStore;
     channelData?: ModelDataStore;
     storageData?: ModelDataStore;
@@ -89,7 +92,8 @@ export class IntegrationFactory {
         new UrlQueryData(window),
         new StorageData(window)
       );
-    this.delegates = opts.delegates;
+    this.clientInfo = opts.clientInfo;
+    this.productInfo = opts.productInfo;
   }
 
   /**
@@ -111,7 +115,7 @@ export class IntegrationFactory {
       return this.createOAuthIntegration(data, storageData);
     } else if (flags.isV3DesktopContext()) {
       return this.createSyncDesktopIntegration(data);
-    } else if (flags.isSyncService()) {
+    } else if (flags.isServiceSync()) {
       return this.createSyncBasicIntegration(data);
     } else {
       // Default
@@ -182,7 +186,7 @@ export class IntegrationFactory {
   initIntegration(integration: Integration) {
     // Important!
     // FxDesktop declares both `entryPoint` (capital P) and
-    // `entrypoint` (lowcase p). Normalize to `entrypoint`.
+    // `entrypoint` (lowercase p). Normalize to `entrypoint`.
     const entryPoint = integration.data.getModelData('entryPoint');
     const entrypoint = integration.data.getModelData('entrypoint');
     if (
@@ -231,62 +235,32 @@ export class IntegrationFactory {
   }
 
   initClientInfo(integration: OAuthIntegration) {
-    integration.clientInfo = this.createClientInfo(integration.data.clientId);
+    /* TODO: Possibly create SyncMobile integration if we need more special cases
+     * for sync mobile, or, probably remove 'isOAuthVerificationDifferentBrowser'
+     * 'isOAuthVerificationSameBrowser' checks when reset PW no longer uses links.
+     *
+     * `service=sync` is passed when `context` is `fx_desktop_v3` (Sync desktop) or
+     * when context is `fx_ios_v1` (which we don't support, iOS 1.0 ... < 2.0). See:
+     * https://mozilla.github.io/ecosystem-platform/relying-parties/reference/query-parameters#service
+     *
+     * However, mobile Sync reset PW can pass a 'service' param without a 'clientId' that
+     * acts as a clientId, and we currently consider this an OAuth flow (in Backbone as well)
+     * that does not want to redirect. In this case, createClientInfo with 'service'.
+     */
+
+    integration.clientInfo = {
+      clientId: this.clientInfo?.clientId,
+      imageUri: this.clientInfo?.imageUri,
+      serviceName: this.clientInfo?.serviceName,
+      redirectUri: this.clientInfo?.redirectUri,
+      trusted: this.clientInfo?.trusted,
+    };
   }
 
   initSubscriptionInfo(integration: Integration) {
-    // Do not wait on this. Components can do so with useEffect if needed. However,
-    // not all
-    integration.subscriptionInfo = this.createRelierSubscriptionInfo();
-  }
-
-  private async createClientInfo(clientId: string | undefined) {
-    // Make sure a valid client id is provided before evening attempting the call.
-    if (!clientId) {
-      throw new OAuthError('UNKNOWN_CLIENT', {
-        client_id: 'null or empty',
-      });
-    }
-
-    try {
-      const serviceInfo = await this.delegates.getClientInfo(clientId);
-      const clientInfo = new ClientInfo(new GenericData(serviceInfo));
-      return clientInfo;
-    } catch (err) {
-      if (
-        err.name === 'INVALID_PARAMETER' &&
-        err.validation?.keys?.[0] === 'client_id'
-      ) {
-        throw new OAuthError('UNKNOWN_CLIENT', {
-          client_id: clientId,
-        });
-      }
-
-      throw err;
-    }
-  }
-
-  private async createRelierSubscriptionInfo(): Promise<RelierSubscriptionInfo> {
-    // TODO: Is the following still needed? Seems like there should be a cleaner way to do this.
-    // HACK: issue #6121 - we want to fetch the subscription product
-    // name as the "service" here if we're starting from a payment flow.
-    // But, this fetch() is called long before router or any view logic
-    // kicks in. So, let's check the URL path here to see if there's a
-    // product ID for name lookup.
-    const productId = this.delegates.getProductIdFromRoute();
-    let subscriptionProductName = '';
-    let subscriptionProductId = '';
-    if (productId) {
-      const data = await this.delegates.getProductInfo(subscriptionProductId);
-      if (data && data.productName && typeof data.productName === 'string') {
-        subscriptionProductName = data.productName;
-      } else {
-        subscriptionProductId = undefined || '';
-      }
-    }
-    return {
-      subscriptionProductId,
-      subscriptionProductName,
+    integration.subscriptionInfo = {
+      subscriptionProductId: this.productInfo?.subscriptionProductId || '',
+      subscriptionProductName: this.productInfo?.subscriptionProductName || '',
     };
   }
 }

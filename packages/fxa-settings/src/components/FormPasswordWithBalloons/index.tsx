@@ -6,7 +6,6 @@ import React, { useCallback, useRef, useState, useEffect } from 'react';
 import { UseFormMethods } from 'react-hook-form';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
-import { logViewEvent, settingsViewName } from '../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import { SHOW_BALLOON_TIMEOUT, HIDE_BALLOON_TIMEOUT } from '../../constants';
@@ -24,7 +23,7 @@ export type FormPasswordWithBalloonsProps = {
   register: UseFormMethods['register'];
   getValues: UseFormMethods['getValues'];
   email: string;
-  onFocusMetricsEvent?: string;
+  onFocusMetricsEvent?: () => void;
   loading: boolean;
   children?: React.ReactNode;
   disableButtonUntilValid?: boolean;
@@ -142,7 +141,7 @@ export const FormPasswordWithBalloons = ({
   const onNewPwdFocus = () => {
     showNewPwdBalloon();
     if (!hasNewPwdFocused && onFocusMetricsEvent) {
-      logViewEvent(settingsViewName, onFocusMetricsEvent);
+      onFocusMetricsEvent();
       setHasNewPwdFocused(true);
     }
   };

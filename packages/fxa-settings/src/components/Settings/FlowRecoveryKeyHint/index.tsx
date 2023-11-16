@@ -78,7 +78,7 @@ export const FlowRecoveryKeyHint = ({
     navigateForward();
     alertBar.success(
       ftlMsgResolver.getMsg(
-        'flow-recovery-key-success-alert-v2',
+        'flow-recovery-key-success-alert',
         'Account recovery key created'
       )
     );

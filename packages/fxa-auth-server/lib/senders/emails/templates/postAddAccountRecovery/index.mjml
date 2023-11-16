@@ -7,26 +7,19 @@
     <mj-text css-class="text-header">
       <span data-l10n-id="postAddAccountRecovery-title2">You created a new account recovery key</span>
     </mj-text>
-
-    <mj-text css-class="text-body">
-      <span data-l10n-id="postAddAccountRecovery-description-2">A new key was created from:</span>
-    </mj-text>
   </mj-column>
 </mj-section>
-
-<%- include('/partials/userInfo/index.mjml') %>
 
 <mj-section>
   <mj-column>
     <mj-text css-class="text-body">
-      <span data-l10n-id="postAddAccountRecovery-not-you">
-        Not you?
+      <span data-l10n-id="postAddAccountRecovery-body-part1">
+        Save this key in a safe place — you’ll need it to restore your encrypted browsing data if you forget your password.
       </span>
     </mj-text>
-
-    <mj-text css-class="text-body">
-      <span data-l10n-id="postAddAccountRecovery-change">
-        <a class="link-blue" href="<%- revokeAccountRecoveryLink %>" data-l10n-name="revokeAccountRecoveryLink">Delete the new key</a> and <a class="link-blue" href="<%- passwordChangeLink %>" data-l10n-name="passwordChangeLink">change your password</a>
+    <mj-text  css-class="text-body">
+      <span data-l10n-id="postAddAccountRecovery-body-part2">
+        This key can only be used once. After you use it, we’ll automatically create a new one for you. Or you can create a new one any time from your account settings.
       </span>
     </mj-text>
   </mj-column>
@@ -37,4 +30,6 @@
   buttonText: "Manage account"
 }) %>
 
-<%- include('/partials/automatedEmailChangePassword/index.mjml') %>
+<%- include('/partials/automatedEmailRecoveryKey/index.mjml', {
+  keyExists: true
+}) %>

@@ -16,6 +16,7 @@ const createStory = storyWithProps(
     link: 'http://localhost:3030/connect_another_device',
     desktopLink: 'https://firefox.com',
     onDesktopOrTabletDevice: true,
+    productName: 'Firefox',
   }
 );
 

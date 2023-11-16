@@ -12,9 +12,9 @@ const conf = convict({
   },
   client_secret: {
     doc: 'Oauth client secret',
-    default: 'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8',
+    default: '',
     format: String,
-    env: 'CLIENT_SECRET',
+    env: 'CLIENT_SECRET_123DONE',
   },
   redirect_uri: {
     doc: 'Oauth client redirect',
@@ -68,7 +68,8 @@ const conf = convict({
 
 const configTarget = process.env.CONFIG_123DONE || './config.json';
 const configFile = path.resolve(__dirname, configTarget);
-const file = [configFile].filter(fs.existsSync);
+const secretsFile = path.resolve(__dirname, './secrets.json');
+const file = [configFile, secretsFile].filter(fs.existsSync);
 conf.loadFile(file);
 
 conf.validate();

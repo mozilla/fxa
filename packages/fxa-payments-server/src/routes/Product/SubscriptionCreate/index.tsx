@@ -173,13 +173,17 @@ export const SubscriptionCreate = ({
                 type: 'card_error',
                 code: 'card_declined',
               });
+              setInProgress(false);
             },
           });
         } catch (error) {
           console.error('handleSubscriptionPayment failed', error);
           setSubscriptionError(error);
+          // Only set In Progress to false on subscription error
+          // This is to prevent the Submit button from momentarily flashing as enabled
+          // before navigating to the success screen.
+          setInProgress(false);
         }
-        setInProgress(false);
         refreshSubmitNonce();
       },
       [
@@ -212,8 +216,11 @@ export const SubscriptionCreate = ({
           refreshSubscriptions();
         } catch (error) {
           setSubscriptionError(error);
+          // Only set In Progress to false on subscription error
+          // This is to prevent the Submit button from momentarily flashing as enabled
+          // before navigating to the success screen.
+          setInProgress(false);
         }
-        setInProgress(false);
         refreshSubmitNonce();
       },
       [

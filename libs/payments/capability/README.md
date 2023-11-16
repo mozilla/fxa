@@ -8,4 +8,4 @@ Run `nx build payments-capability` to build the library.
 
 ## Running unit tests
 
-Run `nx test payments-capability` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx test-unit payments-capability` to execute the unit tests via [Jest](https://jestjs.io).

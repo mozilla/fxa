@@ -7,6 +7,8 @@ import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 
+import GleanMetrics from '../../lib/glean';
+
 import { usePageViewEvent } from '../../lib/metrics';
 import ResetPassword, { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
@@ -25,7 +27,7 @@ import {
   createMockResetPasswordOAuthIntegration,
   createMockResetPasswordWebIntegration,
 } from './mocks';
-import { MOCK_REDIRECT_URI, MOCK_SERVICE } from '../mocks';
+import { MOCK_SERVICE } from '../mocks';
 
 const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
@@ -43,6 +45,11 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { resetPassword: { view: jest.fn(), submit: jest.fn() } },
 }));
 
 const route = '/reset_password';
@@ -72,6 +79,11 @@ describe('PageResetPassword', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
+  beforeEach(() => {
+    (GleanMetrics.resetPassword.view as jest.Mock).mockClear();
+    (GleanMetrics.resetPassword.submit as jest.Mock).mockClear();
+  });
 
   it('renders as expected', async () => {
     render(<ResetPasswordWithWebIntegration />);
@@ -112,6 +124,7 @@ describe('PageResetPassword', () => {
     render(<ResetPasswordWithWebIntegration />);
     await screen.findByText('Reset password');
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
   });
 
   it('submit success with OAuth integration', async () => {
@@ -139,12 +152,13 @@ describe('PageResetPassword', () => {
       fireEvent.click(await screen.findByText('Begin reset'));
     });
 
+    expect(GleanMetrics.resetPassword.submit).toHaveBeenCalledTimes(1);
+
     expect(account.resetPassword).toHaveBeenCalled();
 
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email,
-      MOCK_SERVICE,
-      MOCK_REDIRECT_URI
+      MOCK_SERVICE
     );
 
     expect(mockNavigate).toHaveBeenCalledWith(
@@ -276,8 +290,10 @@ describe('PageResetPassword', () => {
       target: { value: MOCK_ACCOUNT.primaryEmail.email },
     });
 
-    fireEvent.click(screen.getByRole('button'));
+    fireEvent.click(screen.getByRole('button', { name: 'Begin reset' }));
     await screen.findByText('Unknown account');
+
+    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
   });
 
   it('displays an error when rate limiting kicks in', async () => {
@@ -314,6 +330,8 @@ describe('PageResetPassword', () => {
     await screen.findByText(
       'You’ve tried too many times. Please try again in 15 minutes.'
     );
+
+    expect(GleanMetrics.resetPassword.view).toHaveBeenCalledTimes(1);
   });
 
   it('handles unexpected errors on submit', async () => {

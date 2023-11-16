@@ -10,7 +10,7 @@ const Ajv = require('ajv');
 const ajv = new Ajv();
 const Redis = require('ioredis');
 const redis = new Redis({
-  password: process.env.REDIS_PASSWORD || 'fxa123',
+  password: process.env.REDIS_PASSWORD || '',
   host: process.env.REDIS_HOST || 'localhost',
   port: process.env.REDIS_PORT || 6379,
   keyPrefix: 'featureFlags:',
