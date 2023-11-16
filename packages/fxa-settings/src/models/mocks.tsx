@@ -99,7 +99,7 @@ export function mockStorage() {
   };
 }
 
-export function mockUrlQueryData(params: Record<string, unknown>) {
+export function mockUrlQueryData(params: Record<string, string | undefined>) {
   const window = new ReachRouterWindow();
   const data = new UrlQueryData(window);
   for (const param of Object.keys(params)) {

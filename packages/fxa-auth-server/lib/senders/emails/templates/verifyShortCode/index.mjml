@@ -5,10 +5,10 @@
 <mj-section>
   <mj-column>
     <mj-text css-class="text-header">
-      <span data-l10n-id="verifyShortCode-title-2">Open the internet with Firefox</span>
+      <span data-l10n-id="verifyShortCode-title-3">Open the internet with Mozilla</span>
     </mj-text>
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifyShortCode-title-subtext">Confirm your account and get the most out of Firefox everywhere you sign in starting with:</span>
+      <span data-l10n-id="verifyShortCode-title-subtext-2">Confirm your account and get the most out of Mozilla everywhere you sign in starting with:</span>
     </mj-text>
   </mj-column>
 </mj-section>

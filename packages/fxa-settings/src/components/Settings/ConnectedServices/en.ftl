@@ -7,7 +7,7 @@ cs-cannot-refresh = Sorry, there was a problem refreshing the list of connected
 cs-cannot-disconnect = Client not found, unable to disconnect
 # This string is used in a notification message near the top of the page.
 # Variables:
-#   $service (String) - the name of a device or service that uses Firefox Accounts
+#   $service (String) - the name of a device or service that uses Mozilla accounts
 #                       (for example: "Firefox Lockwise")
 cs-logged-out-2 = Logged out of { $service }
 
@@ -22,7 +22,7 @@ cs-disconnect-sync-heading = Disconnect from Sync
 ## This string is used in a modal dialog when the user starts the disconnect from
 ## Sync process.
 ## Variables:
-##   $device (String) - the name of a device using Firefox Accounts
+##   $device (String) - the name of a device using Mozilla accounts
 ##                      (for example: "Firefox Nightly on Google Pixel 4a")
 
 cs-disconnect-sync-content-3 = Your browsing data will remain on <span>{ $device }</span>,
@@ -47,11 +47,13 @@ cs-disconnect-lost-advice-content-2 = Since your device was lost or stolen, to
   keep your information safe, you should change your { -product-firefox-account } password
   in your account settings. You should also look for information from your
   device manufacturer about erasing your data remotely.
+cs-disconnect-lost-advice-content-3 = Since your device was lost or stolen, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also look for information from your device manufacturer about erasing your data remotely.
 cs-disconnect-suspicious-advice-heading = Suspicious device disconnected
 cs-disconnect-suspicious-advice-content = If the disconnected device is indeed
   suspicious, to keep your information safe, you should change your { -product-firefox-account }
   password in your account settings. You should also change any other
   passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
+cs-disconnect-suspicious-advice-content-2 = If the disconnected device is indeed suspicious, to keep your information safe, you should change your { -product-mozilla-account } password in your account settings. You should also change any other passwords you saved in { -brand-firefox } by typing about:logins into the address bar.
 
 cs-sign-out-button = Sign out
 

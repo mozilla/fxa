@@ -5,7 +5,7 @@
 import React from 'react';
 import { act, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import BrandMessaging, { bannerClosedLocalStorageKey } from '.';
+import { BrandMessaging, bannerClosedLocalStorageKey } from '.';
 
 describe('BrandMessaging', () => {
   const preLaunchMessageTestId = 'brand-prelaunch';

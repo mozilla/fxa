@@ -3,9 +3,9 @@ import { create } from '@storybook/theming/create';
 export default create({
   base: 'light',
 
-  brandTitle: 'Firefox Accounts Storybook',
+  brandTitle: 'Mozilla Accounts Storybook',
   brandUrl: 'https://github.com/mozilla/fxa',
-  brandImage: 'assets/logo.png',
+  brandImage: 'assets/moz-logo-bw-rgb.svg',
 
   colorPrimary: '#F3A03F',
   colorSecondary: '#0060DF',

@@ -11,7 +11,7 @@ export default {
 
 const createStory = subplatStoryWithProps(
   'subscriptionAccountReminderFirst',
-  'Sent to a user to remind them to finish setting up a Firefox account as they signed up through the password-less flow without an existing account.',
+  'Sent to a user to remind them to finish setting up a Mozilla account as they signed up through the password-less flow without an existing account.',
   {
     link: 'http://localhost:3030/post_verify/finish_account_setup/set_password',
     reminderShortForm: true,

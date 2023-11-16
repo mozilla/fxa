@@ -120,3 +120,11 @@ export class WebIntegration extends BaseIntegration {
     return true;
   }
 }
+
+export function isWebIntegration(integration: {
+  type: IntegrationType;
+}): integration is WebIntegration {
+  return (integration as WebIntegration).type === IntegrationType.Web;
+}
+
+export default WebIntegration;

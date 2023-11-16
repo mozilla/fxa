@@ -14,7 +14,15 @@ const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
 const isA = require('joi');
 
-module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
+module.exports = (
+  log,
+  db,
+  Password,
+  verifierVersion,
+  customs,
+  mailer,
+  glean
+) => {
   return [
     {
       method: 'POST',
@@ -53,11 +61,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         async function sendKeyCreationEmail() {
           const account = await db.account(uid);
-          const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+          const { acceptLanguage, clientAddress: geo, ua } = request.app;
           const emailOptions = {
             acceptLanguage,
-            ip,
-            location: geo.location,
             timeZone: geo.timeZone,
             uaBrowser: ua.browser,
             uaBrowserVersion: ua.browserVersion,
@@ -67,6 +73,26 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             uid,
           };
           await mailer.sendPostAddAccountRecoveryEmail(
+            account.emails,
+            account,
+            emailOptions
+          );
+        }
+
+        async function sendKeyChangeEmail() {
+          const account = await db.account(uid);
+          const { acceptLanguage, clientAddress: geo, ua } = request.app;
+          const emailOptions = {
+            acceptLanguage,
+            timeZone: geo.timeZone,
+            uaBrowser: ua.browser,
+            uaBrowserVersion: ua.browserVersion,
+            uaOS: ua.os,
+            uaOSVersion: ua.osVersion,
+            uaDeviceType: ua.deviceType,
+            uid,
+          };
+          await mailer.sendPostChangeAccountRecoveryEmail(
             account.emails,
             account,
             emailOptions
@@ -100,7 +126,7 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
               request,
               account: { uid },
             });
-            sendKeyCreationEmail();
+            sendKeyChangeEmail();
           }
         }
 
@@ -198,11 +224,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
             await request.emitMetricsEvent('recoveryKey.created', { uid });
 
             const account = await db.account(uid);
-            const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+            const { acceptLanguage, clientAddress: geo, ua } = request.app;
             const emailOptions = {
               acceptLanguage,
-              ip,
-              location: geo.location,
               timeZone: geo.timeZone,
               uaBrowser: ua.browser,
               uaBrowserVersion: ua.browserVersion,
@@ -258,6 +282,8 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
         await customs.checkAuthenticated(request, uid, 'getRecoveryKey');
 
         const { recoveryData } = await db.getRecoveryKey(uid, recoveryKeyId);
+
+        glean.resetPassword.recoveryKeySuccess(request, { uid });
 
         return { recoveryData };
       },
@@ -426,11 +452,9 @@ module.exports = (log, db, Password, verifierVersion, customs, mailer) => {
 
         const account = await db.account(uid);
 
-        const { acceptLanguage, clientAddress: ip, geo, ua } = request.app;
+        const { acceptLanguage, clientAddress: geo, ua } = request.app;
         const emailOptions = {
           acceptLanguage,
-          ip,
-          location: geo.location,
           timeZone: geo.timeZone,
           uaBrowser: ua.browser,
           uaBrowserVersion: ua.browserVersion,

@@ -8,7 +8,6 @@ import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
 import { usePageViewEvent, useMetrics } from '../../lib/metrics';
-import { MozServices } from '../../lib/types';
 import {
   isOAuthIntegration,
   useAccount,
@@ -27,6 +26,8 @@ import { isEmailValid } from 'fxa-shared/email/helpers';
 import { setOriginalTabMarker } from '../../lib/storage-utils';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
+import { BrandMessagingPortal } from '../../components/BrandMessaging';
+import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'reset-password';
 
@@ -47,13 +48,11 @@ const ResetPassword = ({
   // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
   setOriginalTabMarker();
 
-  const [serviceName, setServiceName] = useState<string>(MozServices.Default);
+  const serviceName = integration.getServiceName();
+
   useEffect(() => {
-    (async () => {
-      const name = await integration.getServiceName();
-      setServiceName(name);
-    })();
-  }, [integration]);
+    GleanMetrics.resetPassword.view();
+  }, []);
 
   const { control, getValues, handleSubmit, register } =
     useForm<ResetPasswordFormData>({
@@ -106,8 +105,7 @@ const ResetPassword = ({
           integration.saveOAuthState();
           const result = await account.resetPassword(
             email,
-            integration.getService(),
-            integration.getRedirectUri()
+            integration.getService()
           );
           navigateToConfirmPwReset({
             passwordForgotToken: result.passwordForgotToken,
@@ -143,6 +141,7 @@ const ResetPassword = ({
         ftlMsgResolver.getMsg('auth-error-1011', 'Valid email required')
       );
     } else {
+      GleanMetrics.resetPassword.submit();
       submitEmail(sanitizedEmail);
     }
   }, [ftlMsgResolver, getValues, submitEmail]);
@@ -162,6 +161,7 @@ const ResetPassword = ({
 
   return (
     <AppLayout>
+      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingWithDefaultServiceFtlId="reset-password-heading-w-default-service"
         headingWithCustomServiceFtlId="reset-password-heading-w-custom-service"

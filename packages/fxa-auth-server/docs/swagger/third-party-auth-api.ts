@@ -19,9 +19,15 @@ const LINKED_ACCOUNT_UNLINK_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
+const LINKED_ACCOUNT_WEBHOOK_GOOGLE_EVENT_RECEIVER_POST = {
+  ...TAGS_THIRD_PARTY_AUTH,
+  description: '/linked_account/webhook/google_event_receiver',
+};
+
 const API_DOCS = {
   LINKED_ACCOUNT_LOGIN_POST,
   LINKED_ACCOUNT_UNLINK_POST,
+  LINKED_ACCOUNT_WEBHOOK_GOOGLE_EVENT_RECEIVER_POST,
 };
 
 export default API_DOCS;

@@ -15,14 +15,6 @@ import VerificationReasonMixin from '../mixins/verification-reason-mixin';
 const t = (msg) => msg;
 
 const TEMPLATE_INFO = {
-  RECOVERY_KEY: {
-    headerId: 'fxa-account-recovery-complete-header',
-    headerTitle: t('Your sync data is protected'),
-    readyText: t(
-      'If you lose access to your account, you’ll be able to restore your sync data.'
-    ),
-    buttonText: t('Start browsing'),
-  },
   SECONDARY_EMAIL_VERIFIED: {
     readyText: t(
       'Account notifications will now also be sent to %(secondaryEmail)s.'
@@ -54,17 +46,6 @@ class Verified extends FormView {
 
   submit() {
     const account = this.getSignedInAccount();
-
-    // TODO: We should be able to make this a little more cleaner. Ideally, we should
-    // be able to pass options we need into the broker and have it transistion to correct
-    // view.
-    if (this.type === 'recovery_key') {
-      return this.invokeBrokerMethod(
-        'afterCompleteAddPostVerifyRecovery',
-        account
-      );
-    }
-
     return this.invokeBrokerMethod('afterCompleteSignIn', account);
   }
 

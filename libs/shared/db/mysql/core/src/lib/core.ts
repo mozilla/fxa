@@ -7,8 +7,8 @@ import { createPool } from 'mysql2';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ConsoleLogger, Logger } from '../../../../../log/src';
-import { localStatsD, StatsD } from '../../../../../metrics/statsd/src';
+import { ConsoleLogger, Logger } from '@fxa/shared/log';
+import { localStatsD, StatsD } from '@fxa/shared/metrics/statsd';
 import { MySQLConfig } from './config';
 
 const REQUIRED_SQL_MODES = ['STRICT_ALL_TABLES', 'NO_ENGINE_SUBSTITUTION'];

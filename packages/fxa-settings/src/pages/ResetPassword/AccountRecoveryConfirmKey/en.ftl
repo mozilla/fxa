@@ -9,6 +9,7 @@ account-recovery-confirm-key-heading-w-default-service = Reset password with acc
 account-recovery-confirm-key-heading-w-custom-service = Reset password with account recovery key <span>to continue to { $serviceName }</span>
 
 account-recovery-confirm-key-instructions = Please enter the one time use account recovery key you stored in a safe place to regain access to your { -product-firefox-account }.
+account-recovery-confirm-key-instructions-2 = Please enter the one time use account recovery key you stored in a safe place to regain access to your { -product-mozilla-account }.
 
 account-recovery-confirm-key-warning-message = <span>Note:</span> If you reset your password and don’t have your account recovery key saved, some of your data will be erased (including synced server data like history and bookmarks).
 # Prompts the user to enter their account recovery code

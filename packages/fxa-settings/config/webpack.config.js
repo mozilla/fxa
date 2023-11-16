@@ -1,7 +1,5 @@
 // This file was created by react-scripts' (create-react-app) eject script.
 
-'use strict';
-
 const fs = require('fs');
 const path = require('path');
 const webpack = require('webpack');
@@ -324,6 +322,9 @@ module.exports = function (webpackEnv) {
           'react-dom$': 'react-dom/profiling',
           'scheduler/tracing': 'scheduler/tracing-profiling',
         }),
+        fxaCryptoDeriver: require.resolve(
+          'fxa-crypto-relier/dist/fxa-crypto-relier/fxa-crypto-deriver'
+        ),
         ...(modules.webpackAliases || {}),
       },
       plugins: [
@@ -344,6 +345,7 @@ module.exports = function (webpackEnv) {
           ]
         ),
       ],
+      fallback: { fs: false, path: false },
     },
     module: {
       strictExportPresence: true,
@@ -429,6 +431,7 @@ module.exports = function (webpackEnv) {
                   ],
                 ],
                 plugins: [
+                  'babel-plugin-transform-typescript-metadata',
                   isEnvDevelopment &&
                     shouldUseReactRefresh &&
                     require.resolve('react-refresh/babel'),

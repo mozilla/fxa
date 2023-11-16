@@ -7,6 +7,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logPageViewEvent, logViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 import { viewName } from '.';
 import {
   MOCK_RECOVERY_KEY,
@@ -32,6 +33,12 @@ import { MOCK_SERVICE } from '../../mocks';
 jest.mock('../../../lib/metrics', () => ({
   logPageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+}));
+jest.mock('../../../lib/glean', () => ({
+  resetPassword: {
+    recoveryKeyView: jest.fn(),
+    recoveryKeySubmit: jest.fn(),
+  },
 }));
 const mockNavigate = jest.fn();
 
@@ -70,9 +77,7 @@ const accountWithValidResetToken = {
     recoveryData: 'mockRecoveryData',
     recoveryKeyId: MOCK_RECOVERY_KEY_ID,
   }),
-  verifyPasswordForgotToken: jest
-    .fn()
-    .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
+  passwordForgotVerifyCode: jest.fn().mockResolvedValue(MOCK_RESET_TOKEN),
 } as unknown as Account;
 
 const renderSubject = ({
@@ -102,7 +107,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
     });
 
     screen.getByText(
-      'Please enter the one time use account recovery key you stored in a safe place to regain access to your Firefox Account.'
+      'Please enter the one time use account recovery key you stored in a safe place to regain access to your Mozilla account.'
     );
     screen.getByTestId('warning-message-container');
     screen.getByLabelText('Enter account recovery key');
@@ -127,7 +132,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
   it('renders the component as expected when provided with an expired link', async () => {
     const accountWithTokenError = {
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
-      verifyPasswordForgotToken: jest.fn().mockImplementation(() => {
+      passwordForgotVerifyCode: jest.fn().mockImplementation(() => {
         throw AuthUiErrors.INVALID_TOKEN;
       }),
     } as unknown as Account;
@@ -148,6 +153,8 @@ describe('PageAccountRecoveryConfirmKey', () => {
       mockConsoleWarn = jest
         .spyOn(console, 'warn')
         .mockImplementation(() => {});
+
+      (GleanMetrics.resetPassword.recoveryKeyView as jest.Mock).mockReset();
     });
 
     afterEach(() => {
@@ -164,6 +171,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
       );
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
     });
     it('with missing code', async () => {
       renderSubject({ params: paramsWithMissingCode });
@@ -172,6 +180,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
     });
     it('with missing email', async () => {
       renderSubject({ params: paramsWithMissingEmail });
@@ -180,6 +189,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
         name: 'Reset password link damaged',
       });
       expect(mockConsoleWarn).toBeCalled();
+      expect(GleanMetrics.resetPassword.recoveryKeyView).not.toHaveBeenCalled();
     });
   });
 
@@ -287,9 +297,7 @@ describe('PageAccountRecoveryConfirmKey', () => {
   it('submits successfully after invalid recovery key submission', async () => {
     const accountWithKeyInvalidOnce = {
       resetPasswordStatus: jest.fn().mockResolvedValue(true),
-      verifyPasswordForgotToken: jest
-        .fn()
-        .mockResolvedValue({ accountResetToken: MOCK_RESET_TOKEN }),
+      passwordForgotVerifyCode: jest.fn().mockResolvedValue(MOCK_RESET_TOKEN),
       getRecoveryKeyBundle: jest
         .fn()
         .mockImplementationOnce(() => {
@@ -316,17 +324,18 @@ describe('PageAccountRecoveryConfirmKey', () => {
       screen.getByRole('button', { name: 'Confirm account recovery key' })
     );
 
-    // only ever calls `verifyPasswordForgotToken` once despite number of submissions
+    // only ever calls `passwordForgotVerifyCode` once despite number of submissions
     await waitFor(() =>
       expect(
-        accountWithKeyInvalidOnce.verifyPasswordForgotToken
+        accountWithKeyInvalidOnce.passwordForgotVerifyCode
       ).toHaveBeenCalledTimes(1)
     );
     expect(
-      accountWithKeyInvalidOnce.verifyPasswordForgotToken
+      accountWithKeyInvalidOnce.passwordForgotVerifyCode
     ).toHaveBeenCalledWith(
       mockCompleteResetPasswordParams.token,
-      mockCompleteResetPasswordParams.code
+      mockCompleteResetPasswordParams.code,
+      true
     );
     expect(
       accountWithKeyInvalidOnce.getRecoveryKeyBundle
@@ -339,6 +348,10 @@ describe('PageAccountRecoveryConfirmKey', () => {
   });
 
   describe('emits metrics events', () => {
+    beforeEach(() => {
+      (GleanMetrics.resetPassword.recoveryKeyView as jest.Mock).mockReset();
+      (GleanMetrics.resetPassword.recoveryKeySubmit as jest.Mock).mockReset();
+    });
     afterEach(() => jest.clearAllMocks());
     it('on engage, submit, success', async () => {
       renderSubject();
@@ -347,6 +360,9 @@ describe('PageAccountRecoveryConfirmKey', () => {
       });
 
       expect(logPageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+      expect(
+        GleanMetrics.resetPassword.recoveryKeyView as jest.Mock
+      ).toHaveBeenCalledTimes(1);
 
       await typeByLabelText('Enter account recovery key')(MOCK_RECOVERY_KEY);
 
@@ -370,6 +386,10 @@ describe('PageAccountRecoveryConfirmKey', () => {
           `${viewName}.success`,
           REACT_ENTRYPOINT
         );
+
+        expect(
+          GleanMetrics.resetPassword.recoveryKeySubmit as jest.Mock
+        ).toHaveBeenCalledTimes(1);
       });
     });
 

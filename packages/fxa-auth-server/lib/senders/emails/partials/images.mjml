@@ -4,11 +4,11 @@
 
 <% if (!locals.productName) { locals.productName = 'Firefox' %><% } %>
 <mj-html-attributes>
-  <mj-selector path=".fxa-logo td">
-    <mj-html-attribute name="data-l10n-id">fxa-header-firefox-logo</mj-html-attribute>
+  <mj-selector path=".mozilla-logo td">
+    <mj-html-attribute name="data-l10n-id">fxa-header-mozilla-logo</mj-html-attribute>
   </mj-selector>
-  <mj-selector path=".fxa-logo img">
-    <mj-html-attribute name="data-l10n-name">fxa-logo</mj-html-attribute>
+  <mj-selector path=".mozilla-logo img">
+    <mj-html-attribute name="data-l10n-name">mozilla-logo</mj-html-attribute>
   </mj-selector>
 
   <mj-selector path=".sync-img td">
@@ -18,18 +18,18 @@
     <mj-html-attribute name="data-l10n-name">sync-devices-image</mj-html-attribute>
   </mj-selector>
 
-  <mj-selector path=".fxa-logo-firefox a">
-    <mj-html-attribute name="data-l10n-id">subplat-header-firefox-logo</mj-html-attribute>
+  <mj-selector path=".subplat-mozilla-logo a">
+    <mj-html-attribute name="data-l10n-id">subplat-header-mozilla-logo-2</mj-html-attribute>
   </mj-selector>
-  <mj-selector path=".fxa-logo-firefox img">
-    <mj-html-attribute name="data-l10n-name">fxa-logo-firefox</mj-html-attribute>
+  <mj-selector path=".subplat-mozilla-logo img">
+    <mj-html-attribute name="data-l10n-name">subplat-mozilla-logo</mj-html-attribute>
   </mj-selector>
 
-  <mj-selector path=".mozilla-logo a">
-    <mj-html-attribute name="data-l10n-id">subplat-footer-mozilla-logo</mj-html-attribute>
+  <mj-selector path=".mozilla-logo-footer a">
+    <mj-html-attribute name="data-l10n-id">subplat-footer-mozilla-logo-2</mj-html-attribute>
   </mj-selector>
-  <mj-selector path=".mozilla-logo img">
-    <mj-html-attribute name="data-l10n-name">mozilla-logo</mj-html-attribute>
+  <mj-selector path=".mozilla-logo-footer img">
+    <mj-html-attribute name="data-l10n-name">mozilla-logo-footer</mj-html-attribute>
   </mj-selector>
 
   <mj-selector path=".graphic-devices td">

@@ -27,10 +27,6 @@ config.theme.extend = {
     // TODO: Use 'close' SVGs from 'fxa-react' once using React
     'close-black': 'inline("../images/close.svg")',
     'close-white': 'inline("../images/close-white.svg")',
-    /* TODO: move this to `fxa-react`, FXA-5745 */
-    /* If adding a background-image in content-server, you must refer to "/images" instead of
-     * "../images" because our cache bust build step won't find and replace it in `usemin:css` */
-    'ff-logo': 'url("/images/firefox-logo.svg")',
   },
   content: {
     ...config.theme.extend.content,

@@ -241,16 +241,16 @@ export async function init(enabled: boolean, flowQueryParams: QueryParams) {
 
 /**
  * Initializes the user preference state for metrics.
- * @param account - An account model containing user preferences applicable to metrics
+ * @param accountData - An account data object containing user preferences applicable to metrics
  */
-export function initUserPreferences(account: {
+export function initUserPreferences(accountData: {
   recoveryKey: boolean;
   hasSecondaryVerifiedEmail: boolean;
   totpActive: boolean;
 }) {
-  setUserPreference('account-recovery', account.recoveryKey);
-  setUserPreference('emails', account.hasSecondaryVerifiedEmail);
-  setUserPreference('two-step-authentication', account.totpActive);
+  setUserPreference('account-recovery', accountData.recoveryKey);
+  setUserPreference('emails', accountData.hasSecondaryVerifiedEmail);
+  setUserPreference('two-step-authentication', accountData.totpActive);
 }
 
 /**

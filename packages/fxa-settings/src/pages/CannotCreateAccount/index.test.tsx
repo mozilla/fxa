@@ -31,7 +31,7 @@ describe('CannotCreateAccount', () => {
       name: 'Cannot create account',
     });
     screen.getByText(
-      'You must meet certain age requirements to create a Firefox account.'
+      'You must meet certain age requirements to create a Mozilla account.'
     );
     expect(screen.getByRole('link', { name: /Learn more/ })).toHaveAttribute(
       'href',

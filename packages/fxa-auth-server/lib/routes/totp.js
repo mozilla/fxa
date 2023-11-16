@@ -162,11 +162,8 @@ module.exports = (log, db, mailer, customs, config, glean) => {
         if (hasEnabledToken) {
           const account = await db.account(uid);
           const geoData = request.app.geo;
-          const ip = request.app.clientAddress;
           const emailOptions = {
             acceptLanguage: request.app.acceptLanguage,
-            ip,
-            location: geoData.location,
             timeZone: geoData.timeZone,
             uaBrowser: request.app.ua.browser,
             uaBrowserVersion: request.app.ua.browserVersion,

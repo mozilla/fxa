@@ -834,7 +834,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        36,
+        37,
         'was called with correct number of options'
       );
       assert.equal(
@@ -957,7 +957,7 @@ describe('/session/duplicate', () => {
       const sessionTokenOptions = db.createSessionToken.args[0][0];
       assert.equal(
         Object.keys(sessionTokenOptions).length,
-        36,
+        37,
         'was called with correct number of options'
       );
       assert.equal(
@@ -1234,13 +1234,6 @@ describe('/session/resend_code', () => {
         id: 'sessionTokenId',
       },
       log,
-      location: {
-        city: 'Mountain View',
-        country: 'United States',
-        countryCode: 'US',
-        state: 'California',
-        stateCode: 'CA',
-      },
       timeZone: 'America/Los_Angeles',
       uaBrowser: 'Firefox',
     });
@@ -1256,11 +1249,6 @@ describe('/session/resend_code', () => {
     const args = mailer.sendVerifyShortCodeEmail.args[0];
     assert.equal(args[2].acceptLanguage, 'en-US');
     assert.equal(args[2].code, expectedCode);
-    assert.equal(args[2].location.city, 'Mountain View');
-    assert.equal(args[2].location.country, 'United States');
-    assert.equal(args[2].location.countryCode, 'US');
-    assert.equal(args[2].location.state, 'California');
-    assert.equal(args[2].location.stateCode, 'CA');
     assert.equal(args[2].timeZone, 'America/Los_Angeles');
 
     sinon.assert.calledWithExactly(
@@ -1329,8 +1317,8 @@ describe('/session/verify/send_push', () => {
     const args = push.notifyVerifyLoginRequest.args[0];
     assert.equal(args[0], 'foo');
     assert.deepEqual(args[1], []);
-    assert.equal(args[2].title, 'Logging in to Firefox accounts?');
-    assert.equal(args[2].body, 'Click here to verify it’s you');
+    assert.equal(args[2].title, 'Logging in to your Mozilla account?');
+    assert.equal(args[2].body, 'Click here to confirm it’s you');
     assert.include(args[2].url, 'sometoken');
     assert.include(args[2].url, 'California');
     assert.include(args[2].url, encodeURIComponent('63.245.221.32'));

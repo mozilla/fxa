@@ -17,7 +17,6 @@ import defaultElement from './default';
 import emailInput from './email-input';
 import passwordInput from './password-input';
 import recoveryCodeInput from './recovery-code-input';
-import recoveryKeyInput from './recovery-key-input';
 import telInput from './tel-input';
 import textInput from './text-input';
 import totpCodeInput from './totp-code-input';
@@ -28,7 +27,6 @@ const elementHelpers = [
   totpCodeInput,
   tokenCodeInput,
   recoveryCodeInput,
-  recoveryKeyInput,
   checkboxInput,
   coppaAgeInput,
   emailInput,

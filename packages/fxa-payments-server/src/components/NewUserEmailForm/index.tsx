@@ -131,7 +131,7 @@ export const NewUserEmailForm = ({
       {...{ onChange }}
     >
       <Localized
-        id="new-user-sign-in-link"
+        id="new-user-sign-in-link-2"
         elems={{
           a: (
             <a
@@ -148,7 +148,7 @@ export const NewUserEmailForm = ({
           className="font-normal -mt-2 text-grey-400"
           data-testid="sign-in-copy"
         >
-          Already have a Firefox account?{' '}
+          Already have a Mozilla account?{' '}
           <a
             className="underline text-grey-400 hover:text-grey-400"
             data-testid="sign-in-link"

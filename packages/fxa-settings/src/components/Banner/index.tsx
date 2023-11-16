@@ -26,7 +26,9 @@ type OptionalProps =
 export type BannerProps = DefaultProps & OptionalProps;
 
 const Banner = ({ type, children, dismissible, setIsVisible }: BannerProps) => {
-  const baseClassNames = 'text-xs font-bold p-3 my-3 rounded';
+  // Transparent border is for Windows HCM  - to ensure there is a border around the banner
+  const baseClassNames =
+    'text-xs font-bold p-3 my-3 rounded border border-transparent';
 
   return (
     <div
@@ -47,7 +49,7 @@ const Banner = ({ type, children, dismissible, setIsVisible }: BannerProps) => {
               aria-label="Close"
               onClick={() => setIsVisible(false)}
             >
-              <IconClose className="fill-black w-3 h-3" role="img" />
+              <IconClose className="text-black w-3 h-3" role="img" />
             </button>
           </FtlMsg>
         </>

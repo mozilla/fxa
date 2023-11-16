@@ -109,7 +109,7 @@ describe('components/PaymentMethodHeader', () => {
         MOCK_PLANS.find((p) => p.plan_id === 'plan_daily') || MOCK_PLANS[0];
       const props = { plan, onClick: () => {} };
       const expectedMsg =
-        'I authorize Mozilla, maker of Firefox products, to charge my payment method for the amount shown, according to Terms of ServiceOpens in new window and Privacy NoticeOpens in new window, until I cancel my subscription.';
+        'I authorize Mozilla to charge my payment method for the amount shown, according to Terms of ServiceOpens in new window and Privacy NoticeOpens in new window, until I cancel my subscription.';
 
       const { findByTestId } = renderWithLocalizationProvider(
         <PaymentMethodHeader {...props} />

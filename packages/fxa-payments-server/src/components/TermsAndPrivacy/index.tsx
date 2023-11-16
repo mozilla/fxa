@@ -60,7 +60,9 @@ export const TermsAndPrivacy = ({
 
   const FXALegal = showFXALinks ? (
     <>
-      <p className="legal-heading">Firefox Accounts</p>
+      <Localized id="subplat-mozilla-accounts-legal-heading">
+        <p className="legal-heading">Mozilla Accounts</p>
+      </Localized>
       <p data-testid="fxa-legal-links">
         <Localized id="terms">
           <LinkExternal

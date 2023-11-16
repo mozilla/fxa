@@ -9,7 +9,7 @@
     </mj-text>
 
     <mj-text css-class="text-body">
-      <span data-l10n-id="verifySecondaryCode-explainer" data-l10n-args='<%= JSON.stringify({email}) %>'>A request to use <%= email %> as a secondary email address has been made from the following Firefox account:</span>
+      <span data-l10n-id="verifySecondaryCode-explainer-2" data-l10n-args='<%= JSON.stringify({email}) %>'>A request to use <%= email %> as a secondary email address has been made from the following Mozilla account:</span>
     </mj-text>
   </mj-column>
 </mj-section>

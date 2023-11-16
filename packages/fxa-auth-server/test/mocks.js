@@ -150,6 +150,7 @@ const MAILER_METHOD_NAMES = [
   'sendPasswordResetAccountRecoveryEmail',
   'sendPasswordResetEmail',
   'sendPostAddAccountRecoveryEmail',
+  'sendPostChangeAccountRecoveryEmail',
   'sendPostAddLinkedAccountEmail',
   'sendPostAddTwoStepAuthenticationEmail',
   'sendPostChangePrimaryEmail',
@@ -210,12 +211,77 @@ const SUBHUB_METHOD_NAMES = [
 
 const PROFILE_METHOD_NAMES = ['deleteCache', 'updateDisplayName'];
 
+const MOCK_CONTENTFUL_CLIENTS = [
+  {
+    capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+    clientId: 'client1',
+  },
+  {
+    capabilities: [
+      'exampleCap0',
+      'exampleCap2',
+      'exampleCap4',
+      'exampleCap5',
+      'exampleCap6',
+      'exampleCap7',
+    ],
+    clientId: 'client2',
+  },
+];
+
+const MOCK_PLANS = [
+  {
+    plan_id: 'firefox_pro_basic_823',
+    product_id: 'firefox_pro_basic',
+    product_name: 'Firefox Pro Basic',
+    interval: 'week',
+    amount: '123',
+    currency: 'usd',
+    plan_metadata: {},
+    product_metadata: {
+      emailIconURL: 'http://example.com/image.jpg',
+      successActionButtonURL: 'http://getfirefox.com',
+      capabilities: 'exampleCap0',
+      'capabilities:client1': 'exampleCap1',
+      promotionCodes: 'earlybirds',
+    },
+  },
+  {
+    plan_id: 'firefox_pro_basic_999',
+    product_id: 'firefox_pro_pro',
+    product_name: 'Firefox Pro Pro',
+    interval: 'month',
+    amount: '456',
+    currency: 'usd',
+    plan_metadata: {},
+    product_metadata: {
+      'capabilities:client2': 'exampleCap2, exampleCap4',
+    },
+  },
+  {
+    plan_id: 'plan_G93lTs8hfK7NNG',
+    product_id: 'prod_G93l8Yn7XJHYUs',
+    product_name: 'FN Tier 1',
+    interval: 'month',
+    amount: 499,
+    current: 'usd',
+    plan_metadata: {
+      'capabilities:client1': 'exampleCap3',
+      // NOTE: whitespace in capabilities list should be flexible for human entry
+      'capabilities:client2': 'exampleCap5,exampleCap6,   exampleCap7',
+      promotionCodes: 'gettheworms?',
+    },
+    product_metadata: {},
+  },
+];
+
 module.exports = {
   MOCK_PUSH_KEY:
     'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
   asyncIterable: asyncIterable,
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
+  mockContentfulClients: MOCK_CONTENTFUL_CLIENTS,
   mockCustoms,
   mockDB,
   mockDevices,
@@ -223,6 +289,7 @@ module.exports = {
   mockLog: mockObject(LOG_METHOD_NAMES),
   mockMailer: mockObject(MAILER_METHOD_NAMES),
   mockMetricsContext,
+  mockPlans: MOCK_PLANS,
   mockPush,
   mockPushbox,
   mockRequest,

@@ -58,10 +58,10 @@ const CookiesDisabled = (_: RouteComponentProps) => {
         </Banner>
       )}
 
-      <FtlMsg id="cookies-disabled-enable-prompt">
+      <FtlMsg id="cookies-disabled-enable-prompt-2">
         <p className="text-sm">
-          Please enable cookies and local storage in your browser to access
-          Firefox accounts. Doing so will enable functionality such as
+          Please enable cookies and local storage in your browser to access your
+          Mozilla account. Doing so will enable functionality such as
           remembering you between sessions.
         </p>
       </FtlMsg>

@@ -6,7 +6,7 @@ subscriptionAccountFinishSetup-content-processing = "Your payment is processing 
 
 <%- include ('/partials/paymentPlanDetails/index.txt') %>
 
-subscriptionAccountFinishSetup-content-create-2 = "Next, you’ll create a Firefox account password to start using your new subscription."
+subscriptionAccountFinishSetup-content-create-3 = "Next, you’ll create a Mozilla account password to start using your new subscription."
 
 <%- link %>
 

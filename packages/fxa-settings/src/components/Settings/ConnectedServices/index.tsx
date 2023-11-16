@@ -404,14 +404,14 @@ export const ConnectedServices = () => {
                     Lost or stolen device disconnected
                   </h2>
                 </Localized>
-                <Localized id="cs-disconnect-lost-advice-content-2">
+                <Localized id="cs-disconnect-lost-advice-content-3">
                   <p
                     id="connected-services-advice-modal-description"
                     data-testid="lost-device-desc"
                     className="my-4 text-center"
                   >
                     Since your device was lost or stolen, to keep your
-                    information safe, you should change your Firefox account
+                    information safe, you should change your Mozilla account
                     password in your account settings. You should also look for
                     information from your device manufacturer about erasing your
                     data remotely.
@@ -429,14 +429,14 @@ export const ConnectedServices = () => {
                     Suspicious device disconnected
                   </h2>
                 </Localized>
-                <Localized id="cs-disconnect-suspicious-advice-content">
+                <Localized id="cs-disconnect-suspicious-advice-content-2">
                   <p
                     id="connected-services-advice-modal-description"
                     data-testid="suspicious-device-desc"
                     className="my-4 text-center"
                   >
                     If the disconnected device is indeed suspicious, to keep
-                    your information safe, you should change your Firefox
+                    your information safe, you should change your Mozilla
                     account password in your account settings. You should also
                     change any other passwords you saved in Firefox by typing
                     about:logins into the address bar.

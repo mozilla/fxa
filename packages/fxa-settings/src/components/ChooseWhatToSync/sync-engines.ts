@@ -7,19 +7,30 @@
  * - `checked` whether the item should be checked when CWTS opens.
  * - `id` of the engine, must be the name the browser uses.
  * - `text` to display when CWTS opens
- * - `test` if defined, function used to test whether CWTS is available
- *    for the given `userAgent`. Should return `true` or `false`
+ * - `include` if the engine should be included by default. This can be
+ *    updated later to become a function to conditionally include based
+ *    on something like user agent if needed.
  * - `ftlId` is the id for localization
  */
-export type Engine = {
+export type EngineConfig = {
   defaultChecked: boolean;
   id: string;
   text: string;
-  test?: () => boolean;
+  include?: false;
   ftlId: string;
 };
 
-export const engines: Engine[] = [
+export type WebChannelEngineConfig = EngineConfig & {
+  include: false;
+};
+
+/* These sync engines are always offered to the user in Sync Desktop and
+ * other engines can be received and added with a webchannel message.
+ *
+ * For Sync in mobile, we do not display options by default and instead,
+ * we receive the webchannel message and overwrite the options.
+ */
+export const defaultDesktopSyncEngineConfigs: EngineConfig[] = [
   {
     defaultChecked: true,
     id: 'bookmarks',
@@ -56,20 +67,32 @@ export const engines: Engine[] = [
     text: 'Preferences',
     ftlId: 'choose-what-to-sync-option-prefs',
   },
+];
+
+// These options will only be available if we receive a webchannel message
+// from the browser including them via `status.capabilities.engines`.
+export const webChannelDesktopEngineConfigs: WebChannelEngineConfig[] = [
   {
     defaultChecked: true,
     id: 'addresses',
-    // addresses will only be available via capabilities.
-    test: () => false,
     text: 'Addresses',
     ftlId: 'choose-what-to-sync-option-addresses',
+    include: false,
   },
   {
     defaultChecked: true,
     id: 'creditcards',
-    // credit cards will only be available via capabilities.
-    test: () => false,
     text: 'Credit Cards',
     ftlId: 'choose-what-to-sync-option-creditcards',
+    include: false,
   },
+];
+
+export const getSyncEngineIds = (syncEnginesConfigsToGet = syncEngineConfigs) =>
+  syncEnginesConfigsToGet.map((engine) => engine.id);
+
+// All available sync engines, for desktop and mobile
+export const syncEngineConfigs: EngineConfig[] = [
+  ...defaultDesktopSyncEngineConfigs,
+  ...webChannelDesktopEngineConfigs,
 ];

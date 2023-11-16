@@ -12,7 +12,6 @@ import Head from 'fxa-react/components/Head';
 import PageSettings from './PageSettings';
 import PageChangePassword from './PageChangePassword';
 import PageCreatePassword from './PageCreatePassword';
-import PageRecoveryKeyAdd from './PageRecoveryKeyAdd';
 import PageSecondaryEmailAdd from './PageSecondaryEmailAdd';
 import PageSecondaryEmailVerify from './PageSecondaryEmailVerify';
 import { PageDisplayName } from './PageDisplayName';
@@ -26,9 +25,7 @@ import PageAvatar from './PageAvatar';
 import PageRecentActivity from './PageRecentActivity';
 import PageRecoveryKeyCreate from './PageRecoveryKeyCreate';
 
-export const Settings = ({
-  showRecoveryKeyV2,
-}: { showRecoveryKeyV2?: boolean } & RouteComponentProps) => {
+export const Settings = (_: RouteComponentProps) => {
   const config = useConfig();
   const { metricsEnabled, hasPassword } = useAccount();
 
@@ -44,15 +41,13 @@ export const Settings = ({
 
   const { loading, error } = useInitialSettingsState();
 
-  // In case of an invalid token the page will redirect,
-  // but to prevent a flash of the error message we show
-  // the spinner.
-  if (loading || error?.message.includes('Invalid token')) {
+  if (loading) {
     return (
       <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
     );
   }
 
+  // This error check includes a network error
   if (error) {
     return <AppErrorDialog data-testid="error-dialog" {...{ error }} />;
   }
@@ -62,17 +57,11 @@ export const Settings = ({
       <Head />
       <Router basepath={HomePath}>
         <ScrollToTop default>
-          <PageSettings path="/" {...{ showRecoveryKeyV2 }} />
+          <PageSettings path="/" />
           <PageDisplayName path="/display_name" />
           <PageAvatar path="/avatar" />
           {hasPassword ? (
-            // TODO remove feature flag condition in FXA-7419 and only keep PageRecoveryKeyCreate
-            showRecoveryKeyV2 ? (
-              <PageRecoveryKeyCreate path="/account_recovery" />
-            ) : (
-              // TODO Remove in FXA-7419
-              <PageRecoveryKeyAdd path="/account_recovery" />
-            )
+            <PageRecoveryKeyCreate path="/account_recovery" />
           ) : (
             <Redirect from="/account_recovery" to="/settings" noThrow />
           )}

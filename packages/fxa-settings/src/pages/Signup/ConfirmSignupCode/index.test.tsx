@@ -7,42 +7,62 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import ConfirmSignupCode, { viewName } from '.';
+import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Account, AppContext } from '../../../models';
-import { MOCK_ACCOUNT, mockAppContext } from '../../../models/mocks';
-import { LocationProvider } from '@reach/router';
+import { mockAppContext } from '../../../models/mocks';
+import { MOCK_AUTH_ERROR, Subject } from './mocks';
+import { StoredAccountData } from '../../../lib/storage-utils';
+import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
+  logViewEventOnce: jest.fn(),
+  useMetrics: () => ({
+    usePageViewEvent: jest.fn(),
+    logViewEvent: jest.fn(),
+    logViewEventOnce: jest.fn(),
+  }),
 }));
-
-// TODO test for email received from params (if arriving from content-server) in FXA-8303
-const mockLocation = (mockNewsletterSlugs?: string[]) => {
-  return {
-    pathname: `/signup`,
-    state: {
-      email: MOCK_ACCOUNT.primaryEmail.email,
-    },
-  };
-};
 
 const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
-  useLocation: () => mockLocation(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: { signupConfirmation: { view: jest.fn(), submit: jest.fn() } },
+}));
+
+const MOCK_STORED_ACCOUNT: StoredAccountData = {
+  uid: MOCK_UID,
+  lastLogin: Date.now(),
+  email: MOCK_EMAIL,
+  sessionToken: MOCK_SESSION_TOKEN,
+  metricsEnabled: true,
+  verified: false,
+};
+
+jest.mock('../../../lib/cache', () => ({
+  ...jest.requireActual('../../../lib/cache'),
+  currentAccount: () => MOCK_STORED_ACCOUNT,
+}));
+
+jest.mock('../../../lib/storage-utils', () => ({
+  ...jest.requireActual('../../../lib/storage-utils'),
+  persistAccount: jest.fn(),
 }));
 
 let account: Account;
 
-function renderWithAccount(account: Account) {
+function renderWithAccount(account: Account, newsletterSlugs?: string[]) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ account })}>
-      <LocationProvider>
-        <ConfirmSignupCode />
-      </LocationProvider>
+      <Subject {...{ newsletterSlugs }} />
     </AppContext.Provider>
   );
 }
@@ -71,7 +91,7 @@ describe('ConfirmSignupCode page', () => {
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
-      'Enter confirmation code for your Firefox account'
+      'Enter confirmation code for your Mozilla account'
     );
     screen.getByLabelText('Enter 6-digit code');
 
@@ -82,6 +102,7 @@ describe('ConfirmSignupCode page', () => {
   it('emits a metrics event on render', async () => {
     renderWithAccount(account);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.signupConfirmation.view).toHaveBeenCalledTimes(1);
 
     //  Input field is autofocused on render and should emit an 'engage' event metric
     await waitFor(() => {
@@ -109,10 +130,11 @@ describe('ConfirmSignupCode page', () => {
         'verification.success',
         REACT_ENTRYPOINT
       );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
     });
   });
 
-  it('submits successfully', async () => {
+  it('submits successfully without newsletters', async () => {
     renderWithAccount(account);
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
@@ -124,16 +146,49 @@ describe('ConfirmSignupCode page', () => {
     fireEvent.click(submitButton);
     await waitFor(() => {
       expect(account.verifySession).toHaveBeenCalled();
-      // TODO add test for alertBar in FXA-8303
+      expect(logViewEvent).toHaveBeenCalledTimes(3);
+      expect(logViewEvent).not.toHaveBeenCalledWith(
+        'flow',
+        'newsletter.subscribed',
+        {
+          entrypoint_variation: 'react',
+        }
+      );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
     });
   });
 
-  // TODO: newsletters submission checks in FXA-8303
-  // it('on success with newsletters selected', () => {
-  // receive newsletter slugs in location state from signup
-  // check that those slugs are sent up
-  // })
+  it('submits successfully with newsletters', async () => {
+    // newsletter slugs are selected on the previous page
+    // and received via location state as an a array of strings
+    const mockNewsletterArray = ['mock-slug-1'];
+    renderWithAccount(account, mockNewsletterArray);
+    const mockCode = '123456';
+
+    const codeInput = screen.getByLabelText('Enter 6-digit code');
+    fireEvent.input(codeInput, {
+      target: { value: mockCode },
+    });
+
+    const submitButton = screen.getByRole('button', { name: 'Confirm' });
+    fireEvent.click(submitButton);
+    await waitFor(() => {
+      expect(account.verifySession).toHaveBeenCalledWith(mockCode, {
+        newsletters: mockNewsletterArray,
+      });
+      expect(logViewEvent).toHaveBeenCalledTimes(4);
+      expect(logViewEvent).toHaveBeenCalledWith(
+        'flow',
+        'newsletter.subscribed',
+        {
+          entrypoint_variation: 'react',
+        }
+      );
+      expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+    });
+  });
 });
 
 describe('ConfirmSignupCode page with error states', () => {
@@ -161,6 +216,7 @@ describe('ConfirmSignupCode page with error states', () => {
       expect(screen.getByTestId('tooltip')).toHaveTextContent(
         'Confirmation code is required'
       );
+      expect(GleanMetrics.signupConfirmation.submit).not.toHaveBeenCalled();
     });
   });
 
@@ -194,7 +250,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
 
   it('displays an error banner when unsuccessful', async () => {
     account = {
-      sendVerificationCode: jest.fn().mockRejectedValue(new Error()),
+      sendVerificationCode: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR),
     } as unknown as Account;
 
     renderWithAccount(account);
@@ -204,9 +260,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     });
     fireEvent.click(resendEmailButton);
     await waitFor(() => {
-      expect(
-        screen.getByText('Something went wrong. A new code could not be sent.')
-      ).toBeInTheDocument();
+      expect(screen.getByText('Unexpected error')).toBeInTheDocument();
     });
   });
 });

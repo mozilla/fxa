@@ -27,19 +27,19 @@ $s-10: 40px;
 .text {
   &-xs {
     font-size: 12px !important;
-    line-height: 18px !important;
+    line-height: 20px !important;
   }
   &-sm {
     font-size: 14px !important;
-    line-height: 20px !important;
+    line-height: 22px !important;
   }
   &-md {
     font-size: 16px !important;
-    line-height: 22px !important;
+    line-height: 24px !important;
   }
   &-lg {
     font-size: 18px !important;
-    line-height: 28px !important;
+    line-height: 26px !important;
   }
   &-xl {
     font-size: 20px !important;
@@ -51,7 +51,7 @@ $s-10: 40px;
   }
   &-3xl {
     font-size: 32px !important;
-    line-height: 26px !important;
+    line-height: 36px !important;
   }
 }
 
@@ -110,6 +110,11 @@ $s-10: 40px;
   }
 }
 
+.p {
+  &-4 {
+    padding: $s-4 !important;
+  }
+}
 // Global styles
 tbody > td:first-child,
 tr > td:first-child {
@@ -131,6 +136,25 @@ tr > td:first-child {
   @extend .font-sans;
 }
 
+%banner-common {
+  max-width: 640px !important;
+  width: 100% !important;
+  background: linear-gradient(88.76deg, #E4EAF6 3.37%, #DBEEF8 39.93%, #DAF3F4 65.09%, #E3F6ED 102.21%);
+  background-color: #DBEEF8;
+}
+
+%text-banner-common {
+  @extend %text-header-common;
+  @extend .text-xs;
+  @extend .p-4;
+  color: $black !important;
+  font-weight: 700 !important;
+}
+
+%link-banner-common {
+  color: $black !important;
+  text-decoration: underline !important;
+}
 .align-left div {
   text-align: left !important;
 }

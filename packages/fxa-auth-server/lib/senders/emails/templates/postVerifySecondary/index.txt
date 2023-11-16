@@ -1,6 +1,6 @@
 postVerifySecondary-title = "Secondary email added"
 
-postVerifySecondary-content-2 = "You have successfully confirmed <%- secondaryEmail %> as a secondary email for your Firefox account. Security notifications and sign-in confirmations will now be delivered to both email addresses."
+postVerifySecondary-content-3 = "You have successfully confirmed <%- secondaryEmail %> as a secondary email for your Mozilla account. Security notifications and sign-in confirmations will now be delivered to both email addresses."
 
 <%- include('/partials/manageAccount/index.txt') %>
 

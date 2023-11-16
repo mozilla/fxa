@@ -3,40 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps } from '@reach/router';
-import { Integration, useAuthClient } from '../../../models';
-import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { Integration } from '../../../models';
 import AccountRecoveryResetPassword from '.';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 
 const AccountRecoveryResetPasswordContainer = ({
   integration,
 }: {
   integration: Integration;
 } & RouteComponentProps) => {
-  const authClient = useAuthClient();
-  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
-    authClient,
-    integration
-  );
-
-  // TODO: UX for this, FXA-8106
-  if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
-  }
-
-  return (
-    <AccountRecoveryResetPassword
-      {...{ integration, finishOAuthFlowHandler }}
-    />
-  );
+  return <AccountRecoveryResetPassword {...{ integration }} />;
 };
 
 export default AccountRecoveryResetPasswordContainer;

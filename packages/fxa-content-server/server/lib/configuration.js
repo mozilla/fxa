@@ -11,8 +11,7 @@ const path = require('path');
 const versionInfo = require('./version');
 
 const { OAUTH_SCOPE_SUBSCRIPTIONS } = require('fxa-shared/oauth/constants');
-const DEFAULT_SUPPORTED_LANGUAGES =
-  require('fxa-shared').l10n.supportedLanguages;
+const DEFAULT_SUPPORTED_LANGUAGES = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -172,7 +171,7 @@ const conf = (module.exports = convict({
         format: String,
       },
       password: {
-        default: 'fxa123',
+        default: '',
         doc: 'Redis password',
         env: 'REDIS_PASSWORD',
         sensitive: true,
@@ -214,12 +213,6 @@ const conf = (module.exports = convict({
         env: 'FEATURE_FLAGS_REDIS_RETRY_COUNT',
         format: 'int',
       },
-    },
-    showRecoveryKeyV2: {
-      default: false,
-      doc: 'Enable users to see the new recovery key flow in settings',
-      format: Boolean,
-      env: 'FEATURE_FLAGS_SHOW_RECOVERY_KEY_V2',
     },
   },
   showReactApp: {
@@ -776,6 +769,12 @@ const conf = (module.exports = convict({
     default: 'source-map',
     doc: 'Type of source maps created. See https://webpack.js.org/configuration/devtool/',
     env: 'SOURCE_MAP_TYPE',
+    format: String,
+  },
+  webpackModeOverride: {
+    default: undefined,
+    doc: 'Tells webpack how to optimize build. See https://webpack.js.org/configuration/mode/',
+    env: 'WEBPACK_MODE_OVERRIDE',
     format: String,
   },
   statsd: {

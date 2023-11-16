@@ -11,6 +11,6 @@ export default {
 
 export const Basic = () => (
   <AppLayout>
-    <p>App contents go here</p>
+    <p>App content goes here</p>
   </AppLayout>
 );

@@ -13,6 +13,8 @@ external
 .env.development.local
 .env.test.local
 .env.production.local
+*.env
+
 .keys
 public-key.json
 secret-key.json
@@ -27,6 +29,7 @@ secrets.json
 **/version.json
 **/storybook-static
 *.sass-cache
+.nx/cache
 **/schema.gql
 *.map
 *.swp

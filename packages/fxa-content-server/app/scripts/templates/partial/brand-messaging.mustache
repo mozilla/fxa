@@ -1,48 +1,49 @@
 {{#showBanner}}
-<div id="banner-brand-message" class="w-full relative mobileLandscape:absolute mobileLandscape:top-0 mobileLandscape:left-0">
-    <div class="flex justify-center p-2 brand-banner-bg">
-        {{#showPrelaunch}}
-        <div class="flex"/>
-            <div class="flex-none relative">
-                <img
-                    class="w-8 h-8 bg-black m-4 mt-1"
-                    src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMC43NjkyMjYiIHk9IjAuNzY5MjI2IiB3aWR0aD0iMzAuNDYxNSIgaGVpZ2h0PSIzMC40NjE1IiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjcuNzMxNCAyMC41MDg0SDI5LjY0NDFWMjMuNjE1NEgyMy42MTIxVjE1LjI3NDVDMjMuNjEyMSAxMi42NTY3IDIyLjc3ODEgMTEuNjcyOCAyMS4xNTkyIDExLjY3MjhDMTkuMTk3MiAxMS42NzI4IDE4LjQxMjQgMTMuMTYwOSAxOC40MTI0IDE1LjIxMzlWMjAuNDQ5NkgyMC4zMjUxVjIzLjU2MDRIMTQuMzAwOFYxNS4yNjg5QzE0LjMwMDggMTIuNjUxIDEzLjQ2NjcgMTEuNjY3MSAxMS44NDc4IDExLjY2NzFDOS44ODU4MyAxMS42NjcxIDguNzg4MjUgMTMuMTU1MiA4Ljc4ODI1IDE1LjIwODJWMjAuNDQzOUgxMS44MzY0VjIzLjU2MDRIMy4wMTQxNFYyMC40NTM0SDQuODIyNThWMTIuMzU3MkgyLjkyNjk0VjguNjU0OThIOC4zNzY5VjEwLjk5NDJDOS41MDExOSA5LjMyNDQ0IDExLjM5OTMgOC4zNDMyMiAxMy40MTE3IDguMzkxNDlDMTUuNTIxNCA4LjI3NjQ3IDE3LjQzOTkgOS42MDg1NCAxOC4wNjkzIDExLjYyNTRDMTguNzQ2NyA5LjY0MzQ2IDIwLjYzNSA4LjMzMjg3IDIyLjcyODggOC4zOTE0OUMyNC4xMDE5IDguMzI4NzkgMjUuNDM1MSA4Ljg2MzI2IDI2LjM4NDYgOS44NTcxNkMyNy4zMzQyIDEwLjg1MTEgMjcuODA3MyAxMi4yMDcyIDI3LjY4MjEgMTMuNTc2MVYyMC41MDg0SDI3LjczMTRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
-                    alt="{{#t}}Mozilla m logo{{/t}}"
-                />
+<div class="hidden">
+    <div class="banner-brand-message w-full">
+        <div class="flex justify-center p-2 brand-banner-bg">
+            {{#showPrelaunch}}
+            <div class="flex ms-auto">
+                <div class="flex-none relative">
+                    <img
+                        class="w-8 h-8 bg-black m-4 mt-1"
+                        src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3QgeD0iMC43NjkyMjYiIHk9IjAuNzY5MjI2IiB3aWR0aD0iMzAuNDYxNSIgaGVpZ2h0PSIzMC40NjE1IiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMjcuNzMxNCAyMC41MDg0SDI5LjY0NDFWMjMuNjE1NEgyMy42MTIxVjE1LjI3NDVDMjMuNjEyMSAxMi42NTY3IDIyLjc3ODEgMTEuNjcyOCAyMS4xNTkyIDExLjY3MjhDMTkuMTk3MiAxMS42NzI4IDE4LjQxMjQgMTMuMTYwOSAxOC40MTI0IDE1LjIxMzlWMjAuNDQ5NkgyMC4zMjUxVjIzLjU2MDRIMTQuMzAwOFYxNS4yNjg5QzE0LjMwMDggMTIuNjUxIDEzLjQ2NjcgMTEuNjY3MSAxMS44NDc4IDExLjY2NzFDOS44ODU4MyAxMS42NjcxIDguNzg4MjUgMTMuMTU1MiA4Ljc4ODI1IDE1LjIwODJWMjAuNDQzOUgxMS44MzY0VjIzLjU2MDRIMy4wMTQxNFYyMC40NTM0SDQuODIyNThWMTIuMzU3MkgyLjkyNjk0VjguNjU0OThIOC4zNzY5VjEwLjk5NDJDOS41MDExOSA5LjMyNDQ0IDExLjM5OTMgOC4zNDMyMiAxMy40MTE3IDguMzkxNDlDMTUuNTIxNCA4LjI3NjQ3IDE3LjQzOTkgOS42MDg1NCAxOC4wNjkzIDExLjYyNTRDMTguNzQ2NyA5LjY0MzQ2IDIwLjYzNSA4LjMzMjg3IDIyLjcyODggOC4zOTE0OUMyNC4xMDE5IDguMzI4NzkgMjUuNDM1MSA4Ljg2MzI2IDI2LjM4NDYgOS44NTcxNkMyNy4zMzQyIDEwLjg1MTEgMjcuODA3MyAxMi4yMDcyIDI3LjY4MjEgMTMuNTc2MVYyMC41MDg0SDI3LjczMTRaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K"
+                        alt="{{#t}}Mozilla m logo{{/t}}"
+                    />
+                </div>
+                <div class="flex-initial max-w-md">
+                    <p class="text-start text-sm font-bold">
+                        {{#t}}Firefox accounts will be renamed Mozilla accounts on Nov 1{{/t}}
+                    </p>
+                    <p class="text-start text-xs">
+                        {{#t}}You’ll still sign in with the same username and password, and there are no other changes to the products that you use.{{/t}}
+                        <a href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts" target="_blank" class="brand-learn-more cursor-pointer underline hover:text-blue-900">{{#t}}Learn more{{/t}}</a>
+                    </p>
+                </div>
             </div>
-            <div class="flex-initial max-w-md">
-                <p class="text-start text-sm font-bold">
-                    {{#t}}Firefox accounts will be renamed Mozilla accounts on Nov 1{{/t}}
-                </p>
-                <p class="text-start text-xs">
-                    {{#t}}You’ll still sign in with the same username and password, and there are no other changes to the products that you use.{{/t}}
-                    <span role="link" tabindex="0" class="brand-learn-more cursor-pointer underline">{{#t}}Learn more{{/t}}</a>
-                </p>
+            {{/showPrelaunch}}
+            {{#showPostlaunch}}
+            <div class="flex ms-auto"/>
+                <div>
+                    <p class="text-start text-xs font-semibold">
+                        {{#t}}We’ve renamed Firefox accounts to Mozilla accounts. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.{{/t}}
+                        <a target="_blank" href="https://support.mozilla.org/kb/firefox-accounts-renamed-mozilla-accounts" class="brand-learn-more cursor-pointer underline hover:text-blue-900">{{#t}}Learn more{{/t}}</a>
+                    </p>
+                </div>
             </div>
-        </div>
-        {{/showPrelaunch}}
-        {{#showPostlaunch}}
-        <div className="flex"/>
-            <div>
-                <p class="text-sm font-bold">
-                    {{#t}}We’ve renamed Firefox accounts to Mozilla accounts. You’ll still sign in with the same username and password, and there are no other changes to the products that you use.{{/t}}
-                    <span role="link" tabindex="0" class="brand-learn-more cursor-pointer underline">{{#t}}Learn more{{/t}}</a>
-                </p>
+            {{/showPostlaunch}}
+            <div class="flex order-last m-4 mt-1 mb-1 ml-auto ms-auto">
+                <button
+                    class="close-brand-banner w-4 h-4"
+                    aria-label="{{#t}}Close Banner{{/t}}"
+                    >
+                    <img
+                        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+CiAgPGc+CiAgICA8cGF0aCBmaWxsPSJyZ2JhKDEyLCAxMiwgMTMsIC44KSIgZD0iTTkuNDE0IDhsNS4yOTMtNS4yOTNhMSAxIDAgMDAtMS40MTQtMS40MTRMOCA2LjU4NiAyLjcwNyAxLjI5M2ExIDEgMCAwMC0xLjQxNCAxLjQxNEw2LjU4NiA4bC01LjI5MyA1LjI5M2ExIDEgMCAxMDEuNDE0IDEuNDE0TDggOS40MTRsNS4yOTMgNS4yOTNhMSAxIDAgMDAxLjQxNC0xLjQxNHoiLz4KICA8L2c+Cjwvc3ZnPgo="
+                        class="cursor-pointer h-4 w-4"
+                        alt="{{#t}}Close Banner{{/t}}"
+                    />
+                </button>
             </div>
-        </div>
-        {{/showPostlaunch}}
-        <div class="flex justify-right order-last rtl:justify-left m-4 mt-1 mb-1">
-            <button
-                id="close-brand-banner"
-                class="w-4 h-4"
-                aria-label="{{#t}}Close Banner{{/t}}"
-                >
-                <img
-                    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiI+CiAgPGc+CiAgICA8cGF0aCBmaWxsPSJyZ2JhKDEyLCAxMiwgMTMsIC44KSIgZD0iTTkuNDE0IDhsNS4yOTMtNS4yOTNhMSAxIDAgMDAtMS40MTQtMS40MTRMOCA2LjU4NiAyLjcwNyAxLjI5M2ExIDEgMCAwMC0xLjQxNCAxLjQxNEw2LjU4NiA4bC01LjI5MyA1LjI5M2ExIDEgMCAxMDEuNDE0IDEuNDE0TDggOS40MTRsNS4yOTMgNS4yOTNhMSAxIDAgMDAxLjQxNC0xLjQxNHoiLz4KICA8L2c+Cjwvc3ZnPgo="
-                    class="cursor-pointer h-4 w-4"
-                    alt="{{#t}}Close Banner{{/t}}"
-                />
-            </button>
         </div>
     </div>
 </div>

@@ -40,7 +40,7 @@ describe('metrics/amplitude:', () => {
 
   it('exports an initialize method', () => {
     assert.isFunction(amplitude.initialize);
-    assert.lengthOf(amplitude.initialize, 3);
+    assert.lengthOf(amplitude.initialize, 5);
   });
 
   describe('initialize:', () => {

@@ -5,12 +5,11 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType } from '../../models';
+import { IntegrationType, isSyncDesktopIntegration } from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
 import {
   MOCK_REDIRECT_URI,
-  MOCK_SERVICE,
   MOCK_UID,
   MOCK_UNWRAP_BKEY,
   MOCK_AUTH_AT,
@@ -24,6 +23,7 @@ import {
   SignupIntegration,
   SignupOAuthIntegration,
 } from './interfaces';
+import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
 
 export const MOCK_SEARCH_PARAMS = {
   email: MOCK_EMAIL,
@@ -32,25 +32,25 @@ export const MOCK_SEARCH_PARAMS = {
 export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
     type: IntegrationType.Web,
-    getServiceName: () => Promise.resolve(MozServices.Default),
+    getService: () => Promise.resolve(MozServices.Default),
   };
 }
 
 export function createMockSignupSyncDesktopIntegration(): SignupBaseIntegration {
   return {
     type: IntegrationType.SyncDesktop,
-    getServiceName: () => Promise.resolve(MozServices.FirefoxSync),
+    getService: () => Promise.resolve(MozServices.FirefoxSync),
   };
 }
 
 export function createMockSignupOAuthIntegration(
-  serviceName = MOCK_SERVICE
+  clientId?: string
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuth,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
-    getServiceName: () => Promise.resolve(serviceName),
+    getService: () => clientId,
   };
 }
 
@@ -105,6 +105,9 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
+          isSync: isSyncDesktopIntegration(integration),
+          isSyncMobileWebChannel: false,
+          webChannelEngines: getSyncEngineIds(),
         }}
       />
     </LocationProvider>

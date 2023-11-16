@@ -52,8 +52,6 @@ export interface Config {
     count: number;
     length: number;
   };
-  // TODO Remove feature flag from config in FXA-7419
-  showRecoveryKeyV2: boolean;
   version: string;
   googleAuthConfig: {
     enabled: boolean;
@@ -68,6 +66,16 @@ export interface Config {
     authorizationEndpoint: string;
   };
   brandMessagingMode?: string;
+  glean: {
+    enabled: boolean;
+    applicationId: string;
+    uploadEnabled: boolean;
+    appDisplayVersion: string;
+    channel: string;
+    serverEndpoint: string;
+    logPings: boolean;
+    debugViewTag: string;
+  };
 }
 
 export function getDefault() {
@@ -112,8 +120,6 @@ export function getDefault() {
       count: 8,
       length: 10,
     },
-    // TODO Remove feature flag in FXA-7419
-    showRecoveryKeyV2: false,
     googleAuthConfig: {
       enabled: false,
       clientId: '',
@@ -127,6 +133,15 @@ export function getDefault() {
       authorizationEndpoint: '',
     },
     brandMessagingMode: 'prelaunch',
+    glean: {
+      enabled: false,
+      applicationId: 'accounts_frontend_dev',
+      uploadEnabled: false,
+      channel: 'development',
+      serverEndpoint: 'https://incoming.telemetry.mozilla.org',
+      logPings: false,
+      debugViewTag: '',
+    },
   } as Config;
 }
 
