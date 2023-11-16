@@ -4,9 +4,8 @@
 
 'use strict';
 
-const Joi = require('joi');
-const createBackendServiceAPI = require('./backendService');
-const { config } = require('../config');
+import axios from 'axios';
+import { config } from '../config';
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
     supportedLanguages: config.get('i18n').supportedLanguages,
@@ -14,174 +13,134 @@ const localizeTimestamp =
   });
 const serviceName = 'customs';
 
-module.exports = function (log, error, statsd) {
-  const CustomsAPI = createBackendServiceAPI(
-    log,
-    config,
-    serviceName,
-    {
-      check: {
-        path: '/check',
-        method: 'POST',
-        validate: {
-          payload: {
-            email: Joi.string().required(),
-            ip: Joi.string().required(),
-            action: Joi.string().required(),
-            headers: Joi.object().optional(),
-            query: Joi.object().optional(),
-            payload: Joi.object().optional(),
-          },
-          response: {
-            block: Joi.boolean().required(),
-            blockReason: Joi.string().optional(),
-            suspect: Joi.boolean().optional(),
-            unblock: Joi.boolean().optional(),
-            retryAfter: Joi.number().optional(),
-          },
-        },
-      },
+class CustomsClient {
+  constructor(url, log, error, statsd) {
+    this.log = log;
+    this.error = error;
+    this.statsd = statsd;
+    if (url !== 'none') {
+      this.axiosInstance = axios.create({ baseURL: url });
+    }
+  }
 
-      checkAuthenticated: {
-        path: '/checkAuthenticated',
-        method: 'POST',
-        validate: {
-          payload: {
-            ip: Joi.string().required(),
-            action: Joi.string().required(),
-            uid: Joi.string().required(),
-          },
-          response: {
-            block: Joi.boolean().required(),
-            blockReason: Joi.string().optional(),
-            retryAfter: Joi.number().optional(),
-          },
-        },
-      },
+  async makeRequest(endpoint, requestData) {
+    if (!this.axiosInstance) {
+      return;
+    }
 
-      checkIpOnly: {
-        path: '/checkIpOnly',
-        method: 'POST',
-        validate: {
-          payload: {
-            ip: Joi.string().required(),
-            action: Joi.string().required(),
-          },
-          response: {
-            block: Joi.boolean().required(),
-            blockReason: Joi.string().optional(),
-            suspect: Joi.boolean().optional(),
-            unblock: Joi.boolean().optional(),
-            retryAfter: Joi.number().optional(),
-          },
-        },
-      },
+    try {
+      const response = await this.axiosInstance.post(endpoint, requestData);
+      return response.data;
+    } catch (err) {
+      if (err.errno > -1 || (err.statusCode && err.statusCode < 500)) {
+        throw err;
+      } else {
+        throw this.error.backendServiceFailure(
+          serviceName,
+          'POST',
+          { method: 'POST', path: endpoint },
+          err
+        );
+      }
+    }
+  }
 
-      failedLoginAttempt: {
-        path: '/failedLoginAttempt',
-        method: 'POST',
-        validate: {
-          payload: {
-            email: Joi.string().required(),
-            ip: Joi.string().required(),
-            errno: Joi.number().required(),
-          },
-          response: {},
-        },
-      },
+  async check(request, email, action) {
+    const result = await this.makeRequest('/check', {
+      ...this.sanitizePayload({
+        ip: request.app.clientAddress,
+        email,
+        action,
 
-      passwordReset: {
-        path: '/passwordReset',
-        method: 'POST',
-        validate: {
-          payload: {
-            email: Joi.string().required(),
-          },
-          response: {},
-        },
-      },
-    },
-    statsd
-  );
+        // Payload in this case is additional user related data (ie phone number)
+        payload: this.sanitizePayload(request.payload),
 
-  // Perform a deep clone of payload and remove user password.
-  function sanitizePayload(payload) {
+        // Headers and query params are used only in the `check` endpoint to
+        // verify request is from a real user
+        query: request.query,
+        headers: request.headers,
+      }),
+    });
+
+    this.optionallyReportStatsD('request.check', action, result);
+    return this.handleCustomsResult(request, result);
+  }
+
+  async checkAuthenticated(request, uid, action) {
+    const result = await this.makeRequest('/checkAuthenticated', {
+      ...this.sanitizePayload({
+        action,
+        ip: request.app.clientAddress,
+        uid,
+      }),
+    });
+
+    this.optionallyReportStatsD('request.checkAuthenticated', action, result);
+    return this.handleCustomsResult(request, result);
+  }
+
+  async checkIpOnly(request, action) {
+    const result = await this.makeRequest('/checkIpOnly', {
+      ...this.sanitizePayload({
+        action,
+        ip: request.app.clientAddress,
+      }),
+    });
+
+    this.optionallyReportStatsD('request.checkIpOnly', action, result);
+    return this.handleCustomsResult(request, result);
+  }
+
+  async flag(ip, info) {
+    await this.makeRequest('/failedLoginAttempt', {
+      ...this.sanitizePayload({
+        ip,
+        email: info.email,
+        errno: info.errno || this.error.ERRNO.UNEXPECTED_ERROR,
+      }),
+    });
+  }
+
+  async reset(email) {
+    await this.makeRequest('/passwordReset', {
+      ...this.sanitizePayload({ email }),
+    });
+  }
+
+  /**
+   * Remove sensitive fields from the payload before sending to customs.
+   *
+   * @param payload
+   * @return {*}
+   */
+  sanitizePayload(payload) {
     if (!payload) {
       return;
     }
 
-    const clonePayload = Object.assign({}, payload);
-
+    const clonePayload = { ...payload };
     const fieldsToOmit = ['authPW', 'oldAuthPW', 'paymentToken'];
-    for (const name of fieldsToOmit) {
-      if (clonePayload[name]) {
-        delete clonePayload[name];
-      }
-    }
+    fieldsToOmit.forEach((name) => delete clonePayload[name]);
 
     return clonePayload;
   }
 
-  function Customs(url) {
-    if (url === 'none') {
-      const noblock = async function () {
-        return { block: false };
-      };
-      const noop = async function () {};
-      this.api = {
-        check: noblock,
-        checkAuthenticated: noblock,
-        checkIpOnly: noblock,
-        failedLoginAttempt: noop,
-        passwordReset: noop,
-        close: noop,
-      };
-    } else {
-      this.api = new CustomsAPI(url, { timeout: 3000 });
+  optionallyReportStatsD(name, action, options) {
+    if (!options) {
+      return;
+    }
+
+    if (this.statsd) {
+      const tags = { action, block: options.block, ...options };
+      this.statsd.increment(`${serviceName}.${name}`, tags);
     }
   }
 
-  Customs.prototype.check = async function (request, email, action) {
-    const result = await this.api.check({
-      ip: request.app.clientAddress,
-      email: email,
-      action: action,
-      headers: request.headers,
-      query: request.query,
-      payload: sanitizePayload(request.payload),
-    });
-
-    optionallyReportStatsD('request.check', action, result);
-
-    return handleCustomsResult(request, result);
-  };
-
-  function optionallyReportStatsD(name, action, options = {}) {
-    if (statsd) {
-      const { block, unblock, suspect, blockReason } = options;
-
-      // The action and block values will always be reported, all others are optional
-      const tags = { action, block };
-
-      if (options.unblock !== undefined) {
-        tags['unblock'] = unblock;
-      }
-
-      if (options.suspect !== undefined) {
-        tags['suspect'] = suspect;
-      }
-
-      if (options.blockReason !== undefined) {
-        tags['blockReason'] = blockReason;
-      }
-
-      statsd.increment(`${serviceName}.${name}`, tags);
+  handleCustomsResult(request, result) {
+    if (!result) {
+      return;
     }
-  }
 
-  // Annotate the request and/or throw an error
-  // based on the check result returned by customs-server.
-  function handleCustomsResult(request, result) {
     if (result.suspect) {
       request.app.isSuspiciousRequest = true;
     }
@@ -189,7 +148,6 @@ module.exports = function (log, error, statsd) {
     if (result.block) {
       // Log a flow event that the user got blocked.
       request.emitMetricsEvent('customs.blocked');
-
       const unblock = !!result.unblock;
 
       if (result.retryAfter) {
@@ -200,61 +158,16 @@ module.exports = function (log, error, statsd) {
           request.headers['accept-language']
         );
 
-        throw error.tooManyRequests(
+        throw this.error.tooManyRequests(
           result.retryAfter,
           retryAfterLocalized,
           unblock
         );
       }
 
-      throw error.requestBlocked(unblock);
+      throw this.error.requestBlocked(unblock);
     }
   }
+}
 
-  Customs.prototype.checkAuthenticated = async function (request, uid, action) {
-    const result = await this.api.checkAuthenticated({
-      action: action,
-      ip: request.app.clientAddress,
-      uid: uid,
-    });
-
-    optionallyReportStatsD('request.checkAuthenticated', action, result);
-
-    return handleCustomsResult(request, result);
-  };
-
-  Customs.prototype.checkIpOnly = async function (request, action) {
-    const result = await this.api.checkIpOnly({
-      ip: request.app.clientAddress,
-      action: action,
-    });
-
-    optionallyReportStatsD('request.checkIpOnly', action, result);
-
-    return handleCustomsResult(request, result);
-  };
-
-  Customs.prototype.flag = async function (ip, info) {
-    const email = info.email;
-    const errno = info.errno || error.ERRNO.UNEXPECTED_ERROR;
-    // There's no useful information in the HTTP response, ignore it.
-    await this.api.failedLoginAttempt({
-      ip: ip,
-      email: email,
-      errno: errno,
-    });
-  };
-
-  Customs.prototype.reset = async function (email) {
-    // There's no useful information in the HTTP response, ignore it.
-    await this.api.passwordReset({
-      email: email,
-    });
-  };
-
-  Customs.prototype.close = function () {
-    return this.api.close();
-  };
-
-  return Customs;
-};
+module.exports = CustomsClient;

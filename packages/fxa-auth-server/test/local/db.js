@@ -34,21 +34,12 @@ describe('db, session tokens expire:', () => {
     sessionTokenWithoutDevice: 2419200000,
   };
 
-  let results, pool, log, tokens, db;
+  let log, tokens, db;
 
   beforeEach(() => {
-    results = {};
-    pool = {
-      get: sinon.spy(() => Promise.resolve(results.pool)),
-      post: sinon.spy(() => Promise.resolve()),
-      put: sinon.spy(() => Promise.resolve()),
-    };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      '../pool': function () {
-        return pool;
-      },
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     })(
@@ -103,21 +94,12 @@ describe('db, session tokens do not expire:', () => {
     sessionTokenWithoutDevice: 0,
   };
 
-  let results, pool, log, tokens, db;
+  let log, tokens, db;
 
   beforeEach(() => {
-    results = {};
-    pool = {
-      get: sinon.spy(() => Promise.resolve(results.pool)),
-      post: sinon.spy(() => Promise.resolve()),
-      put: sinon.spy(() => Promise.resolve()),
-    };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      '../pool': function () {
-        return pool;
-      },
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
     })(
@@ -172,22 +154,12 @@ describe('db with redis disabled:', () => {
     sessionTokenWithoutDevice: 2419200000,
   };
 
-  let results, pool, log, tokens, db;
+  let log, tokens, db;
 
   beforeEach(() => {
-    results = {};
-    pool = {
-      get: sinon.spy(() => Promise.resolve(results.pool)),
-      post: sinon.spy(() => Promise.resolve()),
-      del: sinon.spy(() => Promise.resolve()),
-      put: sinon.spy(() => Promise.resolve()),
-    };
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      '../pool': function () {
-        return pool;
-      },
       '../redis': () => {},
       'fxa-shared/db': { setupAuthDatabase: () => {} },
       'fxa-shared/db/models/auth': models,
@@ -209,19 +181,11 @@ describe('db with redis disabled:', () => {
   });
 
   it('db.touchSessionToken succeeds without a redis instance', () => {
-    return db.touchSessionToken({ id: 'foo', uid: 'bar' }).then(() => {
-      assert.equal(pool.get.callCount, 0);
-      assert.equal(pool.post.callCount, 0);
-    });
+    return db.touchSessionToken({ id: 'foo', uid: 'bar' });
   });
 
   it('db.pruneSessionTokens succeeds without a redis instance', () => {
-    return db
-      .pruneSessionTokens('foo', [{ id: 'bar', createdAt: 1 }])
-      .then(() => {
-        assert.equal(pool.get.callCount, 0);
-        assert.equal(pool.post.callCount, 0);
-      });
+    return db.pruneSessionTokens('foo', [{ id: 'bar', createdAt: 1 }]);
   });
 });
 
@@ -235,15 +199,9 @@ describe('redis enabled, token-pruning enabled:', () => {
     codeMaxAge: 1000 * 60 * 60 * 24 * 72,
   };
 
-  let pool, redis, log, tokens, db;
+  let redis, log, tokens, db;
 
   beforeEach(() => {
-    pool = {
-      get: sinon.spy(() => Promise.resolve([])),
-      post: sinon.spy(() => Promise.resolve()),
-      del: sinon.spy(() => Promise.resolve()),
-      put: sinon.spy(() => Promise.resolve()),
-    };
     redis = {
       get: sinon.spy(() => Promise.resolve('{}')),
       set: sinon.spy(() => Promise.resolve()),
@@ -255,9 +213,6 @@ describe('redis enabled, token-pruning enabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      '../pool': function () {
-        return pool;
-      },
       '../redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
@@ -414,7 +369,6 @@ describe('redis enabled, token-pruning enabled:', () => {
   });
 
   it('should call redis.pruneSessionTokens in db.deleteDevice', () => {
-    pool.del = sinon.spy(() => Promise.resolve({}));
     return db.deleteDevice('wibble', 'blee').then(() => {
       assert.equal(redis.pruneSessionTokens.callCount, 1);
       assert.equal(redis.pruneSessionTokens.args[0].length, 2);
@@ -489,14 +443,9 @@ describe('redis enabled, token-pruning disabled:', () => {
     sessionTokenWithoutDevice: 2419200000,
   };
 
-  let pool, redis, log, tokens, db;
+  let redis, log, tokens, db;
 
   beforeEach(() => {
-    pool = {
-      get: sinon.spy(() => Promise.resolve([])),
-      post: sinon.spy(() => Promise.resolve()),
-      del: sinon.spy(() => Promise.resolve()),
-    };
     redis = {
       get: sinon.spy(() => Promise.resolve('{}')),
       set: sinon.spy(() => Promise.resolve()),
@@ -506,9 +455,6 @@ describe('redis enabled, token-pruning disabled:', () => {
     log = mocks.mockLog();
     tokens = require(`${LIB_DIR}/tokens`)(log, { tokenLifetimes });
     const DB = proxyquire(`${LIB_DIR}/db`, {
-      '../pool': function () {
-        return pool;
-      },
       '../redis': (...args) => {
         assert.equal(args.length, 2, 'redisPool was passed two arguments');
         assert.equal(args[0].foo, 'bar', 'redisPool was passed config');
