@@ -24,11 +24,12 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "paths": {
-      "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
+      "@fxa/apps/payments/nest": ["apps/payments/nest/src/main.ts"],
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
+      "@fxa/payments/stripe": ["libs/payments/stripe/src/index.ts"],
       "@fxa/payments/ui": ["libs/payments/ui/src/index.ts"],
       "@fxa/payments/ui/server": ["libs/payments/ui/src/server.ts"],
       "@fxa/shared/account/account": [
@@ -43,7 +44,8 @@
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
-      "@fxa/shared/styles/*": ["libs/shared/styles/src/lib/*"]
+      "@fxa/shared/nestjs/health": ["libs/shared/nestjs/health/src/index.ts"],
+      "@fxa/shared/styles/*": ["libs/shared/styles/src/lib/*"],
     },
     "typeRoots": [
       "./types",

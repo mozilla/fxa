@@ -9,21 +9,34 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/payments/next",
-        "postcssConfig": "apps/payments/next/postcss.config.js"
+        "outputPath": "dist/apps/"
       },
       "configurations": {
         "development": {
           "outputPath": "apps/payments/next"
         },
+        "production": {}
+      },
+      "dependsOn": ["build-custom-server"]
+    },
+    "build-custom-server": {
+      "executor": "@nx/webpack:webpack",
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/payments/next",
+        "main": "apps/payments/next/server.ts",
+        "tsConfig": "apps/payments/next/tsconfig.server.json",
+        "maxWorkers": 2,
+        "assets": [],
+        "compiler": "tsc",
+        "target": "node"
+      },
+      "configurations": {
+        "development": {},
         "production": {
-          "assets": [
-            {
-              "input": "apps/payments/next",
-              "glob": ".env.production.json",
-              "output": "./../"
-            }
-          ]
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false
         }
       }
     },
@@ -33,17 +46,33 @@
       "options": {
         "buildTarget": "payments-next:build",
         "dev": true,
-        "port": 3035,
-        "postcssConfig": "apps/payments/next/postcss.config.js"
+        "customServerTarget": "payments-next:serve-custom-server"
       },
       "configurations": {
         "development": {
           "buildTarget": "payments-next:build:development",
-          "dev": true
+          "dev": true,
+          "customServerTarget": "payments-next:serve-custom-server:development"
         },
         "production": {
           "buildTarget": "payments-next:build:production",
-          "dev": false
+          "dev": false,
+          "customServerTarget": "payments-next:serve-custom-server:production"
+        }
+      }
+    },
+    "serve-custom-server": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "payments-next:build-custom-server"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "payments-next:build-custom-server:development"
+        },
+        "production": {
+          "buildTarget": "payments-next:build-custom-server:production"
         }
       }
     },

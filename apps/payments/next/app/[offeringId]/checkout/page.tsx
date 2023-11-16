@@ -1,7 +1,7 @@
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 
 import { getCartData, getContentfulContent } from '../../_lib/apiClient';
-import { app } from '../../_nestapp/app';
+import { CartService } from '@fxa/payments/cart';
 
 interface CheckoutParams {
   offeringId: string;
@@ -21,12 +21,20 @@ export default async function Index({ params }: { params: CheckoutParams }) {
   const contentfulData = getContentfulContent(params.offeringId, locale);
   const cartData = getCartData(cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const cartService = await app.getCartService();
+
+  const cartService = (global as any).appServices.cartService as CartService;
+  const newCart = await cartService.setupCart({
+    interval: 'daily',
+    offeringConfigId: 'testId',
+  });
 
   return (
     <>
-      <h1 className="page-title-container">Under Construction</h1>
+      <h1 className="page-title-container">
+        Under Construction
+        <br />
+        Cart id: {newCart.id}
+      </h1>
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
           interval={cart.interval}

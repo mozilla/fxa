@@ -6,6 +6,7 @@
 /pm2
 /dump.rdb
 external
+.nx/*
 
 # Secrets
 .env

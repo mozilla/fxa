@@ -1,0 +1,57 @@
+{
+  "name": "payments-nest",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/payments/nest/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/payments/nest",
+        "main": "apps/payments/nest/src/main.ts",
+        "tsConfig": "apps/payments/nest/tsconfig.app.json",
+        "assets": ["apps/payments/nest/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/payments/nest/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "payments-nest:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "payments-nest:build:development"
+        },
+        "production": {
+          "buildTarget": "payments-nest:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/payments/nest/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/payments/nest/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
