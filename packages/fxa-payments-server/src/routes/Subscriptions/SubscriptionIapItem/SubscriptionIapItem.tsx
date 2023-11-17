@@ -63,7 +63,7 @@ const GooglePlaySubscriptionIapItem = (
         </header>
         <div className={'with-settings-button'}>
           <div className="iap-details" data-testid="iap-details">
-            <Localized id={'sub-iap-item-google-purchase'}>
+            <Localized id={'sub-iap-item-google-purchase-2'}>
               <div className="iap-type">Google: In-App purchase</div>
             </Localized>
             {auto_renewing ? (
@@ -118,7 +118,7 @@ const AppleSubscriptionIapItem = (
         </header>
         <div className={'with-settings-button'}>
           <div className="iap-details" data-testid="iap-details">
-            <Localized id={'sub-iap-item-apple-purchase'}>
+            <Localized id={'sub-iap-item-apple-purchase-2'}>
               <div className="iap-type">Apple: In-App purchase</div>
             </Localized>
             {!!expiry_time_millis &&

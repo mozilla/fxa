@@ -415,7 +415,7 @@ export const Subscriptions = ({
               </div>
               <div>
                 <p id="pocket-external" data-testid="manage-pocket-title">
-                  <Localized id="manage-pocket-title">
+                  <Localized id="manage-pocket-title-2">
                     <b>Looking for your Pocket Premium subscription?</b>
                   </Localized>
                 </p>
@@ -524,7 +524,7 @@ const CancellationDialogMessage = ({
         </p>
       </Localized>
       <Localized
-        id="sub-route-idx-cancel-aside"
+        id="sub-route-idx-cancel-aside-2"
         vars={{ url: supportFormUrl }}
         elems={{ a: <a href={supportFormUrl}>Mozilla Support</a> }}
       >

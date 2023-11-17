@@ -1,3 +1,3 @@
 ## Component - PayPalButton
 
-pay-with-heading-paypal = Pay with { -brand-name-paypal }
+pay-with-heading-paypal-2 = Pay with { -brand-paypal }

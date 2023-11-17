@@ -10,8 +10,8 @@ sub-route-idx-cancel-msg =
     Your { $name } subscription has been cancelled.
           <br />
           You will still have access to { $name } until { $date }.
-sub-route-idx-cancel-aside =
-    Have questions? Visit <a>{ -brand-name-mozilla } Support</a>.
+sub-route-idx-cancel-aside-2 =
+    Have questions? Visit <a>{ -brand-mozilla } Support</a>.
 
 ## Routes - Subscriptions - Errors
 
@@ -44,7 +44,7 @@ sub-expires-on = Expires on { $date }
 pay-update-card-exp = Expires { $expirationDate }
 sub-route-idx-updating = Updating billing information…
 sub-route-payment-modal-heading = Invalid billing information
-sub-route-payment-modal-message = There seems to be an error with your { -brand-name-paypal } account, we need you to take the necessary steps to resolve this payment issue.
+sub-route-payment-modal-message-2 = There seems to be an error with your { -brand-paypal } account, we need you to take the necessary steps to resolve this payment issue.
 sub-route-missing-billing-agreement-payment-alert = Invalid payment information; there is an error with your account. <div>Manage</div>
 sub-route-funding-source-payment-alert = Invalid payment information; there is an error with your account. This alert may take some time to clear after you successfully update your information. <div>Manage</div>
 
@@ -58,5 +58,5 @@ sub-invoice-preview-error-text = Invoice preview not found for this subscription
 
 ## Routes - Subscriptions - Pocket Subscription
 
-manage-pocket-title = Looking for your { -brand-name-pocket } premium subscription?
+manage-pocket-title-2 = Looking for your { -product-pocket } premium subscription?
 manage-pocket-body-2 = To manage it, <linkExternal>click here</linkExternal>.
