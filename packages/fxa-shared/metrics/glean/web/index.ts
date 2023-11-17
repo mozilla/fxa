@@ -43,6 +43,7 @@ export const eventsMap = {
     submit: 'login_submit',
     success: 'login_submit_success',
     error: 'login_submit_frontend_error',
+    forgotPassword: 'login_forgot_pwd_submit',
   },
 
   loginConfirmation: {
