@@ -415,10 +415,9 @@ describe('DirectStripeRoutes', () => {
       },
     };
     mockCapabilityService.getPlanEligibility = sinon.stub();
-    mockCapabilityService.getPlanEligibility.resolves([
-      SubscriptionEligibilityResult.CREATE,
-      undefined,
-    ]);
+    mockCapabilityService.getPlanEligibility.resolves({
+      subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
+    });
     mockCapabilityService.getClients = sinon.stub();
     mockCapabilityService.getClients.resolves(mockContentfulClients);
     Container.set(CapabilityService, mockCapabilityService);
@@ -1971,10 +1970,10 @@ describe('DirectStripeRoutes', () => {
       VALID_REQUEST.params = { subscriptionId: subscriptionId };
 
       mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves([
-        SubscriptionEligibilityResult.UPGRADE,
-        plan.id,
-      ]);
+      mockCapabilityService.getPlanEligibility.resolves({
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+        eligibleSourcePlan: subscription2,
+      });
 
       directStripeRoutesInstance.stripeHelper.changeSubscriptionPlan.resolves();
 
@@ -2010,10 +2009,9 @@ describe('DirectStripeRoutes', () => {
       directStripeRoutesInstance.stripeHelper.findAbbrevPlanById.resolves(plan);
 
       mockCapabilityService.getPlanEligibility = sinon.stub();
-      mockCapabilityService.getPlanEligibility.resolves([
-        SubscriptionEligibilityResult.UPGRADE,
-        plan.id,
-      ]);
+      mockCapabilityService.getPlanEligibility.resolves({
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+      });
 
       try {
         await directStripeRoutesInstance.updateSubscription(VALID_REQUEST);
