@@ -3,6 +3,7 @@ import next from 'next';
 import { CartService } from '@fxa/payments/cart';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { LoggingModule, monkeyPatchServerLogging } from '@fxa/shared/log';
 
 import { AppModule } from './app/app.module';
 
@@ -42,10 +43,14 @@ const setupNextAppMiddleware = async (appDir: string) => {
 };
 
 export const bootstrap = async (options: BootstrapOptions) => {
-  const app = await NestFactory.create(AppModule);
+  monkeyPatchServerLogging();
+  const app = await NestFactory.create(AppModule, {
+    logger: LoggingModule.createLogger(),
+  });
   (global as any).appServices = {
     cartService: app.get<CartService>(CartService),
   };
+
   app.use(await setupNextAppMiddleware(options.appDir));
   const port = options.port ?? process.env.PORT ?? 3000;
   await app.listen(port);

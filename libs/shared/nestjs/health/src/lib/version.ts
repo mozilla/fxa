@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import cp from 'child_process';
 import findUp from 'find-up';
+import { readFileSync } from 'fs';
 
 function readJson(filepath: string): Record<string, any> | undefined {
   try {
-    return require(filepath);
+    return JSON.parse(readFileSync(filepath, 'utf8'));
   } catch (e) {
     /* ignore */
   }

@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Controller, Get, Inject } from '@nestjs/common';
 
-import { Version } from './version';
 import { HEALTH_CONFIG } from './health.constants';
-import { HealthControllerConfigParams } from './health.module';
+
+import type { Version } from './version';
+import type { HealthControllerConfigParams } from './health.module';
 
 let lastTrigger = Date.now() - 60_000;
 

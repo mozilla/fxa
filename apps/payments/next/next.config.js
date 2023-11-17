@@ -14,6 +14,8 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: [
+      '@fxa/apps/payments/nest',
+      '@fxa/shared/nestjs/health',
       '@fxa/shared/db/mysql/account',
       '@fxa/shared/db/mysql/core',
       '@fxa/payments/cart',

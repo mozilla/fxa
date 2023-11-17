@@ -6,6 +6,7 @@ import { dotenvLoader, fileLoader, TypedConfigModule } from 'nest-typed-config';
 import { CartManager, CartService } from '@fxa/payments/cart';
 import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { getVersionInfo, HealthModule } from '@fxa/shared/nestjs/health';
+import { LoggingModule } from '@fxa/shared/log';
 import { Module } from '@nestjs/common';
 
 import { AppController } from './app.controller';
@@ -23,6 +24,7 @@ const version = getVersionInfo(__dirname);
         version,
       }),
     }),
+    LoggingModule,
     TypedConfigModule.forRoot({
       schema: RootConfig,
       load: [

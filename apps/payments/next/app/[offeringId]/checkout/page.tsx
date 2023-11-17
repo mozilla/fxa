@@ -1,7 +1,7 @@
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 
 import { getCartData, getContentfulContent } from '../../_lib/apiClient';
-import { CartService } from '@fxa/payments/cart';
+import { appServices } from '../../_lib/appServices';
 
 interface CheckoutParams {
   offeringId: string;
@@ -22,8 +22,7 @@ export default async function Index({ params }: { params: CheckoutParams }) {
   const cartData = getCartData(cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
 
-  const cartService = (global as any).appServices.cartService as CartService;
-  const newCart = await cartService.setupCart({
+  const newCart = await appServices.cartService.setupCart({
     interval: 'daily',
     offeringConfigId: 'testId',
   });
