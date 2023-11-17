@@ -77,6 +77,7 @@ import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-pu
 import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
+import { ContentfulManager } from '@fxa/shared/contentful';
 
 // Maintains backwards compatibility. Some type defs hoisted to fxa-shared/payments/stripe
 export * from 'fxa-shared/payments/stripe';
@@ -164,6 +165,7 @@ export class StripeHelper extends StripeHelperBase {
   protected override readonly stripeFirestore: StripeFirestore;
   protected override readonly paymentConfigManager?: PaymentConfigManager;
   protected override readonly redis?: ioredis.Redis;
+  protected override readonly contentfulManager?: ContentfulManager | undefined;
 
   // Note that this isn't quite accurate, as the auth-server logger has some extras
   // attached to it in Hapi.
@@ -230,6 +232,7 @@ export class StripeHelper extends StripeHelperBase {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
+    this.contentfulManager = Container.get(ContentfulManager);
 
     // Initializes caching
     this.initRedis();

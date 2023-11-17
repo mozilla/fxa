@@ -226,6 +226,9 @@ describe('subscriptions stripeRoutes', () => {
         email: `${TEST_EMAIL}`,
       },
     },
+    headers: {
+      'accept-language': 'en',
+    },
   };
 
   describe('Plans', () => {

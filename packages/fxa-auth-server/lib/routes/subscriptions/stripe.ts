@@ -251,7 +251,9 @@ export class StripeHandler {
 
   async listPlans(request: AuthRequest) {
     this.log.begin('subscriptions.listPlans', request);
-    const plans = await this.stripeHelper.allAbbrevPlans();
+    const plans = await this.stripeHelper.allAbbrevPlans(
+      request?.headers?.['accept-language']
+    );
     return sanitizePlans(plans);
   }
 

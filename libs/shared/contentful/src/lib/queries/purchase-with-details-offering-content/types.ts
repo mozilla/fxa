@@ -22,8 +22,8 @@ export interface OfferingCommonContentResult {
   emailIcon: string | null;
   successActionButtonUrl: string;
   successActionButtonLabel: string;
-  newsletterLabelTextCode: string;
-  newsletterSlug: string[];
+  newsletterLabelTextCode: string | null;
+  newsletterSlug: string[] | null;
 }
 
 export interface PurchaseOfferingResult {
