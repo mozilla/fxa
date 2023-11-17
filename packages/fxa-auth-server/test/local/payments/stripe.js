@@ -175,6 +175,9 @@ function createMockRedis() {
       this.redis = this;
       return this;
     },
+    info() {
+      return 'mock\nredis';
+    },
     async set(key, value, opt, ttl) {
       _data[key] = value;
     },
@@ -186,6 +189,7 @@ function createMockRedis() {
     },
   };
   Object.keys(mock).forEach((key) => sinon.spy(mock, key));
+  mock.options = {};
   return mock;
 }
 
