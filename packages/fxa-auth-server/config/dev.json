@@ -198,7 +198,7 @@
       },
       {
         "id": "dcdb5ae7add825d2",
-        "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
+        "hashedSecret": "197b8d352055a897ab3dfa7328088693b9791fec243939f82e1ccaa6795e95df",
         "name": "123Done",
         "imageUri": "https://mozorg.cdn.mozilla.net/media/img/firefox/new/header-firefox.png",
         "redirectUri": "http://localhost:8080/api/oauth",
