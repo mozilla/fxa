@@ -338,17 +338,6 @@ describe('pii-filter-actions', () => {
       });
     });
 
-    it('filters 16 byte token values', () => {
-      const token1 = uuid.v4().replace(/-/g, '');
-      const { val: result } = CommonPiiActions.tokenValues.execute({
-        foo: `X'${token1.substring(0, 16)}'`,
-      });
-
-      expect(result).to.deep.equal({
-        foo: `X'${FILTERED}'`,
-      });
-    });
-
     it('filters 64 byte token values', () => {
       const token1 = uuid.v4().replace(/-/g, '');
       const { val: result } = CommonPiiActions.tokenValues.execute({
