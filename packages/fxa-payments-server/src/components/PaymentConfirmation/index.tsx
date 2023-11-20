@@ -105,8 +105,8 @@ export const PaymentConfirmation = ({
             </>
           ) : (
             <>
-              <img src={checkmarkIcon} alt="checkmark icon" />
-              <img src={emailSentIcon} alt="email sent icon" />
+              <img src={checkmarkIcon} alt="" />
+              <img src={emailSentIcon} alt="" />
               <Localized id="payment-confirmation-thanks-heading-account-exists">
                 <h2 className={h2classes}>Thanks, now check your email!</h2>
               </Localized>
