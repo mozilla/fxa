@@ -29,7 +29,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('can remove TOTP from account and skip confirmation', async ({
       credentials,
-      pages: { login, relier, settings, totp },
+      pages: { login, relier, settings, totp, page },
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
@@ -37,8 +37,9 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.totp.clickDisable();
       await settings.clickModalConfirm();
-      await settings.waitForAlertBar();
-      let status = await settings.totp.statusText();
+      // wait for alert bar message
+      await page.getByText('Two-step authentication disabled').waitFor();
+      const status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
 
       await relier.goto();

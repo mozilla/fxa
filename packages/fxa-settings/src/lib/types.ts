@@ -39,3 +39,11 @@ export enum ResendStatus {
   'sent',
   'error',
 }
+
+export enum LinkedAccountProviderIds {
+  Google = 1,
+  Apple = 2,
+}
+export type UnlinkAccountLocationState = {
+  wantsUnlinkProviderId?: LinkedAccountProviderIds;
+};

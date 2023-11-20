@@ -19,9 +19,19 @@ export const typeClasses = {
 export const AlertBar = () => {
   const { l10n } = useLocalization();
   const visible = useReactiveVar(alertVisible);
-  const insideRef = useClickOutsideEffect<HTMLDivElement>(() =>
-    alertVisible(false)
-  );
+  const insideRef = useClickOutsideEffect<HTMLDivElement>(() => {
+    // TODO: cleanup Portal component and references, FXA-2463
+    // We don't want to automatically close the alert bar if a modal
+    // is also open. There's at least one case where a modal could be
+    // opened at the same time as the alert bar, and because the modal
+    // takes precedence, we want to allow the user to see and read the
+    // alert bar instead of closing them at the same time. We have to check
+    // for `innerHTML` because when a modal is closed it is still in the DOM.
+    if (!document.getElementById('modal')?.innerHTML) {
+      alertVisible(false);
+    }
+  });
+
   // Although `role="alert" is usually sufficient to trigger a screenreader
   // without having to reset focus, if this component is rerendered before
   // it's removed from the DOM, the message won't be read. Setting focus
