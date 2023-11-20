@@ -168,10 +168,6 @@ const ConfirmSignupCode = ({
         // to explain why totp setup is required, but this does not currently
         // appear to be implemented.
 
-        // TODO enable wantsTwoStepAuthentication check
-        // Currently, does not correctly check for acr_values param
-        // and is returned as false even if search params contain acr_values=AAL2 (or higher)
-
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
           hardNavigateToContentServer(`oauth/signin${location.search}`);
