@@ -12,11 +12,14 @@ import GleanMetrics from '../../../scripts/lib/glean';
 import Notifier from 'lib/channels/notifier';
 import Relier from 'models/reliers/relier';
 import sinon from 'sinon';
-import { SIGNUP_PASSWORD } from '../../../../tests/functional/lib/selectors';
+import {
+  SIGNUP_PASSWORD,
+  THIRD_PARTY_AUTH,
+} from '../../../../tests/functional/lib/selectors';
 import View from 'views/sign_up_password';
 import WindowMock from '../../mocks/window';
 
-const Selectors = SIGNUP_PASSWORD;
+const Selectors = { ...SIGNUP_PASSWORD, THIRD_PARTY_AUTH };
 
 const EMAIL = 'testuser@testuser.com';
 
@@ -112,7 +115,9 @@ describe('views/sign_up_password', () => {
       assert.lengthOf(view.$(Selectors.LINK_USE_DIFFERENT), 1);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
       assert.lengthOf(view.$(Selectors.MARKETING_EMAIL_OPTIN), 3);
-      assert.isTrue(notifier.trigger.calledOnce);
+      assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+      assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
+      assert.isTrue(notifier.trigger.calledTwice);
       assert.isTrue(notifier.trigger.calledWith('flow.initialize'));
     });
 
@@ -132,6 +137,19 @@ describe('views/sign_up_password', () => {
           view.$(Selectors.ERROR).text().toLowerCase(),
           'recreate'
         );
+      });
+    });
+
+    it('does not show third party options for sync', () => {
+      sinon.stub(relier, 'isSync').callsFake(() => true);
+      return view.render().then(() => {
+        assert.include(view.$(Selectors.HEADER).text(), 'Set your password');
+        assert.lengthOf(view.$(Selectors.EMAIL), 1);
+        assert.equal(view.$(Selectors.EMAIL).val(), EMAIL);
+        assert.lengthOf(view.$(Selectors.PASSWORD), 1);
+        assert.lengthOf(view.$(Selectors.VPASSWORD), 1);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
+        assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
       });
     });
   });
