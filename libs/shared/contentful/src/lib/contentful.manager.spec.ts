@@ -36,9 +36,7 @@ describe('ContentfulManager', () => {
   describe('getPurchaseDetailsForEligibility', () => {
     it('should return empty result', async () => {
       mockClient.query = jest.fn().mockReturnValue({
-        data: {
-          purchaseCollection: { items: [] },
-        },
+        purchaseCollection: { items: [] },
       });
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
@@ -47,7 +45,7 @@ describe('ContentfulManager', () => {
 
     it('should return successfully with subgroups and offering', async () => {
       const queryData = EligibilityContentByPlanIdsQueryFactory();
-      mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
+      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
       const planId = result.purchaseCollection.items[0].stripePlanChoices[0];
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
@@ -61,9 +59,7 @@ describe('ContentfulManager', () => {
   describe('getServicesWithCapabilities', () => {
     it('should return results', async () => {
       mockClient.query = jest.fn().mockReturnValue({
-        data: {
-          serviceCollection: { items: [] },
-        },
+        serviceCollection: { items: [] },
       });
       const result = await manager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
@@ -72,7 +68,7 @@ describe('ContentfulManager', () => {
 
     it('should return successfully with services and capabilities', async () => {
       const queryData = ServicesWithCapabilitiesQueryFactory();
-      mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
+      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
       const result = await manager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(1);
@@ -82,9 +78,7 @@ describe('ContentfulManager', () => {
   describe('getPurchaseWithDetailsOfferingContentByPlanIds', () => {
     it('should return empty result', async () => {
       mockClient.query = jest.fn().mockReturnValue({
-        data: {
-          purchaseCollection: { items: [] },
-        },
+        purchaseCollection: { items: [] },
       });
       mockClient.getLocale = jest.fn().mockResolvedValue('en');
       const result =
@@ -100,7 +94,7 @@ describe('ContentfulManager', () => {
       const queryData =
         PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
       const queryDataItem = queryData.purchaseCollection.items[0];
-      mockClient.query = jest.fn().mockResolvedValueOnce({ data: queryData });
+      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
       mockClient.getLocale = jest.fn().mockResolvedValue('en');
       const result =
         await manager.getPurchaseWithDetailsOfferingContentByPlanIds(
