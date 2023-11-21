@@ -8,6 +8,7 @@ const hex = require('buf').to.hex;
 const proxyquire = require('proxyquire');
 const sinon = require('sinon');
 
+const UID = 'eaf0';
 const CLIENT_SECRET =
   'b93ef8a8f3e553a430d7e5b904c6132b2722633af9f03128029201d24a97f2a8';
 const CLIENT_ID = '98e6508e88680e1b';
@@ -21,6 +22,7 @@ const CODE_WITHOUT_KEYS = 'f0f0f0';
 
 const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
+const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
 const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
   '../../oauth/assertion': async () => true,
   '../../oauth/client': {
@@ -55,6 +57,7 @@ const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
     async getCode(x) {
       if (hex(x) === CODE_WITH_KEYS) {
         return {
+          userId: buf(UID),
           clientId: buf(CLIENT_ID),
           createdAt: Date.now(),
           keysJwe: 'mykeys',
@@ -76,6 +79,7 @@ const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
   mailer: {},
   devices: {},
   statsd: mockStatsD,
+  glean: mockGlean,
 });
 
 function joiRequired(err, param) {
@@ -324,6 +328,29 @@ describe('/token POST', function () {
       };
       await route.config.handler(request);
       sinon.assert.notCalled(mockStatsD.increment);
+    });
+  });
+
+  describe('Glean metrics', async () => {
+    beforeEach(() => {
+      mockGlean.oauth.tokenCreated.reset();
+    });
+
+    it('logs the token created event', async () => {
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'authorization_code',
+          code: CODE_WITH_KEYS,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      sinon.assert.calledOnceWithExactly(
+        mockGlean.oauth.tokenCreated,
+        request,
+        { uid: UID, oauthClientId: CLIENT_ID, reason: 'authorization_code' }
+      );
     });
   });
 });
