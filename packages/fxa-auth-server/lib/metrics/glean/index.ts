@@ -155,7 +155,8 @@ export function gleanMetrics(config: ConfigType) {
     },
 
     oauth: {
-      tokenCreated: createEventFn('oauth_token_created'),
+      tokenCreated: createEventFn('access_token_created'),
+      tokenChecked: createEventFn('access_token_checked'),
     },
   };
 }

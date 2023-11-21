@@ -40,6 +40,9 @@ describe('/verify POST', () => {
           })
         ),
       },
+      glean: {
+        oauth: { tokenChecked: sandbox.stub() },
+      },
     };
 
     dependencies = {
@@ -49,7 +52,7 @@ describe('/verify POST', () => {
     route = proxyquire(
       '../../../lib/routes/oauth/verify',
       dependencies
-    )({ log: mocks.log });
+    )({ log: mocks.log, glean: mocks.glean });
   });
 
   afterEach(() => {
@@ -111,6 +114,13 @@ describe('/verify POST', () => {
           uid: 'bar',
         })
       );
+    });
+
+    it('logs an Glean event', () => {
+      sinon.assert.calledOnceWithExactly(mocks.glean.oauth.tokenChecked, req, {
+        uid: 'bar',
+        oauthClientId: 'foo',
+      });
     });
   });
 });

@@ -12,7 +12,7 @@ module.exports = (log, config, db, mailer, devices, statsd, glean) => {
     require('./jwks')(),
     require('./key_data')({ log, oauthDB, statsd }),
     require('./token')({ log, oauthDB, db, mailer, devices, statsd, glean }),
-    require('./verify')({ log }),
+    require('./verify')({ log, glean }),
   ].flat();
 
   const clientGetAlias = require('./client/get')({ log, oauthDB });
