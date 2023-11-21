@@ -179,7 +179,7 @@ const PAYLOAD_SCHEMA = Joi.object({
   resource: validators.resourceUrl.optional().description(DESCRIPTION.resource),
 });
 
-module.exports = ({ log, oauthDB, db, mailer, devices, statsd }) => {
+module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
   async function validateGrantParameters(client, params) {
     let requestedGrant;
     switch (params.grant_type) {
@@ -373,14 +373,22 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd }) => {
     }
     const grant = await validateGrantParameters(client, params);
     const tokens = await generateTokens(grant);
+    const uid = hex(grant.userId);
+    const oauthClientId = hex(grant.clientId);
+
     req.emitMetricsEvent('token.created', {
-      service: hex(grant.clientId),
-      uid: hex(grant.userId),
+      service: oauthClientId,
+      uid,
+    });
+    glean.oauth.tokenCreated(req, {
+      uid,
+      oauthClientId,
+      reason: req.payload?.grant_type || '',
     });
 
     // the client receiving keys at the end of the scoped keys flow
     if (tokens.keys_jwe) {
-      statsd.increment('oauth.rp.keys-jwe', { clientId: hex(client.id) });
+      statsd.increment('oauth.rp.keys-jwe', { clientId: oauthClientId });
     }
 
     return tokens;

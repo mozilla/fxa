@@ -83,7 +83,8 @@ module.exports = function (
     db,
     mailer,
     devicesImpl,
-    statsd
+    statsd,
+    glean
   );
   const devicesSessions = require('./devices-and-sessions')(
     log,
