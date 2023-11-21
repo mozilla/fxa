@@ -11,7 +11,7 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').default.getProperties();
 
-describe('remote account login', () => {
+describe('#integration - remote account login', () => {
   let server;
 
   before(function () {
@@ -23,7 +23,7 @@ describe('remote account login', () => {
     });
   });
 
-  it('#integration - the email is returned in the error on Incorrect password errors', () => {
+  it('the email is returned in the error on Incorrect password errors', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
     return Client.createAndVerify(
@@ -45,7 +45,7 @@ describe('remote account login', () => {
       );
   });
 
-  it('#integration - the email is returned in the error on Incorrect email case errors with correct password', () => {
+  it('the email is returned in the error on Incorrect email case errors with correct password', () => {
     const signupEmail = server.uniqueEmail();
     const loginEmail = signupEmail.toUpperCase();
     const password = 'abcdef';
@@ -68,7 +68,7 @@ describe('remote account login', () => {
       );
   });
 
-  it('#integration - Unknown account should not exist', () => {
+  it('Unknown account should not exist', () => {
     const client = new Client(config.publicUrl);
     client.email = server.uniqueEmail();
     client.authPW = crypto.randomBytes(32);
@@ -82,7 +82,7 @@ describe('remote account login', () => {
     );
   });
 
-  it('#integration - No keyFetchToken without keys=true', () => {
+  it('No keyFetchToken without keys=true', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
     return Client.createAndVerify(
@@ -99,7 +99,7 @@ describe('remote account login', () => {
       });
   });
 
-  it('#integration - login works with unicode email address', () => {
+  it('login works with unicode email address', () => {
     const email = server.uniqueUnicodeEmail();
     const password = 'wibble';
     return Client.createAndVerify(
@@ -116,7 +116,7 @@ describe('remote account login', () => {
       });
   });
 
-  it('#integration - account login works with minimal metricsContext metadata', () => {
+  it('account login works with minimal metricsContext metadata', () => {
     const email = server.uniqueEmail();
     return Client.createAndVerify(
       config.publicUrl,
@@ -192,7 +192,7 @@ describe('remote account login', () => {
       );
   });
 
-  describe('#integration - can use verificationMethod', () => {
+  describe('can use verificationMethod', () => {
     let client, email;
     const password = 'foo';
     beforeEach(() => {

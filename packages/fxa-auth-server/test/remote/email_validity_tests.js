@@ -10,7 +10,7 @@ const Client = require('../client')();
 
 const config = require('../../config').default.getProperties();
 
-describe('remote email validity', function () {
+describe('#integration - remote email validity', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -47,7 +47,7 @@ describe('remote email validity', function () {
     return Promise.all(emails);
   });
 
-  it('#integration - /account/create with a variety of unusual but valid email addresses', () => {
+  it('/account/create with a variety of unusual but valid email addresses', () => {
     const pwd = '123456';
 
     const emails = [

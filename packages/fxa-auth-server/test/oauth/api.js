@@ -17,6 +17,7 @@ const db = require('../../lib/oauth/db');
 const encrypt = require('fxa-shared/auth/encrypt');
 const config = testServer.config;
 let Server;
+let Server2;
 
 const unique = require('../../lib/oauth/unique');
 const util = require('../../lib/oauth/util');
@@ -213,8 +214,9 @@ describe('#integration - /v1', function () {
     ]);
   });
 
-  after(function () {
-    return Server.close();
+  after(async function () {
+    await Server?.close();
+    await Server2?.close();
   });
 
   beforeEach(() => {
@@ -2861,7 +2863,7 @@ describe('#integration - /v1', function () {
     it('should not reject expired tokens from pocket clients', async function () {
       const clientId = '749818d3f2e7857f';
       config.set('oauthServer.expiration.accessTokenExpiryEpoch', undefined);
-      Server = await testServer.start();
+      Server2 = await testServer.start();
       let res = await newToken(
         {
           ttl: 1,
@@ -2880,7 +2882,7 @@ describe('#integration - /v1', function () {
         shouldAdvanceTime: true,
       });
 
-      res = await Server.api.post({
+      res = await Server2.api.post({
         url: '/verify',
         payload: {
           token: res.result.access_token,
