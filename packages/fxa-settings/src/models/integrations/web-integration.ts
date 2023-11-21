@@ -53,6 +53,13 @@ export class BaseIntegrationData extends ModelDataProvider {
   @bind(T.snakeCase)
   entrypointVariation: string | undefined;
 
+  // This is for SubPlat redirects which use the web integration
+  // TODO - Validation, this should be `IsUrl` but `localhost` fails
+  @IsOptional()
+  @IsString()
+  @bind(T.snakeCase)
+  redirectTo: string | undefined;
+
   @IsOptional()
   @IsIn(['true', 'false', true, false])
   @bind(T.snakeCase)

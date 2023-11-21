@@ -47,6 +47,11 @@ const {
 const {
   stripeInvoiceToLatestInvoiceItemsDTO,
 } = require('../../../lib/payments/stripe-formatter');
+const {
+  ContentfulManager,
+  PurchaseWithDetailsOfferingContentTransformedFactory,
+  PurchaseDetailsTransformedFactory,
+} = require('@fxa/shared/contentful');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
 const newCustomer = require('./fixtures/stripe/customer_new.json');
@@ -3291,6 +3296,109 @@ describe('#integration - StripeHelper', () => {
             }))
           )
       );
+    });
+
+    it('rejects and returns stripe values', async () => {
+      const err = new Error('It is bad');
+      const mockContentfulManager = {
+        getPurchaseWithDetailsOfferingContentByPlanIds: sinon
+          .stub()
+          .rejects(err),
+      };
+      Container.set(ContentfulManager, mockContentfulManager);
+      const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
+      listStripePlans = sandbox
+        .stub(stripeHelper.stripe.plans, 'list')
+        .returns(asyncIterable([plan1, plan2, plan3]));
+      sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+      sandbox.stub(Sentry, 'captureException');
+      const actual = await stripeHelper.allAbbrevPlans();
+      assert(stripeHelper.allConfiguredPlans.calledOnce);
+      assert(stripeHelper.allPlans.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+      sinon.assert.calledOnceWithExactly(Sentry.captureException, err);
+
+      assert.deepEqual(
+        actual,
+        [plan1, plan2]
+          .map((p) => ({
+            amount: p.amount,
+            currency: p.currency,
+            interval_count: p.interval_count,
+            interval: p.interval,
+            plan_id: p.id,
+            plan_metadata: p.metadata,
+            plan_name: p.nickname || '',
+            product_id: p.product.id,
+            product_metadata: p.product.metadata,
+            product_name: p.product.name,
+            active: true,
+            configuration: {
+              locales: {},
+              productSet: undefined,
+              stripePriceId: p.id,
+              styles: {},
+              support: {},
+              uiContent: {},
+              urls: {},
+            },
+          }))
+          .concat(
+            [plan3].map((p) => ({
+              amount: p.amount,
+              currency: p.currency,
+              interval_count: p.interval_count,
+              interval: p.interval,
+              plan_id: p.id,
+              plan_metadata: p.metadata,
+              plan_name: p.nickname || '',
+              product_id: p.product.id,
+              product_metadata: p.product.metadata,
+              product_name: p.product.name,
+              active: true,
+              configuration: null,
+            }))
+          )
+      );
+    });
+
+    it('returns Contentful values', async () => {
+      const newWebIconURL = 'http://contentful.example/webicon';
+      const mockContentfulConfigUtil = {
+        transformedPurchaseWithCommonContentForPlanId: (planId) => {
+          return PurchaseWithDetailsOfferingContentTransformedFactory({
+            purchaseDetails: PurchaseDetailsTransformedFactory({
+              webIcon: newWebIconURL,
+            }),
+          });
+        },
+      };
+      const mockContentfulManager = {
+        getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(
+          mockContentfulConfigUtil
+        ),
+      };
+      Container.set(ContentfulManager, mockContentfulManager);
+      const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
+      const newPlan1 = deepCopy(plan1);
+      delete newPlan1.product.metadata['webIconURL'];
+      listStripePlans = sandbox
+        .stub(stripeHelper.stripe.plans, 'list')
+        .returns(asyncIterable([newPlan1, plan2, plan3]));
+      sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+      const actual = await stripeHelper.allAbbrevPlans();
+      assert(stripeHelper.allConfiguredPlans.calledOnce);
+      assert(stripeHelper.allPlans.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
+      assert.equal(actual[0].plan_metadata['webIconURL'], newWebIconURL);
+      assert.equal(actual[0].product_metadata['webIconURL'], newWebIconURL);
+      sinon.assert.calledOnce(Sentry.withScope);
+      sinon.assert.calledOnce(sentryScope.setContext);
     });
   });
 

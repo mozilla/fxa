@@ -74,6 +74,7 @@ const settingsConfig = {
   appleAuthConfig: config.get('appleAuthConfig'),
   brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
+  redirectAllowlist: config.get('redirect_check.allow_list'),
 };
 
 // Inject Beta Settings meta content

@@ -65,7 +65,7 @@ export const PaymentConsentCheckbox = ({
 
   return (
     <Localized
-      id="payment-confirm-with-legal-links-static-2"
+      id="payment-confirm-with-legal-links-static-3"
       elems={{
         termsOfServiceLink: (
           <LinkExternal href={termsOfService}>Terms of Service</LinkExternal>

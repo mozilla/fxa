@@ -5,14 +5,14 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 
 const PaypalPaymentLegalBlurb = () => (
   <div className="legal-blurb" data-testid="payment-legal-blurb-component">
-    <Localized id="payment-legal-copy-paypal">
+    <Localized id="payment-legal-copy-paypal-2">
       <p className="legal-heading">
         Mozilla uses PayPal for secure payment processing.
       </p>
     </Localized>
 
     <Localized
-      id="payment-legal-link-paypal-2"
+      id="payment-legal-link-paypal-3"
       elems={{
         paypalPrivacyLink: (
           <LinkExternal href="https://www.paypal.com/webapps/mpp/ua/privacy-full">
@@ -32,7 +32,7 @@ const PaypalPaymentLegalBlurb = () => (
 
 const StripePaymentLegalBlurb = () => (
   <div className="legal-blurb">
-    <Localized id="payment-legal-copy-stripe-2">
+    <Localized id="payment-legal-copy-stripe-3">
       <p className="legal-heading">
         Mozilla uses Stripe for secure payment processing.
       </p>
@@ -59,14 +59,14 @@ const StripePaymentLegalBlurb = () => (
 
 const DefaultPaymentLegalBlurb = () => (
   <div className="legal-blurb">
-    <Localized id="payment-legal-copy-stripe-and-paypal-2">
+    <Localized id="payment-legal-copy-stripe-and-paypal-3">
       <p className="legal-heading">
         Mozilla uses Stripe and PayPal for secure payment processing.
       </p>
     </Localized>
 
     <Localized
-      id="payment-legal-link-stripe-paypal"
+      id="payment-legal-link-stripe-paypal-2"
       elems={{
         stripePrivacyLink: (
           <LinkExternal href="https://stripe.com/privacy">

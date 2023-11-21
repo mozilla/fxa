@@ -122,7 +122,7 @@ export const PaymentErrorView = ({
 
     getErrorMessageId(error) === 'iap-upgrade-contact-support'
       ? l10nIds.push(
-          'iap-upgrade-already-subscribed',
+          'iap-upgrade-already-subscribed-2',
           'iap-upgrade-no-bundle-support',
           'iap-upgrade-contact-support'
         )

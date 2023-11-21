@@ -42,7 +42,10 @@ import { PlayBilling } from './iap/google-play/play-billing';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
 import { PurchaseQueryError } from './iap/google-play/types';
 import { StripeHelper } from './stripe';
-import { clientIdCapabilityMapFromMetadata } from './utils';
+import {
+  clientIdCapabilityMapFromMetadata,
+  sortClientCapabilities,
+} from './utils';
 
 function hex(blob: Buffer | string): string {
   if (Buffer.isBuffer(blob)) {
@@ -237,7 +240,7 @@ export class CapabilityService {
     uid: string
   ): Promise<ClientIdCapabilityMap> {
     const subscribedPrices = await this.subscribedPriceIds(uid);
-    return this.priceIdsToClientCapabilities(subscribedPrices);
+    return this.planIdsToClientCapabilities(subscribedPrices);
   }
 
   /**
@@ -509,8 +512,8 @@ export class CapabilityService {
     // Calculate and announce capability changes.
     const [priorClientCapabilities, currentClientCapabilities] =
       await Promise.all([
-        this.priceIdsToClientCapabilities(priorPriceIds),
-        this.priceIdsToClientCapabilities(currentPriceIds),
+        this.planIdsToClientCapabilities(priorPriceIds),
+        this.planIdsToClientCapabilities(currentPriceIds),
       ]);
     const [priorCapabilities, currentCapabilities] = [
       allCapabilities(priorClientCapabilities),
@@ -707,9 +710,9 @@ export class CapabilityService {
   }
 
   /**
-   * Fetch the list of capabilities for the given price ids.
+   * Fetch the list of capabilities for the given plan ids from Stripe.
    */
-  private async priceIdsToClientCapabilities(
+  private async planIdsToClientCapabilitiesFromStripe(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
     let result: ClientIdCapabilityMap = {};
@@ -842,5 +845,67 @@ export class CapabilityService {
       Sentry.captureException(error);
     }
     return clientsFromStripe;
+  }
+
+  /**
+   * Fetch the list of capabilities for the given plan ids
+   */
+  async planIdsToClientCapabilities(
+    subscribedPrices: string[]
+  ): Promise<ClientIdCapabilityMap> {
+    const stripeCapabilities = await this.planIdsToClientCapabilitiesFromStripe(
+      subscribedPrices
+    );
+
+    if (!this.capabilityManager) {
+      if (
+        this.logToSentry(
+          'planIdsToClientCapabilities.CapabilityManagerNotFound'
+        )
+      ) {
+        Sentry.captureMessage(
+          `CapabilityManager not found.`,
+          'error' as SeverityLevel
+        );
+      }
+
+      return stripeCapabilities;
+    }
+
+    try {
+      const contentfulCapabilities =
+        await this.capabilityManager.planIdsToClientCapabilities(
+          subscribedPrices
+        );
+
+      if (
+        isEqual(
+          sortClientCapabilities(contentfulCapabilities),
+          sortClientCapabilities(stripeCapabilities)
+        )
+      ) {
+        return contentfulCapabilities;
+      }
+
+      if (this.logToSentry('planIdsToClientCapabilities.NoMatch')) {
+        Sentry.withScope((scope) => {
+          scope.setContext('planIdsToClientCapabilities', {
+            contentful: contentfulCapabilities,
+            stripe: stripeCapabilities,
+          });
+          Sentry.captureMessage(
+            `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
+            'error' as SeverityLevel
+          );
+        });
+      }
+    } catch (error) {
+      this.log.error('subscriptions.planIdsToClientCapabilities', {
+        error: error,
+      });
+      Sentry.captureException(error);
+    }
+
+    return stripeCapabilities;
   }
 }

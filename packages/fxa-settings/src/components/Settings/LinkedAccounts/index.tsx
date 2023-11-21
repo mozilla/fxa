@@ -5,7 +5,7 @@
 import React from 'react';
 import { useAccount } from '../../../models';
 import { Localized } from '@fluent/react';
-import { LinkedAccount as LinkedAccountSection } from './LinkedAccount';
+import { LinkedAccount } from './LinkedAccount';
 
 export const LinkedAccounts = () => {
   const account = useAccount();
@@ -30,7 +30,7 @@ export const LinkedAccounts = () => {
             </div>
 
             {linkedAccounts.map((linkedAccount) => (
-              <LinkedAccountSection
+              <LinkedAccount
                 {...{
                   key: linkedAccount.providerId,
                   providerId: linkedAccount.providerId,

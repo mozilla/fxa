@@ -537,11 +537,9 @@ export class LoginPage extends BaseLayout {
   }
 
   async clearCache() {
-    await this.page.goto(`${this.target.contentServerUrl}/clear`, {
-      waitUntil: 'load',
-    });
+    await this.page.goto(`${this.target.contentServerUrl}/clear`);
     await this.page.context().clearCookies();
-    return this.page.waitForTimeout(1000);
+    return this.page.waitForTimeout(2000);
   }
 
   async getErrorMessage() {

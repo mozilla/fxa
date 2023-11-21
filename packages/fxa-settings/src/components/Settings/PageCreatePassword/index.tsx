@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Localized, useLocalization } from '@fluent/react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { Localized } from '@fluent/react';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { HomePath } from '../../../constants';
@@ -12,9 +12,10 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../../lib/metrics';
-import { useAccount, useAlertBar } from '../../../models';
+import { useAccount, useAlertBar, useFtlMsgResolver } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import FormPassword from '../../FormPassword';
+import { UnlinkAccountLocationState } from '../../../lib/types';
 
 type FormData = {
   newPassword: string;
@@ -39,14 +40,24 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const navigate = useNavigate();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: {
+      // Was the user sent here from the unlink account modal?
+      wantsUnlinkProviderId?: UnlinkAccountLocationState;
+    };
+  };
+  const { wantsUnlinkProviderId } = location.state || {};
 
   const alertSuccessAndGoHome = useCallback(() => {
     alertBar.success(
-      l10n.getString('pw-create-success-alert-2', null, 'Password set')
+      ftlMsgResolver.getMsg('pw-create-success-alert-2', 'Password set')
     );
-    navigate(HomePath + '#password', { replace: true });
-  }, [alertBar, l10n, navigate]);
+    navigate(HomePath + '#password', {
+      replace: true,
+      ...(wantsUnlinkProviderId ? { state: { wantsUnlinkProviderId } } : {}),
+    });
+  }, [alertBar, ftlMsgResolver, navigate, wantsUnlinkProviderId]);
 
   const onFormSubmit = useCallback(
     async ({ newPassword }: FormData) => {
@@ -58,15 +69,14 @@ export const PageCreatePassword = ({}: RouteComponentProps) => {
       } catch (e) {
         logViewEvent(settingsViewName, 'create-password.fail');
         alertBar.error(
-          l10n.getString(
+          ftlMsgResolver.getMsg(
             'pw-create-error-2',
-            null,
             'Sorry, there was a problem setting your password'
           )
         );
       }
     },
-    [l10n, alertSuccessAndGoHome, alertBar, account]
+    [ftlMsgResolver, alertSuccessAndGoHome, alertBar, account]
   );
 
   return (

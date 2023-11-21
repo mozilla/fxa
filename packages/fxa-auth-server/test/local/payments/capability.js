@@ -8,7 +8,12 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
-const { mockContentfulClients, mockLog, mockPlans } = require('../../mocks');
+const {
+  mockContentfulClients,
+  mockLog,
+  mockPlans,
+  mockContentfulPlanIdsToClientCapabilities,
+} = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
@@ -161,6 +166,9 @@ describe('CapabilityService', () => {
     mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
     mockCapabilityManager = {
       getClients: sinon.fake.resolves(mockContentfulClients),
+      planIdsToClientCapabilities: sinon.fake.resolves(
+        mockContentfulPlanIdsToClientCapabilities
+      ),
     };
     log = mockLog();
     Container.set(AuthLogger, log);
@@ -944,7 +952,100 @@ describe('CapabilityService', () => {
         await assertExpectedCapabilities(clientId, expected);
       }
     });
+
+    it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
+      sinon.stub(Sentry, 'captureMessage');
+
+      Container.remove(CapabilityManager);
+
+      let mockCapabilityService = {};
+      mockCapabilityService = new CapabilityService();
+
+      const subscribedPrices = await mockCapabilityService.subscribedPriceIds(
+        UID
+      );
+
+      const mockStripeCapabilities =
+        await mockCapabilityService.planIdsToClientCapabilitiesFromStripe(
+          subscribedPrices
+        );
+
+      const mockContentfulCapabilities =
+        await mockCapabilityService.planIdsToClientCapabilities(
+          subscribedPrices
+        );
+
+      assert.deepEqual(mockContentfulCapabilities, mockStripeCapabilities);
+
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityManager not found.`,
+        'error'
+      );
+    });
+
+    it('returns results from Stripe and logs to Sentry when results do not match', async () => {
+      const sentryScope = { setContext: sinon.stub() };
+      sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sinon.stub(Sentry, 'captureMessage');
+
+      mockCapabilityManager.planIdsToClientCapabilities = sinon.fake.resolves({
+        c1: ['capAlpha'],
+        c4: ['capBeta', 'capDelta', 'capEpsilon'],
+        c6: ['capGamma', 'capZeta'],
+        c8: ['capOmega'],
+      });
+
+      const expected = {
+        c0: ['capAll'],
+        c1: ['capAll', 'cap4', 'cap5', 'capZZ', 'capAlpha'],
+        c2: ['capAll', 'cap5', 'cap6', 'capC', 'capD'],
+        c3: ['capAll', 'capD', 'capE', 'capP'],
+        null: [
+          'capAll',
+          'cap4',
+          'cap5',
+          'cap6',
+          'capC',
+          'capD',
+          'capE',
+          'capP',
+          'capZZ',
+          'capAlpha',
+        ],
+      };
+
+      for (const clientId in expected) {
+        await assertExpectedCapabilities(clientId, expected[clientId]);
+      }
+
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'planIdsToClientCapabilities',
+        {
+          contentful: {
+            c1: ['capAlpha'],
+            c4: ['capBeta', 'capDelta', 'capEpsilon'],
+            c6: ['capGamma', 'capZeta'],
+            c8: ['capOmega'],
+          },
+          stripe: {
+            c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
+            '*': ['capAll'],
+            c2: ['cap5', 'cap6', 'capC', 'capD'],
+            c3: ['capD', 'capE', 'capP'],
+          },
+        }
+      );
+
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureMessage,
+        `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
+        'error'
+      );
+    });
   });
+
   describe('getClients', () => {
     beforeEach(() => {
       mockStripeHelper.allAbbrevPlans = sinon.spy(async () => mockPlans);

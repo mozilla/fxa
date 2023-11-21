@@ -12,6 +12,10 @@ import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
 import { StripeHelper } from './stripe';
 
 import convictConf from '../../config';
+import error from '../../lib/error';
+
+const Profile = require('../profile/client');
+
 const config = convictConf.getProperties();
 
 export async function setupProcessingTaskObjects(processName: string) {
@@ -45,7 +49,7 @@ export async function setupProcessingTaskObjects(processName: string) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
-  const profile = require('../profile/client')(log, config, statsd);
+  const profile = new Profile(log, config, error, statsd);
   Container.set(ProfileClient, profile);
 
   const senders = await require('../senders')(

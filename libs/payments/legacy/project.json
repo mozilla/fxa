@@ -1,0 +1,44 @@
+{
+  "name": "payments-legacy",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/payments/legacy/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/payments/legacy",
+        "tsConfig": "libs/payments/legacy/tsconfig.lib.json",
+        "packageJson": "libs/payments/legacy/package.json",
+        "main": "libs/payments/legacy/src/index.ts",
+        "assets": ["libs/payments/legacy/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/payments/legacy/**/*.ts",
+          "libs/payments/legacy/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/payments/legacy/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": []
+}

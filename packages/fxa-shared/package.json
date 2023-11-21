@@ -200,6 +200,10 @@
     "./tracing/*": {
       "import": "./dist/esm/packages/fxa-shared/tracing/*.js",
       "require": "./dist/cjs/packages/fxa-shared/tracing/*.js"
+    },
+    "./test/db/models/auth/*": {
+      "import": "./dist/esm/packages/fxa-shared/test/db/models/auth/*.js",
+      "require": "./dist/cjs/packages/fxa-shared/test/db/models/auth/*.js"
     }
   },
   "scripts": {

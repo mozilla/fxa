@@ -8,4 +8,9 @@ export const MOCK_LINKED_ACCOUNTS = [
     authAt: Date.now(),
     enabled: true,
   },
+  {
+    providerId: 2,
+    authAt: Date.now(),
+    enabled: true,
+  },
 ];

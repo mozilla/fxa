@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import Signin, { viewName } from '.';
 import { usePageViewEvent } from '../../lib/metrics';
+import GleanMetrics from '../../lib/glean';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { MOCK_EMAIL, MOCK_SERVICE } from './mocks';
@@ -22,6 +23,10 @@ jest.mock('../../lib/metrics', () => ({
     logViewEventOnce: jest.fn(),
   }),
 }));
+jest.mock('../../lib/glean', () => ({
+  __esModule: true,
+  default: { login: { forgotPassword: jest.fn() } },
+}));
 
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
 // add the l10n tests back in. Right now, they can't handle embedded tags.
@@ -31,6 +36,11 @@ describe('Signin', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('renders Signin page as expected with password required', () => {
     renderWithLocalizationProvider(
       <Signin
@@ -124,5 +134,21 @@ describe('Signin', () => {
       />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  it('emits an event on forgot password link click', async () => {
+    renderWithLocalizationProvider(
+      <Signin
+        email={MOCK_EMAIL}
+        isPasswordNeeded={false}
+        serviceName={MOCK_SERVICE}
+      />
+    );
+
+    fireEvent.click(screen.getByText('Forgot password?'));
+
+    await waitFor(() => {
+      expect(GleanMetrics.login.forgotPassword).toBeCalledTimes(1);
+    });
   });
 });

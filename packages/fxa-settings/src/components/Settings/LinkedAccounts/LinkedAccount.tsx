@@ -4,28 +4,65 @@
 
 import React from 'react';
 
-import { Localized, useLocalization } from '@fluent/react';
+import { Localized } from '@fluent/react';
 import { ReactComponent as GoogleIcon } from './google.svg';
 import { ReactComponent as AppleIcon } from './apple.svg';
 import { Modal } from '../Modal';
-import { useAccount } from '../../../models';
+import { useAccount, useFtlMsgResolver } from '../../../models';
 import { useBooleanState } from 'fxa-react/lib/hooks';
-import { hardNavigate } from 'fxa-react/lib/utils';
+import { useLocation, useNavigate } from '@reach/router';
+import { HomePath } from '../../../constants';
+import {
+  LinkedAccountProviderIds,
+  UnlinkAccountLocationState,
+} from '../../../lib/types';
 
-export function LinkedAccount({ providerId }: { providerId: number }) {
+export function LinkedAccount({
+  providerId,
+}: {
+  providerId: LinkedAccountProviderIds;
+}) {
   const account = useAccount();
-  const { l10n } = useLocalization();
+  const ftlMsgResolver = useFtlMsgResolver();
+  const navigate = useNavigate();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: UnlinkAccountLocationState;
+  };
+  const { wantsUnlinkProviderId } = location.state || {};
 
+  // Open the modal by default if the location state contains this provider ID.
+  // This means the user previously did not have a password, attempted to unlink
+  // their third party account, and created their password successfully.
   const [confirmUnlinkModalRevealed, revealUnlinkModal, hideUnlinkModal] =
-    useBooleanState();
+    useBooleanState(
+      wantsUnlinkProviderId === providerId && account.hasPassword
+    );
+
+  // Keep the user where they were, but update router state
+  const resetLocationState = () =>
+    navigate(HomePath + '#linked-accounts', {
+      replace: true,
+      state: { wantsUnlinkProviderId: undefined },
+    });
 
   const onConfirmUnlinkAccountClick = async () => {
     if (account.hasPassword) {
       await account.unlinkThirdParty(providerId);
+      resetLocationState();
     } else {
-      // If a user doesn't have a password, they must create one first.
-      hardNavigate('/settings/create_password' + window.location.search);
+      // If a user doesn't have a password, they must create one first. We send
+      // a navigation state that's passed back to Settings on password create
+      // success that we account for here by automatically re-opening the modal.
+      navigate(HomePath + '/create_password', {
+        replace: true,
+        state: { wantsUnlinkProviderId: providerId },
+      });
     }
+  };
+
+  const onModalDismiss = () => {
+    hideUnlinkModal();
+    resetLocationState();
   };
 
   const onUnlinkAccountClick = () => {
@@ -34,15 +71,14 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
 
   const unlinkConfirmText = () => {
     return account.hasPassword
-      ? l10n.getString('la-unlink-account-button', null, 'Unlink')
-      : l10n.getString('la-set-password-button', null, 'Set Password');
+      ? ftlMsgResolver.getMsg('la-unlink-account-button', 'Unlink')
+      : ftlMsgResolver.getMsg('la-set-password-button', 'Set Password');
   };
 
   return (
     <div
       className="my-1"
-      id="linked-account"
-      data-testid="settings-linked-accounts"
+      data-testid="settings-linked-account"
       data-name={providerId}
     >
       <div className="p-4 border-2 border-solid border-grey-100 rounded flex mobileLandscape:justify-around items-center flex-col mobileLandscape:flex-row">
@@ -65,7 +101,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
           <Localized id="la-unlink-button">
             <button
               className="cta-neutral cta-base cta-base-p disabled:cursor-wait whitespace-nowrap"
-              data-testid="linked-account-unlink"
+              data-testid={`linked-account-unlink-${providerId}`}
               onClick={onUnlinkAccountClick}
             >
               Unlink
@@ -76,7 +112,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
 
       {confirmUnlinkModalRevealed && (
         <Modal
-          onDismiss={hideUnlinkModal}
+          onDismiss={onModalDismiss}
           onConfirm={onConfirmUnlinkAccountClick}
           confirmBtnClassName="cta-primary cta-base-p"
           confirmText={unlinkConfirmText()}
@@ -94,19 +130,7 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
             </h2>
           </Localized>
 
-          {!account.hasPassword && (
-            <Localized id="la-unlink-content-4">
-              <p
-                id="linked-accounts-unlink-pwd-needed-description"
-                className="my-4 text-center"
-              >
-                Before unlinking your account, you must set a password. Without
-                a password, there is no way for you to log in after unlinking
-                your account.
-              </p>
-            </Localized>
-          )}
-          {account.hasPassword && (
+          {account.hasPassword ? (
             <Localized id="la-unlink-content-3">
               <p
                 id="linked-accounts-unlink-description"
@@ -116,6 +140,17 @@ export function LinkedAccount({ providerId }: { providerId: number }) {
                 account does not automatically sign you out of your Connected
                 Services. To do that, you will need to manually sign out from
                 the Connected Services section.
+              </p>
+            </Localized>
+          ) : (
+            <Localized id="la-unlink-content-4">
+              <p
+                id="linked-accounts-unlink-pwd-needed-description"
+                className="my-4 text-center"
+              >
+                Before unlinking your account, you must set a password. Without
+                a password, there is no way for you to log in after unlinking
+                your account.
               </p>
             </Localized>
           )}

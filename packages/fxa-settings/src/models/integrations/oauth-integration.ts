@@ -75,7 +75,7 @@ export class OAuthIntegrationData extends BaseIntegrationData {
 
   @IsOptional()
   @IsString()
-  @bind()
+  @bind(T.snakeCase)
   acrValues: string | undefined;
 
   // TODO - Validation - Double check actions

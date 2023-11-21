@@ -21,7 +21,7 @@ import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { GET_SESSION_VERIFIED } from './Session';
-import { MozServices } from '../lib/types';
+import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 
 export interface DeviceLocation {
@@ -38,7 +38,7 @@ export interface Email {
 }
 
 export interface LinkedAccount {
-  providerId: number;
+  providerId: LinkedAccountProviderIds;
   authAt: number;
   enabled: boolean;
 }

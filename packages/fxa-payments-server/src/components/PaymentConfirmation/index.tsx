@@ -90,11 +90,7 @@ export const PaymentConfirmation = ({
         <header className="flex flex-col justify-center items-center row-divider-grey-200 text-center pb-8 mt-5 desktop:mt-2">
           {accountExists ? (
             <>
-              <img
-                className="max-h-12"
-                src={circledCheckbox}
-                alt="circled checkbox"
-              />
+              <img className="max-h-12" src={circledCheckbox} alt="" />
               <Localized id="payment-confirmation-thanks-heading">
                 <h2 className={h2classes}>Thank you!</h2>
               </Localized>
@@ -109,8 +105,8 @@ export const PaymentConfirmation = ({
             </>
           ) : (
             <>
-              <img src={checkmarkIcon} alt="checkmark icon" />
-              <img src={emailSentIcon} alt="email sent icon" />
+              <img src={checkmarkIcon} alt="" />
+              <img src={emailSentIcon} alt="" />
               <Localized id="payment-confirmation-thanks-heading-account-exists">
                 <h2 className={h2classes}>Thanks, now check your email!</h2>
               </Localized>

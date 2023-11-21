@@ -205,7 +205,7 @@ export const PaymentForm = ({
 
   const payButtonL10nId = (c?: Customer | null) =>
     hasPaymentProvider(c) && isPaypal(c!.payment_provider)
-      ? 'payment-pay-with-paypal-btn'
+      ? 'payment-pay-with-paypal-btn-2'
       : 'payment-pay-btn';
 
   const onPaypalFormSubmit = useCallback(

@@ -5,6 +5,7 @@
 const { assert } = require('chai');
 const {
   roundTime,
+  sortClientCapabilities,
 } = require('../../../lib/payments/utils');
 
 it('checks that roundTime() returns time rounded to the nearest minute', async () => {
@@ -15,4 +16,24 @@ it('checks that roundTime() returns time rounded to the nearest minute', async (
 
   assert.deepEqual(res, roundedTime);
   assert.notEqual(res, actualTime);
+});
+
+it('checks that sortClientCapabilities() returns object sorted by key and capabilities', async () => {
+  const mockCapabilities = {
+    c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
+    '*': ['capAll'],
+    c2: ['cap5', 'cap6', 'capC', 'capD'],
+    c3: ['capE', 'capD'],
+  };
+
+  const result = sortClientCapabilities(mockCapabilities);
+
+  const expected = {
+    '*': ['capAll'],
+    c1: ['cap4', 'cap5', 'capAlpha', 'capZZ'],
+    c2: ['cap5', 'cap6', 'capC', 'capD'],
+    c3: ['capD', 'capE'],
+  };
+
+  assert.deepEqual(result, expected);
 });
