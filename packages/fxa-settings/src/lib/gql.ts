@@ -31,7 +31,7 @@ const sessionTokenOperationNames = [
 
 const isUnauthorizedError = (error: GraphQLError) =>
   error.message === 'Invalid token' &&
-  error.extensions?.response.error === 'Unauthorized';
+  (error.extensions?.response as { error?: string }).error === 'Unauthorized';
 
 const afterwareLink = new ApolloLink((operation, forward) => {
   return forward(operation).map((response) => {
