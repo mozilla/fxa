@@ -8,15 +8,17 @@ export enum SpinnerType {
   White,
 }
 
+export type LoadingSpinnerProps = {
+  className?: string;
+  imageClassName?: string;
+  spinnerType?: SpinnerType;
+};
+
 export const LoadingSpinner = ({
   className,
   imageClassName = 'w-10 h-10 animate-spin',
   spinnerType = SpinnerType.Blue,
-}: {
-  className?: string;
-  imageClassName?: string;
-  spinnerType?: SpinnerType;
-}) => {
+}: LoadingSpinnerProps) => {
   const { l10n } = useLocalization();
   const loadingAriaLabel = l10n.getString(
     'app-loading-spinner-aria-label-loading',

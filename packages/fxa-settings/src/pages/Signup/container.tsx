@@ -9,7 +9,7 @@ import {
   isSyncDesktopIntegration,
   useAuthClient,
 } from '../../models';
-import Signup from '.';
+import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
@@ -28,9 +28,10 @@ import {
   AuthUiErrors,
   composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../../lib/types';
-import firefox, {
+import {
+  firefox,
   FirefoxCommand,
   FxAStatusResponse,
 } from '../../lib/channels/firefox';
@@ -58,11 +59,16 @@ import { Constants } from '../../lib/constants';
  * If we want to mimic this functionality we can once index is converted.
  */
 
+export type SignupContainerIntegration = Pick<
+  Integration,
+  'type' | 'getService' | 'features'
+> & { features?: { webChannelSupport?: boolean } };
+
 const SignupContainer = ({
   integration,
   serviceName,
 }: {
-  integration: Integration;
+  integration: SignupContainerIntegration;
   serviceName: MozServices;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
@@ -78,11 +84,11 @@ const SignupContainer = ({
     string[] | undefined
   >();
 
+  const isOAuth = isOAuthIntegration(integration);
+  const hasWebChannelSupport = integration.features.webChannelSupport === true;
   // TODO: Sync mobile cleanup, see note in oauth-integration isSync
-  const isSyncMobile =
-    isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync;
-  const isSyncMobileWebChannel =
-    isSyncMobile && integration.features.webChannelSupport;
+  const isSyncMobile = isOAuth && serviceName === MozServices.FirefoxSync;
+  const isSyncMobileWebChannel = isSyncMobile && hasWebChannelSupport;
   const isSyncDesktop = isSyncDesktopIntegration(integration);
   const isSyncWebChannel = isSyncMobileWebChannel || isSyncDesktop;
   const isSync = isSyncMobile || isSyncDesktop;
@@ -117,7 +123,7 @@ const SignupContainer = ({
   });
 
   useEffect(() => {
-    // This sends a webchannel message to the browser to prompt a response
+    // This sends a web channel message to the browser to prompt a response
     // that we listen for.
     // TODO: In content-server, we send this on app-start for all integration types.
     // Do we want to move this somewhere else once the index page is Reactified?
@@ -129,7 +135,7 @@ const SignupContainer = ({
 
       // requestAnimationFrame ensures the event listener is added first
       // otherwise, there is a race condition
-      requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
         firefox.send(FirefoxCommand.FxAStatus, {
           // TODO: Improve getting 'context', probably set this on the integration
           context: isSyncDesktop
@@ -137,8 +143,8 @@ const SignupContainer = ({
             : Constants.OAUTH_CONTEXT,
           isPairing: false,
           service: Constants.SYNC_SERVICE,
-        })
-      );
+        });
+      });
     }
   });
 
@@ -184,7 +190,7 @@ const SignupContainer = ({
         });
         return data ? { data: { ...data, unwrapBKey } } : { data: null };
       } catch (error) {
-        const graphQLError: GraphQLError = error.graphQLErrors[0];
+        const graphQLError: GraphQLError = error.graphQLErrors?.[0];
         if (graphQLError && graphQLError.extensions?.errno) {
           const { errno } = graphQLError.extensions;
           return {
@@ -219,17 +225,17 @@ const SignupContainer = ({
 
   // TODO: In FXA-8305 - create option for LoadingSpinner to use these classes and use it throughout
   // settings since we use this set of classes often
-  const pageSpinner = (
-    <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
-  );
-
   if (showLoadingSpinner) {
-    return pageSpinner;
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
   }
 
   if (validationError) {
     hardNavigateToContentServer('/');
-    return pageSpinner;
+    return (
+      <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+    );
   }
 
   return (

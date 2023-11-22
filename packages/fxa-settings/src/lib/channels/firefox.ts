@@ -270,7 +270,7 @@ try {
   canUseEventTarget = false;
 }
 function noop() {}
-const firefox = canUseEventTarget
+export const firefox = canUseEventTarget
   ? new Firefox()
   : // otherwise a mock
     (Object.fromEntries(

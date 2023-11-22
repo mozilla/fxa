@@ -1,0 +1,439 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+/**
+ * This is our first POC for container tests. There's more comments than normal in this file, because it is
+ * establishing the patterns going forward for future container tests. Comment blocks starting with TIP give
+ * some guidance around common testing practices
+ *
+ * A couple things to keep in mind:
+ *  - These tests should only be validating logic inside the container!
+ *  - These tests will need to mock the containers dependencies
+ *  - These tests should not:
+ *    - Validate logic in the presentation layer
+ *    - Validate logic used in hooks
+ *    - Validate functionality of third party libraries
+ *    - Require any external APIs or database
+ *
+ * The basic steps should be as follows:
+ *  1. Identify what needs to be mocked and import modules
+ *  2. Set up functions that initialize mocks and can be reused or overridden, preferably using jest.spyOn.
+ *  4. Write tests, be sure mocks & spies are reset prior to each suite.
+ *  5. Assert on mocked functions and spies.
+ */
+
+import React from 'react';
+
+// TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
+import * as SignupModule from './index';
+import * as ModelsModule from '../../models';
+import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
+import * as ApolloModule from '@apollo/client';
+import * as UseValidateModule from '../../lib/hooks/useValidate';
+import * as FirefoxModule from '../../lib/channels/firefox';
+import * as CryptoModule from 'fxa-auth-client/lib/crypto';
+import * as ReachRouterModule from '@reach/router';
+import * as ReactUtils from 'fxa-react/lib/utils';
+
+// Typical imports
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { screen } from '@testing-library/react';
+import SignupContainer, { SignupContainerIntegration } from './container';
+import { IntegrationType, useAuthClient } from '../../models';
+import { MozServices } from '../../lib/types';
+import { FirefoxCommand } from '../../lib/channels/firefox';
+import { Constants } from '../../lib/constants';
+import { SignupProps } from './interfaces';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { GraphQLError } from 'graphql';
+import { ApolloClient, ApolloError } from '@apollo/client';
+import { ModelDataProvider } from '../../lib/model-data';
+import AuthClient from 'fxa-auth-client/browser';
+
+// TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
+// often times a mocking util isn't even necessary. Note that using the Dependency Inversion
+// Principle, will limit the amount you need to mock. Here, we let the container specify
+// the SignupContainerIntegration interface which is a subset (and therefore compatible)
+// larger and often more specific interfaces like Integration, OAuthIntegration, etc...
+let integration: SignupContainerIntegration;
+function mockIntegration() {
+  integration = {
+    type: IntegrationType.SyncDesktop,
+    getService: () => MozServices.Default,
+    features: {
+      allowUidChange: false,
+      fxaStatus: false,
+      handleSignedInNotification: false,
+      reuseExistingSession: false,
+      supportsPairing: false,
+      webChannelSupport: false,
+    },
+  };
+}
+let serviceName: MozServices;
+function mockServiceName() {
+  serviceName = MozServices.Default;
+}
+
+// TIP - Note that we don't actually want to render the Signup or LoadingSpinner react components,
+// since we aren't testing their logic. There fore it's fine to just return something super
+// simple. And check assumptions about props if necessary.
+let currentSignupProps: SignupProps | undefined;
+function mockSignupModule() {
+  currentSignupProps = undefined;
+  jest
+    .spyOn(SignupModule, 'Signup')
+    .mockImplementation((props: SignupProps) => {
+      currentSignupProps = props;
+      return <div>signup mock</div>;
+    });
+}
+function mockLoadingSpinnerModule() {
+  jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
+    return <div>loading spinner mock</div>;
+  });
+}
+
+// TIP - Most modules can be easily mocked via jest.spyOn. As you can see this very clean.
+function mockUseValidateModule() {
+  jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
+    queryParamModel: {
+      email: 'foo@bar.com',
+    } as unknown as ModelDataProvider,
+    validationError: undefined,
+  });
+}
+
+function mockFirefoxModule() {
+  FirefoxModule.firefox.addEventListener = jest.fn();
+  FirefoxModule.firefox.send = jest.fn();
+}
+
+function mockCryptoModule() {
+  jest.spyOn(CryptoModule, 'getCredentials').mockResolvedValue({
+    authPW: 'apw123',
+    unwrapBKey: 'ubk123',
+  });
+}
+
+function mockReachRouterModule() {
+  jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(function () {
+    return Promise.resolve();
+  });
+}
+
+function mockReactUtilsModule() {
+  jest
+    .spyOn(ReactUtils, 'hardNavigateToContentServer')
+    .mockImplementation(() => {});
+}
+
+// TIP - Sometimes it's useful to have inner mocks. In this case, we hold a reference to
+// mockBeginSignupMutation, so it can be asserted against and redefined as needed.
+let mockBeginSignupMutation = jest.fn();
+function mockApolloClientModule() {
+  mockBeginSignupMutation.mockImplementation(async () => {
+    return {
+      data: {
+        unwrapBKey: 'foo',
+        SignUp: {
+          uid: 'uid123',
+          keyFetchToken: 'kft123',
+          sessionToken: 'st123',
+        },
+      },
+    };
+  });
+
+  jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
+    async (...args: any[]) => {
+      return mockBeginSignupMutation(...args);
+    },
+    {
+      loading: false,
+      called: true,
+      client: {} as ApolloClient<any>,
+    },
+  ]);
+}
+
+// TIP - Occasionally, due to how a module is constructed, jest.spyOn will not work.
+// In this case, use the following pattern. The jest.mock approach generally works,
+// but as you can see, it's quite a bit noisier.
+jest.mock('../../models', () => {
+  return {
+    ...jest.requireActual('../../models'),
+    useAuthClient: jest.fn(),
+  };
+});
+function mockModelsModule() {
+  let mockAuthClient = new AuthClient('localhost:9000');
+  mockAuthClient.accountStatusByEmail = jest
+    .fn()
+    .mockResolvedValue({ exists: true });
+  (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
+    () => mockAuthClient
+  );
+}
+
+// TIP - Finally, we should create a helper function, so the defacto
+// mock behaviors can be easily applied. Once applied, they can
+// always be overridden as needed.
+function applyMocks() {
+  // TIP - Important! Clear previous mock states
+  jest.resetAllMocks();
+  jest.restoreAllMocks();
+
+  // Run default mocks
+  mockIntegration();
+  mockServiceName();
+  mockSignupModule();
+  mockApolloClientModule();
+  mockModelsModule();
+  mockUseValidateModule();
+  mockFirefoxModule();
+  mockCryptoModule();
+  mockReachRouterModule();
+  mockReactUtilsModule();
+  mockLoadingSpinnerModule();
+}
+
+// TIP - Since render looks more or less the same each time, we can tease this out
+// as a helper function.
+async function render(text?: string) {
+  // Even though we aren't testing presentation, there still might be presentation
+  // state/context driven by react or l10n that's required. Therefore we will invoke the
+  // container component as follows.
+  renderWithLocalizationProvider(
+    <SignupContainer
+      {...{
+        integration,
+        serviceName,
+      }}
+    />
+  );
+
+  // TIP - Wait for the expected mocked test to show up.
+  await screen.findByText(text || 'signup mock');
+
+  // TIP/HACK -To work around the fact that the container uses, requestAnimationFrame...
+  // Turns out that can create some pretty erratic test behavior...
+  await new Promise((r) => setTimeout(r, 100));
+}
+
+// TIP - It's easier to target test suites that don't have spaces in their names.
+describe('sign-up-container', () => {
+  // TIP - Always run applyMocks, this will fire before every test.
+  beforeEach(() => {
+    applyMocks();
+  });
+
+  // TIP - Using nested describe is often helpful. It makes the test read easier
+  // and creates a natural partitioning of testing cases that are typically
+  // easier to understand than a bunch of individual tests. They are also a
+  // easier to focus and skip.
+  describe('default-state', () => {
+    it('renders', async () => {
+      await render();
+      expect(screen.queryByText('loading spinner mock')).toBeNull();
+      expect(SignupModule.Signup).toBeCalled();
+      expect(currentSignupProps?.isSync).toBeTruthy();
+    });
+  });
+
+  describe('loading-states', () => {
+    beforeEach(() => {
+      // TIP - In this case, we want to override the previous behavior. We can do this
+      // easily in a before each or even within a test block.
+      (useAuthClient as jest.Mock).mockImplementation(() => {
+        let client = new AuthClient('localhost:9000');
+        client.accountStatusByEmail = jest
+          .fn()
+          .mockReturnValue(new Promise(() => {}));
+        return client;
+      });
+    });
+
+    it('shows loading until account status query resolves', async () => {
+      await render('loading spinner mock');
+      expect(screen.queryByText('signup mock')).toBeNull();
+    });
+  });
+
+  describe('error-states', () => {
+    beforeEach(() => {
+      jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
+        async (...args: any[]) => {
+          return mockBeginSignupMutation(...args);
+        },
+        {
+          loading: false,
+          called: true,
+          client: {} as ApolloClient<any>,
+        },
+      ]);
+
+      // In this case want to mimic a bad email value
+      jest
+        .spyOn(UseValidateModule, 'useValidatedQueryParams')
+        .mockImplementation((_params) => {
+          return {
+            queryParamModel: {
+              email: 123,
+            } as unknown as ModelDataProvider,
+            validationError: {
+              property: 'email',
+            },
+          };
+        });
+    });
+
+    it('navigates away on validation error', async () => {
+      await render('loading spinner mock');
+      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+    });
+  });
+
+  describe('web-channel-interactions', () => {
+    describe('sync desktop', () => {
+      beforeEach(() => {
+        // here we override some key behaviors to alter the containers behavior
+        serviceName = MozServices.FirefoxSync;
+        integration.getService = () => MozServices.FirefoxSync;
+        integration.type = IntegrationType.SyncDesktop;
+      });
+
+      it('added event listeners', async () => {
+        await render();
+        expect(FirefoxModule.firefox.addEventListener).toBeCalled();
+      });
+
+      it('sent command', async () => {
+        await render();
+        expect(FirefoxModule.firefox.send).toBeCalledWith(
+          FirefoxCommand.FxAStatus,
+          {
+            context: Constants.FX_DESKTOP_V3_CONTEXT,
+            isPairing: false,
+            service: Constants.SYNC_SERVICE,
+          }
+        );
+      });
+    });
+
+    describe('sync-service-on-mobile', () => {
+      beforeEach(() => {
+        serviceName = MozServices.FirefoxSync;
+        integration.getService = () => MozServices.FirefoxSync;
+        integration.type = IntegrationType.OAuth;
+        integration.features.webChannelSupport = true;
+      });
+      it('adds event listeners and sends', async () => {
+        await render();
+        expect(FirefoxModule.firefox.addEventListener).toBeCalled();
+        expect(FirefoxModule.firefox.send).toBeCalledWith(
+          FirefoxCommand.FxAStatus,
+          {
+            context: Constants.OAUTH_CONTEXT,
+            isPairing: false,
+            service: Constants.SYNC_SERVICE,
+          }
+        );
+      });
+    });
+
+    describe('non-sync-service', () => {
+      beforeEach(() => {
+        integration.type = IntegrationType.Web;
+        integration.getService = () => MozServices.Default;
+      });
+
+      it('did not add event listeners and send command', async () => {
+        await render();
+        expect(FirefoxModule.firefox.addEventListener).not.toBeCalled();
+      });
+
+      it('did not send command', async () => {
+        await render();
+        expect(FirefoxModule.firefox.send).not.toBeCalled();
+      });
+    });
+  });
+
+  describe('begin-sign-up-handler', () => {
+    beforeEach(() => {
+      serviceName = MozServices.FirefoxSync;
+      integration.getService = () => MozServices.FirefoxSync;
+      integration.type = IntegrationType.SyncDesktop;
+    });
+
+    it('runs handler and invokes sign up mutation', async () => {
+      await render();
+      expect(currentSignupProps).toBeDefined();
+      const handlerResult = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(mockBeginSignupMutation).toBeCalledWith({
+        variables: {
+          input: {
+            email: 'foo@mozilla.com',
+            authPW: 'apw123',
+            options: {
+              verificationMethod: 'email-otp',
+              keys: true,
+              service: MozServices.FirefoxSync,
+            },
+          },
+        },
+      });
+      expect(handlerResult?.data?.unwrapBKey).toBeDefined();
+      expect(handlerResult?.data?.SignUp?.uid).toEqual('uid123');
+      expect(handlerResult?.data?.SignUp?.keyFetchToken).toEqual('kft123');
+      expect(handlerResult?.data?.SignUp?.sessionToken).toEqual('st123');
+    });
+
+    it('handles error fetching credentials', async () => {
+      jest
+        .spyOn(CryptoModule, 'getCredentials')
+        .mockImplementation(async () => {
+          throw new Error('BOOM');
+        });
+
+      await render();
+      const result = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(result?.data).toBeNull();
+      expect(result?.error?.message).toEqual(
+        AuthUiErrors.UNEXPECTED_ERROR.message
+      );
+    });
+
+    it('handles error on gql mutation', async () => {
+      mockBeginSignupMutation.mockImplementation(() => {
+        const gqlError = new ApolloError({
+          graphQLErrors: [
+            new GraphQLError(AuthUiErrors.UNEXPECTED_ERROR.message),
+          ],
+        });
+        throw gqlError;
+      });
+
+      await render();
+      const result = await currentSignupProps?.beginSignupHandler(
+        'foo@mozilla.com',
+        'test123'
+      );
+
+      expect(result?.data).toBeNull();
+      expect(result?.error?.message).toEqual(
+        AuthUiErrors.UNEXPECTED_ERROR.message
+      );
+    });
+  });
+});
