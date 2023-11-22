@@ -204,10 +204,9 @@ describe('subscriptions payPalRoutes', () => {
     beforeEach(() => {
       stripeHelper.findCustomerSubscriptionByPlanId =
         sinon.fake.returns(undefined);
-      capabilityService.getPlanEligibility = sinon.fake.resolves([
-        SubscriptionEligibilityResult.CREATE,
-        undefined,
-      ]);
+      capabilityService.getPlanEligibility = sinon.fake.resolves({
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
+      });
       stripeHelper.cancelSubscription = sinon.fake.resolves({});
       payPalHelper.cancelBillingAgreement = sinon.fake.resolves({});
       profile.deleteCache = sinon.fake.resolves({});

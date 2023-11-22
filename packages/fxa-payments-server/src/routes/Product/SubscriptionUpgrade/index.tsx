@@ -30,14 +30,14 @@ import './index.scss';
 import { ProductProps } from '../index';
 import { PaymentConsentCheckbox } from '../../../components/PaymentConsentCheckbox';
 import { PaymentProviderDetails } from '../../../components/PaymentProviderDetails';
-import { WebSubscription } from 'fxa-shared/subscriptions/types';
+import { AbbrevPlan, WebSubscription } from 'fxa-shared/subscriptions/types';
 import { FirstInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
 
 export type SubscriptionUpgradeProps = {
   profile: Profile;
   customer: Customer;
   selectedPlan: Plan;
-  upgradeFromPlan: Plan;
+  upgradeFromPlan: AbbrevPlan;
   upgradeFromSubscription: WebSubscription;
   invoicePreview: FirstInvoicePreview;
   discount?: number;

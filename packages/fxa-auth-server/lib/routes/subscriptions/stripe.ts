@@ -9,6 +9,7 @@ import { SeverityLevel } from '@sentry/types';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
+  SubscriptionChangeEligibility,
   SubscriptionEligibilityResult,
   SubscriptionUpdateEligibility,
 } from 'fxa-shared/subscriptions/types';
@@ -219,14 +220,14 @@ export class StripeHandler {
       );
     }
 
-    const eligibility = await this.capabilityService.getPlanEligibility(
-      uid,
-      planId
-    );
+    const result: SubscriptionChangeEligibility =
+      await this.capabilityService.getPlanEligibility(uid, planId);
 
     const eligibleForUpgrade =
-      eligibility[0] === SubscriptionEligibilityResult.UPGRADE;
-    const isUpgradeForCurrentPlan = eligibility[1]?.plan_id === currentPlan.id;
+      result.subscriptionEligibilityResult ===
+      SubscriptionEligibilityResult.UPGRADE;
+    const isUpgradeForCurrentPlan =
+      result.eligibleSourcePlan?.plan_id === currentPlan.id;
     if (!eligibleForUpgrade || !isUpgradeForCurrentPlan) {
       throw error.invalidPlanUpdate();
     }
@@ -405,13 +406,15 @@ export class StripeHandler {
       let isUpgrade = false,
         sourcePlan;
       if (customer) {
-        const upgradeResult = await this.capabilityService.getPlanEligibility(
+        const result = await this.capabilityService.getPlanEligibility(
           customer.metadata.userid,
           priceId
         );
 
-        isUpgrade = upgradeResult[0] === SubscriptionUpdateEligibility.UPGRADE;
-        sourcePlan = upgradeResult[1];
+        isUpgrade =
+          result.subscriptionEligibilityResult ===
+          SubscriptionUpdateEligibility.UPGRADE;
+        sourcePlan = result.eligibleSourcePlan;
       }
 
       const previewInvoice = await this.stripeHelper.previewInvoice({
@@ -553,13 +556,14 @@ export class StripeHandler {
       }
 
       // Validate that the user doesn't have conflicting subscriptions, for instance via IAP
-      const eligibility = (
+      const { subscriptionEligibilityResult } =
         await this.capabilityService.getPlanEligibility(
           customer.metadata.userid,
           priceId
-        )
-      )[0];
-      if (eligibility !== SubscriptionEligibilityResult.CREATE) {
+        );
+      if (
+        subscriptionEligibilityResult !== SubscriptionEligibilityResult.CREATE
+      ) {
         throw error.userAlreadySubscribedToProduct();
       }
 

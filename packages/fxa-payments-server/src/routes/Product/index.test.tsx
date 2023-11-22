@@ -476,10 +476,39 @@ describe('routes/Product', () => {
   });
 
   it('offers upgrade if user is already subscribed to another plan in the same product set', async () => {
-    const apiMocks = initSubscribedApiMocks({
-      planId: 'plan_upgrade',
-      planEligibility: 'upgrade',
-    });
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(
+          200,
+          { ...MOCK_PROFILE },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/plan_upgrade`
+        )
+        .reply(
+          200,
+          { eligibility: 'upgrade', currentPlan: MOCK_PLANS[1] },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
+    ];
     const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
@@ -522,7 +551,39 @@ describe('routes/Product', () => {
   });
 
   it('does not allow a downgrade', async () => {
-    const apiMocks = initSubscribedApiMocks({ planId: 'plan_no_downgrade' });
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(
+          200,
+          { ...MOCK_PROFILE },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(200, MOCK_CUSTOMER, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/plan_no_downgrade`
+        )
+        .reply(
+          200,
+          { eligibility: 'downgrade', currentPlan: MOCK_PLANS[0] },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
+    ];
     const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
@@ -562,25 +623,57 @@ describe('routes/Product', () => {
   });
 
   it('displays roadblock for an IAP subscribed product', async () => {
-    const apiMocks = initSubscribedApiMocks({
-      mockCustomer: {
-        ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
-        subscriptions: [
+    const apiMocks = [
+      nock(profileServer)
+        .get('/v1/profile')
+        .reply(
+          200,
+          { ...MOCK_PROFILE },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/plans')
+        .reply(200, MOCK_PLANS, { 'Access-Control-Allow-Origin': '*' }),
+      nock(authServer)
+        .get(
+          '/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions'
+        )
+        .reply(
+          200,
           {
-            _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
-            product_id: PRODUCT_ID,
-            auto_renewing: true,
-            expiry_time_millis: Date.now(),
-            package_name: 'org.mozilla.cooking.with.foxkeh',
-            sku: 'org.mozilla.foxkeh.yearly',
-            product_name: 'Cooking with Foxkeh',
-            price_id: 'nextlevel',
+            ...MOCK_CUSTOMER_AFTER_SUBSCRIPTION,
+            subscriptions: [
+              {
+                _subscription_type: MozillaSubscriptionTypes.IAP_GOOGLE,
+                product_id: PRODUCT_ID,
+                auto_renewing: true,
+                expiry_time_millis: Date.now(),
+                package_name: 'org.mozilla.cooking.with.foxkeh',
+                sku: 'org.mozilla.foxkeh.yearly',
+                product_name: 'Cooking with Foxkeh',
+                price_id: 'nextlevel',
+              },
+            ],
           },
-        ],
-      },
-      planId: 'nextlevel',
-      planEligibility: 'blocked_iap',
-    });
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .get(
+          `/v1/oauth/mozilla-subscriptions/customer/plan-eligibility/nextlevel`
+        )
+        .reply(
+          200,
+          { eligibility: 'blocked_iap', currentPlan: MOCK_PLANS[1] },
+          { 'Access-Control-Allow-Origin': '*' }
+        ),
+      nock(authServer)
+        .persist()
+        .post('/v1/oauth/subscriptions/invoice/preview')
+        .reply(200, mockPreviewInvoiceResponse, {
+          'Access-Control-Allow-Origin': '*',
+        }),
+    ];
     const { findByTestId } = renderWithLocalizationProvider(
       <Subject
         {...{
