@@ -50,7 +50,7 @@ export class SubscribePage extends BaseLayout {
     await frame.fill('.InputElement[name=cardnumber]', '4000000000000341');
     await frame.fill('.InputElement[name=exp-date]', '666');
     await frame.fill('.InputElement[name=cvc]', '444');
-    await frame.fill('.InputElement[name=postal]', '77777');
+    // await frame.fill('.InputElement[name=postal]', '77777');
   }
 
   async clickPayNow() {

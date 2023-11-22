@@ -25,16 +25,19 @@ export class SubscriptionManagementPage extends BaseLayout {
   }
 
   async changeStripeCardDetails() {
+    const frame = this.page.frame({ url: /elements-inner-card/ });
+    if (!frame) {
+      throw new Error('No frame found');
+    }
     await this.page
       .locator('[data-testid="reveal-payment-update-button"]')
       .click();
     await this.page.locator('[data-testid="name"]').fill('Test User');
-    const frame = this.page.frame({ url: /elements-inner-card/ });
     await frame.fill('.InputElement[name=cardnumber]', '');
     await frame.fill('.InputElement[name=cardnumber]', '5555555555554444');
     await frame.fill('.InputElement[name=exp-date]', '444');
     await frame.fill('.InputElement[name=cvc]', '777');
-    await frame.fill('.InputElement[name=postal]', '88888');
+    // await frame.fill('.InputElement[name=postal]', '88888');
     await this.page.locator('[data-testid="submit"]').click();
   }
 
