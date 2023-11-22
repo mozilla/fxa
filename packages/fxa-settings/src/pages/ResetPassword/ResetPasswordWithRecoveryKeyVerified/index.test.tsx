@@ -17,10 +17,20 @@ import {
   createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration,
   createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration,
 } from './mocks';
+import GleanMetrics from '../../../lib/glean';
 
 jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
+}));
+
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    resetPassword: {
+      recoveryKeyResetSuccessView: jest.fn(),
+    },
+  },
 }));
 
 afterEach(() => {
@@ -122,5 +132,8 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
       'continue-to-account',
       REACT_ENTRYPOINT
     );
+    expect(
+      GleanMetrics.resetPassword.recoveryKeyResetSuccessView
+    ).toHaveBeenCalled();
   });
 });

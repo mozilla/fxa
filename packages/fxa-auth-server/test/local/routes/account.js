@@ -208,6 +208,7 @@ describe('/account/reset', () => {
     clientAddress = mockRequest.app.clientAddress;
     glean.resetPassword.accountReset.reset();
     glean.resetPassword.createNewSuccess.reset();
+    glean.resetPassword.recoveryKeyCreatePasswordSuccess.reset();
   });
 
   describe('reset account with account recovery key', () => {
@@ -311,6 +312,13 @@ describe('/account/reset', () => {
       assert.equal(mockMetricsContext.validate.callCount, 0);
       assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 0);
       assert.equal(mockMetricsContext.propagate.callCount, 2);
+      assert.calledOnceWithExactly(
+        glean.resetPassword.recoveryKeyCreatePasswordSuccess,
+        mockRequest,
+        {
+          uid,
+        }
+      );
     });
 
     it('should have created session', () => {

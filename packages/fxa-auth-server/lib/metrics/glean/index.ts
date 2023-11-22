@@ -145,6 +145,10 @@ export function gleanMetrics(config: ConfigType) {
       createNewSuccess: createEventFn('password_reset_create_new_success'),
       accountReset: createEventFn('account_password_reset'),
       recoveryKeySuccess: createEventFn('password_reset_recovery_key_success'),
+
+      recoveryKeyCreatePasswordSuccess: createEventFn(
+        'password_reset_recovery_key_create_success'
+      ),
     },
   };
 }

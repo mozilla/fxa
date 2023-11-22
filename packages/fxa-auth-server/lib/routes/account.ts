@@ -1361,6 +1361,11 @@ export class AccountHandler {
         this.glean.resetPassword.createNewSuccess(request, {
           uid: account.uid,
         }),
+        recoveryKeyId
+          ? this.glean.resetPassword.recoveryKeyCreatePasswordSuccess(request, {
+              uid: account.uid,
+            })
+          : Promise.resolve(),
         this.log.notifyAttachedServices('reset', request, {
           uid: account.uid,
           generation: account.verifierSetAt,

@@ -5,12 +5,13 @@
 import React from 'react';
 import { RouteComponentProps, useNavigate } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { logViewEvent } from '../../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import Ready from '../../../components/Ready';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import AppLayout from '../../../components/AppLayout';
 import { useFtlMsgResolver } from '../../../models';
 import { ResetPasswordWithRecoveryKeyVerifiedProps } from './interfaces';
+import GleanMetrics from '../../../lib/glean';
 
 export const viewName = 'reset-password-with-recovery-key-verified';
 
@@ -23,6 +24,9 @@ const ResetPasswordWithRecoveryKeyVerified = ({
   isSignedIn,
   integration,
 }: ResetPasswordWithRecoveryKeyVerifiedProps & RouteComponentProps) => {
+  usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  GleanMetrics.resetPassword.recoveryKeyResetSuccessView();
+
   const navigate = useNavigate();
 
   const ftlMsgResolver = useFtlMsgResolver();
