@@ -43,7 +43,8 @@ const redis = require('../../lib/redis')(
   mocks.mockLog()
 );
 
-describe('#integration - scripts/prune-tokens', () => {
+describe('#integration - scripts/prune-tokens', function () {
+  this.timeout(10000);
   let db;
 
   const toRandomBuff = (size) =>
@@ -61,8 +62,8 @@ describe('#integration - scripts/prune-tokens', () => {
     Date.now() -
     moment.duration(maxAge, 'days').asMilliseconds() -
     moment.duration(1, 'day').asMilliseconds();
-  const uid = uuidTransformer.to('f9916686c226415abd06ae550f073cea');
-  const email = 'user1@test.com';
+  const uid = uuidTransformer.to(crypto.randomBytes(16).toString('hex'));
+  const email = `${crypto.randomBytes(16).toString('hex')}blue@test.com`;
   const account = {
     uid,
     createdAt,

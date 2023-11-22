@@ -104,6 +104,10 @@ describe('PlanCanceller', () => {
     );
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   describe('run', () => {
     let fetchSubsBatchStub: sinon.SinonStub;
     let processSubscriptionStub: sinon.SinonStub;

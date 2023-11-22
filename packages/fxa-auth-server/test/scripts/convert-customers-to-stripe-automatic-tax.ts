@@ -159,6 +159,7 @@ describe('StripeAutomaticTaxConverter', () => {
 
   afterEach(() => {
     readFileSyncStub.restore();
+    Container.reset();
   });
 
   describe('convert', () => {

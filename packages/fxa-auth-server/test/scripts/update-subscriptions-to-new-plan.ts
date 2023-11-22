@@ -131,6 +131,10 @@ describe('CustomerPlanMover', () => {
     );
   });
 
+  afterEach(() => {
+    Container.reset();
+  });
+
   describe('update', () => {
     let fetchSubsBatchStub: sinon.SinonStub;
     let processSubscriptionStub: sinon.SinonStub;

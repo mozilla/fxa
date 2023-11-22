@@ -11,6 +11,8 @@ const cp = require('child_process');
 const { assert } = require('chai');
 const path = require('path');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
+const crypto = require('crypto');
+const fs = require('fs');
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 cp.execAsync = promisify(cp.exec);
@@ -21,7 +23,6 @@ const Token = require('../../lib/tokens')(log, config);
 const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
-const TestServer = require('../test_server');
 
 const twoBuffer16 = Buffer.from(
   '22222222222222222222222222222222',
@@ -48,48 +49,63 @@ function createAccount(email, uid) {
 }
 
 const account1Mock = createAccount(
-  'user1@test.com',
-  'f9916686c226415abd06ae550f073cec'
+  `${Math.random() * 10000}@zmail.com`,
+  crypto.randomBytes(16).toString('hex')
 );
 const account2Mock = createAccount(
-  'user2@test.com',
-  'f9916686c226415abd06ae550f073ced'
+  `${Math.random() * 10000}@zmail.com`,
+  crypto.randomBytes(16).toString('hex')
 );
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
 
 describe('#integration - scripts/must-reset', async function () {
-  this.timeout(30000);
+  this.timeout(10000);
 
-  let db, server;
+  let db, oneEmailFilename, oneUidFilename, twoEmailsFilename, twoUidsFilename;
 
   before(async () => {
-    server = await TestServer.start(config);
     db = await DB.connect(config);
-    await db.deleteAccount(account1Mock);
-    await db.deleteAccount(account2Mock);
+    await db.createAccount(account1Mock);
+    await db.createAccount(account2Mock);
+
+    const data = `${account1Mock.email}\n`;
+    oneEmailFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_one_email.txt`;
+    fs.writeFileSync(oneEmailFilename, data);
+
+    const data2 = `${account1Mock.uid}\n`;
+    oneUidFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_one_uid.txt`;
+    fs.writeFileSync(oneUidFilename, data2);
+
+    const data3 = `${account1Mock.email}\n${account2Mock.email}\n`;
+    twoEmailsFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_two_emails.txt`;
+    fs.writeFileSync(twoEmailsFilename, data3);
+
+    const data4 = `${account1Mock.uid}\n${account2Mock.uid}\n`;
+    twoUidsFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_two_uids.txt`;
+    fs.writeFileSync(twoUidsFilename, data4);
   });
 
   after(async () => {
-    await db.deleteAccount(account1Mock);
-    await db.deleteAccount(account2Mock);
-    return await TestServer.stop(server);
-  });
-
-  beforeEach(async () => {
-    await db.createAccount(account1Mock);
-    await db.createAccount(account2Mock);
-  });
-
-  afterEach(async () => {
-    await db.deleteAccount(account1Mock);
-    await db.deleteAccount(account2Mock);
+    await db.close();
+    fs.unlinkSync(oneEmailFilename);
+    fs.unlinkSync(oneUidFilename);
+    fs.unlinkSync(twoEmailsFilename);
+    fs.unlinkSync(twoUidsFilename);
   });
 
   it('fails if -i is not specified', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset ./test/scripts/fixtures/one_email.txt',
+        `node --require esbuild-register scripts/must-reset ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -103,7 +119,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('fails if neither --emails nor --uids is specified', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset -i ./test/scripts/fixtures/one_email.txt',
+        `node --require esbuild-register scripts/must-reset -i ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -117,7 +133,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('fails if both --emails and --uids are specified', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails --uids -i ./test/scripts/fixtures/one_email.txt',
+        `node --require esbuild-register scripts/must-reset --emails --uids -i ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -215,7 +231,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('succeeds with --uids and --input containing 1 uid', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --uids --input ./test/scripts/fixtures/one_uid.txt',
+        `node --require esbuild-register scripts/must-reset --uids --input ${oneUidFilename}`,
         {
           cwd,
         }
@@ -233,7 +249,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('succeeds with --emails and --input containing 1 email', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails --input ./test/scripts/fixtures/one_email.txt',
+        `node --require esbuild-register scripts/must-reset --emails --input ${oneEmailFilename}`,
         {
           cwd,
         }
@@ -251,7 +267,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('succeeds with --uids and --input containing 2 uids', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --uids --input ./test/scripts/fixtures/two_uids.txt',
+        `node --require esbuild-register scripts/must-reset --uids --input ${twoUidsFilename}`,
         {
           cwd,
         }
@@ -276,7 +292,7 @@ describe('#integration - scripts/must-reset', async function () {
   it('succeeds with --emails and --input containing 2 emails', async () => {
     try {
       await cp.execAsync(
-        'node --require esbuild-register scripts/must-reset --emails --input ./test/scripts/fixtures/two_emails.txt',
+        `node --require esbuild-register scripts/must-reset --emails --input ${twoEmailsFilename}`,
         {
           cwd,
         }
