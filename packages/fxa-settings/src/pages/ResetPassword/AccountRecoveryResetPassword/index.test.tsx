@@ -30,6 +30,17 @@ import {
 } from './mocks';
 import { AccountRecoveryResetPasswordBaseIntegration } from './interfaces';
 
+import GleanMetrics from '../../../lib/glean';
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    resetPassword: {
+      recoveryKeyCreatePasswordView: jest.fn(),
+      recoveryKeyCreatePasswordSubmit: jest.fn(),
+    },
+  },
+}));
+
 const mockUseNavigateWithoutRerender = jest.fn();
 
 jest.mock('../../../lib/hooks/useNavigateWithoutRerender', () => ({
@@ -207,6 +218,9 @@ describe('AccountRecoveryResetPassword page', () => {
         'account-recovery-reset-password',
         REACT_ENTRYPOINT
       );
+      expect(
+        GleanMetrics.resetPassword.recoveryKeyCreatePasswordView
+      ).toHaveBeenCalled();
     });
 
     it('displays password requirements when the new password field is in focus', async () => {
@@ -242,6 +256,9 @@ describe('AccountRecoveryResetPassword page', () => {
         viewName,
         'verification.success'
       );
+      expect(
+        GleanMetrics.resetPassword.recoveryKeyCreatePasswordSubmit
+      ).toHaveBeenCalled();
     });
 
     it('calls account API methods', () => {

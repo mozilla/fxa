@@ -72,5 +72,13 @@ export const eventsMap = {
     createNewSuccess: 'password_reset_create_new_success_view',
     recoveryKeyView: 'password_reset_recovery_key_view',
     recoveryKeySubmit: 'password_reset_recovery_key_submit',
+
+    recoveryKeyCreatePasswordView:
+      'password_reset_recovery_key_create_new_view',
+    recoveryKeyCreatePasswordSubmit:
+      'password_reset_recovery_key_create_new_submit',
+
+    recoveryKeyResetSuccessView:
+      'password_reset_recovery_key_create_success_view',
   },
 };
