@@ -27,7 +27,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-interface OAuthIntegrationFeatures extends IntegrationFeatures {
+export interface OAuthIntegrationFeatures extends IntegrationFeatures {
   webChannelSupport: boolean;
 }
 

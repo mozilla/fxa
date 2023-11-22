@@ -5,7 +5,7 @@ export type AlertBarType = 'success' | 'info' | 'error';
 
 export const alertContent = makeVar(consumeAlertTextExternal() || '');
 export const alertType = makeVar<AlertBarType>('success');
-export const alertVisible = makeVar(!!alertContent());
+export const alertVisible = makeVar(!!alertContent);
 
 export class AlertBarInfo {
   get visible() {

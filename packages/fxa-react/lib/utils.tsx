@@ -4,12 +4,7 @@
 
 import { FluentBundle, FluentDateTime, FluentVariable } from '@fluent/bundle';
 import { Message, Pattern } from '@fluent/bundle/esm/ast';
-import {
-  Localized,
-  LocalizedProps,
-  ReactLocalization,
-  LocalizationProvider,
-} from '@fluent/react';
+import { Localized, LocalizedProps, ReactLocalization } from '@fluent/react';
 import React from 'react';
 
 // Going from react page to non-react page requires a hard navigate. This temporary

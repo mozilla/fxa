@@ -5,7 +5,7 @@
 import cors from './cors';
 import routing from './routing';
 
-export const express = () => ({
+export const express: any = () => ({
   cors,
   routing,
 });

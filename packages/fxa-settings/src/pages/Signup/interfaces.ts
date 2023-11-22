@@ -26,8 +26,8 @@ export interface BeginSignUpOptions {
 }
 
 export type BeginSignupHandler = (
-  password: string,
-  email: string
+  email: string,
+  password: string
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {
