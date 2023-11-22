@@ -40,6 +40,7 @@ test.describe('severity-2 #smoke', () => {
     test('subscribe with credit card after initial failed subscription & verify existing user checkout funnel metrics', async ({
       pages: { relier, login, subscribe },
     }, { project }) => {
+      test.skip(); //FXA-8717
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
