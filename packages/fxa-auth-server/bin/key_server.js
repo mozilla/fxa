@@ -37,8 +37,7 @@ const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 const { AccountEventsManager } = require('../lib/account-events');
 const { gleanMetrics } = require('../lib/metrics/glean');
-const Customs = require('../lib/customs');
-const Profile = require('../lib/profile/client');
+
 async function run(config) {
   Container.set(AppConfig, config);
 
@@ -164,7 +163,7 @@ async function run(config) {
     Container.get(AppleIAP);
   }
 
-  const profile = new Profile(log, config, error, statsd);
+  const profile = require('../lib/profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
   const bounces = require('../lib/bounces')(config, database);
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
@@ -185,7 +184,8 @@ async function run(config) {
   };
   const signer = require('../lib/signer')(config.secretKeyFile, config.domain);
   const Password = require('../lib/crypto/password')(log, config);
-  const customs = new Customs(config.customsUrl, log, error, statsd);
+  const Customs = require('../lib/customs')(log, error, statsd);
+  const customs = new Customs(config.customsUrl);
   const zendeskClient = require('../lib/zendesk-client').createZendeskClient(
     config
   );
@@ -237,6 +237,7 @@ async function run(config) {
     async close() {
       log.info('shutdown');
       await server.stop();
+      await customs.close();
       statsd.close();
       try {
         senders.email.stop();
