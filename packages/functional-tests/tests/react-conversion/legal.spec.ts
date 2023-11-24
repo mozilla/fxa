@@ -17,7 +17,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(getReactFeatureFlagUrl(target, '/legal'));
 
       // Verify react page has been loaded
-      expect(await page.locator('#root').isEnabled()).toBeTruthy();
+      await page.waitForSelector('#root');
 
       // Verify legal page is visible
       expect(
@@ -48,7 +48,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(getReactFeatureFlagUrl(target, '/legal/terms'));
 
       // Verify react page has been loaded
-      await page.locator('#root').isVisible();
+      await page.waitForSelector('#root');
 
       // Verify legal page is visible
       // this text is not in our codebase, it's pulled from the `legal-docs` repo
@@ -61,7 +61,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(getReactFeatureFlagUrl(target, '/legal/privacy'));
 
       // Verify react page has been loaded
-      await page.locator('#root').isVisible();
+      await page.waitForSelector('#root');
 
       // Verify privacy page is visible
       await page.waitForTimeout(1000);
