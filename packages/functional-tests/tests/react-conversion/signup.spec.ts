@@ -14,7 +14,7 @@ test.describe('severity-1 #smoke', () => {
 
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       test.slow();
-      // Ensure that the feature flag is enabled
+      // Ensure that the feature flag is enabled else skip react tests
       const config = await configPage.getConfig();
       if (config.showReactApp.signUpRoutes !== true) {
         test.skip();
@@ -167,11 +167,12 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutCodeForm(code);
 
-      // TODO this test is currently failing - remove this line once fixed
+      // TODO code verification is currently throwing an UNAUTHORIZED error
+      // remove the following line once this error is no longer thrown
       // expect(await page.getByText(/Invalid token/).isVisible()).toBeFalsy();
       // TODO uncomment these lines once line above is passing (no token error)
+      // await page.waitForURL(/connect_another_device/);
       // expect(await page.getByText('Youʼre signed into Firefox').isVisible()).toBeTruthy();
-      // expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
 
       await syncBrowserPages.browser?.close();
     });

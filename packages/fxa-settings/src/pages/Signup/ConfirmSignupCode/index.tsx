@@ -155,9 +155,9 @@ const ConfirmSignupCode = ({
 
       if (isSyncDesktopIntegration(integration)) {
         // Connect another device tells Sync the user is signed in
-        hardNavigateToContentServer(
-          `/connect_another_device${location.search}`
-        );
+        const searchParams = new URLSearchParams(location.search);
+        searchParams.set('showSuccessMessage', 'true');
+        hardNavigateToContentServer(`/connect_another_device?${searchParams}`);
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
