@@ -54,15 +54,20 @@ const RECOVERYKEY_VERIFY_POST = {
   notes: ['🔒 Authenticated with session token'],
 };
 
-// TODO: Update to POST in FXA-7400
-const RECOVERYKEY_HINT_GET = {
-  ...TAGS_RECOVERY_KEY,
-  description: '/recoveryKey/hint',
-  notes: [
-    '🔒🔓 Optionally authenticated with session token',
-    'Retrieves the hint (if any) for a userʼs recovery key.',
-  ],
-};
+// This method is not yet in use
+// Disabled until we are ready to enable as part of FXA-6670
+// GET request for authenticated user should use the sessionToken for authentication
+// To display the hint during password reset, this method will need to be usable without authenticating,
+// but unauthenticated requests should be rate limited by IP and email to prevent checking multiple emails for hints
+// TODO: Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
+// const RECOVERYKEY_HINT_GET = {
+//   ...TAGS_RECOVERY_KEY,
+//   description: '/recoveryKey/hint',
+//   notes: [
+//     '🔒🔓 Optionally authenticated with session token',
+//     'Retrieves the hint (if any) for a userʼs recovery key.',
+//   ],
+// };
 
 const RECOVERYKEY_HINT_POST = {
   ...TAGS_RECOVERY_KEY,
@@ -79,7 +84,7 @@ const API_DOCS = {
   RECOVERYKEY_POST,
   RECOVERYKEY_RECOVERYKEYID_GET,
   RECOVERYKEY_VERIFY_POST,
-  RECOVERYKEY_HINT_GET,
+  // RECOVERYKEY_HINT_GET,
   RECOVERYKEY_HINT_POST,
 };
 
