@@ -336,59 +336,65 @@ module.exports = (
         return db.recoveryKeyExists(uid);
       },
     },
-    // TODO : Refactor API method to use POST and pass email as payload instead of query param in FXA-7400
-    {
-      method: 'GET',
-      path: '/recoveryKey/hint',
-      options: {
-        ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_GET,
-        auth: {
-          mode: 'optional',
-          strategy: 'sessionToken',
-        },
-        validate: {
-          query: {
-            email: validators.email().optional(),
-          },
-        },
-      },
-      handler: async function (request) {
-        log.begin('getRecoveryKeyHint', request);
+    // This method is not yet in use
+    // Disabled until we are ready to enable as part of FXA-6670
+    // GET request for authenticated user should use the sessionToken to display the hint in /settings
+    // To display the hint during password reset, this method will need to be usable without authenticating,
+    // but unauthenticated requests should be rate limited by IP and email to prevent checking multiple emails for hints
+    // TODO : Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
+    // {
+    //   method: 'GET',
+    //   path: '/recoveryKey/hint',
+    //   options: {
+    //     ...RECOVERY_KEY_DOCS.RECOVERYKEY_HINT_GET,
+    //     auth: {
+    //       mode: 'optional',
+    //       strategy: 'sessionToken',
+    //     },
+    //     validate: {
+    //       query: {
+    //         email: validators.email().optional(),
+    //       },
+    //     },
+    //   },
+    //   handler: async function (request) {
+    //     log.begin('getRecoveryKeyHint', request);
 
-        const { email } = request.query;
+    //     const { email } = request.query;
 
-        let uid;
-        if (request.auth.credentials) {
-          uid = request.auth.credentials.uid;
-        }
+    //     let uid;
+    //     if (request.auth.credentials) {
+    //       uid = request.auth.credentials.uid;
+    //     }
 
-        if (!uid) {
-          // If not using a sessionToken, an email is required to check
-          // for an account recovery key.
-          if (!email) {
-            throw errors.missingRequestParameter('email');
-          }
+    //     if (!uid) {
+    //       // If not using a sessionToken, an email is required to check
+    //       // for an account recovery key.
+    //       if (!email) {
+    //         throw errors.missingRequestParameter('email');
+    //       }
 
-          // When this request is unauthenticated, we rate-limit
-          await customs.check(request, email, 'recoveryKeyExists');
-          try {
-            const result = await db.accountRecord(email);
-            uid = result.uid;
-          } catch (err) {
-            throw errors.unknownAccount();
-          }
-        }
+    //       // When this request is unauthenticated, we must rate-limit by IP and email
+    //       // to review in FXA-7400, rate limiting does not seem to be working as expected
+    //       await customs.check(request, email, 'recoveryKeyExists');
+    //       try {
+    //         const result = await db.accountRecord(email);
+    //         uid = result.uid;
+    //       } catch (err) {
+    //         throw errors.unknownAccount();
+    //       }
+    //     }
 
-        const result = await db.recoveryKeyExists(uid);
-        if (!result.exists) {
-          throw errors.recoveryKeyNotFound();
-        }
+    //     const result = await db.recoveryKeyExists(uid);
+    //     if (!result.exists) {
+    //       throw errors.recoveryKeyNotFound();
+    //     }
 
-        const hint = await db.getRecoveryKeyHint(uid);
+    //     const hint = await db.getRecoveryKeyHint(uid);
 
-        return hint;
-      },
-    },
+    //     return hint;
+    //   },
+    // },
     {
       method: 'POST',
       path: '/recoveryKey/hint',
