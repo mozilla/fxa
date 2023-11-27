@@ -37,7 +37,7 @@ export class SubscriptionManagementPage extends BaseLayout {
     await frame.fill('.InputElement[name=cardnumber]', '5555555555554444');
     await frame.fill('.InputElement[name=exp-date]', '444');
     await frame.fill('.InputElement[name=cvc]', '777');
-    // await frame.fill('.InputElement[name=postal]', '88888');
+    await frame.fill('.InputElement[name=postal]', '88888');
     await this.page.locator('[data-testid="submit"]').click();
   }
 
