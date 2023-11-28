@@ -27,7 +27,7 @@ import {
   GET_CLIENT_INFO,
 } from '../components/App/gql';
 import {
-  MetricsData,
+  MetricsDataResult,
   SignedInAccountStatus,
 } from '../components/App/interfaces';
 import { RelierClientInfo, RelierSubscriptionInfo } from './integrations';
@@ -159,7 +159,9 @@ export function useInitialMetricsQueryState() {
   if (!apolloClient) {
     throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  return useQuery<MetricsData>(INITIAL_METRICS_QUERY, { client: apolloClient });
+  return useQuery<MetricsDataResult>(INITIAL_METRICS_QUERY, {
+    client: apolloClient,
+  });
 }
 
 export function useClientInfoState() {
