@@ -49,6 +49,7 @@
     "@nestjs/passport": "^10.0.1",
     "@nestjs/platform-express": "^10.2.4",
     "@nestjs/schedule": "^3.0.3",
+    "@storybook/blocks": "v7.6.0",
     "@swc/helpers": "~0.5.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
