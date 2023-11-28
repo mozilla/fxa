@@ -4,7 +4,6 @@
 
 import _ from 'underscore';
 import AccountRecoveryConfirmKey from '../views/account_recovery_confirm_key';
-
 import Backbone from 'backbone';
 import ChooseWhatToSyncView from '../views/choose_what_to_sync';
 import Cocktail from 'cocktail';
@@ -46,11 +45,6 @@ import ReactExperimentMixin from './generalized-react-app-experiment-mixin';
 import { getClientReactRouteGroups } from '../../../server/lib/routes/react-app/route-groups-client';
 
 const NAVIGATE_AWAY_IN_MOBILE_DELAY_MS = 75;
-
-// React route groups specified here will effectively be set to
-// 100% roll out in production. Only add group names here once they've
-// been verified in production at the 15% experiment roll out.
-const ALWAYS_SHOWN_REACT_GROUPS = ['simpleRoutes', 'resetPasswordRoutes'];
 
 function getView(ViewOrPath) {
   if (typeof ViewOrPath === 'string') {
@@ -114,7 +108,6 @@ let Router = Backbone.Router.extend({
     }
 
     this.storage = Storage.factory('sessionStorage', this.window);
-    this.reactRouteGroups = getClientReactRouteGroups(this.config.showReactApp);
   },
 });
 
@@ -148,13 +141,7 @@ Router = Router.extend({
         'complete_reset_password',
         CompleteResetPasswordView,
         {
-          ...Url.searchParams(this.window.location.search, [
-            'email',
-            'emailToHashWith',
-            'code',
-            'token',
-            'uid',
-          ]),
+          ...Url.searchParams(this.window.location.search),
         }
       );
     },
@@ -523,20 +510,23 @@ Router = Router.extend({
    * @returns boolean
    * */
   showReactApp(routeName) {
-    for (const routeGroup in this.reactRouteGroups) {
+    const reactRouteGroups = this.getReactRouteGroups();
+    for (const routeGroup in reactRouteGroups) {
       if (
-        this.reactRouteGroups[routeGroup].routes.find(
-          (route) => routeName === route
-        )
+        reactRouteGroups[routeGroup].routes.find((route) => routeName === route)
       ) {
         return (
-          this.reactRouteGroups[routeGroup].featureFlagOn &&
+          reactRouteGroups[routeGroup].featureFlagOn &&
           (this.isInReactExperiment() ||
-            ALWAYS_SHOWN_REACT_GROUPS.includes(routeGroup))
+            reactRouteGroups[routeGroup].fullProdRollout === true)
         );
       }
     }
     return false;
+  },
+
+  getReactRouteGroups() {
+    return getClientReactRouteGroups(this.config.showReactApp);
   },
 
   createReactViewHandler(routeName, additionalParams) {
@@ -839,9 +829,6 @@ Router = Router.extend({
    * @returns {Function} - a function that can be given to the router.
    */
   createChildViewHandler: createChildViewHandler,
-
-  // export this on 'router' for testing
-  ALWAYS_SHOWN_REACT_GROUPS,
 });
 
 export default Router;

@@ -15,13 +15,17 @@ function addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n) {
    * use the default routing middleware from `fxa-shared/express/routing.ts`.
    * @param {import("./types").ReactRouteGroup}
    */
-  function addReactRoutesConditionally({ featureFlagOn, routes }) {
+  function addReactRoutesConditionally({
+    featureFlagOn,
+    routes,
+    fullProdRollout,
+  }) {
     if (featureFlagOn === true) {
       routes.forEach(({ definition }) => {
         // possible TODO - `definition.method`s will either be 'get' or 'post'. Not sure if we need
         // this for any 'post' requests but shouldn't hurt anything; 'get' alone may suffice.
         app[definition.method](definition.path, (req, res, next) => {
-          if (req.query.showReactApp === 'true') {
+          if (req.query.showReactApp === 'true' || fullProdRollout === true) {
             return middleware(req, res, next);
           } else {
             next('route');
