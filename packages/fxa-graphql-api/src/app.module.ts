@@ -20,6 +20,7 @@ import Config, { AppConfig } from './config';
 import { DatabaseModule } from './database/database.module';
 import { DatabaseService } from './database/database.service';
 import { GqlModule, GraphQLConfigFactory } from './gql/gql.module';
+import { ComplexityPlugin } from './backend/complexity.plugin';
 
 const version = getVersionInfo(__dirname);
 
@@ -60,6 +61,6 @@ const version = getVersionInfo(__dirname);
     }),
   ],
   controllers: [],
-  providers: [MetricsFactory],
+  providers: [MetricsFactory, ComplexityPlugin],
 })
 export class AppModule {}
