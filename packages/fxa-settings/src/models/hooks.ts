@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useContext, useRef, useEffect, useMemo } from 'react';
+import { isHexadecimal, length } from 'class-validator';
 import { AppContext } from './contexts/AppContext';
 import {
   INITIAL_SETTINGS_QUERY,
@@ -172,9 +173,12 @@ export function useClientInfoState() {
   const urlQueryData = new UrlQueryData(new ReachRouterWindow());
   const clientId =
     urlQueryData.get('client_id') || urlQueryData.get('service') || '';
+
   return useQuery<{ clientInfo: RelierClientInfo }>(GET_CLIENT_INFO, {
     client: apolloClient,
     variables: { input: clientId },
+    // an oauth client id is a 16 digit hex
+    skip: !isHexadecimal(clientId) || !length(clientId, 16),
   });
 }
 
