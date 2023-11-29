@@ -12,7 +12,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
     let email;
 
-    test.beforeEach(async ({ pages: { configPage, login } }, { project }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
       test.slow();
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
@@ -22,8 +22,6 @@ test.describe('severity-1 #smoke', () => {
       } else {
         email = login.createEmail('signup_react{id}');
       }
-
-      test.skip(project.name === 'production', 'skip for production');
     });
 
     test.afterEach(async ({ target }) => {
@@ -46,6 +44,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
+      await page.waitForSelector('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
 
       const code = await target.email.waitForEmail(
@@ -71,13 +70,14 @@ test.describe('severity-1 #smoke', () => {
 
       // wait for navigation, and get search params
       await page.waitForURL(/oauth\//);
-      const url = page.url();
-      const params = new URLSearchParams(url.substring(url.indexOf('?') + 1));
+      const params = new URL(page.url()).searchParams;
 
       // reload email-first page with React experiment params
       await signupReact.goto('/', params);
       // fill out email first form
       await signupReact.fillOutEmailFirst(email);
+      await page.waitForURL(/signup/);
+      await page.waitForSelector('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
 
       // Get code from email
@@ -95,10 +95,10 @@ test.describe('severity-1 #smoke', () => {
       await relier.signOut();
     });
 
-    // TODO: This isn't working because we're checking for sync mobile webchannel in the page
+    // TODO in FXA-8657: This isn't working because we're checking for sync mobile webchannel in the page
     // by checking against the client ID. This client ID is 123done and not Sync.
     test.skip('signup oauth webchannel (sync mobile)', async ({
-      pages: { login, relier },
+      pages: { page, login, relier, signupReact },
     }) => {
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
@@ -111,32 +111,22 @@ test.describe('severity-1 #smoke', () => {
         }
       );
 
-      const email = login.createEmail();
-
-      await relier.goto(
-        'context=oauth_webchannel_v1&automatedBrowser=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react'
-      );
+      await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
 
-      // We used to have this, not sure if we want it or not.
       // wait for navigation, and get search params
-      // await page.waitForURL(/oauth\//);
-      // const url = page.url();
-      // const params = new URLSearchParams(url.substring(url.indexOf('?') + 1));
+      await page.waitForURL(/oauth\//);
+      const params = new URL(page.url()).searchParams;
 
-      // // reload email-first page with React experiment params
-      // await signupReact.goto('/', params);
-      // // fill out email first form
-      // await signupReact.fillOutEmailFirst(email);
-      // await signupReact.fillOutSignupForm(PASSWORD);
+      // reload email-first page with React experiment params
+      await signupReact.goto('/', params);
+      await signupReact.fillOutEmailFirst(email);
 
-      await login.setEmail(email);
-      await login.submit();
-      // do we need to check that we're on the signup page?
+      await page.waitForSelector('#root');
 
       await login.respondToWebChannelMessage(customEventDetail);
 
-      // the CWTS form is on the same signup page
+      // TODO FXA-8657 Update to use signupReact template
       await login.waitForCWTSEngineHeader();
       expect(await login.isCWTSEngineBookmarks()).toBe(true);
       expect(await login.isCWTSEngineHistory()).toBe(true);
@@ -152,7 +142,7 @@ test.describe('severity-1 #smoke', () => {
     test('signup sync', async ({ target }) => {
       test.slow();
       const syncBrowserPages = await newPagesForSync(target);
-      const { signupReact } = syncBrowserPages;
+      const { page, signupReact } = syncBrowserPages;
 
       await signupReact.goto(
         '/',
@@ -160,10 +150,13 @@ test.describe('severity-1 #smoke', () => {
           context: 'fx_desktop_v3',
           service: 'sync',
           action: 'email',
+          automatedBrowser: 'true',
         })
       );
 
       await signupReact.fillOutEmailFirst(email);
+      await page.waitForURL(/signup/);
+      await page.waitForSelector('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
 
       const code = await target.email.waitForEmail(
@@ -174,7 +167,10 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutCodeForm(code);
 
-      // TODO Uncomment once sync is working
+      // TODO this test is currently failing - remove this line once fixed
+      // expect(await page.getByText(/Invalid token/).isVisible()).toBeFalsy();
+      // TODO uncomment these lines once line above is passing (no token error)
+      // expect(await page.getByText('Youʼre signed into Firefox').isVisible()).toBeTruthy();
       // expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
 
       await syncBrowserPages.browser?.close();
