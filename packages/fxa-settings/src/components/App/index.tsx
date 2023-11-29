@@ -87,13 +87,16 @@ export const App = ({
     GleanMetrics.initialize(
       {
         ...config.glean,
-        enabled: data?.metricsEnabled || !isSignedIn,
+        enabled: data?.account?.metricsEnabled || !isSignedIn,
         appDisplayVersion: config.version,
         channel: config.glean.channel,
       },
       {
         flowQueryParams,
-        account: { metricsEnabled: data?.metricsEnabled, uid: data?.uid },
+        account: {
+          metricsEnabled: data?.account?.metricsEnabled,
+          uid: data?.account?.uid,
+        },
         userAgent: navigator.userAgent,
         integration,
       }
@@ -101,28 +104,29 @@ export const App = ({
   }, [
     config.glean,
     config.version,
-    data?.metricsEnabled,
-    data?.uid,
+    data?.account?.metricsEnabled,
+    data?.account?.uid,
     isSignedIn,
     flowQueryParams,
     integration,
   ]);
 
   useEffect(() => {
-    Metrics.init(data?.metricsEnabled || !isSignedIn, flowQueryParams);
-    if (data?.metricsEnabled) {
+    Metrics.init(data?.account?.metricsEnabled || !isSignedIn, flowQueryParams);
+    if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
-        recoveryKey: data.recoveryKey,
+        recoveryKey: data.account.recoveryKey,
         hasSecondaryVerifiedEmail:
-          data.emails.length > 1 && data.emails[1].verified,
-        totpActive: data.totp.exists && data.totp.verified,
+          data.account.emails.length > 1 && data.account.emails[1].verified,
+        totpActive: data.account.totp.exists && data.account.totp.verified,
       });
     }
   }, [
-    data?.metricsEnabled,
-    data?.emails,
-    data?.totp,
-    data?.recoveryKey,
+    data,
+    data?.account?.metricsEnabled,
+    data?.account?.emails,
+    data?.account?.totp,
+    data?.account?.recoveryKey,
     isSignedIn,
     flowQueryParams,
     config,
@@ -138,7 +142,7 @@ export const App = ({
       // who opt to have metrics enabled.
       // A bit of chicken and egg but it could be possible that we miss some
       // errors while the page is loading and user is being fetched.
-      if (data?.metricsEnabled || !isSignedIn) {
+      if (data?.account?.metricsEnabled || !isSignedIn) {
         sentryMetrics.configure({
           release: config.version,
           sentry: {
@@ -150,7 +154,7 @@ export const App = ({
       }
     }
   }, [
-    data?.metricsEnabled,
+    data?.account?.metricsEnabled,
     config.sentry,
     config.version,
     metricsLoading,
