@@ -79,6 +79,7 @@ export enum STRIPE_PRICE_ID_TO_IAP_ANALOG {
 }
 
 export type StripeHelperConfig = {
+  env: string;
   subscriptions: {
     stripeApiKey: string;
     stripeWebhookSecret: string;

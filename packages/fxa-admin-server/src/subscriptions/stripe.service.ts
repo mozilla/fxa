@@ -32,10 +32,27 @@ export const StripeFactory: Provider<Stripe> = {
   provide: 'STRIPE',
   useFactory: (configService: ConfigService) => {
     const stripeConfig = configService.get('subscriptions');
-    return new Stripe(stripeConfig.stripeApiKey, {
+    const env = configService.get<string>('env') || '';
+    const stripe = new Stripe(stripeConfig.stripeApiKey, {
       apiVersion: '2022-11-15',
       maxNetworkRetries: 3,
     });
+    stripe.customers.list({ limit: 1 }).catch((error) => {
+      if (error.type === 'StripeAuthenticationError') {
+        console.error(`
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!-----------------------------------!!!
+!!!-----------------------------------!!!
+!!!--- Stripe Authentication Error ---!!!
+!!!---- Check your Stripe API Key ----!!!
+!!!-----------------------------------!!!
+!!!-----------------------------------!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+`);
+      }
+    });
+
+    return stripe;
   },
   inject: [ConfigService],
 };
@@ -108,6 +125,7 @@ export class StripeService extends StripeHelper {
     @Inject('METRICS') metrics: StatsD
   ) {
     const config = {
+      env: configService.get('env'),
       subscriptions: configService.get('subscriptions'),
       authFirestore: configService.get('authFirestore'),
       subhub: configService.get('subhub'),
