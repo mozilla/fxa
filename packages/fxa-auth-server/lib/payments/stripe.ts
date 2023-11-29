@@ -232,7 +232,9 @@ export class StripeHelper extends StripeHelperBase {
     this.webhookSecret = config.subscriptions.stripeWebhookSecret;
     this.taxIds = config.subscriptions.taxIds;
     this.currencyHelper = Container.get(CurrencyHelper);
-    this.contentfulManager = Container.get(ContentfulManager);
+    if (Container.has(ContentfulManager)) {
+      this.contentfulManager = Container.get(ContentfulManager);
+    }
 
     // Initializes caching
     this.initRedis();
