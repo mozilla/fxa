@@ -1231,14 +1231,15 @@ export class Account implements AccountData {
     return recoveryKey;
   }
 
-  async getRecoveryKeyHint() {
-    const recoveryKeyHint = await this.authClient.getRecoveryKeyHint(
-      sessionToken()!,
-      this.primaryEmail.email
-    );
+  // Not currently in use - enable in FXA-7894 after FXA-7400 is completed
+  // async getRecoveryKeyHint() {
+  //   const recoveryKeyHint = await this.authClient.getRecoveryKeyHint(
+  //     sessionToken()!,
+  //     this.primaryEmail.email
+  //   );
 
-    return recoveryKeyHint;
-  }
+  //   return recoveryKeyHint;
+  // }
 
   async updateRecoveryKeyHint(hint: string) {
     await this.withLoadingStatus(

@@ -116,10 +116,10 @@ describe('lib/glean', () => {
 
     it('does not submit a ping on an event', async () => {
       GleanMetrics.registration.view();
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.notCalled(submitPingStub);
-          resovle(undefined);
+          resolve(undefined);
         }, 80)
       );
     });
@@ -127,7 +127,7 @@ describe('lib/glean', () => {
     it('does not set the metrics values', async () => {
       GleanMetrics.registration.view();
 
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.notCalled(setOauthClientIdStub);
           sinon.assert.notCalled(setServiceStub);
@@ -141,7 +141,7 @@ describe('lib/glean', () => {
           sinon.assert.notCalled(setUtmMediumStub);
           sinon.assert.notCalled(setUtmSourceStub);
           sinon.assert.notCalled(setUtmTermStub);
-          resovle(undefined);
+          resolve(undefined);
         }, 80)
       );
     });
@@ -156,10 +156,10 @@ describe('lib/glean', () => {
       expect(config.enabled).toBe(false);
       GleanMetrics.registration.view();
 
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.notCalled(setuserIdSha256Stub);
-          resovle(undefined);
+          resolve(undefined);
         }, 20)
       );
     });
@@ -194,10 +194,10 @@ describe('lib/glean', () => {
 
     it('submits a ping on an event', async () => {
       GleanMetrics.registration.view();
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.calledOnce(submitPingStub);
-          resovle(undefined);
+          resolve(undefined);
         }, 20)
       );
     });
@@ -213,7 +213,7 @@ describe('lib/glean', () => {
       );
       GleanMetrics.registration.view();
 
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.calledWith(setuserIdSha256Stub, '');
 
@@ -229,7 +229,7 @@ describe('lib/glean', () => {
           sinon.assert.calledWith(setUtmMediumStub, '');
           sinon.assert.calledWith(setUtmSourceStub, '');
           sinon.assert.calledWith(setUtmTermStub, '');
-          resovle(undefined);
+          resolve(undefined);
         }, 20)
       );
     });
@@ -242,7 +242,7 @@ describe('lib/glean', () => {
 
       GleanMetrics.registration.view();
 
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           sinon.assert.calledWith(
             setOauthClientIdStub,
@@ -274,7 +274,7 @@ describe('lib/glean', () => {
             mockIntegration.data.utmSource
           );
           sinon.assert.calledWith(setUtmTermStub, mockIntegration.data.utmTerm);
-          resovle(undefined);
+          resolve(undefined);
         }, 20)
       );
     });
@@ -286,7 +286,7 @@ describe('lib/glean', () => {
       GleanMetrics.registration.success();
 
       // the ping submissions are await'd internally in GleanMetrics...
-      await new Promise((resovle) =>
+      await new Promise((resolve) =>
         setTimeout(() => {
           // the set name call is after the await of the ping ahead of it...
           expect(
@@ -301,7 +301,7 @@ describe('lib/glean', () => {
               .calledBefore(setEventNameStub.getCall(2))
           ).toBeTruthy();
 
-          resovle(true);
+          resolve(true);
         }, 80)
       );
     });
@@ -313,7 +313,7 @@ describe('lib/glean', () => {
         >;
         GleanMetrics.login.success();
         // the ping submissions are await'd internally in GleanMetrics...
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledTwice(setuserIdSha256Stub);
             // it sets a default of '' first
@@ -322,7 +322,7 @@ describe('lib/glean', () => {
               setuserIdSha256Stub,
               '7ca0172850c53065046beeac3cdec3fe921532dbfebdf7efeb5c33d019cd7798'
             );
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -331,11 +331,11 @@ describe('lib/glean', () => {
     describe('email first', () => {
       it('submits a ping with the email_first_view event name', async () => {
         GleanMetrics.emailFirst.view();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'email_first_view');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -345,33 +345,33 @@ describe('lib/glean', () => {
       it('submits a ping with the reg_view event name', async () => {
         GleanMetrics.registration.view();
 
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'reg_view');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the reg_submit event name', async () => {
         GleanMetrics.registration.submit();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'reg_submit');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the reg_submit_success event name', async () => {
         GleanMetrics.registration.success();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'reg_submit_success');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -380,22 +380,22 @@ describe('lib/glean', () => {
     describe('signup confirmation code', () => {
       it('submits a ping with the reg_signup_code_view event name', async () => {
         GleanMetrics.signupConfirmation.view();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_view');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the reg_signup_code_submit event name', async () => {
         GleanMetrics.signupConfirmation.submit();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'reg_signup_code_submit');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -404,28 +404,28 @@ describe('lib/glean', () => {
     describe('loginConfirmation', () => {
       it('submits a ping with the login_email_confirmation_view event name', async () => {
         GleanMetrics.loginConfirmation.view();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(
               setEventNameStub,
               'login_email_confirmation_view'
             );
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the reg_submit event name', async () => {
         GleanMetrics.loginConfirmation.submit();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(
               setEventNameStub,
               'login_email_confirmation_submit'
             );
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -434,36 +434,36 @@ describe('lib/glean', () => {
     describe('totpForm', () => {
       it('submits a ping with the login_totp_form_view event name', async () => {
         GleanMetrics.totpForm.view();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'login_totp_form_view');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the login_totp_code_submit event name', async () => {
         GleanMetrics.totpForm.submit();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'login_totp_code_submit');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the login_totp_code_success_view event name', async () => {
         GleanMetrics.totpForm.success();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(
               setEventNameStub,
               'login_totp_code_success_view'
             );
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
@@ -472,40 +472,40 @@ describe('lib/glean', () => {
     describe('login', () => {
       it('submits a ping with the login_view event name', async () => {
         GleanMetrics.login.view();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'login_view');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the login_submit event name', async () => {
         GleanMetrics.login.submit();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'login_submit');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the login_submit_success event name', async () => {
         GleanMetrics.login.success();
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(setEventNameStub, 'login_submit_success');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });
 
       it('submits a ping with the login_submit_frontend_error event name and a reason', async () => {
         GleanMetrics.login.error({ reason: 'quux' });
-        await new Promise((resovle) =>
+        await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);
             sinon.assert.calledWith(
@@ -514,7 +514,7 @@ describe('lib/glean', () => {
             );
             sinon.assert.calledOnce(setEventReasonStub);
             sinon.assert.calledWith(setEventReasonStub, 'quux');
-            resovle(undefined);
+            resolve(undefined);
           }, 20)
         );
       });

@@ -9,13 +9,9 @@ import { setupFirestore } from '../firestore-db';
 import { CurrencyHelper } from '../payments/currencies';
 import { configureSentry } from '../sentry';
 import { AppConfig, AuthFirestore, AuthLogger, ProfileClient } from '../types';
-import { StripeHelper } from './stripe';
+import { StripeHelper, createStripeHelper } from './stripe';
 
 import convictConf from '../../config';
-import error from '../../lib/error';
-
-const Profile = require('../profile/client');
-
 const config = convictConf.getProperties();
 
 export async function setupProcessingTaskObjects(processName: string) {
@@ -49,7 +45,7 @@ export async function setupProcessingTaskObjects(processName: string) {
   // Establish database connection and bind instance to Model using Knex
   setupAuthDatabase(config.database.mysql.auth, log, statsd);
 
-  const profile = new Profile(log, config, error, statsd);
+  const profile = require('../profile/client')(log, config, statsd);
   Container.set(ProfileClient, profile);
 
   const senders = await require('../senders')(
@@ -78,7 +74,7 @@ export async function setupProcessingTaskObjects(processName: string) {
 
   const currencyHelper = new CurrencyHelper(config);
   Container.set(CurrencyHelper, currencyHelper);
-  const stripeHelper = new StripeHelper(log, config, statsd);
+  const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
   return {

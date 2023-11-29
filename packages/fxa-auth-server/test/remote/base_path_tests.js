@@ -9,7 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const superagent = require('superagent');
 
-describe('remote base path', function () {
+describe('#integration - remote base path', function () {
   this.timeout(15000);
   let server, config;
   before(() => {
@@ -46,7 +46,7 @@ describe('remote base path', function () {
     };
   }
 
-  it('#integration - alternate base path', () => {
+  it('alternate base path', () => {
     const email = `${Math.random()}@example.com`;
     const password = 'ok';
     // if this doesn't crash, we're all good

@@ -59,19 +59,21 @@ const mockMetricsQueryAccountAmplitude = {
 };
 
 const mockMetricsQueryAccountResult = {
-  uid: 'abc123',
-  recoveryKey: true,
-  metricsEnabled: true,
-  emails: [
-    {
-      email: 'blabidi@blabidiboo.com',
-      isPrimary: true,
+  account: {
+    uid: 'abc123',
+    recoveryKey: true,
+    metricsEnabled: true,
+    emails: [
+      {
+        email: 'blabidi@blabidiboo.com',
+        isPrimary: true,
+        verified: true,
+      },
+    ],
+    totp: {
+      exists: true,
       verified: true,
     },
-  ],
-  totp: {
-    exists: true,
-    verified: true,
   },
 };
 

@@ -52,6 +52,12 @@ export const eventsMap = {
     success: 'login_email_confirmation_success_view',
   },
 
+  loginBackupCode: {
+    view: 'login_backup_code_view',
+    submit: 'login_backup_code_submit',
+    success: 'login_backup_code_success_view',
+  },
+
   totpForm: {
     view: 'login_totp_form_view',
     submit: 'login_totp_code_submit',
@@ -66,5 +72,13 @@ export const eventsMap = {
     createNewSuccess: 'password_reset_create_new_success_view',
     recoveryKeyView: 'password_reset_recovery_key_view',
     recoveryKeySubmit: 'password_reset_recovery_key_submit',
+
+    recoveryKeyCreatePasswordView:
+      'password_reset_recovery_key_create_new_view',
+    recoveryKeyCreatePasswordSubmit:
+      'password_reset_recovery_key_create_new_submit',
+
+    recoveryKeyResetSuccessView:
+      'password_reset_recovery_key_create_success_view',
   },
 };

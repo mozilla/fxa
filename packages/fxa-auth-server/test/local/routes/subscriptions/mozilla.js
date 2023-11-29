@@ -319,7 +319,9 @@ describe('mozilla-subscriptions', () => {
 describe('plan-eligibility', () => {
   beforeEach(() => {
     capabilityService = {
-      getPlanEligibility: sandbox.stub().resolves(['eligibility', undefined]),
+      getPlanEligibility: sandbox.stub().resolves({
+        subscriptionEligibilityResult: 'eligibility',
+      }),
     };
   });
 
@@ -334,6 +336,7 @@ describe('plan-eligibility', () => {
       );
       assert.deepEqual(resp, {
         eligibility: 'eligibility',
+        currentPlan: undefined,
       });
     });
   });

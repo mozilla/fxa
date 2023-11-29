@@ -21,6 +21,7 @@ interface MetricsRequest extends Omit<AuthRequest, 'auth'> {
 type MetricsData = {
   uid?: string;
   reason?: string;
+  oauthClientId?: string;
 };
 
 type ErrorLoggerFnParams = {
@@ -44,8 +45,14 @@ const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>
 const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
-const findOauthClientId = (request: MetricsRequest): string =>
-  request.auth.credentials?.client_id || request.payload?.client_id || '';
+const findOauthClientId = (
+  request: MetricsRequest,
+  metricsData?: MetricsData
+): string =>
+  metricsData?.oauthClientId ||
+  request.auth.credentials?.client_id ||
+  request.payload?.client_id ||
+  '';
 
 const findServiceName = async (request: MetricsRequest) => {
   const metricsContext = await request.app.metricsContext;
@@ -90,7 +97,7 @@ const createEventFn =
         account_user_id_sha256: '',
         event_name: eventName,
         event_reason: metricsData?.reason || '',
-        relying_party_oauth_client_id: findOauthClientId(request),
+        relying_party_oauth_client_id: findOauthClientId(request, metricsData),
         relying_party_service: await findServiceName(request),
         session_device_type: request.app.ua.deviceType || '',
         session_entrypoint: metricsContext.entrypoint || '',
@@ -134,6 +141,7 @@ export function gleanMetrics(config: ConfigType) {
       error: createEventFn('login_submit_backend_error'),
       totpSuccess: createEventFn('login_totp_code_success'),
       totpFailure: createEventFn('login_totp_code_failure'),
+      recoveryCodeSuccess: createEventFn('login_backup_code_success'),
       verifyCodeEmailSent: createEventFn('login_email_confirmation_sent'),
       verifyCodeConfirmed: createEventFn('login_email_confirmation_success'),
       complete: createEventFn('login_complete'),
@@ -144,6 +152,15 @@ export function gleanMetrics(config: ConfigType) {
       createNewSuccess: createEventFn('password_reset_create_new_success'),
       accountReset: createEventFn('account_password_reset'),
       recoveryKeySuccess: createEventFn('password_reset_recovery_key_success'),
+
+      recoveryKeyCreatePasswordSuccess: createEventFn(
+        'password_reset_recovery_key_create_success'
+      ),
+    },
+
+    oauth: {
+      tokenCreated: createEventFn('access_token_created'),
+      tokenChecked: createEventFn('access_token_checked'),
     },
   };
 }
@@ -168,7 +185,10 @@ export const logErrorWithGlean = ({
     const [funnel, event] = pingFn.split('.');
     const funnelFns =
       glean[
-        funnel as keyof Omit<ReturnType<typeof gleanMetrics>, 'resetPassword'>
+        funnel as keyof Omit<
+          ReturnType<typeof gleanMetrics>,
+          'resetPassword' | 'oauth'
+        >
       ];
     funnelFns[event as keyof typeof funnelFns](request, {
       // we use the errno's key here because the human readable error message

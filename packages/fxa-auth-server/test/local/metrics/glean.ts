@@ -178,6 +178,12 @@ describe('Glean server side events', () => {
         assert.equal(metrics['relying_party_oauth_client_id'], 'corny_jokes');
       });
 
+      it('uses the client id from the event data', async () => {
+        await glean.login.success(request, { oauthClientId: 'runny_eggs' });
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['relying_party_oauth_client_id'], 'runny_eggs');
+      });
+
       it('uses the service name from the metrics context', async () => {
         const req = {
           ...request,

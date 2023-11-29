@@ -10,7 +10,7 @@ const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const error = require('../../../lib/error');
 
-let log, db, customs, routes, route, request, requestOptions, mailer;
+let log, db, customs, routes, route, request, requestOptions, mailer, glean;
 const TEST_EMAIL = 'test@email.com';
 const UID = 'uid';
 
@@ -27,7 +27,8 @@ function runTest(routePath, requestOptions, method) {
     db,
     config,
     customs,
-    mailer
+    mailer,
+    glean
   );
   route = getRoute(routes, routePath, method);
   request = mocks.mockRequest(requestOptions);
@@ -45,6 +46,7 @@ describe('backup authentication codes', () => {
       uid: UID,
       email: TEST_EMAIL,
     });
+    glean = mocks.mockGlean();
     requestOptions = {
       metricsContext: mocks.mockMetricsContext(),
       credentials: {
@@ -122,7 +124,7 @@ describe('backup authentication codes', () => {
     });
   });
 
-  describe('/session/verify/recoveryCode', () => {
+  describe('POST /session/verify/recoveryCode', () => {
     it('sends email if backup authentication codes are low', async () => {
       db.consumeRecoveryCode = sinon.spy((code) => {
         return Promise.resolve({ remaining: 1 });
@@ -150,6 +152,18 @@ describe('backup authentication codes', () => {
             'verifyRecoveryCode'
           );
         }
+      );
+    });
+
+    it('should emit a glean event on successful verification', async () => {
+      db.consumeRecoveryCode = sinon.spy((code) => {
+        return Promise.resolve({ remaining: 4 });
+      });
+      await runTest('/session/verify/recoveryCode', requestOptions);
+      sinon.assert.calledOnceWithExactly(
+        glean.login.recoveryCodeSuccess,
+        request,
+        { uid: UID }
       );
     });
   });

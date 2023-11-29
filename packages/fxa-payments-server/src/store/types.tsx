@@ -1,4 +1,5 @@
 import {
+  AbbrevPlan,
   MozillaSubscription,
   PaypalPaymentError,
   SubscriptionEligibilityResult,
@@ -94,6 +95,7 @@ export type Customer = {
 
 export type PlanEligibility = {
   eligibility: SubscriptionEligibilityResult;
+  currentPlan?: AbbrevPlan;
 };
 
 export interface CreateSubscriptionResult {

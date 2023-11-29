@@ -18,12 +18,12 @@ const CUSTOMS_URL_MISSING = 'http://localhost:7001';
 const customsServer = nock(CUSTOMS_URL_REAL).defaultReplyHeaders({
   'Content-Type': 'application/json',
 });
-const Customs = require(`${ROOT_DIR}/lib/customs.js`);
 
 describe('Customs', () => {
   let customsNoUrl;
   let customsWithUrl;
   let customsInvalidUrl;
+  let customsModule;
   const sandbox = sinon.createSandbox();
   const statsd = {
     increment: () => {},
@@ -43,6 +43,7 @@ describe('Customs', () => {
 
   beforeEach(() => {
     sandbox.stub(statsd, 'increment');
+    customsModule = require(`${ROOT_DIR}/lib/customs.js`)(log, error, statsd);
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
@@ -54,7 +55,7 @@ describe('Customs', () => {
   });
 
   it("can create a customs object with url as 'none'", () => {
-    customsNoUrl = new Customs('none', log, error, statsd);
+    customsNoUrl = new customsModule('none');
 
     assert.ok(customsNoUrl, 'got a customs object with a none url');
 
@@ -100,7 +101,7 @@ describe('Customs', () => {
   });
 
   it('can create a customs object with a url', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'got a customs object with a valid url');
 
@@ -353,7 +354,7 @@ describe('Customs', () => {
   });
 
   it('failed closed when creating a customs object with non-existant customs service', () => {
-    customsInvalidUrl = new Customs(CUSTOMS_URL_MISSING, log, error, statsd);
+    customsInvalidUrl = new customsModule(CUSTOMS_URL_MISSING);
 
     assert.ok(
       customsInvalidUrl,
@@ -392,7 +393,7 @@ describe('Customs', () => {
   });
 
   it('can rate limit checkAccountStatus /check', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'can rate limit checkAccountStatus /check');
 
@@ -502,7 +503,7 @@ describe('Customs', () => {
   });
 
   it('can rate limit devicesNotify /checkAuthenticated', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'can rate limit /checkAuthenticated');
 
@@ -608,7 +609,7 @@ describe('Customs', () => {
     action = 'verifyTotpCode';
     email = 'test@email.com';
 
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
     assert.ok(customsWithUrl, 'can rate limit ');
 
     function checkRequestBody(body) {
@@ -676,7 +677,7 @@ describe('Customs', () => {
   });
 
   it('can scrub customs request object', () => {
-    customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+    customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
 
     assert.ok(customsWithUrl, 'got a customs object with a valid url');
 
@@ -725,7 +726,7 @@ describe('Customs', () => {
     };
 
     beforeEach(() => {
-      customsWithUrl = new Customs(CUSTOMS_URL_REAL, log, error, statsd);
+      customsWithUrl = new customsModule(CUSTOMS_URL_REAL);
     });
 
     it('reports for /check', async () => {

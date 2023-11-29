@@ -53,7 +53,7 @@ import firefox from '../../lib/channels/firefox';
 
 export const viewName = 'signup';
 
-const Signup = ({
+export const Signup = ({
   integration,
   queryParamModel,
   beginSignupHandler,

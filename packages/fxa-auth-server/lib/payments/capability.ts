@@ -379,7 +379,9 @@ export class CapabilityService {
     targetPlan: AbbrevPlan
   ): Promise<SubscriptionChangeEligibility> {
     if (!this.eligibilityManager)
-      return [SubscriptionEligibilityResult.INVALID];
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+      };
     const iapProductIds = iapSubscribedPlans.map((p) => p.product_id);
     const planIds = [
       ...stripeSubscribedPlans.map((p) => p.plan_id),
@@ -392,20 +394,32 @@ export class CapabilityService {
     );
 
     // No overlap, we can create a new subscription
-    if (!overlaps.length) return [SubscriptionEligibilityResult.CREATE];
+    if (!overlaps.length)
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
+      };
 
     // Users with IAP Offering overlaps should not be allowed to proceed
-    if (
-      overlaps.some(
+    const iapRoadblockPlan = iapSubscribedPlans.find((plan) => {
+      return overlaps?.some(
         (overlap) =>
           overlap.type === 'offering' &&
           iapProductIds.includes(overlap.offeringProductId)
-      )
-    )
-      return [SubscriptionEligibilityResult.BLOCKED_IAP];
+      );
+    });
+
+    if (iapRoadblockPlan)
+      return {
+        subscriptionEligibilityResult:
+          SubscriptionEligibilityResult.BLOCKED_IAP,
+        eligibleSourcePlan: iapRoadblockPlan,
+      };
 
     // Multiple existing overlapping plans, we can't merge them
-    if (overlaps.length > 1) return [SubscriptionEligibilityResult.INVALID];
+    if (overlaps.length > 1)
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+      };
 
     const overlap = overlaps[0];
     assert(
@@ -417,10 +431,15 @@ export class CapabilityService {
     );
 
     if (overlap.comparison === OfferingComparison.DOWNGRADE)
-      return [SubscriptionEligibilityResult.DOWNGRADE, overlapAbbrev];
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.DOWNGRADE,
+        eligibleSourcePlan: overlapAbbrev,
+      };
 
     if (!overlapAbbrev || overlapAbbrev.plan_id === targetPlan.plan_id)
-      return [SubscriptionEligibilityResult.INVALID];
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+      };
 
     // Any interval change that is lower than the existing plans interval is
     // a downgrade. Otherwise its considered an upgrade.
@@ -430,9 +449,15 @@ export class CapabilityService {
         { unit: targetPlan.interval, count: targetPlan.interval_count }
       ) === IntervalComparison.SHORTER
     )
-      return [SubscriptionEligibilityResult.DOWNGRADE, overlapAbbrev];
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.DOWNGRADE,
+        eligibleSourcePlan: overlapAbbrev,
+      };
 
-    return [SubscriptionEligibilityResult.UPGRADE, overlapAbbrev];
+    return {
+      subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+      eligibleSourcePlan: overlapAbbrev,
+    };
   }
 
   /**
@@ -450,10 +475,13 @@ export class CapabilityService {
       useFirestoreProductConfigs
     );
 
-    if (!targetProductSet) return [SubscriptionEligibilityResult.INVALID];
+    if (!targetProductSet)
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+      };
 
     // Lookup whether user holds an IAP subscription with a shared productSet to the target
-    const iapRoadblock = iapSubscribedPlans.some((abbrevPlan) => {
+    const iapRoadblockPlan = iapSubscribedPlans.find((abbrevPlan) => {
       const { productSet } = productUpgradeFromProductConfig(
         abbrevPlan,
         useFirestoreProductConfigs
@@ -464,7 +492,12 @@ export class CapabilityService {
 
     // Users with an IAP subscription to the productSet that we're trying to subscribe
     // to should not be allowed to proceed
-    if (iapRoadblock) return [SubscriptionEligibilityResult.BLOCKED_IAP];
+    if (iapRoadblockPlan)
+      return {
+        subscriptionEligibilityResult:
+          SubscriptionEligibilityResult.BLOCKED_IAP,
+        eligibleSourcePlan: iapRoadblockPlan,
+      };
 
     const isSubscribedToProductSet = stripeSubscribedPlans.some(
       (abbrevPlan) => {
@@ -478,7 +511,9 @@ export class CapabilityService {
     );
 
     if (!isSubscribedToProductSet)
-      return [SubscriptionEligibilityResult.CREATE];
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.CREATE,
+      };
 
     // Use the upgradeEligibility helper to check if any of our existing plans are
     // elegible for an upgrade and if so the user can upgrade that existing plan to the desired plan
@@ -490,12 +525,21 @@ export class CapabilityService {
       );
 
       if (eligibility === SubscriptionUpdateEligibility.UPGRADE)
-        return [SubscriptionEligibilityResult.UPGRADE, abbrevPlan];
+        return {
+          subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+          eligibleSourcePlan: abbrevPlan,
+        };
 
       if (eligibility === SubscriptionUpdateEligibility.DOWNGRADE)
-        return [SubscriptionEligibilityResult.DOWNGRADE, abbrevPlan];
+        return {
+          subscriptionEligibilityResult:
+            SubscriptionEligibilityResult.DOWNGRADE,
+          eligibleSourcePlan: abbrevPlan,
+        };
     }
-    return [SubscriptionEligibilityResult.INVALID];
+    return {
+      subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+    };
   }
 
   /**

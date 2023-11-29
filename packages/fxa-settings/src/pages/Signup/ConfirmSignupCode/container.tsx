@@ -15,7 +15,7 @@ import AppLayout from '../../../components/AppLayout';
 import CardHeader from '../../../components/CardHeader';
 import ConfirmSignupCode from '.';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { LocationState } from './interfaces';
 import sentryMetrics from 'fxa-shared/lib/sentry';
 

@@ -34,6 +34,7 @@ import {
 } from './interfaces';
 import { CreateVerificationInfo } from '../../../models/verification';
 import firefox from '../../../lib/channels/firefox';
+import GleanMetrics from '../../../lib/glean';
 
 // This page is based on complete_reset_password but has been separated to align with the routes.
 
@@ -47,6 +48,7 @@ const AccountRecoveryResetPassword = ({
   integration,
 }: AccountRecoveryResetPasswordProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  GleanMetrics.resetPassword.recoveryKeyCreatePasswordView();
 
   const account = useAccount();
   const navigate = useNavigate();
@@ -192,6 +194,7 @@ const AccountRecoveryResetPassword = ({
   async function onSubmit(data: AccountRecoveryResetPasswordFormData) {
     const password = data.newPassword;
     const email = verificationInfo.email;
+    GleanMetrics.resetPassword.recoveryKeyCreatePasswordSubmit();
 
     try {
       const options = {

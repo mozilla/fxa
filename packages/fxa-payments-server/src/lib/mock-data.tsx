@@ -6,6 +6,7 @@ import {
   LatestInvoiceItems,
 } from 'fxa-shared/dto/auth/payments/invoice';
 import {
+  AbbrevPlan,
   IapSubscription,
   MozillaSubscriptionTypes,
   WebSubscription,
@@ -129,7 +130,7 @@ export const SELECTED_PLAN: Plan = {
   },
 };
 
-export const UPGRADE_FROM_PLAN: Plan = {
+export const UPGRADE_FROM_PLAN: AbbrevPlan = {
   plan_id: 'plan_abc',
   product_id: PRODUCT_ID,
   product_name: 'Example Product',
@@ -139,6 +140,7 @@ export const UPGRADE_FROM_PLAN: Plan = {
   interval_count: 1,
   active: true,
   plan_metadata: null,
+  plan_name: 'Example Product Monthly',
   product_metadata: {
     webIconURL: 'http://placekitten.com/49/49?image=9',
     webIconBackground: 'lime',
@@ -156,7 +158,7 @@ export const UPGRADE_FROM_PLAN: Plan = {
   },
 };
 
-export const UPGRADE_FROM_PLAN_ARCHIVED: Plan = {
+export const UPGRADE_FROM_PLAN_ARCHIVED: AbbrevPlan = {
   ...UPGRADE_FROM_PLAN,
   product_metadata: {
     ...UPGRADE_FROM_PLAN.product_metadata,

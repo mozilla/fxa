@@ -10,7 +10,7 @@ const validators = require('../../oauth/validators');
 const OAUTH_SERVER_DOCS =
   require('../../../docs/swagger/oauth-server-api').default;
 
-module.exports = ({ log }) => ({
+module.exports = ({ log, glean }) => ({
   method: 'POST',
   path: '/verify',
   config: {
@@ -42,6 +42,10 @@ module.exports = ({ log }) => ({
       req.emitMetricsEvent('verify.success', {
         service: info.client_id,
         uid: info.user,
+      });
+      glean.oauth.tokenChecked(req, {
+        uid: info.user,
+        oauthClientId: info.client_id,
       });
       return info;
     },

@@ -220,7 +220,7 @@ export type InvoicePreview = [
   proratedInvoice?: Stripe.UpcomingInvoice
 ];
 
-export type SubscriptionChangeEligibility = [
-  subscriptionEligibilityResult: SubscriptionEligibilityResult,
-  eligibleSourcePlan?: AbbrevPlan
-];
+export type SubscriptionChangeEligibility = {
+  subscriptionEligibilityResult: SubscriptionEligibilityResult;
+  eligibleSourcePlan?: AbbrevPlan;
+};

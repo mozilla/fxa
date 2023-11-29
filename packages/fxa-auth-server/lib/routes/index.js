@@ -83,7 +83,8 @@ module.exports = function (
     db,
     mailer,
     devicesImpl,
-    statsd
+    statsd,
+    glean
   );
   const devicesSessions = require('./devices-and-sessions')(
     log,
@@ -157,7 +158,8 @@ module.exports = function (
     db,
     config.totp,
     customs,
-    mailer
+    mailer,
+    glean
   );
   const recoveryKey = require('./recovery-key')(
     log,

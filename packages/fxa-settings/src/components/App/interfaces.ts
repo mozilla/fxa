@@ -9,6 +9,8 @@ export type MetricsData = Pick<
   'uid' | 'recoveryKey' | 'metricsEnabled' | 'primaryEmail' | 'emails' | 'totp'
 >;
 
+export type MetricsDataResult = { account: MetricsData };
+
 export interface SignedInAccountStatus {
   isSignedIn: boolean;
 }

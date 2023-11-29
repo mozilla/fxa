@@ -1284,16 +1284,16 @@ export default class AuthClient {
     );
   }
 
-  // TODO: Update to POST in FXA-7400
-  async getRecoveryKeyHint(
-    sessionToken: hexstring | undefined,
-    email?: string
-  ): Promise<{ hint: string | null }> {
-    if (sessionToken) {
-      return this.sessionGet('/recoveryKey/hint', sessionToken);
-    }
-    return this.request('GET', `/recoveryKey/hint?email=${email}`);
-  }
+  // TODO: Review in FXA-7400 - possibly convert to POST to pass payload instead of using param, and enforce rate limiting
+  // async getRecoveryKeyHint(
+  //   sessionToken: hexstring | undefined,
+  //   email?: string
+  // ): Promise<{ hint: string | null }> {
+  //   if (sessionToken) {
+  //     return this.sessionGet('/recoveryKey/hint', sessionToken);
+  //   }
+  //   return this.request('GET', `/recoveryKey/hint?email=${email}`);
+  // }
 
   async updateRecoveryKeyHint(
     sessionToken: hexstring,

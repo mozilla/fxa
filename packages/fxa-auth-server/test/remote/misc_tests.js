@@ -13,7 +13,7 @@ const hawk = require('@hapi/hawk');
 
 const config = require('../../config').default.getProperties();
 
-describe('remote misc', function () {
+describe('#integration - remote misc', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -78,7 +78,7 @@ describe('remote misc', function () {
       });
   });
 
-  it('#integration - /__heartbeat__ returns a 200 OK', () => {
+  it('/__heartbeat__ returns a 200 OK', () => {
     return superagent.get(`${config.publicUrl}/__heartbeat__`).then((res) => {
       assert.equal(res.statusCode, 200, 'http ok');
     });
@@ -136,7 +136,7 @@ describe('remote misc', function () {
       });
   });
 
-  it('#integration - timestamp header', () => {
+  it('timestamp header', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let url = null;
@@ -235,7 +235,7 @@ describe('remote misc', function () {
     });
   });
 
-  it('#integration - fail on hawk payload mismatch', () => {
+  it('fail on hawk payload mismatch', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let url = null;
