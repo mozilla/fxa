@@ -23,7 +23,7 @@ describe('errorHandler', () => {
     const errorResponse: ErrorResponse = {
       graphQLErrors: [
         new GraphQLError('Invalid token', null, null, null, null, null, {
-          response: { error: 'Unauthorized' },
+          originalError: { error: 'Unauthorized' },
         }),
       ],
       operation: null as any as Operation,
