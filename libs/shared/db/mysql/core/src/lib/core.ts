@@ -7,7 +7,7 @@ import { createPool } from 'mysql2';
 import { promisify } from 'util';
 import { v4 as uuidv4 } from 'uuid';
 
-import { ConsoleLogger, Logger } from '@fxa/shared/log';
+import { logger, Logger } from '@fxa/shared/log';
 import { localStatsD, StatsD } from '@fxa/shared/metrics/statsd';
 import { MySQLConfig } from './config';
 
@@ -77,7 +77,7 @@ export function monitorKnexConnectionPool(pool: any, metrics: StatsD) {
  */
 export function createKnex(
   opts: MySQLConfig,
-  log: Logger = new ConsoleLogger(),
+  log: Logger = logger,
   metrics: StatsD = localStatsD()
 ): Knex {
   const db = knex({
@@ -111,7 +111,7 @@ export function generateFxAUuid() {
 
 export async function createDialect(
   opts: MySQLConfig,
-  log: Logger = new ConsoleLogger(),
+  log: Logger = logger,
   metrics: StatsD = localStatsD()
 ) {
   log.debug('mysqlDialect', {
