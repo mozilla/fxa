@@ -119,7 +119,7 @@ const conf = convict({
     },
     debugMode: {
       default: false,
-      doc: 'Toggle Google Analytics gtag debug mode. (Not to be confused with librayr react-ga testMode',
+      doc: 'Toggle Google Analytics gtag debug mode. (Not to be confused with library react-ga testMode',
       env: 'GA_TEST_MODE',
       format: Boolean,
     },

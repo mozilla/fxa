@@ -142,7 +142,9 @@ export function useReactGA4Setup(config: Config, productId: string) {
       // https://developers.google.com/tag-platform/devguides/privacy#consent_mode_terminology
       ReactGA.gtag('consent', 'default', {
         ad_storage: 'denied',
-        analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'granted',
         functionality_storage: 'denied',
         personalization_storage: 'denied',
         security_storage: 'denied',
