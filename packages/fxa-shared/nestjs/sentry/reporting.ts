@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ExecutionContext } from '@nestjs/common';
+import { ApolloServerErrorCode } from '@apollo/server/errors';
+import { GraphQLError } from 'graphql';
 import { GqlContextType, GqlExecutionContext } from '@nestjs/graphql';
 import * as Sentry from '@sentry/node';
 import { ErrorEvent } from '@sentry/types';
@@ -29,6 +31,19 @@ const sqsMessageFilter = new SqsMessageFilter([
 export interface ExtraContext {
   name: string;
   fieldData: Record<string, string>;
+}
+
+/**
+ * Determine if an error is an ApolloError.
+ */
+export function isApolloError(err: Error): boolean {
+  if (err instanceof GraphQLError) {
+    const code = err.extensions?.code;
+    if (typeof code === 'string') {
+      return Object.keys(ApolloServerErrorCode).includes(code);
+    }
+  }
+  return false;
 }
 
 /**

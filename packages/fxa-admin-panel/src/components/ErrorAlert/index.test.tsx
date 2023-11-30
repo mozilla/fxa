@@ -25,8 +25,8 @@ describe('ApolloErrorAlert', () => {
     screen.getByText('Network Error');
     screen.getByText(NETWORK_SERVER_ERROR.message);
     screen.getByText(
-      (NETWORK_SERVER_ERROR.networkError! as ServerError).result!.errors[0]
-        .message
+      ((NETWORK_SERVER_ERROR.networkError! as ServerError).result! as any)
+        .errors[0].message
     );
   });
 
@@ -46,7 +46,8 @@ describe('ApolloErrorAlert', () => {
     screen.getByText('Network Error');
     screen.getByText(NETWORK_ERROR.message);
     screen.getByText(
-      (NETWORK_ERROR.networkError! as ServerError).result.errors[0].message
+      ((NETWORK_ERROR.networkError! as ServerError).result as any).errors[0]
+        .message
     );
   });
 

@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { OperationVariables } from '@apollo/client';
 import { GraphQLClient } from 'graphql-request';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Injectable } from '@nestjs/common';
@@ -38,7 +39,7 @@ export class ContentfulClient {
     return result;
   }
 
-  async query<Result, Variables>(
+  async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<Result> {

@@ -230,11 +230,11 @@ const MOCK_CONTENTFUL_CLIENTS = [
 ];
 
 const MOCK_CONTENTFUL_CLIENT_CAPABILITIES = {
-  c1: [ 'capZZ', 'cap4', 'cap5', 'capAlpha' ],
-  '*': [ 'capAll' ],
-  c2: [ 'cap5', 'cap6', 'capC', 'capD' ],
-  c3: [ 'capD', 'capE' ]
-}
+  c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
+  '*': ['capAll'],
+  c2: ['cap5', 'cap6', 'capC', 'capD'],
+  c3: ['capD', 'capE'],
+};
 
 const MOCK_PLANS = [
   {
@@ -289,7 +289,8 @@ module.exports = {
   generateMetricsContext: generateMetricsContext,
   mockBounces: mockObject(['check']),
   mockContentfulClients: MOCK_CONTENTFUL_CLIENTS,
-  mockContentfulPlanIdsToClientCapabilities: MOCK_CONTENTFUL_CLIENT_CAPABILITIES,
+  mockContentfulPlanIdsToClientCapabilities:
+    MOCK_CONTENTFUL_CLIENT_CAPABILITIES,
   mockCustoms,
   mockDB,
   mockDevices,

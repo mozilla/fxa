@@ -11,15 +11,28 @@
  *   1. The request object to Apollo's context as `.req`.
  *   2. `SentryPlugin` is passed in the `plugins` option.
  */
-import { ApolloError } from 'apollo-server';
+
+import { Request } from 'express';
+import { GraphQLError } from 'graphql';
+
+import {
+  ApolloServerPlugin,
+  BaseContext,
+  GraphQLRequestListener,
+} from '@apollo/server';
+import { Plugin } from '@nestjs/apollo';
 import * as Sentry from '@sentry/node';
 import { Transaction } from '@sentry/types';
 
-import { ExtraContext, reportRequestException } from './reporting';
-import { ApolloServerPlugin, BaseContext } from 'apollo-server-plugin-base';
+import {
+  ExtraContext,
+  isApolloError,
+  reportRequestException,
+} from './reporting';
 
 interface Context extends BaseContext {
   transaction: Transaction;
+  request: Request;
 }
 
 export async function createContext(ctx: any): Promise<Context> {
@@ -27,13 +40,14 @@ export async function createContext(ctx: any): Promise<Context> {
     op: 'gql',
     name: 'GraphQLTransaction',
   });
-  return { transaction };
+  return { request: ctx.req, transaction };
 }
 
-export const SentryPlugin: ApolloServerPlugin<Context> = {
-  requestDidStart({ request, context }) {
+@Plugin()
+export class SentryPlugin implements ApolloServerPlugin<Context> {
+  async requestDidStart(): Promise<GraphQLRequestListener<any>> {
     return {
-      didEncounterErrors({ context, errors, operation }) {
+      async didEncounterErrors({ contextValue, errors, operation }) {
         // If we couldn't parse the operation, don't
         // do anything here
         if (!operation) {
@@ -42,32 +56,32 @@ export const SentryPlugin: ApolloServerPlugin<Context> = {
         for (const err of errors) {
           // Only report internal server errors,
           // all errors extending ApolloError should be user-facing
-          if (
-            err instanceof ApolloError ||
-            err.originalError instanceof ApolloError
-          ) {
+          if (err.originalError instanceof GraphQLError) {
             continue;
           }
           // Skip errors with a status already set or already reported
-          if ((err.originalError as any)?.status) {
+          if (
+            isApolloError(err) ||
+            (err.originalError && isApolloError(err.originalError))
+          )
             continue;
-          }
+
           const excContexts: ExtraContext[] = [];
-          if (err.path?.join) {
+          if ((err as any).path?.join) {
             excContexts.push({
               name: 'graphql',
               fieldData: {
-                path: err.path.join(' > '),
+                path: err.path?.join(' > ') ?? '',
               },
             });
           }
           reportRequestException(
             err.originalError ?? err,
             excContexts,
-            context.req
+            contextValue.request
           );
         }
       },
     };
-  },
-};
+  }
+}

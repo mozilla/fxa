@@ -18,7 +18,6 @@ export {
 } from './password-forgot';
 export { SendSessionVerificationInput } from './send-session-verification';
 export { SignInInput } from './sign-in';
-export { UpdateAvatarInput } from './update-avatar';
 export { UpdateDisplayNameInput } from './update-display-name';
 export { VerifyEmailInput, VerifyEmailCodeInput } from './verify-email';
 export { VerifySessionInput } from './verify-session';

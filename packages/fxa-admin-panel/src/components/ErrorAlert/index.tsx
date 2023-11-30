@@ -32,7 +32,9 @@ export const ErrorAlert = ({ error }: { error: any }) => {
   const { graphQLErrors = [], networkError } = error as ApolloError;
   const networkServerErrors =
     networkError && isNetworkServerError(networkError)
-      ? networkError.result.errors
+      ? typeof networkError.result === 'string'
+        ? [networkError.result]
+        : networkError.result.errors
       : [];
 
   let heading = 'General GQL Error';

@@ -8,7 +8,12 @@ const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
 
-const { mockContentfulClients, mockLog, mockPlans, mockContentfulPlanIdsToClientCapabilities } = require('../../mocks');
+const {
+  mockContentfulClients,
+  mockLog,
+  mockPlans,
+  mockContentfulPlanIdsToClientCapabilities,
+} = require('../../mocks');
 const { AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
@@ -161,8 +166,9 @@ describe('CapabilityService', () => {
     mockStripeHelper.allMergedPlanConfigs = sinon.spy(async () => {});
     mockCapabilityManager = {
       getClients: sinon.fake.resolves(mockContentfulClients),
-      planIdsToClientCapabilities: sinon.fake.resolves(mockContentfulPlanIdsToClientCapabilities),
-
+      planIdsToClientCapabilities: sinon.fake.resolves(
+        mockContentfulPlanIdsToClientCapabilities
+      ),
     };
     log = mockLog();
     Container.set(AuthLogger, log);
@@ -975,12 +981,19 @@ describe('CapabilityService', () => {
       let mockCapabilityService = {};
       mockCapabilityService = new CapabilityService();
 
-      const subscribedPrices = await mockCapabilityService.subscribedPriceIds(UID);
+      const subscribedPrices = await mockCapabilityService.subscribedPriceIds(
+        UID
+      );
 
       const mockStripeCapabilities =
-        await mockCapabilityService.planIdsToClientCapabilitiesFromStripe(subscribedPrices);
+        await mockCapabilityService.planIdsToClientCapabilitiesFromStripe(
+          subscribedPrices
+        );
 
-      const mockContentfulCapabilities = await mockCapabilityService.planIdsToClientCapabilities(subscribedPrices);
+      const mockContentfulCapabilities =
+        await mockCapabilityService.planIdsToClientCapabilities(
+          subscribedPrices
+        );
 
       assert.deepEqual(mockContentfulCapabilities, mockStripeCapabilities);
 
@@ -996,14 +1009,12 @@ describe('CapabilityService', () => {
       sinon.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
       sinon.stub(Sentry, 'captureMessage');
 
-      mockCapabilityManager.planIdsToClientCapabilities = sinon.fake.resolves(
-        {
-          c1: ['capAlpha'],
-          c4: ['capBeta', 'capDelta', 'capEpsilon'],
-          c6: ['capGamma', 'capZeta'],
-          c8: ['capOmega']
-        },
-      );
+      mockCapabilityManager.planIdsToClientCapabilities = sinon.fake.resolves({
+        c1: ['capAlpha'],
+        c4: ['capBeta', 'capDelta', 'capEpsilon'],
+        c6: ['capGamma', 'capZeta'],
+        c8: ['capOmega'],
+      });
 
       const expected = {
         c0: ['capAll'],
@@ -1028,20 +1039,24 @@ describe('CapabilityService', () => {
         await assertExpectedCapabilities(clientId, expected[clientId]);
       }
 
-      sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'planIdsToClientCapabilities', {
-        contentful: {
-          c1: ['capAlpha'],
-          c4: ['capBeta', 'capDelta', 'capEpsilon'],
-          c6: ['capGamma', 'capZeta'],
-          c8: ['capOmega']
-        },
-        stripe: {
-          c1: [ 'capZZ', 'cap4', 'cap5', 'capAlpha' ],
-          '*': [ 'capAll' ],
-          c2: [ 'cap5', 'cap6', 'capC', 'capD' ],
-          c3: [ 'capD', 'capE', 'capP' ]
+      sinon.assert.calledOnceWithExactly(
+        sentryScope.setContext,
+        'planIdsToClientCapabilities',
+        {
+          contentful: {
+            c1: ['capAlpha'],
+            c4: ['capBeta', 'capDelta', 'capEpsilon'],
+            c6: ['capGamma', 'capZeta'],
+            c8: ['capOmega'],
+          },
+          stripe: {
+            c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
+            '*': ['capAll'],
+            c2: ['cap5', 'cap6', 'capC', 'capD'],
+            c3: ['capD', 'capE', 'capP'],
+          },
         }
-      });
+      );
 
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,

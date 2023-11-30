@@ -115,7 +115,7 @@
     ]
   },
   "dependencies": {
-    "@apollo/client": "^3.4.5",
+    "@apollo/client": "^3.8.3",
     "@babel/core": "^7.16.0",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
@@ -154,7 +154,7 @@
     "fxa-crypto-relier": "^2.7.0",
     "fxa-react": "workspace:*",
     "get-orientation": "^1.1.2",
-    "graphql": "^15.6.1",
+    "graphql": "^16.8.0",
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^29.7.0",

@@ -1,18 +1,21 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { NestApplicationOptions } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
+
+import bodyParser from 'body-parser';
+import { Request, Response } from 'express';
+import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
 import * as tracing from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
-import { Request, Response } from 'express';
 import mozLog from 'mozlog';
-import bodyParser from 'body-parser';
+
+import { NestApplicationOptions } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
+
 import { AppModule } from './app.module';
 import Config from './config';
-import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 
 const appConfig = Config.getProperties();
 

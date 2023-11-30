@@ -1,6 +1,10 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { Observable } from 'rxjs';
+import { finalize, tap } from 'rxjs/operators';
+
 import {
   CallHandler,
   ExecutionContext,
@@ -9,13 +13,9 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { Span, Transaction } from '@sentry/types';
-import { ApolloError } from 'apollo-server';
-import { Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { finalize } from 'rxjs/operators';
+import { Transaction } from '@sentry/types';
 
-import { processException } from './reporting';
+import { isApolloError, processException } from './reporting';
 
 @Injectable()
 export class SentryInterceptor implements NestInterceptor {
@@ -46,9 +46,8 @@ export class SentryInterceptor implements NestInterceptor {
             }
           }
           // Skip ApolloErrors
-          if (exception instanceof ApolloError) {
-            return;
-          }
+          if (isApolloError(exception)) return;
+
           processException(context, exception);
         },
       }),
