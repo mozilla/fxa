@@ -7,6 +7,7 @@
 
 /* tslint:disable */
 /* eslint-disable */
+
 export enum BounceType {
     unmapped = "unmapped",
     Undetermined = "Undetermined",
@@ -172,7 +173,7 @@ export interface RelyingParty {
 
 export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
-    accountByEmail(autoCompleted: boolean, email: string): Nullable<Account> | Promise<Nullable<Account>>;
+    accountByEmail(email: string, autoCompleted: boolean): Nullable<Account> | Promise<Nullable<Account>>;
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
     relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
 }
@@ -180,14 +181,14 @@ export interface IQuery {
 export interface IMutation {
     unverifyEmail(email: string): boolean | Promise<boolean>;
     disableAccount(uid: string): boolean | Promise<boolean>;
-    editLocale(locale: string, uid: string): boolean | Promise<boolean>;
+    editLocale(uid: string, locale: string): boolean | Promise<boolean>;
     enableAccount(uid: string): boolean | Promise<boolean>;
     sendPasswordResetEmail(email: string): boolean | Promise<boolean>;
-    recordAdminSecurityEvent(name: string, uid: string): boolean | Promise<boolean>;
+    recordAdminSecurityEvent(uid: string, name: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
-    updateNotes(notes: string, id: string): boolean | Promise<boolean>;
+    updateNotes(id: string, notes: string): boolean | Promise<boolean>;
 }
 
 type Nullable<T> = T | null;

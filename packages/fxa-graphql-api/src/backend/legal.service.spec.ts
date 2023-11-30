@@ -6,10 +6,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { LegalService } from './legal.service';
 
-async function mockFetch(url: RequestInfo | URL, _init?: RequestInit) {
+async function mockFetch(input: RequestInfo, init?: RequestInit) {
   const resp = new Response();
 
-  if (typeof url === 'string') {
+  if (typeof input === 'string' || input instanceof URL) {
+    const url = typeof input === 'string' ? input : input.toString();
+
     if (
       url.includes(
         '/settings/legal-docs/firefox_cloud_services_tos_locales.json'
@@ -51,7 +53,7 @@ describe('#unit - LegalService', () => {
   beforeEach(async () => {
     jest.resetModules();
 
-    global.fetch = jest.fn(mockFetch);
+    jest.spyOn(global, 'fetch').mockImplementation(mockFetch as any);
 
     const MockConfig: Provider = {
       provide: ConfigService,

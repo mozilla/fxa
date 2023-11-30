@@ -292,7 +292,7 @@ class GetEmailsLike {
 }
 
 // Helper function to render Account Search with mocks
-function renderView(mocks: any) {
+function renderView(mocks?: any) {
   render(
     <MockedProvider mocks={mocks} addTypename={false}>
       <AccountSearch />
@@ -314,7 +314,7 @@ afterEach(() => {
 });
 
 it('renders without imploding', () => {
-  render(<AccountSearch />);
+  renderView();
   expect(screen.getByTestId('search-form')).toBeInTheDocument();
 });
 

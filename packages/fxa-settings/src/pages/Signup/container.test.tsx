@@ -154,6 +154,7 @@ function mockApolloClientModule() {
       loading: false,
       called: true,
       client: {} as ApolloClient<any>,
+      reset: () => {},
     },
   ]);
 }
@@ -271,6 +272,7 @@ describe('sign-up-container', () => {
           loading: false,
           called: true,
           client: {} as ApolloClient<any>,
+          reset: () => {},
         },
       ]);
 

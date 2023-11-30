@@ -5,6 +5,7 @@
 import { MockedResponse } from '@apollo/client/testing';
 import { RelyingParty } from 'fxa-admin-server/src/graphql';
 import { GET_RELYING_PARTIES, UPDATE_NOTE } from './index.gql';
+import { GraphQLError } from 'graphql';
 
 // Response mocks
 export const MOCK_RP_ALL_FIELDS = {
@@ -70,19 +71,7 @@ export const mockUpdateNotesError = (
   },
   result: () => {
     return {
-      errors: [
-        {
-          name: '',
-          message: '... ER_DATA_TOO_LONG ...',
-          path: [],
-          extensions: {},
-          locations: [],
-          nodes: [],
-          source: undefined,
-          positions: undefined,
-          originalError: undefined,
-        },
-      ],
+      errors: [new GraphQLError('... ER_DATA_TOO_LONG ...')],
     };
   },
 });

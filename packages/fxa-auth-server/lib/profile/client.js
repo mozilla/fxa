@@ -42,7 +42,7 @@ module.exports = function (log, config, statsd) {
             name: isA.string().required(),
           },
           response: UpdateDisplayNameResponse,
-        }
+        },
       },
     },
     statsd
@@ -68,7 +68,7 @@ module.exports = function (log, config, statsd) {
       try {
         return await api.updateDisplayName(uid, { name: name });
       } catch (err) {
-        log.error('profile.updateDisplayName.failed', { uid, name, err});
+        log.error('profile.updateDisplayName.failed', { uid, name, err });
         throw err;
       }
     },

@@ -167,7 +167,7 @@ type RelyingParty {
 
 type Query {
   accountByUid(uid: String!): Account
-  accountByEmail(autoCompleted: Boolean!, email: String!): Account
+  accountByEmail(email: String!, autoCompleted: Boolean!): Account
   getEmailsLike(search: String!): [Email!]
   relyingParties: [RelyingParty!]!
 }
@@ -175,12 +175,12 @@ type Query {
 type Mutation {
   unverifyEmail(email: String!): Boolean!
   disableAccount(uid: String!): Boolean!
-  editLocale(locale: String!, uid: String!): Boolean!
+  editLocale(uid: String!, locale: String!): Boolean!
   enableAccount(uid: String!): Boolean!
   sendPasswordResetEmail(email: String!): Boolean!
-  recordAdminSecurityEvent(name: String!, uid: String!): Boolean!
+  recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!
   clearEmailBounce(email: String!): Boolean!
-  updateNotes(notes: String!, id: String!): Boolean!
+  updateNotes(id: String!, notes: String!): Boolean!
 }

@@ -192,7 +192,7 @@ const SignupContainer = ({
       } catch (error) {
         const graphQLError: GraphQLError = error.graphQLErrors?.[0];
         if (graphQLError && graphQLError.extensions?.errno) {
-          const { errno } = graphQLError.extensions;
+          const { errno } = graphQLError.extensions as { errno: number };
           return {
             error: {
               errno,
