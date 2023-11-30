@@ -389,7 +389,7 @@ const convictConf = convict({
     },
     sender: {
       doc: 'email address of the sender',
-      default: 'Firefox Accounts <no-reply@lcip.org>',
+      default: 'Mozilla <no-reply@lcip.org>',
       env: 'SMTP_SENDER',
     },
     pool: {

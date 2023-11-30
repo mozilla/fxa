@@ -142,6 +142,11 @@ class Renderer extends Localizer {
           await require(`../emails/templates/${context.template}/includes`)
         ).getIncludes(context.numberRemaining);
       }
+      if (context.template === 'newDeviceLogin') {
+        return (
+          await require(`../emails/templates/${context.template}/includes`)
+        ).getIncludes(context.clientName);
+      }
       return require(`../emails/templates/${context.template}/includes.json`);
     } catch (e) {
       throw e;
