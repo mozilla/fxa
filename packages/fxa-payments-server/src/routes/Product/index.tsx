@@ -108,7 +108,7 @@ export const Product = ({
     );
   }
 
-  useReactGA4Setup(config, productId);
+  useReactGA4Setup(config, productId, profile.result?.metricsEnabled);
 
   // Fetch plans on initial render, change in product ID, or auth change.
   useEffect(() => {

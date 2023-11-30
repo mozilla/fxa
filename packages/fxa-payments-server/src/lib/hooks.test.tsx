@@ -27,6 +27,7 @@ import {
   CUSTOMER,
   IAP_CUSTOMER,
   SELECTED_PLAN,
+  PROFILE,
 } from './mock-data';
 
 // eslint-disable-next-line import/first
@@ -118,11 +119,13 @@ describe('useReactGA4Setup', () => {
   const Subject = ({
     config,
     productId,
+    optedIn = true,
   }: {
     config: Config;
     productId: string;
+    optedIn?: boolean;
   }) => {
-    useReactGA4Setup(config, productId);
+    useReactGA4Setup(config, productId, optedIn);
     // Should always render
     return <div data-testid="success">Render success</div>;
   };
@@ -196,6 +199,24 @@ describe('useReactGA4Setup', () => {
     expect(queryByTestId('success')?.textContent).toEqual('Render success');
 
     consoleError.mockRestore();
+  });
+
+  it('does not initialize ReactGA4 - customer is opted out of data collection and use', () => {
+    const config = mockConfig;
+    const profile = {
+      ...PROFILE,
+      metricsEnabled: false,
+    };
+    const { queryByTestId } = renderWithLocalizationProvider(
+      <Subject
+        config={config}
+        productId="prod_GqM9ToKK62qjkK"
+        optedIn={profile.metricsEnabled}
+      />
+    );
+
+    expect(ReactGA.initialize).not.toBeCalled();
+    expect(queryByTestId('success')?.textContent).toEqual('Render success');
   });
 
   it('successfully initialize ReactGA4', () => {

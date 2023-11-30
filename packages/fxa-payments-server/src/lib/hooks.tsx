@@ -116,16 +116,20 @@ export function usePaypalButtonSetup(
   }, [config, setPaypalScriptLoaded, paypalButtonBase]);
 }
 
-export function useReactGA4Setup(config: Config, productId: string) {
+export function useReactGA4Setup(
+  config: Config,
+  productId: string,
+  optedIn: boolean = true
+) {
   const { enabled, measurementId, supportedProductIds, debugMode } =
     config.googleAnalytics;
 
   useEffect(() => {
-    // Check if GA is enabled and if current productId should support GA
+    // Check if GA is enabled, customer has opted in, and if current productId should support GA
     const products: string[] = !supportedProductIds
       ? []
       : supportedProductIds.split(',');
-    if (!enabled || !products.includes(productId)) {
+    if (!optedIn || !enabled || !products.includes(productId)) {
       return;
     }
 
@@ -159,7 +163,14 @@ export function useReactGA4Setup(config: Config, productId: string) {
     } catch (error) {
       console.error('Error initializing GA script\n', error);
     }
-  }, [enabled, measurementId, supportedProductIds, debugMode, productId]);
+  }, [
+    enabled,
+    measurementId,
+    supportedProductIds,
+    debugMode,
+    productId,
+    optedIn,
+  ]);
 }
 
 export const enum CouponInfoBoxMessageType {
