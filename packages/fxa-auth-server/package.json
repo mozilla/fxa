@@ -67,7 +67,7 @@
     "@fluent/langneg": "^0.6.2",
     "@google-cloud/bigquery": "^6.1.0",
     "@google-cloud/firestore": "^6.6.0",
-    "@google-cloud/translate": "^6.3.1",
+    "@google-cloud/translate": "^8.0.2",
     "@googlemaps/google-maps-services-js": "^3.3.16",
     "@hapi/hapi": "^20.2.1",
     "@hapi/hawk": "^8.0.0",
