@@ -1,6 +1,5 @@
 # DropDownAvatarMenu component
 
-drop-down-menu-title = { -product-firefox-account } menu
 drop-down-menu-title-2 = { -product-mozilla-account } menu
 # This string is used to show the current user's name or email in the settings page menu.
 # Variables:

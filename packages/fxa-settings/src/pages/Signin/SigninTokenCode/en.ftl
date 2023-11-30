@@ -3,10 +3,6 @@
 ## a 6-digit code that is sent to the user's email address.
 
 # String within the <span> element appears on a separate line
-# If more appropriate in a locale, the string within the <span>, "for your { -product-firefox-account }"
-# can stand alone as "{ -product-firefox-account }"
-signin-token-code-heading = Enter confirmation code<span> for your { -product-firefox-account }</span>
-# String within the <span> element appears on a separate line
 # If more appropriate in a locale, the string within the <span>, "for your { -product-mozilla-account }"
 # can stand alone as "{ -product-mozilla-account }"
 signin-token-code-heading-2 = Enter confirmation code<span> for your { -product-mozilla-account }</span>

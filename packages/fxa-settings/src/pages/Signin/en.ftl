@@ -1,8 +1,6 @@
 ## Signin page
 
 # Strings within the <span> elements appear as a subheading.
-signin-password-needed-header = Enter your password <span>for your { -product-firefox-account }</span>
-# Strings within the <span> elements appear as a subheading.
 signin-password-needed-header-2 = Enter your password <span>for your { -product-mozilla-account }</span>
 
 # $serviceLogo - an image of the logo of the service which the user is authenticating for.
