@@ -35914,7 +35914,6 @@ fsevents@~2.1.1:
     react-ga4: ^2.1.0
     react-test-renderer: ^18.2.0
     reflect-metadata: ^0.1.13
-    replace-in-file: ^7.0.1
     rxjs: ^7.8.1
     semver: ^7.5.2
     stylelint: ^15.10.1
@@ -54669,19 +54668,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"replace-in-file@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "replace-in-file@npm:7.0.1"
-  dependencies:
-    chalk: ^4.1.2
-    glob: ^8.1.0
-    yargs: ^17.7.2
-  bin:
-    replace-in-file: bin/cli.js
-  checksum: da6115387bf79ac7fb2057a4212da4159cc85889e34212df62d86cc3b5ceb23167a7c22ce0dc0cebfe55c01a08ccd99fd496398375dfa29e30f173013c81579a
-  languageName: node
-  linkType: hard
-
 "request-progress@npm:^3.0.0":
   version: 3.0.0
   resolution: "request-progress@npm:3.0.0"
@@ -63537,7 +63523,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"yargs@npm:^17.0.0, yargs@npm:^17.6.2, yargs@npm:^17.7.2":
+"yargs@npm:^17.0.0, yargs@npm:^17.6.2":
   version: 17.7.2
   resolution: "yargs@npm:17.7.2"
   dependencies:
