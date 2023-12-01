@@ -11438,7 +11438,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/js@npm:16.10.0, @nx/js@npm:^16.9.1":
+"@nx/js@npm:16.10.0":
   version: 16.10.0
   resolution: "@nx/js@npm:16.10.0"
   dependencies:
@@ -11481,7 +11481,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/js@npm:17.1.3":
+"@nx/js@npm:17.1.3, @nx/js@npm:^17.1.3":
   version: 17.1.3
   resolution: "@nx/js@npm:17.1.3"
   dependencies:
@@ -35801,7 +35801,7 @@ fsevents@~2.1.1:
     "@nx/cypress": ^17.1.3
     "@nx/eslint-plugin": ^16.9.1
     "@nx/jest": ^16.9.1
-    "@nx/js": ^16.9.1
+    "@nx/js": ^17.1.3
     "@nx/next": ^16.9.1
     "@nx/node": ^16.9.1
     "@nx/react": ^16.9.1
