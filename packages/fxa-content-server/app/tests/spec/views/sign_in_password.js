@@ -274,7 +274,7 @@ describe('views/sign_in_password', () => {
   });
 
   describe('validateAndSubmit', () => {
-    let loginSubmitEventStub;
+    let loginSubmitEventStub, cachedLoginSubmitEventStub;
     let loginSuccessStub;
 
     beforeEach(() => {
@@ -283,16 +283,21 @@ describe('views/sign_in_password', () => {
         return Promise.resolve();
       });
       loginSubmitEventStub = sinon.stub(GleanMetrics.login, 'submit');
+      cachedLoginSubmitEventStub = sinon.stub(
+        GleanMetrics.cachedLogin,
+        'submit'
+      );
       loginSuccessStub = sinon.stub(GleanMetrics.login, 'success');
     });
 
     afterEach(() => {
       loginSuccessStub.restore();
       loginSubmitEventStub.restore();
+      cachedLoginSubmitEventStub.restore();
     });
 
     describe('password valid', () => {
-      it('signs up the user', () => {
+      it('signs in the user', () => {
         sinon.stub(account, 'get').withArgs('verified').returns(true);
         view.$('#password').val('password');
 
@@ -301,6 +306,28 @@ describe('views/sign_in_password', () => {
           assert.isTrue(view.signIn.calledWith(account, 'password'));
           sinon.assert.calledOnce(loginSuccessStub);
           sinon.assert.calledOnce(loginSubmitEventStub);
+        });
+      });
+    });
+
+    describe('password not needed', () => {
+      it('signs in the user', () => {
+        sinon.stub(view, 'getAccount').returns(account);
+        // render's called in the top level beforeEach, so this gets around the
+        // validation but test the submit.  we don't need a password input so
+        // there's no need for input validation.
+        sinon.stub(view, 'isValid').returns(true);
+        sinon.stub(account, 'get').withArgs('hasPassword').returns(true);
+        sinon.stub(view, 'isPasswordNeededForAccount').returns(false);
+        sinon.stub(view, 'useLoggedInAccount').returns();
+
+        return Promise.resolve(view.validateAndSubmit()).then(() => {
+          sinon.assert.calledOnce(view.isPasswordNeededForAccount);
+          sinon.assert.calledWith(view.isPasswordNeededForAccount, account);
+          sinon.assert.calledOnce(view.useLoggedInAccount);
+          sinon.assert.calledWith(view.useLoggedInAccount, account);
+          sinon.assert.calledOnce(cachedLoginSubmitEventStub);
+          sinon.assert.notCalled(loginSubmitEventStub);
         });
       });
     });
@@ -377,19 +404,29 @@ describe('views/sign_in_password', () => {
   });
 
   describe('logView', () => {
-    let loginViewEventStub;
+    let loginViewEventStub, cachedLoginViewEventStub;
 
     beforeEach(() => {
       loginViewEventStub = sinon.stub(GleanMetrics.login, 'view');
+      cachedLoginViewEventStub = sinon.stub(GleanMetrics.cachedLogin, 'view');
     });
 
     afterEach(() => {
       loginViewEventStub.restore();
+      cachedLoginViewEventStub.restore();
     });
 
-    it('submits a reg_view Glean ping', () => {
+    it('submits a login_view Glean ping when a password is required', () => {
       view.logView();
       sinon.assert.calledOnce(loginViewEventStub);
+    });
+
+    it('submits a cached_login_view Glean ping when a password is not needed', () => {
+      sinon.stub(view, 'getContext').returns({ isPasswordNeeded: false });
+      view.logView();
+      sinon.assert.calledOnce(cachedLoginViewEventStub);
+      sinon.assert.notCalled(loginViewEventStub);
+      view.getContext.restore();
     });
   });
 });

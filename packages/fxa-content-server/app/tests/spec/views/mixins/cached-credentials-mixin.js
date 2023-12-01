@@ -14,6 +14,7 @@ import OAuthRelier from 'models/reliers/oauth';
 import User from 'models/user';
 import sinon from 'sinon';
 import VerificationMethods from 'lib/verification-methods';
+import GleanMetrics from '../../../../scripts/lib/glean';
 
 describe('views/mixins/cached-credentials-mixin', () => {
   let account;
@@ -205,6 +206,11 @@ describe('views/mixins/cached-credentials-mixin', () => {
       sinon
         .stub(account, 'accountProfile')
         .callsFake(() => Promise.resolve({}));
+      sinon.stub(GleanMetrics.cachedLogin, 'success');
+    });
+
+    afterEach(() => {
+      GleanMetrics.cachedLogin.success.restore();
     });
 
     it('delegates to signIn, logs cached.signin.success event', () => {
@@ -226,6 +232,7 @@ describe('views/mixins/cached-credentials-mixin', () => {
         onSuccess();
         assert.equal(view.logEvent.callCount, 1);
         assert.deepEqual(view.logEvent.args[0], ['cached.signin.success']);
+        sinon.assert.calledOnce(GleanMetrics.cachedLogin.success);
       });
     });
 

@@ -25,7 +25,15 @@ jest.mock('../../lib/metrics', () => ({
 }));
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { login: { forgotPassword: jest.fn() } },
+  default: {
+    login: {
+      forgotPassword: jest.fn(),
+      view: jest.fn(),
+      submit: jest.fn(),
+      success: jest.fn(),
+    },
+    cachedLogin: { view: jest.fn(), submit: jest.fn(), success: jest.fn() },
+  },
 }));
 
 // TODO: Once https://mozilla-hub.atlassian.net/browse/FXA-6461 is resolved, we can
@@ -40,6 +48,10 @@ describe('Signin', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
+
+  function submit() {
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+  }
 
   it('renders Signin page as expected with password required', () => {
     renderWithLocalizationProvider(
@@ -66,6 +78,7 @@ describe('Signin', () => {
     expect(passwordInputForm).toBeInTheDocument();
     expect(firefoxTermsLink).toHaveAttribute('href', '/legal/terms');
     expect(firefoxPrivacyLink).toHaveAttribute('href', '/legal/privacy');
+    expect(GleanMetrics.login.view).toHaveBeenCalledTimes(1);
   });
 
   it('renders Signin page as expected with password not required', () => {
@@ -85,6 +98,8 @@ describe('Signin', () => {
 
     expect(signinHeader).toBeInTheDocument();
     expect(passwordInputForm).not.toBeInTheDocument();
+    expect(GleanMetrics.login.view).toHaveBeenCalledTimes(0);
+    expect(GleanMetrics.cachedLogin.view).toHaveBeenCalledTimes(1);
   });
 
   it('renders Signin page with Pocket client as expected', () => {
@@ -149,6 +164,49 @@ describe('Signin', () => {
 
     await waitFor(() => {
       expect(GleanMetrics.login.forgotPassword).toBeCalledTimes(1);
+    });
+  });
+
+  describe('form submission', () => {
+    describe('with a password', () => {
+      it('emits the expected metrics events', async () => {
+        renderWithLocalizationProvider(
+          <Signin
+            email={MOCK_EMAIL}
+            isPasswordNeeded={true}
+            serviceName={MOCK_SERVICE}
+          />
+        );
+        submit();
+        await waitFor(() => {
+          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+          // the submission handling code hasn't been implemented when the
+          // event was added so a success will follow a a submit.
+          // TODO
+          expect(GleanMetrics.login.success).toHaveBeenCalledTimes(1);
+        });
+      });
+    });
+
+    describe('without a password', () => {
+      it('emits the expected metrics events', async () => {
+        renderWithLocalizationProvider(
+          <Signin
+            email={MOCK_EMAIL}
+            isPasswordNeeded={false}
+            serviceName={MOCK_SERVICE}
+          />
+        );
+        submit();
+        await waitFor(() => {
+          expect(GleanMetrics.cachedLogin.submit).toHaveBeenCalledTimes(1);
+          // the submission handling code hasn't been implemented when the
+          // event was added so a success will follow a a submit.
+          // TODO
+          expect(GleanMetrics.cachedLogin.success).toHaveBeenCalledTimes(1);
+          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(0);
+        });
+      });
     });
   });
 });

@@ -78,7 +78,14 @@ const SignInPasswordView = FormView.extend({
   },
 
   logView() {
-    GleanMetrics.login.view();
+    const context = this.getContext();
+
+    if (!context.isPasswordNeeded) {
+      GleanMetrics.cachedLogin.view();
+    } else {
+      GleanMetrics.login.view();
+    }
+
     return FormView.prototype.logView.call(this);
   },
 
@@ -108,6 +115,7 @@ const SignInPasswordView = FormView.extend({
         this.onSignInError(account, password, error)
       );
     } else {
+      GleanMetrics.cachedLogin.submit();
       return this.useLoggedInAccount(account);
     }
   },

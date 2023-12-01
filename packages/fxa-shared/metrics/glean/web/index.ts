@@ -46,6 +46,12 @@ export const eventsMap = {
     forgotPassword: 'login_forgot_pwd_submit',
   },
 
+  cachedLogin: {
+    view: 'cached_login_view',
+    submit: 'cached_login_submit',
+    success: 'cached_login_success_view',
+  },
+
   loginConfirmation: {
     view: 'login_email_confirmation_view',
     submit: 'login_email_confirmation_submit',

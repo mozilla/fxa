@@ -6,6 +6,7 @@ import AuthErrors from '../../lib/auth-errors';
 import FormPrefillMixin from './form-prefill-mixin';
 import SigninMixin from './signin-mixin';
 import VerificationMethods from '../../lib/verification-methods';
+import GleanMetrics from '../../lib/glean';
 
 export default {
   dependsOn: [FormPrefillMixin, SigninMixin],
@@ -107,7 +108,10 @@ export default {
         return this.signIn(account, null, {
           // When using a cached credential, the auth-server routes do not get hit,
           // This event will cause the content-server to emit the complete event.
-          onSuccess: () => this.logEvent('cached.signin.success'),
+          onSuccess: () => {
+            this.logEvent('cached.signin.success');
+            GleanMetrics.cachedLogin.success();
+          },
         });
       })
       .catch((err) => {
