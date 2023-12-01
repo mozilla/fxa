@@ -27,6 +27,11 @@ export const NewDeviceLoginFirefox = createStory(
   'New device login through Firefox'
 );
 export const NewDeviceLoginOther = createStory(
-  { clientName: 'Some Other Relier' },
+  { clientName: '123 Done' },
   'New device login through something else'
+);
+
+export const NewDeviceLoginForMozillaAccount = createStory(
+  { clientName: 'Mozilla' },
+  'New device login for your Mozilla account'
 );
