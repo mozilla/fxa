@@ -11998,13 +11998,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/context-zone-peer-dep@npm:~1.7.0":
-  version: 1.7.0
-  resolution: "@opentelemetry/context-zone-peer-dep@npm:1.7.0"
+"@opentelemetry/context-zone-peer-dep@npm:~1.18.1":
+  version: 1.18.1
+  resolution: "@opentelemetry/context-zone-peer-dep@npm:1.18.1"
   peerDependencies:
-    "@opentelemetry/api": ">=1.0.0 <1.3.0"
+    "@opentelemetry/api": ">=1.0.0 <1.8.0"
     zone.js: ^0.10.2 || ^0.11.0
-  checksum: 3b54a306e019863107be32f3c1621c4715e3b5e87705e82fe1372a247d6c303a2878ca83a74da836a1646ad93b2073144a56dfe510c79f4ed0997d6505702b28
+  checksum: 69e9643e13bee4552d631a2640851d00e857c34738b5be5181263ec95eceb8536915ce6a5971bec00d194aa85a8b95da894ec41f01939c006d01629bf281ae5b
   languageName: node
   linkType: hard
 
@@ -35704,7 +35704,7 @@ fsevents@~2.1.1:
     "@opentelemetry/api": ~1.4.0
     "@opentelemetry/auto-instrumentations-node": ~0.39.2
     "@opentelemetry/context-zone": ~1.13.0
-    "@opentelemetry/context-zone-peer-dep": ~1.7.0
+    "@opentelemetry/context-zone-peer-dep": ~1.18.1
     "@opentelemetry/exporter-jaeger": ~1.15.1
     "@opentelemetry/exporter-trace-otlp-http": ~0.34.0
     "@opentelemetry/instrumentation-document-load": ~0.33.0

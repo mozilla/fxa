@@ -303,7 +303,7 @@
     "@opentelemetry/api": "~1.4.0",
     "@opentelemetry/auto-instrumentations-node": "~0.39.2",
     "@opentelemetry/context-zone": "~1.13.0",
-    "@opentelemetry/context-zone-peer-dep": "~1.7.0",
+    "@opentelemetry/context-zone-peer-dep": "~1.18.1",
     "@opentelemetry/exporter-jaeger": "~1.15.1",
     "@opentelemetry/exporter-trace-otlp-http": "~0.34.0",
     "@opentelemetry/instrumentation-document-load": "~0.33.0",
