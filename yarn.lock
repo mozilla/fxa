@@ -11139,15 +11139,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nrwl/cypress@npm:16.10.0":
-  version: 16.10.0
-  resolution: "@nrwl/cypress@npm:16.10.0"
-  dependencies:
-    "@nx/cypress": 16.10.0
-  checksum: 9df7478f7355399eed2a67d3f97a2d53cf3bad671fbecad0c36e69048b2c991ec079df8652daba1e094e5b2f8b1735d0c1d83f92e73551482815c7f58352e875
-  languageName: node
-  linkType: hard
-
 "@nrwl/cypress@npm:17.1.3":
   version: 17.1.3
   resolution: "@nrwl/cypress@npm:17.1.3"
@@ -11329,28 +11320,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@nx/cypress@npm:16.10.0, @nx/cypress@npm:^16.9.1":
-  version: 16.10.0
-  resolution: "@nx/cypress@npm:16.10.0"
-  dependencies:
-    "@nrwl/cypress": 16.10.0
-    "@nx/devkit": 16.10.0
-    "@nx/js": 16.10.0
-    "@nx/linter": 16.10.0
-    "@phenomnomnominal/tsquery": ~5.0.1
-    detect-port: ^1.5.1
-    semver: 7.5.3
-    tslib: ^2.3.0
-  peerDependencies:
-    cypress: ">= 3 < 14"
-  peerDependenciesMeta:
-    cypress:
-      optional: true
-  checksum: 5200a1b23d0c4e119ddda4f02ee93380c8cbf96f742adba3e5a3e5a89bb5053f37807a02ad83236b5ea3053f5d034cabe6a60bbb0ee60b66c22f18c41a861167
-  languageName: node
-  linkType: hard
-
-"@nx/cypress@npm:17.1.3":
+"@nx/cypress@npm:17.1.3, @nx/cypress@npm:^17.1.3":
   version: 17.1.3
   resolution: "@nx/cypress@npm:17.1.3"
   dependencies:
@@ -35828,7 +35798,7 @@ fsevents@~2.1.1:
     "@nestjs/schedule": ^3.0.3
     "@nestjs/schematics": ^10.0.3
     "@nestjs/testing": ^10.2.4
-    "@nx/cypress": ^16.9.1
+    "@nx/cypress": ^17.1.3
     "@nx/eslint-plugin": ^16.9.1
     "@nx/jest": ^16.9.1
     "@nx/js": ^16.9.1
