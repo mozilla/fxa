@@ -146,36 +146,6 @@ it('calls onMounted and onEngaged', () => {
   expect(onEngaged).toBeCalledTimes(1);
 });
 
-it('when confirm = true, enables submit button when all fields are valid and checkbox checked', () => {
-  let { getByTestId } = renderWithValidFields({
-    confirm: true,
-    plan: SELECTED_PLAN,
-  });
-  expect(getByTestId('submit')).toHaveClass('payment-button-disabled');
-  fireEvent.click(getByTestId('confirm'));
-  expect(getByTestId('submit')).not.toHaveClass('payment-button-disabled');
-  expect(ReactGALog.logEvent).toBeCalledTimes(1);
-  expect(ReactGALog.logEvent).toBeCalledWith(
-    MOCK_EVENTS.AddPaymentInfo(SELECTED_PLAN)
-  );
-});
-
-it('omits the confirmation checkbox when confirm = false', () => {
-  const { queryByTestId } = renderWithLocalizationProvider(
-    <Subject {...{ confirm: false }} />
-  );
-  expect(queryByTestId('confirm')).not.toBeInTheDocument();
-  expect(ReactGALog.logEvent).not.toBeCalled();
-});
-
-it('includes the confirmation checkbox when confirm = true and plan supplied', () => {
-  const { queryByTestId } = renderWithLocalizationProvider(
-    <Subject {...{ confirm: true, plan: SELECTED_PLAN }} />
-  );
-  expect(queryByTestId('confirm')).toBeInTheDocument();
-  expect(ReactGALog.logEvent).not.toBeCalled();
-});
-
 it('calls onSubmit when all fields valid and submitted', async () => {
   const onSubmit = jest.fn();
   let { getByTestId } = renderWithValidFields({
@@ -254,24 +224,6 @@ it('submit button should still be enabled when all fields are valid', () => {
   expect(ReactGALog.logEvent).toBeCalledTimes(1);
 });
 
-it('does not call onSubmit if somehow submitted without confirm checked', async () => {
-  const onSubmit = jest.fn();
-  // renderWithValidFields does not check the confirm box
-  let { getByTestId } = renderWithValidFields({
-    confirm: true,
-    plan: SELECTED_PLAN,
-    onSubmit,
-    onChange: () => {},
-  });
-  // The user shouldn't be able to click a disabled submit button...
-  const submitButton = getByTestId('submit');
-  expect(submitButton).toHaveClass('payment-button-disabled');
-  // ...but let's force the form to submit and assert nothing happens.
-  fireEvent.submit(getByTestId('paymentForm'));
-  expect(onSubmit).not.toHaveBeenCalled();
-  expect(ReactGALog.logEvent).not.toBeCalled();
-});
-
 it('does not call onSubmit if somehow submitted while in progress', async () => {
   const onSubmit = jest.fn();
   let { getByTestId } = renderWithValidFields({
@@ -316,7 +268,6 @@ describe('with existing card', () => {
       <Subject
         customer={MOCK_CUSTOMER}
         plan={SELECTED_PLAN}
-        confirm={false}
         onSubmit={onSubmit}
       />
     );
@@ -348,14 +299,10 @@ describe('with existing PayPal billing agreement', () => {
       <Subject
         customer={{ ...MOCK_CUSTOMER, payment_provider: 'paypal' }}
         plan={SELECTED_PLAN}
-        confirm={false}
         onSubmit={onSubmit}
       />
     );
     fireEvent.click(getByTestId('submit'));
     expect(onSubmit).toHaveBeenCalledTimes(1);
-
-    // confirm checkbox was not checked
-    expect(ReactGALog.logEvent).not.toBeCalled();
   });
 });

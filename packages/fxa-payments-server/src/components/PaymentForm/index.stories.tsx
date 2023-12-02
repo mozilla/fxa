@@ -9,7 +9,7 @@ import { SignInLayout } from '../AppLayout';
 import { CUSTOMER, SELECTED_PLAN } from '../../lib/mock-data';
 
 export default {
-  title: 'components/PaymentFormV2',
+  title: 'components/PaymentForm',
   component: PaymentForm,
 } as Meta;
 
@@ -30,13 +30,6 @@ const mockValidatorState = (): ValidatorState => ({
       fieldType: 'stripe',
       required: true,
     },
-    confirm: {
-      value: null,
-      valid: null,
-      error: null,
-      fieldType: 'input',
-      required: true,
-    },
     submit: {
       value: null,
       valid: null,
@@ -52,7 +45,6 @@ type MostPaymentFormProps = Omit<PaymentFormProps, 'submitNonce'>;
 const defaultPaymentFormProps: MostPaymentFormProps = {
   locale: 'auto',
   inProgress: false,
-  confirm: false,
   customer: undefined,
   plan: SELECTED_PLAN,
   onSubmit: action('onSubmit'),
@@ -92,11 +84,6 @@ export const WithExistingCard = storyWithProps({
 export const WithoutPlan = storyWithProps({
   ...defaultPaymentFormProps,
   plan: undefined,
-});
-
-export const WithoutConfirmation = storyWithProps({
-  ...defaultPaymentFormProps,
-  confirm: false,
 });
 
 export const FrLocale = storyWithProps({

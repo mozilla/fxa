@@ -320,7 +320,6 @@ export const PaymentUpdateForm = ({
                 submitNonce,
                 onSubmit,
                 inProgress: stripeSubmitInProgress,
-                confirm: false,
                 onCancel: hideUpdate,
                 onChange,
                 onMounted: onFormMounted,

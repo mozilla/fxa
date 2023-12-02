@@ -513,7 +513,6 @@ export const Checkout = ({
 
                   inProgress,
                   validatorInitialState,
-                  confirm: false,
                   submit: true,
                   plan: selectedPlan,
                   onMounted: onFormMounted,
