@@ -47,7 +47,6 @@ import {
   PaymentProviders,
 } from '../../lib/PaymentProvider';
 import { PaymentProviderDetails } from '../PaymentProviderDetails';
-import { PaymentConsentCheckbox } from '../PaymentConsentCheckbox';
 import { apiInvoicePreview } from '../../lib/apiClient';
 import {
   GAEvent,
@@ -88,7 +87,6 @@ export type PaypalSubmitHandler = (x: PaypalPaymentSubmitResult) => void;
 
 export type BasePaymentFormProps = {
   inProgress?: boolean;
-  confirm?: boolean;
   plan?: Plan;
   customer?: Customer | null;
   getString?: (id: string) => string;
@@ -111,7 +109,6 @@ export type BasePaymentFormProps = {
 
 export const PaymentForm = ({
   inProgress = false,
-  confirm = true,
   plan,
   customer,
   getString,
@@ -414,12 +411,6 @@ export const PaymentForm = ({
       {...{ onChange }}
     >
       {paymentSource}
-      {confirm && plan && (
-        <>
-          <PaymentConsentCheckbox plan={plan} />
-          <hr className="mt-4 tablet:mt-6" />
-        </>
-      )}
       {buttons}
     </Form>
   );

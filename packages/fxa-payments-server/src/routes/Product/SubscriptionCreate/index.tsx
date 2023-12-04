@@ -374,7 +374,6 @@ export const SubscriptionCreate = ({
                   shouldAllowSubmit: checkboxSet,
                   inProgress,
                   validatorInitialState,
-                  confirm: false,
                   plan: selectedPlan,
                   onMounted: onFormMounted,
                   onEngaged: onFormEngaged,
