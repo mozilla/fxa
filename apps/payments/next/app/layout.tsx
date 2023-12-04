@@ -1,4 +1,5 @@
 import Image from 'next/image';
+// TODO - Move shared SVGs to a shared library in fxa/libs/shared/*
 import mozillaLogo from '../images/moz-logo-bw-rgb.svg';
 import './styles/global.css';
 
