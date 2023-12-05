@@ -97,12 +97,29 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
+  // For sync mobile
+  declinedSyncEngines?: string[];
+  offeredSyncEngines?: string[];
 };
 
 // ref: https://searchfox.org/mozilla-central/rev/82828dba9e290914eddd294a0871533875b3a0b5/services/fxaccounts/FxAccountsWebChannel.sys.mjs#230
 export type FxACanLinkAccount = {
   email: string;
 };
+
+let messageIdSuffix = 0;
+/**
+ * Create a messageId for a given command/data combination.
+ *
+ * messageId is sent to the relier who is expected to respond
+ * with the same messageId. Used to keep track of outstanding requests
+ * and is required in at least Firefox iOS to send back a response.
+ * */
+function createMessageId() {
+  // If two messages are created within the same millisecond, Date.now()
+  // returns the same value. Append a suffix that ensures uniqueness.
+  return `${Date.now()}${++messageIdSuffix}`;
+}
 
 export class Firefox extends EventTarget {
   private broadcastChannel?: BroadcastChannel;
@@ -163,7 +180,7 @@ export class Firefox extends EventTarget {
   private formatEventDetail(
     command: FirefoxCommand,
     data: any,
-    messageId: string = ''
+    messageId: string = createMessageId()
   ) {
     const detail = {
       id: this.id,

@@ -217,14 +217,14 @@ export const Signup = ({
           metricsEnabled: true,
         };
 
+        const getOfferedSyncEngines = () =>
+          getSyncEngineIds(offeredSyncEngineConfigs || []);
+
         persistAccount(accountData);
         setCurrentAccount(data.SignUp.uid);
         sessionToken(data.SignUp.sessionToken);
 
         if (isSyncDesktopIntegration(integration)) {
-          const offeredSyncEngines = getSyncEngineIds(
-            offeredSyncEngineConfigs || []
-          );
           firefox.fxaLogin({
             email: queryParamModel.email,
             keyFetchToken: data.SignUp.keyFetchToken,
@@ -234,7 +234,7 @@ export const Signup = ({
             verified: false,
             services: {
               sync: {
-                offeredEngines: offeredSyncEngines,
+                offeredEngines: getOfferedSyncEngines(),
                 declinedEngines: declinedSyncEngines,
               },
             },
@@ -246,6 +246,12 @@ export const Signup = ({
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
+            // Sync desktop sends a web channel message up on Signup
+            // while Sync mobile does on confirm signup
+            ...(isSyncMobileWebChannel && {
+              offeredSyncEngines: getOfferedSyncEngines(),
+              declinedSyncEngines,
+            }),
           },
           replace: true,
         });
@@ -262,11 +268,12 @@ export const Signup = ({
       ftlMsgResolver,
       navigate,
       selectedNewsletterSlugs,
-      offeredSyncEngineConfigs,
       declinedSyncEngines,
       queryParamModel.email,
       location.search,
       integration,
+      offeredSyncEngineConfigs,
+      isSyncMobileWebChannel,
     ]
   );
 

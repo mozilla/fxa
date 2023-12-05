@@ -30,6 +30,8 @@ const SignupConfirmCodeContainer = ({
   };
   const {
     selectedNewsletterSlugs: newsletterSlugs,
+    offeredSyncEngines,
+    declinedSyncEngines,
     keyFetchToken,
     unwrapBKey,
   } = location.state || {};
@@ -117,6 +119,8 @@ const SignupConfirmCodeContainer = ({
         integration,
         finishOAuthFlowHandler,
         newsletterSlugs,
+        offeredSyncEngines,
+        declinedSyncEngines,
         keyFetchToken,
         unwrapBKey,
       }}
