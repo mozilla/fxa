@@ -12259,18 +12259,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-document-load@npm:~0.33.0":
-  version: 0.33.1
-  resolution: "@opentelemetry/instrumentation-document-load@npm:0.33.1"
+"@opentelemetry/instrumentation-document-load@npm:~0.34.0":
+  version: 0.34.0
+  resolution: "@opentelemetry/instrumentation-document-load@npm:0.34.0"
   dependencies:
     "@opentelemetry/core": ^1.8.0
-    "@opentelemetry/instrumentation": ^0.41.2
+    "@opentelemetry/instrumentation": ^0.45.1
     "@opentelemetry/sdk-trace-base": ^1.0.0
     "@opentelemetry/sdk-trace-web": ^1.15.0
     "@opentelemetry/semantic-conventions": ^1.0.0
   peerDependencies:
     "@opentelemetry/api": ^1.3.0
-  checksum: 1d30a44ed8802f4ab6b10695d227ac834840a754a0d7d598900b4ca78c9b92ad9234e275e68ae621195a4c38f43ce100cb65b1d8ed838aeb49f9002ce02562aa
+  checksum: 41a99987650951f8d5e5e7060eb04fd82ac31d8fa6e9ab64aadcbae89bff00658328a0a5b6a6c1944d40792c03345de70a009260daa61db32c4669a8e8b35515
   languageName: node
   linkType: hard
 
@@ -35714,7 +35714,7 @@ fsevents@~2.1.1:
     "@opentelemetry/context-zone-peer-dep": ~1.7.0
     "@opentelemetry/exporter-jaeger": ~1.15.1
     "@opentelemetry/exporter-trace-otlp-http": ~0.34.0
-    "@opentelemetry/instrumentation-document-load": ~0.33.0
+    "@opentelemetry/instrumentation-document-load": ~0.34.0
     "@opentelemetry/instrumentation-fetch": ~0.41.0
     "@opentelemetry/instrumentation-ioredis": ^0.34.1
     "@opentelemetry/instrumentation-user-interaction": ~0.34.0

@@ -306,7 +306,7 @@
     "@opentelemetry/context-zone-peer-dep": "~1.7.0",
     "@opentelemetry/exporter-jaeger": "~1.15.1",
     "@opentelemetry/exporter-trace-otlp-http": "~0.34.0",
-    "@opentelemetry/instrumentation-document-load": "~0.33.0",
+    "@opentelemetry/instrumentation-document-load": "~0.34.0",
     "@opentelemetry/instrumentation-fetch": "~0.41.0",
     "@opentelemetry/instrumentation-ioredis": "^0.34.1",
     "@opentelemetry/instrumentation-user-interaction": "~0.34.0",
