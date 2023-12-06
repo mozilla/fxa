@@ -55,6 +55,8 @@ const ConfirmSignupCode = ({
   integration,
   finishOAuthFlowHandler,
   newsletterSlugs: newsletters,
+  offeredSyncEngines,
+  declinedSyncEngines,
   keyFetchToken,
   unwrapBKey,
 }: ConfirmSignupCodeProps & RouteComponentProps) => {
@@ -68,9 +70,6 @@ const ConfirmSignupCode = ({
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
   );
-  // TODO: Sync mobile cleanup, see note in oauth-integration isSync
-  const isSyncMobileWebChannel =
-    isOAuthIntegration(integration) && integration.isSync();
 
   const navigate = useNavigate();
   const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
@@ -183,9 +182,15 @@ const ConfirmSignupCode = ({
             unwrapBKey!
           );
 
+          // TODO: Sync mobile cleanup, see note in oauth-integration isSync, FXA-8671
+          const isSyncMobileWebChannel =
+            isOAuthIntegration(integration) &&
+            integration.isSync() &&
+            integration.features.webChannelSupport === true;
           if (isSyncMobileWebChannel) {
             firefox.fxaOAuthLogin({
-              // TODO: is this 'action' correct?
+              declinedSyncEngines,
+              offeredSyncEngines,
               action: 'signup',
               code,
               redirect,

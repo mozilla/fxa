@@ -86,7 +86,7 @@ const SignupContainer = ({
 
   const isOAuth = isOAuthIntegration(integration);
   const hasWebChannelSupport = integration.features.webChannelSupport === true;
-  // TODO: Sync mobile cleanup, see note in oauth-integration isSync
+  // TODO: Sync mobile cleanup, see note in oauth-integration isSync, FXA-8671
   const isSyncMobile = isOAuth && serviceName === MozServices.FirefoxSync;
   const isSyncMobileWebChannel = isSyncMobile && hasWebChannelSupport;
   const isSyncDesktop = isSyncDesktopIntegration(integration);

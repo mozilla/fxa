@@ -10,12 +10,16 @@ import {
   isOAuthIntegration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
+import { Constants } from '../constants';
 
-// Do we need this or can we rely on `@bind` methods? FXA-8106
-const checkOAuthData = (integration: OAuthIntegration): Error | null => {
+// TODO: Do we need this or can we rely on `@bind` methods? FXA-8106
+const checkOAuthData = (
+  integration: OAuthIntegration,
+  wantsRedirect: boolean
+): Error | null => {
   // Ensure a redirect was provided. Without this info, we can't relay the oauth code
-  // and state!
-  if (!integration.data.redirectUri) {
+  // and state on a redirect!
+  if (wantsRedirect && !integration.data.redirectUri) {
     return new OAuthErrorInvalidRedirectUri();
   }
   if (!integration.data.clientId) {
@@ -157,6 +161,11 @@ export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
 ): FinishOAuthFlowHandlerResult {
+  const isSyncMobileWebChannel =
+    isOAuthIntegration(integration) &&
+    integration.isSync() &&
+    integration.features.webChannelSupport === true;
+
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {
       const oAuthIntegration = integration as OAuthIntegration;
@@ -183,19 +192,30 @@ export function useFinishOAuthFlowHandler(
         keys
       );
 
-      const redirectUrl = constructOAuthRedirectUrl(
-        oAuthCode,
-        oAuthIntegration.data.redirectUri
-      );
+      const redirect = isSyncMobileWebChannel
+        ? Constants.OAUTH_WEBCHANNEL_REDIRECT
+        : constructOAuthRedirectUrl(
+            oAuthCode,
+            oAuthIntegration.data.redirectUri
+          ).href;
+
+      // Always use the state the RP passed in for OAuth Webchannel.
+      // This is necessary to complete the prompt=none
+      // flow error cases where no interaction with
+      // the server occurs to get the state from
+      // the redirect_uri returned when creating
+      // the token or code.
+      const state = isSyncMobileWebChannel
+        ? integration.data.state
+        : oAuthCode.state;
 
       return {
-        redirect: redirectUrl.href,
-        // sync mobile needs these values
+        redirect,
         code: oAuthCode.code,
-        state: oAuthCode.state,
+        state,
       };
     },
-    [authClient, integration]
+    [authClient, integration, isSyncMobileWebChannel]
   );
 
   /* TODO: Possibly create SyncMobile integration if we need more special cases
@@ -206,16 +226,20 @@ export function useFinishOAuthFlowHandler(
    * when context is `fx_ios_v1` (which we don't support, iOS 1.0 ... < 2.0). See:
    * https://mozilla.github.io/ecosystem-platform/relying-parties/reference/query-parameters#service
    *
-   * However, mobile Sync reset PW can pass a 'service' param without a 'clientId' that
+   * However¹, mobile Sync reset PW can pass a 'service' param without a 'clientId' that
    * acts as a clientId, and we currently consider this an OAuth flow (in Backbone as well)
    * that does not want to redirect. For this case, ensure `integration.data.service`
    * does not exist, because we otherwise do not want to check other OAuth data
    * are present and do not want to provide back `finishOAuthFlowHandler`.
    *
+   * ¹This was the case when reset password had an OAuth redirect - we only called
+   * `checkOAuthData` if `integration.data.service` was _not_ present in the URL. We can
+   * revisit this with the reset PW redesign - for now check if !isSyncMobileWebChannel.
+   *
    * P.S. we can't return early regardless because `useCallback` can't be set conditionally.
    */
-  if (isOAuthIntegration(integration) && !integration.data.service) {
-    const oAuthDataError = checkOAuthData(integration);
+  if (isOAuthIntegration(integration)) {
+    const oAuthDataError = checkOAuthData(integration, isSyncMobileWebChannel);
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };

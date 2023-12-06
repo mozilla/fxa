@@ -17,6 +17,8 @@ export type LocationState = {
   selectedNewsletterSlugs?: string[];
   keyFetchToken?: string;
   unwrapBKey?: string;
+  offeredSyncEngines?: string[];
+  declinedSyncEngines?: string[];
 };
 
 export type ConfirmSignupCodeContainerProps = {
@@ -31,6 +33,8 @@ export type ConfirmSignupCodeProps = {
   integration: ConfirmSignupCodeIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   newsletterSlugs?: string[];
+  offeredSyncEngines?: string[];
+  declinedSyncEngines?: string[];
 } & Pick<LocationState, 'keyFetchToken' | 'unwrapBKey'> &
   RouteComponentProps;
 
