@@ -79,6 +79,15 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
           return window.location.replace(
             `/signin_token_code?action=email&service=sync`
           );
+          // TODO: Improve in FXA-7626
+          // If the user isn't in Settings and they see this message they may hit it due to
+          // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,
+          // they'll be in this state.
+        } else {
+          cache.writeQuery({
+            query: GET_LOCAL_SIGNED_IN_STATUS,
+            data: { isSignedIn: false },
+          });
         }
       }
     }
