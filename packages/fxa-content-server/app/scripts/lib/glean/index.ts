@@ -178,6 +178,12 @@ export const GleanMetrics = {
     error: createEventFn('login_submit_frontend_error'),
   },
 
+  cachedLogin: {
+    view: createEventFn('cached_login_view'),
+    submit: createEventFn('cached_login_submit'),
+    success: createEventFn('cached_login_success_view'),
+  },
+
   loginConfirmation: {
     view: createEventFn('login_email_confirmation_view'),
     submit: createEventFn('login_email_confirmation_submit'),

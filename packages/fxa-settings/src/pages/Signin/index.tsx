@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { usePageViewEvent } from '../../lib/metrics';
 import { useFtlMsgResolver } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -45,14 +45,34 @@ const Signin = ({
     'Password'
   );
 
+  useEffect(() => {
+    if (!isPasswordNeeded) {
+      GleanMetrics.cachedLogin.view();
+    } else {
+      GleanMetrics.login.view();
+    }
+  }, [isPasswordNeeded]);
+
   const signInUsingLoggedInAccount = useCallback(() => {
+    GleanMetrics.cachedLogin.submit();
+
     // TODO: add in functionality to sign in using the logged in account
     // return an error to be displayed if anythign goes wrong.
+
+    // Move this event if necessary.  The branching logic for a successful or
+    // failed login has not been implemented when the event was added.
+    GleanMetrics.cachedLogin.success();
   }, []);
 
   const signInWithPassword = useCallback((email: string, password: string) => {
+    GleanMetrics.login.submit();
+
     // TODO: add in the functionality to actually sign a user in using their password
     // return an error to be displayed if anything goes wrong.
+
+    // Move this event if necessary.  The branching logic for a successful or
+    // failed login has not been implemented when the event was added.
+    GleanMetrics.login.success();
   }, []);
 
   // TODO: This page is also supposed to render the user card, complete with avatar.
