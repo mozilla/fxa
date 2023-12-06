@@ -25,6 +25,7 @@
     "start-production": "NODE_ENV=production grunt build && yarn build-css && CONFIG_FILES=server/config/local.json,server/config/production.json,server/config/secrets.json grunt serverproc:dist",
     "start-remote": "scripts/run_remote_dev.sh",
     "test": "node tests/intern.js --unit=true",
+    "test-server": "node tests/intern.js --suites=server",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'"
   },
   "repository": {

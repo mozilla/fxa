@@ -7,8 +7,7 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 const got = require('got');
 const util = require('util');
-const fxaShared = require('fxa-shared');
-var languages = fxaShared.l10n.supportedLanguages;
+const languages = require('../../../../libs/shared/l10n/src/lib/supported-languages.json');
 var httpsUrl = intern._config.fxaContentRoot.replace(/\/$/, '');
 
 var suite = {
@@ -53,24 +52,23 @@ function langTest(lang) {
     return dfd;
   };
 
-  suite.tests[
-    '#https get ' + httpsUrl + '/i18n/client.json -> ' + lang
-  ] = function () {
-    var dfd = this.async(intern._config.asyncTimeout);
-    got(httpsUrl + '/i18n/client.json', options)
-      .then(function (res) {
-        assert.equal(res.statusCode, 200);
-        if (intern._config.fxaProduction) {
-          // using the empty string '' as the key below is intentional
-          var language = JSON.parse(res.body)[''].language;
-          language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
-          assert.equal(normalizeLanguage(lang), language);
-        }
-      })
-      .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
+  suite.tests['#https get ' + httpsUrl + '/i18n/client.json -> ' + lang] =
+    function () {
+      var dfd = this.async(intern._config.asyncTimeout);
+      got(httpsUrl + '/i18n/client.json', options)
+        .then(function (res) {
+          assert.equal(res.statusCode, 200);
+          if (intern._config.fxaProduction) {
+            // using the empty string '' as the key below is intentional
+            var language = JSON.parse(res.body)[''].language;
+            language = language.replace('_', '-'); // e.g., pt_BR -> pt-BR
+            assert.equal(normalizeLanguage(lang), language);
+          }
+        })
+        .then(dfd.resolve.bind(dfd), dfd.reject.bind(dfd));
 
-    return dfd;
-  };
+      return dfd;
+    };
 }
 
 languages.forEach(function (lang) {
