@@ -4,6 +4,7 @@
 
 export interface EligibilitySubgroupOfferingResult {
   stripeProductId: string;
+  stripeLegacyPlans: string[] | null;
   countries: string[];
 }
 
@@ -16,6 +17,7 @@ export interface EligibilitySubgroupResult {
 
 export interface EligibilityOfferingResult {
   stripeProductId: string;
+  stripeLegacyPlans: string[] | null;
   countries: string[];
   linkedFrom: {
     subGroupCollection: {

@@ -34,6 +34,10 @@ export const CapabilityPurchaseResultFactory = (
 export const CapabilityOfferingResultFactory = (
   override?: Partial<CapabilityOfferingResult>
 ): CapabilityOfferingResult => ({
+  stripeLegacyPlans: Array.from(
+    { length: faker.number.int({ min: 1, max: 5 }) },
+    () => faker.string.alpha(10)
+  ),
   capabilitiesCollection: {
     items: [CapabilityCapabilitiesResultFactory()],
   },

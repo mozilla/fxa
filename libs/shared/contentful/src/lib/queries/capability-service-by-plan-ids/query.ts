@@ -15,11 +15,17 @@ export const capabilityServiceByPlanIdsQuery = graphql(`
       skip: $skip
       limit: $limit
       locale: $locale
-      where: { stripePlanChoices_contains_some: $stripePlanIds }
+      where: {
+        OR: [
+          { stripePlanChoices_contains_some: $stripePlanIds }
+          { offering: { stripeLegacyPlans_contains_some: $stripePlanIds } }
+        ]
+      }
     ) {
       items {
         stripePlanChoices
         offering {
+          stripeLegacyPlans
           capabilitiesCollection(skip: $skip, limit: $limit) {
             items {
               slug

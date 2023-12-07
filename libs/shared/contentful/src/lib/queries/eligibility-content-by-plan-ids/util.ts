@@ -13,9 +13,13 @@ export class EligibilityContentByPlanIdsResultUtil {
 
   constructor(private rawResult: EligibilityContentByPlanIdsResult) {
     for (const purchase of rawResult.purchaseCollection.items) {
-      for (const planId of purchase.stripePlanChoices) {
+      purchase.stripePlanChoices?.forEach((planId) => {
         this.purchaseByPlanId[planId] = purchase;
-      }
+      });
+
+      purchase.offering.stripeLegacyPlans?.forEach((planId) => {
+        this.purchaseByPlanId[planId] = purchase;
+      });
     }
   }
 
