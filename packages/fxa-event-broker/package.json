@@ -36,7 +36,6 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.369.0",
     "@hapi/hoek": "^11.0.2",
-    "@sentry/node": "^7.66.0",
     "@types/sinon": "10.0.1",
     "axios": "^0.26.0",
     "class-transformer": "^0.5.1",

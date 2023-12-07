@@ -70,8 +70,6 @@
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^11.0.2",
     "@mozilla/glean": "^2.0.0",
-    "@sentry/integrations": "^7.85.0",
-    "@sentry/node": "^7.66.0",
     "@type-cacheable/core": "^11.0.0",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
     "@types/convict": "5.2.2",

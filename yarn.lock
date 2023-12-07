@@ -14329,7 +14329,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/browser@npm:^7.66.0":
+"@sentry/browser@npm:^7.86.0":
   version: 7.86.0
   resolution: "@sentry/browser@npm:7.86.0"
   dependencies:
@@ -14343,16 +14343,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/core@npm:7.85.0":
-  version: 7.85.0
-  resolution: "@sentry/core@npm:7.85.0"
-  dependencies:
-    "@sentry/types": 7.85.0
-    "@sentry/utils": 7.85.0
-  checksum: 4c1b9dbc5baa6cd6e11114614b98076321bd61f7a41ddae8b3e5d5ffedaebbb55d8374d338f22e466f76ddf8490fa6bd8b6587711975284a367a157b8afec084
-  languageName: node
-  linkType: hard
-
 "@sentry/core@npm:7.86.0":
   version: 7.86.0
   resolution: "@sentry/core@npm:7.86.0"
@@ -14363,19 +14353,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/integrations@npm:^7.85.0":
-  version: 7.85.0
-  resolution: "@sentry/integrations@npm:7.85.0"
+"@sentry/integrations@npm:^7.86.0":
+  version: 7.86.0
+  resolution: "@sentry/integrations@npm:7.86.0"
   dependencies:
-    "@sentry/core": 7.85.0
-    "@sentry/types": 7.85.0
-    "@sentry/utils": 7.85.0
+    "@sentry/core": 7.86.0
+    "@sentry/types": 7.86.0
+    "@sentry/utils": 7.86.0
     localforage: ^1.8.1
-  checksum: 0a789143a7274c08f115c0798a1a83162221748675d6149df8e787433d139e5cb21ab0225fe8e24ae45c85c048ecccbe25d4281f9cf4f047c000c31550920f83
+  checksum: 4888bd818c01cf9f7c6fbc901017bc06168398f138b65162701cbbf4ea70df32e07c063b5724df313d5334af157c0eb2c2dc3f9734152f572176772533ab18ae
   languageName: node
   linkType: hard
 
-"@sentry/node@npm:^7.66.0":
+"@sentry/node@npm:^7.86.0":
   version: 7.86.0
   resolution: "@sentry/node@npm:7.86.0"
   dependencies:
@@ -14385,6 +14375,22 @@ __metadata:
     "@sentry/utils": 7.86.0
     https-proxy-agent: ^5.0.0
   checksum: 3d6a39dd368c58e1dfd4832293275490d7b0710ff6c3be99fe6c60687724f210d24d98295dc3d3d4c0128dc610586cc8e9dda53da8d89df32c58ad296b09dec0
+  languageName: node
+  linkType: hard
+
+"@sentry/opentelemetry-node@npm:^7.86.0":
+  version: 7.86.0
+  resolution: "@sentry/opentelemetry-node@npm:7.86.0"
+  dependencies:
+    "@sentry/core": 7.86.0
+    "@sentry/types": 7.86.0
+    "@sentry/utils": 7.86.0
+  peerDependencies:
+    "@opentelemetry/api": 1.x
+    "@opentelemetry/core": 1.x
+    "@opentelemetry/sdk-trace-base": 1.x
+    "@opentelemetry/semantic-conventions": 1.x
+  checksum: a9b5398baae2c88ab9b7542abfdaacfb40bfd53d77bb10892b79be0126b9e54a3682670b05531d50a51bb9d7bfc435ce82ead07a9aa5bb6d509e2058fa5c9472
   languageName: node
   linkType: hard
 
@@ -14400,26 +14406,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/types@npm:7.85.0":
-  version: 7.85.0
-  resolution: "@sentry/types@npm:7.85.0"
-  checksum: a482edd6e7af046a744ba8617b20980128deccd9ecc62ada285e4194d7b96488cc3063a7f0726af1b3d2e8d4cbf67ac7d142f982e02cf5869499359d56d1820c
-  languageName: node
-  linkType: hard
-
 "@sentry/types@npm:7.86.0":
   version: 7.86.0
   resolution: "@sentry/types@npm:7.86.0"
   checksum: 17b59c8ccf33af2d2477c9af769fe9579c18ad9cf0728574577357ccc8c2e406592f725eb31e70519a7bad505a218626aa241d25ed3fb9fa45e066f5668977dc
-  languageName: node
-  linkType: hard
-
-"@sentry/utils@npm:7.85.0":
-  version: 7.85.0
-  resolution: "@sentry/utils@npm:7.85.0"
-  dependencies:
-    "@sentry/types": 7.85.0
-  checksum: 6301c508f7e9d04078c675cb9b09200d6ed03761114240e07d4b58d6f289524c3ccc94c85af8c911be01ce6942505b498016541a716dcfb2b99598e21ca2a683
   languageName: node
   linkType: hard
 
@@ -25410,7 +25400,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "browserid-verifier@workspace:packages/browserid-verifier"
   dependencies:
-    "@sentry/node": ^7.66.0
     async: 3.2.4
     audit-filter: 0.5.0
     body-parser: ^1.20.1
@@ -34442,8 +34431,6 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@rescripts/cli": 0.0.16
-    "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
     "@testing-library/jest-dom": ^5.16.5
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
@@ -34497,7 +34484,6 @@ fsevents@~2.1.1:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@golevelup/ts-jest": ^0.3.2
-    "@sentry/node": ^7.66.0
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
     "@types/node": ^18.18.2
@@ -34582,8 +34568,6 @@ fsevents@~2.1.1:
     "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^11.0.2
     "@mozilla/glean": ^2.0.0
-    "@sentry/integrations": ^7.85.0
-    "@sentry/node": ^7.66.0
     "@storybook/addon-controls": ^7.0.23
     "@storybook/addon-docs": ^7.0.23
     "@storybook/addon-toolbars": ^7.0.23
@@ -34756,8 +34740,6 @@ fsevents@~2.1.1:
     "@babel/preset-react": ^7.22.5
     "@babel/preset-typescript": ^7.23.2
     "@mozilla/glean": ^2.0.5
-    "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
     "@types/backbone": ^1.4.10
     "@types/postcss-import": ^14
     "@types/sinon-chai": 3.2.5
@@ -34915,7 +34897,6 @@ fsevents@~2.1.1:
     "@google-cloud/pubsub": ^2.19.4
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
-    "@sentry/node": ^7.66.0
     "@types/dedent": ^0
     audit-filter: ^0.5.0
     bl: 6.0.0
@@ -34972,7 +34953,6 @@ fsevents@~2.1.1:
   dependencies:
     "@aws-sdk/client-sqs": ^3.369.0
     "@hapi/hoek": ^11.0.2
-    "@sentry/node": ^7.66.0
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.12
@@ -35055,8 +35035,6 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-graphql-api@workspace:packages/fxa-graphql-api"
   dependencies:
-    "@sentry/integrations": ^7.85.0
-    "@sentry/node": ^7.66.0
     "@types/body-parser": ^1
     "@types/chance": ^1.1.2
     "@types/convict": ^5.2.2
@@ -35158,8 +35136,6 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.6.2
     "@rescripts/cli": ~0.0.16
-    "@sentry/browser": ^7.66.0
-    "@sentry/node": ^7.66.0
     "@storybook/addon-actions": ^7.6.4
     "@storybook/addon-links": ^7.5.2
     "@storybook/addon-styling": ^1.3.0
@@ -35266,7 +35242,6 @@ fsevents@~2.1.1:
     "@hapi/catbox-redis": ~6.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 7.1.0
-    "@sentry/node": ^7.66.0
     "@types/sharp": ^0
     audit-filter: ^0.5.0
     aws-sdk: ^2.1515.0
@@ -35380,8 +35355,6 @@ fsevents@~2.1.1:
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.3
     "@reach/router": ^1.3.4
     "@react-pdf/renderer": ^3.1.12
-    "@sentry/browser": ^7.66.0
-    "@sentry/integrations": ^7.85.0
     "@storybook/addon-actions": ^7.6.4
     "@storybook/addon-essentials": ^7.4.6
     "@storybook/addon-interactions": ^7.5.3
@@ -35508,9 +35481,6 @@ fsevents@~2.1.1:
     "@nestjs/common": ^10.2.4
     "@nestjs/config": ^3.0.0
     "@nestjs/core": ^10.2.4
-    "@sentry/browser": ^7.66.0
-    "@sentry/integrations": ^7.85.0
-    "@sentry/node": ^7.66.0
     "@type-cacheable/core": ^11.0.0
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/accept-language-parser": ^1.5.3
@@ -35647,6 +35617,10 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-base": ~1.18.1
     "@opentelemetry/sdk-trace-node": ~1.18.1
     "@opentelemetry/sdk-trace-web": ~1.18.1
+    "@sentry/browser": ^7.86.0
+    "@sentry/integrations": ^7.86.0
+    "@sentry/node": ^7.86.0
+    "@sentry/opentelemetry-node": ^7.86.0
     "@storybook/addon-essentials": ^7.4.6
     "@storybook/addon-styling": ^1.3.7
     "@storybook/core-common": ^7.4.5
@@ -44300,11 +44274,11 @@ fsevents@~2.1.1:
   linkType: hard
 
 "localforage@npm:^1.8.1":
-  version: 1.9.0
-  resolution: "localforage@npm:1.9.0"
+  version: 1.10.0
+  resolution: "localforage@npm:1.10.0"
   dependencies:
     lie: 3.1.1
-  checksum: dc0256ce875a51f7d493b81cf54381323cd78018ff2bd5455c3f2f180b0932fb99f5b41641fd2ae9b08a455acae66273a0567ee77f7653bfd9373bfea3b0f7f9
+  checksum: f2978b434dafff9bcb0d9498de57d97eba165402419939c944412e179cab1854782830b5ec196212560b22712d1dd03918939f59cf1d4fc1d756fca7950086cf
   languageName: node
   linkType: hard
 
