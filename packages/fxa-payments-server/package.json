@@ -149,7 +149,6 @@
     "node-fetch": "^2.6.7",
     "normalize.css": "8.0.1",
     "on-headers": "^1.0.2",
-    "photon-colors": "1.0.3",
     "react-redux": "^8.1.1",
     "react-router-dom": "^6.18.0",
     "react-scripts": "^5.0.1",
