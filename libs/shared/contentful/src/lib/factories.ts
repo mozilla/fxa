@@ -5,45 +5,7 @@
 import { ApolloQueryResult, NetworkStatus } from '@apollo/client';
 import { faker } from '@faker-js/faker';
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
-
-import {
-  OfferingQuery,
-  PurchaseWithDetailsQuery,
-} from '../__generated__/graphql';
 import { ContentfulErrorResponse } from './types';
-
-export const OfferingQueryFactory = (
-  override?: Partial<OfferingQuery>
-): OfferingQuery => ({
-  offering: {
-    stripeProductId: faker.string.sample(),
-    countries: [faker.string.sample()],
-    defaultPurchase: {
-      purchaseDetails: {
-        productName: faker.string.sample(),
-        details: faker.string.sample(),
-        subtitle: faker.string.sample(),
-        webIcon: faker.string.sample(),
-      },
-    },
-  },
-  ...override,
-});
-
-export const PurchaseWithDetailsQueryFactory = (
-  override?: Partial<PurchaseWithDetailsQuery>
-): PurchaseWithDetailsQuery => ({
-  purchase: {
-    internalName: faker.string.sample(),
-    description: faker.string.sample(),
-    purchaseDetails: {
-      productName: faker.string.sample(),
-      details: faker.string.sample(),
-      webIcon: faker.string.sample(),
-    },
-  },
-  ...override,
-});
 
 /**
  * Generates a graphql response from the contentful client based on the passed query.
