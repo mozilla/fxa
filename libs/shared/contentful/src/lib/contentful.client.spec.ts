@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClient } from './contentful.client';
-import { offeringQuery } from './queries/offering';
+import { offeringQuery } from './queries/offering/query';
 import { OfferingQuery } from '../__generated__/graphql';
 import {
   ContentfulCDNError,
