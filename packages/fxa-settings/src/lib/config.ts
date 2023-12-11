@@ -112,7 +112,8 @@ export function getDefault() {
     },
     oauth: {
       clientId: '',
-      scopedKeysEnabled: false,
+      scopedKeysEnabled: true,
+      scopedKeysValidation: {},
       isPromptNoneEnabled: false,
       isPromptNoneEnabledClientIds: new Array<string>(),
       reactClientIdsEnabled: new Array<string>(),

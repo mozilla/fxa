@@ -46,7 +46,7 @@ export async function createEncryptedBundle(
  */
 async function encryptBundle(bundleObject: any, keysJwk: any) {
   const cryptoDeriver = await fxaCryptoDeriver();
-  const fxaDeriverUtils = new cryptoDeriver.deriverutils();
+  const fxaDeriverUtils = new cryptoDeriver.DeriverUtils();
   return fxaDeriverUtils.encryptBundle(keysJwk, JSON.stringify(bundleObject));
 }
 

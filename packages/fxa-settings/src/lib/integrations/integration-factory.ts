@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  ClientInfo,
   OAuthIntegration,
   PairingAuthorityIntegration,
   PairingSupplicantIntegration,
@@ -14,7 +13,6 @@ import {
   RelierClientInfo,
   RelierSubscriptionInfo,
 } from '../../models/integrations';
-import { Constants } from '../constants';
 import {
   ModelDataStore,
   StorageData,
@@ -27,38 +25,28 @@ import { IntegrationFlags } from './interfaces';
 import { DefaultIntegrationFlags } from '.';
 import config from '../config';
 
-/**
- * Checks a redirect value.
- */
-export function isCorrectRedirect(
-  queryRedirectUri: string | undefined,
-  client: ClientInfo
+function getClientRedirect(
+  clientRedirectUris: string[] | undefined,
+  queryRedirectUri: string | undefined
 ) {
+  if (!clientRedirectUris) {
+    return '';
+  }
+
   // If RP doesn't specify redirectUri, we default to the first redirectUri
   // for the client
-  const redirectUris = client.redirectUri?.split(',');
-  if (!redirectUris) {
-    return false;
-  }
-
   if (!queryRedirectUri) {
-    client.redirectUri = redirectUris[0];
-    return true;
+    return clientRedirectUris[0];
   }
 
-  const hasRedirectUri = redirectUris.some((uri) => queryRedirectUri === uri);
+  const hasRedirectUri = clientRedirectUris.some(
+    (uri) => queryRedirectUri === uri
+  );
   if (hasRedirectUri) {
-    client.redirectUri = queryRedirectUri;
-    return true;
+    return queryRedirectUri;
   }
 
-  // Pairing has a special redirectUri that deep links into the specific
-  // mobile app
-  if (queryRedirectUri === Constants.DEVICE_PAIRING_AUTHORITY_REDIRECT_URI) {
-    return true;
-  }
-
-  return false;
+  return '';
 }
 
 /**
@@ -248,11 +236,17 @@ export class IntegrationFactory {
      * that does not want to redirect. In this case, createClientInfo with 'service'.
      */
 
+    const redirectUris = this.clientInfo?.redirectUri?.split(',');
+    const clientRedirectUri = getClientRedirect(
+      redirectUris,
+      integration.data.redirectUri
+    );
+
     integration.clientInfo = {
       clientId: this.clientInfo?.clientId,
       imageUri: this.clientInfo?.imageUri,
       serviceName: this.clientInfo?.serviceName,
-      redirectUri: this.clientInfo?.redirectUri,
+      redirectUri: clientRedirectUri,
       trusted: this.clientInfo?.trusted,
     };
   }

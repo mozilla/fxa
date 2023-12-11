@@ -58,6 +58,7 @@ const settingsConfig = {
   oauth: {
     clientId: config.get('oauth_client_id'),
     scopedKeysEnabled: config.get('scopedKeys.enabled'),
+    scopedKeysValidation: config.get('scopedKeys.validation'),
     isPromptNoneEnabled: config.get('oauth.prompt_none.enabled'),
     isPromptNoneEnabledClientIds: config.get(
       'oauth.prompt_none.enabled_client_ids'

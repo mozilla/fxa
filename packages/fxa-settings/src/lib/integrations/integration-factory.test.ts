@@ -178,6 +178,10 @@ describe('lib/integrations/integration-factory', () => {
       );
     });
 
+    afterAll(() => {
+      urlQueryData.set('service', '');
+    });
+
     it('has correct state', () => {
       expect(integration.type).toEqual(IntegrationType.SyncDesktop);
       expect(integration.isOAuth()).toBeFalsy();
@@ -206,27 +210,48 @@ describe('lib/integrations/integration-factory', () => {
   describe('OAuthIntegration creation', () => {
     let integration: OAuthIntegration;
 
-    beforeAll(async () => {
-      integration = await setup<OAuthIntegration>(
-        { isOAuth: true },
-        { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
-        (i: Integration) => i instanceof OAuthIntegration
-      );
+    describe('OAuth redirect', () => {
+      beforeEach(async () => {
+        integration = await setup<OAuthIntegration>(
+          { isOAuth: true },
+          { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
+          (i: Integration) => i instanceof OAuthIntegration
+        );
 
-      sandbox.stub(integration, 'clientInfo').returns(
-        Promise.resolve({
-          trusted: true,
-        })
-      );
+        sandbox
+          .stub(integration, 'clientInfo')
+          .get(() => ({ ...clientInfo, trusted: true }));
+      });
+
+      it('has correct state', async () => {
+        expect(integration.type).toEqual(IntegrationType.OAuth);
+        expect(integration.isOAuth()).toBeTruthy();
+        expect(integration.isSync()).toBeFalsy();
+        expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.isTrusted()).toBeTruthy();
+      });
     });
 
-    it('has correct state', async () => {
-      expect(integration.type).toEqual(IntegrationType.OAuth);
-      expect(integration.isOAuth()).toBeTruthy();
-      expect(integration.isSync()).toBeFalsy();
-      expect(integration.wantsKeys()).toBeFalsy();
-      expect(integration.isTrusted()).toBeFalsy();
-    });
+    // TODO in FXA-8657
+    // describe('Sync mobile', () => {
+    // beforeEach(async () => {
+    // set scope to oauth_oldsync_scope
+    //   integration = await setup<OAuthIntegration>(
+    //     { isOAuth: true },
+    //     { initIntegration: 1, initOAuthIntegration: 1, initClientInfo: 1 },
+    //     (i: Integration) => i instanceof OAuthIntegration
+    //   );
+
+    // });
+    // it('has correct state', async () => {
+    //   expect(integration.type).toEqual(IntegrationType.OAuth);
+    //   expect(integration.isOAuth()).toBeTruthy();
+    //   expect(integration.isSync()).toBeTruthy();
+    //   expect(integration.wantsKeys()).toBeFalsy();
+    //   expect(integration.isTrusted()).toBeTruthy();
+    // });
+    // });
+
     // TODO: Port remaining tests from content-server
   });
 
@@ -243,6 +268,10 @@ describe('lib/integrations/integration-factory', () => {
         { initIntegration: 1, initClientInfo: 1 },
         (i: Integration) => i instanceof PairingSupplicantIntegration
       );
+
+      sandbox
+        .stub(integration, 'clientInfo')
+        .get(() => ({ ...clientInfo, trusted: true }));
     });
 
     it('has correct state', () => {
@@ -250,7 +279,7 @@ describe('lib/integrations/integration-factory', () => {
       expect(integration.isOAuth()).toBeTruthy();
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
-      expect(integration.isTrusted()).toBeFalsy();
+      expect(integration.isTrusted()).toBeTruthy();
     });
   });
 

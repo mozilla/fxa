@@ -225,7 +225,7 @@ export const Signup = ({
         sessionToken(data.SignUp.sessionToken);
 
         if (isSyncDesktopIntegration(integration)) {
-          firefox.fxaLogin({
+          await firefox.fxaLogin({
             email: queryParamModel.email,
             keyFetchToken: data.SignUp.keyFetchToken,
             sessionToken: data.SignUp.sessionToken,

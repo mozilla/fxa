@@ -226,7 +226,14 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
   getServiceName() {
     const permissions = this.getPermissions();
-    if (permissions.includes(Constants.OAUTH_OLDSYNC_SCOPE)) {
+    // As a special case for UX purposes, any client requesting access to
+    // the user's sync data must have a display name of "Firefox Sync".
+    // This is also used to check against `integration.isSync()`.
+    if (
+      permissions.some((permission) =>
+        permission.includes(Constants.OAUTH_OLDSYNC_SCOPE)
+      )
+    ) {
       return Constants.RELIER_SYNC_SERVICE_NAME;
     }
 
@@ -256,7 +263,7 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   // `isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync`
   // is the equivalent of this method's check.
   isSync() {
-    return this.clientInfo?.serviceName === Constants.RELIER_SYNC_SERVICE_NAME;
+    return this.getServiceName() === Constants.RELIER_SYNC_SERVICE_NAME;
   }
 
   isTrusted() {
@@ -298,7 +305,9 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     individualScopes.forEach((scope) => {
       // eslint-disable-next-line no-prototype-builtins
       if (validation.hasOwnProperty(scope)) {
-        if (validation[scope].redirectUris.includes(this.data.redirectUri)) {
+        if (
+          validation[scope].redirectUris.includes(this.clientInfo?.redirectUri)
+        ) {
           wantsScopeThatHasKeys = true;
         } else {
           // Requesting keys, but trying to deliver them to an unexpected uri? Nope.
