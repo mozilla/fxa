@@ -575,7 +575,7 @@ const conf = (module.exports = convict({
       },
       enabled_client_ids: {
         // 123done enabled for functional tests, 321done is not.
-        default: ['dcdb5ae7add825d2', '7f368c6886429f19'],
+        default: ['dcdb5ae7add825d2', '7f368c6886429f19', '41bbec2f1c71313b'],
         doc: 'client_ids for which prompt=none is enabled',
         env: 'OAUTH_PROMPT_NONE_ENABLED_CLIENT_IDS',
         format: Array,
@@ -871,7 +871,7 @@ const conf = (module.exports = convict({
       format: 'nat',
     },
     managementUrl: {
-      default: 'http://localhost:3031',
+      default: 'http://localhost:3035',
       doc: 'The publicly visible URL of the subscription management server',
       env: 'SUBSCRIPTIONS_MANAGEMENT_URL',
       format: String,
