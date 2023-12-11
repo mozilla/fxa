@@ -34188,6 +34188,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fs-extra@npm:^11.2.0":
+  version: 11.2.0
+  resolution: "fs-extra@npm:11.2.0"
+  dependencies:
+    graceful-fs: ^4.2.0
+    jsonfile: ^6.0.1
+    universalify: ^2.0.0
+  checksum: b12e42fa40ba47104202f57b8480dd098aa931c2724565e5e70779ab87605665594e76ee5fb00545f772ab9ace167fe06d2ab009c416dc8c842c5ae6df7aa7e8
+  languageName: node
+  linkType: hard
+
 "fs-extra@npm:^8.0.0, fs-extra@npm:^8.1.0":
   version: 8.1.0
   resolution: "fs-extra@npm:8.1.0"
@@ -35427,7 +35438,7 @@ fsevents@~2.1.1:
     eslint-webpack-plugin: ^3.1.1
     file-loader: ^6.2.0
     file-saver: ^2.0.5
-    fs-extra: ^10.0.0
+    fs-extra: ^11.2.0
     fxa-auth-client: "workspace:*"
     fxa-common-password-list: ^0.0.4
     fxa-crypto-relier: ^2.7.0
