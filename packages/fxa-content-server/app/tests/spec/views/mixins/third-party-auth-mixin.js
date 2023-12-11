@@ -78,7 +78,6 @@ describe('views/mixins/third-party-auth-mixin', function () {
       user,
     });
     sinon.spy(notifier, 'trigger');
-    sinon.stub(view, 'isInThirdPartyAuthExperiment').callsFake(() => true);
     await view.render();
   });
 

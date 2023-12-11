@@ -5,13 +5,12 @@
 import SigninMixin from './signin-mixin';
 import Storage from '../../lib/storage';
 import Url from '../../lib/url';
-import ThirdPartyAuthExperimentMixin from '../../views/mixins/third-party-auth-experiment-mixin';
 import FlowEventsMixin from '../mixins/flow-events-mixin';
 
 const DEFAULT_SCOPES = 'openid email profile';
 
 export default {
-  dependsOn: [SigninMixin, ThirdPartyAuthExperimentMixin, FlowEventsMixin],
+  dependsOn: [SigninMixin, FlowEventsMixin],
 
   events: {
     'click #google-login-button': 'googleSignIn',
@@ -22,12 +21,6 @@ export default {
     // Flow events need to be initialized before the navigation
     // so the flow_id and flow_begin_time are propagated
     this.initializeFlowEvents();
-  },
-
-  setInitialContext(context) {
-    context.set({
-      isInThirdPartyAuthExperiment: this.isInThirdPartyAuthExperiment(),
-    });
   },
 
   beforeRender() {
@@ -53,17 +46,17 @@ export default {
     const thirdPartyAuth = Storage.factory('localStorage', this.window).get(
       'fxa_third_party_params'
     );
-    
+
     // Since this mixin is loaded from multiple views it is possible to have
     // a race condition and call complete multiple times. We only want to call it
     // on the `enter-email` view.
-    if (thirdPartyAuth && this.viewName ==='enter-email') {
+    if (thirdPartyAuth && this.viewName === 'enter-email') {
       return this.completeSignIn();
     }
 
-    if (this.isInThirdPartyAuthExperiment()) {
-      this.logViewEvent('thirdPartyAuth');
-    }
+    // TODO: determine if we want to log this event for all views,
+    // or not at all since this component is no longer behind an experiment flag
+    this.logViewEvent('thirdPartyAuth');
   },
 
   clearStoredParams() {
@@ -107,7 +100,7 @@ export default {
       prompt: 'consent',
       response_type: 'code',
       disallow_webview: true,
-      ack_webview_shutdown:'2024-09-30'
+      ack_webview_shutdown: '2024-09-30',
     };
     /* eslint-enable camelcase */
     for (const p in params) {
@@ -154,7 +147,7 @@ export default {
       access_type: 'offline',
       prompt: 'consent',
       response_type: 'code id_token',
-      response_mode: 'form_post'
+      response_mode: 'form_post',
     };
     /* eslint-enable camelcase */
     for (const p in params) {
@@ -201,7 +194,7 @@ export default {
     );
     const code = authParams.code;
     const provider = authParams.provider || 'google';
-    
+
     return this.user
       .verifyAccountThirdParty(account, this.relier, code, provider)
       .then((updatedAccount) => {
@@ -210,12 +203,14 @@ export default {
         this.logFlowEvent(`${provider}.signin-complete`);
 
         this.metrics.flush();
-        
+
         // Sync service requires a password to be set before it can be used.
         // Note that once a password is set, the user will not have an option to use
         // third party login for Sync since it always requires a password.
         if (this.relier.isSync()) {
-          return this.navigate('/post_verify/third_party_auth/set_password', { provider });
+          return this.navigate('/post_verify/third_party_auth/set_password', {
+            provider,
+          });
         }
 
         return this.signIn(updatedAccount);

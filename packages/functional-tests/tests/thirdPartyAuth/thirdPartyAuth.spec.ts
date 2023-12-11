@@ -23,11 +23,7 @@ test.describe('severity-1 #smoke', () => {
         'Please contact FxA admin to get credentials for Google account'
       );
       test.slow();
-      await page.goto(
-        target.contentServerUrl +
-          '?forceExperiment=thirdPartyAuth&forceExperimentGroup=treatment',
-        { waitUntil: 'load' }
-      );
+      await page.goto(target.contentServerUrl, { waitUntil: 'load' });
 
       await login.clickContinueWithGoogle();
 
