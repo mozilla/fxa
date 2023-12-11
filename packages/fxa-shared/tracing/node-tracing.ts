@@ -65,6 +65,9 @@ export class NodeTracingInitializer {
               // 'request handler - /'
             ],
           },
+          '@opentelemetry/instrumentation-fs': {
+            enabled: false,
+          },
         }),
       ],
     });
