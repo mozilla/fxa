@@ -121,7 +121,7 @@
     "webpack": "^5.84.1"
   },
   "dependencies": {
-    "@stripe/react-stripe-js": "^2.1.0",
+    "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^1.53.0",
     "accept-language-parser": "^1.5.0",
     "classnames": "^2.3.1",
