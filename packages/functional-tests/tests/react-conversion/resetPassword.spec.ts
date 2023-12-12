@@ -61,7 +61,9 @@ test.describe('severity-1 #smoke', () => {
       await diffPage.waitForURL(/reset_password_verified/);
 
       // Wait for initial page to automatically redirect once password is reset
-      await page.waitForURL(`${target.contentServerUrl}/signin`);
+      // without an account in local storage (state in this test), the initial navigation
+      // to /signin is expected to redirect to the root
+      await page.waitForURL(target.contentServerUrl);
 
       // Verify password reset confirmation page is rendered
       await resetPasswordReact.resetPwdConfirmedHeadingVisible(diffPage);
