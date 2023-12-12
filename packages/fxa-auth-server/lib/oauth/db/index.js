@@ -210,11 +210,11 @@ class OauthDB extends ConnectedServicesDb {
     return ok;
   }
 
-  async removeUser(uid) {
+  async removeTokensAndCodes(uid) {
     await this.ready();
     await this.redis.removeAccessTokensForUser(uid);
     await this.redis.removeRefreshTokensForUser(uid);
-    await this.mysql._removeUser(uid);
+    await this.mysql._removeTokensAndCodes(uid);
   }
 
   getPocketIds() {

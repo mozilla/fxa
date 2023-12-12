@@ -99,7 +99,7 @@ describe('#integration - db', function () {
     });
   });
 
-  describe('removeUser', function () {
+  describe('removeTokensAndCodes', function () {
     var clientId = buf(randomString(8));
     var userId = buf(randomString(16));
     var email = 'a@b.c';
@@ -112,7 +112,7 @@ describe('#integration - db', function () {
       return db
         .registerClient({
           id: clientId,
-          name: 'removeUserTest',
+          name: 'removeTokensAndCodesTest',
           hashedSecret: randomString(32),
           imageUri: 'https://example.domain/logo',
           redirectUri: 'https://example.domain/return?foo=bar',
@@ -165,7 +165,7 @@ describe('#integration - db', function () {
 
     it('should delete tokens and codes for the given userId', function () {
       return db
-        .removeUser(userId)
+        .removeTokensAndCodes(userId)
         .then(function () {
           return db.getCode(code);
         })
@@ -738,9 +738,9 @@ describe('#integration - db', function () {
         assert.isUndefined(tt);
       });
 
-      it('deletes them with removeUser', async () => {
+      it('deletes them with removeTokensAndCodes', async () => {
         const t = await db.generateAccessToken(tokenData);
-        await db.removeUser(t.userId);
+        await db.removeTokensAndCodes(t.userId);
         const tt = await db.getAccessToken(t.tokenId);
         assert.isUndefined(tt);
       });

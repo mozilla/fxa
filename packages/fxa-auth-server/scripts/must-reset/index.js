@@ -40,7 +40,7 @@ module.exports = async function main(items, dbFunction) {
         );
 
         // Removes oauth related tokens
-        await oauth.removeUser(result.uid);
+        await oauth.removeTokensAndCodes(result.uid);
         console.info('account reset');
         console.info('  email: ', result.email);
         console.info('    uid: ', result.uid);

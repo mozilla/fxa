@@ -609,7 +609,6 @@ export class AccountHandler {
         keysHaveChanged: true,
       }
     );
-    await this.db.resetAccountTokens(uid);
   }
 
   async finishSetup(request: AuthRequest) {
@@ -1348,7 +1347,6 @@ export class AccountHandler {
         verifierVersion: password.version,
         keysHaveChanged,
       });
-      await this.db.resetAccountTokens(accountResetToken.uid);
       // Notify various interested parties about this password reset.
       // These can all safely happen in parallel.
       account = await this.db.account(accountResetToken.uid);
@@ -1370,7 +1368,7 @@ export class AccountHandler {
           uid: account.uid,
           generation: account.verifierSetAt,
         }),
-        this.oauth.removePublicAndCanGrantTokens(account.uid),
+        this.oauth.removeTokensAndCodes(account.uid),
         this.customs.reset(account.email),
       ]);
     };
@@ -1616,7 +1614,7 @@ export class AccountHandler {
     await this.db.deleteAccount(accountRecord);
     this.log.info('accountDeleted.byRequest', { ...accountRecord });
 
-    await this.oauth.removeUser(uid);
+    await this.oauth.removeTokensAndCodes(uid);
 
     // No need to await and block the other notifications.  The pushbox records
     // will be deleted once they expire even if they were not successfully
