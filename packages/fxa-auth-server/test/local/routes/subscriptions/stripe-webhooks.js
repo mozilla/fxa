@@ -1569,11 +1569,8 @@ describe('StripeWebhookHandler', () => {
           invoice,
           'This transaction already has a chargeback filed'
         );
-        assert.calledOnceWithExactly(
-          sentryModule.reportSentryError,
-          { ...error, output: { payload: { invoiceId: invoice.id } } },
-          {}
-        );
+        error.output = { payload: { invoiceId: invoice.id } };
+        assert.calledOnceWithExactly(sentryModule.reportSentryError, error, {});
         assert.calledOnceWithExactly(
           StripeWebhookHandlerInstance.log.error,
           'handleCreditNoteEvent',
