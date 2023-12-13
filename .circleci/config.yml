@@ -560,7 +560,7 @@ jobs:
           command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
       - store-artifacts
@@ -593,7 +593,7 @@ jobs:
       - run:
           name: Run API Integration Tests
           command: |
-            npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
+            NODE_OPTIONS="--max-old-space-size=7168" npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
           no_output_timeout: 20m

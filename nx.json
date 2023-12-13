@@ -1,25 +1,5 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "npmScope": "fxa",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx-cloud",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "build-storybook",
-          "compile",
-          "gql-copy",
-          "gql-extract",
-          "lint",
-          "prebuild",
-          "test-e2e",
-          "test-integration",
-          "test-unit"
-        ]
-      }
-    }
-  },
   "targetDefaults": {
     "build": {
       "dependsOn": ["prebuild", "^build"],
@@ -37,17 +17,20 @@
         "{projectRoot}/src/styles/*.css",
         "{projectRoot}/test/**/*.ftl",
         "{projectRoot}/test/**/client.json"
-      ]
+      ],
+      "cache": true
     },
     "build-storybook": {
       "dependsOn": ["build"],
       "inputs": ["production", "^production"],
-      "outputs": ["{projectRoot}/storybook-static"]
+      "outputs": ["{projectRoot}/storybook-static"],
+      "cache": true
     },
     "compile": {
       "dependsOn": ["^compile"],
       "inputs": ["typescript", "^typescript"],
-      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"]
+      "outputs": ["{projectRoot}/build", "{projectRoot}/dist"],
+      "cache": true
     },
     "gql-copy": {
       "dependsOn": [
@@ -57,16 +40,19 @@
         }
       ],
       "inputs": ["typescript", "^typescript"],
-      "outputs": ["{projectRoot}/src/config/gql/allowlist"]
+      "outputs": ["{projectRoot}/src/config/gql/allowlist"],
+      "cache": true
     },
     "gql-extract": {
       "dependsOn": [],
       "inputs": ["typescript"],
-      "outputs": ["{workspaceRoot}/configs/gql/allowlist"]
+      "outputs": ["{workspaceRoot}/configs/gql/allowlist"],
+      "cache": true
     },
     "lint": {
       "inputs": ["lint", "{workspaceRoot}/.eslintrc.json"],
-      "outputs": ["{projectRoot}/.eslintcache"]
+      "outputs": ["{projectRoot}/.eslintcache"],
+      "cache": true
     },
     "prebuild": {
       "dependsOn": ["gql-copy"],
@@ -79,7 +65,8 @@
         "{projectRoot}/vendor/ejs.js",
         "{workspaceRoot}/external/l10n/**/*.@(ftl|po|js|json|sh|py|json)",
         "{workspaceRoot}/external/legal-docs/**/*.@(md|json)"
-      ]
+      ],
+      "cache": true
     },
     "restart": {
       "dependsOn": ["build", "^restart"],
@@ -112,7 +99,8 @@
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
-      ]
+      ],
+      "cache": true
     },
     "test-integration": {
       "dependsOn": ["build", "gen-keys"],
@@ -122,7 +110,8 @@
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml",
         "{projectRoot}/test/scripts/test_output"
-      ]
+      ],
+      "cache": true
     },
     "test-unit": {
       "dependsOn": ["build", "gen-keys"],
@@ -131,7 +120,21 @@
         "{projectRoot}/coverage",
         "{projectRoot}/.nyc_output",
         "{projectRoot}/test-results.xml"
-      ]
+      ],
+      "cache": true
+    },
+    "@nx/jest:jest": {
+      "cache": true,
+      "inputs": ["default", "^production", "{workspaceRoot}/jest.preset.js"],
+      "options": {
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
     }
   },
   "namedInputs": {
