@@ -664,6 +664,8 @@ jobs:
           name: Build Storybooks
           command: |
             npx nx run-many -t build-storybook
+          environment:
+            NODE_ENV: test
       - run:
           name: Publish Storybooks
           command: |
