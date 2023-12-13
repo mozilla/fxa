@@ -294,7 +294,7 @@
   },
   "dependencies": {
     "@fluent/langneg": "^0.6.2",
-    "@mozilla/glean": "^2.0.5",
+    "@mozilla/glean": "^3.0.0",
     "@nestjs/common": "^10.2.4",
     "@nestjs/config": "^3.0.0",
     "@nestjs/core": "^10.2.4",
