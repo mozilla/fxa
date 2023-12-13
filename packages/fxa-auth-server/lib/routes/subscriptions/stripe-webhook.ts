@@ -328,14 +328,13 @@ export class StripeWebhookHandler extends StripeHandler {
           message: 'Paypal refund refused.',
         });
 
-        const sentryError = {
-          ...error,
+        const sentryError = Object.assign(error, {
           output: {
             payload: {
               invoiceId: invoice.id,
             },
           },
-        };
+        });
 
         reportSentryError(sentryError, request);
       } else {
