@@ -14,7 +14,6 @@ import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 export type ThirdPartyAuthProps = {
-  enabled?: boolean;
   onContinueWithGoogle?: FormEventHandler<HTMLFormElement>;
   onContinueWithApple?: FormEventHandler<HTMLFormElement>;
   showSeparator?: boolean;
@@ -26,7 +25,6 @@ export type ThirdPartyAuthProps = {
  * It handles user sign-in with the respective provider when the buttons are clicked.
  */
 const ThirdPartyAuth = ({
-  enabled = false,
   onContinueWithGoogle,
   onContinueWithApple,
   showSeparator = true,
@@ -43,10 +41,6 @@ const ThirdPartyAuth = ({
       completeSignIn();
     }
   });
-
-  if (!enabled) {
-    return null;
-  }
 
   async function completeSignIn() {
     try {

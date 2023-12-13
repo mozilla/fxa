@@ -167,9 +167,7 @@ const Signin = ({
           </div>
         </form>
 
-        {/* TODO: We will need to pull the enabled flag from feature flags or experiment data
-         */}
-        <ThirdPartyAuth {...{ enabled: false }} />
+        <ThirdPartyAuth />
 
         <TermsPrivacyAgreement {...{ isPocketClient, isMonitorClient }} />
 

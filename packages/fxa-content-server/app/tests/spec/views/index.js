@@ -88,15 +88,6 @@ describe('views/index', () => {
       sinon.spy(view, 'replaceCurrentPage');
     });
 
-    it('renders the firefox-family services copy', () => {
-      return view.render().then(() => {
-        assert.include(
-          view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
-          'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.'
-        );
-      });
-    });
-
     it('prefills the email with React prefillEmail=email and does not navigate', () => {
       const prefillEmail = 'mycoolemail@gmail.com';
       relier.set('prefillEmail', prefillEmail);
@@ -156,7 +147,7 @@ describe('views/index', () => {
     });
 
     describe('current account', () => {
-      it('replaces current page with to `/settings`', () => {
+      it('replaces current page with `/settings`', () => {
         const signedInAccount = user.initAccount({
           sessionToken: 'token',
         });
@@ -237,33 +228,51 @@ describe('views/index', () => {
           });
         });
 
-        describe('user is in thirdPartyAuth experiment', () => {
-          beforeEach(() => {
-            sinon
-              .stub(view, 'isInThirdPartyAuthExperiment')
-              .callsFake(() => true);
+        it('renders third party auth options when not sync', () => {
+          return view.render().then(() => {
+            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
+            assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
+            assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
           });
+        });
 
-          it('renders as expected when not sync', () => {
-            return view.render().then(() => {
-              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 0);
-              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 1);
-              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 1);
-            });
+        it('does not render the firefox-family services copy when not sync', () => {
+          return view.render().then(() => {
+            assert.notInclude(
+              view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
+              'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.'
+            );
           });
-          it('renders as expected when sync', () => {
-            relier.set({
-              action: 'email',
-              service: 'sync',
-              serviceName: 'Firefox Sync',
-            });
-            sinon.stub(relier, 'isSync').callsFake(() => true);
+        });
 
-            return view.render().then(() => {
-              assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
-              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
-              assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
-            });
+        it('does not render third party auth options when sync', () => {
+          relier.set({
+            action: 'email',
+            service: 'sync',
+            serviceName: 'Firefox Sync',
+          });
+          sinon.stub(relier, 'isSync').callsFake(() => true);
+
+          return view.render().then(() => {
+            assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
+            assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.GOOGLE), 0);
+            assert.lengthOf(view.$(Selectors.THIRD_PARTY_AUTH.APPLE), 0);
+          });
+        });
+
+        it('renders the firefox-family services copy when sync', () => {
+          relier.set({
+            action: 'email',
+            service: 'sync',
+            serviceName: 'Firefox Sync',
+          });
+          sinon.stub(relier, 'isSync').callsFake(() => true);
+
+          return view.render().then(() => {
+            assert.include(
+              view.$(Selectors.FIREFOX_FAMILY_SERVICES).text(),
+              'A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.'
+            );
           });
         });
       });
@@ -521,7 +530,6 @@ describe('views/index', () => {
       assert.lengthOf(view.$(Selectors.EMAIL), 1);
       assert.include(view.$(Selectors.SUB_HEADER).text(), expectedServiceName);
       assert.isTrue(view.chooseEmailActionPage.calledOnce);
-      assert.lengthOf(view.$(Selectors.FIREFOX_FAMILY_SERVICES), 1);
 
       assert.isTrue(view.logFlowEventOnce.calledOnceWith('begin'));
     });

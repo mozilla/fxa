@@ -43,21 +43,9 @@
       </div>
     </form>
 
-    {{#isInThirdPartyAuthExperiment}}
-      {{^isSync}}
-        {{{ unsafeThirdPartyAuthHTML }}}
-      {{/isSync}}
-    {{/isInThirdPartyAuthExperiment}}
-
-    {{^isInThirdPartyAuthExperiment}}
-      {{^isSync}}
-        <div class="text-xs text-grey-500 mb-0 mt-5">
-          <p id="firefox-family-services">
-            {{#t}}A Mozilla account also unlocks access to more privacy-protecting products from Mozilla.{{/t}}
-          </p>
-        </div>
-      {{/isSync}}
-    {{/isInThirdPartyAuthExperiment}}
+    {{^isSync}}
+      {{{ unsafeThirdPartyAuthHTML }}}
+    {{/isSync}}
 
     <div class="text-xs text-grey-500 mb-0 mt-5">
       {{#isSync}}
