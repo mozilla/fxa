@@ -12,9 +12,12 @@ describe('CapabilityServiceByPlanIdsResultUtil', () => {
     const purchase = result.purchaseCollection?.items[0];
     const planId = purchase?.stripePlanChoices?.[0];
     const legacyPlanId = purchase?.offering?.stripeLegacyPlans?.[0];
-    const util = new CapabilityServiceByPlanIdsResultUtil(
-      result as CapabilityServiceByPlanIdsResult
-    );
+    const result2 = CapabilityServiceByPlanIdsQueryFactory();
+    const util = new CapabilityServiceByPlanIdsResultUtil([
+      result as CapabilityServiceByPlanIdsResult,
+      result2 as CapabilityServiceByPlanIdsResult,
+    ]);
+
     expect(util).toBeDefined();
     expect(
       util.capabilityOfferingForPlanId(planId ?? '')?.capabilitiesCollection
@@ -22,6 +25,5 @@ describe('CapabilityServiceByPlanIdsResultUtil', () => {
     expect(
       util.capabilityOfferingForPlanId(legacyPlanId ?? '')?.stripeLegacyPlans
     ).toBeDefined();
-    expect(util.purchaseCollection.items.length).toBe(1);
   });
 });

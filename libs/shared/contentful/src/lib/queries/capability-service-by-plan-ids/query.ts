@@ -22,14 +22,15 @@ export const capabilityServiceByPlanIdsQuery = graphql(`
         ]
       }
     ) {
+      total
       items {
         stripePlanChoices
         offering {
           stripeLegacyPlans
-          capabilitiesCollection(skip: $skip, limit: $limit) {
+          capabilitiesCollection(skip: 0, limit: 25) {
             items {
               slug
-              servicesCollection(skip: $skip, limit: $limit) {
+              servicesCollection(skip: 0, limit: 15) {
                 items {
                   oauthClientId
                 }
