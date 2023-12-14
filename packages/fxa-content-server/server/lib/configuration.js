@@ -258,6 +258,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_POST_VERIFY_OTHER_ROUTES',
     },
+    postVerifyThirdPartyAuthRoutes: {
+      default: false,
+      doc: 'Enable users to visit the React version of third party auth "post verify" routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_POST_VERIFY_THIRD_PARTY_AUTH',
+    },
     postVerifyCADViaQRRoutes: {
       default: false,
       doc: 'Enable users to visit the React version of "post verify CAD via QR code" routes',

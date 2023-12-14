@@ -443,6 +443,7 @@ export class LinkedAccountHandler {
       uid: sessionToken.uid,
       sessionToken: sessionToken.data,
       providerUid: userid,
+      email,
       ...(verificationMethod ? { verificationMethod } : {}),
     };
   }
@@ -501,6 +502,7 @@ export const linkedAccountRoutes = (
               .string()
               .required()
               .description(DESCRIPTION.providerUid),
+            email: isA.string().required().description(DESCRIPTION.email),
             verificationMethod: isA
               .string()
               .optional()

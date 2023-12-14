@@ -102,6 +102,13 @@ describe('Signup page', () => {
     expect(
       screen.getByRole('button', { name: 'Create account' })
     ).toBeDisabled();
+    // Third party auth options
+    expect(
+      screen.getByRole('button', { name: /Continue with Google/ })
+    ).toBeVisible();
+    expect(
+      screen.getByRole('button', { name: /Continue with Apple/ })
+    ).toBeVisible();
     const firefoxTermsLink: HTMLElement = screen.getByRole('link', {
       name: 'Terms of Service',
     });
@@ -206,15 +213,23 @@ describe('Signup page', () => {
     );
   });
 
-  it('shows options to choose what to sync when CWTS is enabled', async () => {
+  it('renders as expected when integration is sync', async () => {
     renderWithLocalizationProvider(
       <Subject integration={createMockSignupSyncDesktopIntegration()} />
     );
 
+    // Choose what to sync options should be displayed if integration is sync
     await screen.findByText('Choose what to sync');
-
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(8);
+
+    // Third party auth options are not offered if integration is Sync
+    expect(
+      screen.queryByRole('button', { name: /Continue with Google/ })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Continue with Apple/ })
+    ).not.toBeInTheDocument();
   });
 
   it('renders and handles newsletters', async () => {
