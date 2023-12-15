@@ -4,7 +4,7 @@
 
 'use strict';
 
-import axios from 'axios';
+const axios = require('axios');
 
 const PATH_PREFIX = '/v1';
 

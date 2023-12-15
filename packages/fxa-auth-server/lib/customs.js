@@ -4,8 +4,9 @@
 
 'use strict';
 
-import axios from 'axios';
-import { config } from '../config';
+const axios = require('axios');
+const { config } = require('../config');
+
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
     supportedLanguages: config.get('i18n').supportedLanguages,
