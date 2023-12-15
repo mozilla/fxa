@@ -35586,7 +35586,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.1.13
     rehype-raw: ^6.1.1
     resolve: ^1.20.0
-    resolve-url-loader: ^4.0.0
+    resolve-url-loader: ^5.0.0
     sass-loader: ^12.3.0
     semver: ^7.5.2
     sinon: ^15.0.1
