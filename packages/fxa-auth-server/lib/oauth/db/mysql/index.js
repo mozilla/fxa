@@ -582,7 +582,7 @@ class MysqlStore extends MysqlOAuthShared {
     });
   }
 
-  _removeUser(userId) {
+  _removeTokensAndCodes(userId) {
     // TODO this should be a transaction or stored procedure
     var id = buf(userId);
     return this._write(QUERY_ACCESS_TOKEN_DELETE_USER, [id])

@@ -117,8 +117,9 @@ const makeRoutes = function (options = {}, requireMocks) {
     verificationReminders,
     subscriptionAccountReminders,
     {
-      removeUser: () => {},
+      removeTokensAndCodes: () => {},
       removePublicAndCanGrantTokens: () => {},
+      ...(options.oauth || {}),
     },
     options.stripeHelper,
     pushbox,
@@ -149,7 +150,8 @@ describe('/account/reset', () => {
     accountRoutes,
     route,
     clientAddress,
-    mailer;
+    mailer,
+    oauth;
 
   beforeEach(() => {
     uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -191,6 +193,7 @@ describe('/account/reset', () => {
     mockCustoms = mocks.mockCustoms();
     mockPush = mocks.mockPush();
     mailer = mocks.mockMailer();
+    oauth = { removeTokensAndCodes: sinon.stub() };
     accountRoutes = makeRoutes({
       config: {
         securityHistory: {
@@ -202,6 +205,7 @@ describe('/account/reset', () => {
       log: mockLog,
       push: mockPush,
       mailer,
+      oauth,
     });
     route = getRoute(accountRoutes, '/account/reset');
 
@@ -242,7 +246,6 @@ describe('/account/reset', () => {
 
     it('should have reset account with account recovery key', () => {
       assert.equal(mockDB.resetAccount.callCount, 1);
-      assert.equal(mockDB.resetAccountTokens.callCount, 1);
       assert.equal(mockDB.createKeyFetchToken.callCount, 1);
       const args = mockDB.createKeyFetchToken.args[0];
       assert.equal(
@@ -270,6 +273,10 @@ describe('/account/reset', () => {
       const args = mailer.sendPasswordResetAccountRecoveryEmail.args[0];
       assert.equal(args.length, 3);
       assert.equal(args[0][0].email, TEST_EMAIL);
+    });
+
+    it('should have removed oauth tokens', () => {
+      assert.calledOnceWithExactly(oauth.removeTokensAndCodes, uid);
     });
 
     it('should have reset custom server', () => {
@@ -423,7 +430,6 @@ describe('/account/reset', () => {
   it('should reset account', () => {
     return runTest(route, mockRequest, (res) => {
       assert.equal(mockDB.resetAccount.callCount, 1);
-      assert.equal(mockDB.resetAccountTokens.callCount, 1);
 
       assert.equal(mockPush.notifyPasswordReset.callCount, 1);
       assert.deepEqual(mockPush.notifyPasswordReset.firstCall.args[0], uid);
@@ -1657,7 +1663,6 @@ describe('/account/finish_setup', () => {
     return runTest(route, mockRequest, (response) => {
       assert.equal(mockDB.verifyEmail.callCount, 1);
       assert.equal(mockDB.resetAccount.callCount, 1);
-      assert.equal(mockDB.resetAccountTokens.callCount, 1);
       assert.ok(response.sessionToken);
       assert.equal(response.uid, uid);
     });
@@ -1831,11 +1836,6 @@ describe('/account/set_password', () => {
         mockDB.resetAccount.callCount,
         1,
         'db.resetAccount was called'
-      );
-      assert.equal(
-        mockDB.resetAccountTokens.callCount,
-        1,
-        'db.resetAccountTokens was called'
       );
       // sendVerifyCode
       assert.equal(
