@@ -17,6 +17,7 @@ export const CapabilityServiceByPlanIdsQueryFactory = (
 ): CapabilityServiceByPlanIdsQuery => {
   return {
     purchaseCollection: {
+      total: [CapabilityPurchaseResultFactory()].length,
       items: [CapabilityPurchaseResultFactory()],
     },
     ...override,

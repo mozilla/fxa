@@ -27,6 +27,7 @@ export interface CapabilityPurchaseResult {
 
 export interface CapabilityServiceByPlanIdsResult {
   purchaseCollection: {
+    total: number;
     items: CapabilityPurchaseResult[];
   };
 }
