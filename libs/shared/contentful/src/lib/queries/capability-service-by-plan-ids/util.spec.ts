@@ -9,13 +9,18 @@ import { CapabilityServiceByPlanIdsResultUtil } from './util';
 describe('CapabilityServiceByPlanIdsResultUtil', () => {
   it('should create a util from response', () => {
     const result = CapabilityServiceByPlanIdsQueryFactory();
-    const planId = result.purchaseCollection?.items[0]?.stripePlanChoices?.[0];
+    const purchase = result.purchaseCollection?.items[0];
+    const planId = purchase?.stripePlanChoices?.[0];
+    const legacyPlanId = purchase?.offering?.stripeLegacyPlans?.[0];
     const util = new CapabilityServiceByPlanIdsResultUtil(
       result as CapabilityServiceByPlanIdsResult
     );
     expect(util).toBeDefined();
     expect(
       util.capabilityOfferingForPlanId(planId ?? '')?.capabilitiesCollection
+    ).toBeDefined();
+    expect(
+      util.capabilityOfferingForPlanId(legacyPlanId ?? '')?.stripeLegacyPlans
     ).toBeDefined();
     expect(util.purchaseCollection.items.length).toBe(1);
   });

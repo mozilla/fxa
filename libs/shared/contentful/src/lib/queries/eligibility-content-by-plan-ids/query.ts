@@ -15,12 +15,18 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
       skip: $skip
       limit: $limit
       locale: $locale
-      where: { stripePlanChoices_contains_some: $stripePlanIds }
+      where: {
+        OR: [
+          { stripePlanChoices_contains_some: $stripePlanIds }
+          { offering: { stripeLegacyPlans_contains_some: $stripePlanIds } }
+        ]
+      }
     ) {
       items {
         stripePlanChoices
         offering {
           stripeProductId
+          stripeLegacyPlans
           countries
           linkedFrom {
             subGroupCollection(skip: $skip, limit: $limit) {
@@ -29,6 +35,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
                 offeringCollection(skip: $skip, limit: $limit) {
                   items {
                     stripeProductId
+                    stripeLegacyPlans
                     countries
                   }
                 }

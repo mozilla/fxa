@@ -31,6 +31,10 @@ export const EligibilityOfferingResultFactory = (
   override?: Partial<EligibilityOfferingResult>
 ): EligibilityOfferingResult => ({
   stripeProductId: faker.string.sample(),
+  stripeLegacyPlans: Array.from(
+    { length: faker.number.int({ min: 1, max: 5 }) },
+    () => faker.string.alpha(10)
+  ),
   countries: [faker.string.sample()],
   linkedFrom: {
     subGroupCollection: {
@@ -54,6 +58,10 @@ export const EligibilitySubgroupOfferingResultFactory = (
   override?: Partial<EligibilitySubgroupOfferingResult>
 ): EligibilitySubgroupOfferingResult => ({
   stripeProductId: faker.string.sample(),
+  stripeLegacyPlans: Array.from(
+    { length: faker.number.int({ min: 1, max: 5 }) },
+    () => faker.string.alpha(10)
+  ),
   countries: [faker.string.sample()],
   ...override,
 });

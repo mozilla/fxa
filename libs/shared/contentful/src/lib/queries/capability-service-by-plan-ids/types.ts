@@ -14,6 +14,7 @@ export interface CapabilityCapabilitiesResult {
 }
 
 export interface CapabilityOfferingResult {
+  stripeLegacyPlans: string[] | null;
   capabilitiesCollection: {
     items: CapabilityCapabilitiesResult[];
   };
