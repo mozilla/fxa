@@ -33,8 +33,10 @@ const config = require('../config').default.getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
 const mailer = null;
-const { setupFirestore } = require('../lib/firestore-db');
+const error = require('../lib/error');
 
+const { setupFirestore } = require('../lib/firestore-db');
+const Profile = require('../lib/profile/client');
 const statsd = {
   increment: () => {},
   timing: () => {},
@@ -45,7 +47,7 @@ Container.set(AppConfig, config);
 Container.set(AuthLogger, log);
 const authFirestore = setupFirestore(config);
 Container.set(AuthFirestore, authFirestore);
-const profile = require('../lib/profile/client')(log, config, statsd);
+const profile = new Profile(log, config, error, statsd);
 Container.set(ProfileClient, profile);
 
 const DB = require('../lib/db')(config, log, Token);

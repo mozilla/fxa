@@ -4,73 +4,75 @@
 
 'use strict';
 
-const isA = require('joi');
-const createBackendServiceAPI = require('../backendService');
+const axios = require('axios');
 
 const PATH_PREFIX = '/v1';
 
-// Very generic validator, because there's not really a useful response
-// here other than that it didn't fail in error
-const DeleteCacheResponse = isA.any();
+// Why is this subhub service vs "profile"?
+const serviceName = 'subhub';
 
-const UpdateDisplayNameResponse = isA.any();
+class Profile {
+  constructor(log, config, error, statsd) {
+    this.log = log;
+    this.error = error;
+    this.statsd = statsd;
+    this.config = config;
+    this.axiosInstance = axios.create({ baseURL: config.profileServer.url });
 
-module.exports = function (log, config, statsd) {
-  const ProfileAPI = createBackendServiceAPI(
-    log,
-    config,
-    'subhub',
-    {
-      deleteCache: {
-        path: `${PATH_PREFIX}/cache/:uid`,
-        method: 'DELETE',
-        validate: {
-          params: {
-            uid: isA.string().required(),
-          },
-          response: DeleteCacheResponse,
-        },
-      },
-      updateDisplayName: {
-        path: `${PATH_PREFIX}/_display_name/:uid`,
-        method: 'POST',
-        validate: {
-          params: {
-            uid: isA.string().required(),
-          },
-          payload: {
-            name: isA.string().required(),
-          },
-          response: UpdateDisplayNameResponse,
-        },
-      },
-    },
-    statsd
-  );
+    // Authorization header is required for all requests to the profile server
+    this.axiosInstance.defaults.headers.common[
+      'Authorization'
+    ] = `Bearer ${config.profileServer.secretBearerToken}`;
+  }
 
-  const api = new ProfileAPI(config.profileServer.url, {
-    headers: {
-      Authorization: `Bearer ${config.profileServer.secretBearerToken}`,
-    },
-    timeout: 15000,
-  });
+  async makeRequest(endpoint, requestData, method) {
+    if (!this.axiosInstance) {
+      return;
+    }
 
-  return {
-    async deleteCache(uid) {
-      try {
-        return await api.deleteCache(uid);
-      } catch (err) {
-        log.error('profile.deleteCache.failed', { uid, err });
+    try {
+      await this.axiosInstance[method](endpoint, requestData);
+      return {};
+    } catch (err) {
+      const response = err.response || {};
+      if (err.errno > -1 || (response.status && response.status < 500)) {
         throw err;
+      } else {
+        throw this.error.backendServiceFailure(
+          serviceName,
+          method.toUpperCase(),
+          { method: method.toUpperCase(), path: endpoint },
+          err
+        );
       }
-    },
-    async updateDisplayName(uid, name) {
-      try {
-        return await api.updateDisplayName(uid, { name: name });
-      } catch (err) {
-        log.error('profile.updateDisplayName.failed', { uid, name, err });
-        throw err;
-      }
-    },
-  };
-};
+    }
+  }
+
+  async deleteCache(uid) {
+    try {
+      return await this.makeRequest(
+        `${PATH_PREFIX}/cache/${uid}`,
+        {},
+        'delete'
+      );
+    } catch (err) {
+      this.log.error('profile.deleteCache.failed', { uid, err });
+      throw err;
+    }
+  }
+
+  async updateDisplayName(uid, name) {
+    try {
+      return await this.makeRequest(
+        `${PATH_PREFIX}/_display_name/${uid}`,
+        { name },
+        'post'
+      );
+    } catch (err) {
+      this.log.error('profile.updateDisplayName.failed', { uid, name, err });
+      throw err;
+    }
+  }
+}
+
+module.exports = Profile;
