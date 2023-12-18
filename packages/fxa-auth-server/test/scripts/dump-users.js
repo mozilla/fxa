@@ -11,6 +11,8 @@ const cp = require('child_process');
 const { assert } = require('chai');
 const path = require('path');
 const mocks = require(`${ROOT_DIR}/test/mocks`);
+const crypto = require('crypto');
+const fs = require('fs');
 
 const cwd = path.resolve(__dirname, ROOT_DIR);
 cp.execAsync = promisify(cp.exec);
@@ -21,7 +23,6 @@ const Token = require('../../lib/tokens')(log, config);
 const UnblockCode = require('../../lib/crypto/random').base32(
   config.signinUnblock.codeLength
 );
-const TestServer = require('../test_server');
 
 const zeroBuffer16 = Buffer.from(
   '00000000000000000000000000000000',
@@ -48,12 +49,12 @@ function createAccount(email, uid) {
 }
 
 const account1Mock = createAccount(
-  'user1@test.com',
-  'f9916686c226415abd06ae550f073cec'
+  `${Math.random() * 10000}@zmail.com`,
+  crypto.randomBytes(16).toString('hex')
 );
 const account2Mock = createAccount(
-  'user2@test.com',
-  'f9916686c226415abd06ae550f073ced'
+  `${Math.random() * 10000}@zmail.com`,
+  crypto.randomBytes(16).toString('hex')
 );
 
 const DB = require('../../lib/db')(config, log, Token, UnblockCode);
@@ -69,30 +70,46 @@ const execOptions = {
 };
 
 describe('#integration - scripts/dump-users', function () {
-  this.timeout(10000);
+  this.timeout(20000);
 
-  let db, server;
+  let db, oneEmailFilename, twoEmailsFilename, oneUidFilename, twoUidsFilename;
 
-  before(() => {
-    return TestServer.start(config)
-      .then((s) => {
-        server = s;
-        return DB.connect(config);
-      })
-      .then((_db) => {
-        db = _db;
-        return Promise.all([
-          db.createAccount(account1Mock),
-          db.createAccount(account2Mock),
-        ]);
-      });
+  before(async () => {
+    db = await DB.connect(config);
+    await db.createAccount(account1Mock);
+    await db.createAccount(account2Mock);
+
+    const data = `${account1Mock.email}\n`;
+    oneEmailFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_one_email.txt`;
+    fs.writeFileSync(oneEmailFilename, data);
+
+    const data2 = `${account1Mock.uid}\n`;
+    oneUidFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_one_uid.txt`;
+    fs.writeFileSync(oneUidFilename, data2);
+
+    const data3 = `${account1Mock.email}\n${account2Mock.email}\n`;
+    twoEmailsFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_two_emails.txt`;
+    fs.writeFileSync(twoEmailsFilename, data3);
+
+    const data4 = `${account1Mock.uid}\n${account2Mock.uid}\n`;
+    twoUidsFilename = `./test/scripts/fixtures/${crypto
+      .randomBytes(16)
+      .toString('hex')}_two_uids.txt`;
+    fs.writeFileSync(twoUidsFilename, data4);
   });
 
-  after(() => {
-    return Promise.all([
-      db.deleteAccount(account1Mock),
-      db.deleteAccount(account2Mock),
-    ]).then(() => TestServer.stop(server));
+  after(async () => {
+    await db.close();
+    fs.unlinkSync(oneEmailFilename);
+    fs.unlinkSync(oneUidFilename);
+    fs.unlinkSync(twoEmailsFilename);
+    fs.unlinkSync(twoUidsFilename);
   });
 
   it('fails if neither --emails nor --uids is specified', () => {
@@ -198,33 +215,37 @@ describe('#integration - scripts/dump-users', function () {
   it('succeeds with --uids and --input containing 1 uid', () => {
     return cp
       .execAsync(
-        'node -r esbuild-register scripts/dump-users --uids --input ../test/scripts/fixtures/one_uid.txt',
+        `node -r esbuild-register scripts/dump-users --uids --input ${
+          '../' + oneUidFilename
+        }`,
         execOptions
       )
       .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
-        assert.equal(result[0].email, 'user1@test.com');
-        assert.equal(result[0].uid, 'f9916686c226415abd06ae550f073cec');
+        assert.equal(result[0].email, account1Mock.email);
+        assert.equal(result[0].uid, account1Mock.uid);
       });
   });
 
   it('succeeds with --uids and --input containing 2 uids', () => {
     return cp
       .execAsync(
-        'node -r esbuild-register scripts/dump-users --uids --input ../test/scripts/fixtures/two_uids.txt',
+        `node -r esbuild-register scripts/dump-users --uids --input ${
+          '../' + twoUidsFilename
+        }`,
         execOptions
       )
       .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
-        assert.equal(result[0].email, 'user1@test.com');
-        assert.equal(result[0].uid, 'f9916686c226415abd06ae550f073cec');
+        assert.equal(result[0].email, account1Mock.email);
+        assert.equal(result[0].uid, account1Mock.uid);
 
-        assert.equal(result[1].email, 'user2@test.com');
-        assert.equal(result[1].uid, 'f9916686c226415abd06ae550f073ced');
+        assert.equal(result[1].email, account2Mock.email);
+        assert.equal(result[1].uid, account2Mock.uid);
       });
   });
 
@@ -278,33 +299,37 @@ describe('#integration - scripts/dump-users', function () {
   it('succeeds with --emails and --input containing 1 email', () => {
     return cp
       .execAsync(
-        'node -r esbuild-register scripts/dump-users --emails --input ../test/scripts/fixtures/one_email.txt',
+        `node -r esbuild-register scripts/dump-users --emails --input ${
+          '../' + oneEmailFilename
+        }`,
         execOptions
       )
       .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 1);
 
-        assert.equal(result[0].email, 'user1@test.com');
-        assert.equal(result[0].uid, 'f9916686c226415abd06ae550f073cec');
+        assert.equal(result[0].email, account1Mock.email);
+        assert.equal(result[0].uid, account1Mock.uid);
       });
   });
 
   it('succeeds with --emails and --input containing 2 email', () => {
     return cp
       .execAsync(
-        'node -r esbuild-register scripts/dump-users --emails --input ../test/scripts/fixtures/two_emails.txt',
+        `node -r esbuild-register scripts/dump-users --emails --input ${
+          '../' + twoEmailsFilename
+        }`,
         execOptions
       )
       .then(({ stdout: output }) => {
         const result = JSON.parse(output);
         assert.lengthOf(result, 2);
 
-        assert.equal(result[0].email, 'user1@test.com');
-        assert.equal(result[0].uid, 'f9916686c226415abd06ae550f073cec');
+        assert.equal(result[0].email, account1Mock.email);
+        assert.equal(result[0].uid, account1Mock.uid);
 
-        assert.equal(result[1].email, 'user2@test.com');
-        assert.equal(result[1].uid, 'f9916686c226415abd06ae550f073ced');
+        assert.equal(result[1].email, account2Mock.email);
+        assert.equal(result[1].uid, account2Mock.uid);
       });
   });
 });

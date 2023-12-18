@@ -151,65 +151,6 @@ Rate-limiting and blocking is handled by fxa-customs-server. By default, these p
 
 The customs-server can be enabled for local testing by changing the dev config to `"customsUrl":"http://localhost:7000"`.
 
-### Email config
-
-There is also some live config
-loaded from Redis for the email service.
-This config is stored as a JSON string
-that looks like this
-(every property is optional):
-
-```json
-{
-  "sendgrid": {
-    "percentage": 100,
-    "regex": "^.+@example\\.com$"
-  },
-  "socketlabs": {
-    "percentage": 100,
-    "regex": "^.+@example\\.org$"
-  },
-  "ses": {
-    "percentage": 10,
-    "regex": ".*"
-  }
-}
-```
-
-`scripts/email-config.js`
-has been written to help
-manage this config.
-
-- To print the current live config to stdout:
-
-  ```
-  node -r esbuild-register scripts/email-config read
-  ```
-
-- To set the live config from a JSON file on disk:
-
-  ```
-  cat foo.json | node -r esbuild-register scripts/email-config write
-  ```
-
-- To set the live config from a string:
-
-  ```
-  echo '{"sendgrid":{"percentage":10}}' | node -r esbuild-register scripts/email-config write
-  ```
-
-- To undo the last change:
-
-  ```
-  node -r esbuild-register scripts/email-config revert
-  ```
-
-- To check the resolved config for a specific email address:
-
-  ```
-  node -r esbuild-register scripts/email-config check foo@example.com
-  ```
-
 ### Token Pruning
 
 We need to be able to periodically remove old tokens and codes. This can be accomplished via the token pruning script in the scripts directory.

@@ -15,6 +15,10 @@ function resetPassword(client, code, newPassword, options) {
   });
 }
 
+function delay(seconds) {
+  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
+}
+
 describe('#integration - remote securityEvents', () => {
   let server;
 
@@ -41,7 +45,9 @@ describe('#integration - remote securityEvents', () => {
       .then((x) => {
         client = x;
         return client.login().then(() => {
-          return client.securityEvents();
+          return delay(1).then(() => {
+            return client.securityEvents();
+          });
         });
       })
       .then((events) => {
@@ -70,7 +76,9 @@ describe('#integration - remote securityEvents', () => {
       .then((x) => {
         client = x;
         return client.login().then(() => {
-          return client.securityEvents();
+          return delay(1).then(() => {
+            return client.securityEvents();
+          });
         });
       })
       .then((events) => {
@@ -125,7 +133,9 @@ describe('#integration - remote securityEvents', () => {
         assert.equal(response.verified, true, 'verified is true');
       })
       .then(() => {
-        return client.securityEvents();
+        return delay(1).then(() => {
+          return client.securityEvents();
+        });
       })
       .then((events) => {
         assert.equal(events.length, 2);

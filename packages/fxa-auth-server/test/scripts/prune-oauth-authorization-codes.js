@@ -18,14 +18,16 @@ const execOptions = {
 };
 
 describe('#integration - scripts/prune-oauth-authorization-codes:', () => {
-  it('does not fail with no argument', () => {
+  it('does not fail with no argument', function () {
+    this.timeout(15000);
     return execAsync(
       'node -r esbuild-register scripts/prune-oauth-authorization-codes',
       execOptions
     );
   });
 
-  it('does not fail with an argument', () => {
+  it('does not fail with an argument', function () {
+    this.timeout(15000);
     return execAsync(
       'node -r esbuild-register scripts/prune-oauth-authorization-codes --ttl 600000',
       execOptions
