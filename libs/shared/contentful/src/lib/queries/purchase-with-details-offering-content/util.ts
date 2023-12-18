@@ -15,24 +15,26 @@ export class PurchaseWithDetailsOfferingContentUtil {
   > = {};
 
   constructor(
-    private rawResult: PurchaseWithDetailsOfferingContentByPlanIdsResult
+    private rawResults: PurchaseWithDetailsOfferingContentByPlanIdsResult[]
   ) {
-    for (const purchase of rawResult.purchaseCollection.items) {
-      const transformedPurchaseDetails = this.purchaseDetailsTransform(
-        purchase.purchaseDetails
-      );
-      purchase.stripePlanChoices?.forEach((planId) => {
-        this.transformedPurchaseByPlanId[planId] = {
-          ...purchase,
-          purchaseDetails: transformedPurchaseDetails,
-        };
-      });
-      purchase.offering.stripeLegacyPlans?.forEach((planId) => {
-        this.transformedPurchaseByPlanId[planId] = {
-          ...purchase,
-          purchaseDetails: transformedPurchaseDetails,
-        };
-      });
+    for (const rawResult of rawResults) {
+      for (const purchase of rawResult.purchaseCollection.items) {
+        const transformedPurchaseDetails = this.purchaseDetailsTransform(
+          purchase.purchaseDetails
+        );
+        purchase.stripePlanChoices?.forEach((planId) => {
+          this.transformedPurchaseByPlanId[planId] = {
+            ...purchase,
+            purchaseDetails: transformedPurchaseDetails,
+          };
+        });
+        purchase.offering.stripeLegacyPlans?.forEach((planId) => {
+          this.transformedPurchaseByPlanId[planId] = {
+            ...purchase,
+            purchaseDetails: transformedPurchaseDetails,
+          };
+        });
+      }
     }
   }
 
@@ -55,7 +57,18 @@ export class PurchaseWithDetailsOfferingContentUtil {
     return this.transformedPurchaseByPlanId[planId];
   }
 
-  get purchaseCollection() {
-    return this.rawResult.purchaseCollection;
+  get purchaseCollection(): PurchaseWithDetailsOfferingContentByPlanIdsResult['purchaseCollection'] {
+    // Deduplicating items as there could be duplicates from splitting up the
+    // stripePlanIds and making multiple Contentful calls
+    return {
+      items: [
+        ...new Map(
+          this.rawResults
+            .map((rawResult) => rawResult.purchaseCollection.items)
+            .flat()
+            .map((res) => [JSON.stringify(res), res])
+        ).values(),
+      ],
+    };
   }
 }
