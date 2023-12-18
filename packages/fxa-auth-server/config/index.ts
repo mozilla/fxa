@@ -1014,20 +1014,6 @@ const convictConf = convict({
       format: Array,
       default: ['megaz0rd'],
     },
-    poolee: {
-      timeout: {
-        default: '30 seconds',
-        format: 'duration',
-        env: 'OAUTH_POOLEE_TIMEOUT',
-        doc: 'Time in milliseconds to wait for oauth query completion',
-      },
-      maxPending: {
-        default: 1000,
-        format: 'int',
-        env: 'OAUTH_POOLEE_MAX_PENDING',
-        doc: 'Number of pending requests to fxa-oauth-server to allow',
-      },
-    },
   },
   oauthServer: {
     admin: {
@@ -1056,20 +1042,6 @@ const convictConf = convict({
       env: 'OAUTH_URL',
     },
     auth: {
-      poolee: {
-        timeout: {
-          default: '30 seconds',
-          doc: 'Time in milliseconds to wait for auth server query completion',
-          env: 'AUTH_POOLEE_TIMEOUT',
-          format: 'duration',
-        },
-        maxPending: {
-          default: 1000,
-          doc: 'Number of pending requests to fxa-auth-server to allow',
-          env: 'AUTH_POOLEE_MAX_PENDING',
-          format: 'int',
-        },
-      },
       jwtSecretKey: {
         default: 'megaz0rd',
         doc: 'Shared secret for signing oauth-to-auth server JWT assertions',
