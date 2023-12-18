@@ -18485,12 +18485,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/core@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "@type-cacheable/core@npm:11.0.0"
+"@type-cacheable/core@npm:^13.0.0":
+  version: 13.0.0
+  resolution: "@type-cacheable/core@npm:13.0.0"
   dependencies:
+    blueimp-md5: ^2.19.0
+    reflect-metadata: ^0.1.13
     serialize-javascript: ^6.0.0
-  checksum: 0a0b3de10a76959cc9842c79c59913db50cb79e9cca27650df5a9bc056a9021f7cac87bf05cb578f542e223f05730bf5e3559bd159653e313100b79e58a33c02
+  checksum: 866e74608e94e0752ff9cad3bb758f17fea06168cdababa9741d67717b55912bc8ecd90f92f6b9023403384e6cd84a97ef4e73d608dd4db513be870e20206f9b
   languageName: node
   linkType: hard
 
@@ -25252,6 +25254,13 @@ __metadata:
   version: 2.11.0
   resolution: "bluebird@npm:2.11.0"
   checksum: f1c6cbec64100bca65c88e5de0d9ee9bbb435f7c74c68a16a9466a8b40daf64346805c2fe04af821564ce6d4199085e7855d2e272282a065eb723344815cc354
+  languageName: node
+  linkType: hard
+
+"blueimp-md5@npm:^2.19.0":
+  version: 2.19.0
+  resolution: "blueimp-md5@npm:2.19.0"
+  checksum: 28095dcbd2c67152a2938006e8d7c74c3406ba6556071298f872505432feb2c13241b0476644160ee0a5220383ba94cb8ccdac0053b51f68d168728f9c382530
   languageName: node
   linkType: hard
 
@@ -34708,7 +34717,7 @@ fsevents@~2.1.1:
     "@storybook/addon-toolbars": ^7.0.23
     "@storybook/html": ^7.5.2
     "@storybook/html-webpack5": ^7.0.23
-    "@type-cacheable/core": ^11.0.0
+    "@type-cacheable/core": ^13.0.0
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/async-retry": ^1
     "@types/babel__core": 7.1.14
@@ -35616,7 +35625,7 @@ fsevents@~2.1.1:
     "@nestjs/common": ^10.2.4
     "@nestjs/config": ^3.0.0
     "@nestjs/core": ^10.2.4
-    "@type-cacheable/core": ^11.0.0
+    "@type-cacheable/core": ^13.0.0
     "@type-cacheable/ioredis-adapter": ^10.0.4
     "@types/accept-language-parser": ^1.5.3
     "@types/chai": ^4.2.18
