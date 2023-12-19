@@ -6,6 +6,7 @@
 
 const axios = require('axios');
 const { config } = require('../config');
+const { createHttpAgent, createHttpsAgent } = require('../lib/http-agent');
 
 const localizeTimestamp =
   require('../../../libs/shared/l10n/src').localizeTimestamp({
@@ -20,7 +21,11 @@ class CustomsClient {
     this.error = error;
     this.statsd = statsd;
     if (url !== 'none') {
-      this.axiosInstance = axios.create({ baseURL: url });
+      this.axiosInstance = axios.create({
+        baseURL: url,
+        httpAgent: createHttpAgent(),
+        httpsAgent: createHttpsAgent(),
+      });
     }
   }
 

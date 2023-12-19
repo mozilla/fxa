@@ -5,6 +5,7 @@
 'use strict';
 
 const axios = require('axios');
+const { createHttpAgent, createHttpsAgent } = require('../http-agent');
 
 const PATH_PREFIX = '/v1';
 
@@ -17,7 +18,11 @@ class Profile {
     this.error = error;
     this.statsd = statsd;
     this.config = config;
-    this.axiosInstance = axios.create({ baseURL: config.profileServer.url });
+    this.axiosInstance = axios.create({
+      baseURL: config.profileServer.url,
+      httpAgent: createHttpAgent(),
+      httpsAgent: createHttpsAgent(),
+    });
 
     // Authorization header is required for all requests to the profile server
     this.axiosInstance.defaults.headers.common[
