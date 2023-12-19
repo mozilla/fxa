@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import FlowContainer from '../FlowContainer';
 import ProgressBar from '../ProgressBar';
 import DataBlock from '../../DataBlock';
@@ -16,7 +16,16 @@ import {
   LockIconListItem,
   PrinterIconListItem,
 } from '../../IconListItem';
-import ButtonDownloadRecoveryKeyPDF from '../../ButtonDownloadRecoveryKeyPDF';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+
+const ButtonDownloadRecoveryKeyPDF = lazy(
+  () => import('../../ButtonDownloadRecoveryKeyPDF')
+);
+
+// TODO FXA-8305
+const spinner = (
+  <LoadingSpinner className="bg-grey-20 flex items-center flex-col justify-center h-screen select-none" />
+);
 
 export type FlowRecoveryKeyDownloadProps = {
   localizedBackButtonTitle: string;
@@ -97,9 +106,11 @@ export const FlowRecoveryKeyDownload = ({
           </ul>
         </div>
 
-        <ButtonDownloadRecoveryKeyPDF
-          {...{ navigateForward, recoveryKeyValue, viewName }}
-        />
+        <Suspense fallback={spinner}>
+          <ButtonDownloadRecoveryKeyPDF
+            {...{ navigateForward, recoveryKeyValue, viewName }}
+          />
+        </Suspense>
 
         <FtlMsg id="flow-recovery-key-download-next-link-v2">
           <Link
