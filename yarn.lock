@@ -34987,7 +34987,6 @@ fsevents@~2.1.1:
     normalize.css: 8.0.1
     on-headers: 1.0.2
     otplib: ^11.0.1
-    photon-colors: 1.0.3
     pm2: ^5.3.0
     postcss-assets: ^6.0.0
     postcss-cli: 7.1.1
@@ -35350,7 +35349,6 @@ fsevents@~2.1.1:
     node-fetch: ^2.6.7
     normalize.css: 8.0.1
     on-headers: ^1.0.2
-    photon-colors: 1.0.3
     pm2: ^5.3.0
     postcss-import: 15.1.0
     prettier: ^2.3.1
@@ -50108,13 +50106,6 @@ fsevents@~2.1.1:
     postgres-date: ~1.0.4
     postgres-interval: ^1.1.0
   checksum: bf4ec3f594743442857fb3a8dfe5d2478a04c98f96a0a47365014557cbc0b4b0cee01462c79adca863b93befbf88f876299b75b72c665b5fb84a2c94fbd10316
-  languageName: node
-  linkType: hard
-
-"photon-colors@npm:1.0.3":
-  version: 1.0.3
-  resolution: "photon-colors@npm:1.0.3"
-  checksum: a1634d97086475222eed5639ea1eac8babfeeea8f2f1d4fe266662e5646c414fa5aff1f2fd744d8cc99a87afbc231ae2e6b8081136985cb455aa1049e638ccc1
   languageName: node
   linkType: hard
 

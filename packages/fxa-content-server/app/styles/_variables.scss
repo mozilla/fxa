@@ -1,4 +1,6 @@
-@import '~photon-colors/colors.scss';
+@use "sass:color";
+
+@import './photon-colors.scss';
 
 // Font Variables
 $default-font: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
@@ -88,7 +90,7 @@ $button-text-color-primary: #fff;
 $content-background-color: $color-white;
 $cropper-background-color: $color-black;
 $faint-text-color: $color-grey-faint-text;
-$horizontal-rule-color: darken($color-grey-light, 5);
+$horizontal-rule-color: color.adjust($color-grey-light, $lightness: -5);
 $html-background-color: hsl(240, 60%, 99%);
 
 $header-color: rgb(32, 18, 59);
@@ -129,7 +131,7 @@ $message-text-color: $color-white;
 $mobile-html-background-color: $color-white;
 
 $secondary-button-background-color: $color-grey-lightest;
-$secondary-button-border-color: lighten($color-grey, 5);
+$secondary-button-border-color: color.adjust($color-grey, $lightness: 5);
 
 $show-password-background-color: $color-white;
 $show-password-focus-label-color: $color-white;
