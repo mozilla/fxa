@@ -275,24 +275,45 @@ describe('sign-up-container', () => {
           reset: () => {},
         },
       ]);
+    });
 
+    it('handles invalid email', async () => {
       // In this case want to mimic a bad email value
       jest
         .spyOn(UseValidateModule, 'useValidatedQueryParams')
         .mockImplementation((_params) => {
           return {
             queryParamModel: {
-              email: 123,
+              email: 'invalid',
             } as unknown as ModelDataProvider,
             validationError: {
               property: 'email',
             },
           };
         });
+      await render('loading spinner mock');
+
+      // TODO: Determine if email is valid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
+      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
     });
 
-    it('navigates away on validation error', async () => {
+    it('handles empty email', async () => {
+      // In this case want to mimic a bad email value
+      jest
+        .spyOn(UseValidateModule, 'useValidatedQueryParams')
+        .mockImplementation((_params) => {
+          return {
+            queryParamModel: {
+              email: '',
+            } as unknown as ModelDataProvider,
+            validationError: {
+              property: 'email',
+            },
+          };
+        });
       await render('loading spinner mock');
+
+      // TODO: Show that email is invalid: https://github.com/mozilla/fxa/pull/16131#discussion_r1418122670
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
     });
   });

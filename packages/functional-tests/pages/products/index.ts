@@ -3,6 +3,11 @@ import { randomUUID } from 'crypto';
 import { BaseLayout } from '../layout';
 
 export class SubscribePage extends BaseLayout {
+  async visitSignIn() {
+    const link = this.page.getByText('Sign In');
+    await link.click();
+  }
+
   async setEmailAndConfirmNewUser() {
     // We can't reuse the same email address each time, as the form
     // can't be submitted if the account already exists.
