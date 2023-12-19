@@ -85,6 +85,8 @@ export const FormPasswordWithBalloons = ({
     useState<boolean>(false);
   const [isConfirmPwdBalloonVisible, setIsConfirmPwdBalloonVisible] =
     useState<boolean>(false);
+  const [hasEditedConfirmPwd, setHasEditedConfirmPwd] =
+    useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -140,6 +142,7 @@ export const FormPasswordWithBalloons = ({
 
   const onNewPwdFocus = () => {
     showNewPwdBalloon();
+    setPasswordMatchErrorText('');
     if (!hasNewPwdFocused && onFocusMetricsEvent) {
       onFocusMetricsEvent();
       setHasNewPwdFocused(true);
@@ -152,6 +155,12 @@ export const FormPasswordWithBalloons = ({
     if (getValues('newPassword') !== '' && !errors.newPassword) {
       hideNewPwdBalloon();
     }
+    if (getValues('confirmPassword') !== getValues('newPassword')) {
+      setPasswordMatchErrorText(localizedPasswordMatchError);
+    } else if (!formState.isValid) {
+      // Try to retrigger
+      trigger('confirmPassword');
+    }
   };
 
   const onBlurConfirmPassword = useCallback(() => {
@@ -159,8 +168,11 @@ export const FormPasswordWithBalloons = ({
       isConfirmPwdBalloonVisible &&
       hideConfirmPwdBalloon();
 
-    getValues('confirmPassword') !== getValues('newPassword') &&
+    if (getValues('confirmPassword') !== getValues('newPassword')) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
+    } else if (!formState.isValid) {
+      trigger('newPassword');
+    }
   }, [
     getValues,
     hideConfirmPwdBalloon,
@@ -168,7 +180,26 @@ export const FormPasswordWithBalloons = ({
     localizedPasswordMatchError,
     passwordFormType,
     setPasswordMatchErrorText,
+    formState,
+    trigger,
   ]);
+  const onChangePassword = (inputName: string) => {
+    if (inputName === 'confirmPassword') {
+      setHasEditedConfirmPwd(true);
+    }
+
+    if (!hasEditedConfirmPwd) {
+      return;
+    }
+
+    if (getValues('confirmPassword') !== getValues('newPassword')) {
+      setPasswordMatchErrorText(localizedPasswordMatchError);
+    } else {
+      setPasswordMatchErrorText('');
+    }
+
+    trigger('confirmPassword');
+  };
 
   return (
     <>
@@ -186,10 +217,7 @@ export const FormPasswordWithBalloons = ({
               label={templateValues.passwordLabel}
               onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}
               onBlurCb={onNewPwdBlur}
-              onChange={() => {
-                getValues('confirmPassword') === getValues('newPassword') &&
-                  setPasswordMatchErrorText('');
-              }}
+              onChange={() => onChangePassword('newPassword')}
               hasErrors={
                 formState.dirtyFields.newPassword ? errors.newPassword : false
               }
@@ -246,10 +274,7 @@ export const FormPasswordWithBalloons = ({
                   : undefined
               }
               onBlurCb={() => onBlurConfirmPassword()}
-              onChange={() => {
-                getValues('confirmPassword') === getValues('newPassword') &&
-                  setPasswordMatchErrorText('');
-              }}
+              onChange={() => onChangePassword('confirmPassword')}
               hasErrors={errors.confirmPassword && passwordMatchErrorText}
               errorText={passwordMatchErrorText}
               inputRef={register({
