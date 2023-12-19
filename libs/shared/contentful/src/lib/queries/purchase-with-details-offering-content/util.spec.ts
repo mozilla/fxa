@@ -11,12 +11,14 @@ import { PurchaseWithDetailsOfferingContentUtil } from './util';
 describe('PurchaseWithDetailsOfferingContentUtil', () => {
   it('should create a util from response', () => {
     const result = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
+    const result2 = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
     const purchase = result.purchaseCollection?.items[0];
     const planId = purchase.stripePlanChoices?.[0];
     const legacyPlanId = purchase.offering.stripeLegacyPlans?.[0];
-    const util = new PurchaseWithDetailsOfferingContentUtil(
-      result as PurchaseWithDetailsOfferingContentByPlanIdsResult
-    );
+    const util = new PurchaseWithDetailsOfferingContentUtil([
+      result as PurchaseWithDetailsOfferingContentByPlanIdsResult,
+      result2 as PurchaseWithDetailsOfferingContentByPlanIdsResult,
+    ]);
     expect(util).toBeDefined();
     expect(
       util.transformedPurchaseWithCommonContentForPlanId(planId ?? '')?.offering
@@ -26,16 +28,16 @@ describe('PurchaseWithDetailsOfferingContentUtil', () => {
       util.transformedPurchaseWithCommonContentForPlanId(legacyPlanId ?? '')
         ?.offering.stripeProductId
     ).toBeDefined();
-    expect(util.purchaseCollection.items.length).toBe(1);
+    expect(util.purchaseCollection.items.length).toBe(2);
   });
 
   describe('transformPurchaseDetails', () => {
     let util: PurchaseWithDetailsOfferingContentUtil;
     beforeAll(() => {
       const result = PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
-      util = new PurchaseWithDetailsOfferingContentUtil(
-        result as PurchaseWithDetailsOfferingContentByPlanIdsResult
-      );
+      util = new PurchaseWithDetailsOfferingContentUtil([
+        result as PurchaseWithDetailsOfferingContentByPlanIdsResult,
+      ]);
     });
 
     it('should transform details', () => {

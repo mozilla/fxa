@@ -97,18 +97,29 @@ export class ContentfulManager {
     acceptLanguage: string
   ): Promise<PurchaseWithDetailsOfferingContentUtil> {
     const locale = await this.client.getLocale(acceptLanguage);
-    const queryResult = await this.client.query(
-      purchaseWithDetailsOfferingContentQuery,
-      {
-        skip: 0,
-        limit: 100,
-        locale,
-        stripePlanIds,
-      }
-    );
+    const queryResults: DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>[] =
+      [];
+    const stripePlans: string[][] = [];
 
-    return new PurchaseWithDetailsOfferingContentUtil(
-      queryResult as DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>
-    );
+    // reduce query size by making multiple calls to Contentful
+    for (let i = 0; i < stripePlanIds.length; i += 150) {
+      stripePlans.push(stripePlanIds.slice(i, i + 150));
+    }
+
+    while (stripePlans.length > 0) {
+      const queryResult = (await this.client.query(
+        purchaseWithDetailsOfferingContentQuery,
+        {
+          skip: 0,
+          limit: 100,
+          locale,
+          stripePlanIds: stripePlans[0],
+        }
+      )) as DeepNonNullable<PurchaseWithDetailsOfferingContentQuery>;
+      queryResults.push(queryResult);
+      stripePlans.shift();
+    }
+
+    return new PurchaseWithDetailsOfferingContentUtil(queryResults);
   }
 }
