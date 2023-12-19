@@ -13,28 +13,44 @@ export class SignupReactPage extends BaseLayout {
   }
 
   async setEmail(value: string) {
-    const emailInput = await this.page.getByRole('textbox', { name: 'email' });
+    const emailInput = await this.getEmail();
     return emailInput.fill(value);
   }
 
+  getEmail() {
+    return this.page.getByRole('textbox', { name: 'email' });
+  }
+
   async setPassword(value: string) {
-    const newPasswordInput = await this.page.getByRole('textbox', {
-      // simple text string was matching both password inputs
-      name: /^Password$/,
-    });
+    const newPasswordInput = this.getPassword();
     return newPasswordInput.fill(value);
   }
 
-  async setPasswordConfirm(value: string) {
-    const confirmPasswordInput = await this.page.getByRole('textbox', {
-      name: 'Repeat password',
+  getPassword() {
+    return this.page.getByRole('textbox', {
+      // simple text string was matching both password inputs
+      name: /^Password$/,
     });
+  }
+
+  async setPasswordConfirm(value: string) {
+    const confirmPasswordInput = this.getPasswordConfirm();
     return confirmPasswordInput.fill(value);
   }
 
+  getPasswordConfirm() {
+    return this.page.getByRole('textbox', {
+      name: 'Repeat password',
+    });
+  }
+
   async setAge(value: string) {
-    const ageInput = await this.page.getByLabel('How old are you?');
+    const ageInput = this.getAge();
     await ageInput.fill(value);
+  }
+
+  getAge() {
+    return this.page.getByLabel('How old are you?');
   }
 
   async setCode(value: string) {
@@ -47,11 +63,13 @@ export class SignupReactPage extends BaseLayout {
     await this.submit('Sign up or sign in');
   }
 
-  async fillOutSignupForm(password: string) {
+  async fillOutSignupForm(password: string, age = '21', submit = true) {
     await this.setPassword(password);
     await this.setPasswordConfirm(password);
-    await this.setAge('21');
-    await this.submit('Create account');
+    await this.setAge(age);
+    if (submit) {
+      await this.submit('Create account');
+    }
   }
 
   async fillOutCodeForm(code: string) {
@@ -61,5 +79,15 @@ export class SignupReactPage extends BaseLayout {
 
   async submit(label: string) {
     await this.page.getByRole('button', { name: label }).click();
+  }
+
+  async visitTermsOfServiceLink() {
+    const link = await this.page.getByText('Terms of Service');
+    link.click();
+  }
+
+  async visitPrivacyPolicyLink() {
+    const link = await this.page.getByText('Privacy Notice');
+    link.click();
   }
 }

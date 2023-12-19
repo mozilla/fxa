@@ -566,4 +566,66 @@ describe('Signup page', () => {
       expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });
   });
+
+  describe('handle input errors', () => {
+    it('checks coppa is empty', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          {...{
+            queryParams: {
+              email: 'foo@bar.com',
+              emailFromContent: 'true',
+            },
+          }}
+        />
+      );
+
+      const newPasswordInput = screen.getByTestId('new-password-input-field');
+      const verifyPasswordInput = screen.getByTestId(
+        'verify-password-input-field'
+      );
+      const ageInput = screen.getByTestId('age-input-field');
+      const createAccountButton = screen.getByText('Create account');
+
+      fireEvent.change(newPasswordInput, {
+        target: { value: 'bar12345' },
+      });
+      fireEvent.change(verifyPasswordInput, {
+        target: { value: 'bar12345' },
+      });
+      fireEvent.focus(ageInput);
+      fireEvent.blur(ageInput);
+      createAccountButton.click();
+
+      expect(
+        screen.getByText('You must enter your age to sign up')
+      ).toBeInTheDocument();
+      expect(createAccountButton).toBeDisabled();
+
+      // TODO: Make sure only valid values are accepted:
+      //  https://mozilla-hub.atlassian.net/browse/FXA-8654
+    });
+
+    it('shows error for non matching passwords', () => {
+      renderWithLocalizationProvider(
+        <Subject
+          {...{
+            queryParams: {
+              email: 'foo@bar.com',
+              emailFromContent: 'true',
+            },
+          }}
+        />
+      );
+
+      fireEvent.change(screen.getByTestId('new-password-input-field'), {
+        target: { value: 'bar12345' },
+      });
+      fireEvent.change(screen.getByTestId('verify-password-input-field'), {
+        target: { value: 'bar12346' },
+      });
+      fireEvent.blur(screen.getByTestId('verify-password-input-field'));
+      expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+    });
+  });
 });

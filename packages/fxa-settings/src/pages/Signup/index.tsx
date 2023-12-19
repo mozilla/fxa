@@ -394,7 +394,7 @@ export const Signup = ({
         onSubmit={handleSubmit(onSubmit)}
         loading={beginSignupLoading}
       >
-        {/* TODO: original component had a SR-only label that is not straightforward to implement with exisiting InputText component
+        {/* TODO: original component had a SR-only label that is not straightforward to implement with existing InputText component
         SR-only text: "How old are you? To learn why we ask for your age, follow the “why do we ask” link below. */}
         <FtlMsg id="signup-age-check-label" attrs={{ label: true }}>
           <InputText
@@ -420,6 +420,7 @@ export const Signup = ({
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
             anchorPosition="start"
+            prefixDataTestId="age"
           />
         </FtlMsg>
         <FtlMsg id="signup-coppa-check-explanation-link">
