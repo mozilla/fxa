@@ -565,5 +565,61 @@ describe('Signup page', () => {
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });
+
+    describe('allows user to correct password', () => {
+      beforeEach(async () => {
+        const mockBeginSignupHandler = jest
+          .fn()
+          .mockResolvedValue(BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE);
+
+        renderWithLocalizationProvider(
+          <Subject beginSignupHandler={mockBeginSignupHandler} />
+        );
+        fireEvent.input(screen.getByLabelText('How old are you?'), {
+          target: { value: 13 },
+        });
+        fireEvent.input(screen.getByLabelText('Password'), {
+          target: { value: MOCK_PASSWORD },
+        });
+        fireEvent.input(screen.getByLabelText('Repeat password'), {
+          target: { value: MOCK_PASSWORD + 'x' },
+        });
+        await waitFor(() => {
+          expect(
+            screen.getByRole('button', {
+              name: 'Create account',
+            })
+          ).toBeDisabled();
+        });
+      });
+
+      it('enables when password is corrected', async () => {
+        fireEvent.input(screen.getByLabelText('Password'), {
+          target: { value: MOCK_PASSWORD + 'x' },
+        });
+        fireEvent.blur(screen.getByLabelText('Password'));
+        await waitFor(() => {
+          expect(
+            screen.getByRole('button', {
+              name: 'Create account',
+            })
+          ).toBeEnabled();
+        });
+      });
+
+      it('enables when repeat password is corrected', async () => {
+        fireEvent.input(screen.getByLabelText('Repeat password'), {
+          target: { value: MOCK_PASSWORD },
+        });
+        fireEvent.blur(screen.getByLabelText('Repeat password'));
+        await waitFor(() => {
+          expect(
+            screen.getByRole('button', {
+              name: 'Create account',
+            })
+          ).toBeEnabled();
+        });
+      });
+    });
   });
 });
