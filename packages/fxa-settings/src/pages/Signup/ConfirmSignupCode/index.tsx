@@ -173,7 +173,7 @@ const ConfirmSignupCode = ({
           return;
         } else {
           const { redirect, code, state } = await finishOAuthFlowHandler(
-            integration.data.uid,
+            uid,
             sessionToken,
             // yes, non-null operator is gross, but it's temporary.
             // see note in container component / router.js for this page, once

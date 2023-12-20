@@ -176,12 +176,10 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutCodeForm(code);
 
-      // TODO code verification is currently throwing an UNAUTHORIZED error
-      // remove the following line once this error is no longer thrown
-      // expect(await page.getByText(/Invalid token/).isVisible()).toBeFalsy();
-      // TODO uncomment these lines once line above is passing (no token error)
-      // await page.waitForURL(/connect_another_device/);
-      // expect(await page.getByText('Youʼre signed into Firefox').isVisible()).toBeTruthy();
+      // See note in `firefox.ts` about an event listener hack needed for this test
+      expect(await page.getByText(/Invalid token/).isVisible()).toBeFalsy();
+      await page.waitForURL(/connect_another_device/);
+      await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
 
       await syncBrowserPages.browser?.close();
     });

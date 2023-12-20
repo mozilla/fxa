@@ -48,7 +48,6 @@ async function constructKeysJwe(
   kB: string
 ) {
   if (
-    integration.wantsKeys() &&
     integration.data.scope &&
     integration.data.keysJwk &&
     integration.data.clientId &&
@@ -84,7 +83,7 @@ async function constructOAuthCode(
   authClient: AuthClient,
   integration: OAuthIntegration,
   sessionToken: string,
-  keysJwe: any
+  keysJwe?: string
 ) {
   const opts: any = {
     acr_values: integration.data.acrValues,
@@ -169,22 +168,25 @@ export function useFinishOAuthFlowHandler(
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {
       const oAuthIntegration = integration as OAuthIntegration;
-      const { kB } = await authClient.accountKeys(keyFetchToken, unwrapKB);
-      const keys = await constructKeysJwe(
-        authClient,
-        oAuthIntegration,
-        accountUid,
-        sessionToken,
-        keyFetchToken,
-        kB
-      );
+      let keys;
+      if (integration.wantsKeys()) {
+        const { kB } = await authClient.accountKeys(keyFetchToken, unwrapKB);
+        keys = await constructKeysJwe(
+          authClient,
+          oAuthIntegration,
+          accountUid,
+          sessionToken,
+          keyFetchToken,
+          kB
+        );
+      }
 
       // oAuthCode is an object that contains 'code', 'state' and 'redirect'
       // The oauth-server would previously construct and return the full redirect URI (as redirect)
       // but we now expect to receive `code` and `state` and build it ourselves
       // using the relier's locally-validated redirectUri.
       // The previous 'redirect' is still included in the oAuthCode object, but is rejected by the relier
-      // as having incorrect state if used directly.
+      // as having incorrect state if used directly unless the redirect URI is not provided by the relier
       const oAuthCode = await constructOAuthCode(
         authClient,
         oAuthIntegration,
@@ -239,7 +241,7 @@ export function useFinishOAuthFlowHandler(
    * P.S. we can't return early regardless because `useCallback` can't be set conditionally.
    */
   if (isOAuthIntegration(integration)) {
-    const oAuthDataError = checkOAuthData(integration, isSyncMobileWebChannel);
+    const oAuthDataError = checkOAuthData(integration, !isSyncMobileWebChannel);
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };
