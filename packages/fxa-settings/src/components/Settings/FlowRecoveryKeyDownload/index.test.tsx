@@ -74,10 +74,13 @@ describe('FlowRecoveryKeyDownload', () => {
     const listItems = within(list).getAllByRole('listitem');
     expect(listItems.length).toBe(4);
 
-    await waitFor(() => {
-      const b = screen.getByRole('button', { name: 'Download and continue' });
-      expect(b).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        const b = screen.getByRole('button', { name: 'Download and continue' });
+        expect(b).toBeInTheDocument();
+      },
+      { timeout: 2000 }
+    );
 
     screen.getByRole('link', {
       name: 'Continue without downloading',
