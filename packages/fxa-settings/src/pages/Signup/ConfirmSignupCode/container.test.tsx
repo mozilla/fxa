@@ -8,7 +8,7 @@ import * as ModelsModule from '../../../models';
 import * as HooksModule from '../../../lib/oauth/hooks';
 import * as CacheModule from '../../../lib/cache';
 import * as ReachRouterModule from '@reach/router';
-import * as SentryModule from 'fxa-shared/lib/sentry';
+import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
 import { screen } from '@testing-library/react';

@@ -3,21 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import api from '@opentelemetry/api';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { suppressTracing } from '@opentelemetry/core';
+import { ILogger } from '../log';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
-
-import { ILogger } from '../log';
 import { checkSampleRate, checkServiceName, TracingOpts } from './config';
 import { addConsoleExporter } from './exporters/fxa-console';
 import { addGcpTraceExporter } from './exporters/fxa-gcp';
 import { addOtlpTraceExporter } from './exporters/fxa-otlp';
 import { createPiiFilter } from './pii-filters';
+import { addSentryTraceExporter } from './exporters/fxa-sentry';
 import { createNodeProvider } from './providers/node-provider';
-
 const log_type = 'node-tracing';
-const tracer_name = 'fxa-tracer';
+
+export const TRACER_NAME = 'fxa-tracer';
 
 /**
  * Responsible for initializing node tracing from a config object. This uses the auto instrumentation feature
@@ -35,13 +35,13 @@ export class NodeTracingInitializer {
     checkServiceName(this.opts);
     checkSampleRate(this.opts);
 
-    const provider = createNodeProvider(this.opts);
-    this.provider = provider;
+    this.provider = createNodeProvider(this.opts);
 
     const filter = createPiiFilter(!!this.opts?.filterPii, this.logger);
-    addGcpTraceExporter(opts, provider, filter);
-    addOtlpTraceExporter(opts, provider, undefined, filter);
-    addConsoleExporter(opts, provider, filter);
+    addSentryTraceExporter(opts, this.provider, filter, this.logger);
+    addGcpTraceExporter(opts, this.provider, filter, this.logger);
+    addOtlpTraceExporter(opts, this.provider, undefined, filter, this.logger);
+    addConsoleExporter(opts, this.provider, filter);
 
     this.register();
   }
@@ -49,6 +49,7 @@ export class NodeTracingInitializer {
   protected register() {
     registerInstrumentations({
       instrumentations: [
+        // ...extraInstrumentations,
         getNodeAutoInstrumentations({
           // These instrumentations added a lot of unnecessary noise
           '@opentelemetry/instrumentation-dns': {
@@ -56,14 +57,6 @@ export class NodeTracingInitializer {
           },
           '@opentelemetry/instrumentation-net': {
             enabled: false,
-          },
-          '@opentelemetry/instrumentation-express': {
-            enabled: false,
-            ignoreLayers: [
-              // These two routes always produce bad timings... Maybe it's something to look into.
-              //  'request handler - undefined',
-              // 'request handler - /'
-            ],
           },
           '@opentelemetry/instrumentation-fs': {
             enabled: false,
@@ -75,7 +68,7 @@ export class NodeTracingInitializer {
   }
 
   public startSpan(name: string, action: () => void) {
-    return this.provider.getTracer(tracer_name).startActiveSpan(name, action);
+    return this.provider.getTracer(TRACER_NAME).startActiveSpan(name, action);
   }
 
   /** Gets current traceId */
@@ -114,7 +107,7 @@ export function getTraceParentId() {
 }
 
 /** Initializes tracing in node context */
-export function init(opts: TracingOpts, logger: ILogger) {
+export function initTracing(opts: TracingOpts, logger: ILogger) {
   if (nodeTracing != null) {
     logger?.debug(log_type, {
       msg: 'Trace initialization skipped. Tracing already initialized, ignoring new opts.',
@@ -122,7 +115,12 @@ export function init(opts: TracingOpts, logger: ILogger) {
     return nodeTracing;
   }
 
-  if (!opts.otel?.enabled && !opts.gcp?.enabled && !opts.console?.enabled) {
+  if (
+    !opts.otel?.enabled &&
+    !opts.gcp?.enabled &&
+    !opts.console?.enabled &&
+    !opts.sentry?.enabled
+  ) {
     logger.debug(log_type, {
       msg: 'Trace initialization skipped. No exporters configured. Enable gcp, otel or console to activate tracing.',
     });

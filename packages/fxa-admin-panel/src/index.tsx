@@ -9,7 +9,7 @@ import AppErrorBoundary from 'fxa-react/components/AppErrorBoundary';
 import AppLocalizationProvider from 'fxa-react/lib/AppLocalizationProvider';
 import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 import { config, readConfigFromMeta, getExtraHeaders } from './lib/config';
 import App from './App';
 import './styles/tailwind.out.css';

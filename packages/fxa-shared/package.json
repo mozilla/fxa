@@ -137,6 +137,10 @@
       "import": "./dist/esm/packages/fxa-shared/log/*.js",
       "require": "./dist/cjs/packages/fxa-shared/log/*.js"
     },
+    "./monitoring": {
+      "import": "./dist/esm/packages/fxa-shared/monitoring/index.js",
+      "require": "./dist/cjs/packages/fxa-shared/monitoring/index.js"
+    },
     "./metrics/*": {
       "import": "./dist/esm/packages/fxa-shared/metrics/*.js",
       "require": "./dist/cjs/packages/fxa-shared/metrics/*.js"

@@ -19,6 +19,7 @@ import {
   ApolloServerPlugin,
   BaseContext,
   GraphQLRequestListener,
+  GraphQLRequestContext,
 } from '@apollo/server';
 import { Plugin } from '@nestjs/apollo';
 import * as Sentry from '@sentry/node';
@@ -29,6 +30,8 @@ import {
   isApolloError,
   reportRequestException,
 } from './reporting';
+import { Inject } from '@nestjs/common';
+import { MozLoggerService } from '../logger/logger.service';
 
 interface Context extends BaseContext {
   transaction: Transaction;
@@ -45,8 +48,51 @@ export async function createContext(ctx: any): Promise<Context> {
 
 @Plugin()
 export class SentryPlugin implements ApolloServerPlugin<Context> {
-  async requestDidStart(): Promise<GraphQLRequestListener<any>> {
+  constructor(@Inject(MozLoggerService) private log: MozLoggerService) {}
+
+  async requestDidStart({
+    request,
+    contextValue,
+  }: GraphQLRequestContext<Context>): Promise<GraphQLRequestListener<any>> {
+    const log = this.log;
+
+    if (request.operationName) {
+      try {
+        contextValue.transaction.setName(request.operationName!);
+      } catch (err) {
+        log.error('sentry-plugin', err);
+      }
+    }
+
     return {
+      async willSendResponse({ contextValue }) {
+        try {
+          contextValue.transaction.finish();
+        } catch (err) {
+          log.error('sentry-plugin', err);
+        }
+      },
+
+      async executionDidStart() {
+        return {
+          willResolveField({ contextValue, info }) {
+            let span: any;
+            try {
+              span = contextValue.transaction.startChild({
+                op: 'resolver',
+                description: `${info.parentType.name}.${info.fieldName}`,
+              });
+            } catch (err) {
+              log.error('sentry-plugin', err);
+            }
+
+            return () => {
+              span?.finish();
+            };
+          },
+        };
+      },
+
       async didEncounterErrors({ contextValue, errors, operation }) {
         // If we couldn't parse the operation, don't
         // do anything here

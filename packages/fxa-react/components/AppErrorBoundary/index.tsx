@@ -4,7 +4,7 @@
 
 import React from 'react';
 import AppErrorDialog from '../AppErrorDialog';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 
 interface AppErrorBoundaryProps {
   children?: React.ReactNode;
@@ -38,7 +38,11 @@ class AppErrorBoundary extends React.Component<
 
   render() {
     const { error } = this.state;
-    return error ? <AppErrorDialog {...{ error }} /> : (this.props as any).children;
+    return error ? (
+      <AppErrorDialog {...{ error }} />
+    ) : (
+      (this.props as any).children
+    );
   }
 }
 

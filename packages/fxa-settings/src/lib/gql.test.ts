@@ -7,7 +7,7 @@ import { Operation, NextLink, ServerError } from '@apollo/client/core';
 import { GraphQLError } from 'graphql';
 import { cache } from './cache';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 
 describe('errorHandler', () => {
   beforeAll(() => {

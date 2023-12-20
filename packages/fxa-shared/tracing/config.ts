@@ -24,6 +24,9 @@ export type TracingOpts = {
     url: string;
     concurrencyLimit: number;
   };
+  sentry?: {
+    enabled: boolean;
+  };
 };
 
 /** Default convict config for node tracing */
@@ -98,6 +101,14 @@ export const tracingConfig = {
       doc: 'Max amount of concurrency',
       env: 'TRACING_OTEL_CONCURRENCY_LIMIT',
       format: Number,
+    },
+  },
+  sentry: {
+    enabled: {
+      default: true,
+      doc: 'Allows traces to reported to sentry. Note that sentry must be initialized separately and first!.',
+      env: 'TRACING_SENTRY_EXPORTER_ENABLED',
+      format: Boolean,
     },
   },
 };

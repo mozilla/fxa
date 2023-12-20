@@ -6,33 +6,8 @@
 
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
-const {
-  buildSentryConfig,
-  tagCriticalEvent,
-  tagFxaName,
-} = require('fxa-shared/sentry');
-const version = require('../package.json').version;
 
 async function configureSentry(server, config, log) {
-  const logger = require('../lib/log')(config.log.level, 'configure-sentry');
-
-  const opts = buildSentryConfig(
-    {
-      ...config,
-      release: version,
-    },
-    logger
-  );
-  Sentry.init({
-    ...opts,
-    integrations: [new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' })],
-    beforeSend(event, _hint) {
-      event = tagCriticalEvent(event);
-      event = tagFxaName(event, opts.serverName);
-      return event;
-    },
-  });
-
   Sentry.configureScope((scope) => {
     scope.setTag('process', 'customs_server');
   });

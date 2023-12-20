@@ -6,6 +6,7 @@ import convict from 'convict';
 import fs from 'fs';
 import path from 'path';
 import { GuardConfig } from 'fxa-shared/guards';
+import { tracingConfig } from 'fxa-shared/tracing/config';
 
 convict.addFormats(require('convict-format-with-moment'));
 convict.addFormats(require('convict-format-with-validator'));
@@ -95,6 +96,7 @@ const conf = convict({
       env: 'SENTRY_TRACES_SAMPLE_RATE',
     },
   },
+  tracing: tracingConfig,
   listen: {
     host: {
       default: 'localhost',
@@ -200,5 +202,7 @@ conf.loadFile(files);
 conf.validate({ allowed: 'strict' });
 
 const Config = conf;
+
+export type AppConfig = typeof Config;
 
 export default Config;

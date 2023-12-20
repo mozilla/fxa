@@ -360,7 +360,9 @@ async function create(log, error, config, routes, db, statsd, glean) {
     metricReporter(request);
   });
 
-  // configure Sentry
+  // Configure Sentry... Note, Sentry will already be initialized by this point,
+  // but this will add a couple hooks into hapi request life cycle so that transactions
+  // can be created.
   await configureSentry(server, config);
 
   server.decorate('request', 'stashMetricsContext', metricsContext.stash);

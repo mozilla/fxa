@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import { TracingOpts } from '../../tracing/config';
 import { addExporter } from '../../tracing/exporters/exporters';
 import { checkDuration } from '../../tracing/exporters/util';
+import { addSentryTraceExporter } from '../../tracing/exporters/fxa-sentry';
 
 describe('tracing exports', () => {
   const sandbox = sinon.createSandbox();
@@ -39,10 +40,13 @@ describe('tracing exports', () => {
       },
       otel: {
         enabled: true,
-        url: 'http://localhost:4138/v1/traces',
+        url: 'http://localhost:43180/v1/traces',
         concurrencyLimit: 10,
       },
       gcp: {
+        enabled: true,
+      },
+      sentry: {
         enabled: true,
       },
     };
@@ -59,6 +63,11 @@ describe('tracing exports', () => {
 
     it('creates otlp exporter', () => {
       expect(addOtlpTraceExporter(opts, provider)).to.exist;
+      sinon.assert.calledOnce(addSpanProcessorSpy);
+    });
+
+    it('creates sentry exporter', () => {
+      expect(addSentryTraceExporter(opts, provider)).to.exist;
       sinon.assert.calledOnce(addSpanProcessorSpy);
     });
 
@@ -112,6 +121,11 @@ describe('tracing exports', () => {
 
     it('creates otlp exporter', () => {
       expect(addOtlpTraceExporter(opts, provider)).to.not.exist;
+      sinon.assert.notCalled(addSpanProcessorSpy);
+    });
+
+    it('creates sentry exporter', () => {
+      expect(addSentryTraceExporter(opts, provider)).to.not.exist;
       sinon.assert.notCalled(addSpanProcessorSpy);
     });
   });

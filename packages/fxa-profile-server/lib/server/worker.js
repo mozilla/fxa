@@ -5,9 +5,6 @@
 const config = require('../config').getProperties();
 const logger = require('../logging')('server.worker');
 
-const tracing = require('fxa-shared/tracing/node-tracing');
-tracing.init(config.tracing, logger);
-
 const Hapi = require('@hapi/hapi');
 const Joi = require('joi');
 const P = require('../promise');

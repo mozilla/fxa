@@ -2,13 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+// Important! Must be imported first! This makes sure that sentry and tracing can
+// hook into node BEFORE any frameworks are initialized/imported.
+import './monitoring';
+
 import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
 import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
-import * as tracing from 'fxa-shared/tracing/node-tracing';
 import helmet from 'helmet';
-import mozLog from 'mozlog';
 
 import { NestApplicationOptions } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
@@ -20,12 +22,6 @@ import Config from './config';
 const appConfig = Config.getProperties();
 
 async function bootstrap() {
-  // Initialize tracing first
-  tracing.init(
-    appConfig.tracing,
-    mozLog(Config.getProperties().log)(Config.getProperties().log.app)
-  );
-
   const nestConfig: NestApplicationOptions = {};
   if (Config.getProperties().env !== 'development') {
     nestConfig.logger = false;

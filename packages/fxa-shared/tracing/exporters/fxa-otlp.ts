@@ -13,6 +13,7 @@ import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
 import { addExporter } from './exporters';
 import { checkDuration } from './util';
+import { ILogger } from '../../log';
 
 export type FxaOtlpTracingHeaders = {
   flowid?: string;
@@ -24,7 +25,8 @@ export type FxaOtlpTracingHeaders = {
 export class FxaOtlpWebExporter extends OTLPTraceExporter {
   constructor(
     protected readonly filter?: TracingPiiFilter,
-    config?: OTLPExporterConfigBase
+    config?: OTLPExporterConfigBase,
+    protected readonly logger?: ILogger
   ) {
     super(config);
   }
@@ -38,6 +40,9 @@ export class FxaOtlpWebExporter extends OTLPTraceExporter {
       this.filter?.filter(x);
     });
     super.export(spans, (result) => {
+      if (result.error) {
+        this.logger?.error(result.error);
+      }
       resultCallback(result);
     });
   }
@@ -47,17 +52,20 @@ export function addOtlpTraceExporter(
   opts: TracingOpts,
   provider: BasicTracerProvider,
   headers?: FxaOtlpTracingHeaders,
-  filter?: TracingPiiFilter
+  filter?: TracingPiiFilter,
+  logger?: ILogger
 ) {
   if (!opts.otel?.enabled) {
     return;
   }
+
+  logger?.debug('Adding Otlp Trace Exporter ', opts.otel?.url);
   const config = {
     url: opts.otel?.url,
     headers,
     concurrencyLimit: opts.otel?.concurrencyLimit,
   };
-  const exporter = new FxaOtlpWebExporter(filter, config);
+  const exporter = new FxaOtlpWebExporter(filter, config, logger);
   addExporter(opts, provider, exporter);
   return exporter;
 }

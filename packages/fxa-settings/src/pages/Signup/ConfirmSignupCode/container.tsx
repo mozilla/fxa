@@ -17,7 +17,7 @@ import ConfirmSignupCode from '.';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { LocationState } from './interfaces';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 
 const SignupConfirmCodeContainer = ({
   integration,

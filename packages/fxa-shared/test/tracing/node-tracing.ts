@@ -38,18 +38,23 @@ describe('node-tracing', () => {
   };
 
   // Proxy require exporters to prevent pulling in extra modules and to isolate tests.
-  const { getCurrent, getTraceParentId, init, NodeTracingInitializer, reset } =
-    proxyquire('../../tracing/node-tracing', {
-      './exporters/fxa-console': {
-        addConsoleExporter: mocks.addConsoleExporter,
-      },
-      './exporters/fxa-gcp': {
-        addGcpTraceExporter: mocks.addGcpTraceExporter,
-      },
-      './exporters/fxa-otlp': {
-        addOtlpTraceExporter: mocks.addOtlpTraceExporter,
-      },
-    });
+  const {
+    getCurrent,
+    getTraceParentId,
+    initTracing,
+    NodeTracingInitializer,
+    reset,
+  } = proxyquire('../../tracing/node-tracing', {
+    './exporters/fxa-console': {
+      addConsoleExporter: mocks.addConsoleExporter,
+    },
+    './exporters/fxa-gcp': {
+      addGcpTraceExporter: mocks.addGcpTraceExporter,
+    },
+    './exporters/fxa-otlp': {
+      addOtlpTraceExporter: mocks.addOtlpTraceExporter,
+    },
+  });
 
   afterEach(() => {
     sandbox.reset();
@@ -61,33 +66,43 @@ describe('node-tracing', () => {
 
   it('requires a service name', () => {
     expect(() => {
-      new NodeTracingInitializer({
-        serviceName: '',
-        sampleRate: 1,
-      });
+      new NodeTracingInitializer(
+        {
+          serviceName: '',
+          sampleRate: 1,
+        },
+        () => {},
+        spies.logger
+      );
     }).to.throws('Missing config. serviceName must be defined!');
   });
 
   it('initializes', () => {
-    new NodeTracingInitializer({
-      serviceName: 'test',
-      sampleRate: 1,
-    });
+    new NodeTracingInitializer(
+      {
+        serviceName: 'test',
+        sampleRate: 1,
+      },
+      () => {},
+      spies.logger
+    );
 
     sinon.assert.calledOnce(mocks.addConsoleExporter);
     sinon.assert.calledOnce(mocks.addGcpTraceExporter);
     sinon.assert.calledOnce(mocks.addOtlpTraceExporter);
-    sinon.assert.calledOnce(spies.register);
   });
 
   it('starts span', async () => {
-    const tracing = new NodeTracingInitializer({
-      serviceName: 'test',
-      sampleRate: 1,
-      console: {
-        enabled: true,
+    const tracing = new NodeTracingInitializer(
+      {
+        serviceName: 'test',
+        sampleRate: 1,
+        console: {
+          enabled: true,
+        },
       },
-    });
+      () => {}
+    );
 
     tracing.startSpan('test', (span: Span) => {
       expect(span.spanContext().traceId).to.exist;
@@ -95,10 +110,13 @@ describe('node-tracing', () => {
   });
 
   it('gets current trace id', () => {
-    const tracing = new NodeTracingInitializer({
-      serviceName: 'test',
-      sampleRate: 1,
-    });
+    const tracing = new NodeTracingInitializer(
+      {
+        serviceName: 'test',
+        sampleRate: 1,
+      },
+      () => {}
+    );
 
     let traceId: string;
     tracing.startSpan('test', (span: Span) => {
@@ -114,7 +132,7 @@ describe('node-tracing', () => {
 
   describe('parent trace id', () => {
     it('gets parent trace id when initialized', () => {
-      init(
+      initTracing(
         {
           serviceName: 'test',
           sampleRate: 1,
@@ -135,13 +153,13 @@ describe('node-tracing', () => {
     });
   });
 
-  describe('init', () => {
+  describe('initTracing', () => {
     afterEach(() => {
       reset();
     });
 
     function callInit() {
-      init(
+      initTracing(
         {
           serviceName: 'test',
           sampleRate: 1,
@@ -154,7 +172,7 @@ describe('node-tracing', () => {
     }
 
     it('skips initialization if all modes are disabled', () => {
-      init(
+      initTracing(
         {
           serviceName: '',
           sampleRate: 1,
@@ -167,7 +185,7 @@ describe('node-tracing', () => {
     });
 
     it('skips initialization if serviceName is missing', () => {
-      init(
+      initTracing(
         {
           serviceName: '',
           sampleRate: 1,
@@ -184,7 +202,7 @@ describe('node-tracing', () => {
 
     [null, -1, 2].forEach((sampleRate) => {
       it('skips initialization if sampleRate is ' + sampleRate, () => {
-        init(
+        initTracing(
           {
             serviceName: 'test',
             sampleRate: sampleRate,
@@ -208,7 +226,7 @@ describe('node-tracing', () => {
       });
     });
 
-    it('resets after init', () => {
+    it('resets after initTracing', () => {
       callInit();
       reset();
       expect(getCurrent()).to.not.exist;

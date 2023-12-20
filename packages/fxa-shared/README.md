@@ -91,7 +91,7 @@ Or by building up the new set in place:
 
 ### tracing
 
-This utility allows for easy configuration of open tracing. To use this in a service:
+This utility allows for easy configuration of tracing. To use this in a service:
 
 - Add the config chunk in fxa-shared/tracing/config to your packages's config.
 
@@ -101,7 +101,7 @@ This utility allows for easy configuration of open tracing. To use this in a ser
 ```
 // For services
 const config = require('../config');
-require('fxa-shared/tracing/node-tracing').init(config.get('tracing'));
+require('fxa-shared/tracing/node-tracing').initTracing(config.get('tracing'));
 ```
 
 To see traces on your local system, set the following environment variables:
@@ -123,6 +123,8 @@ TRACING_OTEL_COLLECTOR_JAEGER_ENABLED=true
 ```
 
 The default config for tracing found at fxa-shared/tracing/config.ts will pick up these variables and result in traces showing up in Jaeger which runs locally at `localhost:16686`.
+
+It's important to note that sentry also supports tracing integration. So we typically let a call to 'initSentry', a function located in the sentry/node.ts module do the work of initializing tracing.
 
 ## Used by:
 

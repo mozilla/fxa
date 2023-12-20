@@ -13,10 +13,6 @@ module.exports = () => {
   const version = require('./version');
   const config = require('../config');
 
-  // Tracing must be initialized asap
-  const tracing = require('fxa-shared/tracing/node-tracing');
-  tracing.init(config.get('tracing'), logger);
-
   logger.info(`source set to: ${version.source}`);
   logger.info(`version set to: ${version.version}`);
   logger.info(`commit hash set to: ${version.commit}`);
@@ -125,21 +121,6 @@ module.exports = () => {
 
   const sentryConfig = config.get('sentry');
   if (sentryConfig.dsn) {
-    const opts = buildSentryConfig(
-      {
-        sentry: sentryConfig,
-        release: require('../../package.json').version,
-      },
-      logger
-    );
-    Sentry.init({
-      ...opts,
-      beforeSend(event) {
-        event = tagCriticalEvent(event);
-        event = tagFxaName(event, opts.serverName);
-        return event;
-      },
-    });
     app.use(Sentry.Handlers.requestHandler());
   }
 
