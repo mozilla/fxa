@@ -151,7 +151,8 @@ class IndexView extends FormView {
       // screen with that email prefilled.
     } else if (
       this.allowSuggestedAccount(suggestedAccount) &&
-      !this.relier.get('prefillEmail')
+      !this.relier.get('prefillEmail') &&
+      !this._hasEmailBounced()
     ) {
       this.replaceCurrentPage('signin', {
         account: suggestedAccount,
@@ -204,7 +205,11 @@ class IndexView extends FormView {
 
   _hasEmailBounced() {
     const account = this.getAccount('account');
-    return account && account.get('hasBounced');
+
+    return (
+      this.getSearchParam('bouncedEmail') ||
+      (account && account.get('hasBounced'))
+    );
   }
 
   _isEmailSameAsBouncedEmail() {
@@ -212,7 +217,9 @@ class IndexView extends FormView {
       return false;
     }
 
-    const bouncedEmail = this.getAccount('account').get('email');
+    const bouncedEmail =
+      this.getSearchParam('bouncedEmail') ||
+      this.getAccount('account').get('email');
 
     return (
       bouncedEmail && bouncedEmail === this.getElementValue('input[type=email]')
@@ -258,6 +265,7 @@ class IndexView extends FormView {
       .then(() => this.user.checkAccountStatus(account))
       .then(({ exists, hasPassword, hasLinkedAccount }) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
+
         if (exists) {
           // If the account exists, use the stored account
           // so that any stored avatars are displayed on

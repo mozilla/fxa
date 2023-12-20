@@ -31,7 +31,7 @@ const Supp = ({ error }: SuppProps & RouteComponentProps) => {
           <p>{error}</p>
         </Banner>
       ) : (
-        <LoadingSpinner className="flex flex-col justify-center items-center select-none" />
+        <LoadingSpinner fullScreen />
       )}
     </AppLayout>
   );

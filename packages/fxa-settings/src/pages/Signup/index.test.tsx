@@ -353,6 +353,7 @@ describe('Signup page', () => {
           {
             state: {
               keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+              origin: 'signup',
               // we expect three newsletter options, but 4 slugs should be passed
               // because the first newsletter checkbox subscribes the user to 2 newsletters
               selectedNewsletterSlugs: [
@@ -411,6 +412,7 @@ describe('Signup page', () => {
           {
             state: {
               keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+              origin: 'signup',
               selectedNewsletterSlugs: [],
               unwrapBKey: MOCK_UNWRAP_BKEY,
             },

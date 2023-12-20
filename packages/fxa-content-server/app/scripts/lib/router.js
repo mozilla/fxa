@@ -618,6 +618,21 @@ Router = Router.extend({
       url = url.split('?')[0];
     }
 
+    // With the conversion to react, we needed to pass bounced email address as a param
+    // when redirecting to backbone email-first sign in/sign up
+    // however, we don't want this param to follow like a bad smell
+    // when the user enters a valid email and successfully navigates away
+    const params = new URLSearchParams(url.split('?')[1]);
+    if (params.get('bouncedEmail')) {
+      const path = url.split('?')[0];
+      params.delete('bouncedEmail');
+      if (params.size) {
+        url = path + '?' + params.toString();
+      } else {
+        url = path;
+      }
+    }
+
     if (this.window.location.hash) {
       url += this.window.location.hash;
     }
