@@ -4,6 +4,12 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { syncMobileOAuthQueryParams } from '../../lib/query-params';
+import { LoginPage } from '../../pages/login';
+import { RelierPage } from '../../pages/relier';
+import { ResetPasswordPage } from '../../pages/resetPassword';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { Page } from '@playwright/test';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password react', () => {
@@ -35,6 +41,28 @@ test.describe('severity-1 #smoke', () => {
           page,
           credentials,
           pages: { login, relier, resetPassword },
+        },
+        {}
+      );
+    });
+
+    test('reset password through Sync mobile', async ({
+      target,
+      page,
+      credentials,
+      pages: { login, resetPassword, settings },
+    }) => {
+      await page.goto(
+        `${
+          target.contentServerUrl
+        }/authorization/?${syncMobileOAuthQueryParams.toString()}`
+      );
+      await passwordResetFlow(
+        {
+          target,
+          page,
+          credentials,
+          pages: { login, resetPassword },
         },
         {}
       );
@@ -196,7 +224,21 @@ test.describe('severity-1 #smoke', () => {
    * }
    */
   async function passwordResetFlow(
-    { target, page, credentials, pages: { login, relier, resetPassword } },
+    {
+      target,
+      page,
+      credentials,
+      pages: { login, relier, resetPassword },
+    }: {
+      target: BaseTarget;
+      page: Page;
+      credentials: Credentials;
+      pages: {
+        login: LoginPage;
+        relier?: RelierPage;
+        resetPassword: ResetPasswordPage;
+      };
+    },
     opts: {
       action?: 'emailFirst' | 'scopedKeys' | 'pkce';
       newTab?: boolean;
@@ -206,19 +248,21 @@ test.describe('severity-1 #smoke', () => {
     const { action, newTab, accountRecoveryKey } = opts;
 
     // Decide which flow to start from 123done
-    if (action == null || action === 'emailFirst') {
-      await relier.clickEmailFirst();
-    } else if (action === 'scopedKeys') {
-      await relier.clickSignInScopedKeys();
-    } else if (action === 'pkce') {
-      // TODO, the PKCE button is broken at the moment, so for now navigate directly to the link.
-      // TODO: PKCE button doesn't appear to work at the moment locally. Some sort of cors error keeps getting in the way. Just go to link directly for now.
-      await page.goto(
-        'http://localhost:3030/authorization?showReactApp=true&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba',
-        {
-          waitUntil: 'load',
-        }
-      );
+    if (relier) {
+      if (action == null || action === 'emailFirst') {
+        await relier.clickEmailFirst();
+      } else if (action === 'scopedKeys') {
+        await relier.clickSignInScopedKeys();
+      } else if (action === 'pkce') {
+        // TODO, the PKCE button is broken at the moment, so for now navigate directly to the link.
+        // TODO: PKCE button doesn't appear to work at the moment locally. Some sort of cors error keeps getting in the way. Just go to link directly for now.
+        await page.goto(
+          'http://localhost:3030/authorization?showReactApp=true&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba',
+          {
+            waitUntil: 'load',
+          }
+        );
+      }
     }
 
     // Step 1 - Begin the password reset.
@@ -238,12 +282,19 @@ test.describe('severity-1 #smoke', () => {
     await checkForReactApp({ page });
 
     // Verify reset password header
-    // The service name can change based on environments and all of our test RPs have service names
-    // that begin with '123'. This test just ensures that the OAuth service name is rendered, it's
-    // OK that it does not exactly match.
+    // The service name can change based on environments and all of our test RPs from 123done have
+    // service names that begin with '123'. This test just ensures that the OAuth service name is rendered,
+    // it's OK that it does not exactly match.
+    // If the 'relier' page isn't passed, it's a Sync test, and 'serviceName' will display as "Firefox Sync"
+    // due to a `scope` param check (see `getServiceName` method on the OAuth integration). When resetting
+    // through a link, we do not pass the `scope` param, and the service name is not altered. This means for
+    // the iOS client_id, the name displays as "Firefox for iOS" on the "verified" page and also means
+    // for now we can check for if the string contains "Firefox", but when we switch to codes, we can determine
+    // if we want to and always display "Firefox Sync" on both pages.
+    const serviceName = relier ? '123' : 'Firefox';
     expect(
       await resetPassword.resetPasswordHeader(
-        'Reset password to continue to 123'
+        `Reset password to continue to ${serviceName}`
       )
     ).toBe(true);
 
@@ -282,18 +333,24 @@ test.describe('severity-1 #smoke', () => {
     // Note: We used to redirect the user back to the relier in some cases
     // but we've decided to just show the success message for now
     // and let the user re-authenticate with the relier.
-    await isSuccessMessageDisplayed({ page });
+    await isSuccessMessageDisplayed({ page, serviceName });
   }
 
   /** Checks that the reset password success screen is being displayed. */
-  async function isSuccessMessageDisplayed({ page }) {
+  async function isSuccessMessageDisplayed({
+    page,
+    serviceName,
+  }: {
+    page: Page;
+    serviceName: string;
+  }) {
     // The user should get a verification message and the originating
     // service's name should be displayed.
     await page.waitForURL(
       /(reset_password_verified|reset_password_with_recovery_key_verified)/
     );
     await page.getByText('Your password has been reset').waitFor();
-    await page.getByText(/.*123done.*/i).waitFor();
+    await page.getByText(new RegExp(`.*${serviceName}.*`, 'i')).waitFor();
   }
 
   /** Checks that the version of the app being used is the React Version. */
