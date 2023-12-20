@@ -39,9 +39,13 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickEmailFirst() {
-    const waitForNavigation = this.page.waitForEvent('framenavigated');
+    await this.page.waitForTimeout(1000); //necessary for production environment otherwise waitForURL times out
     await this.page.locator('button.email-first-button').click();
-    return waitForNavigation;
+    // We need to add a `waitUntil` option here because the page gets redirected from
+    // /authorization to /oauth before the page is fully loaded.
+    return this.page.waitForURL(`${this.target.contentServerUrl}/**`, {
+      waitUntil: 'load',
+    });
   }
 
   async clickSignIn() {
