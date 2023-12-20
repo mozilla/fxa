@@ -50,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
         expect(status).toEqual('Enabled');
 
         // Ensure password reset occurs with no session token available
-        login.clearCache();
+        await login.clearCache();
         // Stash original encryption keys to be verified later
         const res = await target.auth.sessionReauth(
           credentials.sessionToken,
@@ -103,6 +103,12 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.submitNewPassword(NEW_PASSWORD);
       await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
+      // After using a recovery key to reset password, expect to be prompted to create a new one
+      await page
+        .getByRole('button', { name: 'Generate a new account recovery key' })
+        .click();
+      await page.waitForURL(/settings\/account_recovery/);
+
       // Attempt to login with new password
       const { sessionToken } = await target.auth.signIn(
         credentials.email,
@@ -126,12 +132,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Cleanup requires setting this value to correct password
       credentials.password = NEW_PASSWORD;
-
-      // After using a recovery key to reset password, expect to be prompted to create a new one
-      await page
-        .getByRole('button', { name: 'Generate a new account recovery key' })
-        .click();
-      await page.waitForURL(/settings\/account_recovery/);
     });
   });
 });
