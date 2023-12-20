@@ -40,6 +40,8 @@ export class RelierPage extends BaseLayout {
 
   async clickEmailFirst() {
     const waitForNavigation = this.page.waitForEvent('framenavigated');
+    // wait for navigation was timing out for stage and production
+    await this.page.waitForTimeout(1000);
     await this.page.locator('button.email-first-button').click();
     return waitForNavigation;
   }

@@ -37,11 +37,9 @@ test.describe('severity-1 #smoke', () => {
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
   test('disconnect RP #1293475', async ({
-    browser,
     credentials,
     pages: { relier, login, settings },
-    target,
-  }, { project }) => {
+  }) => {
     await relier.goto();
     await relier.clickEmailFirst();
 
@@ -56,7 +54,9 @@ test.describe('severity-1 #smoke', () => {
 
     // Sign out of 123Done
     const rp = services.find((service) => service.name.includes('123'));
-    await rp.signout();
+    if (rp) {
+      await rp.signout();
+    }
 
     await settings.waitForAlertBar();
     services = await settings.connectedServices.services();
@@ -67,23 +67,33 @@ test.describe('severity-1 #smoke', () => {
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293469
   test('can login to addons #1293362 #1293469', async ({
     credentials,
-    page,
-    pages: { login, settings },
+    pages: { page, login, settings },
   }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod addons site');
+
     await page.goto('https://addons.mozilla.org/en-US/firefox/');
-    await Promise.all([page.click('text=Log in'), page.waitForNavigation()]);
+    await page.getByRole('link', { name: 'Log in' }).click();
+    await page.waitForURL(/accounts.firefox.com/);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toContain(
-      'https://addons.mozilla.org/en-US/firefox/users/edit'
-    );
-    await page.click('text=Delete My Profile');
-    await page.click('button.Button--alert[type=submit]');
-    await page.waitForURL('https://addons.mozilla.org/en-US/firefox');
+    await page.waitForURL(/addons.mozilla.org\/en-US\/firefox\/users\/edit/);
+
+    // Can create AMO profile
+    await page
+      .getByRole('textbox', { name: /Display Name/ })
+      .fill('Example Name');
+    await page.getByRole('button', { name: 'Create my profile' }).click();
+
+    // User menu shows selected display name and user can log out of AMO
+    await page.waitForURL('https://addons.mozilla.org/en-US/firefox/');
+    await page.getByRole('button', { name: 'Example Name' }).hover();
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await expect(page.getByText('You have been logged out.')).toBeVisible();
+
+    // Expect Mozilla Accounts to be signed in and AMO to be in Connected Services
     await settings.goto();
-    const services = await settings.connectedServices.services();
-    const names = services.map((s) => s.name);
-    expect(names?.some((x) => /^Add-ons/.test(x))).toBeTruthy();
+    await expect(page.getByRole('link', { name: 'Add-ons' })).toBeVisible();
+    await settings.clickAvatarIcon();
+    await settings.clickSignOut();
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293352
@@ -106,26 +116,22 @@ test.describe('severity-1 #smoke', () => {
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
-  /*test('can login to monitor #1293364', async ({
+  test('can login to monitor #1293364', async ({
     credentials,
     page,
     pages: { login },
   }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod monitor');
-    await page.goto('https://monitor.firefox.com');
-    await Promise.all([
-      page.click('text=Sign Up for Alerts'),
-      page.waitForNavigation(),
-    ]);
+    await page.goto('https://monitor.mozilla.org/');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForURL(/accounts.firefox.com/);
     await login.login(credentials.email, credentials.password);
-    expect(page.url()).toContain('https://monitor.firefox.com/user/dashboard');
-    await page.click('#avatar-wrapper');
-    await Promise.all([
-      page.click('text=Sign Out'),
-      page.waitForNavigation({ waitUntil: 'load' }),
-    ]);
-    await expect(page.locator('#sign-in-btn')).toBeVisible();
-  });*/
+    await page.waitForURL(/monitor.mozilla.org\/user\/breaches/);
+    await page.getByRole('img', { name: 'User menu' }).click();
+    await page.getByRole('button', { name: 'Sign out' }).click();
+    await page.waitForURL('https://monitor.mozilla.org/');
+    await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
+  });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360
   test('can login to SUMO #1293360', async ({
@@ -136,17 +142,27 @@ test.describe('severity-1 #smoke', () => {
     test.skip(project.name !== 'production', 'uses prod monitor');
     test.slow();
 
-    await page.goto('https://support.mozilla.org/en-US/');
+    await page.goto('https://support.mozilla.org/');
 
-    await Promise.all([page.click('text=Sign In/Up'), page.waitForLoadState()]);
-    await Promise.all([
-      page.click('text=Sign In or Sign Up'),
-      page.waitForLoadState(),
-    ]);
+    // Sumo support contains two Sign In/Up links (in header nav and footer)
+    // let's use the first one
+    await page
+      .getByRole('link', { name: /Sign In\/Up/ })
+      .first()
+      .click();
+    await page.waitForURL(/users\/auth/);
+    await page.getByRole('link', { name: 'Continue' }).click();
+
+    // Mozilla accounts sign in
+    await page.waitForURL(/accounts.firefox.com/);
     await login.login(credentials.email, credentials.password);
 
-    await page.hover('a[href="/en-US/users/auth"]');
-    await page.click('text=Sign Out');
-    await expect(page.locator('text=Sign In/Up').first()).toBeVisible();
+    // return to SUMO
+    await page.waitForURL(/support.mozilla.org/);
+    await page.getByRole('img', { name: 'Avatar for Username' }).hover();
+    await page.getByRole('link', { name: 'Sign Out' }).click();
+    await expect(
+      page.getByRole('link', { name: /Sign In\/Up/ }).first()
+    ).toBeVisible();
   });
 });
