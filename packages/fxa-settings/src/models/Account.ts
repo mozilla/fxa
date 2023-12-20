@@ -1333,6 +1333,10 @@ export class Account implements AccountData {
         },
       },
     });
+    cache.writeQuery({
+      query: GET_LOCAL_SIGNED_IN_STATUS,
+      data: { isSignedIn: true },
+    });
     return data;
   }
 }
