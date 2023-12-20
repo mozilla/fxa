@@ -18,11 +18,6 @@ import log from './logging';
 import csp from '../lib/csp';
 import cspBlocking from '../lib/csp/blocking';
 import cspReportOnly from '../lib/csp/report-only';
-import {
-  buildSentryConfig,
-  tagCriticalEvent,
-  tagFxaName,
-} from 'fxa-shared/sentry';
 import { ClientConfig } from './client-config';
 
 const app = express();
@@ -36,22 +31,6 @@ logger.info('version', { version: version });
 // Initialize Sentry
 const sentryConfig = config.get('sentry');
 if (sentryConfig.dsn) {
-  const release = require('../../package.json').version;
-  const opts = buildSentryConfig(
-    {
-      sentry: sentryConfig,
-      release,
-    },
-    logger
-  );
-  Sentry.init({
-    ...opts,
-    beforeSend(event, _hint) {
-      event = tagCriticalEvent(event);
-      event = tagFxaName(event, opts.serverName);
-      return event;
-    },
-  });
   app.use(Sentry.Handlers.requestHandler());
 }
 

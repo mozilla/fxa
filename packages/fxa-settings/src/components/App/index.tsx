@@ -16,7 +16,7 @@ import {
 } from '../../models';
 import * as Metrics from '../../lib/metrics';
 
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
@@ -143,12 +143,7 @@ export const App = ({
       // A bit of chicken and egg but it could be possible that we miss some
       // errors while the page is loading and user is being fetched.
       if (data?.account?.metricsEnabled || !isSignedIn) {
-        sentryMetrics.configure({
-          release: config.version,
-          sentry: {
-            ...config.sentry,
-          },
-        });
+        sentryMetrics.enable();
       } else {
         sentryMetrics.disable();
       }

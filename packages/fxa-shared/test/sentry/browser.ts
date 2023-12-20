@@ -4,8 +4,9 @@
 import 'jsdom-global/register';
 import { assert } from 'chai';
 import * as Sentry from '@sentry/browser';
-import sentryMetrics, { _Sentry } from '../../lib/sentry';
+import sentryMetrics, { _Sentry } from '../../sentry/browser';
 import { SentryConfigOpts } from '../../sentry';
+import { ILogger } from '../../log';
 const sinon = require('sinon');
 const sandbox = sinon.createSandbox();
 
@@ -18,11 +19,23 @@ const config: SentryConfigOpts = {
     sampleRate: 0,
   },
 };
+const logger: ILogger = {
+  info(...args: any) {},
+  trace(...args: any) {},
+  warn(...args: any) {},
+  error(...args: any) {},
+  debug(...args: any) {},
+};
 
-describe('lib/sentry', () => {
+describe('sentry/browser', () => {
   before(() => {
     // Reduce console log noise in test output
     sandbox.spy(console, 'error');
+  });
+
+  beforeEach(() => {
+    // Make sure it's enabled by default
+    sentryMetrics.enable();
   });
 
   after(() => {
@@ -31,17 +44,13 @@ describe('lib/sentry', () => {
 
   describe('init', () => {
     it('properly configures with dsn', () => {
-      try {
-        sentryMetrics.configure(config);
-      } catch (e) {
-        assert.isNull(e);
-      }
+      sentryMetrics.configure(config, logger);
     });
   });
 
   describe('beforeSend', () => {
     before(() => {
-      sentryMetrics.configure(config);
+      sentryMetrics.configure(config, logger);
     });
 
     it('works without request url', () => {
@@ -49,7 +58,7 @@ describe('lib/sentry', () => {
         key: 'value',
       } as Sentry.Event;
 
-      const resultData = sentryMetrics.__beforeSend(data);
+      const resultData = sentryMetrics.__beforeSend(config, data, {});
 
       assert.equal(data, resultData);
     });
@@ -64,14 +73,14 @@ describe('lib/sentry', () => {
         },
       } as Sentry.Event;
 
-      const resultData = sentryMetrics.__beforeSend(data);
+      const resultData = sentryMetrics.__beforeSend(config, data, {});
 
       assert.equal(
-        resultData.fingerprint![0],
+        resultData!.fingerprint![0],
         'errno100',
         'correct fingerprint'
       );
-      assert.equal(resultData.level, 'info', 'correct known error level');
+      assert.equal(resultData!.level, 'info', 'correct known error level');
     });
 
     it('properly erases sensitive information from url', () => {
@@ -91,8 +100,8 @@ describe('lib/sentry', () => {
         },
       };
 
-      const resultData = sentryMetrics.__beforeSend(badData);
-      assert.equal(resultData.request!.url, goodData.request.url);
+      const resultData = sentryMetrics.__beforeSend(config, badData);
+      assert.equal(resultData?.request!.url, goodData.request.url);
     });
 
     it('properly erases sensitive information from referrer', () => {
@@ -116,9 +125,9 @@ describe('lib/sentry', () => {
         },
       };
 
-      const resultData = sentryMetrics.__beforeSend(badData);
+      const resultData = sentryMetrics.__beforeSend(config, badData);
       assert.equal(
-        resultData.request?.headers?.Referer,
+        resultData?.request?.headers?.Referer,
         goodData.request.headers.Referer
       );
     });
@@ -154,14 +163,14 @@ describe('lib/sentry', () => {
         },
       };
 
-      const resultData = sentryMetrics.__beforeSend(data);
+      const resultData = sentryMetrics.__beforeSend(config, data);
 
       assert.equal(
-        resultData.exception!.values![0].stacktrace!.frames![0].abs_path,
+        resultData?.exception!.values![0].stacktrace!.frames![0].abs_path,
         goodAbsPath
       );
       assert.equal(
-        resultData.exception!.values![0].stacktrace!.frames![1].abs_path,
+        resultData?.exception!.values![0].stacktrace!.frames![1].abs_path,
         goodAbsPath
       );
     });
@@ -205,12 +214,20 @@ describe('lib/sentry', () => {
     });
   });
 
-  describe('disable', () => {
-    it('calls Sentry.close', () => {
-      const close = sinon.stub(_Sentry, 'close');
+  describe('disable / enables', () => {
+    it('enables', () => {
+      sentryMetrics.enable();
+      assert.isTrue(sentryMetrics.__sentryEnabled());
+    });
+
+    it('disables', () => {
       sentryMetrics.disable();
-      sinon.assert.calledOnce(close);
-      close.restore();
+      assert.isFalse(sentryMetrics.__sentryEnabled());
+    });
+
+    it('will return null from before send when disabled', () => {
+      sentryMetrics.disable();
+      assert.isNull(sentryMetrics.__beforeSend({}, {}, {}));
     });
   });
 });

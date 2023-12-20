@@ -4,6 +4,9 @@
 
 'use strict';
 
+// Important! Must be required first to get proper hooks in place.
+require('../lib/monitoring');
+
 const { config } = require('../config');
 
 const { CapabilityManager } = require('@fxa/payments/capability');
@@ -12,13 +15,7 @@ const {
   ContentfulClient,
   ContentfulManager,
 } = require('@fxa/shared/contentful');
-
-// Must be required and initialized right away
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
-TracingProvider.init(
-  config.get('tracing'),
-  require('../lib/log')({ ...config.log, name: 'tracing' })
-);
 
 const error = require('../lib/error');
 const jwtool = require('fxa-jwtool');

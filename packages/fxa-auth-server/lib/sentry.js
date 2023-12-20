@@ -4,29 +4,18 @@
 
 'use strict';
 
-const config = require('../config').default.getProperties();
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
-const { ExtraErrorData } = require('@sentry/integrations');
 const verror = require('verror');
 const { ERRNO } = require('./error');
-const {
-  tagCriticalEvent,
-  buildSentryConfig,
-  tagFxaName,
-} = require('fxa-shared/sentry');
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
 } = require('fxa-shared/sentry/report-validation-error');
-const getVersion = require('./version').getVersion;
-const logger = require('./log')(config.log.level, 'sentry');
-
 // Matches uid, session, oauth and other common tokens which we would
 // prefer not to include in Sentry reports.
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 const FILTERED = '[Filtered]';
-const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
 
 // Maintain list of errors that should not be sent to Sentry
 const IGNORED_ERROR_NUMBERS = [
@@ -34,70 +23,6 @@ const IGNORED_ERROR_NUMBERS = [
   ERRNO.BOUNCE_SOFT,
   ERRNO.BOUNCE_COMPLAINT,
 ];
-
-/**
- * Filters all of an objects string properties to remove tokens.
- *
- * @param {Object} obj Object to filter values on
- */
-function filterObject(obj) {
-  if (typeof obj === 'object') {
-    for (const [key, value] of Object.entries(obj)) {
-      if (typeof value === 'string') {
-        obj[key] = value.replace(TOKENREGEX, FILTERED);
-      }
-    }
-  }
-  return obj;
-}
-
-/**
- * Filter a sentry event for PII in addition to the default filters.
- *
- * Current replacements:
- *   - A 32-char hex string that typically is a FxA user-id.
- *
- * Data Removed:
- *   - Request body.
- *
- * @param {Sentry.Event} event
- */
-function filterSentryEvent(event, hint) {
-  event = tagCriticalEvent(event);
-
-  if (event.breadcrumbs) {
-    for (const bc of event.breadcrumbs) {
-      if (bc.message) {
-        bc.message = bc.message.replace(TOKENREGEX, FILTERED);
-      }
-      if (bc.data) {
-        bc.data = filterObject(bc.data);
-      }
-    }
-  }
-  if (event.request) {
-    if (event.request.url) {
-      event.request.url = event.request.url.replace(TOKENREGEX, FILTERED);
-    }
-    if (event.request.query_string) {
-      event.request.query_string = event.request.query_string.replace(
-        TOKENREGEX,
-        URIENCODEDFILTERED
-      );
-    }
-    if (event.request.headers) {
-      event.request.headers = filterObject(event.request.headers);
-    }
-    if (event.request.data) {
-      // Remove request data entirely
-      delete event.request.data;
-    }
-  }
-  if (event.tags && event.tags.url) {
-    event.tags.url = event.tags.url.replace(TOKENREGEX, FILTERED);
-  }
-  return event;
-}
 
 function reportSentryError(err, request) {
   let exception = '';
@@ -172,31 +97,6 @@ function reportSentryError(err, request) {
 
 async function configureSentry(server, config, processName = 'key_server') {
   if (config.sentry.dsn) {
-    const opts = buildSentryConfig(
-      {
-        ...config,
-        release: (await getVersion())?.version,
-      },
-      logger
-    );
-
-    Sentry.init({
-      ...opts,
-      beforeSend(event, hint) {
-        event = tagFxaName(event, opts.serverName);
-        event = filterSentryEvent(event, hint);
-        return event;
-      },
-
-      //Extra config options
-      normalizeDepth: 6,
-      integrations: [
-        new Sentry.Integrations.LinkedErrors({ key: 'jse_cause' }),
-        new ExtraErrorData({ depth: 5 }),
-      ],
-      // https://docs.sentry.io/platforms/node/configuration/options/#max-value-length
-      maxValueLength: 500,
-    });
     Sentry.configureScope((scope) => {
       scope.setTag('process', processName);
     });

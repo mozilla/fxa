@@ -13,6 +13,7 @@ const amplitudeConfig = config.get('amplitude');
 const validateAmplitudeEvent = require('fxa-shared').metrics.amplitude.validate;
 let statsd;
 const Sentry = require('@sentry/node');
+const notifier = require('./notifier');
 
 const ISSUER = config.get('domain') || '';
 const CLIENT_ID_TO_SERVICE_NAMES = config.get('oauth.clientIds') || {};
@@ -48,7 +49,7 @@ function Lug(options) {
 
   this.nodeTracer = options.nodeTracer;
 
-  this.notifier = require('./notifier')(this, statsd);
+  this.notifier = notifier(this, statsd);
 
   // Encourage avoiding scenarios where loggers names have to be incremented.
   if (this.name !== name) {

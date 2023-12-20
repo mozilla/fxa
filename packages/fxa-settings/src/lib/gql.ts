@@ -14,7 +14,7 @@ import { BatchHttpLink } from '@apollo/client/link/batch-http';
 import { cache, sessionToken, typeDefs } from './cache';
 import { GraphQLError } from 'graphql';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import sentryMetrics from 'fxa-shared/lib/sentry';
+import sentryMetrics from 'fxa-shared/sentry/browser';
 
 /**
  * These operation names either require auth with a valid session token

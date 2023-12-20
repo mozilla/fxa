@@ -5,9 +5,6 @@
 const config = require('../config').getProperties();
 const logger = require('../logging')('server.web');
 
-const tracing = require('fxa-shared/tracing/node-tracing');
-tracing.init(config.tracing, logger);
-
 const Hapi = require('@hapi/hapi');
 const Sentry = require('@sentry/node');
 const cloneDeep = require('lodash').cloneDeep;
@@ -16,12 +13,6 @@ const ScopeSet = require('fxa-shared').oauth.scopes;
 const AppError = require('../error');
 const request = require('../request');
 const summary = require('../logging/summary');
-
-const {
-  tagCriticalEvent,
-  buildSentryConfig,
-  tagFxaName,
-} = require('fxa-shared/sentry');
 
 function trimLocale(header) {
   if (!header) {
@@ -100,23 +91,6 @@ exports.create = async function createServer() {
 
   // configure Sentry
   if (config.sentry && config.sentry.dsn) {
-    const release = require('../../package.json').version;
-    const opts = buildSentryConfig(
-      {
-        ...config,
-        release,
-      },
-      logger
-    );
-    Sentry.init({
-      ...opts,
-      beforeSend(event) {
-        event = tagCriticalEvent(event);
-        event = tagFxaName(event, opts.serverName);
-        return event;
-      },
-    });
-
     // Attach a new Sentry scope to the request for breadcrumbs/tags/extras
     server.ext({
       type: 'onRequest',

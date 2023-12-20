@@ -15,6 +15,7 @@ import { TracingOpts } from '../config';
 import { TracingPiiFilter } from '../pii-filters';
 import { addExporter } from './exporters';
 import { checkDuration } from './util';
+import { ILogger } from '../../log';
 
 /** Gcp exporter customized for FxA */
 
@@ -41,9 +42,14 @@ export class FxaGcpTraceExporter extends GcpTraceExporter {
 export function addGcpTraceExporter(
   opts: TracingOpts,
   provider: BasicTracerProvider,
-  filter?: TracingPiiFilter
+  filter?: TracingPiiFilter,
+  logger?: ILogger
 ) {
-  if (!opts.gcp?.enabled) return;
+  if (!opts.gcp?.enabled) {
+    return;
+  }
+
+  logger?.debug('Adding Gcp Trace Exporter');
   const exporter = new FxaGcpTraceExporter(filter);
   addExporter(opts, provider, exporter);
   return exporter;
