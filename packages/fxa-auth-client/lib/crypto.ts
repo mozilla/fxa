@@ -8,14 +8,59 @@ import {
   uint8ToHex,
   xor,
 } from './utils';
+import { NAMESPACE, createSaltV1, parseSalt } from './salt';
 
 const encoder = () => new TextEncoder();
-const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 // These functions implement the onepw protocol
 // https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol
 
+/**
+ * A credentials model.
+ */
+export interface Credentials {
+  /**
+   * The encrypted password
+   */
+  authPW: string;
+
+  /**
+   * An unwrap key
+   */
+  unwrapBKey: string;
+}
+
+/**
+ * Deprecated! Do not use any more! Use getCredentialsV2 instead!
+ *
+ * This version results in a v1 salt being created, which is no longer
+ * considered valid by the auth-server. This function will be removed
+ * in the near future.
+ *
+ * @param email - Users email
+ * @param password - User password in plain text
+ * @returns
+ */
 export async function getCredentials(email: string, password: string) {
+  const salt = createSaltV1(email);
+  return getCredentialsV2(password, salt);
+}
+
+/**
+ * Gets an encrypted version of the user's credentials
+ *
+ * @param password - The user's plain text password
+ * @param salt - A salt used during encryption. Must be a valid salt!
+ *               See salt module for specifics.
+ * @returns { authPW, unwrapBKey }
+ */
+export async function getCredentialsV2(
+  password: string,
+  salt: string
+): Promise<Credentials> {
+  // Make sure salt is valid!
+  const parsedSalt = parseSalt(salt);
+
   const passkey = await crypto.subtle.importKey(
     'raw',
     encoder().encode(password),
@@ -26,8 +71,9 @@ export async function getCredentials(email: string, password: string) {
   const quickStretchedRaw = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: encoder().encode(`${NAMESPACE}quickStretch:${email}`),
-      iterations: 1000,
+      salt: encoder().encode(salt),
+      // TBD: Iterations
+      iterations: parsedSalt.version === 2 ? 650000 : 1000,
       hash: 'SHA-256',
     },
     passkey,

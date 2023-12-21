@@ -137,33 +137,19 @@ describe('#integration - remote change email', function () {
     });
 
     it('can login', () => {
+
       return client
         .setPrimaryEmail(secondEmail)
         .then((res) => {
           assert.ok(res, 'ok response');
 
-          // Verify account can login with new primary email
-          return Client.login(config.publicUrl, secondEmail, password).then(
-            () => {
-              assert.fail(
-                new Error(
-                  'Should have returned correct email for user to login'
-                )
-              );
-            }
-          );
-        })
-        .catch((err) => {
-          // Login should fail for this user and return the normalizedEmail used when
-          // the account was created. We then attempt to re-login with this email and pass
-          // the original email used to login
-          assert.equal(err.code, 400, 'correct error code');
-          assert.equal(err.errno, 120, 'correct errno code');
-          assert.equal(err.email, email, 'correct hashed email returned');
+          // Important history lesson! We used to require that login always provided
+          // the original email that the account was used to sign up with. Hence the legacy
+          // option: { originalSingupEmail }. As of version 2 of key stretching and salt
+          // this is no longer needed.
 
-          return Client.login(config.publicUrl, err.email, password, {
-            originalLoginEmail: secondEmail,
-          });
+          // Verify account can login with new primary email
+          return Client.login(config.publicUrl, secondEmail, password);
         })
         .then((res) => {
           assert.ok(res, 'ok response');
@@ -366,27 +352,29 @@ describe('#integration - remote change email', function () {
 
     it('can login', () => {
       // Verify account can still login with new primary email
-      return Client.login(config.publicUrl, secondEmail, password)
-        .then(() => {
-          assert.fail(
-            new Error('Should have returned correct email for user to login')
-          );
-        })
-        .catch((err) => {
-          // Login should fail for this user and return the normalizedEmail used when
-          // the account was created. We then attempt to re-login with this email and pass
-          // the original email used to login
-          assert.equal(err.code, 400, 'correct error code');
-          assert.equal(err.errno, 120, 'correct errno code');
-          assert.equal(err.email, email, 'correct hashed email returned');
+      return (
+        Client.login(config.publicUrl, secondEmail, password)
+          // .then(() => {
+          //   assert.fail(
+          //     new Error('Should have returned correct email for user to login')
+          //   );
+          // })
+          // .catch((err) => {
+          //   // Login should fail for this user and return the normalizedEmail used when
+          //   // the account was created. We then attempt to re-login with this email and pass
+          //   // the original email used to login
+          //   assert.equal(err.code, 400, 'correct error code');
+          //   assert.equal(err.errno, 120, 'correct errno code');
+          //   assert.equal(err.email, email, 'correct hashed email returned');
 
-          return Client.login(config.publicUrl, err.email, password, {
-            originalLoginEmail: secondEmail,
-          });
-        })
-        .then((res) => {
-          assert.ok(res, 'ok response');
-        });
+          //   return Client.login(config.publicUrl, err.email, password, {
+          //     originalLoginEmail: secondEmail,
+          //   });
+          // })
+          .then((res) => {
+            assert.ok(res, 'ok response');
+          })
+      );
     });
 
     it('can change password', () => {

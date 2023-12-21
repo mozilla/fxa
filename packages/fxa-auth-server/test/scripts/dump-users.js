@@ -45,6 +45,8 @@ function createAccount(email, uid) {
     kA: zeroBuffer32,
     wrapWrapKb: zeroBuffer32,
     tokenVerificationId: zeroBuffer16,
+    clientSalt:
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
   };
 }
 

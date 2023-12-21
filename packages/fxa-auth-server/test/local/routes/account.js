@@ -60,6 +60,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.authFirestore = config.authFirestore || {};
   config.securityHistory = config.securityHistory || {};
   config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
+  config.clientSalt = config.clientSalt || { requiredVersion: 1 };
 
   Container.set(AppConfig, config);
   Container.set(AccountEventsManager, new AccountEventsManager());
@@ -1923,6 +1924,9 @@ describe('/account/login', () => {
     signinConfirmation: {},
     signinUnblock: {
       codeLifetime: 1000,
+    },
+    clientSalt: {
+      requiredVersion: 1,
     },
   };
   const mockLog = log('ERROR', 'test');

@@ -45,7 +45,8 @@ describe('#integration - remote account login', () => {
       );
   });
 
-  it('the email is returned in the error on Incorrect email case errors with correct password', () => {
+  // This is no longer needed. With V2 salts we don't encounter the 'incorrect' email case anymore.
+  it.skip('the email is returned in the error on Incorrect email case errors with correct password', () => {
     const signupEmail = server.uniqueEmail();
     const loginEmail = signupEmail.toUpperCase();
     const password = 'abcdef';

@@ -27,7 +27,12 @@ describe('accountManager', () => {
   describe('createAccountStub', () => {
     it('should create an account', async () => {
       const email = faker.internet.email();
-      const uid = await accountManager.createAccountStub(email, 1, 'en-US');
+      const uid = await accountManager.createAccountStub(
+        email,
+        1,
+        'en-US',
+        'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+      );
       expect(uid).toBeTruthy();
 
       // Fetch the account row
@@ -50,9 +55,19 @@ describe('accountManager', () => {
 
     it('should throw an error if the email already exists', async () => {
       const email = faker.internet.email();
-      await accountManager.createAccountStub(email, 1, 'en-US');
+      await accountManager.createAccountStub(
+        email,
+        1,
+        'en-US',
+        'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+      );
       await expect(
-        accountManager.createAccountStub(email, 1, 'en-US')
+        accountManager.createAccountStub(
+          email,
+          1,
+          'en-US',
+          'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+        )
       ).rejects.toBeInstanceOf(AccountAlreadyExistsError);
     });
   });

@@ -13,6 +13,7 @@ const { Container } = require('typedi');
 const { AccountEventsManager } = require('../../account-events');
 const { emailsMatch } = require('fxa-shared').email.helpers;
 const otp = require('../utils/otp');
+const { parseSalt } = require('../utils/client-key-stretch');
 
 const BASE_36 = validators.BASE_36;
 
@@ -69,6 +70,14 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
      * for their account.
      */
     checkEmailAddress(accountRecord, email, originalLoginEmail) {
+
+
+      console.log('!!! checkEmailAddress', {
+        normalizedEmail: accountRecord.primaryEmail.normalizedEmail,
+        email,
+        originalLoginEmail,
+      });
+
       // The `originalLoginEmail` param, if specified, tells us the email address
       // that the user typed into the login form.  This might differ from the address
       // used for calculating the password hash, which is provided in `email` param.
@@ -88,6 +97,40 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
     },
 
     /**
+     * Check if the state of the provided accountRecord has a clientSalt that
+     * meets the required client salt version.
+     *
+     * If the incorrect salt version is used on the client side. We need to error
+     * out. This will in turn signal to the client that they must reset their password
+     * using a different salt version.
+     *
+     * @param accountRecord - Account to check
+     */
+    async checkClientSalt(accountRecord) {
+      const requiredVersion = config.clientSalt.requiredVersion;
+
+      // Note that salt can only be null for v1, all other versions will require a salt to be specified
+      // in the database.
+      if (accountRecord.clientSalt == null) {
+        if (requiredVersion !== 1) {
+          throw error.clientSaltChangeRequired(requiredVersion);
+        }
+      } else {
+        const salt = (() => {
+          try {
+            return parseSalt(accountRecord.clientSalt);
+          } catch (error) {
+            throw error.clientSaltChangeRequired(requiredVersion);
+          }
+        })();
+
+        if (salt.version !== requiredVersion) {
+          throw error.clientSaltChangeRequired(requiredVersion);
+        }
+      }
+    },
+
+    /**
      * Check if user is allowed a password-checking attempt, and if so then
      * load their accountRecord.  These two operations are intertwined due
      * to the "unblock codes" feature, which allows users to bypass customs
@@ -100,18 +143,20 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
      *    didSigninUnblock:  whether an unblock code was successfully used
      *  }
      */
-    async checkCustomsAndLoadAccount(request, email) {
+    async checkCustomsAndLoadAccount(request, email, skipForceCheck) {
       let accountRecord, originalError;
       let didSigninUnblock = false;
 
       try {
         try {
-          // For testing purposes, some email addresses are forced
-          // to go through signin unblock on every login attempt.
-          const forced =
-            config.signinUnblock && config.signinUnblock.forcedEmailAddresses;
-          if (forced && forced.test(email)) {
-            throw error.requestBlocked(true);
+          if (!skipForceCheck === true) {
+            // For testing purposes, some email addresses are forced
+            // to go through signin unblock on every login attempt.
+            const forced =
+              config.signinUnblock && config.signinUnblock.forcedEmailAddresses;
+            if (forced && forced.test(email)) {
+              throw error.requestBlocked(true);
+            }
           }
           await customs.check(request, email, 'accountLogin');
         } catch (e) {
@@ -469,6 +514,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
         uid: accountRecord.uid,
         kA: accountRecord.kA,
         wrapKb: wrapKb,
+        clientSalt: accountRecord.clientSalt,
         emailVerified: accountRecord.primaryEmail.isVerified,
         tokenVerificationId: sessionToken.tokenVerificationId,
       });

@@ -23,7 +23,7 @@ export abstract class BaseTarget {
   abstract readonly subscriptionConfig: SubConfig;
 
   constructor(readonly authServerUrl: string, emailUrl?: string) {
-    this.auth = new AuthClient(authServerUrl);
+    this.auth = new AuthClient(authServerUrl, { saltVersion: 2 });
     this.email = new EmailClient(emailUrl);
   }
 

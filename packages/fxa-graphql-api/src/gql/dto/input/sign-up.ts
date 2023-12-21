@@ -41,6 +41,9 @@ export class SignUpInput {
   @Field((type) => String)
   public authPW!: hexstring;
 
+  @Field((type) => String)
+  public clientSalt!: string;
+
   @Field()
   public email!: string;
 

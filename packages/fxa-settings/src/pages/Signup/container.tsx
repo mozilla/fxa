@@ -21,7 +21,7 @@ import {
 } from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
 import { useCallback, useEffect, useState } from 'react';
-import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import { getCredentialsV2 } from 'fxa-auth-client/lib/crypto';
 import { GraphQLError } from 'graphql';
 import {
   AuthUiErrorNos,
@@ -36,6 +36,7 @@ import {
   FxAStatusResponse,
 } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -178,12 +179,18 @@ const SignupContainer = ({
         service: service !== MozServices.Default ? service : undefined,
       };
       try {
-        const { authPW, unwrapBKey } = await getCredentials(email, password);
+        const clientSalt = createSaltV2();
+        const { authPW, unwrapBKey } = await getCredentialsV2(
+          password,
+          clientSalt
+        );
+
         const { data } = await beginSignup({
           variables: {
             input: {
               email,
               authPW,
+              clientSalt,
               options,
             },
           },

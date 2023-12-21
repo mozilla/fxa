@@ -36,6 +36,7 @@ module.exports = async function main(items, dbFunction) {
             verifyHash: butil.ONES.toString('hex'),
             wrapWrapKb: crypto.randomBytes(32).toString('hex'),
             verifierVersion: 1,
+            clientSalt: `identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef`,
           }
         );
 

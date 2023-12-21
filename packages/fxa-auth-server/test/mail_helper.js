@@ -23,10 +23,12 @@ function emailName(emailAddress) {
 
 module.exports = (printLogs) => {
   printLogs = printLogs || process.env.MAIL_HELPER_LOGS;
-  const console = printLogs
+  const console2 = printLogs
     ? global.console
     : {
-        log() {},
+        log(...args) {
+          console.log(...args);
+        },
         error() {},
       };
   return new Promise((resolve, reject) => {
@@ -52,21 +54,21 @@ module.exports = (printLogs) => {
           const name = emailName(mail.headers.to.replace(/\<(.*?)\>/g, '$1'));
 
           if (vsc) {
-            console.log('\x1B[34mSignin code', vsc, '\x1B[39m');
+            console2.log('\x1B[34mSignin code', vsc, '\x1B[39m');
           } else if (vc) {
-            console.log('\x1B[32m', link || vc, '\x1B[39m');
+            console2.log('\x1B[32m', link || vc, '\x1B[39m');
           } else if (sc) {
-            console.log('\x1B[32mToken code: ', sc, '\x1B[39m');
+            console2.log('\x1B[32mToken code: ', sc, '\x1B[39m');
           } else if (rc) {
-            console.log('\x1B[34m', link, '\x1B[39m');
+            console2.log('\x1B[34m', link, '\x1B[39m');
           } else if (uc) {
-            console.log('\x1B[36mUnblock code:', uc, '\x1B[39m');
-            console.log('\x1B[36mReport link:', rul, '\x1B[39m');
+            console2.log('\x1B[36mUnblock code:', uc, '\x1B[39m');
+            console2.log('\x1B[36mReport link:', rul, '\x1B[39m');
           } else if (TEMPLATES_WITH_NO_CODE.has(template)) {
-            console.log(`Notification email: ${template}`);
+            console2.log(`Notification email: ${template}`);
           } else {
-            console.error('\x1B[31mNo verify code match\x1B[39m');
-            console.error(mail);
+            console2.error('\x1B[31mNo verify code match\x1B[39m');
+            console2.error(mail);
           }
 
           if (users[name]) {
@@ -93,10 +95,10 @@ module.exports = (printLogs) => {
 
     smtp.listen(config.smtp.port, (err) => {
       if (!err) {
-        console.log(`Local SMTP server listening on port ${config.smtp.port}`);
+        console2.log(`Local SMTP server listening on port ${config.smtp.port}`);
       } else {
-        console.log('Error starting SMTP server...');
-        console.log(err.message);
+        console2.log('Error starting SMTP server...');
+        console2.log(err.message);
       }
     });
 

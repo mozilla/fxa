@@ -81,6 +81,9 @@ export class AccountResetInput {
   @Field()
   public newPasswordAuthPW!: string;
 
+  @Field()
+  public clientSalt!: string;
+
   @Field({ nullable: true })
   public options?: AccountResetInputOptions;
 }

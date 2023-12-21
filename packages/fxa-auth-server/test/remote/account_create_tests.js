@@ -213,14 +213,16 @@ describe('#integration - remote account create', function () {
     const password = 'ilikepancakes';
     const client = new Client(config.publicUrl);
     return client.setupCredentials(email, password).then((c) => {
-      return c.api.accountCreate(c.email, c.authPW).then((response) => {
-        assert.ok(response.sessionToken, 'has a sessionToken');
-        assert.equal(
-          response.keyFetchToken,
-          undefined,
-          'no keyFetchToken without keys=true'
-        );
-      });
+      return c.api
+        .accountCreate(c.email, c.authPW, c.clientSalt)
+        .then((response) => {
+          assert.ok(response.sessionToken, 'has a sessionToken');
+          assert.equal(
+            response.keyFetchToken,
+            undefined,
+            'no keyFetchToken without keys=true'
+          );
+        });
     });
   });
 
@@ -230,7 +232,7 @@ describe('#integration - remote account create', function () {
     const client = new Client(config.publicUrl);
     return client.setupCredentials(email, password).then((c) => {
       return c.api
-        .accountCreate(c.email, c.authPW, { keys: true })
+        .accountCreate(c.email, c.authPW, c.clientSalt, { keys: true })
         .then((response) => {
           assert.ok(response.sessionToken, 'has a sessionToken');
           assert.ok(response.keyFetchToken, 'keyFetchToken with keys=true');
@@ -288,11 +290,13 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       redirectTo: 'http://accounts.firefox.com.evil.us',
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => {
         assert.equal(err.errno, 107, 'bad redirectTo rejected');
       })
@@ -309,12 +313,14 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       redirectTo: 'https://www.fake.com/.firefox.com',
     };
 
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => {
         assert.equal(err.errno, 107, 'bad redirectTo rejected');
       })
@@ -333,6 +339,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -345,7 +353,7 @@ describe('#integration - remote account create', function () {
         utmTerm: 'blee',
       },
     };
-    return api.accountCreate(email, authPW, options);
+    return api.accountCreate(email, authPW, clientSalt, options);
   });
 
   it('empty metricsContext', () => {
@@ -353,10 +361,12 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {},
     };
-    return api.accountCreate(email, authPW, options);
+    return api.accountCreate(email, authPW, clientSalt, options);
   });
 
   it('invalid entrypoint', () => {
@@ -364,6 +374,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: ';',
@@ -377,7 +389,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -386,6 +398,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -399,7 +413,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -408,6 +422,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -421,7 +437,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -430,6 +446,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -443,7 +461,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -452,6 +470,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -465,7 +485,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -474,6 +494,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -487,7 +509,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -496,6 +518,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -509,7 +533,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 
@@ -518,6 +542,8 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
+    const clientSalt =
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
     const options = {
       metricsContext: {
         entrypoint: 'foo',
@@ -531,7 +557,7 @@ describe('#integration - remote account create', function () {
       },
     };
     return api
-      .accountCreate(email, authPW, options)
+      .accountCreate(email, authPW, clientSalt, options)
       .then(assert.fail, (err) => assert.equal(err.errno, 107));
   });
 

@@ -16,7 +16,8 @@ export class AccountManager {
   async createAccountStub(
     email: string,
     verifierVersion: number,
-    locale: string
+    locale: string,
+    clientSalt: string
   ) {
     const [emailCode, authSalt, kA, wrapWrapKb] = await Promise.all([
       randomBytesAsync(16),
@@ -38,6 +39,7 @@ export class AccountManager {
       verifierSetAt: 0,
       createdAt: Date.now(),
       locale,
+      clientSalt,
     });
     return uid.toString('hex');
   }

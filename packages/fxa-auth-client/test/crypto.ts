@@ -1,7 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import * as assert from 'assert';
 import '../server'; // must import this to run with nodejs
 import {
   getCredentials,
+  getCredentialsV2,
   hkdf,
   jweDecrypt,
   jweEncrypt,
@@ -12,6 +17,7 @@ import {
   getRecoveryKeyIdByUid,
 } from 'fxa-auth-client/lib/recoveryKey';
 import { hexToUint8 } from 'fxa-auth-client/lib/utils';
+import { createSaltV1, createSaltV2 } from '../lib/salt';
 
 const uid = 'aaaaabbbbbcccccdddddeeeeefffff00';
 
@@ -28,6 +34,37 @@ describe('lib/crypto', () => {
       assert.equal(
         keys.unwrapBKey,
         'de6a2648b78284fcb9ffa81ba95803309cfba7af583c01a8a1a63e567234dd28'
+      );
+    });
+  });
+
+  describe('getCredentialsV2', () => {
+    it('returns the correct authPW and unwrapBKey with v1 salt', async () => {
+      const email = 'andré@example.org';
+      const password = 'pässwörd';
+      const salt = createSaltV1(email);
+      const keys = await getCredentialsV2(password, salt);
+      assert.equal(
+        keys.authPW,
+        '247b675ffb4c46310bc87e26d712153abe5e1c90ef00a4784594f97ef54f2375'
+      );
+      assert.equal(
+        keys.unwrapBKey,
+        'de6a2648b78284fcb9ffa81ba95803309cfba7af583c01a8a1a63e567234dd28'
+      );
+    });
+
+    it('returns the correct authPW and unwrapBKey with V2 salt', async () => {
+      const password = 'pässwörd';
+      const salt = createSaltV2('0123456789abcdef0123456789abcdef');
+      const keys = await getCredentialsV2(password, salt);
+      assert.equal(
+        keys.authPW,
+        'd278c764bd1852a14bfc4e9d8c1682b4f1a57edb9a9372bf8c370cc41592155b'
+      );
+      assert.equal(
+        keys.unwrapBKey,
+        '616616095eff30032abf6a47df30d9a3fc799d8af5e8519905c1601170553493'
       );
     });
   });

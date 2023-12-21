@@ -31,6 +31,9 @@ function makeRoutes(options = {}) {
     },
     signinConfirmation: {},
     smtp: {},
+    clientSalt: {
+      requiredVersion: 1,
+    },
   };
   Container.set(AccountEventsManager, {
     recordSecurityEvent: () => {},

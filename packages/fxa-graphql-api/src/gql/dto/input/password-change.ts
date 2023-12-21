@@ -35,6 +35,9 @@ export class PasswordChangeInput {
   @Field()
   public newUnwrapBKey!: string;
 
+  @Field()
+  public clientSalt!: string;
+
   @Field({ nullable: true })
   public options?: PasswordChangeInputOptions;
 }

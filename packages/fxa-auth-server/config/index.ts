@@ -1990,6 +1990,15 @@ const convictConf = convict({
       format: String,
     },
   },
+
+  clientSalt: {
+    requiredVersion: {
+      default: 2,
+      doc: 'Indicates the version of the client salt we currently require',
+      env: 'CLIENT_SALT_REQUIRED_VERSION',
+      format: Number,
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

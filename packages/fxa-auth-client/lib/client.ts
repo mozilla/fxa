@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as crypto from './crypto';
+import { SaltVersion, createSaltV1, createSaltV2, parseSalt } from './salt';
 import * as hawk from './hawk';
 
 enum ERRORS {
+  UNKNOWN_ACCOUNT = 102,
   INVALID_TIMESTAMP = 111,
   INCORRECT_EMAIL_CASE = 120,
+  CLIENT_SALT_UPGRADE_REQUIRED = 211,
 }
 
 enum tokenType {
@@ -44,6 +47,7 @@ export type SignedUpAccountData = {
   authAt: number;
   verificationMethod?: string;
   unwrapBKey?: hexstring;
+  clientSalt?: string;
 };
 
 export type SignInOptions = {
@@ -69,6 +73,7 @@ export type SignedInAccountData = {
   verificationMethod?: string;
   verificationReason?: string;
   unwrapBKey?: hexstring;
+  clientSaltUpgraded?: boolean;
 };
 
 export type SessionReauthOptions = SignInOptions;
@@ -168,12 +173,20 @@ export class AuthClientError extends Error {
 }
 
 export default class AuthClient {
+  // TBD: Should we change the version?
   static VERSION = 'v1';
   private uri: string;
   private localtimeOffsetMsec: number;
   private timeout: number;
+  private saltVersion: SaltVersion;
 
-  constructor(authServerUri: string, options: { timeout?: number } = {}) {
+  constructor(
+    authServerUri: string,
+    options: {
+      timeout?: number;
+      saltVersion?: SaltVersion;
+    } = {}
+  ) {
     if (new RegExp(`/${AuthClient.VERSION}$`).test(authServerUri)) {
       this.uri = authServerUri;
     } else {
@@ -181,6 +194,7 @@ export default class AuthClient {
     }
     this.localtimeOffsetMsec = 0;
     this.timeout = options.timeout || 30000;
+    this.saltVersion = options.saltVersion || 2;
   }
 
   static async create(authServerUri: string) {
@@ -302,10 +316,11 @@ export default class AuthClient {
     password: string,
     options: SignUpOptions = {}
   ): Promise<SignedUpAccountData> {
-    const credentials = await crypto.getCredentials(email, password);
+    const credentials = await this.getNewCredentials({ password, email });
     const accountData = (await this.signUpWithAuthPW(
       email,
       credentials.authPW,
+      credentials.salt,
       options,
       langHeader(options.lang)
     )) as SignedUpAccountData;
@@ -323,6 +338,7 @@ export default class AuthClient {
   async signUpWithAuthPW(
     email: string,
     authPW: string,
+    salt: string,
     options: SignUpOptions,
     headers: Headers = new Headers()
   ): Promise<Omit<SignedUpAccountData, 'unwrapBKey'>> {
@@ -330,6 +346,7 @@ export default class AuthClient {
     const payload = {
       email,
       authPW,
+      clientSalt: salt,
       ...payloadOptions(options),
     };
     const accountData = await this.request(
@@ -350,7 +367,7 @@ export default class AuthClient {
     password: string,
     options: SignInOptions = {}
   ): Promise<SignedInAccountData> {
-    const credentials = await crypto.getCredentials(email, password);
+    const credentials = await this.getCredentials({ password, email });
     try {
       const accountData = (await this.signInWithAuthPW(
         email,
@@ -372,6 +389,16 @@ export default class AuthClient {
         options.originalLoginEmail = email;
 
         return this.signIn(error.email, password, options);
+      } else if (
+        error &&
+        error.errno === ERRORS.CLIENT_SALT_UPGRADE_REQUIRED &&
+        error.requiredClientSaltVersion
+      ) {
+        return await this.upgradeClientSalt(
+          error.requiredClientSaltVersion,
+          email,
+          password
+        );
       } else {
         throw error;
       }
@@ -382,6 +409,11 @@ export default class AuthClient {
    * This function is intended for a service that will proxy the authentication
    * request.  When authenticating from a client with access to the plaintext
    * password, use `signIn` above, which has additional error handling.
+   *
+   * Note that if calling this function directly, you must respond to errors
+   * of type CLIENT_SALT_UPGRADE_REQUIRED. See signIn implementation for an example
+   * of how to respond. Essentially, authPW may need to be encrypted with a different
+   * version of the salt.
    */
   async signInWithAuthPW(
     email: string,
@@ -546,7 +578,10 @@ export default class AuthClient {
     } = {},
     headers: Headers = new Headers()
   ) {
-    const credentials = await crypto.getCredentials(email, newPassword);
+    const credentials = await this.getCredentials({
+      password: newPassword,
+      email,
+    });
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
       authPW: credentials.authPW,
@@ -568,6 +603,7 @@ export default class AuthClient {
 
   async accountResetAuthPW(
     newPasswordAuthPW: string,
+    clientSalt: string,
     accountResetToken: hexstring,
     options: {
       keys?: boolean;
@@ -578,6 +614,7 @@ export default class AuthClient {
     const payloadOptions = ({ keys, ...rest }: any) => rest;
     const payload = {
       authPW: newPasswordAuthPW,
+      clientSalt: clientSalt,
       ...payloadOptions(options),
     };
     return await this.hawkRequest(
@@ -599,8 +636,11 @@ export default class AuthClient {
     sessionToken: hexstring;
     verified: boolean;
   }> {
-    const credentials = await crypto.getCredentials(email, newPassword);
-    return this.finishSetupWithAuthPW(token, credentials.authPW);
+    const { authPW, salt } = await this.getCredentials({
+      password: newPassword,
+      email,
+    });
+    return this.finishSetupWithAuthPW(token, authPW, salt);
   }
 
   /**
@@ -612,11 +652,13 @@ export default class AuthClient {
   async finishSetupWithAuthPW(
     token: string,
     authPW: string,
+    salt: string,
     headers: Headers = new Headers()
   ) {
     const payload = {
       token,
-      authPW,
+      authPW: authPW,
+      clientSalt: salt,
     };
     return await this.request(
       'POST',
@@ -700,7 +742,7 @@ export default class AuthClient {
     } = {},
     sessionToken?: hexstring
   ): Promise<any> {
-    const credentials = await crypto.getCredentials(email, password);
+    const credentials = await this.getCredentials({ password, email });
     const payload = {
       email,
       authPW: credentials.authPW,
@@ -800,7 +842,7 @@ export default class AuthClient {
     password: string,
     options: SessionReauthOptions = {}
   ): Promise<SessionReauthedAccountData> {
-    const credentials = await crypto.getCredentials(email, password);
+    const credentials = await this.getCredentials({ password, email });
     try {
       const accountData = await this.sessionReauthWithAuthPW(
         sessionToken,
@@ -880,6 +922,7 @@ export default class AuthClient {
     newPasswordAuthPW: string,
     oldUnwrapBKey: string,
     newUnwrapBKey: string,
+    clientSalt: string,
     options: {
       keys?: boolean;
       sessionToken?: hexstring;
@@ -911,6 +954,7 @@ export default class AuthClient {
       wrapKb,
       authPW: newPasswordAuthPW,
       sessionToken,
+      clientSalt: clientSalt,
     };
     const accountData = await this.hawkRequest(
       'POST',
@@ -946,10 +990,10 @@ export default class AuthClient {
       oldCredentials.keyFetchToken,
       oldCredentials.unwrapBKey
     );
-    const newCredentials = await crypto.getCredentials(
-      oldCredentials.email,
-      newPassword
-    );
+    const newCredentials = await this.getNewCredentials({
+      email,
+      password: newPassword,
+    });
     const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
     const sessionToken = options.sessionToken
       ? (await hawk.deriveHawkCredentials(options.sessionToken, 'sessionToken'))
@@ -958,6 +1002,8 @@ export default class AuthClient {
     const payload = {
       wrapKb,
       authPW: newCredentials.authPW,
+      // IMPORTANT! Make sure salt is sent along with authPW.
+      clientSalt: newCredentials.salt,
       sessionToken,
     };
     const accountData = await this.hawkRequest(
@@ -986,7 +1032,10 @@ export default class AuthClient {
     keyFetchToken: hexstring;
     passwordChangeToken: hexstring;
   }> {
-    const oldCredentials = await crypto.getCredentials(email, oldPassword);
+    const oldCredentials = await this.getCredentials({
+      password: oldPassword,
+      email,
+    });
     try {
       const passwordData = await this.request(
         'POST',
@@ -1024,10 +1073,15 @@ export default class AuthClient {
     email: string,
     newPassword: string
   ): Promise<number> {
-    const newCredentials = await crypto.getCredentials(email, newPassword);
+    const newCredentials = await this.getCredentials({
+      password: newPassword,
+      email,
+    });
 
     const payload = {
       authPW: newCredentials.authPW,
+      // IMPORTANT! Make sure salt propagates to server with authPW.
+      clientSalt: newCredentials.salt,
     };
 
     return this.sessionPost('/password/create', sessionToken, payload);
@@ -1317,11 +1371,16 @@ export default class AuthClient {
       sessionToken?: boolean;
     } = {}
   ) {
-    const credentials = await crypto.getCredentials(email, newPassword);
+    const credentials = await this.getCredentials({
+      password: newPassword,
+      email,
+    });
     const newWrapKb = crypto.unwrapKB(keys.kB, credentials.unwrapBKey);
     const payload = {
       wrapKb: newWrapKb,
       authPW: credentials.authPW,
+      // IMPORTANT! Make sure salt propagates to server with authPW
+      clientSalt: credentials.salt,
       sessionToken: options.sessionToken,
       recoveryKeyId,
     };
@@ -1482,5 +1541,103 @@ export default class AuthClient {
 
   async sendPushLoginRequest(sessionToken: string) {
     return this.sessionPost('/session/verify/send_push', sessionToken, {});
+  }
+
+  async getLastUsedClientSalt(email: string) {
+    const response = await this.request('POST', '/account/client_salt', {
+      email,
+    });
+    let salt = response?.salt;
+
+    // If salt was not set, assume version 1
+    if (salt == null) {
+      salt = createSaltV1(email);
+    }
+
+    // Parses and validates
+    parseSalt(salt);
+    return salt;
+  }
+
+  private async getNewCredentials({
+    password,
+    email,
+    saltVersion,
+  }: {
+    password: string;
+    email: string;
+    saltVersion?: SaltVersion;
+  }) {
+    // fall back to configured salt version
+    saltVersion = saltVersion || this.saltVersion;
+    const salt = (() => {
+      switch (saltVersion) {
+        case 1:
+          return createSaltV1(email);
+        case 2:
+          return createSaltV2();
+        default:
+          throw new Error('Invalid salt version.');
+      }
+    })();
+
+    const credentials = await crypto.getCredentialsV2(password, salt);
+    return {
+      ...credentials,
+      salt,
+    };
+  }
+
+  private async getCredentials({
+    password,
+    email,
+  }: {
+    password: string;
+    email: string;
+  }) {
+    const salt = await this.getLastUsedClientSalt(email);
+    const credentials = await crypto.getCredentialsV2(password, salt);
+    return {
+      ...credentials,
+      salt,
+    };
+  }
+
+  private async upgradeClientSalt(
+    requiredVersion: SaltVersion,
+    email: string,
+    password: string,
+    options: Omit<SignInOptions, 'skipCaseError' | 'originalLoginEmail'> = {}
+  ) {
+    const oldCredentials = await this.passwordChangeStart(email, password);
+    const keys = await this.accountKeys(
+      oldCredentials.keyFetchToken,
+      oldCredentials.unwrapBKey
+    );
+    const newCredentials = await this.getNewCredentials({
+      email,
+      password,
+      saltVersion: requiredVersion,
+    });
+    const wrapKb = crypto.unwrapKB(keys.kB, newCredentials.unwrapBKey);
+    const payload = {
+      wrapKb,
+      authPW: newCredentials.authPW,
+      clientSalt: newCredentials.salt,
+    };
+    const accountData = await this.hawkRequest(
+      'POST',
+      pathWithKeys('/password/change/finish', options.keys),
+      oldCredentials.passwordChangeToken,
+      tokenType.passwordChangeToken,
+      payload
+    );
+
+    if (options.keys && accountData.keyFetchToken) {
+      accountData.unwrapBKey = newCredentials.unwrapBKey;
+    }
+    accountData.clientSaltUpgraded = true;
+
+    return accountData;
   }
 }

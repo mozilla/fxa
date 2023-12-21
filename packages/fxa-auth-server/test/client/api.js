@@ -70,6 +70,9 @@ module.exports = (config) => {
         delete headers['accept-language'];
       }
       this.emit('startRequest', options);
+
+      console.log('!!! request', options);
+
       request(options, (err, res, body) => {
         if (res && res.headers.timestamp) {
           // Record time skew
@@ -79,6 +82,7 @@ module.exports = (config) => {
 
         this.emit('endRequest', options, err, res);
         if (err || body.error || res.statusCode !== 200) {
+          console.log('!!! request err', res.statusCode, err || body);
           return reject(err || body);
         }
 
@@ -96,7 +100,7 @@ module.exports = (config) => {
             );
           }
         }
-
+        console.log('!!! request result', res.statusCode, body);
         resolve(body);
       });
     });
@@ -147,7 +151,12 @@ module.exports = (config) => {
    *   {}
    *
    */
-  ClientApi.prototype.accountCreate = function (email, authPW, options = {}) {
+  ClientApi.prototype.accountCreate = function (
+    email,
+    authPW,
+    clientSalt,
+    options = {}
+  ) {
     const url = `${this.baseURL}/account/create${getQueryString(options)}`;
     return this.doRequest(
       'POST',
@@ -156,6 +165,7 @@ module.exports = (config) => {
       {
         email: email,
         authPW: authPW.toString('hex'),
+        clientSalt: clientSalt,
         preVerified: options.preVerified || undefined,
         service: options.service || undefined,
         redirectTo: options.redirectTo || undefined,
@@ -171,7 +181,12 @@ module.exports = (config) => {
     );
   };
 
-  ClientApi.prototype.accountLogin = function (email, authPW, options) {
+  ClientApi.prototype.accountLogin = function (
+    email,
+    authPW,
+    clientSalt,
+    options
+  ) {
     if (!options) {
       options = { keys: true };
     }
@@ -183,6 +198,7 @@ module.exports = (config) => {
       {
         email: email,
         authPW: authPW.toString('hex'),
+        clientSalt: clientSalt,
         service: options.service || undefined,
         resume: options.resume || undefined,
         reason: options.reason || undefined,
@@ -346,6 +362,7 @@ module.exports = (config) => {
   ClientApi.prototype.accountReset = function (
     accountResetTokenHex,
     authPW,
+    clientSalt,
     headers,
     options = {}
   ) {
@@ -364,6 +381,7 @@ module.exports = (config) => {
           token,
           {
             authPW: authPW.toString('hex'),
+            clientSalt: clientSalt,
             sessionToken: options.sessionToken,
           },
           headers
@@ -375,6 +393,7 @@ module.exports = (config) => {
   ClientApi.prototype.accountResetWithRecoveryKey = function (
     accountResetTokenHex,
     authPW,
+    clientSalt,
     wrapKb,
     recoveryKeyId,
     headers,
@@ -393,6 +412,7 @@ module.exports = (config) => {
             wrapKb,
             sessionToken: true,
             recoveryKeyId,
+            clientSalt,
           },
           headers
         );
@@ -589,6 +609,7 @@ module.exports = (config) => {
   ClientApi.prototype.passwordChangeFinish = function (
     passwordChangeTokenHex,
     authPW,
+    clientSalt,
     wrapKb,
     headers,
     sessionToken
@@ -599,6 +620,7 @@ module.exports = (config) => {
         const requestData = {
           authPW: authPW.toString('hex'),
           wrapKb: wrapKb.toString('hex'),
+          clientSalt: clientSalt,
         };
 
         if (sessionToken) {

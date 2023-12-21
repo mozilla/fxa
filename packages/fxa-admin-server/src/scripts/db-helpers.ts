@@ -79,6 +79,9 @@ const account = (uid: string, email: string, createdAt: number) => ({
   wrapWrapKb: toZeroBuff(32).toString('hex'),
   verifierSetAt: createdAt,
   locale: 'en-US',
+  clientSalt:
+    'identity.mozilla.com/picl/v1/quickStretchV2:' +
+    crypto.randomBytes(16).toString('hex'),
 });
 
 const signInCode = (uid: string, createdAt: number) => ({

@@ -746,6 +746,20 @@ AppError.unverifiedSession = function () {
   });
 };
 
+AppError.clientSaltChangeRequired = function (requiredClientSaltVersion) {
+  return new AppError(
+    {
+      code: 400,
+      error: 'Bad Request',
+      errno: ERRNO.CLIENT_SALT_VERSION_MISMATCH,
+      message: 'Client must change salt',
+    },
+    {
+      requiredClientSaltVersion,
+    }
+  );
+};
+
 AppError.yourPrimaryEmailExists = () => {
   return new AppError({
     code: 400,

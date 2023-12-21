@@ -67,6 +67,7 @@ export interface Accounts {
   ecosystemAnonId: string | null;
   disabledAt: number | null;
   metricsOptOutAt: number | null;
+  clientSalt: string;
 }
 
 export interface Carts {

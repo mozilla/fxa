@@ -9,7 +9,7 @@ import AuthClient, {
   AUTH_PROVIDER,
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
-  getCredentials,
+  getCredentialsV2,
 } from 'fxa-auth-client/browser';
 import {
   currentAccount,
@@ -23,6 +23,7 @@ import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { GET_SESSION_VERIFIED } from './Session';
 import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 
 export interface DeviceLocation {
   city: string | null;
@@ -504,6 +505,7 @@ export class Account implements AccountData {
   }
 
   async changePassword(oldPassword: string, newPassword: string) {
+
     const response = await this.withLoadingStatus(
       this.authClient.passwordChange(
         this.primaryEmail.email,
@@ -515,6 +517,11 @@ export class Account implements AccountData {
         }
       )
     );
+
+    if (!response.uid) {
+      throw new Error('Password change failed!');
+    }
+
     firefox.passwordChanged(
       this.primaryEmail.email,
       response.uid,
@@ -726,7 +733,15 @@ export class Account implements AccountData {
       // );
       const accountResetToken =
         resetToken || (await this.passwordForgotVerifyCode(token, code));
-      const credentials = await getCredentials(email, newPassword);
+
+      // TBD - Seeing this in action makes we wonder if this was a good idea... It
+      //       requires exposing the internal workings of the auth client, and splits the duty
+      //       across two layers. Seems like it would have been better to create an auth client
+      //       that worked with GQL, and re-write the graphql api mimic what auth server does, rather
+      //       than rewrite them to mimic what the auth client is doing. This way the operation requires
+      //       2 layers rather than 3.
+      const salt = createSaltV2();
+      const credentials = await getCredentialsV2(newPassword, salt);
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
@@ -740,6 +755,7 @@ export class Account implements AccountData {
               keyFetchToken
               verified
               unwrapBKey
+              clientSalt
             }
           }
         `,
@@ -747,6 +763,7 @@ export class Account implements AccountData {
           input: {
             accountResetToken,
             newPasswordAuthPW: credentials.authPW,
+            clientSalt: salt,
             options: { sessionToken: true, keys: true },
           },
         },

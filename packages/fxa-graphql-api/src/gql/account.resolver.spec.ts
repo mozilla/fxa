@@ -534,6 +534,8 @@ describe('#integration - AccountResolver', () => {
         });
         const result = await resolver.accountReset(headers, {
           newPasswordAuthPW: 'passwordAuthPW',
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           accountResetToken: 'token',
           options: {},
         });
@@ -566,12 +568,15 @@ describe('#integration - AccountResolver', () => {
         const result = await resolver.SignUp(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           options: { service: 'testo-co' },
         });
         expect(authClient.signUpWithAuthPW).toBeCalledTimes(1);
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
           'testo@example.xyz',
           '00000000',
+          'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           { service: 'testo-co' },
           headers
         );
@@ -594,11 +599,14 @@ describe('#integration - AccountResolver', () => {
         const result = await resolver.finishSetup(headers, {
           token: 'jwttothemax',
           authPW: '00000000',
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
         });
         expect(authClient.finishSetupWithAuthPW).toBeCalledTimes(1);
         expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
           'jwttothemax',
           '00000000',
+          'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);
@@ -723,6 +731,8 @@ describe('#integration - AccountResolver', () => {
           newPasswordAuthPW: 'newPasswordAuthPW',
           oldUnwrapBKey: 'oldUnwrapBKey',
           newUnwrapBKey: 'newUnwrapBKey',
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           options: {
             keys: true,
             sessionToken: '000000',

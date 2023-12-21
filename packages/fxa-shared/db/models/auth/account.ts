@@ -72,6 +72,7 @@ export class Account extends BaseAuthModel {
   verifierVersion!: number;
   verifyHash?: string;
   wrapWrapKb!: string;
+  clientSalt?: string;
 
   static relationMappings = {
     emails: {
@@ -122,6 +123,9 @@ export class Account extends BaseAuthModel {
     verifierSetAt,
     createdAt,
     locale,
+    // TBD - Should we trim the NAMESPACE (and/or other parts of the prefix), since they always the same?
+    //       If so we need to be careful to restore it on access.
+    clientSalt,
   }: Pick<
     Account,
     | 'uid'
@@ -137,6 +141,7 @@ export class Account extends BaseAuthModel {
     | 'verifierSetAt'
     | 'createdAt'
     | 'locale'
+    | 'clientSalt'
   >) {
     try {
       await Account.callProcedure(
@@ -153,7 +158,8 @@ export class Account extends BaseAuthModel {
         uuidTransformer.to(verifyHash),
         verifierSetAt,
         createdAt,
-        locale ?? ''
+        locale ?? '',
+        clientSalt
       );
     } catch (e: any) {
       throw convertError(e);
@@ -172,6 +178,7 @@ export class Account extends BaseAuthModel {
     verifierSetAt,
     verifierVersion,
     keysHaveChanged,
+    clientSalt,
   }: Pick<
     Account,
     | 'uid'
@@ -180,6 +187,7 @@ export class Account extends BaseAuthModel {
     | 'wrapWrapKb'
     | 'verifierSetAt'
     | 'verifierVersion'
+    | 'clientSalt'
   > & {
     keysHaveChanged?: boolean;
   }) {
@@ -191,7 +199,8 @@ export class Account extends BaseAuthModel {
       uuidTransformer.to(wrapWrapKb),
       verifierSetAt || Date.now(),
       verifierVersion,
-      !!keysHaveChanged
+      !!keysHaveChanged,
+      clientSalt
     );
   }
 
@@ -413,7 +422,8 @@ export class Account extends BaseAuthModel {
     authSalt: string,
     verifyHash: string,
     wrapWrapKb: string,
-    verifierVersion: number
+    verifierVersion: number,
+    clientSalt: string
   ) {
     const now = Date.now();
     await Account.query()
@@ -425,6 +435,7 @@ export class Account extends BaseAuthModel {
         keysChangedAt: now,
         profileChangedAt: now,
         verifierVersion,
+        clientSalt,
       } as any)
       .where('uid', uuidTransformer.to(uid));
     return now;

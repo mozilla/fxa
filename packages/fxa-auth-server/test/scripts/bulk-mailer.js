@@ -50,6 +50,8 @@ function createAccount(email, uid, locale = 'en') {
     verifierVersion: 1,
     verifyHash: zeroBuffer32,
     wrapWrapKb: zeroBuffer32,
+    clientSalt:
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
   };
 }
 

@@ -72,7 +72,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       log,
       resolveMetrics()
     );
-    if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
+    if (['verbose', 'trace'].includes(config.log?.level)) {
       knex.on('query', (data) => {
         console.dir(data);
       });
@@ -764,7 +764,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     authSalt,
     verifyHash,
     wrapWrapKb,
-    verifierVersion
+    verifierVersion,
+    clientSalt
   ) {
     log.trace('DB.createPassword', { uid });
     return Account.createPassword(
@@ -772,7 +773,8 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       authSalt,
       verifyHash,
       wrapWrapKb,
-      verifierVersion
+      verifierVersion,
+      clientSalt
     );
   };
 

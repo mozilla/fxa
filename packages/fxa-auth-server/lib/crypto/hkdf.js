@@ -5,9 +5,9 @@
 'use strict';
 
 const HKDF = require('hkdf');
+const { NAMESPACE } = require('../routes/utils/client-key-stretch');
 
-const NAMESPACE = 'identity.mozilla.com/picl/v1/';
-
+// TBD: Remove? No longer used...
 function KWE(name, email) {
   return Buffer.from(`${NAMESPACE + name}:${email}`);
 }

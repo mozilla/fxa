@@ -38,6 +38,9 @@ const DESCRIPTIONS = {
   clientIdRegistration: ' returned from client registration.',
   clientIdToDelete: ' whose tokens should be deleted.',
   clientName: 'The string name of the client.',
+  clientSalt:
+    'The salt used when creating authPW. If not provided, it will be assumed that version one of the password encryption scheme was used.',
+  clientSaltV2: 'The salt used when creating authPW in Version 2 format.',
   clientSecret:
     'The OAuth client secret for the requesting client application. Required for confidential clients, forbidden for public clients.',
   code: 'Time based code to verify secondary email',

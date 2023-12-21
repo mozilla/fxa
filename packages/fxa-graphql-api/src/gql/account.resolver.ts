@@ -520,6 +520,7 @@ export class AccountResolver {
   ): Promise<AccountResetPayload> {
     const result = await this.authAPI.accountResetAuthPW(
       input.newPasswordAuthPW,
+      input.clientSalt,
       input.accountResetToken,
       input.options,
       headers
@@ -542,6 +543,7 @@ export class AccountResolver {
     const result = await this.authAPI.signUpWithAuthPW(
       input.email,
       input.authPW,
+      input.clientSalt,
       input.options,
       headers
     );
@@ -563,6 +565,7 @@ export class AccountResolver {
     const result = await this.authAPI.finishSetupWithAuthPW(
       input.token,
       input.authPW,
+      input.clientSalt,
       headers
     );
     return {
@@ -696,6 +699,7 @@ export class AccountResolver {
       input.newPasswordAuthPW,
       input.oldUnwrapBKey,
       input.newUnwrapBKey,
+      input.clientSalt,
       input.options
     );
 

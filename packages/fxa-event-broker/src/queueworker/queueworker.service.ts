@@ -15,10 +15,11 @@ import {
   OnApplicationShutdown,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import * as Sentry from '@sentry/node';
+
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
-
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
 import { AppConfig } from '../config';
@@ -82,10 +83,12 @@ export class QueueworkerService
     });
     this.app.on('error', (err) => {
       this.log.error('consumerError', { err });
+      Sentry.captureException(err);
     });
 
     this.app.on('processing_error', (err) => {
       this.log.error('processingError', { err });
+      Sentry.captureException(err);
     });
   }
 

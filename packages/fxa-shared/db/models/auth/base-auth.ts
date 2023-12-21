@@ -7,13 +7,13 @@ import { BaseModel } from '../base';
 import { Knex } from 'knex';
 
 export enum Proc {
-  AccountRecord = 'accountRecord_9',
+  AccountRecord = 'accountRecord_10',
   AccountResetToken = 'accountResetToken_1',
   AccountDevices = 'accountDevices_17',
   ConsumeRecoveryCode = 'consumeRecoveryCode_3',
   ConsumeSigninCode = 'consumeSigninCode_4',
   ConsumeUnblockCode = 'consumeUnblockCode_4',
-  CreateAccount = 'createAccount_9',
+  CreateAccount = 'createAccount_10',
   CreateDevice = 'createDevice_5',
   CreateEmail = 'createEmail_2',
   CreateEmailBounce = 'createEmailBounce_3',
@@ -53,7 +53,7 @@ export enum Proc {
   Prune = 'prune_10',
   RecoveryCodes = 'recoveryCodes_1',
   RecoveryKey = 'getRecoveryKey_4',
-  ResetAccount = 'resetAccount_16',
+  ResetAccount = 'resetAccount_17',
   ResetAccountTokens = 'resetAccountTokens_1',
   SessionWithDevice = 'sessionWithDevice_19',
   Sessions = 'sessions_13',

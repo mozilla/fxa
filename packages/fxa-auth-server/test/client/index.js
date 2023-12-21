@@ -35,16 +35,19 @@ module.exports = (config) => {
   Client.prototype.setupCredentials = function (email, password) {
     return Promise.resolve().then(() => {
       this.email = email;
+      const salt = `identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef`;
       return pbkdf2
         .derive(
           Buffer.from(password),
-          hkdf.KWE('quickStretch', email),
-          1000,
+          Buffer.from(salt),
+          // TBD: Iterations
+          650000,
           32
         )
         .then((stretch) => {
           return hkdf(stretch, 'authPW', null, 32).then((authPW) => {
             this.authPW = authPW;
+            this.clientSalt = salt;
             return hkdf(stretch, 'unwrapBKey', null, 32);
           });
         })
@@ -164,7 +167,7 @@ module.exports = (config) => {
 
   Client.prototype.create = function () {
     return this.api
-      .accountCreate(this.email, this.authPW, this.options)
+      .accountCreate(this.email, this.authPW, this.clientSalt, this.options)
       .then((a) => {
         this.uid = a.uid;
         this.authAt = a.authAt;
@@ -191,18 +194,20 @@ module.exports = (config) => {
   };
 
   Client.prototype.auth = function (opts) {
-    return this.api.accountLogin(this.email, this.authPW, opts).then((data) => {
-      this.uid = data.uid;
-      this.sessionToken = data.sessionToken;
-      this.keyFetchToken = data.keyFetchToken || null;
-      this.emailVerified = data.verified;
-      this.authAt = data.authAt;
-      this.device = data.device;
-      this.verificationReason = data.verificationReason;
-      this.verificationMethod = data.verificationMethod;
-      this.verified = data.verified;
-      return this;
-    });
+    return this.api
+      .accountLogin(this.email, this.authPW, this.clientSalt, opts)
+      .then((data) => {
+        this.uid = data.uid;
+        this.sessionToken = data.sessionToken;
+        this.keyFetchToken = data.keyFetchToken || null;
+        this.emailVerified = data.verified;
+        this.authAt = data.authAt;
+        this.device = data.device;
+        this.verificationReason = data.verificationReason;
+        this.verificationMethod = data.verificationMethod;
+        this.verified = data.verified;
+        return this;
+      });
   };
 
   Client.prototype.login = function (opts) {
@@ -248,6 +253,7 @@ module.exports = (config) => {
     c.wrapKb = this.wrapKb;
     c.unwrapBKey = this.unwrapBKey;
     c.authPW = this.authPW;
+    c.clientSalt = this.clientSalt;
     c.options = this.options;
     return Promise.resolve()
       .then(() => {
@@ -352,6 +358,7 @@ module.exports = (config) => {
         return this.api.passwordChangeFinish(
           this.passwordChangeToken,
           this.authPW,
+          this.clientSalt,
           this.wrapKb,
           headers,
           sessionToken
@@ -718,6 +725,7 @@ module.exports = (config) => {
         .accountResetWithRecoveryKey(
           this.accountResetToken,
           this.authPW,
+          this.clientSalt,
           wrapKb,
           recoveryKeyId,
           headers,
@@ -754,7 +762,13 @@ module.exports = (config) => {
 
     return this.setupCredentials(email, newPassword).then((/* bundle */) => {
       return this.api
-        .accountReset(this.accountResetToken, this.authPW, headers, options)
+        .accountReset(
+          this.accountResetToken,
+          this.authPW,
+          this.clientSalt,
+          headers,
+          options
+        )
         .then((response) => {
           // Update to the new verified tokens
           this.sessionToken = response.sessionToken;

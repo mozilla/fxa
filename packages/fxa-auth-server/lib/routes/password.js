@@ -141,6 +141,9 @@ module.exports = function (
           }),
           payload: isA.object({
             authPW: validators.authPW.description(DESCRIPTION.authPW),
+            clientSalt: validators.clientSalt.description(
+              DESCRIPTION.clientSalt
+            ),
             wrapKb: validators.wrapKb.description(DESCRIPTION.wrapKb),
             sessionToken: isA
               .string()
@@ -156,6 +159,7 @@ module.exports = function (
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
         const authPW = request.payload.authPW;
+        const clientSalt = request.payload.clientSalt;
         const wrapKb = request.payload.wrapKb;
         const sessionTokenId = request.payload.sessionToken;
         const wantsKeys = requestHelper.wantsKeys(request);
@@ -254,6 +258,7 @@ module.exports = function (
                 wrapWrapKb: wrapWrapKb,
                 verifierVersion: password.version,
                 keysHaveChanged: false,
+                clientSalt,
               });
             })
             .then((result) => {
@@ -779,6 +784,7 @@ module.exports = function (
         validate: {
           payload: isA.object({
             authPW: isA.string(),
+            clientSalt: validators.clientSalt,
           }),
         },
       },
@@ -787,7 +793,7 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        const { authPW } = request.payload;
+        const { authPW, clientSalt } = request.payload;
 
         const account = await db.account(uid);
         // We don't allow users that have a password set already to create a new password
@@ -820,7 +826,8 @@ module.exports = function (
           authSalt,
           verifyHash,
           wrapWrapKb,
-          verifierVersion
+          verifierVersion,
+          clientSalt
         );
 
         recordSecurityEvent('account.password_added', {

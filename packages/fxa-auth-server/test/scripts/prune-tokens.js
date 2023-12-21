@@ -78,6 +78,8 @@ describe('#integration - scripts/prune-tokens', function () {
     wrapWrapKb: toZeroBuff(32),
     verifierSetAt: createdAt,
     locale: 'en-US',
+    clientSalt:
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
   };
 
   const sessionToken = () => ({

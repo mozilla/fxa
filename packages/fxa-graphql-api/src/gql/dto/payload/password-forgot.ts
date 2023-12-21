@@ -67,4 +67,7 @@ export class AccountResetPayload {
 
   @Field({ nullable: true })
   public unwrapBKey?: string;
+
+  @Field({ nullable: true })
+  public clientSalt?: string;
 }

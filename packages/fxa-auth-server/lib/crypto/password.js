@@ -45,13 +45,16 @@ module.exports = function (log, config) {
     context = context || 'wrapwrapKey';
     const stretched = await this.stretchedPassword();
     const wrapper = await hkdf(stretched, context, null, 32);
-    return butil.xorBuffers(wrapper, wrapped).toString('hex');
+    const result = butil.xorBuffers(wrapper, wrapped).toString('hex');
+    return result;
   };
   Password.prototype.wrap = Password.prototype.unwrap;
 
   async function hkdfVerify(stretched) {
     const buf = await hkdf(stretched, 'verifyHash', null, 32);
-    return buf.toString('hex');
+    const result = buf.toString('hex');
+
+    return result;
   }
 
   Password.stat = function () {

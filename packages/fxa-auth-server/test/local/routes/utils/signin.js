@@ -1233,6 +1233,8 @@ describe('createKeyFetchToken', () => {
     accountRecord = {
       uid: TEST_UID,
       kA: Buffer.from('fedcba012345'),
+      email: 'foo@mozilla.com',
+      clientSalt: 'identity.mozilla.com/picl/v1/quickStretch:foo@mozilla.com',
       wrapWrapKb: Buffer.from('012345fedcba'),
       primaryEmail: { isVerified: true },
     };
@@ -1266,6 +1268,8 @@ describe('createKeyFetchToken', () => {
         uid: TEST_UID,
         kA: accountRecord.kA,
         wrapKb: Buffer.from('abcdef123456'),
+        clientSalt:
+          'identity.mozilla.com/picl/v1/quickStretch:' + accountRecord.email,
         emailVerified: true,
         tokenVerificationId: 'tokenVerifyCode',
       });
