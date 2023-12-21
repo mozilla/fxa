@@ -175,7 +175,8 @@ describe('views/sign_in_password', () => {
         assert.lengthOf(view.$('#pocket-pp'), 0);
         assert.lengthOf(view.$('#pocket-tos'), 0);
         // only renders if service is monitor
-        assert.lengthOf(view.$('#monitor-tos'), 0);
+        assert.lengthOf(view.$('#moz-subscription-tos'), 0);
+        assert.lengthOf(view.$('#moz-subscription-privacy'), 0);
       });
     });
 
@@ -248,7 +249,8 @@ describe('views/sign_in_password', () => {
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#pocket-pp'), 1);
         assert.lengthOf(view.$('#pocket-tos'), 1);
-        assert.lengthOf(view.$('#monitor-tos'), 0);
+        assert.lengthOf(view.$('#moz-subscription-tos'), 0);
+        assert.lengthOf(view.$('#moz-subscription-privacy'), 0);
       });
     });
 
@@ -268,7 +270,8 @@ describe('views/sign_in_password', () => {
         assert.lengthOf(view.$('#fxa-tos'), 1);
         assert.lengthOf(view.$('#pocket-pp'), 0);
         assert.lengthOf(view.$('#pocket-tos'), 0);
-        assert.lengthOf(view.$('#monitor-tos'), 1);
+        assert.lengthOf(view.$('#moz-subscription-tos'), 1);
+        assert.lengthOf(view.$('#moz-subscription-privacy'), 1);
       });
     });
   });
