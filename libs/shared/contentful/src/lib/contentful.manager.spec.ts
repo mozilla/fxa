@@ -6,6 +6,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ContentfulClient } from './contentful.client';
 import { ContentfulManager } from './contentful.manager';
 import {
+  CapabilityPurchaseResult,
+  CapabilityPurchaseResultFactory,
+  CapabilityServiceByPlanIdsQueryFactory,
+  CapabilityServiceByPlanIdsResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   ServicesWithCapabilitiesQueryFactory,
@@ -13,6 +17,7 @@ import {
 } from '../../src';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
+
 describe('ContentfulManager', () => {
   let manager: ContentfulManager;
   let mockClient: ContentfulClient;
@@ -53,6 +58,56 @@ describe('ContentfulManager', () => {
         result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
       ).toHaveLength(1);
       expect(result.offeringForPlanId(planId)).toBeDefined();
+    });
+  });
+
+  describe('getPurchaseDetailsForCapabilityServiceByPlanId', () => {
+    it('should return empty result', async () => {
+      const queryData = CapabilityServiceByPlanIdsQueryFactory({
+        purchaseCollection: { items: [], total: 0 },
+      });
+      mockClient.query = jest.fn().mockResolvedValue(queryData);
+      const result =
+        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+      expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
+      expect(result.capabilityOfferingForPlanId('test')).toBeUndefined();
+    });
+
+    it('should return successfully with results', async () => {
+      const planId = 'test';
+      const purchaseResult = [
+        CapabilityPurchaseResultFactory({ stripePlanChoices: [planId] }),
+      ];
+      const queryData = CapabilityServiceByPlanIdsQueryFactory({
+        purchaseCollection: {
+          items: purchaseResult,
+          total: purchaseResult.length,
+        },
+      });
+      mockClient.query = jest.fn().mockResolvedValue(queryData);
+      const result =
+        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+      expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
+      expect(result.capabilityOfferingForPlanId(planId)).toBeDefined();
+    });
+
+    it('should return successfully with paging', async () => {
+      const pageSize = 20;
+      const purchaseResult: CapabilityPurchaseResult[] = [];
+      for (let i = 0; i < pageSize + 1; i += 1) {
+        purchaseResult.push(CapabilityPurchaseResultFactory());
+      }
+      const queryData = CapabilityServiceByPlanIdsQueryFactory({
+        purchaseCollection: {
+          items: purchaseResult,
+          total: purchaseResult.length,
+        },
+      });
+      mockClient.query = jest.fn().mockResolvedValue(queryData);
+      const result =
+        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+      expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
+      expect(mockClient.query).toBeCalledTimes(2);
     });
   });
 
