@@ -15,10 +15,11 @@ import {
 export const CapabilityServiceByPlanIdsQueryFactory = (
   override?: Partial<CapabilityServiceByPlanIdsQuery>
 ): CapabilityServiceByPlanIdsQuery => {
+  const items = [CapabilityPurchaseResultFactory()];
   return {
     purchaseCollection: {
-      total: [CapabilityPurchaseResultFactory()].length,
-      items: [CapabilityPurchaseResultFactory()],
+      total: items.length,
+      items,
     },
     ...override,
   };
