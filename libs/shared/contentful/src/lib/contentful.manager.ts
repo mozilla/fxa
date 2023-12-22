@@ -43,7 +43,7 @@ export class ContentfulManager {
     const queryResults: DeepNonNullable<CapabilityServiceByPlanIdsQuery>[] = [];
     const pageSize = 20;
 
-    while (!total || count < total) {
+    while (total === undefined || count < total) {
       const queryResult = (await this.client.query(
         capabilityServiceByPlanIdsQuery,
         {
