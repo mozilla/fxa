@@ -22,6 +22,7 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
         ]
       }
     ) {
+      total
       items {
         stripePlanChoices
         offering {
@@ -29,10 +30,10 @@ export const eligibilityContentByPlanIdsQuery = graphql(`
           stripeLegacyPlans
           countries
           linkedFrom {
-            subGroupCollection(skip: $skip, limit: $limit) {
+            subGroupCollection(skip: 0, limit: 25) {
               items {
                 groupName
-                offeringCollection(skip: $skip, limit: $limit) {
+                offeringCollection(skip: 0, limit: 20) {
                   items {
                     stripeProductId
                     stripeLegacyPlans

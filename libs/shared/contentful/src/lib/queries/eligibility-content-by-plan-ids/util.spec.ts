@@ -14,9 +14,9 @@ describe('EligibilityContentByPlanIdsResultUtil', () => {
     const purchase = result.purchaseCollection?.items[0];
     const planId = purchase?.stripePlanChoices?.[0];
     const legacyPlanId = purchase?.offering?.stripeLegacyPlans?.[0];
-    const util = new EligibilityContentByPlanIdsResultUtil(
-      result as EligibilityContentByPlanIdsResult
-    );
+    const util = new EligibilityContentByPlanIdsResultUtil([
+      result as EligibilityContentByPlanIdsResult,
+    ]);
     expect(util).toBeDefined();
     expect(util.offeringForPlanId(planId ?? '')?.stripeProductId).toBeDefined();
     expect(

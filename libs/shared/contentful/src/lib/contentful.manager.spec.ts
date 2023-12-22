@@ -12,6 +12,8 @@ import {
   CapabilityServiceByPlanIdsResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
+  EligibilityPurchaseResult,
+  EligibilityPurchaseResultFactory,
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
@@ -40,24 +42,52 @@ describe('ContentfulManager', () => {
 
   describe('getPurchaseDetailsForEligibility', () => {
     it('should return empty result', async () => {
-      mockClient.query = jest.fn().mockReturnValue({
-        purchaseCollection: { items: [] },
+      const queryData = EligibilityContentByPlanIdsQueryFactory({
+        purchaseCollection: { items: [], total: 0 },
       });
+      mockClient.query = jest.fn().mockReturnValue(queryData);
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
+      expect(result.offeringForPlanId('test')).toBeUndefined;
       expect(result.purchaseCollection.items).toHaveLength(0);
     });
 
     it('should return successfully with subgroups and offering', async () => {
-      const queryData = EligibilityContentByPlanIdsQueryFactory();
+      const planId = 'test';
+      const purchaseResult = [
+        EligibilityPurchaseResultFactory({ stripePlanChoices: [planId] }),
+      ];
+      const queryData = EligibilityContentByPlanIdsQueryFactory({
+        purchaseCollection: {
+          items: purchaseResult,
+          total: purchaseResult.length,
+        },
+      });
       mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
       const result = await manager.getPurchaseDetailsForEligibility(['test']);
-      const planId = result.purchaseCollection.items[0].stripePlanChoices[0];
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(
         result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
       ).toHaveLength(1);
       expect(result.offeringForPlanId(planId)).toBeDefined();
+    });
+
+    it('should return successfully with paging', async () => {
+      const pageSize = 20;
+      const purchaseResult: EligibilityPurchaseResult[] = [];
+      for (let i = 0; i < pageSize + 1; i += 1) {
+        purchaseResult.push(EligibilityPurchaseResultFactory());
+      }
+      const queryData = EligibilityContentByPlanIdsQueryFactory({
+        purchaseCollection: {
+          items: purchaseResult,
+          total: purchaseResult.length,
+        },
+      });
+      mockClient.query = jest.fn().mockResolvedValue(queryData);
+      const result = await manager.getPurchaseDetailsForEligibility(['test']);
+      expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
+      expect(mockClient.query).toBeCalledTimes(2);
     });
   });
 

@@ -33,6 +33,7 @@ export interface EligibilityPurchaseResult {
 
 export interface EligibilityContentByPlanIdsResult {
   purchaseCollection: {
+    total: number;
     items: EligibilityPurchaseResult[];
   };
 }

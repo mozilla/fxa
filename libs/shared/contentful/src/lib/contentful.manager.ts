@@ -65,19 +65,29 @@ export class ContentfulManager {
   async getPurchaseDetailsForEligibility(
     stripePlanIds: string[]
   ): Promise<EligibilityContentByPlanIdsResultUtil> {
-    const queryResult = await this.client.query(
-      eligibilityContentByPlanIdsQuery,
-      {
-        skip: 0,
-        limit: 100,
-        locale: DEFAULT_LOCALE,
-        stripePlanIds,
-      }
-    );
+    let total: number | undefined;
+    let count = 0;
+    const queryResults: DeepNonNullable<EligibilityContentByPlanIdsQuery>[] =
+      [];
+    const pageSize = 20;
 
-    return new EligibilityContentByPlanIdsResultUtil(
-      queryResult as DeepNonNullable<EligibilityContentByPlanIdsQuery>
-    );
+    while (total === undefined || count < total) {
+      const queryResult = (await this.client.query(
+        eligibilityContentByPlanIdsQuery,
+        {
+          skip: count,
+          limit: pageSize,
+          locale: DEFAULT_LOCALE,
+          stripePlanIds,
+        }
+      )) as DeepNonNullable<EligibilityContentByPlanIdsQuery>;
+
+      queryResults.push(queryResult);
+      count += pageSize;
+      total = queryResult.purchaseCollection.total;
+    }
+
+    return new EligibilityContentByPlanIdsResultUtil(queryResults);
   }
 
   async getServicesWithCapabilities(): Promise<ServicesWithCapabilitiesResultUtil> {
