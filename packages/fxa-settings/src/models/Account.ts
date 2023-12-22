@@ -936,21 +936,6 @@ export class Account implements AccountData {
         metricsContext
       )
     );
-    await this.apolloClient.cache.modify({
-      fields: {
-        session: () => {
-          return { verified: true };
-        },
-      },
-    });
-    // TODO: Move this to ConfirmSignupCode container component
-    // If we can use GQL here when we do that, also be sure to add
-    // the operation name to the auth list in `lib/gql.ts`.
-    // Look @ in FXA-7626 or FXA-7184
-    await this.apolloClient.cache.writeQuery({
-      query: GET_LOCAL_SIGNED_IN_STATUS,
-      data: { isSignedIn: true },
-    });
     return linkedAccount;
   }
 

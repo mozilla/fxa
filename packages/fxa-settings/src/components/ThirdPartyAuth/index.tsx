@@ -170,9 +170,10 @@ function deleteParams(searchParams: URLSearchParams, paramsToDelete: string[]) {
 
 function getState() {
   // We stash originating location in the state oauth param
-  // because we will need it to use it to log the user into FxA
-  const originParams = new URLSearchParams(window.location.search);
-  const modifiedParams = deleteParams(originParams, [
+  // because we will need it to use it to reconstruct the redirect URL for RP
+  const params = new URLSearchParams(window.location.search);
+  // we won't need these params that are used for internal backbone/react navigation
+  const modifiedParams = deleteParams(params, [
     'deeplink',
     'email',
     'emailFromContent',

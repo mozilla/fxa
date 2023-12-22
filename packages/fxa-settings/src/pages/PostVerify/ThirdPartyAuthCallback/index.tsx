@@ -20,11 +20,21 @@ import {
 } from '../../../lib/storage-utils';
 import { sessionToken } from '../../../lib/cache';
 
+type LinkedAccountData = {
+  uid: hexstring;
+  sessionToken: hexstring;
+  providerUid: hexstring;
+  email: string;
+  verificationMethod?: string;
+};
+
 // TODO this page to be completed/activated in FXA-8834
-// User reaches this page when redirected back from third party auth provider
-// requires /post_verify/third_party_auth/callback route to be turned on for react
-// otherwise users authenticating with the react version of signin/signup are directed
-// to the backbone version of the callback to complete their authentication
+// User reaches this page when redirected back from third party auth provider.
+// It requires /post_verify/third_party_auth/callback route to be turned on for react
+// otherwise, users authenticating with the react version of signin/signup are directed
+// to the backbone version of the callback to complete their third party authentication.
+
+// All use of params should be reworked to use `useValidatedQueryParams` hook in FXA-8834
 
 const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
   const navigate = useNavigate();
@@ -52,22 +62,33 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
     return undefined;
   };
 
-  // auth params are received from the third party auth provider
-  // and are required to verify the account
-  const getAuthParams = () => {
-    const code = params.get('code');
-    const providerFromParams = params.get('provider');
-    let provider: AUTH_PROVIDER | undefined;
-    if (providerFromParams === 'apple') {
-      provider = AUTH_PROVIDER.APPLE;
-    } else {
-      provider = AUTH_PROVIDER.GOOGLE;
-    }
+  // Persist account data to local storage to match parity with content-server
+  // this allows the recent account to be used for /signin
+  const storeAccountData = async (linkedAccount: LinkedAccountData) => {
+    const accountData: StoredAccountData = {
+      // We are using the email that was returned from the Third Party Auth
+      // Not the email entered in the email-first form as they might be different
+      email: linkedAccount.email,
+      uid: linkedAccount.uid,
+      lastLogin: Date.now(),
+      sessionToken: linkedAccount.sessionToken,
+      verified: true,
+      metricsEnabled: true,
+    };
 
-    return { code, provider };
+    persistAccount(accountData);
+    setCurrentAccount(accountData.uid);
+    sessionToken(accountData.sessionToken);
   };
 
-  const handlePostSignInNavigation = () => {
+  const completeSignIn = async (linkedAccount: LinkedAccountData) => {
+    // TODO in FXA-8834, use SignIn method that should be ported in FXA-6488
+    // to complete sign in with the sessionToken obtained when verifying the third party auth
+    // this should also update graphQL cache (isSignedIn:true)
+    // await account.signIn(linkedAccount)
+
+    await storeAccountData(linkedAccount);
+
     // TODO ensure correct redirects for all integrations (OAuth, Desktop, Mobile)
     // redirect is constructed from state param in the URL params
     const redirectURL = getRedirectUrl();
@@ -88,27 +109,30 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
         } else {
           // general redirect to settings for non-RP
           // currently, redirect to /settings fails with an "unauthenticated" error from GQL
-          // and redirects to /signin where signin in *again* with ThirdPArty Auth successfully
+          // and redirects to /signin (on backbone) where ThirdPArty Auth successfully
           // navigates to /settings
-          // however, after signup we can see the account is successfully created in the db
-          // and added to local storage
-          // need to determine what is missing to directly be considered signed in
-          // when signup with thrid party auth is handled with react from end to end
           navigate(`/settings${window.location.search}`);
         }
       }
     }
   };
 
-  // Persist account data to local storage to match parity with content-server
-  // this allows the recent account to be used for /signin
-  const storeAccountData = (accountData: StoredAccountData) => {
-    persistAccount(accountData);
-    setCurrentAccount(accountData.uid);
-    sessionToken(accountData.sessionToken);
+  // auth params are received from the third party auth provider
+  // and are required to verify the account
+  const getAuthParams = () => {
+    const code = params.get('code');
+    const providerFromParams = params.get('provider');
+    let provider: AUTH_PROVIDER | undefined;
+    if (providerFromParams === 'apple') {
+      provider = AUTH_PROVIDER.APPLE;
+    } else {
+      provider = AUTH_PROVIDER.GOOGLE;
+    }
+
+    return { code, provider };
   };
 
-  async function verifyAndContinue() {
+  async function verifyOAuthResponseAndSignIn() {
     const { code, provider } = getAuthParams();
 
     if (code && provider) {
@@ -117,24 +141,10 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
         // will create a new FxA account if one does not exist.
         // The response contains a session token that can be used
         // to sign the user in to FxA or to complete an Oauth flow.
-        const linkedAccount = await account.verifyAccountThirdParty(
-          code,
-          provider
-        );
+        const linkedAccount: LinkedAccountData =
+          await account.verifyAccountThirdParty(code, provider);
 
-        const accountData: StoredAccountData = {
-          // We are using the email that was returned from the Third Party Auth
-          // Not the email entered in the email-first form as they might be different
-          email: linkedAccount.email,
-          uid: linkedAccount.uid,
-          lastLogin: Date.now(),
-          sessionToken: linkedAccount.sessionToken,
-          verified: true,
-          metricsEnabled: true,
-        };
-
-        await storeAccountData(accountData);
-        handlePostSignInNavigation();
+        completeSignIn(linkedAccount);
       } catch (error) {
         // TODO add error handling
       }
@@ -146,7 +156,7 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
   }
 
   useEffect(() => {
-    verifyAndContinue();
+    verifyOAuthResponseAndSignIn();
   });
 
   return (
