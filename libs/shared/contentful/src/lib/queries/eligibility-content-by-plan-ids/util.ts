@@ -11,15 +11,17 @@ import {
 export class EligibilityContentByPlanIdsResultUtil {
   private purchaseByPlanId: Record<string, EligibilityPurchaseResult> = {};
 
-  constructor(private rawResult: EligibilityContentByPlanIdsResult) {
-    for (const purchase of rawResult.purchaseCollection.items) {
-      purchase.stripePlanChoices?.forEach((planId) => {
-        this.purchaseByPlanId[planId] = purchase;
-      });
+  constructor(private rawResults: EligibilityContentByPlanIdsResult[]) {
+    for (const rawResult of rawResults) {
+      for (const purchase of rawResult.purchaseCollection.items) {
+        purchase.stripePlanChoices?.forEach((planId) => {
+          this.purchaseByPlanId[planId] = purchase;
+        });
 
-      purchase.offering.stripeLegacyPlans?.forEach((planId) => {
-        this.purchaseByPlanId[planId] = purchase;
-      });
+        purchase.offering.stripeLegacyPlans?.forEach((planId) => {
+          this.purchaseByPlanId[planId] = purchase;
+        });
+      }
     }
   }
 
@@ -27,7 +29,17 @@ export class EligibilityContentByPlanIdsResultUtil {
     return this.purchaseByPlanId[planId]?.offering;
   }
 
-  get purchaseCollection() {
-    return this.rawResult.purchaseCollection;
+  get purchaseCollection(): EligibilityContentByPlanIdsResult['purchaseCollection'] {
+    return {
+      total: this.rawResults.length,
+      items: [
+        ...new Map(
+          this.rawResults
+            .map((rawResult) => rawResult.purchaseCollection.items)
+            .flat()
+            .map((res) => [JSON.stringify(res), res])
+        ).values(),
+      ],
+    };
   }
 }

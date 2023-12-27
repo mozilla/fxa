@@ -7,6 +7,7 @@ import { faker } from '@faker-js/faker';
 import { EligibilityContentByPlanIdsQuery } from '../../../__generated__/graphql';
 import {
   EligibilityOfferingResult,
+  EligibilityPurchaseResult,
   EligibilitySubgroupOfferingResult,
   EligibilitySubgroupResult,
 } from '.';
@@ -14,18 +15,23 @@ import {
 export const EligibilityContentByPlanIdsQueryFactory = (
   override?: Partial<EligibilityContentByPlanIdsQuery>
 ): EligibilityContentByPlanIdsQuery => {
+  const items = [EligibilityPurchaseResultFactory()];
   return {
     purchaseCollection: {
-      items: [
-        {
-          stripePlanChoices: [faker.string.sample()],
-          offering: EligibilityOfferingResultFactory(),
-        },
-      ],
+      total: items.length,
+      items,
     },
     ...override,
   };
 };
+
+export const EligibilityPurchaseResultFactory = (
+  override?: Partial<EligibilityPurchaseResult>
+): EligibilityPurchaseResult => ({
+  stripePlanChoices: [faker.string.sample()],
+  offering: EligibilityOfferingResultFactory(),
+  ...override,
+});
 
 export const EligibilityOfferingResultFactory = (
   override?: Partial<EligibilityOfferingResult>
