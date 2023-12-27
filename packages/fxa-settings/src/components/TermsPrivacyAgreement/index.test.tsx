@@ -53,11 +53,15 @@ it('renders component as expected for Monitor clients', () => {
 
   const linkElements: HTMLElement[] = screen.getAllByRole('link');
 
-  expect(linkElements).toHaveLength(3);
+  expect(linkElements).toHaveLength(4);
   expect(linkElements[0]).toHaveAttribute(
     'href',
-    'https://www.mozilla.org/privacy/firefox-monitor/'
+    'https://www.mozilla.org/about/legal/terms/subscription-services/'
   );
-  expect(linkElements[1]).toHaveAttribute('href', '/legal/terms');
-  expect(linkElements[2]).toHaveAttribute('href', '/legal/privacy');
+  expect(linkElements[1]).toHaveAttribute(
+    'href',
+    'https://www.mozilla.org/privacy/subscription-services/'
+  );
+  expect(linkElements[2]).toHaveAttribute('href', '/legal/terms');
+  expect(linkElements[3]).toHaveAttribute('href', '/legal/privacy');
 });
