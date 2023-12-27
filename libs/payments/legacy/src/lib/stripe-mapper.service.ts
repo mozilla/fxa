@@ -7,7 +7,8 @@ import { PlanMapperUtil } from './plan-mapper.util';
  * Stripe metadata for an array of Stripe Plans.
  */
 export class StripeMapperService {
-  private nonMatchingPlans: string[] = [];
+  private errorIds = new Map<string, Set<string>>();
+  private successfulIds = new Set();
   constructor(private contentfulManager: ContentfulManager) {}
 
   /**
@@ -21,6 +22,34 @@ export class StripeMapperService {
     } else {
       return false;
     }
+  }
+
+  private addErrorFields(id: string, messages: string[]) {
+    // First check if ID is already in success Map. If it is, do not log.
+    if (this.successfulIds.has(id)) {
+      return;
+    }
+    // Limit to 1 message per productId
+    const errorIdValue = this.errorIds.get(id) || new Set<string>();
+    messages.forEach((message) => errorIdValue.add(message));
+    this.errorIds.set(id, errorIdValue);
+  }
+
+  private addSuccessfulIds(id: string) {
+    //Add success
+    this.successfulIds.add(id);
+    //Remove error
+    this.errorIds.delete(id);
+  }
+
+  private getErrorMessages() {
+    const errorMessages: string[] = [];
+
+    this.errorIds.forEach((messages, id) => {
+      errorMessages.push(`${id} - ${[...messages].join(', ')}`);
+    });
+
+    return errorMessages;
   }
 
   /**
@@ -43,7 +72,7 @@ export class StripeMapperService {
     for (const plan of plans) {
       if (!this.isProductObject(plan.product)) {
         mappedPlans.push(plan);
-        this.nonMatchingPlans.push(`${plan.id} - Plan product not expanded`);
+        this.addErrorFields(plan.id, ['Plan product not expanded']);
         continue;
       }
 
@@ -59,7 +88,7 @@ export class StripeMapperService {
 
       if (!contentfulConfigData) {
         mappedPlans.push(plan);
-        this.nonMatchingPlans.push(`${plan.id} - No Contentful config`);
+        this.addErrorFields(plan.id, ['No Contentful config']);
         continue;
       }
 
@@ -92,13 +121,15 @@ export class StripeMapperService {
       });
 
       if (errorFields.length) {
-        this.nonMatchingPlans.push(`${plan.id} - ${errorFields.join(', ')}`);
+        this.addErrorFields(plan.product.id, errorFields);
+      } else {
+        this.addSuccessfulIds(plan.product.id);
       }
     }
 
     return {
       mappedPlans,
-      nonMatchingPlans: this.nonMatchingPlans,
+      nonMatchingPlans: this.getErrorMessages(),
     };
   }
 }
