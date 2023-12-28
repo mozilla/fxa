@@ -5,7 +5,7 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType, isSyncDesktopIntegration } from '../../models';
+import { IntegrationType, isSyncDesktopV3Integration } from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
 import {
@@ -36,9 +36,9 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
   };
 }
 
-export function createMockSignupSyncDesktopIntegration(): SignupBaseIntegration {
+export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegration {
   return {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     getService: () => Promise.resolve(MozServices.FirefoxSync),
   };
 }
@@ -105,7 +105,7 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
-          isSync: isSyncDesktopIntegration(integration),
+          isSync: isSyncDesktopV3Integration(integration),
           isSyncMobileWebChannel: false,
           webChannelEngines: getSyncEngineIds(),
         }}

@@ -9,7 +9,7 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   createMockSignupOAuthIntegration,
-  createMockSignupSyncDesktopIntegration,
+  createMockSignupSyncDesktopV3Integration,
   createMockSignupWebIntegration,
   mockBeginSignupHandler,
   signupQueryParams,
@@ -66,6 +66,6 @@ export const ClientIsMonitor = storyWithProps({
 });
 
 export const ChooseWhatToSyncIsEnabled = storyWithProps({
-  integration: createMockSignupSyncDesktopIntegration(),
+  integration: createMockSignupSyncDesktopV3Integration(),
   isSync: true,
 });

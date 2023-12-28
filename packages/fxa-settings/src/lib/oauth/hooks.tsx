@@ -7,14 +7,15 @@ import { useCallback } from 'react';
 import {
   Integration,
   OAuthIntegration,
-  isOAuthIntegration,
+  OAuthIntegrations,
+  SyncDesktopOAuthIntegration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 
 // TODO: Do we need this or can we rely on `@bind` methods? FXA-8106
 const checkOAuthData = (
-  integration: OAuthIntegration,
+  integration: OAuthIntegrations,
   wantsRedirect: boolean
 ): Error | null => {
   // Ensure a redirect was provided. Without this info, we can't relay the oauth code
@@ -160,14 +161,13 @@ export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
 ): FinishOAuthFlowHandlerResult {
-  const isSyncMobileWebChannel =
-    isOAuthIntegration(integration) &&
-    integration.isSync() &&
-    integration.features.webChannelSupport === true;
+  // Sync mobile + sync desktop context=oauth_webchannel_v1
+  const isSyncOAuth = integration.isOAuth() && integration.isSync();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {
-      const oAuthIntegration = integration as OAuthIntegration;
+      const oAuthIntegration = integration as OAuthIntegrations;
+
       let keys;
       if (integration.wantsKeys()) {
         const { kB } = await authClient.accountKeys(keyFetchToken, unwrapKB);
@@ -194,7 +194,7 @@ export function useFinishOAuthFlowHandler(
         keys
       );
 
-      const redirect = isSyncMobileWebChannel
+      const redirect = isSyncOAuth
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
         : constructOAuthRedirectUrl(
             oAuthCode,
@@ -207,9 +207,7 @@ export function useFinishOAuthFlowHandler(
       // the server occurs to get the state from
       // the redirect_uri returned when creating
       // the token or code.
-      const state = isSyncMobileWebChannel
-        ? integration.data.state
-        : oAuthCode.state;
+      const state = isSyncOAuth ? integration.data.state : oAuthCode.state;
 
       return {
         redirect,
@@ -217,14 +215,13 @@ export function useFinishOAuthFlowHandler(
         state,
       };
     },
-    [authClient, integration, isSyncMobileWebChannel]
+    [authClient, integration, isSyncOAuth]
   );
 
-  /* TODO: Possibly create SyncMobile integration if we need more special cases
-   * for sync mobile, or, probably remove 'isOAuthVerificationDifferentBrowser'
+  /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and
    * 'isOAuthVerificationSameBrowser' checks when reset PW no longer uses links.
    *
-   * `service=sync` is passed when `context` is `fx_desktop_v3` (Sync desktop) or
+   * `service=sync` is passed when `context` is `fx_desktop_v3` (old Sync desktop) or
    * when context is `fx_ios_v1` (which we don't support, iOS 1.0 ... < 2.0). See:
    * https://mozilla.github.io/ecosystem-platform/relying-parties/reference/query-parameters#service
    *
@@ -236,12 +233,12 @@ export function useFinishOAuthFlowHandler(
    *
    * ¹This was the case when reset password had an OAuth redirect - we only called
    * `checkOAuthData` if `integration.data.service` was _not_ present in the URL. We can
-   * revisit this with the reset PW redesign - for now check if !isSyncMobileWebChannel.
+   * revisit this with the reset PW redesign - for now check if !isSyncOAuth.
    *
    * P.S. we can't return early regardless because `useCallback` can't be set conditionally.
    */
-  if (isOAuthIntegration(integration)) {
-    const oAuthDataError = checkOAuthData(integration, !isSyncMobileWebChannel);
+  if (integration.isOAuth()) {
+    const oAuthDataError = checkOAuthData(integration, !isSyncOAuth);
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };

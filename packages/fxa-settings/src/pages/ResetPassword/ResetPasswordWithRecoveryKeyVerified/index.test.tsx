@@ -14,7 +14,7 @@ import {
   renderWithRouter,
 } from '../../../models/mocks';
 import {
-  createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration,
+  createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopV3Integration,
   createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration,
 } from './mocks';
 import GleanMetrics from '../../../lib/glean';
@@ -58,11 +58,11 @@ const ResetPasswordWithRecoveryKeyVerifiedWithWebIntegration = ({
   />
 );
 
-const ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopIntegration = ({
+const ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopV3Integration = ({
   isSignedIn = true,
 }) => (
   <ResetPasswordWithRecoveryKeyVerified
-    integration={createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration()}
+    integration={createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopV3Integration()}
     {...{ isSignedIn }}
   />
 );
@@ -101,7 +101,9 @@ describe('ResetPasswordWithRecoveryKeyVerified', () => {
   });
 
   it('renders default content for sync service', async () => {
-    render(<ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopIntegration />);
+    render(
+      <ResetPasswordWithRecoveryKeyVerifiedWithSyncDesktopV3Integration />
+    );
     await screen.findByText(syncText);
     screen.getByText(startBrowsingText);
     screen.getByText(createRecoveryKeyText);

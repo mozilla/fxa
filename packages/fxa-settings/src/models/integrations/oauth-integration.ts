@@ -39,6 +39,7 @@ export enum OAuthPrompt {
 
 type OAuthIntegrationTypes =
   | IntegrationType.OAuth
+  | IntegrationType.SyncDesktopOAuth
   | IntegrationType.PairingSupplicant
   | IntegrationType.PairingAuthority;
 
@@ -182,8 +183,6 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     this.setFeatures({
       handleSignedInNotification: false,
       reuseExistingSession: true,
-      webChannelSupport:
-        this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT,
     });
   }
 
@@ -255,15 +254,8 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return true;
   }
 
-  // TODO: Sync mobile currently uses the OAuth integration for key derivation.
-  // Whenever desktop FF moves to this as well (e.g. from context=fx_desktop_v3
-  // to context=oauth_webchannel_v1) in SYNC-3768, we can refactor this and the
-  // SyncDesktop integration accordingly - maybe we'll only need one Sync
-  // integration once we no longer need to support desktop_v3. For now,
-  // `isOAuthIntegration(integration) && serviceName === MozServices.FirefoxSync`
-  // is the equivalent of this method's check.
   isSync() {
-    return this.getServiceName() === Constants.RELIER_SYNC_SERVICE_NAME;
+    return this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
   }
 
   isTrusted() {
@@ -278,7 +270,7 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.data.prompt === OAuthPrompt.LOGIN || this.data.maxAge === 0;
   }
 
-  wantsTwoStepAuthentication() {
+  wantsTwoStepAuthentication(): boolean {
     const acrValues = this.data.acrValues;
     if (!acrValues) {
       return false;

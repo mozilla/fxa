@@ -25,7 +25,7 @@ import {
   MOCK_SEARCH_PARAMS,
   MOCK_VERIFICATION_INFO,
   createMockAccountRecoveryResetPasswordOAuthIntegration,
-  createMockAccountRecoveryResetPasswordSyncDesktopIntegration,
+  createMockAccountRecoveryResetPasswordSyncDesktopV3Integration,
   mockAccount,
 } from './mocks';
 import { AccountRecoveryResetPasswordBaseIntegration } from './interfaces';
@@ -104,7 +104,7 @@ const render = (ui = <Subject />, account = mockAccount()) => {
 };
 
 const Subject = ({
-  integration = createMockAccountRecoveryResetPasswordSyncDesktopIntegration(),
+  integration = createMockAccountRecoveryResetPasswordSyncDesktopV3Integration(),
 }) => <AccountRecoveryResetPassword {...{ integration }} />;
 
 describe('AccountRecoveryResetPassword page', () => {
@@ -283,7 +283,7 @@ describe('AccountRecoveryResetPassword page', () => {
     let fxaLoginSignedInUserSpy: jest.SpyInstance;
     beforeEach(async () => {
       integration =
-        createMockAccountRecoveryResetPasswordSyncDesktopIntegration();
+        createMockAccountRecoveryResetPasswordSyncDesktopV3Integration();
       account.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockResolvedValue(MOCK_RESET_DATA);
@@ -300,7 +300,7 @@ describe('AccountRecoveryResetPassword page', () => {
       expect(integration.data.resetPasswordConfirm).toBeTruthy();
     });
     it('calls fxaLoginSignedInUserSpy', () => {
-      expect(integration.type).toEqual(IntegrationType.SyncDesktop);
+      expect(integration.type).toEqual(IntegrationType.SyncDesktopV3);
       expect(fxaLoginSignedInUserSpy).toHaveBeenCalled();
     });
   });

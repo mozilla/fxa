@@ -3,15 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { MozServices } from '../../lib/types';
+import { OAuthIntegration } from './oauth-integration';
+import { SyncDesktopOAuthIntegration } from './sync-desktop-oauth-integration';
+import { SyncDesktopV3Integration } from './sync-desktop-v3-integration';
 
 export enum IntegrationType {
   OAuth = 'OAuth',
   PairingAuthority = 'PairingAuthority', // TODO
   PairingSupplicant = 'PairingSupplicant', // TODO
   SyncBasic = 'SyncBasic',
-  SyncDesktop = 'SyncDesktop',
+  SyncDesktopV3 = 'SyncDesktopV3',
+  SyncDesktopOAuth = 'SyncDesktopOAuth',
   Web = 'Web', // default
 }
+
+export type OAuthIntegrations = OAuthIntegration | SyncDesktopOAuthIntegration;
 
 /* TODO, do we care about this feature (capability in content-server)?
  * -isOpenWebmailButtonVisible: we have a webmail link showing only in desktop v3
@@ -95,12 +101,14 @@ export abstract class Integration<
     this.features = { ...this.features, ...features } as T;
   }
 
-  // TODO: do we need this/isSync?
-  isOAuth(): boolean {
+  isOAuth(): this is OAuthIntegrations {
     return false;
   }
 
-  isSync(): boolean {
+  isSync(): this is
+    | OAuthIntegration
+    | SyncDesktopOAuthIntegration
+    | SyncDesktopV3Integration {
     return false;
   }
 

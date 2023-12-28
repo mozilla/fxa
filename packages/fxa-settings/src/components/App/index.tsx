@@ -55,6 +55,8 @@ import { QueryParams } from '../..';
 import SignupContainer from '../../pages/Signup/container';
 import GleanMetrics from '../../lib/glean';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { isSyncDesktopOAuthIntegration } from '../../models/integrations/sync-desktop-oauth-integration';
+import firefox, { FirefoxCommand } from '../../lib/channels/firefox';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -105,6 +107,22 @@ export const App = ({
     flowQueryParams,
     integration,
   ]);
+
+  if (integration && integration.isSync()) {
+    // send up fxaStatus request here
+    // merge sync account if config.sendFxAStatusOnSettings
+
+    if (isSyncDesktopOAuthIntegration(integration)) {
+      // receive web channel message with OAuth params and set integration values
+      // If not received, assume desktop v3
+      integration.data.setModelData('scope', 'test1');
+      integration.data.setModelData('keysJwk', 'test2');
+      integration.data.setModelData('state', 'test3');
+      integration.data.setModelData('client_id', 'test4');
+      integration.data.setModelData('service', 'sync');
+      // etc., not sure if we need `access_type` etc.
+    }
+  }
 
   useEffect(() => {
     Metrics.init(data?.account?.metricsEnabled || !isSignedIn, flowQueryParams);

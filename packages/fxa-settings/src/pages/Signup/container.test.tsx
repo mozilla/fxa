@@ -59,7 +59,7 @@ import AuthClient from 'fxa-auth-client/browser';
 let integration: SignupContainerIntegration;
 function mockIntegration() {
   integration = {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
     features: {
       allowUidChange: false,
@@ -324,7 +324,7 @@ describe('sign-up-container', () => {
         // here we override some key behaviors to alter the containers behavior
         serviceName = MozServices.FirefoxSync;
         integration.getService = () => MozServices.FirefoxSync;
-        integration.type = IntegrationType.SyncDesktop;
+        integration.type = IntegrationType.SyncDesktopV3;
       });
 
       it('added event listeners', async () => {
@@ -388,7 +388,7 @@ describe('sign-up-container', () => {
     beforeEach(() => {
       serviceName = MozServices.FirefoxSync;
       integration.getService = () => MozServices.FirefoxSync;
-      integration.type = IntegrationType.SyncDesktop;
+      integration.type = IntegrationType.SyncDesktopV3;
     });
 
     it('runs handler and invokes sign up mutation', async () => {

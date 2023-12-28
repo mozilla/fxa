@@ -5,11 +5,13 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
+  BaseIntegration,
   BaseIntegrationData,
   Integration,
   IntegrationType,
   OAuthIntegration,
   OAuthIntegrationData,
+  OAuthIntegrations,
 } from '../../../models';
 import { StoredAccountData } from '../../../lib/storage-utils';
 
@@ -49,6 +51,7 @@ export interface ConfirmSignupCodeBaseIntegration {
     uid: BaseIntegrationData['uid'];
     redirectTo: BaseIntegrationData['redirectTo'];
   };
+  isOAuth: () => this is OAuthIntegrations;
 }
 
 export interface ConfirmSignupCodeOAuthIntegration {
@@ -57,6 +60,7 @@ export interface ConfirmSignupCodeOAuthIntegration {
     uid: OAuthIntegrationData['uid'];
     redirectTo: OAuthIntegrationData['redirectTo'];
   };
+  isOAuth: () => this is OAuthIntegrations;
   getService: () => ReturnType<OAuthIntegration['getService']>;
   getRedirectUri: () => ReturnType<OAuthIntegration['getService']>;
 }

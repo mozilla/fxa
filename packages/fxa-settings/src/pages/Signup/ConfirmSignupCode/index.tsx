@@ -35,7 +35,8 @@ import { MailImage } from '../../../components/images';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import {
   isOAuthIntegration,
-  isSyncDesktopIntegration,
+  isSyncDesktopOAuthIntegration,
+  isSyncDesktopV3Integration,
   isWebIntegration,
 } from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
@@ -153,12 +154,16 @@ const ConfirmSignupCode = ({
         logViewEvent(`flow`, 'newsletter.subscribed', REACT_ENTRYPOINT);
       }
 
-      if (isSyncDesktopIntegration(integration)) {
+      if (
+        isSyncDesktopV3Integration(integration) ||
+        isSyncDesktopOAuthIntegration(integration)
+      ) {
         // Connect another device tells Sync the user is signed in
+        // TODO: regular navigate when this page is converted
         const searchParams = new URLSearchParams(location.search);
         searchParams.set('showSuccessMessage', 'true');
         hardNavigateToContentServer(`/connect_another_device?${searchParams}`);
-      } else if (isOAuthIntegration(integration)) {
+      } else if (integration.isOAuth()) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
         // Certain reliers may require users to set up 2FA / TOTP
@@ -182,12 +187,7 @@ const ConfirmSignupCode = ({
             unwrapBKey!
           );
 
-          // TODO: Sync mobile cleanup, see note in oauth-integration isSync, FXA-8671
-          const isSyncMobileWebChannel =
-            isOAuthIntegration(integration) &&
-            integration.isSync() &&
-            integration.features.webChannelSupport === true;
-          if (isSyncMobileWebChannel) {
+          if (integration.isSync()) {
             firefox.fxaOAuthLogin({
               declinedSyncEngines,
               offeredSyncEngines,

@@ -9,17 +9,21 @@ import {
   SyncIntegrationFeatures,
 } from './sync-basic-integration';
 
-export function isSyncDesktopIntegration(integration: {
+export function isSyncDesktopV3Integration(integration: {
   type: IntegrationType;
-}): integration is SyncDesktopIntegration {
+}): integration is SyncDesktopV3Integration {
   return (
-    (integration as SyncDesktopIntegration).type === IntegrationType.SyncDesktop
+    (integration as SyncDesktopV3Integration).type ===
+    IntegrationType.SyncDesktopV3
   );
 }
 
-export class SyncDesktopIntegration extends SyncBasicIntegration<SyncIntegrationFeatures> {
+/* This is a legacy integration for desktop Firefox < 123 that must be supported
+ * for the foreseeable future.
+ */
+export class SyncDesktopV3Integration extends SyncBasicIntegration<SyncIntegrationFeatures> {
   constructor(data: ModelDataStore) {
-    super(data, IntegrationType.SyncDesktop);
+    super(data, IntegrationType.SyncDesktopV3);
     this.setFeatures({ allowUidChange: true });
   }
 

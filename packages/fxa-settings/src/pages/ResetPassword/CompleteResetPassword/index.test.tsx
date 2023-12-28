@@ -435,7 +435,7 @@ describe('CompleteResetPassword page', () => {
         );
         render(
           <Subject
-            integrationType={IntegrationType.SyncDesktop}
+            integrationType={IntegrationType.SyncDesktopV3}
             params={paramsWithSyncDesktop}
           />,
           account

@@ -69,9 +69,9 @@ export function createMockAccountRecoveryResetPasswordOAuthIntegration(
   };
 }
 
-export function createMockAccountRecoveryResetPasswordSyncDesktopIntegration(): AccountRecoveryResetPasswordBaseIntegration {
+export function createMockAccountRecoveryResetPasswordSyncDesktopV3Integration(): AccountRecoveryResetPasswordBaseIntegration {
   return {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     data: {
       uid: MOCK_UID,
       resetPasswordConfirm: false,

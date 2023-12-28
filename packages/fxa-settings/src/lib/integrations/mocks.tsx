@@ -11,8 +11,8 @@ export function createMockWebIntegration(): IntegrationSubsetType {
   };
 }
 
-export function createMockSyncDesktopIntegration(): IntegrationSubsetType {
+export function createMockSyncDesktopV3Integration(): IntegrationSubsetType {
   return {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
   };
 }

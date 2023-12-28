@@ -21,7 +21,7 @@ import {
   MOCK_SEARCH_PARAMS,
   Subject,
   createMockSignupOAuthIntegration,
-  createMockSignupSyncDesktopIntegration,
+  createMockSignupSyncDesktopV3Integration,
 } from './mocks';
 import {
   MOCK_CLIENT_ID,
@@ -208,7 +208,7 @@ describe('Signup page', () => {
 
   it('shows options to choose what to sync when CWTS is enabled', async () => {
     renderWithLocalizationProvider(
-      <Subject integration={createMockSignupSyncDesktopIntegration()} />
+      <Subject integration={createMockSignupSyncDesktopV3Integration()} />
     );
 
     await screen.findByText('Choose what to sync');
@@ -440,7 +440,7 @@ describe('Signup page', () => {
             .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
           renderWithLocalizationProvider(
             <Subject
-              integration={createMockSignupSyncDesktopIntegration()}
+              integration={createMockSignupSyncDesktopV3Integration()}
               beginSignupHandler={mockBeginSignupHandler}
             />
           );

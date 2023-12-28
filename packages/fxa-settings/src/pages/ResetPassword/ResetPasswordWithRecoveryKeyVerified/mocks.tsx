@@ -14,9 +14,9 @@ export function createMockResetPasswordWithRecoveryKeyVerifiedWebIntegration(): 
   };
 }
 
-export function createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopIntegration(): ResetPasswordWithRecoveryKeyVerifiedIntegration {
+export function createMockResetPasswordWithRecoveryKeyVerifiedSyncDesktopV3Integration(): ResetPasswordWithRecoveryKeyVerifiedIntegration {
   return {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     getServiceName: () => MozServices.FirefoxSync,
     isSync: () => true,
   };
