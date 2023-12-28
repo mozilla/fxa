@@ -1990,6 +1990,31 @@ const convictConf = convict({
       format: String,
     },
   },
+
+  cloudTasks: {
+    oidc: {
+      aud: {
+        default: '',
+        doc: 'The audience value of the id token payload.',
+        env: 'AUTH_CLOUDTASKS_OIDC_AUD',
+        format: String,
+      },
+      serviceAccountEmail: {
+        default: '',
+        doc: 'The GCP service account email address.',
+        env: 'AUTH_CLOUDTASKS_OIDC_EMAIL',
+        format: String,
+      },
+    },
+    deleteAccounts: {
+      queueName: {
+        default: '',
+        doc: 'The name of the queue.  It should match the x-cloudtasks-queuename header value sent to the target.',
+        env: 'AUTH_CLOUDTASKS_DEL_ACCT_QUEUENAME',
+        format: String,
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

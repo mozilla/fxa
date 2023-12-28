@@ -194,6 +194,9 @@ module.exports = function (
     statsd
   );
 
+  const { cloudTaskRoutes } = require('./cloud-tasks');
+  const cloudTasks = cloudTaskRoutes(config);
+
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
     basePath = '';
@@ -216,7 +219,8 @@ module.exports = function (
     recoveryKey,
     subscriptions,
     newsletters,
-    linkedAccounts
+    linkedAccounts,
+    cloudTasks
   );
 
   function optionallyIgnoreTrace(fn) {

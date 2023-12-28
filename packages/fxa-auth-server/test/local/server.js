@@ -842,5 +842,11 @@ function getConfig() {
       dsn: '',
       env: 'local',
     },
+    cloudTasks: {
+      oidc: {
+        aud: 'cloud-tasks',
+        serviceAccountEmail: 'testo@iam.gcp.g.co',
+      },
+    },
   };
 }
