@@ -12,7 +12,7 @@ import {
   PairingSupplicantIntegration,
   RelierClientInfo,
   RelierSubscriptionInfo,
-  SyncDesktopIntegration,
+  SyncDesktopV3Integration,
 } from '../../models/integrations';
 import { StorageData, UrlHashData, UrlQueryData } from '../model-data';
 import { IntegrationFactory, DefaultIntegrationFlags } from '../integrations';
@@ -29,7 +29,7 @@ type IntegrationFlagOverrides = {
 
 type FactoryCallCounts = {
   initIntegration?: number;
-  initSyncDesktopIntegration?: number;
+  initSyncDesktopV3Integration?: number;
   initOAuthIntegration?: number;
   initClientInfo?: number;
 };
@@ -145,7 +145,6 @@ describe('lib/integrations/integration-factory', () => {
 
     it('has correct state`', async () => {
       expect(integration.type).toEqual(IntegrationType.Web);
-      expect(integration.isOAuth()).toBeFalsy();
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeTruthy();
@@ -169,13 +168,13 @@ describe('lib/integrations/integration-factory', () => {
     const CONTEXT = 'fx_desktop_v3';
     const COUNTRY = 'RO';
     const SYNC_SERVICE = 'sync';
-    let integration: SyncDesktopIntegration;
+    let integration: SyncDesktopV3Integration;
 
     beforeAll(async () => {
-      integration = await setup<SyncDesktopIntegration>(
+      integration = await setup<SyncDesktopV3Integration>(
         { isServiceSync: true, isV3DesktopContext: true },
-        { initIntegration: 1, initSyncDesktopIntegration: 1 },
-        (i: Integration) => i instanceof SyncDesktopIntegration
+        { initIntegration: 1, initSyncDesktopV3Integration: 1 },
+        (i: Integration) => i instanceof SyncDesktopV3Integration
       );
     });
 
@@ -184,8 +183,7 @@ describe('lib/integrations/integration-factory', () => {
     });
 
     it('has correct state', () => {
-      expect(integration.type).toEqual(IntegrationType.SyncDesktop);
-      expect(integration.isOAuth()).toBeFalsy();
+      expect(integration.type).toEqual(IntegrationType.SyncDesktopV3);
       expect(integration.isSync()).toBeTruthy();
       expect(integration.wantsKeys()).toBeTruthy();
       expect(integration.isTrusted()).toBeTruthy();
@@ -222,14 +220,13 @@ describe('lib/integrations/integration-factory', () => {
 
       it('has correct state', async () => {
         expect(integration.type).toEqual(IntegrationType.OAuth);
-        expect(integration.isOAuth()).toBeTruthy();
         expect(integration.isSync()).toBeFalsy();
         expect(integration.wantsKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
       });
     });
 
-    describe('OAuth Sync mobile', () => {
+    describe('OAuth Sync', () => {
       beforeEach(async () => {
         integration = await setup<OAuthIntegration>(
           { isOAuth: true },
@@ -238,12 +235,12 @@ describe('lib/integrations/integration-factory', () => {
         );
         await mockSearchParams({
           scope: Constants.OAUTH_OLDSYNC_SCOPE,
+          context: Constants.OAUTH_WEBCHANNEL_CONTEXT,
         });
       });
 
       it('has correct state', async () => {
         expect(integration.type).toEqual(IntegrationType.OAuth);
-        expect(integration.isOAuth()).toBeTruthy();
         expect(integration.isSync()).toBeTruthy();
         expect(integration.wantsKeys()).toBeFalsy();
         expect(integration.isTrusted()).toBeTruthy();
@@ -270,7 +267,6 @@ describe('lib/integrations/integration-factory', () => {
 
     it('has correct state', () => {
       expect(integration.type).toEqual(IntegrationType.PairingSupplicant);
-      expect(integration.isOAuth()).toBeTruthy();
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeTruthy();
@@ -297,7 +293,6 @@ describe('lib/integrations/integration-factory', () => {
         redirect_uri: 'foo',
       });
       expect(integration.type).toEqual(IntegrationType.PairingAuthority);
-      expect(integration.isOAuth()).toBeTruthy();
       expect(integration.isSync()).toBeFalsy();
       expect(integration.wantsKeys()).toBeFalsy();
       expect(integration.isTrusted()).toBeFalsy();

@@ -32,7 +32,10 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
   }
 
   isDevicePairingAsSupplicant() {
-    return DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname);
+    return (
+      this.isOAuthWebChannelContext() &&
+      DEVICE_PAIRING_SUPPLICANT_PATHNAME_REGEXP.test(this.pathname)
+    );
   }
 
   isOAuth() {
@@ -42,7 +45,6 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
     const isOAuthVerificationDifferentBrowser =
       this._isOAuthVerificationDifferentBrowser();
     const isOAuthPath = /oauth/.test(this.pathname);
-
     return (
       !!clientId ||
       isOAuthVerificationSameBrowser ||
@@ -53,6 +55,11 @@ export class DefaultIntegrationFlags implements IntegrationFlags {
 
   isV3DesktopContext() {
     return this.searchParam('context') === Constants.FX_DESKTOP_V3_CONTEXT;
+  }
+
+  // Sync mobile, Sync FF Desktop 123+, and supplicant pairing use this context
+  isOAuthWebChannelContext() {
+    return this.searchParam('context') === Constants.OAUTH_WEBCHANNEL_CONTEXT;
   }
 
   isOAuthSuccessFlow() {

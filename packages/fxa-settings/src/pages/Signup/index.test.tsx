@@ -21,7 +21,7 @@ import {
   MOCK_SEARCH_PARAMS,
   Subject,
   createMockSignupOAuthIntegration,
-  createMockSignupSyncDesktopIntegration,
+  createMockSignupSyncDesktopV3Integration,
 } from './mocks';
 import {
   MOCK_CLIENT_ID,
@@ -215,7 +215,7 @@ describe('Signup page', () => {
 
   it('renders as expected when integration is sync', async () => {
     renderWithLocalizationProvider(
-      <Subject integration={createMockSignupSyncDesktopIntegration()} />
+      <Subject integration={createMockSignupSyncDesktopV3Integration()} />
     );
 
     // Choose what to sync options should be displayed if integration is sync
@@ -455,7 +455,7 @@ describe('Signup page', () => {
             .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
           renderWithLocalizationProvider(
             <Subject
-              integration={createMockSignupSyncDesktopIntegration()}
+              integration={createMockSignupSyncDesktopV3Integration()}
               beginSignupHandler={mockBeginSignupHandler}
             />
           );

@@ -11,5 +11,5 @@ export * from './pairing-supplicant-integration';
 export * from './signin-signup-info';
 export * from './supplicant-info';
 export * from './sync-basic-integration';
-export * from './sync-desktop-integration';
+export * from './sync-desktop-v3-integration';
 export * from './web-integration';

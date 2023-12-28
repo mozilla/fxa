@@ -5,11 +5,13 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
+  BaseIntegration,
   BaseIntegrationData,
   Integration,
   IntegrationType,
   OAuthIntegration,
   OAuthIntegrationData,
+  PairingSupplicantIntegration,
 } from '../../../models';
 import { StoredAccountData } from '../../../lib/storage-utils';
 
@@ -58,7 +60,11 @@ export interface ConfirmSignupCodeOAuthIntegration {
     redirectTo: OAuthIntegrationData['redirectTo'];
   };
   getService: () => ReturnType<OAuthIntegration['getService']>;
-  getRedirectUri: () => ReturnType<OAuthIntegration['getService']>;
+  getRedirectUri: () => ReturnType<OAuthIntegration['getRedirectUri']>;
+  wantsTwoStepAuthentication: () => ReturnType<
+    OAuthIntegration['wantsTwoStepAuthentication']
+  >;
+  isSync: () => ReturnType<OAuthIntegration['isSync']>;
 }
 
 export type ConfirmSignupCodeIntegration =

@@ -97,7 +97,7 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-  // For sync mobile
+  // For sync oauth
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
 };

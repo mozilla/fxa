@@ -44,14 +44,15 @@ export interface SignupProps {
   queryParamModel: SignupQueryParams;
   beginSignupHandler: BeginSignupHandler;
   webChannelEngines: string[] | undefined;
-  isSyncMobileWebChannel: boolean;
-  isSync: boolean;
+  isSyncWebChannel: boolean;
+  isSyncOAuth: boolean;
 }
 
 export type SignupIntegration = SignupOAuthIntegration | SignupBaseIntegration;
 
 export interface SignupOAuthIntegration {
   type: IntegrationType.OAuth;
+  isSync: () => ReturnType<OAuthIntegration['isSync']>;
   getRedirectUri: () => ReturnType<OAuthIntegration['getRedirectUri']>;
   saveOAuthState: () => ReturnType<OAuthIntegration['saveOAuthState']>;
   getService: () => ReturnType<OAuthIntegration['getService']>;
@@ -59,6 +60,7 @@ export interface SignupOAuthIntegration {
 
 export interface SignupBaseIntegration {
   type: IntegrationType;
+  isSync: () => ReturnType<BaseIntegration['isSync']>;
   getService: () => ReturnType<BaseIntegration['getService']>;
 }
 

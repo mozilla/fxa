@@ -7,7 +7,7 @@ import { useLocation, useNavigate } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import {
   isOAuthIntegration,
-  isSyncDesktopIntegration,
+  isSyncDesktopV3Integration,
   useFtlMsgResolver,
 } from '../../models';
 import {
@@ -22,10 +22,10 @@ import InputText from '../../components/InputText';
 import ChooseWhatToSync from '../../components/ChooseWhatToSync';
 import {
   EngineConfig,
-  defaultDesktopSyncEngineConfigs,
+  defaultDesktopV3SyncEngineConfigs,
   getSyncEngineIds,
   syncEngineConfigs,
-  webChannelDesktopEngineConfigs,
+  webChannelDesktopV3EngineConfigs,
 } from '../../components/ChooseWhatToSync/sync-engines';
 import ChooseNewsletters from '../../components/ChooseNewsletters';
 import { newsletters } from '../../components/ChooseNewsletters/newsletters';
@@ -59,8 +59,8 @@ export const Signup = ({
   queryParamModel,
   beginSignupHandler,
   webChannelEngines,
-  isSyncMobileWebChannel,
-  isSync,
+  isSyncWebChannel,
+  isSyncOAuth,
 }: SignupProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -68,6 +68,7 @@ export const Signup = ({
     GleanMetrics.registration.view();
   }, []);
 
+  const isSync = integration.isSync();
   const canChangeEmail = !isOAuthIntegration(integration);
   const email = queryParamModel.email;
 
@@ -113,16 +114,16 @@ export const Signup = ({
 
   useEffect(() => {
     if (webChannelEngines) {
-      if (isSyncDesktopIntegration(integration)) {
-        // Desktop web channel message sends additional engines
+      if (isSyncDesktopV3Integration(integration)) {
+        // Desktop v3 web channel message sends additional engines
         setOfferedSyncEngineConfigs([
-          ...defaultDesktopSyncEngineConfigs,
-          ...webChannelDesktopEngineConfigs.filter((engine) =>
+          ...defaultDesktopV3SyncEngineConfigs,
+          ...webChannelDesktopV3EngineConfigs.filter((engine) =>
             webChannelEngines.includes(engine.id)
           ),
         ]);
-      } else if (isSyncMobileWebChannel) {
-        // Mobile web channel message sends all engines
+      } else if (isSyncWebChannel) {
+        // OAuth Webchannel context sends all engines
         setOfferedSyncEngineConfigs(
           syncEngineConfigs.filter((engine) =>
             webChannelEngines.includes(engine.id)
@@ -130,7 +131,7 @@ export const Signup = ({
         );
       }
     }
-  }, [integration, isSyncMobileWebChannel, webChannelEngines]);
+  }, [integration, isSyncWebChannel, webChannelEngines]);
 
   useEffect(() => {
     if (offeredSyncEngineConfigs) {
@@ -227,7 +228,7 @@ export const Signup = ({
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-        if (isSyncDesktopIntegration(integration)) {
+        if (isSyncDesktopV3Integration(integration)) {
           await firefox.fxaLogin({
             email,
             keyFetchToken: data.SignUp.keyFetchToken,
@@ -250,9 +251,9 @@ export const Signup = ({
             selectedNewsletterSlugs,
             keyFetchToken: data.SignUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
-            // Sync desktop sends a web channel message up on Signup
-            // while Sync mobile does on confirm signup
-            ...(isSyncMobileWebChannel && {
+            // Sync desktop v3 sends a web channel message up on Signup
+            // while OAuth Sync does on confirm signup
+            ...(isSyncOAuth && {
               offeredSyncEngines: getOfferedSyncEngines(),
               declinedSyncEngines,
             }),
@@ -277,12 +278,12 @@ export const Signup = ({
       location.search,
       integration,
       offeredSyncEngineConfigs,
-      isSyncMobileWebChannel,
+      isSyncOAuth,
     ]
   );
 
   const showCWTS = () => {
-    if (isSyncDesktopIntegration(integration) || isSyncMobileWebChannel) {
+    if (isSyncWebChannel) {
       if (offeredSyncEngineConfigs) {
         return (
           <ChooseWhatToSync

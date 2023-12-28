@@ -217,7 +217,7 @@ const AccountRecoveryResetPassword = ({
       switch (integration.type) {
         // NOTE: SyncBasic check is temporary until we implement codes
         // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
-        case IntegrationType.SyncDesktop:
+        case IntegrationType.SyncDesktopV3:
         case IntegrationType.SyncBasic:
           firefox.fxaLoginSignedInUser({
             authAt: accountResetData.authAt,

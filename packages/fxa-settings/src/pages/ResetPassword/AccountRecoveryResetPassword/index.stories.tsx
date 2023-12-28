@@ -13,10 +13,7 @@ import {
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AppContext, AppContextValue } from '../../../models';
-import {
-  createMockAccountRecoveryResetPasswordSyncDesktopIntegration,
-  mockAccount,
-} from './mocks';
+import { createMockSyncDesktopV3Integration, mockAccount } from './mocks';
 import { mockAppContext } from '../../../models/mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
@@ -33,7 +30,7 @@ const storyWithProps = (ctx: AppContextValue, history?: History) => {
     <AppContext.Provider value={ctx}>
       <LocationProvider {...{ history }}>
         <AccountRecoveryResetPassword
-          integration={createMockAccountRecoveryResetPasswordSyncDesktopIntegration()}
+          integration={createMockSyncDesktopV3Integration()}
         />
       </LocationProvider>
     </AppContext.Provider>

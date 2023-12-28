@@ -63,13 +63,13 @@ export interface SyncIntegrationFeatures extends IntegrationFeatures {
 
 type SyncIntegrationTypes =
   | IntegrationType.SyncBasic
-  | IntegrationType.SyncDesktop;
+  | IntegrationType.SyncDesktopV3;
 
 /**
  * This integration offers basic Sync page support _without_ browser communication
  * via webchannels. Currently it is only used 1) when a user is on a verification page
  * through Sync in a different browser, which will no longer be the case once we use
- * codes for reset PW, and 2) as a base class for sync desktop.
+ * codes for reset PW, and 2) as a base class for sync desktop v3.
  */
 export class SyncBasicIntegration<
   T extends SyncIntegrationFeatures
