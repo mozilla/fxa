@@ -21,6 +21,7 @@ const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
 const { CapabilityService } = require('../../../lib/payments/capability');
 const { AccountEventsManager } = require('../../../lib/account-events');
+const { AccountDeleteManager } = require('../../../lib/account-delete');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
@@ -32,7 +33,7 @@ const {
 const {
   deleteAccountIfUnverified,
 } = require('../../../lib/routes/utils/account');
-const { AppConfig } = require('../../../lib/types');
+const { AppConfig, AuthLogger } = require('../../../lib/types');
 const defaultConfig = require('../../../config').default.getProperties();
 const glean = mocks.mockGlean();
 
@@ -61,10 +62,12 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.securityHistory = config.securityHistory || {};
   config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
 
+  const log = options.log || mocks.mockLog();
+  Container.set(AuthLogger, log);
+
   Container.set(AppConfig, config);
   Container.set(AccountEventsManager, new AccountEventsManager());
 
-  const log = options.log || mocks.mockLog();
   const mailer = options.mailer || {};
   const cadReminders = options.cadReminders || mocks.mockCadReminders();
   const Password =
@@ -103,6 +106,15 @@ const makeRoutes = function (options = {}, requireMocks) {
       glean
     );
   const pushbox = options.pushbox || { deleteAccount: sinon.fake.resolves() };
+  const oauthDb = {
+    removeTokensAndCodes: () => {},
+    removePublicAndCanGrantTokens: () => {},
+    ...(options.oauth || {}),
+  };
+  Container.set(
+    AccountDeleteManager,
+    new AccountDeleteManager({ fxaDb: db, oauthDb, push, pushbox })
+  );
 
   return accountRoutes(
     log,
@@ -116,11 +128,7 @@ const makeRoutes = function (options = {}, requireMocks) {
     push,
     verificationReminders,
     subscriptionAccountReminders,
-    {
-      removeTokensAndCodes: () => {},
-      removePublicAndCanGrantTokens: () => {},
-      ...(options.oauth || {}),
-    },
+    oauthDb,
     options.stripeHelper,
     pushbox,
     glean

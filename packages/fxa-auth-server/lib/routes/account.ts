@@ -46,6 +46,7 @@ import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
+import { AccountDeleteManager } from '../account-delete';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -65,6 +66,7 @@ export class AccountHandler {
   private skipConfirmationForEmailAddresses: string[];
   private capabilityService: CapabilityService;
   private accountEventsManager: AccountEventsManager;
+  private accountDeleteManager: AccountDeleteManager;
 
   constructor(
     private log: AuthLogger,
@@ -101,6 +103,7 @@ export class AccountHandler {
     }
     this.capabilityService = Container.get(CapabilityService);
     this.accountEventsManager = Container.get(AccountEventsManager);
+    this.accountDeleteManager = Container.get(AccountDeleteManager);
   }
 
   private async generateRandomValues() {

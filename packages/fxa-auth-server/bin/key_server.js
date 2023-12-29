@@ -33,6 +33,7 @@ const {
 const { setupFirestore } = require('../lib/firestore-db');
 const { AppleIAP } = require('../lib/payments/iap/apple-app-store/apple-iap');
 const { AccountEventsManager } = require('../lib/account-events');
+const { AccountDeleteManager } = require('../lib/account-delete');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
 const Profile = require('../lib/profile/client');
@@ -84,6 +85,11 @@ async function run(config) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
   }
+
+  const oauthDb = require('../lib/oauth/db');
+  const push = require('../lib/push')(log, database, config, statsd);
+  const { pushboxApi } = require('../lib/pushbox');
+  const pushbox = pushboxApi(log, config, statsd);
 
   const accountEventsManager = config.accountEvents.enabled
     ? new AccountEventsManager(database)
@@ -161,6 +167,16 @@ async function run(config) {
     Container.get(AppleIAP);
   }
 
+  // The AccountDeleteManager is dependent on some of the object set into
+  // Container above.
+  const accountDeleteManager = new AccountDeleteManager({
+    fxaDb: database,
+    oauthDb,
+    push,
+    pushbox,
+  });
+  Container.set(AccountDeleteManager, accountDeleteManager);
+
   const profile = new Profile(log, config, error, statsd);
   Container.set(ProfileClient, profile);
   const bounces = require('../lib/bounces')(config, database);
@@ -202,7 +218,9 @@ async function run(config) {
     profile,
     stripeHelper,
     redis,
-    glean
+    glean,
+    push,
+    pushbox
   );
 
   const Server = require('../lib/server');
