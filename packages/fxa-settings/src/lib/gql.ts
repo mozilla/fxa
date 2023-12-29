@@ -6,6 +6,7 @@ import {
   ApolloClient,
   ApolloLink,
   NormalizedCacheObject,
+  Observable,
   from,
 } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
@@ -23,8 +24,9 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
  *
  * We can improve or revisit this in FXA-7626 or FXA-7184.
  */
+const initialOperationName = 'GetInitialMetricsState';
 const sessionTokenOperationNames = [
-  'GetInitialMetricsState',
+  initialOperationName,
   'GetInitialSettingsState',
   'SignUp',
 ];
@@ -119,12 +121,34 @@ export function createApolloClient(gqlServerUri: string) {
     };
   });
 
+  // Set `isSignedIn` status and cancel the network request for
+  // the initial GQL query that needs a session token
+  const sessionTokenCheckLink = new ApolloLink((operation, forward) => {
+    if (!sessionToken() && operation.operationName === initialOperationName) {
+      cache.writeQuery({
+        query: GET_LOCAL_SIGNED_IN_STATUS,
+        data: { isSignedIn: false },
+      });
+      return new Observable((observer) => {
+        observer.next({ data: {} });
+        observer.complete();
+      });
+    }
+    return forward(operation);
+  });
+
   // errorLink handles error responses from the server
   const errorLink = onError(errorHandler);
 
   apolloClientInstance = new ApolloClient({
     cache,
-    link: from([errorLink, authLink, afterwareLink, httpLink]),
+    link: from([
+      errorLink,
+      sessionTokenCheckLink,
+      authLink,
+      afterwareLink,
+      httpLink,
+    ]),
     typeDefs,
   });
 

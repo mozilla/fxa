@@ -10,7 +10,7 @@ import {
   SettingsContext,
 } from './contexts/SettingsContext';
 import { GET_SESSION_VERIFIED, Session } from './Session';
-import { clearSignedInAccountUid } from '../lib/cache';
+import { clearSignedInAccountUid, sessionToken } from '../lib/cache';
 import { gql, useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
