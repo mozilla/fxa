@@ -11,6 +11,8 @@ export enum FirefoxCommand {
   ChangePassword = 'fxaccounts:change_password',
 }
 
+export type CustomEventDetail = ReturnType<typeof createCustomEventDetail>;
+
 export function createCustomEventDetail(
   command: FirefoxCommand,
   data: Record<string, any>

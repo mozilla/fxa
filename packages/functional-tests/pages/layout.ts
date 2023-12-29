@@ -1,5 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { Page } from '@playwright/test';
 import { BaseTarget } from '../lib/targets/base';
+import { CustomEventDetail } from '../lib/channels';
 
 export abstract class BaseLayout {
   readonly path?: string;
@@ -100,6 +105,27 @@ export abstract class BaseLayout {
       }
       addEventListener('WebChannelMessageToChrome', listener);
     });
+  }
+
+  /**
+   * Send a web channel message from browser to web content.
+   * NOTE: Prefer `respondToWebChannelMessage` where possible! This should only be
+   * used when we can't attach a listener in time (which respondToWebChannelMessage
+   * does) because the event is fired on page load before the listener can attach.
+   * This currently happens on React SignUp which we should revisit when the index
+   * index page has been converted to React and our event handling moved.
+   */
+  async sendWebChannelMessage(customEventDetail: CustomEventDetail) {
+    await this.page.evaluate(
+      ({ customEventDetail }) => {
+        window.dispatchEvent(
+          new CustomEvent('WebChannelMessageToContent', {
+            detail: customEventDetail,
+          })
+        );
+      },
+      { customEventDetail }
+    );
   }
 
   /**
