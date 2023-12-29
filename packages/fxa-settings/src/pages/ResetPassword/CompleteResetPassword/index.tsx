@@ -84,44 +84,8 @@ const CompleteResetPassword = ({
       },
     });
 
-  /* When the user clicks the confirm password reset link from their email, we check
-   * the status of the link. If the link is valid, we check if a recovery key is enabled.
-   * If there is a recovery key, we navigate to the `account_recovery_confirm_key` page.
-   * If there isn't, we stay on this page and continue a regular password reset.
-   * If users clicked the link leading back to this page from `account_recovery_confirm_key`,
-   * we assume the user has lost the key and pass along a `lostRecoveryKey` flag
-   * so we don't perform the check and redirect again.
-   *
-   * If the link is -not- valid, we render link expired or link damaged.
-   *
-   * Additionally, the user can submit an invalid account recovery key and receive back
-   * an `accountResetToken`, then follow the link back to this page. In this case, we
-   * should _not_ check if the 'token' parameter is valid, since it will be invalid after
-   * this token is provided to us.
-   */
-  useEffect(() => {
-    const checkPasswordForgotToken = async (token: string) => {
-      try {
-        const isValid = await account.resetPasswordStatus(token);
-        if (isValid) {
-          setLinkStatus(LinkStatus.valid);
-          handleRecoveryKeyStatus();
-        } else {
-          setLinkStatus(LinkStatus.expired);
-        }
-      } catch (e) {
-        setLinkStatus(LinkStatus.damaged);
-      }
-    };
-
-    const handleRecoveryKeyStatus = async () => {
-      if (!location.state?.lostRecoveryKey) {
-        await checkForRecoveryKeyAndNavigate(linkModel.email);
-      }
-      renderCompleteResetPassword();
-    };
-
-    const checkForRecoveryKeyAndNavigate = async (email: string) => {
+  const checkForRecoveryKeyAndNavigate = useCallback(
+    async (email: string) => {
       try {
         const hasRecoveryKey = await account.hasRecoveryKey(email);
         if (hasRecoveryKey) {
@@ -152,13 +116,60 @@ const CompleteResetPassword = ({
           </>
         );
       }
-    };
+    },
+    [account, location.search, navigate]
+  );
 
-    const renderCompleteResetPassword = () => {
-      setShowLoadingSpinner(false);
-      logPageViewEvent(viewName, REACT_ENTRYPOINT);
-      GleanMetrics.resetPassword.createNewView();
-    };
+  const handleRecoveryKeyStatus = useCallback(async () => {
+    if (!location.state?.lostRecoveryKey) {
+      await checkForRecoveryKeyAndNavigate(linkModel.email);
+    }
+    renderCompleteResetPassword();
+  }, [
+    checkForRecoveryKeyAndNavigate,
+    location.state?.lostRecoveryKey,
+    linkModel.email,
+  ]);
+
+  const checkPasswordForgotToken = useCallback(
+    async (token: string) => {
+      try {
+        const isValid = await account.resetPasswordStatus(token);
+        if (isValid) {
+          setLinkStatus(LinkStatus.valid);
+          handleRecoveryKeyStatus();
+        } else {
+          setLinkStatus(LinkStatus.expired);
+        }
+      } catch (e) {
+        setLinkStatus(LinkStatus.damaged);
+      }
+    },
+    [account, handleRecoveryKeyStatus, setLinkStatus]
+  );
+
+  const renderCompleteResetPassword = () => {
+    setShowLoadingSpinner(false);
+    logPageViewEvent(viewName, REACT_ENTRYPOINT);
+    GleanMetrics.resetPassword.createNewView();
+  };
+
+  /* When the user clicks the confirm password reset link from their email, we check
+   * the status of the link. If the link is valid, we check if a recovery key is enabled.
+   * If there is a recovery key, we navigate to the `account_recovery_confirm_key` page.
+   * If there isn't, we stay on this page and continue a regular password reset.
+   * If users clicked the link leading back to this page from `account_recovery_confirm_key`,
+   * we assume the user has lost the key and pass along a `lostRecoveryKey` flag
+   * so we don't perform the check and redirect again.
+   *
+   * If the link is -not- valid, we render link expired or link damaged.
+   *
+   * Additionally, the user can submit an invalid account recovery key and receive back
+   * an `accountResetToken`, then follow the link back to this page. In this case, we
+   * should _not_ check if the 'token' parameter is valid, since it will be invalid after
+   * this token is provided to us.
+   */
+  useEffect(() => {
     // If a user comes from AccountRecoveryConfirmKey and attempted a recovery key
     // submission, 'token' was already verified and used to fetch the reset token
     if (!location.state?.accountResetToken) {
@@ -167,15 +178,9 @@ const CompleteResetPassword = ({
       renderCompleteResetPassword();
     }
   }, [
-    account,
-    navigate,
-    location.search,
-    location.state?.lostRecoveryKey,
+    checkPasswordForgotToken,
     location.state?.accountResetToken,
-    linkModel.email,
     linkModel.token,
-    setLinkStatus,
-    setShowLoadingSpinner,
   ]);
 
   const alertSuccessAndNavigate = useCallback(() => {

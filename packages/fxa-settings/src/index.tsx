@@ -53,18 +53,18 @@ try {
 
   render(
     <React.StrictMode>
-      <AppErrorBoundary>
-        <AppContext.Provider value={appContext}>
-          <AppLocalizationProvider
-            baseDir="/settings/locales"
-            userLocales={navigator.languages}
-          >
+      <AppLocalizationProvider
+        baseDir="/settings/locales"
+        userLocales={navigator.languages}
+      >
+        <AppErrorBoundary>
+          <AppContext.Provider value={appContext}>
             <ApolloProvider client={apolloClient}>
               <App {...{ flowQueryParams }} />
             </ApolloProvider>
-          </AppLocalizationProvider>
-        </AppContext.Provider>
-      </AppErrorBoundary>
+          </AppContext.Provider>
+        </AppErrorBoundary>
+      </AppLocalizationProvider>
     </React.StrictMode>,
     document.getElementById('root')
   );

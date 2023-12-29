@@ -128,14 +128,13 @@ const ResetPassword = ({
 
   const onSubmit = useCallback(async () => {
     const sanitizedEmail = getValues('email').trim();
-    if (sanitizedEmail === '') {
+    if (!sanitizedEmail) {
       setErrorText(
         ftlMsgResolver.getMsg(
           'reset-password-email-required-error',
           'Email required'
         )
       );
-      return;
     } else if (!isEmailValid(sanitizedEmail)) {
       setErrorText(
         ftlMsgResolver.getMsg('auth-error-1011', 'Valid email required')
@@ -218,7 +217,7 @@ const ResetPassword = ({
               autoComplete="off"
               spellCheck={false}
               prefixDataTestId="reset-password"
-              inputRef={register}
+              inputRef={register()}
             />
           </FtlMsg>
         )}

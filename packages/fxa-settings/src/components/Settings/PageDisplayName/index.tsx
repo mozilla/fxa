@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback } from 'react';
 import { navigate, RouteComponentProps } from '@reach/router';
 import { useForm } from 'react-hook-form';
 import FlowContainer from '../FlowContainer';
@@ -30,7 +30,6 @@ export const PageDisplayName = (_: RouteComponentProps) => {
     );
     navigate(HomePath + '#display-name', { replace: true });
   }, [alertBar, l10n]);
-  const [errorText, setErrorText] = useState<string>();
   const initialValue = account.displayName || '';
   const { register, handleSubmit, formState, trigger } = useForm<{
     displayName: string;
@@ -48,20 +47,16 @@ export const PageDisplayName = (_: RouteComponentProps) => {
         await account.setDisplayName(displayName);
         alertSuccessAndGoHome();
       } catch (err) {
-        if (err.graphQLErrors?.length) {
-          setErrorText(err.message);
-        } else {
-          alertBar.error(
-            l10n.getString(
-              'display-name-update-error-2',
-              null,
-              'There was a problem updating your display name'
-            )
-          );
-        }
+        alertBar.error(
+          l10n.getString(
+            'display-name-update-error-2',
+            null,
+            'There was a problem updating your display name'
+          )
+        );
       }
     },
-    [account, alertSuccessAndGoHome, setErrorText, l10n, alertBar]
+    [account, alertSuccessAndGoHome, l10n, alertBar]
   );
 
   return (
@@ -80,7 +75,6 @@ export const PageDisplayName = (_: RouteComponentProps) => {
                 inputRef={register({
                   validate: isValidDisplayName,
                 })}
-                {...{ errorText }}
               />
             </Localized>
           </div>
