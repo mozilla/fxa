@@ -28,6 +28,7 @@ import { Transaction } from '@sentry/types';
 import {
   ExtraContext,
   isApolloError,
+  isUnauthorizedException,
   reportRequestException,
 } from './reporting';
 import { Inject } from '@nestjs/common';
@@ -102,15 +103,19 @@ export class SentryPlugin implements ApolloServerPlugin<Context> {
         for (const err of errors) {
           // Only report internal server errors,
           // all errors extending ApolloError should be user-facing
-          if (err.originalError instanceof GraphQLError) {
+          if (isApolloError(err)) {
             continue;
           }
-          // Skip errors with a status already set or already reported
-          if (
-            isApolloError(err) ||
-            (err.originalError && isApolloError(err.originalError))
-          )
+
+          // Don't report an invalid session token
+          if (isUnauthorizedException(err)) {
             continue;
+          }
+
+          // Skip errors with a status already set or already reported
+          if ((err.originalError as any)?.status) {
+            continue;
+          }
 
           const excContexts: ExtraContext[] = [];
           if ((err as any).path?.join) {
