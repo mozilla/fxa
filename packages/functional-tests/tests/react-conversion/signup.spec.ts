@@ -8,7 +8,6 @@ import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
 
 const PASSWORD = 'passwordzxcv';
 
-
 let email;
 let skipCleanup = false;
 
@@ -21,7 +20,7 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
     email = undefined;
   } else {
     email = login.createEmail('signup_react{id}');
-        await login.clearCache();
+    await login.clearCache();
   }
 });
 
@@ -310,7 +309,6 @@ test.describe('severity-2 #smoke', () => {
       expect(await signupReact.getAge().inputValue()).toEqual('');
     });
 
-    // TODO: Not currently supported
     test('signup via product page and redirect after confirm', async ({
       page,
       target,
@@ -338,9 +336,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await signupReact.fillOutCodeForm(code);
-      // TODO: The redirect back to products isn't working. https://mozilla-hub.atlassian.net/browse/FXA-8795
-      // await page.waitForURL(/products/);
-      // await expect(page.getByTestId('avatar')).toBeVisible();
+      await page.waitForURL(/products/);
+      await expect(page.getByTestId('avatar')).toBeVisible();
     });
   });
 });
