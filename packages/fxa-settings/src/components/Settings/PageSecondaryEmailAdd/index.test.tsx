@@ -70,6 +70,26 @@ describe('PageSecondaryEmailAdd', () => {
 
       expect(screen.getByTestId('save-button')).toHaveAttribute('disabled');
     });
+
+    it('should display tooltip error when using email mask', async () => {
+      renderWithRouter(
+        <AppContext.Provider value={mockAppContext({ account })}>
+          <PageSecondaryEmailAdd />
+        </AppContext.Provider>
+      );
+
+      const input = screen.getByTestId('input-field');
+      fireEvent.change(input, { target: { value: 'user@mozmail.com' } });
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId('save-button'));
+      });
+
+      expect(screen.queryByTestId('tooltip')).toBeInTheDocument();
+      expect(
+        screen.queryByText('Email masks can’t be used as a secondary email')
+      ).toBeInTheDocument();
+    });
   });
 
   describe('createSecondaryEmailCode', () => {
