@@ -278,8 +278,6 @@ const AccountRecoveryConfirmKey = ({
               setTooltipText('');
             }}
             prefixDataTestId="account-recovery-confirm-key"
-            // We don't have this marked as 'required: true` because we want to validate
-            // on submit, not on blur
             inputRef={register({ required: true })}
           />
         </FtlMsg>

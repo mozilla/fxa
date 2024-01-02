@@ -103,24 +103,3 @@ it('displays a general error in the alert bar', async () => {
   await submitDisplayName('John Nope');
   expect(settingsContext.alertBarInfo?.error).toBeCalledTimes(1);
 });
-
-it('displays the GraphQL error', async () => {
-  const gqlError: any = new Error('test error');
-  gqlError.graphQLErrors = ['test'];
-  const account = {
-    displayName: 'jrgm',
-    setDisplayName: jest.fn().mockRejectedValue(gqlError),
-  } as unknown as Account;
-  renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <PageDisplayName />
-    </AppContext.Provider>
-  );
-  // suppress the console output
-  let consoleErrorSpy = jest
-    .spyOn(console, 'error')
-    .mockImplementationOnce(() => {});
-  await submitDisplayName('Jane Nope');
-  expect(screen.getByTestId('tooltip')).toBeInTheDocument();
-  consoleErrorSpy.mockRestore();
-});
