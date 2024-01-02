@@ -54,6 +54,7 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
       }
       const verifyHash = await password.verifyHash();
       const match = await db.checkPassword(accountRecord.uid, verifyHash);
+
       if (match) {
         return match;
       }

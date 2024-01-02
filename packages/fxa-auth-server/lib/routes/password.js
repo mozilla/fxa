@@ -51,6 +51,9 @@ module.exports = function (
           payload: isA.object({
             email: validators.email().required().description(DESCRIPTION.email),
             oldAuthPW: validators.authPW.description(DESCRIPTION.authPW),
+            oldAuthPW2: validators.authPW
+              .optional()
+              .description(DESCRIPTION.authPW),
           }),
         },
       },
@@ -58,17 +61,25 @@ module.exports = function (
         log.begin('Password.changeStart', request);
         const form = request.payload;
         const oldAuthPW = form.oldAuthPW;
+        const oldAuthPW2 = form.oldAuthPW2;
 
         return customs
           .check(request, form.email, 'passwordChange')
           .then(db.accountRecord.bind(db, form.email))
           .then(
             (emailRecord) => {
-              const password = new Password(
-                oldAuthPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              );
+              const password = oldAuthPW2
+                ? new Password(
+                    oldAuthPW2,
+                    emailRecord.authSalt,
+                    emailRecord.verifierVersion
+                  )
+                : new Password(
+                    oldAuthPW,
+                    emailRecord.authSalt,
+                    emailRecord.verifierVersion
+                  );
+
               return signinUtils
                 .checkPassword(emailRecord, password, request.app.clientAddress)
                 .then((match) => {
@@ -78,12 +89,12 @@ module.exports = function (
                       form.email
                     );
                   }
-                  const password = new Password(
-                    oldAuthPW,
-                    emailRecord.authSalt,
-                    emailRecord.verifierVersion
-                  );
-                  return password.unwrap(emailRecord.wrapWrapKb);
+
+                  if (oldAuthPW2) {
+                    return password.unwrap(emailRecord.wrapWrapKb2);
+                  } else {
+                    return password.unwrap(emailRecord.wrapWrapKb);
+                  }
                 })
                 .then((wrapKb) => {
                   return db
@@ -142,6 +153,15 @@ module.exports = function (
           payload: isA.object({
             authPW: validators.authPW.description(DESCRIPTION.authPW),
             wrapKb: validators.wrapKb.description(DESCRIPTION.wrapKb),
+            authPW2: validators.authPW
+              .optional()
+              .description(DESCRIPTION.authPW),
+            wrapKb2: validators.wrapKb
+              .optional()
+              .description(DESCRIPTION.wrapKb),
+            clientSalt: validators.clientSalt.description(
+              DESCRIPTION.clientSalt
+            ),
             sessionToken: isA
               .string()
               .min(64)
@@ -156,12 +176,14 @@ module.exports = function (
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
         const authPW = request.payload.authPW;
+        const clientSalt = request.payload.clientSalt;
         const wrapKb = request.payload.wrapKb;
+        const wrapKb2 = request.payload.wrapKb2;
+        const authPW2 = request.payload.authPW2;
         const sessionTokenId = request.payload.sessionToken;
         const wantsKeys = requestHelper.wantsKeys(request);
         const ip = request.app.clientAddress;
         let account,
-          verifyHash,
           sessionToken,
           previousSessionToken,
           keyFetchToken,
@@ -230,54 +252,55 @@ module.exports = function (
           });
         }
 
-        function changePassword() {
-          let authSalt, password;
-          return random
-            .hex(32)
-            .then((hex) => {
-              authSalt = hex;
-              password = new Password(authPW, authSalt, verifierVersion);
-              return db.deletePasswordChangeToken(passwordChangeToken);
-            })
-            .then(() => {
-              return password.verifyHash();
-            })
-            .then((hash) => {
-              verifyHash = hash;
-              return password.wrap(wrapKb);
-            })
-            .then((wrapWrapKb) => {
-              // Reset account, delete all sessions and tokens
-              return db.resetAccount(passwordChangeToken, {
-                verifyHash: verifyHash,
-                authSalt: authSalt,
-                wrapWrapKb: wrapWrapKb,
-                verifierVersion: password.version,
-                keysHaveChanged: false,
-              });
-            })
-            .then((result) => {
-              return request
-                .emitMetricsEvent('account.changedPassword', {
-                  uid: passwordChangeToken.uid,
-                })
-                .then(() => {
-                  // NOTE: Not quite sure of the difference between these two events:
-                  recordSecurityEvent('account.password_reset_success', {
-                    db,
-                    request,
-                    account: passwordChangeToken,
-                  });
-                  recordSecurityEvent('account.password_changed', {
-                    db,
-                    request,
-                    account: passwordChangeToken,
-                  });
-                })
-                .then(() => {
-                  return result;
-                });
-            });
+        async function changePassword() {
+          const authSalt = await random.hex(32);
+
+          const password = new Password(authPW, authSalt, verifierVersion);
+          const verifyHash = await password.verifyHash();
+          const wrapWrapKb = await password.wrap(wrapKb);
+
+          // For the time being we store both passwords in the DB. authPW is created
+          // with the old quickStretch and authPW2 is created with improved 'quick' stretch.
+          const password2 = authPW2
+            ? new Password(authPW2, authSalt, verifierVersion)
+            : undefined;
+          const verifyHash2 = authPW2
+            ? await password2.verifyHash()
+            : undefined;
+          const wrapWrapKb2 = authPW2
+            ? await password2.wrap(wrapKb2)
+            : undefined;
+
+          await db.deletePasswordChangeToken(passwordChangeToken);
+
+          const result = await db.resetAccount(passwordChangeToken, {
+            authSalt: authSalt,
+            clientSalt: clientSalt,
+            verifierVersion: password.version,
+            verifyHash: verifyHash,
+            verifyHash2: verifyHash2,
+            wrapWrapKb: wrapWrapKb,
+            wrapWrapKb2: wrapWrapKb2,
+            keysHaveChanged: false,
+          });
+
+          await request.emitMetricsEvent('account.changedPassword', {
+            uid: passwordChangeToken.uid,
+          });
+
+          await recordSecurityEvent('account.password_reset_success', {
+            db,
+            request,
+            account: passwordChangeToken,
+          });
+
+          await recordSecurityEvent('account.password_changed', {
+            db,
+            request,
+            account: passwordChangeToken,
+          });
+
+          return result;
         }
 
         function notifyAccount() {
@@ -779,6 +802,8 @@ module.exports = function (
         validate: {
           payload: isA.object({
             authPW: isA.string(),
+            authPW2: isA.string(),
+            clientSalt: validators.clientSalt,
           }),
         },
       },
@@ -787,7 +812,7 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        const { authPW } = request.payload;
+        const { authPW, authPW2, clientSalt } = request.payload;
 
         const account = await db.account(uid);
         // We don't allow users that have a password set already to create a new password
@@ -808,18 +833,30 @@ module.exports = function (
         }
 
         const authSalt = await random.hex(32);
+
         const password = new Password(authPW, authSalt, config.verifierVersion);
+        const password2 = authPW2
+          ? new Password(authPW2, authSalt, config.verifierVersion)
+          : undefined;
+
         const verifyHash = await password.verifyHash();
+        const verifyHash2 = password2
+          ? await password2.verifyHash()
+          : undefined;
 
         // Accounts that don't have a password set, also do not have encryption keys therefore
         // we generate one for them.
         const wrapWrapKb = await random.hex(32);
+        const wrapWrapKb2 = verifyHash2 ? await random.hex(32) : undefined;
 
         const passwordCreated = await db.createPassword(
           uid,
           authSalt,
+          clientSalt,
           verifyHash,
+          verifyHash2,
           wrapWrapKb,
+          wrapWrapKb2,
           verifierVersion
         );
 

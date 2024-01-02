@@ -41,9 +41,11 @@ describe('#integration - remote account reset', function () {
     assert.throws(() => {
       client.resetPassword(newPassword);
     });
+
     const response = await resetPassword(client, code, newPassword, {
       sessionToken: false,
     });
+
     assert(!response.sessionToken, 'session token is not in response');
     assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
     assert(!response.verified, 'verified is not in response');

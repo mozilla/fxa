@@ -33,6 +33,10 @@ const {
   capabilitiesClientIdPattern,
 } = require('fxa-shared/subscriptions/validation');
 
+const {
+  VX_REGEX: CLIENT_SALT_STRING,
+} = require('../../lib/routes/utils/client-key-stretch');
+
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
 module.exports.HEX_STRING = HEX_STRING;
@@ -288,6 +292,7 @@ module.exports.verificationMethod = isA.string().valid(
 );
 
 module.exports.authPW = isA.string().length(64).regex(HEX_STRING).required();
+module.exports.clientSalt = isA.string().regex(CLIENT_SALT_STRING).optional();
 module.exports.wrapKb = isA.string().length(64).regex(HEX_STRING);
 
 module.exports.recoveryKeyId = isA.string().regex(HEX_STRING).max(32);

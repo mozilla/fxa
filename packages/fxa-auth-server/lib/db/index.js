@@ -72,7 +72,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       log,
       resolveMetrics()
     );
-    if (['debug', 'verbose', 'trace'].includes(config.log?.level)) {
+    if (['verbose', 'trace'].includes(config.log?.level)) {
       knex.on('query', (data) => {
         console.dir(data);
       });
@@ -762,16 +762,22 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.createPassword = async function (
     uid,
     authSalt,
+    clientSalt,
     verifyHash,
+    verifyHash2,
     wrapWrapKb,
+    wrapWrapKb2,
     verifierVersion
   ) {
     log.trace('DB.createPassword', { uid });
     return Account.createPassword(
       uid,
       authSalt,
+      clientSalt,
       verifyHash,
+      verifyHash2,
       wrapWrapKb,
+      wrapWrapKb2,
       verifierVersion
     );
   };

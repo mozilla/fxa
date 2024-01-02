@@ -32,42 +32,57 @@ module.exports = (config) => {
 
   Client.Api = ClientApi;
 
-  Client.prototype.setupCredentials = function (email, password) {
-    return Promise.resolve().then(() => {
-      this.email = email;
-      return pbkdf2
-        .derive(
-          Buffer.from(password),
-          hkdf.KWE('quickStretch', email),
-          1000,
-          32
-        )
-        .then((stretch) => {
-          return hkdf(stretch, 'authPW', null, 32).then((authPW) => {
-            this.authPW = authPW;
-            return hkdf(stretch, 'unwrapBKey', null, 32);
-          });
-        })
-        .then((unwrapBKey) => {
-          this.unwrapBKey = unwrapBKey;
-          return this;
-        });
-    });
+  Client.prototype.setupCredentialsV2 = async function (email, password) {
+    this.email = email;
+    await this.setupCredentials(email, password);
+
+    // In practice the value would be constantly changing, but for testing
+    // purposes 0123456789abcdef0123456789abcdef, is fine.
+    this.clientSalt = `identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef`;
+    const stretch = await pbkdf2.derive(
+      Buffer.from(password),
+      Buffer.from(this.clientSalt),
+      650000,
+      32
+    );
+    this.authPW2 = await hkdf(stretch, 'authPW', null, 32);
+    this.unwrapBKey2 = await hkdf(stretch, 'unwrapBKey', null, 32);
+    return this;
+  };
+
+  Client.prototype.setupCredentials = async function (email, password) {
+    this.email = email;
+
+    const stretch = await pbkdf2.derive(
+      Buffer.from(password),
+      hkdf.KWE('quickStretch', email),
+      1000,
+      32
+    );
+    this.authPW = await hkdf(stretch, 'authPW', null, 32);
+    this.unwrapBKey = await hkdf(stretch, 'unwrapBKey', null, 32);
+    return this;
   };
 
   Client.create = function (origin, email, password, options = {}) {
     const c = new Client(origin);
     c.options = options;
 
+    if (options.v2 === true) {
+      return c.setupCredentialsV2(email, password).then(() => {
+        return c.createV2();
+      });
+    }
+
     return c.setupCredentials(email, password).then(() => {
-      return c.create(options);
+      return c.create();
     });
   };
 
   Client.login = function (origin, email, password, opts) {
     const c = new Client(origin);
 
-    return c.setupCredentials(email, password).then((c) => {
+    return c.setupCredentials(email, password, opts).then((c) => {
       return c.auth(opts);
     });
   };
@@ -162,17 +177,38 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.create = function () {
-    return this.api
-      .accountCreate(this.email, this.authPW, this.options)
-      .then((a) => {
-        this.uid = a.uid;
-        this.authAt = a.authAt;
-        this.sessionToken = a.sessionToken;
-        this.keyFetchToken = a.keyFetchToken;
-        this.device = a.device;
-        return this;
-      });
+  Client.prototype.create = async function () {
+    const account = await this.api.accountCreate(
+      this.email,
+      this.authPW,
+      this.options
+    );
+
+    this.uid = account.uid;
+    this.authAt = account.authAt;
+    this.sessionToken = account.sessionToken;
+    this.keyFetchToken = account.keyFetchToken;
+    this.device = account.device;
+
+    return this;
+  };
+
+  Client.prototype.createV2 = async function () {
+    const account = await this.api.accountCreateV2(
+      this.email,
+      this.authPW,
+      this.authPW2,
+      this.clientSalt,
+      this.options
+    );
+
+    this.uid = account.uid;
+    this.authAt = account.authAt;
+    this.sessionToken = account.sessionToken;
+    this.keyFetchToken = account.keyFetchToken;
+    this.device = account.device;
+
+    return this;
   };
 
   Client.prototype._clear = function () {
@@ -191,7 +227,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.auth = function (opts) {
-    return this.api.accountLogin(this.email, this.authPW, opts).then((data) => {
+    const onLogin = (data) => {
       this.uid = data.uid;
       this.sessionToken = data.sessionToken;
       this.keyFetchToken = data.keyFetchToken || null;
@@ -202,7 +238,14 @@ module.exports = (config) => {
       this.verificationMethod = data.verificationMethod;
       this.verified = data.verified;
       return this;
-    });
+    };
+
+    if (this.options.v2) {
+      return this.api
+        .accountLogin(this.email, this.authPW2, opts)
+        .then(onLogin);
+    }
+    return this.api.accountLogin(this.email, this.authPW, opts).then(onLogin);
   };
 
   Client.prototype.login = function (opts) {
@@ -750,6 +793,26 @@ module.exports = (config) => {
 
     if (options && options.emailToHashWith) {
       email = options.emailToHashWith;
+    }
+
+    if (this.options.v2 === true) {
+      return this.setupCredentialsV2(email, newPassword).then(
+        (/* bundle */) => {
+          return this.api
+            .accountReset(this.accountResetToken, this.authPW, headers, {
+              ...options,
+              authPW2: this.authPW2,
+              clientSalt: this.clientSalt,
+            })
+            .then((response) => {
+              // Update to the new verified tokens
+              this.sessionToken = response.sessionToken;
+              this.keyFetchToken = response.keyFetchToken;
+
+              return response;
+            });
+        }
+      );
     }
 
     return this.setupCredentials(email, newPassword).then((/* bundle */) => {

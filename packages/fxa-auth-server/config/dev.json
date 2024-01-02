@@ -10,7 +10,7 @@
   },
   "smtp": {
     "host": "localhost",
-    "port": 9999,
+    "port": 9995,
     "secure": false,
     "redirectDomain": "localhost",
     "subscriptionTermsUrl": "https://www.mozilla.org/about/legal/terms/firefox-private-network/",

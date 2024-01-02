@@ -171,6 +171,38 @@ module.exports = (config) => {
     );
   };
 
+  ClientApi.prototype.accountCreateV2 = function (
+    email,
+    authPW,
+    authPW2,
+    clientSalt,
+    options = {}
+  ) {
+    const url = `${this.baseURL}/account/create${getQueryString(options)}`;
+    return this.doRequest(
+      'POST',
+      url,
+      null,
+      {
+        email: email,
+        authPW: authPW.toString('hex'),
+        authPW2: authPW2.toString('hex'),
+        clientSalt: clientSalt,
+        preVerified: options.preVerified || undefined,
+        service: options.service || undefined,
+        redirectTo: options.redirectTo || undefined,
+        resume: options.resume || undefined,
+        device: options.device || undefined,
+        metricsContext: options.metricsContext || undefined,
+        style: options.style || undefined,
+        verificationMethod: options.verificationMethod || undefined,
+      },
+      {
+        'accept-language': options.lang,
+      }
+    );
+  };
+
   ClientApi.prototype.accountLogin = function (email, authPW, options) {
     if (!options) {
       options = { keys: true };
@@ -358,6 +390,16 @@ module.exports = (config) => {
 
     return tokens.AccountResetToken.fromHex(accountResetTokenHex).then(
       (token) => {
+        const payload = {
+          authPW: authPW.toString('hex'),
+          sessionToken: options.sessionToken,
+        };
+
+        if (options.v2 === true) {
+          payload.authPW2 = options.authPW2.toString('hex');
+          payload.clientSalt = options.clientSalt;
+        }
+
         return this.doRequest(
           'POST',
           `${this.baseURL}/account/reset${qs}`,

@@ -55,8 +55,10 @@ export interface Accounts {
   emailVerified: Generated<number>;
   kA: Buffer;
   wrapWrapKb: Buffer;
+  wrapWrapKb2: Buffer | null;
   authSalt: Buffer;
   verifyHash: Buffer;
+  verifyHash2: Buffer | null;
   verifierVersion: number;
   verifierSetAt: number;
   createdAt: number;
@@ -67,6 +69,7 @@ export interface Accounts {
   ecosystemAnonId: string | null;
   disabledAt: number | null;
   metricsOptOutAt: number | null;
+  clientSalt: string | null;
 }
 
 export interface Carts {
