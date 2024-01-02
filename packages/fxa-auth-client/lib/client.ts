@@ -634,7 +634,9 @@ export default class AuthClient {
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
-    verified: boolean;
+    providerUid: hexstring;
+    email: string;
+    verificationMethod?: string;
   }> {
     const payload = {
       code,

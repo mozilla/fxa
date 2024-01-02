@@ -2,15 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useRef, FormEventHandler } from 'react';
+import React, { useRef, FormEventHandler } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 import { ReactComponent as GoogleLogo } from './google-logo.svg';
 import { ReactComponent as AppleLogo } from './apple-logo.svg';
 
-import { useAccount, useConfig } from '../../models';
-import Storage from '../../lib/storage';
-import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
+import { useConfig } from '../../models';
 import { ReactElement } from 'react-markdown/lib/react-markdown';
 
 export type ThirdPartyAuthProps = {
@@ -29,41 +27,7 @@ const ThirdPartyAuth = ({
   onContinueWithApple,
   showSeparator = true,
 }: ThirdPartyAuthProps) => {
-  const account = useAccount();
   const config = useConfig();
-
-  useEffect(() => {
-    // TODO: Figure out why `storageData` is not available
-    const authParams = Storage.factory('localStorage', window).get(
-      'fxa_third_party_params'
-    );
-    if (authParams) {
-      completeSignIn();
-    }
-  });
-
-  async function completeSignIn() {
-    try {
-      const authParams = Storage.factory('localStorage', window).get(
-        'fxa_third_party_params'
-      );
-      const code = authParams.code;
-      const provider = authParams.provider || AUTH_PROVIDER.GOOGLE;
-
-      // Verify and link the third party account to FxA. Note, this
-      // will create a new FxA account if one does not exist.
-      await account.verifyAccountThirdParty(code, provider);
-
-      // TODO: The response from above contains a session token
-      // which can be used to sign the user in to FxA or used
-      // to complete an Oauth flow.
-    } catch (error) {
-      // Fail silently on errors, this could be some leftover
-      // state from a previous attempt.
-    }
-
-    clearStoredParams();
-  }
 
   return (
     <>
@@ -162,7 +126,6 @@ const ThirdPartySignInForm = ({
   const stateRef = useRef<HTMLInputElement>(null);
 
   function onClick() {
-    clearStoredParams();
     stateRef.current!.value = getState();
   }
 
@@ -200,23 +163,30 @@ const ThirdPartySignInForm = ({
   );
 };
 
+function deleteParams(searchParams: URLSearchParams, paramsToDelete: string[]) {
+  paramsToDelete.forEach((param) => searchParams.delete(param));
+  return searchParams;
+}
+
 function getState() {
   // We stash originating location in the state oauth param
-  // because we will need it to use it to log the user into FxA
-  const currentParams = new URLSearchParams(window.location.search);
-  currentParams.delete('deeplink');
-  currentParams.set('showReactApp', 'true');
+  // because we will need it to use it to reconstruct the redirect URL for RP
+  const params = new URLSearchParams(window.location.search);
+  // we won't need these params that are used for internal backbone/react navigation
+  const modifiedParams = deleteParams(params, [
+    'deeplink',
+    'email',
+    'emailFromContent',
+    'forceExperiment',
+    'forceExperimentGroup',
+    'showReactApp',
+  ]);
   const state = encodeURIComponent(
     `${window.location.origin}${
       window.location.pathname
-    }?${currentParams.toString()}`
+    }?${modifiedParams.toString()}`
   );
   return state;
-}
-
-function clearStoredParams() {
-  // TODO: Use the correct storage mechanism
-  Storage.factory('localStorage', window).remove('fxa_third_party_params');
 }
 
 export default ThirdPartyAuth;

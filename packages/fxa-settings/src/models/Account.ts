@@ -10,6 +10,7 @@ import AuthClient, {
   generateRecoveryKey,
   getRecoveryKeyIdByUid,
   getCredentials,
+  MetricsContext,
 } from 'fxa-auth-client/browser';
 import {
   currentAccount,
@@ -917,15 +918,25 @@ export class Account implements AccountData {
 
   async verifyAccountThirdParty(
     code: string,
-    provider: AUTH_PROVIDER
+    provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,
+    service?: string,
+    metricsContext: MetricsContext = {}
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
-    verified: boolean;
+    providerUid: hexstring;
+    email: string;
+    verificationMethod?: string;
   }> {
-    return this.withLoadingStatus(
-      this.authClient.verifyAccountThirdParty(code, provider)
+    const linkedAccount = await this.withLoadingStatus(
+      this.authClient.verifyAccountThirdParty(
+        code,
+        provider,
+        service,
+        metricsContext
+      )
     );
+    return linkedAccount;
   }
 
   // TODO: Move this method to the Session model - this method was temporarily added to the Account model

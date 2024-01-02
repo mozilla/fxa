@@ -50,6 +50,7 @@ import {
 import { MozServices } from '../../lib/types';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import firefox from '../../lib/channels/firefox';
+import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 
 export const viewName = 'signup';
 
@@ -68,6 +69,7 @@ export const Signup = ({
   }, []);
 
   const canChangeEmail = !isOAuthIntegration(integration);
+  const email = queryParamModel.email;
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
@@ -144,7 +146,7 @@ export const Signup = ({
       mode: 'onChange',
       criteriaMode: 'all',
       defaultValues: {
-        email: queryParamModel.email,
+        email,
         newPassword: '',
         confirmPassword: '',
         age: '',
@@ -176,6 +178,14 @@ export const Signup = ({
     getValues().age === '' && setAgeCheckErrorText(localizedAgeIsRequiredError);
   };
 
+  // Persist account data to local storage to match parity with content-server
+  // this allows the recent account to be used for /signin
+  const storeAccountData = (accountData: StoredAccountData) => {
+    persistAccount(accountData);
+    setCurrentAccount(accountData.uid);
+    sessionToken(accountData.sessionToken);
+  };
+
   // TODO: Add metrics events to match parity with content-server in FXA-8302
   // The legacy amplitude events will eventually be replaced by Glean,
   // but until that is ready we must ensure the expected metrics continue to be emitted
@@ -198,18 +208,13 @@ export const Signup = ({
       }
       setBeginSignupLoading(true);
 
-      const { data, error } = await beginSignupHandler(
-        queryParamModel.email,
-        newPassword
-      );
+      const { data, error } = await beginSignupHandler(email, newPassword);
 
       if (data) {
         GleanMetrics.registration.success();
 
-        // Persist account data to local storage to match parity with content-server
-        // this allows the recent account to be used for /signin
         const accountData: StoredAccountData = {
-          email: queryParamModel.email,
+          email,
           uid: data.SignUp.uid,
           lastLogin: Date.now(),
           sessionToken: data.SignUp.sessionToken,
@@ -217,16 +222,14 @@ export const Signup = ({
           metricsEnabled: true,
         };
 
+        storeAccountData(accountData);
+
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-        persistAccount(accountData);
-        setCurrentAccount(data.SignUp.uid);
-        sessionToken(data.SignUp.sessionToken);
-
         if (isSyncDesktopIntegration(integration)) {
           await firefox.fxaLogin({
-            email: queryParamModel.email,
+            email,
             keyFetchToken: data.SignUp.keyFetchToken,
             sessionToken: data.SignUp.sessionToken,
             uid: data.SignUp.uid,
@@ -270,7 +273,7 @@ export const Signup = ({
       navigate,
       selectedNewsletterSlugs,
       declinedSyncEngines,
-      queryParamModel.email,
+      email,
       location.search,
       integration,
       offeredSyncEngineConfigs,
@@ -350,7 +353,7 @@ export const Signup = ({
       )}
 
       <div className="mt-4 mb-6">
-        <p className="break-all">{queryParamModel.email}</p>
+        <p className="break-all">{email}</p>
 
         {canChangeEmail && (
           <FtlMsg id="signup-change-email-link">
@@ -362,7 +365,7 @@ export const Signup = ({
                 e.preventDefault();
                 const params = new URLSearchParams(location.search);
                 // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', queryParamModel.email);
+                params.set('prefillEmail', email);
                 // Passing back the 'email' param causes various behaviors in
                 // content-server since it marks the email as "coming from a RP".
                 // Also remove `emailFromContent` since we pass that when coming
@@ -387,7 +390,7 @@ export const Signup = ({
           register,
           getValues,
           onFocus,
-          email: queryParamModel.email,
+          email,
           onFocusMetricsEvent,
           disableButtonUntilValid: true,
         }}
@@ -449,6 +452,8 @@ export const Signup = ({
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.FirefoxMonitor}
       />
+      {/* Third party auth is not currently supported for sync */}
+      {!isSync && <ThirdPartyAuth />}
     </AppLayout>
   );
 };
