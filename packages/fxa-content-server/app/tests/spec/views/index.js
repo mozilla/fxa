@@ -435,6 +435,33 @@ describe('views/index', () => {
           assert.equal(account.get('email'), EMAIL);
         });
       });
+
+      it('allows signin with Relay mask email (@mozmail.com)', () => {
+        const storedAccount = user.initAccount({});
+        sinon.stub(user, 'checkAccountStatus').callsFake(() =>
+          Promise.resolve({
+            exists: true,
+            hasPassword: true,
+            hasLinkedAccount: false,
+          })
+        );
+        sinon.stub(user, 'getAccountByEmail').callsFake(() => storedAccount);
+
+        return view.checkEmail('aaa@mozmail.com').then(() => {
+          const brokerAccount = broker.beforeSignIn.args[0][0];
+          assert.equal(brokerAccount.get('email'), 'aaa@mozmail.com');
+
+          assert.isTrue(
+            view.navigate.calledOnceWith('signin', {
+              account: storedAccount,
+            })
+          );
+          const { account } = view.navigate.args[0][1];
+          assert.strictEqual(account, storedAccount);
+          // Ensure the email is added to the stored account.
+          assert.equal(account.get('email'), 'aaa@mozmail.com');
+        });
+      });
     });
 
     describe('email is not registered', () => {
@@ -455,6 +482,19 @@ describe('views/index', () => {
         sinon.stub(view, '_validateEmailDomain').rejects();
         return view.checkEmail(EMAIL).then(() => {
           assert.isFalse(view.navigate.called);
+        });
+      });
+
+      it('displays error with Relay mask email (@mozmail.com)', () => {
+        sinon
+          .stub(user, 'checkAccountStatus')
+          .callsFake(() => Promise.resolve({ exists: false }));
+        sinon.stub(view, '_validateEmailDomain').resolves();
+        sinon.spy(view, 'showValidationError');
+        return view.checkEmail('abc@mozmail.com').then(() => {
+          assert.isTrue(view.showValidationError.called);
+          const err = view.showValidationError.args[0][1];
+          assert.isTrue(AuthErrors.is(err, 'EMAIL_MASK_NEW_ACCOUNT'));
         });
       });
     });

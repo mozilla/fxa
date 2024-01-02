@@ -1,3 +1,10 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+// Mozmail.com is the Firefox Relay email mask, we prohibit creating accounts with it
+const emailMaskRegex = /@([a-zA-Z0-9.-]+\.)?(mozmail|relay\.firefox)\.(com)$/i;
+
 export function normalizeEmail(originalEmail: string): string {
   return originalEmail.toLowerCase();
 }
@@ -32,7 +39,8 @@ export function emailsMatch(firstEmail: string, secondEmail: string): boolean {
 //   * http://tools.ietf.org/html/rfc5321#section-4.5.3.1.1
 // '/' in the character class is (redundantly) backslash-escaped to produce
 // the same minimized form in node 4.x and node 0.10.
-const emailRegex = /^[\w.!#$%&'*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
+const emailRegex =
+  /^[\w.!#$%&'*+\/=?^`{|}~-]{1,64}@[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?(?:\.[a-z\d](?:[a-z\d-]{0,253}[a-z\d])?)+$/i;
 
 /**
  * Check if an email address is valid
@@ -54,4 +62,15 @@ export function isEmailValid(email: string): boolean {
   // the auth server. :-/
 
   return emailRegex.test(email);
+}
+
+/**
+ * Check if an email address is an email mask. Currently, the only email mask
+ * we check is mozmail.com, relay.firefox.com and *.mozmail.com from Firefox Relay.
+ *
+ * @param {String} email
+ * @return {Boolean} true if email is mask, false otw.
+ */
+export function isEmailMask(email: string): boolean {
+  return emailMaskRegex.test(email);
 }
