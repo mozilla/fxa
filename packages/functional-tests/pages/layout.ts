@@ -40,7 +40,7 @@ export abstract class BaseLayout {
       await new Promise((resolve, reject) => {
         const timeoutHandle = setTimeout(
           () => reject(noNotificationError),
-          2000
+          5000
         );
 
         function findMessage() {
