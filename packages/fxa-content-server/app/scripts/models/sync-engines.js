@@ -66,7 +66,7 @@ const AVAILABLE_ENGINES = [
     id: 'creditcards',
     // credit cards will only be available via capabilities.
     test: () => false,
-    text: t('Credit Cards'),
+    text: t('Payment Methods'),
   },
 ];
 

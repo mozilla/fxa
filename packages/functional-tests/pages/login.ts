@@ -59,7 +59,7 @@ export const selectors = {
   CWTS_ENGINE_ADDONS: '#sync-engine-addons',
   CWTS_ENGINE_TABS: '#sync-engine-tabs',
   CWTS_ENGINE_PREFS: '#sync-engine-prefs',
-  CWTS_ENGINE_CREDITCARDS: 'label:has-text("Credit Cards")',
+  CWTS_ENGINE_CREDITCARDS: 'label:has-text("Payment Methods")',
   CWTS_ENGINE_ADDRESSES: '#sync-engine-addresses',
   DO_NOT_SYNC: '#do-not-sync-device',
   CWTS_PAGE_HEADER: '#fxa-choose-what-to-sync-header',
