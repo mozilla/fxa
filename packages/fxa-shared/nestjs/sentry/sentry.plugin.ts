@@ -31,7 +31,7 @@ import {
   isOriginallyHttpError,
   reportRequestException,
 } from './reporting';
-import { Inject, UnauthorizedException } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { MozLoggerService } from '../logger/logger.service';
 
 interface Context extends BaseContext {
