@@ -479,19 +479,24 @@ export abstract class StripeHelper {
           );
 
         validPlansFinal.push(...validPlansMapped.mappedPlans);
-        if (
-          validPlansMapped.nonMatchingPlans.length &&
-          this.logToSentry('StripeMapper.Errors')
-        ) {
-          Sentry.withScope((scope) => {
-            scope.setContext('allAbbrevPlans', {
-              nonMatchingPlans: validPlansMapped.nonMatchingPlans,
-            });
-            Sentry.captureMessage(
-              `StripeHelper.allAbbrevPlans - Contentful config does not match Stripe metadata`,
-              'warning' as Sentry.SeverityLevel
-            );
+        if (validPlansMapped.nonMatchingPlans.length) {
+          const nonMatchingPlans = validPlansMapped.nonMatchingPlans;
+          this.log.debug(`stripeHelper.allAbbrevPlans.nonMatchingPlans`, {
+            acceptLanguage,
+            nonMatchingPlans,
           });
+          if (this.logToSentry('StripeMapper.Errors')) {
+            Sentry.withScope((scope) => {
+              scope.setContext('allAbbrevPlans', {
+                acceptLanguage,
+                nonMatchingPlans,
+              });
+              Sentry.captureMessage(
+                `StripeHelper.allAbbrevPlans - Contentful config does not match Stripe metadata`,
+                'warning' as Sentry.SeverityLevel
+              );
+            });
+          }
         }
       } catch (error) {
         Sentry.captureException(error);

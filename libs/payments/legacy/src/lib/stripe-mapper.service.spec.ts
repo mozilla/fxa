@@ -4,6 +4,7 @@ import {
   PurchaseWithDetailsOfferingContentUtil,
   ContentfulManager,
   PurchaseWithDetailsOfferingContentTransformedFactory,
+  PurchaseDetailsTransformedFactory,
 } from '@fxa/shared/contentful';
 import { StripeMapperService } from './stripe-mapper.service';
 import { ProductFactory, PlanFactory } from '@fxa/payments/stripe';
@@ -150,6 +151,118 @@ describe('StripeMapperService', () => {
         productMetadata.productOrder
       );
       expect(nonMatchingPlans.length).toBe(0);
+    });
+
+    it('should return data from Contentful and not error on locale plan', async () => {
+      const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
+        purchaseDetails: PurchaseDetailsTransformedFactory({
+          details: ['Detail 1 in English'],
+        }),
+      });
+      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
+        jest.fn().mockReturnValue(expected);
+      const productMetadata = {
+        productSet: 'set',
+        productOrder: 'order',
+      };
+      const product = ProductFactory({
+        metadata: productMetadata,
+      });
+      const stripePlan1 = PlanFactory({
+        product,
+        metadata: StripeMetadataWithContentfulFactory({
+          'product:details:1': 'Detail 1 in English',
+        }),
+      });
+      const stripePlan2 = PlanFactory({
+        product,
+        metadata: StripeMetadataWithContentfulFactory({
+          'product:details:1': 'Detail 1 in French',
+          'product:details:2': 'Detail 2 in French',
+        }),
+      });
+
+      const { mappedPlans, nonMatchingPlans } =
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan1, stripePlan2],
+          'en'
+        );
+
+      expect(nonMatchingPlans.length).toBe(0);
+      const actualProduct1 = mappedPlans[0].product as Stripe.Product;
+      const actualProduct2 = mappedPlans[1].product as Stripe.Product;
+      expect(mappedPlans[0].metadata?.['product:details:1']).toBe(
+        expected.purchaseDetails.details[0]
+      );
+      expect(actualProduct1.metadata?.['product:details:1']).toBe(
+        expected.purchaseDetails.details[0]
+      );
+      expect(mappedPlans[1].metadata?.['product:details:1']).toBe(
+        'Detail 1 in French'
+      );
+      expect(actualProduct2.metadata?.['product:details:1']).toBe(
+        'Detail 1 in French'
+      );
+    });
+
+    it('should return data from Stripe and concat errors for product', async () => {
+      const expected = PurchaseWithDetailsOfferingContentTransformedFactory({
+        purchaseDetails: PurchaseDetailsTransformedFactory({
+          details: ['Detail 1 in English'],
+        }),
+      });
+      mockContentfulConfigUtil.transformedPurchaseWithCommonContentForPlanId =
+        jest.fn().mockReturnValue(expected);
+      const productMetadata = {
+        productSet: 'set',
+        productOrder: 'order',
+      };
+      const product = ProductFactory({
+        metadata: productMetadata,
+      });
+      const stripePlan1 = PlanFactory({
+        product,
+        metadata: StripeMetadataWithContentfulFactory({
+          'product:details:1': 'Detail 1 in German',
+        }),
+      });
+      const stripePlan2 = PlanFactory({
+        product,
+        metadata: StripeMetadataWithContentfulFactory({
+          'product:details:1': 'Detail 1 in French',
+          'product:details:2': 'Detail 2 in French',
+        }),
+      });
+
+      const { mappedPlans, nonMatchingPlans } =
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan1, stripePlan2],
+          'en'
+        );
+
+      expect(nonMatchingPlans[0].split(' - ')[1]).toBe(
+        'product:details:1, product:details:2'
+      );
+      const actualProduct1 = mappedPlans[0].product as Stripe.Product;
+      const actualProduct2 = mappedPlans[1].product as Stripe.Product;
+      expect(mappedPlans[0].metadata?.['product:details:1']).toBe(
+        'Detail 1 in German'
+      );
+      expect(actualProduct1.metadata?.['product:details:1']).toBe(
+        'Detail 1 in German'
+      );
+      expect(mappedPlans[1].metadata?.['product:details:1']).toBe(
+        'Detail 1 in French'
+      );
+      expect(actualProduct2.metadata?.['product:details:1']).toBe(
+        'Detail 1 in French'
+      );
+      expect(mappedPlans[1].metadata?.['product:details:2']).toBe(
+        'Detail 2 in French'
+      );
+      expect(actualProduct2.metadata?.['product:details:2']).toBe(
+        'Detail 2 in French'
+      );
     });
   });
 });
