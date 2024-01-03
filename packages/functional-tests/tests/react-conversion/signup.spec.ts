@@ -306,7 +306,6 @@ test.describe('severity-2 #smoke', () => {
       expect(await signupReact.getAge().inputValue()).toEqual('');
     });
 
-    // TODO: Not currently supported
     test('signup via product page and redirect after confirm', async ({
       page,
       target,
@@ -334,9 +333,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await signupReact.fillOutCodeForm(code);
-      // TODO: The redirect back to products isn't working. https://mozilla-hub.atlassian.net/browse/FXA-8795
-      // await page.waitForURL(/products/);
-      // await expect(page.getByTestId('avatar')).toBeVisible();
+      await page.waitForURL(/products/);
+      await expect(page.getByTestId('avatar')).toBeVisible();
     });
   });
 });
