@@ -15,6 +15,7 @@ const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
 const authOauth = require('./routes/auth-schemes/auth-oauth');
 const sharedSecretAuth = require('./routes/auth-schemes/shared-secret');
 const pubsubAuth = require('./routes/auth-schemes/pubsub');
+const googleOIDC = require('./routes/auth-schemes/google-oidc');
 const { HEX_STRING } = require('./routes/validators');
 const { configureSentry } = require('./sentry');
 const { swaggerOptions } = require('../docs/swagger/swagger-options');
@@ -453,6 +454,12 @@ async function create(log, error, config, routes, db, statsd, glean) {
   server.auth.strategy('supportSecret', 'supportSecret');
 
   server.auth.strategy('pubsub', 'jwt', pubsubAuth.strategy(config));
+
+  server.auth.scheme(
+    'cloudTasksOIDC',
+    googleOIDC.strategy(config.cloudTasks.oidc)
+  );
+  server.auth.strategy('cloudTasksOIDC', 'cloudTasksOIDC');
 
   // register all plugins and Swagger configuration
   await server.register([

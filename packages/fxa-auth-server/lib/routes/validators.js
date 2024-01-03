@@ -114,6 +114,7 @@ module.exports.service = isA
   .max(16)
   .regex(/^[a-zA-Z0-9\-]*$/);
 module.exports.hexString = isA.string().regex(HEX_STRING);
+module.exports.uid = module.exports.hexString.length(32);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.clientSecret = module.exports.hexString;
 module.exports.idToken = module.exports.jwt;

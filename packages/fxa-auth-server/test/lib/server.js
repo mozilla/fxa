@@ -8,6 +8,8 @@ process.env.CONFIG_FILES = require.resolve('./oauth-test.json');
 const { config } = require('../../config');
 const version = config.get('oauthServer.api.version');
 config.set('log.level', 'critical');
+config.set('cloudTasks.oidc.aud', 'cloud-tasks');
+config.set('cloudTasks.oidc.serviceAccountEmail', 'testo@iam.gcp.g.co');
 const testConfig = config.getProperties();
 const createServer = require('../../bin/key_server');
 const { CapabilityService } = require('../../lib/payments/capability');
