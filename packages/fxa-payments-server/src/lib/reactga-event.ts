@@ -67,9 +67,14 @@ export const ReactGALog = {
         product_name: productName,
       } = plan;
 
+      // Currently, only currencies with decimals are supported in Subscription Platform.
+      // If currencies without subunits (e.g., cents) are included at a later time, this
+      // will need to be updated.
+      const planPrice: number = (amount || 0) / 100;
+
       let planOptions: PlanOptionsProps = {
         currency: currencyCode,
-        value: amount,
+        value: planPrice,
         payment_type: paymentType,
         items: [
           {
@@ -77,7 +82,7 @@ export const ReactGALog = {
             item_name: planName,
             item_brand: productName,
             item_variant: interval,
-            price: amount,
+            price: planPrice,
             discount,
           },
         ],
