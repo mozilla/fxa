@@ -153,6 +153,10 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.goto('/authorization', syncMobileOAuthQueryParams);
 
       await signupReact.fillOutEmailFirst(email);
+      // We need to `waitUntil: 'load'` before we can `sendWebChannelMessage`
+      await page.waitForURL(/signup/, {
+        waitUntil: 'load',
+      });
       await page.waitForSelector('#root');
 
       await signupReact.sendWebChannelMessage(customEventDetail);
@@ -310,7 +314,11 @@ test.describe('severity-2 #smoke', () => {
       page,
       target,
       pages: { signupReact, relier, subscribe, login },
-    }) => {
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'no test products available in prod'
+      );
       // Make sure user is logged out
       await login.clearCache();
 
@@ -333,7 +341,21 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await signupReact.fillOutCodeForm(code);
-      await page.waitForURL(/products/);
+      /*
+       * We must `waitUntil: 'load'` due to redirects that occur here. Note,
+       * React signup for SubPlat has one additional redirect compared to Backbone.
+       * See notes in https://github.com/mozilla/fxa/pull/16078#issue-1993842384,
+       * we can look at this in the sunset content-server epic.
+       *
+       * React signup staging goes from:
+       * 1) [stage]/confirm_signup_code -> 2) [payments-stage]/products ->
+       * 3) [stage]/subscriptions/products -> 4) [payments-stage]/products
+       * Backbone signup staging goes from: 1) [stage]/confirm_signup_code ->
+       * 2) [stage]/subscriptions/products -> 3) [payments-stage]/products
+       * */
+      await page.waitForURL(/products/, {
+        waitUntil: 'load',
+      });
       await expect(page.getByTestId('avatar')).toBeVisible();
     });
   });
