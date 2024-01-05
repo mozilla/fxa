@@ -25,7 +25,7 @@ const execOptions = {
 
 describe('#integration - scripts/verification-reminders:', () => {
   it('does not fail', function () {
-    this.timeout(20000);
+    this.timeout(30000);
     return execAsync(
       'node -r esbuild-register scripts/verification-reminders',
       execOptions

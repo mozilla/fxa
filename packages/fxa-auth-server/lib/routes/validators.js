@@ -8,6 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
+const { AccountDeleteReasons } = require('../account-delete');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,
@@ -633,8 +634,12 @@ module.exports.subscriptionsPlanWithProductConfigValidator = isA.object({
     .required(),
 });
 
+module.exports.customerId = isA
+  .string()
+  .optional()
+  .description(DESCRIPTIONS.customerId);
 module.exports.subscriptionsCustomerValidator = isA.object({
-  customerId: isA.string().optional().description(DESCRIPTIONS.customerId),
+  customerId: module.exports.customerId,
   billing_name: isA
     .alternatives(isA.string(), isA.any().allow(null))
     .optional()
@@ -789,7 +794,7 @@ module.exports.subscriptionsStripeCustomerValidator = isA
 
 module.exports.subscriptionsMozillaSubscriptionsValidator = isA
   .object({
-    customerId: isA.string().optional().description(DESCRIPTIONS.customerId),
+    customerId: module.exports.customerId,
     billing_name: isA
       .alternatives(isA.string(), isA.any().allow(null))
       .optional()
@@ -855,3 +860,7 @@ module.exports.thirdPartyProvider = isA
 
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();
 module.exports.thirdPartyOAuthCode = isA.string().optional();
+
+module.exports.accountDeleteReason = isA
+  .string()
+  .valid(...AccountDeleteReasons);

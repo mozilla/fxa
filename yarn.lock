@@ -7898,6 +7898,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@google-cloud/tasks@npm:^4.0.1":
+  version: 4.1.0
+  resolution: "@google-cloud/tasks@npm:4.1.0"
+  dependencies:
+    google-gax: ^4.0.4
+  checksum: a04ec8ec8f538b74e81e6d2d5834d964ff86d78f67b3a1287779575180c998da6637dd41e8ec0913de208873d679deecde78d89fa8bd483094abb8ec5161992c
+  languageName: node
+  linkType: hard
+
 "@google-cloud/translate@npm:^8.0.2":
   version: 8.0.2
   resolution: "@google-cloud/translate@npm:8.0.2"
@@ -34766,6 +34775,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/dom": ^0.9.0
     "@fluent/langneg": ^0.6.2
+    "@google-cloud/tasks": ^4.0.1
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
     "@hapi/hawk": ^8.0.0
