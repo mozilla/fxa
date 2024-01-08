@@ -18,8 +18,11 @@ class PairIndexView extends FormView {
 
   events = {
     ...FormView.prototype.events,
-    'click #get-fx-mobile': 'downloadLinkEngagement',
     'click #pair-not-now': 'pairNotNowHandler',
+    'focus #pair-tab-have-firefox': 'showHaveFirefox',
+    'focus #pair-tab-download-firefox': 'showDownloadFirefox',
+    'keydown #pair-tab-have-firefox': 'handleKeyDownOnTab1',
+    'keydown #pair-tab-download-firefox': 'handleKeyDownOnTab2',
   };
 
   submit() {
@@ -62,13 +65,58 @@ class PairIndexView extends FormView {
     });
   }
 
-  downloadLinkEngagement() {
-    this.metrics.logEvent('screen.pair.downloadlink.engage');
-  }
-
   pairNotNowHandler() {
     this.metrics.logEvent('screen.pair.notnow.engage');
     return true;
+  }
+
+  showHaveFirefox() {
+    // show "have Firefox"
+    this.$('#pair-tab-have-firefox').attr('aria-selected', true);
+    this.$('#pair-tab-have-firefox').addClass('tab-selected');
+    this.$('#pair-panel-have-firefox').show();
+
+    // hide "download Firefox"
+    this.$('#pair-tab-download-firefox').removeClass('tab-selected');
+    this.$('#pair-tab-download-firefox').attr('aria-selected', false);
+    this.$('#pair-panel-download-firefox').hide();
+  }
+
+  showDownloadFirefox() {
+    // hide 'have Firefox'
+    this.$('#pair-tab-have-firefox').attr('aria-selected', false);
+    this.$('#pair-tab-have-firefox').removeClass('tab-selected');
+    this.$('#pair-panel-have-firefox').hide();
+
+    // show 'download Firefox'
+    this.$('#pair-tab-download-firefox').attr('aria-selected', true);
+    this.$('#pair-tab-download-firefox').addClass('tab-selected');
+    this.$('#pair-panel-download-firefox').show();
+  }
+
+  // Automate tab shifting with arrow keys
+  handleKeyDownOnTab1(e) {
+    if (document.dir === 'ltr') {
+      if (e.key === 'ArrowRight') {
+        this.$('#pair-tab-download-firefox').focus();
+      }
+    } else if (document.dir === 'rtl') {
+      if (e.key === 'ArrowLeft') {
+        this.$('#pair-tab-download-firefox').focus();
+      }
+    }
+  }
+
+  handleKeyDownOnTab2(e) {
+    if (document.dir === 'ltr') {
+      if (e.key === 'ArrowLeft') {
+        this.$('#pair-tab-have-firefox').focus();
+      }
+    } else if (document.dir === 'rtl') {
+      if (e.key === 'ArrowRight') {
+        this.$('#pair-tab-have-firefox').focus();
+      }
+    }
   }
 }
 

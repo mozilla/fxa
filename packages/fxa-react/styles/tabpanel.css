@@ -1,0 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+.tablist {
+  @apply flex gap-1 mt-5 p-1 bg-grey-100 rounded-full font-bold text-grey-500;
+}
+
+.tab-button {
+  @apply w-1/2 p-2 rounded-full border-transparent
+    active:text-blue-500
+    hover:text-black;
+}
+
+.tab-selected {
+  @apply bg-white text-blue-500 hover:!text-blue-500;
+}

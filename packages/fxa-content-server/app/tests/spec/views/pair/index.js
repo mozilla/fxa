@@ -170,16 +170,35 @@ describe('views/pair/index', () => {
       sinon.stub(view, 'showDownloadFirefoxQrCode').callsFake(() => true);
       return view.render().then(() => {
         const heading = view.$('#pair-header');
-        assert.strictEqual(heading.text(), 'Connect Firefox on another device');
+        assert.strictEqual(
+          heading.text(),
+          'Connect Firefox on your mobile device'
+        );
 
         const pairButton = view.$('#start-pairing');
         assert.equal(pairButton.length, 1);
 
-        const downloadLink = view.$('#get-fx-mobile');
-        assert.equal(downloadLink.length, 1);
+        const haveFirefoxButton = view.$('#pair-tab-have-firefox');
+        assert.equal(haveFirefoxButton.length, 1);
 
+        const downloadFirefoxButton = view.$('#pair-tab-download-firefox');
+        assert.equal(downloadFirefoxButton.length, 1);
+
+        // on first load, have firefox tab is shown
+        const haveFirefoxPanel = view.$('#pair-panel-have-firefox');
+        assert.equal(haveFirefoxPanel.length, 1);
+        assert.isFalse(haveFirefoxPanel.hasClass('hidden'));
+
+        // on first load, download tab is hidden
+        const downloadFirefoxPanel = view.$('#pair-panel-download-firefox');
+        assert.equal(downloadFirefoxPanel.length, 1);
+        assert.isTrue(downloadFirefoxPanel.hasClass('hidden'));
+
+        // TODO: element is in DOM, but should only be visible if download tab is selected
         const qrCode = view.$el.find('.bg-image-cad-qr-code');
         assert.equal(qrCode.length, 1);
+
+        // TODO add test(s) for toggling between panels
       });
     });
 

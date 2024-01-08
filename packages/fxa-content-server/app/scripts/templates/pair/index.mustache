@@ -1,7 +1,7 @@
 <div class="card">
   <header>
     {{#showQrCode}}
-      <h2 id="pair-header" class="card-header">{{#t}}Connect Firefox on another device{{/t}}</h2>
+      <h2 id="pair-header" class="card-header">{{#t}}Connect Firefox on your mobile device{{/t}}</h2>
     {{/showQrCode}}
     {{^showQrCode}}
       <h2 id="pair-header" class="card-header">{{#t}}Sync Firefox on your phone or tablet{{/t}}</h2>
@@ -12,17 +12,33 @@
     <div class="error"></div>
 
     {{#showQrCode}}
-    <div class="mt-9 mb-5">{{#t}}Already have Firefox on a phone or tablet?{{/t}}</div>
-    <form novalidate>
+
+    <div id="pair-tabpanel">
+      <div role="tablist" class="tablist">
+          <button type="button" role="tab" id="pair-tab-have-firefox" aria-selected="true" aria-controls="pair-panel-have-firefox" class="tab-button tab-selected">{{#t}}Have Firefox{{/t}}</button>
+          <button type="button" role="tab" id="pair-tab-download-firefox" aria-selected="false" aria-controls="pair-panel-download-firefox" tabindex="-1" class="tab-button">{{#t}}Download Firefox{{/t}}</button>
+      </div>
+
+      <div id="pair-tabpanel-group">
+        <div role="tabpanel" tabindex="0" id="pair-panel-have-firefox" aria-labelledby="pair-tab-have-firefox">
+          <div class="my-5 px-5">{{#unsafeTranslate}}Already have Firefox on your phone or tablet? <br />Sync your device now.{{/unsafeTranslate}}</div>
+          <div class="bg-image-sync-devices" role="img" aria-label=""></div>
+        </div>
+
+        <div role="tabpanel" tabindex="0" id="pair-panel-download-firefox"  aria-labelledby="pair-tab-download-firefox" class="hidden">
+          <p class="my-5 px-5">{{#unsafeTranslate}}If you don’t have Firefox on your phone or tablet, scan the QR code to download it now. Then, select <strong>Sync device</strong>.{{/unsafeTranslate}}</p>
+          <div class="bg-image-cad-qr-code" role="img" aria-label="{{#t}}QR code to download Firefox on a mobile device{{/t}}"></div>
+        </div>
+      </div>
+    </div>
+
+    <form novalidate class="mt-5">
       <div class="flex">
-        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}Sync your device{{/t}}</button>
+        <button id="start-pairing" class="cta-primary cta-xl" type="submit">{{#t}}Sync device{{/t}}</button>
       </div>
     </form>
-
-      <h3 class="text-lg font-bold mt-10">{{#t}}Or download{{/t}}</h3>
-      <p class="my-5 px-16">{{#unsafeTranslate}}Scan to download Firefox for mobile, or send yourself a <a id="get-fx-mobile" href="https://www.mozilla.org/firefox/mobile/get-app/" target="_blank" class="link-blue">download link.</a>{{/unsafeTranslate}}</p>
-      <div class="bg-image-cad-qr-code" role="img" aria-label="{{#t}}QR code{{/t}}"></div>
     <p class="mt-5 text-sm"><a id="pair-not-now" class="link-blue" href="/settings">{{#t}}Not now{{/t}}</a></p>
+
     {{/showQrCode}}
     {{^showQrCode}}
     <div class="{{graphicId}} mt-5" role="img" aria-label="{{#t}}Complete your set-up{{/t}}"></div>
