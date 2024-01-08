@@ -39,7 +39,7 @@
     "@fluent/bundle": "^0.18.0",
     "@fluent/langneg": "^0.6.2",
     "async-wait-until": "^2.0.12",
-    "classnames": "^2.3.1",
+    "classnames": "^2.5.1",
     "fetch-mock": "^9.11.0",
     "fxa-shared": "workspace:*",
     "react-helmet": "^6.1.0",
