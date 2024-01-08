@@ -38,14 +38,7 @@ test.describe('severity-2 #smoke', () => {
       for (const email of emails) {
         if (email) {
           // Cleanup any accounts created during the test
-          try {
-            await target.auth.accountDestroy(email, password);
-          } catch (e) {
-            // Handle the error here
-            console.error('An error occurred during account cleanup:', e);
-            // Optionally, rethrow the error to propagate it further
-            throw e;
-          }
+          await target.auth.accountDestroy(email, password);
         }
       }
     });

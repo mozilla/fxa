@@ -30,14 +30,8 @@ test.afterEach(async ({ target }) => {
     return;
   }
   if (email) {
-    try {
-      await target.auth.accountDestroy(email, PASSWORD);
-    } catch (e) {
-      // Handle the error here
-      console.error('An error occurred during account cleanup:', e);
-      // Optionally, rethrow the error to propagate it further
-      throw e;
-    }
+    // Cleanup any accounts created during the test
+    await target.auth.accountDestroy(email, PASSWORD);
   }
 });
 

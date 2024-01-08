@@ -45,15 +45,7 @@ test.describe('severity-2 #smoke', () => {
     test.afterEach(async ({ target }, test) => {
       await syncBrowserPages.browser?.close();
       if (email) {
-        // Cleanup any accounts created during the test
-        try {
-          await target.auth.accountDestroy(email, secondPassword);
-        } catch (e) {
-          // Handle the error here
-          console.error('An error occurred during account cleanup:', e);
-          // Optionally, rethrow the error to propagate it further
-          throw e;
-        }
+        await target.auth.accountDestroy(email, secondPassword);
       }
     });
 
