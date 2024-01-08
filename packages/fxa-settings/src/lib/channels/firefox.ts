@@ -254,11 +254,9 @@ export class Firefox extends EventTarget {
   async fxaLogin(options: FxALoginRequest): Promise<void> {
     this.send(FirefoxCommand.Login, options);
 
-    // In Playwright, we need to wait for the browser to send a web channel message
+    // We must wait for the browser to send a web channel message
     // in response to the fxaLogin command. Without this we navigate the user before
     // the login completes, resulting in an "Invalid token" error on the next page.
-    // This does not appear to be a problem otherwise, so we only listen for a response
-    // if the `automatedBrowser` param is present, else we resolve immediately.
     return new Promise((resolve) => {
       const eventHandler = (event: Event) => {
         const firefoxEvent = event as FirefoxEvent;
@@ -277,11 +275,7 @@ export class Firefox extends EventTarget {
         resolve();
       };
 
-      if (new URLSearchParams(window.location.search).get('automatedBrowser')) {
-        window.addEventListener('WebChannelMessageToContent', eventHandler);
-      } else {
-        resolve();
-      }
+      window.addEventListener('WebChannelMessageToContent', eventHandler);
     });
   }
 
