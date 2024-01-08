@@ -65,40 +65,25 @@ const TermsPrivacyAgreement = ({
           )}
           {isMonitorClient && (
             <FtlMsg
-              id="terms-privacy-agreement-monitor-3"
+              id="terms-privacy-agreement-monitor-2"
               elems={{
-                mozSubscriptionTosLink: (
+                monitorTos: (
                   <LinkExternal
                     className="link-grey"
-                    href="https://www.mozilla.org/about/legal/terms/subscription-services/"
+                    href="https://www.mozilla.org/privacy/firefox-monitor/"
                   >
-                    Terms of Service
-                  </LinkExternal>
-                ),
-                mozSubscriptionPrivacyLink: (
-                  <LinkExternal
-                    className="link-grey"
-                    href="https://www.mozilla.org/privacy/subscription-services/"
-                  >
-                    Privacy Notice
+                    Terms of Service and Privacy Notice
                   </LinkExternal>
                 ),
               }}
             >
               <li>
-                Mozilla Subscription Services{' '}
+                Firefox Monitor{' '}
                 <LinkExternal
                   className="link-grey"
-                  href="https://www.mozilla.org/about/legal/terms/subscription-services/"
+                  href="https://www.mozilla.org/privacy/firefox-monitor/"
                 >
-                  Terms of Service
-                </LinkExternal>{' '}
-                and{' '}
-                <LinkExternal
-                  className="link-grey"
-                  href="https://www.mozilla.org/privacy/subscription-services/"
-                >
-                  Privacy Notice
+                  Terms of Service and Privacy Notice
                 </LinkExternal>
               </li>
             </FtlMsg>
