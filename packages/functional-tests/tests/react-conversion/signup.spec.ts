@@ -162,11 +162,11 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.goto('/authorization', syncMobileOAuthQueryParams);
 
       await signupReact.fillOutEmailFirst(email);
-      // We need to `waitUntil: 'load'` before we can `sendWebChannelMessage`
       await page.waitForURL(/signup/, {
         waitUntil: 'load',
       });
       await page.waitForSelector('#root');
+      expect(page.getByText('Set your password')).toBeVisible();
 
       await signupReact.sendWebChannelMessage(customEventDetail);
       await login.waitForCWTSEngineHeader();
@@ -362,9 +362,11 @@ test.describe('severity-2 #smoke', () => {
        * Backbone signup staging goes from: 1) [stage]/confirm_signup_code ->
        * 2) [stage]/subscriptions/products -> 3) [payments-stage]/products
        * */
-      await page.waitForURL(/products/, {
+      await page.waitForURL(`${target.paymentsServerUrl}/**`, {
         waitUntil: 'load',
       });
+      const loadingSpinner = page.locator('[data-testid="loading-spinner"]');
+      await loadingSpinner.waitFor({ state: 'hidden' });
       await expect(page.getByTestId('avatar')).toBeVisible();
     });
   });
