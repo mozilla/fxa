@@ -12,14 +12,17 @@ import {
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
 
+type OAuthCode = {
+  code: string;
+  state: string;
+  redirect: string; // you probably don't want this, see comment below
+};
+
 // TODO: Do we need this or can we rely on `@bind` methods? FXA-8106
-const checkOAuthData = (
-  integration: OAuthIntegration,
-  wantsRedirect: boolean
-): Error | null => {
-  // Ensure a redirect was provided. Without this info, we can't relay the oauth code
-  // and state on a redirect!
-  if (wantsRedirect && !integration.data.redirectUri) {
+const checkOAuthData = (integration: OAuthIntegration): Error | null => {
+  // Ensure a redirect was provided or matched. Without this info, we can't relay the
+  // oauth code and state on a redirect!
+  if (!integration.data.redirectUri && !integration.clientInfo?.redirectUri) {
     return new OAuthErrorInvalidRedirectUri();
   }
   if (!integration.data.clientId) {
@@ -98,7 +101,7 @@ async function constructOAuthCode(
     opts.access_type = integration.data.accessType;
   }
 
-  const result = await authClient.createOAuthCode(
+  const result: OAuthCode = await authClient.createOAuthCode(
     sessionToken,
     integration.data.clientId,
     integration.data.state,
@@ -117,14 +120,7 @@ async function constructOAuthCode(
  * @param oauthCode
  * @returns
  */
-function constructOAuthRedirectUrl(
-  oauthCode: {
-    code: string;
-    state: string;
-    redirect: string;
-  },
-  redirectUri: string
-) {
+function constructOAuthRedirectUrl(oauthCode: OAuthCode, redirectUri: string) {
   // Update the state of the redirect URI
   let constructedRedirectUri = new URL(redirectUri);
   if (oauthCode.code) {
@@ -198,7 +194,9 @@ export function useFinishOAuthFlowHandler(
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
         : constructOAuthRedirectUrl(
             oAuthCode,
-            oAuthIntegration.data.redirectUri
+            // If the RP did not pass `redirect_uri` via query param, use clientInfo's
+            oAuthIntegration.data.redirectUri ||
+              oAuthIntegration.clientInfo?.redirectUri
           ).href;
 
       // Always use the state the RP passed in for OAuth Webchannel.
@@ -236,12 +234,12 @@ export function useFinishOAuthFlowHandler(
    *
    * ¹This was the case when reset password had an OAuth redirect - we only called
    * `checkOAuthData` if `integration.data.service` was _not_ present in the URL. We can
-   * revisit this with the reset PW redesign - for now check if !isSyncMobileWebChannel.
+   * revisit this with the reset PW redesign.
    *
    * P.S. we can't return early regardless because `useCallback` can't be set conditionally.
    */
   if (isOAuthIntegration(integration)) {
-    const oAuthDataError = checkOAuthData(integration, !isSyncMobileWebChannel);
+    const oAuthDataError = checkOAuthData(integration);
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };

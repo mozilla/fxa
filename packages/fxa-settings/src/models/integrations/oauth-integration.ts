@@ -135,7 +135,7 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   redirectUrl: string | undefined;
 
   // TODO - Validation - Needs custom validation, see IsRedirectUriValid in content server.
-  // TODO - Validation - Seems to be required for OAuth
+  // We fall back to clientInfo.redirectUri if this is not provided so only validate if it's present
   @IsString()
   @IsOptional()
   @bind(T.snakeCase)
