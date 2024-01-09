@@ -82,8 +82,8 @@ export const webChannelDesktopEngineConfigs: WebChannelEngineConfig[] = [
   {
     defaultChecked: true,
     id: 'creditcards',
-    text: 'Credit Cards',
-    ftlId: 'choose-what-to-sync-option-creditcards',
+    text: 'Payment Methods',
+    ftlId: 'choose-what-to-sync-option-paymentmethods',
     include: false,
   },
 ];

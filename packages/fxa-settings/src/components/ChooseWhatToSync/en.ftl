@@ -19,5 +19,5 @@ choose-what-to-sync-option-prefs =
   .label = Preferences
 choose-what-to-sync-option-addresses =
   .label = Addresses
-choose-what-to-sync-option-creditcards =
-  .label = Credit Cards
+choose-what-to-sync-option-paymentmethods =
+  .label = Payment Methods
