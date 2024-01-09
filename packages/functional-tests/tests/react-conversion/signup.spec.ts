@@ -113,23 +113,32 @@ test.describe('severity-1 #smoke', () => {
       const params = new URL(page.url()).searchParams;
 
       // reload email-first page with React experiment params
-      await signupReact.goto('/', params);
-      // fill out email first form
-      await signupReact.fillOutEmailFirst(email);
-      await page.waitForURL(/signup/);
-      await page.waitForSelector('#root');
-      await signupReact.fillOutSignupForm(PASSWORD);
-
-      // Get code from email
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
+      await signupReact.goToEmailFirstAndCreateAccount(params, email, PASSWORD);
 
       // expect to be redirected to relier after confirming signup code
+      await page.waitForURL(target.relierUrl);
+      expect(await relier.isLoggedIn()).toBe(true);
+      await relier.signOut();
+    });
+
+    test('signup oauth with missing redirect_uri', async ({
+      page,
+      target,
+      pages: { relier, signupReact },
+    }) => {
+      relier.goto();
+      relier.clickEmailFirst();
+
+      // wait for navigation, and get search params
+      await page.waitForURL(/oauth\//);
+      const params = new URL(page.url()).searchParams;
+      params.delete('redirect_uri');
+
+      // reload email-first page without redirect_uri, but with React experiment params
+      await signupReact.goToEmailFirstAndCreateAccount(params, email, PASSWORD);
+
+      // redirectUri should have fallen back to the clientInfo config redirect URI
+      // Expect to be redirected to relier
       await page.waitForURL(target.relierUrl);
       expect(await relier.isLoggedIn()).toBe(true);
       await relier.signOut();

@@ -1,5 +1,6 @@
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
+import { EmailHeader, EmailType } from '../lib/email';
 
 export class SignupReactPage extends BaseLayout {
   readonly path = 'signup';
@@ -75,6 +76,28 @@ export class SignupReactPage extends BaseLayout {
   async fillOutCodeForm(code: string) {
     await this.setCode(code);
     await this.submit('Confirm');
+  }
+
+  async goToEmailFirstAndCreateAccount(
+    params: URLSearchParams,
+    email: string,
+    password: string
+  ) {
+    await this.goto('/', params);
+    // fill out email first form
+    await this.fillOutEmailFirst(email);
+    await this.page.waitForURL(/signup/);
+    await this.page.waitForSelector('#root');
+    await this.fillOutSignupForm(password);
+
+    // Get code from email
+    const code = await this.target.email.waitForEmail(
+      email,
+      EmailType.verifyShortCode,
+      EmailHeader.shortCode
+    );
+
+    await this.fillOutCodeForm(code);
   }
 
   async submit(label: string) {
