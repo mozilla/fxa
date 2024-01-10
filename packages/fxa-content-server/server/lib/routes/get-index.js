@@ -48,7 +48,9 @@ module.exports = function (config) {
   const PROMPT_NONE_ENABLED = config.get('oauth.prompt_none.enabled');
   const SHOW_REACT_APP = config.get('showReactApp');
   const BRAND_MESSAGING_MODE = config.get('brandMessagingMode');
-
+  const FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS = config.get(
+    'featureFlags.sendFxAStatusOnSettings'
+  );
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -100,7 +102,9 @@ module.exports = function (config) {
     webpackPublicPath: WEBPACK_PUBLIC_PATH,
     showReactApp: SHOW_REACT_APP,
     brandMessagingMode: BRAND_MESSAGING_MODE,
-
+    featureFlags: {
+      sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
+    },
     glean: {
       // feature toggle
       enabled: GLEAN_ENABLED,

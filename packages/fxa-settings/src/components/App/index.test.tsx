@@ -236,6 +236,7 @@ describe('SettingsRoutes', () => {
       loading: false,
     });
     (useIntegration as jest.Mock).mockReturnValue({
+      isSync: jest.fn(),
       getServiceName: jest.fn(),
     });
   });

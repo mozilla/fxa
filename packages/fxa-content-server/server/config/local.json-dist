@@ -54,5 +54,8 @@
     "resetPasswordRoutes": true,
     "signUpRoutes": true,
     "signInRoutes": true
+  },
+  "featureFlags": {
+    "sendFxAStatusOnSettings": true
   }
 }

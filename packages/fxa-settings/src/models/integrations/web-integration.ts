@@ -17,6 +17,7 @@ import {
   IsString,
   Length,
 } from 'class-validator';
+import { Constants } from '../../lib/constants';
 
 // TODO: move this to other file, FXA-8099
 export class BaseIntegrationData extends ModelDataProvider {
@@ -119,6 +120,12 @@ export class WebIntegration extends BaseIntegration {
       reuseExistingSession: true,
       fxaStatus: this.isFxaStatusSupported(),
     });
+  }
+
+  // Special case of mobile accessing Settings through the browser's "Manage account"
+  // TODO: do we want a SyncMobileBasic integration for this?
+  isSync() {
+    return this.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT;
   }
 
   private isFxaStatusSupported(): boolean {
