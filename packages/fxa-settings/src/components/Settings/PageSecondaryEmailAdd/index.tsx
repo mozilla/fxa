@@ -6,7 +6,7 @@ import { HomePath } from '../../../constants';
 import InputText from '../../InputText';
 import FlowContainer from '../FlowContainer';
 import VerifiedSessionGuard from '../VerifiedSessionGuard';
-import { isEmailValid } from 'fxa-shared/email/helpers';
+import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import {
   AuthUiErrorNos,
@@ -66,8 +66,18 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       setSaveBtnDisabled(!isValid);
       setEmail(inputRef.current?.value);
       setErrorText('');
+
+      if (isEmailMask(email)) {
+        const errorText = l10n.getString(
+          'add-secondary-email-mask',
+          null,
+          'Email masks can’t be used as a secondary email'
+        );
+        setErrorText(errorText);
+        setSaveBtnDisabled(true);
+      }
     },
-    [setSaveBtnDisabled]
+    [setSaveBtnDisabled, setErrorText, l10n]
   );
 
   return (

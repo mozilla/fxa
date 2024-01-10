@@ -352,6 +352,30 @@ describe('views/index', () => {
       );
     });
 
+    it('shows error when signing up with Relay mask email (@mozmail.com)', () => {
+      view.$(Selectors.EMAIL).val('a@mozmail.com');
+      view.showValidationErrorsEnd();
+      assert.isTrue(view.showValidationError.called);
+      const err = view.showValidationError.args[0][1];
+      assert.isTrue(AuthErrors.is(err, 'EMAIL_MASK_NEW_ACCOUNT'));
+    });
+
+    it('shows error when signing up with Relay mask email (@sub.mozmail.com)', () => {
+      view.$(Selectors.EMAIL).val('a@sub.mozmail.com');
+      view.showValidationErrorsEnd();
+      assert.isTrue(view.showValidationError.called);
+      const err = view.showValidationError.args[0][1];
+      assert.isTrue(AuthErrors.is(err, 'EMAIL_MASK_NEW_ACCOUNT'));
+    });
+
+    it('shows error when signing up with Relay mask email (@relay.firefox.com)', () => {
+      view.$(Selectors.EMAIL).val('a@relay.firefox.com');
+      view.showValidationErrorsEnd();
+      assert.isTrue(view.showValidationError.called);
+      const err = view.showValidationError.args[0][1];
+      assert.isTrue(AuthErrors.is(err, 'EMAIL_MASK_NEW_ACCOUNT'));
+    });
+
     it('shows an error if the user provides a @firefox email', () => {
       view.$(Selectors.EMAIL).val('firefox@firefox');
       view.showValidationErrorsEnd();

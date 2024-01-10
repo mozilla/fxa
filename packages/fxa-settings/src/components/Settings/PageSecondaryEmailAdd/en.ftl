@@ -8,3 +8,8 @@ add-secondary-email-enter-address =
   .label = Enter email address
 add-secondary-email-cancel-button = Cancel
 add-secondary-email-save-button = Save
+
+# This message is shown when a user tries to add a secondary email that is a
+# Firefox Relay email mask (generated email address that can be used in place of
+# your real email address)
+add-secondary-email-mask = Email masks can’t be used as a secondary email
