@@ -55,6 +55,17 @@ import { QueryParams } from '../..';
 import SignupContainer from '../../pages/Signup/container';
 import GleanMetrics from '../../lib/glean';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { Constants } from '../../lib/constants';
+import {
+  firefox,
+  FirefoxCommand,
+  FxAStatusResponse,
+} from '../../lib/channels/firefox';
+import {
+  persistAccount,
+  setCurrentAccount,
+  StoredAccountData,
+} from '../../lib/storage-utils';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -172,10 +183,41 @@ const SettingsRoutes = ({
   isSignedIn,
 }: { isSignedIn: boolean } & RouteComponentProps) => {
   const location = useLocation();
+  const integration = useIntegration();
+
+  const handleFxAStatusEvent = (event: any) => {
+    const status = event.detail as FxAStatusResponse;
+    const signedInUser = status.signedInUser as StoredAccountData;
+    if (signedInUser) {
+      persistAccount(signedInUser);
+      setCurrentAccount(signedInUser.uid);
+      sessionToken(signedInUser.sessionToken);
+    }
+  };
+
   if (isSignedIn === false) {
-    hardNavigateToContentServer(
-      `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
-    );
+    // Some integrations (ie oauth_webchannel_v1), could have a signed-in user into the browser.
+    // If this is the case, we query for the user and load settings
+    if (
+      integration?.features.fxaStatus &&
+      integration?.data.context === Constants.OAUTH_WEBCHANNEL_CONTEXT
+    ) {
+      firefox.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);
+
+      // requestAnimationFrame ensures the event listener is added first
+      // otherwise, there is a race condition
+      requestAnimationFrame(() => {
+        firefox.send(FirefoxCommand.FxAStatus, {
+          context: integration?.data.context,
+          isPairing: false,
+        });
+      });
+    } else {
+      hardNavigateToContentServer(
+        `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
+      );
+    }
+
     return <LoadingSpinner fullScreen />;
   }
 

@@ -65,7 +65,7 @@ export function makeConvictMySQLConfig(envPrefix: string, database: string) {
       format: String,
     },
     host: {
-      default: 'localhost',
+      default: '::1',
       doc: 'MySQL host',
       env: envPrefix + '_MYSQL_HOST',
       format: String,
