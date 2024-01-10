@@ -50,11 +50,13 @@ export class StripeFirestore {
     protected firestore: Firestore,
     protected customerCollectionDbRef: CollectionReference,
     protected stripe: Stripe,
-    prefix: string
+    prefix: string,
+    protected MAX_RETRY_ATTEMPTS: number = 5
   ) {
     this.subscriptionCollection = `${prefix}subscriptions`;
     this.invoiceCollection = `${prefix}invoices`;
     this.paymentMethodCollection = `${prefix}payment_methods`;
+    this.MAX_RETRY_ATTEMPTS = 5;
   }
 
   /**

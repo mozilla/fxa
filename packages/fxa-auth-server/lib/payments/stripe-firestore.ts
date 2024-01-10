@@ -1,7 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { CollectionReference, Firestore } from '@google-cloud/firestore';
+import { BaseMultiError } from '@fxa/shared/error';
+import {
+  BulkWriterError,
+  CollectionReference,
+  Firestore,
+} from '@google-cloud/firestore';
 import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 
@@ -23,6 +28,26 @@ export function newFirestoreStripeError(
   return error;
 }
 
+export class FirestoreBulkWriterMultiError extends BaseMultiError {
+  constructor(errors: BulkWriterError[]) {
+    super(errors);
+    this.name = 'FirestoreBulkWriterMultiError';
+  }
+
+  getPrimaryError(): BulkWriterError {
+    // TS is not picking up the type otherwise, so have to cast.
+    return this.errors()[0] as BulkWriterError;
+  }
+
+  static hasBulkWriterError(
+    err: Error | FirestoreBulkWriterMultiError
+  ): boolean {
+    return (
+      err instanceof FirestoreBulkWriterMultiError &&
+      err.getPrimaryError() instanceof BulkWriterError
+    );
+  }
+}
 /**
  * StripeFirestore manages access to the Stripe customer data stored in Firestore.
  *
@@ -151,5 +176,33 @@ export class StripeFirestore extends StripeFirestoreBase {
       return;
     }
     return paymentMethodSnap.docs[0].ref.delete();
+  }
+
+  /**
+   * Remove the specified customer document and all subcollections
+   */
+  async removeCustomerRecursive(uid: string) {
+    const bulkWriterResults: string[] = [];
+    const bulkWriterErrors: BulkWriterError[] = [];
+    const bulkWriter = this.firestore.bulkWriter();
+    bulkWriter.onWriteResult((doc) => bulkWriterResults.push(doc.path));
+    bulkWriter.onWriteError((error) => {
+      if (error.failedAttempts < this.MAX_RETRY_ATTEMPTS) {
+        return true;
+      } else {
+        bulkWriterErrors.push(error);
+        return false;
+      }
+    });
+    try {
+      await this.firestore.recursiveDelete(
+        this.customerCollectionDbRef.doc(uid),
+        bulkWriter
+      );
+      return bulkWriterResults;
+    } catch (error) {
+      const errors = bulkWriterErrors.length ? bulkWriterErrors : [error];
+      throw new FirestoreBulkWriterMultiError(errors);
+    }
   }
 }

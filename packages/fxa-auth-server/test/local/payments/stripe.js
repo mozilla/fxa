@@ -7463,4 +7463,30 @@ describe('#integration - StripeHelper', () => {
       assert.equal(actual, false);
     });
   });
+
+  describe('removeFirestoreCustomer', () => {
+    it('completes successfully and returns array of deleted paths', async () => {
+      const expected = ['/path', '/path/subpath'];
+      stripeFirestore.removeCustomerRecursive = sandbox
+        .stub()
+        .resolves(expected);
+      const actual = await stripeHelper.removeFirestoreCustomer('uid');
+      assert.equal(actual, expected);
+    });
+
+    it('reports error to sentry and returns empty array', async () => {
+      const expected = [];
+      sandbox.stub(Sentry, 'captureException');
+      const expectedError = new Error('bad things');
+      stripeFirestore.removeCustomerRecursive = sandbox
+        .stub()
+        .rejects(expectedError);
+      const actual = await stripeHelper.removeFirestoreCustomer('uid');
+      assert.deepEqual(actual, expected);
+      sinon.assert.calledOnceWithExactly(
+        Sentry.captureException,
+        expectedError
+      );
+    });
+  });
 });
