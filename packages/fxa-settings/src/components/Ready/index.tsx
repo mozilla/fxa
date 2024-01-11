@@ -71,7 +71,7 @@ const Ready = ({
 }: ReadyProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
-  // TODO: Do we want to check isSyncDesktopIntegration instead?
+  // TODO: use `integration.isSync()`
   // This component in general could use some clean up...
   const isSync = serviceName === MozServices.FirefoxSync;
 

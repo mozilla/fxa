@@ -9,7 +9,7 @@ export enum IntegrationType {
   PairingAuthority = 'PairingAuthority', // TODO
   PairingSupplicant = 'PairingSupplicant', // TODO
   SyncBasic = 'SyncBasic',
-  SyncDesktop = 'SyncDesktop',
+  SyncDesktopV3 = 'SyncDesktopV3',
   Web = 'Web', // default
 }
 
@@ -68,6 +68,7 @@ export interface RelierAccount {
   isDefault(): unknown;
 }
 
+// TODO: probably move this to another file
 export abstract class Integration<
   T extends IntegrationFeatures = IntegrationFeatures
 > {
@@ -93,11 +94,6 @@ export abstract class Integration<
 
   protected setFeatures(features: Partial<T>) {
     this.features = { ...this.features, ...features } as T;
-  }
-
-  // TODO: do we need this/isSync?
-  isOAuth(): boolean {
-    return false;
   }
 
   isSync(): boolean {

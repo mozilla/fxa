@@ -138,7 +138,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.signOut();
     });
 
-    test('signup oauth webchannel (sync mobile)', async ({ target }) => {
+    test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
+      target,
+    }) => {
       const syncBrowserPages = await newPagesForSync(target);
       const { page, signupReact, login } = syncBrowserPages;
 

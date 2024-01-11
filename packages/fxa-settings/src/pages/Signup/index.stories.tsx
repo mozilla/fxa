@@ -9,12 +9,11 @@ import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import {
   createMockSignupOAuthIntegration,
-  createMockSignupSyncDesktopIntegration,
-  createMockSignupWebIntegration,
+  createMockSignupSyncDesktopV3Integration,
   mockBeginSignupHandler,
   signupQueryParams,
 } from './mocks';
-import { SignupProps } from './interfaces';
+import { SignupIntegration } from './interfaces';
 import { SignupQueryParams } from '../../models/pages/signup';
 import { mockUrlQueryData } from '../../models/mocks';
 import {
@@ -22,6 +21,8 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
+import { isOAuthIntegration, isSyncDesktopV3Integration } from '../../models';
+import { MOCK_CLIENT_ID } from '../mocks';
 
 export default {
   title: 'Pages/Signup',
@@ -32,18 +33,22 @@ export default {
 const urlQueryData = mockUrlQueryData(signupQueryParams);
 const queryParamModel = new SignupQueryParams(urlQueryData);
 
-const storyWithProps = (props?: Partial<SignupProps>) => {
+const storyWithProps = (
+  integration: SignupIntegration = createMockSignupOAuthIntegration()
+) => {
+  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
+
   const story = () => (
     <LocationProvider>
       <Signup
         {...{
-          integration: createMockSignupWebIntegration(),
+          integration,
           queryParamModel,
           beginSignupHandler: mockBeginSignupHandler,
           webChannelEngines: getSyncEngineIds(),
-          isSyncMobileWebChannel: false,
-          isSync: false,
-          ...props,
+          isSyncWebChannel:
+            isSyncOAuth || isSyncDesktopV3Integration(integration),
+          isSyncOAuth,
         }}
       />
     </LocationProvider>
@@ -53,19 +58,20 @@ const storyWithProps = (props?: Partial<SignupProps>) => {
 
 export const Default = storyWithProps();
 
-export const CantChangeEmail = storyWithProps({
-  integration: createMockSignupOAuthIntegration(),
-});
+export const CantChangeEmail = storyWithProps();
 
-export const ClientIsPocket = storyWithProps({
-  integration: createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0]),
-});
+export const ClientIsPocket = storyWithProps(
+  createMockSignupOAuthIntegration(POCKET_CLIENTIDS[0])
+);
 
-export const ClientIsMonitor = storyWithProps({
-  integration: createMockSignupOAuthIntegration(MONITOR_CLIENTIDS[0]),
-});
+export const ClientIsMonitor = storyWithProps(
+  createMockSignupOAuthIntegration(MONITOR_CLIENTIDS[0])
+);
 
-export const ChooseWhatToSyncIsEnabled = storyWithProps({
-  integration: createMockSignupSyncDesktopIntegration(),
-  isSync: true,
-});
+export const SyncDesktopV3 = storyWithProps(
+  createMockSignupSyncDesktopV3Integration()
+);
+
+export const SyncOAuth = storyWithProps(
+  createMockSignupOAuthIntegration(MOCK_CLIENT_ID, true)
+);

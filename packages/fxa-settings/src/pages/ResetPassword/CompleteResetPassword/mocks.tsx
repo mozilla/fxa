@@ -15,7 +15,7 @@ import {
 import { MOCK_UID } from '../../mocks';
 import LinkValidator from '../../../components/LinkValidator';
 import {
-  createMockSyncDesktopIntegration,
+  createMockSyncDesktopV3Integration,
   createMockWebIntegration,
 } from '../../../lib/integrations/mocks';
 
@@ -103,8 +103,8 @@ export const Subject = ({
       completeResetPasswordIntegration =
         createMockResetPasswordOAuthIntegration();
       break;
-    case IntegrationType.SyncDesktop:
-      completeResetPasswordIntegration = createMockSyncDesktopIntegration();
+    case IntegrationType.SyncDesktopV3:
+      completeResetPasswordIntegration = createMockSyncDesktopV3Integration();
       break;
     case IntegrationType.Web:
     default:

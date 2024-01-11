@@ -38,6 +38,7 @@ describe('lib/integrations/integration-factory-flags', function () {
   it('isDevicePairingAsSupplicant', () => {
     expect(integrationFlags.isDevicePairingAsSupplicant()).toBeFalsy();
     sandbox.replaceGetter(queryData, 'pathName', () => '/pair/supplicant');
+    queryData.set('context', Constants.OAUTH_WEBCHANNEL_CONTEXT);
     expect(integrationFlags.isDevicePairingAsSupplicant()).toBeTruthy();
   });
 

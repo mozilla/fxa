@@ -59,15 +59,15 @@ import AuthClient from 'fxa-auth-client/browser';
 let integration: SignupContainerIntegration;
 function mockIntegration() {
   integration = {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
+    isSync: () => true,
     features: {
       allowUidChange: false,
       fxaStatus: false,
       handleSignedInNotification: false,
       reuseExistingSession: false,
       supportsPairing: false,
-      webChannelSupport: false,
     },
   };
 }
@@ -239,7 +239,6 @@ describe('sign-up-container', () => {
       await render();
       expect(screen.queryByText('loading spinner mock')).toBeNull();
       expect(SignupModule.Signup).toBeCalled();
-      expect(currentSignupProps?.isSync).toBeTruthy();
     });
   });
 
@@ -324,7 +323,7 @@ describe('sign-up-container', () => {
         // here we override some key behaviors to alter the containers behavior
         serviceName = MozServices.FirefoxSync;
         integration.getService = () => MozServices.FirefoxSync;
-        integration.type = IntegrationType.SyncDesktop;
+        integration.type = IntegrationType.SyncDesktopV3;
       });
 
       it('added event listeners', async () => {
@@ -345,12 +344,12 @@ describe('sign-up-container', () => {
       });
     });
 
-    describe('sync-service-on-mobile', () => {
+    describe('sync-service-on-oauth', () => {
       beforeEach(() => {
         serviceName = MozServices.FirefoxSync;
         integration.getService = () => MozServices.FirefoxSync;
+        integration.isSync = () => true;
         integration.type = IntegrationType.OAuth;
-        integration.features.webChannelSupport = true;
       });
       it('adds event listeners and sends', async () => {
         await render();
@@ -388,7 +387,7 @@ describe('sign-up-container', () => {
     beforeEach(() => {
       serviceName = MozServices.FirefoxSync;
       integration.getService = () => MozServices.FirefoxSync;
-      integration.type = IntegrationType.SyncDesktop;
+      integration.type = IntegrationType.SyncDesktopV3;
     });
 
     it('runs handler and invokes sign up mutation', async () => {

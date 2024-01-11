@@ -6,7 +6,7 @@ import { RouteComponentProps, useNavigate } from '@reach/router';
 import {
   Integration,
   isOAuthIntegration,
-  isSyncDesktopIntegration,
+  isSyncDesktopV3Integration,
   useAuthClient,
 } from '../../models';
 import { Signup } from '.';
@@ -61,15 +61,13 @@ import { Constants } from '../../lib/constants';
 
 export type SignupContainerIntegration = Pick<
   Integration,
-  'type' | 'getService' | 'features'
-> & { features?: { webChannelSupport?: boolean } };
+  'type' | 'getService' | 'features' | 'isSync'
+>;
 
 const SignupContainer = ({
   integration,
-  serviceName,
 }: {
   integration: SignupContainerIntegration;
-  serviceName: MozServices;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigate = useNavigate();
@@ -85,13 +83,9 @@ const SignupContainer = ({
   >();
 
   const isOAuth = isOAuthIntegration(integration);
-  const hasWebChannelSupport = integration.features.webChannelSupport === true;
-  // TODO: Sync mobile cleanup, see note in oauth-integration isSync, FXA-8671
-  const isSyncMobile = isOAuth && serviceName === MozServices.FirefoxSync;
-  const isSyncMobileWebChannel = isSyncMobile && hasWebChannelSupport;
-  const isSyncDesktop = isSyncDesktopIntegration(integration);
-  const isSyncWebChannel = isSyncMobileWebChannel || isSyncDesktop;
-  const isSync = isSyncMobile || isSyncDesktop;
+  const isSyncOAuth = isOAuth && integration.isSync();
+  const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
+  const isSyncWebChannel = isSyncOAuth || isSyncDesktopV3;
 
   useEffect(() => {
     (async () => {
@@ -138,7 +132,7 @@ const SignupContainer = ({
       requestAnimationFrame(() => {
         firefox.send(FirefoxCommand.FxAStatus, {
           // TODO: Improve getting 'context', probably set this on the integration
-          context: isSyncDesktop
+          context: isSyncDesktopV3
             ? Constants.FX_DESKTOP_V3_CONTEXT
             : Constants.OAUTH_CONTEXT,
           isPairing: false,
@@ -154,8 +148,8 @@ const SignupContainer = ({
       // choose_what_to_sync may be disabled for mobile sync, see:
       // https://github.com/mozilla/application-services/issues/1761
       if (
-        isSyncDesktop ||
-        (isSyncMobile && status.capabilities.choose_what_to_sync)
+        isSyncDesktopV3 ||
+        (isSyncOAuth && status.capabilities.choose_what_to_sync)
       ) {
         setWebChannelEngines(status.capabilities.engines);
         firefox.removeEventListener(
@@ -174,7 +168,7 @@ const SignupContainer = ({
       const options: BeginSignUpOptions = {
         verificationMethod: 'email-otp',
         // keys must be true to receive keyFetchToken for oAuth and syncDesktop
-        keys: isOAuthIntegration(integration) || isSyncDesktop,
+        keys: isOAuth || isSyncDesktopV3,
         service: service !== MozServices.Default ? service : undefined,
       };
       try {
@@ -215,7 +209,7 @@ const SignupContainer = ({
         }
       }
     },
-    [beginSignup, integration, isSyncDesktop]
+    [beginSignup, integration, isSyncDesktopV3, isOAuth]
   );
 
   // TODO: probably a better way to read this?
@@ -239,8 +233,8 @@ const SignupContainer = ({
         queryParamModel,
         beginSignupHandler,
         webChannelEngines,
-        isSyncMobileWebChannel,
-        isSync,
+        isSyncWebChannel,
+        isSyncOAuth,
       }}
     />
   );

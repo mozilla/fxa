@@ -24,13 +24,14 @@ export type WebChannelEngineConfig = EngineConfig & {
   include: false;
 };
 
-/* These sync engines are always offered to the user in Sync Desktop and
- * other engines can be received and added with a webchannel message.
+/* These sync engines are always offered to the user in Sync fx_desktop_v3
+ * and other engines can be received and added with a webchannel message.
  *
- * For Sync in mobile, we do not display options by default and instead,
- * we receive the webchannel message and overwrite the options.
+ * For OAuth Sync (oauth_webchannel_v1) which includes sync mobile and sync
+ * desktop on FF 123+, we do not display options by default and instead, we
+ * receive the webchannel message and overwrite the options.
  */
-export const defaultDesktopSyncEngineConfigs: EngineConfig[] = [
+export const defaultDesktopV3SyncEngineConfigs: EngineConfig[] = [
   {
     defaultChecked: true,
     id: 'bookmarks',
@@ -69,9 +70,9 @@ export const defaultDesktopSyncEngineConfigs: EngineConfig[] = [
   },
 ];
 
-// These options will only be available if we receive a webchannel message
-// from the browser including them via `status.capabilities.engines`.
-export const webChannelDesktopEngineConfigs: WebChannelEngineConfig[] = [
+// These options will only be available through fx_desktop_v3 if we receive a
+// webchannel message from the browser including them via `status.capabilities.engines`.
+export const webChannelDesktopV3EngineConfigs: WebChannelEngineConfig[] = [
   {
     defaultChecked: true,
     id: 'addresses',
@@ -91,8 +92,8 @@ export const webChannelDesktopEngineConfigs: WebChannelEngineConfig[] = [
 export const getSyncEngineIds = (syncEnginesConfigsToGet = syncEngineConfigs) =>
   syncEnginesConfigsToGet.map((engine) => engine.id);
 
-// All available sync engines, for desktop and mobile
+// All available sync engines, for all versions of FF desktop and mobile.
 export const syncEngineConfigs: EngineConfig[] = [
-  ...defaultDesktopSyncEngineConfigs,
-  ...webChannelDesktopEngineConfigs,
+  ...defaultDesktopV3SyncEngineConfigs,
+  ...webChannelDesktopV3EngineConfigs,
 ];

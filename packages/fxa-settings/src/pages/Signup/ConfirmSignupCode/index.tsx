@@ -35,7 +35,7 @@ import { MailImage } from '../../../components/images';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import {
   isOAuthIntegration,
-  isSyncDesktopIntegration,
+  isSyncDesktopV3Integration,
   isWebIntegration,
 } from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
@@ -121,6 +121,14 @@ const ConfirmSignupCode = ({
     }
   }
 
+  function navigateToCAD() {
+    // Connect another device tells Sync the user is signed in
+    // TODO: regular navigate when this page is converted
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('showSuccessMessage', 'true');
+    hardNavigateToContentServer(`/connect_another_device?${searchParams}`);
+  }
+
   async function verifySession(code: string) {
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     GleanMetrics.signupConfirmation.submit();
@@ -153,11 +161,8 @@ const ConfirmSignupCode = ({
         logViewEvent(`flow`, 'newsletter.subscribed', REACT_ENTRYPOINT);
       }
 
-      if (isSyncDesktopIntegration(integration)) {
-        // Connect another device tells Sync the user is signed in
-        const searchParams = new URLSearchParams(location.search);
-        searchParams.set('showSuccessMessage', 'true');
-        hardNavigateToContentServer(`/connect_another_device?${searchParams}`);
+      if (isSyncDesktopV3Integration(integration)) {
+        navigateToCAD();
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
@@ -182,12 +187,7 @@ const ConfirmSignupCode = ({
             unwrapBKey!
           );
 
-          // TODO: Sync mobile cleanup, see note in oauth-integration isSync, FXA-8671
-          const isSyncMobileWebChannel =
-            isOAuthIntegration(integration) &&
-            integration.isSync() &&
-            integration.features.webChannelSupport === true;
-          if (isSyncMobileWebChannel) {
+          if (integration.isSync()) {
             firefox.fxaOAuthLogin({
               declinedSyncEngines,
               offeredSyncEngines,
@@ -196,7 +196,8 @@ const ConfirmSignupCode = ({
               redirect,
               state,
             });
-            // Mobile sync will close the web view, so nothing else to do
+            // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
+            navigateToCAD();
             return;
           } else {
             // Navigate to relying party

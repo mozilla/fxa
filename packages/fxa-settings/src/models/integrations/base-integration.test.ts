@@ -13,12 +13,6 @@ describe('BaseIntegration Model', function () {
     model = new BaseIntegration(IntegrationType.Web, new UrlQueryData(window));
   });
 
-  describe('isOAuth', function () {
-    it('returns `false`', function () {
-      expect(model.isOAuth()).toBeFalsy();
-    });
-  });
-
   describe('isSync', function () {
     it('returns `false`', function () {
       expect(model.isSync()).toBeFalsy();

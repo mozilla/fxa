@@ -5,7 +5,11 @@
 import { LocationProvider } from '@reach/router';
 import Signup from '.';
 import { MozServices } from '../../lib/types';
-import { IntegrationType, isSyncDesktopIntegration } from '../../models';
+import {
+  IntegrationType,
+  isOAuthIntegration,
+  isSyncDesktopV3Integration,
+} from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
 import {
@@ -16,6 +20,7 @@ import {
   MOCK_KEY_FETCH_TOKEN,
   MOCK_SESSION_TOKEN,
   MOCK_EMAIL,
+  MOCK_CLIENT_ID,
 } from '../mocks';
 import {
   BeginSignupHandler,
@@ -33,24 +38,28 @@ export function createMockSignupWebIntegration(): SignupBaseIntegration {
   return {
     type: IntegrationType.Web,
     getService: () => Promise.resolve(MozServices.Default),
+    isSync: () => false,
   };
 }
 
-export function createMockSignupSyncDesktopIntegration(): SignupBaseIntegration {
+export function createMockSignupSyncDesktopV3Integration(): SignupBaseIntegration {
   return {
-    type: IntegrationType.SyncDesktop,
+    type: IntegrationType.SyncDesktopV3,
     getService: () => Promise.resolve(MozServices.FirefoxSync),
+    isSync: () => true,
   };
 }
 
 export function createMockSignupOAuthIntegration(
-  clientId?: string
+  clientId?: string,
+  isSync = false
 ): SignupOAuthIntegration {
   return {
     type: IntegrationType.OAuth,
     getRedirectUri: () => MOCK_REDIRECT_URI,
     saveOAuthState: () => {},
-    getService: () => clientId,
+    getService: () => clientId || MOCK_CLIENT_ID,
+    isSync: () => isSync,
   };
 }
 
@@ -98,6 +107,7 @@ export const Subject = ({
 }) => {
   const urlQueryData = mockUrlQueryData(queryParams);
   const queryParamModel = new SignupQueryParams(urlQueryData);
+  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
   return (
     <LocationProvider>
       <Signup
@@ -105,8 +115,9 @@ export const Subject = ({
           integration,
           queryParamModel,
           beginSignupHandler,
-          isSync: isSyncDesktopIntegration(integration),
-          isSyncMobileWebChannel: false,
+          isSyncOAuth,
+          isSyncWebChannel:
+            isSyncOAuth || isSyncDesktopV3Integration(integration),
           webChannelEngines: getSyncEngineIds(),
         }}
       />

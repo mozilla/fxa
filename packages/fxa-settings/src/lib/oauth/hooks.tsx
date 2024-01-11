@@ -156,14 +156,13 @@ export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
 ): FinishOAuthFlowHandlerResult {
-  const isSyncMobileWebChannel =
-    isOAuthIntegration(integration) &&
-    integration.isSync() &&
-    integration.features.webChannelSupport === true;
+  // Sync mobile or sync desktop with context=oauth_webchannel_v1
+  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {
       const oAuthIntegration = integration as OAuthIntegration;
+
       let keys;
       if (integration.wantsKeys()) {
         const { kB } = await authClient.accountKeys(keyFetchToken, unwrapKB);
@@ -190,7 +189,7 @@ export function useFinishOAuthFlowHandler(
         keys
       );
 
-      const redirect = isSyncMobileWebChannel
+      const redirect = isSyncOAuth
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
         : constructOAuthRedirectUrl(
             oAuthCode,
@@ -205,9 +204,7 @@ export function useFinishOAuthFlowHandler(
       // the server occurs to get the state from
       // the redirect_uri returned when creating
       // the token or code.
-      const state = isSyncMobileWebChannel
-        ? integration.data.state
-        : oAuthCode.state;
+      const state = isSyncOAuth ? integration.data.state : oAuthCode.state;
 
       return {
         redirect,
@@ -215,14 +212,13 @@ export function useFinishOAuthFlowHandler(
         state,
       };
     },
-    [authClient, integration, isSyncMobileWebChannel]
+    [authClient, integration, isSyncOAuth]
   );
 
-  /* TODO: Possibly create SyncMobile integration if we need more special cases
-   * for sync mobile, or, probably remove 'isOAuthVerificationDifferentBrowser'
+  /* TODO: Probably remove 'isOAuthVerificationDifferentBrowser' and
    * 'isOAuthVerificationSameBrowser' checks when reset PW no longer uses links.
    *
-   * `service=sync` is passed when `context` is `fx_desktop_v3` (Sync desktop) or
+   * `service=sync` is passed when `context` is `fx_desktop_v3` (old Sync desktop) or
    * when context is `fx_ios_v1` (which we don't support, iOS 1.0 ... < 2.0). See:
    * https://mozilla.github.io/ecosystem-platform/relying-parties/reference/query-parameters#service
    *
