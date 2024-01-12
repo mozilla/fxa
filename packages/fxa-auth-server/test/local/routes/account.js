@@ -17,8 +17,8 @@ const error = require('../../../lib/error');
 const log = require('../../../lib/log');
 const otplib = require('otplib');
 const { Container } = require('typedi');
-const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PayPalHelper } = require('../../../lib/payments/paypal/helper');
+const { StripeHelper } = require('../../../lib/payments/stripe');
 const { CapabilityService } = require('../../../lib/payments/capability');
 const { AccountEventsManager } = require('../../../lib/account-events');
 const { AccountDeleteManager } = require('../../../lib/account-delete');
@@ -43,7 +43,7 @@ function hexString(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
 }
 
-const makeRoutes = function (options = {}, requireMocks) {
+const makeRoutes = function (options = {}, requireMocks = {}) {
   Container.set(CapabilityService, options.capabilityService || sinon.fake);
   const config = options.config || {};
   config.oauth = config.oauth || {};
@@ -112,9 +112,22 @@ const makeRoutes = function (options = {}, requireMocks) {
     removePublicAndCanGrantTokens: () => {},
     ...(options.oauth || {}),
   };
+
+  // We have to do some redirection with proxyquire because dependency
+  // injection changes the class
+  const AccountDeleteManagerMock = proxyquire('../../../lib/account-delete', {
+    'fxa-shared/db/models/auth':
+      requireMocks['fxa-shared/db/models/auth'] || {},
+  });
   Container.set(
     AccountDeleteManager,
-    new AccountDeleteManager({ fxaDb: db, oauthDb, push, pushbox })
+    new AccountDeleteManagerMock.AccountDeleteManager({
+      fxaDb: db,
+      oauthDb,
+      config,
+      pushbox,
+      statsd: {},
+    })
   );
 
   return accountRoutes(
@@ -3208,7 +3221,7 @@ describe('/account/login', () => {
     });
   });
 
-  it('creating too many sessions causes an error to be logged', () => {
+  it('#integration - creating too many sessions causes an error to be logged', () => {
     const oldSessions = mockDB.sessions;
     mockDB.sessions = sinon.spy(() => {
       return Promise.resolve(new Array(200));

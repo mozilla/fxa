@@ -5,14 +5,13 @@
 import { CloudTasksClient } from '@google-cloud/tasks';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
-import { ConfigType } from '../config';
 import DB from './db/index';
 import OAuthDb from './oauth/db';
 import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
 import { PayPalHelper } from './payments/paypal/helper';
 import { StripeHelper } from './payments/stripe';
-import push from './push';
+
 import pushboxApi from './pushbox';
 import { accountDeleteCloudTaskPath } from './routes/cloud-tasks';
 import { AccountDeleteReasons, AppConfig, AuthLogger } from './types';
@@ -23,15 +22,19 @@ import {
 } from './routes/validators';
 //*/
 
+import {
+  deleteAllPayPalBAs,
+  getAllPayPalBAByUid,
+  Account,
+} from 'fxa-shared/db/models/auth';
+import { ConfigType } from '../config';
+import * as Sentry from '@sentry/node';
+
 type FxaDbDeleteAccount = Pick<
   Awaited<ReturnType<ReturnType<typeof DB>['connect']>>,
-  'deleteAccount' | 'accountRecord'
+  'deleteAccount' | 'accountRecord' | 'account'
 >;
 type OAuthDbDeleteAccount = Pick<typeof OAuthDb, 'removeTokensAndCodes'>;
-type PushDeleteAccount = Pick<
-  ReturnType<typeof push>,
-  'notifyAccountDestroyed'
->;
 type PushboxDeleteAccount = Pick<
   ReturnType<typeof pushboxApi>,
   'deleteAccount'
@@ -73,7 +76,6 @@ const isEnqueueByEmailParam = (
 export class AccountDeleteManager {
   private fxaDb: FxaDbDeleteAccount;
   private oauthDb: OAuthDbDeleteAccount;
-  private push: PushDeleteAccount;
   private pushbox: PushboxDeleteAccount;
   private statsd: StatsD;
   private stripeHelper?: StripeHelper;
@@ -82,6 +84,7 @@ export class AccountDeleteManager {
   private playBilling?: PlayBilling;
   private log: AuthLogger;
   private config: ConfigType;
+
   private cloudTasksClient: CloudTasksClient;
   private queueName;
   private taskUrl;
@@ -89,19 +92,19 @@ export class AccountDeleteManager {
   constructor({
     fxaDb,
     oauthDb,
-    push,
+    config,
     pushbox,
     statsd,
   }: {
     fxaDb: FxaDbDeleteAccount;
     oauthDb: OAuthDbDeleteAccount;
-    push: PushDeleteAccount;
+    config: ConfigType;
     pushbox: PushboxDeleteAccount;
     statsd: StatsD;
   }) {
     this.fxaDb = fxaDb;
     this.oauthDb = oauthDb;
-    this.push = push;
+    this.config = config;
     this.pushbox = pushbox;
     this.statsd = statsd;
 
@@ -190,12 +193,102 @@ export class AccountDeleteManager {
     }
   }
 
-  async deleteFirestoreCustomer(uid: string) {
-    this.log.debug('AccountDeleteManager.deleteFirestoreCustomer', { uid });
-    const result = await this.stripeHelper?.removeFirestoreCustomer(uid);
-    if (!result?.length) {
-      this.log.error('AccountDeleteManager.deleteFirestoreCustomer', { uid });
+  /**
+   * Delete the account from the FxA database, OAuth database, pushbox database, and
+   * cancel any active subscriptions.
+   *
+   * @param uid
+   */
+  public async deleteAccount(uid: string) {
+    const accountRecord = await this.fxaDb.account(uid);
+
+    await this.deleteSubscriptions(accountRecord);
+
+    await this.deleteAccountDb(accountRecord);
+    this.log.info('accountDeleted.byRequest', accountRecord);
+
+    await this.deleteOAuthDb(accountRecord);
+
+    await this.deletePushboxRecord(accountRecord);
+
+    // TODO: Update to send notification to all devices
+  }
+
+  /**
+   * Delete the account from the FxA database.
+   *
+   * @param accountRecord
+   */
+  public async deleteAccountDb(accountRecord: Account) {
+    await this.fxaDb.deleteAccount(accountRecord);
+  }
+
+  /**
+   * Delete the account from the OAuth database. This will remove all tokens and
+   * codes associated with the account.
+   *
+   * @param accountRecord
+   */
+  public async deleteOAuthDb(accountRecord: Account) {
+    await this.oauthDb.removeTokensAndCodes(accountRecord.uid);
+  }
+
+  /**
+   * Delete the account from the pushbox database.
+   *
+   * @param accountRecord
+   */
+  public async deletePushboxRecord(accountRecord: Account) {
+    const { uid } = accountRecord;
+    // No need to await and block the other notifications. The pushbox records
+    // will be deleted once they expire even if they were not successfully
+    // deleted here.
+    this.pushbox.deleteAccount(uid).catch((err: Error) => {
+      Sentry.withScope((scope) => {
+        scope.setContext('pushboxDeleteAccount', { uid });
+        Sentry.captureException(err);
+      });
+    });
+  }
+
+  /**
+   * Delete the account's subscriptions from Stripe and PayPal.
+   * This will cancel any active subscriptions and remove the customer.
+   *
+   * @param accountRecord
+   */
+  public async deleteSubscriptions(accountRecord: Account) {
+    const { uid, email } = accountRecord;
+
+    if (this.config.subscriptions?.enabled && this.stripeHelper) {
+      try {
+        await this.stripeHelper.removeCustomer(uid, email);
+      } catch (err) {
+        if (err.message === 'Customer not available') {
+          // if Stripe didn't know about the customer, no problem.
+          // This should not stop the user from deleting their account.
+          // See https://github.com/mozilla/fxa/issues/2900
+          // https://github.com/mozilla/fxa/issues/2896
+        } else {
+          throw err;
+        }
+      }
+      if (this.paypalHelper) {
+        const agreementIds = await getAllPayPalBAByUid(uid);
+        // Only cancelled and expired are terminal states, any others
+        // should be canceled to ensure they can't be used again.
+        const activeIds = agreementIds.filter((ba: any) =>
+          ['active', 'pending', 'suspended'].includes(ba.status.toLowerCase())
+        );
+        await Promise.all(
+          activeIds.map((ba) =>
+            (this.paypalHelper as PayPalHelper).cancelBillingAgreement(
+              ba.billingAgreementId
+            )
+          )
+        );
+        await deleteAllPayPalBAs(uid);
+      }
     }
-    return result;
   }
 }

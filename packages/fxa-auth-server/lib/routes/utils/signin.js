@@ -27,7 +27,12 @@ module.exports = (log, config, customs, db, mailer, cadReminders, glean) => {
     (config.signinUnblock && config.signinUnblock.codeLength) || 8;
   const otpOptions = config.otp;
   const otpUtils = otp(log, config, db);
-  const accountEventsManager = Container.get(AccountEventsManager);
+
+  const accountEventsManager = Container.has(AccountEventsManager)
+    ? Container.get(AccountEventsManager)
+    : {
+        recordSecurityEvent: () => {},
+      };
 
   return {
     validators: {

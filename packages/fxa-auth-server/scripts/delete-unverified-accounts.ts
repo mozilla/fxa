@@ -19,7 +19,6 @@ import Token from '../lib/tokens';
 import * as random from '../lib/crypto/random';
 import initRedis from '../lib/redis';
 import oauthDb from '../lib/oauth/db';
-import initPush from '../lib/push';
 import { pushboxApi } from '../lib/pushbox';
 
 const collect = () => (val: string, xs: string[]) => {
@@ -158,7 +157,6 @@ const init = async () => {
     random.base32(config.signinUnblock.codeLength) as any // TS type inference is failing pretty hard with this
   );
   const fxaDb = await db.connect(config, redis);
-  const push = initPush(log, fxaDb, config, statsd);
   const pushbox = pushboxApi(log, config, statsd);
 
   Container.set(AppConfig, config);
@@ -174,7 +172,7 @@ const init = async () => {
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb,
     oauthDb,
-    push,
+    config,
     pushbox,
     statsd,
   });
