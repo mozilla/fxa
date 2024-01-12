@@ -68,4 +68,13 @@ export class AccountDeleteManager {
     }
     this.log = Container.get(AuthLogger);
   }
+
+  async deleteFirestoreCustomer(uid: string) {
+    this.log.debug('AccountDeleteManager.deleteFirestoreCustomer', { uid });
+    const result = await this.stripeHelper?.removeFirestoreCustomer(uid);
+    if (!result?.length) {
+      this.log.error('AccountDeleteManager.deleteFirestoreCustomer', { uid });
+    }
+    return result;
+  }
 }

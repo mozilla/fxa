@@ -11,6 +11,7 @@ const {
   StripeFirestore,
   FirestoreStripeError,
   newFirestoreStripeError,
+  FirestoreBulkWriterMultiError,
 } = require('../../../lib/payments/stripe-firestore');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -18,6 +19,16 @@ const subscription1 = require('./fixtures/stripe/subscription1.json');
 const paidInvoice = require('./fixtures/stripe/invoice_paid.json');
 const paymentMethod = require('./fixtures/stripe/payment_method.json');
 
+class BulkWriterMock {
+  resultCallback;
+  errorCallback;
+  onWriteResult(callback) {
+    this.resultCallback = callback;
+  }
+  onWriteError(callback) {
+    this.errorCallback = callback;
+  }
+}
 /**
  * To prevent the modification of the test objects loaded, which can impact other tests referencing the object,
  * a deep copy of the object can be created which uses the test object as a template
@@ -825,6 +836,37 @@ describe('StripeFirestore', () => {
           err.name,
           FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
         );
+      }
+    });
+  });
+
+  describe('removeCustomerRecursive', () => {
+    beforeEach(() => {
+      const bulkWriterMock = new BulkWriterMock();
+      firestore.bulkWriter = sinon.fake.returns(bulkWriterMock);
+      customerCollectionDbRef.doc = sinon.fake.returns({ path: '/test/path' });
+    });
+
+    it('successfully delete documents', async () => {
+      firestore.recursiveDelete = async (doc, bulk) => {
+        bulk.resultCallback(doc);
+      };
+      const result = await stripeFirestore.removeCustomerRecursive('uid');
+      assert.deepEqual(result, ['/test/path']);
+    });
+
+    it('errors on failure', async () => {
+      firestore.recursiveDelete = async (doc, bulk) => {
+        const error = new Error('It failed a delete');
+        error.failedAttempts = 99;
+        bulk.errorCallback(error);
+        throw new Error('end it');
+      };
+      try {
+        await stripeFirestore.removeCustomerRecursive('uid');
+        assert.fail('should have thrown');
+      } catch (error) {
+        assert.instanceOf(error, FirestoreBulkWriterMultiError);
       }
     });
   });
