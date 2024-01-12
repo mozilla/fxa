@@ -17,31 +17,38 @@
  actual delete-account route code as possible.
 
 /*/
+import { StatsD } from 'hot-shots';
+import readline from 'readline';
+import { Container } from 'typedi';
 
-'use strict';
+import { PayPalClient } from '@fxa/payments/paypal';
 
-const { StatsD } = require('hot-shots');
-const { Container } = require('typedi');
-const {
+import configProperties from '../config';
+import error from '../lib/error';
+import { setupFirestore } from '../lib/firestore-db';
+import { CurrencyHelper } from '../lib/payments/currencies';
+import { PayPalHelper } from '../lib/payments/paypal';
+import { StripeHelper } from '../lib/payments/stripe';
+import Profile from '../lib/profile/client';
+import {
   AppConfig,
-  AuthLogger,
   AuthFirestore,
+  AuthLogger,
   ProfileClient,
-} = require('../lib/types');
-const readline = require('readline');
-const config = require('../config').default.getProperties();
+} from '../lib/types';
+
+const config = configProperties.getProperties();
 const log = require('../lib/log')(config.log.level);
 const Token = require('../lib/tokens')(log, config);
+const DB = require('../lib/db')(config, log, Token);
 const mailer = null;
-const error = require('../lib/error');
 
-const { setupFirestore } = require('../lib/firestore-db');
-const Profile = require('../lib/profile/client');
 const statsd = {
   increment: () => {},
   timing: () => {},
   close: () => {},
 };
+
 Container.set(StatsD, statsd);
 Container.set(AppConfig, config);
 Container.set(AuthLogger, log);
@@ -50,9 +57,7 @@ Container.set(AuthFirestore, authFirestore);
 const profile = new Profile(log, config, error, statsd);
 Container.set(ProfileClient, profile);
 
-const DB = require('../lib/db')(config, log, Token);
-
-DB.connect(config).then(async (db) => {
+DB.connect(config).then(async (db: any) => {
   // Bypass customs checks.
   const mockCustoms = {
     check: () => {
@@ -100,10 +105,6 @@ DB.connect(config).then(async (db) => {
   /** @type {undefined | import('../lib/payments/stripe').StripeHelper} */
   let stripeHelper = undefined;
   if (config.subscriptions && config.subscriptions.stripeApiKey) {
-    const { CurrencyHelper } = require('../lib/payments/currencies');
-    const { StripeHelper } = require('../lib/payments/stripe');
-    const { PayPalHelper } = require('../lib/payments/paypal');
-    const { PayPalClient } = require('@fxa/payments/paypal');
     const currencyHelper = new CurrencyHelper(config);
     Container.set(CurrencyHelper, currencyHelper);
     const paypalClient = new PayPalClient(
@@ -135,7 +136,7 @@ DB.connect(config).then(async (db) => {
       stripeHelper,
       pushbox
     )
-    .find((r) => r.path === '/account/destroy');
+    .find((r: any) => r.path === '/account/destroy');
 
   let retval = 0;
 
@@ -150,7 +151,7 @@ DB.connect(config).then(async (db) => {
         output: process.stdout,
       });
       await new Promise((resolve, reject) => {
-        rl.question('Really delete this account? (y/n) ', (answer) => {
+        rl.question('Really delete this account? (y/n) ', (answer: any) => {
           rl.close();
           if (['y', 'yes'].indexOf(answer.toLowerCase()) === -1) {
             return reject('Cancelled');
