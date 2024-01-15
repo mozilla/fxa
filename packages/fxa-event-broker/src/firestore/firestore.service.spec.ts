@@ -185,4 +185,18 @@ describe('#integration - FirestoreService', () => {
     },
     TEST_TIMEOUT
   );
+
+  it(
+    'deletes a user record',
+    async () => {
+      await service.storeLogin(uid1, 'fx_send');
+      let result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual(['fx_send']);
+
+      await service.deleteUser(uid1);
+      result = await service.fetchClientIds(uid1);
+      expect(result).toStrictEqual([]);
+    },
+    TEST_TIMEOUT
+  );
 });
