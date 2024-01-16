@@ -7,7 +7,7 @@ import { EmailHeader, EmailType } from '../../lib/email';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
-    test.beforeEach(async ({}, { project }) => {
+    test.beforeEach(async () => {
       // 2FA test can be slow because of time to generate recovery keys
       test.slow();
     });

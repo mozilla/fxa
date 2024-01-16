@@ -45,7 +45,9 @@ test.describe('severity-2 #smoke', () => {
         // Cleanup any accounts created during the test
         try {
           await target.auth.accountDestroy(email, password);
-        } catch (e) {}
+        } catch (e) {
+          // ignore
+        }
       }
     });
 

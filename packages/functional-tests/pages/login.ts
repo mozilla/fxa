@@ -555,7 +555,7 @@ export class LoginPage extends BaseLayout {
 
   async getStorage() {
     await this.goto();
-    return this.page.evaluate((creds) => {
+    return this.page.evaluate(() => {
       console.log('getStorage', localStorage.getItem('__fxa_storage.accounts'));
     });
   }

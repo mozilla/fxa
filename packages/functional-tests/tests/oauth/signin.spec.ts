@@ -9,6 +9,7 @@ const PASSWORD = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth signin', () => {
+    // eslint-disable-next-line no-empty-pattern
     test.beforeEach(({}, testInfo) => {
       test.slow(
         testInfo.project.name !== 'local',

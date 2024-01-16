@@ -6,7 +6,7 @@ import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('OAuth totp', () => {
-    test.beforeEach(async ({}, { project }) => {
+    test.beforeEach(async () => {
       test.slow();
     });
 

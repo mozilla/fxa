@@ -10,6 +10,7 @@ import {
 } from '@playwright/test/reporter';
 
 class CIReporter implements Reporter {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   onBegin(config: FullConfig<{}, {}>, suite: Suite) {
     console.log(
       `Running ${suite.allTests().length} tests using ${config.workers} workers`

@@ -33,6 +33,7 @@ export class ResetPasswordPage extends BaseLayout {
       const header = await this.page.waitForSelector('#root .card-header');
       const headerText =
         // clean up any special characters and line breaks
+        // eslint-disable-next-line no-control-regex
         (await header.textContent())?.replace(/[^\x00-\x7F]/g, '') || '';
 
       return (
