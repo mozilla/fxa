@@ -55,7 +55,7 @@ export class SignupReactPage extends BaseLayout {
   }
 
   async setCode(value: string) {
-    const codeInput = await this.page.getByLabel('Enter 6-digit code');
+    const codeInput = this.page.getByLabel('Enter 6-digit code');
     return codeInput.fill(value);
   }
 
@@ -105,16 +105,16 @@ export class SignupReactPage extends BaseLayout {
   }
 
   async confirmCodeHeading() {
-    await this.page.getByRole('heading', { name: /Enter confirmation code/ });
+    this.page.getByRole('heading', { name: /Enter confirmation code/ });
   }
 
   async visitTermsOfServiceLink() {
-    const link = await this.page.getByText('Terms of Service');
+    const link = this.page.getByText('Terms of Service');
     link.click();
   }
 
   async visitPrivacyPolicyLink() {
-    const link = await this.page.getByText('Privacy Notice');
+    const link = this.page.getByText('Privacy Notice');
     link.click();
   }
 }

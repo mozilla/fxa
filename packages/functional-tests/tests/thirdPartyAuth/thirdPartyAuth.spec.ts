@@ -41,7 +41,7 @@ test.describe('severity-1 #smoke', () => {
         .getByRole('button', { name: 'Next' })
         .click();
 
-      const invalidCodeLocator = await page.getByText('Wrong code. Try again.');
+      const invalidCodeLocator = page.getByText('Wrong code. Try again.');
       if (await invalidCodeLocator.isVisible()) {
         // Per chance the 2FA code expired, wait few seconds and try a new code
         await page.waitForTimeout(5000);

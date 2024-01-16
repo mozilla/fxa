@@ -484,7 +484,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async clickDontHaveRecoveryKey() {
-    const link = await this.page.locator(selectors.LINK_LOST_RECOVERY_KEY);
+    const link = this.page.locator(selectors.LINK_LOST_RECOVERY_KEY);
     await link.click();
     await this.page.waitForURL(/complete_reset_password/);
   }

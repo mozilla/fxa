@@ -17,7 +17,7 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
   // Ensure that the feature flag is enabled
   const config = await configPage.getConfig();
   if (config.showReactApp.signUpRoutes !== true) {
-    test.skip();
+    test.skip(true, 'Skip tests if not on React signUpRoutes');
     email = undefined;
   } else {
     email = login.createEmail('signup_react{id}');
@@ -64,13 +64,13 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
     });
 
-    // TODO this test is skipped until we sort out
-    // how to record an email bounce for testing
-    test.skip('signup, bounce email', async ({
+    test('signup, bounce email', async ({
       page,
       target,
       pages: { login, signupReact },
     }) => {
+      test.skip(true, 'this test is skipped until we sort out how to record an email bounce for testing');
+
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD);
@@ -79,7 +79,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/confirm_signup_code/);
       await signupReact.confirmCodeHeading();
 
-      // Record an harb bounce in the db
+      // Record a hard bounce in the db
 
       // if a hard bounce is recorded, the page should redirect to email-first sign-in
       // with an error message
@@ -308,11 +308,11 @@ test.describe('severity-2 #smoke', () => {
       await signupReact.goto();
 
       // TBD: No pre fill support currently. Do we even need this?
-      expect(await signupReact.getEmail().inputValue()).toEqual('');
+      await expect(signupReact.getEmail()).toHaveValue('');
       await signupReact.fillOutEmailFirst('new-' + email);
-      expect(await signupReact.getPassword().inputValue()).toEqual('');
-      expect(await signupReact.getPasswordConfirm().inputValue()).toEqual('');
-      expect(await signupReact.getAge().inputValue()).toEqual('');
+      await expect(signupReact.getPassword()).toHaveValue('');
+      await expect(signupReact.getPasswordConfirm()).toHaveValue('');
+      await expect(signupReact.getAge()).toHaveValue('');
     });
 
     test('signup via product page and redirect after confirm', async ({

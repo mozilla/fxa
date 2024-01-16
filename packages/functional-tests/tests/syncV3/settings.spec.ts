@@ -39,7 +39,7 @@ test.describe('severity-2 #smoke', () => {
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
       await login.fillOutSignInCode(email);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
-      expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test.afterEach(async ({ target }, test) => {
@@ -119,7 +119,7 @@ test.describe('severity-2 #smoke', () => {
       await deleteAccount.submit();
 
       const success = await page.waitForSelector('.success');
-      expect(await success.isVisible()).toBeTruthy();
+      await expect(success).toBeVisible();
     });
   });
 });

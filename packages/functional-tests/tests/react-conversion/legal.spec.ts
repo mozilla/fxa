@@ -20,14 +20,14 @@ test.describe('severity-2 #smoke', () => {
       await page.waitForSelector('#root');
 
       // Verify legal page is visible
-      expect(
-        await page.locator('.card-header:has-text("Legal")').isEnabled()
-      ).toBeTruthy();
+      await expect(
+        page.locator('.card-header:has-text("Legal")')
+      ).toBeEnabled();
 
       // Verify Terms Of Service link is visible
-      expect(
-        await page.locator('a:has-text("Terms of Service")').isVisible()
-      ).toBeTruthy();
+      await expect(
+        page.locator('a:has-text("Terms of Service")')
+      ).toBeVisible();
 
       // Currently Back button on this page is not working,
       // check https://mozilla-hub.atlassian.net/browse/FXA-6874
@@ -36,9 +36,9 @@ test.describe('severity-2 #smoke', () => {
       //expect(await page.locator('.card-header:has-text("Legal")').isVisible()).toBeTruthy();
 
       // Verify Privacy Notice link is visible
-      expect(
-        await page.locator('a:has-text("Privacy Notice")').isVisible()
-      ).toBeTruthy();
+      await expect(
+        page.locator('a:has-text("Privacy Notice")')
+      ).toBeVisible();
       await page.locator('a:has-text("Privacy Notice")').click();
       await page.locator('button:has-text("Back")').click();
       await page.waitForSelector('.card-header:has-text("Legal")');

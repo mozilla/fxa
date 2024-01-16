@@ -40,7 +40,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.clickSubmitButton();
       await login.setPassword(password);
       await login.submit();
-      expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('verified, resend', async ({ target }) => {
@@ -71,7 +71,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await signinTokenCode.input.fill(code);
       await login.submit();
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('verified - invalid code', async ({ target }) => {
@@ -95,7 +95,7 @@ test.describe('severity-2 #smoke', () => {
 
       //Input Valid code and verify the success
       await login.fillOutSignUpCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('verified, blocked', async ({ target }) => {
@@ -115,7 +115,7 @@ test.describe('severity-2 #smoke', () => {
       await login.setPassword(password);
       await login.submit();
       await login.unblock(blockedEmail);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('unverified', async ({ target }) => {
@@ -134,7 +134,7 @@ test.describe('severity-2 #smoke', () => {
       await login.setPassword(password);
       await login.submit();
       await login.fillOutSignInCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('add TOTP and confirm sync signin', async ({
@@ -156,7 +156,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(credentials.email, credentials.password);
       await login.setTotp(credentials.secret);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
 });

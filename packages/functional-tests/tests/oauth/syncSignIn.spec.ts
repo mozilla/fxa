@@ -29,7 +29,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.login(email, password);
       await login.fillOutSignInCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await page.pause();
 
       // Sign up for a new account via OAuth
@@ -76,7 +76,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setPassword(password);
       await login.submit();
       await login.fillOutSignInCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
 });

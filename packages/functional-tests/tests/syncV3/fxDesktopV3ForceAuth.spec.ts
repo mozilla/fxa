@@ -40,12 +40,12 @@ test.describe('severity-1 #smoke', () => {
       });
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -63,12 +63,12 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -90,12 +90,12 @@ test.describe('severity-1 #smoke', () => {
       await fxDesktopV3ForceAuth.noSuchWebChannelMessage('fxaccounts:logout');
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage(
         'fxaccounts:can_link_account'
       );
       await login.fillOutSignInCode(credentials.email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
 
@@ -115,7 +115,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput.isDisabled());
+      expect(emailInput.isDisabled()).toBe(true);
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);
@@ -143,7 +143,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput.isDisabled());
+      expect(emailInput.isDisabled()).toBe(true);
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);
@@ -166,7 +166,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput.isDisabled());
+      expect(emailInput.isDisabled()).toBe(true);
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);
@@ -190,7 +190,7 @@ test.describe('severity-1 #smoke', () => {
         'fxaccounts:can_link_account'
       );
       await login.unblock(credentials.email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
     });
   });

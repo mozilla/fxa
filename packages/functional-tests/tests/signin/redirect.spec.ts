@@ -27,8 +27,8 @@ test.describe('severity-2 #smoke', () => {
       await engageRedirect(page, target, redirectTo);
 
       const error = await page.waitForSelector('.error');
-      expect(await error.isVisible()).toBeTruthy();
-      expect(await error.textContent()).toEqual('Invalid redirect!');
+      await expect(error).toBeVisible();
+      await expect(error).toHaveText('Invalid redirect!');
       expect(page.url).not.toEqual(redirectTo);
     });
 
@@ -40,8 +40,8 @@ test.describe('severity-2 #smoke', () => {
       await engageRedirect(page, target, redirectTo);
 
       const error = await page.waitForSelector('.error');
-      expect(await error.isVisible()).toBeTruthy();
-      expect(await error.textContent()).toEqual('Invalid redirect!');
+      await expect(error).toBeVisible();
+      await expect(error).toHaveText('Invalid redirect!');
     });
 
     test('allows valid redirect_to parameter', async ({

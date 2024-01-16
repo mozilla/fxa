@@ -64,7 +64,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       // Check that the sign in page is show, and is asking for a sign in code
-      expect(await signinTokenCode.tokenCodeHeader.isVisible()).toBeTruthy();
+      await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       // This will cause the token become 'invalid' and ultimately cause an
       // INVALID_TOKEN error to be thrown.
