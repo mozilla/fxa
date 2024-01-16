@@ -499,6 +499,26 @@ export class Account extends BaseAuthModel {
     return account;
   }
 
+  static async getEmailUnverifiedAccounts(options: {
+    startCreatedAtDate: number;
+    endCreatedAtDate: number;
+    limit?: number;
+    fields?: string[];
+  }) {
+    const accounts = Account.query()
+      .select(...(options.fields || selectFields))
+      .whereBetween('createdAt', [
+        options.startCreatedAtDate,
+        options.endCreatedAtDate,
+      ])
+      .andWhere('emailVerified', 0);
+    if (options.limit) {
+      accounts.limit(options.limit);
+    }
+
+    return await accounts;
+  }
+
   static async setMetricsOpt(
     uid: string,
     state: 'in' | 'out',

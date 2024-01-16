@@ -540,4 +540,23 @@ describe('#integration - auth', () => {
       });
     });
   });
+
+  describe('unverifiedAccounts', () => {
+    it('returns a list of unverified accounts in a date range', async () => {
+      for (let x = 0; x < 3; x++) {
+        const acct = randomAccount();
+        const email = randomEmail(acct);
+        await Account.query().insertGraph({
+          ...acct,
+          emailVerified: false,
+          emails: [email],
+        });
+      }
+      const unverifiedAccounts = await Account.getEmailUnverifiedAccounts({
+        startCreatedAtDate: 0,
+        endCreatedAtDate: Date.now(),
+      });
+      assert.equal(unverifiedAccounts.length, 3);
+    });
+  });
 });

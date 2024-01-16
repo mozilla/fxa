@@ -9,6 +9,7 @@ import Container from 'typedi';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
 import { promises as fs } from 'fs';
+import { parseDryRun } from './lib/args';
 
 const pckg = require('../package.json');
 
@@ -79,10 +80,6 @@ const isCustomer = (
     return !customer.deleted;
   }
   return false;
-};
-
-const parseDryRun = (dryRun: boolean | string) => {
-  return `${dryRun}`.toLowerCase() !== 'false';
 };
 
 const parseDateForFirestore = (date: number) => Math.floor(date / 1000);
