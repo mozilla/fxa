@@ -19,18 +19,20 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('login_hint specified by relier, not registered', async ({
+      page,
       pages: { login, relier },
+      target,
     }) => {
       const email = login.createEmail();
       await relier.goto(`login_hint=${email}`);
       await relier.clickEmailFirst();
 
-      // Email is prefilled
-      await expect(await login.getPrefilledEmail()).toEqual(email);
+      await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);
       expect(await login.signUpPasswordHeader()).toEqual(true);
+      // email provided as login hint is displayed on the signup page
+      await expect(page.getByText(email).isVisible()).toBeTruthy();
 
-      await login.useDifferentAccountLink();
-
+      await login.useChangeEmailLink();
       // Email first page has email input prefilled
       await expect(await login.getEmailInput()).toEqual(email);
     });

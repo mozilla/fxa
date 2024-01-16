@@ -85,7 +85,7 @@ export const FormPasswordWithBalloons = ({
     useState<boolean>(false);
   const [isConfirmPwdBalloonVisible, setIsConfirmPwdBalloonVisible] =
     useState<boolean>(false);
-  const [hasEditedConfirmPwd, setHasEditedConfirmPwd] =
+  const [hasBlurredConfirmPwd, setHasBlurredConfirmPwd] =
     useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
@@ -150,20 +150,24 @@ export const FormPasswordWithBalloons = ({
   };
 
   const onNewPwdBlur = () => {
-    !hasUserTakenAction && setHasUserTakenAction(true);
     // do not hide the password strength balloon if there are errors in the new password
     if (getValues('newPassword') !== '' && !errors.newPassword) {
       hideNewPwdBalloon();
     }
-    if (getValues('confirmPassword') !== getValues('newPassword')) {
+    if (
+      hasBlurredConfirmPwd &&
+      getValues('confirmPassword') !== getValues('newPassword')
+    ) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
-    } else if (!formState.isValid) {
-      // Try to retrigger
+    }
+
+    if (!formState.isValid) {
       trigger('confirmPassword');
     }
   };
 
   const onBlurConfirmPassword = useCallback(() => {
+    setHasBlurredConfirmPwd(true);
     passwordFormType === 'signup' &&
       isConfirmPwdBalloonVisible &&
       hideConfirmPwdBalloon();
@@ -183,12 +187,14 @@ export const FormPasswordWithBalloons = ({
     formState,
     trigger,
   ]);
+
   const onChangePassword = (inputName: string) => {
-    if (inputName === 'confirmPassword') {
-      setHasEditedConfirmPwd(true);
+    if (inputName === 'newPassword') {
+      !hasUserTakenAction && setHasUserTakenAction(true);
+      trigger('newPassword');
     }
 
-    if (!hasEditedConfirmPwd) {
+    if (!hasBlurredConfirmPwd) {
       return;
     }
 

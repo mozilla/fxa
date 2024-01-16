@@ -9,7 +9,12 @@ let email;
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sign up with code', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if serving React version'
+      );
       test.slow();
       email = login.createEmail();
       await login.clearCache();

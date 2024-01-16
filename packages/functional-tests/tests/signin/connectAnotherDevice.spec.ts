@@ -10,15 +10,29 @@ test.describe('severity-2 #smoke', () => {
       credentials,
       target,
     }) => {
-      const { browser, page, login, connectAnotherDevice } =
-        await newPagesForSync(target);
+      const {
+        browser,
+        configPage,
+        connectAnotherDevice,
+        page,
+        login,
+        signupReact,
+      } = await newPagesForSync(target);
+      const config = await configPage.getConfig();
       await target.auth.accountDestroy(credentials.email, credentials.password);
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
         { waitUntil: 'load' }
       );
-      await login.fillOutFirstSignUp(credentials.email, credentials.password);
+
+      if (config.showReactApp.signUpRoutes === true) {
+        await signupReact.fillOutEmailFirst(credentials.email);
+        await signupReact.fillOutSignupForm(credentials.password);
+        await signupReact.fillOutCodeForm(credentials.email);
+      } else {
+        await login.fillOutFirstSignUp(credentials.email, credentials.password);
+      }
 
       // Move on to the connect another device page
       await connectAnotherDevice.goto('load');

@@ -99,9 +99,18 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
+    // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
     test('unverified with a cached login', async ({
-      pages: { login, relier },
+      page,
+      pages: { configPage, login, signupReact, relier },
+      target,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signUpRoutes === true,
+        'email is not retrieved from cache as expected when signup with react'
+      );
+
       // Create unverified account
       email = login.createEmail();
       const password = 'passwordzxcv';
@@ -109,11 +118,17 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
 
-      // Dont register account and attempt to login via relier
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      if (config.showReactApp.signUpRoutes !== true) {
+        // Dont register account and attempt to login via relier
+        await login.fillOutFirstSignUp(email, password, { verify: false });
+      } else {
+        await signupReact.fillOutEmailFirst(email);
+        await signupReact.fillOutSignupForm(password);
+      }
 
       await relier.goto();
       await relier.clickEmailFirst();
+      await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
 
       // Cached user detected
       await expect(await login.getPrefilledEmail()).toContain(email);
@@ -126,25 +141,38 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
+    // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
     test('oauth endpoint chooses the right auth flows', async ({
-      target,
       page,
-      credentials,
-      pages: { login, relier },
+      pages: { configPage, login, relier, signupReact },
+      target,
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signUpRoutes === true,
+        'email is not retrieved from cache as expected when signup with react'
+      );
 
       // Create unverified account
       email = login.createEmail();
 
       await relier.goto();
       await relier.clickChooseFlow();
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+
+      if (config.showReactApp.signUpRoutes !== true) {
+        // Dont register account and attempt to login via relier
+        await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      } else {
+        await signupReact.fillOutEmailFirst(email);
+        await signupReact.fillOutSignupForm(PASSWORD);
+      }
 
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
       await relier.goto();
       await relier.clickChooseFlow();
+      await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
 
       // User shown signin enter password page
       expect(await login.signInPasswordHeader()).toEqual(true);

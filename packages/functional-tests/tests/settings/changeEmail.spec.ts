@@ -99,8 +99,10 @@ test.describe('severity-1 #smoke', () => {
     test('can change primary email, delete account', async ({
       credentials,
       page,
-      pages: { settings, deleteAccount, login, secondaryEmail },
+      pages: { configPage, deleteAccount, login, signupReact, settings },
     }) => {
+      const config = await configPage.getConfig();
+
       // Click delete account
       await settings.clickDeleteAccount();
       await deleteAccount.checkAllBoxes();
@@ -111,7 +113,14 @@ test.describe('severity-1 #smoke', () => {
       await deleteAccount.submit();
 
       // // Try creating a new account with the same secondary email as previous account and new password
-      await login.fillOutFirstSignUp(newEmail, credentials.password);
+      if (config.showReactApp.signUpRoutes !== true) {
+        await login.fillOutFirstSignUp(newEmail, credentials.password);
+      } else {
+        await signupReact.fillOutEmailFirst(newEmail);
+        await signupReact.fillOutSignupForm(credentials.password);
+        await signupReact.fillOutCodeForm(newEmail);
+      }
+
       expect(await settings.alertBarText()).toContain(
         'Account confirmed successfully'
       );
