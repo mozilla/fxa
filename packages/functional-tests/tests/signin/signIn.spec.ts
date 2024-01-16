@@ -105,8 +105,13 @@ test.describe('severity-2 #smoke', () => {
     test('with bounced email', async ({
       target,
       page,
-      pages: { login, settings },
+      pages: { configPage, login },
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'bounced email functionality does not currently work for react'
+      );
       const email = login.createEmail('sync{id}');
       const password = 'password123';
       await target.createAccount(email, password);

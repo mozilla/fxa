@@ -8,7 +8,12 @@ const password = 'password12345678';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signup here', () => {
-    test.beforeEach(async () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if serving React version'
+      );
       test.slow();
     });
 

@@ -3,21 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
-import { getReactFeatureFlagUrl } from '../../lib/react-flag';
-
-test.beforeEach(async ({ pages: { configPage } }) => {
-  // This test requires simple react routes to be enabled
-  const config = await configPage.getConfig();
-  test.skip(config.showReactApp.simpleRoutes !== true);
-});
 
 test.describe('severity-2 #smoke', () => {
   test.describe('legal', () => {
     test('start at legal page', async ({ page, target }) => {
-      await page.goto(getReactFeatureFlagUrl(target, '/legal'));
-
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      await page.goto(`${target.contentServerUrl}/legal`);
 
       // Verify legal page is visible
       expect(
@@ -40,15 +30,14 @@ test.describe('severity-2 #smoke', () => {
         await page.locator('a:has-text("Privacy Notice")').isVisible()
       ).toBeTruthy();
       await page.locator('a:has-text("Privacy Notice")').click();
+      await page.waitForURL(`${target.contentServerUrl}/legal/privacy`);
       await page.locator('button:has-text("Back")').click();
+      await page.waitForURL(`${target.contentServerUrl}/legal`);
       await page.waitForSelector('.card-header:has-text("Legal")');
     });
 
     test('start at terms page', async ({ page, target }) => {
-      await page.goto(getReactFeatureFlagUrl(target, '/legal/terms'));
-
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      await page.goto(`${target.contentServerUrl}/legal/terms`);
 
       // Verify legal page is visible
       // this text is not in our codebase, it's pulled from the `legal-docs` repo
@@ -58,10 +47,7 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('start at privacy page', async ({ page, target }) => {
-      await page.goto(getReactFeatureFlagUrl(target, '/legal/privacy'));
-
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      await page.goto(`${target.contentServerUrl}/legal/privacy`);
 
       // Verify privacy page is visible
       await page.waitForTimeout(1000);
