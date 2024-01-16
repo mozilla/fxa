@@ -11,7 +11,7 @@ const {
   StripeFirestore,
   FirestoreStripeError,
   newFirestoreStripeError,
-  FirestoreBulkWriterMultiError,
+  StripeFirestoreMultiError,
 } = require('../../../lib/payments/stripe-firestore');
 
 const customer1 = require('./fixtures/stripe/customer1.json');
@@ -855,18 +855,35 @@ describe('StripeFirestore', () => {
       assert.deepEqual(result, ['/test/path']);
     });
 
-    it('errors on failure', async () => {
+    it('single errors on non-bulkWriter failure', async () => {
+      const expectedError = new Error('Some non-bulkWriter error');
       firestore.recursiveDelete = async (doc, bulk) => {
-        const error = new Error('It failed a delete');
-        error.failedAttempts = 99;
-        bulk.errorCallback(error);
-        throw new Error('end it');
+        throw expectedError;
       };
       try {
         await stripeFirestore.removeCustomerRecursive('uid');
         assert.fail('should have thrown');
       } catch (error) {
-        assert.instanceOf(error, FirestoreBulkWriterMultiError);
+        assert.notInstanceOf(error, StripeFirestoreMultiError);
+        assert.equal(error.message, expectedError.message);
+      }
+    });
+
+    it('errors on failure', async () => {
+      const failureDocumentPath = '/test/path';
+      firestore.recursiveDelete = async (doc, bulk) => {
+        const error = new Error('It failed a delete');
+        error.failedAttempts = 99;
+        error.documentRef = { path: failureDocumentPath };
+        bulk.errorCallback(error);
+        throw new Error('Something happened in the bulkWriter');
+      };
+      try {
+        await stripeFirestore.removeCustomerRecursive('uid');
+        assert.fail('should have thrown');
+      } catch (error) {
+        assert.instanceOf(error, StripeFirestoreMultiError);
+        assert.equal(error.errors()[1].documentPath, failureDocumentPath);
       }
     });
   });
