@@ -192,6 +192,18 @@ export class QueueworkerService
   }
 
   /**
+   * Send delete event to RPs and delete user record from datastore.
+   *
+   * @param message
+   * @private
+   */
+  private async handleDeleteEvent(message: dto.deleteSchema) {
+    await this.handleMessageFanout(message, 'delete');
+
+    await this.firestore.deleteUser(message.uid);
+  }
+
+  /**
    * Save login to RP to datastore.
    *
    * Logins are not distributed to RPs as they already know if a user has
@@ -320,7 +332,7 @@ export class QueueworkerService
         break;
       }
       case dto.DELETE_EVENT: {
-        await this.handleMessageFanout(message, 'delete');
+        await this.handleDeleteEvent(message);
         break;
       }
       case dto.PRIMARY_EMAIL_EVENT:

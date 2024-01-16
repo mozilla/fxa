@@ -88,6 +88,19 @@ export class FirestoreService {
   }
 
   /**
+   * Deletes a user record in firebase.
+   *
+   * @param uid
+   */
+  public async deleteUser(uid: string): Promise<void> {
+    const document = this.db.doc(
+      `${this.prefix}users/${uid}`
+    ) as TypedDocumentReference<UserDocument>;
+
+    await document.delete();
+  }
+
+  /**
    * Fetches the OAuth Client Ids that a user has directly logged in to
    * via a Relying Party flow.
    *

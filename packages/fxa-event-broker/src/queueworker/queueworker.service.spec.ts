@@ -105,6 +105,7 @@ describe('QueueworkerService', () => {
   beforeEach(async () => {
     firestore = {
       storeLogin: jest.fn().mockResolvedValue({}),
+      deleteUser: jest.fn().mockResolvedValue({}),
       fetchClientIds: jest
         .fn()
         .mockResolvedValue(['444c5d137fc34d82ae65441d7f26a504']),
