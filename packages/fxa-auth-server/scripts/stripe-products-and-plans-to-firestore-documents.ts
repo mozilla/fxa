@@ -7,16 +7,13 @@ import Container from 'typedi';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { AppConfig } from '../lib/types';
+import { parseDryRun } from './lib/args';
 import {
-  StripeProductsAndPlansConverter,
   OutputTarget,
+  StripeProductsAndPlansConverter,
 } from './stripe-products-and-plans-to-firestore-documents/stripe-products-and-plans-converter';
 
 const pckg = require('../package.json');
-
-const parseDryRun = (dryRun: boolean | string) => {
-  return `${dryRun}`.toLowerCase() !== 'false';
-};
 
 const parseTarget = (target: any): OutputTarget => {
   if (Object.values(OutputTarget).includes(target)) {

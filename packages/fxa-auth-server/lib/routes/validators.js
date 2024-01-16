@@ -8,7 +8,7 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
-const { AccountDeleteReasons } = require('../account-delete');
+const { AccountDeleteReasons } = require('../types');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,
