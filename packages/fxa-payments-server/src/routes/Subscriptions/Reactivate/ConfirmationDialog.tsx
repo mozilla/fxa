@@ -12,6 +12,7 @@ import { Plan, Customer } from '../../../store/types';
 import { webIconConfigFromProductConfig } from 'fxa-shared/subscriptions/configuration/utils';
 import AppContext from '../../../lib/AppContext';
 import { SubsequentInvoicePreview } from 'fxa-shared/dto/auth/payments/invoice';
+import * as Provider from '../../../lib/PaymentProvider';
 
 const ConfirmationDialogContent = ({
   onConfirm,
@@ -22,6 +23,7 @@ const ConfirmationDialogContent = ({
   productName,
   amount,
   last4,
+  payment_provider,
   webIconBackground,
   webIconURL,
 }: {
@@ -33,6 +35,7 @@ const ConfirmationDialogContent = ({
   productName: string;
   amount: number;
   last4: string | undefined;
+  payment_provider: Provider.PaymentProvider | undefined;
   webIconBackground: string | null | undefined;
   webIconURL: string | null;
 }) => {
@@ -58,6 +61,23 @@ const ConfirmationDialogContent = ({
       >
         <h4 id={headerId}>Want to keep using {productName}?</h4>
       </Localized>
+      {(Provider.isPaypal(payment_provider) || !last4) && (
+        <Localized
+          id="reactivate-confirm-without-payment-method-copy"
+          vars={{
+            name: productName,
+            amount: getLocalizedCurrency(amount, currency),
+            endDate: getLocalizedDate(periodEndDate),
+          }}
+        >
+          <p>
+            Your access to {productName} will continue, and your billing cycle
+            and payment will stay the same. Your next charge will be{' '}
+            {getLocalizedCurrencyString(amount, currency)} on{' '}
+            {getLocalizedDateString(periodEndDate)}.
+          </p>
+        </Localized>
+      )}
       {last4 && (
         <Localized
           id="reactivate-confirm-copy"
@@ -73,23 +93,6 @@ const ConfirmationDialogContent = ({
             and payment will stay the same. Your next charge will be{' '}
             {getLocalizedCurrencyString(amount, currency)} to the card ending in{' '}
             {last4} on {getLocalizedDateString(periodEndDate)}.
-          </p>
-        </Localized>
-      )}
-      {!last4 && (
-        <Localized
-          id="reactivate-confirm-without-payment-method-copy"
-          vars={{
-            name: productName,
-            amount: getLocalizedCurrency(amount, currency),
-            endDate: getLocalizedDate(periodEndDate),
-          }}
-        >
-          <p>
-            Your access to {productName} will continue, and your billing cycle
-            and payment will stay the same. Your next charge will be{' '}
-            {getLocalizedCurrencyString(amount, currency)} on{' '}
-            {getLocalizedDateString(periodEndDate)}.
           </p>
         </Localized>
       )}
@@ -129,7 +132,7 @@ const ConfirmationDialog = ({
     navigatorLanguages,
     config.featureFlags.useFirestoreProductConfigs
   );
-  const { last4 } = customer;
+  const { last4, payment_provider } = customer;
 
   const amount = subsequentInvoice.total;
 
@@ -151,6 +154,7 @@ const ConfirmationDialog = ({
         productName={plan.product_name}
         amount={amount}
         last4={last4}
+        payment_provider={payment_provider}
         webIconURL={webIcon}
         webIconBackground={webIconBackground}
       />
