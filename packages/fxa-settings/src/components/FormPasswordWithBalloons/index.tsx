@@ -155,7 +155,9 @@ export const FormPasswordWithBalloons = ({
     if (getValues('newPassword') !== '' && !errors.newPassword) {
       hideNewPwdBalloon();
     }
-    if (getValues('confirmPassword') !== getValues('newPassword')) {
+    const confirmPassword = getValues('confirmPassword');
+    const newPassword = getValues('newPassword');
+    if (confirmPassword !== '' && confirmPassword !== newPassword) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
     } else if (!formState.isValid) {
       // Try to retrigger
