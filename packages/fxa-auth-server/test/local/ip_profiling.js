@@ -12,6 +12,7 @@ const uuid = require('uuid');
 const { Container } = require('typedi');
 const { ProfileClient } = require('../../lib/types');
 const { AccountEventsManager } = require('../../lib/account-events');
+const { AccountDeleteManager } = require('../../lib/account-delete');
 const { gleanMetrics } = require('../../lib/metrics/glean');
 const defaultConfig = require('../../config').default.getProperties();
 
@@ -35,6 +36,7 @@ function makeRoutes(options = {}) {
   Container.set(AccountEventsManager, {
     recordSecurityEvent: () => {},
   });
+  Container.set(AccountDeleteManager, { enqueue: () => {} });
   const log = mocks.mockLog();
   const cadReminders = mocks.mockCadReminders();
   const customs = {

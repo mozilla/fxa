@@ -61,6 +61,7 @@ const makeRoutes = function (options = {}, requireMocks) {
   config.authFirestore = config.authFirestore || {};
   config.securityHistory = config.securityHistory || {};
   config.gleanMetrics = config.gleanMetrics || defaultConfig.gleanMetrics;
+  config.cloudTasks = mocks.mockCloudTasksConfig;
 
   const log = options.log || mocks.mockLog();
   Container.set(AuthLogger, log);

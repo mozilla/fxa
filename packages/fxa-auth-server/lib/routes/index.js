@@ -248,7 +248,7 @@ module.exports = function (
   }
 
   v1Routes.forEach((r) => {
-    r.path = `${basePath}/v1${r.path}`;
+    r.path = `${basePath}/v${config.apiVersion}${r.path}`;
 
     if (tracing.isInitialized()) {
       if (r.handler) {

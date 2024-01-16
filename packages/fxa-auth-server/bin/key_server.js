@@ -174,6 +174,7 @@ async function run(config) {
     oauthDb,
     push,
     pushbox,
+    statsd,
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 

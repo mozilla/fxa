@@ -24,6 +24,12 @@ const convictConf = convict({
     format: ['dev', 'test', 'stage', 'prod'],
     env: 'NODE_ENV',
   },
+  apiVersion: {
+    doc: 'Number part of versioned endpoints - ex: /v1/account/status',
+    format: Number,
+    default: 1,
+    env: 'AUTH_API_VERSION',
+  },
   // TODO: Remove this after we have synchronized login records to Firestore
   firestore: {
     credentials: {
@@ -1022,12 +1028,6 @@ const convictConf = convict({
         default: ['@mozilla\\.com$'],
       },
     },
-    api: {
-      version: {
-        doc: 'Number part of versioned endpoints - ex: /v1/token',
-        default: 1,
-      },
-    },
     allowHttpRedirects: {
       arg: 'allowHttpRedirects',
       doc: 'If true, then it allows http OAuth redirect uris',
@@ -1992,6 +1992,26 @@ const convictConf = convict({
   },
 
   cloudTasks: {
+    projectId: {
+      default: '',
+      doc: 'The GCP project id.  Optional when in an environment with Application Default Credentials.',
+      env: 'AUTH_CLOUDTASKS_PROJECT_ID',
+      format: String,
+    },
+    locationId: {
+      default: '',
+      doc: 'Google cloud location id, e.g. us-west1',
+      env: 'AUTH_CLOUDTASKS_LOCATION_ID',
+      format: String,
+    },
+    credentials: {
+      keyFilename: {
+        default: '',
+        doc: 'Path to service account key.  Optional when in an environment where authentication with services is automatic.',
+        env: 'AUTH_CLOUDTASKS_KEY_FILE',
+        format: String,
+      },
+    },
     oidc: {
       aud: {
         default: '',

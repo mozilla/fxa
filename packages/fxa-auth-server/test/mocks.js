@@ -282,6 +282,21 @@ const MOCK_PLANS = [
   },
 ];
 
+const mockCloudTasksConfig = {
+  projectId: 'fxa-testo',
+  locationId: 'us-north1',
+  credentials: {
+    keyFilename: '/c/secrets/task-key.json',
+  },
+  oidc: {
+    aud: 'https://tasks.example.io/v1/cloud-tasks',
+    serviceAccountEmail: 'testo-tasks@iam.cloud.g.co',
+  },
+  deleteAccounts: {
+    queueName: 'del-accts',
+  },
+};
+
 module.exports = {
   MOCK_PUSH_KEY:
     'BDLugiRzQCANNj5KI1fAqui8ELrE7qboxzfa5K_R0wnUoJ89xY1D_SOXI_QJKNmellykaW_7U2BZ7hnrPW3A3LM',
@@ -291,6 +306,7 @@ module.exports = {
   mockContentfulClients: MOCK_CONTENTFUL_CLIENTS,
   mockContentfulPlanIdsToClientCapabilities:
     MOCK_CONTENTFUL_CLIENT_CAPABILITIES,
+  mockCloudTasksConfig,
   mockCustoms,
   mockDB,
   mockDevices,

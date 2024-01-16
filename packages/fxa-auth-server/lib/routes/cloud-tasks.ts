@@ -3,14 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import isA from 'joi';
-import { AuthRequest } from '../types';
 import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+import { ReasonForDeletion } from '../account-delete';
+import { AuthRequest } from '../types';
 import validators from './validators';
 
 export type DeleteAccountTaskPayload = {
   uid: string;
   customerId?: string;
+  reason: ReasonForDeletion;
 };
 
 export class CloudTaskHandler {
@@ -24,13 +26,14 @@ export class CloudTaskHandler {
     return {};
   }
 }
+export const accountDeleteCloudTaskPath = '/cloud-tasks/accounts/delete';
 
 export const cloudTaskRoutes = (config: ConfigType) => {
   const cloudTaskHandler = new CloudTaskHandler(config);
   const routes = [
     {
       method: 'POST',
-      path: '/cloud-tasks/accounts/delete',
+      path: accountDeleteCloudTaskPath,
       options: {
         auth: {
           mode: 'required',
@@ -49,6 +52,7 @@ export const cloudTaskRoutes = (config: ConfigType) => {
               .string()
               .optional()
               .description(DESCRIPTION.customerId),
+            reason: validators.accountDeleteReason,
           }),
         },
       },
