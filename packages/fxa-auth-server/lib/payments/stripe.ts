@@ -1951,6 +1951,7 @@ export class StripeHelper extends StripeHelperBase {
           },
         ],
         proration_behavior: 'always_invoice',
+        proration_date: Math.floor(Date.now() / 1000),
         metadata: updatedMetadata,
       }
     );

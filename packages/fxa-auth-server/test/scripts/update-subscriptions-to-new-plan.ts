@@ -122,6 +122,7 @@ describe('CustomerPlanMover', () => {
     subscriptionUpdater = new SubscriptionUpdater(
       planIdMap,
       'none',
+      undefined,
       100,
       './update-subscriptions-to-new-plan.tmp.csv',
       stripeHelperStub,

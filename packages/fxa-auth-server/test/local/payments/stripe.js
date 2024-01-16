@@ -3661,6 +3661,7 @@ describe('#integration - StripeHelper', () => {
             },
           ],
           proration_behavior: 'always_invoice',
+          proration_date: Math.floor(Date.now() / 1000),
           metadata: {
             key: 'value',
             previous_plan_id: subscription1.items.data[0].plan.id,
