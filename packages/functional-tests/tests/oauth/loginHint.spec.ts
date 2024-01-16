@@ -19,32 +19,36 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('login_hint specified by relier, not registered', async ({
-      pages: { login, relier },
+      pages: { configPage, login, page, relier },
     }) => {
       const email = login.createEmail();
+      const config = await configPage.getConfig();
       await relier.goto(`login_hint=${email}`);
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      await expect(await login.getPrefilledEmail()).toEqual(email);
       expect(await login.signUpPasswordHeader()).toEqual(true);
+      expect(await page.getByText(email).isVisible()).toBeTruthy();
 
-      await login.useDifferentAccountLink();
-
-      // Email first page has email input prefilled
-      await expect(await login.getEmailInput()).toEqual(email);
+      // With the conversion to React, the option to change the prefillEmail from oauth was removed.
+      // This test should only run for backbone version of signup.
+      if (config.showReactApp.signUpRoutes !== true) {
+        await login.useChangeEmailLink();
+        // Email first page has email input prefilled
+        await expect(await login.getEmailInput()).toEqual(email);
+      }
     });
 
     test('email specified by relier, registered', async ({
       credentials,
-      pages: { login, relier },
+      pages: { login, page, relier },
     }) => {
       await relier.goto(`email=${credentials.email}`);
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      await expect(await login.getPrefilledEmail()).toEqual(credentials.email);
       expect(await login.signInPasswordHeader()).toEqual(true);
+      expect(await page.getByText(credentials.email).isVisible()).toBeTruthy();
 
       await login.useDifferentAccountLink();
 

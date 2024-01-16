@@ -100,7 +100,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('unverified with a cached login', async ({
+      page,
       pages: { login, relier },
+      target,
     }) => {
       // Create unverified account
       email = login.createEmail();
@@ -116,7 +118,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Cached user detected
-      await expect(await login.getPrefilledEmail()).toContain(email);
+      await page.waitForURL(`${target.contentServerUrl}/oauth/signin**`);
+      await login.signInPasswordHeader();
+      expect(await page.getByText(email).isVisible()).toBeTruthy();
       expect(await login.isCachedLogin()).toBe(true);
       await login.submit();
 

@@ -122,9 +122,19 @@ test.describe('password strength tests', () => {
 
   test('test different password errors and success', async ({
     credentials,
-    pages: { login },
+    page,
+    pages: { configPage, login },
   }) => {
+    const config = await configPage.getConfig();
+    if (config.showReactApp.signUpRoutes === true) {
+      // TODO convert these tests to unit tests in React FormPasswordWithBalloon
+      test.skip(
+        true,
+        'react version of signup form does not allow submission if password requirements are not meant - submit button is disabled'
+      );
+    }
     //Submit without providing a password
+    await page.waitForURL(/\/signup/);
     await login.submitButton.click();
 
     //Verify the error

@@ -16,18 +16,19 @@ export const selectors = {
   ERROR: '.error',
   LINK_LOST_RECOVERY_KEY: '.lost-recovery-key',
   LINK_RESET_PASSWORD: 'a[href^="/reset_password"]',
-  LINK_USE_DIFFERENT: '#use-different',
+  LINK_USE_DIFFERENT: 'a:has-text("Use a different account")',
+  LINK_CHANGE_EMAIL: 'a:has-text("Change email")',
   LINK_USE_RECOVERY_CODE: '#use-recovery-code-link',
   NUMBER_INPUT: 'input[type=number]',
   PASSWORD: '#password',
-  PASSWORD_HEADER: '#fxa-signin-password-header',
+  PASSWORD_HEADER: 'h1:has-text("Enter your password")',
   PERMISSIONS_HEADER: '#fxa-permissions-header',
   PASSWORD_MASK_INPUT: '#password[type=password]',
   PASSWORD_TEXT_INPUT: '#password[type=text]',
   SHOW_PASSWORD: '#password ~ [for="show-password"]',
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
-  SIGN_UP_CODE_HEADER: '#fxa-confirm-signup-code-header',
+  SIGN_UP_CODE_HEADER: 'h1:has-text("Enter confirmation code")',
   SIGNIN_BOUNCED_HEADER: '#fxa-signin-bounced-header',
   BOUNCED_CREATE_ACCOUNT: '#create-account',
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
@@ -40,7 +41,6 @@ export const selectors = {
   SUBMIT_USER_SIGNED_IN: '#use-logged-in',
   RECOVERY_KEY_TEXT_INPUT: 'input[type=text]',
   TOOLTIP: '.tooltip',
-  VPASSWORD: '#vpassword',
   SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
   NOTES_HEADER: '#notes-by-firefox',
   MIN_LENGTH_MET: '#password-too-short.password-strength-met',
@@ -52,7 +52,7 @@ export const selectors = {
   NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
   NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   PERMISSION_ACCEPT: '#accept',
-  CWTS_ENGINE_HEADER: 'text="Choose what to sync"',
+  CWTS_ENGINE_HEADER: 'h2:has-text("Choose what to sync")',
   CWTS_ENGINE_BOOKMARKS: 'label:has-text("Bookmarks")',
   CWTS_ENGINE_HISTORY: 'label:has-text("History")',
   CWTS_ENGINE_PASSWORDS: '#sync-engine-passwords',
@@ -199,10 +199,12 @@ export class LoginPage extends BaseLayout {
       await this.setEmail(email);
       await this.submit();
     }
-    await this.page.fill(selectors.PASSWORD, password);
-    await this.page.fill(selectors.VPASSWORD, password);
-    await this.page.fill(selectors.AGE, '24');
-    await this.submit();
+    await this.page.getByLabel('Password', { exact: true }).fill(password);
+    await this.page.getByLabel('Repeat password').fill(password);
+    await this.page.getByLabel('How old are you?').fill('24');
+    await this.page.getByRole('button', { name: 'Create account' }).click();
+    await this.page.waitForURL(/confirm_signup_code/);
+
     if (verify) {
       await this.fillOutSignUpCode(email, waitForNavOnSubmit);
     }
@@ -258,12 +260,15 @@ export class LoginPage extends BaseLayout {
     return this.page.fill(selectors.EMAIL, email);
   }
 
+  // Used for sign in
   setPassword(password: string) {
-    return this.page.fill(selectors.PASSWORD, password);
+    return this.page
+      .getByPlaceholder('Password', { exact: true })
+      .fill(password);
   }
 
   confirmPassword(password: string) {
-    return this.page.fill(selectors.VPASSWORD, password);
+    return this.page.getByLabel('Repeat password').fill(password);
   }
 
   async clickUseRecoveryCode() {
@@ -338,6 +343,14 @@ export class LoginPage extends BaseLayout {
     return this.page.click(selectors.LINK_USE_DIFFERENT);
   }
 
+  async getChangeEmailLink() {
+    return this.page.locator(selectors.LINK_CHANGE_EMAIL);
+  }
+
+  async useChangeEmailLink() {
+    return this.page.click(selectors.LINK_CHANGE_EMAIL);
+  }
+
   async getTooltipError() {
     return this.page.locator(selectors.TOOLTIP).innerText();
   }
@@ -401,7 +414,7 @@ export class LoginPage extends BaseLayout {
 
   async waitForCWTSEngineHeader() {
     await this.page.waitForSelector(selectors.CWTS_ENGINE_HEADER, {
-      timeout: 2000,
+      timeout: 4000,
     });
   }
 
@@ -466,7 +479,9 @@ export class LoginPage extends BaseLayout {
   }
 
   async signUpPasswordHeader() {
-    const header = this.page.locator('#fxa-signup-password-header');
+    const header = this.page.getByRole('heading', {
+      name: 'Set your password',
+    });
     await header.waitFor();
     return header.isVisible();
   }
@@ -498,8 +513,8 @@ export class LoginPage extends BaseLayout {
   }
 
   async setNewPassword(password: string) {
-    await this.page.locator(selectors.PASSWORD).fill(password);
-    await this.page.locator(selectors.VPASSWORD).fill(password);
+    await this.page.getByLabel('Password').fill(password);
+    await this.page.getByLabel('Repeat password').fill(password);
     await this.submit();
   }
 
@@ -522,7 +537,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async getPasswordInput() {
-    return this.page.locator(selectors.PASSWORD).inputValue();
+    return this.page.getByLabel('Password').inputValue();
   }
 
   async isCachedLogin() {

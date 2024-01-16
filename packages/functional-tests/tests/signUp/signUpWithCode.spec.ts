@@ -15,7 +15,16 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
     });
 
-    test('bounced email', async ({ target, page, pages: { login } }) => {
+    test('bounced email', async ({
+      target,
+      page,
+      pages: { configPage, login },
+    }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signUpRoutes === true,
+        'bounced email functionality does not currently work on react signup'
+      );
       const client = await login.getFxaClient(target);
       await page.goto(target.contentServerUrl);
       await login.fillOutFirstSignUp(email, PASSWORD);
@@ -32,10 +41,9 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutFirstSignUp(email, PASSWORD, {
-        waitForNavOnSubmit: false,
-      });
-      await page.goBack({ waitUntil: 'load' });
+      await login.fillOutFirstSignUp(email, PASSWORD);
+      await page.goBack();
+      await page.waitForURL(target.contentServerUrl);
       expect(await login.isUserLoggedIn()).toBe(true);
     });
 

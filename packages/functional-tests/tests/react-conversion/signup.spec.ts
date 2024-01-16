@@ -162,7 +162,9 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await page.waitForSelector('#root');
-      expect(page.getByText('Set your password')).toBeVisible();
+      expect(
+        page.getByRole('heading', { name: 'Set your password' })
+      ).toBeVisible();
 
       await signupReact.sendWebChannelMessage(customEventDetail);
       await login.waitForCWTSEngineHeader();

@@ -36,8 +36,18 @@ test.describe('severity-1 #smoke', () => {
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      pages: { login, relier },
+      pages: { configPage, login, relier },
     }) => {
+      const config = await configPage.getConfig();
+      if (config.showReactApp.signUpRoutes === true) {
+        // clear email to skip cleanup
+        email = '';
+        test.fixme(
+          true,
+          'signup react does not currently redirect to permissions screen if prompt=consent'
+        );
+      }
+
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
       await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {

@@ -43,7 +43,7 @@ export class RelierPage extends BaseLayout {
     await this.page.locator('button.email-first-button').click();
     // We need to add a `waitUntil` option here because the page gets redirected from
     // /authorization to /oauth before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.contentServerUrl}/**`, {
+    return this.page.waitForURL(`${this.target.contentServerUrl}/oauth/**`, {
       waitUntil: 'load',
     });
   }

@@ -40,8 +40,18 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
       target,
-      pages: { login, relier },
+      pages: { configPage, login, relier },
     }) => {
+      const config = await configPage.getConfig();
+      if (config.showReactApp.signUpRoutes === true) {
+        // clear email to skip cleanup
+        email = '';
+        test.skip(
+          true,
+          'bounced email functionality does not work for signup react'
+        );
+      }
+
       const client = await login.getFxaClient(target);
 
       await relier.goto();

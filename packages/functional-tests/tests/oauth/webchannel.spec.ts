@@ -13,7 +13,14 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
     });
 
-    test('signup', async ({ pages: { login, relier } }) => {
+    test('signup', async ({ page, pages: { configPage, login, relier } }) => {
+      const config = await configPage.getConfig();
+      if (config.showReactApp.signUpRoutes === true) {
+        test.skip(
+          true,
+          'for react version of signup, this test is replaced by "signup oauth webchannel - sync mobile or FF desktop 123+"'
+        );
+      }
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -34,8 +41,12 @@ test.describe('severity-1 #smoke', () => {
       await login.setEmail(email);
       await login.submit();
 
+      await page.waitForURL(/\/signup/);
+      expect(
+        await page.getByRole('heading', { name: 'Set your password' })
+      ).toBeVisible();
       // the CWTS form is on the same signup page
-      await login.waitForCWTSEngineHeader();
+
       expect(await login.isCWTSEngineBookmarks()).toBe(true);
       expect(await login.isCWTSEngineHistory()).toBe(true);
 
