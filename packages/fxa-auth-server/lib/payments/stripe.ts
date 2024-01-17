@@ -720,9 +720,13 @@ export class StripeHelper extends StripeHelperBase {
       let proratedInvoice;
       if (isUpgrade && requestObject.subscription_items?.length) {
         try {
+          // get start of today's local time and date to calculate subscription_proration_date
+          const d = new Date();
+          d.setHours(0, 0, 0, 0);
+
           requestObject.subscription_proration_behavior = 'always_invoice';
           requestObject.subscription_proration_date = Math.floor(
-            Date.now() / 1000
+            d.valueOf() / 1000
           );
           const subscriptionItem = customer?.subscriptions?.data
             .flatMap((sub) => sub.items.data)
@@ -1940,6 +1944,10 @@ export class StripeHelper extends StripeHelperBase {
       plan_change_date: moment().unix(),
     };
 
+    // get start of today's local time and date to calculate proration_date
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+
     const updatedSubscription = await this.updateSubscriptionAndBackfill(
       subscription,
       {
@@ -1951,7 +1959,7 @@ export class StripeHelper extends StripeHelperBase {
           },
         ],
         proration_behavior: 'always_invoice',
-        proration_date: Math.floor(Date.now() / 1000),
+        proration_date: Math.floor(d.valueOf() / 1000),
         metadata: updatedMetadata,
       }
     );

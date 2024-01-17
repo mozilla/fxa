@@ -3638,6 +3638,10 @@ describe('#integration - StripeHelper', () => {
         plan_change_date: 12345678,
       };
 
+      // get start of today's local time and date to calculate proration_date
+      const d = new Date();
+      d.setHours(0, 0, 0, 0);
+
       sandbox.stub(moment, 'unix').returns(unixTimestamp);
       sandbox
         .stub(stripeHelper, 'updateSubscriptionAndBackfill')
@@ -3661,7 +3665,7 @@ describe('#integration - StripeHelper', () => {
             },
           ],
           proration_behavior: 'always_invoice',
-          proration_date: Math.floor(Date.now() / 1000),
+          proration_date: Math.floor(d.valueOf() / 1000),
           metadata: {
             key: 'value',
             previous_plan_id: subscription1.items.data[0].plan.id,
