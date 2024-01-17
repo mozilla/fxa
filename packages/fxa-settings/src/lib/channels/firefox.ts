@@ -201,6 +201,33 @@ export class Firefox extends EventTarget {
     return JSON.stringify(detail);
   }
 
+  /**
+   * Save the name of the event into sessionStorage, used for testing.
+   *
+   * @param {String} command
+   * @private
+   */
+  private saveEventForTests(command: FirefoxCommand, data: any) {
+    const agent = navigator.userAgent;
+    const isWebDriver = navigator.webdriver;
+    if (!isWebDriver && agent.indexOf('FxATester') === -1) {
+      // not running in automated tests, no reason to store this info.
+      return;
+    }
+
+    let storedEvents;
+    try {
+      storedEvents =
+        JSON.parse(sessionStorage.getItem('webChannelEvents') || '') || [];
+    } catch (e) {
+      storedEvents = [];
+    }
+    storedEvents.push({ command, data });
+    try {
+      sessionStorage.setItem('webChannelEvents', JSON.stringify(storedEvents));
+    } catch (e) {}
+  }
+
   // send a message to the browser chrome
   send(command: FirefoxCommand, data: any, messageId?: string) {
     const detail = this.formatEventDetail(command, data, messageId);
@@ -209,6 +236,7 @@ export class Firefox extends EventTarget {
         detail,
       })
     );
+    this.saveEventForTests(command, data);
   }
 
   // broadcast a message to other tabs

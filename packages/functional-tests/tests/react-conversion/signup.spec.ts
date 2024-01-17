@@ -5,12 +5,22 @@
 import { expect, newPagesForSync, test } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
-import { syncMobileOAuthQueryParams } from '../../lib/query-params';
+import {
+  syncDesktopV3QueryParams,
+  syncMobileOAuthQueryParams,
+} from '../../lib/query-params';
 
 const PASSWORD = 'passwordzxcv';
 
 let email;
 let skipCleanup = false;
+
+const eventDetailLinkAccount = createCustomEventDetail(
+  FirefoxCommand.LinkAccount,
+  {
+    ok: true,
+  }
+);
 
 test.beforeEach(async ({ pages: { configPage, login } }) => {
   test.slow();
@@ -162,6 +172,7 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await page.waitForSelector('#root');
+      // We must wait for the page to render before sending a web channel message
       expect(page.getByText('Set your password')).toBeVisible();
 
       await signupReact.sendWebChannelMessage(customEventDetail);
@@ -171,7 +182,6 @@ test.describe('severity-1 #smoke', () => {
       // Only engines provided via web channel for Sync mobile are displayed
       expect(await login.isCWTSEngineCreditCards()).toBe(false);
 
-      await signupReact.listenToWebChannelMessages();
       await signupReact.fillOutSignupForm(PASSWORD);
 
       const code = await target.email.waitForEmail(
@@ -181,29 +191,38 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await signupReact.fillOutCodeForm(code);
+      await page.waitForURL(/connect_another_device/);
       await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
-    test('signup sync', async ({ target }) => {
+    test('signup sync desktop v3, verify account', async ({ target }) => {
       test.slow();
       const syncBrowserPages = await newPagesForSync(target);
-      const { page, signupReact } = syncBrowserPages;
+      const { page, signupReact, login } = syncBrowserPages;
 
-      await signupReact.goto(
-        '/',
-        new URLSearchParams({
-          context: 'fx_desktop_v3',
-          service: 'sync',
-          action: 'email',
-          automatedBrowser: 'true',
-        })
-      );
-
+      await signupReact.goto('/', syncDesktopV3QueryParams);
       await signupReact.fillOutEmailFirst(email);
       await page.waitForURL(/signup/);
       await page.waitForSelector('#root');
+      // Wait for page to render
+      expect(page.getByText('Set your password')).toBeVisible();
+
+      await signupReact.respondToWebChannelMessage(eventDetailLinkAccount);
+      await signupReact.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+
+      // Sync desktop v3 includes "default" engines plus the ones provided via web channel
+      // See sync-engines.ts comments
+      await login.isCWTSEngineBookmarks();
+      await login.isCWTSEngineHistory();
+      await login.isCWTSEnginePasswords();
+      await login.isCWTSEngineTabs();
+      await login.isCWTSEnginePrefs();
+      await login.isCWTSEngineCreditCards();
+      expect(await login.isCWTSEngineAddresses()).toBe(false);
 
       await signupReact.fillOutSignupForm(PASSWORD);
+      await login.checkWebChannelMessage(FirefoxCommand.Login);
 
       const code = await target.email.waitForEmail(
         email,
@@ -213,7 +232,6 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutCodeForm(code);
 
-      // See note in `firefox.ts` about an event listener hack needed for this test
       await page.waitForURL(/connect_another_device/);
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
 
