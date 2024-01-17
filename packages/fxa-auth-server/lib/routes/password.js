@@ -57,73 +57,72 @@ module.exports = function (
       handler: async function (request) {
         log.begin('Password.changeStart', request);
         const form = request.payload;
-        const oldAuthPW = form.oldAuthPW;
+        const { oldAuthPW, email } = form;
 
-        return customs
-          .check(request, form.email, 'passwordChange')
-          .then(db.accountRecord.bind(db, form.email))
-          .then(
-            (emailRecord) => {
-              const password = new Password(
-                oldAuthPW,
-                emailRecord.authSalt,
-                emailRecord.verifierVersion
-              );
-              return signinUtils
-                .checkPassword(emailRecord, password, request.app.clientAddress)
-                .then((match) => {
-                  if (!match) {
-                    throw error.incorrectPassword(
-                      emailRecord.email,
-                      form.email
-                    );
-                  }
-                  const password = new Password(
-                    oldAuthPW,
-                    emailRecord.authSalt,
-                    emailRecord.verifierVersion
-                  );
-                  return password.unwrap(emailRecord.wrapWrapKb);
-                })
-                .then((wrapKb) => {
-                  return db
-                    .createKeyFetchToken({
-                      uid: emailRecord.uid,
-                      kA: emailRecord.kA,
-                      wrapKb: wrapKb,
-                      emailVerified: emailRecord.emailVerified,
-                    })
-                    .then((keyFetchToken) => {
-                      return db
-                        .createPasswordChangeToken({
-                          uid: emailRecord.uid,
-                        })
-                        .then((passwordChangeToken) => {
-                          return {
-                            keyFetchToken: keyFetchToken,
-                            passwordChangeToken: passwordChangeToken,
-                          };
-                        });
-                    });
-                });
-            },
-            (err) => {
-              if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
-                customs.flag(request.app.clientAddress, {
-                  email: form.email,
-                  errno: err.errno,
-                });
-              }
-              throw err;
-            }
-          )
-          .then((tokens) => {
-            return {
-              keyFetchToken: tokens.keyFetchToken.data,
-              passwordChangeToken: tokens.passwordChangeToken.data,
-              verified: tokens.keyFetchToken.emailVerified,
-            };
+        await customs.check(request, email, 'passwordChange');
+
+        let keyFetchToken = undefined;
+        let keyFetchToken2 = undefined;
+        let passwordChangeToken = undefined;
+
+        try {
+          const emailRecord = await db.accountRecord(email);
+          const password = new Password(
+            oldAuthPW,
+            emailRecord.authSalt,
+            emailRecord.verifierVersion
+          );
+
+          const match = await signinUtils.checkPassword(
+            emailRecord,
+            password,
+            request.app.clientAddress
+          );
+
+          if (!match) {
+            throw error.incorrectPassword(emailRecord.email, form.email);
+          }
+
+          if (password.clientVersion === 1) {
+            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKb);
+            keyFetchToken = await db.createKeyFetchToken({
+              uid: emailRecord.uid,
+              kA: emailRecord.kA,
+              wrapKb: unwrappedKb,
+              emailVerified: emailRecord.emailVerified,
+            });
+          }
+
+          if (password.clientVersion === 2) {
+            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKb2);
+            keyFetchToken2 = await db.createKeyFetchToken({
+              uid: emailRecord.uid,
+              kA: emailRecord.kA,
+              wrapKb: unwrappedKb,
+              emailVerified: emailRecord.emailVerified,
+            });
+          }
+
+          passwordChangeToken = await db.createPasswordChangeToken({
+            uid: emailRecord.uid,
           });
+        } catch (err) {
+          if (err.errno === error.ERRNO.ACCOUNT_UNKNOWN) {
+            customs.flag(request.app.clientAddress, {
+              email: form.email,
+              errno: err.errno,
+            });
+          }
+          throw err;
+        }
+
+        return {
+          keyFetchToken: keyFetchToken?.data,
+          keyFetchToken2: keyFetchToken2?.data,
+          passwordChangeToken: passwordChangeToken?.data,
+          verified:
+            keyFetchToken?.emailVerified || keyFetchToken2?.emailVerified,
+        };
       },
     },
     {
@@ -139,32 +138,45 @@ module.exports = function (
           query: isA.object({
             keys: isA.boolean().optional().description(DESCRIPTION.queryKeys),
           }),
-          payload: isA.object({
-            authPW: validators.authPW.description(DESCRIPTION.authPW),
-            wrapKb: validators.wrapKb.description(DESCRIPTION.wrapKb),
-            sessionToken: isA
-              .string()
-              .min(64)
-              .max(64)
-              .regex(HEX_STRING)
-              .optional()
-              .description(DESCRIPTION.sessionToken),
-          }),
+          payload: isA
+            .object({
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPW2: validators.authPW
+                .optional()
+                .description(DESCRIPTION.authPW),
+              wrapKb: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb),
+              wrapKb2: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb2),
+              clientSalt: validators.clientSalt
+                .optional()
+                .description(DESCRIPTION.clientSalt),
+              sessionToken: isA
+                .string()
+                .min(64)
+                .max(64)
+                .regex(HEX_STRING)
+                .optional()
+                .description(DESCRIPTION.sessionToken),
+            })
+            .and('authPW2', 'wrapKb2', 'clientSalt'),
         },
       },
       handler: async function (request) {
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
-        const authPW = request.payload.authPW;
-        const wrapKb = request.payload.wrapKb;
+        const { authPW, authPW2, wrapKb, wrapKb2, clientSalt } =
+          request.payload;
         const sessionTokenId = request.payload.sessionToken;
         const wantsKeys = requestHelper.wantsKeys(request);
         const ip = request.app.clientAddress;
         let account,
-          verifyHash,
           sessionToken,
           previousSessionToken,
           keyFetchToken,
+          keyFetchToken2,
           verifiedStatus,
           devicesToNotify,
           originatingDeviceId,
@@ -230,54 +242,53 @@ module.exports = function (
           });
         }
 
-        function changePassword() {
-          let authSalt, password;
-          return random
-            .hex(32)
-            .then((hex) => {
-              authSalt = hex;
-              password = new Password(authPW, authSalt, verifierVersion);
-              return db.deletePasswordChangeToken(passwordChangeToken);
-            })
-            .then(() => {
-              return password.verifyHash();
-            })
-            .then((hash) => {
-              verifyHash = hash;
-              return password.wrap(wrapKb);
-            })
-            .then((wrapWrapKb) => {
-              // Reset account, delete all sessions and tokens
-              return db.resetAccount(passwordChangeToken, {
-                verifyHash: verifyHash,
-                authSalt: authSalt,
-                wrapWrapKb: wrapWrapKb,
-                verifierVersion: password.version,
-                keysHaveChanged: false,
-              });
-            })
-            .then((result) => {
-              return request
-                .emitMetricsEvent('account.changedPassword', {
-                  uid: passwordChangeToken.uid,
-                })
-                .then(() => {
-                  // NOTE: Not quite sure of the difference between these two events:
-                  recordSecurityEvent('account.password_reset_success', {
-                    db,
-                    request,
-                    account: passwordChangeToken,
-                  });
-                  recordSecurityEvent('account.password_changed', {
-                    db,
-                    request,
-                    account: passwordChangeToken,
-                  });
-                })
-                .then(() => {
-                  return result;
-                });
-            });
+        async function changePassword() {
+          const authSalt = await random.hex(32);
+          const password = new Password(authPW, authSalt, verifierVersion);
+          const verifyHash = await password.verifyHash();
+          const wrapWrapKb = await password.wrap(wrapKb);
+
+          // For the time being we store both passwords in the DB. authPW is created
+          // with the old quickStretch and authPW2 is created with improved 'quick' stretch.
+          let password2 = undefined;
+          let verifyHash2 = undefined;
+          let wrapWrapKb2 = undefined;
+          if (authPW2) {
+            password2 = new Password(authPW2, authSalt, verifierVersion, 2);
+            verifyHash2 = await password2.verifyHash();
+            wrapWrapKb2 = await password2.wrap(wrapKb2);
+          }
+
+          await db.deletePasswordChangeToken(passwordChangeToken);
+
+          const result = await db.resetAccount(passwordChangeToken, {
+            authSalt: authSalt,
+            clientSalt: clientSalt,
+            verifierVersion: password.version,
+            verifyHash: verifyHash,
+            verifyHash2: verifyHash2,
+            wrapWrapKb: wrapWrapKb,
+            wrapWrapKb2: wrapWrapKb2,
+            keysHaveChanged: false,
+          });
+
+          await request.emitMetricsEvent('account.changedPassword', {
+            uid: passwordChangeToken.uid,
+          });
+
+          await recordSecurityEvent('account.password_reset_success', {
+            db,
+            request,
+            account: passwordChangeToken,
+          });
+
+          await recordSecurityEvent('account.password_changed', {
+            db,
+            request,
+            account: passwordChangeToken,
+          });
+
+          return result;
         }
 
         function notifyAccount() {
@@ -395,20 +406,27 @@ module.exports = function (
           }
         }
 
-        function createKeyFetchToken() {
+        async function createKeyFetchToken() {
           if (wantsKeys) {
             // Create a verified keyFetchToken. This is deliberately verified because we don't
             // want to perform an email confirmation loop.
-            return db
-              .createKeyFetchToken({
+            if (authPW) {
+              keyFetchToken = await db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,
                 wrapKb: wrapKb,
                 emailVerified: account.emailVerified,
-              })
-              .then((result) => {
-                keyFetchToken = result;
               });
+            }
+
+            if (authPW2) {
+              keyFetchToken2 = await db.createKeyFetchToken({
+                uid: account.uid,
+                kA: account.kA,
+                wrapKb: wrapKb2,
+                emailVerified: account.emailVerified,
+              });
+            }
           }
         }
 
@@ -416,7 +434,7 @@ module.exports = function (
           // If no sessionToken, this could be a legacy client
           // attempting to change password, return legacy response.
           if (!sessionTokenId) {
-            return {};
+            return {}
           }
 
           const response = {
@@ -427,7 +445,13 @@ module.exports = function (
           };
 
           if (wantsKeys) {
-            response.keyFetchToken = keyFetchToken.data;
+            if (keyFetchToken) {
+              response.keyFetchToken = keyFetchToken.data;
+            }
+
+            if (keyFetchToken2) {
+              response.keyFetchToken2 = keyFetchToken2.data;
+            }
           }
 
           return response;
@@ -777,9 +801,23 @@ module.exports = function (
           strategy: 'sessionToken',
         },
         validate: {
-          payload: isA.object({
-            authPW: isA.string(),
-          }),
+          payload: isA
+            .object({
+              authPW: validators.authPW.description(DESCRIPTION.authPW),
+              authPW2: validators.authPW2
+                .optional()
+                .description(DESCRIPTION.authPW2),
+              wrapKb: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb),
+              wrapKb2: validators.wrapKb
+                .optional()
+                .description(DESCRIPTION.wrapKb2),
+              clientSalt: validators.clientSalt
+                .optional()
+                .description(DESCRIPTION.clientSalt),
+            })
+            .and('authPW2', 'wrapKb', 'wrapKb2', 'clientSalt'),
         },
       },
       handler: async function (request) {
@@ -787,7 +825,8 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        const { authPW } = request.payload;
+        const { authPW, authPW2, wrapKb, wrapKb2, clientSalt } =
+          request.payload;
 
         const account = await db.account(uid);
         // We don't allow users that have a password set already to create a new password
@@ -808,18 +847,40 @@ module.exports = function (
         }
 
         const authSalt = await random.hex(32);
+
+        // For V1 credentials
         const password = new Password(authPW, authSalt, config.verifierVersion);
         const verifyHash = await password.verifyHash();
+        let wrapWrapKb = undefined;
 
-        // Accounts that don't have a password set, also do not have encryption keys therefore
-        // we generate one for them.
-        const wrapWrapKb = await random.hex(32);
+        // For V2 credentials
+        let wrapWrapKb2 = undefined;
+        let verifyHash2 = undefined;
+        if (authPW2) {
+          const password2 = new Password(
+            authPW2,
+            authSalt,
+            config.verifierVersion
+          );
+          wrapWrapKb2 = await password2.wrap(wrapKb2);
+          verifyHash2 = await password2.verifyHash();
+
+          // Important! For V2 credentials, wrapKb and wrapKb2 are supplied by client
+          // to ensure that a single kB results from either password. Therefore, we
+          // must used supplied wrapKb
+          wrapWrapKb = await password.wrap(wrapKb);
+        } else {
+          wrapWrapKb = await random.hex(32);
+        }
 
         const passwordCreated = await db.createPassword(
           uid,
           authSalt,
+          clientSalt,
           verifyHash,
+          verifyHash2,
           wrapWrapKb,
+          wrapWrapKb2,
           verifierVersion
         );
 

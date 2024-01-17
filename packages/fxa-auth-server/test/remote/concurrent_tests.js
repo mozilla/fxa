@@ -10,7 +10,9 @@ const Client = require('../client')();
 
 const config = require('../../config').default.getProperties();
 
-describe('#integration - remote concurrent', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote concurrent`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -24,8 +26,8 @@ describe('#integration - remote concurrent', function () {
     const email = server.uniqueEmail();
     const password = 'abcdef';
     // Two shall enter, only one shall survive!
-    const r1 = Client.create(config.publicUrl, email, password, server.mailbox);
-    const r2 = Client.create(config.publicUrl, email, password, server.mailbox);
+    const r1 = Client.create(config.publicUrl, email, password, testOptions);
+    const r2 = Client.create(config.publicUrl, email, password, testOptions);
     return Promise.allSettled([r1, r2])
       .then((results) => {
         const rejected = results.filter((p) => p.status === 'rejected');
@@ -39,4 +41,6 @@ describe('#integration - remote concurrent', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

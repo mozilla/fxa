@@ -18,8 +18,12 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-describe('#integration - remote account create', function () {
-  this.timeout(30000);
+// Note, intentionally not indenting for code review.
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+
+describe(`#integration${testOptions.version} - remote account create`, function () {
+  this.timeout(50000);
   let server;
   before(async () => {
     config.subscriptions = {
@@ -34,7 +38,8 @@ describe('#integration - remote account create', function () {
       productConfigsFirestore: { enabled: true },
     };
     const mockStripeHelper = {};
-    mockStripeHelper.hasActiveSubscription = async () => Promise.resolve(false);
+    mockStripeHelper.hasActiveSubscription = async () =>
+      Promise.resolve(false);
     mockStripeHelper.removeCustomer = async () => Promise.resolve();
 
     Container.set(PlaySubscriptions, {});
@@ -55,7 +60,7 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
@@ -82,7 +87,10 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password, { service: 'sync' })
+    return Client.create(config.publicUrl, email, password, {
+      ...testOptions,
+      service: 'sync',
+    })
       .then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
@@ -125,8 +133,11 @@ describe('#integration - remote account create', function () {
   it('create account with service identifier and resume', () => {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
-    const options = { service: 'abcdef', resume: 'foo' };
-    return Client.create(config.publicUrl, email, password, options)
+    return Client.create(config.publicUrl, email, password, {
+      ...testOptions,
+      service: 'abcdef',
+      resume: 'foo',
+    })
       .then(() => {
         return server.mailbox.waitForEmail(email);
       })
@@ -140,7 +151,7 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((x) => {
         client = x;
       })
@@ -155,6 +166,7 @@ describe('#integration - remote account create', function () {
       })
       .then(() => {
         return Client.create(config.publicUrl, email, password, {
+          ...testOptions,
           lang: 'pt-br',
         });
       })
@@ -173,9 +185,10 @@ describe('#integration - remote account create', function () {
   });
 
   it('Unknown account should not exist', () => {
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     client.email = server.uniqueEmail();
     client.authPW = crypto.randomBytes(32);
+    client.authPW2 = crypto.randomBytes(32);
     return client.auth().then(
       () => {
         assert(false, 'account should not exist');
@@ -194,7 +207,8 @@ describe('#integration - remote account create', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((x) => {
         client = x;
@@ -211,7 +225,7 @@ describe('#integration - remote account create', function () {
   it('/account/create returns a sessionToken', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     return client.setupCredentials(email, password).then((c) => {
       return c.api.accountCreate(c.email, c.authPW).then((response) => {
         assert.ok(response.sessionToken, 'has a sessionToken');
@@ -227,7 +241,7 @@ describe('#integration - remote account create', function () {
   it('/account/create returns a keyFetchToken when keys=true', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     return client.setupCredentials(email, password).then((c) => {
       return c.api
         .accountCreate(c.email, c.authPW, { keys: true })
@@ -246,10 +260,11 @@ describe('#integration - remote account create', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((c) => {
-        return Client.create(config.publicUrl, email2, password);
+        return Client.create(config.publicUrl, email2, password, testOptions);
       })
       .then(assert.fail, (err) => {
         assert.equal(err.code, 400);
@@ -265,7 +280,7 @@ describe('#integration - remote account create', function () {
   it('re-signup against an unverified email', () => {
     const email = server.uniqueEmail();
     const password = 'abcdef';
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then(() => {
         // delete the first verification email
         return server.mailbox.waitForEmail(email);
@@ -275,7 +290,8 @@ describe('#integration - remote account create', function () {
           config.publicUrl,
           email,
           password,
-          server.mailbox
+          server.mailbox,
+          testOptions
         );
       })
       .then((client) => {
@@ -284,11 +300,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid redirectTo', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       redirectTo: 'http://accounts.firefox.com.evil.us',
     };
     return api
@@ -305,11 +322,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('another invalid redirectTo', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       redirectTo: 'https://www.fake.com/.firefox.com',
     };
 
@@ -329,11 +347,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('valid metricsContext', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -349,22 +368,24 @@ describe('#integration - remote account create', function () {
   });
 
   it('empty metricsContext', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {},
     };
     return api.accountCreate(email, authPW, options);
   });
 
   it('invalid entrypoint', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: ';',
         entrypointExperiment: 'exp',
@@ -382,11 +403,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid entrypointExperiment', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: ';',
@@ -404,11 +426,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid entrypointVariation', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -426,11 +449,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid utmCampaign', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -448,11 +472,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid utmContent', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -470,11 +495,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid utmMedium', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -492,11 +518,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid utmSource', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -514,11 +541,12 @@ describe('#integration - remote account create', function () {
   });
 
   it('invalid utmTerm', () => {
-    const api = new Client.Api(config.publicUrl);
+    const api = new Client.Api(config.publicUrl, testOptions);
     const email = server.uniqueEmail();
     const authPW =
       '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF';
     const options = {
+      ...testOptions,
       metricsContext: {
         entrypoint: 'foo',
         entrypointExperiment: 'exp',
@@ -538,6 +566,7 @@ describe('#integration - remote account create', function () {
   it('create account with service query parameter', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       serviceQuery: 'bar',
     })
       .then(() => {
@@ -554,7 +583,7 @@ describe('#integration - remote account create', function () {
 
   it('account creation works with unicode email address', () => {
     const email = server.uniqueUnicodeEmail();
-    return Client.create(config.publicUrl, email, 'foo')
+    return Client.create(config.publicUrl, email, 'foo', testOptions)
       .then((client) => {
         assert.ok(client, 'created account');
         return server.mailbox.waitForEmail(email);
@@ -567,6 +596,7 @@ describe('#integration - remote account create', function () {
   it('account creation fails with invalid metricsContext flowId', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       metricsContext: {
         flowId: 'deadbeefbaadf00ddeadbeefbaadf00d',
         flowBeginTime: 1,
@@ -584,6 +614,7 @@ describe('#integration - remote account create', function () {
   it('account creation fails with invalid metricsContext flowBeginTime', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       metricsContext: {
         flowId:
           'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
@@ -601,10 +632,11 @@ describe('#integration - remote account create', function () {
 
   it('account creation works with maximal metricsContext metadata', () => {
     const email = server.uniqueEmail();
-    const opts = {
+    const options = {
+      ...testOptions,
       metricsContext: mocks.generateMetricsContext(),
     };
-    return Client.create(config.publicUrl, email, 'foo', opts)
+    return Client.create(config.publicUrl, email, 'foo', options)
       .then((client) => {
         assert.ok(client, 'created account');
         return server.mailbox.waitForEmail(email);
@@ -612,12 +644,12 @@ describe('#integration - remote account create', function () {
       .then((emailData) => {
         assert.equal(
           emailData.headers['x-flow-begin-time'],
-          opts.metricsContext.flowBeginTime,
+          options.metricsContext.flowBeginTime,
           'flow begin time set'
         );
         assert.equal(
           emailData.headers['x-flow-id'],
-          opts.metricsContext.flowId,
+          options.metricsContext.flowId,
           'flow id set'
         );
       });
@@ -626,6 +658,7 @@ describe('#integration - remote account create', function () {
   it('account creation works with empty metricsContext metadata', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       metricsContext: {},
     }).then((client) => {
       assert.ok(client, 'created account');
@@ -635,6 +668,7 @@ describe('#integration - remote account create', function () {
   it('account creation fails with missing flowBeginTime', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       metricsContext: {
         flowId:
           'deadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00ddeadbeefbaadf00d',
@@ -652,6 +686,7 @@ describe('#integration - remote account create', function () {
   it('account creation fails with missing flowId', () => {
     const email = server.uniqueEmail();
     return Client.create(config.publicUrl, email, 'foo', {
+      ...testOptions,
       metricsContext: {
         flowBeginTime: Date.now(),
       },
@@ -669,7 +704,7 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((x) => {
         client = x;
         assert.ok('account was created');
@@ -700,7 +735,10 @@ describe('#integration - remote account create', function () {
         return server.mailbox.waitForCode(email);
       })
       .then((code) => {
-        assert.ok(code, 'the next email was reset-password, not post-verify');
+        assert.ok(
+          code,
+          'the next email was reset-password, not post-verify'
+        );
       });
   });
 
@@ -708,7 +746,7 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((x) => {
         client = x;
         assert.ok('account was created');
@@ -739,7 +777,10 @@ describe('#integration - remote account create', function () {
         return server.mailbox.waitForCode(email);
       })
       .then((code) => {
-        assert.ok(code, 'the next email was reset-password, not post-verify');
+        assert.ok(
+          code,
+          'the next email was reset-password, not post-verify'
+        );
       });
   });
 
@@ -747,7 +788,10 @@ describe('#integration - remote account create', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password, { service: 'sync' })
+    return Client.create(config.publicUrl, email, password, {
+      ...testOptions,
+      service: 'sync',
+    })
       .then((x) => {
         client = x;
         assert.ok('account was created');
@@ -778,7 +822,111 @@ describe('#integration - remote account create', function () {
       });
   });
 
-  after(() => {
-    return TestServer.stop(server);
+
+  it('maintains single kB value for account create with V1 & V2 credentials', async function () {
+
+    if (testOptions.version !== "V2") {
+      return this.skip();
+    }
+
+    const email = server.uniqueEmail();
+    const password = 'F00BAR';
+
+    const client = await Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox,
+      {
+        ...testOptions,
+        keys: true,
+        service: 'sync',
+      }
+    );
+
+    await client.getKeysV1();
+    await client.getKeysV2();
+    const originalKb = client.kB;
+    const clientSalt = await client.getClientSalt();
+
+    // Log in with new clients and grab kbs
+    const clientV1 = await login(email, password);
+    await clientV1.getKeysV1();
+    const kB1 = clientV1.kB;
+
+    const clientV2 = await login(email, password, "V2");
+    await clientV2.getKeysV2();
+    const kB2 = clientV2.kB;
+
+    assert.exists(originalKb);
+    assert.isTrue(
+      clientSalt.startsWith(
+        'identity.mozilla.com/picl/v1/quickStretchV2:'
+      )
+    );
+    assert.equal(kB1, originalKb);
+    assert.equal(kB2, originalKb);
   });
+
+  it('maintains single kB value after account password upgrade from V1 to V2', async function () {
+
+    if (testOptions.version !== "V2") {
+      return this.skip();
+    }
+
+    const email = server.uniqueEmail();
+    const password = 'F00BAR';
+
+    const client = await Client.createAndVerify(
+      config.publicUrl,
+      email,
+      password,
+      server.mailbox,
+      {
+        ...testOptions,
+        keys: true,
+        service: 'sync',
+      }
+    );
+
+    await client.keys();
+
+    const originalKb = client.getState().kB;
+    await client.upgradeCredentials(password);
+
+    // Login with two different client versions and check the kB values
+    const clientV1 = await login(email, password);
+    await clientV1.getKeysV1();
+
+    const kB1 = clientV1.kB;
+
+    const clientV2 = await login(email, password, "V2");
+    await clientV2.getKeysV2();
+    const kB2 = clientV2.kB;
+
+    assert.exists(originalKb);
+    assert.equal(kB1, originalKb);
+    assert.equal(kB2, originalKb);
+  });
+
+
+  after(async () => {
+    await TestServer.stop(server);
+  });
+
+  async function login(email, password, version="") {
+    return await Client.login(
+      config.publicUrl,
+      email,
+      password,
+      {
+        ...testOptions,
+        version,
+        keys: true,
+        service: 'sync',
+      }
+    );
+  }
+});
+
 });

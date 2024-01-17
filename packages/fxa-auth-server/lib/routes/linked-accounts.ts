@@ -358,7 +358,7 @@ export class LinkedAccountHandler {
         // verified
         const emailCode = await random.hex(16);
         const authSalt = await random.hex(32);
-        const [kA, wrapWrapKb] = await random.hex(32, 32);
+        const [kA, wrapWrapKb, wrapWrapKb2] = await random.hex(32, 32, 32);
         accountRecord = await this.db.createAccount({
           uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           createdAt: Date.now(),
@@ -367,9 +367,13 @@ export class LinkedAccountHandler {
           emailVerified: true,
           kA,
           wrapWrapKb,
+          wrapWrapKb2,
           authSalt,
+          // This will be set with a real value when the users sets an account password.
+          clientSalt: undefined,
           verifierVersion: this.config.verifierVersion,
           verifyHash: Buffer.alloc(32).toString('hex'),
+          verifyHash2: Buffer.alloc(32).toString('hex'),
           verifierSetAt: 0,
           locale: request.app.acceptLanguage,
         });

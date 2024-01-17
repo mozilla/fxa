@@ -12,7 +12,9 @@ let config, server, client, email, secondEmail;
 const password = 'allyourbasearebelongtous',
   newPassword = 'newpassword';
 
-describe('#integration - remote change email', function () {
+[ {version:""}, {version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote change email`, function () {
   this.timeout(30000);
 
   before(() => {
@@ -26,11 +28,13 @@ describe('#integration - remote change email', function () {
   beforeEach(() => {
     email = server.uniqueEmail();
     secondEmail = server.uniqueEmail('@notrestmail.com');
+
     return Client.createAndVerify(
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((x) => {
         client = x;
@@ -75,7 +79,8 @@ describe('#integration - remote change email', function () {
         config.publicUrl,
         userEmail2,
         password,
-        server.mailbox
+        server.mailbox,
+        testOptions
       )
         .then((client2) => {
           return client2.createEmail(anotherEmail);
@@ -142,16 +147,23 @@ describe('#integration - remote change email', function () {
         .then((res) => {
           assert.ok(res, 'ok response');
 
-          // Verify account can login with new primary email
-          return Client.login(config.publicUrl, secondEmail, password).then(
-            () => {
-              assert.fail(
-                new Error(
-                  'Should have returned correct email for user to login'
-                )
-              );
-            }
-          );
+          if (testOptions.version === "V2") {
+            // Note for V2 we can login with new primary email. The password is not encrypted with
+            // the original email, so this now works!
+            return Client.login(config.publicUrl, secondEmail, password, testOptions);
+          }
+          else {
+            // Verify account can login with new primary email
+            return Client.login(config.publicUrl, secondEmail, password, testOptions).then(
+              () => {
+                assert.fail(
+                  new Error(
+                    'Should have returned correct email for user to login'
+                  )
+                );
+              }
+            );
+          }
         })
         .catch((err) => {
           // Login should fail for this user and return the normalizedEmail used when
@@ -163,6 +175,7 @@ describe('#integration - remote change email', function () {
 
           return Client.login(config.publicUrl, err.email, password, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -177,6 +190,7 @@ describe('#integration - remote change email', function () {
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, password, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -187,6 +201,7 @@ describe('#integration - remote change email', function () {
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -223,8 +238,20 @@ describe('#integration - remote change email', function () {
         })
         .then((res) => {
           assert.ok(res, 'ok response');
+        })
+        .then(() => {
+          if (testOptions.version === "V2") {
+            return Client.upgradeCredentials(config.publicUrl, email, newPassword, {
+              originalLoginEmail: secondEmail,
+              version: '',
+              keys: true
+           });
+          }
+        })
+        .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -242,6 +269,7 @@ describe('#integration - remote change email', function () {
         .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           })
             .then(() => {
               assert.fail(
@@ -281,21 +309,26 @@ describe('#integration - remote change email', function () {
       config.publicUrl,
       client1Email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     );
 
+    // Create a second client
     const client2 = await Client.createAndVerify(
       config.publicUrl,
       client2Email,
       password2,
-      server.mailbox
+      server.mailbox,
+      testOptions
     );
 
+    // Update client1's email and verify
     await client1.createEmail(client1SecondEmail);
     emailData = await server.mailbox.waitForEmail(client1SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
     await client1.verifySecondaryEmailWithCode(emailCode, client1SecondEmail);
 
+    // Update client2
     await client2.createEmail(client2SecondEmail);
     emailData = await server.mailbox.waitForEmail(client2SecondEmail);
     emailCode = emailData['headers']['x-verify-code'];
@@ -323,6 +356,7 @@ describe('#integration - remote change email', function () {
 
     const res = await Client.login(config.publicUrl, client1Email, password, {
       originalLoginEmail: client2Email,
+      ...testOptions
     });
 
     assert.ok(res, 'ok response');
@@ -365,8 +399,17 @@ describe('#integration - remote change email', function () {
     });
 
     it('can login', () => {
+
+      if (testOptions.version === "V2") {
+        // Note that with V2 logins, you can actually use the secondary email to login. This is
+        // due to the fact the salt is now independent of the original email.
+        return Client.login(config.publicUrl, secondEmail, password, testOptions).then((res) => {
+          assert.exists(res.sessionToken)
+        })
+      }
+
       // Verify account can still login with new primary email
-      return Client.login(config.publicUrl, secondEmail, password)
+      return Client.login(config.publicUrl, secondEmail, password, testOptions)
         .then(() => {
           assert.fail(
             new Error('Should have returned correct email for user to login')
@@ -382,6 +425,7 @@ describe('#integration - remote change email', function () {
 
           return Client.login(config.publicUrl, err.email, password, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -392,6 +436,7 @@ describe('#integration - remote change email', function () {
     it('can change password', () => {
       return Client.login(config.publicUrl, email, password, {
         originalLoginEmail: secondEmail,
+        ...testOptions
       })
         .then((res) => {
           client = res;
@@ -401,6 +446,7 @@ describe('#integration - remote change email', function () {
           assert.ok(res, 'ok response');
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -423,8 +469,20 @@ describe('#integration - remote change email', function () {
         })
         .then((res) => {
           assert.ok(res, 'ok response');
+        })
+        .then(() => {
+          if (testOptions.version === "V2") {
+            return Client.upgradeCredentials(config.publicUrl, email, newPassword, {
+              originalLoginEmail: secondEmail,
+              version: '',
+              keys:true
+            });
+          }
+        })
+        .then(() => {
           return Client.login(config.publicUrl, email, newPassword, {
             originalLoginEmail: secondEmail,
+            ...testOptions
           });
         })
         .then((res) => {
@@ -436,6 +494,7 @@ describe('#integration - remote change email', function () {
       return client.destroyAccount().then(() => {
         return Client.login(config.publicUrl, email, newPassword, {
           originalLoginEmail: secondEmail,
+          ...testOptions
         })
           .then(() => {
             assert.fail(
@@ -459,4 +518,6 @@ describe('#integration - remote change email', function () {
       return client.resetPassword(newPassword, {}, options);
     });
   }
+});
+
 });

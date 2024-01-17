@@ -11,7 +11,10 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const jwtool = require('fxa-jwtool');
 
-describe('#integration - remote recovery keys', function () {
+
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote recovery keys`, function () {
   this.timeout(10000);
 
   let server, client, email;
@@ -50,7 +53,10 @@ describe('#integration - remote recovery keys', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true,
+      }
     )
       .then((x) => {
         client = x;
@@ -95,7 +101,80 @@ describe('#integration - remote recovery keys', function () {
       });
   });
 
+
+  async function checkPayloadV2 (mutate, restore) {
+    await getAccountResetToken(client, server, email);
+    await client.getRecoveryKey(recoveryKeyId);
+    let err;
+    try {
+      mutate();
+      await client.api
+        .accountResetWithRecoveryKeyV2(
+          client.accountResetToken,
+          client.authPW,
+          client.authPW2,
+          client.wrapKb,
+          client.wrapKb2,
+          client.clientSalt,
+          recoveryKeyId,
+          undefined,
+          {}
+        )
+    }
+    catch (error) {
+      err = error;
+    }
+    finally {
+      restore();
+    }
+
+    assert.exists(err);
+    assert.equal(err.errno, 107, 'invalid param');
+  }
+
+  it('should fail if wrapKb is missing and authPW2 is provided', async function () {
+    if (testOptions.version !== "V2") {
+      return this.skip();
+    }
+    const temp = client.wrapKb;
+    await checkPayloadV2(() => {
+      client.unwrapBKey = undefined;
+      client.wrapKb = undefined;
+    }, () => {
+      client.wrapKb = temp;
+    });
+  });
+
+  it('should fail if wrapKb2 is missing and authPW2 is provided', async function () {
+    if (testOptions.version !== "V2") {
+      return this.skip();
+    }
+
+    const temp = client.wrapKb2;
+    await checkPayloadV2(() => {
+      client.wrapKb2 = undefined;
+    }, () => {
+      client.wrapKb2 = temp;
+    });
+  })
+
+  it('should fail if clientSalt is missing and authPW2 is provided', async function () {
+    if (testOptions.version !== "V2") {
+      return this.skip();
+    }
+    const temp = client.clientSalt;
+    await checkPayloadV2(() => {
+      client.clientSalt = undefined;
+    }, () => {
+      client.clientSalt = temp;
+    });
+  })
+
   it('should fail if recoveryKeyId is missing', () => {
+    if (testOptions.version === "V2") {
+      return this.skip
+    }
+
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
       .then((res) =>
@@ -116,6 +195,10 @@ describe('#integration - remote recovery keys', function () {
   });
 
   it('should fail if wrapKb is missing', () => {
+    if (testOptions.version === "V2") {
+      return this.skip
+    }
+
     return getAccountResetToken(client, server, email)
       .then(() => client.getRecoveryKey(recoveryKeyId))
       .then((res) =>
@@ -173,6 +256,7 @@ describe('#integration - remote recovery keys', function () {
 
     // Login with new password and check to see kB hasn't changed
     const c = await Client.login(config.publicUrl, email, 'newpass', {
+      ...testOptions,
       keys: true,
     });
     assert.ok(c.sessionToken, 'sessionToken returned');
@@ -232,7 +316,10 @@ describe('#integration - remote recovery keys', function () {
           email,
           password,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true,
+          }
         )
           .then((c) => {
             client = c;
@@ -254,7 +341,10 @@ describe('#integration - remote recovery keys', function () {
           email2,
           password,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true,
+          }
         );
         const recoveryKeyMock = await createMockRecoveryKey(
           client2.uid,
@@ -286,7 +376,10 @@ describe('#integration - remote recovery keys', function () {
           email,
           password,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true,
+          }
         )
           .then((c) => {
             client = c;
@@ -320,3 +413,5 @@ function getAccountResetToken(client, server, email) {
       )
     );
 }
+
+});

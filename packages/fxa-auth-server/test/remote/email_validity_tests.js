@@ -10,7 +10,9 @@ const Client = require('../client')();
 
 const config = require('../../config').default.getProperties();
 
-describe('#integration - remote email validity', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote email validity`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -36,7 +38,7 @@ describe('#integration - remote email validity', function () {
       '\uD83D\uDCA9@unicodepooforyou.com',
     ];
     emails.forEach((email, i) => {
-      emails[i] = Client.create(config.publicUrl, email, pwd).then(
+      emails[i] = Client.create(config.publicUrl, email, pwd, testOptions).then(
         assert.fail,
         (err) => {
           assert.equal(err.code, 400, 'http 400 : malformed email is rejected');
@@ -59,7 +61,7 @@ describe('#integration - remote email validity', function () {
     ];
 
     emails.forEach((email, i) => {
-      emails[i] = Client.create(config.publicUrl, email, pwd).then(
+      emails[i] = Client.create(config.publicUrl, email, pwd, testOptions).then(
         (c) => {
           return c.destroyAccount();
         },
@@ -78,4 +80,7 @@ describe('#integration - remote email validity', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
+
 });

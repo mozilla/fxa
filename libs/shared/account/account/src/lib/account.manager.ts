@@ -16,14 +16,17 @@ export class AccountManager {
   async createAccountStub(
     email: string,
     verifierVersion: number,
-    locale: string
+    locale: string,
+    clientSalt?: string
   ) {
-    const [emailCode, authSalt, kA, wrapWrapKb] = await Promise.all([
-      randomBytesAsync(16),
-      randomBytesAsync(32),
-      randomBytesAsync(32),
-      randomBytesAsync(32),
-    ]);
+    const [emailCode, authSalt, kA, wrapWrapKb, wrapWrapKb2] =
+      await Promise.all([
+        randomBytesAsync(16),
+        randomBytesAsync(32),
+        randomBytesAsync(32),
+        randomBytesAsync(32),
+        randomBytesAsync(32),
+      ]);
     const uid = uuidv4({}, Buffer.alloc(16));
     await createAccount(this.db, {
       uid,
@@ -33,11 +36,13 @@ export class AccountManager {
       verifierVersion,
       kA,
       wrapWrapKb,
+      wrapWrapKb2,
       verifyHash: Buffer.alloc(32),
       authSalt,
       verifierSetAt: 0,
       createdAt: Date.now(),
       locale,
+      clientSalt: clientSalt ? clientSalt : null,
     });
     return uid.toString('hex');
   }

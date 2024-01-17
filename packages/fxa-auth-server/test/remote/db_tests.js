@@ -69,7 +69,7 @@ const zeroBuffer32 = Buffer.from(
 
 let account, secondEmail;
 
-describe('#integration - remote db', function () {
+describe(`#integration - remote db`, function () {
   this.timeout(20000);
   let dbServer, db, redis;
 
