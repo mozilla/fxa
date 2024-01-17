@@ -194,7 +194,7 @@ export class AccountHandler {
       emailVerified: preVerified,
       kA,
       wrapWrapKb,
-      wrapWrapKbVersion2ersion2,
+      wrapWrapKbVersion2,
       accountResetToken: null,
       passwordForgotToken: null,
       authSalt: authSalt,
@@ -626,7 +626,7 @@ export class AccountHandler {
       authSalt,
       verifierVersion: this.config.verifierVersion,
       verifyHash: Buffer.alloc(32).toString('hex'),
-      verifyHashVersion2ersion2: null,
+      verifyHashVersion2: null,
       verifierSetAt: 0,
       locale: request.app.acceptLanguage,
       clientSalt: null,
@@ -693,7 +693,7 @@ export class AccountHandler {
         this.config.verifierVersion,
         2
       );
-      verifyHashVersion2ersion2 = await password2.verifyHash();
+      verifyHashVersion2 = await password2.verifyHash();
 
       // In V2 we will supply wrapKb and wrapKbVersion2 and run sanity checks here.
       // If wrapWrapKb drifts from what the client expects, it means we will
@@ -1443,7 +1443,7 @@ export class AccountHandler {
       keyFetchToken: any,
       keyFetchToken2: any,
       verifyHash: any,
-      verifyHashVersion2ersion2: any,
+      verifyHashVersion2: any,
       wrapWrapKb: any,
       wrapWrapKbVersion2: any,
       password: any,

@@ -20,7 +20,7 @@ const DESCRIPTIONS = {
   authAt:
     'The UTC unix timestamp for the session at which the user last authenticated to FxA server when generating this token, in seconds since the epoch.',
   authPW: 'The PBKDF2/HKDF-stretched password as a hex string.',
-  authPW2:
+  authPWVersion2:
     'The PBKDF2/HKDF-stretched password as a hex string using the version 2 key stretching.',
   billingAgreementId: 'A unique identifier for the PayPal billing agreement.',
   billingName: 'Full name',
@@ -270,7 +270,7 @@ const DESCRIPTIONS = {
   verificationReason:
     'The authentication method that required additional verification.',
   wrapKb: 'The new `wrapKb` value as a hex string.',
-  wrapKb2: 'The new `wrapKb` value for authPW2 as a hex string.',
+  wrapKbVersion2: 'The new `wrapKb` value for authPW2 as a hex string.',
 };
 
 export default DESCRIPTIONS;

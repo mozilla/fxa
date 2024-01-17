@@ -18,6 +18,9 @@ CREATE TABLE `accounts` (
   `ecosystemAnonId` text CHARACTER SET ascii COLLATE ascii_bin,
   `disabledAt` bigint(20) unsigned DEFAULT NULL,
   `metricsOptOutAt` bigint(20) unsigned DEFAULT NULL,
+  `verifyHashVersion2` binary(32),
+  `wrapWrapKbVersion2` binary(32),
+  `clientSalt` varchar(128),
   PRIMARY KEY (`uid`),
   UNIQUE KEY `normalizedEmail` (`normalizedEmail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

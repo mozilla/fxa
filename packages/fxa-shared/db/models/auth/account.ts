@@ -205,9 +205,6 @@ export class Account extends BaseAuthModel {
   > & {
     keysHaveChanged?: boolean;
   }) {
-
-    console.log('!!! Account.reset',  {v2: !!verifyHashVersion2 || !!wrapWrapKbVersion2})
-
     return Account.callProcedure(
       Proc.ResetAccount,
       uuidTransformer.to(uid),
