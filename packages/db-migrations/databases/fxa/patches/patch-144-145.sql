@@ -20,9 +20,10 @@ CALL assertPatchLevel('144');
 --
 
 
-ALTER TABLE fxa.accounts ADD COLUMN clientSalt VARCHAR(128);
-ALTER TABLE fxa.accounts ADD COLUMN verifyHashVersion2 BINARY(32);
-ALTER TABLE fxa.accounts ADD COLUMN wrapWrapKbVersion2 BINARY(32);
+ALTER TABLE fxa.accounts
+    ADD COLUMN clientSalt VARCHAR(128),
+    ADD COLUMN verifyHashVersion2 BINARY(32),
+    ADD COLUMN wrapWrapKbVersion2 BINARY(32);
 
 
 CREATE PROCEDURE `createAccount_10`(
