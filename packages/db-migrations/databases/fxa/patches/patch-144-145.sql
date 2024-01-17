@@ -3,9 +3,26 @@ SET NAMES utf8mb4 COLLATE utf8mb4_bin;
 
 CALL assertPatchLevel('144');
 
+-- These columns support a version 2 auth password. Version 2 auth passwords
+-- are created using a different client side stretching approach, where
+-- we used more iterations and a salt that does not require the user email
+-- to make it unique.
+--
+-- These changes result in a different authPW value, and in order to maintain
+-- kB we must also derive a specific wrapKb from the existing kB value. These
+-- additional columns are therefore required.
+--   - clientSalt holds a unique salt per user that's needed in order for users
+--     to do the initial stretch and construct an encrypted password
+--   - verifyHashVersion2 represents the second stretch of this new password provided
+--     to us
+--   - wrapWrapKb represents the second stretch of a wrapKb that results in the
+--     same kB as a wrapWrapKb would create, expect it works with a V2 auth password.
+--
+
+
 ALTER TABLE fxa.accounts ADD COLUMN clientSalt VARCHAR(128);
-ALTER TABLE fxa.accounts ADD COLUMN verifyHash2 BINARY(32);
-ALTER TABLE fxa.accounts ADD COLUMN wrapWrapKb2 BINARY(32);
+ALTER TABLE fxa.accounts ADD COLUMN verifyHashVersion2 BINARY(32);
+ALTER TABLE fxa.accounts ADD COLUMN wrapWrapKbVersion2 BINARY(32);
 
 
 CREATE PROCEDURE `createAccount_10`(
@@ -16,12 +33,12 @@ CREATE PROCEDURE `createAccount_10`(
     IN `inEmailVerified` TINYINT(1),
     IN `inKA` BINARY(32),
     IN `inWrapWrapKb` BINARY(32),
-    IN `inWrapWrapKb2` BINARY(32),
+    IN `inwrapWrapKbVersion2` BINARY(32),
     IN `inAuthSalt` BINARY(32),
     IN `inClientSalt` VARCHAR(128),
     IN `inVerifierVersion` TINYINT UNSIGNED,
     IN `inVerifyHash` BINARY(32),
-    IN `inVerifyHash2` BINARY(32),
+    IN `inverifyHashVersion2` BINARY(32),
     IN `inVerifierSetAt` BIGINT UNSIGNED,
     IN `inCreatedAt` BIGINT UNSIGNED,
     IN `inLocale` VARCHAR(255)
@@ -51,12 +68,12 @@ BEGIN
         emailVerified,
         kA,
         wrapWrapKb,
-        wrapWrapKb2,
+        wrapWrapKbVersion2,
         authSalt,
         clientSalt,
         verifierVersion,
         verifyHash,
-        verifyHash2,
+        verifyHashVersion2,
         verifierSetAt,
         createdAt,
         locale
@@ -69,12 +86,12 @@ BEGIN
         inEmailVerified,
         inKA,
         inWrapWrapKb,
-        inWrapWrapKb2,
+        inwrapWrapKbVersion2,
         inAuthSalt,
         inClientSalt,
         inVerifierVersion,
         inVerifyHash,
-        inVerifyHash2,
+        inverifyHashVersion2,
         inVerifierSetAt,
         inCreatedAt,
         inLocale
@@ -116,7 +133,7 @@ BEGIN
         a.emailCode,
         a.kA,
         a.wrapWrapKb,
-        a.wrapWrapKb2,
+        a.wrapWrapKbVersion2,
         a.verifierVersion,
         a.authSalt,
         a.verifierSetAt,
@@ -145,11 +162,11 @@ END;
 CREATE PROCEDURE `resetAccount_17` (
   IN `uidArg` BINARY(16),
   IN `verifyHashArg` BINARY(32),
-  IN `verifyHash2Arg` BINARY(32),
+  IN `verifyHashVersion2Arg` BINARY(32),
   IN `authSaltArg` BINARY(32),
   IN `clientSaltArg` VARCHAR(128),
   IN `wrapWrapKbArg` BINARY(32),
-  IN `wrapWrapKb2Arg` BINARY(32),
+  IN `wrapWrapKbVersion2Arg` BINARY(32),
   IN `verifierSetAtArg` BIGINT UNSIGNED,
   IN `verifierVersionArg` TINYINT UNSIGNED,
   IN `keysHaveChangedArg` BOOLEAN
@@ -175,9 +192,9 @@ BEGIN
   UPDATE accounts
   SET
     verifyHash = verifyHashArg,
-    verifyHash2 = verifyHash2Arg,
+    verifyHashVersion2 = verifyHashVersion2Arg,
     wrapWrapKb = wrapWrapKbArg,
-    wrapWrapKb2 = wrapWrapKb2Arg,
+    wrapWrapKbVersion2 = wrapWrapKbVersion2Arg,
     authSalt = authSaltArg,
     clientSalt = clientSaltArg,
     verifierVersion = verifierVersionArg,

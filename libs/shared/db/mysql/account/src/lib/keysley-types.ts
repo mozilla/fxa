@@ -55,10 +55,10 @@ export interface Accounts {
   emailVerified: Generated<number>;
   kA: Buffer;
   wrapWrapKb: Buffer;
-  wrapWrapKb2: Buffer | null;
+  wrapWrapKbVersion2: Buffer | null;
   authSalt: Buffer;
   verifyHash: Buffer;
-  verifyHash2: Buffer | null;
+  verifyHashVersion2: Buffer | null;
   verifierVersion: number;
   verifierSetAt: number;
   createdAt: number;

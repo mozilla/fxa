@@ -156,17 +156,17 @@ export class AccountHandler {
 
     // Handle authPW2 credentials
     let password2 = undefined;
-    let verifyHash2 = undefined;
+    let verifyHashVersion2 = undefined;
     let wrapWrapKb = await random.hex(32);
-    let wrapWrapKb2 = undefined;
+    let wrapWrapKbVersion2 = undefined;
     if (authPW2) {
       password2 = new this.Password(
         authPW2,
         authSalt,
         this.config.verifierVersion
       );
-      verifyHash2 = await password2.verifyHash();
-      wrapWrapKb2 = await password2.wrap(wrapKb2);
+      verifyHashVersion2 = await password2.verifyHash();
+      wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
 
       // When version 2 credentials are supplied, the wrapKb will also be supplied.
       // This is necessary to the same kB values are produced for both passwords.
@@ -194,14 +194,14 @@ export class AccountHandler {
       emailVerified: preVerified,
       kA,
       wrapWrapKb,
-      wrapWrapKb2,
+      wrapWrapKbVersion2ersion2,
       accountResetToken: null,
       passwordForgotToken: null,
       authSalt: authSalt,
       clientSalt: clientSalt,
       verifierVersion: password.version,
       verifyHash: verifyHash,
-      verifyHash2: verifyHash2,
+      verifyHashVersion2: verifyHashVersion2,
       verifierSetAt: Date.now(),
       locale,
     });
@@ -409,7 +409,7 @@ export class AccountHandler {
   }) {
     const { request, account, password, tokenVerificationId, v2 } = options;
     if (requestHelper.wantsKeys(request)) {
-      const wrapKb = await password.unwrap(v2 ? account.wrapWrapKb2 : account.wrapWrapKb);
+      const wrapKb = await password.unwrap(v2 ? account.wrapWrapKbVersion2 : account.wrapWrapKb);
       const keyFetchToken = await this.db.createKeyFetchToken({
         uid: account.uid,
         kA: account.kA,
@@ -622,11 +622,11 @@ export class AccountHandler {
       emailVerified: false,
       kA,
       wrapWrapKb,
-      wrapWrapKb2: null,
+      wrapWrapKbVersion2: null,
       authSalt,
       verifierVersion: this.config.verifierVersion,
       verifyHash: Buffer.alloc(32).toString('hex'),
-      verifyHash2: null,
+      verifyHashVersion2ersion2: null,
       verifierSetAt: 0,
       locale: request.app.acceptLanguage,
       clientSalt: null,
@@ -683,9 +683,9 @@ export class AccountHandler {
 
     const verifyHash = await password.verifyHash();
     const wrapWrapKb = account.wrapWrapKb;
-    const wrapWrapKb2 = account.wrapWrapKb2;
+    const wrapWrapKbVersion2 = account.wrapWrapKbVersion2;
 
-    let verifyHash2 = undefined;
+    let verifyHashVersion2 = undefined;
     if (authPW2) {
       const password2 = new this.Password(
         authPW2,
@@ -693,13 +693,13 @@ export class AccountHandler {
         this.config.verifierVersion,
         2
       );
-      verifyHash2 = await password2.verifyHash();
+      verifyHashVersion2ersion2 = await password2.verifyHash();
 
       // In V2 we will supply wrapKb and wrapKb2 and run sanity checks here.
       // If wrapWrapKb drifts from what the client expects, it means we will
       // corrupt the key, and a user won't be able to decrypt their data.
-      if ((await password2.wrap(wrapKb2)) !== wrapWrapKb2) {
-        throw new Error('Shift detected in wrapWrapKb2! Aborting operation.');
+      if ((await password2.wrap(wrapKb2)) !== wrapWrapKbVersion2) {
+        throw new Error('Shift detected in wrapWrapKbVersion2! Aborting operation.');
       }
       if ((await password.wrap(wrapKb)) !== wrapWrapKb) {
         throw new Error('Shift detected in wrapWrapKb! Aborting operation.');
@@ -712,9 +712,9 @@ export class AccountHandler {
         authSalt,
         clientSalt,
         verifyHash,
-        verifyHash2,
+        verifyHashVersion2,
         wrapWrapKb,
-        wrapWrapKb2,
+        wrapWrapKbVersion2,
         verifierVersion: password.version,
         keysHaveChanged: true,
       }
@@ -1443,9 +1443,9 @@ export class AccountHandler {
       keyFetchToken: any,
       keyFetchToken2: any,
       verifyHash: any,
-      verifyHash2: any,
+      verifyHashVersion2ersion2: any,
       wrapWrapKb: any,
-      wrapWrapKb2: any,
+      wrapWrapKbVersion2: any,
       password: any,
       password2: any,
       hasTotpToken = false,
@@ -1482,13 +1482,13 @@ export class AccountHandler {
           this.config.verifierVersion,
           2
         );
-        verifyHash2 = await password2.verifyHash();
+        verifyHashVersion2 = await password2.verifyHash();
       }
 
       if (recoveryKeyId) {
         // We have the previous kB, just re-wrap it with the new password.
         if (authPW2) {
-          wrapWrapKb2 = await password2.wrap(wrapKb2);
+          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
         }
         wrapWrapKb = await password.wrap(wrapKb);
         keysHaveChanged = false;
@@ -1499,7 +1499,7 @@ export class AccountHandler {
           // that both wrapKb and wrapKb2 can derive the same kB. It is up to the client
           // to ensure this!
           wrapWrapKb = await password.wrap(wrapKb);
-          wrapWrapKb2 = await password2.wrap(wrapKb2);
+          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
           keysHaveChanged = true;
         }
         else {
@@ -1517,9 +1517,9 @@ export class AccountHandler {
         authSalt,
         clientSalt,
         verifyHash,
-        verifyHash2,
+        verifyHashVersion2,
         wrapWrapKb,
-        wrapWrapKb2,
+        wrapWrapKbVersion2,
         verifierVersion: password.version,
         keysHaveChanged,
       });
@@ -1532,7 +1532,7 @@ export class AccountHandler {
           uid: account.uid,
         }),
         (() =>  {
-          if (verifyHash2) {
+          if (verifyHashVersion2) {
             return request.emitMetricsEvent('account.reset.credentials.v2', {
               uid: account.uid,
             })
@@ -1737,7 +1737,7 @@ export class AccountHandler {
     const response = {
       currentVersion: accountRecord.clientSalt ? 'v2' :'v1',
       clientSalt: accountRecord.clientSalt ? accountRecord.clientSalt : undefined,
-      upgradeNeeded: !accountRecord.verifyHash2 || !accountRecord.wrapWrapKb2
+      upgradeNeeded: !accountRecord.verifyHashVersion2 || !accountRecord.wrapWrapKbVersion2
     }
     return response;
   }

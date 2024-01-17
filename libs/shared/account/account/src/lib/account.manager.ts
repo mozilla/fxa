@@ -19,7 +19,7 @@ export class AccountManager {
     locale: string,
     clientSalt?: string
   ) {
-    const [emailCode, authSalt, kA, wrapWrapKb, wrapWrapKb2] =
+    const [emailCode, authSalt, kA, wrapWrapKb, wrapWrapKbVersion2] =
       await Promise.all([
         randomBytesAsync(16),
         randomBytesAsync(32),
@@ -36,7 +36,7 @@ export class AccountManager {
       verifierVersion,
       kA,
       wrapWrapKb,
-      wrapWrapKb2,
+      wrapWrapKbVersion2,
       verifyHash: Buffer.alloc(32),
       authSalt,
       verifierSetAt: 0,

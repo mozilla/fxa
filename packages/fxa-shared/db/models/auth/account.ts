@@ -23,7 +23,7 @@ const selectFields = [
   'emailCode',
   'kA',
   'wrapWrapKb',
-  'wrapWrapKb2',
+  'wrapWrapKbVersion2',
   'verifierVersion',
   'authSalt',
   'clientSalt',
@@ -48,9 +48,9 @@ export class Account extends BaseAuthModel {
     'kA',
     'uid',
     'verifyHash',
-    'verifyHash2',
+    'verifyHashVersion2',
     'wrapWrapKb',
-    'wrapWrapKb2',
+    'wrapWrapKbVersion2',
   ];
 
   authSalt!: string;
@@ -76,9 +76,9 @@ export class Account extends BaseAuthModel {
   verifierSetAt!: number;
   verifierVersion!: number;
   verifyHash?: string;
-  verifyHash2?: string;
+  verifyHashVersion2?: string;
   wrapWrapKb!: string;
-  wrapWrapKb2?: string;
+  wrapWrapKbVersion2?: string;
 
   static relationMappings = {
     emails: {
@@ -123,12 +123,12 @@ export class Account extends BaseAuthModel {
     emailVerified,
     kA,
     wrapWrapKb,
-    wrapWrapKb2,
+    wrapWrapKbVersion2,
     authSalt,
     clientSalt,
     verifierVersion,
     verifyHash,
-    verifyHash2,
+    verifyHashVersion2,
     verifierSetAt,
     createdAt,
     locale,
@@ -141,18 +141,17 @@ export class Account extends BaseAuthModel {
     | 'emailVerified'
     | 'kA'
     | 'wrapWrapKb'
-    | 'wrapWrapKb2'
+    | 'wrapWrapKbVersion2'
     | 'authSalt'
     | 'clientSalt'
     | 'verifierVersion'
     | 'verifyHash'
-    | 'verifyHash2'
+    | 'verifyHashVersion2'
     | 'verifierSetAt'
     | 'createdAt'
     | 'locale'
   >) {
     try {
-      // console.log('!!! Account.create',  {v2: !!verifyHash2 || !!wrapWrapKb2})
       await Account.callProcedure(
         Proc.CreateAccount,
         uuidTransformer.to(uid),
@@ -162,12 +161,12 @@ export class Account extends BaseAuthModel {
         emailVerified,
         uuidTransformer.to(kA),
         uuidTransformer.to(wrapWrapKb),
-        wrapWrapKb2 ? uuidTransformer.to(wrapWrapKb2) : null,
+        wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
         uuidTransformer.to(authSalt),
         clientSalt ? clientSalt : null,
         verifierVersion,
         uuidTransformer.to(verifyHash),
-        verifyHash2 ? uuidTransformer.to(verifyHash2) : null,
+        verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         verifierSetAt,
         createdAt,
         locale ?? ''
@@ -184,9 +183,9 @@ export class Account extends BaseAuthModel {
   static async reset({
     uid,
     verifyHash,
-    verifyHash2,
+    verifyHashVersion2,
     wrapWrapKb,
-    wrapWrapKb2,
+    wrapWrapKbVersion2,
     authSalt,
     clientSalt,
     verifierSetAt,
@@ -199,25 +198,25 @@ export class Account extends BaseAuthModel {
     | 'verifierSetAt'
     | 'verifierVersion'
     | 'verifyHash'
-    | 'verifyHash2'
+    | 'verifyHashVersion2'
     | 'wrapWrapKb'
-    | 'wrapWrapKb2'
+    | 'wrapWrapKbVersion2'
     | 'clientSalt'
   > & {
     keysHaveChanged?: boolean;
   }) {
 
-    console.log('!!! Account.reset',  {v2: !!verifyHash2 || !!wrapWrapKb2})
+    console.log('!!! Account.reset',  {v2: !!verifyHashVersion2 || !!wrapWrapKbVersion2})
 
     return Account.callProcedure(
       Proc.ResetAccount,
       uuidTransformer.to(uid),
       uuidTransformer.to(verifyHash),
-      verifyHash2 ? uuidTransformer.to(verifyHash2) : null,
+      verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
       uuidTransformer.to(authSalt),
       clientSalt ? clientSalt : null,
       uuidTransformer.to(wrapWrapKb),
-      wrapWrapKb2 ? uuidTransformer.to(wrapWrapKb2) : null,
+      wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
       verifierSetAt || Date.now(),
       verifierVersion,
       !!keysHaveChanged
@@ -430,11 +429,11 @@ export class Account extends BaseAuthModel {
 
   static async checkPassword(uid: string, verifyHash: string) {
     let [account] = await Account.query()
-      .select('verifyHash', 'verifyHash2')
+      .select('verifyHash', 'verifyHashVersion2')
       .where('uid', uuidTransformer.to(uid));
 
     const v1 = account.verifyHash === verifyHash;
-    const v2 = account.verifyHash2 === verifyHash;
+    const v2 = account.verifyHashVersion2 === verifyHash;
 
     return {
       match: v1 || v2,
@@ -448,9 +447,9 @@ export class Account extends BaseAuthModel {
     authSalt: string,
     clientSalt: string | undefined,
     verifyHash: string,
-    verifyHash2: string | undefined,
+    verifyHashVersion2: string | undefined,
     wrapWrapKb: string,
-    wrapWrapKb2: string | undefined,
+    wrapWrapKbVersion2: string | undefined,
     verifierVersion: number
   ) {
     const now = Date.now();
@@ -459,9 +458,9 @@ export class Account extends BaseAuthModel {
         authSalt: uuidTransformer.to(authSalt),
         clientSalt: clientSalt ? clientSalt : null,
         verifyHash: uuidTransformer.to(verifyHash),
-        verifyHash2: verifyHash2 ? uuidTransformer.to(verifyHash2) : null,
+        verifyHashVersion2: verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         wrapWrapKb: uuidTransformer.to(wrapWrapKb),
-        wrapWrapKb2: wrapWrapKb2 ? uuidTransformer.to(wrapWrapKb2) : null,
+        wrapWrapKbVersion2: wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
         verifierSetAt: now,
         keysChangedAt: now,
         profileChangedAt: now,

@@ -735,7 +735,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     data.verifierSetAt = Date.now();
 
 
-    if (data.verifyHash2 != null) {
+    if (data.verifyHashVersion2 != null) {
       resolveMetrics()?.increment('reset.account.v2')
     }
     else {
@@ -787,13 +787,13 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     authSalt,
     clientSalt,
     verifyHash,
-    verifyHash2,
+    verifyHashVersion2,
     wrapWrapKb,
-    wrapWrapKb2,
+    wrapWrapKbVersion2,
     verifierVersion
   ) {
     log.trace('DB.createPassword', { uid });
-    if (clientSalt && verifyHash2 && wrapWrapKb2) {
+    if (clientSalt && verifyHashVersion2 && wrapWrapKbVersion2) {
       resolveMetrics()?.increment('create.password.v2')
     }
     return Account.createPassword(
@@ -801,9 +801,9 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       authSalt,
       clientSalt,
       verifyHash,
-      verifyHash2,
+      verifyHashVersion2,
       wrapWrapKb,
-      wrapWrapKb2,
+      wrapWrapKbVersion2,
       verifierVersion
     );
   };

@@ -94,7 +94,7 @@ module.exports = function (
           }
 
           if (password.clientVersion === 2) {
-            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKb2);
+            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKbVersion2);
             keyFetchToken2 = await db.createKeyFetchToken({
               uid: emailRecord.uid,
               kA: emailRecord.kA,
@@ -251,12 +251,12 @@ module.exports = function (
           // For the time being we store both passwords in the DB. authPW is created
           // with the old quickStretch and authPW2 is created with improved 'quick' stretch.
           let password2 = undefined;
-          let verifyHash2 = undefined;
-          let wrapWrapKb2 = undefined;
+          let verifyHashVersion2 = undefined;
+          let wrapWrapKbVersion2 = undefined;
           if (authPW2) {
             password2 = new Password(authPW2, authSalt, verifierVersion, 2);
-            verifyHash2 = await password2.verifyHash();
-            wrapWrapKb2 = await password2.wrap(wrapKb2);
+            verifyHashVersion2 = await password2.verifyHash();
+            wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
           }
 
           await db.deletePasswordChangeToken(passwordChangeToken);
@@ -266,9 +266,9 @@ module.exports = function (
             clientSalt: clientSalt,
             verifierVersion: password.version,
             verifyHash: verifyHash,
-            verifyHash2: verifyHash2,
+            verifyHashVersion2: verifyHashVersion2,
             wrapWrapKb: wrapWrapKb,
-            wrapWrapKb2: wrapWrapKb2,
+            wrapWrapKbVersion2: wrapWrapKbVersion2,
             keysHaveChanged: false,
           });
 
@@ -854,16 +854,16 @@ module.exports = function (
         let wrapWrapKb = undefined;
 
         // For V2 credentials
-        let wrapWrapKb2 = undefined;
-        let verifyHash2 = undefined;
+        let wrapWrapKbVersion2 = undefined;
+        let verifyHashVersion2 = undefined;
         if (authPW2) {
           const password2 = new Password(
             authPW2,
             authSalt,
             config.verifierVersion
           );
-          wrapWrapKb2 = await password2.wrap(wrapKb2);
-          verifyHash2 = await password2.verifyHash();
+          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+          verifyHashVersion2 = await password2.verifyHash();
 
           // Important! For V2 credentials, wrapKb and wrapKb2 are supplied by client
           // to ensure that a single kB results from either password. Therefore, we
@@ -878,9 +878,9 @@ module.exports = function (
           authSalt,
           clientSalt,
           verifyHash,
-          verifyHash2,
+          verifyHashVersion2,
           wrapWrapKb,
-          wrapWrapKb2,
+          wrapWrapKbVersion2,
           verifierVersion
         );
 
