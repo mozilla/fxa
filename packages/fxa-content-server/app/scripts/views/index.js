@@ -21,7 +21,6 @@ import GleanMetrics from '../lib/glean';
 import ServiceMixin from './mixins/service-mixin';
 import SignedInNotificationMixin from './mixins/signed-in-notification-mixin';
 import ThirdPartyAuthMixin from './mixins/third-party-auth-mixin';
-import SyncSuggestionMixin from './mixins/sync-suggestion-mixin';
 import Template from 'templates/index.mustache';
 import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
@@ -321,10 +320,6 @@ Cocktail.mixin(
   ThirdPartyAuthMixin,
   SignedInNotificationMixin,
   BrandMessagingMixin,
-  SyncSuggestionMixin({
-    entrypoint: 'fxa:enter_email',
-    flowEvent: 'link.signin',
-  }),
   PocketMigrationMixin,
   MonitorClientMixin
 );

@@ -53,9 +53,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { settings, signupReact },
     }) => {
       await signupReact.goto();
-
-      // Make sure the looking for sync message is displayed.
-      await expect(page.getByText('Looking for Firefox sync?')).toBeVisible();
+      await expect(page.getByText('Enter your email')).toBeVisible();
 
       await signupReact.fillOutEmailFirst(email);
       await page.waitForSelector('#root');
