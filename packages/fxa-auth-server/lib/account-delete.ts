@@ -40,7 +40,7 @@ type PushboxDeleteAccount = Pick<
   'deleteAccount'
 >;
 
-export type ReasonForDeletion = (typeof AccountDeleteReasons)[number];
+export type ReasonForDeletion = typeof AccountDeleteReasons[number];
 type DeleteTask = {
   uid: string;
   customerId?: string;
@@ -289,6 +289,19 @@ export class AccountDeleteManager {
         );
         await deleteAllPayPalBAs(uid);
       }
+    }
+  }
+
+  async deleteFirestoreCustomer(uid: string) {
+    this.log.debug('AccountDeleteManager.deleteFirestoreCustomer', { uid });
+    try {
+      return await this.stripeHelper?.removeFirestoreCustomer(uid);
+    } catch (error) {
+      this.log.error('AccountDeleteManager.deleteFirestoreCustomer', {
+        uid,
+        error,
+      });
+      throw error;
     }
   }
 }
