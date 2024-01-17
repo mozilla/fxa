@@ -2,10 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import {
-  deleteAllPayPalBAs,
-  getAllPayPalBAByUid,
-} from 'fxa-shared/db/models/auth';
-import {
   AppStoreSubscription,
   PlayStoreSubscription,
 } from 'fxa-shared/dto/auth/payments/iap-subscription';
@@ -14,7 +10,6 @@ import TopEmailDomains from 'fxa-shared/email/topEmailDomains';
 import { tryResolveIpv4, tryResolveMx } from 'fxa-shared/email/validateEmail';
 import ScopeSet from 'fxa-shared/oauth/scopes';
 import { WebSubscription } from 'fxa-shared/subscriptions/types';
-import * as Sentry from '@sentry/node';
 import isA from 'joi';
 import Stripe from 'stripe';
 import { Container } from 'typedi';
@@ -1579,55 +1574,11 @@ export class AccountHandler {
 
     const { uid } = accountRecord;
 
-    if (this.config.subscriptions?.enabled && this.stripeHelper) {
-      try {
-        await this.stripeHelper.removeCustomer(uid, accountRecord.email);
-      } catch (err) {
-        if (err.message === 'Customer not available') {
-          // if Stripe didn't know about the customer, no problem.
-          // This should not stop the user from deleting their account.
-          // See https://github.com/mozilla/fxa/issues/2900
-          // https://github.com/mozilla/fxa/issues/2896
-        } else {
-          throw err;
-        }
-      }
-      if (this.paypalHelper) {
-        const agreementIds = await getAllPayPalBAByUid(uid);
-        // Only cancelled and expired are terminal states, any others
-        // should be canceled to ensure they can't be used again.
-        const activeIds = agreementIds.filter((ba: any) =>
-          ['active', 'pending', 'suspended'].includes(ba.status.toLowerCase())
-        );
-        await Promise.all(
-          activeIds.map((ba) =>
-            (this.paypalHelper as PayPalHelper).cancelBillingAgreement(
-              ba.billingAgreementId
-            )
-          )
-        );
-        await deleteAllPayPalBAs(uid);
-      }
-    }
-
     // We fetch the devices to notify before deleteAccount()
     // because obviously we can't retrieve the devices list after!
     const devices = await this.db.devices(uid);
 
-    await this.db.deleteAccount(accountRecord);
-    this.log.info('accountDeleted.byRequest', { ...accountRecord });
-
-    await this.oauth.removeTokensAndCodes(uid);
-
-    // No need to await and block the other notifications.  The pushbox records
-    // will be deleted once they expire even if they were not successfully
-    // deleted here.
-    this.pushbox.deleteAccount(uid).catch((err: Error) => {
-      Sentry.withScope((scope) => {
-        scope.setContext('pushboxDeleteAccount', { uid });
-        Sentry.captureException(err);
-      });
-    });
+    await this.accountDeleteManager.deleteAccount(uid);
 
     try {
       await this.push.notifyAccountDestroyed(uid, devices);

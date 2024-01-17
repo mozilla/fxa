@@ -14,6 +14,7 @@ const error = require('../../../../lib/error');
 const butil = require('../../../../lib/crypto/butil');
 const otpUtils = require('../../../../lib/routes/utils/otp')({}, {}, {});
 const { AppConfig } = require('../../../../lib/types');
+const { AccountEventsManager } = require('../../../../lib/account-events');
 const glean = mocks.mockGlean();
 
 const CLIENT_ADDRESS = '10.0.0.1';
@@ -31,6 +32,7 @@ function makeSigninUtils(options) {
   config.authFirestore = config.authFirestore || {};
   config.securityHistory = config.securityHistory || {};
   Container.set(AppConfig, config);
+  Container.set(AccountEventsManager, new AccountEventsManager());
   const customs = options.customs || {};
   const db = options.db || mocks.mockDB();
   const mailer = options.mailer || {};
