@@ -9,6 +9,8 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 import { currentAccount, sessionToken } from '../../lib/cache';
 import {
+  Integration,
+  isWebIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
@@ -55,6 +57,7 @@ import { QueryParams } from '../..';
 import SignupContainer from '../../pages/Signup/container';
 import GleanMetrics from '../../lib/glean';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { firefox } from '../../lib/channels/firefox';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -162,17 +165,41 @@ export const App = ({
   // Can be looked at in FXA-7626 or FXA-7184
   return (
     <Router basepath="/">
-      <AuthAndAccountSetupRoutes {...{ isSignedIn }} path="/*" />
-      <SettingsRoutes {...{ isSignedIn }} path="/settings/*" />
+      <AuthAndAccountSetupRoutes {...{ isSignedIn, integration }} path="/*" />
+      <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
     </Router>
   );
 };
 
 const SettingsRoutes = ({
   isSignedIn,
-}: { isSignedIn: boolean } & RouteComponentProps) => {
+  integration,
+}: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
   const location = useLocation();
-  if (isSignedIn === false) {
+  // TODO: Remove this + config.sendFxAStatusOnSettings check once we confirm this works
+  const config = useConfig();
+
+  // Request and update account data/state to match the browser state because:
+  // 1) If a user logs in through the browser Sync pairing flow and then accesses
+  // Settings through the browser, they'd have to login again (isSignedIn === false).
+  // 2) If a user disconnects their account through Sync and then logs into another account
+  // using the pairing flow, we hold onto the old session token (isSignedIn === true).
+  const [shouldCheckFxaStatus, setShouldCheckFxaStatus] = useState(
+    // See note above WebIntegration's `isSync` check
+    isWebIntegration(integration) &&
+      integration.isSync() &&
+      config.sendFxAStatusOnSettings
+  );
+  useEffect(() => {
+    (async () => {
+      if (shouldCheckFxaStatus) {
+        await firefox.requestSignedInUser(integration.data.context);
+        setShouldCheckFxaStatus(false);
+      }
+    })();
+  });
+
+  if (isSignedIn === false && !shouldCheckFxaStatus) {
     hardNavigateToContentServer(
       `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
     );
@@ -184,7 +211,7 @@ const SettingsRoutes = ({
     <SettingsContext.Provider value={settingsContext}>
       <ScrollToTop default>
         <Suspense fallback={<LoadingSpinner fullScreen />}>
-          <Settings path="/settings/*" {...{ isSignedIn }} />
+          <Settings path="/settings/*" />
         </Suspense>
       </ScrollToTop>
     </SettingsContext.Provider>
@@ -193,26 +220,12 @@ const SettingsRoutes = ({
 
 const AuthAndAccountSetupRoutes = ({
   isSignedIn,
-}: { isSignedIn: boolean } & RouteComponentProps) => {
+  integration,
+}: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
   const sessionTokenId = sessionToken();
   const localAccount = currentAccount();
-  const integration = useIntegration();
-
-  const [serviceName, setServiceName] = useState<MozServices>();
-
-  useEffect(() => {
-    // Don't initialize until integration is ready!
-    if (!integration) {
-      return;
-    }
-    // TODO: MozServices / string discrepancy, FXA-6802
-    setServiceName(integration.getServiceName() as MozServices);
-  }, [integration]);
-
-  // Show loading spinner until integration is ready and service name has been determined.
-  if (!integration || serviceName === undefined) {
-    return <LoadingSpinner fullScreen />;
-  }
+  // TODO: MozServices / string discrepancy, FXA-6802
+  const serviceName = integration.getServiceName() as MozServices;
 
   return (
     <Router>

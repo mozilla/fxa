@@ -76,6 +76,7 @@ const settingsConfig = {
   brandMessagingMode: config.get('brandMessagingMode'),
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
+  sendFxAStatusOnSettings: config.get('featureFlags.sendFxAStatusOnSettings'),
 };
 
 // Inject Beta Settings meta content

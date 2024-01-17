@@ -35,12 +35,7 @@ import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
-import {
-  StoredAccountData,
-  persistAccount,
-  setCurrentAccount,
-} from '../../lib/storage-utils';
-import { sessionToken } from '../../lib/cache';
+import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import {
@@ -179,14 +174,6 @@ export const Signup = ({
     getValues().age === '' && setAgeCheckErrorText(localizedAgeIsRequiredError);
   };
 
-  // Persist account data to local storage to match parity with content-server
-  // this allows the recent account to be used for /signin
-  const storeAccountData = (accountData: StoredAccountData) => {
-    persistAccount(accountData);
-    setCurrentAccount(accountData.uid);
-    sessionToken(accountData.sessionToken);
-  };
-
   // TODO: Add metrics events to match parity with content-server in FXA-8302
   // The legacy amplitude events will eventually be replaced by Glean,
   // but until that is ready we must ensure the expected metrics continue to be emitted
@@ -223,6 +210,8 @@ export const Signup = ({
           metricsEnabled: true,
         };
 
+        // Persist account data to local storage to match parity with content-server
+        // this allows the recent account to be used for /signin
         storeAccountData(accountData);
 
         const getOfferedSyncEngines = () =>

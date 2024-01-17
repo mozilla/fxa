@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { GET_LOCAL_SIGNED_IN_STATUS } from '../../components/App/gql';
+import { cache } from '../cache';
+import { StoredAccountData, storeAccountData } from '../storage-utils';
+
 export enum FirefoxCommand {
   AccountDeleted = 'fxaccounts:delete',
   ProfileChanged = 'profile:change',
@@ -15,19 +19,26 @@ export enum FirefoxCommand {
   CanLinkAccount = 'fxaccounts:can_link_account',
 }
 
-export interface FirefoxMessage {
+export interface FirefoxMessageDetail {
   id: string;
-  message?: {
-    command: FirefoxCommand;
-    data: Record<string, any> & {
-      error?: {
-        message: string;
-        stack: string;
-      };
+  message?: FirefoxMessage;
+}
+
+export interface FirefoxMessage {
+  command: FirefoxCommand;
+  data: Record<string, any> & {
+    error?: {
+      message: string;
+      stack: string;
     };
-    messageId: string;
-    error?: string;
   };
+  messageId: string;
+  error?: string;
+}
+
+export interface FirefoxMessageError {
+  error?: string;
+  stack?: string;
 }
 
 interface ProfileUid {
@@ -39,13 +50,13 @@ interface ProfileMetricsEnabled {
 }
 
 type Profile = ProfileUid | ProfileMetricsEnabled;
-type FirefoxEvent = CustomEvent<FirefoxMessage | string>;
+type FirefoxEvent = CustomEvent<FirefoxMessageDetail | string>;
 
 // This is defined in the Firefox source code:
 // https://searchfox.org/mozilla-central/source/services/fxaccounts/tests/xpcshell/test_web_channel.js#348
 type FxAStatusRequest = {
-  service: 'sync'; // ex. 'sync'
-  context: string; // ex. 'fx_desktop_v3'
+  service?: string; // ex. 'sync'
+  context?: string; // ex. 'fx_desktop_v3'
 };
 
 export type FxAStatusResponse = {
@@ -107,6 +118,8 @@ export type FxACanLinkAccount = {
   email: string;
 };
 
+const DEFAULT_SEND_TIMEOUT_LENGTH_MS = 5 * 1000; // 5 seconds in milliseconds
+
 let messageIdSuffix = 0;
 /**
  * Create a messageId for a given command/data combination.
@@ -151,7 +164,7 @@ export class Firefox extends EventTarget {
     try {
       const detail =
         typeof event.detail === 'string'
-          ? (JSON.parse(event.detail) as FirefoxMessage)
+          ? (JSON.parse(event.detail) as FirefoxMessageDetail)
           : event.detail;
       if (detail.id !== this.id) {
         return;
@@ -293,7 +306,7 @@ export class Firefox extends EventTarget {
         // if the event is what we expect.
         const detail =
           typeof firefoxEvent.detail === 'string'
-            ? (JSON.parse(firefoxEvent.detail) as FirefoxMessage)
+            ? (JSON.parse(firefoxEvent.detail) as FirefoxMessageDetail)
             : firefoxEvent.detail;
         if (detail.id !== this.id) {
           return;
@@ -325,6 +338,45 @@ export class Firefox extends EventTarget {
 
   fxaCanLinkAccount(options: FxACanLinkAccount) {
     this.send(FirefoxCommand.Login, options);
+  }
+
+  async requestSignedInUser(context: string) {
+    let timeout: NodeJS.Timeout;
+    return Promise.race([
+      new Promise<void>((resolve) => {
+        const handleFxAStatusEvent = (event: any) => {
+          const status = event.detail as FxAStatusResponse;
+          const signedInUser = status.signedInUser as StoredAccountData;
+          if (signedInUser) {
+            storeAccountData(signedInUser);
+            cache.writeQuery({
+              query: GET_LOCAL_SIGNED_IN_STATUS,
+              data: { isSignedIn: true },
+            });
+          }
+          this.removeEventListener(
+            FirefoxCommand.FxAStatus,
+            handleFxAStatusEvent
+          );
+          clearTimeout(timeout);
+          resolve();
+        };
+
+        this.addEventListener(FirefoxCommand.FxAStatus, handleFxAStatusEvent);
+        // requestAnimationFrame ensures the event listener is added first
+        // otherwise, there is a race condition
+        requestAnimationFrame(() => {
+          this.send(FirefoxCommand.FxAStatus, {
+            context,
+            isPairing: false,
+          });
+        });
+      }),
+      new Promise(
+        (resolve) =>
+          (timeout = setTimeout(resolve, DEFAULT_SEND_TIMEOUT_LENGTH_MS))
+      ),
+    ]);
   }
 }
 
