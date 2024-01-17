@@ -88,7 +88,7 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
     const client = new Client(config.publicUrl, testOptions);
     client.email = server.uniqueEmail();
     client.authPW = crypto.randomBytes(32);
-    client.authPW2 = crypto.randomBytes(32);
+    client.authPWVersion2 = crypto.randomBytes(32);
     return client.login().then(
       () => {
         assert(false, 'account should not exist');

@@ -122,9 +122,9 @@ export class AccountHandler {
 
   private async createAccount(options: {
     authPW: string;
-    authPW2?: string;
+    authPWVersion2?: string;
     wrapKb?: string;
-    wrapKb2?: string;
+    wrapKbVersion2?: string;
     clientSalt?: string;
     authSalt: string;
     email: string;
@@ -136,9 +136,9 @@ export class AccountHandler {
   }) {
     const {
       authPW,
-      authPW2,
+      authPWVersion2,
       wrapKb,
-      wrapKb2,
+      wrapKbVersion2,
       clientSalt,
       authSalt,
       email,
@@ -154,19 +154,19 @@ export class AccountHandler {
       authSalt
     );
 
-    // Handle authPW2 credentials
+    // Handle authPWVersion2 credentials
     let password2 = undefined;
     let verifyHashVersion2 = undefined;
     let wrapWrapKb = await random.hex(32);
     let wrapWrapKbVersion2 = undefined;
-    if (authPW2) {
+    if (authPWVersion2) {
       password2 = new this.Password(
-        authPW2,
+        authPWVersion2,
         authSalt,
         this.config.verifierVersion
       );
       verifyHashVersion2 = await password2.verifyHash();
-      wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+      wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
 
       // When version 2 credentials are supplied, the wrapKb will also be supplied.
       // This is necessary to the same kB values are produced for both passwords.
@@ -493,8 +493,8 @@ export class AccountHandler {
     const email = form.email;
     const authPW = form.authPW;
     const wrapKb = form.wrapKb;
-    const authPW2 = form.authPW2;
-    const wrapKb2 = form.wrapKb2;
+    const authPWVersion2 = form.authPWVersion2;
+    const wrapKbVersion2 = form.wrapKbVersion2;
     const clientSalt = form.clientSalt;
     const userAgentString = request.headers['user-agent'];
     const service = form.service || query.service;
@@ -525,9 +525,9 @@ export class AccountHandler {
 
     const { account, password, password2 } = await this.createAccount({
       authPW,
-      authPW2,
+      authPWVersion2,
       wrapKb,
-      wrapKb2,
+      wrapKbVersion2,
       clientSalt,
       authSalt,
       email,
@@ -657,16 +657,16 @@ export class AccountHandler {
   async setPasswordOnStubAccount({
     account,
     authPW,
-    authPW2,
+    authPWVersion2,
     wrapKb,
-    wrapKb2,
+    wrapKbVersion2,
     clientSalt,
   }: {
     account: Account;
     authPW: string;
-    authPW2: string;
+    authPWVersion2: string;
     wrapKb: string;
-    wrapKb2: string;
+    wrapKbVersion2: string;
     clientSalt: string;
   }) {
     // Only set a password on an unverified stub account.
@@ -686,19 +686,19 @@ export class AccountHandler {
     const wrapWrapKbVersion2 = account.wrapWrapKbVersion2;
 
     let verifyHashVersion2 = undefined;
-    if (authPW2) {
+    if (authPWVersion2) {
       const password2 = new this.Password(
-        authPW2,
+        authPWVersion2,
         authSalt,
         this.config.verifierVersion,
         2
       );
       verifyHashVersion2ersion2 = await password2.verifyHash();
 
-      // In V2 we will supply wrapKb and wrapKb2 and run sanity checks here.
+      // In V2 we will supply wrapKb and wrapKbVersion2 and run sanity checks here.
       // If wrapWrapKb drifts from what the client expects, it means we will
       // corrupt the key, and a user won't be able to decrypt their data.
-      if ((await password2.wrap(wrapKb2)) !== wrapWrapKbVersion2) {
+      if ((await password2.wrap(wrapKbVersion2)) !== wrapWrapKbVersion2) {
         throw new Error('Shift detected in wrapWrapKbVersion2! Aborting operation.');
       }
       if ((await password.wrap(wrapKb)) !== wrapWrapKb) {
@@ -724,7 +724,7 @@ export class AccountHandler {
   async finishSetup(request: AuthRequest) {
     this.log.begin('Account.finishSetup', request);
     const form = request.payload as any;
-    const { authPW, authPW2, wrapKb, wrapKb2, clientSalt, token } = form;
+    const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt, token } = form;
     let uid;
     try {
       const payload = (await jwt.verify(token, {
@@ -737,9 +737,9 @@ export class AccountHandler {
       await this.setPasswordOnStubAccount({
         account,
         authPW,
-        authPW2,
+        authPWVersion2,
         wrapKb,
-        wrapKb2,
+        wrapKbVersion2,
         clientSalt,
       });
       await this.signupUtils.verifyAccount(request, account, {});
@@ -778,7 +778,7 @@ export class AccountHandler {
     this.log.begin('Account.set_password', request);
 
     const form = request.payload as any;
-    const { authPW, authPW2, wrapKb, wrapKb2, clientSalt, metricsContext } = form;
+    const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt, metricsContext } = form;
     const { query } = request;
     const auth = request.auth;
     const { user: uid } = auth.credentials;
@@ -795,9 +795,9 @@ export class AccountHandler {
       await this.setPasswordOnStubAccount({
         account,
         authPW,
-        authPW2,
+        authPWVersion2,
         wrapKb,
-        wrapKb2,
+        wrapKbVersion2,
         clientSalt,
       });
 
@@ -1431,11 +1431,11 @@ export class AccountHandler {
     const accountResetToken = request.auth.credentials;
     const {
       authPW,
-      authPW2,
+      authPWVersion2,
       clientSalt,
       sessionToken: hasSessionToken,
       recoveryKeyId,
-      wrapKb2,
+      wrapKbVersion2,
     } = request.payload as any;
     let wrapKb = (request.payload as any).wrapKb;
     let account: any,
@@ -1475,9 +1475,9 @@ export class AccountHandler {
       );
       verifyHash = await password.verifyHash();
 
-      if (authPW2) {
+      if (authPWVersion2) {
         password2 = new this.Password(
-          authPW2,
+          authPWVersion2,
           authSalt,
           this.config.verifierVersion,
           2
@@ -1487,19 +1487,19 @@ export class AccountHandler {
 
       if (recoveryKeyId) {
         // We have the previous kB, just re-wrap it with the new password.
-        if (authPW2) {
-          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+        if (authPWVersion2) {
+          wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
         }
         wrapWrapKb = await password.wrap(wrapKb);
         keysHaveChanged = false;
       }
       else {
-        if (authPW2) {
+        if (authPWVersion2) {
           // For v2 credentials, the client will supply a new wrapKbs. This is to ensure
-          // that both wrapKb and wrapKb2 can derive the same kB. It is up to the client
+          // that both wrapKb and wrapKbVersion2 can derive the same kB. It is up to the client
           // to ensure this!
           wrapWrapKb = await password.wrap(wrapKb);
-          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+          wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
           keysHaveChanged = true;
         }
         else {
@@ -1644,11 +1644,11 @@ export class AccountHandler {
           tokenVerificationId,
         });
 
-        if (authPW2) {
+        if (authPWVersion2) {
           keyFetchToken2 = await this.db.createKeyFetchToken({
             uid: account.uid,
             kA: account.kA,
-            wrapKb: wrapKb2,
+            wrapKb: wrapKbVersion2,
             emailVerified: account.primaryEmail.isVerified,
             tokenVerificationId,
           });
@@ -1924,15 +1924,15 @@ export const accountRoutes = (
           payload: isA.object({
             email: validators.email().required().description(DESCRIPTION.email),
             authPW: validators.authPW.description(DESCRIPTION.authPW),
-            authPW2: validators.authPW2
+            authPWVersion2: validators.authPWVersion2
             .optional()
-            .description(DESCRIPTION.authPW2),
+            .description(DESCRIPTION.authPWVersion2),
             wrapKb: validators.wrapKb
               .optional()
               .description(DESCRIPTION.wrapKb),
-            wrapKb2: validators.wrapKb
+            wrapKbVersion2: validators.wrapKb
               .optional()
-              .description(DESCRIPTION.wrapKb2),
+              .description(DESCRIPTION.wrapKbVersion2),
             clientSalt: validators.clientSalt
               .optional()
               .description(DESCRIPTION.clientSalt),
@@ -1956,7 +1956,7 @@ export const accountRoutes = (
               preVerified: isA.boolean(),
             }),
           })
-          .and('authPW2', 'wrapKb', 'wrapKb2', 'clientSalt'),
+          .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
         response: {
           schema: isA.object({
@@ -2009,17 +2009,17 @@ export const accountRoutes = (
               wrapKb: validators.wrapKb
                 .optional()
                 .description(DESCRIPTION.wrapKb),
-              authPW2: validators.authPW2
+              authPWVersion2: validators.authPWVersion2
                 .optional()
-                .description(DESCRIPTION.authPW2),
-              wrapKb2: validators.wrapKb
+                .description(DESCRIPTION.authPWVersion2),
+              wrapKbVersion2: validators.wrapKb
                 .optional()
-                .description(DESCRIPTION.wrapKb2),
+                .description(DESCRIPTION.wrapKbVersion2),
               clientSalt: validators.clientSalt
                 .optional()
                 .description(DESCRIPTION.clientSalt),
             })
-            .and('authPW2', 'wrapKb2', 'clientSalt'),
+            .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
         },
       },
       handler: (request: AuthRequest) => accountHandler.finishSetup(request),
@@ -2045,22 +2045,22 @@ export const accountRoutes = (
           payload: isA
             .object({
               authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPW2: validators.authPW
+              authPWVersion2: validators.authPW
                 .optional()
-                .description(DESCRIPTION.authPW2),
+                .description(DESCRIPTION.authPWVersion2),
               wrapKb: validators.wrapKb
                 .optional()
                 .description(DESCRIPTION.wrapKb),
-              wrapKb2: validators.wrapKb
+              wrapKbVersion2: validators.wrapKb
                 .optional()
-                .description(DESCRIPTION.wrapKb2),
+                .description(DESCRIPTION.wrapKbVersion2),
               clientSalt: validators.clientSalt
                 .optional()
                 .description(DESCRIPTION.clientSalt),
               metricsContext: METRICS_CONTEXT_SCHEMA,
               service: validators.service.description(DESCRIPTION.service),
             })
-            .and('authPW2', 'wrapKb', 'wrapKb2', 'clientSalt'),
+            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
         response: {
           schema: isA.object({
@@ -2280,15 +2280,15 @@ export const accountRoutes = (
           payload: isA
             .object({
               authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPW2: validators.authPW
+              authPWVersion2: validators.authPW
                 .optional()
                 .description(DESCRIPTION.authPW),
               wrapKb: validators.wrapKb
                 .optional()
                 .description(DESCRIPTION.wrapKb),
-              wrapKb2: validators.wrapKb
+              wrapKbVersion2: validators.wrapKb
                 .optional()
-                .description(DESCRIPTION.wrapKb2),
+                .description(DESCRIPTION.wrapKbVersion2),
               clientSalt: validators.clientSalt
                 .optional()
                 .description(DESCRIPTION.clientSalt),
@@ -2300,19 +2300,19 @@ export const accountRoutes = (
                 .optional()
                 .description(DESCRIPTION.sessionToken),
             }).custom((value, helper) => {
-              if (value.authPW2 && !value.wrapKb) {
+              if (value.authPWVersion2 && !value.wrapKb) {
                 return helper.error('any.invalid')
               }
-              if (value.authPW2 && !value.wrapKb2) {
+              if (value.authPWVersion2 && !value.wrapKbVersion2) {
                 return helper.error('any.invalid')
               }
-              if (value.authPW2 && !value.clientSalt) {
+              if (value.authPWVersion2 && !value.clientSalt) {
                 return helper.error('any.invalid')
               }
-              if (!value.authPW2 && value.recoveryKeyId && !value.wrapKb) {
+              if (!value.authPWVersion2 && value.recoveryKeyId && !value.wrapKb) {
                 return helper.error('any.invalid')
               }
-              if (!value.authPW2 && value.wrapKb && !value.recoveryKeyId) {
+              if (!value.authPWVersion2 && value.wrapKb && !value.recoveryKeyId) {
                 return helper.error('any.invalid')
               }
               return value;

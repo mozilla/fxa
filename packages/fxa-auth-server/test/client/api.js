@@ -174,9 +174,9 @@ module.exports = (config) => {
   ClientApi.prototype.accountCreateV2 = async function (
     email,
     authPW,
-    authPW2,
+    authPWVersion2,
     wrapKb,
-    wrapKb2,
+    wrapKbVersion2,
     clientSalt,
     options = {}
   ) {
@@ -189,9 +189,9 @@ module.exports = (config) => {
       {
         email: email,
         authPW: authPW.toString('hex'),
-        authPW2: authPW2.toString('hex'),
+        authPWVersion2: authPWVersion2.toString('hex'),
         wrapKb: wrapKb.toString('hex'),
-        wrapKb2: wrapKb2.toString('hex'),
+        wrapKbVersion2: wrapKbVersion2.toString('hex'),
         clientSalt,
         preVerified: options.preVerified || undefined,
         service: options.service || undefined,
@@ -420,9 +420,9 @@ module.exports = (config) => {
   ClientApi.prototype.accountResetV2 = function (
     accountResetTokenHex,
     authPW,
-    authPW2,
+    authPWVersion2,
     wrapKb,
-    wrapKb2,
+    wrapKbVersion2,
     clientSalt,
     headers,
     options = {}
@@ -438,9 +438,9 @@ module.exports = (config) => {
       (token) => {
         const payload = {
           authPW: authPW.toString('hex'),
-          authPW2: authPW2.toString('hex'),
+          authPWVersion2: authPWVersion2.toString('hex'),
           wrapKb: wrapKb.toString('hex'),
-          wrapKb2: wrapKb2.toString('hex'),
+          wrapKbVersion2: wrapKbVersion2.toString('hex'),
           clientSalt: clientSalt.toString(),
           sessionToken: options.sessionToken,
         };
@@ -487,9 +487,9 @@ module.exports = (config) => {
   ClientApi.prototype.accountResetWithRecoveryKeyV2 = function (
     accountResetTokenHex,
     authPW,
-    authPW2,
+    authPWVersion2,
     wrapKb,
-    wrapKb2,
+    wrapKbVersion2,
     clientSalt,
     recoveryKeyId,
     headers,
@@ -505,9 +505,9 @@ module.exports = (config) => {
           token,
           {
             authPW: authPW.toString('hex'),
-            authPW2: authPW2.toString('hex'),
+            authPWVersion2: authPWVersion2.toString('hex'),
             wrapKb,
-            wrapKb2,
+            wrapKbVersion2,
             clientSalt,
             sessionToken: true,
             recoveryKeyId,
@@ -707,7 +707,7 @@ module.exports = (config) => {
   ClientApi.prototype.passwordChangeStartV2 = function (
     email,
     oldAuthPW,
-    oldAuthPW2,
+    oldauthPWVersion2,
     headers
   ) {
     return this.doRequest(
@@ -717,7 +717,7 @@ module.exports = (config) => {
       {
         email: email,
         oldAuthPW: oldAuthPW.toString('hex'),
-        oldAuthPW2: oldAuthPW2.toString('hex'),
+        oldauthPWVersion2: oldauthPWVersion2.toString('hex'),
       },
       headers
     );
@@ -758,9 +758,9 @@ module.exports = (config) => {
   ClientApi.prototype.passwordChangeFinishV2 = async function (
     passwordChangeTokenHex,
     authPW,
-    authPW2,
+    authPWVersion2,
     wrapKb,
-    wrapKb2,
+    wrapKbVersion2,
     clientSalt,
     headers,
     sessionToken
@@ -773,9 +773,9 @@ module.exports = (config) => {
 
     const requestData = {
       authPW: authPW.toString('hex'),
-      authPW2: authPW2.toString('hex'),
+      authPWVersion2: authPWVersion2.toString('hex'),
       wrapKb: wrapKb.toString('hex'),
-      wrapKb2: wrapKb2.toString('hex'),
+      wrapKbVersion2: wrapKbVersion2.toString('hex'),
       clientSalt,
     };
 

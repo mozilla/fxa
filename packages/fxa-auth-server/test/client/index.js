@@ -80,12 +80,12 @@ module.exports = (config) => {
       650000,
       32
     );
-    const authPW2 = await hkdf(stretch, 'authPW', null, 32);
+    const authPWVersion2 = await hkdf(stretch, 'authPW', null, 32);
     const unwrapBKey2 = await hkdf(stretch, 'unwrapBKey', null, 32);
 
     // Passed through all derivations successfully apply state.
     this.clientSalt = clientSalt;
-    this.authPW2 = authPW2;
+    this.authPWVersion2 = authPWVersion2;
     this.unwrapBKey2 = unwrapBKey2;
   };
 
@@ -98,7 +98,7 @@ module.exports = (config) => {
         await c.setupCredentialsV2(email, password);
 
         c.generateNewWrapKb();
-        c.deriveWrapKb2FromKb();
+        c.derivewrapKbVersion2FromKb();
 
         await c.createV2();
 
@@ -251,9 +251,9 @@ module.exports = (config) => {
     const account = await this.api.accountCreateV2(
       this.email,
       this.authPW,
-      this.authPW2,
+      this.authPWVersion2,
       this.wrapKb,
-      this.wrapKb2,
+      this.wrapKbVersion2,
       this.clientSalt,
       this.options
     );
@@ -275,7 +275,7 @@ module.exports = (config) => {
     this.passwordForgotToken = null;
     this.kA = null;
     this.wrapKb = null;
-    this.wrapKb2 = null;
+    this.wrapKbVersion2 = null;
   };
 
   Client.prototype.stringify = function () {
@@ -300,7 +300,7 @@ module.exports = (config) => {
     });
   };
   Client.prototype.authV2 = async function (opts) {
-    const data = await this.api.accountLogin(this.email, this.authPW2, opts)
+    const data = await this.api.accountLogin(this.email, this.authPWVersion2, opts)
     this.uid = data.uid;
     this.sessionToken = data.sessionToken;
     this.emailVerified = data.verified;
@@ -333,10 +333,10 @@ module.exports = (config) => {
 
   Client.prototype.reauth = function (opts) {
     return this.api
-      .sessionReauth(this.sessionToken, this.email, this.authPW2 || this.authPW, opts)
+      .sessionReauth(this.sessionToken, this.email, this.authPWVersion2 || this.authPW, opts)
       .then((data) => {
         this.uid = data.uid;
-        if (this.authPW2) {
+        if (this.authPWVersion2) {
           this.keyFetchToken2 = data.keyFetchToken || null;
         } else {
           this.keyFetchToken = data.keyFetchToken || null;
@@ -496,7 +496,7 @@ module.exports = (config) => {
     headers,
     sessionToken
   ) {
-    const json = await this.api.passwordChangeStartV2(this.email, this.authPW, this.authPW2, headers);
+    const json = await this.api.passwordChangeStartV2(this.email, this.authPW, this.authPWVersion2, headers);
     this.keyFetchToken = json.keyFetchToken;
     this.keyFetchToken2 = json.keyFetchToken2;
     this.passwordChangeToken = json.passwordChangeToken;
@@ -511,14 +511,14 @@ module.exports = (config) => {
     // Derive wrapKb from the new unwrapBKey and th current kB. This ensures
     // kB will remain constant even after a password change.
     this.deriveWrapKbFromKb();
-    this.deriveWrapKb2FromKb();
+    this.derivewrapKbVersion2FromKb();
 
     const res = await this.api.passwordChangeFinishV2(
       this.passwordChangeToken,
       this.authPW,
-      this.authPW2,
+      this.authPWVersion2,
       this.wrapKb,
-      this.wrapKb2,
+      this.wrapKbVersion2,
       this.clientSalt,
       headers,
       sessionToken
@@ -702,7 +702,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.destroyAccount = function () {
-    const authPW = this.options.version === "V2" && this.authPW2 ? this.authPW2 : this.authPW;
+    const authPW = this.options.version === "V2" && this.authPWVersion2 ? this.authPWVersion2 : this.authPW;
 
     if (this.sessionToken) {
       return this.api
@@ -747,7 +747,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.lockAccount = function () {
-    return this.api.accountLock(this.email, this.authPW2 ||this.authPW);
+    return this.api.accountLock(this.email, this.authPWVersion2 ||this.authPW);
   };
 
   Client.prototype.resendAccountUnlockCode = function (lang) {
@@ -909,15 +909,15 @@ module.exports = (config) => {
     await this.setupCredentialsV2(email, newPassword);
 
     this.deriveWrapKbFromKb();
-    this.deriveWrapKb2FromKb();
+    this.derivewrapKbVersion2FromKb();
 
     const response = await this.api
         .accountResetWithRecoveryKeyV2(
           this.accountResetToken,
           this.authPW,
-          this.authPW2,
+          this.authPWVersion2,
           this.wrapKb,
-          this.wrapKb2,
+          this.wrapKbVersion2,
           this.clientSalt,
           recoveryKeyId,
           headers,
@@ -1079,14 +1079,14 @@ module.exports = (config) => {
     }
 
     await this.setupCredentialsV2(this.email, newPassword);
-    await this.deriveWrapKb2FromKb();
+    await this.derivewrapKbVersion2FromKb();
 
     const resFinish = await this.api.passwordChangeFinishV2(
       this.passwordChangeToken,
       this.authPW,
-      this.authPW2,
+      this.authPWVersion2,
       this.wrapKb,
-      this.wrapKb2,
+      this.wrapKbVersion2,
       this.clientSalt,
       headers || {},
       undefined
@@ -1147,7 +1147,7 @@ module.exports = (config) => {
     ).toString('hex');
   };
 
-  Client.prototype.deriveWrapKb2FromKb = function () {
+  Client.prototype.derivewrapKbVersion2FromKb = function () {
 
     if (!this.kB) {
       throw new Error('kB never set. Aborting operation.');
@@ -1159,7 +1159,7 @@ module.exports = (config) => {
 
     // By deriving the value this way, we ensure a single kB value. Note that this relies on the
     // fact the server will be using the current wrapKb for the V1 password
-    this.wrapKb2 = butil.xorBuffers(
+    this.wrapKbVersion2 = butil.xorBuffers(
       this.kB,
       this.unwrapBKey2
     ).toString('hex');
@@ -1202,7 +1202,7 @@ module.exports = (config) => {
 
       this.kA = keys.kA;
       this.kB = keys.kB;
-      this.wrapKb2 = keys.wrapKb;
+      this.wrapKbVersion2 = keys.wrapKb;
       this.keyFetchToken2 = null;
 
       return keys
@@ -1219,9 +1219,9 @@ module.exports = (config) => {
       return {
         version: this.options.version,
         kB: this.kB,
-        wrapKb: this.wrapKb2,
+        wrapKb: this.wrapKbVersion2,
         unwrapBKey: this.unwrapBKey2,
-        authPW: this.authPW2,
+        authPW: this.authPWVersion2,
         keyFetchToken: this.keyFetchToken2,
       }
     }

@@ -69,7 +69,7 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
           '0000000000000000000000000000000000000000000000000000000000000000',
           'hex'
         );
-        c.authPW2 = Buffer.from(
+        c.authPWVersion2 = Buffer.from(
           '0000000000000000000000000000000000000000000000000000000000000000',
           'hex'
         );

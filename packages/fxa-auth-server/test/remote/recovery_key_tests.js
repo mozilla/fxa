@@ -112,9 +112,9 @@ describe(`#integration${testOptions.version} - remote recovery keys`, function (
         .accountResetWithRecoveryKeyV2(
           client.accountResetToken,
           client.authPW,
-          client.authPW2,
+          client.authPWVersion2,
           client.wrapKb,
-          client.wrapKb2,
+          client.wrapKbVersion2,
           client.clientSalt,
           recoveryKeyId,
           undefined,
@@ -132,7 +132,7 @@ describe(`#integration${testOptions.version} - remote recovery keys`, function (
     assert.equal(err.errno, 107, 'invalid param');
   }
 
-  it('should fail if wrapKb is missing and authPW2 is provided', async function () {
+  it('should fail if wrapKb is missing and authPWVersion2 is provided', async function () {
     if (testOptions.version !== "V2") {
       return this.skip();
     }
@@ -145,20 +145,20 @@ describe(`#integration${testOptions.version} - remote recovery keys`, function (
     });
   });
 
-  it('should fail if wrapKb2 is missing and authPW2 is provided', async function () {
+  it('should fail if wrapKbVersion2 is missing and authPWVersion2 is provided', async function () {
     if (testOptions.version !== "V2") {
       return this.skip();
     }
 
-    const temp = client.wrapKb2;
+    const temp = client.wrapKbVersion2;
     await checkPayloadV2(() => {
-      client.wrapKb2 = undefined;
+      client.wrapKbVersion2 = undefined;
     }, () => {
-      client.wrapKb2 = temp;
+      client.wrapKbVersion2 = temp;
     });
   })
 
-  it('should fail if clientSalt is missing and authPW2 is provided', async function () {
+  it('should fail if clientSalt is missing and authPWVersion2 is provided', async function () {
     if (testOptions.version !== "V2") {
       return this.skip();
     }

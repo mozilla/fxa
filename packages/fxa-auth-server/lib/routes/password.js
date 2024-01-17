@@ -141,15 +141,15 @@ module.exports = function (
           payload: isA
             .object({
               authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPW2: validators.authPW
+              authPWVersion2: validators.authPW
                 .optional()
                 .description(DESCRIPTION.authPW),
               wrapKb: validators.wrapKb
                 .optional()
                 .description(DESCRIPTION.wrapKb),
-              wrapKb2: validators.wrapKb
+              wrapKbVersion2: validators.wrapKb
                 .optional()
-                .description(DESCRIPTION.wrapKb2),
+                .description(DESCRIPTION.wrapKbVersion2),
               clientSalt: validators.clientSalt
                 .optional()
                 .description(DESCRIPTION.clientSalt),
@@ -161,13 +161,13 @@ module.exports = function (
                 .optional()
                 .description(DESCRIPTION.sessionToken),
             })
-            .and('authPW2', 'wrapKb2', 'clientSalt'),
+            .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
         },
       },
       handler: async function (request) {
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
-        const { authPW, authPW2, wrapKb, wrapKb2, clientSalt } =
+        const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt } =
           request.payload;
         const sessionTokenId = request.payload.sessionToken;
         const wantsKeys = requestHelper.wantsKeys(request);
@@ -249,14 +249,14 @@ module.exports = function (
           const wrapWrapKb = await password.wrap(wrapKb);
 
           // For the time being we store both passwords in the DB. authPW is created
-          // with the old quickStretch and authPW2 is created with improved 'quick' stretch.
+          // with the old quickStretch and authPWVersion2 is created with improved 'quick' stretch.
           let password2 = undefined;
           let verifyHashVersion2 = undefined;
           let wrapWrapKbVersion2 = undefined;
-          if (authPW2) {
-            password2 = new Password(authPW2, authSalt, verifierVersion, 2);
+          if (authPWVersion2) {
+            password2 = new Password(authPWVersion2, authSalt, verifierVersion, 2);
             verifyHashVersion2 = await password2.verifyHash();
-            wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+            wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
           }
 
           await db.deletePasswordChangeToken(passwordChangeToken);
@@ -419,11 +419,11 @@ module.exports = function (
               });
             }
 
-            if (authPW2) {
+            if (authPWVersion2) {
               keyFetchToken2 = await db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,
-                wrapKb: wrapKb2,
+                wrapKb: wrapKbVersion2,
                 emailVerified: account.emailVerified,
               });
             }
@@ -804,20 +804,20 @@ module.exports = function (
           payload: isA
             .object({
               authPW: validators.authPW.description(DESCRIPTION.authPW),
-              authPW2: validators.authPW2
+              authPWVersion2: validators.authPWVersion2
                 .optional()
-                .description(DESCRIPTION.authPW2),
+                .description(DESCRIPTION.authPWVersion2),
               wrapKb: validators.wrapKb
                 .optional()
                 .description(DESCRIPTION.wrapKb),
-              wrapKb2: validators.wrapKb
+              wrapKbVersion2: validators.wrapKb
                 .optional()
-                .description(DESCRIPTION.wrapKb2),
+                .description(DESCRIPTION.wrapKbVersion2),
               clientSalt: validators.clientSalt
                 .optional()
                 .description(DESCRIPTION.clientSalt),
             })
-            .and('authPW2', 'wrapKb', 'wrapKb2', 'clientSalt'),
+            .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
       },
       handler: async function (request) {
@@ -825,7 +825,7 @@ module.exports = function (
         const sessionToken = request.auth.credentials;
         const { uid } = sessionToken;
 
-        const { authPW, authPW2, wrapKb, wrapKb2, clientSalt } =
+        const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt } =
           request.payload;
 
         const account = await db.account(uid);
@@ -856,16 +856,16 @@ module.exports = function (
         // For V2 credentials
         let wrapWrapKbVersion2 = undefined;
         let verifyHashVersion2 = undefined;
-        if (authPW2) {
+        if (authPWVersion2) {
           const password2 = new Password(
-            authPW2,
+            authPWVersion2,
             authSalt,
             config.verifierVersion
           );
-          wrapWrapKbVersion2 = await password2.wrap(wrapKb2);
+          wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
           verifyHashVersion2 = await password2.verifyHash();
 
-          // Important! For V2 credentials, wrapKb and wrapKb2 are supplied by client
+          // Important! For V2 credentials, wrapKb and wrapKbVersion2 are supplied by client
           // to ensure that a single kB results from either password. Therefore, we
           // must used supplied wrapKb
           wrapWrapKb = await password.wrap(wrapKb);
