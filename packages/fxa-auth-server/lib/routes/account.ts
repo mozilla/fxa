@@ -683,8 +683,8 @@ export class AccountHandler {
 
     const verifyHash = await password.verifyHash();
     const wrapWrapKb = account.wrapWrapKb;
-    const wrapWrapKbVersion2 = account.wrapWrapKbVersion2;
 
+    let wrapWrapKbVersion2 = account.wrapWrapKbVersion2;
     let verifyHashVersion2 = undefined;
     if (authPWVersion2) {
       const password2 = new this.Password(
@@ -698,11 +698,18 @@ export class AccountHandler {
       // In V2 we will supply wrapKb and wrapKbVersion2 and run sanity checks here.
       // If wrapWrapKb drifts from what the client expects, it means we will
       // corrupt the key, and a user won't be able to decrypt their data.
-      if ((await password2.wrap(wrapKbVersion2)) !== wrapWrapKbVersion2) {
-        throw new Error('Shift detected in wrapWrapKbVersion2! Aborting operation.');
-      }
       if ((await password.wrap(wrapKb)) !== wrapWrapKb) {
         throw new Error('Shift detected in wrapWrapKb! Aborting operation.');
+      }
+
+      // Note that if this is being called for the first time, we might not have set
+      // a wrapWrapKbVersion2 yet. In this case, it's up to the client to supply one
+      // and ensures kB remains constant for v1 and v2 passwords.
+      if (wrapWrapKbVersion2 == null) {
+        wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
+      }
+      else if ((await password2.wrap(wrapKbVersion2)) !== wrapWrapKbVersion2 ) {
+        throw new Error('Shift detected in wrapWrapKbVersion2! Aborting operation.');
       }
     }
 
