@@ -10,6 +10,7 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
 import '../../styles/index.css';
+import { ServerActionTest } from '../client/ServerActionTest';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -212,6 +213,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         </span>
       </div>
       {/* TODO - Add InfoBox as part of Coupon Form - Consider adding as child component */}
+      <ServerActionTest />
     </div>
   );
 }
