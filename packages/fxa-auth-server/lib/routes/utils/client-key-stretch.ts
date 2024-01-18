@@ -1,4 +1,8 @@
-// Note should be aligned with fxa-auth-client/lib/crypt variables!
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+ // Note should be aligned with fxa-auth-client/lib/crypt variables!
 // Deciding not to create a dependency just for this. Also deciding not
 // move to fxa-shared since fxa-auth-client does not currently depend on
 // fxa-shared
