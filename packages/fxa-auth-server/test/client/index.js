@@ -98,7 +98,7 @@ module.exports = (config) => {
         await c.setupCredentialsV2(email, password);
 
         c.generateNewWrapKb();
-        c.derivewrapKbVersion2FromKb();
+        c.deriveWrapKbVersion2FromKb();
 
         await c.createV2();
 
@@ -511,7 +511,7 @@ module.exports = (config) => {
     // Derive wrapKb from the new unwrapBKey and th current kB. This ensures
     // kB will remain constant even after a password change.
     this.deriveWrapKbFromKb();
-    this.derivewrapKbVersion2FromKb();
+    this.deriveWrapKbVersion2FromKb();
 
     const res = await this.api.passwordChangeFinishV2(
       this.passwordChangeToken,
@@ -909,7 +909,7 @@ module.exports = (config) => {
     await this.setupCredentialsV2(email, newPassword);
 
     this.deriveWrapKbFromKb();
-    this.derivewrapKbVersion2FromKb();
+    this.deriveWrapKbVersion2FromKb();
 
     const response = await this.api
         .accountResetWithRecoveryKeyV2(
@@ -1079,7 +1079,7 @@ module.exports = (config) => {
     }
 
     await this.setupCredentialsV2(this.email, newPassword);
-    await this.derivewrapKbVersion2FromKb();
+    await this.deriveWrapKbVersion2FromKb();
 
     const resFinish = await this.api.passwordChangeFinishV2(
       this.passwordChangeToken,
@@ -1147,7 +1147,7 @@ module.exports = (config) => {
     ).toString('hex');
   };
 
-  Client.prototype.derivewrapKbVersion2FromKb = function () {
+  Client.prototype.deriveWrapKbVersion2FromKb = function () {
 
     if (!this.kB) {
       throw new Error('kB never set. Aborting operation.');
