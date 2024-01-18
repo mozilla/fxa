@@ -1971,15 +1971,7 @@ export const accountRoutes = (
           }),
         },
       },
-      handler: (request: AuthRequest) => {
-
-        try {
-          return accountHandler.accountCreate(request)
-        }
-        catch (err) {
-          throw new Error('blah', err);
-        }
-      }
+      handler: (request: AuthRequest) => accountHandler.accountCreate(request)
     },
     {
       method: 'POST',
