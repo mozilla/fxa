@@ -17,3 +17,8 @@ export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_AUTH_AT = 12345;
 export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';
 export const MOCK_UNBLOCK_CODE = 'A1B2C3D4';
+export const MOCK_AVATAR_NON_DEFAULT = {
+  id: 'abc123',
+  url: 'http://placekitten.com/512/512',
+};
+export const MOCK_AVATAR_DEFAULT = { id: null, url: null };

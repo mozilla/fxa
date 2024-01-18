@@ -266,6 +266,15 @@ class IndexView extends FormView {
       .then(({ exists, hasPassword, hasLinkedAccount }) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
 
+        // Temporary hack for React work that allows us to pass the entered `email` as
+        // a param. When 'signup' and 'signin' flows are both finished and we're ready,
+        // we can convert the index page over and pass this along with router state
+        // instead of param.
+        this.user.set({
+          emailFromIndex: email,
+          hasPassword: hasPassword,
+          hasLinkedAccount: hasLinkedAccount,
+        });
         if (exists) {
           // If the account exists, use the stored account
           // so that any stored avatars are displayed on
@@ -274,8 +283,6 @@ class IndexView extends FormView {
           // the returned account could be the default,
           // ensure its values are set.
           account.set('email', email);
-          account.set('hasPassword', hasPassword);
-          account.set('hasLinkedAccount', hasLinkedAccount);
           this.navigate(nextEndpoint, { account });
         } else {
           // The email address does not belong to a current user. Validate its

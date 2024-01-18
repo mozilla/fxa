@@ -28,6 +28,7 @@ const sessionTokenOperationNames = [
   initialOperationName,
   'GetInitialSettingsState',
   'SignUp',
+  'SignIn',
 ];
 
 const isUnauthorizedError = (error: GraphQLError) => {

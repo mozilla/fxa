@@ -2,12 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import {
   Integration,
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   useAuthClient,
+  useConfig,
 } from '../../models';
 import { Signup } from '.';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -46,7 +47,7 @@ import { Constants } from '../../lib/constants';
  * from the Backbone index page until the index page is converted over, in which case
  * we can pass the param with router state. Since we already perform this account exists
  * check on the Backbone index page, which is rate limited since it doesn't require a
- * session token, we also temporarily pass `emailFromContent=true` to signal not to perform
+ * session token, we also temporarily pass `emailStatusChecked=true` to signal not to perform
  * the check again. If this param is not passed and `email` is, we perform the check and
  * redirect existing user emails to `/signin` to match content-server functionality.
  *
@@ -64,6 +65,10 @@ export type SignupContainerIntegration = Pick<
   'type' | 'getService' | 'features' | 'isSync'
 >;
 
+type LocationState = {
+  emailStatusChecked?: boolean;
+};
+
 const SignupContainer = ({
   integration,
 }: {
@@ -71,6 +76,11 @@ const SignupContainer = ({
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const navigate = useNavigate();
+  const config = useConfig();
+  const location = useLocation() as ReturnType<typeof useLocation> & {
+    state: LocationState;
+  };
+  const { emailStatusChecked } = location.state || {};
 
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SignupQueryParams);
@@ -89,16 +99,31 @@ const SignupContainer = ({
 
   useEffect(() => {
     (async () => {
+      // Modify this once index is converted to React
       if (!validationError) {
-        // Remove this once index is converted to React
-        if (!queryParamModel.emailFromContent) {
-          const { exists } = await authClient.accountStatusByEmail(
-            queryParamModel.email
-          );
+        // emailStatusChecked can be passed from React Signin when users hit /signin
+        // with an email query param that we already determined doesn't exist.
+        // It's supplied by Backbone when going from Backbone Index page to React signup.
+        if (!queryParamModel.emailStatusChecked && !emailStatusChecked) {
+          const { exists, hasLinkedAccount, hasPassword } =
+            await authClient.accountStatusByEmail(queryParamModel.email, {
+              thirdPartyAuthStatus: true,
+            });
           if (exists) {
-            hardNavigateToContentServer(
-              `/signin?email=${queryParamModel.email}`
-            );
+            if (config.showReactApp.signInRoutes) {
+              navigate(`/signin`, {
+                replace: true,
+                state: {
+                  email: queryParamModel.email,
+                  hasLinkedAccount,
+                  hasPassword,
+                },
+              });
+            } else {
+              hardNavigateToContentServer(
+                `/signin?email=${queryParamModel.email}`
+              );
+            }
             // TODO: Probably move this to the Index page onsubmit once
             // the index page is converted to React, we need to run it in
             // signup and signin for Sync

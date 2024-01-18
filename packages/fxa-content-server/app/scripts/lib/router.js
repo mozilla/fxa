@@ -250,7 +250,7 @@ Router = Router.extend({
           // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
           email: this.user.get('emailFromIndex'),
           ...(this.user.get('emailFromIndex') && {
-            emailFromContent: 'true',
+            emailStatusChecked: 'true',
           }),
           ...Url.searchParams(this.window.location.search),
         }
@@ -411,7 +411,15 @@ Router = Router.extend({
       })}`;
       this.navigateAway(settingsLink);
     },
-    'signin(/)': createViewHandler(SignInPasswordView),
+    'signin(/)': function () {
+      this.createReactOrBackboneViewHandler('signin', SignInPasswordView, {
+        // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+        ...Url.searchParams(this.window.location.search),
+        email: this.user.get('emailFromIndex'),
+        hasLinkedAccount: this.user.get('hasLinkedAccount'),
+        hasPassword: this.user.get('hasPassword'),
+      });
+    },
     'signin_bounced(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_bounced',
@@ -459,7 +467,7 @@ Router = Router.extend({
         // see comment in fxa-settings/src/pages/Signup/container.tsx for param explanation
         email: this.user.get('emailFromIndex'),
         ...(this.user.get('emailFromIndex') && {
-          emailFromContent: 'true',
+          emailStatusChecked: 'true',
         }),
       });
     },

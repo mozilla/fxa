@@ -77,6 +77,10 @@ const settingsConfig = {
   glean: { ...config.get('glean'), appDisplayVersion: config.get('version') },
   redirectAllowlist: config.get('redirect_check.allow_list'),
   sendFxAStatusOnSettings: config.get('featureFlags.sendFxAStatusOnSettings'),
+  showReactApp: {
+    signUpRoutes: config.get('showReactApp.signUpRoutes'),
+    signInRoutes: config.get('showReactApp.signInRoutes'),
+  },
 };
 
 // Inject Beta Settings meta content

@@ -269,7 +269,9 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
 
   const captureView = (
     <div className="p-2">
-      {mediaError && <Avatar className="mx-auto w-40" />}
+      {mediaError && (
+        <Avatar className="mx-auto w-40" avatar={account.avatar} />
+      )}
       <>
         <LoadingSpinner
           className={`bg-grey-20 flex items-center flex-col justify-center select-none ${
@@ -308,7 +310,7 @@ export const PageAddAvatar = (_: RouteComponentProps) => {
       />
     </Localized>
   ) : (
-    <Avatar className="mx-auto w-40" />
+    <Avatar className="mx-auto w-40" avatar={account.avatar} />
   );
 
   return (

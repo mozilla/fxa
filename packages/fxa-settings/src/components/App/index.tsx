@@ -57,6 +57,7 @@ import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/Rese
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
 import SigninReported from '../../pages/Signin/SigninReported';
+import SigninContainer from '../../pages/Signin/container';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import SignupContainer from '../../pages/Signup/container';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
@@ -287,6 +288,7 @@ const AuthAndAccountSetupRoutes = ({
 
       {/* Signin */}
       <ReportSigninContainer path="/report_signin/*" />
+      <SigninContainer path="/signin/*" {...{ integration, serviceName }} />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <SigninConfirmed
         path="/signin_confirmed/*"
