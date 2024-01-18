@@ -25,7 +25,7 @@ export const V2_REGEX = new RegExp(V2_REGEX_STR);
 export const VX_REGEX = new RegExp(VX_REGEX_STR);
 
 export type Salt = {
-  namespace?: string;
+  namespace?: typeof NAMESPACE;
   version?: 1 | 2;
   value?: string;
 };
