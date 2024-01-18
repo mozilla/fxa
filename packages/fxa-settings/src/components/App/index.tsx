@@ -229,28 +229,22 @@ const AuthAndAccountSetupRoutes = ({
 
   return (
     <Router>
-      <WebChannelExample path="/web_channel_example/*" />
-
-      <CannotCreateAccount path="/cannot_create_account/*" />
-      <Clear path="/clear/*" />
-      <CookiesDisabled path="/cookies_disabled/*" />
-
+      {/* Legal */}
       <Legal path="/legal/*" />
-      <LegalTerms path="/legal/terms/*" />
+      <LegalPrivacy path="/:locale/legal/privacy/*" />
       <LegalTerms path="/:locale/legal/terms/*" />
       <LegalPrivacy path="/legal/privacy/*" />
-      <LegalPrivacy path="/:locale/legal/privacy/*" />
+      <LegalTerms path="/legal/terms/*" />
 
-      <ResetPassword path="/reset_password/*" {...{ integration }} />
-      <ConfirmResetPassword
-        path="/confirm_reset_password/*"
-        {...{ integration }}
-      />
-      <CompleteResetPasswordContainer
-        path="/complete_reset_password/*"
-        {...{ integration }}
-      />
+      {/* Other */}
+      <Clear path="/clear/*" />
+      <CookiesDisabled path="/cookies_disabled/*" />
+      <WebChannelExample path="/web_channel_example/*" />
 
+      {/* Post verify */}
+      <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
+
+      {/* Reset password */}
       <LinkValidator
         path="/account_recovery_confirm_key/*"
         linkType={LinkType['reset-password']}
@@ -270,61 +264,64 @@ const AuthAndAccountSetupRoutes = ({
           />
         )}
       </LinkValidator>
-
       <AccountRecoveryResetPasswordContainer
         path="/account_recovery_reset_password/*"
         {...{ integration }}
       />
-
-      <SigninReported path="/signin_reported/*" />
-      <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
-
+      <CompleteResetPasswordContainer
+        path="/complete_reset_password/*"
+        {...{ integration }}
+      />
+      <ConfirmResetPassword
+        path="/confirm_reset_password/*"
+        {...{ integration }}
+      />
+      <ResetPassword path="/reset_password/*" {...{ integration }} />
+      <ResetPasswordWithRecoveryKeyVerified
+        path="/reset_password_with_recovery_key_verified/*"
+        {...{ integration, isSignedIn }}
+      />
       <ResetPasswordConfirmed
         path="/reset_password_verified/*"
         {...{ isSignedIn, serviceName }}
       />
 
-      <ResetPasswordWithRecoveryKeyVerified
-        path="/reset_password_with_recovery_key_verified/*"
-        {...{ integration, isSignedIn }}
-      />
-
-      <PrimaryEmailVerified
-        path="/primary_email_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
-
-      <SignupConfirmed
-        path="/signup_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
-      <SignupConfirmed
-        path="/signup_confirmed/*"
-        {...{ isSignedIn, serviceName }}
-      />
-
-      <SigninConfirmed
-        path="/signin_verified/*"
-        {...{ isSignedIn, serviceName }}
-      />
+      {/* Signin */}
+      <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <SigninConfirmed
         path="/signin_confirmed/*"
         {...{ isSignedIn, serviceName }}
       />
-
-      <SignupContainer path="/signup/*" {...{ integration, serviceName }} />
-      <SignupContainer
-        path="/oauth/signup/*"
-        {...{ integration, serviceName }}
+      <SigninReported path="/signin_reported/*" />
+      <SigninConfirmed
+        path="/signin_verified/*"
+        {...{ isSignedIn, serviceName }}
       />
 
+      {/* Signup */}
+      <CannotCreateAccount path="/cannot_create_account/*" />
       <Confirm path="/confirm/*" {...{ sessionTokenId }} />
       <ConfirmSignupCodeContainer
         path="/confirm_signup_code/*"
         {...{ integration }}
       />
-
-      <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
+      <SignupContainer
+        path="/oauth/signup/*"
+        {...{ integration, serviceName }}
+      />
+      <PrimaryEmailVerified
+        path="/primary_email_verified/*"
+        {...{ isSignedIn, serviceName }}
+      />
+      <SignupContainer path="/signup/*" {...{ integration, serviceName }} />
+      <SignupConfirmed
+        path="/signup_confirmed/*"
+        {...{ isSignedIn, serviceName }}
+      />
+      <SignupConfirmed
+        path="/signup_verified/*"
+        {...{ isSignedIn, serviceName }}
+      />
     </Router>
   );
 };
