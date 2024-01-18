@@ -160,18 +160,6 @@ describe('Signup page', () => {
     expect(newPasswordInput).toHaveAttribute('type', 'password');
   });
 
-  it('does not allow the user to change their email with oauth integration', async () => {
-    renderWithLocalizationProvider(
-      <Subject integration={createMockSignupOAuthIntegration()} />
-    );
-
-    await waitFor(() => {
-      expect(
-        screen.queryByRole('link', { name: 'Change email' })
-      ).not.toBeInTheDocument();
-    });
-  });
-
   it('shows an info banner and Pocket-specific TOS when client is Pocket', async () => {
     renderWithLocalizationProvider(
       <Subject

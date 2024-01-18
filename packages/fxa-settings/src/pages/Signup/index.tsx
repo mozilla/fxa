@@ -64,7 +64,6 @@ export const Signup = ({
   }, []);
 
   const isSync = integration.isSync();
-  const canChangeEmail = !isOAuthIntegration(integration);
   const email = queryParamModel.email;
 
   const onFocusMetricsEvent = () => {
@@ -345,31 +344,29 @@ export const Signup = ({
       <div className="mt-4 mb-6">
         <p className="break-all">{email}</p>
 
-        {canChangeEmail && (
-          <FtlMsg id="signup-change-email-link">
-            {/* TODO: Replace this with `Link` once index page is Reactified */}
-            <a
-              href="/"
-              className="link-blue text-sm"
-              onClick={(e) => {
-                e.preventDefault();
-                const params = new URLSearchParams(location.search);
-                // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', email);
-                // Passing back the 'email' param causes various behaviors in
-                // content-server since it marks the email as "coming from a RP".
-                // Also remove `emailFromContent` since we pass that when coming
-                // from content-server to Backbone, see Signup container component
-                // for more info.
-                params.delete('emailFromContent');
-                params.delete('email');
-                hardNavigateToContentServer(`/?${params.toString()}`);
-              }}
-            >
-              Change email
-            </a>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signup-change-email-link">
+          {/* TODO: Replace this with `Link` once index page is Reactified */}
+          <a
+            href="/"
+            className="link-blue text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const params = new URLSearchParams(location.search);
+              // Tell content-server to stay on index and prefill the email
+              params.set('prefillEmail', email);
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              // Also remove `emailFromContent` since we pass that when coming
+              // from content-server to Backbone, see Signup container component
+              // for more info.
+              params.delete('emailFromContent');
+              params.delete('email');
+              hardNavigateToContentServer(`/?${params.toString()}`);
+            }}
+          >
+            Change email
+          </a>
+        </FtlMsg>
       </div>
 
       <FormPasswordWithBalloons

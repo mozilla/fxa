@@ -8,8 +8,13 @@ test.describe('password visibility tests', () => {
   test('show password ended with second mousedown', async ({
     page,
     target,
-    pages: { login },
+    pages: { configPage, login },
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'this test was replaced by a unit test'
+    );
     const email = login.createEmail();
     await page.goto(target.contentServerUrl, { waitUntil: 'load' });
     await login.setEmail(email);

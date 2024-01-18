@@ -101,8 +101,13 @@ test.describe('severity-1 #smoke', () => {
 
     test('sync v3 with an unregistered email, no uid', async ({
       credentials,
-      target,
+      pages: { configPage },
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'force_auth is no longer supported for signup with react'
+      );
       const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
 
       const email = `sync${Math.random()}@restmail.net`;
@@ -130,8 +135,13 @@ test.describe('severity-1 #smoke', () => {
 
     test('sync v3 with an unregistered email, registered uid', async ({
       credentials,
-      target,
+      pages: { configPage },
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'force_auth is no longer supported for signup with react'
+      );
       const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
 
       const email = `sync${Math.random()}@restmail.net`;
@@ -151,8 +161,13 @@ test.describe('severity-1 #smoke', () => {
 
     test('sync v3 with an unregistered email, unregistered uid', async ({
       credentials,
-      target,
+      pages: { configPage },
     }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'force_auth is no longer supported for signup with react'
+      );
       const { fxDesktopV3ForceAuth, login } = syncBrowserPages;
 
       const email = `sync${Math.random()}@restmail.net`;

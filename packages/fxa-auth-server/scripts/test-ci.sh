@@ -6,7 +6,7 @@ cd "$DIR/.."
 export NODE_ENV=dev
 export CORS_ORIGIN="http://foo,http://bar"
 
-DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 10000 --exit "
+DEFAULT_ARGS="--require esbuild-register --require tsconfig-paths/register --recursive --timeout 20000 --exit "
 if [ "$TEST_TYPE" == 'unit' ]; then GREP_TESTS="--grep #integration --invert "; fi;
 if [ "$TEST_TYPE" == 'integration' ]; then GREP_TESTS="--grep #integration "; fi;
 

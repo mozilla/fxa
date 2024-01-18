@@ -43,9 +43,16 @@ test.describe('severity-2 #smoke', () => {
       expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
     });
 
+    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified, resend', async ({ target }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
+      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
+
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signUpRoutes,
+        'this test goes through the signup flow instead of sign in, skipping for react'
+      );
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
@@ -74,9 +81,16 @@ test.describe('severity-2 #smoke', () => {
       expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
     });
 
+    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified - invalid code', async ({ target }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
+      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
+
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.showReactApp.signUpRoutes,
+        'this test goes through the signup flow instead of sign in, skipping for react'
+      );
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
