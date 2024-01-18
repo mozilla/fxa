@@ -1,0 +1,20 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-profile-cache
+  description: Stores aggregated profile data.
+spec:
+  type: database
+  owner: fxa-team
+  system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-auth-cache
+  description: Stores OAuth access and session token info, and email reminders.
+spec:
+  type: database
+  owner: fxa-team
+  system: mozilla-accounts

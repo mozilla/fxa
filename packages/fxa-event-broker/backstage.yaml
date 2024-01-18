@@ -1,0 +1,18 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-event-broker
+  description: Event distribution service using webhooks for Mozilla Accounts
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-event-broker
+    circleci.com/project-slug: github/mozilla/fxa
+  tags:
+    - typescript
+    - node
+    - nestjs
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts

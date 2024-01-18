@@ -1,0 +1,10 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-customs-cache
+  description: Caches rate limits and IP reuptation scores.
+spec:
+  type: database
+  owner: fxa-team
+  system: mozilla-accounts

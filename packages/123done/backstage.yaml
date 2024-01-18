@@ -1,0 +1,21 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-123done
+  description: Demo app for Mozilla Accounts
+  tags:
+    - javascript
+    - node
+  links:
+    - url: https://production-123done.herokuapp.com/
+      title: Production 123done Demo App for Mozilla Accounts
+      type: website
+    - url: https://stage-123done.herokuapp.com/
+      title: Stage 123done Demo App for Mozilla Accounts
+      type: website
+spec:
+  type: website
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts

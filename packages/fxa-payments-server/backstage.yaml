@@ -1,0 +1,27 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-payments-server
+  description: Subscription Platform front-end.
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-payments
+    circleci.com/project-slug: github/mozilla/fxa
+  tags:
+    - typescript
+    - node
+    - react
+  links:
+    - url: https://subscriptions.firefox.com/
+      title: Production Subscription Platform
+      type: website
+    - url: https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/
+      title: Stage Subscription Platform
+      type: website
+  consumesApis:
+    - api:fxa-auth
+spec:
+  type: website
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts

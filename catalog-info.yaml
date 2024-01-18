@@ -1,0 +1,25 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: fxa-monorepo
+spec:
+  type: url
+  targets:
+    - ./backstage/firestore.resources.yaml
+    - ./backstage/mozilla-accounts.system.yaml
+    - ./backstage/mysql.resources.yaml
+    - ./backstage/redis.resources.yaml
+    - ./backstage/memcached.resources.yaml
+    - ./packages/123done/backstage.yaml
+    - ./packages/browserid-verifier/backstage.yaml
+    - ./packages/fxa-admin-panel/backstage.yaml
+    - ./packages/fxa-admin-server/backstage.yaml
+    - ./packages/fxa-auth-server/backstage.yaml
+    - ./packages/fxa-content-server/backstage.yaml
+    - ./packages/fxa-customs-server/backstage.yaml
+    - ./packages/fxa-event-broker/backstage.yaml
+    - ./packages/fxa-graphql-api/backstage.yaml
+    - ./packages/fxa-payments-server/backstage.yaml
+    - ./packages/fxa-profile-server/backstage.yaml
+    - ./packages/fxa-settings/backstage.yaml
