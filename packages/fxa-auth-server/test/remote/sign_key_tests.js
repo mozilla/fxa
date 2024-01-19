@@ -9,7 +9,7 @@ const superagent = require('superagent');
 const TestServer = require('../test_server');
 const path = require('path');
 
-describe('#integration - remote sign key', function () {
+describe(`#integration - remote sign key`, function () {
   this.timeout(15000);
   let server;
   before(() => {

@@ -11,7 +11,9 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').default.getProperties();
 
-describe('#integration - remote recovery email verify', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote recovery email verify`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -24,7 +26,7 @@ describe('#integration - remote recovery email verify', function () {
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     let client = null;
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((x) => {
         client = x;
       })
@@ -61,6 +63,7 @@ describe('#integration - remote recovery email verify', function () {
     const email = server.uniqueEmail();
     const password = 'something';
     const options = {
+      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}/`,
       service: 'sync',
     };
@@ -85,4 +88,6 @@ describe('#integration - remote recovery email verify', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

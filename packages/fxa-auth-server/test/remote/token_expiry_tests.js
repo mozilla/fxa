@@ -19,7 +19,9 @@ function fail() {
   throw new Error();
 }
 
-describe('#integration - remote token expiry', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote token expiry`, function () {
   this.timeout(15000);
   let server, config;
   before(() => {
@@ -40,6 +42,7 @@ describe('#integration - remote token expiry', function () {
     const email = `${Math.random()}@example.com`;
     const password = 'ok';
     return Client.create(config.publicUrl, email, password, {
+      ...testOptions,
       preVerified: true,
     })
       .then((c) => {
@@ -55,7 +58,8 @@ describe('#integration - remote token expiry', function () {
       config.publicUrl,
       `${Math.random()}@example.com`,
       'wibble',
-      server.mailbox
+      server.mailbox,
+      testOptions
     ).then((client) =>
       client.sessionStatus().then(
         () => assert.ok(false, 'client.sessionStatus should have failed'),
@@ -72,4 +76,6 @@ describe('#integration - remote token expiry', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

@@ -13,7 +13,10 @@ const CLIENT_ID = config.oauthServer.clients.find(
   (client) => client.trusted && client.canGrant && client.publicClient
 ).id;
 
-describe('#integration - fetch user profile data', function () {
+// Note, intentionally not indenting for code review.
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - fetch user profile data`, function () {
   this.timeout(15000);
 
   let server, client, email, password;
@@ -36,6 +39,7 @@ describe('#integration - fetch user profile data', function () {
         server.uniqueEmail(),
         'password',
         {
+          ...testOptions,
           lang: 'en-US',
         }
       );
@@ -71,7 +75,7 @@ describe('#integration - fetch user profile data', function () {
         email,
         password,
         server.mailbox,
-        { lang: 'en-US' }
+        { ...testOptions, lang: 'en-US' }
       );
 
       const tokenResponse = await client.grantOAuthTokensFromSessionToken({
@@ -217,7 +221,7 @@ describe('#integration - fetch user profile data', function () {
       it('returns the email address correctly with the profile data', async () => {
         const email = server.uniqueUnicodeEmail();
 
-        client = await Client.create(config.publicUrl, email, 'password');
+        client = await Client.create(config.publicUrl, email, 'password', testOptions);
         const response = await client.accountProfile();
         assert.equal(response.email, email, 'email address is returned');
       });
@@ -230,7 +234,7 @@ describe('#integration - fetch user profile data', function () {
           server.uniqueEmail(),
           'password',
           server.mailbox,
-          { lang: 'en-US' }
+          { ...testOptions, lang: 'en-US' }
         );
 
         const res = await client.grantOAuthTokensFromSessionToken({
@@ -264,7 +268,8 @@ describe('#integration - fetch user profile data', function () {
           config.publicUrl,
           email,
           password,
-          server.mailbox
+          server.mailbox,
+          testOptions
         );
 
         const res = await client.grantOAuthTokensFromSessionToken({
@@ -278,4 +283,6 @@ describe('#integration - fetch user profile data', function () {
       });
     });
   });
+});
+
 });
