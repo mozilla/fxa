@@ -199,6 +199,90 @@ describe(`#integration${testOptions.version} - remote account create`, function 
     );
   });
 
+  it('stubs account and finishes setup', async () => {
+    const email = server.uniqueEmail();
+    const password = 'ilikepancakes';
+    const client = new Client(config.publicUrl, testOptions);
+    await client.setupCredentials(email, password);
+
+    if (testOptions.version === "V2") {
+      await client.setupCredentialsV2(email, password);
+    }
+
+    // Stub account for 123Done
+    const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
+    assert.exists(stubResponse.setup_token);
+
+    // Finish the setup.
+    const response = await client.finishAccountSetup(stubResponse.setup_token)
+    assert.exists(response.uid);
+    assert.exists(response.sessionToken);
+    assert.exists(response.verified);
+    assert.isFalse(response.verified);
+
+    // Now a client should be able login
+    const client2 = await Client.login(config.publicUrl, email, password, testOptions);
+    assert.exists(client2.sessionToken)
+  })
+
+  it('cannot stub the same account twice', async () => {
+    const email = server.uniqueEmail();
+    const password = 'ilikepancakes';
+    const stub = async () => {
+      const client = new Client(config.publicUrl, testOptions);
+      await client.setupCredentials(email, password);
+
+      if (testOptions.version === "V2") {
+        await client.setupCredentialsV2(email, password);
+      }
+
+      const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
+      assert.exists(stubResponse.setup_token);
+    };
+
+    // The second attempt to stub should fail, because the email has already been
+    // stubbed
+    await stub();
+    assert.isRejected(stub());
+  })
+
+  it('fails to create account with a corrupt setup token', async () => {
+    const email = server.uniqueEmail();
+    const password = 'ilikepancakes';
+    const client = new Client(config.publicUrl, testOptions);
+    await client.setupCredentials(email, password);
+
+    if (testOptions.version === "V2") {
+      await client.setupCredentialsV2(email, password);
+    }
+
+    const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
+    assert.exists(stubResponse.setup_token);
+
+    // modify the setup token and make sure it fails
+    stubResponse.setup_token = stubResponse.setup_token.toString().substring(2);
+
+    // Finish the setup. Should fail because the setup token is bad
+    assert.isRejected(client.finishAccountSetup(stubResponse.setup_token))
+  })
+
+  it('fails to call finish setup again', async () => {
+    const email = server.uniqueEmail();
+    const password = 'ilikepancakes';
+    const client = new Client(config.publicUrl, testOptions);
+    await client.setupCredentials(email, password);
+
+    if (testOptions.version === "V2") {
+      await client.setupCredentialsV2(email, password);
+    }
+
+    const stubResponse = await client.stubAccount('dcdb5ae7add825d2');
+    await client.finishAccountSetup(stubResponse.setup_token);
+
+    //Should fail because finish account setup was already called
+    assert.isRejected(client.finishAccountSetup(stubResponse.setup_token));
+  })
+
   it('/account/create works with proper data', () => {
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';

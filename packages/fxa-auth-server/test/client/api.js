@@ -1381,6 +1381,44 @@ module.exports = (config) => {
     );
   };
 
+  ClientApi.prototype.stubAccount = function (email, clientId) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/account/stub`,
+      null,
+      {
+        email,
+        clientId,
+        wantsSetupToken: true
+      }
+    );
+  }
+
+  ClientApi.prototype.finishAccountSetup = async function(
+    token,
+    email,
+    authPW,
+    wrapKb,
+    authPWVersion2,
+    wrapKbVersion2,
+    clientSalt
+  ) {
+    return this.doRequest(
+      'POST',
+      `${this.baseURL}/account/finish_setup?keys=true`,
+      null,
+      {
+        token,
+        email,
+        authPW,
+        wrapKb,
+        authPWVersion2,
+        wrapKbVersion2,
+        clientSalt
+      }
+    );
+  }
+
   ClientApi.heartbeat = function (origin) {
     return new ClientApi(origin).doRequest('GET', `${origin}/__heartbeat__`);
   };

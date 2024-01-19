@@ -1235,5 +1235,39 @@ module.exports = (config) => {
     }
   }
 
+  Client.prototype.stubAccount = async function(clientId) {
+    return await this.api.stubAccount(this.email, clientId);
+  }
+
+  Client.prototype.finishAccountSetup = async function(token) {
+    let response;
+    if (this.options.version === "V2") {
+      await this.generateNewWrapKb();
+      await this.deriveWrapKbVersion2FromKb();
+      response = await this.api.finishAccountSetup(
+        token,
+        this.email,
+        this.authPW.toString('hex') ,
+        this.wrapKb,
+        this.authPWVersion2.toString('hex'),
+        this.wrapKbVersion2,
+        this.clientSalt
+      );
+    }
+    else {
+      response = await this.api.finishAccountSetup(
+        token,
+        this.email,
+        this.authPW.toString('hex') ,
+      );
+    }
+
+    const uid = response.uid;
+    const sessionToken = response.sessionToken;
+    const verified = response.verified;
+
+    return {uid, sessionToken, verified};
+  }
+
   return Client;
 };
