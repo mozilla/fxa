@@ -119,7 +119,9 @@ test.describe('severity-2 #smoke', () => {
       await deleteAccount.submit();
 
       const success = await page.waitForSelector('.success');
-      await expect(success).toBeVisible();
+      // "Error: toBeVisible can be only used with Locator object"
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(await success.isVisible()).toBeTruthy();
     });
   });
 });

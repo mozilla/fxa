@@ -27,8 +27,11 @@ test.describe('severity-2 #smoke', () => {
       await engageRedirect(page, target, redirectTo);
 
       const error = await page.waitForSelector('.error');
-      await expect(error).toBeVisible();
-      await expect(error).toHaveText('Invalid redirect!');
+      // "Error: toBeVisible can be only used with Locator object"
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(await error.isVisible()).toBeTruthy();
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(await error.textContent()).toEqual('Invalid redirect!');
       expect(page.url).not.toEqual(redirectTo);
     });
 
@@ -40,8 +43,11 @@ test.describe('severity-2 #smoke', () => {
       await engageRedirect(page, target, redirectTo);
 
       const error = await page.waitForSelector('.error');
-      await expect(error).toBeVisible();
-      await expect(error).toHaveText('Invalid redirect!');
+      // "Error: toBeVisible can be only used with Locator object"
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(await error.isVisible()).toBeTruthy();
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
+      expect(await error.textContent()).toEqual('Invalid redirect!');
     });
 
     test('allows valid redirect_to parameter', async ({
