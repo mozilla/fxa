@@ -4,8 +4,7 @@
 
 'use strict';
 
-const chai = require('chai');
-const chaiAsPromised = require('chai-as-promised');
+const { assert } = require('chai');
 const url = require('url');
 const Client = require('../client')();
 const TestServer = require('../test_server');
@@ -15,12 +14,7 @@ const base64url = require('base64url');
 const config = require('../../config').default.getProperties();
 const mocks = require('../mocks');
 
-chai.use(chaiAsPromised);
-const { assert } = chai;
-
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote password forgot`, function () {
+describe('#integration - remote password forgot', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -38,8 +32,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
     let wrapKb = null;
     let kA = null;
     let client = null;
-    const options = {
-      ...testOptions,
+    const opts = {
       keys: true,
       metricsContext: mocks.generateMetricsContext(),
     };
@@ -48,7 +41,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
       email,
       password,
       server.mailbox,
-      options
+      opts
     )
       .then((x) => {
         client = x;
@@ -65,20 +58,22 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
       .then((emailData) => {
         assert.equal(
           emailData.headers['x-flow-begin-time'],
-          options.metricsContext.flowBeginTime,
+          opts.metricsContext.flowBeginTime,
           'flow begin time set'
         );
         assert.equal(
           emailData.headers['x-flow-id'],
-          options.metricsContext.flowId,
+          opts.metricsContext.flowId,
           'flow id set'
         );
         assert.equal(emailData.headers['x-template-name'], 'recovery');
         return emailData.headers['x-recovery-code'];
       })
       .then((code) => {
-        assert.isRejected(client.resetPassword(newPassword));
-        return resetPassword(client, code, newPassword, undefined, options);
+        assert.throws(() => {
+          client.resetPassword(newPassword);
+        });
+        return resetPassword(client, code, newPassword, undefined, opts);
       })
       .then(() => {
         return server.mailbox.waitForEmail(email);
@@ -90,24 +85,20 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
 
         assert.equal(
           emailData.headers['x-flow-begin-time'],
-          options.metricsContext.flowBeginTime,
+          opts.metricsContext.flowBeginTime,
           'flow begin time set'
         );
         assert.equal(
           emailData.headers['x-flow-id'],
-          options.metricsContext.flowId,
+          opts.metricsContext.flowId,
           'flow id set'
         );
         assert.equal(emailData.headers['x-template-name'], 'passwordReset');
-      })
-      .then(() => {
-        return upgradeCredentials(email, newPassword);
       })
       .then(
         // make sure we can still login after password reset
         () => {
           return Client.login(config.publicUrl, email, newPassword, {
-            ...testOptions,
             keys: true,
           });
         }
@@ -134,11 +125,10 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
-        client = new Client(config.publicUrl, testOptions);
+        client = new Client(config.publicUrl);
         client.email = email;
         return client.forgotPassword();
       })
@@ -243,7 +233,6 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
     const password = 'something';
     let client = null;
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}/`,
       service: 'sync',
     };
@@ -278,7 +267,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
   it('password forgot status with valid token', () => {
     const email = server.uniqueEmail();
     const password = 'something';
-    return Client.create(config.publicUrl, email, password, testOptions).then((c) => {
+    return Client.create(config.publicUrl, email, password).then((c) => {
       return c
         .forgotPassword()
         .then(() => {
@@ -295,7 +284,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
   });
 
   it('password forgot status with invalid token', () => {
-    const client = new Client(config.publicUrl, testOptions);
+    const client = new Client(config.publicUrl);
     return client.api
       .passwordForgotStatus(
         '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
@@ -312,7 +301,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
     const email = server.uniqueEmail();
     const password = 'something';
     let client = null;
-    return Client.create(config.publicUrl, email, password, testOptions)
+    return Client.create(config.publicUrl, email, password)
       .then((c) => {
         client = c;
       })
@@ -345,7 +334,6 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
   it('forgot password with service query parameter', () => {
     const email = server.uniqueEmail();
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}/`,
       serviceQuery: 'sync',
     };
@@ -378,8 +366,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
       config.publicUrl,
       email,
       'bar',
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
         client = c;
@@ -407,10 +394,7 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
         return resetPassword(client, code, newPassword);
       })
       .then(() => {
-        return upgradeCredentials(email, newPassword);
-      })
-      .then(() => {
-        return Client.login(config.publicUrl, email, newPassword, testOptions);
+        return Client.login(config.publicUrl, email, newPassword);
       })
       .then((client) => {
         return client.devices();
@@ -424,23 +408,9 @@ describe(`#integration${testOptions.version} - remote password forgot`, function
     return TestServer.stop(server);
   });
 
-  async function resetPassword(client, code, newPassword, headers, options) {
-    await client.verifyPasswordResetCode(code, headers, options);
-    await client.resetPassword(newPassword, {}, options);
+  function resetPassword(client, code, newPassword, headers, options) {
+    return client.verifyPasswordResetCode(code, headers, options).then(() => {
+      return client.resetPassword(newPassword, {}, options);
+    });
   }
-
-  async function upgradeCredentials(email, newPassword) {
-    if (testOptions.version === "V2") {
-      await Client.upgradeCredentials(config.publicUrl,
-        email,
-        newPassword,
-        {
-          version: '',
-          key:true
-        });
-    }
-  }
-
-});
-
 });

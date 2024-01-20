@@ -60,10 +60,7 @@ describe('checkPassword', () => {
   });
 
   it('should check with correct password', () => {
-    db.checkPassword = sinon.spy((uid) => Promise.resolve({
-      v1: true,
-      v2: false
-    }));
+    db.checkPassword = sinon.spy((uid) => Promise.resolve(true));
     const authPW = Buffer.from('aaaaaaaaaaaaaaaa');
     const accountRecord = {
       uid: TEST_UID,

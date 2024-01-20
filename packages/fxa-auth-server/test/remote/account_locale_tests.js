@@ -17,10 +17,7 @@ const key = {
   e: '65537',
 };
 
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account locale`, function () {
+describe('#integration - remote account locale', function () {
   this.timeout(15000);
   let server;
 
@@ -39,8 +36,7 @@ describe(`#integration${testOptions.version} - remote account locale`, function 
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
     let response = await client.api.accountStatus(
       client.uid,
@@ -71,7 +67,6 @@ describe(`#integration${testOptions.version} - remote account locale`, function 
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
     const client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       lang: Buffer.alloc(128).toString('hex'),
     });
     const response = await client.api.accountStatus(
@@ -85,7 +80,6 @@ describe(`#integration${testOptions.version} - remote account locale`, function 
     const email = server.uniqueEmail();
     const password = 'ilikepancakes';
     const client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       lang: `en-US,en;q=0.8,${Buffer.alloc(128).toString('hex')}`,
     });
     const response = await client.api.accountStatus(
@@ -94,6 +88,4 @@ describe(`#integration${testOptions.version} - remote account locale`, function 
     );
     assert.equal(response.locale, 'en-US,en;q=0.8', 'account has no locale');
   });
-});
-
 });

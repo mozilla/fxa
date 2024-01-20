@@ -13,9 +13,7 @@ const hawk = require('@hapi/hawk');
 
 const config = require('../../config').default.getProperties();
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote misc`, function () {
+describe('#integration - remote misc', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -147,8 +145,7 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
         client = c;
@@ -156,7 +153,7 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
       })
       .then(() => {
         url = `${client.api.baseURL}/account/keys`;
-        return client.api.Token.KeyFetchToken.fromHex(client.getState().keyFetchToken);
+        return client.api.Token.KeyFetchToken.fromHex(client.keyFetchToken);
       })
       .then((token) => {
         const method = 'GET';
@@ -185,7 +182,7 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
   });
 
   it('oversized payload', () => {
-    const client = new Client(config.publicUrl, testOptions);
+    const client = new Client(config.publicUrl);
     return client.api
       .doRequest(
         'POST',
@@ -213,14 +210,14 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
   });
 
   it('random bytes', () => {
-    const client = new Client(config.publicUrl, testOptions);
+    const client = new Client(config.publicUrl);
     return client.api.getRandomBytes().then((x) => {
       assert.equal(x.data.length, 64);
     });
   });
 
   it('fetch /.well-known/browserid support document', () => {
-    const client = new Client(config.publicUrl, testOptions);
+    const client = new Client(config.publicUrl);
     function fetch(url) {
       return client.api.doRequest('GET', config.publicUrl + url);
     }
@@ -247,8 +244,7 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
         client = c;
@@ -287,6 +283,4 @@ describe(`#integration${testOptions.version} - remote misc`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

@@ -10,10 +10,7 @@ const Client = require('../client')();
 
 const config = require('../../config').default.getProperties();
 
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account destroy`, function () {
+describe('#integration - remote account destroy', function () {
   this.timeout(15000);
   let server;
 
@@ -31,8 +28,7 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -61,22 +57,17 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
         c.authPW = Buffer.from(
           '0000000000000000000000000000000000000000000000000000000000000000',
           'hex'
         );
-        c.authPWVersion2 = Buffer.from(
-          '0000000000000000000000000000000000000000000000000000000000000000',
-          'hex'
-        );
         return c.destroyAccount();
       })
       .then(
-        (r) => {
+        () => {
           assert(false);
         },
         (err) => {
@@ -94,10 +85,7 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
       email,
       password,
       server.mailbox,
-      {
-        ...testOptions,
-        keys: true
-      }
+      { keys: true }
     )
       .then((res) => {
         client = res;
@@ -120,14 +108,11 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
       email,
       password,
       server.mailbox,
-      {
-        ...testOptions,
-        keys: true
-      }
+      { keys: true }
     )
       .then(() => {
         // Create a new unverified session
-        return Client.login(config.publicUrl, email, password, testOptions);
+        return Client.login(config.publicUrl, email, password);
       })
       .then((response) => {
         client = response;
@@ -145,6 +130,4 @@ describe(`#integration${testOptions.version} - remote account destroy`, function
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

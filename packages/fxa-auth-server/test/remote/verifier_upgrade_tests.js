@@ -33,9 +33,7 @@ const {
 
 let client, db, server;
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote verifier upgrade`, function () {
+describe('#integration - remote verifier upgrade', function () {
   this.timeout(30000);
 
   before(async () => {
@@ -54,7 +52,6 @@ describe(`#integration${testOptions.version} - remote verifier upgrade`, functio
     const password = 'ok';
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       preVerified: true,
       keys: true,
     });
@@ -72,11 +69,13 @@ describe(`#integration${testOptions.version} - remote verifier upgrade`, functio
       config.publicUrl,
       email,
       password,
-      testOptions
+      server.mailbox
     );
 
     await client.changePassword(password);
+
     account = await db.account(client.uid);
+
     assert.equal(account.verifierVersion, 1, 'wrong upgrade version');
   });
 
@@ -86,6 +85,4 @@ describe(`#integration${testOptions.version} - remote verifier upgrade`, functio
       await TestServer.stop(server);
     } catch (e) {}
   });
-});
-
 });

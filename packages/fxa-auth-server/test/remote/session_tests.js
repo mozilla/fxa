@@ -17,10 +17,7 @@ const publicKey = {
   e: '65537',
 };
 
-
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote session`, function () {
+describe('#integration - remote session', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = false;
@@ -40,8 +37,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((x) => {
           client = x;
@@ -73,7 +69,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
       let tokenId = null;
       let sessionTokenCreate = null;
       let sessionTokenLogin = null;
-      return Client.create(config.publicUrl, email, password, testOptions)
+      return Client.create(config.publicUrl, email, password)
         .then((x) => {
           client = x;
           sessionTokenCreate = client.sessionToken;
@@ -114,7 +110,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
       let client = null;
       let sessionTokenCreate = null;
       let sessionTokenLogin = null;
-      return Client.create(config.publicUrl, email, password, testOptions)
+      return Client.create(config.publicUrl, email, password)
         .then((x) => {
           client = x;
           sessionTokenCreate = client.sessionToken;
@@ -159,8 +155,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((x) => {
           client1 = x;
@@ -212,7 +207,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
       const email = server.uniqueEmail();
       const password = 'foobar';
       let client1, client2, client3;
-      return Client.create(config.publicUrl, email, password, testOptions)
+      return Client.create(config.publicUrl, email, password, server.mailbox)
         .then((x) => {
           client1 = x;
           return client1.duplicate();
@@ -286,10 +281,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         email,
         password,
         server.mailbox,
-        {
-          ...testOptions,
-          keys: true,
-        }
+        { keys: true }
       )
         .then((x) => {
           client = x;
@@ -299,21 +291,21 @@ describe(`#integration${testOptions.version} - remote session`, function () {
           kA = keys.kA;
           kB = keys.kB;
           assert.equal(
-            client.getState().keyFetchToken,
+            client.keyFetchToken,
             null,
             'keyFetchToken was consumed'
           );
           return client.reauth({ keys: true });
         })
         .then(() => {
-          assert.ok(client.getState().keyFetchToken, 'got a new keyFetchToken');
+          assert.ok(client.keyFetchToken, 'got a new keyFetchToken');
           return client.keys();
         })
         .then((keys) => {
           assert.equal(keys.kA, kA, 'kA was fetched successfully');
           assert.equal(keys.kB, kB, 'kB was fetched successfully');
           assert.equal(
-            client.getState().keyFetchToken,
+            client.keyFetchToken,
             null,
             'keyFetchToken was consumed'
           );
@@ -328,8 +320,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((x) => {
           client = x;
@@ -373,19 +364,13 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((x) => {
           client = x;
         })
         .then(() => {
           return client.setupCredentials(email, 'fiibar');
-        })
-        .then(() => {
-          if (testOptions.version === "V2") {
-            return client.setupCredentialsV2(email, 'fiibar');
-          }
         })
         .then(() => {
           return client.reauth();
@@ -405,8 +390,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
       const email = server.uniqueEmail();
       const password = 'foobar';
       let client;
-
-      return Client.create(config.publicUrl, email, password, testOptions)
+      return Client.create(config.publicUrl, email, password, server.mailbox)
         .then((x) => {
           client = x;
           assert.ok(!client.verified, 'account is not verified');
@@ -454,15 +438,11 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         email,
         password,
         server.mailbox,
-        {
-          ...testOptions,
-          keys: false,
-        }
+        { keys: false }
       )
         .then(() => {
           return Client.login(config.publicUrl, email, password, {
             keys: false,
-            ...testOptions
           });
         })
         .then((x) => {
@@ -541,10 +521,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         email,
         password,
         server.mailbox,
-        {
-          ...testOptions,
-          keys: true,
-        }
+        { keys: true }
       )
         .then((x) => {
           client = x;
@@ -576,8 +553,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((c) => {
           uid = c.uid;
@@ -594,7 +570,7 @@ describe(`#integration${testOptions.version} - remote session`, function () {
     });
 
     it('errors with invalid token', () => {
-      const client = new Client(config.publicUrl, testOptions);
+      const client = new Client(config.publicUrl);
       return client.api
         .sessionStatus(
           '0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF'
@@ -611,6 +587,4 @@ describe(`#integration${testOptions.version} - remote session`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

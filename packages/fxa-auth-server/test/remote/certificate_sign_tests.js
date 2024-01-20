@@ -19,9 +19,7 @@ const publicKey = {
   e: '65537',
 };
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote certificate sign`, function () {
+describe('#integration - remote certificate sign', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -40,7 +38,7 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         client = c;
@@ -98,7 +96,7 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         client = c;
@@ -151,7 +149,7 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
     const password = 'allyourbasearebelongtous';
     let client = null;
     const duration = 1000 * 60 * 60 * 24; // 24 hours
-    return Client.create(config.publicUrl, email, password, testOptions)
+    return Client.create(config.publicUrl, email, password)
       .then((c) => {
         client = c;
         return client.sign(publicKey, duration);
@@ -174,8 +172,7 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
         client = c;
@@ -270,8 +267,7 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((client) => {
         client.api.once('startRequest', (options) => {
@@ -304,6 +300,4 @@ describe(`#integration${testOptions.version} - remote certificate sign`, functio
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

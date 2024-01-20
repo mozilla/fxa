@@ -20,9 +20,7 @@ const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_CODE_VERIFIER = 'abababababababababababababababababababababa';
 const MOCK_CODE_CHALLENGE = 'YPhkZqm08uTfwjNSiYcx80-NPT9Zn94kHboQW97KyV0';
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - /oauth/ session token scope`, function () {
+describe('#integration - /oauth/ session token scope', function () {
   this.timeout(15000);
   let client;
   let email;
@@ -46,8 +44,7 @@ describe(`#integration${testOptions.version} - /oauth/ session token scope`, fun
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
   });
 
@@ -157,6 +154,4 @@ describe(`#integration${testOptions.version} - /oauth/ session token scope`, fun
     assert.notOk(tokenRes.session_token);
     assert.notOk(tokenRes.session_token_id);
   });
-});
-
 });

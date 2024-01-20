@@ -13,9 +13,7 @@ const config = require('../../config').default.getProperties();
 
 const pubSigKey = jwtool.JWK.fromFile(config.publicKeyFile);
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote flow`, function () {
+describe('#integration - remote flow', function () {
   this.timeout(15000);
   let server;
   let email1;
@@ -42,10 +40,7 @@ describe(`#integration${testOptions.version} - remote flow`, function () {
       email,
       password,
       server.mailbox,
-      {
-        ...testOptions,
-        keys: true
-      }
+      { keys: true }
     )
       .then((x) => {
         client = x;
@@ -55,7 +50,7 @@ describe(`#integration${testOptions.version} - remote flow`, function () {
         assert.equal(typeof keys.kA, 'string', 'kA exists');
         assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
         assert.equal(typeof keys.kB, 'string', 'kB exists');
-        assert.equal(client.getState().kB.length, 64, 'kB exists, has the right length');
+        assert.equal(client.kB.length, 64, 'kB exists, has the right length');
       })
       .then(() => {
         return client.sign(publicKey, duration);
@@ -81,8 +76,7 @@ describe(`#integration${testOptions.version} - remote flow`, function () {
       e: '65537',
     };
     const duration = 1000 * 60 * 60 * 24; // 24 hours
-    return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
+    return Client.login(config.publicUrl, email, password, server.mailbox, {
       keys: true,
     })
       .then((x) => {
@@ -95,7 +89,7 @@ describe(`#integration${testOptions.version} - remote flow`, function () {
         assert.equal(typeof keys.kA, 'string', 'kA exists');
         assert.equal(typeof keys.wrapKb, 'string', 'wrapKb exists');
         assert.equal(typeof keys.kB, 'string', 'kB exists');
-        assert.equal(client.getState().kB.length, 64, 'kB exists, has the right length');
+        assert.equal(client.kB.length, 64, 'kB exists, has the right length');
       })
       .then(() => {
         return client.sign(publicKey, duration);
@@ -108,6 +102,4 @@ describe(`#integration${testOptions.version} - remote flow`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

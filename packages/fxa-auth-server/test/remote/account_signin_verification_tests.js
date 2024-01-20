@@ -21,10 +21,7 @@ const publicKey = {
 
 const mocks = require('../mocks');
 
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account signin verification`, function () {
+describe('#integration - remote account signin verification', function () {
   this.timeout(30000);
   let server;
   before(() => {
@@ -43,8 +40,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -74,8 +70,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -119,8 +114,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -201,7 +195,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
     let emailCode, tokenCode, uid;
 
     // Create unverified account
-    return Client.create(config.publicUrl, email, password, testOptions)
+    return Client.create(config.publicUrl, email, password)
       .then((x) => {
         client = x;
       })
@@ -256,7 +250,6 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
     const password = 'something';
     let client = null;
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -295,7 +288,6 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
     let client = null;
     let client2 = null;
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -332,6 +324,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
           config.publicUrl,
           email,
           password,
+          server.mailbox,
           options
         );
       })
@@ -388,7 +381,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         client = c;
@@ -452,7 +445,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         client = c;
@@ -538,7 +531,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         client = c;
@@ -602,7 +595,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
     let client = null;
     let tokenCode;
 
-    return Client.create(config.publicUrl, email, password, { ...testOptions, keys: true })
+    return Client.create(config.publicUrl, email, password, { keys: true })
       .then((c) => {
         client = c;
         return client.emailStatus();
@@ -681,7 +674,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     )
       .then((c) => {
         // Trigger confirm sign-in
@@ -759,8 +752,7 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
     let client = null;
     let tokenCode;
 
-    return Client.create(config.publicUrl, email, password, {
-      ...testOptions,
+    return Client.create(config.publicUrl, email, password, server.mailbox, {
       keys: true,
     })
       .then((c) => {
@@ -812,6 +804,4 @@ describe(`#integration${testOptions.version} - remote account signin verificatio
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

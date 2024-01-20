@@ -18,9 +18,7 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote totp`, function () {
+describe('#integration - remote totp', function () {
   let server, client, email, totpToken, authenticator;
   const password = 'pssssst';
   const metricsContext = {
@@ -78,7 +76,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
           emailData.headers['x-template-name'],
           'postAddTwoStepAuthentication'
         );
-      })
+      });
   }
 
   beforeEach(() => {
@@ -87,8 +85,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
@@ -120,8 +117,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
@@ -158,8 +154,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -190,10 +185,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
           email,
           password,
           server.mailbox,
-          {
-            ...testOptions,
-            keys: true
-          }
+          { keys: true }
         );
       })
       .then((x) => {
@@ -226,8 +218,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -255,10 +246,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
           email,
           password,
           server.mailbox,
-          {
-            ...testOptions,
-            keys: true
-          }
+          { keys: true }
         );
       })
       .then((client2) => verifyTOTP(client2))
@@ -271,7 +259,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
   });
 
   it('should request `totp-2fa` on login if user has verified totp token', () => {
-    return Client.login(config.publicUrl, email, password, { ...testOptions, keys:true }).then((response) => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       assert.equal(
         response.verificationMethod,
         'totp-2fa',
@@ -289,7 +277,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
     return client
       .deleteTotpToken()
       .then(() => client.createTotpToken())
-      .then(() => Client.login(config.publicUrl, email, password, { ...testOptions, keys:true }))
+      .then(() => Client.login(config.publicUrl, email, password))
       .then((response) => {
         assert.notEqual(
           response.verificationMethod,
@@ -305,7 +293,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
   });
 
   it('should not bypass `totp-2fa` by resending sign-in confirmation code', () => {
-    return Client.login(config.publicUrl, email, password, {...testOptions, keys:true}).then((response) => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       client = response;
       assert.equal(
         response.verificationMethod,
@@ -326,7 +314,6 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
 
   it('should not bypass `totp-2fa` by signing a cert with an unverified session', () => {
     return Client.login(config.publicUrl, email, password, {
-      ...testOptions,
       keys: false,
     }).then((response) => {
       client = response;
@@ -364,7 +351,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
   });
 
   it('should not bypass `totp-2fa` by when using session reauth', () => {
-    return Client.login(config.publicUrl, email, password, testOptions).then((response) => {
+    return Client.login(config.publicUrl, email, password).then((response) => {
       client = response;
       assert.equal(
         response.verificationMethod,
@@ -393,41 +380,45 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
     });
   });
 
-  it('should not create verified session after account reset with totp', async () => {
+  it('should not create verified session after account reset with totp', () => {
     const newPassword = 'anotherPassword';
+    return Client.login(config.publicUrl, email, password)
+      .then((response) => {
+        client = response;
+        assert.equal(
+          response.verificationMethod,
+          'totp-2fa',
+          'verification method set'
+        );
+        assert.equal(
+          response.verificationReason,
+          'login',
+          'verification reason set'
+        );
 
-    const client = await Client.login(config.publicUrl, email, password, { ...testOptions, keys:true });
-    assert.equal(
-      client.verificationMethod,
-      'totp-2fa',
-      'verification method set'
-    );
-    assert.equal(
-      client.verificationReason,
-      'login',
-      'verification reason set'
-    );
-    await client.forgotPassword();
-    const code = await server.mailbox.waitForCode(email);
-    await client.verifyPasswordResetCode(code);
-    const res = await client.resetPassword(newPassword, {}, { keys: true })
-
-    assert.equal(
-      res.verificationMethod,
-      'totp-2fa',
-      'verificationMethod set'
-    );
-    assert.equal(res.verificationReason, 'login', 'verificationMethod set');
-    assert.equal(res.verified, false);
-    assert.ok(res.keyFetchToken);
-    assert.ok(res.sessionToken);
-    assert.ok(res.authAt);
+        return client.forgotPassword();
+      })
+      .then(() => server.mailbox.waitForCode(email))
+      .then((code) => client.verifyPasswordResetCode(code))
+      .then(() => client.resetPassword(newPassword, {}, { keys: true }))
+      .then((res) => {
+        assert.equal(
+          res.verificationMethod,
+          'totp-2fa',
+          'verificationMethod set'
+        );
+        assert.equal(res.verificationReason, 'login', 'verificationMethod set');
+        assert.equal(res.verified, false);
+        assert.ok(res.keyFetchToken);
+        assert.ok(res.sessionToken);
+        assert.ok(res.authAt);
+      });
   });
 
   describe('totp code verification', () => {
     beforeEach(() => {
       // Create a new unverified session to test totp codes
-      return Client.login(config.publicUrl, email, password, testOptions).then(
+      return Client.login(config.publicUrl, email, password).then(
         (response) => (client = response)
       );
     });
@@ -457,8 +448,7 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       ).then((x) => {
         client = x;
         assert.ok(client.authAt, 'authAt was set');
@@ -518,6 +508,4 @@ describe(`#integration${testOptions.version} - remote totp`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

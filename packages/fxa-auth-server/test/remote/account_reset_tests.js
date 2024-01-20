@@ -12,10 +12,7 @@ const jwtool = require('fxa-jwtool');
 
 const config = require('../../config').default.getProperties();
 
-[{version:""}, {version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account reset`, function () {
-
+describe('#integration - remote account reset', function () {
   this.timeout(15000);
   let server;
   config.signinConfirmation.skipForNewAccounts.enabled = true;
@@ -35,16 +32,15 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
       email,
       password,
       server.mailbox,
-      {
-        ...testOptions,
-        keys: true
-      }
+      { keys: true }
     );
     const keys1 = await client.keys();
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);
-    assert.isRejected(client.resetPassword(newPassword));
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
     const response = await resetPassword(client, code, newPassword, {
       sessionToken: false,
     });
@@ -57,32 +53,16 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
     const query = url.parse(link, true).query;
     assert.ok(query.email, 'email is in the link');
 
-    if (testOptions.version === "V2") {
-      // Reset password only acts on V1 accounts, so we need to create a v1 client
-      // run a password upgrade.
-      const newClient = await Client.login(
-        config.publicUrl,
-        email,
-        newPassword,
-        {
-          version: '',
-          keys:true
-        }
-      );
-      await newClient.upgradeCredentials(newPassword);
-    }
-
     // make sure we can still login after password reset
     // eslint-disable-next-line require-atomic-updates
     client = await Client.login(config.publicUrl, email, newPassword, {
-      ...testOptions,
       keys: true,
     });
     const keys2 = await client.keys();
     assert.notEqual(keys1.wrapKb, keys2.wrapKb, 'wrapKb was reset');
     assert.equal(keys1.kA, keys2.kA, 'kA was not reset');
-    assert.equal(typeof client.getState().kB, 'string');
-    assert.equal(client.getState().kB.length, 64, 'kB exists, has the right length');
+    assert.equal(typeof client.kB, 'string');
+    assert.equal(client.kB.length, 64, 'kB exists, has the right length');
   });
 
   it('account reset with keys', async () => {
@@ -95,13 +75,15 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     );
     const keys1 = await client.keys();
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);
-    assert.isRejected(client.resetPassword(newPassword));
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
     const response = await resetPassword(client, code, newPassword, {
       keys: true,
     });
@@ -114,34 +96,16 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
     const query = url.parse(link, true).query;
     assert.ok(query.email, 'email is in the link');
 
-    if (testOptions.version === "V2") {
-      // Reset password only acts on V1 accounts, so we need to create a v1 client
-      // run a password upgrade.
-      const newClient = await Client.login(
-        config.publicUrl,
-        email,
-        newPassword,
-        {
-          version: '',
-          keys:true
-        }
-      );
-      const status = await newClient.getCredentialsStatus(email);
-      assert(status.upgradeNeeded);
-      await newClient.upgradeCredentials(newPassword);
-    }
-
     // make sure we can still login after password reset
     // eslint-disable-next-line require-atomic-updates
     client = await Client.login(config.publicUrl, email, newPassword, {
-      ...testOptions,
       keys: true,
     });
     const keys2 = await client.keys();
     assert.notEqual(keys1.wrapKb, keys2.wrapKb, 'wrapKb was reset');
     assert.equal(keys1.kA, keys2.kA, 'kA was not reset');
-    assert.equal(typeof client.getState().kB, 'string');
-    assert.equal(client.getState().kB.length, 64, 'kB exists, has the right length');
+    assert.equal(typeof client.kB, 'string');
+    assert.equal(client.kB.length, 64, 'kB exists, has the right length');
   });
 
   it('account reset w/o keys, with sessionToken', async () => {
@@ -153,13 +117,14 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);
-    assert.isRejected(client.resetPassword(newPassword));
+    assert.throws(() => {
+      client.resetPassword(newPassword);
+    });
     const response = await resetPassword(client, code, newPassword);
     assert.ok(response.sessionToken, 'session token is in response');
     assert(!response.keyFetchToken, 'keyFetchToken token is not in response');
@@ -170,8 +135,7 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
     const email = server.uniqueEmail();
     const password = 'allyourbasearebelongtous';
     const newPassword = 'ez';
-    const options = {
-      ...testOptions,
+    const opts = {
       keys: true,
     };
 
@@ -180,7 +144,7 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
       email,
       password,
       server.mailbox,
-      options
+      opts
     );
 
     await client.forgotPassword();
@@ -189,15 +153,15 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
 
     await client.forgotPassword();
     const code = await server.mailbox.waitForCode(email);
-    assert.isRejected(client.resetPassword(newPassword));
-    await resetPassword(client, code, newPassword, undefined, options);
+    assert.throws(() => client.resetPassword(newPassword));
+    await resetPassword(client, code, newPassword, undefined, opts);
 
     const emailData = await server.mailbox.waitForEmail(email);
     const templateName = emailData.headers['x-template-name'];
     assert.equal(templateName, 'passwordReset');
 
     try {
-      await resetPassword(client, originalCode, newPassword, undefined, options);
+      await resetPassword(client, originalCode, newPassword, undefined, opts);
       assert.fail('Should not have succeeded password reset');
     } catch (err) {
       // Ensure that password reset fails with unknown token error codes
@@ -222,7 +186,7 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
       email,
       password,
       server.mailbox,
-      { ...testOptions, keys: true }
+      { keys: true }
     );
 
     const cert1 = jwtool.unverify(
@@ -251,5 +215,4 @@ describe(`#integration${testOptions.version} - remote account reset`, function (
     await client.verifyPasswordResetCode(code);
     return await client.resetPassword(newPassword, {}, options);
   }
-});
 });

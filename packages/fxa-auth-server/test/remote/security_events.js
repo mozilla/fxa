@@ -19,9 +19,7 @@ function delay(seconds) {
   return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
 }
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote securityEvents`, () => {
+describe('#integration - remote securityEvents', () => {
   let server;
 
   before(function () {
@@ -42,8 +40,7 @@ describe(`#integration${testOptions.version} - remote securityEvents`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -74,8 +71,7 @@ describe(`#integration${testOptions.version} - remote securityEvents`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -111,8 +107,7 @@ describe(`#integration${testOptions.version} - remote securityEvents`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -124,7 +119,9 @@ describe(`#integration${testOptions.version} - remote securityEvents`, () => {
         return server.mailbox.waitForCode(email);
       })
       .then((code) => {
-        assert.isRejected(client.resetPassword(newPassword));
+        assert.throws(() => {
+          client.resetPassword(newPassword);
+        });
         return resetPassword(client, code, newPassword);
       })
       .then((response) => {
@@ -155,6 +152,4 @@ describe(`#integration${testOptions.version} - remote securityEvents`, () => {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

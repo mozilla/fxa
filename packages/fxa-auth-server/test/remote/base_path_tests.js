@@ -9,10 +9,7 @@ const TestServer = require('../test_server');
 const Client = require('../client')();
 const superagent = require('superagent');
 
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote base path`, function () {
+describe('#integration - remote base path', function () {
   this.timeout(15000);
   let server, config;
   before(() => {
@@ -53,7 +50,7 @@ describe(`#integration${testOptions.version} - remote base path`, function () {
     const email = `${Math.random()}@example.com`;
     const password = 'ok';
     // if this doesn't crash, we're all good
-    return Client.create(config.publicUrl, email, password, testOptions);
+    return Client.create(config.publicUrl, email, password, server.mailbox);
   });
 
   it('.well-known did not move', () => {
@@ -79,6 +76,4 @@ describe(`#integration${testOptions.version} - remote base path`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

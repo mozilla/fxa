@@ -10,9 +10,7 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').default.getProperties();
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote recovery email resend code`, function () {
+describe('#integration - remote recovery email resend code', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -30,7 +28,6 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     let verifyEmailCode = '';
     let client = null;
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -40,6 +37,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
       config.publicUrl,
       email,
       password,
+      server.mailbox,
       options
     )
       .then((c) => {
@@ -52,6 +50,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
               config.publicUrl,
               email,
               password,
+              server.mailbox,
               options
             )
           )
@@ -85,7 +84,6 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     let verifyEmailCode = '';
     let client2 = null;
     const options = {
-      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -104,6 +102,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
           config.publicUrl,
           email,
           password,
+          server.mailbox,
           options
         );
       })
@@ -151,7 +150,6 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     const password = 'something';
     let client = null;
     const options = {
-      ...testOptions,
       keys: true,
     };
     return Promise.all([
@@ -166,6 +164,7 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
         config.publicUrl,
         secondEmail,
         password,
+        server.mailbox,
         options
       ),
     ])
@@ -173,7 +172,6 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
         // Login with `email` and attempt to resend verification code for `secondEmail`
         client = res[0];
         client.options = {
-          ...client.options,
           email: secondEmail,
         };
         return client.requestVerifyEmail().then(() => {
@@ -191,7 +189,6 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     const password = 'something';
     let client = null;
     const options = {
-      ...testOptions,
       keys: false,
     };
     return Client.createAndVerify(
@@ -236,5 +233,3 @@ describe(`#integration${testOptions.version} - remote recovery email resend code
     return TestServer.stop(server);
   });
 });
-
-})

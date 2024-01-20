@@ -34,9 +34,7 @@ const PLAN_ID = 'allDoneProMonthly';
 const PRODUCT_ID = 'megaProductHooray';
 const PRODUCT_NAME = 'All Done Pro';
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote subscriptions:`, function () {
+describe('#integration - remote subscriptions:', function () {
   this.timeout(10000);
 
   before(async () => {
@@ -54,7 +52,7 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
     const mockStripeHelper = {};
     const mockPlaySubscriptions = {};
     const mockAppStoreSubscriptions = {};
-    const mockCapabilityManager = { getClients: () => {}};
+    const mockCapabilityManager = {};
     const mockProfileClient = {};
 
     before(async () => {
@@ -102,14 +100,15 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
       mockStripeHelper.fetchCustomer = async (uid, email) => ({});
       mockStripeHelper.allMergedPlanConfigs = async () => [];
       mockProfileClient.deleteCache = () => {};
-      Container.set(AuthLogger, {error:() => {}});
       Container.set(StripeHelper, mockStripeHelper);
       Container.set(PlaySubscriptions, mockPlaySubscriptions);
       Container.set(AppStoreSubscriptions, mockAppStoreSubscriptions);
+      Container.set(AuthLogger, {});
       Container.set(ProfileClient, mockProfileClient);
-      Container.set(CapabilityManager, mockCapabilityManager);
       Container.remove(CapabilityService);
       Container.set(CapabilityService, new CapabilityService());
+      mockCapabilityManager.getClients = () => {};
+      Container.set(CapabilityManager, mockCapabilityManager);
 
       server = await testServerFactory.start(config, false, {
         authServerMockDependencies: {
@@ -130,8 +129,7 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
         config.publicUrl,
         server.uniqueEmail(),
         'wibble',
-        server.mailbox,
-        testOptions
+        server.mailbox
       );
 
       const tokenResponse1 = await client.grantOAuthTokensFromSessionToken({
@@ -338,7 +336,6 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
       config.subscriptions.enabled = false;
       config.subscriptions.stripeApiKey = null;
       config.subscriptions.stripeApiUrl = null;
-      config.subscriptions.productConfigsFirestore = { enabled: true };
       server = await testServerFactory.start(config);
     });
 
@@ -351,8 +348,7 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
         config.publicUrl,
         server.uniqueEmail(),
         'wibble',
-        server.mailbox,
-        testOptions
+        server.mailbox
       );
 
       const tokenResponse = await client.grantOAuthTokensFromSessionToken({
@@ -379,6 +375,4 @@ describe(`#integration${testOptions.version} - remote subscriptions:`, function 
       assert.deepEqual(response.subscriptions, []);
     });
   });
-});
-
 });

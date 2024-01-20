@@ -11,10 +11,7 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').default.getProperties();
 
-// Note, intentionally not indenting for code review.
-[{version:""}, {version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account login`, () => {
+describe('#integration - remote account login', () => {
   let server;
 
   before(function () {
@@ -33,11 +30,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
-        return Client.login(config.publicUrl, email, `${password}x`, testOptions);
+        return Client.login(config.publicUrl, email, `${password}x`);
       })
       .then(
         () => assert(false),
@@ -50,17 +46,6 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('the email is returned in the error on Incorrect email case errors with correct password', () => {
-
-    if (testOptions.version === "V2") {
-      // Important!!! This test is no longer applicable for V2 passwords.
-      // V1 passwords are encoded with a salt that includes the users
-      // email address. As a result, if the user enters a their email
-      // with an alternate casing, the encrypted password would be
-      // corrupted. V2 passwords do not use the user's email as salt,
-      // and therefore are not affected by this edge case.
-      return;
-    }
-
     const signupEmail = server.uniqueEmail();
     const loginEmail = signupEmail.toUpperCase();
     const password = 'abcdef';
@@ -68,11 +53,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       signupEmail,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
-        return Client.login(config.publicUrl, loginEmail, password, testOptions);
+        return Client.login(config.publicUrl, loginEmail, password);
       })
       .then(
         () => assert(false),
@@ -85,10 +69,9 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   });
 
   it('Unknown account should not exist', () => {
-    const client = new Client(config.publicUrl, testOptions);
+    const client = new Client(config.publicUrl);
     client.email = server.uniqueEmail();
     client.authPW = crypto.randomBytes(32);
-    client.authPWVersion2 = crypto.randomBytes(32);
     return client.login().then(
       () => {
         assert(false, 'account should not exist');
@@ -106,11 +89,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((c) => {
-        return Client.login(config.publicUrl, email, password, { ...testOptions, keys: false });
+        return Client.login(config.publicUrl, email, password, { keys: false });
       })
       .then((c) => {
         assert.equal(c.keyFetchToken, null, 'should not have keyFetchToken');
@@ -124,11 +106,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
-        return Client.login(config.publicUrl, email, password, testOptions);
+        return Client.login(config.publicUrl, email, password);
       })
       .then((client) => {
         assert.ok(client, 'logged in to account');
@@ -141,12 +122,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
         return Client.login(config.publicUrl, email, 'foo', {
-          ...testOptions,
           metricsContext: {
             flowId:
               '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -165,12 +144,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
         return Client.login(config.publicUrl, email, 'foo', {
-          ...testOptions,
           metricsContext: {
             flowId:
               '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0',
@@ -194,12 +171,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
       config.publicUrl,
       email,
       'foo',
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then(() => {
         return Client.login(config.publicUrl, email, 'foo', {
-          ... testOptions,
           metricsContext: {
             flowId:
               '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef',
@@ -226,14 +201,12 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
         config.publicUrl,
         email,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       );
     });
 
     it('fails with invalid verification method', () => {
       return Client.login(config.publicUrl, email, password, {
-        ...testOptions,
         verificationMethod: 'notvalid',
         keys: true,
       }).then(
@@ -248,7 +221,6 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
 
     it('can use `email` verification', () => {
       return Client.login(config.publicUrl, email, password, {
-        ...testOptions,
         verificationMethod: 'email',
         keys: true,
       })
@@ -290,7 +262,6 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
 
     it('can use `email-2fa` verification', () => {
       return Client.login(config.publicUrl, email, password, {
-        ...testOptions,
         verificationMethod: 'email-2fa',
         keys: true,
       })
@@ -327,14 +298,10 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
         email,
         password,
         server.mailbox,
-        {
-          ...testOptions,
-          keys: true
-        }
+        { keys: true }
       )
         .then(() => {
           return Client.login(config.publicUrl, email, password, {
-            ...testOptions,
             verificationMethod: 'totp-2fa',
             keys: true,
           });
@@ -361,7 +328,6 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
 
     it('should ignore verificationMethod if not requesting keys', () => {
       return Client.login(config.publicUrl, email, password, {
-        ...testOptions,
         verificationMethod: 'email',
         keys: false,
       })
@@ -389,5 +355,4 @@ describe(`#integration${testOptions.version} - remote account login`, () => {
   after(() => {
     return TestServer.stop(server);
   });
-});
 });

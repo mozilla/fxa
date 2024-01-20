@@ -12,9 +12,7 @@ const crypto = require('crypto');
 const base64url = require('base64url');
 const mocks = require('../mocks');
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote device`, function () {
+describe('#integration - remote device', function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -32,7 +30,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   it('device registration after account creation', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device 🍓🔥在𝌆',
         type: 'mobile',
@@ -126,7 +124,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   it('device registration without optional parameters', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -206,7 +204,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   it('device registration with unicode characters in the name', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         // That's a beta, a CJK character from https://bugzilla.mozilla.org/show_bug.cgi?id=1348298,
         // and the unicode replacement character in case of mojibake.
@@ -237,7 +235,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   it('device registration without required name parameter', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client.updateDevice({ type: 'mobile' }).then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
@@ -251,7 +249,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     const email = server.uniqueEmail();
     const deviceName = 'test device';
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client.updateDevice({ name: 'test device' }).then((device) => {
         assert.ok(device.id, 'device.id was set');
         assert.ok(device.createdAt > 0, 'device.createdAt was set');
@@ -274,7 +272,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
         .then((r) => {
@@ -306,7 +304,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
         .then((r) => {
@@ -328,7 +326,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     const goodPushCallback = 'https://updates-autopush.stage.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -361,7 +359,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     const goodPushCallback = 'https://updates-autopush.dev.mozaws.net';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -395,7 +393,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
 
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -427,7 +425,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:4430';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -459,7 +457,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
     const goodPushCallback = 'https://updates.push.services.mozilla.com:10332';
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'test device',
         type: 'mobile',
@@ -499,7 +497,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
         .then((r) => {
@@ -520,7 +518,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   it('device registration ignores deprecated "capabilities" field', () => {
     const email = server.uniqueEmail();
     const password = 'test password';
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       const deviceInfo = {
         name: 'a very capable device',
         type: 'desktop',
@@ -552,10 +550,9 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     ).then((client) => {
-      return Client.login(config.publicUrl, email, password, testOptions)
+      return Client.login(config.publicUrl, email, password)
         .then((secondClient) => {
           return secondClient.updateDevice(deviceInfo[0]);
         })
@@ -643,7 +640,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       pushPublicKey: mocks.MOCK_PUSH_KEY,
       pushAuthKey: base64url(crypto.randomBytes(16)),
     };
-    return Client.create(config.publicUrl, email, password, testOptions).then((client) => {
+    return Client.create(config.publicUrl, email, password).then((client) => {
       return client
         .updateDevice(deviceInfo)
         .then(() => {
@@ -698,8 +695,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     ).then((client) => {
       return (
         client
@@ -741,8 +737,7 @@ describe(`#integration${testOptions.version} - remote device`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     ).then((client) => {
       const deviceInfo = {
         name: 'test device',
@@ -797,6 +792,4 @@ describe(`#integration${testOptions.version} - remote device`, function () {
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });

@@ -12,9 +12,7 @@ const ERRNO = require('../../lib/error').ERRNO;
 let config, server, client, email;
 const password = 'allyourbasearebelongtous';
 
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote emails`, function () {
+describe('#integration - remote emails', function () {
   this.timeout(30000);
 
   before(() => {
@@ -33,8 +31,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     )
       .then((x) => {
         client = x;
@@ -109,8 +106,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
             config.publicUrl,
             clientEmail,
             password,
-            server.mailbox,
-            testOptions
+            server.mailbox
           ).catch(assert.fail);
         })
         .then((x) => {
@@ -186,8 +182,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
         config.publicUrl,
         anotherUserEmail,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then((x) => {
           anotherClient = x;
@@ -251,8 +246,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
         config.publicUrl,
         anotherUserEmail,
         password,
-        server.mailbox,
-        testOptions
+        server.mailbox
       )
         .then(() => {
           return client.createEmail(anotherUserEmail);
@@ -561,8 +555,6 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
         })
         .then((res) => {
           assert.ok(res);
-        })
-        .then(() => {
           return server.mailbox.waitForEmail(email);
         })
         .then((emailData) => {
@@ -570,15 +562,6 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           assert.equal(templateName, 'passwordReset');
           assert.equal(emailData.cc.length, 1);
           assert.equal(emailData.cc[0].address, secondEmail);
-        })
-        .then(() => {
-          if (testOptions.version === "V2") {
-            return Client.upgradeCredentials(config.publicUrl, email, 'password1', {version:'', keys:true})
-          }
-        }).then((x) => {
-          if (x) {
-            client = x;
-          }
           return client.login({ keys: true });
         })
         .then((x) => {
@@ -639,8 +622,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
             config.publicUrl,
             email,
             password,
-            server.mailbox,
-            testOptions
+            server.mailbox
           );
         })
         .then((x) => {
@@ -756,7 +738,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
     });
 
     it('fails to login', () => {
-      return Client.login(config.publicUrl, secondEmail, password, testOptions)
+      return Client.login(config.publicUrl, secondEmail, password, {})
         .then(() => {
           assert.fail(new Error('should not have been able to login'));
         })
@@ -799,7 +781,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
           return server.mailbox.waitForEmail(email);
         })
         .then(() => {
-          return Client.create(config.publicUrl, secondEmail, password, testOptions)
+          return Client.create(config.publicUrl, secondEmail, password, {})
             .then(assert.fail)
             .catch((err) => {
               assert.equal(err.errno, 144, 'return correct errno');
@@ -821,8 +803,7 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
             config.publicUrl,
             secondEmail,
             password,
-            server.mailbox,
-            testOptions
+            server.mailbox
           ).catch(assert.fail);
         })
         .then((x) => {
@@ -940,6 +921,4 @@ describe(`#integration${testOptions.version} - remote emails`, function () {
       return client.resetPassword(newPassword, {}, options);
     });
   }
-});
-
 });

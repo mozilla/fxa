@@ -16,11 +16,7 @@ const hashRefreshToken = require('fxa-shared/auth/encrypt').hash;
 
 const PUBLIC_CLIENT_ID = '3c49430b43dfba77';
 
-
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - attached clients listing`, function () {
+describe('#integration - attached clients listing', function () {
   this.timeout(15000);
   let server, oauthServerDb;
   before(async () => {
@@ -41,8 +37,7 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
     const mySessionTokenId = (
       await tokens.SessionToken.fromHex(client.sessionToken)
@@ -112,14 +107,13 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
     const mySessionTokenId = (
       await tokens.SessionToken.fromHex(client.sessionToken)
     ).id;
 
-    const client2 = await Client.login(config.publicUrl, email, password, testOptions);
+    const client2 = await Client.login(config.publicUrl, email, password);
     const device = await client2.updateDevice({
       name: 'test',
       type: 'desktop',
@@ -144,14 +138,13 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
     const mySessionTokenId = (
       await tokens.SessionToken.fromHex(client.sessionToken)
     ).id;
 
-    const client2 = await Client.login(config.publicUrl, email, password, testOptions);
+    const client2 = await Client.login(config.publicUrl, email, password);
     const otherSessionTokenId = (
       await tokens.SessionToken.fromHex(client2.sessionToken)
     ).id;
@@ -175,8 +168,7 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
       config.publicUrl,
       email,
       password,
-      server.mailbox,
-      testOptions
+      server.mailbox
     );
     const mySessionTokenId = (
       await tokens.SessionToken.fromHex(client.sessionToken)
@@ -211,6 +203,4 @@ describe(`#integration${testOptions.version} - attached clients listing`, functi
     await TestServer.stop(server);
     testUtils.restoreStdoutWrite();
   });
-});
-
 });

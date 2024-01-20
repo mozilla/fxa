@@ -11,10 +11,7 @@ const Client = require('../client')();
 const config = require('../../config').default.getProperties();
 const otplib = require('otplib');
 
-// Note, intentionally not indenting for code review.
-[{version:""},{version:"V2"}].forEach((testOptions) => {
-
-describe(`#integration${testOptions.version} - remote account create with sign-up code`, function () {
+describe('#integration - remote account create with sign-up code', function () {
   this.timeout(15000);
   const password = '4L6prUdlLNfxGIoj';
   let server, client, email, emailStatus, emailData;
@@ -28,7 +25,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       service: 'sync',
       verificationMethod: 'email-otp',
     });
@@ -58,7 +54,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
     assert.ok(client.authAt, 'authAt was set');
@@ -89,7 +84,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
     assert.ok(client.authAt, 'authAt was set');
@@ -121,7 +115,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
     assert.ok(client.authAt, 'authAt was set');
@@ -141,7 +134,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
 
@@ -172,7 +164,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
 
@@ -203,7 +194,6 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
     email = server.uniqueEmail();
 
     client = await Client.create(config.publicUrl, email, password, {
-      ...testOptions,
       verificationMethod: 'email-otp',
     });
 
@@ -234,6 +224,4 @@ describe(`#integration${testOptions.version} - remote account create with sign-u
   after(() => {
     return TestServer.stop(server);
   });
-});
-
 });
