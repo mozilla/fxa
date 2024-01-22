@@ -206,7 +206,7 @@
     "@storybook/blocks": "^7.0.24",
     "@storybook/preset-create-react-app": "^7.6.4",
     "@storybook/react": "^7.1.1",
-    "@storybook/react-webpack5": "^7.0.23",
+    "@storybook/react-webpack5": "^7.6.10",
     "@storybook/testing-library": "^0.2.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^6.1.3",

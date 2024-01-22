@@ -68,7 +68,7 @@
     "@storybook/addons": "^7.5.2",
     "@storybook/preset-create-react-app": "^7.6.4",
     "@storybook/react": "^7.1.1",
-    "@storybook/react-webpack5": "^7.0.23",
+    "@storybook/react-webpack5": "^7.6.10",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/accept-language-parser": "^1.5.1",
     "@types/babel__preset-env": "^7",
