@@ -9,7 +9,12 @@ const password = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if seeing React version'
+      );
       test.slow();
       email = login.createEmail();
       await login.clearCache();

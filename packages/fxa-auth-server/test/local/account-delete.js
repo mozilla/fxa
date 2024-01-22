@@ -7,40 +7,47 @@ const { assert } = require('chai');
 const proxyquire = require('proxyquire');
 const { default: Container } = require('typedi');
 const { AppConfig, AuthLogger } = require('../../lib/types');
-const { StripeHelper } = require('../../lib/payments/stripe');
 const mocks = require('../mocks');
+const uuid = require('uuid');
 
-let createTaskStub;
-const { AccountDeleteManager } = proxyquire('../../lib/account-delete', {
-  '@google-cloud/tasks': {
-    CloudTasksClient: class CloudTasksClient {
-      constructor() {}
-      createTask(...args) {
-        return createTaskStub.apply(null, args);
-      }
-    },
-  },
-});
+const email = 'foo@example.com';
+const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const expectedSubscriptions = [
+  { uid, subscriptionId: '123' },
+  { uid, subscriptionId: '456' },
+  { uid, subscriptionId: '789' },
+];
 
-const uid = 'uid';
-const email = 'testo@example.gg';
-const sandbox = sinon.createSandbox();
+describe('AccountDeleteManager', function () {
+  this.timeout(10000);
 
-describe('AccountDeleteManager', () => {
+  const sandbox = sinon.createSandbox();
+
   let mockFxaDb;
   let mockOAuthDb;
   let mockPush;
   let mockPushbox;
   let mockStatsd;
   let mockStripeHelper;
+  let mockPaypalHelper;
   let mockLog;
   let mockConfig;
   let accountDeleteManager;
+  let mockAuthModels;
+  let createTaskStub;
 
   beforeEach(() => {
+    const { PayPalHelper } = require('../../lib/payments/paypal/helper');
+    const { StripeHelper } = require('../../lib/payments/stripe');
+
     sandbox.reset();
     createTaskStub = sandbox.stub();
-    mockFxaDb = mocks.mockDB({ email, uid });
+    mockFxaDb = {
+      ...mocks.mockDB({ email: email, uid: uid }),
+      fetchAccountSubscriptions: sinon.spy(
+        async (uid) => expectedSubscriptions
+      ),
+    };
     mockOAuthDb = {};
     mockPush = mocks.mockPush();
     mockPushbox = mocks.mockPushbox();
@@ -48,16 +55,51 @@ describe('AccountDeleteManager', () => {
     mockStripeHelper = {};
     mockLog = mocks.mockLog();
 
-    Container.set(StripeHelper, mockStripeHelper);
-    Container.set(AuthLogger, mockLog);
-
     mockConfig = {
       apiVersion: 1,
       cloudTasks: mocks.mockCloudTasksConfig,
       publicUrl: 'https://tasks.example.io',
+      subscriptions: {
+        enabled: true,
+        paypalNvpSigCredentials: {
+          enabled: true,
+        },
+      },
+      domain: 'wibble',
+    };
+    Container.set(AppConfig, mockConfig);
+
+    mockStripeHelper = mocks.mockStripeHelper(['removeCustomer']);
+    mockStripeHelper.removeCustomer = sinon.spy(async (uid, email) => {});
+    mockPaypalHelper = mocks.mockPayPalHelper(['cancelBillingAgreement']);
+    mockPaypalHelper.cancelBillingAgreement = sinon.spy(async (ba) => {});
+    mockAuthModels = {};
+    mockAuthModels.getAllPayPalBAByUid = sinon.spy(async () => {
+      return [{ status: 'Active', billingAgreementId: 'B-test' }];
+    });
+    mockAuthModels.deleteAllPayPalBAs = sinon.spy(async () => {});
+
+    mockOAuthDb = {
+      removeTokensAndCodes: sinon.fake.resolves(),
+      removePublicAndCanGrantTokens: sinon.fake.resolves(),
     };
 
+    Container.set(StripeHelper, mockStripeHelper);
+    Container.set(PayPalHelper, mockPaypalHelper);
+    Container.set(AuthLogger, mockLog);
     Container.set(AppConfig, mockConfig);
+
+    const { AccountDeleteManager } = proxyquire('../../lib/account-delete', {
+      '@google-cloud/tasks': {
+        CloudTasksClient: class CloudTasksClient {
+          constructor() {}
+          createTask(...args) {
+            return createTaskStub.apply(null, args);
+          }
+        },
+      },
+      'fxa-shared/db/models/auth': mockAuthModels,
+    });
 
     accountDeleteManager = new AccountDeleteManager({
       fxaDb: mockFxaDb,
@@ -70,6 +112,11 @@ describe('AccountDeleteManager', () => {
 
   afterEach(() => {
     Container.reset();
+    sandbox.reset();
+  });
+
+  it('can be instantiated', () => {
+    assert.ok(accountDeleteManager);
   });
 
   describe('create tasks', function () {
@@ -164,6 +211,67 @@ describe('AccountDeleteManager', () => {
           'cloud-tasks.account-delete.enqueue.failure'
         );
         assert.instanceOf(err, Error);
+      }
+    });
+  });
+
+  describe('delete account', function () {
+    it('should delete the account', async () => {
+      await accountDeleteManager.deleteAccount(uid);
+
+      sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
+        uid,
+        email,
+      });
+      sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
+      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
+
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAllPayPalBAByUid,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockPaypalHelper.cancelBillingAgreement,
+        'B-test'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.deleteAllPayPalBAs,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(mockPushbox.deleteAccount, uid);
+      sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
+    });
+
+    it('does not fail if pushbox fails to delete', async () => {
+      mockPushbox.deleteAccount = sinon.fake.rejects();
+      try {
+        await accountDeleteManager.deleteAccount(uid);
+      } catch (err) {
+        assert.fail('no exception should have been thrown');
+      }
+    });
+
+    it('should fail if stripeHelper update customer fails', async () => {
+      mockStripeHelper.removeCustomer(async () => {
+        throw new Error('wibble');
+      });
+      try {
+        await accountDeleteManager.deleteAccount(uid);
+        assert.fail('method should throw an error');
+      } catch (err) {
+        assert.isObject(err);
+      }
+    });
+
+    it('should fail if paypalHelper cancel billing agreement fails', async () => {
+      mockPaypalHelper.cancelBillingAgreement(async () => {
+        throw new Error('wibble');
+      });
+      try {
+        await accountDeleteManager.deleteAccount(uid);
+        assert.fail('method should throw an error');
+      } catch (err) {
+        assert.isObject(err);
       }
     });
   });

@@ -3,14 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, newPagesForSync, test } from '../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../lib/email';
 import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
-import { syncMobileOAuthQueryParams } from '../../lib/query-params';
+import {
+  syncDesktopV3QueryParams,
+  syncMobileOAuthQueryParams,
+} from '../../lib/query-params';
 
 const PASSWORD = 'passwordzxcv';
 
 let email;
-let skipCleanup = false;
+
+const eventDetailLinkAccount = createCustomEventDetail(
+  FirefoxCommand.LinkAccount,
+  {
+    ok: true,
+  }
+);
 
 test.beforeEach(async ({ pages: { configPage, login } }) => {
   test.slow();
@@ -26,9 +34,6 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
 });
 
 test.afterEach(async ({ target }) => {
-  if (skipCleanup) {
-    return;
-  }
   if (email) {
     // Cleanup any accounts created during the test
     await target.auth.accountDestroy(email, PASSWORD);
@@ -50,14 +55,7 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.fillOutEmailFirst(email);
       await page.waitForSelector('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
-
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
+      await signupReact.fillOutCodeForm(email);
 
       // Verify logged into settings page
       await page.waitForURL(/settings/);
@@ -162,6 +160,7 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await page.waitForSelector('#root');
+      // We must wait for the page to render before sending a web channel message
       expect(page.getByText('Set your password')).toBeVisible();
 
       await signupReact.sendWebChannelMessage(customEventDetail);
@@ -171,49 +170,42 @@ test.describe('severity-1 #smoke', () => {
       // Only engines provided via web channel for Sync mobile are displayed
       expect(await login.isCWTSEngineCreditCards()).toBe(false);
 
-      await signupReact.listenToWebChannelMessages();
       await signupReact.fillOutSignupForm(PASSWORD);
-
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
+      await signupReact.fillOutCodeForm(email);
+      await page.waitForURL(/connect_another_device/);
       await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
-    test('signup sync', async ({ target }) => {
+    test('signup sync desktop v3, verify account', async ({ target }) => {
       test.slow();
       const syncBrowserPages = await newPagesForSync(target);
-      const { page, signupReact } = syncBrowserPages;
+      const { page, signupReact, login } = syncBrowserPages;
 
-      await signupReact.goto(
-        '/',
-        new URLSearchParams({
-          context: 'fx_desktop_v3',
-          service: 'sync',
-          action: 'email',
-          automatedBrowser: 'true',
-        })
-      );
-
+      await signupReact.goto('/', syncDesktopV3QueryParams);
       await signupReact.fillOutEmailFirst(email);
       await page.waitForURL(/signup/);
       await page.waitForSelector('#root');
+      // Wait for page to render
+      expect(page.getByText('Set your password')).toBeVisible();
+
+      await signupReact.respondToWebChannelMessage(eventDetailLinkAccount);
+      await signupReact.checkWebChannelMessage(FirefoxCommand.FxAStatus);
+      await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
+
+      // Sync desktop v3 includes "default" engines plus the ones provided via web channel
+      // See sync-engines.ts comments
+      await login.isCWTSEngineBookmarks();
+      await login.isCWTSEngineHistory();
+      await login.isCWTSEnginePasswords();
+      await login.isCWTSEngineTabs();
+      await login.isCWTSEnginePrefs();
+      await login.isCWTSEngineCreditCards();
+      expect(await login.isCWTSEngineAddresses()).toBe(false);
 
       await signupReact.fillOutSignupForm(PASSWORD);
+      await login.checkWebChannelMessage(FirefoxCommand.Login);
+      await signupReact.fillOutCodeForm(email);
 
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
-
-      // See note in `firefox.ts` about an event listener hack needed for this test
       await page.waitForURL(/connect_another_device/);
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
 
@@ -225,37 +217,36 @@ test.describe('severity-1 #smoke', () => {
 test.describe('severity-2 #smoke', () => {
   test.describe('signup react', () => {
     test('signup invalid email', async ({ page, pages: { signupReact } }) => {
-      skipCleanup = true;
       email = 'invalid';
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
+      email = ''; // skip cleanup, no account created
     });
 
     test('empty email', async ({ page, pages: { signupReact } }) => {
-      skipCleanup = true;
       await signupReact.goto();
       await signupReact.fillOutEmailFirst('');
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
+      email = ''; // skip cleanup, no account created
     });
 
     test('coppa is too young', async ({ page, pages: { signupReact } }) => {
-      skipCleanup = true;
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '12');
       await page.waitForURL(/cannot_create_account/);
+      email = ''; // skip cleanup, no account created
     });
 
     test('Visits the privacy policy links save information upon return', async ({
       page,
       pages: { signupReact },
     }) => {
-      skipCleanup = true;
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '21', false);
@@ -268,13 +259,14 @@ test.describe('severity-2 #smoke', () => {
       // expect(await signupReact.getPassword().inputValue).toEqual(PASSWORD);
       // expect(await signupReact.getPasswordConfirm().inputValue).toEqual(PASSWORD);
       // expect(await signupReact.getAge().inputValue).toEqual('21');
+
+      email = ''; // skip cleanup, no account created (form not submitted)
     });
 
     test('Visits the terms of service links save information upon return', async ({
       page,
       pages: { signupReact },
     }) => {
-      skipCleanup = true;
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '21', false);
@@ -287,22 +279,18 @@ test.describe('severity-2 #smoke', () => {
       // expect(await signupReact.getPassword().inputValue()).toEqual(PASSWORD);
       // expect(await signupReact.getPasswordConfirm().inputValue()).toEqual(PASSWORD);
       // expect(await signupReact.getAge().inputValue()).toEqual('21');
+
+      email = ''; // skip cleanup, no account created (form not submitted)
     });
 
     test('Checks that form prefill information is cleared after sign up -> sign out', async ({
       page,
-      target,
       pages: { signupReact, settings },
     }) => {
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD);
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-      await signupReact.fillOutCodeForm(code);
+      await signupReact.fillOutCodeForm(email);
       await page.waitForURL(/settings/);
       await settings.signOut();
       await signupReact.goto();
@@ -320,10 +308,11 @@ test.describe('severity-2 #smoke', () => {
       target,
       pages: { signupReact, relier, subscribe, login },
     }, { project }) => {
-      test.skip(
-        project.name === 'production',
-        'no test products available in prod'
-      );
+      if (project.name === 'production') {
+        test.skip(true, 'no test products available in prod');
+        email = ''; // skip cleanup
+      }
+
       // Make sure user is logged out
       await login.clearCache();
 
@@ -339,13 +328,7 @@ test.describe('severity-2 #smoke', () => {
       await signupReact.goto('/', searchParams);
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD);
-      const code = await target.email.waitForEmail(
-        email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
-      );
-
-      await signupReact.fillOutCodeForm(code);
+      await signupReact.fillOutCodeForm(email);
       /*
        * We must `waitUntil: 'load'` due to redirects that occur here. Note,
        * React signup for SubPlat has one additional redirect compared to Backbone.

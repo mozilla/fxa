@@ -10,11 +10,20 @@ const password = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Oauth sign up', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
-      test.slow();
-      email = login.createEmail();
-      bouncedEmail = login.createEmail('bounced{id}');
-      await login.clearCache();
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
+      const config = await configPage.getConfig();
+      if (config.showReactApp.signUpRoutes === true) {
+        email = '';
+        test.skip(
+          true,
+          'this test is specific to backbone, skip if serving react'
+        );
+      } else {
+        test.slow();
+        email = login.createEmail();
+        bouncedEmail = login.createEmail('bounced{id}');
+        await login.clearCache();
+      }
     });
 
     test.afterEach(async ({ target }) => {

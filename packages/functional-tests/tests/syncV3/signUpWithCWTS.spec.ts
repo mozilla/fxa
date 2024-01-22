@@ -13,6 +13,14 @@ let syncBrowserPages;
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'these tests are specific to backbone, skip if seeing React version'
+    );
+  });
+
   test.describe('Sync v3 sign up and CWTS', () => {
     test.beforeEach(async ({ target }) => {
       //Sync tests run a little slower and flake

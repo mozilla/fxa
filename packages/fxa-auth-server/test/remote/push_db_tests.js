@@ -49,7 +49,7 @@ const mockLog = {
   info: function () {},
 };
 
-describe('#integration - remote push db', function () {
+describe(`#integration - remote push db`, function () {
   this.timeout(15000);
 
   let dbServer, db;

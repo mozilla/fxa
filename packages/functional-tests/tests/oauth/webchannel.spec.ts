@@ -13,7 +13,13 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
     });
 
-    test('signup', async ({ pages: { login, relier } }) => {
+    test('signup', async ({ pages: { configPage, login, relier } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'this test is specific to backbone, skip if seeing React version'
+      );
+
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {

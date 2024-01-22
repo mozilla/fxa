@@ -18,7 +18,9 @@ function getSessionTokenId(sessionTokenHex) {
   });
 }
 
-describe('#integration - remote password change', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote password change`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -41,7 +43,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true
+      }
     )
       .then((x) => {
         client = x;
@@ -61,7 +66,7 @@ describe('#integration - remote password change', function () {
       })
       .then(() => {
         // Login from different location to created unverified session
-        return Client.login(config.publicUrl, email, password, { keys: true });
+        return Client.login(config.publicUrl, email, password, { ...testOptions, keys: true });
       })
       .then((c) => {
         client = c;
@@ -132,7 +137,10 @@ describe('#integration - remote password change', function () {
           email,
           newPassword,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true,
+          }
         );
       })
       .then((x) => {
@@ -156,7 +164,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true
+      }
     )
       .then((x) => {
         client = x;
@@ -215,7 +226,10 @@ describe('#integration - remote password change', function () {
           email,
           newPassword,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true
+          }
         );
       })
       .then((x) => {
@@ -239,7 +253,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true,
+      }
     )
       .then((x) => {
         client = x;
@@ -283,7 +300,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true
+      }
     )
       .then((x) => {
         client = x;
@@ -322,7 +342,10 @@ describe('#integration - remote password change', function () {
           email,
           newPassword,
           server.mailbox,
-          { keys: true }
+          {
+            ...testOptions,
+            keys: true
+          }
         );
       })
       .then((x) => {
@@ -350,7 +373,8 @@ describe('#integration - remote password change', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     );
 
     const cert1 = jwtool.unverify(
@@ -364,7 +388,8 @@ describe('#integration - remote password change', function () {
       config.publicUrl,
       email,
       newPassword,
-      server.mailbox
+      server.mailbox,
+      testOptions
     );
 
     const cert2 = jwtool.unverify(
@@ -384,7 +409,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true,
+      }
     )
       .then((x) => {
         client = x;
@@ -414,7 +442,10 @@ describe('#integration - remote password change', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      {
+        ...testOptions,
+        keys: true
+      }
     )
       .then((res) => {
         client = res;
@@ -437,7 +468,10 @@ describe('#integration - remote password change', function () {
         email,
         password,
         server.mailbox,
-        { keys: true }
+        {
+          ...testOptions,
+          keys: true,
+        }
       )
         .then((res) => {
           client = res;
@@ -483,11 +517,14 @@ describe('#integration - remote password change', function () {
         email,
         password,
         server.mailbox,
-        { keys: true }
+        {
+          ...testOptions,
+          keys: true,
+        }
       )
         // Create new unverified client
         .then(() =>
-          Client.login(config.publicUrl, email, password, { keys: true })
+          Client.login(config.publicUrl, email, password, { ...testOptions, keys: true })
         )
         .then((res) => {
           client = res;
@@ -505,4 +542,6 @@ describe('#integration - remote password change', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

@@ -10,7 +10,9 @@ const TestServer = require('../test_server');
 
 const config = require('../../config').default.getProperties();
 
-describe('#integration - remote recovery email resend code', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote recovery email resend code`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -28,6 +30,7 @@ describe('#integration - remote recovery email resend code', function () {
     let verifyEmailCode = '';
     let client = null;
     const options = {
+      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -37,7 +40,6 @@ describe('#integration - remote recovery email resend code', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox,
       options
     )
       .then((c) => {
@@ -50,7 +52,6 @@ describe('#integration - remote recovery email resend code', function () {
               config.publicUrl,
               email,
               password,
-              server.mailbox,
               options
             )
           )
@@ -84,6 +85,7 @@ describe('#integration - remote recovery email resend code', function () {
     let verifyEmailCode = '';
     let client2 = null;
     const options = {
+      ...testOptions,
       redirectTo: `https://sync.${config.smtp.redirectDomain}`,
       service: 'sync',
       resume: 'resumeToken',
@@ -102,7 +104,6 @@ describe('#integration - remote recovery email resend code', function () {
           config.publicUrl,
           email,
           password,
-          server.mailbox,
           options
         );
       })
@@ -150,6 +151,7 @@ describe('#integration - remote recovery email resend code', function () {
     const password = 'something';
     let client = null;
     const options = {
+      ...testOptions,
       keys: true,
     };
     return Promise.all([
@@ -164,7 +166,6 @@ describe('#integration - remote recovery email resend code', function () {
         config.publicUrl,
         secondEmail,
         password,
-        server.mailbox,
         options
       ),
     ])
@@ -172,6 +173,7 @@ describe('#integration - remote recovery email resend code', function () {
         // Login with `email` and attempt to resend verification code for `secondEmail`
         client = res[0];
         client.options = {
+          ...client.options,
           email: secondEmail,
         };
         return client.requestVerifyEmail().then(() => {
@@ -189,6 +191,7 @@ describe('#integration - remote recovery email resend code', function () {
     const password = 'something';
     let client = null;
     const options = {
+      ...testOptions,
       keys: false,
     };
     return Client.createAndVerify(
@@ -233,3 +236,5 @@ describe('#integration - remote recovery email resend code', function () {
     return TestServer.stop(server);
   });
 });
+
+})

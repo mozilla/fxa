@@ -74,7 +74,11 @@ import { PaymentConfigManager } from './configuration/manager';
 import { CurrencyHelper } from './currencies';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
 import { PlayStoreSubscriptionPurchase } from './iap/google-play/subscription-purchase';
-import { FirestoreStripeError, StripeFirestore } from './stripe-firestore';
+import {
+  StripeFirestoreMultiError,
+  FirestoreStripeError,
+  StripeFirestore,
+} from './stripe-firestore';
 import { stripeInvoiceToLatestInvoiceItemsDTO } from './stripe-formatter';
 import { generateIdempotencyKey, roundTime } from './utils';
 import { ContentfulManager } from '@fxa/shared/contentful';
@@ -3407,8 +3411,10 @@ export class StripeHelper extends StripeHelperBase {
     try {
       return await this.stripeFirestore.removeCustomerRecursive(uid);
     } catch (error) {
-      Sentry.captureException(error);
-      return [];
+      if (error instanceof StripeFirestoreMultiError) {
+        Sentry.captureException(error);
+      }
+      throw error;
     }
   }
 }

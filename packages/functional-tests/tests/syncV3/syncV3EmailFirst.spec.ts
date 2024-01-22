@@ -20,9 +20,16 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await syncBrowserPages.browser?.close();
   });
 
+  // TODO: is this something we want to support once index/email-first is converted to React?
   test('open directly to /signup page, refresh on the /signup page', async ({
+    pages: { configPage },
     target,
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'Not currently supported in React Signup'
+    );
     const { page, login } = syncBrowserPages;
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,

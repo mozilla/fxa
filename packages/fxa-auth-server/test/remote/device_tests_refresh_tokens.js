@@ -32,7 +32,9 @@ const OAUTH_CLIENT_NAME = 'Android Components Reference Browser';
 const UNKNOWN_REFRESH_TOKEN =
   'B53DF2CE2BDB91820CB0A5D68201EF87D8D8A0DFC11829FB074B6426F537EE78';
 
-describe('#integration - remote device with refresh tokens', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote device with refresh tokens`, function () {
   this.timeout(15000);
   let client;
   let db;
@@ -67,7 +69,7 @@ describe('#integration - remote device with refresh tokens', function () {
   beforeEach(() => {
     email = server.uniqueEmail();
     password = 'test password';
-    return Client.create(config.publicUrl, email, password).then((c) => {
+    return Client.create(config.publicUrl, email, password, testOptions).then((c) => {
       client = c;
     });
   });
@@ -567,4 +569,6 @@ describe('#integration - remote device with refresh tokens', function () {
         }
       );
   });
+});
+
 });

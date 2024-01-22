@@ -23,7 +23,9 @@ const JWT_ACCESS_TOKEN_SECRET =
 
 const { decodeJWT } = testUtils;
 
-describe('#integration - /oauth/ routes', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - /oauth/ routes`, function () {
   this.timeout(15000);
   let client;
   let email;
@@ -47,7 +49,8 @@ describe('#integration - /oauth/ routes', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     );
   });
 
@@ -390,7 +393,7 @@ describe('#integration - /oauth/ routes', function () {
     await client.changePassword('new password');
     await server.mailbox.waitForEmail(email);
     // eslint-disable-next-line require-atomic-updates
-    client = await Client.login(config.publicUrl, email, 'new password');
+    client = await Client.login(config.publicUrl, email, 'new password', testOptions);
     await server.mailbox.waitForEmail(email);
 
     const keyData2 = (
@@ -417,4 +420,6 @@ describe('#integration - /oauth/ routes', function () {
 
     assert.ok(keyData2.keyRotationTimestamp < keyData3.keyRotationTimestamp);
   });
+});
+
 });

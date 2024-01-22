@@ -11,6 +11,14 @@ let email, syncBrowserPages;
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'these tests are specific to backbone, skip if seeing React version'
+    );
+  });
+
   test.describe('Firefox Desktop Sync v3 sign up', () => {
     test.beforeEach(async ({ target, pages: { login } }) => {
       test.slow();

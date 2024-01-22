@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import crypto from 'crypto';
+import crypto, { verify } from 'crypto';
 import { fn, raw } from 'objection';
 import { BaseAuthModel, Proc } from './base-auth';
 import { Email } from './email';
@@ -23,8 +23,10 @@ const selectFields = [
   'emailCode',
   'kA',
   'wrapWrapKb',
+  'wrapWrapKbVersion2',
   'verifierVersion',
   'authSalt',
+  'clientSalt',
   'verifierSetAt',
   'createdAt',
   'locale',
@@ -46,10 +48,13 @@ export class Account extends BaseAuthModel {
     'kA',
     'uid',
     'verifyHash',
+    'verifyHashVersion2',
     'wrapWrapKb',
+    'wrapWrapKbVersion2',
   ];
 
   authSalt!: string;
+  clientSalt?: string;
   createdAt!: number;
   devices?: Device[];
   disabledAt?: number;
@@ -71,7 +76,9 @@ export class Account extends BaseAuthModel {
   verifierSetAt!: number;
   verifierVersion!: number;
   verifyHash?: string;
+  verifyHashVersion2?: string;
   wrapWrapKb!: string;
+  wrapWrapKbVersion2?: string;
 
   static relationMappings = {
     emails: {
@@ -116,9 +123,12 @@ export class Account extends BaseAuthModel {
     emailVerified,
     kA,
     wrapWrapKb,
+    wrapWrapKbVersion2,
     authSalt,
+    clientSalt,
     verifierVersion,
     verifyHash,
+    verifyHashVersion2,
     verifierSetAt,
     createdAt,
     locale,
@@ -131,9 +141,12 @@ export class Account extends BaseAuthModel {
     | 'emailVerified'
     | 'kA'
     | 'wrapWrapKb'
+    | 'wrapWrapKbVersion2'
     | 'authSalt'
+    | 'clientSalt'
     | 'verifierVersion'
     | 'verifyHash'
+    | 'verifyHashVersion2'
     | 'verifierSetAt'
     | 'createdAt'
     | 'locale'
@@ -148,9 +161,12 @@ export class Account extends BaseAuthModel {
         emailVerified,
         uuidTransformer.to(kA),
         uuidTransformer.to(wrapWrapKb),
+        wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
         uuidTransformer.to(authSalt),
+        clientSalt ? clientSalt : null,
         verifierVersion,
         uuidTransformer.to(verifyHash),
+        verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         verifierSetAt,
         createdAt,
         locale ?? ''
@@ -167,19 +183,25 @@ export class Account extends BaseAuthModel {
   static async reset({
     uid,
     verifyHash,
-    authSalt,
+    verifyHashVersion2,
     wrapWrapKb,
+    wrapWrapKbVersion2,
+    authSalt,
+    clientSalt,
     verifierSetAt,
     verifierVersion,
     keysHaveChanged,
   }: Pick<
     Account,
     | 'uid'
-    | 'verifyHash'
     | 'authSalt'
-    | 'wrapWrapKb'
     | 'verifierSetAt'
     | 'verifierVersion'
+    | 'verifyHash'
+    | 'verifyHashVersion2'
+    | 'wrapWrapKb'
+    | 'wrapWrapKbVersion2'
+    | 'clientSalt'
   > & {
     keysHaveChanged?: boolean;
   }) {
@@ -187,8 +209,11 @@ export class Account extends BaseAuthModel {
       Proc.ResetAccount,
       uuidTransformer.to(uid),
       uuidTransformer.to(verifyHash),
+      verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
       uuidTransformer.to(authSalt),
+      clientSalt ? clientSalt : null,
       uuidTransformer.to(wrapWrapKb),
+      wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
       verifierSetAt || Date.now(),
       verifierVersion,
       !!keysHaveChanged
@@ -400,27 +425,39 @@ export class Account extends BaseAuthModel {
   }
 
   static async checkPassword(uid: string, verifyHash: string) {
-    const count = await Account.query()
-      .select('uid')
-      .where('uid', uuidTransformer.to(uid))
-      .andWhere('verifyHash', uuidTransformer.to(verifyHash))
-      .resultSize();
-    return count > 0;
+    let [account] = await Account.query()
+      .select('verifyHash', 'verifyHashVersion2')
+      .where('uid', uuidTransformer.to(uid));
+
+    const v1 = account.verifyHash === verifyHash;
+    const v2 = account.verifyHashVersion2 === verifyHash;
+
+    return {
+      match: v1 || v2,
+      v1,
+      v2
+    };
   }
 
   static async createPassword(
     uid: string,
     authSalt: string,
+    clientSalt: string | undefined,
     verifyHash: string,
+    verifyHashVersion2: string | undefined,
     wrapWrapKb: string,
+    wrapWrapKbVersion2: string | undefined,
     verifierVersion: number
   ) {
     const now = Date.now();
     await Account.query()
       .update({
         authSalt: uuidTransformer.to(authSalt),
+        clientSalt: clientSalt ? clientSalt : null,
         verifyHash: uuidTransformer.to(verifyHash),
+        verifyHashVersion2: verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         wrapWrapKb: uuidTransformer.to(wrapWrapKb),
+        wrapWrapKbVersion2: wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
         verifierSetAt: now,
         keysChangedAt: now,
         profileChangedAt: now,

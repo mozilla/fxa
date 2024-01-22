@@ -11,7 +11,9 @@ const Client = require('../client')();
 const otplib = require('otplib');
 const BASE_36 = require('../../lib/routes/validators').BASE_36;
 
-describe('#integration - remote backup authentication codes', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote backup authentication codes`, function () {
   let server, client, email, recoveryCodes;
   const recoveryCodeCount = 9;
   const password = 'pssssst';
@@ -41,7 +43,8 @@ describe('#integration - remote backup authentication codes', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
@@ -116,7 +119,7 @@ describe('#integration - remote backup authentication codes', function () {
   describe('backup authentication code verification', () => {
     beforeEach(() => {
       // Create a new unverified session to test backup authentication codes
-      return Client.login(config.publicUrl, email, password)
+      return Client.login(config.publicUrl, email, password, testOptions)
         .then((response) => {
           client = response;
           return client.emailStatus();
@@ -192,7 +195,7 @@ describe('#integration - remote backup authentication codes', function () {
   describe('should notify user when backup authentication codes are low', () => {
     beforeEach(() => {
       // Create a new unverified session to test backup authentication codes
-      return Client.login(config.publicUrl, email, password)
+      return Client.login(config.publicUrl, email, password, testOptions)
         .then((response) => {
           client = response;
           return client.emailStatus();
@@ -248,4 +251,6 @@ describe('#integration - remote backup authentication codes', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

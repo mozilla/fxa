@@ -214,6 +214,12 @@ const conf = (module.exports = convict({
         format: 'int',
       },
     },
+    sendFxAStatusOnSettings: {
+      default: false,
+      doc: 'Sends a webchannel message on the settings page to request auth data from the browser',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS',
+    },
   },
   showReactApp: {
     simpleRoutes: {

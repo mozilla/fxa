@@ -19,6 +19,11 @@ const config = require('../config').default.getProperties();
 const PAYPAL_PROCESSOR_LOCK = 'fxa-paypal-processor-lock';
 const DEFAULT_LOCK_DURATION_MS = 300000;
 
+/**
+ * Used to track whether the script has been requested to exit cleanly and stop processing
+ */
+let shutdown = false;
+
 Sentry.init({});
 
 export async function init() {
@@ -98,6 +103,10 @@ export async function init() {
             if (signal.aborted) {
               throw signal.error;
             }
+
+            if (shutdown) {
+              break;
+            }
           }
         }
       );
@@ -107,12 +116,23 @@ export async function init() {
   } else {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     for await (const _ of processor.processInvoices()) {
-      // no need to do anything between invoices since we are not extending a lock
+      // no need to extend locks between invoices since locking was not enabled
+
+      if (shutdown) {
+        break;
+      }
     }
   }
 
   statsd.increment('paypal-processor.shutdown');
   await promisify(statsd.close).bind(statsd)();
+
+  if (shutdown) {
+    throw new Error(
+      'Script received an exit signal and did not complete processing'
+    );
+  }
+
   return 0;
 }
 
@@ -145,4 +165,11 @@ if (require.main === module) {
     .finally(() => {
       process.exit(exitStatus);
     });
+
+  const gracefulShutdown = () => {
+    shutdown = true;
+  };
+
+  process.on('SIGTERM', gracefulShutdown);
+  process.on('SIGINT', gracefulShutdown);
 }

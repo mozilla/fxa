@@ -77,6 +77,7 @@ export interface Config {
     debugViewTag: string;
   };
   redirectAllowlist: string[];
+  sendFxAStatusOnSettings: boolean;
 }
 
 export function getDefault() {
@@ -145,6 +146,7 @@ export function getDefault() {
       debugViewTag: '',
     },
     redirectAllowlist: ['localhost'],
+    sendFxAStatusOnSettings: false,
   } as Config;
 }
 

@@ -213,6 +213,29 @@ const ACCOUNT_RESET_POST = {
   },
 };
 
+const ACCOUNT_CREDENTIALS_STATUS = {
+  ...TAGS_ACCOUNT,
+  description: '/account/credentials/status',
+  notes: [
+    dedent`
+      This provides access to the accounts some info about the format of the account credentials. If the version 2 credential
+      format is in use, the client's unique salt will also be provided.
+      `,
+  ],
+  plugins: {
+    'hapi-swagger': {
+      responses: {
+        400: {
+          description: dedent`
+            Failing requests may be caused by the following errors (this is not an exhaustive list):
+            - \`errno: 108\` - Missing parameter in request body
+          `,
+        },
+      },
+    },
+  },
+};
+
 const ACCOUNT_DESTROY_POST = {
   ...TAGS_ACCOUNT,
   description: '/account/destroy',
@@ -284,6 +307,7 @@ const API_DOCS = {
   ACCOUNT_LOGIN_POST,
   ACCOUNT_PROFILE_GET,
   ACCOUNT_RESET_POST,
+  ACCOUNT_CREDENTIALS_STATUS,
   ACCOUNT_SET_PASSWORD_POST,
   ACCOUNT_STATUS_GET,
   ACCOUNT_STATUS_POST,
