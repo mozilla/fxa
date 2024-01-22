@@ -22,6 +22,8 @@ import { emailsMatch } from 'fxa-shared/email/helpers';
 // Account attributes that can be persisted
 const PERSISTENT = {
   accountResetToken: undefined,
+  alertText: undefined,
+  atLeast18AtReg: undefined,
   displayName: undefined,
   email: undefined,
   grantedPermissions: undefined,
@@ -37,6 +39,7 @@ const PERSISTENT = {
   profileImageId: undefined,
   profileImageUrl: undefined,
   profileImageUrlDefault: undefined,
+  providerUid: undefined,
   recoveryKeyId: undefined,
   sessionToken: undefined,
   // Hint for future code spelunkers. sessionTokenContext is a misnomer,
@@ -53,8 +56,6 @@ const PERSISTENT = {
   uid: undefined,
   metricsEnabled: undefined,
   verified: undefined,
-  alertText: undefined,
-  providerUid: undefined,
 };
 
 const DEFAULTS = _.extend(
@@ -62,27 +63,24 @@ const DEFAULTS = _.extend(
     accessToken: undefined,
     declinedSyncEngines: undefined,
     hasBounced: undefined,
+    hasLinkedAccount: undefined,
+    hasPassword: undefined,
     keyFetchToken: undefined,
     newsletters: undefined,
     offeredSyncEngines: undefined,
-    // `needsOptedInToMarketingEmail` is kept around to load from old ResumeTokens.
-    // This can be removed in post train-169+
-    needsOptedInToMarketingEmail: undefined,
     // password field intentionally omitted to avoid unintentional leaks
+    providerUid: undefined,
     unwrapBKey: undefined,
     verificationMethod: undefined,
     verificationReason: undefined,
     totpVerified: undefined,
-    providerUid: undefined,
-    hasLinkedAccount: undefined,
-    hasPassword: undefined,
   },
   PERSISTENT
 );
 
 const ALLOWED_KEYS = Object.keys(DEFAULTS);
 const ALLOWED_PERSISTENT_KEYS = Object.keys(PERSISTENT);
-const DEPRECATED_KEYS = ['ecosystemAnonId'];
+const DEPRECATED_KEYS = ['ecosystemAnonId', 'needsOptedInToMarketingEmail'];
 
 const CONTENT_SERVER_OAUTH_SCOPE = 'profile profile:write clients:write';
 
@@ -708,6 +706,7 @@ const Account = Backbone.Model.extend(
      * @param {Object} [options]
      * @param {String} [options.resume] - Resume token to send in verification
      * email if user is unverified.
+     * @param {boolean} [options.atLeast18AtReg] - true if user submitted age is 18+ at registration
      * @returns {Promise} - resolves when complete
      */
     signUp(password, relier, options = {}) {
@@ -716,6 +715,7 @@ const Account = Backbone.Model.extend(
           metricsContext: this._metrics.getFlowEventMetadata(),
           resume: options.resume,
           verificationMethod: options.verificationMethod,
+          atLeast18AtReg: options.atLeast18AtReg,
         })
         .then((updatedSessionData) => {
           this.set(updatedSessionData);
@@ -1113,7 +1113,11 @@ const Account = Backbone.Model.extend(
     },
 
     createPassword(email, password) {
-      return this._fxaClient.createPassword(this.get('sessionToken'), email, password);
+      return this._fxaClient.createPassword(
+        this.get('sessionToken'),
+        email,
+        password
+      );
     },
 
     /**

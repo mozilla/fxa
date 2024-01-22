@@ -195,7 +195,13 @@ export const Signup = ({
       }
       setBeginSignupLoading(true);
 
-      const { data, error } = await beginSignupHandler(email, newPassword);
+      const atLeast18AtReg = Number(age) >= 18 ? true : null;
+
+      const { data, error } = await beginSignupHandler(
+        email,
+        newPassword,
+        atLeast18AtReg
+      );
 
       if (data) {
         GleanMetrics.registration.success();

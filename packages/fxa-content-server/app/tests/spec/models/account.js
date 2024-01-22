@@ -1211,6 +1211,7 @@ describe('models/account', function () {
           },
           resume: 'resume token',
           verificationMethod: undefined,
+          atLeast18AtReg: undefined,
         })
       );
     });

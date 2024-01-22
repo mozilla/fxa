@@ -395,7 +395,8 @@ describe('sign-up-container', () => {
       expect(currentSignupProps).toBeDefined();
       const handlerResult = await currentSignupProps?.beginSignupHandler(
         'foo@mozilla.com',
-        'test123'
+        'test123',
+        true
       );
 
       expect(mockBeginSignupMutation).toBeCalledWith({
@@ -407,6 +408,7 @@ describe('sign-up-container', () => {
               verificationMethod: 'email-otp',
               keys: true,
               service: MozServices.FirefoxSync,
+              atLeast18AtReg: true,
             },
           },
         },
@@ -427,7 +429,8 @@ describe('sign-up-container', () => {
       await render();
       const result = await currentSignupProps?.beginSignupHandler(
         'foo@mozilla.com',
-        'test123'
+        'test123',
+        true
       );
 
       expect(result?.data).toBeNull();
@@ -449,7 +452,8 @@ describe('sign-up-container', () => {
       await render();
       const result = await currentSignupProps?.beginSignupHandler(
         'foo@mozilla.com',
-        'test123'
+        'test123',
+        true
       );
 
       expect(result?.data).toBeNull();

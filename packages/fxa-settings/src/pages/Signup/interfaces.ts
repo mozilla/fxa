@@ -23,11 +23,13 @@ export interface BeginSignUpOptions {
   service?: string;
   verificationMethod?: string;
   keys?: boolean;
+  atLeast18AtReg: true | null;
 }
 
 export type BeginSignupHandler = (
   email: string,
-  password: string
+  password: string,
+  atLeast18AtReg: true | null
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {

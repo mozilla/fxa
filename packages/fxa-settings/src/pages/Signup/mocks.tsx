@@ -75,6 +75,18 @@ export const BEGIN_SIGNUP_HANDLER_RESPONSE = {
   },
 };
 
+export const BEGIN_SIGNUP_HANDLER_RESPONSE_UNDER_18 = {
+  data: {
+    SignUp: {
+      uid: MOCK_UID,
+      sessionToken: MOCK_SESSION_TOKEN,
+      authAt: MOCK_AUTH_AT,
+      keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+    },
+    unwrapBKey: MOCK_UNWRAP_BKEY,
+  },
+};
+
 export const BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE = {
   data: null,
   error: {
