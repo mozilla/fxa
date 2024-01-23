@@ -1787,7 +1787,7 @@ export class AccountHandler {
 
     await this.customs.check(request, emailAddress, 'accountDestroy');
 
-    let accountRecord;
+    let accountRecord: Account;
     try {
       accountRecord = await this.db.accountRecord(emailAddress);
     } catch (err) {
@@ -1847,19 +1847,21 @@ export class AccountHandler {
     // We fetch the devices to notify before deleteAccount()
     // because obviously we can't retrieve the devices list after!
     const devices = await this.db.devices(uid);
+    const push = this.push;
+    const log = this.log;
 
-    await this.accountDeleteManager.deleteAccount(uid);
+    const notify = async () => {
+      try {
+        log.info('accountDeleted.byRequest', accountRecord as Account);
+        await push.notifyAccountDestroyed(uid, devices);
+        await log.notifyAttachedServices('delete', request, { uid });
+        await request.emitMetricsEvent('account.deleted', { uid });
+      } catch (error) {
+        log.error('Account.destroy.notify', { uid, error });
+      }
+    };
 
-    try {
-      await this.push.notifyAccountDestroyed(uid, devices);
-    } catch (err) {
-      // Ignore notification errors since this account no longer exists
-    }
-
-    await Promise.all([
-      this.log.notifyAttachedServices('delete', request, { uid }),
-      request.emitMetricsEvent('account.deleted', { uid }),
-    ]);
+    await this.accountDeleteManager.deleteAccount(uid, { notify });
 
     return {};
   }

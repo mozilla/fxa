@@ -26,10 +26,7 @@ export const deleteAccountIfUnverified = async (
       // If an unverified (stub) account has a Stripe customer without any
       // subscriptions, delete the customer.
       try {
-        await stripeHelper.removeCustomer(
-          secondaryEmailRecord.uid,
-          secondaryEmailRecord.email
-        );
+        await stripeHelper.removeCustomer(secondaryEmailRecord.uid);
       } catch (err) {
         // It's not an error where we'd want to stop the deletion of the
         // account.
