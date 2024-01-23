@@ -15,6 +15,10 @@ import ScopedKeys from 'lib/crypto/scoped-keys';
 import WebChannel from '../../lib/channels/web';
 import SyncEngines from '../sync-engines';
 
+const ALLOWED_LOGIN_FIELDS = ['email', 'sessionToken', 'uid', 'verified'];
+
+const REQUIRED_LOGIN_FIELDS = ['email', 'sessionToken', 'uid', 'verified'];
+
 const proto = OAuthRedirectAuthenticationBroker.prototype;
 
 const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
@@ -35,7 +39,13 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     reuseExistingSession: false,
   }),
 
-  commands: _.pick(WebChannel, 'FXA_STATUS', 'OAUTH_LOGIN', 'DELETE_ACCOUNT'),
+  commands: _.pick(
+    WebChannel,
+    'FXA_STATUS',
+    'LOGIN',
+    'OAUTH_LOGIN',
+    'DELETE_ACCOUNT'
+  ),
 
   type: Constants.OAUTH_WEBCHANNEL_BROKER,
 
@@ -50,6 +60,90 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
     // after we initialize we want to explicitly set that this broker supports the status
     this.setCapability('fxaStatus', true);
     this.on('fxa_status', (response) => this.onFxaStatus(response));
+  },
+
+  beforeSignUpConfirmationPoll(account) {
+    // The Sync broker notifies the browser of an unverified login
+    // before the user has verified their email. This allows the user
+    // to close the original tab or open the verification link in
+    // the about:accounts tab and have Sync still successfully start.
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.beforeSignUpConfirmationPoll.call(this, account)
+    );
+  },
+
+  afterCompleteSignInWithCode(account) {
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.afterSignInConfirmationPoll.call(this, account)
+    );
+  },
+
+  afterSignIn(account) {
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.afterSignIn.call(this, account)
+    );
+  },
+
+  afterSignUpConfirmationPoll(account) {
+    // The relier is notified of login here because `beforeSignUpConfirmationPoll`
+    // is never called for users who verify at CWTS. Without the login notice,
+    // the browser will never know the user signed up.
+    return this._notifyRelierOfLogin(account).then(() =>
+      proto.afterSignUpConfirmationPoll.call(this, account)
+    );
+  },
+
+  _notifyRelierOfLogin(account) {
+    /**
+     * Workaround for #3078. If the user signs up but does not verify
+     * their account, then visit `/` or `/settings`, they are
+     * redirected to `/confirm` which attempts to notify the browser of
+     * login. Since `unwrapBKey` and `keyFetchToken` are not persisted to
+     * disk, the passed in account lacks these items. The browser can't
+     * do anything without this data, so don't actually send the message.
+     *
+     * Also works around #3514. With e10s enabled, localStorage in
+     * about:accounts and localStorage in the verification page are not
+     * shared. This lack of shared state causes the original tab of
+     * a password reset from about:accounts to not have all the
+     * required data. The verification tab sends a WebChannel message
+     * already, so no need here too.
+     */
+    const loginData = this._getLoginData(account);
+    if (!this._hasRequiredLoginFields(loginData)) {
+      return Promise.resolve();
+    }
+
+    // Only send one login notification per uid to avoid race
+    // conditions within the browser. Two attempts to send
+    // a login message occur for users that verify while
+    // at the /confirm screen. The first attempt is made when
+    // /confirm is first displayed, the 2nd when verification
+    // completes.
+    if (loginData.uid === this._uidOfLoginNotification) {
+      return Promise.resolve();
+    }
+    this._uidOfLoginNotification = loginData.uid;
+    return this.send(this.getCommand('LOGIN'), loginData);
+  },
+
+  _hasRequiredLoginFields(loginData) {
+    const loginFields = Object.keys(loginData);
+    return !_.difference(REQUIRED_LOGIN_FIELDS, loginFields).length;
+  },
+  /**
+   * Get login data from `account` to send to the browser.
+   * All returned keys have a defined value.
+   *
+   * @param {Object} account
+   * @returns {Object}
+   * @private
+   */
+  _getLoginData(account) {
+    const loginData = account.pick(ALLOWED_LOGIN_FIELDS) || {};
+    loginData.verified = !!loginData.verified;
+    loginData.verifiedCanLinkAccount = !!this._verifiedCanLinkEmail;
+    return _.omit(loginData, _.isUndefined);
   },
 
   /**

@@ -3,7 +3,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { assert } from 'chai';
 import Constants from 'lib/constants';
 import WebChannel from 'lib/channels/web';
 import OAuthWebChannelBroker from 'models/auth_brokers/oauth-webchannel-v1';
@@ -15,7 +14,10 @@ import sinon from 'sinon';
 import User from 'models/user';
 import WindowMock from '../../../mocks/window';
 
+const assert = { ...sinon.assert, ...require('chai').assert };
+
 const HEX_CHARSET = '0123456789abcdef';
+
 function generateOAuthCode() {
   let code = '';
 
@@ -31,6 +33,7 @@ const OAUTH_LOGIN_MESSAGE = 'fxaccounts:oauth_login';
 const OAUTH_DELETE_ACCOUNT_MESSAGE = 'fxaccounts:delete_account';
 const REDIRECT_URI = 'https://localhost:8080';
 const VALID_OAUTH_CODE = generateOAuthCode();
+const LOGIN_MESSAGE = 'fxaccounts:login';
 
 describe('models/auth_brokers/oauth-webchannel-v1', () => {
   let account;
@@ -84,6 +87,7 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       sessionToken: 'abc123',
       email: 'test@email.com',
       uid: 'uid',
+      verified: true,
     });
     sinon.stub(account, 'createOAuthCode').callsFake(() => {
       return Promise.resolve({
@@ -274,6 +278,66 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
       assert.deepEqual(msg[1], {
         email: account.get('email'),
         uid: account.get('uid'),
+      });
+    });
+  });
+
+  describe('beforeSignUpConfirmationPoll', () => {
+    it('notifies the channel of login with required fields', () => {
+      return broker.beforeSignUpConfirmationPoll(account).then((result) => {
+        assert.isTrue(broker.send.calledOnce);
+        assert.calledWithExactly(broker.send, LOGIN_MESSAGE, {
+          sessionToken: 'abc123',
+          email: 'test@email.com',
+          uid: 'uid',
+          verified: true,
+          verifiedCanLinkAccount: false,
+        });
+      });
+    });
+
+    it('does not notifiy the channel of login with missing fields', () => {
+      account.unset('uid');
+      return broker.beforeSignUpConfirmationPoll(account).then((result) => {
+        assert.isTrue(broker.send.notCalled);
+      });
+    });
+  });
+
+  [
+    'afterCompleteSignInWithCode',
+    'afterSignIn',
+    'afterSignUpConfirmationPoll',
+  ].forEach((brokerMethod) => {
+    describe(brokerMethod, () => {
+      it('notifies the channel of login with required fields', () => {
+        return broker[brokerMethod](account).then((result) => {
+          assert.isTrue(broker.send.calledTwice);
+          assert.calledWithExactly(broker.send.getCall(0), LOGIN_MESSAGE, {
+            sessionToken: 'abc123',
+            email: 'test@email.com',
+            uid: 'uid',
+            verified: true,
+            verifiedCanLinkAccount: false,
+          });
+          assert.calledWithExactly(
+            broker.send.getCall(1),
+            OAUTH_LOGIN_MESSAGE,
+            {
+              code: VALID_OAUTH_CODE,
+              state: 'state',
+              redirect: 'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
+              action: brokerMethod.includes('SignIn') ? 'signin' : 'signup',
+            }
+          );
+        });
+      });
+
+      it('does not notifiy the channel of login with missing fields', () => {
+        account.unset('uid');
+        return broker[brokerMethod](account).then((result) => {
+          assert.isTrue(broker.send.calledOnce);
+        });
       });
     });
   });
