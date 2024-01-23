@@ -69,10 +69,14 @@ describe('AccountDeleteManager', function () {
     };
     Container.set(AppConfig, mockConfig);
 
-    mockStripeHelper = mocks.mockStripeHelper(['removeCustomer']);
-    mockStripeHelper.removeCustomer = sinon.spy(async (uid, email) => {});
+    mockStripeHelper = mocks.mockStripeHelper([
+      'removeCustomer',
+      'removeFirestoreCustomer',
+    ]);
+    mockStripeHelper.removeCustomer = sandbox.stub().resolves();
+    mockStripeHelper.removeFirestoreCustomer = sandbox.stub().resolves();
     mockPaypalHelper = mocks.mockPayPalHelper(['cancelBillingAgreement']);
-    mockPaypalHelper.cancelBillingAgreement = sinon.spy(async (ba) => {});
+    mockPaypalHelper.cancelBillingAgreement = sandbox.stub().resolves();
     mockAuthModels = {};
     mockAuthModels.getAllPayPalBAByUid = sinon.spy(async () => {
       return [{ status: 'Active', billingAgreementId: 'B-test' }];
@@ -217,12 +221,14 @@ describe('AccountDeleteManager', function () {
 
   describe('delete account', function () {
     it('should delete the account', async () => {
-      await accountDeleteManager.deleteAccount(uid);
+      const options = { notify: sandbox.stub().resolves() };
+
+      await accountDeleteManager.deleteAccount(uid, options);
 
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
-        email,
       });
+      sinon.assert.callCount(options.notify, 1);
       sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
       sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
 
@@ -273,6 +279,29 @@ describe('AccountDeleteManager', function () {
       } catch (err) {
         assert.isObject(err);
       }
+    });
+  });
+
+  describe('clean up account', () => {
+    it('should clean up subscription and oauth related records', async () => {
+      await accountDeleteManager.cleanupAccount(uid);
+
+      sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
+      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
+
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAllPayPalBAByUid,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockPaypalHelper.cancelBillingAgreement,
+        'B-test'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.deleteAllPayPalBAs,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
     });
   });
 });

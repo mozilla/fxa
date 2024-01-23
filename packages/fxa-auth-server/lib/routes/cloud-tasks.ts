@@ -3,33 +3,108 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import isA from 'joi';
+import { Container } from 'typedi';
 import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-import { ReasonForDeletion } from '../account-delete';
-import { AuthRequest } from '../types';
+import { AccountDeleteManager, ReasonForDeletion } from '../account-delete';
+import DB from '../db/index';
+import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
+import { ERRNO } from '../error';
+import pushBuilder from '../push';
 
 export type DeleteAccountTaskPayload = {
   uid: string;
   customerId?: string;
   reason: ReasonForDeletion;
 };
+type FxaDbForCloudTask = Pick<
+  Awaited<ReturnType<ReturnType<typeof DB>['connect']>>,
+  'account' | 'devices'
+>;
+type PushForCloudTask = Pick<
+  ReturnType<typeof pushBuilder>,
+  'notifyAccountDestroyed'
+>;
+type Log = AuthLogger & { activityEvent: (data: Record<string, any>) => void };
 
 export class CloudTaskHandler {
-  private config: ConfigType;
+  private log: Log;
+  private db: FxaDbForCloudTask;
+  private push: PushForCloudTask;
+  private accountDeleteManager: AccountDeleteManager;
 
-  constructor(config: ConfigType) {
-    this.config = config;
+  constructor({
+    log,
+    db,
+    push,
+  }: {
+    log: Log;
+    db: FxaDbForCloudTask;
+    push: PushForCloudTask;
+  }) {
+    this.log = log;
+    this.db = db;
+    this.push = push;
+
+    this.accountDeleteManager = Container.get(AccountDeleteManager);
   }
 
-  deleteAccount(taskPayload: DeleteAccountTaskPayload) {
+  async deleteAccount(taskPayload: DeleteAccountTaskPayload) {
+    try {
+      // get account from MySQL
+      const account = await this.db.account(taskPayload.uid);
+
+      // We fetch the devices to notify before deleteAccount()
+      // because obviously we can't retrieve the devices list after!
+      const devices = await this.db.devices(taskPayload.uid);
+      const push = this.push;
+      const log = this.log;
+
+      const notify = async () => {
+        try {
+          log.info('accountDeleted.byCloudTask', account);
+          await push.notifyAccountDestroyed(taskPayload.uid, devices);
+          await log.notifyAttachedServices('delete', {} as AuthRequest, {
+            uid: taskPayload.uid,
+          });
+          // because a cloud task request is very different from a user request
+          // we cannot emit metrics in the same fashion
+          if (!account.metricsOptOutAt) {
+            log.activityEvent({ uid: account.uid, event: 'account.deleted' });
+          }
+        } catch (error) {
+          log.error('CloudTask.accountDelete.notify', {
+            uid: taskPayload.uid,
+            error,
+          });
+        }
+      };
+      // the account still exists in MySQL, delete as usual
+      await this.accountDeleteManager.deleteAccount(taskPayload.uid, {
+        notify,
+      });
+    } catch (err) {
+      // if the account is already deleted from the db, then try to clean up
+      // some potentially remaining other records
+      if (err.errno === ERRNO.ACCOUNT_UNKNOWN) {
+        await this.accountDeleteManager.cleanupAccount(taskPayload.uid);
+      } else {
+        throw err;
+      }
+    }
     return {};
   }
 }
 export const accountDeleteCloudTaskPath = '/cloud-tasks/accounts/delete';
 
-export const cloudTaskRoutes = (config: ConfigType) => {
-  const cloudTaskHandler = new CloudTaskHandler(config);
+export const cloudTaskRoutes = (
+  log: Log,
+  db: FxaDbForCloudTask,
+  config: ConfigType,
+  push: PushForCloudTask
+) => {
+  const cloudTaskHandler = new CloudTaskHandler({ log, db, push });
   const routes = [
     {
       method: 'POST',
@@ -65,3 +140,5 @@ export const cloudTaskRoutes = (config: ConfigType) => {
 
   return routes;
 };
+
+export default cloudTaskRoutes;
