@@ -5,7 +5,11 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
+import {
+  ReportSigninLinkDamaged,
+  ResetPasswordLinkDamaged,
+  SigninLinkDamaged,
+} from '.';
 
 describe('LinkDamaged', () => {
   it('renders the component as expected for a damaged Reset Password link', () => {
@@ -24,6 +28,17 @@ describe('LinkDamaged', () => {
 
     screen.getByRole('heading', {
       name: 'Confirmation link damaged',
+    });
+    screen.getByText(
+      'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
+    );
+  });
+
+  it('renders the component as expected for a damaged report signin link', () => {
+    renderWithLocalizationProvider(<ReportSigninLinkDamaged />);
+
+    screen.getByRole('heading', {
+      name: 'Link damaged',
     });
     screen.getByText(
       'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'

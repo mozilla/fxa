@@ -326,7 +326,11 @@ Router = Router.extend({
         }
       );
     },
-    'report_signin(/)': createViewHandler(ReportSignInView),
+    'report_signin(/)': function () {
+      this.createReactOrBackboneViewHandler('report_signin', ReportSignInView, {
+        ...Url.searchParams(this.window.location.search),
+      });
+    },
 
     'reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(

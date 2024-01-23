@@ -16,3 +16,4 @@ export const MOCK_KEY_FETCH_TOKEN = 'keyFetchToken';
 export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_AUTH_AT = 12345;
 export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';
+export const MOCK_UNBLOCK_CODE = 'A1B2C3D4';

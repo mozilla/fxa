@@ -4,10 +4,15 @@
 
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import { RouteComponentProps, Router, useLocation } from '@reach/router';
-import { ScrollToTop } from '../Settings/ScrollToTop';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+
+import { QueryParams } from '../..';
 
 import { currentAccount, sessionToken } from '../../lib/cache';
+import { firefox } from '../../lib/channels/firefox';
+import GleanMetrics from '../../lib/glean';
+import * as Metrics from '../../lib/metrics';
+import { LinkType, MozServices } from '../../lib/types';
+
 import {
   Integration,
   isWebIntegration,
@@ -16,48 +21,46 @@ import {
   useIntegration,
   useLocalSignedInQueryState,
 } from '../../models';
-import * as Metrics from '../../lib/metrics';
-
-import sentryMetrics from 'fxa-shared/sentry/browser';
-import CannotCreateAccount from '../../pages/CannotCreateAccount';
-import Clear from '../../pages/Clear';
-import CookiesDisabled from '../../pages/CookiesDisabled';
-import ResetPassword from '../../pages/ResetPassword';
-import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
-
-import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
-import Legal from '../../pages/Legal';
-import LegalTerms from '../../pages/Legal/Terms';
-import LegalPrivacy from '../../pages/Legal/Privacy';
-
-import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
-
-import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
-import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
-
-import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
-import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
-
-import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
-import SigninReported from '../../pages/Signin/SigninReported';
-import SigninBounced from '../../pages/Signin/SigninBounced';
-import LinkValidator from '../LinkValidator';
-import { LinkType, MozServices } from 'fxa-settings/src/lib/types';
-import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
-import WebChannelExample from '../../pages/WebChannelExample';
-import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
-import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 import {
   SettingsContext,
   initializeSettingsContext,
 } from '../../models/contexts/SettingsContext';
-import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
-import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
-import { QueryParams } from '../..';
-import SignupContainer from '../../pages/Signup/container';
-import GleanMetrics from '../../lib/glean';
+import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
+
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
-import { firefox } from '../../lib/channels/firefox';
+
+import sentryMetrics from 'fxa-shared/sentry/browser';
+
+// Components
+import { ScrollToTop } from '../Settings/ScrollToTop';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+
+// Pages
+import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
+import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
+import CannotCreateAccount from '../../pages/CannotCreateAccount';
+import Clear from '../../pages/Clear';
+import CookiesDisabled from '../../pages/CookiesDisabled';
+import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
+import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
+import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
+import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
+import Legal from '../../pages/Legal';
+import LegalTerms from '../../pages/Legal/Terms';
+import LegalPrivacy from '../../pages/Legal/Privacy';
+import LinkValidator from '../LinkValidator';
+import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
+import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
+import ResetPassword from '../../pages/ResetPassword';
+import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
+import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
+import SigninBounced from '../../pages/Signin/SigninBounced';
+import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
+import SigninReported from '../../pages/Signin/SigninReported';
+import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
+import SignupContainer from '../../pages/Signup/container';
+import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
+import WebChannelExample from '../../pages/WebChannelExample';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -287,6 +290,7 @@ const AuthAndAccountSetupRoutes = ({
       />
 
       {/* Signin */}
+      <ReportSigninContainer path="/report_signin/*" />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <SigninConfirmed
         path="/signin_confirmed/*"

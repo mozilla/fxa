@@ -4,7 +4,11 @@
 
 import React from 'react';
 import { Meta } from '@storybook/react';
-import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '.';
+import {
+  ReportSigninLinkDamaged,
+  ResetPasswordLinkDamaged,
+  SigninLinkDamaged,
+} from '.';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -16,3 +20,5 @@ export default {
 export const DamagedResetPasswordLink = () => <ResetPasswordLinkDamaged />;
 
 export const DamagedSigninLink = () => <SigninLinkDamaged />;
+
+export const DamagedReportSigninLink = () => <ReportSigninLinkDamaged />;
