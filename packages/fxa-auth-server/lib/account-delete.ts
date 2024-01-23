@@ -11,21 +11,13 @@ import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
 import { PayPalHelper } from './payments/paypal/helper';
 import { StripeHelper } from './payments/stripe';
-
 import pushboxApi from './pushbox';
 import { accountDeleteCloudTaskPath } from './routes/cloud-tasks';
 import { AccountDeleteReasons, AppConfig, AuthLogger } from './types';
-/*
-import {
-  uid as uidValidator,
-  customerId as customerIdValidator,
-} from './routes/validators';
-//*/
 
 import {
   deleteAllPayPalBAs,
   getAllPayPalBAByUid,
-  Account,
 } from 'fxa-shared/db/models/auth';
 import { ConfigType } from '../config';
 import * as Sentry from '@sentry/node';
@@ -40,7 +32,9 @@ type PushboxDeleteAccount = Pick<
   'deleteAccount'
 >;
 
-export type ReasonForDeletion = typeof AccountDeleteReasons[number];
+export type ReasonForDeletion = (typeof AccountDeleteReasons)[number];
+export type AccountDeleteOptions = { notify?: () => Promise<void> };
+
 type DeleteTask = {
   uid: string;
   customerId?: string;
@@ -54,17 +48,6 @@ type EnqueueByEmailParam = {
   email: string;
   reason: ReasonForDeletion;
 };
-
-/*
-const isValidDeleteTask = (deleteTask: DeleteTask) => {
-  const uidValidationResult = uidValidator.validate(deleteTask.uid);
-  const customerIdValidationResult = customerIdValidator.validate(
-    deleteTask.customerId
-  );
-
-  return !uidValidationResult.error && !customerIdValidationResult.error;
-};
-//*/
 
 const isEnqueueByUidParam = (
   x: EnqueueByUidParam | EnqueueByEmailParam
@@ -197,21 +180,23 @@ export class AccountDeleteManager {
    * Delete the account from the FxA database, OAuth database, pushbox database, and
    * cancel any active subscriptions.
    *
-   * @param uid
+   * @param accountRecord Account
+   * @param options AccountDeleteOptions optional object with an optional `notify` function that will be called after the account's removed from MySQL.
    */
-  public async deleteAccount(uid: string) {
-    const accountRecord = await this.fxaDb.account(uid);
+  public async deleteAccount(uid: string, options?: AccountDeleteOptions) {
+    await this.deleteAccountFromDb(uid, options);
+    await this.deleteOAuthTokens(uid);
+    // see comment in the function on why we are not awaiting
+    this.deletePushboxRecords(uid);
 
-    await this.deleteSubscriptions(accountRecord);
+    await this.deleteSubscriptions(uid);
+    await this.deleteFirestoreCustomer(uid);
+  }
 
-    await this.deleteAccountDb(accountRecord);
-    this.log.info('accountDeleted.byRequest', accountRecord);
-
-    await this.deleteOAuthDb(accountRecord);
-
-    await this.deletePushboxRecord(accountRecord);
-
-    // TODO: Update to send notification to all devices
+  public async cleanupAccount(uid: string) {
+    await this.deleteSubscriptions(uid);
+    await this.deleteFirestoreCustomer(uid);
+    await this.deleteOAuthTokens(uid);
   }
 
   /**
@@ -219,8 +204,14 @@ export class AccountDeleteManager {
    *
    * @param accountRecord
    */
-  public async deleteAccountDb(accountRecord: Account) {
-    await this.fxaDb.deleteAccount(accountRecord);
+  public async deleteAccountFromDb(
+    uid: string,
+    options?: AccountDeleteOptions
+  ) {
+    await this.fxaDb.deleteAccount({ uid });
+    if (options?.notify) {
+      await options.notify();
+    }
   }
 
   /**
@@ -229,8 +220,8 @@ export class AccountDeleteManager {
    *
    * @param accountRecord
    */
-  public async deleteOAuthDb(accountRecord: Account) {
-    await this.oauthDb.removeTokensAndCodes(accountRecord.uid);
+  public async deleteOAuthTokens(uid: string) {
+    await this.oauthDb.removeTokensAndCodes(uid);
   }
 
   /**
@@ -238,8 +229,7 @@ export class AccountDeleteManager {
    *
    * @param accountRecord
    */
-  public async deletePushboxRecord(accountRecord: Account) {
-    const { uid } = accountRecord;
+  public async deletePushboxRecords(uid: string) {
     // No need to await and block the other notifications. The pushbox records
     // will be deleted once they expire even if they were not successfully
     // deleted here.
@@ -257,12 +247,10 @@ export class AccountDeleteManager {
    *
    * @param accountRecord
    */
-  public async deleteSubscriptions(accountRecord: Account) {
-    const { uid, email } = accountRecord;
-
+  public async deleteSubscriptions(uid: string) {
     if (this.config.subscriptions?.enabled && this.stripeHelper) {
       try {
-        await this.stripeHelper.removeCustomer(uid, email);
+        await this.stripeHelper.removeCustomer(uid);
       } catch (err) {
         if (err.message === 'Customer not available') {
           // if Stripe didn't know about the customer, no problem.

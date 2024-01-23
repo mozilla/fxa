@@ -652,8 +652,7 @@ describe('deleteAccountIfUnverified', () => {
     );
     sinon.assert.calledOnceWithExactly(
       mockStripeHelper.removeCustomer,
-      emailRecord.uid,
-      emailRecord.email
+      emailRecord.uid
     );
   });
   it('should report to Sentry when a Stripe customer deletion fails', async () => {
@@ -674,8 +673,7 @@ describe('deleteAccountIfUnverified', () => {
       );
       sinon.assert.calledOnceWithExactly(
         mockStripeHelper.removeCustomer,
-        emailRecord.uid,
-        emailRecord.email
+        emailRecord.uid
       );
       sinon.assert.calledOnceWithExactly(
         sentryModule.reportSentryError,
@@ -3800,10 +3798,14 @@ describe('/account/destroy', () => {
       },
     });
     mockPush = mocks.mockPush();
-    mockStripeHelper = mocks.mockStripeHelper(['removeCustomer']);
+    mockStripeHelper = mocks.mockStripeHelper([
+      'removeCustomer',
+      'removeFirestoreCustomer',
+    ]);
     mockStripeHelper.removeCustomer = sinon.spy(async (uid, email) => {
       return;
     });
+    mockStripeHelper.removeFirestoreCustomer = sinon.stub().resolves();
     mockPaypalHelper = mocks.mockPayPalHelper(['cancelBillingAgreement']);
     mockPaypalHelper.cancelBillingAgreement = sinon.spy(async (ba) => {
       return;
@@ -3853,7 +3855,6 @@ describe('/account/destroy', () => {
       sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
       sinon.assert.calledWithMatch(mockDB.deleteAccount, {
         uid,
-        email,
       });
       sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
       sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
@@ -3903,7 +3904,6 @@ describe('/account/destroy', () => {
       sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
       sinon.assert.calledWithMatch(mockDB.deleteAccount, {
         uid,
-        email,
       });
     });
   });
@@ -4004,6 +4004,7 @@ describe('/account', () => {
     mockStripeHelper = mocks.mockStripeHelper([
       'fetchCustomer',
       'subscriptionsToResponse',
+      'removeFirestoreCustomer',
     ]);
     mockStripeHelper.fetchCustomer = sinon.spy(
       async (uid, email) => mockCustomer
@@ -4011,6 +4012,7 @@ describe('/account', () => {
     mockStripeHelper.subscriptionsToResponse = sinon.spy(
       async (subscriptions) => mockWebSubscriptionsResponse
     );
+    mockStripeHelper.removeFirestoreCustomer = sinon.stub().resolves();
     Container.set(CapabilityService, sinon.fake);
   });
 

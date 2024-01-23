@@ -215,7 +215,7 @@ export async function cancelSubscriptionsAndDeleteCustomer(
   await stripeHelper.cancelSubscription(subscriptionId);
 
   // Remove the customer from stripe
-  await stripeHelper.removeCustomer(uid, email);
+  await stripeHelper.removeCustomer(uid);
 }
 
 async function mergeAccountData(database: any, subscription: SubscriptionData) {

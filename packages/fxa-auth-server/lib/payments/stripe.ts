@@ -1722,7 +1722,7 @@ export class StripeHelper extends StripeHelperBase {
    * - delete the stripe customer to delete
    * - remove the cache entry
    */
-  async removeCustomer(uid: string, email: string) {
+  async removeCustomer(uid: string) {
     const accountCustomer = await getAccountCustomerByUid(uid);
     if (accountCustomer && accountCustomer.stripeCustomerId) {
       const customer = await this.fetchCustomer(accountCustomer.uid, [
