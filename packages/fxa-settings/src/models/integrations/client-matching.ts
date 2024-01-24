@@ -4,9 +4,9 @@
 
 // TODO replace harcoded list with database query in FXA-8533
 export const MONITOR_CLIENTIDS = [
-  '802d56ef2a9af9fa', // Firefox Monitor
-  '946bfd23df91404c', // Firefox Monitor stage
-  'edd29a80019d61a1', // Firefox Monitor local dev
+  '802d56ef2a9af9fa', // Mozilla Monitor
+  '946bfd23df91404c', // Mozilla Monitor stage
+  'edd29a80019d61a1', // Mozilla Monitor local dev
 ];
 
 export const POCKET_CLIENTIDS = [

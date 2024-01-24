@@ -122,8 +122,8 @@ export abstract class Integration<
       case 'sync':
         return MozServices.FirefoxSync;
 
-      case MozServices.FirefoxMonitor:
-        return MozServices.FirefoxMonitor;
+      case MozServices.Monitor:
+        return MozServices.Monitor;
 
       case MozServices.MozillaVPN:
         return MozServices.MozillaVPN;

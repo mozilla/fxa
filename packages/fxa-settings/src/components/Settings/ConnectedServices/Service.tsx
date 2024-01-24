@@ -50,7 +50,7 @@ export function Service({
       break;
     case 'Firefox Monitor':
     case 'Mozilla Monitor':
-      serviceLink = 'https://monitor.firefox.com/';
+      serviceLink = 'https://monitor.mozilla.org/';
       Icon = <MonitorIcon data-testid="monitor-icon" />;
       break;
     case 'Firefox Lockwise':

@@ -67,7 +67,7 @@ describe('PageDeleteAccount', () => {
         "Mozilla VPN",
         "Firefox Relay",
         "Firefox Add-ons",
-        "Firefox Monitor",
+        "Mozilla Monitor",
         "MDN Plus",
         "Mozilla Hubs",
         "Pocket",

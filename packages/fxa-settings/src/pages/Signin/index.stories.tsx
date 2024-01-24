@@ -68,6 +68,6 @@ export const IsMonitorClient = () => (
   <SigninWithProvider
     email={MOCK_EMAIL}
     isPasswordNeeded={false}
-    serviceName={MozServices.FirefoxMonitor}
+    serviceName={MozServices.Monitor}
   />
 );
