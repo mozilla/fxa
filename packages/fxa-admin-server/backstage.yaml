@@ -1,0 +1,39 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-admin-server
+  description: Admin Server back-end for Mozilla Accounts
+  tags:
+    - typescript
+    - node
+    - nestjs
+    - graphql
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-admin-panel
+    circleci.com/project-slug: github/mozilla/fxa
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts
+  providesApis:
+    - api:fxa-admin
+  dependsOn:
+    - resource:fxa-auth-database
+    - resource:fxa-oauth-database
+    - resource:fxa-stripe-database
+    - resource:fxa-auth-cache
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: fxa-admin
+  description: Mozilla Accounts Admin API
+spec:
+  type: graphql
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts
+  definition:
+    $text: ./src/schema.graphql

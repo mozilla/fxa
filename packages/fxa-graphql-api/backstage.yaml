@@ -1,0 +1,34 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-graphql-api
+  description: Provides customer settings and account management.
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-graphql-api
+    circleci.com/project-slug: github/mozilla/fxa
+  tags:
+    - typescript
+    - node
+    - nestjs
+    - graphql
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts
+  providesApis:
+    - api:fxa-graphql
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: fxa-graphql
+  description: Mozilla Accounts GraphQL API
+spec:
+  type: graphql
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts
+  definition:
+    $text: ./src/schema.gql

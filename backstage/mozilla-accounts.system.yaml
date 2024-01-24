@@ -1,0 +1,9 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: System
+metadata:
+  name: mozilla-accounts
+  description: Mozilla Accounts
+spec:
+  owner: fxa-team
+  domain: accounts

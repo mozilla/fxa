@@ -1,0 +1,22 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fxa-profile-server
+  description: Profile Server back-end for Mozilla Accounts that handles user profile data.
+  annotations:
+    sentry.io/project-slug: mozilla/fxa-profile
+    circleci.com/project-slug: github/mozilla/fxa
+  tags:
+    - javascript
+    - node
+    - hapi
+spec:
+  type: service
+  lifecycle: production
+  owner: fxa-team
+  system: mozilla-accounts
+  dependsOn:
+    - fxa-auth-server
+    - resource:fxa-profile-database
+    - resource:fxa-profile-cache
