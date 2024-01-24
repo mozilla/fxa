@@ -31,6 +31,7 @@ describe('views/mixins/signup-mixin', function () {
     beforeEach(function () {
       account = new Account({
         email: 'testuser@testuser.com',
+        atLeast18AtReg: null,
       });
 
       broker = new Broker();
@@ -101,6 +102,7 @@ describe('views/mixins/signup-mixin', function () {
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
             verificationMethod: 'email-otp',
+            atLeast18AtReg: null,
           })
         );
 
@@ -153,6 +155,7 @@ describe('views/mixins/signup-mixin', function () {
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
             verificationMethod: 'email-otp',
+            atLeast18AtReg: null,
           })
         );
 
@@ -189,6 +192,7 @@ describe('views/mixins/signup-mixin', function () {
           user.signUpAccount.calledWith(account, 'password', relier, {
             resume: 'resume token',
             verificationMethod: 'email-otp',
+            atLeast18AtReg: null,
           })
         );
 
@@ -208,6 +212,59 @@ describe('views/mixins/signup-mixin', function () {
         assert.lengthOf(args, 2);
         assert.equal(args[0], 'beforeSignIn');
         assert.equal(args[1], account);
+      });
+
+      it('calls view.onSignUpSuccess correctly', () => {
+        assert.isTrue(view.onSignUpSuccess.calledOnce);
+        assert.isTrue(view.onSignUpSuccess.calledWith(account));
+      });
+    });
+
+    describe('user under 18', function () {
+      beforeEach(function () {
+        account.set('verified', false);
+        // atLeast18AtReg defaults to null if age is <18
+        account.set('atLeast18AtReg', null);
+        sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
+
+        return view.signUp(account, 'password');
+      });
+
+      it('calls user.signUpAccount correctly', () => {
+        assert.isTrue(user.signUpAccount.calledOnce);
+        assert.isTrue(
+          user.signUpAccount.calledWith(account, 'password', relier, {
+            resume: 'resume token',
+            verificationMethod: 'email-otp',
+            atLeast18AtReg: null,
+          })
+        );
+      });
+
+      it('calls view.onSignUpSuccess correctly', () => {
+        assert.isTrue(view.onSignUpSuccess.calledOnce);
+        assert.isTrue(view.onSignUpSuccess.calledWith(account));
+      });
+    });
+
+    describe('user at least 18', function () {
+      beforeEach(function () {
+        account.set('verified', false);
+        account.set('atLeast18AtReg', true);
+        sinon.stub(view, 'onSignUpSuccess').callsFake(() => Promise.resolve());
+
+        return view.signUp(account, 'password');
+      });
+
+      it('calls user.signUpAccount correctly', () => {
+        assert.isTrue(user.signUpAccount.calledOnce);
+        assert.isTrue(
+          user.signUpAccount.calledWith(account, 'password', relier, {
+            resume: 'resume token',
+            verificationMethod: 'email-otp',
+            atLeast18AtReg: true,
+          })
+        );
       });
 
       it('calls view.onSignUpSuccess correctly', () => {

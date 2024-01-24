@@ -157,7 +157,7 @@ describe('views/mixins/coppa-mixin', () => {
     });
   });
 
-  describe('value is old enough', () => {
+  describe('value is old enough for COPPA but under 18', () => {
     beforeEach(() => {
       view.$('#age').val('13');
     });
@@ -166,12 +166,34 @@ describe('views/mixins/coppa-mixin', () => {
       assert.isTrue(view.isUserOldEnough());
     });
 
+    it('isAgeAtLeast18 returns null', () => {
+      assert.isNull(view.isAgeAtLeast18());
+    });
+
     it('coppaHasValue returns true', () => {
       assert.isTrue(view.coppaHasValue());
     });
   });
 
-  describe('value is too young', () => {
+  describe('value is at least 18', () => {
+    beforeEach(() => {
+      view.$('#age').val('18');
+    });
+
+    it('isUserOldEnough returns true', () => {
+      assert.isTrue(view.isUserOldEnough());
+    });
+
+    it('isAgeAtLeast18 returns true', () => {
+      assert.isTrue(view.isAgeAtLeast18());
+    });
+
+    it('coppaHasValue returns true', () => {
+      assert.isTrue(view.coppaHasValue());
+    });
+  });
+
+  describe('value is too young for COPPA', () => {
     beforeEach(() => {
       view.$('#age').val('12');
     });
@@ -184,6 +206,16 @@ describe('views/mixins/coppa-mixin', () => {
     it('isUserOldEnough returns true always if COPPA is disabled', () => {
       sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
       assert.isTrue(view.isUserOldEnough());
+    });
+
+    it('isAgeAtLeast18 returns null always if COPPA is disabled', () => {
+      sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
+      assert.isNull(view.isAgeAtLeast18());
+    });
+
+    it('isAgeAtLeast18 returns null if COPPA is enabled', () => {
+      sinon.stub(view, 'isCoppaEnabled').callsFake(() => true);
+      assert.isNull(view.isAgeAtLeast18());
     });
 
     it('coppaHasValue returns true', () => {
@@ -204,6 +236,16 @@ describe('views/mixins/coppa-mixin', () => {
     it('isUserOldEnough returns true always if COPPA is disabled', () => {
       sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
       assert.isTrue(view.isUserOldEnough());
+    });
+
+    it('isAgeAtLeast18 returns null always if COPPA is disabled', () => {
+      sinon.stub(view, 'isCoppaEnabled').callsFake(() => false);
+      assert.isNull(view.isAgeAtLeast18());
+    });
+
+    it('isAgeAtLeast18 returns null if COPPA is enabled', () => {
+      sinon.stub(view, 'isCoppaEnabled').callsFake(() => true);
+      assert.isNull(view.isAgeAtLeast18());
     });
 
     it('coppaHasValue returns false', () => {

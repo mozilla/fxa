@@ -36,6 +36,7 @@ const selectFields = [
   raw('COALESCE(keysChangedAt, verifierSetAt, createdAt) AS keysChangedAt'),
   'metricsOptOutAt',
   'disabledAt',
+  'atLeast18AtReg',
 ];
 
 export class Account extends BaseAuthModel {
@@ -53,6 +54,7 @@ export class Account extends BaseAuthModel {
     'wrapWrapKbVersion2',
   ];
 
+  atLeast18AtReg?: boolean | null;
   authSalt!: string;
   clientSalt?: string;
   createdAt!: number;
@@ -132,6 +134,7 @@ export class Account extends BaseAuthModel {
     verifierSetAt,
     createdAt,
     locale,
+    atLeast18AtReg,
   }: Pick<
     Account,
     | 'uid'
@@ -150,6 +153,7 @@ export class Account extends BaseAuthModel {
     | 'verifierSetAt'
     | 'createdAt'
     | 'locale'
+    | 'atLeast18AtReg'
   >) {
     try {
       await Account.callProcedure(
@@ -169,7 +173,8 @@ export class Account extends BaseAuthModel {
         verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
         verifierSetAt,
         createdAt,
-        locale ?? ''
+        locale ?? '',
+        atLeast18AtReg ?? null
       );
     } catch (e: any) {
       throw convertError(e);
@@ -435,7 +440,7 @@ export class Account extends BaseAuthModel {
     return {
       match: v1 || v2,
       v1,
-      v2
+      v2,
     };
   }
 
@@ -455,9 +460,13 @@ export class Account extends BaseAuthModel {
         authSalt: uuidTransformer.to(authSalt),
         clientSalt: clientSalt ? clientSalt : null,
         verifyHash: uuidTransformer.to(verifyHash),
-        verifyHashVersion2: verifyHashVersion2 ? uuidTransformer.to(verifyHashVersion2) : null,
+        verifyHashVersion2: verifyHashVersion2
+          ? uuidTransformer.to(verifyHashVersion2)
+          : null,
         wrapWrapKb: uuidTransformer.to(wrapWrapKb),
-        wrapWrapKbVersion2: wrapWrapKbVersion2 ? uuidTransformer.to(wrapWrapKbVersion2) : null,
+        wrapWrapKbVersion2: wrapWrapKbVersion2
+          ? uuidTransformer.to(wrapWrapKbVersion2)
+          : null,
         verifierSetAt: now,
         keysChangedAt: now,
         profileChangedAt: now,

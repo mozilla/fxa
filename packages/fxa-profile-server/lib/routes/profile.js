@@ -71,6 +71,7 @@ module.exports = {
       twoFactorAuthentication: Joi.boolean().allow(null),
       subscriptions: Joi.array().items(Joi.string().required()).optional(),
       metricsEnabled: Joi.boolean().optional(),
+      atLeast18AtReg: Joi.boolean().allow(null),
 
       //openid-connect
       sub: Joi.string().allow(null),

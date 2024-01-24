@@ -21,6 +21,7 @@ CREATE TABLE `accounts` (
   `verifyHashVersion2` binary(32),
   `wrapWrapKbVersion2` binary(32),
   `clientSalt` varchar(128),
+  `atLeast18AtReg` tinyint(1) unsigned DEFAULT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE KEY `normalizedEmail` (`normalizedEmail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

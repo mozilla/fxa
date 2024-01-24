@@ -566,13 +566,13 @@ describe('#integration - AccountResolver', () => {
         const result = await resolver.SignUp(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
-          options: { service: 'testo-co' },
+          options: { service: 'testo-co', atLeast18AtReg: false },
         });
         expect(authClient.signUpWithAuthPW).toBeCalledTimes(1);
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
           'testo@example.xyz',
           '00000000',
-          { service: 'testo-co' },
+          { service: 'testo-co', atLeast18AtReg: false },
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);

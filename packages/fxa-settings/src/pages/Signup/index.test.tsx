@@ -252,7 +252,7 @@ describe('Signup page', () => {
   });
 
   describe('handles submission', () => {
-    async function fillOutForm(age = '13') {
+    async function fillOutForm(age = '18') {
       const ageInput = screen.getByLabelText('How old are you?');
 
       fireEvent.input(screen.getByLabelText('Password'), {
@@ -324,6 +324,38 @@ describe('Signup page', () => {
         expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith('/cannot_create_account');
         expect(mockBeginSignupHandler).not.toBeCalled();
+      });
+
+      it('with 13 year old user, passes COPPA but atLeast18AtReg marked null', async () => {
+        let cookieJar = '';
+        jest.spyOn(document, 'cookie', 'set').mockImplementation((cookie) => {
+          cookieJar = cookie;
+        });
+        jest
+          .spyOn(document, 'cookie', 'get')
+          .mockImplementation(() => cookieJar);
+        expect(document.cookie).toBe('');
+
+        const mockBeginSignupHandler = jest
+          .fn()
+          .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
+        renderWithLocalizationProvider(
+          <Subject beginSignupHandler={mockBeginSignupHandler} />
+        );
+        await fillOutForm('13');
+
+        submit();
+        await waitFor(() => {
+          expect(document.cookie).not.toBe('tooyoung=1;');
+        });
+        expect(mockNavigate).not.toHaveBeenCalledWith('/cannot_create_account');
+        await waitFor(() => {
+          expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+            MOCK_EMAIL,
+            MOCK_PASSWORD,
+            null
+          );
+        });
       });
     });
 
@@ -403,7 +435,8 @@ describe('Signup page', () => {
         await waitFor(() => {
           expect(mockBeginSignupHandler).toHaveBeenCalledWith(
             MOCK_EMAIL,
-            MOCK_PASSWORD
+            MOCK_PASSWORD,
+            true
           );
         });
 
@@ -455,7 +488,8 @@ describe('Signup page', () => {
           await waitFor(() => {
             expect(mockBeginSignupHandler).toHaveBeenCalledWith(
               MOCK_EMAIL,
-              MOCK_PASSWORD
+              MOCK_PASSWORD,
+              true
             );
           });
 
@@ -485,7 +519,8 @@ describe('Signup page', () => {
           await waitFor(() => {
             expect(mockBeginSignupHandler).toHaveBeenCalledWith(
               MOCK_EMAIL,
-              MOCK_PASSWORD
+              MOCK_PASSWORD,
+              true
             );
           });
 
@@ -512,7 +547,8 @@ describe('Signup page', () => {
           await waitFor(() => {
             expect(mockBeginSignupHandler).toHaveBeenCalledWith(
               MOCK_EMAIL,
-              MOCK_PASSWORD
+              MOCK_PASSWORD,
+              true
             );
           });
 
@@ -547,7 +583,8 @@ describe('Signup page', () => {
         await waitFor(() => {
           expect(mockBeginSignupHandler).toHaveBeenCalledWith(
             MOCK_EMAIL,
-            MOCK_PASSWORD
+            MOCK_PASSWORD,
+            true
           );
         });
         expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);

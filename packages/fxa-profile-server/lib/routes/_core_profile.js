@@ -12,7 +12,7 @@ const request = require('../request');
 const AUTH_SERVER_URL = config.get('authServer.url') + '/account/profile';
 
 /**
- * This is an internal-use route that retreives all the user
+ * This is an internal-use route that retrieves all the user
  * profile data available from the auth-server.  Various public
  * routes can call into it and return a subset of the info.
  */
@@ -25,6 +25,7 @@ module.exports = {
       'profile:locale',
       'profile:amr',
       'profile:subscriptions',
+      'profile:age_check',
       /* openid-connect scope */ 'email',
     ],
   },
@@ -38,6 +39,7 @@ module.exports = {
       subscriptionsByClientId: Joi.object().unknown(true).optional(),
       profileChangedAt: Joi.number().optional(),
       metricsEnabled: Joi.boolean().optional(),
+      atLeast18AtReg: Joi.boolean().allow(null),
     }),
   },
   handler: async function _core_profile(req) {
@@ -113,6 +115,11 @@ module.exports = {
             }
             if (typeof body.metricsEnabled !== 'undefined') {
               result.metricsEnabled = body.metricsEnabled;
+            }
+            if (typeof body.atLeast18AtReg !== 'undefined') {
+              result.atLeast18AtReg = body.atLeast18AtReg
+                ? body.atLeast18AtReg
+                : null;
             }
             return resolve(result);
           }

@@ -28,6 +28,9 @@ export class SignUpOptionsInput {
 
   @Field((type) => MetricsContext, { nullable: true })
   public metricsContext?: MetricsContext;
+
+  @Field({ nullable: true })
+  public atLeast18AtReg!: boolean;
 }
 
 @InputType()

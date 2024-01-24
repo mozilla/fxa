@@ -163,13 +163,14 @@ const SignupContainer = ({
   const [beginSignup] = useMutation<BeginSignupResponse>(BEGIN_SIGNUP_MUTATION);
 
   const beginSignupHandler: BeginSignupHandler = useCallback(
-    async (email, password) => {
+    async (email, password, atLeast18AtReg) => {
       const service = integration.getService();
       const options: BeginSignUpOptions = {
         verificationMethod: 'email-otp',
         // keys must be true to receive keyFetchToken for oAuth and syncDesktop
         keys: isOAuth || isSyncDesktopV3,
         service: service !== MozServices.Default ? service : undefined,
+        atLeast18AtReg,
       };
       try {
         const { authPW, unwrapBKey } = await getCredentials(email, password);

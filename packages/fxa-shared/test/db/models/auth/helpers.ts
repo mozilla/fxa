@@ -49,6 +49,7 @@ export function randomAccount() {
     verifierVersion: 0,
     verifyHash: '00',
     wrapWrapKb: '00',
+    atLeast18AtReg: true,
   };
 }
 
