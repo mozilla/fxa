@@ -9,7 +9,7 @@
  * - Contentful data fetch by offering
  *
  */
-import { CartState } from '@fxa/shared/db/mysql/account';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 
 export async function fetchFromContentful() {
   return {
@@ -51,7 +51,10 @@ export async function fetchFromContentful() {
 export async function fetchCartData(cartId: string) {
   return {
     id: '',
-    state: CartState.START,
+    // state: CartState.START,
+    state: CartState.FAIL,
+    // errorReasonId: CartErrorReasonId.BASIC_ERROR,
+    errorReasonId: CartErrorReasonId.IAP_UPGRADE_CONTACT_SUPPORT,
     offeringConfigId: '123done',
     interval: 'monthly',
     nextInvoice: {
@@ -74,8 +77,5 @@ export async function fetchCartData(cartId: string) {
     invoiceDate: Date.now(),
     invoiceNumber: 'StubA491CAB7-0001',
     last4: '1234',
-    // error added as per Hackathon Additional notes in Hackathon doc for the sole purpose of demo
-    // https://docs.google.com/document/d/1kGDOVJDKV9Hga55dguqtQSmdCRWn8Tmdg9OykNZ7S8E/edit#heading=h.q4eqytvmbsme
-    errorReasonId: 'card-error',
   };
 }

@@ -27,3 +27,30 @@ list-negative-amount = - { $amount }
 terms = Terms of Service
 privacy = Privacy Notice
 terms-download = Download Terms
+
+payment-confirmation-thanks-heading = Thank you!
+
+# $email (string) - The user's email.
+# $productName (String) - The name of the subscribed product.
+payment-confirmation-thanks-subheading = A confirmation email has been sent to { $email } with details on how to get started with { $product_name }.
+
+payment-confirmation-order-heading = Order details
+payment-confirmation-invoice-number = Invoice #{ $invoiceNumber }
+
+# $invoiceDate (Date) - Start date of the latest invoice
+payment-confirmation-invoice-date = { $invoiceDate }
+
+payment-confirmation-details-heading-2 = Payment information
+payment-confirmation-amount = { $amount } per { $interval }
+payment-confirmation-cc-card-ending-in = Card ending in { $last4 }
+
+payment-confirmation-download-button = Continue to download
+
+subscription-success-title = Subscription confirmation
+subscription-error-title = Error confirming subscription…
+iap-upgrade-contact-support = You can still get this product — please contact support so we can help you.
+payment-error-manage-subscription-button = Manage my subscription
+basic-error-message = Something went wrong. Please try again later.
+payment-error-retry-button = Try again
+
+sub-guarantee = 30-day money-back guarantee

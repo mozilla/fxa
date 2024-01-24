@@ -30,6 +30,8 @@ export enum CartState {
 }
 
 export enum CartErrorReasonId {
+  BASIC_ERROR = 'basic-error-message',
+  IAP_UPGRADE_CONTACT_SUPPORT = 'iap_upgrade_contact_support',
   Unknown = 'unknown',
 }
 

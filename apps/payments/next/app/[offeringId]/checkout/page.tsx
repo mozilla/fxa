@@ -26,7 +26,10 @@ export default async function Index({ params }: { params: CheckoutParams }) {
 
   return (
     <>
-      <h1 className="page-title-container">Under Construction</h1>
+      <header className="page-title-container">
+        <h1 className="page-header">Under Construction</h1>
+      </header>
+
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
           interval={cart.interval}
@@ -34,13 +37,15 @@ export default async function Index({ params }: { params: CheckoutParams }) {
           purchaseDetails={contentful.purchaseDetails}
         />
       </section>
-      <div className="component-card border-t-0 mb-6 pt-4 px-4 pb-14 rounded-t-lg text-grey-600 tablet:rounded-t-none desktop:px-12 desktop:pb-12">
+
+      <div className="page-body rounded-t-lg tablet:rounded-t-none">
         <section
           className="h-[640px] flex items-center justify-center"
           aria-label="Section under construction"
         >
           Section Under Construction
         </section>
+
         <TermsAndPrivacy
           {...cart}
           {...contentful.commonContent}

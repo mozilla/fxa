@@ -27,3 +27,29 @@ list-negative-amount = - { $amount }
 terms = Conditions d’utilisation
 privacy = Politique de confidentialité
 terms-download = Télécharger les conditions
+
+payment-confirmation-thanks-heading = Merci !
+
+# $email (string) - The user's email.
+# $productName (String) - The name of the subscribed product.
+payment-confirmation-thanks-subheading = Un e-mail de confirmation a été envoyé à { $email } avec les détails nécessaires pour savoir comment démarrer avec { $product_name }.
+
+payment-confirmation-order-heading = Détails de la commande
+payment-confirmation-invoice-number = Facture n°{ $invoiceNumber }
+# $invoiceDate (Date) - Start date of the latest invoice
+payment-confirmation-invoice-date = { $invoiceDate }
+
+payment-confirmation-details-heading-2 = Informations de paiement
+payment-confirmation-amount = { $amount } par { $interval }
+payment-confirmation-cc-card-ending-in = Carte se terminant par { $last4 }
+
+payment-confirmation-download-button = Continuer vers le téléchargement
+
+subscription-success-title = Confirmation d’abonnement
+subscription-error-title = Erreur lors de la confirmation de l’abonnement…
+iap-upgrade-contact-support = Vous pouvez tout de même obtenir ce produit ; veuillez contacter notre équipe d’assistance afin que nous puissions vous aider.
+payment-error-manage-subscription-button = Gérer mon abonnement
+basic-error-message = Une erreur est survenue. Merci de réessayer plus tard.
+payment-error-retry-button = Veuillez réessayer
+
+sub-guarantee = Garantie de remboursement de 30 jours
