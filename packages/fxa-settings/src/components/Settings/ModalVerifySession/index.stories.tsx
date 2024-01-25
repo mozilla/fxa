@@ -20,14 +20,6 @@ export default {
 
 const session = mockSession(false);
 const account = MOCK_ACCOUNT as any;
-account.sendVerificationCode = () => Promise.resolve(true);
-account.verifySession = (code: string) => {
-  if (code === '123456') {
-    session.verified = true;
-    return Promise.resolve(true);
-  }
-  return Promise.reject(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE);
-};
 
 type ModalToggleChildrenProps = {
   modalRevealed: boolean;

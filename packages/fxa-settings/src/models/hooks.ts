@@ -9,9 +9,7 @@ import {
   INITIAL_SETTINGS_QUERY,
   SettingsContext,
 } from './contexts/SettingsContext';
-import { GET_SESSION_VERIFIED, Session } from './Session';
-import { clearSignedInAccountUid } from '../lib/cache';
-import { gql, useQuery } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { useLocalization } from '@fluent/react';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { getDefault } from '../lib/config';
@@ -95,46 +93,11 @@ export function useIntegration() {
 }
 
 export function useSession() {
-  const ref = useRef({} as unknown as Session);
-  const { apolloClient, session } = useContext(AppContext);
-  if (session) {
-    return session;
+  const { session } = useContext(AppContext);
+  if (!session) {
+    throw new Error('Are you forgetting an AppContext.Provider?');
   }
-  if (!apolloClient) {
-    throw new Error(
-      `Are you forgetting an AppContext.Provider? Missing ${getMissing({
-        apolloClient,
-        session,
-      })}`
-    );
-  }
-  const data = apolloClient.cache.readQuery<{ session: Session }>({
-    query: GET_SESSION_VERIFIED,
-  })!;
-  if (
-    ref.current.token !== data.session.token ||
-    ref.current.verified !== data.session.verified
-  ) {
-    ref.current = Object.assign({}, data.session);
-  }
-  if (!ref.current.destroy) {
-    ref.current.destroy = () =>
-      apolloClient
-        .mutate({
-          mutation: gql`
-            mutation destroySession($input: DestroySessionInput!) {
-              destroySession(input: $input) {
-                clientMutationId
-              }
-            }
-          `,
-          variables: { input: {} },
-        })
-        .then((result) => {
-          clearSignedInAccountUid();
-        });
-  }
-  return ref.current;
+  return session;
 }
 
 export function useConfig() {

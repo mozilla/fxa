@@ -14,12 +14,21 @@ import { Account, AppContext } from '../../../models';
 import { VerifiedSessionGuard } from '.';
 
 it('renders the content when verified', async () => {
+  const account = {
+    primaryEmail: {
+      email: 'smcarthur@mozilla.com',
+    },
+  } as unknown as Account;
   const onDismiss = jest.fn();
   const onError = jest.fn();
   renderWithRouter(
-    <VerifiedSessionGuard {...{ onDismiss, onError }}>
-      <div data-testid="children">Content</div>
-    </VerifiedSessionGuard>
+    <AppContext.Provider
+      value={mockAppContext({ account, session: mockSession(true, false) })}
+    >
+      <VerifiedSessionGuard {...{ onDismiss, onError }}>
+        <div data-testid="children">Content</div>
+      </VerifiedSessionGuard>
+    </AppContext.Provider>
   );
 
   expect(screen.getByTestId('children')).toBeInTheDocument();
@@ -32,7 +41,6 @@ it('renders the guard when unverified', async () => {
     primaryEmail: {
       email: 'smcarthur@mozilla.com',
     },
-    sendVerificationCode: jest.fn().mockResolvedValue(true),
   } as unknown as Account;
   renderWithRouter(
     <AppContext.Provider

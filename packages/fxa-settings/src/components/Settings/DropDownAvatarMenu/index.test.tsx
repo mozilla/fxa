@@ -33,14 +33,6 @@ const account = {
   displayName: 'John Dope',
 } as unknown as Account;
 
-const makeSession = (isError: boolean = false) => {
-  const s = mockSession();
-  s.destroy = isError
-    ? jest.fn().mockRejectedValue(new Error())
-    : jest.fn().mockResolvedValue(true);
-  return s;
-};
-
 describe('DropDownAvatarMenu', () => {
   const dropDownId = 'drop-down-avatar-menu';
 
@@ -131,7 +123,7 @@ describe('DropDownAvatarMenu', () => {
 
       renderWithLocalizationProvider(
         <AppContext.Provider
-          value={mockAppContext({ account, session: makeSession() })}
+          value={mockAppContext({ account, session: mockSession() })}
         >
           <DropDownAvatarMenu />
         </AppContext.Provider>
@@ -151,7 +143,10 @@ describe('DropDownAvatarMenu', () => {
     });
 
     it('displays an error in the AlertBar', async () => {
-      const context = mockAppContext({ account, session: makeSession(true) });
+      const context = mockAppContext({
+        account,
+        session: mockSession(true, true),
+      });
       const settingsContext = mockSettingsContext();
       renderWithLocalizationProvider(
         <AppContext.Provider value={context}>

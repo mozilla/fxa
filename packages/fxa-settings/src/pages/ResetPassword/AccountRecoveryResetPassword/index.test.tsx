@@ -243,7 +243,6 @@ describe('AccountRecoveryResetPassword page', () => {
       account.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockResolvedValue(MOCK_RESET_DATA);
-      account.isSessionVerifiedAuthClient = jest.fn();
       account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
 
       render(<Subject />, account);
@@ -286,7 +285,6 @@ describe('AccountRecoveryResetPassword page', () => {
       account.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockResolvedValue(MOCK_RESET_DATA);
-      account.isSessionVerifiedAuthClient = jest.fn();
       account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
       fxaLoginSignedInUserSpy = jest.spyOn(firefox, 'fxaLoginSignedInUser');
 

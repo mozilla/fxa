@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { MozServices } from '../../../lib/types';
-import { Account, Integration, IntegrationType } from '../../../models';
+import { Account, IntegrationType } from '../../../models';
 import {
   mockAppContext,
   MOCK_ACCOUNT,

@@ -10,6 +10,7 @@ import {
   renderWithRouter,
   mockAppContext,
   mockSettingsContext,
+  mockSession,
 } from 'fxa-settings/src/models/mocks';
 import { logViewEvent } from '../../../lib/metrics';
 import { isMobileDevice } from '../../../lib/utilities';
@@ -26,6 +27,8 @@ const account = {
   attachedClients: MOCK_SERVICES,
   disconnectClient: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
+
+const session = mockSession(true, false);
 
 const alertBarInfo = {
   success: jest.fn(),
@@ -275,7 +278,7 @@ describe('Connected Services', () => {
 
   it('renders proper modal when "sign out" is clicked', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -285,7 +288,7 @@ describe('Connected Services', () => {
 
   it('renders "lost" modal when user has selected "lost" option and emits metrics events', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -302,7 +305,7 @@ describe('Connected Services', () => {
 
   it('renders "suspicious" modal when user has selected "suspicious" option in survey modal and emits metrics events', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <ConnectedServices />
       </AppContext.Provider>
     );
@@ -324,7 +327,7 @@ describe('Connected Services', () => {
     } as unknown as Account;
 
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <SettingsContext.Provider value={mockSettingsContext({ alertBarInfo })}>
           <ConnectedServices />
         </SettingsContext.Provider>

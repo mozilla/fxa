@@ -35,6 +35,7 @@ export const selectors = {
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
   CONFIRM_EMAIL: '.email',
   SIGNIN_HEADER: '#fxa-signin-header',
+  SIGNIN_PASSWORD_HEADER: '#fxa-signin-password-header',
   SIGNIN_UNBLOCK_HEADER: '#fxa-signin-unblock-header',
   SIGNIN_UNBLOCK_VERIFICATION: '.verification-email-message',
   COPPA_HEADER: '#fxa-cannot-create-account-header',
@@ -121,7 +122,10 @@ export class LoginPage extends BaseLayout {
       // User is already signed in and attempting to sign in to another service,
       // we show a `Continue` button, and they don't have to re-enter password
       return this.submit();
-    } else if (await this.isSigninHeader()) {
+    } else if (
+      (await this.isSigninHeader()) ||
+      (await this.isSigninPasswordHeader())
+    ) {
       // The user has specified an email address in url or this service
       // requires them to set a password to login (ie Sync)
       await this.setPassword(password);
@@ -382,6 +386,12 @@ export class LoginPage extends BaseLayout {
 
   async isSigninHeader() {
     return this.page.isVisible(selectors.SIGNIN_HEADER, {
+      timeout: 100,
+    });
+  }
+
+  async isSigninPasswordHeader() {
+    return this.page.isVisible(selectors.SIGNIN_PASSWORD_HEADER, {
       timeout: 100,
     });
   }

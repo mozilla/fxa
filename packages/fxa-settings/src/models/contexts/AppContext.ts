@@ -34,12 +34,14 @@ export function initializeAppContext() {
   const authClient = new AuthClient(config.servers.auth.url);
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
+  const session = new Session(authClient, apolloClient);
 
   const context: AppContextValue = {
     authClient,
     apolloClient,
     config,
     account,
+    session,
   };
 
   return context;

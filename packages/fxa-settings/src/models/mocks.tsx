@@ -26,6 +26,9 @@ const DEFAULT_APP_CONTEXT = defaultAppContext();
 export const MOCK_ACCOUNT: AccountData =
   DEFAULT_APP_CONTEXT.account as unknown as AccountData;
 
+export const MOCK_SESSION: Session =
+  DEFAULT_APP_CONTEXT.session as unknown as Session;
+
 export function createHistoryWithQuery(path: string, queryParams?: string) {
   const history = createHistory(createMemorySource(path));
   if (queryParams != null) {
@@ -83,11 +86,25 @@ export function renderWithRouter(
   };
 }
 
-export function mockSession(verified: boolean = true) {
-  return {
+export function mockSession(
+  verified: boolean = true,
+  isError: boolean = false
+) {
+  const session = {
     verified,
     token: 'deadc0de',
   } as Session;
+  session.destroy = isError
+    ? jest.fn().mockRejectedValue(new Error())
+    : jest.fn().mockResolvedValue(true);
+  session.sendVerificationCode = isError
+    ? jest.fn().mockRejectedValue(new Error())
+    : jest.fn().mockResolvedValue(true);
+  session.verifySession = isError
+    ? jest.fn().mockRejectedValue(new Error())
+    : jest.fn().mockResolvedValue(true);
+  session.isSessionVerified = jest.fn().mockResolvedValue(session.verified);
+  return session;
 }
 
 export function mockStorage() {
@@ -133,7 +150,7 @@ export function mockAppContext(context?: AppContextValue) {
   return Object.assign(
     {
       account: MOCK_ACCOUNT,
-      session: mockSession(),
+      session: mockSession(true, false),
       config: getDefault(),
     },
     context

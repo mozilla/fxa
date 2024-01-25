@@ -221,18 +221,6 @@ const CompleteResetPassword = ({
           location.state?.accountResetToken
         );
 
-        /* NOTE: Session check/totp check must come after completeResetPassword since those
-         * require session tokens that we retrieve in PW reset. We will want to refactor this
-         * later but there's a `mustVerify` check getting in the way (see Account.ts comment).
-         *
-         * We may also want to consider putting a different error message in place for when
-         * PW reset succeeds, but one of these fails. At the moment, the try/catch in Account
-         * just returns false for these if the request fails. */
-        const [sessionIsVerified] = await Promise.all([
-          account.isSessionVerifiedAuthClient(),
-          account.hasTotpAuthClient(),
-        ]);
-
         let isHardNavigate = false;
         switch (integration.type) {
           // NOTE: SyncBasic check is temporary until we implement codes
@@ -252,7 +240,7 @@ const CompleteResetPassword = ({
           case IntegrationType.OAuth:
             // allows a navigation to a "complete" screen or TOTP screen if it is setup
             // TODO: check if relier has state
-            if (sessionIsVerified && isOAuthIntegration(integration)) {
+            if (isOAuthIntegration(integration)) {
               // TODO: Consider redirecting back to RP, after success message is displayed.
               // NOTE: To fully sign in, totp must performed if 2FA is enabled.
             }

@@ -32,7 +32,7 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
   credentials: async ({ target }, use, testInfo) => {
     const email = EmailClient.emailFromTestTitle(testInfo.title);
-    const password = 'asdzxcasd';
+    const password = 'passwordzxcv';
     await target.email.clear(email);
     let credentials: Credentials;
     try {

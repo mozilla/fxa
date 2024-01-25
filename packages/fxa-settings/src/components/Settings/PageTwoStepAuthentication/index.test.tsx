@@ -44,7 +44,6 @@ const account = {
   },
   createTotp: jest.fn().mockResolvedValue(totp),
   verifyTotp: jest.fn().mockResolvedValue(true),
-  sendVerificationCode: jest.fn().mockResolvedValue(true),
 } as unknown as Account;
 
 window.URL.createObjectURL = jest.fn();

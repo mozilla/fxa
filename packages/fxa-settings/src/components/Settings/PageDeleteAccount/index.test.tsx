@@ -5,7 +5,11 @@
 import React from 'react';
 import 'mutationobserver-shim';
 import { screen, fireEvent, act, within } from '@testing-library/react';
-import { mockAppContext, renderWithRouter } from '../../../models/mocks';
+import {
+  mockAppContext,
+  mockSession,
+  renderWithRouter,
+} from '../../../models/mocks';
 import { PageDeleteAccount } from '.';
 import { typeByTestIdFn } from '../../../lib/test-utils';
 import { Account, AppContext } from '../../../models';
@@ -24,6 +28,8 @@ const account = {
   metricsEnabled: true,
   hasPassword: true,
 } as unknown as Account;
+
+const session = mockSession(true, false);
 
 window.URL.createObjectURL = jest.fn();
 console.error = jest.fn();
@@ -44,7 +50,7 @@ describe('PageDeleteAccount', () => {
 
   it('renders as expected', () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -77,7 +83,7 @@ describe('PageDeleteAccount', () => {
 
   it('Enables "continue" button once all 4 inputs are valid', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -94,7 +100,7 @@ describe('PageDeleteAccount', () => {
 
   it('Does not Enable "continue" button if all for checks are not confirmed', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -111,7 +117,7 @@ describe('PageDeleteAccount', () => {
 
   it('Enables "Delete" button once the password length is of 8 characters or more', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -125,7 +131,7 @@ describe('PageDeleteAccount', () => {
 
   it('Gets valid response on submit and emits metrics events', async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account })}>
+      <AppContext.Provider value={mockAppContext({ account, session })}>
         <PageDeleteAccount />
       </AppContext.Provider>
     );
@@ -158,7 +164,9 @@ describe('PageDeleteAccount', () => {
     } as unknown as Account;
 
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account: pwdlessAccount })}>
+      <AppContext.Provider
+        value={mockAppContext({ account: pwdlessAccount, session })}
+      >
         <PageDeleteAccount />
       </AppContext.Provider>
     );
