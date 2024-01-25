@@ -288,6 +288,7 @@ export class AccountDeleteManager {
       this.log.error('AccountDeleteManager.deleteFirestoreCustomer', {
         uid,
         error,
+        errorString: JSON.stringify(error),
       });
       throw error;
     }
