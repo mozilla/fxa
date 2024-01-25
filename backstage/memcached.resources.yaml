@@ -6,5 +6,5 @@ metadata:
   description: Caches rate limits and IP reuptation scores.
 spec:
   type: database
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
