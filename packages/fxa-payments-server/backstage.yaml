@@ -18,10 +18,10 @@ metadata:
     - url: https://payments-stage.fxa.nonprod.cloudops.mozgcp.net/
       title: Stage Subscription Platform
       type: website
-  consumesApis:
-    - api:fxa-auth
 spec:
   type: website
   lifecycle: production
   owner: fxa-team
   system: mozilla-accounts
+  dependsOn:
+    - component:fxa-auth-server
