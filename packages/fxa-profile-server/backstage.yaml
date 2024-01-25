@@ -17,6 +17,6 @@ spec:
   owner: fxa-team
   system: mozilla-accounts
   dependsOn:
-    - fxa-auth-server
+    - component:fxa-auth-server
     - resource:fxa-profile-database
     - resource:fxa-profile-cache

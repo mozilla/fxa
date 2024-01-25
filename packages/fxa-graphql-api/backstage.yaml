@@ -17,18 +17,3 @@ spec:
   lifecycle: production
   owner: fxa-team
   system: mozilla-accounts
-  providesApis:
-    - api:fxa-graphql
----
-apiVersion: backstage.io/v1alpha1
-kind: API
-metadata:
-  name: fxa-graphql
-  description: Mozilla Accounts GraphQL API
-spec:
-  type: graphql
-  lifecycle: production
-  owner: fxa-team
-  system: mozilla-accounts
-  definition:
-    $text: ./src/schema.gql
