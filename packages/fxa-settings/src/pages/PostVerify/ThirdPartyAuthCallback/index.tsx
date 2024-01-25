@@ -15,10 +15,8 @@ import { AUTH_PROVIDER } from 'fxa-auth-client/browser';
 import { useAccount } from '../../../models';
 import {
   StoredAccountData,
-  persistAccount,
-  setCurrentAccount,
+  storeAccountData,
 } from '../../../lib/storage-utils';
-import { sessionToken } from '../../../lib/cache';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -64,7 +62,7 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
 
   // Persist account data to local storage to match parity with content-server
   // this allows the recent account to be used for /signin
-  const storeAccountData = async (linkedAccount: LinkedAccountData) => {
+  const storeLinkedAccountData = async (linkedAccount: LinkedAccountData) => {
     const accountData: StoredAccountData = {
       // We are using the email that was returned from the Third Party Auth
       // Not the email entered in the email-first form as they might be different
@@ -76,9 +74,7 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
       metricsEnabled: true,
     };
 
-    persistAccount(accountData);
-    setCurrentAccount(accountData.uid);
-    sessionToken(accountData.sessionToken);
+    storeAccountData(accountData);
   };
 
   const completeSignIn = async (linkedAccount: LinkedAccountData) => {
@@ -87,7 +83,7 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
     // this should also update graphQL cache (isSignedIn:true)
     // await account.signIn(linkedAccount)
 
-    await storeAccountData(linkedAccount);
+    await storeLinkedAccountData(linkedAccount);
 
     // TODO ensure correct redirects for all integrations (OAuth, Desktop, Mobile)
     // redirect is constructed from state param in the URL params

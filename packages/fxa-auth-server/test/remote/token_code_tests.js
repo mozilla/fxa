@@ -17,7 +17,9 @@ const {
   AppStoreSubscriptions,
 } = require('../../lib/payments/iap/apple-app-store/subscriptions');
 
-describe('#integration - remote tokenCodes', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote tokenCodes`, function () {
   let server, client, email, code;
   const password = 'pssssst';
 
@@ -38,7 +40,8 @@ describe('#integration - remote tokenCodes', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     ).then((x) => {
       client = x;
       assert.ok(client.authAt, 'authAt was set');
@@ -47,6 +50,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should error with invalid code', () => {
     return Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     })
@@ -81,6 +85,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should error with invalid request param when using wrong code format', () => {
     return Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     })
@@ -115,6 +120,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should consume valid code', () => {
     return Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     })
@@ -152,6 +158,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should accept optional uid parameter in request body', () => {
     return Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     })
@@ -178,6 +185,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should retrieve account keys', () => {
     return Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     })
@@ -205,6 +213,7 @@ describe('#integration - remote tokenCodes', function () {
 
   it('should resend authentication code', async () => {
     await Client.login(config.publicUrl, email, password, {
+      ...testOptions,
       verificationMethod: 'email-2fa',
       keys: true,
     });
@@ -235,4 +244,6 @@ describe('#integration - remote tokenCodes', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

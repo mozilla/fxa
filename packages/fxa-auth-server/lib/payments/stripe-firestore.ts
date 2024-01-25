@@ -1,12 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { BaseMultiError } from '@fxa/shared/error';
-import {
-  BulkWriterError,
-  CollectionReference,
-  Firestore,
-} from '@google-cloud/firestore';
+import { BaseError, BaseMultiError } from '@fxa/shared/error';
+import { CollectionReference, Firestore } from '@google-cloud/firestore';
 import { StripeFirestore as StripeFirestoreBase } from 'fxa-shared/payments/stripe-firestore';
 import { Stripe } from 'stripe';
 
@@ -28,23 +24,32 @@ export function newFirestoreStripeError(
   return error;
 }
 
-export class FirestoreBulkWriterMultiError extends BaseMultiError {
-  constructor(errors: BulkWriterError[]) {
+export class StripeFirestoreError extends BaseError {
+  documentPath?: string;
+  constructor(message: string, cause: Error, docPath?: string) {
+    super(cause, message);
+    this.name = 'StripeFirestoreError';
+    this.documentPath = docPath;
+  }
+}
+
+export class StripeFirestoreMultiError extends BaseMultiError {
+  constructor(errors: StripeFirestoreError[]) {
     super(errors);
-    this.name = 'FirestoreBulkWriterMultiError';
+    this.name = 'StripeFirestoreMultiError';
   }
 
-  getPrimaryError(): BulkWriterError {
+  getPrimaryError(): StripeFirestoreError {
     // TS is not picking up the type otherwise, so have to cast.
-    return this.errors()[0] as BulkWriterError;
+    return this.errors()[0] as StripeFirestoreError;
   }
 
-  static hasBulkWriterError(
-    err: Error | FirestoreBulkWriterMultiError
+  static hasStripeFirestoreError(
+    err: Error | StripeFirestoreMultiError
   ): boolean {
     return (
-      err instanceof FirestoreBulkWriterMultiError &&
-      err.getPrimaryError() instanceof BulkWriterError
+      err instanceof StripeFirestoreMultiError &&
+      err.getPrimaryError() instanceof StripeFirestoreError
     );
   }
 }
@@ -183,14 +188,16 @@ export class StripeFirestore extends StripeFirestoreBase {
    */
   async removeCustomerRecursive(uid: string) {
     const bulkWriterResults: string[] = [];
-    const bulkWriterErrors: BulkWriterError[] = [];
+    const bulkWriterErrors: StripeFirestoreError[] = [];
     const bulkWriter = this.firestore.bulkWriter();
     bulkWriter.onWriteResult((doc) => bulkWriterResults.push(doc.path));
     bulkWriter.onWriteError((error) => {
       if (error.failedAttempts < this.MAX_RETRY_ATTEMPTS) {
         return true;
       } else {
-        bulkWriterErrors.push(error);
+        bulkWriterErrors.push(
+          new StripeFirestoreError(error.message, error, error.documentRef.path)
+        );
         return false;
       }
     });
@@ -201,8 +208,18 @@ export class StripeFirestore extends StripeFirestoreBase {
       );
       return bulkWriterResults;
     } catch (error) {
-      const errors = bulkWriterErrors.length ? bulkWriterErrors : [error];
-      throw new FirestoreBulkWriterMultiError(errors);
+      if (bulkWriterErrors.length) {
+        throw new StripeFirestoreMultiError([
+          new StripeFirestoreError(
+            error.message,
+            error,
+            error?.documentRef?.path
+          ),
+          ...bulkWriterErrors,
+        ]);
+      } else {
+        throw error;
+      }
     }
   }
 }

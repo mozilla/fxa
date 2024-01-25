@@ -123,6 +123,7 @@ const { GoogleMapsService } = require('../../../lib/google-maps-services');
 const {
   FirestoreStripeError,
   newFirestoreStripeError,
+  StripeFirestoreMultiError,
 } = require('../../../lib/payments/stripe-firestore');
 const AppError = require('../../../lib/error');
 
@@ -7474,19 +7475,36 @@ describe('#integration - StripeHelper', () => {
       assert.equal(actual, expected);
     });
 
-    it('reports error to sentry and returns empty array', async () => {
-      const expected = [];
+    it('does not report error to sentry and rejects with error', async () => {
       sandbox.stub(Sentry, 'captureException');
       const expectedError = new Error('bad things');
       stripeFirestore.removeCustomerRecursive = sandbox
         .stub()
         .rejects(expectedError);
-      const actual = await stripeHelper.removeFirestoreCustomer('uid');
-      assert.deepEqual(actual, expected);
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureException,
-        expectedError
-      );
+      try {
+        await stripeHelper.removeFirestoreCustomer('uid');
+      } catch (error) {
+        assert.equal(error.message, expectedError.message);
+        sinon.assert.notCalled(Sentry.captureException);
+      }
+    });
+
+    it('reports error to sentry and rejects with error', async () => {
+      sandbox.stub(Sentry, 'captureException');
+      const primaryError = new Error('not good');
+      const expectedError = new StripeFirestoreMultiError([primaryError]);
+      stripeFirestore.removeCustomerRecursive = sandbox
+        .stub()
+        .rejects(expectedError);
+      try {
+        await stripeHelper.removeFirestoreCustomer('uid');
+      } catch (error) {
+        assert.equal(error.message, expectedError.message);
+        sinon.assert.calledOnceWithExactly(
+          Sentry.captureException,
+          expectedError
+        );
+      }
     });
   });
 });

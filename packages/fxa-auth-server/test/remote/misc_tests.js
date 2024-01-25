@@ -13,7 +13,9 @@ const hawk = require('@hapi/hawk');
 
 const config = require('../../config').default.getProperties();
 
-describe('#integration - remote misc', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote misc`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -145,7 +147,8 @@ describe('#integration - remote misc', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((c) => {
         client = c;
@@ -153,7 +156,7 @@ describe('#integration - remote misc', function () {
       })
       .then(() => {
         url = `${client.api.baseURL}/account/keys`;
-        return client.api.Token.KeyFetchToken.fromHex(client.keyFetchToken);
+        return client.api.Token.KeyFetchToken.fromHex(client.getState().keyFetchToken);
       })
       .then((token) => {
         const method = 'GET';
@@ -182,7 +185,7 @@ describe('#integration - remote misc', function () {
   });
 
   it('oversized payload', () => {
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     return client.api
       .doRequest(
         'POST',
@@ -210,14 +213,14 @@ describe('#integration - remote misc', function () {
   });
 
   it('random bytes', () => {
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     return client.api.getRandomBytes().then((x) => {
       assert.equal(x.data.length, 64);
     });
   });
 
   it('fetch /.well-known/browserid support document', () => {
-    const client = new Client(config.publicUrl);
+    const client = new Client(config.publicUrl, testOptions);
     function fetch(url) {
       return client.api.doRequest('GET', config.publicUrl + url);
     }
@@ -244,7 +247,8 @@ describe('#integration - remote misc', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((c) => {
         client = c;
@@ -283,4 +287,6 @@ describe('#integration - remote misc', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

@@ -69,6 +69,10 @@ export async function fetchCartData(cartId: string) {
     },
     createdAt: Date.now(),
     updatedAt: Date.now(),
+    email: 'super@cool.com',
     amount: 525,
+    invoiceDate: Date.now(),
+    invoiceNumber: 'StubA491CAB7-0001',
+    last4: '1234',
   };
 }

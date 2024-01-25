@@ -35,12 +35,7 @@ import CardHeader from '../../components/CardHeader';
 import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
-import {
-  StoredAccountData,
-  persistAccount,
-  setCurrentAccount,
-} from '../../lib/storage-utils';
-import { sessionToken } from '../../lib/cache';
+import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import {
@@ -69,7 +64,6 @@ export const Signup = ({
   }, []);
 
   const isSync = integration.isSync();
-  const canChangeEmail = !isOAuthIntegration(integration);
   const email = queryParamModel.email;
 
   const onFocusMetricsEvent = () => {
@@ -179,14 +173,6 @@ export const Signup = ({
     getValues().age === '' && setAgeCheckErrorText(localizedAgeIsRequiredError);
   };
 
-  // Persist account data to local storage to match parity with content-server
-  // this allows the recent account to be used for /signin
-  const storeAccountData = (accountData: StoredAccountData) => {
-    persistAccount(accountData);
-    setCurrentAccount(accountData.uid);
-    sessionToken(accountData.sessionToken);
-  };
-
   // TODO: Add metrics events to match parity with content-server in FXA-8302
   // The legacy amplitude events will eventually be replaced by Glean,
   // but until that is ready we must ensure the expected metrics continue to be emitted
@@ -223,6 +209,8 @@ export const Signup = ({
           metricsEnabled: true,
         };
 
+        // Persist account data to local storage to match parity with content-server
+        // this allows the recent account to be used for /signin
         storeAccountData(accountData);
 
         const getOfferedSyncEngines = () =>
@@ -356,31 +344,29 @@ export const Signup = ({
       <div className="mt-4 mb-6">
         <p className="break-all">{email}</p>
 
-        {canChangeEmail && (
-          <FtlMsg id="signup-change-email-link">
-            {/* TODO: Replace this with `Link` once index page is Reactified */}
-            <a
-              href="/"
-              className="link-blue text-sm"
-              onClick={(e) => {
-                e.preventDefault();
-                const params = new URLSearchParams(location.search);
-                // Tell content-server to stay on index and prefill the email
-                params.set('prefillEmail', email);
-                // Passing back the 'email' param causes various behaviors in
-                // content-server since it marks the email as "coming from a RP".
-                // Also remove `emailFromContent` since we pass that when coming
-                // from content-server to Backbone, see Signup container component
-                // for more info.
-                params.delete('emailFromContent');
-                params.delete('email');
-                hardNavigateToContentServer(`/?${params.toString()}`);
-              }}
-            >
-              Change email
-            </a>
-          </FtlMsg>
-        )}
+        <FtlMsg id="signup-change-email-link">
+          {/* TODO: Replace this with `Link` once index page is Reactified */}
+          <a
+            href="/"
+            className="link-blue text-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              const params = new URLSearchParams(location.search);
+              // Tell content-server to stay on index and prefill the email
+              params.set('prefillEmail', email);
+              // Passing back the 'email' param causes various behaviors in
+              // content-server since it marks the email as "coming from a RP".
+              // Also remove `emailFromContent` since we pass that when coming
+              // from content-server to Backbone, see Signup container component
+              // for more info.
+              params.delete('emailFromContent');
+              params.delete('email');
+              hardNavigateToContentServer(`/?${params.toString()}`);
+            }}
+          >
+            Change email
+          </a>
+        </FtlMsg>
       </div>
 
       <FormPasswordWithBalloons

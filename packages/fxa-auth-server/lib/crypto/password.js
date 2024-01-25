@@ -19,11 +19,14 @@ module.exports = function (log, config) {
     },
   };
 
-  function Password(authPW, authSalt, version) {
+  function Password(authPW, authSalt, version, clientVersion) {
     version = typeof version === 'number' ? version : 1;
     this.authPW = Buffer.from(authPW, 'hex');
     this.authSalt = Buffer.from(authSalt, 'hex');
     this.version = version;
+    // In many cases, we don't know the version the client used until it has been checked
+    // against the database. See signin utils and checkPassword for implementation details.
+    this.clientVersion = clientVersion || 1;
     this.stretchPromise = hashVersions[version](this.authPW, this.authSalt);
     this.verifyHashPromise = this.stretchPromise.then(hkdfVerify);
   }

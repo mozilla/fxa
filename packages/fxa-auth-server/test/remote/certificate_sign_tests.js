@@ -19,7 +19,9 @@ const publicKey = {
   e: '65537',
 };
 
-describe('#integration - remote certificate sign', function () {
+[{version:""},{version:"V2"}].forEach((testOptions) => {
+
+describe(`#integration${testOptions.version} - remote certificate sign`, function () {
   this.timeout(15000);
   let server;
   before(() => {
@@ -38,7 +40,7 @@ describe('#integration - remote certificate sign', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      { ...testOptions, keys: true }
     )
       .then((c) => {
         client = c;
@@ -96,7 +98,7 @@ describe('#integration - remote certificate sign', function () {
       email,
       password,
       server.mailbox,
-      { keys: true }
+      { ...testOptions, keys: true }
     )
       .then((c) => {
         client = c;
@@ -149,7 +151,7 @@ describe('#integration - remote certificate sign', function () {
     const password = 'allyourbasearebelongtous';
     let client = null;
     const duration = 1000 * 60 * 60 * 24; // 24 hours
-    return Client.create(config.publicUrl, email, password)
+    return Client.create(config.publicUrl, email, password, testOptions)
       .then((c) => {
         client = c;
         return client.sign(publicKey, duration);
@@ -172,7 +174,8 @@ describe('#integration - remote certificate sign', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((c) => {
         client = c;
@@ -267,7 +270,8 @@ describe('#integration - remote certificate sign', function () {
       config.publicUrl,
       email,
       password,
-      server.mailbox
+      server.mailbox,
+      testOptions
     )
       .then((client) => {
         client.api.once('startRequest', (options) => {
@@ -300,4 +304,6 @@ describe('#integration - remote certificate sign', function () {
   after(() => {
     return TestServer.stop(server);
   });
+});
+
 });

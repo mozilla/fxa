@@ -88,7 +88,7 @@ export async function getBundle(languages: string[] | undefined) {
 }
 
 // Temporary
-export async function getFormattedMsg(
+export function getFormattedMsg(
   l10n: FluentBundle,
   msgId: string,
   fallback: string,

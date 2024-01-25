@@ -163,7 +163,16 @@ module.exports = (config, log, Token, UnblockCode = null) => {
 
   DB.prototype.checkPassword = async function (uid, verifyHash) {
     log.trace('DB.checkPassword', { uid, verifyHash });
-    return Account.checkPassword(uid, verifyHash);
+    const result = await Account.checkPassword(uid, verifyHash);
+
+    if (result.v1) {
+      resolveMetrics()?.increment('check.password.v1.success')
+    }
+    if (result.v2) {
+      resolveMetrics()?.increment('check.password.v2.success')
+    }
+
+    return result;
   };
 
   DB.prototype.accountExists = async function (email) {
@@ -724,6 +733,15 @@ module.exports = (config, log, Token, UnblockCode = null) => {
       await this.redis.del(uid);
     }
     data.verifierSetAt = Date.now();
+
+
+    if (data.verifyHashVersion2 != null) {
+      resolveMetrics()?.increment('reset.account.v2')
+    }
+    else {
+      resolveMetrics()?.increment('reset.account.v1')
+    }
+
     return Account.reset({ uid, ...data });
   };
 
@@ -767,16 +785,25 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   DB.prototype.createPassword = async function (
     uid,
     authSalt,
+    clientSalt,
     verifyHash,
+    verifyHashVersion2,
     wrapWrapKb,
+    wrapWrapKbVersion2,
     verifierVersion
   ) {
     log.trace('DB.createPassword', { uid });
+    if (clientSalt && verifyHashVersion2 && wrapWrapKbVersion2) {
+      resolveMetrics()?.increment('create.password.v2')
+    }
     return Account.createPassword(
       uid,
       authSalt,
+      clientSalt,
       verifyHash,
+      verifyHashVersion2,
       wrapWrapKb,
+      wrapWrapKbVersion2,
       verifierVersion
     );
   };

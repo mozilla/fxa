@@ -29,8 +29,8 @@ export class SignupReactPage extends BaseLayout {
 
   getPassword() {
     return this.page.getByRole('textbox', {
-      // simple text string was matching both password inputs
-      name: /^Password$/,
+      name: 'Password',
+      exact: true,
     });
   }
 
@@ -73,7 +73,12 @@ export class SignupReactPage extends BaseLayout {
     }
   }
 
-  async fillOutCodeForm(code: string) {
+  async fillOutCodeForm(email: string) {
+    const code = await this.target.email.waitForEmail(
+      email,
+      EmailType.verifyShortCode,
+      EmailHeader.shortCode
+    );
     await this.setCode(code);
     await this.submit('Confirm');
   }
@@ -89,15 +94,8 @@ export class SignupReactPage extends BaseLayout {
     await this.page.waitForURL(/signup/);
     await this.page.waitForSelector('#root');
     await this.fillOutSignupForm(password);
-
-    // Get code from email
-    const code = await this.target.email.waitForEmail(
-      email,
-      EmailType.verifyShortCode,
-      EmailHeader.shortCode
-    );
-
-    await this.fillOutCodeForm(code);
+    await this.page.waitForURL(/confirm_signup_code/);
+    await this.fillOutCodeForm(email);
   }
 
   async submit(label: string) {

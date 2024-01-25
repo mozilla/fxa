@@ -3,8 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // This file contains query params that don't reflect states that can be reached from 123done.
+import uaStrings from './ua-strings';
 
+export const oauthWebchannelV1 = new URLSearchParams({
+  context: 'oauth_webchannel_v1',
+});
+
+// Minimum needed to complete OAuth flow
 export const syncMobileOAuthQueryParams = new URLSearchParams({
+  ...Object.fromEntries(oauthWebchannelV1.entries()),
   client_id: '1b1a3e44c54fbb58', // Firefox for iOS
   code_challenge_method: 'S256',
   code_challenge: '2oc_C4v1qHeefWAGu5LI5oDG1oX4FV_Itc148D8_oQI',
@@ -14,6 +21,13 @@ export const syncMobileOAuthQueryParams = new URLSearchParams({
   scope:
     'https://identity.mozilla.com/apps/oldsync https://identity.mozilla.com/tokens/session',
   state: 'fakestate',
-  context: 'oauth_webchannel_v1',
   automatedBrowser: 'true',
+});
+
+export const syncDesktopV3QueryParams = new URLSearchParams({
+  context: 'fx_desktop_v3',
+  service: 'sync',
+  action: 'email',
+  automatedBrowser: 'true',
+  forceUA: uaStrings['desktop_firefox_79'],
 });

@@ -749,6 +749,13 @@ workflows:
           requires:
             - Build (PR)
       - integration-test:
+          name: Integration Test - Servers - Auth V2 (PR)
+          nx_run: affected --base=main --head=$CIRCLE_SHA1
+          projects: --exclude '*,!tag:scope:server:auth'
+          target: -t integration-test-v2
+          requires:
+            - Build (PR)
+      - integration-test:
           name: Integration Test - Libraries (PR)
           nx_run: affected --base=main --head=$CIRCLE_SHA1
           projects: --exclude '*,!tag:scope:shared:*'
@@ -774,6 +781,7 @@ workflows:
             - Integration Test - Frontends (PR)
             - Integration Test - Servers (PR)
             - Integration Test - Servers - Auth (PR)
+            - Integration Test - Servers - Auth V2 (PR)
             - Integration Test - Libraries (PR)
             - Functional Tests - Playwright (PR)
             - Deploy Storybooks (PR)
@@ -948,6 +956,17 @@ workflows:
           requires:
             - Build
       - integration-test:
+          name: Integration Test - Servers - Auth V2
+          projects: --exclude '*,!tag:scope:server:auth'
+          target: -t integration-test-v2
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /.*/
+          requires:
+            - Build
+      - integration-test:
           name: Integration Test - Libraries
           projects: --exclude '*,!tag:scope:shared:*'
           filters:
@@ -990,6 +1009,7 @@ workflows:
             - Integration Test - Frontends
             - Integration Test - Servers
             - Integration Test - Servers - Auth
+            - Integration Test - Servers - Auth V2
             - Integration Test - Libraries
             - Functional Tests - Playwright
             - Create FxA Image
@@ -1046,7 +1066,12 @@ workflows:
       - integration-test:
           name: Integration Test - Servers - Auth (nightly)
           projects: --exclude '*,!tag:scope:server:auth'
-          target: --targets test-integration-local test-integration-remote test-integration-scripts
+          requires:
+            - Build (nightly)
+      - integration-test:
+          name: Integration Test - Servers - Auth V2 (nightly)
+          projects: --exclude '*,!tag:scope:server:auth'
+          target: -t integration-test-v2
           requires:
             - Build (nightly)
       - integration-test:
@@ -1070,6 +1095,7 @@ workflows:
             - Integration Test - Frontends (nightly)
             - Integration Test - Servers (nightly)
             - Integration Test - Servers - Auth (nightly)
+            - Integration Test - Servers - Auth V2 (nightly)
             - Integration Test - Libraries (nightly)
             - Functional Tests - Playwright (nightly)
       - build-and-deploy-storybooks:
