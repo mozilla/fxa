@@ -8,7 +8,6 @@ metadata:
     - typescript
     - node
     - react
-    - CRA
   annotations:
     sentry.io/project-slug: mozilla/fxa-admin-panel
     circleci.com/project-slug: github/mozilla/fxa
@@ -26,5 +25,5 @@ spec:
   lifecycle: production
   owner: fxa-team
   system: mozilla-accounts
-  consumesApi:
-    - api:fxa-admin
+  dependsOn:
+    - component:fxa-admin-server

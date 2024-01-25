@@ -23,8 +23,7 @@ spec:
   lifecycle: production
   owner: fxa-team
   system: mozilla-accounts
-  consumesApis:
-    - api:fxa-graphql
-    - api:fxa-auth
   dependsOn:
-    - fxa-profile-server
+    - component:fxa-auth-server
+    - component:fxa-profile-server
+    - component:fxa-graphl-api
