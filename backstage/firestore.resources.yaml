@@ -8,7 +8,7 @@ metadata:
     - firestore
 spec:
   type: database
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
 ---
 apiVersion: backstage.io/v1alpha1
@@ -20,5 +20,5 @@ metadata:
     - firestore
 spec:
   type: database
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts

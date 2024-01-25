@@ -6,7 +6,7 @@ metadata:
   description: Stores aggregated profile data.
 spec:
   type: database
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
 ---
 apiVersion: backstage.io/v1alpha1
@@ -16,5 +16,5 @@ metadata:
   description: Stores OAuth access and session token info, and email reminders.
 spec:
   type: database
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts

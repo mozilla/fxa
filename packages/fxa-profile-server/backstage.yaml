@@ -14,9 +14,10 @@ metadata:
 spec:
   type: service
   lifecycle: production
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
   dependsOn:
-    - component:fxa-auth-server
     - resource:fxa-profile-database
     - resource:fxa-profile-cache
+  consumesApis:
+    - api:fxa-auth

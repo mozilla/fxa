@@ -15,8 +15,10 @@ metadata:
 spec:
   type: service
   lifecycle: production
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
+  providesApis:
+    - api:fxa-auth
   dependsOn:
     - component:fxa-browserid-verifier
     - component:fxa-customs-server
@@ -25,3 +27,16 @@ spec:
     - resource:fxa-pushbox-database
     - resource:fxa-stripe-database
     - resource:fxa-auth-cache
+---
+apiVersion: backstage.io/v1alpha1
+kind: API
+metadata:
+  name: fxa-auth
+  description: Mozilla Accounts Auth API
+spec:
+  type: openapi
+  lifecycle: production
+  owner: fxa-devs
+  system: mozilla-accounts
+  definition:
+    $text: https://api.accounts.firefox.com/swagger.json

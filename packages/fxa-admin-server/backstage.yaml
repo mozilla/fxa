@@ -15,7 +15,7 @@ metadata:
 spec:
   type: service
   lifecycle: production
-  owner: fxa-team
+  owner: fxa-devs
   system: mozilla-accounts
   providesApis:
     - api:fxa-admin
