@@ -45,3 +45,12 @@ export const SigninLinkDamaged = () => {
     />
   );
 };
+
+export const ReportSigninLinkDamaged = () => {
+  return (
+    <LinkDamaged
+      headingText="Link damaged"
+      headingTextFtlId="report-signin-link-damaged-header"
+    />
+  );
+};
