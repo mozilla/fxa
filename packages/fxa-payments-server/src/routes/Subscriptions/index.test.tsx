@@ -652,10 +652,12 @@ describe('routes/Subscriptions', () => {
     useDefaultIcon = false,
     cancelledAtIsUnavailable = false,
     discount = 'NONE',
+    paymentProvider = 'stripe',
   }: {
     useDefaultIcon?: boolean;
     cancelledAtIsUnavailable?: boolean;
     discount?: 'NONE' | 'ENDS_NEXT_INTERVAL' | 'ONGOING';
+    paymentProvider?: 'stripe' | 'paypal' | 'not_chosen';
   }) {
     // To exercise the default icon fallback, delete webIconURL from the second plan.
     const plans: Plan[] = !useDefaultIcon
@@ -720,6 +722,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
+        payment_provider: paymentProvider,
         subscriptions: [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -751,6 +754,7 @@ describe('routes/Subscriptions', () => {
       .get('/v1/oauth/mozilla-subscriptions/customer/billing-and-subscriptions')
       .reply(200, {
         ...MOCK_CUSTOMER,
+        payment_provider: paymentProvider,
         subscriptions: [
           {
             _subscription_type: MozillaSubscriptionTypes.WEB,
@@ -828,6 +832,59 @@ describe('routes/Subscriptions', () => {
 
       const reactivateModalCopy = getByTestId('reactivate-modal-copy');
       expect(reactivateModalCopy.textContent).toContain(amountString);
+      expect(
+        queryByTestId('reactivate-modal-copy-paypal')
+      ).not.toBeInTheDocument();
+
+      const reactivateConfirmButton = getByTestId(
+        'reactivate-subscription-confirm-button'
+      );
+      fireEvent.click(reactivateConfirmButton);
+
+      await findByTestId('reactivate-subscription-success-dialog');
+
+      await waitForExpect(() =>
+        expect(queryByTestId('loading-overlay')).not.toBeInTheDocument()
+      );
+
+      // Product image should appear in the reactivation success dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
+
+      const successButton = getByTestId(
+        'reactivate-subscription-success-button'
+      );
+      fireEvent.click(successButton);
+
+      await findByTestId('reveal-cancel-subscription-button');
+    });
+
+    it('should display alternative copy when payment provider is not Stripe', async () => {
+      commonReactivationSetup({
+        useDefaultIcon,
+        discount,
+        paymentProvider: 'paypal',
+      });
+      nock(authServer)
+        .post('/v1/oauth/subscriptions/reactivate')
+        .reply(200, {});
+      nock(authServer)
+        .get('/v1/oauth/subscriptions/invoice/preview-subsequent')
+        .reply(200, MOCK_SUBSEQUENT_INVOICES);
+      const { findByTestId, getByTestId, getByAltText, queryByTestId } =
+        renderWithLocalizationProvider(<Subject />);
+
+      // Wait for the page to load with one subscription
+      await findByTestId('subscription-management-loaded');
+
+      const reactivateButton = getByTestId('reactivate-subscription-button');
+      fireEvent.click(reactivateButton);
+
+      // Product image should appear in the reactivation confirm dialog.
+      expectProductImage({ getByAltText, useDefaultIcon });
+
+      const reactivateModalCopy = getByTestId('reactivate-modal-copy-paypal');
+      expect(reactivateModalCopy.textContent).toContain(amountString);
+      expect(queryByTestId('reactivate-modal-copy')).not.toBeInTheDocument();
 
       const reactivateConfirmButton = getByTestId(
         'reactivate-subscription-confirm-button'
