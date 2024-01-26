@@ -6,4 +6,3 @@ metadata:
   description: Mozilla Accounts
 spec:
   owner: fxa-devs
-  domain: accounts

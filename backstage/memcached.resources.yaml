@@ -4,7 +4,9 @@ kind: Resource
 metadata:
   name: fxa-customs-cache
   description: Caches rate limits and IP reuptation scores.
+  tags:
+    - memcached
 spec:
-  type: database
+  type: cache
   owner: fxa-devs
   system: mozilla-accounts

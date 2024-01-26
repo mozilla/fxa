@@ -3,7 +3,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: fxa-123done
-  description: Demo app for Mozilla Accounts
+  description: Demo app for Mozilla Accounts and Subscription Platform.
   tags:
     - javascript
     - node
