@@ -86,6 +86,7 @@ export class CloudTaskHandler {
       // if the account is already deleted from the db, then try to clean up
       // some potentially remaining other records
       if (err.errno === ERRNO.ACCOUNT_UNKNOWN) {
+        this.log.info('accountCleanup.byCloudTask', { uid: taskPayload.uid });
         await this.accountDeleteManager.cleanupAccount(taskPayload.uid);
       } else {
         throw err;
