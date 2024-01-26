@@ -19,6 +19,8 @@ spec:
   system: mozilla-accounts
   consumesApis:
     - api:fxa-auth
+  providesApis:
+    - api:fxa-graphql
 ---
 apiVersion: backstage.io/v1alpha1
 kind: API
@@ -30,5 +32,5 @@ spec:
   lifecycle: production
   owner: fxa-devs
   system: mozilla-accounts
-  definition: |
+  definition:
     $text: https://accounts-static.cdn.mozilla.net/fxa-graphql-api/schema.gql
