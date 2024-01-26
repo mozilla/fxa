@@ -61,7 +61,7 @@ const ConfirmationDialogContent = ({
       >
         <h4 id={headerId}>Want to keep using {productName}?</h4>
       </Localized>
-      {(Provider.isPaypal(payment_provider) || !last4) && (
+      {Provider.isPaypal(payment_provider) || !last4 ? (
         <Localized
           id="reactivate-confirm-without-payment-method-copy"
           vars={{
@@ -70,15 +70,14 @@ const ConfirmationDialogContent = ({
             endDate: getLocalizedDate(periodEndDate),
           }}
         >
-          <p>
+          <p id={descId} data-testid="reactivate-modal-copy-paypal">
             Your access to {productName} will continue, and your billing cycle
             and payment will stay the same. Your next charge will be{' '}
             {getLocalizedCurrencyString(amount, currency)} on{' '}
             {getLocalizedDateString(periodEndDate)}.
           </p>
         </Localized>
-      )}
-      {last4 && (
+      ) : (
         <Localized
           id="reactivate-confirm-copy"
           vars={{
