@@ -4,8 +4,10 @@ kind: Resource
 metadata:
   name: fxa-profile-cache
   description: Stores aggregated profile data.
+  tags:
+    - redis
 spec:
-  type: database
+  type: cache
   owner: fxa-devs
   system: mozilla-accounts
 ---
@@ -14,7 +16,9 @@ kind: Resource
 metadata:
   name: fxa-auth-cache
   description: Stores OAuth access and session token info, and email reminders.
+  tags:
+    - redis
 spec:
-  type: database
+  type: cache
   owner: fxa-devs
   system: mozilla-accounts

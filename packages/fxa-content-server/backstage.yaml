@@ -9,7 +9,6 @@ metadata:
     - typescript
     - node
     - backbone
-    - react
   annotations:
     sentry.io/project-slug: mozilla/fxa-content-server
     circleci.com/project-slug: github/mozilla/fxa
@@ -27,3 +26,5 @@ spec:
   system: mozilla-accounts
   consumesApis:
     - api:fxa-auth
+  dependsOn:
+    - component:fxa-admin-server
