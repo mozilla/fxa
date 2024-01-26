@@ -300,7 +300,10 @@ export class AccountDeleteManager {
       }
       this.log.error('AccountDeleteManager.deleteFirestoreCustomer', {
         uid,
-        error,
+        error:
+          error instanceof StripeFirestoreMultiError
+            ? error.getSummary()
+            : String(error),
       });
       throw error;
     }

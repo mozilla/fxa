@@ -26,9 +26,14 @@ export function newFirestoreStripeError(
 
 export class StripeFirestoreError extends BaseError {
   documentPath?: string;
-  constructor(message: string, cause: Error, docPath?: string) {
-    super(cause, message);
-    this.name = 'StripeFirestoreError';
+  constructor(cause: Error, docPath?: string, message?: string) {
+    super(
+      {
+        name: 'StripeFirestoreError',
+        ...(cause && { cause }),
+      },
+      message || cause.message
+    );
     this.documentPath = docPath;
   }
 }
@@ -42,6 +47,12 @@ export class StripeFirestoreMultiError extends BaseMultiError {
   getPrimaryError(): StripeFirestoreError {
     // TS is not picking up the type otherwise, so have to cast.
     return this.errors()[0] as StripeFirestoreError;
+  }
+
+  getSummary(): string {
+    return (this.errors() as StripeFirestoreError[])
+      .map((error) => `${String(error.cause())}: ${error.documentPath}`)
+      .join('; ');
   }
 
   static hasStripeFirestoreError(
@@ -184,7 +195,17 @@ export class StripeFirestore extends StripeFirestoreBase {
   }
 
   /**
-   * Remove the specified customer document and all subcollections
+   * Remove the specified customer document and all subcollections. Returns with all
+   * deleted document and subcollection paths.
+   *
+   * If a customer document for the  given uid does not exist, or no subcollections are
+   * found, firestore.recursiveDelete() returns successfully with the expected documentPath
+   * as if the document has been deleted.
+   *
+   * If no subcollections are found for the customer document, the customer document
+   * will be deleted, and the method returns successfully with the deleted documentPath.
+   *
+   * @param uid - Mozilla Account uid
    */
   async removeCustomerRecursive(uid: string) {
     const bulkWriterResults: string[] = [];
@@ -196,7 +217,7 @@ export class StripeFirestore extends StripeFirestoreBase {
         return true;
       } else {
         bulkWriterErrors.push(
-          new StripeFirestoreError(error.message, error, error.documentRef.path)
+          new StripeFirestoreError(error, error.documentRef.path)
         );
         return false;
       }
@@ -210,11 +231,7 @@ export class StripeFirestore extends StripeFirestoreBase {
     } catch (error) {
       if (bulkWriterErrors.length) {
         throw new StripeFirestoreMultiError([
-          new StripeFirestoreError(
-            error.message,
-            error,
-            error?.documentRef?.path
-          ),
+          new StripeFirestoreError(error, error?.documentRef?.path),
           ...bulkWriterErrors,
         ]);
       } else {
