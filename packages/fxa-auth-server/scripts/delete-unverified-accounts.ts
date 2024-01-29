@@ -9,7 +9,7 @@ import { Container } from 'typedi';
 import { StripeHelper, createStripeHelper } from '../lib/payments/stripe';
 import { StatsD } from 'hot-shots';
 import { setupFirestore } from '../lib/firestore-db';
-import { AuthFirestore } from '../lib/types';
+import { AccountDeleteReasonsMap, AuthFirestore } from '../lib/types';
 import { CurrencyHelper } from '../lib/payments/currencies';
 import appConfig from '../config';
 import initLog from '../lib/log';
@@ -114,7 +114,7 @@ const init = async () => {
   const hasEmail = program.email.length > 0;
   const hasDateRange =
     program.startDate && program.endDate && program.endDate > program.startDate;
-  const reason = 'fxa_unverified_account_delete';
+  const reason = AccountDeleteReasonsMap.unverified;
 
   if (!hasUid && !hasEmail && !hasDateRange) {
     throw new Error(
