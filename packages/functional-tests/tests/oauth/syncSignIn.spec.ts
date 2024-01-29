@@ -48,6 +48,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.login(email, password);
       await login.fillOutSignInCode(email);
+      // eslint-disable-next-line playwright/prefer-web-first-assertions
       expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
 
       // Sign up for a new account via OAuth
