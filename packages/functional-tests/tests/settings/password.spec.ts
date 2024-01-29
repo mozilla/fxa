@@ -120,7 +120,7 @@ test.describe('password strength tests', () => {
     await login.submit();
   });
 
-  test('test different password errors and success', async ({
+  test('different password errors and success', async ({
     credentials,
     pages: { configPage, login },
   }) => {

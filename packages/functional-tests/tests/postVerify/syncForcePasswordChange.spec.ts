@@ -48,7 +48,7 @@ test.describe('severity-2 #smoke', () => {
       await postVerify.submit();
 
       //Verify logged in on connect another device page
-      expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
   });
 });

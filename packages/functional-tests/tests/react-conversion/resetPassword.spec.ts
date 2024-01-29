@@ -162,7 +162,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto('/confirm_reset_password');
 
       // Verify its redirected to react reset password page
-      expect(await page.locator('#root').isEnabled()).toBe(true);
+      await expect(page.locator('#root')).toBeEnabled();
       await resetPasswordReact.resetPasswordHeadingVisible();
     });
 

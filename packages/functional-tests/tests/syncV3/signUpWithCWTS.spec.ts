@@ -86,7 +86,7 @@ test.describe('severity-1 #smoke', () => {
       await signinTokenCode.clickSubmitButton();
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
       await login.fillOutSignUpCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('verify at CWTS', async ({ target }) => {
@@ -131,7 +131,7 @@ test.describe('severity-1 #smoke', () => {
       await signinTokenCode.clickSubmitButton();
       await login.fillOutSignUpCode(email);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('engines not supported', async ({ target }) => {

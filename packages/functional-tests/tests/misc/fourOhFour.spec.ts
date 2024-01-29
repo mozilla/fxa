@@ -10,10 +10,10 @@ test.describe('404', () => {
     pages: { login, fourOhFour },
   }) => {
     await fourOhFour.goto('load');
-    expect(await fourOhFour.header.isVisible()).toBeTruthy();
-    expect(await fourOhFour.homeLink.isVisible()).toBeTruthy();
+    await expect(fourOhFour.header).toBeVisible();
+    await expect(fourOhFour.homeLink).toBeVisible();
     await fourOhFour.homeLink.click();
     await page.waitForLoadState();
-    expect(await login.emailHeader.isVisible()).toBeTruthy();
+    await expect(login.emailHeader).toBeVisible();
   });
 });

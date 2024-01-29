@@ -84,7 +84,7 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   async clickResendLink(page: BaseLayout['page'] = this.page) {
-    const resendLink = await page.getByRole('link', {
+    const resendLink = page.getByRole('link', {
       name: 'Not in inbox or spam folder? Resend',
     });
     await resendLink.waitFor();
@@ -109,7 +109,7 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   async clickDontHaveRecoveryKey(page: BaseLayout['page'] = this.page) {
-    const forgotKeyLink = await page.getByRole('link', {
+    const forgotKeyLink = page.getByRole('link', {
       name: 'Don’t have an account recovery key?',
     });
     await forgotKeyLink.waitFor();

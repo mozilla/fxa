@@ -57,7 +57,7 @@ test.describe('severity-1 #smoke', () => {
       await login.confirmPassword(password);
       await login.submit();
       await login.fillOutSignUpCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('coppa disabled', async ({ target }) => {
@@ -78,7 +78,7 @@ test.describe('severity-1 #smoke', () => {
       // Age textbox is not on the page and click submit
       await login.submit();
       await login.fillOutSignUpCode(email);
-      expect(await connectAnotherDevice.fxaConnected.isEnabled()).toBeTruthy();
+      await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('email specified by relier, invalid', async ({ target }) => {
