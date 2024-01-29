@@ -174,10 +174,6 @@ class IndexView extends FormView {
       return false;
     }
 
-    if (this._isEmailRelayDomain(this._getEmail())) {
-      return false;
-    }
-
     return super.isValidEnd.call(this);
   }
 
@@ -192,11 +188,6 @@ class IndexView extends FormView {
         EMAIL_SELECTOR,
         AuthErrors.toError('DIFFERENT_EMAIL_REQUIRED_FIREFOX_DOMAIN')
       );
-    } else if (this._isEmailRelayDomain(this._getEmail())) {
-      this.showValidationError(
-        EMAIL_SELECTOR,
-        AuthErrors.toError('EMAIL_MASK_NEW_ACCOUNT')
-      );
     }
   }
 
@@ -210,15 +201,6 @@ class IndexView extends FormView {
     // the added 'i' disallows uppercase letters
     const firefoxMail = new RegExp('@firefox(\\.com)?$', 'i');
     return firefoxMail.test(email);
-  }
-
-  _isEmailRelayDomain(email) {
-    // Checks to see if the email is a Firefox Relay email mask. Current masks are
-    // @mozmail.com
-    // @relay.firefox.com
-    // @<any sub>.mozmail.com
-    const relayMail = /@([a-zA-Z0-9.-]+\.)?(mozmail|relay\.firefox)\.(com)$/i;
-    return relayMail.test(email);
   }
 
   _hasEmailBounced() {
