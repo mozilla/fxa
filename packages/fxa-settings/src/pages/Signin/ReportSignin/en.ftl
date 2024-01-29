@@ -3,7 +3,6 @@
 ## they can click "report it to us" if they did not attempt to sign in.
 ## This will be the page shown to users to block the sign in and report it.
 
-report-signin-link-damaged-header = Link damaged
 report-signin-link-damaged-body = The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.
 
 report-signin-header = Report unauthorized sign-in?
