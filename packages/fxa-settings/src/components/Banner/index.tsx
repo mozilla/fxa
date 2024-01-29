@@ -14,7 +14,11 @@ export enum BannerType {
   error = 'error',
 }
 
-type DefaultProps = { type: BannerType; children: ReactElement | string };
+type DefaultProps = {
+  type: BannerType;
+  children: ReactElement | string;
+  additionalClassNames?: string;
+};
 
 type OptionalProps =
   | {
@@ -25,7 +29,13 @@ type OptionalProps =
 
 export type BannerProps = DefaultProps & OptionalProps;
 
-const Banner = ({ type, children, dismissible, setIsVisible }: BannerProps) => {
+const Banner = ({
+  type,
+  children,
+  additionalClassNames,
+  dismissible,
+  setIsVisible,
+}: BannerProps) => {
   // Transparent border is for Windows HCM  - to ensure there is a border around the banner
   const baseClassNames =
     'text-xs font-bold p-3 my-3 rounded border border-transparent';
@@ -37,7 +47,8 @@ const Banner = ({ type, children, dismissible, setIsVisible }: BannerProps) => {
         type === BannerType.info && 'bg-grey-50 text-black',
         type === BannerType.success && 'bg-green-500 text-grey-900',
         type === BannerType.error && 'bg-red-700 text-white',
-        dismissible && 'flex gap-2 items-center '
+        dismissible && 'flex gap-2 items-center ',
+        additionalClassNames
       )}
     >
       {dismissible ? (

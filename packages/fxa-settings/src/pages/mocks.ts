@@ -31,3 +31,4 @@ export const MOCK_STORED_ACCOUNT = {
   verified: false,
 };
 export const MOCK_AUTH_PW = 'apw123';
+export const MOCK_HEXSTRING_32 = '152e8ef9975a0f3356e062dfe09d3f23';
