@@ -238,7 +238,9 @@ export class LoginPage extends BaseLayout {
   }
 
   async cannotCreateAccountHeader() {
-    return this.page.locator(selectors.COPPA_HEADER).isVisible();
+    const header = this.page.locator(selectors.COPPA_HEADER);
+    await header.waitFor({ state: 'visible' });
+    return header.isVisible();
   }
 
   async waitForSignUpCodeHeader() {
