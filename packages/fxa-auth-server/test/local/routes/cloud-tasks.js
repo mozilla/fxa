@@ -34,9 +34,11 @@ describe('/cloud-tasks/accounts/delete', () => {
     mockPush = mocks.mockPush();
     sandbox.reset();
 
-    deleteAccountStub = sandbox.stub().callsFake((uid, { notify }) => {
-      notify();
-    });
+    deleteAccountStub = sandbox
+      .stub()
+      .callsFake((uid, customerId, { notify }) => {
+        notify();
+      });
     cleanupAccountStub = sandbox.stub().resolves();
     Container.set(AccountDeleteManager, {
       deleteAccount: deleteAccountStub,
@@ -86,6 +88,7 @@ describe('/cloud-tasks/accounts/delete', () => {
         event: 'account.deleted',
       });
     } catch (err) {
+      console.log(err);
       assert.fail('An error should not have been thrown.');
     }
   });

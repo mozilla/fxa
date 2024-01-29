@@ -12,6 +12,7 @@ const uuid = require('uuid');
 
 const email = 'foo@example.com';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+const customerId = 'cus_123';
 const expectedSubscriptions = [
   { uid, subscriptionId: '123' },
   { uid, subscriptionId: '456' },
@@ -75,8 +76,13 @@ describe('AccountDeleteManager', function () {
     ]);
     mockStripeHelper.removeCustomer = sandbox.stub().resolves();
     mockStripeHelper.removeFirestoreCustomer = sandbox.stub().resolves();
+    mockStripeHelper.fetchInvoicesForActiveSubscriptions = sandbox
+      .stub()
+      .resolves();
+    mockStripeHelper.refundInvoices = sandbox.stub().resolves();
     mockPaypalHelper = mocks.mockPayPalHelper(['cancelBillingAgreement']);
     mockPaypalHelper.cancelBillingAgreement = sandbox.stub().resolves();
+    mockPaypalHelper.refundInvoices = sandbox.stub().resolves();
     mockAuthModels = {};
     mockAuthModels.getAllPayPalBAByUid = sinon.spy(async () => {
       return [{ status: 'Active', billingAgreementId: 'B-test' }];
@@ -223,7 +229,7 @@ describe('AccountDeleteManager', function () {
     it('should delete the account', async () => {
       const options = { notify: sandbox.stub().resolves() };
 
-      await accountDeleteManager.deleteAccount(uid, options);
+      await accountDeleteManager.deleteAccount(uid, customerId, options);
 
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
@@ -302,6 +308,103 @@ describe('AccountDeleteManager', function () {
         uid
       );
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
+    });
+  });
+
+  describe('refundSubscriptions', () => {
+    it('returns immediately when delete reason is not for unverified account', async () => {
+      await accountDeleteManager.refundSubscriptions('invalid_reason');
+      sinon.assert.notCalled(
+        mockStripeHelper.fetchInvoicesForActiveSubscriptions
+      );
+    });
+
+    it('returns if no invoices are found', async () => {
+      mockStripeHelper.fetchInvoicesForActiveSubscriptions.resolves([]);
+      await accountDeleteManager.refundSubscriptions(
+        'fxa_unverified_account_delete',
+        'customerid'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.fetchInvoicesForActiveSubscriptions,
+        'customerid',
+        'paid',
+        undefined
+      );
+      sinon.assert.notCalled(mockStripeHelper.refundInvoices);
+    });
+
+    it('attempts refunds on invoices created within refundPeriod', async () => {
+      mockStripeHelper.fetchInvoicesForActiveSubscriptions.resolves([]);
+      await accountDeleteManager.refundSubscriptions(
+        'fxa_unverified_account_delete',
+        'customerid',
+        34
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.fetchInvoicesForActiveSubscriptions,
+        'customerid',
+        'paid',
+        sinon.match.date
+      );
+      sinon.assert.calledOnce(
+        mockStripeHelper.fetchInvoicesForActiveSubscriptions
+      );
+      sinon.assert.notCalled(mockStripeHelper.refundInvoices);
+    });
+
+    it('attempts refunds on invoices', async () => {
+      const expectedInvoices = ['invoice1', 'invoice2'];
+      const expectedRefundResult = [
+        {
+          invoiceId: 'id1',
+          priceId: 'priceId1',
+          total: '123',
+          currency: 'usd',
+        },
+      ];
+      mockStripeHelper.fetchInvoicesForActiveSubscriptions.resolves(
+        expectedInvoices
+      );
+      mockStripeHelper.refundInvoices.resolves(expectedRefundResult);
+      await accountDeleteManager.refundSubscriptions(
+        'fxa_unverified_account_delete',
+        'customerId'
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.refundInvoices,
+        expectedInvoices
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockPaypalHelper.refundInvoices,
+        expectedInvoices
+      );
+    });
+
+    it('rejects on refundInvoices handler exception', async () => {
+      const expectedInvoices = ['invoice1', 'invoice2'];
+      const expectedError = new Error('expected');
+      mockStripeHelper.fetchInvoicesForActiveSubscriptions.resolves(
+        expectedInvoices
+      );
+      mockStripeHelper.refundInvoices.rejects(expectedError);
+      try {
+        await accountDeleteManager.refundSubscriptions(
+          'fxa_unverified_account_delete',
+          'customerId'
+        );
+        assert.fail('expecting refundSubscriptions exception');
+      } catch (error) {
+        sinon.assert.calledOnceWithExactly(
+          mockStripeHelper.refundInvoices,
+          expectedInvoices
+        );
+        sinon.assert.calledOnceWithExactly(
+          mockPaypalHelper.refundInvoices,
+          expectedInvoices
+        );
+        assert.deepEqual(error, expectedError);
+      }
     });
   });
 });
