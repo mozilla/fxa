@@ -169,6 +169,15 @@ function throwPaypalCodeError(err: PayPalClientError) {
   );
 }
 
+export class RefundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RefundError';
+  }
+}
+
+const MAX_REFUND_DAYS = 180;
+
 export class PayPalHelper {
   private log: Logger;
   private client: PayPalClient;
@@ -607,5 +616,65 @@ export class PayPalHelper {
     throw error.internalValidationError('issueRefund', {
       message: 'PayPal refund transaction unsuccessful',
     });
+  }
+
+  /**
+   * Attempts to refund all of the invoices passed, provided they're created via PayPal
+   * This will invisibly do nothing if the invoice is not billed through PayPal, so be mindful
+   * if using it elsewhere and need confirmation of a refund.
+   */
+  public async refundInvoices(invoices: Stripe.Invoice[]) {
+    this.log.debug('PayPalHelper.refundInvoices', {
+      numberOfInvoices: invoices.length,
+    });
+    const minCreated = Math.floor(
+      new Date().setDate(new Date().getDate() - MAX_REFUND_DAYS) / 1000
+    );
+    const payPalInvoices = invoices.filter(
+      (invoice) => invoice.collection_method === 'send_invoice'
+    );
+
+    for (const invoice of payPalInvoices) {
+      this.log.debug('PayPalHelper.refundInvoices', { invoiceId: invoice.id });
+      try {
+        if (invoice.created < minCreated) {
+          throw new RefundError(
+            'Invoice created outside of maximum refund period'
+          );
+        }
+        const transactionId =
+          this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+        if (!transactionId) {
+          throw new RefundError('Missing transactionId');
+        }
+        const refundTransactionId =
+          this.stripeHelper.getInvoicePaypalRefundTransactionId(invoice);
+        if (refundTransactionId) {
+          throw new RefundError('Invoice already refunded with PayPal');
+        }
+
+        await this.issueRefund(invoice, transactionId, RefundType.Full);
+
+        this.log.info('refundInvoices', {
+          invoiceId: invoice.id,
+          priceId: this.stripeHelper.getPriceIdFromInvoice(invoice),
+          total: invoice.total,
+          currency: invoice.currency,
+        });
+      } catch (error) {
+        this.log.error('PayPalHelper.refundInvoices', {
+          error,
+          invoiceId: invoice.id,
+        });
+        if (
+          !(error instanceof RefusedError) &&
+          !(error instanceof RefundError)
+        ) {
+          throw error;
+        }
+      }
+    }
+
+    return;
   }
 }
