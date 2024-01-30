@@ -28,10 +28,23 @@ const View = FormView.extend({
   },
 
   beforeRender() {
+    const account = this.getAccount();
+
     // user cannot confirm if they have not initiated a sign in.
-    if (!this.getAccount()) {
-      this.navigate(this._getAuthPage());
+    if (!account) {
+      return this.navigate(this._getAuthPage());
     }
+    this.broker.persistVerificationData(account);
+    return account.accountProfile().then((profile) => {
+      // Check to see if the account has 2FA and redirect to that
+      // page to verify
+      if (
+        profile.authenticationMethods &&
+        profile.authenticationMethods.includes('otp')
+      ) {
+        return this.replaceCurrentPage('/signin_totp_code');
+      }
+    });
   },
 
   afterVisible() {
@@ -43,7 +56,6 @@ const View = FormView.extend({
     const account = this.getSignedInAccount();
     return proto.afterVisible
       .call(this)
-      .then(() => this.broker.persistVerificationData(account))
       .then(() =>
         this.invokeBrokerMethod('beforeSignUpConfirmationPoll', account)
       )
