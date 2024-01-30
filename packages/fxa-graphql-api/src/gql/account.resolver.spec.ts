@@ -392,11 +392,22 @@ describe('#integration - AccountResolver', () => {
 
     describe('sendSessionVerificationCode', () => {
       it('succeeds', async () => {
-        authClient.sessionResendVerifyCode = jest.fn().mockResolvedValue(true);
-        const result = await resolver.sendSessionVerificationCode('token', {
-          clientMutationId: 'testid',
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
         });
+        authClient.sessionResendVerifyCode = jest.fn().mockResolvedValue(true);
+        const result = await resolver.sendSessionVerificationCode(
+          headers,
+          'token',
+          {
+            clientMutationId: 'testid',
+          }
+        );
         expect(authClient.sessionResendVerifyCode).toBeCalledTimes(1);
+        expect(authClient.sessionResendVerifyCode).toHaveBeenCalledWith(
+          'token',
+          headers
+        );
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
@@ -405,12 +416,21 @@ describe('#integration - AccountResolver', () => {
 
     describe('verifySession', () => {
       it('succeeds', async () => {
+        const headers = new Headers({
+          'x-forwarded-for': '123.123.123.123',
+        });
         authClient.sessionVerifyCode = jest.fn().mockResolvedValue(true);
-        const result = await resolver.verifySession('token', {
+        const result = await resolver.verifySession(headers, 'token', {
           clientMutationId: 'testid',
           code: 'ABCD1234',
         });
         expect(authClient.sessionVerifyCode).toBeCalledTimes(1);
+        expect(authClient.sessionVerifyCode).toHaveBeenCalledWith(
+          'token',
+          'ABCD1234',
+          undefined,
+          headers
+        );
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
@@ -492,6 +512,12 @@ describe('#integration - AccountResolver', () => {
           code: 'code',
         });
         expect(authClient.passwordForgotVerifyCode).toBeCalledTimes(1);
+        expect(authClient.passwordForgotVerifyCode).toHaveBeenLastCalledWith(
+          'code',
+          'passwordforgottoken',
+          {},
+          headers
+        );
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
           accountResetToken: 'cooltokenyo',

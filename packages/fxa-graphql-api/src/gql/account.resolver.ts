@@ -406,11 +406,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async sendSessionVerificationCode(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => SendSessionVerificationInput })
     input: SendSessionVerificationInput
   ) {
-    await this.authAPI.sessionResendVerifyCode(token);
+    await this.authAPI.sessionResendVerifyCode(token, headers);
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -420,10 +421,11 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifySession(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifySessionInput }) input: VerifySessionInput
   ) {
-    await this.authAPI.sessionVerifyCode(token, input.code);
+    await this.authAPI.sessionVerifyCode(token, input.code, undefined, headers);
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -495,7 +497,12 @@ export class AccountResolver {
     @Args('input', { type: () => PasswordForgotVerifyCodeInput })
     input: PasswordForgotVerifyCodeInput
   ) {
-    return this.authAPI.passwordForgotVerifyCode(input.code, input.token, {});
+    return this.authAPI.passwordForgotVerifyCode(
+      input.code,
+      input.token,
+      {},
+      headers
+    );
   }
 
   @Mutation((returns) => PasswordForgotCodeStatusPayload, {
