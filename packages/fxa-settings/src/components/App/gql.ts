@@ -46,7 +46,7 @@ export const INITIAL_METRICS_QUERY = gql`
  * using auth-client for those calls.
  *
  * If you need to confirm that the session is _verified_, use
- * `GET_SESSION_VERIFIED`. We can improve or revisit this in FXA-7626 or FXA-7184.
+ * `GET_SESSION_VERIFIED`.
  * */
 export const GET_LOCAL_SIGNED_IN_STATUS = gql`
   query GetLocalSignedInStatus {

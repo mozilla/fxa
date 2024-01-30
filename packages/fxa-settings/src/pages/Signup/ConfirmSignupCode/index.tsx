@@ -17,9 +17,9 @@ import {
   hardNavigateToContentServer,
 } from 'fxa-react/lib/utils';
 import {
-  useAccount,
   useAlertBar,
   useFtlMsgResolver,
+  useSession,
 } from '../../../models/hooks';
 import AppLayout from '../../../components/AppLayout';
 import Banner, {
@@ -65,7 +65,7 @@ const ConfirmSignupCode = ({
   const ftlMsgResolver = useFtlMsgResolver();
   const location = useLocation();
   const alertBar = useAlertBar();
-  const account = useAccount();
+  const session = useSession();
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const [resendStatus, setResendStatus] = useState<ResendStatus>(
     ResendStatus['not sent']
@@ -99,8 +99,8 @@ const ConfirmSignupCode = ({
 
   async function handleResendCode() {
     try {
-      await account.sendVerificationCode();
-      // if resending a code is succesful, clear any banner already present on screen
+      await session.sendVerificationCode();
+      // if resending a code is successful, clear any banner already present on screen
       if (resendStatus !== ResendStatus['sent']) {
         setBanner({
           type: undefined,
@@ -143,7 +143,7 @@ const ConfirmSignupCode = ({
         }),
       };
 
-      await account.verifySession(code, options);
+      await session.verifySession(code, options);
 
       logViewEvent(
         `flow.${viewName}`,

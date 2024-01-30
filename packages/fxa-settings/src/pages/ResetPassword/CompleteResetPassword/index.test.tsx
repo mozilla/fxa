@@ -5,7 +5,7 @@
 import React from 'react';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import GleanMetrics from '../../../lib/glean';
-import { Account, IntegrationType } from '../../../models';
+import { Account, Session, IntegrationType } from '../../../models';
 import { logPageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
@@ -23,6 +23,7 @@ import {
   createAppContext,
   createHistoryWithQuery,
   mockAppContext,
+  mockSession,
   renderWithRouter,
 } from '../../../models/mocks';
 import { MOCK_RESET_TOKEN } from '../../mocks';
@@ -51,6 +52,7 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 let account: Account;
+let session: Session;
 let lostRecoveryKey: boolean;
 let accountResetToken: string | undefined;
 const mockNavigate = jest.fn();
@@ -83,7 +85,7 @@ jest.mock('@reach/router', () => ({
 }));
 
 const route = '/complete_reset_password';
-const render = (ui: any, account?: Account) => {
+const render = (ui: any, account?: Account, session?: Session) => {
   const history = createHistoryWithQuery(route);
   return renderWithRouter(
     ui,
@@ -94,6 +96,7 @@ const render = (ui: any, account?: Account) => {
     mockAppContext({
       ...createAppContext(),
       ...(account && { account }),
+      ...(session && { session }),
     })
   );
 };
@@ -114,8 +117,9 @@ describe('CompleteResetPassword page', () => {
       completeResetPassword: jest.fn().mockResolvedValue(MOCK_RESET_DATA),
       hasRecoveryKey: jest.fn().mockResolvedValue(false),
       hasTotpAuthClient: jest.fn().mockResolvedValue(false),
-      isSessionVerifiedAuthClient: jest.fn().mockResolvedValue(true),
     } as unknown as Account;
+
+    session = mockSession(true, false);
 
     (GleanMetrics.resetPassword.createNewView as jest.Mock).mockReset();
   });
@@ -125,7 +129,7 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('renders the component as expected', async () => {
-    render(<Subject />, account);
+    render(<Subject />, account, session);
     // testAllL10n(screen, bundle);
 
     await screen.findByRole('heading', {
@@ -140,7 +144,7 @@ describe('CompleteResetPassword page', () => {
   });
 
   it('displays password requirements when the new password field is in focus', async () => {
-    render(<Subject />, account);
+    render(<Subject />, account, session);
 
     const newPasswordField = await screen.findByTestId(
       'new-password-input-field'
@@ -160,7 +164,7 @@ describe('CompleteResetPassword page', () => {
       resetPasswordStatus: jest.fn().mockResolvedValue(false),
     } as unknown as Account;
 
-    render(<Subject />, account);
+    render(<Subject />, account, session);
 
     await screen.findByRole('heading', {
       name: 'Reset password link expired',
@@ -222,7 +226,7 @@ describe('CompleteResetPassword page', () => {
 
   // TODO in FXA-7630: check for metrics event when link is expired or damaged
   it('emits the expected metrics on render', async () => {
-    render(<Subject />, account);
+    render(<Subject />, account, session);
 
     await screen.findByRole('heading', {
       name: 'Create new password',
@@ -245,7 +249,7 @@ describe('CompleteResetPassword page', () => {
           .mockRejectedValue(new Error('Request failed')),
       } as unknown as Account;
 
-      render(<Subject />, account);
+      render(<Subject />, account, session);
 
       await waitFor(() => {
         fireEvent.input(screen.getByTestId('new-password-input-field'), {
@@ -270,7 +274,7 @@ describe('CompleteResetPassword page', () => {
           .mockRejectedValue(new Error('Request failed')),
       } as unknown as Account;
 
-      render(<Subject />, account);
+      render(<Subject />, account, session);
 
       await screen.findByText(
         'Sorry, there was a problem checking if you have an account recovery key.',
@@ -296,7 +300,7 @@ describe('CompleteResetPassword page', () => {
 
     it('redirects as expected', async () => {
       lostRecoveryKey = false;
-      render(<Subject />, accountWithRecoveryKey);
+      render(<Subject />, accountWithRecoveryKey, session);
 
       screen.getByLabelText('Loading…');
 
@@ -319,7 +323,7 @@ describe('CompleteResetPassword page', () => {
 
     it('does not check or redirect when state has lostRecoveryKey', async () => {
       lostRecoveryKey = true;
-      render(<Subject />, accountWithRecoveryKey);
+      render(<Subject />, accountWithRecoveryKey, session);
       // If recovery key reported as lost, default CompleteResetPassword page is rendered
       await screen.findByRole('heading', {
         name: 'Create new password',
@@ -346,20 +350,18 @@ describe('CompleteResetPassword page', () => {
     }
 
     it('calls expected functions', async () => {
-      render(<Subject />, account);
+      render(<Subject />, account, session);
       await enterPasswordAndSubmit();
       // Check that completeResetPassword was the first function called
       // because it retrieves the session token required by other calls
       expect(
         (account.completeResetPassword as jest.Mock).mock.calls[0]
       ).toBeTruthy();
-      expect(account.isSessionVerifiedAuthClient).toHaveBeenCalled();
-      expect(account.hasTotpAuthClient).toHaveBeenCalled();
       expect(GleanMetrics.resetPassword.createNewSubmit).toBeCalledTimes(1);
     });
 
     it('submits with emailToHashWith if present', async () => {
-      render(<Subject />, account);
+      render(<Subject />, account, session);
       const { token, emailToHashWith, code } = mockCompleteResetPasswordParams;
 
       await enterPasswordAndSubmit();
@@ -388,7 +390,7 @@ describe('CompleteResetPassword page', () => {
     it('submits with accountResetToken if available', async () => {
       lostRecoveryKey = true;
       accountResetToken = MOCK_RESET_TOKEN;
-      render(<Subject />, account);
+      render(<Subject />, account, session);
       const { token, emailToHashWith, code } = mockCompleteResetPasswordParams;
 
       await enterPasswordAndSubmit();
@@ -417,7 +419,7 @@ describe('CompleteResetPassword page', () => {
       });
 
       it('navigates to reset_password_verified', async () => {
-        render(<Subject />, account);
+        render(<Subject />, account, session);
         await enterPasswordAndSubmit();
         expect(mockUseNavigateWithoutRerender).toHaveBeenCalledWith(
           '/reset_password_verified?email=johndope%40example.com&emailToHashWith=johndope%40example.com&token=1111111111111111111111111111111111111111111111111111111111111111&code=11111111111111111111111111111111&uid=abc123',
@@ -438,7 +440,8 @@ describe('CompleteResetPassword page', () => {
             integrationType={IntegrationType.SyncDesktopV3}
             params={paramsWithSyncDesktop}
           />,
-          account
+          account,
+          session
         );
         await enterPasswordAndSubmit();
 

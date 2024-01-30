@@ -23,6 +23,7 @@ import {
   useAccount,
   useFtlMsgResolver,
   useInterval,
+  useSession,
 } from 'fxa-settings/src/models';
 import {
   AuthUiErrors,
@@ -59,6 +60,7 @@ export const Confirm = ({
   const [email, setEmail] = useState('');
 
   const account = useAccount();
+  const session = useSession();
   const navigate = useNavigate();
   const [isPolling, setIsPolling] = useState<number | null>(
     POLLING_INTERVAL_MS
@@ -145,8 +147,8 @@ export const Confirm = ({
   // navigate to the next screen.
   useInterval(async () => {
     try {
-      const sessionStatus = await account.isSessionVerified();
-      if (sessionStatus === true) {
+      const sessionVerified = await session.isSessionVerified();
+      if (sessionVerified) {
         navigateToNextScreen();
         setIsPolling(null);
       }
@@ -161,7 +163,7 @@ export const Confirm = ({
       // from confirmation link, this resend function sends a verification code
       // instead of a verification link and navigates to /signup_confirm_code.
       // This avoids adding a (to be discontinued) method to the React Account model.
-      await account.sendVerificationCode();
+      await session.sendVerificationCode();
       setResendStatus(ResendStatus.sent);
     } catch (err) {
       const localizedErrorMessage = getLocalizedErrorMessage(

@@ -162,10 +162,6 @@ export const App = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  // TODO: Do we like passing `isSignedIn` here, or query in page components instead?
-  // If we want to query in the Settings for example, we can after FXA-8286 (first
-  // container component test coverage) and we follow the pattern set for tests.
-  // Can be looked at in FXA-7626 or FXA-7184
   return (
     <Router basepath="/">
       <AuthAndAccountSetupRoutes {...{ isSignedIn, integration }} path="/*" />
@@ -202,7 +198,7 @@ const SettingsRoutes = ({
     })();
   });
 
-  if (isSignedIn === false && !shouldCheckFxaStatus) {
+  if (!isSignedIn && !shouldCheckFxaStatus) {
     hardNavigateToContentServer(
       `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
     );

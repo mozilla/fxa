@@ -9,8 +9,8 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { viewName } from '.';
 import { REACT_ENTRYPOINT } from '../../../constants';
-import { Account, AppContext } from '../../../models';
-import { mockAppContext } from '../../../models/mocks';
+import { Session, AppContext } from '../../../models';
+import { mockAppContext, mockSession } from '../../../models/mocks';
 import {
   MOCK_AUTH_ERROR,
   MOCK_SIGNUP_CODE,
@@ -67,19 +67,19 @@ jest.mock('../../../lib/storage-utils', () => ({
   persistAccount: jest.fn(),
 }));
 
-let account: Account;
+let session: Session;
 
-function renderWithAccount({
-  account,
+function renderWithSession({
+  session,
   newsletterSlugs,
   integration,
 }: {
-  account: Account;
+  session?: Session;
   newsletterSlugs?: string[];
   integration?: ConfirmSignupCodeIntegration;
 }) {
   renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
+    <AppContext.Provider value={mockAppContext({ session })}>
       <Subject {...{ newsletterSlugs, integration }} />
     </AppContext.Provider>
   );
@@ -103,9 +103,9 @@ describe('ConfirmSignupCode page', () => {
   };
 
   beforeEach(() => {
-    account = {
+    session = {
       verifySession: jest.fn().mockResolvedValue(true),
-    } as unknown as Account;
+    } as unknown as Session;
   });
 
   afterEach(() => {
@@ -113,7 +113,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('renders as expected', () => {
-    renderWithAccount({ account });
+    renderWithSession({ session });
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -127,7 +127,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('emits a metrics event on render', async () => {
-    renderWithAccount({ account });
+    renderWithSession({ session });
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
     expect(GleanMetrics.signupConfirmation.view).toHaveBeenCalledTimes(1);
 
@@ -142,7 +142,7 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('emits a metrics event on successful form submission', async () => {
-    renderWithAccount({ account });
+    renderWithSession({ session });
     submit();
 
     await waitFor(() => {
@@ -156,11 +156,11 @@ describe('ConfirmSignupCode page', () => {
   });
 
   it('submits successfully without newsletters', async () => {
-    renderWithAccount({ account });
+    renderWithSession({ session });
     submit();
 
     await waitFor(() => {
-      expect(account.verifySession).toHaveBeenCalled();
+      expect(session.verifySession).toHaveBeenCalled();
       expect(logViewEvent).toHaveBeenCalledTimes(3);
       expect(logViewEvent).not.toHaveBeenCalledWith(
         'flow',
@@ -175,13 +175,13 @@ describe('ConfirmSignupCode page', () => {
 
   it('submits successfully with newsletters', async () => {
     // newsletter slugs are selected on the previous page
-    // and received via location state as an a array of strings
+    // and received via location state as an array of strings
     const mockNewsletterArray = ['mock-slug-1'];
-    renderWithAccount({ account, newsletterSlugs: mockNewsletterArray });
+    renderWithSession({ session, newsletterSlugs: mockNewsletterArray });
     submit();
 
     await waitFor(() => {
-      expect(account.verifySession).toHaveBeenCalledWith(MOCK_SIGNUP_CODE, {
+      expect(session.verifySession).toHaveBeenCalledWith(MOCK_SIGNUP_CODE, {
         newsletters: mockNewsletterArray,
       });
       expect(logViewEvent).toHaveBeenCalledTimes(4);
@@ -218,7 +218,7 @@ describe('ConfirmSignupCode page', () => {
         isValid: () => true,
         getLocalizedErrorMessage: () => localizedErrorMessage,
       });
-      renderWithAccount({ account, integration });
+      renderWithSession({ session, integration });
       submit();
 
       await waitFor(() => {
@@ -234,14 +234,14 @@ describe('ConfirmSignupCode page', () => {
         isValid: () => false,
         getLocalizedErrorMessage: () => localizedErrorMessage,
       });
-      renderWithAccount({ account, integration });
+      renderWithSession({ session, integration });
       submit();
 
       await screen.findByText(localizedErrorMessage);
     });
 
     it('without redirectTo', async () => {
-      renderWithAccount({ account });
+      renderWithSession({ session });
       submit();
 
       await waitFor(() => {
@@ -255,9 +255,9 @@ describe('ConfirmSignupCode page', () => {
 
 describe('ConfirmSignupCode page with error states', () => {
   beforeEach(() => {
-    account = {
+    session = {
       verifySession: jest.fn().mockResolvedValue(new Error()),
-    } as unknown as Account;
+    } as unknown as Session;
   });
 
   afterEach(() => {
@@ -265,7 +265,7 @@ describe('ConfirmSignupCode page with error states', () => {
   });
 
   it('renders an error tooltip when the form is submitted without a code', async () => {
-    renderWithAccount({ account });
+    renderWithSession({ session });
 
     const codeInput = screen.getByLabelText('Enter 6-digit code');
     fireEvent.change(codeInput, {
@@ -291,11 +291,9 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
   });
 
   it('displays a success banner when successful', async () => {
-    account = {
-      sendVerificationCode: jest.fn().mockResolvedValue(true),
-    } as unknown as Account;
+    session = mockSession(true, false);
 
-    renderWithAccount({ account });
+    renderWithSession({ session });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',
@@ -311,11 +309,11 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
   });
 
   it('displays an error banner when unsuccessful', async () => {
-    account = {
+    session = {
       sendVerificationCode: jest.fn().mockRejectedValue(MOCK_AUTH_ERROR),
-    } as unknown as Account;
+    } as unknown as Session;
 
-    renderWithAccount({ account });
+    renderWithSession({ session });
 
     const resendEmailButton = screen.getByRole('button', {
       name: 'Email new code.',

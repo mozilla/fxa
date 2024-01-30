@@ -11,6 +11,7 @@ import {
   mockAppContext,
   MOCK_ACCOUNT,
   renderWithRouter,
+  mockSession,
 } from '../../models/mocks';
 import { Config } from '../../lib/config';
 import * as NavTiming from 'fxa-shared/metrics/navigation-timing';
@@ -89,6 +90,7 @@ describe('App component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, 'error').mockImplementation(() => {});
+    (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
   });
 
   it('renders `LoadingSpinner` component when loading initial state is true', () => {
@@ -112,8 +114,6 @@ describe('App component', () => {
       'General application error'
     );
   });
-
-  (useInitialSettingsState as jest.Mock).mockReturnValue({ loading: false });
 
   it('routes to PageSettings', async () => {
     const {
@@ -149,10 +149,16 @@ describe('App component', () => {
   });
 
   it('routes to PageChangePassword', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/change_password');
 
@@ -160,10 +166,16 @@ describe('App component', () => {
   });
 
   it('routes to PageSecondaryEmailAdd', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/emails');
 
@@ -171,10 +183,16 @@ describe('App component', () => {
   });
 
   it('routes to PageSecondaryEmailVerify', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/emails/verify');
 
@@ -182,10 +200,16 @@ describe('App component', () => {
   });
 
   it('routes to PageTwoStepAuthentication', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/two_step_authentication');
 
@@ -193,10 +217,16 @@ describe('App component', () => {
   });
 
   it('routes to Page2faReplaceRecoveryCodes', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/two_step_authentication/replace_codes');
 
@@ -204,10 +234,16 @@ describe('App component', () => {
   });
 
   it('routes to PageDeleteAccount', async () => {
+    const session = mockSession(true);
     const {
       getByTestId,
       history: { navigate },
-    } = renderWithRouter(<App {...{ flowQueryParams }} />, { route: HomePath });
+    } = renderWithRouter(
+      <AppContext.Provider value={mockAppContext({ session })}>
+        <App {...{ flowQueryParams }} />
+      </AppContext.Provider>,
+      { route: HomePath }
+    );
 
     await navigate(HomePath + '/delete_account');
 

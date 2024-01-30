@@ -45,7 +45,7 @@ export const ModalVerifySession = ({
   const verifySession = useCallback(
     async (code: string) => {
       try {
-        await account.verifySession(code);
+        await session.verifySession(code);
       } catch (e) {
         if (e.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno) {
           const errorText = l10n.getString(
@@ -60,109 +60,119 @@ export const ModalVerifySession = ({
         return;
       }
     },
-    [account, l10n, setErrorText, onError]
+    [session, l10n, setErrorText, onError]
   );
 
   useEffect(() => {
-    if (!session.verified) {
-      account.sendVerificationCode();
-    } else if (onCompleted) {
-      onCompleted();
-    }
-  }, [session, account, onCompleted]);
+    const getStatus = async () => {
+      // Check cache first, then do network request for session verification
+      if (session.verified) {
+        onCompleted && onCompleted();
+      } else {
+        let sessionVerified = false;
+        sessionVerified = await session.isSessionVerified();
+        if (sessionVerified) {
+          onCompleted && onCompleted();
+        } else {
+          session.sendVerificationCode();
+        }
+      }
+    };
 
-  if (session.verified) {
-    return null;
-  }
+    getStatus();
+  }, [session, onCompleted]);
+
   const buttonDisabled =
     !formState.isDirty || !formState.isValid || account.loading;
   return (
-    <Modal
-      data-testid="modal-verify-session"
-      descId="modal-verify-session-desc"
-      headerId="modal-verify-session-header"
-      hasButtons={false}
-      onDismiss={onDismiss}
-    >
-      <form
-        onSubmit={handleSubmit(({ verificationCode }) => {
-          verifySession(verificationCode.trim());
-        })}
+    !session.verified && (
+      <Modal
+        data-testid="modal-verify-session"
+        descId="modal-verify-session-desc"
+        headerId="modal-verify-session-header"
+        hasButtons={false}
+        onDismiss={onDismiss}
       >
-        <Localized id="mvs-verify-your-email-2">
-          <h2
-            id="modal-verify-session-header-2"
-            className="font-bold text-xl text-center"
-            data-testid="modal-verify-session-header"
-          >
-            Confirm your email
-          </h2>
-        </Localized>
-
-        <Localized
-          id="mvs-enter-verification-code-desc-2"
-          vars={{ email: primaryEmail.email }}
-          elems={{
-            email: <span className="font-bold"></span>,
-          }}
+        <form
+          onSubmit={handleSubmit(({ verificationCode }) => {
+            verifySession(verificationCode.trim());
+          })}
         >
-          <p
-            id="modal-verify-session-desc-2"
-            data-testid="modal-verify-session-desc"
-            className="my-6 text-center"
-          >
-            Please enter the confirmation code that was sent to{' '}
-            <span className="font-bold">{primaryEmail.email}</span> within 5
-            minutes.
-          </p>
-        </Localized>
+          <Localized id="mvs-verify-your-email-2">
+            <h2
+              id="modal-verify-session-header-2"
+              className="font-bold text-xl text-center"
+              data-testid="modal-verify-session-header"
+            >
+              Confirm your email
+            </h2>
+          </Localized>
 
-        <div className="mt-4 mb-6">
-          <InputText
-            name="verificationCode"
-            label={l10n.getString(
-              'mvs-enter-verification-code-2',
-              null,
-              'Enter your confirmation code'
-            )}
-            onChange={() => {
-              if (errorText) {
-                setErrorText(undefined);
-              }
+          <Localized
+            id="mvs-enter-verification-code-desc-2"
+            vars={{ email: primaryEmail.email }}
+            elems={{
+              email: <span className="font-bold"></span>,
             }}
-            inputRef={register({
-              required: true,
-              pattern: /^\s*[0-9]{6}\s*$/,
-            })}
-            prefixDataTestId="verification-code"
-            {...{ errorText }}
-          ></InputText>
-        </div>
+          >
+            <p
+              id="modal-verify-session-desc-2"
+              data-testid="modal-verify-session-desc"
+              className="my-6 text-center"
+            >
+              Please enter the confirmation code that was sent to{' '}
+              <span className="font-bold">{primaryEmail.email}</span> within 5
+              minutes.
+            </p>
+          </Localized>
 
-        <div className="flex justify-center mx-auto max-w-64">
-          <Localized id="msv-cancel-button">
-            <button
-              type="button"
-              className="cta-neutral cta-base-p mx-2 flex-1"
-              data-testid="modal-verify-session-cancel"
-              onClick={(event) => onDismiss()}
-            >
-              Cancel
-            </button>
-          </Localized>
-          <Localized id="msv-submit-button-2">
-            <button
-              type="submit"
-              className="cta-primary cta-base-p mx-2 flex-1"
-              data-testid="modal-verify-session-submit"
-              disabled={buttonDisabled}
-            >
-              Confirm
-            </button>
-          </Localized>
-        </div>
-      </form>
-    </Modal>
+          <div className="mt-4 mb-6">
+            <InputText
+              name="verificationCode"
+              label={l10n.getString(
+                'mvs-enter-verification-code-2',
+                null,
+                'Enter your confirmation code'
+              )}
+              onChange={() => {
+                if (errorText) {
+                  setErrorText(undefined);
+                }
+              }}
+              inputRef={register({
+                required: true,
+                pattern: /^\s*[0-9]{6}\s*$/,
+              })}
+              prefixDataTestId="verification-code"
+              {...{ errorText }}
+            ></InputText>
+          </div>
+
+          <div className="flex justify-center mx-auto max-w-64">
+            <Localized id="msv-cancel-button">
+              <button
+                type="button"
+                className="cta-neutral cta-base-p mx-2 flex-1"
+                data-testid="modal-verify-session-cancel"
+                onClick={(event) => onDismiss()}
+              >
+                Cancel
+              </button>
+            </Localized>
+            <Localized id="msv-submit-button-2">
+              <button
+                type="submit"
+                className="cta-primary cta-base-p mx-2 flex-1"
+                data-testid="modal-verify-session-submit"
+                disabled={buttonDisabled}
+              >
+                Confirm
+              </button>
+            </Localized>
+          </div>
+        </form>
+      </Modal>
+    )
   );
 };
 

@@ -22,7 +22,6 @@ import sentryMetrics from 'fxa-shared/sentry/browser';
  * or give back a valid session token (e.g. the user was signed in).
  * See comment above GET_LOCAL_SIGNED_IN_STATUS definition.
  *
- * We can improve or revisit this in FXA-7626 or FXA-7184.
  */
 const initialOperationName = 'GetInitialMetricsState';
 const sessionTokenOperationNames = [
@@ -38,6 +37,17 @@ const isUnauthorizedError = (error: GraphQLError) => {
   return (
     error.message === 'Invalid token' && originalError?.error === 'Unauthorized'
   );
+};
+
+/**
+ * This error is returned when the session is unverified, i.e. the user has
+ * not verified the login via email/2FA. Note, the email can be verified but not the
+ * session. Only certain queries/API calls require a verified session.
+ *
+ * @param error
+ */
+const isUnverifiedSessionError = (error: GraphQLError) => {
+  return error.message === 'Must verify';
 };
 
 const afterwareLink = new ApolloLink((operation, forward) => {
@@ -72,16 +82,12 @@ export const errorHandler: ErrorHandler = ({ graphQLErrors, networkError }) => {
           query: GET_LOCAL_SIGNED_IN_STATUS,
           data: { isSignedIn: false },
         });
-        // TODO: Improve in FXA-7626
-      } else if (error.message === 'Must verify') {
-        // TODO in FXA-76726
-        // Move this redirect behaviour to only apply to Settings context,
-        // we do not want to redirect for other contexts (such as Signup or Reset password)
+      } else if (isUnverifiedSessionError(error)) {
         if (window.location && window.location.pathname.includes('settings')) {
-          return window.location.replace(
-            `/signin_token_code?action=email&service=sync`
-          );
-          // TODO: Improve in FXA-7626
+          // Redirect to /signin since that page will send the user
+          // to correct location
+          return window.location.replace(`/signin?action=email&service=sync`);
+
           // If the user isn't in Settings and they see this message they may hit it due to
           // the initial metrics query - e.g. if they attempt to sign in and see the TOTP page,
           // they'll be in this state.

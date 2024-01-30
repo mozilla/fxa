@@ -11,6 +11,7 @@ import { typeByTestIdFn } from '../../../lib/test-utils';
 import {
   MOCK_ACCOUNT,
   mockAppContext,
+  mockSession,
   mockSettingsContext,
   renderWithRouter,
 } from '../../../models/mocks';
@@ -25,6 +26,8 @@ const account = {
   generateRecoveryCodes: jest.fn().mockReturnValue(recoveryCodes),
   updateRecoveryCodes: jest.fn().mockResolvedValue({ success: true }),
 } as unknown as Account;
+
+const session = mockSession(true, false);
 
 const config = {
   l10n: { strict: false },
@@ -45,7 +48,7 @@ window.URL.createObjectURL = jest.fn();
 async function renderPage2faReplaceRecoveryCodes() {
   await act(async () => {
     renderWithRouter(
-      <AppContext.Provider value={mockAppContext({ account, config })}>
+      <AppContext.Provider value={mockAppContext({ account, session, config })}>
         <SettingsContext.Provider value={mockSettingsContext()}>
           <Page2faReplaceRecoveryCodes />
         </SettingsContext.Provider>
@@ -78,7 +81,7 @@ it('displays an error when fails to fetch new backup authentication codes', asyn
     ...MOCK_ACCOUNT,
     generateRecoveryCodes: jest.fn().mockRejectedValue(new Error('wat')),
   } as unknown as Account;
-  const context = mockAppContext({ account, config });
+  const context = mockAppContext({ account, session, config });
   const settingsContext = mockSettingsContext();
   await act(async () => {
     renderWithRouter(

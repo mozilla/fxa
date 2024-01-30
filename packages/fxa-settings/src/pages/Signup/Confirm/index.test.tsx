@@ -16,6 +16,7 @@ import {
   mockEmail,
   MOCK_ACCOUNT,
   MOCK_PROFILE_INFO,
+  mockSession,
 } from '../../../models/mocks';
 import Confirm, { viewName } from '.';
 import { MOCK_SESSION_TOKEN, MOCK_UNVERIFIED_SESSION } from './mocks';
@@ -104,13 +105,14 @@ describe('Confirm page', () => {
 
   it('resends the email when the user clicks the resend button', async () => {
     const account: Account = MOCK_ACCOUNT_WITH_SUCCESS;
-    renderWithContext(account, MOCK_UNVERIFIED_SESSION, MOCK_SESSION_TOKEN);
+    const session = mockSession(false, false);
+    renderWithContext(account, session, MOCK_SESSION_TOKEN);
     await waitFor(() => {
       const resendEmailButton = screen.getByRole('button', {
         name: 'Not in inbox or spam folder? Resend',
       });
       fireEvent.click(resendEmailButton);
-      expect(account.sendVerificationCode).toBeCalled();
+      expect(session.sendVerificationCode).toBeCalled();
       const successBannerText = `Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a smooth delivery.`;
       expect(screen.getByText(successBannerText)).toBeInTheDocument();
     });
@@ -118,13 +120,14 @@ describe('Confirm page', () => {
 
   it('renders an error banner when resending an email fails', async () => {
     const account: Account = MOCK_ACCOUNT_WITH_ERROR;
-    renderWithContext(account, MOCK_UNVERIFIED_SESSION, MOCK_SESSION_TOKEN);
+    const session = mockSession(false, true);
+    renderWithContext(account, session, MOCK_SESSION_TOKEN);
     await waitFor(() => {
       const resendEmailButton = screen.getByRole('button', {
         name: 'Not in inbox or spam folder? Resend',
       });
       fireEvent.click(resendEmailButton);
-      expect(account.sendVerificationCode).toBeCalled();
+      expect(session.sendVerificationCode).toBeCalled();
       const bannerText = `Unexpected error`;
       expect(screen.getByText(bannerText)).toBeInTheDocument();
     });

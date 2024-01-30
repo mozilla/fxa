@@ -10,6 +10,7 @@ import {
   mockAppContext,
   MOCK_ACCOUNT,
   renderWithRouter,
+  mockSession,
 } from '../../../models/mocks';
 import { Account, AppContext } from '../../../models';
 
@@ -55,7 +56,9 @@ const accountWithKey = {
 
 const renderPageWithContext = (account: Account) => {
   renderWithRouter(
-    <AppContext.Provider value={mockAppContext({ account })}>
+    <AppContext.Provider
+      value={mockAppContext({ account, session: mockSession(true, false) })}
+    >
       <PageRecoveryKeyCreate />
     </AppContext.Provider>
   );
