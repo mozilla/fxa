@@ -102,13 +102,13 @@ export const BentoMenu = () => {
                   <li>
                     <LinkExternal
                       data-testid="monitor-link"
-                      href="https://monitor.firefox.com"
+                      href="https://monitor.mozilla.org"
                       className="block p-2 ps-6 hover:bg-grey-100"
                     >
                       <div className={iconClassNames}>
                         <img src={monitorIcon} alt="" />
                       </div>
-                      <FtlMsg id="bento-menu-monitor-2">Firefox Monitor</FtlMsg>
+                      <FtlMsg id="bento-menu-monitor-3">Mozilla Monitor</FtlMsg>
                     </LinkExternal>
                   </li>
                   <li>

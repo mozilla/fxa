@@ -97,7 +97,7 @@ export const Signup = ({
         setIsAccountSuggestionBannerVisible(true);
       }
       if (isClientMonitor(clientId)) {
-        setClient(MozServices.FirefoxMonitor);
+        setClient(MozServices.Monitor);
       }
     }
   }, [integration]);
@@ -443,7 +443,7 @@ export const Signup = ({
 
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
-        isMonitorClient={client === MozServices.FirefoxMonitor}
+        isMonitorClient={client === MozServices.Monitor}
       />
       {/* Third party auth is not currently supported for sync */}
       {!isSync && <ThirdPartyAuth />}

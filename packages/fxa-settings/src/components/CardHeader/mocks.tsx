@@ -12,4 +12,4 @@ export const MOCK_HEADING = 'Complete this step';
 
 export const MOCK_SUBHEADING = 'on your other device';
 
-export const MOCK_SERVICE_NAME = MozServices.FirefoxMonitor;
+export const MOCK_SERVICE_NAME = MozServices.Monitor;

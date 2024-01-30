@@ -116,7 +116,7 @@ const OAUTH_SERVICE_MOCKS = [
       'f0b7dae0043cb07cdb0f1ff160367a0b3214a91f037621e892060d9a146f2d8e',
     isCurrentSession: false,
     deviceType: null,
-    name: 'Firefox Monitor',
+    name: 'Mozilla Monitor',
     createdTime: 1570736983000,
     lastAccessTime: 1570736983000,
     location: {
@@ -164,7 +164,7 @@ const OAUTH_SERVICE_MOCKS = [
       'e2e4001b8184721aba5cb7bf5df8f5af16d6f36dc144c1f40d9c86397cc83225',
     isCurrentSession: false,
     deviceType: null,
-    name: 'Firefox Monitor',
+    name: 'Mozilla Monitor',
     createdTime: 1556745521000,
     lastAccessTime: 1556745521000,
     scope: ['profile'],

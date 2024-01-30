@@ -121,10 +121,10 @@ describe('Connected Services', () => {
     expect(sortedAndUniqueClients.length).toEqual(13);
 
     expect(
-      sortedAndUniqueClients.filter((item) => item.name === 'Firefox Monitor')
+      sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
         .length
     ).toEqual(1);
-    expect(groupedByName['Firefox Monitor'].length).toEqual(2);
+    expect(groupedByName['Mozilla Monitor'].length).toEqual(2);
   });
 
   it('should show the pocket icon and link', async () => {
@@ -135,12 +135,12 @@ describe('Connected Services', () => {
   });
 
   it('should show the monitor icon and link', async () => {
-    await getIconAndServiceLink('Firefox Monitor', 'monitor-icon').then(
+    await getIconAndServiceLink('Mozilla Monitor', 'monitor-icon').then(
       (result) => {
         expect(result.icon).toBeTruthy();
         expect(result.link).toHaveAttribute(
           'href',
-          'https://monitor.firefox.com/'
+          'https://monitor.mozilla.org/'
         );
       }
     );
@@ -352,7 +352,7 @@ describe('Connected Services', () => {
 
   it('on disconnect, removes all sessions for that service', async () => {
     const attachedClients = MOCK_SERVICES.filter(
-      (service) => service.name === 'Firefox Monitor'
+      (service) => service.name === 'Mozilla Monitor'
     );
     const initialCount = attachedClients.length;
     // make sure there's at least two for test validity
@@ -411,7 +411,7 @@ describe('Connected Services', () => {
 
     it('with multiple service sessions', async () => {
       const attachedClients = MOCK_SERVICES.filter(
-        (service) => service.name === 'Firefox Monitor'
+        (service) => service.name === 'Mozilla Monitor'
       );
       attachedClients[0].isCurrentSession = true;
 

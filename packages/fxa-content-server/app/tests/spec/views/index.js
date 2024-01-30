@@ -191,10 +191,10 @@ describe('views/index', () => {
           relier.set({
             action: 'email',
             service: 'monitor',
-            serviceName: 'Firefox Monitor',
+            serviceName: 'Mozilla Monitor',
           });
 
-          return renderTestEnterEmailDisplayed(view, 'Firefox Monitor');
+          return renderTestEnterEmailDisplayed(view, 'Mozilla Monitor');
         });
 
         it('does not render service name when service is sync', () => {

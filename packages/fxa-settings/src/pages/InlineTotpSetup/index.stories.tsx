@@ -27,7 +27,7 @@ export const WithCustomService = () => (
     <InlineTotpSetup
       code={MOCK_CODE}
       email={MOCK_EMAIL}
-      serviceName={MozServices.FirefoxMonitor}
+      serviceName={MozServices.Monitor}
     />
   </AppLayout>
 );

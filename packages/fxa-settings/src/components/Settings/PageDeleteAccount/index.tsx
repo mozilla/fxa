@@ -69,8 +69,8 @@ const deleteProducts = [
     href: AddonsLink,
   },
   {
-    localizationId: 'delete-account-product-firefox-monitor',
-    productName: 'Firefox Monitor',
+    localizationId: 'delete-account-product-mozilla-monitor',
+    productName: 'Mozilla Monitor',
     href: MonitorLink,
   },
   {

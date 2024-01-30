@@ -51,7 +51,7 @@ describe('InlineTotpSetup', () => {
       <InlineTotpSetup
         code={MOCK_CODE}
         email={MOCK_EMAIL}
-        serviceName={MozServices.FirefoxMonitor}
+        serviceName={MozServices.Monitor}
       />
     );
     // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
@@ -59,7 +59,7 @@ describe('InlineTotpSetup', () => {
     //   email: exampleEmail,
     // });
     screen.getByRole('heading', {
-      name: `Enable two-step authentication to continue to ${MozServices.FirefoxMonitor}`,
+      name: `Enable two-step authentication to continue to ${MozServices.Monitor}`,
     });
     expect(
       screen.getByLabelText('A device with a hidden 6-digit code.')
