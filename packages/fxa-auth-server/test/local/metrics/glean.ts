@@ -9,11 +9,25 @@ import AppError from '../../../lib/error';
 import mocks from '../../mocks';
 
 const recordStub = sinon.stub();
+
+const recordRegAccCreatedStub = sinon.stub();
+const recordRegEmailSentStub = sinon.stub();
+const recordRegAccVerifiedStub = sinon.stub();
+const recordRegCompleteStub = sinon.stub();
+const recordRegSubmitErrorStub = sinon.stub();
+
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
   '../../../lib/metrics/glean',
   {
     './server_events': {
       createAccountsEventsEvent: () => ({ record: recordStub }),
+      createEventsServerEventLogger: () => ({
+        recordRegAccCreated: recordRegAccCreatedStub,
+        recordRegEmailSent: recordRegEmailSentStub,
+        recordRegAccVerified: recordRegAccVerifiedStub,
+        recordRegComplete: recordRegCompleteStub,
+        recordRegSubmitError: recordRegSubmitErrorStub,
+      }),
     },
   }
 );
@@ -46,6 +60,11 @@ const request = {
 describe('Glean server side events', () => {
   afterEach(() => {
     recordStub.reset();
+    recordRegAccCreatedStub.reset();
+    recordRegEmailSentStub.reset();
+    recordRegAccVerifiedStub.reset();
+    recordRegCompleteStub.reset();
+    recordRegSubmitErrorStub.reset();
   });
 
   describe('enabled state', () => {
@@ -330,6 +349,7 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_acc_created');
+        sinon.assert.calledOnce(recordRegAccCreatedStub);
       });
     });
 
@@ -339,16 +359,18 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_email_sent');
+        sinon.assert.calledOnce(recordRegEmailSentStub);
       });
     });
 
     describe('accountVerified', () => {
-      it('logs a "rec_acc_verified" event', async () => {
+      it('logs a "reg_acc_verified" event', async () => {
         const glean = gleanMetrics(config);
         await glean.registration.accountVerified(request);
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_acc_verified');
+        sinon.assert.calledOnce(recordRegAccVerifiedStub);
       });
     });
 
@@ -359,6 +381,7 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_complete');
+        sinon.assert.calledOnce(recordRegCompleteStub);
       });
     });
 
@@ -369,6 +392,7 @@ describe('Glean server side events', () => {
         sinon.assert.calledOnce(recordStub);
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['event_name'], 'reg_submit_error');
+        sinon.assert.calledOnce(recordRegSubmitErrorStub);
       });
     });
   });

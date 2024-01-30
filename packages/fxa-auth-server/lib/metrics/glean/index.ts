@@ -4,6 +4,7 @@
 
 import { ConfigType } from '../../../config';
 import { createAccountsEventsEvent } from './server_events';
+import { createEventsServerEventLogger } from './server_events';
 import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
@@ -32,6 +33,7 @@ type ErrorLoggerFnParams = {
 
 let appConfig: ConfigType;
 let gleanEventLogger: ReturnType<typeof createAccountsEventsEvent>;
+let gleanServerEventLogger: ReturnType<typeof createEventsServerEventLogger>;
 
 const isEnabled = async (request: MetricsRequest) =>
   appConfig.gleanMetrics.enabled && (await request.app.isMetricsEnabled);
@@ -91,12 +93,11 @@ const createEventFn =
 
       const metricsContext = await request.app.metricsContext;
 
-      const metrics = {
+      // metrics sent with every event
+      const commonMetrics = {
         user_agent: request.headers['user-agent'],
         ip_address: request.app.clientAddress,
         account_user_id_sha256: '',
-        event_name: eventName,
-        event_reason: metricsData?.reason || '',
         relying_party_oauth_client_id: findOauthClientId(request, metricsData),
         relying_party_service: await findServiceName(request),
         session_device_type: request.app.ua.deviceType || '',
@@ -109,18 +110,65 @@ const createEventFn =
         utm_term: metricsContext.utmTerm || '',
       };
 
+      // TODO: which events should have a reason?
+      const eventReason = metricsData?.reason || '';
+
       // uid needs extra handling because we need to hash the value
       const uid = findUid(request, metricsData);
       if (uid !== '') {
-        metrics.account_user_id_sha256 = sha256HashUid(uid);
+        commonMetrics.account_user_id_sha256 = sha256HashUid(uid);
       }
 
-      await gleanEventLogger.record(metrics);
+      // new style Glean events with event metric type
+      switch (eventName) {
+        case 'reg_acc_created':
+          gleanServerEventLogger.recordRegAccCreated({
+            ...commonMetrics,
+            reason: eventReason,
+          });
+          break;
+        case 'reg_acc_verified':
+          gleanServerEventLogger.recordRegAccVerified({
+            ...commonMetrics,
+            reason: eventReason,
+          });
+          break;
+        case 'reg_complete':
+          gleanServerEventLogger.recordRegComplete({
+            ...commonMetrics,
+            reason: eventReason,
+          });
+          break;
+        case 'reg_email_sent':
+          gleanServerEventLogger.recordRegEmailSent({
+            ...commonMetrics,
+            reason: eventReason,
+          });
+          break;
+        case 'reg_submit_error':
+          gleanServerEventLogger.recordRegSubmitError({
+            ...commonMetrics,
+            reason: eventReason,
+          });
+          break;
+      }
+
+      await gleanEventLogger.record({
+        ...commonMetrics,
+        event_name: eventName,
+        event_reason: eventReason,
+      });
     };
 
 export function gleanMetrics(config: ConfigType) {
   appConfig = config;
   gleanEventLogger = createAccountsEventsEvent({
+    applicationId: config.gleanMetrics.applicationId,
+    appDisplayVersion: version,
+    channel: config.gleanMetrics.channel,
+    logger_options: { app: config.gleanMetrics.loggerAppName },
+  });
+  gleanServerEventLogger = createEventsServerEventLogger({
     applicationId: config.gleanMetrics.applicationId,
     appDisplayVersion: version,
     channel: config.gleanMetrics.channel,
