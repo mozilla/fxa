@@ -35566,7 +35566,7 @@ fsevents@~2.1.1:
     react-scripts: ^5.0.1
     react-stripe-elements: ^6.1.2
     react-transition-group: ^4.4.2
-    redux: ^4.2.0
+    redux: ^5.0.1
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.1.2
     redux-thunk: ^2.4.1
@@ -54337,12 +54337,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux@npm:^4.2.0":
-  version: 4.2.0
-  resolution: "redux@npm:4.2.0"
-  dependencies:
-    "@babel/runtime": ^7.9.2
-  checksum: 75f3955c89b3f18edf5411e5fb482aa2e4f41a416183e8802a6bf6472c4fc3d47675b8b321d147f8af8e0f616436ac507bf5a25f1c4d6180e797b549c7db2c1d
+"redux@npm:^5.0.1":
+  version: 5.0.1
+  resolution: "redux@npm:5.0.1"
+  checksum: e74affa9009dd5d994878b9a1ce30d6569d986117175056edb003de2651c05b10fe7819d6fa94aea1a94de9a82f252f986547f007a2fbeb35c317a2e5f5ecf2c
   languageName: node
   linkType: hard
 
