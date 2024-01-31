@@ -36,6 +36,7 @@ describe('views/sign_in_token_code', () => {
   let user;
   let view;
   let windowMock;
+  let accountProfile;
 
   beforeEach(() => {
     windowMock = new WindowMock();
@@ -78,6 +79,12 @@ describe('views/sign_in_token_code', () => {
     });
 
     sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+    accountProfile = {
+      authenticationMethods: [],
+    };
+    sinon
+      .stub(account, 'accountProfile')
+      .callsFake(() => Promise.resolve(accountProfile));
 
     return view.render();
   });
@@ -106,6 +113,27 @@ describe('views/sign_in_token_code', () => {
 
       it('redirects to the signin page', () => {
         assert.isTrue(view.navigate.calledWith('signin'));
+      });
+    });
+
+    describe('with totp enabled', () => {
+      beforeEach(() => {
+        view.getSignedInAccount.restore();
+        sinon.stub(view, 'getSignedInAccount').callsFake(() => account);
+        accountProfile = {
+          authenticationMethods: ['otp'],
+        };
+        account.accountProfile.restore();
+        sinon
+          .stub(account, 'accountProfile')
+          .callsFake(() => Promise.resolve(accountProfile));
+
+        sinon.spy(view, 'replaceCurrentPage');
+        return view.render();
+      });
+
+      it('redirects to the totp page', () => {
+        assert.isTrue(view.replaceCurrentPage.calledWith('/signin_totp_code'));
       });
     });
   });
