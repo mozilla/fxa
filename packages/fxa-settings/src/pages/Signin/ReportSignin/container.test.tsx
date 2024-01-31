@@ -65,7 +65,7 @@ jest.mock('../../../models', () => {
 
 let mockAuthClient: AuthClient;
 function mockModelsModule() {
-  mockAuthClient = new AuthClient('localhost:9000');
+  mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
   mockAuthClient.rejectUnblockCode = jest.fn().mockResolvedValue({});
   (ModelsModule.useAuthClient as jest.Mock).mockImplementation(
     () => mockAuthClient
@@ -185,7 +185,9 @@ describe('report-signin-container', () => {
 
     it('returns an error message when unblock code is invalid', async () => {
       // override locally with rejected value
-      const mockAuthClient = new AuthClient('localhost:9000');
+      const mockAuthClient = new AuthClient('localhost:9000', {
+        keyStretchVersion: 1,
+      });
       mockAuthClient.rejectUnblockCode = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.INVALID_UNBLOCK_CODE);

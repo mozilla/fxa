@@ -81,12 +81,12 @@ module.exports = (config) => {
       32
     );
     const authPWVersion2 = await hkdf(stretch, 'authPW', null, 32);
-    const unwrapBKey2 = await hkdf(stretch, 'unwrapBKey', null, 32);
+    const unwrapBKeyVersion2 = await hkdf(stretch, 'unwrapBKey', null, 32);
 
     // Passed through all derivations successfully apply state.
     this.clientSalt = clientSalt;
     this.authPWVersion2 = authPWVersion2;
-    this.unwrapBKey2 = unwrapBKey2;
+    this.unwrapBKeyVersion2 = unwrapBKeyVersion2;
   };
 
   Client.create = function (origin, email, password, options) {
@@ -261,7 +261,7 @@ module.exports = (config) => {
     this.authAt = account.authAt;
     this.sessionToken = account.sessionToken;
     this.keyFetchToken = account.keyFetchToken;
-    this.keyFetchToken2 = account.keyFetchToken2;
+    this.keyFetchTokenVersion2 = account.keyFetchTokenVersion2;
     this.device = account.device;
     return this;
   };
@@ -309,7 +309,7 @@ module.exports = (config) => {
     this.verificationReason = data.verificationReason;
     this.verificationMethod = data.verificationMethod;
     this.verified = data.verified;
-    this.keyFetchToken2 = data.keyFetchToken2;
+    this.keyFetchTokenVersion2 = data.keyFetchTokenVersion2;
     return this;
   };
 
@@ -337,7 +337,7 @@ module.exports = (config) => {
       .then((data) => {
         this.uid = data.uid;
         if (this.authPWVersion2) {
-          this.keyFetchToken2 = data.keyFetchToken || null;
+          this.keyFetchTokenVersion2 = data.keyFetchToken || null;
         } else {
           this.keyFetchToken = data.keyFetchToken || null;
         }
@@ -498,7 +498,7 @@ module.exports = (config) => {
   ) {
     const json = await this.api.passwordChangeStartV2(this.email, this.authPW, this.authPWVersion2, headers);
     this.keyFetchToken = json.keyFetchToken;
-    this.keyFetchToken2 = json.keyFetchToken2;
+    this.keyFetchTokenVersion2 = json.keyFetchTokenVersion2;
     this.passwordChangeToken = json.passwordChangeToken;
 
     // Get the current V1 keys. This will also ensure the current kB is correct.
@@ -528,7 +528,7 @@ module.exports = (config) => {
     this.sessionToken = res.sessionToken ? res.sessionToken : this.sessionToken;
     this.authAt = res.authAt ? res.authAt : this.authAt;
     this.keyFetchToken = res.keyFetchToken ? res.keyFetchToken : this.keyFetchToken;
-    this.keyFetchToken2 = res.keyFetchToken2 ? res.keyFetchToken2 : this.keyFetchToken2;
+    this.keyFetchTokenVersion2 = res.keyFetchTokenVersion2 ? res.keyFetchTokenVersion2 : this.keyFetchTokenVersion2;
     return res;
   };
 
@@ -544,7 +544,7 @@ module.exports = (config) => {
   };
   Client.prototype.keysV2 = async function () {
 
-    if (!this.keyFetchToken2) {
+    if (!this.keyFetchTokenVersion2) {
       await this.authV2();
     }
 
@@ -929,7 +929,7 @@ module.exports = (config) => {
 
     if (options.keys) {
       this.keyFetchToken = response.keyFetchToken;
-      this.keyFetchToken2 = response.keyFetchToken2;
+      this.keyFetchTokenVersion2 = response.keyFetchTokenVersion2;
     }
     return response;
   };
@@ -961,7 +961,7 @@ module.exports = (config) => {
     // Update to the new verified tokens
     this.sessionToken = response.sessionToken;
     this.keyFetchToken = response.keyFetchToken;
-    this.keyFetchToken2 = response.keyFetchToken2;
+    this.keyFetchTokenVersion2 = response.keyFetchTokenVersion2;
     return response;
   };
   Client.prototype.resetPasswordV2 = async function (newPassword, headers, options) {
@@ -988,7 +988,7 @@ module.exports = (config) => {
     // Update to the new verified tokens
     this.sessionToken = response.sessionToken;
     this.keyFetchToken = response.keyFetchToken;
-    this.keyFetchToken2 = response.keyFetchToken2;
+    this.keyFetchTokenVersion2 = response.keyFetchTokenVersion2;
 
     if (!this.kB) {
       await this.getKeysV1();
@@ -1153,15 +1153,15 @@ module.exports = (config) => {
       throw new Error('kB never set. Aborting operation.');
     }
 
-    if (!this.unwrapBKey2) {
-      throw new Error('unwrapBKey2 never set. Aborting operation.');
+    if (!this.unwrapBKeyVersion2) {
+      throw new Error('unwrapBKeyVersion2 never set. Aborting operation.');
     }
 
     // By deriving the value this way, we ensure a single kB value. Note that this relies on the
     // fact the server will be using the current wrapKb for the V1 password
     this.wrapKbVersion2 = butil.xorBuffers(
       this.kB,
-      this.unwrapBKey2
+      this.unwrapBKeyVersion2
     ).toString('hex');
   };
 
@@ -1187,28 +1187,28 @@ module.exports = (config) => {
       return keys
     } catch (err) {
       if (err && err.errno !== 104) {
-        this.keyFetchToken2 = null;
+        this.keyFetchTokenVersion2 = null;
       }
       throw err;
     }
   }
   Client.prototype.getKeysV2 = async function () {
     try {
-      const keys = await this.getKeys(this.keyFetchToken2, true);
-      this.keyFetchToken2 = null;
+      const keys = await this.getKeys(this.keyFetchTokenVersion2, true);
+      this.keyFetchTokenVersion2 = null;
       keys.kB = butil
-        .xorBuffers(keys.wrapKb, this.unwrapBKey2)
+        .xorBuffers(keys.wrapKb, this.unwrapBKeyVersion2)
         .toString('hex')
 
       this.kA = keys.kA;
       this.kB = keys.kB;
       this.wrapKbVersion2 = keys.wrapKb;
-      this.keyFetchToken2 = null;
+      this.keyFetchTokenVersion2 = null;
 
       return keys
     } catch (err) {
       if (err && err.errno !== 104) {
-        this.keyFetchToken2 = null;
+        this.keyFetchTokenVersion2 = null;
       }
       throw err;
     }
@@ -1220,9 +1220,9 @@ module.exports = (config) => {
         version: this.options.version,
         kB: this.kB,
         wrapKb: this.wrapKbVersion2,
-        unwrapBKey: this.unwrapBKey2,
+        unwrapBKey: this.unwrapBKeyVersion2,
         authPW: this.authPWVersion2,
-        keyFetchToken: this.keyFetchToken2,
+        keyFetchToken: this.keyFetchTokenVersion2,
       }
     }
     return {

@@ -8,14 +8,14 @@ import AuthClient from 'fxa-auth-client';
 import { AppConfig } from '../config';
 
 export const AuthClientService = Symbol('AUTH_SERVER_CLIENT');
-
 export const AuthClientFactory: Provider = {
   provide: AuthClientService,
   useFactory: async (config: ConfigService<AppConfig>) => {
     const authServerConfig = config.get(
       'authServer'
     ) as AppConfig['authServer'];
-    return new AuthClient(authServerConfig.url);
+
+    return new AuthClient(authServerConfig.url, { keyStretchVersion: 2 });
   },
   inject: [ConfigService],
 };

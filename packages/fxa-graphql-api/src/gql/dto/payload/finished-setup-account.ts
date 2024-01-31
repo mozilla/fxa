@@ -4,6 +4,22 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
+export class FinishedSetupAccountPassword
+{
+  @Field()
+  public wrapKb!: string;
+
+  @Field()
+  public authPWVersion2!: string;
+
+  @Field()
+  public wrapKbVersion2!: string;
+
+  @Field()
+  public clientSalt!: string;
+}
+
+@ObjectType()
 export class FinishedSetupAccountPayload {
   @Field({
     description: 'A unique identifier for the client performing the mutation.',

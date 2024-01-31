@@ -367,6 +367,7 @@ describe('CompleteResetPassword page', () => {
 
       await enterPasswordAndSubmit();
       expect(account.completeResetPassword).toHaveBeenCalledWith(
+        false,
         token,
         code,
         emailToHashWith,
@@ -380,6 +381,7 @@ describe('CompleteResetPassword page', () => {
 
       await enterPasswordAndSubmit();
       expect(account.completeResetPassword).toHaveBeenCalledWith(
+        false,
         token,
         code,
         email,
@@ -396,6 +398,7 @@ describe('CompleteResetPassword page', () => {
 
       await enterPasswordAndSubmit();
       expect(account.completeResetPassword).toHaveBeenCalledWith(
+        false,
         token,
         code,
         emailToHashWith,

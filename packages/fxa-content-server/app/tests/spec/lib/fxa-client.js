@@ -34,6 +34,8 @@ function trim(str) {
   return $.trim(str);
 }
 
+[{keyStretchVersion:1}, {keyStretchVersion:2}].forEach((testOptions) => {
+
 describe('lib/fxa-client', function () {
   beforeEach(function () {
     email = ' ' + testHelpers.createEmail() + ' ';
@@ -48,7 +50,7 @@ describe('lib/fxa-client', function () {
       state: STATE,
     });
 
-    realClient = new AuthClient(AUTH_SERVER_URL);
+    realClient = new AuthClient(AUTH_SERVER_URL, testOptions);
 
     client = new FxaClientWrapper({
       client: realClient,
@@ -93,7 +95,7 @@ describe('lib/fxa-client', function () {
           return true;
         });
 
-        return client._getClient().then(function (wrappedClient) {
+        return client._getClient({keyStretchVersion:2}).then(function (wrappedClient) {
           assert.isTrue(wrappedClient.signUp(email, password, relier));
         });
       });
@@ -1839,4 +1841,6 @@ describe('lib/fxa-client', function () {
       });
     });
   });
+});
+
 });

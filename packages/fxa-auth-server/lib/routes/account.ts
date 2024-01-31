@@ -430,7 +430,7 @@ export class AccountHandler {
   private accountCreateResponse(options: {
     account: any;
     keyFetchToken: any;
-    keyFetchToken2: any;
+    keyFetchTokenVersion2: any;
     sessionToken: any;
     verificationMethod: any;
   }) {
@@ -438,7 +438,7 @@ export class AccountHandler {
       account,
       sessionToken,
       keyFetchToken,
-      keyFetchToken2,
+      keyFetchTokenVersion2,
       verificationMethod,
     } = options;
     const response: Record<string, any> = {
@@ -451,8 +451,8 @@ export class AccountHandler {
       response.keyFetchToken = keyFetchToken.data;
     }
 
-    if (keyFetchToken2) {
-      response.keyFetchToken2 = keyFetchToken2.data;
+    if (keyFetchTokenVersion2) {
+      response.keyFetchTokenVersion2 = keyFetchTokenVersion2.data;
     }
 
     if (verificationMethod) {
@@ -565,9 +565,9 @@ export class AccountHandler {
       tokenVerificationId,
     });
 
-    let keyFetchToken2;
+    let keyFetchTokenVersion2;
     if (password2) {
-      keyFetchToken2 = await this.createKeyFetchToken({
+      keyFetchTokenVersion2 = await this.createKeyFetchToken({
         account,
         password: password2,
         request,
@@ -586,7 +586,7 @@ export class AccountHandler {
     return this.accountCreateResponse({
       account,
       keyFetchToken,
-      keyFetchToken2,
+      keyFetchTokenVersion2,
       sessionToken,
       verificationMethod,
     });
@@ -901,7 +901,7 @@ export class AccountHandler {
       passwordChangeRequired: any,
       sessionToken: any,
       keyFetchToken: any,
-      keyFetchToken2: any,
+      keyFetchTokenVersion2: any,
       didSigninUnblock: any;
     let securityEventRecency = Infinity,
       securityEventVerified = false;
@@ -1246,7 +1246,7 @@ export class AccountHandler {
     const createKeyFetchToken = async () => {
       if (requestHelper.wantsKeys(request)) {
         if (password.clientVersion === 2) {
-          keyFetchToken2 = await this.signinUtils.createKeyFetchToken(
+          keyFetchTokenVersion2 = await this.signinUtils.createKeyFetchToken(
             request,
             accountRecord,
             password,
@@ -1275,8 +1275,8 @@ export class AccountHandler {
         response.keyFetchToken = keyFetchToken.data;
       }
 
-      if (keyFetchToken2) {
-        response.keyFetchToken2 = keyFetchToken2.data;
+      if (keyFetchTokenVersion2) {
+        response.keyFetchTokenVersion2 = keyFetchTokenVersion2.data;
       }
 
       if (passwordChangeRequired) {
@@ -1478,7 +1478,7 @@ export class AccountHandler {
     let account: any,
       sessionToken: any,
       keyFetchToken: any,
-      keyFetchToken2: any,
+      keyFetchTokenVersion2: any,
       verifyHash: any,
       verifyHashVersion2: any,
       wrapWrapKb: any,
@@ -1680,7 +1680,7 @@ export class AccountHandler {
         });
 
         if (authPWVersion2) {
-          keyFetchToken2 = await this.db.createKeyFetchToken({
+          keyFetchTokenVersion2 = await this.db.createKeyFetchToken({
             uid: account.uid,
             kA: account.kA,
             wrapKb: wrapKbVersion2,
@@ -1723,8 +1723,8 @@ export class AccountHandler {
         if (keyFetchToken) {
           response.keyFetchToken = keyFetchToken.data;
         }
-        if (keyFetchToken2) {
-          response.keyFetchToken2 = keyFetchToken.data2;
+        if (keyFetchTokenVersion2) {
+          response.keyFetchTokenVersion2 = keyFetchToken.data2;
         }
       }
 
@@ -1770,13 +1770,10 @@ export class AccountHandler {
     }
 
     const response = {
-      currentVersion: accountRecord.clientSalt ? 'v2' : 'v1',
-      clientSalt: accountRecord.clientSalt
-        ? accountRecord.clientSalt
-        : undefined,
-      upgradeNeeded:
-        !accountRecord.verifyHashVersion2 || !accountRecord.wrapWrapKbVersion2,
-    };
+      currentVersion: accountRecord.clientSalt ? 'v2' :'v1',
+      clientSalt: accountRecord.clientSalt ? accountRecord.clientSalt : undefined,
+      upgradeNeeded: !accountRecord.wrapWrapKbVersion2
+    }
     return response;
   }
 
@@ -2012,7 +2009,7 @@ export const accountRoutes = (
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            keyFetchToken2: isA.string().regex(HEX_STRING).optional(),
+            keyFetchTokenVersion2: isA.string().regex(HEX_STRING).optional(),
             authAt: isA.number().integer().description(DESCRIPTION.authAt),
             verificationMethod: validators.verificationMethod
               .optional()
@@ -2176,7 +2173,7 @@ export const accountRoutes = (
             uid: isA.string().regex(HEX_STRING).required(),
             sessionToken: isA.string().regex(HEX_STRING).required(),
             keyFetchToken: isA.string().regex(HEX_STRING).optional(),
-            keyFetchToken2: isA.string().regex(HEX_STRING).optional(),
+            keyFetchTokenVersion2: isA.string().regex(HEX_STRING).optional(),
             verificationMethod: isA
               .string()
               .optional()

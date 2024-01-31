@@ -43,7 +43,7 @@ jest.mock('@reach/router', () => ({
 
 // Global instances
 let integration: Integration;
-let mockAuthClient = new AuthClient('localhost:9000');
+let mockAuthClient = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
 let currentProps: any | undefined;
 let mockEmailBounceStatusQuery = jest.fn();
 

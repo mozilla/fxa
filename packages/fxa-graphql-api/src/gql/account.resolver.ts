@@ -51,14 +51,12 @@ import {
   VerifyEmailCodeInput,
   VerifySessionInput,
   VerifyTotpInput,
-  CreatePassword,
   PasswordForgotSendCodeInput,
   PasswordForgotVerifyCodeInput,
   PasswordForgotCodeStatusInput,
   AccountResetInput,
   AccountStatusInput,
   RecoveryKeyBundleInput,
-  PasswordChangeInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -77,7 +75,6 @@ import {
   AccountResetPayload,
   AccountStatusPayload,
   RecoveryKeyBundlePayload,
-  PasswordChangePayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
@@ -148,23 +145,6 @@ export class AccountResolver {
       info.returnType
     );
     return simplified.fields.hasOwnProperty('securityEvents');
-  }
-
-  @Mutation((returns) => BasicPayload, {
-    description:
-      'Creates a new password for a user and overrides encryption keys',
-  })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
-  @CatchGatewayError
-  public async createPassword(
-    @GqlSessionToken() token: string,
-    @Args('input', { type: () => CreatePassword })
-    input: CreatePassword
-  ): Promise<BasicPayload> {
-    await this.authAPI.createPassword(token, input.email, input.password);
-    return {
-      clientMutationId: input.clientMutationId,
-    };
   }
 
   @Mutation((returns) => CreateTotpPayload, {
@@ -540,6 +520,7 @@ export class AccountResolver {
     const result = await this.authAPI.accountResetAuthPW(
       input.newPasswordAuthPW,
       input.accountResetToken,
+      input.newPasswordV2 || {},
       input.options,
       headers
     );
@@ -562,6 +543,7 @@ export class AccountResolver {
     const result = await this.authAPI.signUpWithAuthPW(
       input.email,
       input.authPW,
+      input.passwordV2 || {},
       input.options,
       headers
     );
@@ -584,6 +566,7 @@ export class AccountResolver {
     const result = await this.authAPI.finishSetupWithAuthPW(
       input.token,
       input.authPW,
+      input.passwordV2 || {},
       headers
     );
     return {
@@ -702,30 +685,6 @@ export class AccountResolver {
     );
 
     return { recoveryData };
-  }
-
-  @Mutation((returns) => PasswordChangePayload, {
-    description:
-      "Change a user's password. The client is required to compute authPW since we don't send the clear password to our server.",
-  })
-  @CatchGatewayError
-  public async passwordChange(
-    @Args('input', { type: () => PasswordChangeInput })
-    input: PasswordChangeInput
-  ): Promise<PasswordChangePayload> {
-    const result = await this.authAPI.passwordChangeWithAuthPW(
-      input.email,
-      input.oldPasswordAuthPW,
-      input.newPasswordAuthPW,
-      input.oldUnwrapBKey,
-      input.newUnwrapBKey,
-      input.options
-    );
-
-    return {
-      clientMutationId: input.clientMutationId,
-      ...result,
-    };
   }
 
   @ResolveField()

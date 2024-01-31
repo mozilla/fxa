@@ -5,6 +5,21 @@
 import { Field, InputType } from '@nestjs/graphql';
 
 @InputType()
+export class FinishSetupPasswordV2 {
+  @Field()
+  public wrapKb!: string;
+
+  @Field()
+  public authPWVersion2!: string;
+
+  @Field()
+  public wrapKbVersion2!: string;
+
+  @Field()
+  public clientSalt!: string;
+}
+
+@InputType()
 export class FinishSetupInput {
   @Field({
     description: 'A unique identifier for the client performing the mutation.',
@@ -17,4 +32,7 @@ export class FinishSetupInput {
 
   @Field((type) => String)
   public authPW!: hexstring;
+
+  @Field({ nullable: true })
+  public passwordV2?: FinishSetupPasswordV2;
 }

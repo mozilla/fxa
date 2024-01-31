@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import AuthClient from 'fxa-auth-client';
 
 import { AppConfig } from '../config';
+import { SaltVersion } from 'fxa-auth-client/dist/server/cjs/packages/fxa-auth-client/lib/salt';
 
 export const AuthClientService = Symbol('AUTH_SERVER_CLIENT');
 
@@ -15,7 +16,13 @@ export const AuthClientFactory: Provider = {
     const authServerConfig = config.get(
       'authServer'
     ) as AppConfig['authServer'];
-    return new AuthClient(authServerConfig.url);
+    const authClientConfig = config.get(
+      'authClient'
+    ) as AppConfig['authClient'];
+
+    return new AuthClient(authServerConfig.url, {
+      keyStretchVersion: authClientConfig.keyStretchVersion as SaltVersion,
+    });
   },
   inject: [ConfigService],
 };

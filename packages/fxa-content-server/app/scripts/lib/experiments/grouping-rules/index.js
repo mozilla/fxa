@@ -16,6 +16,7 @@ const experimentGroupingRules = [
   require('./sentry'),
   require('./push'),
   require('./generalized-react-app'),
+  require('./key-stretch'),
 ].map((ExperimentGroupingRule) => new ExperimentGroupingRule());
 
 class ExperimentChoiceIndex {
