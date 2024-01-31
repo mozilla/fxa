@@ -13,6 +13,16 @@ describe('gql decorators', () => {
       expect(headers.get('x-forwarded-for')).toEqual('127.0.0.1');
     });
 
+    it('respects previous x-forwarded-for header', () => {
+      const headers = extractRequiredHeaders({
+        ip,
+        headers: {
+          'x-forwarded-for': '127.0.0.11',
+        },
+      });
+      expect(headers.get('x-forwarded-for')).toEqual('127.0.0.11');
+    });
+
     it('forwards relevant headers', () => {
       const headers = extractRequiredHeaders({
         ip,

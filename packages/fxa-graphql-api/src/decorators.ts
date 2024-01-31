@@ -4,8 +4,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { SessionTokenResult } from './auth/session-token.strategy';
-import { Request } from 'express';
-import { IncomingHttpHeaders } from 'http';
+import { header } from 'fxa-auth-client';
 
 /**
  * Extracts the token from an authenticated user for a GraphQL request.
@@ -43,27 +42,32 @@ export const GqlUserState = createParamDecorator(
 export const GqlXHeaders = createParamDecorator(
   (_data: unknown, context: ExecutionContext): Headers => {
     const ctx = GqlExecutionContext.create(context).getContext();
+
     return extractRequiredHeaders(ctx.req);
   }
 );
 
 export function extractRequiredHeaders(req?: {
   ip: string;
-  headers: IncomingHttpHeaders;
+  headers: Record<string, string>;
 }): Headers {
-  const headers: Record<string, string> = {};
+  const incomingHeaders = new Headers(req?.headers || {});
+  const outGoingHeaders: Record<string, string> = {};
 
   // Set the x-forwarded-for header since the auth-server will use this
-  // to determine client geolocation
-  if (req?.ip) {
-    headers['x-forwarded-for'] = req?.ip;
+  // to determine client geolocation. See fxa/templates/nginx-configmap.yaml in web-infra for details
+  const xForwardedFor = incomingHeaders.get('X-Forwarded-For');
+  if (typeof xForwardedFor === 'string' && xForwardedFor) {
+    outGoingHeaders['x-forwarded-for'] = xForwardedFor;
+  } else if (req?.ip) {
+    outGoingHeaders['x-forwarded-for'] = req.ip;
   }
 
   // Set the user agent headers. Connected devices use this header for display name purposes
-  const ua = req?.headers['user-agent'];
+  const ua = incomingHeaders.get('user-agent');
   if (ua) {
-    headers['user-agent'] = ua;
+    outGoingHeaders['user-agent'] = ua;
   }
 
-  return new Headers(headers);
+  return new Headers(outGoingHeaders);
 }
