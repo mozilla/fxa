@@ -23,6 +23,7 @@ import { Container } from 'typedi';
 
 import { PayPalClient } from '@fxa/payments/paypal';
 
+import { AccountDeleteManager } from '../lib/account-delete';
 import configProperties from '../config';
 import error from '../lib/error';
 import { setupFirestore } from '../lib/firestore-db';
@@ -117,6 +118,15 @@ DB.connect(config).then(async (db: any) => {
     const paypalHelper = new PayPalHelper({ log });
     Container.set(PayPalHelper, paypalHelper);
   }
+
+  const accountDeleteManager = new AccountDeleteManager({
+    fxaDb: db,
+    oauthDb: oauthDB,
+    push,
+    pushbox,
+    statsd,
+  } as any);
+  Container.set(AccountDeleteManager, accountDeleteManager);
 
   // Load the account-deletion route, so we can use its logic directly.
   const accountDestroyRoute = require('../lib/routes/account')
