@@ -493,6 +493,7 @@ export class Account extends BaseAuthModel {
           .select(...selectFields)
           .where('normalizedEmail', fn.lower(email))
           .first()) || null;
+
       if (!account) {
         return null;
       }

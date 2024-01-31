@@ -34,6 +34,10 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.click('[data-testid=ack-recovery-code]');
   }
 
+  clickChangePassword() {
+    return this.page.click('[data-testid=password-unit-row-route]');
+  }
+
   async clickHelp() {
     const [helpPage] = await Promise.all([
       this.page.context().waitForEvent('page'),

@@ -68,6 +68,21 @@ export class AccountResetInputOptions {
 }
 
 @InputType()
+export class AccountResetPasswordInputV2 {
+  @Field()
+  public wrapKb!: string;
+
+  @Field()
+  public authPWVersion2!: string;
+
+  @Field()
+  public wrapKbVersion2!: string;
+
+  @Field()
+  public clientSalt!: string;
+}
+
+@InputType()
 export class AccountResetInput {
   @Field({
     description: 'A unique identifier for the client performing the mutation.',
@@ -80,6 +95,9 @@ export class AccountResetInput {
 
   @Field()
   public newPasswordAuthPW!: string;
+
+  @Field({ nullable: true })
+  public newPasswordV2?: AccountResetPasswordInputV2;
 
   @Field({ nullable: true })
   public options?: AccountResetInputOptions;

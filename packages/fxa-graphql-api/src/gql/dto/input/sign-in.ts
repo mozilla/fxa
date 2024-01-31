@@ -46,6 +46,9 @@ export class SignInInput {
   @Field()
   public email!: string;
 
+  @Field({ nullable: true })
+  public authPWVersion?: number;
+
   @Field()
   public options!: SignInOptionsInput;
 }

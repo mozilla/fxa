@@ -101,6 +101,7 @@ function mockUseValidateModule() {
   jest.spyOn(UseValidateModule, 'useValidatedQueryParams').mockReturnValue({
     queryParamModel: {
       email: 'foo@bar.com',
+      isV2: () => false,
     } as unknown as ModelDataProvider,
     validationError: undefined,
   });
@@ -115,6 +116,13 @@ function mockCryptoModule() {
   jest.spyOn(CryptoModule, 'getCredentials').mockResolvedValue({
     authPW: 'apw123',
     unwrapBKey: 'ubk123',
+  });
+
+  jest.spyOn(CryptoModule, 'getCredentialsV2').mockResolvedValue({
+    clientSalt:
+      'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+    authPW: 'apwV2123',
+    unwrapBKey: 'ubkV2123',
   });
 }
 
@@ -170,7 +178,9 @@ jest.mock('../../models', () => {
   };
 });
 function mockModelsModule() {
-  let mockAuthClient = new AuthClient('localhost:9000');
+  let mockAuthClient = new AuthClient('localhost:9000', {
+    keyStretchVersion: 1,
+  });
   mockAuthClient.accountStatusByEmail = jest
     .fn()
     .mockResolvedValue({ exists: true });
@@ -250,7 +260,7 @@ describe('sign-up-container', () => {
       // TIP - In this case, we want to override the previous behavior. We can do this
       // easily in a before each or even within a test block.
       (useAuthClient as jest.Mock).mockImplementation(() => {
-        let client = new AuthClient('localhost:9000');
+        let client = new AuthClient('localhost:9000', { keyStretchVersion: 1 });
         client.accountStatusByEmail = jest
           .fn()
           .mockReturnValue(new Promise(() => {}));

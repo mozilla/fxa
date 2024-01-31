@@ -11,6 +11,8 @@ import AuthClient, {
   getRecoveryKeyIdByUid,
   getCredentials,
   MetricsContext,
+  getCredentialsV2,
+  getKeysV2,
 } from 'fxa-auth-client/browser';
 import {
   currentAccount,
@@ -24,6 +26,7 @@ import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { LinkedAccountProviderIds, MozServices } from '../lib/types';
 import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
 import { AccountAvatar } from '../lib/interfaces';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 
 export interface DeviceLocation {
   city: string | null;
@@ -511,6 +514,7 @@ export class Account implements AccountData {
         }
       )
     );
+
     firefox.passwordChanged(
       this.primaryEmail.email,
       response.uid,
@@ -707,11 +711,13 @@ export class Account implements AccountData {
    * @param newPassword new password
    */
   async completeResetPassword(
+    v2: boolean,
     token: string,
     code: string,
     email: string,
     newPassword: string,
-    resetToken?: string
+    resetToken?: string,
+    kB?: string
   ): Promise<any> {
     try {
       // TODO: Temporary workaround (use auth-client directly) for GraphQL not
@@ -723,6 +729,29 @@ export class Account implements AccountData {
       const accountResetToken =
         resetToken || (await this.passwordForgotVerifyCode(token, code));
       const credentials = await getCredentials(email, newPassword);
+
+      let credentialsV2 = undefined;
+      let newPasswordV2 = undefined;
+      if (v2) {
+        credentialsV2 = await getCredentialsV2({
+          password: newPassword,
+          clientSalt: createSaltV2(),
+        });
+
+        const { wrapKb, wrapKbVersion2 } = await getKeysV2({
+          kB,
+          v1: credentials,
+          v2: credentialsV2,
+        });
+
+        newPasswordV2 = {
+          wrapKb,
+          authPWVersion2: credentialsV2.authPW,
+          wrapKbVersion2,
+          clientSalt: credentialsV2.clientSalt,
+        };
+      }
+
       const {
         data: { accountReset },
       } = await this.apolloClient.mutate({
@@ -735,7 +764,6 @@ export class Account implements AccountData {
               authAt
               keyFetchToken
               verified
-              unwrapBKey
             }
           }
         `,
@@ -743,11 +771,13 @@ export class Account implements AccountData {
           input: {
             accountResetToken,
             newPasswordAuthPW: credentials.authPW,
+            newPasswordV2,
             options: { sessionToken: true, keys: true },
           },
         },
       });
       accountReset.unwrapBKey = credentials.unwrapBKey;
+      accountReset.unwrapBKeyVersion2 = credentialsV2?.unwrapBKey;
       currentAccount(getStoredAccountData(accountReset));
       sessionToken(accountReset.sessionToken);
       return accountReset;

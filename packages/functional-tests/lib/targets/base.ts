@@ -23,7 +23,13 @@ export abstract class BaseTarget {
   abstract readonly subscriptionConfig: SubConfig;
 
   constructor(readonly authServerUrl: string, emailUrl?: string) {
-    this.auth = new AuthClient(authServerUrl);
+    const keyStretchVersion = parseInt(
+      process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
+    );
+    if (!(keyStretchVersion === 1 || keyStretchVersion === 2)) {
+      throw new Error('Invalid env, AUTH_CLIENT_KEY_STRETCH_VERSION');
+    }
+    this.auth = new AuthClient(authServerUrl, { keyStretchVersion });
     this.email = new EmailClient(emailUrl);
   }
 

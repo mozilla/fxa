@@ -22,7 +22,11 @@ import {
 } from './interfaces';
 import { BEGIN_SIGNUP_MUTATION } from './gql';
 import { useCallback, useEffect, useState } from 'react';
-import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import {
+  getCredentials,
+  getCredentialsV2,
+  getKeysV2,
+} from 'fxa-auth-client/lib/crypto';
 import { GraphQLError } from 'graphql';
 import {
   AuthUiErrorNos,
@@ -37,6 +41,8 @@ import {
   FxAStatusResponse,
 } from '../../lib/channels/firefox';
 import { Constants } from '../../lib/constants';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -75,6 +81,7 @@ const SignupContainer = ({
   integration: SignupContainerIntegration;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
   const navigate = useNavigate();
   const config = useConfig();
   const location = useLocation() as ReturnType<typeof useLocation> & {
@@ -198,17 +205,61 @@ const SignupContainer = ({
         atLeast18AtReg,
       };
       try {
-        const { authPW, unwrapBKey } = await getCredentials(email, password);
+        const credentialsV1 = await getCredentials(email, password);
+
+        // If enabled, add in V2 key stretching support
+        let credentialsV2 = undefined;
+        let passwordV2 = undefined;
+        if (keyStretchExp.queryParamModel.isV2()) {
+          credentialsV2 = await getCredentialsV2({
+            password,
+            clientSalt: await createSaltV2(),
+          });
+          const { wrapKb, wrapKbVersion2 } = await getKeysV2({
+            v1: credentialsV1,
+            v2: credentialsV2,
+          });
+
+          passwordV2 = {
+            wrapKb,
+            wrapKbVersion2,
+            authPWVersion2: credentialsV2.authPW,
+            clientSalt: credentialsV2.clientSalt,
+          };
+        }
+
+        const authPW = credentialsV1.authPW;
+        const input =
+          passwordV2 != null
+            ? {
+                email,
+                authPW,
+                passwordV2,
+                options,
+              }
+            : {
+                email,
+                authPW,
+                options,
+              };
         const { data } = await beginSignup({
           variables: {
-            input: {
-              email,
-              authPW,
-              options,
-            },
+            input,
           },
         });
-        return data ? { data: { ...data, unwrapBKey } } : { data: null };
+
+        if (data) {
+          return {
+            data: {
+              ...data,
+              unwrapBKey: credentialsV2
+                ? credentialsV2.unwrapBKey
+                : credentialsV1.unwrapBKey,
+            },
+          };
+        }
+
+        return { data: null };
       } catch (error) {
         const graphQLError: GraphQLError = error.graphQLErrors?.[0];
         if (graphQLError && graphQLError.extensions?.errno) {
@@ -235,7 +286,7 @@ const SignupContainer = ({
         }
       }
     },
-    [beginSignup, integration, isSyncDesktopV3, isOAuth]
+    [beginSignup, integration, isSyncDesktopV3, isOAuth, keyStretchExp]
   );
 
   // TODO: probably a better way to read this?

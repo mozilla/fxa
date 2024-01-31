@@ -8,9 +8,25 @@ import {
   uint8ToHex,
   xor,
 } from './utils';
+import { NAMESPACE, createSaltV1, parseSalt } from './salt';
+
+
+/**
+ * A credentials model.
+ */
+export interface Credentials {
+  /**
+   * The encrypted password
+   */
+  authPW: string;
+
+  /**
+   * An unwrap key
+   */
+  unwrapBKey: string;
+}
 
 const encoder = () => new TextEncoder();
-const NAMESPACE = 'identity.mozilla.com/picl/v1/';
 
 // These functions implement the onepw protocol
 // https://github.com/mozilla/fxa-auth-server/wiki/onepw-protocol
@@ -23,10 +39,11 @@ export async function getCredentials(email: string, password: string) {
     false,
     ['deriveBits']
   );
+  const salt = createSaltV1(email);
   const quickStretchedRaw = await crypto.subtle.deriveBits(
     {
       name: 'PBKDF2',
-      salt: encoder().encode(`${NAMESPACE}quickStretch:${email}`),
+      salt: encoder().encode(salt),
       iterations: 1000,
       hash: 'SHA-256',
     },
@@ -65,6 +82,68 @@ export async function getCredentials(email: string, password: string) {
     256
   );
   return {
+    authPW: uint8ToHex(new Uint8Array(authPW)),
+    unwrapBKey: uint8ToHex(new Uint8Array(unwrapBKey)),
+  };
+}
+
+export async function getCredentialsV2({password,clientSalt}:{password: string, clientSalt: string}) {
+
+  const result = parseSalt(clientSalt);
+  if (result.version !== 2) {
+    throw new Error('Invalid v2 clientSalt')
+  }
+
+  const passkey = await crypto.subtle.importKey(
+    'raw',
+    encoder().encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits']
+  );
+  const quickStretchedRaw = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: encoder().encode(`${NAMESPACE}quickStretchV2:${result.value}`),
+      iterations: 650000,
+      hash: 'SHA-256',
+    },
+    passkey,
+    256
+  );
+  const quickStretchedKey = await crypto.subtle.importKey(
+    'raw',
+    quickStretchedRaw,
+    'HKDF',
+    false,
+    ['deriveBits']
+  );
+  const authPW = await crypto.subtle.deriveBits(
+    {
+      name: 'HKDF',
+      salt: new Uint8Array(0),
+      // The builtin ts type definition for HKDF was wrong
+      // at the time this was written, hence the ignore
+      // @ts-ignore
+      info: encoder().encode(`${NAMESPACE}authPW`),
+      hash: 'SHA-256',
+    },
+    quickStretchedKey,
+    256
+  );
+  const unwrapBKey = await crypto.subtle.deriveBits(
+    {
+      name: 'HKDF',
+      salt: new Uint8Array(0),
+      // @ts-ignore
+      info: encoder().encode(`${NAMESPACE}unwrapBkey`),
+      hash: 'SHA-256',
+    },
+    quickStretchedKey,
+    256
+  );
+  return {
+    clientSalt,
     authPW: uint8ToHex(new Uint8Array(authPW)),
     unwrapBKey: uint8ToHex(new Uint8Array(unwrapBKey)),
   };
@@ -302,5 +381,25 @@ export async function checkWebCrypto() {
     } catch (e) {
       return false;
     }
+  }
+}
+
+export async function getKeysV2({kB, v1, v2}:{
+  kB?:string,
+  v1: Credentials,
+  v2: Credentials,
+}) {
+
+  if (!kB) {
+    kB = uint8ToHex(crypto.getRandomValues(new Uint8Array(32)));
+  }
+
+  const wrapKb = xor(hexToUint8(kB), hexToUint8(v1.unwrapBKey));
+  const wrapKbVersion2 = xor(hexToUint8(kB), hexToUint8(v2.unwrapBKey));
+
+  return {
+    kB,
+    wrapKb: uint8ToHex(wrapKb),
+    wrapKbVersion2: uint8ToHex(wrapKbVersion2)
   }
 }

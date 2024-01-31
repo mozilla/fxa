@@ -17,6 +17,8 @@ import VerificationReasons from './verification-reasons';
 import VerificationMethods from './verification-methods';
 import AuthClient from 'fxa-auth-client/browser';
 
+import ExperimentMixin from '../views/mixins/experiment-mixin';
+
 function trim(str) {
   return $.trim(str);
 }
@@ -132,13 +134,29 @@ function FxaClientWrapper(options = {}) {
   }
 }
 
+function determineKeyStretchVersion() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('stretch') === '2') {
+    return 2;
+  }
+  if (ExperimentMixin.isInExperimentGroup('key-stretch', 'v2')) {
+    return 2;
+  }
+
+  return 1;
+}
+
 FxaClientWrapper.prototype = {
   _getClient() {
     if (this._client) {
       return Promise.resolve(this._client);
     }
 
-    return AuthClient.create(this._authServerUrl).then((client) => {
+    const options = {
+      keyStretchVersion: determineKeyStretchVersion()
+    };
+
+    return AuthClient.create(this._authServerUrl, options).then((client) => {
       this._client = wrapClientToNormalizeErrors(client);
       return this._client;
     });

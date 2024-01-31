@@ -43,6 +43,14 @@ const conf = convict({
       default: 'http://localhost:9000/v1',
     },
   },
+  authClient: {
+    keyStretchVersion: {
+      doc: 'Version of key stretching to use',
+      env: 'AUTH_CLIENT_KEY_STRETCH_VERSION',
+      default: 1,
+      format: 'Number',
+    },
+  },
   user: {
     group: {
       default: '',

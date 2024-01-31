@@ -10,6 +10,9 @@ import { createApolloClient } from '../../lib/gql';
 import { Account } from '../Account';
 import { Session } from '../Session';
 import { AlertBarInfo } from '../AlertBarInfo';
+import { KeyStretchExperiment } from '../experiments/key-stretch-experiment';
+import { UrlQueryData } from '../../lib/model-data';
+import { ReachRouterWindow } from '../../lib/window';
 
 // TODO, move some values from AppContext to SettingsContext after
 // using container components, FXA-8107
@@ -31,7 +34,12 @@ export function initializeAppContext() {
     return document.head.querySelector(name);
   });
 
-  const authClient = new AuthClient(config.servers.auth.url);
+  const keyStretchExperiment = new KeyStretchExperiment(
+    new UrlQueryData(new ReachRouterWindow())
+  );
+  const authClient = new AuthClient(config.servers.auth.url, {
+    keyStretchVersion: keyStretchExperiment.isV2() ? 2 : 1
+  });
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);
   const session = new Session(authClient, apolloClient);

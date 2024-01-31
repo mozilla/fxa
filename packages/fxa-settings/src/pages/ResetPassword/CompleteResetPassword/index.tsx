@@ -39,6 +39,8 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import GleanMetrics from '../../../lib/glean';
+import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
+import { KeyStretchExperiment } from '../../../models/experiments/key-stretch-experiment';
 
 // The equivalent complete_reset_password mustache file included account_recovery_reset_password
 // For React, we have opted to separate these into two pages to align with the routes.
@@ -68,6 +70,7 @@ const CompleteResetPassword = ({
   const [showLoadingSpinner, setShowLoadingSpinner] = useState(true);
   const navigate = useNavigate();
   const navigateWithoutRerender = useNavigateWithoutRerender();
+  const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
   const account = useAccount();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: CompleteResetPasswordLocationState;
@@ -214,6 +217,7 @@ const CompleteResetPassword = ({
         GleanMetrics.resetPassword.createNewSubmit();
 
         const accountResetData = await account.completeResetPassword(
+          keyStretchExperiment.queryParamModel.isV2(),
           token,
           code,
           emailToUse,
@@ -263,6 +267,7 @@ const CompleteResetPassword = ({
       alertSuccessAndNavigate,
       ftlMsgResolver,
       setLinkStatus,
+      keyStretchExperiment,
     ]
   );
 
