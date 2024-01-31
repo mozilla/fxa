@@ -76,7 +76,10 @@ const init = async () => {
   const program = new Command();
   program
     .description(
-      'enqueue account deletes to Cloud Task with uid/email or a date range.'
+      'Enqueue account deletes to Cloud Task with uid/email or a date range.\n\n' +
+        'Deleting accounts could lead to Stripe API calls so the targetted Cloud Task\n' +
+        'queue should be configured with a rate limit below the Stripe API rate limit.\n' +
+        'The Stripe rate limit is 100/sec; 50/sec for cloud tasks seems reasonble.  YMMV.'
     )
     .option('-u, --uid [uid]', 'An account uid, repeatable.', uid, [])
     .option(
