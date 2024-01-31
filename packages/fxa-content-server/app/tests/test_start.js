@@ -199,7 +199,6 @@ require('./spec/views/mixins/signin-mixin');
 require('./spec/views/mixins/signup-mixin');
 require('./spec/views/mixins/sync-auth-mixin');
 require('./spec/views/mixins/sync-optional-mixin');
-require('./spec/views/mixins/sync-suggestion-mixin');
 require('./spec/views/mixins/timer-mixin');
 require('./spec/views/mixins/user-card-mixin');
 require('./spec/views/mixins/verification-reason-mixin');

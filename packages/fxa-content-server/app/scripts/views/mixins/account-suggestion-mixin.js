@@ -4,7 +4,7 @@
 
 /**
  * Mix into views that show the "Why do I need this account? Find out here"
- * helper tooltip for Pocket accounts. This is based on the sync-suggestion-mixin.js.
+ * helper tooltip for Pocket accounts. This was based on the sync-suggestion-mixin.js.
  *
  * Sets the context field `accountSuggestionHTML`
  * which contains the HTML to display.

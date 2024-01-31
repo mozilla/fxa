@@ -26,11 +26,11 @@ export const campaign = new StringMetricType({
 
 /**
  * The content on which the user acted.  For example, if the user clicked on the
- * "Get started here" link in "Looking for Firefox Sync? Get started here", then
- * the value for this metric would be 'fx-sync-get-started'.  The value has a max
- * length of 128 characters with the alphanumeric characters, _ (underscore),
- * forward slash (/), . (period), % (percentage sign), and - (hyphen) in the
- * allowed set of characters.
+ * "Get started here" link in the (previously available) "Looking for Firefox Sync? Get
+ * started here", then the value for this metric would be 'fx-sync-get-started'.
+ * The value has a max length of 128 characters with the alphanumeric characters,
+ * _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen)
+ * in the allowed set of characters.
  *
  * Generated from `utm.content`.
  */
