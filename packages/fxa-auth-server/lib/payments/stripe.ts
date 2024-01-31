@@ -1202,6 +1202,56 @@ export class StripeHelper extends StripeHelperBase {
   }
 
   /**
+   * Attempts to refund all of the invoices passed, provided they're created via Stripe
+   * This will invisibly do nothing if the invoice is not billed through Stripe, so be mindful
+   * if using it elsewhere and need confirmation of a refund.
+   */
+  async refundInvoices(invoices: Stripe.Invoice[]) {
+    const stripeInvoices = invoices.filter(
+      (invoice) => invoice.collection_method === 'charge_automatically'
+    );
+    for (const invoice of stripeInvoices) {
+      const chargeId =
+        typeof invoice.charge === 'string'
+          ? invoice.charge
+          : invoice.charge?.id;
+      if (!chargeId) continue;
+
+      const charge = await this.stripe.charges.retrieve(chargeId);
+      if (charge.refunded) continue;
+
+      try {
+        await this.stripe.refunds.create({
+          charge: chargeId,
+        });
+        this.log.info('refundInvoices', {
+          invoiceId: invoice.id,
+          priceId: this.getPriceIdFromInvoice(invoice),
+          total: invoice.total,
+          currency: invoice.currency,
+        });
+      } catch (error) {
+        this.log.error('StripeHelper.refundInvoices', {
+          error,
+          invoiceId: invoice.id,
+        });
+        if (
+          [
+            'StripeRateLimitError',
+            'StripeAPIError',
+            'StripeConnectionError',
+            'StripeAuthenticationError',
+          ].includes(error.type)
+        ) {
+          throw error;
+        }
+      }
+    }
+
+    return;
+  }
+
+  /**
    * Updates invoice metadata with the PayPal Transaction ID.
    */
   async updateInvoiceWithPaypalTransactionId(
@@ -1244,6 +1294,13 @@ export class StripeHelper extends StripeHelperBase {
         [STRIPE_INVOICE_METADATA.PAYPAL_REFUND_REASON]: reason,
       },
     });
+  }
+
+  /**
+   * Returns the Paypal transaction id for the invoice if one exists.
+   */
+  getInvoicePaypalRefundTransactionId(invoice: Stripe.Invoice) {
+    return invoice.metadata?.paypalRefundTransactionId;
   }
 
   /**
@@ -1715,6 +1772,40 @@ export class StripeHelper extends StripeHelperBase {
     } catch (err) {
       throw error.backendServiceFailure('stripe', 'fetchCustomer', {}, err);
     }
+  }
+
+  async fetchInvoicesForActiveSubscriptions(
+    customerId: string,
+    status: Stripe.InvoiceListParams.Status,
+    earliestCreatedDate?: Date
+  ) {
+    const customer = await this.fetchCustomer(customerId, ['subscriptions']);
+    const subscriptions = customer?.subscriptions?.data;
+    if (subscriptions) {
+      const activeSubscriptionIds = subscriptions.map((sub) => sub.id);
+      const created = earliestCreatedDate
+        ? { gte: Math.floor(earliestCreatedDate.getTime() / 1000) }
+        : undefined;
+      const invoices = await this.stripe.invoices.list({
+        customer: customerId,
+        status,
+        created,
+      });
+
+      return invoices.data.filter((invoice) => {
+        if (!invoice?.subscription) {
+          return false;
+        }
+
+        const subscriptionId =
+          typeof invoice.subscription === 'string'
+            ? invoice.subscription
+            : invoice.subscription.id;
+        return activeSubscriptionIds.includes(subscriptionId);
+      });
+    }
+
+    return [];
   }
 
   /**
@@ -2425,6 +2516,15 @@ export class StripeHelper extends StripeHelperBase {
       signature,
       this.webhookSecret
     );
+  }
+
+  /**
+   * Get PriceId of subscription from invoice
+   */
+  getPriceIdFromInvoice(invoice: Stripe.Invoice) {
+    return invoice.lines.data.find(
+      (invoiceLine) => invoiceLine.type === 'subscription'
+    )?.price?.id;
   }
 
   /**

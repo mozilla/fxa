@@ -79,15 +79,22 @@ export class CloudTaskHandler {
         }
       };
       // the account still exists in MySQL, delete as usual
-      await this.accountDeleteManager.deleteAccount(taskPayload.uid, {
-        notify,
-      });
+      await this.accountDeleteManager.deleteAccount(
+        taskPayload.uid,
+        taskPayload.customerId,
+        {
+          notify,
+        }
+      );
     } catch (err) {
       // if the account is already deleted from the db, then try to clean up
       // some potentially remaining other records
       if (err.errno === ERRNO.ACCOUNT_UNKNOWN) {
         this.log.info('accountCleanup.byCloudTask', { uid: taskPayload.uid });
-        await this.accountDeleteManager.cleanupAccount(taskPayload.uid);
+        await this.accountDeleteManager.cleanupAccount(
+          taskPayload.uid,
+          taskPayload.customerId
+        );
       } else {
         throw err;
       }
