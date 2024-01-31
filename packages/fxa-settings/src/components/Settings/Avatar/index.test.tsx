@@ -5,17 +5,15 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { AppContext } from '../../../models';
-import { MOCK_AVATAR_DEFAULT, MOCK_AVATAR_NON_DEFAULT } from './mocks';
 import Avatar from '.';
+import {
+  MOCK_AVATAR_DEFAULT,
+  MOCK_AVATAR_NON_DEFAULT,
+} from '../../../pages/mocks';
 
 describe('Avatar', () => {
   it('renders default avatar with expected attributes', () => {
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
-        <Avatar />
-      </AppContext.Provider>
-    );
+    renderWithLocalizationProvider(<Avatar avatar={MOCK_AVATAR_DEFAULT} />);
 
     expect(screen.getByTestId('avatar-default')).toHaveAttribute(
       'alt',
@@ -26,20 +24,14 @@ describe('Avatar', () => {
 
   it('renders default avatar with a custom className', () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account: MOCK_AVATAR_DEFAULT }}>
-        <Avatar className="my-class" />
-      </AppContext.Provider>
+      <Avatar className="my-class" avatar={MOCK_AVATAR_DEFAULT} />
     );
 
     expect(screen.getByTestId('avatar-default')).toHaveClass('my-class');
   });
 
   it('renders the avatar with expected attributes', () => {
-    renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
-        <Avatar />
-      </AppContext.Provider>
-    );
+    renderWithLocalizationProvider(<Avatar avatar={MOCK_AVATAR_NON_DEFAULT} />);
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveAttribute(
       'src',
@@ -54,9 +46,7 @@ describe('Avatar', () => {
 
   it('renders the avatar with a custom className', () => {
     renderWithLocalizationProvider(
-      <AppContext.Provider value={{ account: MOCK_AVATAR_NON_DEFAULT }}>
-        <Avatar className="my-class" />
-      </AppContext.Provider>
+      <Avatar className="my-class" avatar={MOCK_AVATAR_NON_DEFAULT} />
     );
 
     expect(screen.getByTestId('avatar-nondefault')).toHaveClass('my-class');

@@ -176,7 +176,7 @@ function getState() {
   const modifiedParams = deleteParams(params, [
     'deeplink',
     'email',
-    'emailFromContent',
+    'emailStatusChecked',
     'forceExperiment',
     'forceExperimentGroup',
     'showReactApp',

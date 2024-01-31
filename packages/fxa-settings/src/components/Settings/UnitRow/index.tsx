@@ -146,7 +146,10 @@ export const UnitRow = ({
       </div>
       <div className="unit-row-content">
         {avatar ? (
-          <Avatar className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16" />
+          <Avatar
+            className="mx-auto mobileLandscape:mx-0 w-32 mobileLandscape:w-16"
+            {...{ avatar }}
+          />
         ) : (
           <p
             className={classNames('font-bold', headerValueClassName)}

@@ -5,17 +5,16 @@
 import React from 'react';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
-import { useAccount } from '../../../models';
 import defaultAvatar from './avatar-default.svg';
+import { AccountAvatar } from '../../../lib/interfaces';
 
 type AvatarProps = {
   className?: string;
+  avatar?: AccountAvatar;
 };
 
-export const Avatar = ({ className }: AvatarProps) => {
-  const { avatar } = useAccount();
-
-  if (avatar.url) {
+export const Avatar = ({ className, avatar }: AvatarProps) => {
+  if (avatar?.url) {
     return (
       <Localized id="avatar-your-avatar" attrs={{ alt: true }}>
         <img

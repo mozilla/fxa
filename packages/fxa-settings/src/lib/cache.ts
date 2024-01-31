@@ -43,7 +43,9 @@ function accounts(accounts?: LocalAccounts) {
   return storage.get('accounts') as LocalAccounts;
 }
 
-export function currentAccount(account?: StoredAccountData) {
+export function currentAccount(
+  account?: StoredAccountData
+): StoredAccountData | undefined {
   const all = accounts() || {};
 
   // Current user can be specified in url params (ex. when clicking

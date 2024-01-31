@@ -12,7 +12,7 @@ import { logViewEvent, settingsViewName } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 
 export const DropDownAvatarMenu = () => {
-  const { displayName, primaryEmail } = useAccount();
+  const { displayName, primaryEmail, avatar } = useAccount();
   const session = useSession();
   const [isRevealed, setRevealed] = useState(false);
   const toggleRevealed = () => setRevealed(!isRevealed);
@@ -58,7 +58,7 @@ export const DropDownAvatarMenu = () => {
           aria-haspopup="menu"
           className="rounded-full border border-transparent hover:border-purple-500 focus:border-purple-500 focus:outline-none active:border-purple-700 transition-standard"
         >
-          <Avatar className="w-10 rounded-full" />
+          <Avatar className="w-10 rounded-full" {...{ avatar }} />
         </button>
         {isRevealed && (
           <div
@@ -70,7 +70,7 @@ export const DropDownAvatarMenu = () => {
             <div className="flex flex-wrap">
               <div className="flex w-full p-4 items-center">
                 <div className="ltr:mr-3 rtl:ml-3 flex-none">
-                  <Avatar className="w-10" />
+                  <Avatar className="w-10" {...{ avatar }} />
                 </div>
                 <Localized
                   id="drop-down-menu-signed-in-as"

@@ -40,17 +40,16 @@ import {
 } from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
-import { StoredAccountData, persistAccount } from '../../../lib/storage-utils';
+import { persistAccount } from '../../../lib/storage-utils';
 import { BrandMessagingPortal } from '../../../components/BrandMessaging';
-import { currentAccount } from '../../../lib/cache';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 
 export const viewName = 'confirm-signup-code';
 
 const ConfirmSignupCode = ({
+  storedLocalAccount,
   email,
-  uid,
   sessionToken,
   integration,
   finishOAuthFlowHandler,
@@ -152,9 +151,8 @@ const ConfirmSignupCode = ({
       );
 
       // Update verification status of stored current account
-      const storedAccount: StoredAccountData = currentAccount();
-      storedAccount.verified = true;
-      persistAccount(storedAccount);
+      storedLocalAccount.verified = true;
+      persistAccount(storedLocalAccount);
 
       if (hasSelectedNewsletters) {
         // to match parity with content-server event, viewName is NOT included
@@ -178,7 +176,7 @@ const ConfirmSignupCode = ({
           return;
         } else {
           const { redirect, code, state } = await finishOAuthFlowHandler(
-            uid,
+            storedLocalAccount.uid,
             sessionToken,
             // yes, non-null operator is gross, but it's temporary.
             // see note in container component / router.js for this page, once

@@ -362,10 +362,10 @@ export const Signup = ({
               params.set('prefillEmail', email);
               // Passing back the 'email' param causes various behaviors in
               // content-server since it marks the email as "coming from a RP".
-              // Also remove `emailFromContent` since we pass that when coming
+              // Also remove `emailStatusChecked` since we pass that when coming
               // from content-server to Backbone, see Signup container component
               // for more info.
-              params.delete('emailFromContent');
+              params.delete('emailStatusChecked');
               params.delete('email');
               hardNavigateToContentServer(`/?${params.toString()}`);
             }}

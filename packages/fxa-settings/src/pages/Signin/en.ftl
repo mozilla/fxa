@@ -15,3 +15,4 @@ signin-button = Sign in
 signin-header = Sign in
 signin-use-a-different-account-link = Use a different account
 signin-forgot-password-link = Forgot password?
+signin-password-button-label = Password

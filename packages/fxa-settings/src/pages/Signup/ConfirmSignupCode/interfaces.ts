@@ -5,13 +5,11 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
-  BaseIntegration,
   BaseIntegrationData,
   Integration,
   IntegrationType,
   OAuthIntegration,
   OAuthIntegrationData,
-  PairingSupplicantIntegration,
 } from '../../../models';
 import { StoredAccountData } from '../../../lib/storage-utils';
 
@@ -30,8 +28,8 @@ export type ConfirmSignupCodeContainerProps = {
 } & RouteComponentProps;
 
 export type ConfirmSignupCodeProps = {
+  storedLocalAccount: StoredAccountData;
   email: string;
-  uid: hexstring;
   sessionToken: hexstring;
   integration: ConfirmSignupCodeIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;

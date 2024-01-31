@@ -78,6 +78,10 @@ export interface Config {
   };
   redirectAllowlist: string[];
   sendFxAStatusOnSettings: boolean;
+  showReactApp: {
+    signUpRoutes: boolean;
+    signInRoutes: boolean;
+  };
 }
 
 export function getDefault() {
@@ -147,6 +151,10 @@ export function getDefault() {
     },
     redirectAllowlist: ['localhost'],
     sendFxAStatusOnSettings: false,
+    showReactApp: {
+      signUpRoutes: false,
+      signInRoutes: false,
+    },
   } as Config;
 }
 

@@ -18,7 +18,6 @@ import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import sentryMetrics from 'fxa-shared/sentry/browser';
-import { StoredAccountData } from '../../../lib/storage-utils';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 
@@ -43,8 +42,8 @@ const SignupConfirmCodeContainer = ({
   } = location.state || {};
   const navigate = useNavigate();
 
-  const storedLocalAccount: StoredAccountData | undefined = currentAccount();
-  const { email, sessionToken, uid } = storedLocalAccount || {};
+  const storedLocalAccount = currentAccount();
+  const { email, sessionToken } = storedLocalAccount || {};
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -56,17 +55,17 @@ const SignupConfirmCodeContainer = ({
       const params = new URLSearchParams(location.search);
 
       // If the user reached this page from React signup,
-      // 'email' and 'emailFromContent' will be set as params
+      // 'email' and 'emailStatusChecked' will be set as params
       // when the user was navigated from Backbone to React.
       // This is temporary until index is converted to React.
       // Passing back the 'email' param causes various behaviors in
       // content-server since it marks the email as "coming from a RP".
-      params.delete('emailFromContent');
+      params.delete('emailStatusChecked');
       params.delete('email');
       // passing the 'bouncedEmail' param will display an error tooltip
       // on the email-first signin/signup page and allow to check
       // if the entered email matches the bounced email
-      hasBounced && params.set('bouncedEmail', email);
+      hasBounced && email && params.set('bouncedEmail', email);
       if (Array.from(params).length > 0) {
         path += `?${params.toString()}`;
       }
@@ -106,7 +105,7 @@ const SignupConfirmCodeContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  if (!sessionToken) {
+  if (!storedLocalAccount || !sessionToken || !email) {
     /* Users who reach this page should have account data set in localStorage.
    * Account data is persisted local storage after creating an (unverified) account
    * and after sign in. Users may also have localStorage set by the browser if
@@ -152,8 +151,8 @@ const SignupConfirmCodeContainer = ({
   return (
     <ConfirmSignupCode
       {...{
+        storedLocalAccount,
         email,
-        uid,
         sessionToken,
         integration,
         finishOAuthFlowHandler,

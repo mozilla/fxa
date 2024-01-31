@@ -50,6 +50,7 @@ import { GraphQLError } from 'graphql';
 import { ApolloClient, ApolloError } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
+import { LocationProvider } from '@reach/router';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -207,12 +208,14 @@ async function render(text?: string) {
   // state/context driven by react or l10n that's required. Therefore we will invoke the
   // container component as follows.
   renderWithLocalizationProvider(
-    <SignupContainer
-      {...{
-        integration,
-        serviceName,
-      }}
-    />
+    <LocationProvider>
+      <SignupContainer
+        {...{
+          integration,
+          serviceName,
+        }}
+      />
+    </LocationProvider>
   );
 
   // TIP - Wait for the expected mocked test to show up.
