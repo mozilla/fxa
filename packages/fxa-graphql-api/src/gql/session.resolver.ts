@@ -24,6 +24,7 @@ import { SessionReauthedAccountPayload } from './dto/payload/session-reauthed-ac
 import { CatchGatewayError } from './lib/error';
 import { Session as SessionType, SessionStatus } from './model/session';
 import { SessionVerifyCodeInput } from './dto/input/session-verify-code';
+import { checkForwardedFor } from './lib/util';
 
 @Resolver((of: any) => SessionType)
 export class SessionResolver {
@@ -73,6 +74,7 @@ export class SessionResolver {
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => SessionReauthInput }) input: SessionReauthInput
   ): Promise<SessionReauthedAccountPayload> {
+    checkForwardedFor(this.log, 'session.resolver->reauthSession', headers);
     const result = await this.authAPI.sessionReauthWithAuthPW(
       input.sessionToken,
       input.email,
@@ -96,6 +98,7 @@ export class SessionResolver {
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => BasicMutationInput }) input: BasicMutationInput
   ): Promise<BasicPayload> {
+    checkForwardedFor(this.log, 'session.resolver->resendVerifyCode', headers);
     await this.authAPI.sessionResendVerifyCode(token, headers);
     return {
       clientMutationId: input.clientMutationId,
@@ -113,6 +116,7 @@ export class SessionResolver {
     @Args('input', { type: () => SessionVerifyCodeInput })
     input: SessionVerifyCodeInput
   ): Promise<BasicPayload> {
+    checkForwardedFor(this.log, 'session.resolver->verifyCode', headers);
     await this.authAPI.sessionVerifyCode(
       token,
       input.code,

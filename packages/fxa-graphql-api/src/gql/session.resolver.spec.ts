@@ -15,7 +15,12 @@ describe('AccountResolver', () => {
   let authClient: any;
 
   beforeEach(async () => {
-    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    logger = {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,

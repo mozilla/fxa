@@ -87,6 +87,7 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { FinishedSetupAccountPayload } from './dto/payload/finished-setup-account';
 import { FinishSetupInput } from './dto/input/finish-setup';
 import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
+import { checkForwardedFor } from './lib/util';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -485,6 +486,11 @@ export class AccountResolver {
     @Args('input', { type: () => PasswordForgotSendCodeInput })
     input: PasswordForgotSendCodeInput
   ) {
+    checkForwardedFor(
+      this.log,
+      'account.resolver->passwordForgotSendCode',
+      headers
+    );
     return this.authAPI.passwordForgotSendCode(input.email, input, headers);
   }
 
@@ -497,6 +503,11 @@ export class AccountResolver {
     @Args('input', { type: () => PasswordForgotVerifyCodeInput })
     input: PasswordForgotVerifyCodeInput
   ) {
+    checkForwardedFor(
+      this.log,
+      'account.resolver->passwordForgotVerifyCode',
+      headers
+    );
     return this.authAPI.passwordForgotVerifyCode(
       input.code,
       input.token,
@@ -525,6 +536,7 @@ export class AccountResolver {
     @Args('input', { type: () => AccountResetInput })
     input: AccountResetInput
   ): Promise<AccountResetPayload> {
+    checkForwardedFor(this.log, 'account.resolver->accountReset', headers);
     const result = await this.authAPI.accountResetAuthPW(
       input.newPasswordAuthPW,
       input.accountResetToken,
@@ -546,6 +558,7 @@ export class AccountResolver {
     @Args('input', { type: () => SignUpInput })
     input: SignUpInput
   ): Promise<SignedUpAccountPayload> {
+    checkForwardedFor(this.log, 'account.resolver->SignUp', headers);
     const result = await this.authAPI.signUpWithAuthPW(
       input.email,
       input.authPW,
@@ -567,6 +580,7 @@ export class AccountResolver {
     @Args('input', { type: () => FinishSetupInput })
     input: FinishSetupInput
   ): Promise<FinishedSetupAccountPayload> {
+    checkForwardedFor(this.log, 'account.resolver->finishSetup', headers);
     const result = await this.authAPI.finishSetupWithAuthPW(
       input.token,
       input.authPW,
@@ -587,6 +601,7 @@ export class AccountResolver {
     @Args('input', { type: () => SignInInput })
     input: SignInInput
   ): Promise<SignedInAccountPayload> {
+    checkForwardedFor(this.log, 'account.resolver->signIn', headers);
     const result = await this.authAPI.signInWithAuthPW(
       input.email,
       input.authPW,
@@ -657,6 +672,7 @@ export class AccountResolver {
     @Args('input', { type: () => VerifyEmailCodeInput })
     input: VerifyEmailCodeInput
   ): Promise<BasicPayload> {
+    checkForwardedFor(this.log, 'account.resolver->emailVerifyCode', headers);
     await this.authAPI.verifyCode(
       input.uid,
       input.code,
