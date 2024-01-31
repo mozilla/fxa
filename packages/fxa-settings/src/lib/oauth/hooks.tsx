@@ -8,6 +8,7 @@ import {
   Integration,
   OAuthIntegration,
   isOAuthIntegration,
+  isSyncOAuthIntegration,
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
@@ -156,8 +157,7 @@ export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
 ): FinishOAuthFlowHandlerResult {
-  // Sync mobile or sync desktop with context=oauth_webchannel_v1
-  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
+  const isSyncOAuth = isSyncOAuthIntegration(integration);
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
     async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {

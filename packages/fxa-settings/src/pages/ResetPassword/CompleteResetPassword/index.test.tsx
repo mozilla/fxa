@@ -16,6 +16,7 @@ import {
   paramsWithMissingEmailToHashWith,
   paramsWithMissingToken,
   paramsWithSyncDesktop,
+  paramsWithSyncOAuth,
   Subject,
 } from './mocks';
 import firefox from '../../../lib/channels/firefox';
@@ -429,23 +430,32 @@ describe('CompleteResetPassword page', () => {
         );
       });
     });
-    describe('SyncDesktop integration', () => {
-      it('calls fxaLoginSignedInUser', async () => {
+    describe('Sync integrations', () => {
+      const testSyncIntegration = async (
+        integrationType: IntegrationType,
+        params: Record<string, string>
+      ) => {
         const fxaLoginSignedInUserSpy = jest.spyOn(
           firefox,
           'fxaLoginSignedInUser'
         );
-        render(
-          <Subject
-            integrationType={IntegrationType.SyncDesktopV3}
-            params={paramsWithSyncDesktop}
-          />,
-          account,
-          session
-        );
+        render(<Subject {...{ integrationType, params }} />, account, session);
         await enterPasswordAndSubmit();
-
         expect(fxaLoginSignedInUserSpy).toBeCalled();
+      };
+
+      describe('desktop v3', () => {
+        it('calls fxaLoginSignedInUser', async () => {
+          await testSyncIntegration(
+            IntegrationType.SyncDesktopV3,
+            paramsWithSyncDesktop
+          );
+        });
+      });
+      describe('OAuth sync', () => {
+        it('calls fxaLoginSignedInUser', async () => {
+          await testSyncIntegration(IntegrationType.OAuth, paramsWithSyncOAuth);
+        });
       });
     });
   });

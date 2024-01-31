@@ -25,7 +25,11 @@ import {
 } from '../../../lib/metrics';
 import { useAccount } from '../../../models/hooks';
 import { LinkStatus } from '../../../lib/types';
-import { IntegrationType, isOAuthIntegration } from '../../../models';
+import {
+  isOAuthIntegration,
+  isSyncDesktopV3Integration,
+  isSyncOAuthIntegration,
+} from '../../../models';
 import {
   AccountRecoveryResetPasswordBannerState,
   AccountRecoveryResetPasswordFormData,
@@ -214,24 +218,19 @@ const AccountRecoveryResetPassword = ({
 
       logViewEvent(viewName, 'verification.success');
 
-      switch (integration.type) {
-        // NOTE: SyncBasic check is temporary until we implement codes
-        // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
-        case IntegrationType.SyncDesktopV3:
-        case IntegrationType.SyncBasic:
-          firefox.fxaLoginSignedInUser({
-            authAt: accountResetData.authAt,
-            email,
-            keyFetchToken: accountResetData.keyFetchToken,
-            sessionToken: accountResetData.sessionToken,
-            uid: accountResetData.uid,
-            unwrapBKey: accountResetData.unwrapBKey,
-            verified: accountResetData.verified,
-          });
-          break;
-        case IntegrationType.OAuth:
-          // TODO: Consider providing a way to redirect user back to RP.
-          break;
+      if (
+        isSyncDesktopV3Integration(integration) ||
+        isSyncOAuthIntegration(integration)
+      ) {
+        firefox.fxaLoginSignedInUser({
+          authAt: accountResetData.authAt,
+          email,
+          keyFetchToken: accountResetData.keyFetchToken,
+          sessionToken: accountResetData.sessionToken,
+          uid: accountResetData.uid,
+          unwrapBKey: accountResetData.unwrapBKey,
+          verified: accountResetData.verified,
+        });
       }
 
       alertSuccess();

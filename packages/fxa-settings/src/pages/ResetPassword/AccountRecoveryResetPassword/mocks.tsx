@@ -56,7 +56,8 @@ export const MOCK_RESET_DATA = {
 };
 
 export function createMockAccountRecoveryResetPasswordOAuthIntegration(
-  serviceName = MOCK_SERVICE
+  serviceName = MOCK_SERVICE,
+  isSync = false
 ): AccountRecoveryResetPasswordOAuthIntegration {
   return {
     type: IntegrationType.OAuth,
@@ -66,6 +67,7 @@ export function createMockAccountRecoveryResetPasswordOAuthIntegration(
     },
     getRedirectUri: () => MOCK_REDIRECT_URI,
     getService: () => serviceName,
+    isSync: () => isSync,
   };
 }
 

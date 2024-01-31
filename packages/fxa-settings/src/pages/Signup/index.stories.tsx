@@ -21,7 +21,10 @@ import {
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
 import { getSyncEngineIds } from '../../components/ChooseWhatToSync/sync-engines';
-import { isOAuthIntegration, isSyncDesktopV3Integration } from '../../models';
+import {
+  isSyncOAuthIntegration,
+  isSyncDesktopV3Integration,
+} from '../../models';
 import { MOCK_CLIENT_ID } from '../mocks';
 
 export default {
@@ -36,7 +39,7 @@ const queryParamModel = new SignupQueryParams(urlQueryData);
 const storyWithProps = (
   integration: SignupIntegration = createMockSignupOAuthIntegration()
 ) => {
-  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
+  const isSyncOAuth = isSyncOAuthIntegration(integration);
 
   const story = () => (
     <LocationProvider>
