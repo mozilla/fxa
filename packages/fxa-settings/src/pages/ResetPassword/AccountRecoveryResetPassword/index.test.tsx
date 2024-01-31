@@ -276,28 +276,36 @@ describe('AccountRecoveryResetPassword page', () => {
     });
   });
 
-  describe('successful reset, SyncDesktop integration', () => {
-    let integration: AccountRecoveryResetPasswordBaseIntegration;
-    // TODO: share setup code with successful reset
+  describe('successful reset, Sync integrations set data and call fxaLoginSignedInUser', () => {
     let fxaLoginSignedInUserSpy: jest.SpyInstance;
     beforeEach(async () => {
-      integration = createMockSyncDesktopV3Integration();
       account.resetPasswordWithRecoveryKey = jest
         .fn()
         .mockResolvedValue(MOCK_RESET_DATA);
       account.hasTotpAuthClient = jest.fn().mockResolvedValue(false);
       fxaLoginSignedInUserSpy = jest.spyOn(firefox, 'fxaLoginSignedInUser');
+    });
 
+    const testSyncIntegration = async (
+      integration: AccountRecoveryResetPasswordBaseIntegration
+    ) => {
       render(<Subject {...{ integration }} />, account);
       await enterPassword('foo12356789!');
       await clickResetPassword();
+    };
+
+    it('Desktop v3', async () => {
+      const integration = createMockSyncDesktopV3Integration();
+      await testSyncIntegration(integration);
+      expect(integration.data.resetPasswordConfirm).toBeTruthy();
+      expect(fxaLoginSignedInUserSpy).toHaveBeenCalled();
     });
 
-    it('sets integration resetPasswordConfirm state', () => {
+    it('OAuth Sync', async () => {
+      const integration =
+        createMockAccountRecoveryResetPasswordOAuthIntegration(undefined, true);
+      await testSyncIntegration(integration);
       expect(integration.data.resetPasswordConfirm).toBeTruthy();
-    });
-    it('calls fxaLoginSignedInUserSpy', () => {
-      expect(integration.type).toEqual(IntegrationType.SyncDesktopV3);
       expect(fxaLoginSignedInUserSpy).toHaveBeenCalled();
     });
   });

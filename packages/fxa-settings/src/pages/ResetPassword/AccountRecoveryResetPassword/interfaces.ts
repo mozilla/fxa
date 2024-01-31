@@ -42,6 +42,7 @@ export interface AccountRecoveryResetPasswordOAuthIntegration {
   };
   getService: () => ReturnType<OAuthIntegration['getService']>;
   getRedirectUri: () => ReturnType<OAuthIntegration['getService']>;
+  isSync: () => ReturnType<OAuthIntegration['isSync']>;
 }
 
 export interface AccountRecoveryResetPasswordBaseIntegration {

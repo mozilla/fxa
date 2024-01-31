@@ -457,7 +457,7 @@ describe('Signup page', () => {
         );
       });
 
-      describe('on success with Sync integration', () => {
+      describe('Sync integrations', () => {
         const commonFxaLoginOptions = {
           email: MOCK_EMAIL,
           keyFetchToken:
@@ -474,92 +474,131 @@ describe('Signup page', () => {
           mockBeginSignupHandler = jest
             .fn()
             .mockResolvedValue(BEGIN_SIGNUP_HANDLER_RESPONSE);
-          renderWithLocalizationProvider(
-            <Subject
-              integration={createMockSignupSyncDesktopV3Integration()}
-              beginSignupHandler={mockBeginSignupHandler}
-            />
-          );
         });
-        it('all CWTS options selected (default)', async () => {
-          await fillOutForm();
-          submit();
 
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD,
-              true
+        describe('on success with Sync desktop v3 integration', () => {
+          beforeEach(() => {
+            renderWithLocalizationProvider(
+              <Subject
+                integration={createMockSignupSyncDesktopV3Integration()}
+                beginSignupHandler={mockBeginSignupHandler}
+              />
             );
           });
+          it('all CWTS options selected (default)', async () => {
+            await fillOutForm();
+            submit();
 
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: [],
-                offeredEngines,
+            await waitFor(() => {
+              expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+                MOCK_EMAIL,
+                MOCK_PASSWORD,
+                true
+              );
+            });
+
+            expect(fxaLoginSpy).toBeCalledWith({
+              ...commonFxaLoginOptions,
+              services: {
+                sync: {
+                  declinedEngines: [],
+                  offeredEngines,
+                },
               },
-            },
+            });
+            expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
           });
-          expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
         });
-        it('some CWTS options selected', async () => {
-          await fillOutForm();
 
-          // deselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-          fireEvent.click(screen.getByText('Preferences'));
-          fireEvent.click(screen.getByText('Bookmarks'));
-          // reselect
-          fireEvent.click(screen.getByText('Open Tabs'));
-
-          submit();
-
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD,
-              true
+        describe('on success with Sync OAuth integration', () => {
+          beforeEach(() => {
+            renderWithLocalizationProvider(
+              <Subject
+                integration={createMockSignupOAuthIntegration('', true)}
+                beginSignupHandler={mockBeginSignupHandler}
+              />
             );
           });
+          it('all CWTS options selected (default)', async () => {
+            await fillOutForm();
+            submit();
 
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: ['prefs', 'bookmarks'],
-                offeredEngines,
+            await waitFor(() => {
+              expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+                MOCK_EMAIL,
+                MOCK_PASSWORD,
+                true
+              );
+            });
+
+            expect(fxaLoginSpy).toBeCalledWith({
+              ...commonFxaLoginOptions,
+              services: {
+                sync: {
+                  declinedEngines: [],
+                  offeredEngines,
+                },
               },
-            },
+            });
+            expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
           });
-        });
-        it('zero CWTS options selected', async () => {
-          await fillOutForm();
+          it('some CWTS options selected', async () => {
+            await fillOutForm();
 
-          act(() => {
-            syncEngineConfigs.forEach((engineConfig) => {
-              fireEvent.click(screen.getByText(engineConfig.text));
+            // deselect
+            fireEvent.click(screen.getByText('Open Tabs'));
+            fireEvent.click(screen.getByText('Preferences'));
+            fireEvent.click(screen.getByText('Bookmarks'));
+            // reselect
+            fireEvent.click(screen.getByText('Open Tabs'));
+
+            submit();
+
+            await waitFor(() => {
+              expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+                MOCK_EMAIL,
+                MOCK_PASSWORD,
+                true
+              );
+            });
+
+            expect(fxaLoginSpy).toBeCalledWith({
+              ...commonFxaLoginOptions,
+              services: {
+                sync: {
+                  declinedEngines: ['prefs', 'bookmarks'],
+                  offeredEngines,
+                },
+              },
             });
           });
-          submit();
+          it('zero CWTS options selected', async () => {
+            await fillOutForm();
 
-          await waitFor(() => {
-            expect(mockBeginSignupHandler).toHaveBeenCalledWith(
-              MOCK_EMAIL,
-              MOCK_PASSWORD,
-              true
-            );
-          });
+            act(() => {
+              syncEngineConfigs.forEach((engineConfig) => {
+                fireEvent.click(screen.getByText(engineConfig.text));
+              });
+            });
+            submit();
 
-          expect(fxaLoginSpy).toBeCalledWith({
-            ...commonFxaLoginOptions,
-            services: {
-              sync: {
-                declinedEngines: offeredEngines,
-                offeredEngines,
+            await waitFor(() => {
+              expect(mockBeginSignupHandler).toHaveBeenCalledWith(
+                MOCK_EMAIL,
+                MOCK_PASSWORD,
+                true
+              );
+            });
+
+            expect(fxaLoginSpy).toBeCalledWith({
+              ...commonFxaLoginOptions,
+              services: {
+                sync: {
+                  declinedEngines: offeredEngines,
+                  offeredEngines,
+                },
               },
-            },
+            });
           });
         });
       });

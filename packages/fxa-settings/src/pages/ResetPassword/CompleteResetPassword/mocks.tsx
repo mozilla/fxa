@@ -18,9 +18,11 @@ import {
   createMockSyncDesktopV3Integration,
   createMockWebIntegration,
 } from '../../../lib/integrations/mocks';
+import { Constants } from '../../../lib/constants';
 
 // TODO: combine a lot of mocks with AccountRecoveryResetPassword
 const fxDesktopV3ContextParam = { context: 'fx_desktop_v3' };
+const oauthSyncContextParam = { context: Constants.OAUTH_WEBCHANNEL_CONTEXT };
 
 export const mockAccountNoRecoveryKey = {
   resetPasswordStatus: () => Promise.resolve(true),
@@ -58,6 +60,10 @@ export const mockCompleteResetPasswordParams = {
 export const paramsWithSyncDesktop = {
   ...mockCompleteResetPasswordParams,
   ...fxDesktopV3ContextParam,
+};
+export const paramsWithSyncOAuth = {
+  ...mockCompleteResetPasswordParams,
+  ...oauthSyncContextParam,
 };
 
 export const paramsWithMissingEmail = {
@@ -101,7 +107,9 @@ export const Subject = ({
   switch (integrationType) {
     case IntegrationType.OAuth:
       completeResetPasswordIntegration =
-        createMockResetPasswordOAuthIntegration();
+        createMockResetPasswordOAuthIntegration(
+          params.context === Constants.OAUTH_WEBCHANNEL_CONTEXT
+        );
       break;
     case IntegrationType.SyncDesktopV3:
       completeResetPasswordIntegration = createMockSyncDesktopV3Integration();
@@ -131,9 +139,12 @@ export const Subject = ({
   );
 };
 
-function createMockResetPasswordOAuthIntegration(): CompleteResetPasswordOAuthIntegration {
+function createMockResetPasswordOAuthIntegration(
+  isSync = false
+): CompleteResetPasswordOAuthIntegration {
   return {
     type: IntegrationType.OAuth,
+    isSync: () => isSync,
     data: {
       uid: MOCK_UID,
     },

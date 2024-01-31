@@ -9,6 +9,9 @@ import {
   SyncIntegrationFeatures,
 } from './sync-basic-integration';
 
+/**
+ * Sync desktop with context=fx_desktop_v3 (FF < 123)
+ */
 export function isSyncDesktopV3Integration(integration: {
   type: IntegrationType;
 }): integration is SyncDesktopV3Integration {

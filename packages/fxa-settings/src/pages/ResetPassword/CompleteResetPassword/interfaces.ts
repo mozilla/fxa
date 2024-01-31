@@ -4,7 +4,11 @@
 
 import { IntegrationSubsetType } from '../../../lib/integrations';
 import { LinkStatus } from '../../../lib/types';
-import { IntegrationType, OAuthIntegrationData } from '../../../models';
+import {
+  IntegrationType,
+  OAuthIntegration,
+  OAuthIntegrationData,
+} from '../../../models';
 import { CompleteResetPasswordLink } from '../../../models/reset-password/verification';
 
 export enum CompleteResetPasswordErrorType {
@@ -37,6 +41,7 @@ export interface CompleteResetPasswordParams {
 export interface CompleteResetPasswordOAuthIntegration {
   type: IntegrationType.OAuth;
   data: { uid: OAuthIntegrationData['uid'] };
+  isSync: () => ReturnType<OAuthIntegration['isSync']>;
 }
 
 export type CompleteResetPasswordIntegration =

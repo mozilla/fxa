@@ -7,8 +7,8 @@ import Signup from '.';
 import { MozServices } from '../../lib/types';
 import {
   IntegrationType,
-  isOAuthIntegration,
   isSyncDesktopV3Integration,
+  isSyncOAuthIntegration,
 } from '../../models';
 import { mockUrlQueryData } from '../../models/mocks';
 import { SignupQueryParams } from '../../models/pages/signup';
@@ -119,7 +119,7 @@ export const Subject = ({
 }) => {
   const urlQueryData = mockUrlQueryData(queryParams);
   const queryParamModel = new SignupQueryParams(urlQueryData);
-  const isSyncOAuth = isOAuthIntegration(integration) && integration.isSync();
+  const isSyncOAuth = isSyncOAuthIntegration(integration);
   return (
     <LocationProvider>
       <Signup

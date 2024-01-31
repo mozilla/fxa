@@ -4,6 +4,7 @@
 
 import {
   BaseIntegration,
+  Integration,
   IntegrationFeatures,
   IntegrationType,
   RelierAccount,
@@ -49,6 +50,13 @@ export function isOAuthIntegration(integration: {
 }): integration is OAuthIntegration {
   return (integration as OAuthIntegration).type === IntegrationType.OAuth;
 }
+
+/**
+ * Sync mobile or sync desktop with context=oauth_webchannel_v1 (FF 123+)
+ */
+export const isSyncOAuthIntegration = (
+  integration: Pick<Integration, 'type'>
+) => isOAuthIntegration(integration) && integration.isSync();
 
 // TODO: probably move this somewhere else
 export class OAuthIntegrationData extends BaseIntegrationData {

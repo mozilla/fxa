@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
+  isSyncOAuthIntegration,
   useFtlMsgResolver,
 } from '../../models';
 import {
@@ -222,7 +223,10 @@ export const Signup = ({
         const getOfferedSyncEngines = () =>
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
-        if (isSyncDesktopV3Integration(integration)) {
+        if (
+          isSyncDesktopV3Integration(integration) ||
+          isSyncOAuthIntegration(integration)
+        ) {
           await firefox.fxaLogin({
             email,
             keyFetchToken: data.SignUp.keyFetchToken,

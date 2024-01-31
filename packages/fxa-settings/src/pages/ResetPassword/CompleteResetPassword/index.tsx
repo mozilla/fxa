@@ -11,10 +11,10 @@ import {
   settingsViewName,
 } from '../../../lib/metrics';
 import {
-  IntegrationType,
   useAccount,
-  isOAuthIntegration,
   useFtlMsgResolver,
+  isSyncDesktopV3Integration,
+  isSyncOAuthIntegration,
 } from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
@@ -222,33 +222,20 @@ const CompleteResetPassword = ({
         );
 
         let isHardNavigate = false;
-        switch (integration.type) {
-          // NOTE: SyncBasic check is temporary until we implement codes
-          // See https://docs.google.com/document/d/1K4AD69QgfOCZwFLp7rUcMOkOTslbLCh7jjSdR9zpAkk/edit#heading=h.kkt4eylho93t
-          case IntegrationType.SyncDesktopV3:
-          case IntegrationType.SyncBasic:
-            firefox.fxaLoginSignedInUser({
-              authAt: accountResetData.authAt,
-              email,
-              keyFetchToken: accountResetData.keyFetchToken,
-              sessionToken: accountResetData.sessionToken,
-              uid: accountResetData.uid,
-              unwrapBKey: accountResetData.unwrapBKey,
-              verified: accountResetData.verified,
-            });
-            break;
-          case IntegrationType.OAuth:
-            // allows a navigation to a "complete" screen or TOTP screen if it is setup
-            // TODO: check if relier has state
-            if (isOAuthIntegration(integration)) {
-              // TODO: Consider redirecting back to RP, after success message is displayed.
-              // NOTE: To fully sign in, totp must performed if 2FA is enabled.
-            }
-            break;
-          case IntegrationType.Web:
-            // TODO: Consider redirecting back to settings after success message is displayed.
-            // NOTE: To fully sign in, totp must be performed if 2FA is enabled.
-            break;
+
+        if (
+          isSyncDesktopV3Integration(integration) ||
+          isSyncOAuthIntegration(integration)
+        ) {
+          firefox.fxaLoginSignedInUser({
+            authAt: accountResetData.authAt,
+            email,
+            keyFetchToken: accountResetData.keyFetchToken,
+            sessionToken: accountResetData.sessionToken,
+            uid: accountResetData.uid,
+            unwrapBKey: accountResetData.unwrapBKey,
+            verified: accountResetData.verified,
+          });
         }
 
         if (!isHardNavigate) {
