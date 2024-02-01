@@ -35042,7 +35042,7 @@ fsevents@~2.1.1:
     proxyquire: ^2.1.3
     punycode.js: 2.3.0
     qrcode: ^1.5.1
-    read: 2.1.0
+    read: 3.0.1
     redlock: ^5.0.0-beta.2
     request: ^2.88.2
     rimraf: ^5.0.0
@@ -47410,7 +47410,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mute-stream@npm:~1.0.0":
+"mute-stream@npm:^1.0.0":
   version: 1.0.0
   resolution: "mute-stream@npm:1.0.0"
   checksum: 36fc968b0e9c9c63029d4f9dc63911950a3bdf55c9a87f58d3a266289b67180201cade911e7699f8b2fa596b34c9db43dad37649e3f7fdd13c3bb9edb0017ee7
@@ -54001,12 +54001,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"read@npm:2.1.0":
-  version: 2.1.0
-  resolution: "read@npm:2.1.0"
+"read@npm:3.0.1":
+  version: 3.0.1
+  resolution: "read@npm:3.0.1"
   dependencies:
-    mute-stream: ~1.0.0
-  checksum: e745999138022b56d32daf7cce9b7552b2ec648e4e2578d076a410575a0a400faf74f633dd74ef1b1c42563397d322c1ad5a0068471c38978b02ef97056c2991
+    mute-stream: ^1.0.0
+  checksum: 65fdc31c18f457b08a4f6eea3624cbbe82f82d5f297f256062278627ed897381d1637dd494ba7419dd3c5ed73fb21a4cef1342748c6e108b0f8fc7f627a0b281
   languageName: node
   linkType: hard
 
