@@ -15,7 +15,7 @@ import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import firefox from '../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { currentAccount } from '../../lib/cache';
+import { currentAccount, discardSessionToken } from '../../lib/cache';
 import { useMutation, useQuery } from '@apollo/client';
 import { AVATAR_QUERY, BEGIN_SIGNIN_MUTATION } from './gql';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
@@ -29,7 +29,7 @@ import {
   LocationState,
   SigninContainerIntegration,
 } from './interfaces';
-import { getCredentials } from 'fxa-auth-client/browser';
+import { getCredentials } from 'fxa-auth-client/lib/crypto';
 import { GraphQLError } from 'graphql';
 import {
   AuthUiErrorNos,
@@ -170,7 +170,6 @@ const SigninContainer = ({
             },
           },
         });
-
         return { data };
       } catch (error) {
         const graphQLError: GraphQLError = error.graphQLErrors?.[0];
@@ -180,6 +179,7 @@ const SigninContainer = ({
               [key: string]: any;
             };
           return {
+            data: null,
             error: {
               errno,
               verificationReason,
@@ -239,12 +239,18 @@ const SigninContainer = ({
             verificationMethod,
             verificationReason,
             verified,
-            sessionVerified,
+            sessionVerified, // might not need
             emailVerified, // might not need
           },
         };
       } catch (error: any) {
-        const { errno } = error;
+        // If 'invalid token' is received from profile server, it means
+        // the session token has expired
+        let { errno } = error;
+        if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
+          errno = AuthUiErrors.SESSION_EXPIRED.errno;
+          discardSessionToken();
+        }
         return {
           data: null,
           error: {

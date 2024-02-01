@@ -63,9 +63,14 @@ export interface BeginSigninResultError {
   verificationMethod?: VerificationMethods;
 }
 
+export type BeginSigninResultHandlerError = BeginSigninResultError & {
+  message: string;
+  ftlId: string;
+};
+
 export interface BeginSigninResult {
   data?: BeginSigninResponse | null;
-  error?: BeginSigninResultError & { message: string; ftlId: string };
+  error?: BeginSigninResultHandlerError;
 }
 
 export type CachedSigninHandler = (
@@ -78,6 +83,12 @@ export interface RecoveryEmailStatusResponse {
   emailVerified: boolean;
 }
 
+export interface CachedSigninHandlerError {
+  errno: number;
+  ftlId: string;
+  message: string;
+}
+
 export interface CachedSigninHandlerResponse {
   data:
     | ({
@@ -85,7 +96,7 @@ export interface CachedSigninHandlerResponse {
         verificationReason: VerificationReasons;
       } & RecoveryEmailStatusResponse)
     | null;
-  error?: { errno: number; ftlId: string; message: string };
+  error?: CachedSigninHandlerError;
 }
 
 export interface SigninFormData {

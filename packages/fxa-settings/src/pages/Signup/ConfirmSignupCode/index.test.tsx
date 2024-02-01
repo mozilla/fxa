@@ -17,8 +17,7 @@ import {
   Subject,
   createMockWebIntegration,
 } from './mocks';
-import { StoredAccountData } from '../../../lib/storage-utils';
-import { MOCK_EMAIL, MOCK_SESSION_TOKEN, MOCK_UID } from '../../mocks';
+import { MOCK_STORED_ACCOUNT } from '../../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { ConfirmSignupCodeIntegration } from './interfaces';
@@ -47,15 +46,6 @@ jest.mock('../../../lib/glean', () => ({
 }));
 
 jest.mock('../../../lib/hooks/useWebRedirect');
-
-const MOCK_STORED_ACCOUNT: StoredAccountData = {
-  uid: MOCK_UID,
-  lastLogin: Date.now(),
-  email: MOCK_EMAIL,
-  sessionToken: MOCK_SESSION_TOKEN,
-  metricsEnabled: true,
-  verified: false,
-};
 
 jest.mock('../../../lib/cache', () => ({
   ...jest.requireActual('../../../lib/cache'),

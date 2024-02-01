@@ -142,8 +142,6 @@ const Signin = ({
           navigate('/signin_token_code');
         }
         // Verified account, but session hasn't been verified
-      } else if (sessionVerified === false) {
-        navigate('/signin_token_code');
       } else {
         navigate('/settings');
       }
