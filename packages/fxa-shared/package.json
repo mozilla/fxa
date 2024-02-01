@@ -274,7 +274,7 @@
     "@types/superagent": "^4.1.11",
     "@types/uuid": "^8.3.1",
     "audit-filter": "^0.5.0",
-    "chai": "^4.3.6",
+    "chai": "^5.0.3",
     "chance": "^1.1.8",
     "esbuild": "^0.17.15",
     "esbuild-register": "^3.2.0",
