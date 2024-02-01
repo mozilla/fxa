@@ -172,6 +172,7 @@ async function run(config) {
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: database,
     oauthDb,
+    push,
     pushbox,
     statsd,
   });

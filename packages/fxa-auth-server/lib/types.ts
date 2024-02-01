@@ -84,15 +84,6 @@ export interface AuthLogger extends Logger {
   ): Promise<void>;
 }
 
-// Exporting this here to avoid a circular dependency.  Can be moved to
-// lib/account-delete if we are ever at full ESM.
-export const AccountDeleteReasonsMap = {
-  unverified: 'fxa_unverified_account_delete',
-  requested: 'fxa_user_requested_account_delete',
-  cleanup: 'fxa_partial_data_cleanup_account_delete',
-} as const;
-export const AccountDeleteReasons = Object.values(AccountDeleteReasonsMap);
-
 // Container token types
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');

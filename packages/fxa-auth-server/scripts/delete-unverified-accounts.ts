@@ -3,23 +3,26 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Command } from 'commander';
-import { parseDryRun } from './lib/args';
-import { AccountDeleteManager } from '../lib/account-delete';
-import { Container } from 'typedi';
-import { StripeHelper, createStripeHelper } from '../lib/payments/stripe';
 import { StatsD } from 'hot-shots';
-import { setupFirestore } from '../lib/firestore-db';
-import { AccountDeleteReasonsMap, AuthFirestore } from '../lib/types';
-import { CurrencyHelper } from '../lib/payments/currencies';
+import { Container } from 'typedi';
+
 import appConfig from '../config';
-import initLog from '../lib/log';
-import { AuthLogger, AppConfig } from '../lib/types';
-import DB from '../lib/db';
-import Token from '../lib/tokens';
+import {
+  AccountDeleteManager,
+  ReasonForDeletionOptions,
+} from '../lib/account-delete';
 import * as random from '../lib/crypto/random';
-import initRedis from '../lib/redis';
+import DB from '../lib/db';
+import { setupFirestore } from '../lib/firestore-db';
+import initLog from '../lib/log';
 import oauthDb from '../lib/oauth/db';
+import { CurrencyHelper } from '../lib/payments/currencies';
+import { createStripeHelper, StripeHelper } from '../lib/payments/stripe';
 import { pushboxApi } from '../lib/pushbox';
+import initRedis from '../lib/redis';
+import Token from '../lib/tokens';
+import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
+import { parseDryRun } from './lib/args';
 
 const collect = () => (val: string, xs: string[]) => {
   xs.push(val);
@@ -117,7 +120,7 @@ const init = async () => {
   const hasEmail = program.email.length > 0;
   const hasDateRange =
     program.startDate && program.endDate && program.endDate > program.startDate;
-  const reason = AccountDeleteReasonsMap.unverified;
+  const reason = ReasonForDeletionOptions.Unverified;
 
   if (!hasUid && !hasEmail && !hasDateRange) {
     throw new Error(
@@ -176,6 +179,7 @@ const init = async () => {
     fxaDb,
     oauthDb,
     config,
+    push: {} as any, // Not needed when enqueuing
     pushbox,
     statsd,
   });

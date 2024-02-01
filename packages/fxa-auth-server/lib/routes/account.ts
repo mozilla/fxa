@@ -42,7 +42,10 @@ import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
-import { AccountDeleteManager } from '../account-delete';
+import {
+  AccountDeleteManager,
+  ReasonForDeletionOptions,
+} from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
@@ -1770,10 +1773,12 @@ export class AccountHandler {
     }
 
     const response = {
-      currentVersion: accountRecord.clientSalt ? 'v2' :'v1',
-      clientSalt: accountRecord.clientSalt ? accountRecord.clientSalt : undefined,
-      upgradeNeeded: !accountRecord.wrapWrapKbVersion2
-    }
+      currentVersion: accountRecord.clientSalt ? 'v2' : 'v1',
+      clientSalt: accountRecord.clientSalt
+        ? accountRecord.clientSalt
+        : undefined,
+      upgradeNeeded: !accountRecord.wrapWrapKbVersion2,
+    };
     return response;
   }
 
@@ -1839,27 +1844,13 @@ export class AccountHandler {
       }
     }
 
-    const { uid } = accountRecord;
-
-    // We fetch the devices to notify before deleteAccount()
-    // because obviously we can't retrieve the devices list after!
-    const devices = await this.db.devices(uid);
-    const push = this.push;
-    const log = this.log;
-
-    const notify = async () => {
-      try {
-        log.info('accountDeleted.byRequest', accountRecord as Account);
-        await push.notifyAccountDestroyed(uid, devices);
-        await log.notifyAttachedServices('delete', request, { uid });
-        await request.emitMetricsEvent('account.deleted', { uid });
-      } catch (error) {
-        log.error('Account.destroy.notify', { uid, error });
-      }
-    };
-
-    await this.accountDeleteManager.deleteAccount(uid, '', { notify });
-
+    await this.accountDeleteManager.quickDelete(
+      accountRecord.uid,
+      ReasonForDeletionOptions.UserRequested
+    );
+    await request.emitMetricsEvent('account.deleted', {
+      uid: accountRecord.uid,
+    });
     return {};
   }
 
