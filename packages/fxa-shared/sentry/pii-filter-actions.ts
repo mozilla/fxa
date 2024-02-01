@@ -244,11 +244,16 @@ export class EmailFilter extends PiiRegexFilter {
       if (url.pathname) {
         url.pathname = url.pathname.replace(this.regex, this.replaceWith);
       }
-      val = decodeURI(url.toString());
+      try {
+        val = decodeURI(url.toString());
+      } catch {
+        // Fallback incase the replaces made the url invalid
+        val = url.toString();
+      }
     }
 
     // Encode/decode to work around weird cases like email='foo@bar.com' which is
-    // technically a valid email, but ill advised an unlikely. Even if a user had
+    // technically a valid email, but ill advised and unlikely. Even if a user had
     // this odd example email, the majority of the email would stripped, for example,
     // email='[Filtered]' thereby eliminating PII.
     this.encode.forEach((x, i) => {
