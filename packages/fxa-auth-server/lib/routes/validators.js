@@ -8,7 +8,6 @@
 const { URL } = require('url');
 const punycode = require('punycode.js');
 const isA = require('joi');
-const { AccountDeleteReasons } = require('../types');
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
   minimalConfigSchema,
@@ -865,7 +864,3 @@ module.exports.thirdPartyProvider = isA
 
 module.exports.thirdPartyIdToken = module.exports.jwt.optional();
 module.exports.thirdPartyOAuthCode = isA.string().optional();
-
-module.exports.accountDeleteReason = isA
-  .string()
-  .valid(...AccountDeleteReasons);
