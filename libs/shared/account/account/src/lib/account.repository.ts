@@ -61,3 +61,14 @@ export function createAccount(db: AccountDatabase, account: NewAccount) {
     return true;
   });
 }
+
+/**
+ * Get accounts for array of uids
+ */
+export function getAccounts(db: AccountDatabase, uids: Buffer[]) {
+  return db
+    .selectFrom('accounts')
+    .selectAll()
+    .where('uid', 'in', uids)
+    .execute();
+}
