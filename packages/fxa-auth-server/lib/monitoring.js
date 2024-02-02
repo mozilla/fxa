@@ -10,6 +10,7 @@ const logger = require('./log')(
   'configure-sentry'
 );
 const { version } = require('../package.json');
+const { ignoreErrors } = require('./error');
 
 /**
  * Initialize sentry & otel
@@ -40,6 +41,14 @@ const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
  * @param {Sentry.Event} event
  */
 function filterSentryEvent(event, hint) {
+  // If we encounter a WError, we likely want to filter it out. These errors are
+  // intentionally relayed to the client, and don't constitute unexpected errors.
+  // Note, that these might arrive here from our reportSentryError function, or
+  // some other instrumentation that has captured the error.
+  if (hint?.originalException != null && ignoreErrors(hint.originalException)) {
+    return null;
+  }
+
   if (event.breadcrumbs) {
     for (const bc of event.breadcrumbs) {
       if (bc.message) {

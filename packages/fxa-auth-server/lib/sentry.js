@@ -7,7 +7,8 @@
 const Hoek = require('@hapi/hoek');
 const Sentry = require('@sentry/node');
 const verror = require('verror');
-const { ERRNO } = require('./error');
+const { ignoreErrors } = require('./error');
+
 const {
   formatMetadataValidationErrorMessage,
   reportValidationError,
@@ -16,13 +17,6 @@ const {
 // prefer not to include in Sentry reports.
 const TOKENREGEX = /[a-fA-F0-9]{32,}/gi;
 const FILTERED = '[Filtered]';
-
-// Maintain list of errors that should not be sent to Sentry
-const IGNORED_ERROR_NUMBERS = [
-  ERRNO.BOUNCE_HARD,
-  ERRNO.BOUNCE_SOFT,
-  ERRNO.BOUNCE_COMPLAINT,
-];
 
 function reportSentryError(err, request) {
   let exception = '';
@@ -147,40 +141,6 @@ async function configureSentry(server, config, processName = 'key_server') {
       }
     });
   }
-}
-
-/**
- * Prevents errors from being captured in sentry.
- *
- * @param {Error} error An error with an error number. Note that errors of type vError will
- *                use the underlying jse_cause error if possible.
- */
-function ignoreErrors(error) {
-  if (!error) {
-    return;
-  }
-
-  // Prefer jse_cause, but fallback to top level error if needed
-  const statusCode =
-    determineStatusCode(error.jse_cause) || determineStatusCode(error);
-
-  const errno = error.jse_cause?.errno || error.errno;
-
-  // Ignore non 500 status codes and specific error numbers
-  return statusCode < 500 || IGNORED_ERROR_NUMBERS.includes(errno);
-}
-
-/**
- * Given an error tries to determine the HTTP status code associated with the error.
- * @param {*} error
- * @returns
- */
-function determineStatusCode(error) {
-  if (!error) {
-    return;
-  }
-
-  return error.statusCode || error.output?.statusCode || error.code;
 }
 
 module.exports = {
