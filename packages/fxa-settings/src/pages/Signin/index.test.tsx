@@ -93,7 +93,7 @@ function thirdPartyAuthRendered() {
 }
 function signInButtonAndSeparatorRendered() {
   screen.getByRole('button', { name: 'Sign in' });
-  screen.getByText('Or');
+  screen.getByText('or');
 }
 function passwordInputRendered() {
   screen.getByLabelText('Password');

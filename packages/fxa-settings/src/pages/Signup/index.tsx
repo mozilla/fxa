@@ -461,12 +461,13 @@ export const Signup = ({
         )}
       </FormPasswordWithBalloons>
 
+      {/* Third party auth is not currently supported for sync */}
+      {!isSync && <ThirdPartyAuth />}
+
       <TermsPrivacyAgreement
         isPocketClient={client === MozServices.Pocket}
         isMonitorClient={client === MozServices.Monitor}
       />
-      {/* Third party auth is not currently supported for sync */}
-      {!isSync && <ThirdPartyAuth />}
     </AppLayout>
   );
 };
