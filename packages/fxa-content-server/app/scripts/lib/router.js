@@ -469,7 +469,12 @@ Router = Router.extend({
       type: VerificationReasons.SIGN_IN,
     }),
     'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
-    'signin_unblock(/)': createViewHandler(SignInUnblockView),
+    'signin_unblock(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_unblock',
+        SignInUnblockView
+      );
+    },
     'signin_verified(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_verified',

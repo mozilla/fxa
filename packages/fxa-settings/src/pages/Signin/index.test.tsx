@@ -286,9 +286,49 @@ describe('Signin', () => {
             expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
           });
         });
-        // it('handles error due to throttled or request blocked', async () => {
-        // TODO with FXA-9030
-        // });
+
+        it('handles error due to throttled or blocked request', async () => {
+          const beginSigninHandler = jest.fn().mockReturnValueOnce(
+            createBeginSigninResponseError({
+              errno: AuthUiErrors.THROTTLED.errno,
+            })
+          );
+          const sendUnblockEmailHandler = jest.fn().mockReturnValueOnce({});
+          render({ beginSigninHandler, sendUnblockEmailHandler });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(sendUnblockEmailHandler).toHaveBeenCalled();
+            expect(mockNavigate).toHaveBeenCalledWith('/signin_unblock', {
+              state: {
+                email: MOCK_EMAIL,
+                hasLinkedAccount: false,
+                hasPassword: true,
+                password: MOCK_PASSWORD,
+              },
+            });
+          });
+        });
+
+        it('handles error on request to send unblock email', async () => {
+          const beginSigninHandler = jest.fn().mockReturnValueOnce(
+            createBeginSigninResponseError({
+              errno: AuthUiErrors.THROTTLED.errno,
+            })
+          );
+          const sendUnblockEmailHandler = jest
+            .fn()
+            .mockReturnValueOnce({ localizedErrorMessage: 'Some error' });
+          render({ beginSigninHandler, sendUnblockEmailHandler });
+
+          enterPasswordAndSubmit();
+          await waitFor(() => {
+            expect(sendUnblockEmailHandler).toHaveBeenCalled();
+            expect(mockNavigate).not.toHaveBeenCalled();
+            expect(screen.getByText('Some error')).toBeInTheDocument();
+          });
+        });
+
         it('handles error due to hard bounce or email complaint', async () => {
           const beginSigninHandler = jest.fn().mockReturnValueOnce(
             createBeginSigninResponseError({
@@ -461,7 +501,7 @@ describe('Signin', () => {
   });
 });
 
-// TODO in OAuth ticket:
+// TODO in FXA-6518 OAuth ticket:
 //   expect(pocketTermsLink).toHaveAttribute(
 //     'href',
 //     'https://getpocket.com/tos/'

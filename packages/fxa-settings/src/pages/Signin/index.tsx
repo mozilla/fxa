@@ -20,7 +20,7 @@ import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
-import { SigninFormData, SigninProps } from './interfaces';
+import { NavigationOptions, SigninFormData, SigninProps } from './interfaces';
 import Avatar from '../../components/Settings/Avatar';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import classNames from 'classnames';
@@ -31,9 +31,11 @@ import {
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import { useForm } from 'react-hook-form';
 import Banner, { BannerType } from '../../components/Banner';
-import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import VerificationMethods from '../../constants/verification-methods';
-import VerificationReasons from '../../constants/verification-reasons';
+import {
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from '../../lib/auth-errors/auth-errors';
+import { getNavigationTarget } from './utils';
 
 export const viewName = 'signin';
 
@@ -50,19 +52,23 @@ const Signin = ({
   hasLinkedAccount,
   beginSigninHandler,
   cachedSigninHandler,
+  sendUnblockEmailHandler,
   hasPassword,
   avatarData,
   avatarLoading,
+  localizedErrorFromLocationState,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
+  const [localizedBannerMessage, setLocalizedBannerMessage] = useState(
+    localizedErrorFromLocationState || ''
+  );
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
     useState<string>('');
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
-  const [bannerErrorText, setBannerErrorText] = useState<string>('');
 
   const isOAuth = isOAuthIntegration(integration);
   const isPocketClient = isOAuth && isClientPocket(integration.getService());
@@ -101,65 +107,8 @@ const Signin = ({
     }
   }, [isPasswordNeededRef]);
 
-  const navigationHandler = useCallback(
-    ({
-      verified,
-      verificationReason,
-      verificationMethod,
-      sessionVerified,
-    }: {
-      verified: boolean;
-      verificationReason: VerificationReasons;
-      verificationMethod: VerificationMethods;
-      sessionVerified?: boolean;
-    }) => {
-      // Note, all navigations are missing query params. Add these when working on
-      // subsequent tickets.
-      if (!verified) {
-        // TODO: Does force password change ever reach here, or can we move
-        // CHANGE_PASSWORD checks to another page?
-        if (
-          ((verificationReason === VerificationReasons.SIGN_IN ||
-            verificationReason === VerificationReasons.CHANGE_PASSWORD) &&
-            verificationMethod === VerificationMethods.TOTP_2FA) ||
-          (isOAuth && integration.wantsTwoStepAuthentication())
-        ) {
-          // TODO with signin_totp_code ticket, content server says this (double check it):
-          // Login requests that ask for 2FA but don't have it setup on their account
-          // will return an error.
-          navigate('/signin_totp_code', {
-            state: { verificationReason, verificationMethod },
-          });
-        } else if (verificationReason === VerificationReasons.SIGN_UP) {
-          // do we need this?
-          // if (verificationMethod !== VerificationMethods.EMAIL_OTP) {
-          //  send email verification since this screen doesn't do it automatically
-          // }
-          navigate('/confirm_signup_code');
-        } else {
-          // TODO: Pretty sure we want this to be the default. The check used to be:
-          // if (
-          //   verificationMethod === VerificationMethods.EMAIL_OTP &&
-          //   (verificationReason === VerificationReasons.SIGN_IN || verificationReason === VerificationReasons.CHANGE_PASSWORD)) {
-          navigate('/signin_token_code', {
-            state: {
-              email,
-              // TODO: FXA-9177 We may want to store this in local apollo cache
-              // instead of passing it via location state, depending on
-              // if we reference it in another spot or two and if we need
-              // some action to happen dependent on it that should occur
-              // without first reaching /signin.
-              verificationReason,
-            },
-          });
-        }
-        // Verified account, but session hasn't been verified
-      } else {
-        navigate('/settings');
-      }
-    },
-    [integration, isOAuth, navigate, email]
-  );
+  const wantsTwoStepAuthentication =
+    isOAuth && integration.wantsTwoStepAuthentication();
 
   const signInWithCachedAccount = useCallback(
     async (sessionToken: hexstring) => {
@@ -171,17 +120,38 @@ const Signin = ({
       if (data) {
         GleanMetrics.cachedLogin.success();
 
-        navigationHandler(data);
+        const navigationOptions: NavigationOptions = {
+          email,
+          verified: data.verified,
+          verificationMethod: data.verificationMethod,
+          verificationReason: data.verificationReason,
+          sessionVerified: data.sessionVerified,
+          wantsTwoStepAuthentication,
+        };
+
+        const { to, state } = getNavigationTarget(navigationOptions);
+        state ? navigate(to, { state }) : navigate(to);
       }
       if (error) {
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
           isPasswordNeededRef.current = true;
         }
-        setBannerErrorText(ftlMsgResolver.getMsg(error.ftlId, error.message));
+        setLocalizedBannerMessage(localizedErrorMessage);
         setSigninLoading(false);
       }
     },
-    [cachedSigninHandler, ftlMsgResolver, navigationHandler]
+    [
+      cachedSigninHandler,
+      email,
+      ftlMsgResolver,
+      navigate,
+      setLocalizedBannerMessage,
+      wantsTwoStepAuthentication,
+    ]
   );
 
   const signInWithPassword = useCallback(
@@ -204,47 +174,58 @@ const Signin = ({
         };
 
         storeAccountData(accountData);
-        navigationHandler(data.signIn);
+
+        const navigationOptions: NavigationOptions = {
+          email,
+          verified: data.signIn.verified,
+          verificationMethod: data.signIn.verificationMethod,
+          verificationReason: data.signIn.verificationReason,
+          wantsTwoStepAuthentication,
+        };
+
+        const { to, state } = getNavigationTarget(navigationOptions);
+        state ? navigate(to, { state }) : navigate(to);
       }
       if (error) {
         GleanMetrics.login.error({ reason: error.message });
-        const { message, ftlId, errno } = error;
+        const { errno } = error;
+
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
 
         if (
           errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
           errno === AuthUiErrors.INCORRECT_PASSWORD.errno
         ) {
-          setPasswordTooltipErrorText(ftlMsgResolver.getMsg(ftlId, message));
+          setLocalizedBannerMessage('');
+          setPasswordTooltipErrorText(localizedErrorMessage);
         } else {
           switch (errno) {
             case AuthUiErrors.THROTTLED.errno:
             case AuthUiErrors.REQUEST_BLOCKED.errno:
-              if (
-                error.verificationReason === VerificationReasons.SIGN_IN &&
-                error.verificationMethod === VerificationMethods.EMAIL_CAPTCHA
-              ) {
-                // TODO: This is a copy-and-paste from content-server.
-                // Check the comment and send the unblock email. FXA-9030
-                //
+              const { localizedErrorMessage: unblockErrorMessage } =
+                await sendUnblockEmailHandler(email);
+              if (unblockErrorMessage) {
                 // Sending the unblock email could itself be rate limited.
                 // If it is, the error should be displayed on this screen
                 // and the user shouldn't even have the chance to continue.
-                // return account.sendUnblockEmail().then(() => {
-                //   return this.navigate('signin_unblock', {
-                //     account: account,
-                //     lastPage: this.currentPage,
-                //     password: password,
-                //   });
-                // });
-              } else {
-                // TODO: This is a copy-and-paste from content-server.
-                // Check if we should display the error message on this screen
-                // and/or what the behavior is. FXA-9030
-                //
-                // Signin is blocked and cannot be unblocked, show the
-                // error at another level.
-                // return Promise.reject(err);
+                setLocalizedBannerMessage(unblockErrorMessage);
+                setSigninLoading(false);
+                break;
               }
+              // navigate only if sending the unblock code email is successful
+              navigate('/signin_unblock', {
+                state: {
+                  email,
+                  password,
+                  // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword from state
+                  // will be stored in Apollo cache at the container level
+                  hasPassword,
+                  hasLinkedAccount,
+                },
+              });
               break;
             case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
             case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
@@ -252,18 +233,29 @@ const Signin = ({
               break;
             case AuthUiErrors.TOTP_REQUIRED.errno:
             case AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno:
-              // TODO in Oauth ticket (this isn't in AuthUiErrors)
+              // TODO in FXA-6518 Oauth ticket (this isn't in AuthUiErrors)
               // case OAuthError.MISMATCH_ACR_VALUES.errno:
               navigate('/inline_totp_setup');
               break;
             default:
+              setLocalizedBannerMessage(localizedErrorMessage);
+              setSigninLoading(false);
               break;
           }
-          setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
         }
       }
     },
-    [beginSigninHandler, email, ftlMsgResolver, navigate, navigationHandler]
+    [
+      beginSigninHandler,
+      email,
+      ftlMsgResolver,
+      hasLinkedAccount,
+      hasPassword,
+      navigate,
+      sendUnblockEmailHandler,
+      setLocalizedBannerMessage,
+      wantsTwoStepAuthentication,
+    ]
   );
 
   const onSubmit = useCallback(
@@ -307,9 +299,9 @@ const Signin = ({
           {...{ serviceName }}
         />
       )}
-      {bannerErrorText && (
+      {localizedBannerMessage && (
         <Banner type={BannerType.error}>
-          <p>{bannerErrorText}</p>
+          <p>{localizedBannerMessage}</p>
         </Banner>
       )}
       <div className="mt-9">
@@ -410,7 +402,7 @@ const Signin = ({
           </a>
         </FtlMsg>
         {!hasLinkedAccountAndNoPassword && (
-          <FtlMsg id="signin-forgot-password">
+          <FtlMsg id="signin-forgot-password-link">
             <Link
               // TODO, pass params?
               to="/reset_password"

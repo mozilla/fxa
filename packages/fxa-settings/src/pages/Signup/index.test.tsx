@@ -39,6 +39,7 @@ import {
   getSyncEngineIds,
   syncEngineConfigs,
 } from '../../components/ChooseWhatToSync/sync-engines';
+import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 
 jest.mock('../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -676,7 +677,7 @@ describe('Signup page', () => {
       await fillOutForm();
       submit();
 
-      await screen.findByText(BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE.error.message);
+      await screen.findByText(AuthUiErrors.UNEXPECTED_ERROR.message);
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });

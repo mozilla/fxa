@@ -4,7 +4,8 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { AccountAvatar, HandledError } from '../../lib/interfaces';
+import { AuthUiError } from '../../lib/auth-errors/auth-errors';
+import { AccountAvatar } from '../../lib/interfaces';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 
@@ -25,6 +26,7 @@ export interface LocationState {
   email?: string;
   hasLinkedAccount?: boolean;
   hasPassword?: boolean;
+  localizedErrorMessage?: string;
 }
 
 export interface SigninProps {
@@ -32,18 +34,25 @@ export interface SigninProps {
   email: string;
   beginSigninHandler: BeginSigninHandler;
   cachedSigninHandler: CachedSigninHandler;
+  sendUnblockEmailHandler: SendUnblockEmailHandler;
   sessionToken?: hexstring;
   hasLinkedAccount: boolean;
   hasPassword: boolean;
   serviceName: MozServices;
   avatarData: AvatarResponse | undefined;
   avatarLoading: boolean;
+  localizedErrorFromLocationState?: string;
 }
 
 export type BeginSigninHandler = (
   email: string,
   password: string
 ) => Promise<BeginSigninResult>;
+
+export interface BeginSigninResult {
+  data?: BeginSigninResponse | null;
+  error?: BeginSigninError;
+}
 
 export interface BeginSigninResponse {
   signIn: {
@@ -57,18 +66,13 @@ export interface BeginSigninResponse {
   };
 }
 
-export interface BeginSigninResultError {
+export interface BeginSigninError {
   errno: number;
+  message: string;
   verificationReason?: VerificationReasons;
   verificationMethod?: VerificationMethods;
-}
-
-export type BeginSigninResultHandlerError = BeginSigninResultError &
-  HandledError;
-
-export interface BeginSigninResult {
-  data?: BeginSigninResponse | null;
-  error?: BeginSigninResultHandlerError;
+  retryAfter?: number;
+  retryAfterLocalized?: string;
 }
 
 export type CachedSigninHandler = (
@@ -82,13 +86,11 @@ export interface RecoveryEmailStatusResponse {
 }
 
 export interface CachedSigninHandlerResponse {
-  data:
-    | ({
-        verificationMethod: VerificationMethods;
-        verificationReason: VerificationReasons;
-      } & RecoveryEmailStatusResponse)
-    | null;
-  error?: HandledError;
+  data?: {
+    verificationMethod: VerificationMethods;
+    verificationReason: VerificationReasons;
+  } & RecoveryEmailStatusResponse;
+  error?: AuthUiError;
 }
 
 export interface SigninFormData {
@@ -127,4 +129,22 @@ export interface GetAccountKeysResponse {
     kA: string;
     wrapKB: string;
   };
+}
+
+export type SendUnblockEmailHandler = (
+  email: string
+) => Promise<SendUnblockEmailHandlerResponse>;
+
+// TODO fill in expected response
+export interface SendUnblockEmailHandlerResponse {
+  localizedErrorMessage?: string;
+}
+
+export interface NavigationOptions {
+  email?: string;
+  sessionVerified?: boolean;
+  verificationReason: VerificationReasons;
+  verificationMethod: VerificationMethods;
+  verified: boolean;
+  wantsTwoStepAuthentication?: boolean;
 }

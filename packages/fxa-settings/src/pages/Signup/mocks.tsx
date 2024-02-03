@@ -88,7 +88,6 @@ export const BEGIN_SIGNUP_HANDLER_RESPONSE_UNDER_18 = {
 };
 
 export const BEGIN_SIGNUP_HANDLER_FAIL_RESPONSE = {
-  data: null,
   error: {
     errno: 0,
     message: 'wham bam thank you Sam',

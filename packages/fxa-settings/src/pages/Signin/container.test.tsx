@@ -446,7 +446,7 @@ describe('signin container', () => {
         MOCK_VERIFICATION.verificationReason
       );
     });
-    it('handles error', async () => {
+    it('handles gql mutation error', async () => {
       mockBeginSigninMutation.mockImplementation(async () => {
         const gqlError = new GraphQLError(
           AuthUiErrors.INCORRECT_PASSWORD.message
@@ -463,109 +463,118 @@ describe('signin container', () => {
         });
       });
 
-      render();
-
+      await render();
       await waitFor(async () => {
         const result = await currentSigninProps?.beginSigninHandler(
           MOCK_EMAIL,
           MOCK_PASSWORD
         );
-        expect(result?.data).toBeNull();
+
+        expect(mockBeginSigninMutation).toBeCalledWith({
+          variables: {
+            input: {
+              email: MOCK_EMAIL,
+              authPW: MOCK_AUTH_PW,
+              options: {
+                verificationMethod: VerificationMethods.EMAIL_OTP,
+              },
+            },
+          },
+        });
+
+        expect(result?.data).toBeUndefined();
         expect(result?.error?.message).toEqual(
           AuthUiErrors.INCORRECT_PASSWORD.message
         );
       });
     });
+  });
 
-    describe('cachedSigninHandler', () => {
-      beforeEach(() => {
-        mockCurrentAccount(MOCK_STORED_ACCOUNT);
+  describe('cachedSigninHandler', () => {
+    beforeEach(() => {
+      mockCurrentAccount(MOCK_STORED_ACCOUNT);
+    });
+    it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
+      render();
+
+      await waitFor(async () => {
+        expect(currentSigninProps).toBeDefined();
       });
-      it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
-        render();
+      const handlerResult = await currentSigninProps?.cachedSigninHandler(
+        MOCK_SESSION_TOKEN
+      );
+      expect(mockAuthClient.accountProfile).toBeCalledWith(MOCK_SESSION_TOKEN);
+      expect(mockAuthClient.recoveryEmailStatus).toBeCalledWith(
+        MOCK_SESSION_TOKEN
+      );
+      expect(handlerResult?.data?.verificationMethod).toEqual(
+        VerificationMethods.EMAIL_OTP
+      );
+      expect(handlerResult?.data?.verificationReason).toEqual(
+        VerificationReasons.SIGN_IN
+      );
+      expect(handlerResult?.data?.verified).toEqual(true);
+      expect(handlerResult?.data?.sessionVerified).toEqual(true);
+      expect(handlerResult?.data?.emailVerified).toEqual(true);
+    });
+    it('returns TOTP_2FA verification method and SIGN_UP verification reason when expected', async () => {
+      mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
+        authenticationMethods: ['pwd', 'email', 'otp'],
+      });
+      mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
+        verified: true,
+        sessionVerified: true,
+        emailVerified: false,
+      });
 
-        await waitFor(async () => {
-          expect(currentSigninProps).toBeDefined();
-        });
+      render();
+      await waitFor(async () => {
         const handlerResult = await currentSigninProps?.cachedSigninHandler(
           MOCK_SESSION_TOKEN
         );
-        expect(mockAuthClient.accountProfile).toBeCalledWith(
-          MOCK_SESSION_TOKEN
-        );
-        expect(mockAuthClient.recoveryEmailStatus).toBeCalledWith(
-          MOCK_SESSION_TOKEN
-        );
         expect(handlerResult?.data?.verificationMethod).toEqual(
-          VerificationMethods.EMAIL_OTP
+          VerificationMethods.TOTP_2FA
         );
         expect(handlerResult?.data?.verificationReason).toEqual(
-          VerificationReasons.SIGN_IN
+          VerificationReasons.SIGN_UP
         );
-        expect(handlerResult?.data?.verified).toEqual(true);
-        expect(handlerResult?.data?.sessionVerified).toEqual(true);
-        expect(handlerResult?.data?.emailVerified).toEqual(true);
+        expect(handlerResult?.data?.emailVerified).toEqual(false);
       });
-      it('returns TOTP_2FA verification method and SIGN_UP verification reason when expected', async () => {
-        mockAuthClient.accountProfile = jest.fn().mockResolvedValue({
-          authenticationMethods: ['pwd', 'email', 'otp'],
-        });
-        mockAuthClient.recoveryEmailStatus = jest.fn().mockResolvedValue({
-          verified: true,
-          sessionVerified: true,
-          emailVerified: false,
-        });
+    });
 
-        render();
-        await waitFor(async () => {
-          const handlerResult = await currentSigninProps?.cachedSigninHandler(
-            MOCK_SESSION_TOKEN
-          );
-          expect(handlerResult?.data?.verificationMethod).toEqual(
-            VerificationMethods.TOTP_2FA
-          );
-          expect(handlerResult?.data?.verificationReason).toEqual(
-            VerificationReasons.SIGN_UP
-          );
-          expect(handlerResult?.data?.emailVerified).toEqual(false);
-        });
+    it('handles invalid token error', async () => {
+      mockAuthClient.accountProfile = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
+      render();
+
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.cachedSigninHandler(
+          MOCK_SESSION_TOKEN
+        );
+        expect(CacheModule.discardSessionToken).toHaveBeenCalled();
+        expect(handlerResult?.data).toBeUndefined();
+        expect(handlerResult?.error?.errno).toEqual(
+          AuthUiErrors.SESSION_EXPIRED.errno
+        );
+        expect(handlerResult?.error?.message).toEqual(
+          AuthUiErrors.SESSION_EXPIRED.message
+        );
       });
-      it('handles invalid token error', async () => {
-        mockAuthClient.accountProfile = jest.fn().mockRejectedValue({
-          errno: AuthUiErrors.INVALID_TOKEN.errno,
-        });
-        render();
+    });
+    it('handles other errors', async () => {
+      mockAuthClient.recoveryEmailStatus = jest
+        .fn()
+        .mockRejectedValue(AuthUiErrors.UNEXPECTED_ERROR);
+      render();
 
-        await waitFor(async () => {
-          const handlerResult = await currentSigninProps?.cachedSigninHandler(
-            MOCK_SESSION_TOKEN
-          );
-          expect(CacheModule.discardSessionToken).toHaveBeenCalled();
-          expect(handlerResult?.data).toBeNull();
-          expect(handlerResult?.error?.errno).toEqual(
-            AuthUiErrors.SESSION_EXPIRED.errno
-          );
-          expect(handlerResult?.error?.message).toEqual(
-            AuthUiErrors.SESSION_EXPIRED.message
-          );
-        });
-      });
-      it('handles other errors', async () => {
-        mockAuthClient.recoveryEmailStatus = jest.fn().mockRejectedValue({
-          errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
-        });
-        render();
-
-        await waitFor(async () => {
-          const handlerResult = await currentSigninProps?.cachedSigninHandler(
-            MOCK_SESSION_TOKEN
-          );
-          expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
-          expect(handlerResult?.data).toBeNull();
-          expect(handlerResult?.error?.message).toEqual(
-            AuthUiErrors.UNEXPECTED_ERROR.message
-          );
-        });
+      await waitFor(async () => {
+        const handlerResult = await currentSigninProps?.cachedSigninHandler(
+          MOCK_SESSION_TOKEN
+        );
+        expect(CacheModule.discardSessionToken).not.toHaveBeenCalled();
+        expect(handlerResult?.data).toBeUndefined();
+        expect(handlerResult?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
       });
     });
   });

@@ -15,13 +15,13 @@ import FormVerifyCode, {
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
-  AuthUiError,
   AuthUiErrors,
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
+import { BeginSigninError } from '../interfaces';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
@@ -31,7 +31,7 @@ export type SigninTotpCodeProps = {
   // TODO: Switch to gql error shaped object
   submitTotpCode: (
     totpCode: string
-  ) => Promise<{ error?: AuthUiError; status: boolean }>;
+  ) => Promise<{ error?: BeginSigninError; status: boolean }>;
   handleNavigation: () => void;
   serviceName?: MozServices;
 };
@@ -65,12 +65,12 @@ export const SigninTotpCode = ({
   };
 
   const onSubmit = async (code: string) => {
+    setGeneralError('');
+    setCodeErrorMessage('');
+
     const { status, error } = await submitTotpCode(code);
     GleanMetrics.loginConfirmation.submit();
     logViewEvent('flow', `${viewName}.submit`);
-
-    setGeneralError('');
-    setCodeErrorMessage('');
     setSuccess(status);
 
     if (error) {

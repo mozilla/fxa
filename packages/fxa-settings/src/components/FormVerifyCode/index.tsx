@@ -10,9 +10,17 @@ import { logViewEvent } from '../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { useFtlMsgResolver } from '../../models';
 
+export enum InputModeEnum {
+  text = 'text',
+  tel = 'tel',
+  email = 'email',
+  numeric = 'numeric',
+}
+
 export type FormAttributes = {
   inputLabelText: string;
   inputFtlId: string;
+  inputMode?: InputModeEnum;
   pattern: string;
   maxLength: number;
   submitButtonText: string;
@@ -27,6 +35,7 @@ export type FormVerifyCodeProps = {
   codeErrorMessage: string;
   setCodeErrorMessage: React.Dispatch<React.SetStateAction<string>>;
   setClearMessages?: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading?: boolean;
 };
 
 type FormData = {
@@ -94,14 +103,15 @@ const FormVerifyCode = ({
   return (
     <form
       noValidate
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 my-6"
       onSubmit={handleSubmit(onSubmit)}
     >
-      {/* Using `type="text" inputmode="numeric"` shows the numeric pad on mobile and strips out whitespace on desktop. */}
+      {/* Using `type="text" inputmode="numeric"` shows the numeric keyboard on mobile
+      and strips out whitespace on desktop, but does not add an incrementer. */}
       <InputText
         name="code"
         type="text"
-        inputMode="numeric"
+        inputMode={formAttributes.inputMode || InputModeEnum.numeric}
         label={localizedLabel}
         onChange={
           setClearMessages

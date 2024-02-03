@@ -94,7 +94,6 @@ export function mockSession(
     verified,
     token: 'deadc0de',
   } as Session;
-
   if (typeof jest !== 'undefined') {
     session.destroy = isError
       ? jest.fn().mockRejectedValue(new Error())
@@ -106,7 +105,6 @@ export function mockSession(
       ? jest.fn().mockRejectedValue(new Error())
       : jest.fn().mockResolvedValue(true);
     session.isSessionVerified = jest.fn().mockResolvedValue(session.verified);
-    return session;
   } else {
     session.destroy = isError
       ? () => Promise.reject(new Error())
@@ -118,8 +116,9 @@ export function mockSession(
       ? () => Promise.reject(new Error())
       : () => Promise.resolve();
     session.isSessionVerified = () => Promise.resolve(session.verified);
-    return session;
   }
+
+  return session;
 }
 
 export function mockStorage() {
