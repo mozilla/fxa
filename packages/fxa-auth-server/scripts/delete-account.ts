@@ -39,9 +39,6 @@ import {
 } from '../lib/types';
 
 const config = configProperties.getProperties();
-const log = require('../lib/log')(config.log.level);
-const Token = require('../lib/tokens')(log, config);
-const DB = require('../lib/db')(config, log, Token);
 const mailer = null;
 
 const statsd = {
@@ -49,6 +46,11 @@ const statsd = {
   timing: () => {},
   close: () => {},
 };
+const log = require('../lib/log')(config.log.level, 'delete-account-script', {
+  statsd,
+});
+const Token = require('../lib/tokens')(log, config);
+const DB = require('../lib/db')(config, log, Token);
 
 Container.set(StatsD, statsd);
 Container.set(AppConfig, config);
@@ -84,7 +86,7 @@ DB.connect(config).then(async (db: any) => {
     return Promise.resolve(false);
   };
 
-  const push = require('../lib/push')(log, db, config);
+  const push = require('../lib/push')(log, db, config, statsd);
   const oauthDB = require('../lib/oauth/db');
   const { pushboxApi } = require('../lib/pushbox');
   const pushbox = pushboxApi(log, config, statsd);
@@ -173,7 +175,8 @@ DB.connect(config).then(async (db: any) => {
             app: {
               clientAddress: '0.0.0.0',
             },
-            emitMetricsEvent: () => {
+            emitMetricsEvent: async () => {
+              log.activityEvent({ uid: account.uid, event: 'account.deleted' });
               return Promise.resolve();
             },
             gatherMetricsContext: () => {
