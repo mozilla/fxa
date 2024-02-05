@@ -1774,6 +1774,7 @@ export enum PurchaseOrder {
 export type Query = {
   __typename?: 'Query';
   _entities: Array<Maybe<_Entity>>;
+  _node: Maybe<_Node>;
   _service: _Service;
   asset: Maybe<Asset>;
   assetCollection: Maybe<AssetCollection>;
@@ -1800,6 +1801,12 @@ export type Query = {
 
 export type Query_EntitiesArgs = {
   representations: Array<Scalars['_Any']['input']>;
+};
+
+export type Query_NodeArgs = {
+  id: Scalars['ID']['input'];
+  locale: InputMaybe<Scalars['String']['input']>;
+  preview: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 export type QueryAssetArgs = {
@@ -2317,6 +2324,10 @@ export type _Entity =
   | PurchaseDetails
   | Service
   | SubGroup;
+
+export type _Node = {
+  _id: Scalars['ID']['output'];
+};
 
 export type _Service = {
   __typename?: '_Service';
