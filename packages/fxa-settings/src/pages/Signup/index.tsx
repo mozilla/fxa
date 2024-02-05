@@ -47,6 +47,11 @@ import { MozServices } from '../../lib/types';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import firefox from '../../lib/channels/firefox';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import {
+  AuthUiErrors,
+  composeAuthUiErrorTranslationId,
+} from '../../lib/auth-errors/auth-errors';
+import { isEmailMask } from 'fxa-shared/email/helpers';
 
 export const viewName = 'signup';
 
@@ -194,6 +199,17 @@ export const Signup = ({
         navigate('/cannot_create_account');
         return;
       }
+
+      // Disable creating accounts with email masks
+      if (isEmailMask(email)) {
+        const message = 'Email masks can’t be used to create an account.';
+        const ftlId = composeAuthUiErrorTranslationId({
+          errno: AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno,
+        });
+        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+        return;
+      }
+
       setBeginSignupLoading(true);
 
       const atLeast18AtReg = Number(age) >= 18 ? true : null;

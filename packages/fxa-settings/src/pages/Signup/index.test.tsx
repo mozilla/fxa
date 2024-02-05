@@ -359,6 +359,23 @@ describe('Signup page', () => {
       });
     });
 
+    describe('fails for Relay email masks', () => {
+      ['a@relay.firefox.com', 'b@mozmail.com', 'c@sub.mozmail.com'].forEach(
+        (mask) => {
+          it(`fails for mask ${mask}`, async () => {
+            renderWithLocalizationProvider(
+              <Subject queryParams={{ email: mask }} />
+            );
+            await fillOutForm();
+            submit();
+            await screen.findByText(
+              'Email masks can’t be used to create an account.'
+            );
+          });
+        }
+      );
+    });
+
     it('passes newsletter subscription options to the next screen', async () => {
       const mockBeginSignupHandler = jest
         .fn()

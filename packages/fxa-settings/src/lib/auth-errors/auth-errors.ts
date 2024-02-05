@@ -622,6 +622,10 @@ const ERRORS = {
     errno: 1065,
     message: 'The image file size is too large to be uploaded.',
   },
+  EMAIL_MASK_NEW_ACCOUNT: {
+    errno: 1066,
+    message: 'Email masks can’t be used to create an account.',
+  },
 };
 
 type ErrorKey = keyof typeof ERRORS;

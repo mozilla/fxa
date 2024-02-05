@@ -26,6 +26,7 @@ import checkEmailDomain from '../lib/email-domain-validator';
 import PocketMigrationMixin from './mixins/pocket-migration-mixin';
 import BrandMessagingMixin from './mixins/brand-messaging-mixin';
 import MonitorClientMixin from './mixins/monitor-client-mixin';
+import { isEmailMask } from 'fxa-shared/email/helpers';
 
 const EMAIL_SELECTOR = 'input[type=email]';
 
@@ -264,6 +265,15 @@ class IndexView extends FormView {
       .then(() => this.user.checkAccountStatus(account))
       .then(({ exists, hasPassword, hasLinkedAccount }) => {
         const nextEndpoint = exists ? 'signin' : 'signup';
+
+        // If a Relay email mask is being used for a new account, show an error
+        if (nextEndpoint === 'signup' && isEmailMask(email)) {
+          this.showValidationError(
+            EMAIL_SELECTOR,
+            AuthErrors.toError('EMAIL_MASK_NEW_ACCOUNT')
+          );
+          return;
+        }
 
         // Temporary hack for React work that allows us to pass the entered `email` as
         // a param. When 'signup' and 'signin' flows are both finished and we're ready,

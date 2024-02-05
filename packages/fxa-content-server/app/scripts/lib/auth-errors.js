@@ -624,6 +624,10 @@ var ERRORS = {
     errno: 1065,
     message: t('The image file size is too large to be uploaded.'),
   },
+  EMAIL_MASK_NEW_ACCOUNT: {
+    errno: 1066,
+    message: t('Email masks can’t be used to create an account.'),
+  },
 };
 
 export default _.extend({}, Errors, {
