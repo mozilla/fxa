@@ -217,6 +217,11 @@ async function create(log, error, config, routes, db, statsd, glean) {
         clientAddressIndex = 0;
       }
 
+      log.info('server.clientAddress', {
+        remote_address_chain: remoteAddressChain.join(','),
+        clientAddressIndex,
+      });
+
       return remoteAddressChain[clientAddressIndex];
     });
 
