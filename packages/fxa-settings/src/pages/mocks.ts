@@ -22,3 +22,12 @@ export const MOCK_AVATAR_NON_DEFAULT = {
   url: 'http://placekitten.com/512/512',
 };
 export const MOCK_AVATAR_DEFAULT = { id: null, url: null };
+export const MOCK_STORED_ACCOUNT = {
+  uid: MOCK_UID,
+  lastLogin: Date.now(),
+  email: MOCK_EMAIL,
+  sessionToken: MOCK_SESSION_TOKEN,
+  metricsEnabled: true,
+  verified: false,
+};
+export const MOCK_AUTH_PW = 'apw123';

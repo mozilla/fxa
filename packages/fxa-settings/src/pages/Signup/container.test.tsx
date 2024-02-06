@@ -275,20 +275,6 @@ describe('sign-up-container', () => {
   });
 
   describe('error-states', () => {
-    beforeEach(() => {
-      jest.spyOn(ApolloModule, 'useMutation').mockReturnValue([
-        async (...args: any[]) => {
-          return mockBeginSignupMutation(...args);
-        },
-        {
-          loading: false,
-          called: true,
-          client: {} as ApolloClient<any>,
-          reset: () => {},
-        },
-      ]);
-    });
-
     it('handles invalid email', async () => {
       // In this case want to mimic a bad email value
       jest

@@ -77,6 +77,23 @@ export function sessionToken(newToken?: hexstring) {
   }
 }
 
+/**
+ * Discard a session token deemed to be invalid.
+ */
+export function discardSessionToken() {
+  try {
+    // TODO: do we need to discard other values? See
+    // content-server's discardSessionToken
+    const account = currentAccount();
+    if (account) {
+      account.sessionToken = undefined;
+      currentAccount(account);
+    }
+  } catch (e) {
+    // noop
+  }
+}
+
 export function clearSignedInAccountUid() {
   const all = accounts() || {};
   const uid = storage.get('currentAccountUid') as hexstring;
