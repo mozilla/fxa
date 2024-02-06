@@ -13,7 +13,6 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('resubscribe successfully with the same coupon after canceling for stripe', async ({
-      page,
       pages: { relier, subscribe, login, settings, subscriptionManagement },
     }, { project }) => {
       test.skip(
@@ -65,7 +64,6 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('resubscribe successfully with the same coupon after canceling for paypal', async ({
-      page,
       pages: { relier, subscribe, login, settings, subscriptionManagement },
     }, { project }) => {
       test.skip(
@@ -115,7 +113,6 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('update mode of payment for stripe', async ({
-      page,
       pages: { relier, subscribe, login, settings, subscriptionManagement },
     }, { project }) => {
       test.skip(
@@ -148,13 +145,11 @@ test.describe('severity-2 #smoke', () => {
       expect(await subscriptionManagement.getCardInfo()).toContain('4444');
     });
 
-    //Disable as paypal sandbox is taking a long time to load
-    /*test('update mode of payment for paypal', async ({
-      page,
+    test('update mode of payment for paypal', async ({
       pages: { relier, subscribe, login, settings, subscriptionManagement },
     }, { project }) => {
       test.skip(
-        project.name !== 'local',
+        project.name === 'production',
         'no real payment method available in prod'
       );
       await relier.goto();
@@ -177,23 +172,7 @@ test.describe('severity-2 #smoke', () => {
       //Change Paypal information
       const paypalPage = await subscriptionManagement.clickPaypalChange();
       subscriptionManagement.page = paypalPage;
-
-      //Login to Paypal sandbox
-      await subscriptionManagement.loginPaypal();
-
-      //Verify the account as 'CREDIT UNION'
-      expect(await subscriptionManagement.checkPaypalAccount()).toContain(
-        'CREDIT UNION'
-      );
-
-      //Change account from 'Credit Union' to 'Visa'
-      await subscriptionManagement.updatePaypalAccount();
-
-      //Added this timeout wait for page to be loaded correctly
-      await page.waitForTimeout(2000);
-
-      //Verify that the payment info is updated
-      expect(await subscriptionManagement.checkPaypalAccount()).toContain('Visa');
-    });*/
+      expect(subscriptionManagement.page.url()).toContain('paypal.com/signin');
+    });
   });
 });

@@ -51,30 +51,6 @@ export class SubscriptionManagementPage extends BaseLayout {
     return paypalWindow;
   }
 
-  async loginPaypal() {
-    await this.page.locator('input[type=password]').fill('Ah4SboP6UDZx95I');
-    await this.page.locator('button[id=btnLogin]').click();
-  }
-
-  async updatePaypalAccount() {
-    await this.page.locator('#fundingLink').click();
-    await this.page.waitForLoadState();
-    const cardOption = this.page.locator(
-      'input[type="radio"][data-type="CREDIT_CARD"]'
-    );
-    await cardOption.click();
-    const saveChanges = this.page.locator('button[name="SaveFI"]');
-    await saveChanges.click();
-    const submit = this.page.locator('button[name="modalClose"]');
-    await submit.click();
-  }
-
-  async checkPaypalAccount() {
-    const account = this.page.locator('#fundingLink');
-    await account.waitFor({ state: 'visible' });
-    return account.textContent();
-  }
-
   async fillSupportForm() {
     await this.page.locator('[data-testid="contact-support-button"]').click();
     await this.page.locator('#product_chosen a.chosen-single').click();

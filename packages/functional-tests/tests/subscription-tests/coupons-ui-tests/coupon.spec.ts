@@ -17,7 +17,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       test.skip(
         project.name === 'production',
-        'test plan not yet available in prod'
+        'test plan not available in prod'
       );
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -36,7 +36,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       test.skip(
         project.name === 'production',
-        'test plan not yet available in prod'
+        'test plan not available in prod'
       );
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -206,7 +206,7 @@ test.describe('severity-2 #smoke', () => {
     }, { project }) => {
       test.skip(
         project.name === 'production',
-        'test plan not yet available in prod'
+        'test plan not available in prod'
       );
 
       await relier.goto();

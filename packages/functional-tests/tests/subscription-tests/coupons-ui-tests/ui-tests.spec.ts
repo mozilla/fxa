@@ -7,22 +7,18 @@ import { MetricsObserver } from '../../../lib/metrics';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('ui functionality', () => {
-    let metricsObserver: MetricsObserver;
-
-    test.beforeEach(({ pages: { subscribe } }) => {
-      test.slow();
-      metricsObserver = new MetricsObserver(subscribe);
-      metricsObserver.startTracking();
-    });
-
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
-      page,
       pages: { relier, subscribe },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      test.slow();
+
+      const metricsObserver = new MetricsObserver(subscribe);
+      metricsObserver.startTracking();
+
       await relier.goto();
       await relier.clickSubscribe6Month();
 
