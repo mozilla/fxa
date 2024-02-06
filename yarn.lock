@@ -14125,18 +14125,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@opentelemetry/instrumentation-document-load@npm:~0.34.0":
-  version: 0.34.0
-  resolution: "@opentelemetry/instrumentation-document-load@npm:0.34.0"
+"@opentelemetry/instrumentation-document-load@npm:~0.35.0":
+  version: 0.35.0
+  resolution: "@opentelemetry/instrumentation-document-load@npm:0.35.0"
   dependencies:
     "@opentelemetry/core": ^1.8.0
-    "@opentelemetry/instrumentation": ^0.45.1
+    "@opentelemetry/instrumentation": ^0.48.0
     "@opentelemetry/sdk-trace-base": ^1.0.0
     "@opentelemetry/sdk-trace-web": ^1.15.0
     "@opentelemetry/semantic-conventions": ^1.0.0
   peerDependencies:
     "@opentelemetry/api": ^1.3.0
-  checksum: 41a99987650951f8d5e5e7060eb04fd82ac31d8fa6e9ab64aadcbae89bff00658328a0a5b6a6c1944d40792c03345de70a009260daa61db32c4669a8e8b35515
+  checksum: 2ebcf4310141c2de5d7c9f5f6fea623c59ddcd9b5a0cd1e00764c415576219b7af7fbd8278227571ae84363fe4693f5254b2b1bfa86b648c3ef6240aac429fa2
   languageName: node
   linkType: hard
 
@@ -14566,6 +14566,21 @@ __metadata:
   peerDependencies:
     "@opentelemetry/api": ^1.3.0
   checksum: 73df84c356064aaf2465f691001d6c165877d7204d2c66063b89dfa8b7206bc47442cd6dec88c40af86b104dbe72081c2e234376a63b3afaa529a9648ac016cd
+  languageName: node
+  linkType: hard
+
+"@opentelemetry/instrumentation@npm:^0.48.0":
+  version: 0.48.0
+  resolution: "@opentelemetry/instrumentation@npm:0.48.0"
+  dependencies:
+    "@types/shimmer": ^1.0.2
+    import-in-the-middle: 1.7.1
+    require-in-the-middle: ^7.1.1
+    semver: ^7.5.2
+    shimmer: ^1.2.1
+  peerDependencies:
+    "@opentelemetry/api": ^1.3.0
+  checksum: abd663f5a30941af2cf24a257add0d9166919f870874fe2daa390cdd5b06d5617f5cc2ac9b3b8f61016f78051f52ef2432d27da213125d59f4f961d678402f26
   languageName: node
   linkType: hard
 
@@ -38422,7 +38437,7 @@ fsevents@~2.1.1:
     "@opentelemetry/context-zone-peer-dep": ~1.7.0
     "@opentelemetry/exporter-jaeger": ~1.18.1
     "@opentelemetry/exporter-trace-otlp-http": ~0.45.1
-    "@opentelemetry/instrumentation-document-load": ~0.34.0
+    "@opentelemetry/instrumentation-document-load": ~0.35.0
     "@opentelemetry/instrumentation-fetch": ~0.45.1
     "@opentelemetry/instrumentation-user-interaction": ~0.34.0
     "@opentelemetry/instrumentation-xml-http-request": ~0.45.1
@@ -41647,6 +41662,18 @@ fsevents@~2.1.1:
     cjs-module-lexer: ^1.2.2
     module-details-from-path: ^1.0.3
   checksum: 52971f821e9a3c94834cd5cf0ab5178321c07d4f4babd547b3cb24c4de21670d05b42ca1523890e7e90525c3bba6b7db7e54cf45421919b0b2712a34faa96ea5
+  languageName: node
+  linkType: hard
+
+"import-in-the-middle@npm:1.7.1":
+  version: 1.7.1
+  resolution: "import-in-the-middle@npm:1.7.1"
+  dependencies:
+    acorn: ^8.8.2
+    acorn-import-assertions: ^1.9.0
+    cjs-module-lexer: ^1.2.2
+    module-details-from-path: ^1.0.3
+  checksum: 37cc8c75fb7eac60611bafafea7fc60f794d0931fdabcec516c8a26effe69e914b1f7e8116e98549c6fdd1fe88dcaebfdebf35d7f52c761b48b312e40f3bf323
   languageName: node
   linkType: hard
 
