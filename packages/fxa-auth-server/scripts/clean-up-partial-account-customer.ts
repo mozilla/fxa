@@ -6,24 +6,23 @@ import { Command } from 'commander';
 import { AccountCustomers } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
+
 import appConfig from '../config';
-import { AccountDeleteManager } from '../lib/account-delete';
+import {
+  AccountDeleteManager,
+  ReasonForDeletionOptions,
+} from '../lib/account-delete';
 import * as random from '../lib/crypto/random';
 import DB from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
 import initLog from '../lib/log';
 import oauthDb from '../lib/oauth/db';
 import { CurrencyHelper } from '../lib/payments/currencies';
-import { StripeHelper, createStripeHelper } from '../lib/payments/stripe';
+import { createStripeHelper, StripeHelper } from '../lib/payments/stripe';
 import { pushboxApi } from '../lib/pushbox';
 import initRedis from '../lib/redis';
 import Token from '../lib/tokens';
-import {
-  AccountDeleteReasonsMap,
-  AppConfig,
-  AuthFirestore,
-  AuthLogger,
-} from '../lib/types';
+import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
 
 const dryRun = async (program: Command, limit: number) => {
@@ -67,7 +66,7 @@ const init = async () => {
   program.parse(process.argv);
   const isDryRun = parseDryRun(program.dryRun);
   const limit = program.limit ? parseInt(program.limit) : Infinity;
-  const reason = AccountDeleteReasonsMap.cleanup;
+  const reason = ReasonForDeletionOptions.Cleanup;
 
   if (limit <= 0) {
     throw new Error('The limit should be a positive integer.');
@@ -113,6 +112,7 @@ const init = async () => {
     fxaDb,
     oauthDb,
     config,
+    push: {} as any, // Push isn't needed for enqueuing
     pushbox,
     statsd,
   });

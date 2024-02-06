@@ -9,15 +9,16 @@ const { default: Container } = require('typedi');
 const { AppConfig, AuthLogger } = require('../../lib/types');
 const mocks = require('../mocks');
 const uuid = require('uuid');
+const error = require('../../lib/error');
 
 const email = 'foo@example.com';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
-const customerId = 'cus_123';
 const expectedSubscriptions = [
   { uid, subscriptionId: '123' },
   { uid, subscriptionId: '456' },
   { uid, subscriptionId: '789' },
 ];
+const deleteReason = 'fxa_user_requested_account_delete';
 
 describe('AccountDeleteManager', function () {
   this.timeout(10000);
@@ -227,14 +228,13 @@ describe('AccountDeleteManager', function () {
 
   describe('delete account', function () {
     it('should delete the account', async () => {
-      const options = { notify: sandbox.stub().resolves() };
-
-      await accountDeleteManager.deleteAccount(uid, customerId, options);
+      mockPush.notifyAccountDestroyed = sinon.fake.resolves();
+      mockFxaDb.devices = sinon.fake.resolves(['test123', 'test456']);
+      await accountDeleteManager.deleteAccount(uid, deleteReason);
 
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
       });
-      sinon.assert.callCount(options.notify, 1);
       sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
       sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
 
@@ -250,14 +250,33 @@ describe('AccountDeleteManager', function () {
         mockAuthModels.deleteAllPayPalBAs,
         uid
       );
+      sinon.assert.calledOnceWithExactly(mockPush.notifyAccountDestroyed, uid, [
+        'test123',
+        'test456',
+      ]);
       sinon.assert.calledOnceWithExactly(mockPushbox.deleteAccount, uid);
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
+      sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
+        uid,
+        event: 'account.deleted',
+      });
+    });
+
+    it('should delete even if already deleted from fxa db', async () => {
+      const unkonwnError = error.unknownAccount('test@email.com');
+      mockFxaDb.account = sinon.fake.rejects(unkonwnError);
+      mockPush.notifyAccountDestroyed = sinon.fake.resolves();
+      await accountDeleteManager.deleteAccount(uid, deleteReason);
+      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
+      sinon.assert.callCount(mockPush.notifyAccountDestroyed, 0);
+      sinon.assert.callCount(mockFxaDb.deleteAccount, 0);
+      sinon.assert.callCount(mockLog.activityEvent, 0);
     });
 
     it('does not fail if pushbox fails to delete', async () => {
       mockPushbox.deleteAccount = sinon.fake.rejects();
       try {
-        await accountDeleteManager.deleteAccount(uid);
+        await accountDeleteManager.deleteAccount(uid, deleteReason);
       } catch (err) {
         assert.fail('no exception should have been thrown');
       }
@@ -268,7 +287,7 @@ describe('AccountDeleteManager', function () {
         throw new Error('wibble');
       });
       try {
-        await accountDeleteManager.deleteAccount(uid);
+        await accountDeleteManager.deleteAccount(uid, deleteReason);
         assert.fail('method should throw an error');
       } catch (err) {
         assert.isObject(err);
@@ -280,7 +299,7 @@ describe('AccountDeleteManager', function () {
         throw new Error('wibble');
       });
       try {
-        await accountDeleteManager.deleteAccount(uid);
+        await accountDeleteManager.deleteAccount(uid, deleteReason);
         assert.fail('method should throw an error');
       } catch (err) {
         assert.isObject(err);
@@ -288,26 +307,45 @@ describe('AccountDeleteManager', function () {
     });
   });
 
-  describe('clean up account', () => {
-    it('should clean up subscription and oauth related records', async () => {
-      await accountDeleteManager.cleanupAccount(uid);
+  describe('quickDelete', () => {
+    it('should delete the account and queue', async () => {
+      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
+      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
+      createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
+      await accountDeleteManager.quickDelete(uid, deleteReason);
 
-      sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
-      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
-
-      sinon.assert.calledOnceWithExactly(
-        mockAuthModels.getAllPayPalBAByUid,
-        uid
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockPaypalHelper.cancelBillingAgreement,
-        'B-test'
-      );
-      sinon.assert.calledOnceWithExactly(
-        mockAuthModels.deleteAllPayPalBAs,
-        uid
-      );
+      sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
+        uid,
+      });
+      sinon.assert.callCount(mockStripeHelper.fetchCustomer, 1);
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
+    });
+
+    it('should error if its not user requested', async () => {
+      try {
+        await accountDeleteManager.quickDelete(uid, 'not_user_requested');
+        assert.fail('method should throw an error');
+      } catch (err) {
+        assert.match(err.message, /^quickDelete only supports user/);
+      }
+    });
+
+    it('should enqueue if an error happens during delete', async () => {
+      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
+      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
+      createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
+      mockFxaDb.deleteAccount = sandbox.stub().throws();
+      await accountDeleteManager.quickDelete(uid, deleteReason);
+
+      sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
+        uid,
+      });
+      sinon.assert.callCount(mockStripeHelper.fetchCustomer, 1);
+      sinon.assert.callCount(mockOAuthDb.removeTokensAndCodes, 0);
+      sinon.assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'cloud-tasks.account-delete.enqueue.success'
+      );
     });
   });
 

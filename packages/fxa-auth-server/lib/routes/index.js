@@ -194,7 +194,7 @@ module.exports = function (
   );
 
   const { cloudTaskRoutes } = require('./cloud-tasks');
-  const cloudTasks = cloudTaskRoutes(log, db, config, push);
+  const cloudTasks = cloudTaskRoutes(log, config);
 
   let basePath = url.parse(config.publicUrl).path;
   if (basePath === '/') {
