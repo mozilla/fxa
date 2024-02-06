@@ -37278,7 +37278,7 @@ fsevents@~2.1.1:
     storybook-addon-rtl: ^0.5.0
     style-loader: ^3.3.3
     subscriptions-transport-ws: ^0.11.0
-    tailwindcss: ^3.0.2
+    tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
     typescript: ^5.2.2
     ua-parser-js: 1.0.35
@@ -37514,7 +37514,7 @@ fsevents@~2.1.1:
     stylelint: ^15.10.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^12.0.0
-    tailwindcss: ^3.3.3
+    tailwindcss: ^3.4.1
     ts-jest: 29.1.0
     ts-node: ^10.9.1
     tslib: ^2.5.0
@@ -44552,6 +44552,15 @@ fsevents@~2.1.1:
   bin:
     jiti: bin/jiti.js
   checksum: fdf55e315f9e81c04ae902416642062851d92c6cdcc17a59d5d1d35e1a0842e4e79be38da86613c5776fa18c579954542a441b93d1c347a50137dee2e558cbd0
+  languageName: node
+  linkType: hard
+
+"jiti@npm:^1.19.1":
+  version: 1.21.0
+  resolution: "jiti@npm:1.21.0"
+  bin:
+    jiti: bin/jiti.js
+  checksum: a7bd5d63921c170eaec91eecd686388181c7828e1fa0657ab374b9372bfc1f383cf4b039e6b272383d5cb25607509880af814a39abdff967322459cca41f2961
   languageName: node
   linkType: hard
 
@@ -60428,19 +60437,19 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^3.3.3":
-  version: 3.3.3
-  resolution: "tailwindcss@npm:3.3.3"
+"tailwindcss@npm:^3.4.1":
+  version: 3.4.1
+  resolution: "tailwindcss@npm:3.4.1"
   dependencies:
     "@alloc/quick-lru": ^5.2.0
     arg: ^5.0.2
     chokidar: ^3.5.3
     didyoumean: ^1.2.2
     dlv: ^1.1.3
-    fast-glob: ^3.2.12
+    fast-glob: ^3.3.0
     glob-parent: ^6.0.2
     is-glob: ^4.0.3
-    jiti: ^1.18.2
+    jiti: ^1.19.1
     lilconfig: ^2.1.0
     micromatch: ^4.0.5
     normalize-path: ^3.0.0
@@ -60457,7 +60466,7 @@ resolve@1.1.7:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: 0195c7a3ebb0de5e391d2a883d777c78a4749f0c532d204ee8aea9129f2ed8e701d8c0c276aa5f7338d07176a3c2a7682c1d0ab9c8a6c2abe6d9325c2954eb50
+  checksum: ef5a587dd32bb4e91e1549ead6162f85f0b78d3e6ffd8b4e8eeb15585b7b886cb3af6ae9df5092ed8ccb7e590608d1b3eec79ca08c862b07cd9ff7e72f73104b
   languageName: node
   linkType: hard
 
