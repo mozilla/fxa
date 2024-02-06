@@ -1812,30 +1812,53 @@ export class StripeHelper extends StripeHelperBase {
    * On FxA deletion, if the user is a Stripe Customer:
    * - delete the stripe customer to delete
    * - remove the cache entry
+   * - optionally update the subscription metadata to record metadata about the deletion
+   *
+   * @param updateActiveSubMetadata - Optional metadata to update the active subscriptions with
+   *                                  before removing the customer.
    */
-  async removeCustomer(uid: string) {
+  async removeCustomer(
+    uid: string,
+    updateActiveSubMetadata?: Record<string, string>
+  ) {
     const accountCustomer = await getAccountCustomerByUid(uid);
-    if (accountCustomer && accountCustomer.stripeCustomerId) {
-      const customer = await this.fetchCustomer(accountCustomer.uid, [
-        'invoice_settings.default_payment_method',
-      ]);
-      if (customer && customer.invoice_settings.default_payment_method) {
-        // detach the customer's payment method so we maybe won't get webhooks about it
+    if (!accountCustomer || !accountCustomer.stripeCustomerId) return;
+    const customer = await this.fetchCustomer(accountCustomer.uid, [
+      'invoice_settings.default_payment_method',
+    ]);
+    if (customer) {
+      // detach the customer's payment method so we maybe won't get webhooks about it
+      if (customer.invoice_settings.default_payment_method)
         await this.stripe.paymentMethods.detach(
           (
             customer.invoice_settings
               .default_payment_method as Stripe.PaymentMethod
           ).id
         );
+      // Only update metadata if we were passed an object with keys. Otherwise
+      // this would erase existing metadata if it were passed an empty object.
+      if (
+        updateActiveSubMetadata &&
+        Object.keys(updateActiveSubMetadata).length > 0
+      ) {
+        const activeSubscriptions =
+          customer.subscriptions?.data.filter((sub) =>
+            ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
+          ) || [];
+        for (const sub of activeSubscriptions) {
+          await this.stripe.subscriptions.update(sub.id, {
+            metadata: updateActiveSubMetadata,
+          });
+        }
       }
       await this.stripe.customers.del(accountCustomer.stripeCustomerId);
-      const recordsDeleted = await deleteAccountCustomer(uid);
-      if (recordsDeleted === 0) {
-        this.log.error(
-          `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
-          {}
-        );
-      }
+    }
+    const recordsDeleted = await deleteAccountCustomer(uid);
+    if (recordsDeleted === 0) {
+      this.log.error(
+        `StripeHelper.removeCustomer failed to remove AccountCustomer record for uid ${uid}`,
+        {}
+      );
     }
   }
 
