@@ -117,6 +117,39 @@ describe('CapabilityManager', () => {
       expect(Object.keys(result).length).toBe(0);
     });
 
+    it('should return empty results when there are no capability collection items', async () => {
+      const offeringResult = CapabilityOfferingResultFactory({
+        capabilitiesCollection: {
+          items: [],
+        },
+      });
+      mockResult.capabilityOfferingForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(offeringResult);
+      const result = await manager.planIdsToClientCapabilities(['planId1']);
+      expect(Object.keys(result).length).toBe(0);
+    });
+
+    it('should return empty results when there are no service collection items', async () => {
+      const offeringResult = CapabilityOfferingResultFactory({
+        capabilitiesCollection: {
+          items: [
+            CapabilityCapabilitiesResultFactory({
+              slug: 'slug1',
+              servicesCollection: {
+                items: [],
+              },
+            }),
+          ],
+        },
+      });
+      mockResult.capabilityOfferingForPlanId = jest
+        .fn()
+        .mockReturnValueOnce(offeringResult);
+      const result = await manager.planIdsToClientCapabilities(['planId1']);
+      expect(Object.keys(result).length).toBe(0);
+    });
+
     it('should return planIds to client capabilities', async () => {
       const offeringResult = CapabilityOfferingResultFactory({
         capabilitiesCollection: {
