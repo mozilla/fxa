@@ -51,10 +51,18 @@ export class CapabilityManager {
       const capabilityOffering =
         purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
 
-      if (!capabilityOffering) continue;
+      // continue if neither offering nor capabilities exist
+      if (
+        !capabilityOffering ||
+        !capabilityOffering?.capabilitiesCollection?.items
+      )
+        continue;
 
       for (const capabilityCollection of capabilityOffering
         .capabilitiesCollection.items) {
+        // continue if individual capability does not contain any services
+        if (!capabilityCollection.servicesCollection?.items) continue;
+
         for (const capability of capabilityCollection.servicesCollection
           .items) {
           result[capability.oauthClientId] ||= [];
