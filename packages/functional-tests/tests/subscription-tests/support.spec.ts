@@ -15,7 +15,7 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.contentServerUrl}/support`, {
         waitUntil: 'load',
       });
-      await login.waitForEmailHeader();
+      expect(await login.waitForEmailHeader()).toBe(true);
     });
   });
 
@@ -37,45 +37,17 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2 #smoke', () => {
   test.describe('support form with active subscriptions', () => {
-    test.beforeEach(() => {
-      test.slow();
-    });
-
-    test('go to support form, submits the form', async ({
-      pages: { login, relier, subscribe, settings, subscriptionManagement },
-    }, { project }) => {
-      test.skip(
-        project.name === 'production',
-        'no real payment method available in prod'
-      );
-      await relier.goto();
-      await relier.clickSubscribe();
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setFullName();
-      await subscribe.setCreditCardInfo();
-      await subscribe.clickPayNow();
-      await subscribe.submit();
-
-      //Login to FxA account
-      await login.goto();
-      await login.clickSignIn();
-      const subscriptionPage = await settings.clickPaidSubscriptions();
-      subscriptionManagement.page = subscriptionPage;
-      await subscriptionManagement.fillSupportForm();
-
-      //Since we don't have proper Zendesk config in CircleCI, the form cannot be successfully submitted
-      //await subscriptionManagement.submitSupportForm();
-      //expect(await subscriptionManagement.subscriptionManagementHeader()).toBe(true);
-    });
+    // Since we don't have a proper Zendesk config in CircleCI, the test
+    // case where a form is successfully submitted cannot be covered.
 
     test('go to support form, cancel, redirects to subscription management', async ({
-      page,
       pages: { login, relier, subscribe, settings, subscriptionManagement },
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      test.slow();
       await relier.goto();
       await relier.clickSubscribe();
       await subscribe.setConfirmPaymentCheckbox();

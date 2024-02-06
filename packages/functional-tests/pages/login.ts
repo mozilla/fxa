@@ -242,9 +242,9 @@ export class LoginPage extends BaseLayout {
   }
 
   async waitForEmailHeader() {
-    await this.page.waitForSelector(selectors.EMAIL_HEADER, {
-      timeout: 2000,
-    });
+    const emailHeader = this.page.locator(selectors.EMAIL_HEADER);
+    await emailHeader.waitFor({ state: 'visible', timeout: 2000 });
+    return emailHeader.isVisible();
   }
 
   async cannotCreateAccountHeader() {
