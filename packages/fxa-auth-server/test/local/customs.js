@@ -43,6 +43,7 @@ describe('Customs', () => {
 
   beforeEach(() => {
     sandbox.stub(statsd, 'increment');
+    sandbox.stub(statsd, 'timing');
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
@@ -741,6 +742,7 @@ describe('Customs', () => {
             ...tags,
           })
         );
+        assert.isTrue(statsd.timing.calledWithMatch('customs.check.success'));
       }
     });
 
@@ -756,6 +758,9 @@ describe('Customs', () => {
             action,
             ...tags,
           })
+        );
+        assert.isTrue(
+          statsd.timing.calledWithMatch('customs.checkIpOnly.success')
         );
       }
     });
@@ -780,6 +785,19 @@ describe('Customs', () => {
             }
           )
         );
+        assert.isTrue(
+          statsd.timing.calledWithMatch('customs.checkAuthenticated.success')
+        );
+      }
+    });
+
+    it('reports failure statsd timing', async () => {
+      customsServer.post('/check').reply(400, tags);
+      try {
+        await customsWithUrl.check(request, email, action);
+        assert.fail('should have failed');
+      } catch (err) {
+        assert.isTrue(statsd.timing.calledWithMatch('customs.check.failure'));
       }
     });
   });
