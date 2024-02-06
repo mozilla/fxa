@@ -249,7 +249,12 @@ describe('Signin', () => {
 
             enterPasswordAndSubmit();
             await waitFor(() => {
-              expect(mockNavigate).toHaveBeenCalledWith('/signin_token_code');
+              expect(mockNavigate).toHaveBeenCalledWith('/signin_token_code', {
+                state: {
+                  email: MOCK_EMAIL,
+                  verificationReason: VerificationReasons.SIGN_IN,
+                },
+              });
             });
           });
           it('navigates to /settings', async () => {

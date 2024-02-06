@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { RouteComponentProps, Router, useLocation } from '@reach/router';
+import {
+  RouteComponentProps,
+  Router,
+  useLocation,
+  useNavigate,
+} from '@reach/router';
 
 import { QueryParams } from '../..';
 
@@ -63,6 +68,7 @@ import SignupContainer from '../../pages/Signup/container';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 import WebChannelExample from '../../pages/WebChannelExample';
 import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
+import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -176,6 +182,7 @@ const SettingsRoutes = ({
   isSignedIn,
   integration,
 }: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
+  const navigate = useNavigate();
   const location = useLocation();
   // TODO: Remove this + config.sendFxAStatusOnSettings check once we confirm this works
   const config = useConfig();
@@ -201,9 +208,12 @@ const SettingsRoutes = ({
   });
 
   if (!isSignedIn && !shouldCheckFxaStatus) {
-    hardNavigateToContentServer(
-      `/signin?redirect_to=${encodeURIComponent(location.pathname)}`
-    );
+    const path = `/signin?redirect_to=${encodeURIComponent(location.pathname)}`;
+    if (config.showReactApp.signInRoutes) {
+      navigate(path);
+    } else {
+      hardNavigateToContentServer(path);
+    }
     return <LoadingSpinner fullScreen />;
   }
 
@@ -297,13 +307,17 @@ const AuthAndAccountSetupRoutes = ({
         {...{ isSignedIn, serviceName }}
       />
       <SigninReported path="/signin_reported/*" />
-      <SigninConfirmed
-        path="/signin_verified/*"
-        {...{ isSignedIn, serviceName }}
+      <SigninTokenCodeContainer
+        path="/signin_token_code/*"
+        {...{ integration }}
       />
       <SigninTotpCodeContainer
         path="/signin_totp_code/*"
         {...{ serviceName }}
+      />
+      <SigninConfirmed
+        path="/signin_verified/*"
+        {...{ isSignedIn, serviceName }}
       />
 
       {/* Signup */}

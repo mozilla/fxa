@@ -4,7 +4,7 @@
 
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
-import { AccountAvatar } from '../../lib/interfaces';
+import { AccountAvatar, HandledError } from '../../lib/interfaces';
 import { MozServices } from '../../lib/types';
 import { Integration } from '../../models';
 
@@ -63,10 +63,8 @@ export interface BeginSigninResultError {
   verificationMethod?: VerificationMethods;
 }
 
-export type BeginSigninResultHandlerError = BeginSigninResultError & {
-  message: string;
-  ftlId: string;
-};
+export type BeginSigninResultHandlerError = BeginSigninResultError &
+  HandledError;
 
 export interface BeginSigninResult {
   data?: BeginSigninResponse | null;
@@ -83,12 +81,6 @@ export interface RecoveryEmailStatusResponse {
   emailVerified: boolean;
 }
 
-export interface CachedSigninHandlerError {
-  errno: number;
-  ftlId: string;
-  message: string;
-}
-
 export interface CachedSigninHandlerResponse {
   data:
     | ({
@@ -96,7 +88,7 @@ export interface CachedSigninHandlerResponse {
         verificationReason: VerificationReasons;
       } & RecoveryEmailStatusResponse)
     | null;
-  error?: CachedSigninHandlerError;
+  error?: HandledError;
 }
 
 export interface SigninFormData {

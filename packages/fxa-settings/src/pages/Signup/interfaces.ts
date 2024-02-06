@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { HandledError } from '../../lib/interfaces';
 import {
   BaseIntegration,
   IntegrationType,
@@ -34,11 +35,7 @@ export type BeginSignupHandler = (
 
 export interface BeginSignupResult {
   data?: (BeginSignupResponse & { unwrapBKey: hexstring }) | null;
-  error?: {
-    errno: number;
-    message: string;
-    ftlId: string;
-  };
+  error?: HandledError;
 }
 
 export interface SignupProps {

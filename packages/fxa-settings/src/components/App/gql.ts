@@ -80,3 +80,17 @@ export const GET_PRODUCT_INFO = gql`
     }
   }
 `;
+
+/**
+ * This query fetches the current account TOTP (2FA Auth) status.
+ */
+export const GET_TOTP_STATUS = gql`
+  query GetTotpStatus {
+    account {
+      totp {
+        exists
+        verified
+      }
+    }
+  }
+`;

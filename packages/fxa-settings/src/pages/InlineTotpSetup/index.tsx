@@ -54,7 +54,7 @@ export const InlineTotpSetup = ({
   const [showQR, setShowQR] = useState(true);
   const [totpErrorMessage, setTotpErrorMessage] = useState('');
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     // TODO: Error message for empty field here or in FormVerifyCode?
     // Holding on l10n pending product decision
     // See FXA-6422, and discussion on PR-14744

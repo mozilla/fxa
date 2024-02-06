@@ -65,7 +65,7 @@ function applyDefaultMocks() {
   mockApolloClientModule();
   mockLocationState = {};
 
-  mockSignupModule();
+  mockSigninModule();
   mockModelsModule();
   mockUseValidateModule({ queryParams: MOCK_QUERY_PARAM_MODEL_NO_VALUES });
   mockCurrentAccount();
@@ -196,7 +196,7 @@ function mockAvatarUseQuery() {
 }
 
 let currentSigninProps: SigninProps | undefined;
-function mockSignupModule() {
+function mockSigninModule() {
   currentSigninProps = undefined;
   jest
     .spyOn(SigninModule, 'default')
@@ -219,7 +219,7 @@ function mockCryptoModule() {
   });
 }
 
-async function render() {
+function render() {
   renderWithLocalizationProvider(
     <LocationProvider>
       <SigninContainer
@@ -463,7 +463,7 @@ describe('signin container', () => {
         });
       });
 
-      await render();
+      render();
 
       await waitFor(async () => {
         const result = await currentSigninProps?.beginSigninHandler(

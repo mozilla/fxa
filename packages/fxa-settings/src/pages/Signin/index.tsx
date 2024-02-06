@@ -141,14 +141,24 @@ const Signin = ({
           // if (
           //   verificationMethod === VerificationMethods.EMAIL_OTP &&
           //   (verificationReason === VerificationReasons.SIGN_IN || verificationReason === VerificationReasons.CHANGE_PASSWORD)) {
-          navigate('/signin_token_code');
+          navigate('/signin_token_code', {
+            state: {
+              email,
+              // TODO: We may want to store this in local apollo cache
+              // instead of passing it via location state, depending on
+              // if we reference it in another spot or two and if we need
+              // some action to happen dependent on it that should occur
+              // without first reaching /signin.
+              verificationReason,
+            },
+          });
         }
         // Verified account, but session hasn't been verified
       } else {
         navigate('/settings');
       }
     },
-    [integration, isOAuth, navigate]
+    [integration, isOAuth, navigate, email]
   );
 
   const signInWithCachedAccount = useCallback(
