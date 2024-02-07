@@ -869,14 +869,8 @@ export class CapabilityService {
       if (this.logToSentry('getClients.NoMatch')) {
         Sentry.withScope((scope) => {
           scope.setContext('getClients', {
-            contentful: clientsFromContentful.map((service) => ({
-              ...service,
-              capabilities: service.capabilities.length,
-            })),
-            stripe: clientsFromStripe.map((service) => ({
-              ...service,
-              capabilities: service.capabilities.length,
-            })),
+            contentful: clientsFromContentful,
+            stripe: clientsFromStripe,
           });
           Sentry.captureMessage(
             `CapabilityService.getClients - Returned Stripe as clients did not match.`,
