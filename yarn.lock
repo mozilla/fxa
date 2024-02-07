@@ -37685,6 +37685,7 @@ fsevents@~2.1.1:
     storybook: ^7.0.23
     tailwindcss-dir: ^4.0.0
     ts-jest: ^29.1.0
+    tsc-alias: ^1.8.8
     typescript: ^5.2.2
     webpack: ^5.84.1
   languageName: unknown
@@ -62065,6 +62066,22 @@ resolve@1.1.7:
   bin:
     tsc-alias: dist/bin/index.js
   checksum: 77f721ea797a62a7cc74acda0baf928bb654bccb210471b63fef1e70a27a823c60f5832f51aa5976d573412bc90731e90774abf9127f3b6b13f284839f988d47
+  languageName: node
+  linkType: hard
+
+"tsc-alias@npm:^1.8.8":
+  version: 1.8.8
+  resolution: "tsc-alias@npm:1.8.8"
+  dependencies:
+    chokidar: ^3.5.3
+    commander: ^9.0.0
+    globby: ^11.0.4
+    mylas: ^2.1.9
+    normalize-path: ^3.0.0
+    plimit-lit: ^1.2.6
+  bin:
+    tsc-alias: dist/bin/index.js
+  checksum: 204852f75ce516c991813c371e4b3cda8767c50b6ad12b5c1b5f0227eb7e69fef559775fc829ba744b37dfd9930a1632dbabd62366a474fa0e174b2625ccb54f
   languageName: node
   linkType: hard
 

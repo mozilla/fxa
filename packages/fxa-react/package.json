@@ -93,6 +93,7 @@
     "sass-loader": "^14.1.0",
     "storybook": "^7.0.23",
     "ts-jest": "^29.1.0",
+    "tsc-alias": "^1.8.8",
     "typescript": "^5.2.2",
     "webpack": "^5.84.1"
   },
