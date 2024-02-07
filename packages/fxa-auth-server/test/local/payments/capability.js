@@ -1216,14 +1216,8 @@ describe('CapabilityService', () => {
       assert.deepEqual(clients, mockClientsFromStripe);
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful.map((service) => ({
-          ...service,
-          capabilities: service.capabilities.length,
-        })),
-        stripe: mockClientsFromStripe.map((service) => ({
-          ...service,
-          capabilities: service.capabilities.length,
-        })),
+        contentful: mockClientsFromContentful,
+        stripe: mockClientsFromStripe,
       });
       sinon.assert.calledOnceWithExactly(
         Sentry.captureMessage,
@@ -1235,14 +1229,8 @@ describe('CapabilityService', () => {
       await capabilityService.getClients();
 
       sinon.assert.calledOnceWithExactly(sentryScope.setContext, 'getClients', {
-        contentful: mockClientsFromContentful.map((service) => ({
-          ...service,
-          capabilities: service.capabilities.length,
-        })),
-        stripe: mockClientsFromStripe.map((service) => ({
-          ...service,
-          capabilities: service.capabilities.length,
-        })),
+        contentful: mockClientsFromContentful,
+        stripe: mockClientsFromStripe,
       });
     });
   });
