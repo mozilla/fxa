@@ -243,8 +243,8 @@ export default class AuthClient {
   private async request(
     method: string,
     path: string,
-    payload?: object | null,
-    headers: Headers = new Headers()
+    payload: object | null | undefined,
+    headers: Headers
   ) {
     headers.set('Content-Type', 'application/json');
     const response = await fetchOrTimeout(
@@ -275,8 +275,8 @@ export default class AuthClient {
     path: string,
     token: hexstring,
     kind: tokenType,
-    payload?: object,
-    extraHeaders: Headers = new Headers()
+    payload: object | undefined,
+    headers: Headers
   ) {
     const makeHeaders = async () => {
       const headers = await hawk.header(method, this.url(path), token, kind, {
@@ -284,7 +284,7 @@ export default class AuthClient {
         contentType: 'application/json',
         localtimeOffsetMsec: this.localtimeOffsetMsec,
       });
-      for (const [name, value] of extraHeaders) {
+      for (const [name, value] of headers) {
         headers.set(name, value);
       }
       return headers;
@@ -301,15 +301,26 @@ export default class AuthClient {
     }
   }
 
-  private async sessionGet(path: string, sessionToken: hexstring) {
-    return this.hawkRequest('GET', path, sessionToken, tokenType.sessionToken);
+  private async sessionGet(
+    path: string,
+    sessionToken: hexstring,
+    headers: Headers
+  ) {
+    return this.hawkRequest(
+      'GET',
+      path,
+      sessionToken,
+      tokenType.sessionToken,
+      undefined,
+      headers
+    );
   }
 
   private async sessionPost(
     path: string,
     sessionToken: hexstring,
     payload: object,
-    headers?: Headers
+    headers: Headers
   ) {
     return this.hawkRequest(
       'POST',
@@ -325,7 +336,7 @@ export default class AuthClient {
     path: string,
     sessionToken: hexstring,
     payload: object,
-    headers?: Headers
+    headers: Headers
   ) {
     return this.hawkRequest(
       'PUT',
@@ -557,8 +568,11 @@ export default class AuthClient {
     );
   }
 
-  async recoveryEmailStatus(sessionToken: hexstring) {
-    return this.sessionGet('/recovery_email/status', sessionToken);
+  async recoveryEmailStatus(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionGet('/recovery_email/status', sessionToken, headers);
   }
 
   async recoveryEmailResendCode(
@@ -653,12 +667,17 @@ export default class AuthClient {
     );
   }
 
-  async passwordForgotStatus(passwordForgotToken: string) {
+  async passwordForgotStatus(
+    passwordForgotToken: string,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'GET',
       '/password/forgot/status',
       passwordForgotToken,
-      tokenType.passwordForgotToken
+      tokenType.passwordForgotToken,
+      undefined,
+      headers
     );
   }
 
@@ -791,7 +810,8 @@ export default class AuthClient {
     code: string,
     provider: AUTH_PROVIDER = AUTH_PROVIDER.GOOGLE,
     service?: string,
-    metricsContext: MetricsContext = {}
+    metricsContext: MetricsContext = {},
+    headers: Headers = new Headers()
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
@@ -805,12 +825,18 @@ export default class AuthClient {
       service,
       metricsContext,
     };
-    return await this.request('POST', '/linked_account/login', payload);
+    return await this.request(
+      'POST',
+      '/linked_account/login',
+      payload,
+      headers
+    );
   }
 
   async unlinkThirdParty(
     sessionToken: hexstring,
-    providerId: number
+    providerId: number,
+    headers: Headers = new Headers()
   ): Promise<{ success: boolean }> {
     let provider: AUTH_PROVIDER;
 
@@ -823,14 +849,20 @@ export default class AuthClient {
         provider = AUTH_PROVIDER.GOOGLE;
       }
     }
-    return await this.sessionPost('/linked_account/unlink', sessionToken, {
-      provider,
-    });
+    return await this.sessionPost(
+      '/linked_account/unlink',
+      sessionToken,
+      {
+        provider,
+      },
+      headers
+    );
   }
 
   async accountKeys(
     keyFetchToken: hexstring,
-    unwrapBKey: hexstring
+    unwrapBKey: hexstring,
+    headers: Headers = new Headers()
   ): Promise<{
     kA: hexstring;
     kB: hexstring;
@@ -843,7 +875,9 @@ export default class AuthClient {
       'GET',
       '/account/keys',
       keyFetchToken,
-      tokenType.keyFetchToken
+      tokenType.keyFetchToken,
+      undefined,
+      headers
     );
     const keys = await crypto.unbundleKeyFetchResponse(
       credentials.bundleKey,
@@ -861,7 +895,8 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    sessionToken?: hexstring
+    sessionToken?: hexstring,
+    headers: Headers = new Headers()
   ): Promise<any> {
     const credentials = await crypto.getCredentials(email, password);
     const payload = {
@@ -873,10 +908,11 @@ export default class AuthClient {
         return await this.sessionPost(
           '/account/destroy',
           sessionToken,
-          payload
+          payload,
+          headers
         );
       } else {
-        return await this.request('POST', '/account/destroy', payload);
+        return await this.request('POST', '/account/destroy', payload, headers);
       }
     } catch (error: any) {
       if (
@@ -899,38 +935,54 @@ export default class AuthClient {
     }
   }
 
-  async accountStatus(uid: hexstring) {
-    return this.request('GET', `/account/status?uid=${uid}`);
+  async accountStatus(uid: hexstring, headers: Headers = new Headers()) {
+    return this.request(
+      'GET',
+      `/account/status?uid=${uid}`,
+      undefined,
+      headers
+    );
   }
 
   async accountStatusByEmail(
     email: string,
-    options: { thirdPartyAuthStatus?: boolean } = {}
+    options: { thirdPartyAuthStatus?: boolean } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.request('POST', '/account/status', { email, ...options });
+    return this.request(
+      'POST',
+      '/account/status',
+      { email, ...options },
+      headers
+    );
   }
 
-  async accountProfile(sessionToken: hexstring) {
-    return this.sessionGet('/account/profile', sessionToken);
+  async accountProfile(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionGet('/account/profile', sessionToken, headers);
   }
 
-  async account(sessionToken: hexstring) {
-    return this.sessionGet('/account', sessionToken);
+  async account(sessionToken: hexstring, headers: Headers = new Headers()) {
+    return this.sessionGet('/account', sessionToken, headers);
   }
 
   async sessionDestroy(
     sessionToken: hexstring,
     options: {
       customSessionToken?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.sessionPost('/session/destroy', sessionToken, options);
+    return this.sessionPost('/session/destroy', sessionToken, options, headers);
   }
 
   async sessionStatus(
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
   ): Promise<{ state: 'verified' | 'unverified'; uid: string }> {
-    return this.sessionGet('/session/status', sessionToken);
+    return this.sessionGet('/session/status', sessionToken, headers);
   }
 
   async sessionVerifyCode(
@@ -944,10 +996,15 @@ export default class AuthClient {
     } = {},
     headers: Headers = new Headers()
   ): Promise<{}> {
-    return this.sessionPost('/session/verify_code', sessionToken, {
-      code,
-      ...options,
-    });
+    return this.sessionPost(
+      '/session/verify_code',
+      sessionToken,
+      {
+        code,
+        ...options,
+      },
+      headers
+    );
   }
 
   async sessionResendVerifyCode(
@@ -1020,7 +1077,8 @@ export default class AuthClient {
     duration: number,
     options: {
       service?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payload = {
       publicKey,
@@ -1033,7 +1091,8 @@ export default class AuthClient {
           : ''
       }`,
       sessionToken,
-      payload
+      payload,
+      headers
     );
   }
 
@@ -1052,7 +1111,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: hexstring;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
@@ -1061,10 +1121,15 @@ export default class AuthClient {
     unwrapBKey?: hexstring;
     keyFetchToken?: hexstring;
   }> {
-    const passwordData = await this.request('POST', '/password/change/start', {
-      email,
-      oldAuthPW: oldPasswordAuthPW,
-    });
+    const passwordData = await this.request(
+      'POST',
+      '/password/change/start',
+      {
+        email,
+        oldAuthPW: oldPasswordAuthPW,
+      },
+      headers
+    );
 
     const keys = await this.accountKeys(
       passwordData.keyFetchToken,
@@ -1200,7 +1265,8 @@ export default class AuthClient {
     oldPassword: string,
     options: {
       skipCaseError?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<{
     authPW: hexstring;
     unwrapBKey: hexstring;
@@ -1216,7 +1282,8 @@ export default class AuthClient {
         {
           email,
           oldAuthPW: oldCredentials.authPW,
-        }
+        },
+        headers
       );
       return {
         authPW: oldCredentials.authPW,
@@ -1248,14 +1315,16 @@ export default class AuthClient {
   protected async passwordChangeFinish(
     passwordChangeToken: string,
     payload: PasswordChangePayload,
-    options: { keys?: boolean }
+    options: { keys?: boolean },
+    headers: Headers = new Headers()
   ) {
     const response = await this.hawkRequest(
       'POST',
       pathWithKeys('/password/change/finish', options.keys),
       passwordChangeToken,
       tokenType.passwordChangeToken,
-      payload
+      payload,
+      headers
     );
     return response;
   }
@@ -1263,7 +1332,8 @@ export default class AuthClient {
   async createPassword(
     sessionToken: string,
     email: string,
-    newPassword: string
+    newPassword: string,
+    headers: Headers = new Headers()
   ): Promise<number> {
     const newCredentials = await crypto.getCredentials(email, newPassword);
 
@@ -1271,11 +1341,11 @@ export default class AuthClient {
       authPW: newCredentials.authPW,
     };
 
-    return this.sessionPost('/password/create', sessionToken, payload);
+    return this.sessionPost('/password/create', sessionToken, payload, headers);
   }
 
-  async getRandomBytes() {
-    return this.request('POST', '/get_random_bytes');
+  async getRandomBytes(headers: Headers = new Headers()) {
+    return this.request('POST', '/get_random_bytes', undefined, headers);
   }
 
   async deviceRegister(
@@ -1286,14 +1356,15 @@ export default class AuthClient {
       deviceCallback?: string;
       devicePublicKey?: string;
       deviceAuthKey?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payload = {
       name,
       type,
       ...options,
     };
-    return this.sessionPost('/account/device', sessionToken, payload);
+    return this.sessionPost('/account/device', sessionToken, payload, headers);
   }
 
   async deviceUpdate(
@@ -1304,79 +1375,110 @@ export default class AuthClient {
       deviceCallback?: string;
       devicePublicKey?: string;
       deviceAuthKey?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const payload = {
       id,
       name,
       ...options,
     };
-    return this.sessionPost('/account/device', sessionToken, payload);
+    return this.sessionPost('/account/device', sessionToken, payload, headers);
   }
 
-  async deviceDestroy(sessionToken: hexstring, id: string) {
-    return this.sessionPost('/account/device/destroy', sessionToken, { id });
+  async deviceDestroy(
+    sessionToken: hexstring,
+    id: string,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionPost(
+      '/account/device/destroy',
+      sessionToken,
+      { id },
+      headers
+    );
   }
 
-  async deviceList(sessionToken: hexstring) {
-    return this.sessionGet('/account/devices', sessionToken);
+  async deviceList(sessionToken: hexstring, headers: Headers = new Headers()) {
+    return this.sessionGet('/account/devices', sessionToken, headers);
   }
 
-  async sessions(sessionToken: hexstring) {
-    return this.sessionGet('/account/sessions', sessionToken);
+  async sessions(sessionToken: hexstring, headers: Headers = new Headers()) {
+    return this.sessionGet('/account/sessions', sessionToken, headers);
   }
 
-  async securityEvents(sessionToken: hexstring) {
-    return this.sessionGet('/securityEvents', sessionToken);
+  async securityEvents(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionGet('/securityEvents', sessionToken, headers);
   }
 
-  async deleteSecurityEvents(sessionToken: hexstring) {
+  async deleteSecurityEvents(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'DELETE',
       '/securityEvents',
       sessionToken,
       tokenType.sessionToken,
-      {}
+      {},
+      headers
     );
   }
 
-  async attachedClients(sessionToken: hexstring) {
-    return this.sessionGet('/account/attached_clients', sessionToken);
+  async attachedClients(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionGet('/account/attached_clients', sessionToken, headers);
   }
 
-  async attachedClientDestroy(sessionToken: hexstring, clientInfo: any) {
-    return this.sessionPost('/account/attached_client/destroy', sessionToken, {
-      clientId: clientInfo.clientId,
-      deviceId: clientInfo.deviceId,
-      refreshTokenId: clientInfo.refreshTokenId,
-      sessionTokenId: clientInfo.sessionTokenId,
-    });
+  async attachedClientDestroy(
+    sessionToken: hexstring,
+    clientInfo: any,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionPost(
+      '/account/attached_client/destroy',
+      sessionToken,
+      {
+        clientId: clientInfo.clientId,
+        deviceId: clientInfo.deviceId,
+        refreshTokenId: clientInfo.refreshTokenId,
+        sessionTokenId: clientInfo.sessionTokenId,
+      },
+      headers
+    );
   }
 
   async sendUnblockCode(
     email: string,
     options: {
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers:Headers = new Headers()
   ) {
     return this.request('POST', '/account/login/send_unblock_code', {
       email,
       ...options,
-    });
+    }, headers);
   }
 
-  async rejectUnblockCode(uid: hexstring, unblockCode: string) {
+  async rejectUnblockCode(uid: hexstring, unblockCode: string, headers:Headers = new Headers()) {
     return this.request('POST', '/account/login/reject_unblock_code', {
       uid,
       unblockCode,
-    });
+    }, headers);
   }
 
   async consumeSigninCode(
     code: string,
     flowId: string,
     flowBeginTime: number,
-    deviceId?: string
+    deviceId?: string,
+    headers:Headers = new Headers()
   ) {
     return this.request('POST', '/signinCodes/consume', {
       code,
@@ -1385,19 +1487,19 @@ export default class AuthClient {
         flowId,
         flowBeginTime,
       },
-    });
+    }, headers);
   }
 
-  async createSigninCode(sessionToken: hexstring) {
-    return this.sessionPost('/signinCodes', sessionToken, {});
+  async createSigninCode(sessionToken: hexstring, headers:Headers = new Headers()) {
+    return this.sessionPost('/signinCodes', sessionToken, {}, headers);
   }
 
-  async createCadReminder(sessionToken: hexstring) {
-    return this.sessionPost('/emails/reminders/cad', sessionToken, {});
+  async createCadReminder(sessionToken: hexstring, headers:Headers = new Headers()) {
+    return this.sessionPost('/emails/reminders/cad', sessionToken, {}, headers);
   }
 
-  async recoveryEmails(sessionToken: hexstring) {
-    return this.sessionGet('/recovery_emails', sessionToken);
+  async recoveryEmails(sessionToken: hexstring, headers:Headers = new Headers()) {
+    return this.sessionGet('/recovery_emails', sessionToken, headers);
   }
 
   async recoveryEmailCreate(
@@ -1405,44 +1507,72 @@ export default class AuthClient {
     email: string,
     options: {
       verificationMethod?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.sessionPost('/recovery_email', sessionToken, {
-      email,
-      ...options,
-    });
+    return this.sessionPost(
+      '/recovery_email',
+      sessionToken,
+      {
+        email,
+        ...options,
+      },
+      headers
+    );
   }
 
-  async recoveryEmailDestroy(sessionToken: hexstring, email: string) {
-    return this.sessionPost('/recovery_email/destroy', sessionToken, { email });
+  async recoveryEmailDestroy(
+    sessionToken: hexstring,
+    email: string,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionPost(
+      '/recovery_email/destroy',
+      sessionToken,
+      { email },
+      headers
+    );
   }
 
-  async recoveryEmailSetPrimaryEmail(sessionToken: hexstring, email: string) {
-    return this.sessionPost('/recovery_email/set_primary', sessionToken, {
-      email,
-    });
+  async recoveryEmailSetPrimaryEmail(
+    sessionToken: hexstring,
+    email: string,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionPost(
+      '/recovery_email/set_primary',
+      sessionToken,
+      {
+        email,
+      },
+      headers
+    );
   }
 
   async recoveryEmailSecondaryVerifyCode(
     sessionToken: hexstring,
     email: string,
-    code: string
+    code: string,
+    headers: Headers = new Headers()
   ): Promise<{}> {
     return this.sessionPost(
       '/recovery_email/secondary/verify_code',
       sessionToken,
-      { email, code }
+      { email, code },
+      headers
     );
   }
 
   async recoveryEmailSecondaryResendCode(
     sessionToken: hexstring,
-    email: string
+    email: string,
+    headers: Headers = new Headers()
   ) {
     return this.sessionPost(
       '/recovery_email/secondary/resend_code',
       sessionToken,
-      { email }
+      { email },
+      headers
     );
   }
 
@@ -1450,23 +1580,27 @@ export default class AuthClient {
     sessionToken: hexstring,
     options: {
       metricsContext?: MetricsContext;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<{
     qrCodeUrl: string;
     secret: string;
     recoveryCodes: string[];
   }> {
-    return this.sessionPost('/totp/create', sessionToken, options);
+    return this.sessionPost('/totp/create', sessionToken, options, headers);
   }
 
-  async deleteTotpToken(sessionToken: hexstring) {
-    return this.sessionPost('/totp/destroy', sessionToken, {});
+  async deleteTotpToken(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    return this.sessionPost('/totp/destroy', sessionToken, {}, headers);
   }
 
   async checkTotpTokenExists(
-    sessionToken: hexstring
+    sessionToken: hexstring, headers:Headers = new Headers()
   ): Promise<{ exists: boolean; verified: boolean }> {
-    return this.sessionGet('/totp/exists', sessionToken);
+    return this.sessionGet('/totp/exists', sessionToken, headers);
   }
 
   async verifyTotpCode(
@@ -1474,31 +1608,39 @@ export default class AuthClient {
     code: string,
     options: {
       service?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.sessionPost('/session/verify/totp', sessionToken, {
-      code,
-      ...options,
-    });
+    return this.sessionPost(
+      '/session/verify/totp',
+      sessionToken,
+      {
+        code,
+        ...options,
+      },
+      headers
+    );
   }
 
   async replaceRecoveryCodes(
-    sessionToken: hexstring
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
   ): Promise<{ recoveryCodes: string[] }> {
-    return this.sessionGet('/recoveryCodes', sessionToken);
+    return this.sessionGet('/recoveryCodes', sessionToken, headers);
   }
 
   async updateRecoveryCodes(
     sessionToken: hexstring,
-    recoveryCodes: string[]
+    recoveryCodes: string[],
+    headers:Headers = new Headers()
   ): Promise<{ success: boolean }> {
-    return this.sessionPut('/recoveryCodes', sessionToken, { recoveryCodes });
+    return this.sessionPut('/recoveryCodes', sessionToken, { recoveryCodes }, headers);
   }
 
-  async consumeRecoveryCode(sessionToken: hexstring, code: string) {
+  async consumeRecoveryCode(sessionToken: hexstring, code: string, headers:Headers = new Headers()) {
     return this.sessionPost('/session/verify/recoveryCode', sessionToken, {
       code,
-    });
+    }, headers);
   }
 
   async createRecoveryKey(
@@ -1506,22 +1648,29 @@ export default class AuthClient {
     recoveryKeyId: string,
     recoveryData: any,
     enabled: boolean = true,
-    replaceKey: boolean = false
+    replaceKey: boolean = false,
+    headers:Headers = new Headers()
   ): Promise<{}> {
     return this.sessionPost('/recoveryKey', sessionToken, {
       recoveryKeyId,
       recoveryData,
       enabled,
       replaceKey,
-    });
+    }, headers);
   }
 
-  async getRecoveryKey(accountResetToken: hexstring, recoveryKeyId: string) {
+  async getRecoveryKey(
+    accountResetToken: hexstring,
+    recoveryKeyId: string,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'GET',
       `/recoveryKey/${recoveryKeyId}`,
       accountResetToken,
-      tokenType.accountResetToken
+      tokenType.accountResetToken,
+      undefined,
+      headers
     );
   }
 
@@ -1538,11 +1687,12 @@ export default class AuthClient {
 
   async updateRecoveryKeyHint(
     sessionToken: hexstring,
-    hint: string
+    hint: string,
+    headers: Headers = new Headers()
   ): Promise<{}> {
     return this.sessionPost('/recoveryKey/hint', sessionToken, {
       hint,
-    });
+    }, headers);
   }
 
   async resetPasswordWithRecoveryKey(
@@ -1556,7 +1706,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: boolean;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     const credentials = await this.getCredentialSet({
       email,
@@ -1590,7 +1741,8 @@ export default class AuthClient {
       pathWithKeys('/account/reset', options.keys),
       accountResetToken,
       tokenType.accountResetToken,
-      payload
+      payload,
+      headers
     );
     if (options.keys && accountData.keyFetchToken) {
       accountData.unwrapBKey = credentials.v1.unwrapBKey;
@@ -1599,27 +1751,31 @@ export default class AuthClient {
     return accountData;
   }
 
-  async deleteRecoveryKey(sessionToken: hexstring) {
+  async deleteRecoveryKey(
+    sessionToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
     return this.hawkRequest(
       'DELETE',
       '/recoveryKey',
       sessionToken,
       tokenType.sessionToken,
-      {}
+      {},
+      headers
     );
   }
 
-  async recoveryKeyExists(sessionToken: hexstring | undefined, email?: string) {
+  async recoveryKeyExists(sessionToken: hexstring | undefined, email?: string, headers: Headers = new Headers()) {
     if (sessionToken) {
-      return this.sessionPost('/recoveryKey/exists', sessionToken, { email });
+      return this.sessionPost('/recoveryKey/exists', sessionToken, { email }, headers);
     }
-    return this.request('POST', '/recoveryKey/exists', { email });
+    return this.request('POST', '/recoveryKey/exists', { email }, headers);
   }
 
-  async verifyRecoveryKey(sessionToken: hexstring, recoveryKeyId: string) {
+  async verifyRecoveryKey(sessionToken: hexstring, recoveryKeyId: string, headers: Headers = new Headers()) {
     return this.sessionPost('/recoveryKey/verify', sessionToken, {
       recoveryKeyId,
-    });
+    }, headers);
   }
 
   async createOAuthCode(
@@ -1635,7 +1791,8 @@ export default class AuthClient {
       scope?: string;
       code_challenge_method?: string;
       code_challenge?: string;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
     return this.sessionPost('/oauth/authorization', sessionToken, {
       access_type: options.access_type,
@@ -1648,7 +1805,7 @@ export default class AuthClient {
       response_type: options.response_type,
       scope: options.scope,
       state,
-    });
+    }, headers);
   }
 
   async createOAuthToken(
@@ -1658,30 +1815,37 @@ export default class AuthClient {
       access_type?: string;
       scope?: string;
       ttl?: number;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ) {
-    return this.sessionPost('/oauth/token', sessionToken, {
-      grant_type: 'fxa-credentials',
-      access_type: options.access_type,
-      client_id: clientId,
-      scope: options.scope,
-      ttl: options.ttl,
-    });
+    return this.sessionPost(
+      '/oauth/token',
+      sessionToken,
+      {
+        grant_type: 'fxa-credentials',
+        access_type: options.access_type,
+        client_id: clientId,
+        scope: options.scope,
+        ttl: options.ttl,
+      },
+      headers
+    );
   }
 
   async getOAuthScopedKeyData(
     sessionToken: hexstring,
     clientId: string,
-    scope: string
+    scope: string,
+    headers: Headers = new Headers()
   ) {
     return this.sessionPost('/account/scoped-key-data', sessionToken, {
       client_id: clientId,
       scope,
-    });
+    }, headers);
   }
 
-  async getSubscriptionPlans() {
-    return this.request('GET', '/oauth/subscriptions/plans');
+  async getSubscriptionPlans(headers: Headers = new Headers()) {
+    return this.request('GET', '/oauth/subscriptions/plans', undefined, headers);
   }
 
   async getActiveSubscriptions(accessToken: string) {
@@ -1713,16 +1877,17 @@ export default class AuthClient {
     );
   }
 
-  async updateNewsletters(sessionToken: hexstring, newsletters: string[]) {
+  async updateNewsletters(sessionToken: hexstring, newsletters: string[], headers: Headers = new Headers()) {
     return this.sessionPost('/newsletters', sessionToken, {
       newsletters,
-    });
+    }, headers);
   }
 
   async verifyIdToken(
     idToken: string,
     clientId: string,
-    expiryGracePeriod?: number
+    expiryGracePeriod?: number,
+    headers: Headers = new Headers()
   ) {
     const payload: any = {
       id_token: idToken,
@@ -1731,18 +1896,20 @@ export default class AuthClient {
     if (expiryGracePeriod) {
       payload.expiry_grace_period = expiryGracePeriod;
     }
-    return this.request('POST', '/oauth/id-token-verify', payload);
+    return this.request('POST', '/oauth/id-token-verify', payload, headers);
   }
 
-  async getProductInfo(productId: string) {
+  async getProductInfo(productId: string, headers: Headers = new Headers()) {
     return this.request(
       'GET',
-      `/oauth/subscriptions/productname?productId=${productId}`
+      `/oauth/subscriptions/productname?productId=${productId}`,
+      undefined,
+      headers
     );
   }
 
-  async sendPushLoginRequest(sessionToken: string) {
-    return this.sessionPost('/session/verify/send_push', sessionToken, {});
+  async sendPushLoginRequest(sessionToken: string, headers: Headers = new Headers()) {
+    return this.sessionPost('/session/verify/send_push', sessionToken, {}, headers);
   }
 
   protected async getPayloadV2({
@@ -1828,11 +1995,11 @@ export default class AuthClient {
     };
   }
 
-  public async getCredentialStatusV2(email: string): Promise<CredentialStatus> {
+  public async getCredentialStatusV2(email: string, headers: Headers = new Headers()): Promise<CredentialStatus> {
     try {
       const result = await this.request('POST', '/account/credentials/status', {
         email,
-      });
+      }, headers);
       return result;
     } catch (error) {
       if (error.errno === 102) {

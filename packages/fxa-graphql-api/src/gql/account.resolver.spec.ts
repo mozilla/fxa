@@ -39,7 +39,12 @@ describe('#integration - AccountResolver', () => {
   });
 
   beforeEach(async () => {
-    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    logger = {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,
@@ -123,7 +128,7 @@ describe('#integration - AccountResolver', () => {
         authClient.account = jest
           .fn()
           .mockResolvedValue({ subscriptions: [{ key: 1, key_two: 2 }] });
-        const result = await resolver.subscriptions('token');
+        const result = await resolver.subscriptions(new Headers(), 'token');
         expect(result).toStrictEqual([{ key: 1, keyTwo: 2 }]);
       });
 
@@ -131,19 +136,19 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryKeyExists = jest
           .fn()
           .mockResolvedValue({ exists: true });
-        const result = await resolver.recoveryKey('token');
+        const result = await resolver.recoveryKey(new Headers(), 'token');
         expect(result).toBeTruthy();
       });
 
       it('resolves totp', async () => {
         authClient.checkTotpTokenExists = jest.fn().mockResolvedValue(true);
-        const result = await resolver.totp('token');
+        const result = await resolver.totp(new Headers(), 'token');
         expect(result).toBeTruthy();
       });
 
       it('resolves attachedClients', async () => {
         authClient.attachedClients = jest.fn().mockResolvedValue(true);
-        const result = await resolver.attachedClients('token');
+        const result = await resolver.attachedClients(new Headers(), 'token');
         expect(result).toBeTruthy();
       });
 
@@ -191,7 +196,7 @@ describe('#integration - AccountResolver', () => {
           recoveryCodes: ['test1', 'test2'],
           secret: 'secretData',
         });
-        const result = await resolver.createTotp('token', {
+        const result = await resolver.createTotp(new Headers(), 'token', {
           metricsContext: { deviceId: 'device1', flowBeginTime: 4238248 },
           clientMutationId: 'testid',
         });
@@ -209,7 +214,7 @@ describe('#integration - AccountResolver', () => {
         authClient.verifyTotpCode = jest
           .fn()
           .mockResolvedValue({ success: true });
-        const result = await resolver.verifyTotp('token', {
+        const result = await resolver.verifyTotp(new Headers(), 'token', {
           code: 'code1234',
           clientMutationId: 'testid',
         });
@@ -225,7 +230,7 @@ describe('#integration - AccountResolver', () => {
         authClient.deleteTotpToken = jest
           .fn()
           .mockResolvedValue({ success: true });
-        const result = await resolver.deleteTotp('token', {
+        const result = await resolver.deleteTotp(new Headers(), 'token', {
           clientMutationId: 'testid',
         });
         expect(authClient.deleteTotpToken).toBeCalledTimes(1);
@@ -238,9 +243,13 @@ describe('#integration - AccountResolver', () => {
     describe('deleteRecoveryKey', () => {
       it('succeeds', async () => {
         authClient.deleteRecoveryKey = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteRecoveryKey('token', {
-          clientMutationId: 'testid',
-        });
+        const result = await resolver.deleteRecoveryKey(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+          }
+        );
         expect(authClient.deleteRecoveryKey).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -253,9 +262,13 @@ describe('#integration - AccountResolver', () => {
         authClient.replaceRecoveryCodes = jest
           .fn()
           .mockResolvedValue({ recoveryCodes: ['test1', 'test2'] });
-        const result = await resolver.changeRecoveryCodes('token', {
-          clientMutationId: 'testid',
-        });
+        const result = await resolver.changeRecoveryCodes(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+          }
+        );
         expect(authClient.replaceRecoveryCodes).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -267,10 +280,14 @@ describe('#integration - AccountResolver', () => {
     describe('updateDisplayName', () => {
       it('succeeds', async () => {
         profileClient.updateDisplayName = jest.fn().mockResolvedValue(true);
-        const result = await resolver.updateDisplayName('token', {
-          clientMutationId: 'testid',
-          displayName: 'fred',
-        });
+        const result = await resolver.updateDisplayName(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            displayName: 'fred',
+          }
+        );
         expect(profileClient.updateDisplayName).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -282,7 +299,7 @@ describe('#integration - AccountResolver', () => {
     describe('deleteAvatar', () => {
       it('succeeds', async () => {
         profileClient.avatarDelete = jest.fn().mockResolvedValue(true);
-        await resolver.deleteAvatar('token', {
+        await resolver.deleteAvatar(new Headers(), 'token', {
           clientMutationId: 'testid',
           id: 'blah',
         });
@@ -299,10 +316,14 @@ describe('#integration - AccountResolver', () => {
     describe('createSecondaryEmail', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailCreate = jest.fn().mockResolvedValue(true);
-        const result = await resolver.createSecondaryEmail('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
-        });
+        const result = await resolver.createSecondaryEmail(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+          }
+        );
         expect(authClient.recoveryEmailCreate).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -315,10 +336,14 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSecondaryResendCode = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.resendSecondaryEmailCode('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
-        });
+        const result = await resolver.resendSecondaryEmailCode(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+          }
+        );
         expect(authClient.recoveryEmailSecondaryResendCode).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -331,11 +356,15 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSecondaryVerifyCode = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.verifySecondaryEmail('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
-          code: 'ABCD1234',
-        });
+        const result = await resolver.verifySecondaryEmail(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+            code: 'ABCD1234',
+          }
+        );
         expect(authClient.recoveryEmailSecondaryVerifyCode).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -346,10 +375,14 @@ describe('#integration - AccountResolver', () => {
     describe('deleteSecondaryEmail', () => {
       it('succeeds', async () => {
         authClient.recoveryEmailDestroy = jest.fn().mockResolvedValue(true);
-        const result = await resolver.deleteSecondaryEmail('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
-        });
+        const result = await resolver.deleteSecondaryEmail(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+          }
+        );
         expect(authClient.recoveryEmailDestroy).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -362,10 +395,14 @@ describe('#integration - AccountResolver', () => {
         authClient.recoveryEmailSetPrimaryEmail = jest
           .fn()
           .mockResolvedValue(true);
-        const result = await resolver.updatePrimaryEmail('token', {
-          clientMutationId: 'testid',
-          email: 'test@example.com',
-        });
+        const result = await resolver.updatePrimaryEmail(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            email: 'test@example.com',
+          }
+        );
         expect(authClient.recoveryEmailSetPrimaryEmail).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -376,13 +413,17 @@ describe('#integration - AccountResolver', () => {
     describe('attachedClientDisconnect', () => {
       it('succeeds', async () => {
         authClient.attachedClientDestroy = jest.fn().mockResolvedValue(true);
-        const result = await resolver.attachedClientDisconnect('token', {
-          clientMutationId: 'testid',
-          clientId: 'client1234',
-          sessionTokenId: 'sesssion1234',
-          refreshTokenId: 'refresh1234',
-          deviceId: 'device1234',
-        });
+        const result = await resolver.attachedClientDisconnect(
+          new Headers(),
+          'token',
+          {
+            clientMutationId: 'testid',
+            clientId: 'client1234',
+            sessionTokenId: 'sesssion1234',
+            refreshTokenId: 'refresh1234',
+            deviceId: 'device1234',
+          }
+        );
         expect(authClient.attachedClientDestroy).toBeCalledTimes(1);
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
@@ -500,7 +541,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.passwordForgotVerifyCode).toHaveBeenLastCalledWith(
           'code',
           'passwordforgottoken',
-          {},
+          undefined,
           headers
         );
         expect(result).toStrictEqual({
@@ -517,7 +558,7 @@ describe('#integration - AccountResolver', () => {
           tries: 1,
           ttl: 2,
         });
-        const result = await resolver.passwordForgotCodeStatus({
+        const result = await resolver.passwordForgotCodeStatus(new Headers(), {
           token: 'passwordforgottoken',
         });
         expect(authClient.passwordForgotStatus).toBeCalledTimes(1);
@@ -579,7 +620,8 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1212'.repeat(8),
             authPWVersion2: '2323'.repeat(8),
             wrapKbVersion2: '3434'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
           options: {},
         });
@@ -618,6 +660,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
           'testo@example.xyz',
           '00000000',
+          {},
           { service: 'testo-co', atLeast18AtReg: false },
           headers
         );
@@ -687,6 +730,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
           'jwttothemax',
           '00000000',
+          {},
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);
@@ -710,8 +754,9 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1234'.repeat(8),
             authPWVersion2: '1234'.repeat(8),
             wrapKbVersion2: '1234'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
-          }
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+          },
         });
         expect(authClient.finishSetupWithAuthPW).toBeCalledTimes(1);
         expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
@@ -721,7 +766,8 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1234'.repeat(8),
             authPWVersion2: '1234'.repeat(8),
             wrapKbVersion2: '1234'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
           headers
         );
@@ -835,13 +881,15 @@ describe('#integration - AccountResolver', () => {
         authClient.getRecoveryKey = jest.fn().mockResolvedValue({
           recoveryData: 'recoveryData',
         });
-        const result = await resolver.getRecoveryKeyBundle({
+        const headers = new Headers();
+        const result = await resolver.getRecoveryKeyBundle(headers, {
           accountResetToken: 'cooltokenyo',
           recoveryKeyId: 'recoveryKeyId',
         });
         expect(authClient.getRecoveryKey).toBeCalledWith(
           'cooltokenyo',
-          'recoveryKeyId'
+          'recoveryKeyId',
+          headers
         );
         expect(result).toStrictEqual({
           recoveryData: 'recoveryData',

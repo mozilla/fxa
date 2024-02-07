@@ -153,13 +153,18 @@ export class AccountResolver {
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async createTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => CreateTotpInput })
     input: CreateTotpInput
   ): Promise<CreateTotpPayload> {
-    const result = await this.authAPI.createTotpToken(token, {
-      metricsContext: input.metricsContext,
-    });
+    const result = await this.authAPI.createTotpToken(
+      token,
+      {
+        metricsContext: input.metricsContext,
+      },
+      headers
+    );
     return {
       clientMutationId: input.clientMutationId,
       ...result,
@@ -173,6 +178,7 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifyTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyTotpInput })
     input: VerifyTotpInput
@@ -180,7 +186,8 @@ export class AccountResolver {
     const result = await this.authAPI.verifyTotpCode(
       token,
       input.code,
-      input.service ? { service: input.service } : undefined
+      input.service ? { service: input.service } : undefined,
+      headers
     );
     return {
       clientMutationId: input.clientMutationId,
@@ -194,11 +201,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteTotp(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteTotpInput })
     input: DeleteTotpInput
   ): Promise<BasicPayload> {
-    await this.authAPI.deleteTotpToken(token);
+    await this.authAPI.deleteTotpToken(token, headers);
     return {
       clientMutationId: input.clientMutationId,
     };
@@ -210,11 +218,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteRecoveryKey(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteRecoveryKeyInput })
     input: DeleteRecoveryKeyInput
   ): Promise<BasicPayload> {
-    await this.authAPI.deleteRecoveryKey(token);
+    await this.authAPI.deleteRecoveryKey(token, headers);
     return {
       clientMutationId: input.clientMutationId,
     };
@@ -227,11 +236,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async changeRecoveryCodes(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => ChangeRecoveryCodesInput })
     input: ChangeRecoveryCodesInput
   ): Promise<ChangeRecoveryCodesPayload> {
-    const result = await this.authAPI.replaceRecoveryCodes(token);
+    const result = await this.authAPI.replaceRecoveryCodes(token, headers);
     return {
       clientMutationId: input.clientMutationId,
       recoveryCodes: result.recoveryCodes,
@@ -244,11 +254,13 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async updateDisplayName(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => UpdateDisplayNameInput })
     input: UpdateDisplayNameInput
   ): Promise<UpdateDisplayNamePayload> {
     const result = await this.profileAPI.updateDisplayName(
+      headers,
       token,
       input.displayName
     );
@@ -287,10 +299,11 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteAvatar(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DeleteAvatarInput }) input: DeleteAvatarInput
   ): Promise<BasicPayload> {
-    await this.profileAPI.avatarDelete(token, input.id);
+    await this.profileAPI.avatarDelete(headers, token, input.id);
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -300,12 +313,18 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async createSecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailCreate(token, input.email, {
-      verificationMethod: 'email-otp',
-    });
+    await this.authAPI.recoveryEmailCreate(
+      token,
+      input.email,
+      {
+        verificationMethod: 'email-otp',
+      },
+      headers
+    );
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -315,10 +334,15 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async resendSecondaryEmailCode(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailSecondaryResendCode(token, input.email);
+    await this.authAPI.recoveryEmailSecondaryResendCode(
+      token,
+      input.email,
+      headers
+    );
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -328,13 +352,15 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifySecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => VerifyEmailInput }) input: VerifyEmailInput
   ) {
     await this.authAPI.recoveryEmailSecondaryVerifyCode(
       token,
       input.email,
-      input.code
+      input.code,
+      headers
     );
     return { clientMutationId: input.clientMutationId };
   }
@@ -345,10 +371,11 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async deleteSecondaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailDestroy(token, input.email);
+    await this.authAPI.recoveryEmailDestroy(token, input.email, headers);
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -359,10 +386,15 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async updatePrimaryEmail(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => EmailInput }) input: EmailInput
   ): Promise<BasicPayload> {
-    await this.authAPI.recoveryEmailSetPrimaryEmail(token, input.email);
+    await this.authAPI.recoveryEmailSetPrimaryEmail(
+      token,
+      input.email,
+      headers
+    );
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -373,11 +405,12 @@ export class AccountResolver {
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async attachedClientDisconnect(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => AttachedClientDisconnectInput })
     input: AttachedClientDisconnectInput
   ) {
-    await this.authAPI.attachedClientDestroy(token, input);
+    await this.authAPI.attachedClientDestroy(token, input, headers);
     return { clientMutationId: input.clientMutationId };
   }
 
@@ -491,7 +524,7 @@ export class AccountResolver {
     return this.authAPI.passwordForgotVerifyCode(
       input.code,
       input.token,
-      {},
+      undefined,
       headers
     );
   }
@@ -501,10 +534,11 @@ export class AccountResolver {
   })
   @CatchGatewayError
   public async passwordForgotCodeStatus(
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => PasswordForgotCodeStatusInput })
     input: PasswordForgotCodeStatusInput
   ) {
-    return this.authAPI.passwordForgotStatus(input.token);
+    return this.authAPI.passwordForgotStatus(input.token, headers);
   }
 
   @Mutation((returns) => AccountResetPayload, {
@@ -676,12 +710,14 @@ export class AccountResolver {
   })
   @CatchGatewayError
   public async getRecoveryKeyBundle(
+    @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => RecoveryKeyBundleInput })
     input: RecoveryKeyBundleInput
   ): Promise<RecoveryKeyBundlePayload> {
     const { recoveryData } = await this.authAPI.getRecoveryKey(
       input.accountResetToken,
-      input.recoveryKeyId
+      input.recoveryKeyId,
+      headers
     );
 
     return { recoveryData };
@@ -705,6 +741,7 @@ export class AccountResolver {
 
   @ResolveField()
   public async avatar(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Parent() account: Account
   ) {
@@ -714,7 +751,7 @@ export class AccountResolver {
         return avatar;
       }
 
-      const profile = await this.profileAPI.getProfile(token);
+      const profile = await this.profileAPI.getProfile(headers, token);
       const url = profile.avatar;
       return {
         id: `default-${url[url.length - 1]}`,
@@ -755,25 +792,41 @@ export class AccountResolver {
   }
 
   @ResolveField()
-  public async subscriptions(@GqlSessionToken() token: string) {
-    const account = await this.authAPI.account(token);
+  public async subscriptions(
+    @GqlXHeaders() headers: Headers,
+    @GqlSessionToken() token: string
+  ) {
+    const account = await this.authAPI.account(token, headers);
     return account.subscriptions.map(snakeToCamelObject);
   }
 
   @ResolveField()
-  public async recoveryKey(@GqlSessionToken() token: string) {
-    const result = await this.authAPI.recoveryKeyExists(token);
+  public async recoveryKey(
+    @GqlXHeaders() headers: Headers,
+    @GqlSessionToken() token: string
+  ) {
+    const result = await this.authAPI.recoveryKeyExists(
+      token,
+      undefined,
+      headers
+    );
     return result.exists;
   }
 
   @ResolveField()
-  public totp(@GqlSessionToken() token: string) {
-    return this.authAPI.checkTotpTokenExists(token);
+  public totp(
+    @GqlXHeaders() headers: Headers,
+    @GqlSessionToken() token: string
+  ) {
+    return this.authAPI.checkTotpTokenExists(token, headers);
   }
 
   @ResolveField()
-  public attachedClients(@GqlSessionToken() token: string) {
-    return this.authAPI.attachedClients(token);
+  public attachedClients(
+    @GqlXHeaders() headers: Headers,
+    @GqlSessionToken() token: string
+  ) {
+    return this.authAPI.attachedClients(token, headers);
   }
 
   @ResolveField()

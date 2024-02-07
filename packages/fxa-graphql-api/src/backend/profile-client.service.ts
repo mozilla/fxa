@@ -27,42 +27,54 @@ export class ProfileClientService {
     this.profileServerUrl = profileConfig.url;
   }
 
-  private async fetchToken(token: string) {
+  private async fetchToken(headers: Headers, token: string) {
     const result = await this.authAPI.createOAuthToken(
       token,
       this.oauthClientId,
       {
         scope: 'profile:write clients:write',
-      }
+      },
+      headers
     );
     return result.access_token;
   }
 
   private async profilePostRequest(
+    headers: Headers,
     token: string,
     path: string,
     data: object
   ): Promise<superagent.Response> {
-    const accessToken = await this.fetchToken(token);
+    const accessToken = await this.fetchToken(headers, token);
     return superagent
       .post(this.profileServerUrl + path)
       .send(data)
       .set('Authorization', 'Bearer ' + accessToken);
   }
 
-  public async updateDisplayName(token: string, name: string) {
-    const result = await this.profilePostRequest(token, '/display_name', {
-      displayName: name,
-    });
+  public async updateDisplayName(
+    headers: Headers,
+    token: string,
+    name: string
+  ) {
+    const result = await this.profilePostRequest(
+      headers,
+      token,
+      '/display_name',
+      {
+        displayName: name,
+      }
+    );
     return result.text === '{}';
   }
 
   public async avatarUpload(
+    headers: Headers,
     token: string,
     contentType: string,
     file: any
   ): Promise<Avatar> {
-    const accessToken = await this.fetchToken(token);
+    const accessToken = await this.fetchToken(headers, token);
     const result = await superagent
       .post(this.profileServerUrl + '/avatar/upload')
       .set('Content-Type', contentType)
@@ -71,8 +83,8 @@ export class ProfileClientService {
     return result.body;
   }
 
-  public async avatarDelete(token: string, id?: string) {
-    const accessToken = await this.fetchToken(token);
+  public async avatarDelete(headers: Headers, token: string, id?: string) {
+    const accessToken = await this.fetchToken(headers, token);
     const result = await superagent
       .delete(this.profileServerUrl + '/avatar/' + id)
       .set('Authorization', 'Bearer ' + accessToken);
@@ -80,8 +92,8 @@ export class ProfileClientService {
     return result.text === '{}';
   }
 
-  public async getProfile(token: string) {
-    const accessToken = await this.fetchToken(token);
+  public async getProfile(headers: Headers, token: string) {
+    const accessToken = await this.fetchToken(headers, token);
     const result = await superagent
       .get(this.profileServerUrl + '/profile')
       .set('Authorization', 'Bearer ' + accessToken);

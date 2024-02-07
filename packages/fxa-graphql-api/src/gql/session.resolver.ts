@@ -38,11 +38,12 @@ export class SessionResolver {
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   public async destroySession(
+    @GqlXHeaders() headers: Headers,
     @GqlSessionToken() token: string,
     @Args('input', { type: () => DestroySessionInput })
     input: DestroySessionInput
   ): Promise<BasicPayload> {
-    await this.authAPI.sessionDestroy(token);
+    await this.authAPI.sessionDestroy(token, undefined, headers);
     return {
       clientMutationId: input.clientMutationId,
     };

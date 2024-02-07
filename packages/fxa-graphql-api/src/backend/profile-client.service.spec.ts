@@ -58,7 +58,11 @@ describe('ProfileClientService', () => {
         set: jest.fn().mockResolvedValue({ text: '{}' }),
       }),
     });
-    const result = await service.updateDisplayName('token', 'name');
+    const result = await service.updateDisplayName(
+      new Headers(),
+      'token',
+      'name'
+    );
     expect(result).toBe(true);
   });
 
@@ -73,7 +77,12 @@ describe('ProfileClientService', () => {
         }),
       }),
     });
-    const result = await service.avatarUpload('token', 'app/json', 'somefile');
+    const result = await service.avatarUpload(
+      new Headers(),
+      'token',
+      'app/json',
+      'somefile'
+    );
     expect(result.url).toBe('testurl');
   });
 
@@ -84,7 +93,7 @@ describe('ProfileClientService', () => {
     (jest.spyOn(superagent, 'get') as jest.Mock).mockReturnValueOnce({
       set: jest.fn().mockResolvedValue({ text: '{"avatar":"x"}' }),
     });
-    const result = await service.getProfile('token');
+    const result = await service.getProfile(new Headers(), 'token');
     expect(result).toStrictEqual({ avatar: 'x' });
   });
 });

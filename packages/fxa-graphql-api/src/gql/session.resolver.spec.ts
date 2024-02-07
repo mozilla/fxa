@@ -49,7 +49,7 @@ describe('AccountResolver', () => {
 
   it('destroys the session', async () => {
     authClient.sessionDestroy = jest.fn().mockResolvedValue(true);
-    const result = await resolver.destroySession('token', {
+    const result = await resolver.destroySession(new Headers(), 'token', {
       clientMutationId: 'testid',
     });
     expect(authClient.sessionDestroy).toBeCalledTimes(1);
