@@ -235,8 +235,13 @@ describe('AccountDeleteManager', function () {
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
       });
-      sinon.assert.callCount(mockStripeHelper.removeCustomer, 1);
-      sinon.assert.calledWithMatch(mockStripeHelper.removeCustomer, uid);
+      sinon.assert.calledOnceWithExactly(mockStripeHelper.removeCustomer, uid, {
+        cancellation_reason: deleteReason,
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockStripeHelper.removeFirestoreCustomer,
+        uid
+      );
 
       sinon.assert.calledOnceWithExactly(
         mockAuthModels.getAllPayPalBAByUid,

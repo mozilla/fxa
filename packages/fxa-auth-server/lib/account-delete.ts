@@ -315,6 +315,10 @@ export class AccountDeleteManager {
     customerId?: string,
     refundPeriod?: number
   ) {
+    if (!this.stripeHelper || !this.paypalHelper) {
+      return;
+    }
+
     this.log.debug('AccountDeleteManager.refundSubscriptions.start', {
       customerId,
     });
@@ -328,13 +332,13 @@ export class AccountDeleteManager {
       ? new Date(new Date().setDate(new Date().getDate() - refundPeriod))
       : undefined;
     const invoices =
-      await this.stripeHelper?.fetchInvoicesForActiveSubscriptions(
+      await this.stripeHelper.fetchInvoicesForActiveSubscriptions(
         customerId,
         'paid',
         createdDate
       );
 
-    if (!invoices?.length) {
+    if (!invoices.length) {
       return;
     }
     this.log.debug('AccountDeleteManager.refundSubscriptions', {
@@ -344,8 +348,8 @@ export class AccountDeleteManager {
 
     // Attempt Stripe and PayPal refunds
     const results = await Promise.allSettled([
-      this.stripeHelper?.refundInvoices(invoices),
-      this.paypalHelper?.refundInvoices(invoices),
+      this.stripeHelper.refundInvoices(invoices),
+      this.paypalHelper.refundInvoices(invoices),
     ]);
     results.forEach((result) => {
       if (result.status === 'rejected') {
@@ -358,7 +362,6 @@ export class AccountDeleteManager {
    * Delete the account's subscriptions from Stripe and PayPal.
    * This will cancel any active subscriptions and remove the customer.
    *
-   * @param deleteReason -- @@TODO temporary default deleteReason, remove if necessary
    * @param refundPeriod -- @@TODO temporary default to 30. Remove if not necessary
    */
   private async deleteSubscriptions(
@@ -367,38 +370,43 @@ export class AccountDeleteManager {
     customerId?: string,
     refundPeriod?: number
   ) {
-    if (this.config.subscriptions?.enabled && this.stripeHelper) {
-      try {
-        // Before removing the Stripe Customer, refund the subscriptions if necessary
-        await this.refundSubscriptions(deleteReason, customerId, refundPeriod);
-        await this.stripeHelper.removeCustomer(uid);
-      } catch (err) {
-        if (err.message === 'Customer not available') {
-          // if Stripe didn't know about the customer, no problem.
-          // This should not stop the user from deleting their account.
-          // See https://github.com/mozilla/fxa/issues/2900
-          // https://github.com/mozilla/fxa/issues/2896
-        } else {
-          throw err;
-        }
-      }
-      if (this.paypalHelper) {
-        const agreementIds = await getAllPayPalBAByUid(uid);
-        // Only cancelled and expired are terminal states, any others
-        // should be canceled to ensure they can't be used again.
-        const activeIds = agreementIds.filter((ba: any) =>
-          ['active', 'pending', 'suspended'].includes(ba.status.toLowerCase())
-        );
-        await Promise.all(
-          activeIds.map((ba) =>
-            (this.paypalHelper as PayPalHelper).cancelBillingAgreement(
-              ba.billingAgreementId
-            )
-          )
-        );
-        await deleteAllPayPalBAs(uid);
+    if (
+      !this.config.subscriptions?.enabled ||
+      !this.stripeHelper ||
+      !this.paypalHelper
+    ) {
+      return;
+    }
+    try {
+      // Before removing the Stripe Customer, refund the subscriptions if necessary
+      await this.refundSubscriptions(deleteReason, customerId, refundPeriod);
+      await this.stripeHelper.removeCustomer(uid, {
+        cancellation_reason: deleteReason,
+      });
+    } catch (err) {
+      if (err.message === 'Customer not available') {
+        // if Stripe didn't know about the customer, no problem.
+        // This should not stop the user from deleting their account.
+        // See https://github.com/mozilla/fxa/issues/2900
+        // https://github.com/mozilla/fxa/issues/2896
+      } else {
+        throw err;
       }
     }
+    const agreementIds = await getAllPayPalBAByUid(uid);
+    // Only cancelled and expired are terminal states, any others
+    // should be canceled to ensure they can't be used again.
+    const activeIds = agreementIds.filter((ba: any) =>
+      ['active', 'pending', 'suspended'].includes(ba.status.toLowerCase())
+    );
+    await Promise.all(
+      activeIds.map((ba) =>
+        (this.paypalHelper as PayPalHelper).cancelBillingAgreement(
+          ba.billingAgreementId
+        )
+      )
+    );
+    await deleteAllPayPalBAs(uid);
   }
 
   private async deleteFirestoreCustomer(uid: string) {
