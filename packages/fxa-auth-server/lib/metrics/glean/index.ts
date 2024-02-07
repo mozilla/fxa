@@ -24,6 +24,12 @@ type MetricsData = {
   oauthClientId?: string;
 };
 
+type GleanEventFnOptions = {
+  // for certain events, passing in the "client" ip address isn't helpful since
+  // the client in question is a service from an RP
+  skipClientIp?: boolean;
+};
+
 type ErrorLoggerFnParams = {
   glean: ReturnType<typeof gleanMetrics>;
   request: AuthRequest;
@@ -79,7 +85,7 @@ const createEventFn =
   // context attached to the request.
 
 
-    (eventName: string) =>
+    (eventName: string, options?: GleanEventFnOptions) =>
     async (req: AuthRequest, metricsData?: MetricsData) => {
       // where the function is called the request object is likely to be declared
       // to be AuthRequest, so we do a cast here.
@@ -93,7 +99,8 @@ const createEventFn =
 
       const metrics = {
         user_agent: request.headers['user-agent'],
-        ip_address: request.app.clientAddress,
+        ip_address:
+          options?.skipClientIp === true ? '' : request.app.clientAddress,
         account_user_id_sha256: '',
         event_name: eventName,
         event_reason: metricsData?.reason || '',
@@ -160,7 +167,9 @@ export function gleanMetrics(config: ConfigType) {
 
     oauth: {
       tokenCreated: createEventFn('access_token_created'),
-      tokenChecked: createEventFn('access_token_checked'),
+      tokenChecked: createEventFn('access_token_checked', {
+        skipClientIp: true,
+      }),
     },
   };
 }

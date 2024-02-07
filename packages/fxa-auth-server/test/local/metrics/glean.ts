@@ -431,6 +431,18 @@ describe('Glean server side events', () => {
     });
   });
 
+  describe('oauth', () => {
+    describe('tokenChecked', () => {
+      it('sends an empty ip address', async () => {
+        const glean = gleanMetrics(config);
+        await glean.oauth.tokenChecked(request);
+        sinon.assert.calledOnce(recordStub);
+        const metrics = recordStub.args[0][0];
+        assert.equal(metrics['ip_address'], '');
+      });
+    });
+  });
+
   describe('logErrorWithGlean hapi preResponse error logger', () => {
     const error = AppError.requestBlocked();
     const glean = mocks.mockGlean();
