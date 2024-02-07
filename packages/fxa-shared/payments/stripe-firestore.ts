@@ -56,7 +56,6 @@ export class StripeFirestore {
     this.subscriptionCollection = `${prefix}subscriptions`;
     this.invoiceCollection = `${prefix}invoices`;
     this.paymentMethodCollection = `${prefix}payment_methods`;
-    this.MAX_RETRY_ATTEMPTS = 5;
   }
 
   /**
