@@ -87,7 +87,7 @@
     "kysely": "^0.26.1",
     "lint-staged": "^15.2.0",
     "mysql": "^2.18.1",
-    "mysql2": "^3.6.0",
+    "mysql2": "^3.9.1",
     "nest-typed-config": "^2.9.1",
     "nest-winston": "^1.9.4",
     "next": "^14.0.2",
