@@ -14,10 +14,10 @@ import Agent from 'agentkeepalive';
  * @returns {Agent} An instance of Agent, configured with the specified settings.
  */
 export function createHttpAgent(
-  maxSockets = 100,
+  maxSockets = 1000,
   maxFreeSockets = 10,
-  timeoutMs = 60000,
-  freeSocketTimeoutMs = 30000
+  timeoutMs = 30000,
+  freeSocketTimeoutMs = 15000
 ) {
   return new Agent({
     maxSockets,
@@ -37,10 +37,10 @@ export function createHttpAgent(
  * @returns {Agent.HttpsAgent} An instance of Agent.HttpsAgent, configured with the specified settings.
  */
 export function createHttpsAgent(
-  maxSockets = 100,
+  maxSockets = 1000,
   maxFreeSockets = 10,
-  timeoutMs = 60000,
-  freeSocketTimeoutMs = 30000
+  timeoutMs = 30000,
+  freeSocketTimeoutMs = 15000
 ) {
   return new Agent.HttpsAgent({
     maxSockets,
