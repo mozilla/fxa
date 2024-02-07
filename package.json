@@ -145,7 +145,7 @@
     "@graphql-codegen/client-preset": "^4.1.0",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-document-nodes": "^4.0.1",
-    "@nestjs/cli": "^9.4.0",
+    "@nestjs/cli": "^10.3.1",
     "@nestjs/schematics": "^10.0.3",
     "@nestjs/testing": "^10.2.4",
     "@nx/cypress": "^17.1.3",
