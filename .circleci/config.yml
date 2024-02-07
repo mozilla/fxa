@@ -342,7 +342,7 @@ commands:
     steps:
       - run:
           name: Build
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --parallel=2 --all --verbose
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx yarn nx run-many -t build --parallel=2 --all --verbose
           environment:
             NODE_ENV: test
 
