@@ -20,11 +20,23 @@ class CustomsClient {
     this.log = log;
     this.error = error;
     this.statsd = statsd;
+    const customsHttpAgent = config.get('customsHttpAgent');
+
     if (url !== 'none') {
       this.axiosInstance = axios.create({
         baseURL: url,
-        httpAgent: createHttpAgent(),
-        httpsAgent: createHttpsAgent(),
+        httpAgent: createHttpAgent(
+          customsHttpAgent.maxSockets,
+          customsHttpAgent.maxFreeSockets,
+          customsHttpAgent.timeoutMs,
+          customsHttpAgent.freeSocketTimeoutMs
+        ),
+        httpsAgent: createHttpsAgent(
+          customsHttpAgent.maxSockets,
+          customsHttpAgent.maxFreeSockets,
+          customsHttpAgent.timeoutMs,
+          customsHttpAgent.freeSocketTimeoutMs
+        ),
       });
     }
   }

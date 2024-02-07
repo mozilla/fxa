@@ -340,6 +340,28 @@ const convictConf = convict({
     default: 'http://localhost:7000',
     env: 'CUSTOMS_SERVER_URL',
   },
+  customsHttpAgent: {
+    maxSockets: {
+      doc: 'The maximum number of sockets to be opened per host',
+      default: 10000,
+      env: 'CUSTOMS_MAX_SOCKETS',
+    },
+    maxFreeSockets: {
+      doc: 'The maximum number of free sockets to keep open for a host',
+      default: 10,
+      env: 'CUSTOMS_MAX_FREE_SOCKETS',
+    },
+    timeoutMs: {
+      doc: 'The timeout in milliseconds for the sockets',
+      default: 30000,
+      env: 'CUSTOMS_TIMEOUT_MS',
+    },
+    freeSocketTimeoutMs: {
+      doc: 'The time in milliseconds for which a socket should remain open while unused',
+      default: 15000,
+      env: 'CUSTOMS_FREE_SOCKET_TIMEOUT_MS',
+    },
+  },
   contentServer: {
     url: {
       doc: 'The url of the corresponding fxa-content-server instance',
