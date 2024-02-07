@@ -37,7 +37,7 @@ const ThirdPartyAuth = ({
             <div className="text-sm flex items-center justify-center my-6">
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
               <FtlMsg id="third-party-auth-options-or">
-                <div className="mx-4">Or</div>
+                <div className="mx-4 text-base text-grey-300">or</div>
               </FtlMsg>
               <div className="flex-1 h-px bg-grey-300 divide-x"></div>
             </div>
@@ -154,7 +154,7 @@ const ThirdPartySignInForm = ({
 
       <button
         type="submit"
-        className="w-full mt-2 justify-center text-black bg-transparent border-black border hover:border-grey-300 font-medium rounded-lg text-sm text-center inline-flex items-center"
+        className="w-full mt-2 justify-center text-black bg-transparent border-grey-300 border hover:border-black font-medium rounded-lg text-md text-center inline-flex items-center"
         onClick={onClick}
       >
         {buttonText}
