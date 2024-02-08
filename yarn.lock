@@ -326,9 +326,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollo/server@npm:^4.9.3":
-  version: 4.9.3
-  resolution: "@apollo/server@npm:4.9.3"
+"@apollo/server@npm:^4.10.0":
+  version: 4.10.0
+  resolution: "@apollo/server@npm:4.10.0"
   dependencies:
     "@apollo/cache-control-types": ^1.0.3
     "@apollo/server-gateway-interface": ^1.1.1
@@ -346,7 +346,6 @@ __metadata:
     "@types/express-serve-static-core": ^4.17.30
     "@types/node-fetch": ^2.6.1
     async-retry: ^1.2.1
-    body-parser: ^1.20.0
     cors: ^2.8.5
     express: ^4.17.1
     loglevel: ^1.6.8
@@ -358,7 +357,7 @@ __metadata:
     whatwg-mimetype: ^3.0.0
   peerDependencies:
     graphql: ^16.6.0
-  checksum: 28537d7646669a5dc1302cfd75d8a9bf473459ee585c6b778d174628a2cfb3f89a5ac742eca7de2a779b6c9e3f30da509a8787a71227520d009ac190aa7a9207
+  checksum: 902df9ea634ef52ba96b26e923d86b5093f678bcd9e76e4c4f57c26f5450064603449e095b8c8d2a21316c8a9277444e7d9145af8811ddc481d1992bf4123c39
   languageName: node
   linkType: hard
 
@@ -27856,7 +27855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"body-parser@npm:1.20.2, body-parser@npm:^1.20.0, body-parser@npm:^1.20.2":
+"body-parser@npm:1.20.2, body-parser@npm:^1.20.2":
   version: 1.20.2
   resolution: "body-parser@npm:1.20.2"
   dependencies:
@@ -38373,7 +38372,7 @@ fsevents@~2.1.1:
   resolution: "fxa@workspace:."
   dependencies:
     "@apollo/client": ^3.8.3
-    "@apollo/server": ^4.9.3
+    "@apollo/server": ^4.10.0
     "@babel/core": ^7.22.20
     "@babel/preset-react": ^7.23.3
     "@faker-js/faker": ^8.1.0
