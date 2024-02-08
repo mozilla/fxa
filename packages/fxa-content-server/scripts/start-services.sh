@@ -15,7 +15,7 @@ cd ../../
 mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 
-CI=false NODE_ENV=test npx nx run-many \
+CI=false NODE_ENV=test npx yarn nx run-many \
     -t start \
     --parallel=3 \
     -p \

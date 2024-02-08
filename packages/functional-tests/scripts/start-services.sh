@@ -11,7 +11,7 @@ mkdir -p ~/.pm2/logs
 mkdir -p artifacts/tests
 
 # Make sure we have built the latest
-CI=false NODE_ENV=test npx nx run-many \
+CI=false NODE_ENV=test npx yarn nx run-many \
     -t start \
     --parallel=1 \
     --verbose \

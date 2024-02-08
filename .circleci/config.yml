@@ -277,18 +277,18 @@ commands:
     steps:
       - run:
           name: Linting
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t lint
+          command: npx yarn nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t lint
 
   compile:
     steps:
       - run:
           name: Pre building shared libraries
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx yarn nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
           environment:
             NODE_ENV: test
       - run:
           name: Compiling TypeScript
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx yarn nx affected --base=main --head=$CIRCLE_SHA1 --parallel=1 -t compile
           environment:
             NODE_ENV: test
 
@@ -309,7 +309,7 @@ commands:
               GREP=""
             fi
             echo "targeting project << parameters.project >> $GREP"
-            npx nx build fxa-auth-client
+            npx yarn nx build fxa-auth-client
             cd packages/functional-tests/tests
             TEST_FILES=$(circleci tests glob "./**/*.spec.ts")
             cd ..
@@ -557,10 +557,10 @@ jobs:
       - restore-workspace
       - run:
           name: Build shared libs
-          command: NODE_OPTIONS="--max-old-space-size=7168" npx nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
+          command: NODE_OPTIONS="--max-old-space-size=7168" npx yarn nx run-many -t build --projects=tag:scope:shared:lib --parallel=2
       - run:
           name: Run unit tests
-          command: npx nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
+          command: npx yarn nx affected --base=main --head=$CIRCLE_SHA1 --parallel=2 -t test-unit
           environment:
             NODE_ENV: test
       - store-artifacts
@@ -593,7 +593,7 @@ jobs:
       - run:
           name: Run API Integration Tests
           command: |
-            npx nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
+            npx yarn nx << parameters.nx_run >> << parameters.parallel >> << parameters.target >> << parameters.projects >>
           environment:
             NODE_ENV: test
           no_output_timeout: 20m
@@ -663,7 +663,7 @@ jobs:
       - run:
           name: Build Storybooks
           command: |
-            npx nx run-many -t build-storybook
+            npx yarn nx run-many -t build-storybook
       - run:
           name: Publish Storybooks
           command: |

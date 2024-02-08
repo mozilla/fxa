@@ -1,3 +1,3 @@
 #!/bin/bash -ex
 
-CI=yes NODE_ENV=test npx nx fxa-react:test
+CI=yes NODE_ENV=test npx yarn nx fxa-react:test

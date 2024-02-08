@@ -12,7 +12,7 @@ then
 fi
 
 mkdir -p artifacts
-npx nx run-many -t start --all --exclude=fxa-dev-launcher --verbose;
+npx yarn nx run-many -t start --all --exclude=fxa-dev-launcher --verbose;
 
 end=`date +%s`
 runtime=$((end-start))
