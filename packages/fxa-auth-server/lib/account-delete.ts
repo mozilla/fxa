@@ -219,6 +219,8 @@ export class AccountDeleteManager {
 
     await this.deleteSubscriptions(uid, reason, customerId);
     await this.deleteFirestoreCustomer(uid);
+    await this.appleIap?.purchaseManager.deletePurchases(uid);
+    await this.playBilling?.purchaseManager.deletePurchases(uid);
 
     // This is to avoid logging the same event twice if the account was already
     // deleted from the db.

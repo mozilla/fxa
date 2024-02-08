@@ -10,6 +10,12 @@ const { AppConfig, AuthLogger } = require('../../lib/types');
 const mocks = require('../mocks');
 const uuid = require('uuid');
 const error = require('../../lib/error');
+const {
+  AppleIAP,
+} = require('../../lib/payments/iap/apple-app-store/apple-iap');
+const {
+  PlayBilling,
+} = require('../../lib/payments/iap/google-play/play-billing');
 
 const email = 'foo@example.com';
 const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
@@ -32,6 +38,8 @@ describe('AccountDeleteManager', function () {
   let mockStatsd;
   let mockStripeHelper;
   let mockPaypalHelper;
+  let mockAppleIap;
+  let mockPlayBilling;
   let mockLog;
   let mockConfig;
   let accountDeleteManager;
@@ -56,6 +64,16 @@ describe('AccountDeleteManager', function () {
     mockStatsd = { increment: sandbox.stub() };
     mockStripeHelper = {};
     mockLog = mocks.mockLog();
+    mockAppleIap = {
+      purchaseManager: {
+        deletePurchases: sinon.fake.resolves(),
+      },
+    };
+    mockPlayBilling = {
+      purchaseManager: {
+        deletePurchases: sinon.fake.resolves(),
+      },
+    };
 
     mockConfig = {
       apiVersion: 1,
@@ -99,6 +117,8 @@ describe('AccountDeleteManager', function () {
     Container.set(PayPalHelper, mockPaypalHelper);
     Container.set(AuthLogger, mockLog);
     Container.set(AppConfig, mockConfig);
+    Container.set(AppleIAP, mockAppleIap);
+    Container.set(PlayBilling, mockPlayBilling);
 
     const { AccountDeleteManager } = proxyquire('../../lib/account-delete', {
       '@google-cloud/tasks': {
@@ -253,6 +273,14 @@ describe('AccountDeleteManager', function () {
       );
       sinon.assert.calledOnceWithExactly(
         mockAuthModels.deleteAllPayPalBAs,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockAppleIap.purchaseManager.deletePurchases,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockPlayBilling.purchaseManager.deletePurchases,
         uid
       );
       sinon.assert.calledOnceWithExactly(mockPush.notifyAccountDestroyed, uid, [
