@@ -16,22 +16,6 @@ const REUSED_SINGLE_USE_CONFIRMATION_CODE_ERROR_MESSAGE =
 
 // We add a `version` value onto the errors for translations. This allows us to signal to translators (via the string ID) that a string has been updated.
 const ERRORS = {
-  UNEXPECTED_ERROR: {
-    errno: 999,
-    message: UNEXPECTED_ERROR_MESSAGE,
-  },
-  INVALID_TOKEN: {
-    errno: 110,
-    message: 'Invalid token',
-  },
-  INVALID_TIMESTAMP: {
-    errno: 111,
-    message: 'Invalid timestamp in request signature',
-  },
-  INVALID_NONCE: {
-    errno: 115,
-    message: 'Invalid nonce in request signature',
-  },
   ACCOUNT_ALREADY_EXISTS: {
     errno: 101,
     message: 'Account already exists',
@@ -39,10 +23,6 @@ const ERRORS = {
   UNKNOWN_ACCOUNT: {
     errno: 102,
     message: 'Unknown account',
-  },
-  INCORRECT_EMAIL_CASE: {
-    errno: 120,
-    message: 'Incorrect email case',
   },
   INCORRECT_PASSWORD: {
     errno: 103,
@@ -76,6 +56,14 @@ const ERRORS = {
     errno: 109,
     message: 'Invalid request signature',
   },
+  INVALID_TOKEN: {
+    errno: 110,
+    message: 'Invalid token',
+  },
+  INVALID_TIMESTAMP: {
+    errno: 111,
+    message: 'Invalid timestamp in request signature',
+  },
   MISSING_CONTENT_LENGTH_HEADER: {
     errno: 112,
     message: 'Missing content-length header',
@@ -87,6 +75,18 @@ const ERRORS = {
   THROTTLED: {
     errno: 114,
     message: "You've tried too many times. Try again later.",
+  },
+  INVALID_NONCE: {
+    errno: 115,
+    message: 'Invalid nonce in request signature',
+  },
+  ENDPOINT_NOT_SUPPORTED: {
+    errno: 116,
+    message: 'This endpoint is no longer supported',
+  },
+  INCORRECT_EMAIL_CASE: {
+    errno: 120,
+    message: 'Incorrect email case',
   },
   /*
     ACCOUNT_LOCKED: {
@@ -305,13 +305,13 @@ const ERRORS = {
     errno: 204,
     message: 'System unavailable, try again soon',
   },
-  ENDPOINT_NOT_SUPPORTED: {
-    errno: 116,
-    message: 'This endpoint is no longer supported',
-  },
   SERVICE_UNAVAILABLE: {
     errno: 998,
     message: 'System unavailable, try again soon',
+  },
+  UNEXPECTED_ERROR: {
+    errno: 999,
+    message: UNEXPECTED_ERROR_MESSAGE,
   },
   USER_CANCELED_LOGIN: {
     errno: 1001,

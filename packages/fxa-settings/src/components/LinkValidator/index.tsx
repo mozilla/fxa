@@ -6,9 +6,8 @@ import { RouteComponentProps } from '@reach/router';
 import React, { useState } from 'react';
 import { LinkStatus, LinkType } from '../../lib/types';
 
-import { ResetPasswordLinkDamaged, SigninLinkDamaged } from '../LinkDamaged';
+import { ResetPasswordLinkDamaged } from '../LinkDamaged';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
-import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { IntegrationType, isOAuthIntegration } from '../../models';
 
 interface LinkValidatorChildrenProps<TModel> {
@@ -61,10 +60,6 @@ const LinkValidator = <TModel extends LinkModel>({
     return <ResetPasswordLinkDamaged />;
   }
 
-  if (linkStatus === LinkStatus.damaged && linkType === LinkType['signin']) {
-    return <SigninLinkDamaged />;
-  }
-
   if (
     linkStatus === LinkStatus.expired &&
     linkType === LinkType['reset-password'] &&
@@ -82,14 +77,6 @@ const LinkValidator = <TModel extends LinkModel>({
     }
 
     return <LinkExpiredResetPassword {...{ viewName, email }} />;
-  }
-
-  if (
-    linkStatus === LinkStatus.expired &&
-    linkType === LinkType['signin'] &&
-    email !== undefined
-  ) {
-    return <LinkExpiredSignin {...{ email, viewName }} />;
   }
 
   return <>{child({ setLinkStatus, linkModel })}</>;

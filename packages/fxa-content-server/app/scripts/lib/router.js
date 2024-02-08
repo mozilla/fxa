@@ -144,20 +144,35 @@ Router = Router.extend({
         }
       );
     },
-    'complete_signin(/)': createViewHandler(CompleteSignUpView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'confirm(/)': function () {
-      this.createReactOrBackboneViewHandler('confirm', ConfirmView, null, {
-        type: VerificationReasons.SIGN_UP,
-      });
+    // NOTE - complete_signin must be maintained for backwards compatibility with FF <122
+    // With the react conversion, we should only land on the /complete_signin view
+    // from signin to sync from version of Firefox <122, when clicking on "resend verification"
+    // from Sync Settings.
+    // When Extended Service Release is updated to a version >=122, we could consider an alternate experience,
+    // such as prompting to update the browser or redirecting to the start of the signin flow so the user can use a code instead.
+    'complete_signin(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'complete_signin',
+        CompleteSignUpView,
+        {
+          ...Url.searchParams(this.window.location.search),
+        },
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
     },
+    // We will not be porting the Confirm view to React, see FXA-9054
+    'confirm(/)': createViewHandler(ConfirmView, {
+      type: VerificationReasons.SIGN_UP,
+    }),
     'confirm_reset_password(/)': function () {
       this.createReactOrBackboneViewHandler(
         'confirm_reset_password',
         ConfirmResetPasswordView
       );
     },
+    // We will not be porting the Confirm view to React, see FXA-9054
     'confirm_signin(/)': createViewHandler(ConfirmView, {
       type: VerificationReasons.SIGN_IN,
     }),
@@ -554,8 +569,8 @@ Router = Router.extend({
 
   createReactOrBackboneViewHandler(
     routeName,
-    ViewOrPath,
-    additionalParams,
+    ViewOrPath, // for backbone
+    additionalParams, // for react
     backboneViewOptions
   ) {
     const showReactApp = this.showReactApp(routeName);

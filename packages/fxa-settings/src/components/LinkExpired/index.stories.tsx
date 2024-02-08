@@ -8,14 +8,13 @@ import { StoryFn } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { LinkExpired, LinkExpiredProps } from '.';
 import { LinkExpiredResetPassword } from '../LinkExpiredResetPassword';
-import { LinkExpiredSignin } from '../LinkExpiredSignin';
 import { ResendStatus } from 'fxa-settings/src/lib/types';
 import { MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 
 const meta = {
   title: 'Components/LinkExpired',
   component: LinkExpired,
-  subcomponents: { LinkExpiredResetPassword, LinkExpiredSignin },
+  subcomponents: { LinkExpiredResetPassword },
   decorators: [
     withLocalization,
     (Story: StoryFn) => (
@@ -50,8 +49,4 @@ export const Default = () => <LinkExpired {...mockedProps} />;
 
 export const LinkExpiredForResetPassword = () => (
   <LinkExpiredResetPassword {...{ email, viewName }} />
-);
-
-export const LinkExpiredForSignin = () => (
-  <LinkExpiredSignin {...{ email, viewName }} />
 );

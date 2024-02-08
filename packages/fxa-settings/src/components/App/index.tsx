@@ -42,6 +42,7 @@ import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
+import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
 import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
@@ -290,6 +291,7 @@ const AuthAndAccountSetupRoutes = ({
       <ReportSigninContainer path="/report_signin/*" />
       <SigninContainer path="/signin/*" {...{ integration, serviceName }} />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
+      <CompleteSigninContainer path="/complete_signin/*" />
       <SigninConfirmed
         path="/signin_confirmed/*"
         {...{ isSignedIn, serviceName }}

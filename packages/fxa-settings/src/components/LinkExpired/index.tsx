@@ -14,8 +14,9 @@ export type LinkExpiredProps = {
   headingTextFtlId: string;
   messageText: string;
   messageFtlId: string;
-  resendLinkHandler: () => Promise<void>;
-  resendStatus: ResendStatus;
+  showResendLink?: boolean;
+  resendLinkHandler?: () => Promise<void>;
+  resendStatus?: ResendStatus;
   errorMessage?: string | ReactElement;
 };
 
@@ -24,8 +25,9 @@ export const LinkExpired = ({
   headingTextFtlId,
   messageText,
   messageFtlId,
+  showResendLink = true,
   resendLinkHandler,
-  resendStatus,
+  resendStatus = ResendStatus['not sent'],
   errorMessage,
 }: LinkExpiredProps) => {
   return (
@@ -40,11 +42,13 @@ export const LinkExpired = ({
       <FtlMsg id={messageFtlId}>
         <p className="text-sm my-4">{messageText}</p>
       </FtlMsg>
-      <FtlMsg id="reset-pwd-resend-link">
-        <button onClick={resendLinkHandler} className="link-blue text-sm">
-          Receive new link
-        </button>
-      </FtlMsg>
+      {showResendLink && resendLinkHandler && (
+        <FtlMsg id="reset-pwd-resend-link">
+          <button onClick={resendLinkHandler} className="link-blue text-sm">
+            Receive new link
+          </button>
+        </FtlMsg>
+      )}
     </AppLayout>
   );
 };

@@ -3,137 +3,29 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, waitFor } from '@testing-library/react';
-import CompleteSignin, { viewName } from '.';
-import { MOCK_ACCOUNT, renderWithRouter } from '../../../models/mocks';
-import { LinkStatus } from '../../../lib/types';
-import { usePageViewEvent } from '../../../lib/metrics';
-import { REACT_ENTRYPOINT } from '../../../constants';
+import { screen } from '@testing-library/react';
+import CompleteSignin from '.';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import { LocationProvider } from '@reach/router';
 
-jest.mock('../../../lib/metrics', () => ({
-  logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
-}));
-
-const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-}));
+async function render(errorMessage?: string) {
+  renderWithLocalizationProvider(
+    <LocationProvider>
+      <CompleteSignin {...{ errorMessage }} />
+    </LocationProvider>
+  );
+}
 
 describe('CompleteSignin', () => {
-  it('redirects the user as expected after validation when the link is valid', async () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.valid}
-        isForPrimaryEmail={true}
-      />
-    );
-    // TO-DO: Add in user signin validation and test for it.
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/signin_verified');
-    });
+  it('renders as expected with no props', async () => {
+    render();
+
+    expect(screen.getByText('Validating sign-in…')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Loading…' })).toBeInTheDocument();
   });
 
-  it('calls the custom broker method supplied if given a valid link', async () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.valid}
-        isForPrimaryEmail={true}
-        brokerNextAction={() => {
-          mockNavigate('/my_example_route');
-        }}
-      />
-    );
-    // TO-DO: Add in user signin validation and test for it.
-    await waitFor(() => {
-      expect(mockNavigate).toHaveBeenCalledWith('/my_example_route');
-    });
-  });
-
-  it('renders the component as expected when provided with an expired link', () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.expired}
-        isForPrimaryEmail={true}
-      />
-    );
-
-    screen.getByRole('heading', {
-      name: 'Confirmation link expired',
-    });
-    screen.getByText('The link you clicked to confirm your email is expired.');
-    screen.getByRole('button', {
-      name: 'Receive new link',
-    });
-    // Components that should not be rendered when the link is expired
-    const signinConfirmation = screen.queryByText('Sign-in confirmed');
-    const serviceAvailabilityConfirmation = screen.queryByText(
-      'You’re now ready to use account settings'
-    );
-    expect(signinConfirmation).not.toBeInTheDocument();
-    expect(serviceAvailabilityConfirmation).not.toBeInTheDocument();
-  });
-
-  it('renders the component as expected when provided with a damaged link', () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.damaged}
-        isForPrimaryEmail={true}
-      />
-    );
-
-    screen.getByRole('heading', {
-      name: 'Confirmation link damaged',
-    });
-    screen.getByText(
-      'The link you clicked was missing characters, and may have been broken by your email client. Copy the address carefully, and try again.'
-    );
-
-    // Components that should not be rendered when the link is damaged
-    const receiveNewLink = screen.queryByRole('button', {
-      name: 'Receive new link',
-    });
-
-    expect(receiveNewLink).not.toBeInTheDocument();
-    const signinConfirmation = screen.queryByText('Sign-in confirmed');
-    const serviceAvailabilityConfirmation = screen.queryByText(
-      'You’re now ready to use account settings'
-    );
-    expect(signinConfirmation).not.toBeInTheDocument();
-    expect(serviceAvailabilityConfirmation).not.toBeInTheDocument();
-  });
-
-  it('renders the component as expected when provided with a used link', () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.used}
-        isForPrimaryEmail={true}
-      />
-    );
-
-    screen.getByRole('heading', {
-      name: 'Primary email already confirmed',
-    });
-    screen.getByText(
-      'That confirmation link was already used, and can only be used once.'
-    );
-  });
-
-  // TODO : check for metrics event when link is expired or damaged
-  it('emits the expected metrics on render when the link is valid', () => {
-    renderWithRouter(
-      <CompleteSignin
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        linkStatus={LinkStatus.valid}
-        isForPrimaryEmail={true}
-      />
-    );
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  it('renders as expected with an errorMessage prop', async () => {
+    render('Something broke');
+    screen.getByRole('heading', { name: 'Confirmation error' });
   });
 });
