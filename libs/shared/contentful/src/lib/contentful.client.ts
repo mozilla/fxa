@@ -15,8 +15,20 @@ import {
   ContentfulError,
 } from './contentful.error';
 import { ContentfulErrorResponse } from './types';
+import EventEmitter from 'events';
 
 const DEFAULT_CACHE_TTL = 300000; // Milliseconds
+
+interface EventResponse {
+  method: string;
+  requestStartTime: number;
+  requestEndTime: number;
+  elapsed: number;
+  cache: boolean;
+  query?: TypedDocumentNode;
+  variables?: string;
+  error?: Error;
+}
 
 @Injectable()
 export class ContentfulClient {
@@ -25,9 +37,16 @@ export class ContentfulClient {
   );
   private locales: string[] = [];
   private graphqlResultCache: Record<string, unknown> = {};
+  private emitter: EventEmitter;
+  public on: (
+    event: 'response',
+    listener: (response: EventResponse) => void
+  ) => EventEmitter;
 
   constructor(private contentfulClientConfig: ContentfulClientConfig) {
     this.setupCacheBust();
+    this.emitter = new EventEmitter();
+    this.on = this.emitter.on.bind(this.emitter);
   }
 
   async getLocale(acceptLanguage: string): Promise<string> {
@@ -50,7 +69,21 @@ export class ContentfulClient {
     );
     const cacheKey = variablesString + query;
 
+    const emitterResponse = {
+      method: 'query',
+      query,
+      variables: variablesString,
+      requestStartTime: Date.now(),
+      cache: false,
+    };
+
     if (this.graphqlResultCache[cacheKey]) {
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        requestEndTime: emitterResponse.requestStartTime,
+        elapsed: 0,
+        cache: true,
+      });
       return this.graphqlResultCache[cacheKey] as Result;
     }
 
@@ -60,22 +93,57 @@ export class ContentfulClient {
         variables,
       });
 
+      const requestEndTime = Date.now();
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        elapsed: requestEndTime - emitterResponse.requestStartTime,
+        requestEndTime,
+      });
+
       this.graphqlResultCache[cacheKey] = response;
 
       return response;
     } catch (e) {
+      const requestEndTime = Date.now();
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        elapsed: requestEndTime - emitterResponse.requestStartTime,
+        requestEndTime,
+        error: e,
+      });
+
       throw new ContentfulError([e]);
     }
   }
 
   private async getLocales(): Promise<string[]> {
+    const emitterResponse = {
+      method: 'getLocales',
+      requestStartTime: Date.now(),
+      cache: false,
+    };
+
     if (!!this.locales?.length) {
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        cache: true,
+        elapsed: 0,
+        requestEndTime: emitterResponse.requestStartTime,
+      });
       return this.locales;
     }
 
     try {
       const localesUrl = `${this.contentfulClientConfig.cdnApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}/locales?access_token=${this.contentfulClientConfig.graphqlApiKey}`;
       const response = await fetch(localesUrl);
+
+      const requestEndTime = Date.now();
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        elapsed: requestEndTime - emitterResponse.requestStartTime,
+        requestEndTime,
+      });
+
       const results = await response.json();
 
       if (!response.ok) {
@@ -91,6 +159,13 @@ export class ContentfulClient {
 
       return this.locales;
     } catch (error) {
+      const requestEndTime = Date.now();
+      this.emitter.emit('response', {
+        ...emitterResponse,
+        elapsed: requestEndTime - emitterResponse.requestStartTime,
+        requestEndTime,
+        error,
+      });
       if (error instanceof ContentfulCDNError) {
         throw error;
       } else {

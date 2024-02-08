@@ -24,6 +24,7 @@ jest.mock('graphql-request', () => ({
 
 describe('ContentfulClient', () => {
   let contentfulClient: ContentfulClient;
+  const onCallback = jest.fn();
 
   beforeEach(() => {
     contentfulClient = new ContentfulClient({
@@ -33,6 +34,11 @@ describe('ContentfulClient', () => {
       graphqlSpaceId: faker.string.uuid(),
       graphqlEnvironment: faker.string.uuid(),
     });
+    contentfulClient.on('response', onCallback);
+  });
+
+  afterEach(() => {
+    onCallback.mockClear();
   });
 
   describe('query', () => {
@@ -67,6 +73,23 @@ describe('ContentfulClient', () => {
           },
         });
       });
+
+      it('emits event and on second request emits event with cache true', async () => {
+        expect(onCallback).toHaveBeenCalledWith(
+          expect.objectContaining({ method: 'query', cache: false })
+        );
+
+        (contentfulClient.client.request as jest.Mock).mockResolvedValueOnce(
+          mockResponse
+        );
+        result = await contentfulClient.query(offeringQuery, {
+          id,
+          locale,
+        });
+        expect(onCallback).toHaveBeenCalledWith(
+          expect.objectContaining({ method: 'query', cache: true })
+        );
+      });
     });
 
     it('throws an error when the graphql request fails', async () => {
@@ -81,6 +104,14 @@ describe('ContentfulClient', () => {
           locale,
         })
       ).rejects.toThrow(new ContentfulError([error]));
+
+      expect(onCallback).toHaveBeenCalledWith(
+        expect.objectContaining({
+          method: 'query',
+          cache: false,
+          error: expect.anything(),
+        })
+      );
     });
   });
 
@@ -125,6 +156,18 @@ describe('ContentfulClient', () => {
         await contentfulClient.getLocale(ACCEPT_LANGUAGE);
         expect(global.fetch).toBeCalledTimes(1);
       });
+
+      it('emits event and on second request emits event with cache true', async () => {
+        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+        expect(onCallback).toHaveBeenCalledWith(
+          expect.objectContaining({ method: 'getLocales', cache: false })
+        );
+
+        await contentfulClient.getLocale(ACCEPT_LANGUAGE);
+        expect(onCallback).toHaveBeenCalledWith(
+          expect.objectContaining({ method: 'getLocales', cache: true })
+        );
+      });
     });
 
     describe('errors', () => {
@@ -144,6 +187,13 @@ describe('ContentfulClient', () => {
             { info: cdnErrorResult },
             cdnErrorResult.message
           )
+        );
+        expect(onCallback).toHaveBeenCalledWith(
+          expect.objectContaining({
+            method: 'getLocales',
+            cache: false,
+            error: expect.anything(),
+          })
         );
       });
 

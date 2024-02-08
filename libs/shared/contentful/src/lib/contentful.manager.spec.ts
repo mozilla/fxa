@@ -19,15 +19,21 @@ import {
 } from '../../src';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
+import { StatsD } from 'hot-shots';
 
 describe('ContentfulManager', () => {
   let manager: ContentfulManager;
   let mockClient: ContentfulClient;
+  let mockStatsd: StatsD;
 
   beforeEach(async () => {
-    mockClient = {} as any;
+    mockClient = new ContentfulClient({} as any);
+    mockStatsd = {
+      timing: jest.fn().mockReturnValue({}),
+    } as unknown as StatsD;
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        { provide: StatsD, useValue: mockStatsd },
         { provide: ContentfulClient, useValue: mockClient },
         ContentfulManager,
       ],
@@ -38,6 +44,25 @@ describe('ContentfulManager', () => {
 
   it('should be defined', () => {
     expect(manager).toBeDefined();
+  });
+
+  it('should call statsd for incoming events', async () => {
+    const queryData = EligibilityContentByPlanIdsQueryFactory({
+      purchaseCollection: { items: [], total: 0 },
+    });
+    mockClient.client.request = jest.fn().mockResolvedValue(queryData);
+    await manager.getPurchaseDetailsForEligibility(['test']);
+    expect(mockStatsd.timing).toHaveBeenCalledWith(
+      'contentful_request',
+      expect.any(Number),
+      undefined,
+      {
+        method: 'query',
+        error: 'false',
+        cache: 'false',
+        operationName: 'EligibilityContentByPlanIds',
+      }
+    );
   });
 
   describe('getPurchaseDetailsForEligibility', () => {
