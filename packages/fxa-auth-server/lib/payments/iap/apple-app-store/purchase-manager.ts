@@ -183,4 +183,17 @@ export class PurchaseManager extends PurchaseManagerBase {
       notification?.subtype
     );
   }
+
+  /**
+   * Delete all purchases for a user.
+   * This is intended to be used when a user deletes their account.
+   */
+  async deletePurchases(userId: string): Promise<void> {
+    const purchases = await this.purchasesDbRef
+      .where('userId', '==', userId)
+      .get();
+    const batch = this.purchasesDbRef.firestore.batch();
+    for (const purchase of purchases.docs) batch.delete(purchase.ref);
+    await batch.commit();
+  }
 }

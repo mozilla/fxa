@@ -338,6 +338,40 @@ describe('PurchaseManager', () => {
     });
   });
 
+  describe('deletePurchases', () => {
+    let purchaseManager;
+    let mockPurchaseDoc;
+    let mockBatch;
+
+    beforeEach(() => {
+      mockPurchaseDoc = {
+        docs: [
+          {
+            ref: 'testRef',
+          },
+        ],
+      };
+      mockBatch = {
+        delete: sinon.fake.resolves({}),
+        commit: sinon.fake.resolves({}),
+      };
+      mockPurchaseDbRef.where = sinon.fake.returns({
+        get: sinon.fake.resolves(mockPurchaseDoc),
+      });
+      mockPurchaseDbRef.firestore = {
+        batch: sinon.fake.returns(mockBatch),
+      };
+      purchaseManager = new PurchaseManager(mockPurchaseDbRef, mockApiClient);
+    });
+
+    it('deletes a purchase', async () => {
+      const result = await purchaseManager.deletePurchases('testToken');
+      assert.isUndefined(result);
+      sinon.assert.calledOnceWithExactly(mockBatch.delete, 'testRef');
+      sinon.assert.calledOnce(mockBatch.commit);
+    });
+  });
+
   describe('registerToUserAccount', () => {
     let purchaseManager;
     let mockPurchaseDoc;

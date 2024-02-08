@@ -76,6 +76,19 @@ export class PurchaseManager extends PurchaseManagerBase {
     return;
   }
 
+  /**
+   * Delete all purchases for a user.
+   * This is intended to be used when a user deletes their account.
+   */
+  public async deletePurchases(userId: string) {
+    const purchases = await this.purchasesDbRef
+      .where('userId', '==', userId)
+      .get();
+    const batch = this.purchasesDbRef.firestore.batch();
+    for (const purchase of purchases.docs) batch.delete(purchase.ref);
+    await batch.commit();
+  }
+
   /*
    * Register a purchase (both one-time product and recurring subscription) to a user.
    * It's intended to be exposed to Android app to verify purchases made in the app.
