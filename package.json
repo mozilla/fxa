@@ -40,7 +40,7 @@
   "license": "MPL-2.0",
   "dependencies": {
     "@apollo/client": "^3.8.3",
-    "@apollo/server": "^4.9.3",
+    "@apollo/server": "^4.10.0",
     "@faker-js/faker": "^8.1.0",
     "@fluent/bundle": "^0.18.0",
     "@fluent/react": "^0.15.2",
