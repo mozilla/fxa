@@ -257,14 +257,6 @@ const GET_RECOVERY_BUNDLE = gql`
   }
 `;
 
-const PASSWORD_FORGOT_SEND_CODE = gql`
-  mutation passwordForgotSendCode($input: PasswordForgotSendCodeInput!) {
-    passwordForgotSendCode(input: $input) {
-      passwordForgotToken
-    }
-  }
-`;
-
 export function getNextAvatar(
   existingId?: string,
   existingUrl?: string,
@@ -577,41 +569,27 @@ export class Account implements AccountData {
     service?: string,
     redirectTo?: string
   ): Promise<PasswordForgotSendCodePayload> {
-    try {
-      const result = await this.apolloClient.mutate({
-        mutation: PASSWORD_FORGOT_SEND_CODE,
-        variables: {
-          input: {
-            email,
-            redirectTo,
-            resume: 'e30=',
+    let options: {
+      service?: string;
+      resume?: string;
+      redirectTo?: string;
+    } = {
+      resume: 'e30=', // base64 json for {}
+    };
 
-            // NOTE: The 'service' param should only ever be 'sync' or a Sync client ID.
-            // However, we're passing along the 'client_id' here as 'service' so when users
-            // open the reset PW link, 'service' will contain the client ID and we can
-            // properly look up and display the associated RP name. We would fix this but
-            // we'll be ripping out this functionality in FXA-6670.
-            service: service === MozServices.FirefoxSync ? 'sync' : service,
-          },
-        },
-      });
-      return result.data.passwordForgotSendCode;
-    } catch (err) {
-      const graphQlError = (err as ApolloError)?.graphQLErrors?.[0];
-      const errno = graphQlError?.extensions?.errno as number | undefined;
-
-      if (typeof errno === 'number' && errno === AuthUiErrors.THROTTLED.errno) {
-        const throttledErrorWithRetryAfter = {
-          ...AuthUiErrorNos[errno],
-          retryAfter: graphQlError?.extensions?.retryAfter,
-          retryAfterLocalized: graphQlError?.extensions?.retryAfterLocalized,
-        };
-        throw throttledErrorWithRetryAfter;
-      } else if (typeof errno === 'number' && AuthUiErrorNos[errno]) {
-        throw AuthUiErrorNos[errno];
-      }
-      throw AuthUiErrors.UNEXPECTED_ERROR;
+    // Important! Only set service when it's Firefox Sync
+    if (service && service === MozServices.FirefoxSync) {
+      options.service = 'sync';
+    } else {
+      options.service = service;
     }
+
+    if (redirectTo) {
+      options.redirectTo = redirectTo;
+    }
+
+    const result = await this.authClient.passwordForgotSendCode(email, options);
+    return result;
   }
 
   async resetPasswordStatus(passwordForgotToken: string): Promise<boolean> {
