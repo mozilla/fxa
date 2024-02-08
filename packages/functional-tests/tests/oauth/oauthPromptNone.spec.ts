@@ -12,7 +12,6 @@ test.describe('severity-1 #smoke', () => {
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
-      //Epic Fxa-7861 filed for the work to add plans in prod
       test.skip(
         project.name === 'production',
         'test plan not yet available in prod'
@@ -151,7 +150,6 @@ test.describe('severity-1 #smoke', () => {
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
-      //Epic Fxa-7861 filed for the work to add plans in prod
       test.skip(
         project.name === 'production',
         'test plan not yet available in prod'
