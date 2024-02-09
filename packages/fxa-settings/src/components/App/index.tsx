@@ -289,6 +289,7 @@ const AuthAndAccountSetupRoutes = ({
 
       {/* Signin */}
       <ReportSigninContainer path="/report_signin/*" />
+      <SigninContainer path="/force_auth/*" {...{ integration, serviceName }} />
       <SigninContainer path="/signin/*" {...{ integration, serviceName }} />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <CompleteSigninContainer path="/complete_signin/*" />
