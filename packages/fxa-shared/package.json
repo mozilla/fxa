@@ -297,7 +297,7 @@
     "uuid": "^9.0.0"
   },
   "dependencies": {
-    "@fluent/langneg": "^0.6.2",
+    "@fluent/langneg": "^0.7.0",
     "@mozilla/glean": "^4.0.0",
     "accept-language-parser": "^1.5.0",
     "ajv": "^8.11.2",

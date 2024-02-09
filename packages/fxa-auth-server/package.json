@@ -65,7 +65,7 @@
   "dependencies": {
     "@fluent/bundle": "^0.18.0",
     "@fluent/dom": "^0.9.0",
-    "@fluent/langneg": "^0.6.2",
+    "@fluent/langneg": "^0.7.0",
     "@google-cloud/tasks": "^4.0.1",
     "@googlemaps/google-maps-services-js": "^3.3.16",
     "@hapi/hapi": "^20.2.1",
