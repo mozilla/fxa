@@ -34,7 +34,7 @@ export function sortAndFilterConnectedClients(
     .map((key) => {
       return groupedByName[key].sort(
         (a: AttachedClient, b: AttachedClient) =>
-          a.lastAccessTime - b.lastAccessTime
+          b.lastAccessTime - a.lastAccessTime
       )[0];
     })
     .sort((a, b) => b.lastAccessTime - a.lastAccessTime);

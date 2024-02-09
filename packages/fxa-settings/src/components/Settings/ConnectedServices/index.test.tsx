@@ -124,6 +124,11 @@ describe('Connected Services', () => {
       sortedAndUniqueClients.filter((item) => item.name === 'Mozilla Monitor')
         .length
     ).toEqual(1);
+    expect(
+      sortedAndUniqueClients.filter(
+        (item) => item.name === 'Mozilla Monitor'
+      )[0].lastAccessTime
+    ).toEqual(1570736983000);
     expect(groupedByName['Mozilla Monitor'].length).toEqual(2);
   });
 
