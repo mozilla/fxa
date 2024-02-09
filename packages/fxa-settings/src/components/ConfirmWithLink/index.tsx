@@ -33,10 +33,6 @@ const ConfirmWithLink = ({
   resendStatus,
   errorMessage,
 }: ConfirmWithLinkProps) => {
-  // (temporarily?) removed `Open With Webmail` functionality
-  // Not currently functional in content-server/prod so requires fix/new utility
-  // File follow-up to check with Product to see if we want to recreate this functionality
-
   return (
     <>
       <CardHeader

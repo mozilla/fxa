@@ -105,6 +105,7 @@ const BaseAuthenticationBroker = Backbone.Model.extend({
     afterResetPasswordConfirmationPoll: new NullBehavior(),
     afterSignIn: new NavigateBehavior('signin_confirmed'),
     afterSignInConfirmationPoll: new NavigateBehavior('signin_confirmed'),
+    // with React conversion, we are deprecating the confirm view in favor of 'confirm_signup_code'
     afterSignUp: new NavigateBehavior('confirm'),
     afterSignUpConfirmationPoll: new NavigateOrRedirectBehavior(
       'signup_confirmed'
