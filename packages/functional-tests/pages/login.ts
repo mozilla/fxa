@@ -253,16 +253,12 @@ export class LoginPage extends BaseLayout {
     return header.isVisible();
   }
 
-  async waitForSignUpCodeHeader() {
-    await this.page.waitForSelector(selectors.SIGN_UP_CODE_HEADER, {
-      timeout: 3000,
-    });
+  signUpCodeHeader() {
+    return this.page.locator(selectors.SIGN_UP_CODE_HEADER);
   }
 
-  async waitForSignInCodeHeader() {
-    await this.page.waitForSelector(selectors.SIGN_IN_CODE_HEADER, {
-      timeout: 2000,
-    });
+  signInCodeHeader() {
+    return this.page.locator(selectors.SIGN_IN_CODE_HEADER);
   }
 
   async confirmEmail() {
@@ -296,17 +292,15 @@ export class LoginPage extends BaseLayout {
   async isUserLoggedIn() {
     const header = this.page.locator(selectors.FIREFOX_HEADER);
     await header.waitFor();
-    return header.isVisible();
+    return header;
   }
 
   async acceptOauthPermissions() {
     return this.page.locator(selectors.PERMISSION_ACCEPT).click();
   }
 
-  async waitForSigninUnblockHeader() {
-    await this.page.waitForSelector(selectors.SIGNIN_UNBLOCK_HEADER, {
-      timeout: 2000,
-    });
+  signInUnblockHeader() {
+    return this.page.locator(selectors.SIGNIN_UNBLOCK_HEADER);
   }
 
   async signInError() {
@@ -411,9 +405,9 @@ export class LoginPage extends BaseLayout {
   }
 
   async waitForPasswordHeader() {
-    await this.page.waitForSelector(selectors.PASSWORD_HEADER, {
-      timeout: 4000,
-    });
+    const header = this.page.locator(selectors.PASSWORD_HEADER);
+    await header.waitFor();
+    return header;
   }
 
   async clickSignIn() {
@@ -429,10 +423,8 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT).click();
   }
 
-  async waitForCWTSEngineHeader() {
-    await this.page.waitForSelector(selectors.CWTS_ENGINE_HEADER, {
-      timeout: 2000,
-    });
+  cwtsEngineHeader() {
+    return this.page.locator(selectors.CWTS_ENGINE_HEADER);
   }
 
   async isCWTSPageHeader() {
@@ -506,13 +498,13 @@ export class LoginPage extends BaseLayout {
   async permissionsHeader() {
     const resetPass = this.page.locator(selectors.PERMISSIONS_HEADER);
     await resetPass.waitFor();
-    return resetPass.isVisible();
+    return resetPass;
   }
 
   async notesHeader() {
     const header = this.page.locator(selectors.NOTES_HEADER);
     await header.waitFor();
-    return header.isVisible();
+    return header;
   }
 
   async clickDontHaveRecoveryKey() {
