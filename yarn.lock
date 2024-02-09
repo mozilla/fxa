@@ -37339,8 +37339,6 @@ fsevents@~2.1.1:
     serve-static: ^1.14.2
     supertest: ^6.3.0
     tailwindcss-textshadow: ^2.1.3
-    ts-jest: ^29.1.0
-    typescript: ^5.2.2
     webpack: ^5.84.1
   languageName: unknown
   linkType: soft
@@ -37379,10 +37377,8 @@ fsevents@~2.1.1:
     rimraf: ^5.0.0
     stripe: ^11.12.0
     supertest: ^6.3.0
-    ts-jest: ^29.1.0
     ts-morph: ^21.0.1
     tslib: ^2.5.0
-    typescript: ^5.2.2
     yargs: ^17.0.1
   languageName: unknown
   linkType: soft
@@ -37409,7 +37405,6 @@ fsevents@~2.1.1:
     mocha: ^10.0.0
     node-fetch: ^2.6.7
     prettier: ^2.8.7
-    typescript: ^5.2.2
     webcrypto-liner: ^1.4.0
   languageName: unknown
   linkType: soft
@@ -37570,7 +37565,6 @@ fsevents@~2.1.1:
     type-fest: ^3.12.0
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.2.2
     uuid: ^9.0.0
     verror: ^1.10.1
     web-push: 3.4.4
@@ -37726,7 +37720,6 @@ fsevents@~2.1.1:
     thread-loader: ^4.0.2
     time-grunt: 2.0.0
     ts-loader: ^8.4.0
-    typescript: ^5.2.2
     ua-parser-js: 1.0.35
     underscore: ^1.13.1
     upng-js: 2.1.0
@@ -37857,11 +37850,9 @@ fsevents@~2.1.1:
     rimraf: ^5.0.0
     sqs-consumer: ^7.2.1
     supertest: ^6.3.0
-    ts-jest: ^29.1.0
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.2.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.2.2
     uuid: ^9.0.0
   languageName: unknown
   linkType: soft
@@ -37938,9 +37929,7 @@ fsevents@~2.1.1:
     rimraf: ^5.0.0
     superagent: ^8.1.2
     supertest: ^6.3.0
-    ts-jest: ^29.1.0
     tslib: ^2.5.0
-    typescript: ^5.2.2
   languageName: unknown
   linkType: soft
 
@@ -38073,9 +38062,7 @@ fsevents@~2.1.1:
     storybook: ^7.0.23
     storybook-addon-mock: 4.2.1
     supertest: ^6.3.0
-    ts-jest: ^29.1.0
     typedi: ^0.8.0
-    typescript: ^5.2.2
     uuid: ^9.0.0
     wait-for-expect: ^3.0.2
     webpack: ^5.84.1
@@ -38184,8 +38171,6 @@ fsevents@~2.1.1:
     sinon: ^9.2.3
     storybook: ^7.0.23
     tailwindcss-dir: ^4.0.0
-    ts-jest: ^29.1.0
-    typescript: ^5.2.2
     webpack: ^5.84.1
   languageName: unknown
   linkType: soft
@@ -38309,7 +38294,6 @@ fsevents@~2.1.1:
     subscriptions-transport-ws: ^0.11.0
     tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
-    typescript: ^5.2.2
     ua-parser-js: 1.0.35
     uuid: ^9.0.0
     webpack: ^5.84.1
@@ -38392,12 +38376,10 @@ fsevents@~2.1.1:
     sinon: ^9.0.3
     stripe: ^11.12.0
     superagent: ^8.1.2
-    ts-jest: ^29.1.0
     ts-loader: ^8.4.0
     tsc-alias: ^1.8.7
     tsconfig-paths: ^4.2.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.2.2
     underscore: ^1.13.1
     uuid: ^9.0.0
   languageName: unknown
@@ -38541,10 +38523,10 @@ fsevents@~2.1.1:
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
     tailwindcss: ^3.4.1
-    ts-jest: 29.1.0
+    ts-jest: ^29.1.2
     ts-node: ^10.9.1
     tslib: ^2.5.0
-    typescript: ^5.2.2
+    typescript: ^5.3.3
     uuid: ^9.0.0
     winston: ^3.11.0
   languageName: unknown
@@ -58650,17 +58632,6 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.2, semver@npm:^7.2.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5":
-  version: 7.3.5
-  resolution: "semver@npm:7.3.5"
-  dependencies:
-    lru-cache: ^6.0.0
-  bin:
-    semver: bin/semver.js
-  checksum: 5eafe6102bea2a7439897c1856362e31cc348ccf96efd455c8b5bc2c61e6f7e7b8250dc26b8828c1d76a56f818a7ee907a36ae9fb37a599d3d24609207001d60
-  languageName: node
-  linkType: hard
-
 "semver@npm:^6.3.1":
   version: 6.3.1
   resolution: "semver@npm:6.3.1"
@@ -58678,6 +58649,17 @@ resolve@1.1.7:
   bin:
     semver: bin/semver.js
   checksum: 12d8ad952fa353b0995bf180cdac205a4068b759a140e5d3c608317098b3575ac2f1e09182206bf2eb26120e1c0ed8fb92c48c592f6099680de56bb071423ca3
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.2, semver@npm:^7.2.1, semver@npm:^7.3.2, semver@npm:^7.3.4, semver@npm:^7.3.5":
+  version: 7.3.5
+  resolution: "semver@npm:7.3.5"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: 5eafe6102bea2a7439897c1856362e31cc348ccf96efd455c8b5bc2c61e6f7e7b8250dc26b8828c1d76a56f818a7ee907a36ae9fb37a599d3d24609207001d60
   languageName: node
   linkType: hard
 
@@ -62660,9 +62642,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-jest@npm:29.1.0, ts-jest@npm:^29.1.0":
-  version: 29.1.0
-  resolution: "ts-jest@npm:29.1.0"
+"ts-jest@npm:^29.1.2":
+  version: 29.1.2
+  resolution: "ts-jest@npm:29.1.2"
   dependencies:
     bs-logger: 0.x
     fast-json-stable-stringify: 2.x
@@ -62670,7 +62652,7 @@ resolve@1.1.7:
     json5: ^2.2.3
     lodash.memoize: 4.x
     make-error: 1.x
-    semver: 7.x
+    semver: ^7.5.3
     yargs-parser: ^21.0.1
   peerDependencies:
     "@babel/core": ">=7.0.0-beta.0 <8"
@@ -62689,7 +62671,7 @@ resolve@1.1.7:
       optional: true
   bin:
     ts-jest: cli.js
-  checksum: 535dc42ad523cbe1e387701fb2e448518419b515c082f09b25411f0b3dd0b854cf3e8141c316d6f4b99883aeb4a4f94159cbb1edfb06d7f77ea6229fadb2e1bf
+  checksum: a0ce0affc1b716c78c9ab55837829c42cb04b753d174a5c796bb1ddf9f0379fc20647b76fbe30edb30d9b23181908138d6b4c51ef2ae5e187b66635c295cefd5
   languageName: node
   linkType: hard
 
@@ -63190,7 +63172,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.2.2, typescript@npm:~5.3.2":
+"typescript@npm:^5.3.3, typescript@npm:~5.3.2":
   version: 5.3.3
   resolution: "typescript@npm:5.3.3"
   bin:
@@ -63220,7 +63202,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^5.2.2#~builtin<compat/typescript>, typescript@patch:typescript@~5.3.2#~builtin<compat/typescript>":
+"typescript@patch:typescript@^5.3.3#~builtin<compat/typescript>, typescript@patch:typescript@~5.3.2#~builtin<compat/typescript>":
   version: 5.3.3
   resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=d73830"
   bin:
