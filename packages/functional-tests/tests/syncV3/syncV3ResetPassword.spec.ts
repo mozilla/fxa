@@ -12,7 +12,10 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
     test.slow();
 
     const config = await configPage.getConfig();
-    test.skip(config.showReactApp.resetPasswordRoutes === true);
+    test.skip(
+      config.showReactApp.resetPasswordRoutes === true,
+      'Scheduled for removal as part of React conversion (see FXA-8267).'
+    );
   });
 
   test('reset pw, test pw validation, verify same browser', async ({

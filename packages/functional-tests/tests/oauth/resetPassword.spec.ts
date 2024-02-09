@@ -11,7 +11,10 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
 
       const config = await configPage.getConfig();
-      test.skip(config.showReactApp.resetPasswordRoutes === true);
+      test.skip(
+        config.showReactApp.resetPasswordRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-8267).'
+      );
       test.skip(config.showReactApp.oauthRoutes === true);
     });
 

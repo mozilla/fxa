@@ -8,8 +8,10 @@ test.describe('severity-1 #smoke', () => {
   test.describe('OAuth force auth', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
-      // TODO: Remove forceAuth tests. React pages don't have this flow.
-      test.skip(config.showReactApp.resetPasswordRoutes === true);
+      test.skip(
+        config.showReactApp.resetPasswordRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-8267).'
+      );
     });
     test('with a registered email', async ({
       credentials,
