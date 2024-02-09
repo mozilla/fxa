@@ -24,7 +24,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(credentials.email, credentials.password);
       await login.setTotp(credentials.secret);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('can remove TOTP from account and skip confirmation', async ({
@@ -46,7 +46,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

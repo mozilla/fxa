@@ -47,7 +47,7 @@ test.describe('severity-1 #smoke', () => {
     await relier.clickEmailFirst();
 
     await login.login(credentials.email, credentials.password);
-    expect(await relier.isLoggedIn()).toBe(true);
+    expect(await relier.isLoggedIn()).toBeVisible();
 
     // Login to settings with cached creds
     await settings.goto();

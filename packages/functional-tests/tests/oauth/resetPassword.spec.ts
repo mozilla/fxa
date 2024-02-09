@@ -44,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPassword.resetNewPassword(credentials.password);
 
       // Verify logged in
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

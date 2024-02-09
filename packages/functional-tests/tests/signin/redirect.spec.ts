@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
       // In React, we show the message after the user submits
       if (signUpReactEnabled) {
         const emailNewCodeText = 'text=/Email new code/';
-        await page.waitForSelector(emailNewCodeText);
+        page.locator(emailNewCodeText);
         page.click(emailNewCodeText);
         const code = await target.email.waitForEmail(
           email,
@@ -45,7 +45,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const redirectTo = 'https://evil.com/';
       await engageRedirect(page, target, redirectTo, credentials.email);
-      await page.waitForSelector('text=/Invalid redirect/');
+      page.locator('text=/Invalid redirect/');
       expect(page.url).not.toEqual(redirectTo);
     });
 
@@ -56,7 +56,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const redirectTo = 'javascript:alert(1)';
       await engageRedirect(page, target, redirectTo, credentials.email);
-      await page.waitForSelector('text=/Invalid redirect/');
+      page.locator('text=/Invalid redirect/');
     });
 
     test('allows valid redirect_to parameter', async ({
@@ -71,7 +71,7 @@ test.describe('severity-2 #smoke', () => {
       // In React, we show the message after the user submits
       if (signUpReactEnabled) {
         const emailNewCodeText = 'text=/Email new code/';
-        await page.waitForSelector(emailNewCodeText);
+        page.locator(emailNewCodeText);
         page.click(emailNewCodeText);
         const code = await target.email.waitForEmail(
           credentials.email,

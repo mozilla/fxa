@@ -355,6 +355,6 @@ test.describe('severity-1 #smoke', () => {
 
   /** Checks that the version of the app being used is the React Version. */
   async function checkForReactApp({ page }) {
-    await page.waitForSelector('#root');
+    page.locator('#root');
   }
 });

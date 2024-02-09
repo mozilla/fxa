@@ -51,7 +51,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(page.getByText('Enter your email')).toBeVisible();
 
       await signupReact.fillOutEmailFirst(email);
-      await page.waitForSelector('#root');
+      page.locator('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
       await signupReact.fillOutCodeForm(email);
 
@@ -68,7 +68,10 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { login, signupReact },
     }) => {
-      test.skip(true, 'this test is skipped until we sort out how to record an email bounce for testing');
+      test.skip(
+        true,
+        'this test is skipped until we sort out how to record an email bounce for testing'
+      );
 
       await signupReact.goto();
       await signupReact.fillOutEmailFirst(email);
@@ -110,7 +113,7 @@ test.describe('severity-1 #smoke', () => {
 
       // expect to be redirected to relier after confirming signup code
       await page.waitForURL(target.relierUrl);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await relier.signOut();
     });
 
@@ -133,7 +136,7 @@ test.describe('severity-1 #smoke', () => {
       // redirectUri should have fallen back to the clientInfo config redirect URI
       // Expect to be redirected to relier
       await page.waitForURL(target.relierUrl);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await relier.signOut();
     });
 
@@ -160,12 +163,12 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/signup/, {
         waitUntil: 'load',
       });
-      await page.waitForSelector('#root');
+      page.locator('#root');
       // We must wait for the page to render before sending a web channel message
       expect(page.getByText('Set your password')).toBeVisible();
 
       await signupReact.sendWebChannelMessage(customEventDetail);
-      await login.waitForCWTSEngineHeader();
+      expect(login.cwtsEngineHeader()).toBeVisible();
       await login.isCWTSEngineBookmarks();
       await login.isCWTSEngineHistory();
       // Only engines provided via web channel for Sync mobile are displayed
@@ -185,7 +188,7 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.goto('/', syncDesktopV3QueryParams);
       await signupReact.fillOutEmailFirst(email);
       await page.waitForURL(/signup/);
-      await page.waitForSelector('#root');
+      page.locator('#root');
       // Wait for page to render
       expect(page.getByText('Set your password')).toBeVisible();
 

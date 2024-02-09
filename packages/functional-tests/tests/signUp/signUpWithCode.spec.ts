@@ -27,6 +27,7 @@ test.describe('severity-1 #smoke', () => {
 
       await client.accountDestroy(email, PASSWORD);
       await login.waitForPasswordHeader();
+      expect(await login.waitForPasswordHeader()).toBeVisible();
     });
 
     test('valid code then click back', async ({
@@ -41,7 +42,7 @@ test.describe('severity-1 #smoke', () => {
         waitForNavOnSubmit: false,
       });
       await page.goBack({ waitUntil: 'load' });
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('invalid code', async ({

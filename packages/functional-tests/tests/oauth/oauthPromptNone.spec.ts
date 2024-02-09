@@ -101,7 +101,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
       await target.auth.accountDestroy(email, password);
 
       const query = new URLSearchParams({
@@ -130,7 +130,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -182,7 +182,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       const query = new URLSearchParams({
         return_on_error: 'false',
@@ -212,7 +212,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       const query = new URLSearchParams({
         login_hint: login.createEmail(),
@@ -243,7 +243,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -254,7 +254,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.signInPromptNone();
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

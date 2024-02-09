@@ -64,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
       }
 
       // RP is logged in, logout then back in again
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await relier.signOut();
 
       await relier.clickSignIn();
@@ -72,7 +72,7 @@ test.describe('severity-1 #smoke', () => {
       // By default, we should see the email we signed up for Sync with
       expect(await login.getPrefilledEmail()).toContain(email);
       await login.clickSignIn();
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 
@@ -111,7 +111,7 @@ test.describe('severity-1 #smoke', () => {
         await signupReact.fillOutSignupForm(password);
         await signupReact.fillOutCodeForm(email);
       }
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );

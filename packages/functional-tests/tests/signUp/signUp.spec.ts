@@ -47,7 +47,7 @@ test.describe('severity-2 #smoke', () => {
       });
 
       // Verify the confirm code header and the email
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       expect(await login.confirmEmail()).toContain(emailWithoutSpace);
 
       // Need to clear the cache to get the new email
@@ -60,7 +60,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutFirstSignUp(emailWithSpace, password, {
         verify: false,
       });
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       expect(await login.confirmEmail()).toContain(emailWithoutSpace);
     });
 
@@ -133,7 +133,7 @@ test.describe('severity-2 #smoke', () => {
 
       // The original tab should transition to the settings page w/ success
       // message.
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
       await settings.signOut();
 
       // check the email address was cleared
@@ -154,7 +154,7 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.fillOutFirstSignUp(email, password);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('signup, verify and sign out of two accounts, all in the same tab, then sign in to the first account', async ({
@@ -169,7 +169,7 @@ test.describe('severity-2 #smoke', () => {
 
       // The original tab should transition to the settings page w/ success
       // message.
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Verify the account is in local storage and has a correct state
       const currentAccountUid = await page.evaluate(() => {
@@ -199,14 +199,14 @@ test.describe('severity-2 #smoke', () => {
 
       // The original tab should transition to the settings page w/ success
       // message.
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
       await settings.signOut();
 
       await login.setEmail(email);
       await login.clickSubmit();
       await login.setPassword(password);
       await login.submit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
   });
 });

@@ -24,9 +24,9 @@ test.describe('severity-1', () => {
     await relier.goto('prompt=consent');
     await relier.clickEmailFirst();
     await login.login(credentials.email, credentials.password);
-    expect(await login.permissionsHeader()).toBe(true);
+    expect(await login.permissionsHeader()).toBeVisible();
     await login.submit();
-    expect(await relier.isLoggedIn()).toBe(true);
+    expect(await relier.isLoggedIn()).toBeVisible();
   });
 });
 

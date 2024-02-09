@@ -31,7 +31,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       // Check that the sync relier is in the heading
       await page

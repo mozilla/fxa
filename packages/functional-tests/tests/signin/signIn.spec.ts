@@ -42,7 +42,7 @@ test.describe('severity-2 #smoke', () => {
       );
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Need to clear the cache to get the new email
       await login.clearCache();
@@ -55,7 +55,7 @@ test.describe('severity-2 #smoke', () => {
       );
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('signin verified with password that incorrectly has leading whitespace', async ({
@@ -87,7 +87,7 @@ test.describe('severity-2 #smoke', () => {
       );
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Sign out
       await settings.signOut();
@@ -99,7 +99,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('with bounced email', async ({
@@ -121,7 +121,8 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       // Verify the header after login
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
+
       await target.auth.accountDestroy(email, password);
       await page.waitForURL(/signin_bounced/);
 

@@ -150,7 +150,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
       expect(credentials.password).toContain('_new');
       await login.login(credentials.email, credentials.password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Verify key revoked after use
       const status = await settings.recoveryKey.statusText();
@@ -225,7 +225,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(credentials.email, credentials.password);
 
       // Verify login successful with password reset with new recovery key
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Verify that new account recovery key revoked
       status = await settings.recoveryKey.statusText();
@@ -268,7 +268,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(credentials.email, credentials.password);
 
       // Verify login successful
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Verify that account recovery key has been revoked after password reset
       status = await settings.recoveryKey.statusText();
@@ -310,7 +310,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(credentials.email, credentials.password);
 
       // Verify login successful
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Verify that account recovery key has been revoked after password reset
       status = await settings.recoveryKey.statusText();

@@ -39,12 +39,12 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
@@ -58,7 +58,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       await client.accountDestroy(bouncedEmail, password);
 
       //Verify error message
@@ -71,11 +71,12 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
+
       await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 

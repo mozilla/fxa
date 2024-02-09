@@ -30,7 +30,7 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await page.waitForURL(/settings/);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
   });
 });

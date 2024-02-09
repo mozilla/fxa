@@ -206,7 +206,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.isCachedLogin()).toBe(true);
 
       await login.submit();
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
 
       await relier.signOut();
 
@@ -219,7 +219,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.isCachedLogin()).toBe(true);
 
       await login.submit();
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
 
       // Disconnect sync otherwise we can have flaky tests.
       await settings.disconnectSync(credentials);

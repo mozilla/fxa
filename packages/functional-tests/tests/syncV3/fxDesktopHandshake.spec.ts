@@ -62,7 +62,7 @@ test.describe('severity-2 #smoke', () => {
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.fillOutEmailFirstSignIn(otherEmail, password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // Then, sign in the user again, synthesizing the user having signed
       // into Sync after the initial sign in.
@@ -80,7 +80,7 @@ test.describe('severity-2 #smoke', () => {
 
       expect(await login.getPrefilledEmail()).toContain(otherEmail);
       await login.clickSignIn();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('Sync - no user signed into browser, no user signed in locally', async ({
@@ -110,7 +110,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await login.fillOutEmailFirstSignIn(otherEmail, password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
       await page.goto(
         `${
           target.contentServerUrl
@@ -234,7 +234,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.getPrefilledEmail()).toContain(browserSignedInEmail);
       await login.setPassword(password);
       await login.clickSubmit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('Non-Sync settings page - no user signed into browser, user signed in locally', async ({
@@ -248,7 +248,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
       await login.fillOutEmailFirstSignIn(otherEmail, password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       await settings.goto();
       const primaryEmail = await settings.primaryEmail.statusText();

@@ -38,6 +38,6 @@ test.describe('OAuth scopeKeys', () => {
     await login.login(email, PASSWORD);
     await login.fillOutSignInCode(email);
 
-    expect(await login.notesHeader()).toBe(true);
+    expect(await login.notesHeader()).toBeVisible();
   });
 });

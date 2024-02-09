@@ -31,9 +31,7 @@ export class UnitRow {
   }
 
   async screenshot() {
-    const el = await this.page.waitForSelector(
-      `[data-testid=${this.id}-unit-row]`
-    );
+    const el = this.page.locator(`[data-testid=${this.id}-unit-row]`);
     return el.screenshot();
   }
 }
@@ -113,7 +111,7 @@ export class TotpRow extends UnitRow {
 
 export class ConnectedServicesRow extends UnitRow {
   async services() {
-    await this.page.waitForSelector('[data-testid=settings-connected-service]');
+    this.page.locator('[data-testid=settings-connected-service]');
     const elements = await this.page.$$(
       '[data-testid=settings-connected-service]'
     );

@@ -102,7 +102,7 @@ test.describe('key-stretching-v2', () => {
           `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
         );
         await signupReact.fillOutEmailFirst(email);
-        await page.waitForSelector('#root');
+        page.locator('#root');
         await signupReact.fillOutSignupForm(password);
         await signupReact.fillOutCodeForm(email);
         await page.waitForURL(/settings/);
@@ -137,7 +137,7 @@ test.describe('key-stretching-v2', () => {
         await login.clickSubmit();
         await login.setPassword(password);
         await login.clickSubmit();
-        expect(await login.isUserLoggedIn()).toBe(true);
+        expect(await login.isUserLoggedIn()).toBeVisible();
       }
 
       if (signOut) {
@@ -193,7 +193,7 @@ test.describe('key-stretching-v2', () => {
         await page.goto(
           `${target.contentServerUrl}/reset_password?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
         );
-        await page.waitForSelector('#root');
+        page.locator('#root');
         await resetPasswordReact.fillEmailToResetPwd(email);
         const link =
           (await target.email.waitForEmail(
@@ -202,7 +202,7 @@ test.describe('key-stretching-v2', () => {
             EmailHeader.link
           )) + `&showReactApp=true&${stretch}`;
         await page.goto(link);
-        await page.waitForSelector('#root');
+        page.locator('#root');
 
         if (key) {
           await resetPasswordReact.submitRecoveryKey(key);

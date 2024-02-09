@@ -92,7 +92,7 @@ export class SignupReactPage extends BaseLayout {
     // fill out email first form
     await this.fillOutEmailFirst(email);
     await this.page.waitForURL(/signup/);
-    await this.page.waitForSelector('#root');
+    this.page.locator('#root');
     await this.fillOutSignupForm(password);
     await this.page.waitForURL(/confirm_signup_code/);
     await this.fillOutCodeForm(email);

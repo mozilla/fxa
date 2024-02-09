@@ -85,7 +85,7 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(email, PASSWORD);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await relier.signOut();
 
       // login_hint takes precedence over the signed-in user

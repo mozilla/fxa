@@ -45,7 +45,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       await login.clearSessionStorage();
       await page.goto(target.contentServerUrl, {
@@ -55,7 +55,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSignIn();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
@@ -68,7 +68,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       await login.clearSessionStorage();
       await page.goto(target.contentServerUrl, {
@@ -81,7 +81,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSignIn();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       //Verify email is normalized
       const primary = await settings.primaryEmail.statusText();
@@ -96,7 +96,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -106,7 +106,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email2, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       // testing to make sure cached signin comes back after a refresh
       await page.goto(target.contentServerUrl, {
@@ -124,7 +124,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       await login.destroySession(email);
       await page.goto(target.contentServerUrl, {
@@ -137,7 +137,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('cached credentials that expire while on page', async ({ target }) => {
@@ -148,7 +148,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
@@ -168,7 +168,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSubmit();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('unverified cached signin redirects to confirm email', async ({
@@ -186,7 +186,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email_unverified, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -195,13 +195,13 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSignIn();
 
       //Cached login should still go to email confirmation screen for unverified accounts
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       //Fill the code and submit
       await login.fillOutSignUpCode(email_unverified);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
   });
 });

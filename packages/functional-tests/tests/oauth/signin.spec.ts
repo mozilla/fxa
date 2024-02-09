@@ -21,7 +21,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('verified using a cached login', async ({
@@ -31,7 +31,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
 
       await relier.signOut();
 
@@ -45,7 +45,7 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.isCachedLogin()).toBe(true);
       await login.submit();
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('verified using a cached expired login', async ({
@@ -55,7 +55,7 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
 
       await relier.signOut();
 
@@ -76,7 +76,7 @@ test.describe('severity-1 #smoke', () => {
 
       // User will have to re-enter login information
       await login.login(credentials.email, credentials.password);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('unverified, acts like signup', async ({
@@ -97,7 +97,7 @@ test.describe('severity-1 #smoke', () => {
       // User is shown confirm email page
       await login.fillOutSignInCode(email);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
@@ -139,7 +139,7 @@ test.describe('severity-1 #smoke', () => {
       // Verify email and ensure user is redirected to relier
       await login.fillOutSignUpCode(email);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
@@ -188,7 +188,7 @@ test.describe('severity-1 #smoke', () => {
       await login.login(blockedEmail, PASSWORD);
 
       await login.unblock(blockedEmail);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('verified, blocked, incorrect password', async ({

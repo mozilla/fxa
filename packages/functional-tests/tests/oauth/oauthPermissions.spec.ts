@@ -35,7 +35,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //no permissions asked for, straight to confirm
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
     });
 
     test('signup with `prompt=consent`', async ({
@@ -52,11 +52,11 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify permissions header
-      expect(await login.permissionsHeader()).toBe(true);
+      expect(await login.permissionsHeader()).toBeVisible();
       await login.acceptOauthPermissions();
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
     });
   });
 
@@ -78,7 +78,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('signin with `prompt=consent`', async ({
@@ -99,11 +99,11 @@ test.describe('severity-1 #smoke', () => {
       );
 
       //Verify permissions header
-      expect(await login.permissionsHeader()).toBe(true);
+      expect(await login.permissionsHeader()).toBeVisible();
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('signin without `prompt=consent`, then re-signin with `prompt=consent`', async ({
@@ -120,7 +120,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
       await relier.signOut();
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
@@ -131,11 +131,11 @@ test.describe('severity-1 #smoke', () => {
       await login.clickSignIn();
 
       //Verify permissions header
-      expect(await login.permissionsHeader()).toBe(true);
+      expect(await login.permissionsHeader()).toBeVisible();
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('force_auth without `prompt=consent`', async ({
@@ -148,7 +148,7 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('force_auth with `prompt=consent`', async ({
@@ -167,11 +167,11 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       //Verify permissions header
-      expect(await login.permissionsHeader()).toBe(true);
+      expect(await login.permissionsHeader()).toBeVisible();
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

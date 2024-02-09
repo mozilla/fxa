@@ -17,12 +17,12 @@ export class ConnectedService {
   }
 
   async getName() {
-    const p = await this.element.waitForSelector('[data-testid=service-name]');
+    const p = this.page.locator('[data-testid=service-name]');
     return p.innerText();
   }
 
   async signout() {
-    const button = await this.element.waitForSelector(
+    const button = this.page.locator(
       '[data-testid=connected-service-sign-out]'
     );
     return button.click();

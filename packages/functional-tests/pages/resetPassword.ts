@@ -30,7 +30,7 @@ export class ResetPasswordPage extends BaseLayout {
 
   async resetPasswordHeader(headerTextPartial?: string) {
     if (this.react) {
-      const header = await this.page.waitForSelector('#root .card-header');
+      const header = this.page.locator('#root .card-header');
       const headerText =
         // clean up any special characters and line breaks
         // eslint-disable-next-line no-control-regex

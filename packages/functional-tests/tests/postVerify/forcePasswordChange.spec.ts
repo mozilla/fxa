@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
       await postVerify.submit();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('force change password on login - oauth', async ({
@@ -63,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
       await postVerify.submit();
 
       //Verify logged in on relier page
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

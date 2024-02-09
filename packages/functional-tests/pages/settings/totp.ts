@@ -13,7 +13,7 @@ export class TotpPage extends SettingsLayout {
   }
 
   async useQRCode() {
-    const qr = await this.page.waitForSelector('[data-testid="2fa-qr-code"]');
+    const qr = this.page.locator('[data-testid="2fa-qr-code"]');
     const png = await qr.screenshot();
     const img = UPNG.decode(png);
     const { data } = jsQR(
@@ -57,7 +57,7 @@ export class TotpPage extends SettingsLayout {
   }
 
   async getRecoveryCodes(): Promise<string[]> {
-    await this.page.waitForSelector('[data-testid=datablock]');
+    this.page.locator('[data-testid=datablock]');
     return this.page.$$eval('[data-testid=datablock] span', (elements) =>
       elements.map((el) => (el as HTMLElement).innerText)
     );

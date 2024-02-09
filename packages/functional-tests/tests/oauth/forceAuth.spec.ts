@@ -26,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('with a unregistered email', async ({
@@ -44,7 +44,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setNewPassword(credentials.password);
       await login.fillOutSignUpCode(newEmail);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
 
     test('with blocked email', async ({
@@ -62,7 +62,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setNewPassword(credentials.password);
       await login.fillOutSignUpCode(blockedEmail);
 
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
 
       await relier.signOut();
 
@@ -73,7 +73,7 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       await login.unblock(blockedEmail);
-      expect(await relier.isLoggedIn()).toBe(true);
+      expect(await relier.isLoggedIn()).toBeVisible();
     });
   });
 });

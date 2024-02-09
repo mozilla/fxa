@@ -72,7 +72,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setAge('21');
 
       // The CWTS form is on the same signup page
-      await login.waitForCWTSEngineHeader();
+      expect(login.cwtsEngineHeader()).toBeVisible();
       expect(await login.isCWTSEngineBookmarks()).toBe(true);
       expect(await login.isCWTSEngineHistory()).toBe(true);
       expect(await login.isCWTSEnginePasswords()).toBe(true);

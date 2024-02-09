@@ -26,14 +26,12 @@ test.describe('severity-2 #smoke', () => {
       //expect(await page.locator('.card-header:has-text("Legal")').isVisible()).toBeTruthy();
 
       // Verify Privacy Notice link is visible
-      await expect(
-        page.locator('a:has-text("Privacy Notice")')
-      ).toBeVisible();
+      await expect(page.locator('a:has-text("Privacy Notice")')).toBeVisible();
       await page.locator('a:has-text("Privacy Notice")').click();
       await page.waitForURL(`${target.contentServerUrl}/legal/privacy`);
       await page.locator('button:has-text("Back")').click();
       await page.waitForURL(`${target.contentServerUrl}/legal`);
-      await page.waitForSelector('.card-header:has-text("Legal")');
+      page.locator('.card-header:has-text("Legal")');
     });
 
     test('start at terms page', async ({ page, target }) => {

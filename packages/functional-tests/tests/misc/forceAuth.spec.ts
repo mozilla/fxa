@@ -20,7 +20,7 @@ test.describe('severity-1 #smoke', () => {
       await forceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     test('forgot password flow via force_auth', async ({
@@ -59,7 +59,7 @@ test.describe('severity-1 #smoke', () => {
       await forceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       //Sign out
       await settings.signOut();
@@ -70,11 +70,12 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       //Verify password is empty and user need to enter password
-      await login.waitForPasswordHeader();
+      expect(login.passwordHeader).toBeVisible();
+
       expect(await login.getPasswordInput()).toContain('');
       await login.setPassword(credentials.password);
       await login.submit();
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
   });
 });

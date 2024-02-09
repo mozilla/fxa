@@ -36,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
       // Login to verify no prompt for code
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
     });
 
     // https://testrail.stage.mozaws.net/index.php?/cases/view/1293445
@@ -156,7 +156,7 @@ test.describe('severity-1 #smoke', () => {
       await deleteAccount.clickContinue();
       await deleteAccount.setPassword(credentials.password);
       await deleteAccount.submit();
-      const success = await page.waitForSelector('.success');
+      const success = page.locator('.success');
       // TODO: "Error: toBeVisible can be only used with Locator object"
       // eslint-disable-next-line playwright/prefer-web-first-assertions
       expect(await success.isVisible()).toBeTruthy();

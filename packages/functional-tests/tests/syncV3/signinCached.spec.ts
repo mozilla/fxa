@@ -51,7 +51,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       const query = { email: email2 };
       const queryParam = new URLSearchParams(query);
@@ -68,7 +68,7 @@ test.describe('severity-2 #smoke', () => {
       await connectAnotherDevice.clickNotNow();
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       //Reset prefill and context
       await login.clearSessionStorage();
@@ -92,7 +92,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
@@ -103,7 +103,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email2, password);
 
       //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      expect(await login.isUserLoggedIn()).toBeVisible();
 
       //Reset prefill and context
       await login.clearSessionStorage();

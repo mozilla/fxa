@@ -19,7 +19,7 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   async waitForAlertBar() {
-    return this.page.waitForSelector('[data-testid=alert-bar-content]');
+    return this.page.locator('[data-testid=alert-bar-content]');
   }
 
   closeAlertBar() {

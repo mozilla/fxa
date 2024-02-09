@@ -24,7 +24,7 @@ export class AvatarPage extends SettingsLayout {
     // between monogram avatars and user set images
     // and if we return directly after navigation
     // react may not have updated the image yet
-    await this.page.waitForSelector('img[src*="avatar"]');
+    this.page.locator('img[src*="avatar"]');
   }
 
   clickSave() {

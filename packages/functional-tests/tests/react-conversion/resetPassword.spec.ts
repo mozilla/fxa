@@ -27,7 +27,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
 
@@ -50,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
       await diffPage.goto(link);
 
       // Renders the React version of complete password reset page
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.completeResetPwdHeadingVisible(diffPage);
 
@@ -102,7 +102,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       // Verify react page has been loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
 
@@ -126,7 +126,7 @@ test.describe('severity-1 #smoke', () => {
       await diffPage.goto(link);
 
       // Renders the React version of complete password reset page
-      await page.waitForSelector('#root');
+      page.locator('#root');
       await resetPasswordReact.completeResetPwdHeadingVisible(diffPage);
 
       // Attempt to submit short password
@@ -190,7 +190,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       // Verify react page is loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
       await page.waitForURL(
@@ -214,7 +214,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       // Verify react page is loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
       await resetPasswordReact.fillEmailToResetPwd('email@restmail.net');
       await page.getByText('Unknown account').waitFor();
     });
@@ -228,7 +228,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto(undefined, `email=${credentials.email}`);
 
       // Verify react page is loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       //The email shouldn't be pre-filled
       const emailInput = await resetPasswordReact.getEmailValue();
@@ -237,7 +237,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(
         getReactFeatureFlagUrl(target, '/confirm_reset_password')
       );
-      await page.waitForSelector('#root');
+      page.locator('#root');
       await resetPasswordReact.confirmResetPasswordHeadingVisible();
     });
   });

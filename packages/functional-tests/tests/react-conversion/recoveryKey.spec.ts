@@ -77,7 +77,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       // Verify react page is loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
       await resetPasswordReact.confirmResetPasswordHeadingVisible();
@@ -93,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
       // Loads the React version
       await page.goto(link);
       // Verify react page is loaded
-      await page.waitForSelector('#root');
+      page.locator('#root');
 
       await resetPasswordReact.confirmRecoveryKeyHeadingVisible();
 

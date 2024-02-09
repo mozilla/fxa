@@ -14,11 +14,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup', async ({ pages: { configPage, login, relier } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes === true,
-        'this test is specific to backbone, skip if seeing React version'
-      );
+      // const config = await configPage.getConfig();
+      // test.skip(
+      //   config.showReactApp.signUpRoutes === true,
+      //   'this test is specific to backbone, skip if seeing React version'
+      // );
 
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
@@ -41,7 +41,7 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       // the CWTS form is on the same signup page
-      await login.waitForCWTSEngineHeader();
+      expect(login.cwtsEngineHeader()).toBeVisible();
       expect(await login.isCWTSEngineBookmarks()).toBe(true);
       expect(await login.isCWTSEngineHistory()).toBe(true);
 

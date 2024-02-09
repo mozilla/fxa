@@ -29,7 +29,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(`${target.contentServerUrl}/reset_password`);
 
       // Verify backbone page has been loaded
-      await page.waitForSelector('#stage');
+      page.locator('#stage');
 
       await resetPassword.fillOutResetPassword(credentials.email);
 

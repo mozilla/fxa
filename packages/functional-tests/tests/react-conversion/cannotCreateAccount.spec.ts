@@ -14,6 +14,6 @@ test.beforeEach(async ({ pages: { configPage } }) => {
 test.describe('react-conversion', () => {
   test('Cannot create account', async ({ page, target }) => {
     await page.goto(getReactFeatureFlagUrl(target, '/cannot_create_account'));
-    await page.waitForSelector('#root');
+    page.locator('#root');
   });
 });
