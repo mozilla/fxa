@@ -5,7 +5,7 @@
   "scripts": {
     "prebuild": "yarn l10n-prime",
     "build": "yarn build-l10n && yarn build-css && yarn build-ts && yarn build-react",
-    "build-css": "npx tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css",
+    "build-css": "NODE_ENV=production npx tailwindcss --postcss -i ./src/styles/tailwind.css -o ./src/styles/tailwind.out.css --minify",
     "build-ts": "tsc",
     "build-l10n": "nx l10n-merge && nx l10n-bundle && nx l10n-merge-test",
     "build-react": "SKIP_PREFLIGHT_CHECK=true PUBLIC_URL=/ INLINE_RUNTIME_CHUNK=false CI=false NODE_OPTIONS=--openssl-legacy-provider rescripts build",
