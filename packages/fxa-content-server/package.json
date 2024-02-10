@@ -129,7 +129,6 @@
     "stream-browserify": "^3.0.0",
     "thread-loader": "^4.0.2",
     "time-grunt": "2.0.0",
-    "typescript": "^5.2.2",
     "ua-parser-js": "1.0.35",
     "underscore": "^1.13.1",
     "verror": "1.10.1",
