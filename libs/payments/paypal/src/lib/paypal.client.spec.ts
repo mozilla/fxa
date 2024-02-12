@@ -5,7 +5,6 @@ import nock from 'nock';
 
 import { faker } from '@faker-js/faker';
 
-import { PayPalClient } from './client';
 import {
   PAYPAL_IPN_ROUTE,
   PAYPAL_NVP_ROUTE,
@@ -14,7 +13,8 @@ import {
   PAYPAL_VERSION,
   PLACEHOLDER_URL,
 } from './constants';
-import { PayPalClientError, PayPalNVPError } from './error';
+import { PayPalClient } from './paypal.client';
+import { PayPalClientError, PayPalNVPError } from './paypal.error';
 import {
   NVPBAUpdateTransactionResponseFactory,
   NVPDoReferenceTransactionResponseFactory,

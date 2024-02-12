@@ -14,7 +14,7 @@ import {
   PAYPAL_VERSION,
   PLACEHOLDER_URL,
 } from './constants';
-import { PayPalClientError, PayPalNVPError } from './error';
+import { PayPalClientError, PayPalNVPError } from './paypal.error';
 import {
   BAUpdateOptions,
   CreateBillingAgreementOptions,
@@ -36,7 +36,7 @@ import {
   TransactionSearchOptions,
 } from './types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
-import { PaypalClientConfig } from './client.config';
+import { PaypalClientConfig } from './paypal.client.config';
 
 @Injectable()
 export class PayPalClient {
