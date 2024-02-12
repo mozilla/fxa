@@ -37010,7 +37010,7 @@ fsevents@~2.1.1:
     through: 2.3.8
     tsc-alias: ^1.8.7
     type-fest: ^3.12.0
-    typedi: ^0.8.0
+    typedi: ^0.10.0
     typesafe-node-firestore: ^1.4.1
     typescript: ^5.3.3
     uuid: ^9.0.0
@@ -37518,7 +37518,7 @@ fsevents@~2.1.1:
     storybook: ^7.0.23
     storybook-addon-mock: 4.2.1
     supertest: ^6.3.0
-    typedi: ^0.8.0
+    typedi: ^0.10.0
     typescript: ^5.3.3
     uuid: ^9.0.0
     wait-for-expect: ^3.0.2
@@ -62505,10 +62505,10 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typedi@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "typedi@npm:0.8.0"
-  checksum: f6fc275672945953aa3486582273a89bcf4e6c0808810a1f21332f4725d0493d1fb74fef8cdb7bc700ec8aa9c36db9a070d6a2f88c8639037185f0d78b988692
+"typedi@npm:^0.10.0":
+  version: 0.10.0
+  resolution: "typedi@npm:0.10.0"
+  checksum: d26491e3684677d898f745b2ea5403cad4e03f7ed87b35d0a1cc80cbb4837d50042e100574da77d56dd04e3f0270a6f7df18270171c828bec6b93cefbac059a3
   languageName: node
   linkType: hard
 
