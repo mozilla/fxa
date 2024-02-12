@@ -129,7 +129,7 @@ async function run(config) {
         graphqlSpaceId: config.contentful.spaceId,
         graphqlEnvironment: config.contentful.environment,
       });
-      const contentfulManager = new ContentfulManager(contentfulClient);
+      const contentfulManager = new ContentfulManager(contentfulClient, statsd);
       Container.set(ContentfulManager, contentfulManager);
       const capabilityManager = new CapabilityManager(contentfulManager);
       const eligibilityManager = new EligibilityManager(contentfulManager);

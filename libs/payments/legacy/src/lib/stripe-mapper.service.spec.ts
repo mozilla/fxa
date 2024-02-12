@@ -26,9 +26,10 @@ describe('StripeMapperService', () => {
         .mockResolvedValue(
           mockContentfulConfigUtil as unknown as PurchaseWithDetailsOfferingContentUtil
         );
-      const contentfulClient = {} as ContentfulClient;
+      const contentfulClient = new ContentfulClient({} as any);
+      const mockStatsd = {} as any;
       stripeMapper = new StripeMapperService(
-        new ContentfulManager(contentfulClient)
+        new ContentfulManager(contentfulClient, mockStatsd)
       );
     });
 

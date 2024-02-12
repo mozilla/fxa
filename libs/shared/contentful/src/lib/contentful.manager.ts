@@ -30,10 +30,30 @@ import {
   servicesWithCapabilitiesQuery,
 } from './queries/services-with-capabilities';
 import { DeepNonNullable } from './types';
+import { StatsD } from 'hot-shots';
+import { getOperationName } from '@apollo/client/utilities';
 
 @Injectable()
 export class ContentfulManager {
-  constructor(private client: ContentfulClient) {}
+  constructor(private client: ContentfulClient, private statsd: StatsD) {
+    this.client.on('response', (response) => {
+      const defaultTags = {
+        method: response.method,
+        error: response.error ? 'true' : 'false',
+        cache: `${response.cache}`,
+      };
+      const operationName = response.query && getOperationName(response.query);
+      const tags = operationName
+        ? { ...defaultTags, operationName }
+        : defaultTags;
+      this.statsd.timing(
+        'contentful_request',
+        response.elapsed,
+        undefined,
+        tags
+      );
+    });
+  }
 
   async getPurchaseDetailsForCapabilityServiceByPlanIds(
     stripePlanIds: string[]
