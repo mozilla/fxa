@@ -863,6 +863,11 @@ export class CapabilityService {
     try {
       const clientsFromContentful = await this.capabilityManager.getClients();
 
+      clientsFromContentful.sort((a, b) =>
+        a.clientId.localeCompare(b.clientId)
+      );
+      clientsFromStripe.sort((a, b) => a.clientId.localeCompare(b.clientId));
+
       if (isEqual(clientsFromContentful, clientsFromStripe))
         return clientsFromContentful;
 
