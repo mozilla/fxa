@@ -22,7 +22,7 @@ export class RelierPage extends BaseLayout {
   async isOauthSuccessHeader() {
     const header = this.page.locator('#fxa-oauth-success-header');
     await header.waitFor();
-    return header.isVisible();
+    return header;
   }
 
   async isPro() {

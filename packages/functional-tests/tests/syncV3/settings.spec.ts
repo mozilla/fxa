@@ -118,10 +118,7 @@ test.describe('severity-2 #smoke', () => {
       await deleteAccount.setPassword(firstPassword);
       await deleteAccount.submit();
 
-      const success = page.locator('.success');
-      // "Error: toBeVisible can be only used with Locator object"
-      // eslint-disable-next-line playwright/prefer-web-first-assertions
-      expect(await success.isVisible()).toBeTruthy();
+      expect(await deleteAccount.success()).toBeVisible();
     });
   });
 });

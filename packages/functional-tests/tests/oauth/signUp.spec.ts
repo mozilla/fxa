@@ -97,7 +97,7 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(`${target.contentServerUrl}/oauth/success/${clientId}`);
 
       //Verify oauth success header
-      expect(await relier.isOauthSuccessHeader()).toBe(true);
+      expect(await relier.isOauthSuccessHeader()).toBeVisible();
     });
   });
 });

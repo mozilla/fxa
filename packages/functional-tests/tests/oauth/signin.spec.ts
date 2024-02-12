@@ -42,7 +42,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.getPrefilledEmail()).toContain(
         credentials.email
       );
-      expect(await login.isCachedLogin()).toBe(true);
+      expect(await login.isCachedLogin()).toBeVisible();
       await login.submit();
 
       expect(await relier.isLoggedIn()).toBeVisible();
@@ -65,7 +65,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.getPrefilledEmail()).toContain(
         credentials.email
       );
-      expect(await login.isCachedLogin()).toBe(true);
+      expect(await login.isCachedLogin()).toBeVisible();
       await login.submit();
       await relier.signOut();
 
@@ -133,7 +133,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Cached user detected
       await expect(await login.getPrefilledEmail()).toContain(email);
-      expect(await login.isCachedLogin()).toBe(true);
+      expect(await login.isCachedLogin()).toBeVisible();
       await login.submit();
 
       // Verify email and ensure user is redirected to relier
