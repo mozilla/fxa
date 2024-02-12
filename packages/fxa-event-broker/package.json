@@ -54,6 +54,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@nestjs/cli": "^9.4.0",
     "@types/chance": "^1.1.2",
     "@types/convict": "^5.2.2",
     "@types/express": "^4.17.12",
@@ -81,9 +82,11 @@
     "pm2": "^5.3.0",
     "prettier": "^2.3.1",
     "supertest": "^6.3.0",
+    "ts-jest": "^29.1.2",
     "ts-loader": "^8.4.0",
     "tsconfig-paths": "^4.2.0",
-    "typesafe-node-firestore": "^1.4.1"
+    "typesafe-node-firestore": "^1.4.1",
+    "typescript": "^5.3.3"
   },
   "jest": {
     "moduleFileExtensions": [
