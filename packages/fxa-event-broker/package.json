@@ -69,7 +69,7 @@
     "audit-filter": "^0.5.0",
     "chance": "^1.1.8",
     "esbuild": "^0.17.15",
-    "esbuild-register": "^3.2.0",
+    "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-config-react-app": "^7.0.1",
