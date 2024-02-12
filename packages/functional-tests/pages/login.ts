@@ -427,44 +427,44 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.CWTS_ENGINE_HEADER);
   }
 
-  async isCWTSPageHeader() {
-    return this.page.locator(selectors.CWTS_PAGE_HEADER).isVisible();
+  async cwtsPageHeader() {
+    return this.page.locator(selectors.CWTS_PAGE_HEADER);
   }
 
-  async isCWTSEngineCreditCards() {
-    return this.page.locator(selectors.CWTS_ENGINE_CREDITCARDS).isVisible();
+  async cwtsEngineCreditCards() {
+    return this.page.locator(selectors.CWTS_ENGINE_CREDITCARDS);
   }
 
-  async isCWTSEngineBookmarks() {
-    return this.page.locator(selectors.CWTS_ENGINE_BOOKMARKS).isVisible();
+  async cwtsEngineBookmarks() {
+    return this.page.locator(selectors.CWTS_ENGINE_BOOKMARKS);
   }
 
-  async isCWTSEngineHistory() {
-    return this.page.locator(selectors.CWTS_ENGINE_HISTORY).isVisible();
+  async cwtsEngineHistory() {
+    return this.page.locator(selectors.CWTS_ENGINE_HISTORY);
   }
 
-  async isCWTSEnginePasswords() {
-    return this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).isVisible();
+  async cwtsEnginePasswords() {
+    return this.page.locator(selectors.CWTS_ENGINE_PASSWORDS);
   }
 
-  async isCWTSEngineAddons() {
-    return this.page.locator(selectors.CWTS_ENGINE_ADDONS).isVisible();
+  async cwtsEngineAddons() {
+    return this.page.locator(selectors.CWTS_ENGINE_ADDONS);
   }
 
-  async isCWTSEnginePrefs() {
-    return this.page.locator(selectors.CWTS_ENGINE_PREFS).isVisible();
+  async cwtsEnginePrefs() {
+    return this.page.locator(selectors.CWTS_ENGINE_PREFS);
   }
 
-  async isCWTSEngineTabs() {
-    return this.page.locator(selectors.CWTS_ENGINE_TABS).isVisible();
+  async cwtsEngineTabs() {
+    return this.page.locator(selectors.CWTS_ENGINE_TABS);
   }
 
-  async isCWTSEngineAddresses() {
-    return this.page.locator(selectors.CWTS_ENGINE_ADDRESSES).isVisible();
+  async cwtsEngineAddresses() {
+    return this.page.locator(selectors.CWTS_ENGINE_ADDRESSES);
   }
 
-  async isDoNotSync() {
-    return this.page.locator(selectors.DO_NOT_SYNC).isVisible();
+  async doNotSync() {
+    return this.page.locator(selectors.DO_NOT_SYNC);
   }
 
   async uncheckCWTSEngineHistory() {

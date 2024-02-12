@@ -169,10 +169,12 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.sendWebChannelMessage(customEventDetail);
       expect(login.cwtsEngineHeader()).toBeVisible();
-      await login.isCWTSEngineBookmarks();
-      await login.isCWTSEngineHistory();
+      expect(await login.cwtsEngineBookmarks()).toBeVisible();
+      expect(await login.cwtsEngineHistory()).toBeVisible();
       // Only engines provided via web channel for Sync mobile are displayed
-      expect(await login.isCWTSEngineCreditCards()).toBe(false);
+      expect(await login.cwtsEngineCreditCards()).toBeVisible({
+        visible: false,
+      });
 
       await signupReact.fillOutSignupForm(PASSWORD);
       await signupReact.fillOutCodeForm(email);
@@ -198,13 +200,13 @@ test.describe('severity-1 #smoke', () => {
 
       // Sync desktop v3 includes "default" engines plus the ones provided via web channel
       // See sync-engines.ts comments
-      await login.isCWTSEngineBookmarks();
-      await login.isCWTSEngineHistory();
-      await login.isCWTSEnginePasswords();
-      await login.isCWTSEngineTabs();
-      await login.isCWTSEnginePrefs();
-      await login.isCWTSEngineCreditCards();
-      expect(await login.isCWTSEngineAddresses()).toBe(false);
+      expect(await login.cwtsEngineBookmarks()).toBeVisible();
+      expect(await login.cwtsEngineHistory()).toBeVisible();
+      expect(await login.cwtsEnginePasswords()).toBeVisible();
+      expect(await login.cwtsEngineTabs()).toBeVisible();
+      expect(await login.cwtsEnginePrefs()).toBeVisible();
+      expect(await login.cwtsEngineCreditCards()).toBeVisible();
+      expect(await login.cwtsEngineAddresses()).toBeVisible({ visible: false });
 
       await signupReact.fillOutSignupForm(PASSWORD);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
