@@ -4,34 +4,51 @@
 
 @import '../../../../../libs/shared/styles/src/lib/index.css';
 
+/* layout */
 body {
   @apply grid min-h-[100vh] tablet:justify-center text-base font-body bg-grey-10 text-grey-900;
 }
 
+/* Purchase Details, offeringId */
 .row-divider-grey-200 {
   @apply border-b border-grey-200;
 }
 
-/* Container classes */
-.main-content {
-  @apply mt-16 mx-7 min-h-[calc(100vh_-_4rem)];
-  @apply tablet:grid tablet:grid-cols-[minmax(min-content,500px)_minmax(20rem,1fr)] tablet:grid-rows-[min-content] tablet:gap-x-8 tablet:mt-20 tablet:mb-auto;
-  @apply desktop:grid-cols-[600px_1fr];
-}
-
+/* offeringId */
+/* checkout, error, success pages */
 .payment-panel {
   @apply mb-6 tablet:mt-6 tablet:min-w-[18rem] tablet:max-w-xs tablet:col-start-2 tablet:col-end-auto tablet:row-start-1 tablet:row-end-3;
+}
+
+.page-body {
+  @apply component-card border-t-0 mb-6 pt-4 px-4 pb-14 text-grey-600 desktop:px-12 desktop:pb-12;
+}
+
+.page-header {
+  @apply font-semibold leading-8 mb-2 text-grey-600 text-xl;
 }
 
 .page-title-container {
   @apply bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px tablet:mx-0;
 }
 
-.payment-error ~ .payment-panel,
-.payment-confirmation ~ .payment-panel {
-  @apply mt-6;
+/* error, success pages */
+.page-button {
+  @apply flex items-center justify-center bg-blue-500 hover:bg-blue-700 font-semibold h-12 my-8 rounded-md text-white w-full;
 }
 
-.payment-error ~ .payment-panel .component-card {
-  @apply rounded-t-lg;
+.page-message {
+  @apply text-grey-400 max-w-sm text-sm;
+}
+
+.page-message-container {
+  @apply flex flex-col items-center text-center pb-8 mt-5 desktop:mt-2;
+}
+
+.page-subheader {
+  @apply flex items-center justify-center gap-2 text-green-900 mb-4;
+}
+
+.page-subheader-text {
+  @apply font-semibold text-sm;
 }

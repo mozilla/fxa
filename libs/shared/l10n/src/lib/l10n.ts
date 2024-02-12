@@ -29,6 +29,20 @@ const RESOURCES = {
   hello = Hello, world!\n
   plan-details-header = Header but English\n
   `),
+  'de-DE': new FluentResource(`
+  terms = Nutzungsbedingungen
+  privacy = Datenschutzhinweis
+  terms-download = Nutzungsbedingungen herunterladen
+  hello = Hallo Welt!\n
+  plan-details-header = Header but German\n
+  `),
+  'es-ES': new FluentResource(`
+  terms = Términos del servicio
+  privacy = Aviso de privacidad
+  terms-download = Descargar términos
+  hello = Hola mundo!\n
+  plan-details-header = Header but Spanish\n
+  `),
 };
 
 async function generateBundles() {
