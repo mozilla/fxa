@@ -19,7 +19,9 @@ export abstract class SettingsLayout extends BaseLayout {
   }
 
   async waitForAlertBar() {
-    return this.page.locator('[data-testid=alert-bar-content]');
+    const bar = this.page.locator('[data-testid=alert-bar-content]');
+    await bar.waitFor();
+    return bar;
   }
 
   closeAlertBar() {
