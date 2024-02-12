@@ -172,6 +172,7 @@ export default {
       const verificationMethod = account.get('verificationMethod');
       const verificationReason = account.get('verificationReason');
 
+      // with React conversion, we are deprecating the confirm_signin view in favor of 'signin_token_code'
       if (
         (verificationReason === VerificationReasons.SIGN_IN &&
           verificationMethod === VerificationMethods.EMAIL) ||
@@ -221,7 +222,7 @@ export default {
           this.navigate('confirm_signup_code', { account });
         });
       }
-
+      // with React conversion, we are deprecating the default confirm_signin view in favor of 'signin_token_code'
       return this.navigate('confirm', { account });
     }
 

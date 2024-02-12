@@ -7,7 +7,7 @@ import { RouteComponentProps, Router, useLocation } from '@reach/router';
 
 import { QueryParams } from '../..';
 
-import { currentAccount, sessionToken } from '../../lib/cache';
+import { currentAccount } from '../../lib/cache';
 import { firefox } from '../../lib/channels/firefox';
 import GleanMetrics from '../../lib/glean';
 import * as Metrics from '../../lib/metrics';
@@ -43,7 +43,6 @@ import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
 import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
 import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
-import Confirm from 'fxa-settings/src/pages/Signup/Confirm';
 import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import Legal from '../../pages/Legal';
@@ -223,7 +222,6 @@ const AuthAndAccountSetupRoutes = ({
   isSignedIn,
   integration,
 }: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
-  const sessionTokenId = sessionToken();
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -304,7 +302,6 @@ const AuthAndAccountSetupRoutes = ({
 
       {/* Signup */}
       <CannotCreateAccount path="/cannot_create_account/*" />
-      <Confirm path="/confirm/*" {...{ sessionTokenId }} />
       <ConfirmSignupCodeContainer
         path="/confirm_signup_code/*"
         {...{ integration }}
