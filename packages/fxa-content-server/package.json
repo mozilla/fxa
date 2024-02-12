@@ -150,7 +150,7 @@
     "core-js": "^3.32.0",
     "css": "3.0.0",
     "esbuild": "^0.17.15",
-    "esbuild-register": "^3.2.0",
+    "esbuild-register": "^3.5.0",
     "eslint": "^7.32.0",
     "firefox-profile": "4.3.2",
     "got": "11.8.5",

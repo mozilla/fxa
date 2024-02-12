@@ -33092,18 +33092,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild-register@npm:^3.2.0":
-  version: 3.2.0
-  resolution: "esbuild-register@npm:3.2.0"
-  dependencies:
-    jsonc-parser: ^3.0.0
-  peerDependencies:
-    esbuild: ">=0.12 <1"
-  checksum: 834e7d14315abaceb5356a0aab73d60183f812b3eb045741be09c69e34811184bf23f1c69dceede4ff87d430575b88d405fbdfb7351a4f6936d5bf6ec7493584
-  languageName: node
-  linkType: hard
-
-"esbuild-register@npm:^3.3.3, esbuild-register@npm:^3.4.0, esbuild-register@npm:^3.4.2":
+"esbuild-register@npm:^3.4.0":
   version: 3.4.2
   resolution: "esbuild-register@npm:3.4.2"
   dependencies:
@@ -36695,7 +36684,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.17.15
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.5.0
     eslint: ^8.18.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-prettier: ^4.2.1
@@ -36735,7 +36724,7 @@ fsevents@~2.1.1:
     abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.17.15
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.5.0
     eslint: ^8.38.0
     eslint-config-react-app: ^7.0.1
     fast-text-encoding: ^1.0.4
@@ -36822,7 +36811,7 @@ fsevents@~2.1.1:
     email-addresses: 4.0.0
     emittery: ^0.13.1
     esbuild: ^0.17.15
-    esbuild-register: ^3.3.3
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     fxa-customs-server: "workspace:*"
     fxa-geodb: "workspace:*"
@@ -36968,7 +36957,7 @@ fsevents@~2.1.1:
     css-loader: 1.0.0
     duration-js: 4.0.0
     esbuild: ^0.17.15
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     expose-loader: 5.0.0
     express: ^4.17.3
@@ -37171,7 +37160,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.17.15
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     eslint-config-prettier: ^8.7.0
     eslint-config-react-app: ^7.0.1
@@ -37250,7 +37239,7 @@ fsevents@~2.1.1:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     esbuild: ^0.17.15
-    esbuild-register: ^3.4.2
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     eslint-config-react-app: ^7.0.1
     express: ^4.17.3
@@ -37700,7 +37689,7 @@ fsevents@~2.1.1:
     cldr-localenames-full: 43.1.0
     cors: ^2.8.5
     esbuild: ^0.17.15
-    esbuild-register: ^3.2.0
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     express: ^4.17.3
     find-up: ^5.0.0
@@ -45432,13 +45421,6 @@ fsevents@~2.1.1:
   version: 3.2.1
   resolution: "jsonc-parser@npm:3.2.1"
   checksum: 656d9027b91de98d8ab91b3aa0d0a4cab7dc798a6830845ca664f3e76c82d46b973675bbe9b500fae1de37fd3e81aceacbaa2a57884bf2f8f29192150d2d1ef7
-  languageName: node
-  linkType: hard
-
-"jsonc-parser@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "jsonc-parser@npm:3.0.0"
-  checksum: 1df2326f1f9688de30c70ff19c5b2a83ba3b89a1036160da79821d1361090775e9db502dc57a67c11b56e1186fc1ed70b887f25c5febf9a3ec4f91435836c99d
   languageName: node
   linkType: hard
 
