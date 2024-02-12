@@ -161,14 +161,14 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(unverifiedEmail);
 
       //Unblock the email
       await login.unblock(unverifiedEmail);
 
       //Verify confirm code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       await login.fillOutSignInCode(unverifiedEmail);
 

@@ -130,7 +130,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       const query = new URLSearchParams({
         login_hint: email,

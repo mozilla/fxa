@@ -51,7 +51,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       const query = { email: email2 };
       const queryParam = new URLSearchParams(query);
@@ -92,7 +92,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
