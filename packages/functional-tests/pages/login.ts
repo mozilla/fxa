@@ -550,6 +550,12 @@ export class LoginPage extends BaseLayout {
   }
 
   async isCachedLogin() {
+    return this.page.isVisible(selectors.SUBMIT_USER_SIGNED_IN, {
+      timeout: 1000,
+    });
+  }
+
+  async loginCached() {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN);
   }
 

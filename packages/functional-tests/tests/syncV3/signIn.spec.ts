@@ -203,7 +203,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.getPrefilledEmail()).toContain(
         credentials.email
       );
-      await expect(await login.isCachedLogin()).toBeVisible();
+      await expect(await login.loginCached()).toBeVisible();
 
       await login.submit();
       expect(await relier.isLoggedIn()).toBeVisible();
@@ -216,7 +216,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(await login.getPrefilledEmail()).toContain(
         credentials.email
       );
-      await expect(await login.isCachedLogin()).toBeVisible();
+      await expect(await login.loginCached()).toBeVisible();
 
       await login.submit();
       expect(await relier.isLoggedIn()).toBeVisible();
