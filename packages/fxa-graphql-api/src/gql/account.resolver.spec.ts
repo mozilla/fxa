@@ -39,7 +39,12 @@ describe('#integration - AccountResolver', () => {
   });
 
   beforeEach(async () => {
-    logger = { debug: jest.fn(), error: jest.fn(), info: jest.fn() };
+    logger = {
+      debug: jest.fn(),
+      error: jest.fn(),
+      info: jest.fn(),
+      warn: jest.fn(),
+    };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,
@@ -579,7 +584,8 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1212'.repeat(8),
             authPWVersion2: '2323'.repeat(8),
             wrapKbVersion2: '3434'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
           options: {},
         });
@@ -618,6 +624,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.signUpWithAuthPW).toBeCalledWith(
           'testo@example.xyz',
           '00000000',
+          {},
           { service: 'testo-co', atLeast18AtReg: false },
           headers
         );
@@ -687,6 +694,7 @@ describe('#integration - AccountResolver', () => {
         expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
           'jwttothemax',
           '00000000',
+          {},
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);
@@ -710,8 +718,9 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1234'.repeat(8),
             authPWVersion2: '1234'.repeat(8),
             wrapKbVersion2: '1234'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
-          }
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+          },
         });
         expect(authClient.finishSetupWithAuthPW).toBeCalledTimes(1);
         expect(authClient.finishSetupWithAuthPW).toBeCalledWith(
@@ -721,7 +730,8 @@ describe('#integration - AccountResolver', () => {
             wrapKb: '1234'.repeat(8),
             authPWVersion2: '1234'.repeat(8),
             wrapKbVersion2: '1234'.repeat(8),
-            clientSalt: 'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef'
+            clientSalt:
+              'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
           },
           headers
         );
@@ -754,6 +764,127 @@ describe('#integration - AccountResolver', () => {
           'testo@example.xyz',
           '00000000',
           { service: 'testo-co' },
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
+    describe('credentialSet', () => {
+      it('calls auth-client and proxy the result', async () => {
+        const headers = new Headers();
+        const mockRespPayload = {
+          version: 'v2',
+          upgradeNeeded: false,
+          clientSalt:
+            'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef',
+        };
+        authClient.getCredentialStatusV2 = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+
+        const result = await resolver.credentialStatus(
+          headers,
+          'testo@example.xyz'
+        );
+
+        expect(authClient.getCredentialStatusV2).toBeCalledTimes(1);
+        expect(authClient.getCredentialStatusV2).toBeCalledWith(
+          'testo@example.xyz',
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
+    describe('password start', () => {
+      it('calls auth-client and proxies result', async () => {
+        const headers = new Headers();
+        const mockRespPayload = {
+          keyFetchToken: '123456789abcdef',
+          passwordChangeToken: '23456789abcdef1',
+        };
+        authClient.passwordChangeStartWithAuthPW = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+
+        const result = await resolver.passwordChangeStart(headers, {
+          email: 'foo@moz.com',
+          oldAuthPW: '3456789abcdef12',
+        });
+
+        expect(authClient.passwordChangeStartWithAuthPW).toBeCalledTimes(1);
+        expect(authClient.passwordChangeStartWithAuthPW).toBeCalledWith(
+          'foo@moz.com',
+          '3456789abcdef12',
+          {},
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
+    describe('password finish', () => {
+      it('calls auth-client and proxies result', async () => {
+        const headers = new Headers();
+        const mockRespPayload = {
+          keyFetchToken: '123456789abcdef',
+          passwordChangeToken: '23456789abcdef1',
+        };
+        authClient.passwordChangeFinish = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+
+        const result = await resolver.passwordChangeFinish(headers, {
+          passwordChangeToken: 'passwordChangeToken',
+          authPW: 'authPW',
+          wrapKb: 'wrapKb',
+          wrapKbVersion2: 'wrapKbVersion2',
+          authPWVersion2: 'authPWVersion2',
+          clientSalt: 'clientSalt',
+          keys: true,
+        });
+
+        expect(authClient.passwordChangeFinish).toBeCalledTimes(1);
+        expect(authClient.passwordChangeFinish).toBeCalledWith(
+          'passwordChangeToken',
+          {
+            authPW: 'authPW',
+            wrapKb: 'wrapKb',
+            sessionToken: undefined,
+            wrapKbVersion2: 'wrapKbVersion2',
+            authPWVersion2: 'authPWVersion2',
+            clientSalt: 'clientSalt',
+          },
+          {
+            keys: true,
+          },
+          headers
+        );
+        expect(result).toStrictEqual(mockRespPayload);
+      });
+    });
+
+    describe('wrapped keys', () => {
+      it('calls auth-client and proxies result', async () => {
+        const headers = new Headers();
+        const mockRespPayload = {
+          kA: '123456789abcdef',
+          wrapKB: '23456789abcdef1',
+        };
+        authClient.wrappedAccountKeys = jest
+          .fn()
+          .mockResolvedValue(mockRespPayload);
+
+        const keyFetchToken = '123456789abcdef';
+        const result = await resolver.wrappedAccountKeys(
+          headers,
+          keyFetchToken
+        );
+
+        expect(authClient.wrappedAccountKeys).toBeCalledTimes(1);
+        expect(authClient.wrappedAccountKeys).toBeCalledWith(
+          keyFetchToken,
           headers
         );
         expect(result).toStrictEqual(mockRespPayload);

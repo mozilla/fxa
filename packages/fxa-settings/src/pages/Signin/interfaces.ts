@@ -103,3 +103,36 @@ export interface SigninFormData {
   email: string;
   password: string;
 }
+
+export interface CredentialStatusResponse {
+  credentialStatus: {
+    upgradeNeeded: boolean;
+    version?: string;
+    clientSalt?: string;
+  };
+}
+
+export interface PasswordChangeStartResponse {
+  passwordChangeStart: {
+    keyFetchToken: string;
+    passwordChangeToken: string;
+  };
+}
+
+export interface PasswordChangeFinishResponse {
+  passwordChangeFinish: {
+    uid: string;
+    sessionToken: string;
+    verified: boolean;
+    authAt: number;
+    keyFetchToken: string;
+    keyFetchToken2?: string;
+  };
+}
+
+export interface GetAccountKeysResponse {
+  wrappedAccountKeys: {
+    kA: string;
+    wrapKB: string;
+  };
+}

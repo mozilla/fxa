@@ -5,8 +5,10 @@ import { Inject, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   Args,
+  Field,
   Info,
   Mutation,
+  ObjectType,
   Parent,
   Query,
   ResolveField,
@@ -17,6 +19,7 @@ import {
   Account,
   AccountOptions,
   EmailBounce,
+  KeyFetchToken,
   SessionToken,
 } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
@@ -57,6 +60,8 @@ import {
   AccountResetInput,
   AccountStatusInput,
   RecoveryKeyBundleInput,
+  PasswordChangeStartInput,
+  PasswordChangeFinishInput,
 } from './dto/input';
 import { DeleteAvatarInput } from './dto/input/delete-avatar';
 import { MetricsOptInput } from './dto/input/metrics-opt';
@@ -75,6 +80,10 @@ import {
   AccountResetPayload,
   AccountStatusPayload,
   RecoveryKeyBundlePayload,
+  CredentialStatusPayload,
+  PasswordChangeStartPayload,
+  WrappedKeysPayload,
+  PasswordChangeFinishPayload,
 } from './dto/payload';
 import { SignedInAccountPayload } from './dto/payload/signed-in-account';
 import { SignedUpAccountPayload } from './dto/payload/signed-up-account';
@@ -786,5 +795,78 @@ export class AccountResolver {
       });
     }
     return [];
+  }
+
+  @Mutation((returns) => CredentialStatusPayload, {
+    description:
+      'Check the status of an account using session token or uid. ' +
+      'This query is equivalent to the GET /account/credentials/status endpoint in auth-server.',
+  })
+  @CatchGatewayError
+  public async credentialStatus(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => String! })
+    input: string
+  ) {
+    return this.authAPI.getCredentialStatusV2(input, headers);
+  }
+
+  @Mutation((returns) => PasswordChangeStartPayload)
+  @CatchGatewayError
+  public async passwordChangeStart(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => PasswordChangeStartInput! })
+    input: PasswordChangeStartInput
+  ) {
+    return this.authAPI.passwordChangeStartWithAuthPW(
+      input.email,
+      input.oldAuthPW,
+      {},
+      headers
+    );
+  }
+
+  @Mutation((returns) => PasswordChangeFinishPayload)
+  @CatchGatewayError
+  public async passwordChangeFinish(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => PasswordChangeFinishInput })
+    input: {
+      passwordChangeToken: string;
+      authPW: string;
+      wrapKb: string;
+      sessionToken?: string;
+      wrapKbVersion2?: string;
+      authPWVersion2?: string;
+      clientSalt?: string;
+      keys?: boolean;
+    }
+  ) {
+    const resp = await this.authAPI.passwordChangeFinish(
+      input.passwordChangeToken,
+      {
+        authPW: input.authPW,
+        wrapKb: input.wrapKb,
+        sessionToken: input.sessionToken,
+        wrapKbVersion2: input.wrapKbVersion2,
+        authPWVersion2: input.authPWVersion2,
+        clientSalt: input.clientSalt,
+      },
+      {
+        keys: input.keys,
+      },
+      headers
+    );
+    return resp;
+  }
+
+  @Mutation((returns) => WrappedKeysPayload)
+  @CatchGatewayError
+  public async wrappedAccountKeys(
+    @GqlXHeaders() headers: Headers,
+    @Args('input', { type: () => String! })
+    input: string
+  ) {
+    return this.authAPI.wrappedAccountKeys(input, headers);
   }
 }
