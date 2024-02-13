@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "eslint": "6.6.0",
-    "eslint-config-prettier": "6.5.0",
+    "eslint-config-prettier": "9.1.0",
     "ramda": "^0.26.1"
   },
   "devDependencies": {
