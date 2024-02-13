@@ -87,6 +87,7 @@ type SecurityEvents {
   createdAt: Float
   tokenVerificationId: String
   name: String
+  ipAddr: String
 }
 
 type Totp {

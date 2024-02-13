@@ -99,6 +99,7 @@ export interface SecurityEvents {
     createdAt?: Nullable<number>;
     tokenVerificationId?: Nullable<string>;
     name?: Nullable<string>;
+    ipAddr?: Nullable<string>;
 }
 
 export interface Totp {
