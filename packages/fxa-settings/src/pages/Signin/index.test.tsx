@@ -41,6 +41,7 @@ jest.mock('../../lib/glean', () => ({
       view: jest.fn(),
       submit: jest.fn(),
       success: jest.fn(),
+      error: jest.fn(),
     },
     cachedLogin: {
       forgotPassword: jest.fn(),
@@ -260,15 +261,19 @@ describe('Signin', () => {
         });
         describe('errored submission', () => {
           it('shows error due to incorrect password', async () => {
-            const beginSigninHandler = jest
-              .fn()
-              .mockReturnValueOnce(createBeginSigninResponseError());
+            const response = createBeginSigninResponseError();
+            const beginSigninHandler = jest.fn().mockReturnValueOnce(response);
             render({ beginSigninHandler });
 
             enterPasswordAndSubmit();
             await waitFor(() => {
               screen.getByText('Incorrect password');
             });
+            expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+            expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+              reason: response.error.message,
+            });
+            expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
           });
         });
         // it('handles error due to throttled or request blocked', async () => {
@@ -286,6 +291,11 @@ describe('Signin', () => {
           await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalledWith('/signin_bounced');
           });
+          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+          expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+            reason: AuthUiErrors.EMAIL_HARD_BOUNCE.message,
+          });
+          expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
         });
         it('handles error due to TOTP required or insufficent ARC value', async () => {
           const beginSigninHandler = jest.fn().mockReturnValueOnce(
@@ -299,6 +309,11 @@ describe('Signin', () => {
           await waitFor(() => {
             expect(mockNavigate).toHaveBeenCalledWith('/inline_totp_setup');
           });
+          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
+          expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+            reason: AuthUiErrors.TOTP_REQUIRED.message,
+          });
+          expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
         });
       });
     });

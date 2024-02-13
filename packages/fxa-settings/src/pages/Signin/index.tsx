@@ -195,6 +195,7 @@ const Signin = ({
         navigationHandler(data.signIn);
       }
       if (error) {
+        GleanMetrics.login.error({ reason: error.message });
         const { message, ftlId, errno } = error;
 
         if (
