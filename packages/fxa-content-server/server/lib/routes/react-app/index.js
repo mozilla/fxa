@@ -70,6 +70,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_bounced',
         'report_signin',
         'complete_signin',
+        'force_auth',
       ]),
       fullProdRollout: false,
     },

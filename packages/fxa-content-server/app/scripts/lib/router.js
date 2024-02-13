@@ -228,7 +228,11 @@ Router = Router.extend({
         }),
       });
     },
-    'force_auth(/)': createViewHandler(ForceAuthView),
+    'force_auth(/)': function () {
+      this.createReactOrBackboneViewHandler('force_auth', ForceAuthView, {
+        ...Url.searchParams(this.window.location.search),
+      });
+    },
     'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
     'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
     'legal(/)': function () {
