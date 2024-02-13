@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { IsBoolean, IsEmail, IsOptional } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 import { bind, ModelDataProvider } from '../../../lib/model-data';
 
 export class SigninQueryParams extends ModelDataProvider {
@@ -20,4 +20,14 @@ export class SigninQueryParams extends ModelDataProvider {
   @IsBoolean()
   @bind()
   hasPassword: boolean | undefined = undefined;
+
+  @IsOptional()
+  @IsString()
+  @bind()
+  service: string | undefined = undefined;
+
+  @IsOptional()
+  @IsString()
+  @bind()
+  redirectTo: string | undefined = undefined;
 }

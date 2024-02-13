@@ -127,7 +127,9 @@ const Signin = ({
           // TODO with signin_totp_code ticket, content server says this (double check it):
           // Login requests that ask for 2FA but don't have it setup on their account
           // will return an error.
-          navigate('/signin_totp_code');
+          navigate('/signin_totp_code', {
+            state: { verificationReason, verificationMethod },
+          });
         } else if (verificationReason === VerificationReasons.SIGN_UP) {
           // do we need this?
           // if (verificationMethod !== VerificationMethods.EMAIL_OTP) {

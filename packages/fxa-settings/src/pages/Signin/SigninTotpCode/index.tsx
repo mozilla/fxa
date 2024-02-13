@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
-import { usePageViewEvent } from '../../../lib/metrics';
+import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
 import { TwoFactorAuthImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
@@ -14,26 +14,39 @@ import FormVerifyCode, {
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
-
-// --serviceName-- is the relying party
+import {
+  AuthUiError,
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from '../../../lib/auth-errors/auth-errors';
+import Banner, { BannerType } from '../../../components/Banner';
+import AppLayout from '../../../components/AppLayout';
+import GleanMetrics from '../../../lib/glean';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
 // get an email confirmation with no success message.
 
 export type SigninTotpCodeProps = {
-  email: string;
+  // TODO: Switch to gql error shaped object
+  submitTotpCode: (
+    totpCode: string
+  ) => Promise<{ error?: AuthUiError; status: boolean }>;
+  handleNavigation: () => void;
   serviceName?: MozServices;
 };
 
 export const viewName = 'signin-totp-code';
 
-const SigninTotpCode = ({
-  email,
+export const SigninTotpCode = ({
+  submitTotpCode,
+  handleNavigation,
   serviceName,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
+  const [success, setSuccess] = useState<boolean>(false);
+  const [generalError, setGeneralError] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -51,20 +64,34 @@ const SigninTotpCode = ({
     submitButtonText: 'Confirm',
   };
 
-  const onSubmit = () => {
-    try {
-      // Check authentication code
-      // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);
-      // Check if isForcePasswordChange
-    } catch (e) {
-      // TODO: error handling, error message confirmation
-      // this should probably use auth-errors and message should be displayed in tooltip or banner
+  const onSubmit = async (code: string) => {
+    const { status, error } = await submitTotpCode(code);
+    GleanMetrics.loginConfirmation.submit();
+    logViewEvent('flow', `${viewName}.submit`);
+
+    setGeneralError('');
+    setCodeErrorMessage('');
+    setSuccess(status);
+
+    if (error) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        error
+      );
+      setGeneralError(localizedErrorMessage);
+    } else if (status === false) {
+      const localizedErrorMessage = getLocalizedErrorMessage(
+        ftlMsgResolver,
+        AuthUiErrors.INVALID_TOTP_CODE
+      );
+      setCodeErrorMessage(localizedErrorMessage);
+    } else {
+      handleNavigation();
     }
   };
 
   return (
-    // TODO: redirect to force_auth or signin if user has not initiated sign in
-    <>
+    <AppLayout>
       <CardHeader
         headingWithDefaultServiceFtlId="signin-totp-code-heading-w-default-service-v2"
         headingWithCustomServiceFtlId="signin-totp-code-heading-w-custom-service-v2"
@@ -73,6 +100,10 @@ const SigninTotpCode = ({
       />
 
       <main>
+        {!success && generalError && (
+          <Banner type={BannerType.error}>{generalError}</Banner>
+        )}
+
         <div className="flex justify-center mx-auto">
           <TwoFactorAuthImage className="w-3/5" />
         </div>
@@ -107,7 +138,7 @@ const SigninTotpCode = ({
           </FtlMsg>
         </div>
       </main>
-    </>
+    </AppLayout>
   );
 };
 

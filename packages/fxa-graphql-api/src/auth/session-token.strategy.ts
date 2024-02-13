@@ -13,11 +13,13 @@ export interface SessionTokenResult {
   session: SessionToken;
 }
 
+export const SESSION_TOKEN_REGEX = /^(?:[a-fA-F0-9]{2})+$/;
+
 @Injectable()
 export class SessionTokenStrategy extends PassportStrategy(Strategy) {
   async validate(token: string): Promise<SessionTokenResult> {
     try {
-      if (!/^(?:[a-fA-F0-9]{2})+$/.test(token)) {
+      if (!SESSION_TOKEN_REGEX.test(token)) {
         throw new UnauthorizedException('Invalid token');
       }
       const { id } = await deriveHawkCredentials(token, 'sessionToken');
