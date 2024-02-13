@@ -4,12 +4,14 @@
 
 import React from 'react';
 import SigninTotpCode from '.';
-import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import {
+  AuthUiError,
+  AuthUiErrors,
+} from '../../../lib/auth-errors/auth-errors';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -17,19 +19,48 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-const storyWithProps = ({ ...props }) => {
+const storyWithProps = (props: {
+  handleNavigation: () => void;
+  submitTotpCode: () => Promise<{ status: boolean; error?: AuthUiError }>;
+  serviceName: MozServices;
+}) => {
   const story = () => (
     <LocationProvider>
-      <AppLayout>
-        <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} {...props} />
-      </AppLayout>
+      <SigninTotpCode {...props} />
     </LocationProvider>
   );
   return story;
 };
 
-export const Default = storyWithProps({});
+export const Default = storyWithProps({
+  handleNavigation: () => {},
+  submitTotpCode: async () => ({
+    status: true,
+  }),
+  serviceName: MozServices.Default,
+});
 
 export const WithRelyingParty = storyWithProps({
+  handleNavigation: () => {},
+  submitTotpCode: async () => ({
+    status: true,
+  }),
+  serviceName: MozServices.MozillaVPN,
+});
+
+export const WithIncorrectCode = storyWithProps({
+  handleNavigation: () => {},
+  submitTotpCode: async () => ({
+    status: false,
+  }),
+  serviceName: MozServices.MozillaVPN,
+});
+
+export const WithErrorState = storyWithProps({
+  handleNavigation: () => {},
+  submitTotpCode: async () => ({
+    status: false,
+    error: AuthUiErrors.UNEXPECTED_ERROR,
+  }),
   serviceName: MozServices.MozillaVPN,
 });

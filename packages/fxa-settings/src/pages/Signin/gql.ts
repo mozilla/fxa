@@ -24,6 +24,8 @@ export const BEGIN_SIGNIN_MUTATION = gql`
       metricsEnabled
       verified
       keyFetchToken
+      verificationMethod
+      verificationReason
     }
   }
 `;

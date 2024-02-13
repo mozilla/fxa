@@ -4,7 +4,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { SessionTokenResult } from './auth/session-token.strategy';
-import { header } from 'fxa-auth-client';
 
 /**
  * Extracts the token from an authenticated user for a GraphQL request.

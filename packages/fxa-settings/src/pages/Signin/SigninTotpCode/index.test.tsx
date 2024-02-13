@@ -3,14 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
 import SigninTotpCode, { viewName } from '.';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
+import {
+  AuthUiError,
+  AuthUiErrors,
+} from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -27,7 +30,15 @@ describe('Sign in with TOTP code page', () => {
 
   it('renders as expected', () => {
     renderWithLocalizationProvider(
-      <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />
+      <SigninTotpCode
+        {...{
+          handleNavigation: () => {},
+          submitTotpCode: async () => ({
+            status: true,
+          }),
+          serviceName: MozServices.Default,
+        }}
+      />
     );
     // testAllL10n(screen, bundle);
 
@@ -45,8 +56,11 @@ describe('Sign in with TOTP code page', () => {
   it('shows the relying party in the header when a service name is provided', () => {
     renderWithLocalizationProvider(
       <SigninTotpCode
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        serviceName={MozServices.MozillaVPN}
+        {...{
+          handleNavigation: () => {},
+          submitTotpCode: async () => ({ status: true }),
+          serviceName: MozServices.MozillaVPN,
+        }}
       />
     );
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -57,8 +71,72 @@ describe('Sign in with TOTP code page', () => {
 
   it('emits a metrics event on render', () => {
     renderWithLocalizationProvider(
-      <SigninTotpCode email={MOCK_ACCOUNT.primaryEmail.email} />
+      <SigninTotpCode
+        {...{
+          handleNavigation: () => {},
+          submitTotpCode: async () => ({ status: true }),
+          serviceName: MozServices.FirefoxSync,
+        }}
+      />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+  });
+
+  describe('submit totp code', () => {
+    async function renderAndSubmitTotpCode(response: {
+      status: boolean;
+      error?: AuthUiError;
+    }) {
+      const handleNavigation = jest.fn();
+      const submitTotpCode = jest.fn().mockImplementation(async () => {
+        return response;
+      });
+      renderWithLocalizationProvider(
+        <SigninTotpCode
+          {...{
+            handleNavigation,
+            submitTotpCode,
+            serviceName: MozServices.FirefoxSync,
+          }}
+        />
+      );
+
+      fireEvent.input(screen.getByLabelText('Enter 6-digit code'), {
+        target: { value: '123456' },
+      });
+      screen.getByRole('button', { name: 'Confirm' }).click();
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      return { submitTotpCode, handleNavigation };
+    }
+
+    it('submitsTotpCode and navigates', async () => {
+      const { submitTotpCode, handleNavigation } =
+        await renderAndSubmitTotpCode({ status: true });
+
+      expect(submitTotpCode).toBeCalledWith('123456');
+      expect(handleNavigation).toBeCalledTimes(1);
+    });
+
+    it('shows error on invalid code', async () => {
+      const { submitTotpCode, handleNavigation } =
+        await renderAndSubmitTotpCode({ status: false });
+
+      expect(submitTotpCode).toBeCalledWith('123456');
+      expect(handleNavigation).toBeCalledTimes(0);
+      screen.getByText('Invalid two-step authentication code');
+    });
+
+    it('shows general error on unexpected error', async () => {
+      const { submitTotpCode, handleNavigation } =
+        await renderAndSubmitTotpCode({
+          status: false,
+          error: AuthUiErrors.UNEXPECTED_ERROR,
+        });
+
+      expect(submitTotpCode).toBeCalledWith('123456');
+      expect(handleNavigation).toBeCalledTimes(0);
+      screen.getByText('Unexpected error');
+    });
   });
 });

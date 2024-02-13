@@ -243,9 +243,9 @@ describe('sign-up-container', () => {
     applyMocks();
   });
 
-  // TIP - Using nested describe is often helpful. It makes the test read easier
-  // and creates a natural partitioning of testing cases that are typically
-  // easier to understand than a bunch of individual tests. They are also a
+  // TIP - Using nested describe is often helpful. It makes the test easier to
+  // read and creates a natural partitioning of testing cases that are typically
+  // more understandable than a bunch of individual tests. They are also
   // easier to focus and skip.
   describe('default-state', () => {
     it('renders', async () => {

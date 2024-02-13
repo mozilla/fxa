@@ -33,6 +33,7 @@ import {
 } from 'graphql-parse-resolve-info';
 
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
+import { UnverifiedSessionGuard } from '../auth/unverified-session-guard';
 import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
@@ -170,7 +171,7 @@ export class AccountResolver {
     description:
       'Verifies the current session if the passed TOTP code is valid.',
   })
-  @UseGuards(GqlAuthGuard, GqlCustomsGuard)
+  @UseGuards(UnverifiedSessionGuard, GqlCustomsGuard)
   @CatchGatewayError
   public async verifyTotp(
     @GqlSessionToken() token: string,

@@ -35,6 +35,10 @@ export class TotpPage extends SettingsLayout {
     return secret;
   }
 
+  async getNextCode(secret: string) {
+    return await getCode(secret);
+  }
+
   async useManualCode() {
     await this.page.click('[data-testid=cant-scan-code]');
     const secret = (

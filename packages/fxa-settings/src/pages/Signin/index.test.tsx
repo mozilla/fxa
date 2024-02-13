@@ -216,7 +216,12 @@ describe('Signin', () => {
 
             enterPasswordAndSubmit();
             await waitFor(() => {
-              expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code');
+              expect(mockNavigate).toHaveBeenCalledWith('/signin_totp_code', {
+                state: {
+                  verificationMethod: VerificationMethods.TOTP_2FA,
+                  verificationReason: VerificationReasons.SIGN_IN,
+                },
+              });
             });
           });
           it('navigates to /confirm_signup_code when conditions are met', async () => {
