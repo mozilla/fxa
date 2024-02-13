@@ -5,7 +5,7 @@
 import crypto from 'crypto';
 import ip from 'ip';
 import { BaseAuthModel, Proc } from './base-auth';
-import { uuidTransformer, intBoolTransformer } from '../../transformers';
+import { uuidTransformer } from '../../transformers';
 import { convertError } from '../../mysql';
 
 const EVENT_NAMES = {
@@ -58,6 +58,7 @@ export class SecurityEvent extends BaseAuthModel {
   // table fields
   uid?: string;
   ipAddrHmac?: string;
+  ipAddr?: string;
   tokenVerificationId?: string;
   name!: SecurityEventNames;
   createdAt!: number;
@@ -87,7 +88,8 @@ export class SecurityEvent extends BaseAuthModel {
         tokenId ? uuidTransformer.to(tokenId) : null,
         EVENT_NAMES[name],
         ipAddrHmac,
-        Date.now()
+        Date.now(),
+        ipAddr
       );
     } catch (e) {
       console.error(e);
@@ -115,7 +117,8 @@ export class SecurityEvent extends BaseAuthModel {
       .select(
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
-        'securityEvents.createdAt as createdAt'
+        'securityEvents.createdAt as createdAt',
+        'securityEvents.ipAddr as ipAddr'
       )
       .leftJoin(
         'securityEventNames',
@@ -134,7 +137,8 @@ export class SecurityEvent extends BaseAuthModel {
       .select(
         'securityEventNames.name as name',
         'securityEvents.verified as verified',
-        'securityEvents.createdAt as createdAt'
+        'securityEvents.createdAt as createdAt',
+        'securityEvents.ipAddr as ipAddr'
       )
       .leftJoin(
         'securityEventNames',

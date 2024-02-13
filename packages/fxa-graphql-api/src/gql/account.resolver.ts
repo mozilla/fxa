@@ -782,6 +782,7 @@ export class AccountResolver {
           name: item.name,
           createdAt: item.createdAt,
           verified: item.verified,
+          ipAddr: item.ipAddr,
         };
       });
     }

@@ -216,6 +216,7 @@ export interface SecurityEvents {
   ipAddrHmac: Buffer;
   createdAt: number;
   tokenVerificationId: Buffer | null;
+  ipAddr: string | null;
 }
 
 export interface SentEmails {

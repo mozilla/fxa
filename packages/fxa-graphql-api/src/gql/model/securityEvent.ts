@@ -13,4 +13,7 @@ export class SecurityEvent {
 
   @Field({ nullable: true })
   public verified?: boolean;
+
+  @Field({ nullable: true })
+  public ipAddr?: string;
 }

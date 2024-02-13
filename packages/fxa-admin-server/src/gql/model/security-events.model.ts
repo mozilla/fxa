@@ -25,4 +25,7 @@ export class SecurityEvents {
 
   @Field({ nullable: true })
   public name!: string;
+
+  @Field({ nullable: true })
+  public ipAddr!: string;
 }
