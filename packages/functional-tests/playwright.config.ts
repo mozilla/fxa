@@ -1,4 +1,5 @@
 import { PlaywrightTestConfig, Project } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 import * as path from 'path';
 import { TargetNames } from './lib/targets';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
@@ -81,4 +82,9 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   maxFailures,
 };
 
-export default config;
+//export default config;
+export default defineConfig({
+  expect: {
+    timeout: 10 * 1000,
+  },
+});
