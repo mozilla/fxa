@@ -72,6 +72,12 @@ const conf = convict({
       env: 'CONTENTFUL_GRAPHQL_ENVIRONMENT',
       default: '',
     },
+    firestoreCacheCollectionName: {
+      doc: 'Firestore collection name to store Contentful query cache',
+      format: String,
+      env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
+      default: '',
+    },
   },
   corsOrigin: {
     doc: 'Value for the Access-Control-Allow-Origin response header',

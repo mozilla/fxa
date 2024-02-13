@@ -20,6 +20,12 @@ export class ContentfulClientConfig {
   @IsString()
   public readonly graphqlEnvironment!: string;
 
+  @IsString()
+  public readonly firestoreCacheCollectionName!: string;
+
   @IsNumber()
-  public readonly cacheTTL?: number;
+  public readonly memCacheTTL?: number;
+
+  @IsNumber()
+  public readonly firestoreCacheTTL?: number;
 }

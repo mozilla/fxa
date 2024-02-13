@@ -36,6 +36,8 @@
         "libs/shared/account/account/src/index.ts"
       ],
       "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
+      "@fxa/shared/db/type-cacheable": ["libs/shared/db/type-cacheable/src/index.ts"],
+      "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
