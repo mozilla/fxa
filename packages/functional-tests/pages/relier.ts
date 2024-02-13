@@ -75,8 +75,7 @@ export class RelierPage extends BaseLayout {
   }
 
   async promptNoneError() {
-    await this.page.waitForSelector('.error');
-    return this.page.innerText('.error');
+    return this.page.locator('.error').innerText();
   }
 
   async clickSubscribe() {

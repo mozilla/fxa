@@ -70,7 +70,7 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       //Verify password is empty and user need to enter password
-      await login.waitForPasswordHeader();
+      expect(await login.waitForPasswordHeader()).toBeVisible();
       expect(await login.getPasswordInput()).toContain('');
       await login.setPassword(credentials.password);
       await login.submit();

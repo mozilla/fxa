@@ -26,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, PASSWORD);
 
       await client.accountDestroy(email, PASSWORD);
-      await login.waitForPasswordHeader();
+      expect(await login.waitForPasswordHeader()).toBeVisible();
     });
 
     test('valid code then click back', async ({
