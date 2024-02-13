@@ -820,6 +820,48 @@ describe('CapabilityService', () => {
         });
       });
     });
+
+    describe('eligibilityManagerResult and stripeEligibilityResult should match', () => {
+      let mockEligibilityManager;
+
+      beforeEach(() => {
+        mockEligibilityManager = {};
+        Container.set(EligibilityManager, mockEligibilityManager);
+        capabilityService = new CapabilityService();
+      });
+
+      it('returns blocked_iap result from both', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'same',
+            offeringProductId: mockPlanTier1ShortInterval.product_id,
+            type: 'offering',
+          },
+        ]);
+
+        capabilityService.fetchSubscribedPricesFromAppStore =
+          sinon.fake.resolves(['plan_123456']);
+
+        const eligiblityActual =
+          await capabilityService.eligibilityFromEligibilityManager(
+            [],
+            [mockPlanTier1ShortInterval],
+            mockPlanTier1LongInterval
+          );
+
+        const stripeActual =
+          await capabilityService.eligibilityFromStripeMetadata(
+            [],
+            [mockPlanTier1ShortInterval],
+            mockPlanTier1LongInterval
+          );
+
+        assert.deepEqual(
+          eligiblityActual.subscriptionEligibilityResult,
+          stripeActual.subscriptionEligibilityResult
+        );
+      });
+    });
   });
 
   describe('processPriceIdDiff', () => {
