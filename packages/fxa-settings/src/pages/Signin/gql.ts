@@ -27,3 +27,44 @@ export const BEGIN_SIGNIN_MUTATION = gql`
     }
   }
 `;
+
+export const PASSWORD_CHANGE_START_MUTATION = gql`
+  mutation passwordChangeStart($input: PasswordChangeStartInput!) {
+    passwordChangeStart(input: $input) {
+      keyFetchToken
+      passwordChangeToken
+    }
+  }
+`;
+
+export const PASSWORD_CHANGE_FINISH_MUTATION = gql`
+  mutation PasswordChangeFinish($input: PasswordChangeFinishInput!) {
+    passwordChangeFinish(input: $input) {
+      uid
+      sessionToken
+      verified
+      authAt
+      keyFetchToken
+      keyFetchToken2
+    }
+  }
+`;
+
+export const GET_ACCOUNT_KEYS_MUTATION = gql`
+  mutation WrappedAccountKeys($input: String!) {
+    wrappedAccountKeys(input: $input) {
+      kA
+      wrapKB
+    }
+  }
+`;
+
+export const CREDENTIAL_STATUS_MUTATION = gql`
+  mutation CredentialStatus($input: String!) {
+    credentialStatus(input: $input) {
+      upgradeNeeded
+      version
+      clientSalt
+    }
+  }
+`;

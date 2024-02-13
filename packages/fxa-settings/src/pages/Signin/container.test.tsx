@@ -110,11 +110,13 @@ let MOCK_QUERY_PARAM_MODEL = {
   email: MOCK_QUERY_PARAM_EMAIL,
   hasPassword: 'true',
   hasLinkedAccount: 'false',
+  isV2: () => false,
 };
 const MOCK_QUERY_PARAM_MODEL_NO_VALUES = {
   email: '',
   hasPassword: undefined,
   hasLinkedAccount: undefined,
+  isV2: () => false,
 };
 
 // Call this when testing query params
@@ -126,6 +128,7 @@ function mockUseValidateModule(
       email?: string;
       hasPassword?: string; // TODO: should be 'true' or 'false'
       hasLinkedAccount?: string; // TODO: should be 'true' or 'false'
+      isV2: () => boolean;
     };
   } = { queryParams: MOCK_QUERY_PARAM_MODEL }
 ) {
@@ -284,7 +287,11 @@ describe('signin container', () => {
       it('renders if hasLinkedAccount is undefined', async () => {
         // test against query params
         mockUseValidateModule({
-          queryParams: { email: MOCK_QUERY_PARAM_EMAIL, hasPassword: 'true' },
+          queryParams: {
+            email: MOCK_QUERY_PARAM_EMAIL,
+            hasPassword: 'true',
+            isV2: () => false,
+          },
         });
         render();
         await waitFor(() => {
@@ -313,6 +320,7 @@ describe('signin container', () => {
         queryParams: {
           email: MOCK_QUERY_PARAM_EMAIL,
           hasLinkedAccount: 'true',
+          isV2: () => false,
         },
       });
       render();
@@ -348,7 +356,7 @@ describe('signin container', () => {
     });
     it('redirects to /signup if account does not exist', async () => {
       mockUseValidateModule({
-        queryParams: { email: MOCK_QUERY_PARAM_EMAIL },
+        queryParams: { email: MOCK_QUERY_PARAM_EMAIL, isV2: () => false },
       });
       mockAuthClient.accountStatusByEmail = jest
         .fn()
@@ -381,6 +389,7 @@ describe('signin container', () => {
       });
     });
   });
+
   describe('hasLinkedAccount and hasPassword are provided', () => {
     it('accountStatusByEmail is not called, email provided by query params', async () => {
       mockUseValidateModule();
@@ -402,6 +411,7 @@ describe('signin container', () => {
     beforeEach(() => {
       mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
     });
+
     it('runs handler and invokes sign in mutation', async () => {
       render();
 

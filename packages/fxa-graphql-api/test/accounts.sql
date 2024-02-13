@@ -18,6 +18,9 @@ CREATE TABLE `accounts` (
   `ecosystemAnonId` text CHARACTER SET ascii COLLATE ascii_bin,
   `disabledAt` bigint(20) unsigned DEFAULT NULL,
   `metricsOptOutAt` bigint(20) unsigned DEFAULT NULL,
+  `clientSalt` varchar(128) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `verifyHashVersion2` binary(32) DEFAULT NULL,
+  `wrapWrapKbVersion2` binary(32) DEFAULT NULL,
   `atLeast18AtReg` tinyint(1) unsigned DEFAULT NULL,
   PRIMARY KEY (`uid`),
   UNIQUE KEY `normalizedEmail` (`normalizedEmail`)

@@ -20,3 +20,7 @@ export { RecoveryKeyBundlePayload } from './recovery-key';
 export { LegalDoc } from './legal';
 export { ClientInfo } from './client-info';
 export { SubscriptionProductInfo } from './subscription-product-info';
+export * from './credential-status';
+export * from './password-change-start';
+export * from './password-change-finish';
+export * from './wrapped-keys';

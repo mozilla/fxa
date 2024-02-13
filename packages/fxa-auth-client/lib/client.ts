@@ -855,6 +855,33 @@ export default class AuthClient {
     };
   }
 
+  async wrappedAccountKeys(
+    keyFetchToken: hexstring,
+    headers: Headers = new Headers()
+  ) {
+    const credentials = await hawk.deriveHawkCredentials(
+      keyFetchToken,
+      'keyFetchToken'
+    );
+    const keyData = await this.hawkRequest(
+      'GET',
+      '/account/keys',
+      keyFetchToken,
+      tokenType.keyFetchToken,
+      undefined,
+      headers
+    );
+
+    const keys = await crypto.unbundleKeyFetchResponse(
+      credentials.bundleKey,
+      keyData.bundle
+    );
+    return {
+      kA: keys.kA,
+      wrapKB: keys.wrapKB,
+    };
+  }
+
   async accountDestroy(
     email: string,
     password: string,
@@ -1052,7 +1079,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: hexstring;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<{
     uid: hexstring;
     sessionToken: hexstring;
@@ -1114,7 +1142,8 @@ export default class AuthClient {
     const accountData = await this.passwordChangeFinish(
       passwordData.passwordChangeToken,
       payload,
-      options
+      options,
+      headers
     );
 
     if (options.keys && accountData.keyFetchToken) {
@@ -1131,7 +1160,8 @@ export default class AuthClient {
     options: {
       keys?: boolean;
       sessionToken?: hexstring;
-    } = {}
+    } = {},
+    headers: Headers = new Headers()
   ): Promise<SignedInAccountData> {
     const oldCredentials = await this.passwordChangeStart(email, oldPassword);
     const keys = await this.accountKeys(
@@ -1186,13 +1216,61 @@ export default class AuthClient {
     const accountData = await this.passwordChangeFinish(
       oldCredentials.passwordChangeToken,
       payload,
-      options
+      options,
+      headers
     );
     if (options.keys && accountData.keyFetchToken) {
       accountData.unwrapBKey = newCredentials.unwrapBKey;
       accountData.unwrapBKeyVersion2 = unwrapBKeyVersion2;
     }
     return accountData;
+  }
+
+  public async passwordChangeStartWithAuthPW(
+    email: string,
+    oldAuthPW: string,
+    options: {
+      skipCaseError?: boolean;
+    } = {},
+    headers: Headers = new Headers()
+  ): Promise<{
+    email: string;
+    keyFetchToken: hexstring;
+    passwordChangeToken: hexstring;
+  }> {
+    try {
+      const passwordData = await this.request(
+        'POST',
+        '/password/change/start',
+        {
+          email,
+          oldAuthPW,
+        },
+        headers
+      );
+      return {
+        email: email,
+        keyFetchToken: passwordData.keyFetchToken,
+        passwordChangeToken: passwordData.passwordChangeToken,
+      };
+    } catch (error: any) {
+      if (
+        error &&
+        error.email &&
+        error.errno === ERRORS.INCORRECT_EMAIL_CASE &&
+        !options.skipCaseError
+      ) {
+        options.skipCaseError = true;
+
+        return await this.passwordChangeStartWithAuthPW(
+          error.email,
+          oldAuthPW,
+          options
+        );
+      } else {
+        throw error;
+      }
+    }
   }
 
   private async passwordChangeStart(
@@ -1245,17 +1323,19 @@ export default class AuthClient {
     }
   }
 
-  protected async passwordChangeFinish(
+  public async passwordChangeFinish(
     passwordChangeToken: string,
     payload: PasswordChangePayload,
-    options: { keys?: boolean }
+    options: { keys?: boolean },
+    headers: Headers = new Headers()
   ) {
     const response = await this.hawkRequest(
       'POST',
       pathWithKeys('/password/change/finish', options.keys),
       passwordChangeToken,
       tokenType.passwordChangeToken,
-      payload
+      payload,
+      headers
     );
     return response;
   }
@@ -1828,11 +1908,19 @@ export default class AuthClient {
     };
   }
 
-  public async getCredentialStatusV2(email: string): Promise<CredentialStatus> {
+  public async getCredentialStatusV2(
+    email: string,
+    headers: Headers = new Headers()
+  ): Promise<CredentialStatus> {
     try {
-      const result = await this.request('POST', '/account/credentials/status', {
-        email,
-      });
+      const result = await this.request(
+        'POST',
+        '/account/credentials/status',
+        {
+          email,
+        },
+        headers
+      );
       return result;
     } catch (error) {
       if (error.errno === 102) {

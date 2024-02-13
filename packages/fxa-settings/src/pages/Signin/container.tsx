@@ -17,7 +17,14 @@ import firefox from '../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { currentAccount, discardSessionToken } from '../../lib/cache';
 import { useMutation, useQuery } from '@apollo/client';
-import { AVATAR_QUERY, BEGIN_SIGNIN_MUTATION } from './gql';
+import {
+  AVATAR_QUERY,
+  BEGIN_SIGNIN_MUTATION,
+  CREDENTIAL_STATUS_MUTATION,
+  GET_ACCOUNT_KEYS_MUTATION,
+  PASSWORD_CHANGE_FINISH_MUTATION,
+  PASSWORD_CHANGE_START_MUTATION,
+} from './gql';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import {
   RecoveryEmailStatusResponse,
@@ -28,8 +35,17 @@ import {
   CachedSigninHandler,
   LocationState,
   SigninContainerIntegration,
+  PasswordChangeStartResponse,
+  GetAccountKeysResponse,
+  PasswordChangeFinishResponse,
+  CredentialStatusResponse,
 } from './interfaces';
-import { getCredentials } from 'fxa-auth-client/lib/crypto';
+import {
+  getCredentials,
+  getCredentialsV2,
+  getKeysV2,
+  unwrapKB,
+} from 'fxa-auth-client/lib/crypto';
 import { GraphQLError } from 'graphql';
 import {
   AuthUiErrorNos,
@@ -39,6 +55,9 @@ import {
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import AuthenticationMethods from '../../constants/authentication-methods';
+import { KeyStretchExperiment } from '../../models/experiments';
+import { createSaltV2 } from 'fxa-auth-client/lib/salt';
+import * as Sentry from '@sentry/browser';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -70,6 +89,7 @@ const SigninContainer = ({
   };
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
+  const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
   // email with either come from React signup (router state),
   // Backbone index (query param), or will be cached (local storage)
@@ -147,6 +167,22 @@ const SigninContainer = ({
 
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
 
+  const [credentialStatus] = useMutation<CredentialStatusResponse>(
+    CREDENTIAL_STATUS_MUTATION
+  );
+
+  const [passwordChangeStart] = useMutation<PasswordChangeStartResponse>(
+    PASSWORD_CHANGE_START_MUTATION
+  );
+
+  const [passwordChangeFinish] = useMutation<PasswordChangeFinishResponse>(
+    PASSWORD_CHANGE_FINISH_MUTATION
+  );
+
+  const [getWrappedKeys] = useMutation<GetAccountKeysResponse>(
+    GET_ACCOUNT_KEYS_MUTATION
+  );
+
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
       // TODO in oauth ticket
@@ -154,6 +190,160 @@ const SigninContainer = ({
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
       };
+
+      function handleGqlError(error: any) {
+        // Show invalid password error
+        const graphQLError: GraphQLError = error.graphQLErrors?.[0];
+        if (graphQLError && graphQLError.extensions?.errno) {
+          const { errno, verificationReason, verificationMethod } =
+            graphQLError.extensions as BeginSigninResultError & {
+              [key: string]: any;
+            };
+          return {
+            error: {
+              errno,
+              verificationReason,
+              verificationMethod,
+              message: AuthUiErrorNos[errno].message,
+              ftlId: composeAuthUiErrorTranslationId({ errno }),
+            },
+          };
+        } else {
+          const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
+          return {
+            data: null,
+            error: {
+              errno,
+              message,
+              ftlId: composeAuthUiErrorTranslationId({ errno }),
+            },
+          };
+        }
+      }
+
+      const v1Credentials = await getCredentials(email, password);
+      let v2Credentials = null;
+
+      if (keyStretchExp.queryParamModel.isV2()) {
+        const credentialStatusData = await credentialStatus({
+          variables: {
+            input: email,
+          },
+        });
+
+        // We might have to upgrade the credentials in place.
+        if (credentialStatusData.data?.credentialStatus.upgradeNeeded) {
+          // Start password change.
+          let keyFetchToken = '';
+          let passwordChangeToken = '';
+          try {
+            const passwordChangeStartResponse = await passwordChangeStart({
+              variables: {
+                input: {
+                  email,
+                  oldAuthPW: v1Credentials.authPW,
+                },
+              },
+            });
+
+            const data = passwordChangeStartResponse.data?.passwordChangeStart;
+            keyFetchToken = data?.keyFetchToken || '';
+            passwordChangeToken = data?.passwordChangeToken || '';
+          } catch (error) {
+            // If the user enters the wrong password, they will see an invalid password error.
+            // Other wise something has going wrong and we should show an general error.
+            return handleGqlError(error);
+          }
+
+          // Determine wrapKb.
+          let wrapKb = '';
+          if (keyFetchToken) {
+            try {
+              const keysResponse = await getWrappedKeys({
+                variables: {
+                  input: keyFetchToken,
+                },
+              });
+              wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
+            } catch (error) {
+              const uiError = handleGqlError(error);
+              if (uiError.error.errno === 104) {
+                // NOOP - If the account is simply 'unverified', then go through normal flow.
+                // The password upgrade can occur later.
+              } else {
+                return uiError;
+              }
+            }
+          }
+
+          // Derive V2 wrapKb and authPW and finalize password reset
+          if (wrapKb && passwordChangeToken) {
+            try {
+              v2Credentials = await getCredentialsV2({
+                password,
+                clientSalt:
+                  credentialStatusData.data?.credentialStatus.clientSalt ||
+                  (await createSaltV2()),
+              });
+
+              const kB = await unwrapKB(wrapKb, v1Credentials.unwrapBKey);
+              const keys = await getKeysV2({
+                kB,
+                v1: v1Credentials,
+                v2: v2Credentials,
+              });
+
+              // Will always return an empty payload on success, because no session token is provided.
+              await passwordChangeFinish({
+                variables: {
+                  input: {
+                    passwordChangeToken: passwordChangeToken,
+                    authPW: v1Credentials.authPW,
+                    wrapKb: keys.wrapKb,
+                    authPWVersion2: v2Credentials.authPW,
+                    wrapKbVersion2: keys.wrapKbVersion2,
+                    clientSalt: v2Credentials.clientSalt,
+                  },
+                },
+              });
+            } catch (error) {
+              v2Credentials = null;
+              return handleGqlError(error);
+            }
+          }
+        } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
+          v2Credentials = await getCredentialsV2({
+            password,
+            clientSalt: credentialStatusData.data?.credentialStatus.clientSalt,
+          });
+        }
+
+        // If we successfully created V2 credentials, finish by signing in with these.
+        // Otherwise, fallback to v1 and log an error about it.
+        if (v2Credentials) {
+          try {
+            const { data } = await beginSignin({
+              variables: {
+                input: {
+                  email,
+                  authPW: v2Credentials.authPW,
+                  options,
+                },
+              },
+            });
+
+            return { data };
+          } catch (error) {
+            return handleGqlError(error);
+          }
+        } else {
+          // Something went wrong, don't fail, so user can still log in, but DO report it to sentry;
+          Sentry.captureMessage(
+            'Failure to finish v2 upgrade. V2 credentials are null.'
+          );
+        }
+      }
+
       // TODO in oauth ticket
       //   // keys must be true to receive keyFetchToken for oAuth and syncDesktop
       //   keys: isOAuth || isSyncDesktopV3,
@@ -161,6 +351,7 @@ const SigninContainer = ({
       // };
       try {
         const { authPW } = await getCredentials(email, password);
+        console.log('!!! authPW', authPW);
         const { data } = await beginSignin({
           variables: {
             input: {
@@ -203,7 +394,14 @@ const SigninContainer = ({
         }
       }
     },
-    [beginSignin]
+    [
+      beginSignin,
+      credentialStatus,
+      getWrappedKeys,
+      keyStretchExp.queryParamModel,
+      passwordChangeFinish,
+      passwordChangeStart,
+    ]
   );
 
   const cachedSigninHandler: CachedSigninHandler = useCallback(
