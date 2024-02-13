@@ -33473,27 +33473,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-config-prettier@npm:6.5.0":
-  version: 6.5.0
-  resolution: "eslint-config-prettier@npm:6.5.0"
-  dependencies:
-    get-stdin: ^6.0.0
-  peerDependencies:
-    eslint: ">=3.14.1"
-  bin:
-    eslint-config-prettier-check: bin/cli.js
-  checksum: b4aeb9388b14985f8b5401b095563865217ee72449d5baaf69636877cbff16677a72e08d69a8a77985651b0e25cf1e12295053f1596e748c9069654adfad4e39
-  languageName: node
-  linkType: hard
-
-"eslint-config-prettier@npm:^8.7.0":
-  version: 8.7.0
-  resolution: "eslint-config-prettier@npm:8.7.0"
+"eslint-config-prettier@npm:9.1.0, eslint-config-prettier@npm:^9.1.0":
+  version: 9.1.0
+  resolution: "eslint-config-prettier@npm:9.1.0"
   peerDependencies:
     eslint: ">=7.0.0"
   bin:
     eslint-config-prettier: bin/cli.js
-  checksum: b05bc7f2296ce3e0925c14147849706544870e0382d38af2352d709a6cf8521bdaff2bd8e5021f1780e570775a8ffa1d2bac28b8065d90d43a3f1f98fd26ce52
+  checksum: 9229b768c879f500ee54ca05925f31b0c0bafff3d9f5521f98ff05127356de78c81deb9365c86a5ec4efa990cb72b74df8612ae15965b14136044c73e1f6a907
   languageName: node
   linkType: hard
 
@@ -33618,7 +33605,7 @@ __metadata:
   resolution: "eslint-plugin-fxa@workspace:packages/eslint-plugin-fxa"
   dependencies:
     eslint: 6.6.0
-    eslint-config-prettier: 6.5.0
+    eslint-config-prettier: 9.1.0
     mocha: ^10.2.0
     ramda: ^0.26.1
   peerDependencies:
@@ -37162,7 +37149,7 @@ fsevents@~2.1.1:
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
     eslint: ^7.32.0
-    eslint-config-prettier: ^8.7.0
+    eslint-config-prettier: ^9.1.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-import: ^2.29.1
     express: ^4.17.3
@@ -38170,13 +38157,6 @@ fsevents@~2.1.1:
   version: 4.0.1
   resolution: "get-stdin@npm:4.0.1"
   checksum: 4f73d3fe0516bc1f3dc7764466a68ad7c2ba809397a02f56c2a598120e028430fcff137a648a01876b2adfb486b4bc164119f98f1f7d7c0abd63385bdaa0113f
-  languageName: node
-  linkType: hard
-
-"get-stdin@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "get-stdin@npm:6.0.0"
-  checksum: 593f6fb4fff4c8d49ec93a07c430c1edc6bd4fe7e429d222b5da2f367276a98809af9e90467ad88a2d83722ff95b9b35bbaba02b56801421c5e3668173fe12b4
   languageName: node
   linkType: hard
 
