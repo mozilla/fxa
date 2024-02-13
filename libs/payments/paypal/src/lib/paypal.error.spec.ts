@@ -8,7 +8,7 @@ import {
   NVPErrorFactory,
   NVPErrorResponseFactory,
 } from '../../../../payments/paypal/src/lib/factories';
-import { PayPalClientError, PayPalNVPError } from './error';
+import { PayPalClientError, PayPalNVPError } from './paypal.error';
 
 describe('PayPal Errors', () => {
   const message = faker.word.words();
