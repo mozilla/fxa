@@ -10055,6 +10055,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@hapi/bourne@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "@hapi/bourne@npm:3.0.0"
+  checksum: 7174cab6c33191918fcdb1953fe3169a1106e6ac79a67ef5fd08b351f0813f8f608170f2239786cbe5519e03cdfe5ab748ea1635caa06dcd5802410295514ef8
+  languageName: node
+  linkType: hard
+
 "@hapi/call@npm:^8.0.0":
   version: 8.0.1
   resolution: "@hapi/call@npm:8.0.1"
@@ -10075,14 +10082,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/catbox-redis@npm:~6.0.2":
-  version: 6.0.2
-  resolution: "@hapi/catbox-redis@npm:6.0.2"
+"@hapi/catbox-redis@npm:~7.0.2":
+  version: 7.0.2
+  resolution: "@hapi/catbox-redis@npm:7.0.2"
   dependencies:
-    "@hapi/hoek": 9.x.x
-    ioredis: 4.x.x
-    joi: 17.x.x
-  checksum: 360f0c4416c9547eee89f9f8e795be153f10c1b21b7b33cf93029e6f0361ca095a52b14f9e7f9ce0f042b541aa96b7872cc4bbd984e7dde39a5195b0e9da0cd9
+    "@hapi/bourne": ^3.0.0
+    "@hapi/hoek": ^11.0.2
+    ioredis: ^5.0.0
+    joi: ^17.7.1
+  checksum: 2fb9d63e687a2a362cd0f15246c41565b592d4767f36f90757edf079bf37a2ed02bf42d1ea821e253483e68c207dffc350181d4cebaf96a46d13721f437d5eb3
   languageName: node
   linkType: hard
 
@@ -10191,6 +10199,13 @@ __metadata:
   version: 11.0.2
   resolution: "@hapi/hoek@npm:11.0.2"
   checksum: 02e5d5d030f2c81180b43c380e6445558d1cb463c8db957c2d50e11dff83687a0ff4539a88530338e2bab1924bb8cdc7896eeb48ebf32199f89e178591d8b0b1
+  languageName: node
+  linkType: hard
+
+"@hapi/hoek@npm:^9.3.0":
+  version: 9.3.0
+  resolution: "@hapi/hoek@npm:9.3.0"
+  checksum: 4771c7a776242c3c022b168046af4e324d116a9d2e1d60631ee64f474c6e38d1bb07092d898bf95c7bc5d334c5582798a1456321b2e53ca817d4e7c88bc25b43
   languageName: node
   linkType: hard
 
@@ -10358,6 +10373,15 @@ __metadata:
   dependencies:
     "@hapi/hoek": ^9.0.0
   checksum: 8aa81f71696f88d7daeab4547e120e43c6ab78081a4f215eec5103dd858f3122a703512cdacc43aa7e27d99607345165acfeb2ee69e556e63afd50c5c57a36c3
+  languageName: node
+  linkType: hard
+
+"@hapi/topo@npm:^5.1.0":
+  version: 5.1.0
+  resolution: "@hapi/topo@npm:5.1.0"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: 604dfd5dde76d5c334bd03f9001fce69c7ce529883acf92da96f4fe7e51221bf5e5110e964caca287a6a616ba027c071748ab636ff178ad750547fba611d6014
   languageName: node
   linkType: hard
 
@@ -15738,6 +15762,15 @@ __metadata:
   dependencies:
     "@hapi/hoek": ^9.0.0
   checksum: 3c1faf6ef37a0b59b62ce42b59c012c00ef1fc4194ad6776c65c2f9a6dd6c1710c6f6362b3ca3fa582fdb93984f0cb64ca44f9f5e02940634805f5e561279c22
+  languageName: node
+  linkType: hard
+
+"@sideway/address@npm:^4.1.5":
+  version: 4.1.5
+  resolution: "@sideway/address@npm:4.1.5"
+  dependencies:
+    "@hapi/hoek": ^9.0.0
+  checksum: 3e3ea0f00b4765d86509282290368a4a5fd39a7995fdc6de42116ca19a96120858e56c2c995081def06e1c53e1f8bccc7d013f6326602bec9d56b72ee2772b9d
   languageName: node
   linkType: hard
 
@@ -37413,7 +37446,7 @@ fsevents@~2.1.1:
   dependencies:
     "@hapi/boom": ~10.0.0
     "@hapi/catbox-memory": ~5.0.1
-    "@hapi/catbox-redis": ~6.0.2
+    "@hapi/catbox-redis": ~7.0.2
     "@hapi/hapi": ^20.2.1
     "@hapi/inert": 7.1.0
     "@types/sharp": ^0
@@ -41417,25 +41450,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ioredis@npm:4.x.x":
-  version: 4.28.0
-  resolution: "ioredis@npm:4.28.0"
-  dependencies:
-    cluster-key-slot: ^1.1.0
-    debug: ^4.3.1
-    denque: ^1.1.0
-    lodash.defaults: ^4.2.0
-    lodash.flatten: ^4.4.0
-    lodash.isarguments: ^3.1.0
-    p-map: ^2.1.0
-    redis-commands: 1.7.0
-    redis-errors: ^1.2.0
-    redis-parser: ^3.0.0
-    standard-as-callback: ^2.1.0
-  checksum: d6951d3df93b94a8716090f233ccc9124fe82a244965ac695835a7d4d1795ca28025ef91abfbc014cce63b96112badfc216b8d91827722ddc406f10bd221b6ab
-  languageName: node
-  linkType: hard
-
 "ioredis@npm:^4.28.2":
   version: 4.28.2
   resolution: "ioredis@npm:4.28.2"
@@ -41452,6 +41466,23 @@ fsevents@~2.1.1:
     redis-parser: ^3.0.0
     standard-as-callback: ^2.1.0
   checksum: 4d9e5a4707cc918d2c2e161ea430aa06e68d5a513a680e8a315cf2cdea0b65b410a2e7279a04bab6db66aa781af4244acce3df67f560fed198f1f2f1d2c1d609
+  languageName: node
+  linkType: hard
+
+"ioredis@npm:^5.0.0":
+  version: 5.3.2
+  resolution: "ioredis@npm:5.3.2"
+  dependencies:
+    "@ioredis/commands": ^1.1.1
+    cluster-key-slot: ^1.1.0
+    debug: ^4.3.4
+    denque: ^2.1.0
+    lodash.defaults: ^4.2.0
+    lodash.isarguments: ^3.1.0
+    redis-errors: ^1.2.0
+    redis-parser: ^3.0.0
+    standard-as-callback: ^2.1.0
+  checksum: 9a23559133e862a768778301efb68ae8c2af3c33562174b54a4c2d6574b976e85c75a4c34857991af733e35c48faf4c356e7daa8fb0a3543d85ff1768c8754bc
   languageName: node
   linkType: hard
 
@@ -44854,6 +44885,19 @@ fsevents@~2.1.1:
     "@sideway/formula": ^3.0.1
     "@sideway/pinpoint": ^2.0.0
   checksum: d93ea768740fc447d19a3340734af8062a53616bfe61d117992632f5064c0abe7ca495a29747317a4f6cd655839507a0e3c9daa90f4f14a7e57a5ad653c43714
+  languageName: node
+  linkType: hard
+
+"joi@npm:^17.7.1":
+  version: 17.12.1
+  resolution: "joi@npm:17.12.1"
+  dependencies:
+    "@hapi/hoek": ^9.3.0
+    "@hapi/topo": ^5.1.0
+    "@sideway/address": ^4.1.5
+    "@sideway/formula": ^3.0.1
+    "@sideway/pinpoint": ^2.0.0
+  checksum: 31c85bf49cfacd094dd70e52a3cba40c7eb95240f199cad06609d6e76563761864bcf9920b94a6eb8b46839a50087d44f8d5d4126df8be7502847e4b276ca8b0
   languageName: node
   linkType: hard
 
