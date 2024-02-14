@@ -60,39 +60,6 @@ test.describe('severity-1 #smoke', () => {
       await settings.signOut();
     });
 
-    // TODO: The conditional `test.skip()` below on L74 was still causing the `beforeEach` and `afterEach`
-    // hooks to run which was causing errors. Adding `.skip()` here to see if that improves it.
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip('signup, bounce email', async ({
-      page,
-      target,
-      pages: { login, signupReact },
-    }) => {
-      test.skip(true, 'this test is skipped until we sort out how to record an email bounce for testing');
-
-      await signupReact.goto();
-      await signupReact.fillOutEmailFirst(email);
-      await signupReact.fillOutSignupForm(PASSWORD);
-
-      //Verify sign up code header
-      await page.waitForURL(/confirm_signup_code/);
-      await signupReact.confirmCodeHeading();
-
-      // Record a hard bounce in the db
-
-      // if a hard bounce is recorded, the page should redirect to email-first sign-in
-      // with an error message
-      await page.waitForURL(/`${target.contentServerUrl}`/);
-
-      expect(
-        page.getByRole('heading', { name: /Enter your email/ })
-      ).toBeVisible();
-      //Verify error message
-      expect(await login.getTooltipError()).toContain(
-        'Your confirmation email was just returned. Mistyped email?'
-      );
-    });
-
     test('signup oauth', async ({
       page,
       target,
