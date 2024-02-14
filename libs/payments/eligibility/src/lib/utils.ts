@@ -36,13 +36,14 @@ export const offeringComparison = (
   const targetIndex = subgroupProductIds.indexOf(
     targetOffering.stripeProductId
   );
-  switch (targetIndex - existingIndex) {
-    case 0:
-      return OfferingComparison.SAME;
-    case 1:
-      return OfferingComparison.UPGRADE;
-    default:
-      return OfferingComparison.DOWNGRADE;
+
+  const resultIndex = targetIndex - existingIndex;
+  if (resultIndex === 0) {
+    return OfferingComparison.SAME;
+  } else if (resultIndex > 0) {
+    return OfferingComparison.UPGRADE;
+  } else {
+    return OfferingComparison.DOWNGRADE;
   }
 };
 

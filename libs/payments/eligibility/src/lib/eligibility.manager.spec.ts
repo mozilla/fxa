@@ -61,7 +61,7 @@ describe('EligibilityManager', () => {
 
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
       const offeringResult = EligibilityOfferingResultFactory({
-        stripeProductId: 'prod_test2',
+        stripeProductId: 'prod_test3',
         linkedFrom: {
           subGroupCollection: {
             items: [
@@ -74,6 +74,10 @@ describe('EligibilityManager', () => {
                     }),
                     EligibilitySubgroupOfferingResultFactory({
                       stripeProductId: 'prod_test2',
+                      countries: ['usa'],
+                    }),
+                    EligibilitySubgroupOfferingResultFactory({
+                      stripeProductId: 'prod_test3',
                       countries: ['usa'],
                     }),
                   ],
