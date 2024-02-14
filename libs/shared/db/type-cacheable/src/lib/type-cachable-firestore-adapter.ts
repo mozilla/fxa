@@ -8,6 +8,8 @@ import cacheManager, {
   CacheManagerOptions,
 } from '@type-cacheable/core';
 
+const DEFAULT_TTL = 300; // Seconds
+
 export class FirestoreAdapter implements CacheClient {
   constructor(firestoreClient: Firestore, collectionName: string) {
     this.firestoreClient = firestoreClient;
@@ -37,12 +39,17 @@ export class FirestoreAdapter implements CacheClient {
   }
 
   public async set(cacheKey: string, value: any, ttl?: number): Promise<any> {
+    ttl ||= DEFAULT_TTL;
+
+    const expiry = new Date();
+    expiry.setSeconds(expiry.getSeconds() + ttl);
+
     await this.firestoreClient
       .collection(this.collectionName)
       .doc(cacheKey)
       .set({
         value,
-        ttl: ttl || 0,
+        ttl: expiry,
         updatedAt: new Date(),
       });
   }
