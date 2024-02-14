@@ -49,7 +49,7 @@
     "fxa-auth-server": "workspace:*",
     "fxa-profile-server": "workspace:*",
     "fxa-shared": "workspace:*",
-    "get-stream": "^6.0.1",
+    "get-stream": "^8.0.1",
     "graphql-parse-resolve-info": "^4.13.0",
     "graphql-query-complexity": "^0.12.0",
     "helmet": "^7.1.0",
