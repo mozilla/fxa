@@ -22,6 +22,15 @@ jest.mock('graphql-request', () => ({
   },
 }));
 
+jest.mock('@fxa/shared/db/type-cacheable', () => ({
+  FirestoreCacheable: () => {
+    return (target: any, propertyKey: any, descriptor: any) => {
+      return descriptor;
+    };
+  },
+  NetworkFirstStrategy: function () {},
+}));
+
 describe('ContentfulClient', () => {
   let contentfulClient: ContentfulClient;
   const onCallback = jest.fn();
@@ -33,6 +42,7 @@ describe('ContentfulClient', () => {
       graphqlApiUri: faker.string.uuid(),
       graphqlSpaceId: faker.string.uuid(),
       graphqlEnvironment: faker.string.uuid(),
+      firestoreCacheCollectionName: faker.string.uuid(),
     });
     contentfulClient.on('response', onCallback);
   });

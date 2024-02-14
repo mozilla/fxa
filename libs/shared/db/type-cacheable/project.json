@@ -1,0 +1,41 @@
+{
+  "name": "shared-db-type-cacheable",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/db/type-cacheable/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/db/type-cacheable",
+        "tsConfig": "libs/shared/db/type-cacheable/tsconfig.lib.json",
+        "packageJson": "libs/shared/db/type-cacheable/package.json",
+        "main": "libs/shared/db/type-cacheable/src/index.ts",
+        "assets": ["libs/shared/db/type-cacheable/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/shared/db/type-cacheable/**/*.ts"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/db/type-cacheable/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    }
+  },
+  "tags": ["scope:shared:lib"]
+}

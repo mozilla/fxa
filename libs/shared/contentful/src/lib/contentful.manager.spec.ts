@@ -21,6 +21,15 @@ import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StatsD } from 'hot-shots';
 
+jest.mock('@fxa/shared/db/type-cacheable', () => ({
+  FirestoreCacheable: () => {
+    return (target: any, propertyKey: any, descriptor: any) => {
+      return descriptor;
+    };
+  },
+  NetworkFirstStrategy: function () {},
+}));
+
 describe('ContentfulManager', () => {
   let manager: ContentfulManager;
   let mockClient: ContentfulClient;

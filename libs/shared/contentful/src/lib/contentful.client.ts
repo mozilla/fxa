@@ -2,9 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { OperationVariables } from '@apollo/client';
+import type { OperationVariables } from '@apollo/client';
 import { GraphQLClient } from 'graphql-request';
-import { TypedDocumentNode } from '@graphql-typed-document-node/core';
+import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { Injectable } from '@nestjs/common';
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
@@ -16,8 +16,14 @@ import {
 } from './contentful.error';
 import { ContentfulErrorResponse } from './types';
 import EventEmitter from 'events';
+import {
+  FirestoreCacheable,
+  NetworkFirstStrategy,
+} from '@fxa/shared/db/type-cacheable';
+import { CONTENTFUL_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
 
-const DEFAULT_CACHE_TTL = 300000; // Milliseconds
+const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
+const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
 
 interface EventResponse {
   method: string;
@@ -36,12 +42,12 @@ export class ContentfulClient {
     `${this.contentfulClientConfig.graphqlApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}?access_token=${this.contentfulClientConfig.graphqlApiKey}`
   );
   private locales: string[] = [];
-  private graphqlResultCache: Record<string, unknown> = {};
   private emitter: EventEmitter;
   public on: (
     event: 'response',
     listener: (response: EventResponse) => void
   ) => EventEmitter;
+  private graphqlMemCache: Record<string, unknown> = {};
 
   constructor(private contentfulClientConfig: ContentfulClientConfig) {
     this.setupCacheBust();
@@ -58,33 +64,42 @@ export class ContentfulClient {
     return result;
   }
 
+  @FirestoreCacheable(
+    {
+      cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+      strategy: new NetworkFirstStrategy(),
+      ttlSeconds: (_, context) =>
+        context.contentfulClientConfig.firestoreCacheTTL ||
+        DEFAULT_FIRESTORE_CACHE_TTL,
+    },
+    {
+      collectionName: (_, context) =>
+        context.contentfulClientConfig.firestoreCacheCollectionName ||
+        CONTENTFUL_QUERY_CACHE_KEY,
+    }
+  )
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables
   ): Promise<Result> {
-    // Sort variables prior to stringifying to not be caller order dependent
-    const variablesString = JSON.stringify(
-      variables,
-      Object.keys(variables as Record<string, unknown>).sort()
-    );
-    const cacheKey = variablesString + query;
+    const cacheKey = cacheKeyForQuery(query, variables);
 
     const emitterResponse = {
       method: 'query',
       query,
-      variables: variablesString,
+      variables: JSON.stringify(variables),
       requestStartTime: Date.now(),
       cache: false,
     };
 
-    if (this.graphqlResultCache[cacheKey]) {
+    if (this.graphqlMemCache[cacheKey]) {
       this.emitter.emit('response', {
         ...emitterResponse,
         requestEndTime: emitterResponse.requestStartTime,
         elapsed: 0,
         cache: true,
       });
-      return this.graphqlResultCache[cacheKey] as Result;
+      return this.graphqlMemCache[cacheKey] as Result;
     }
 
     try {
@@ -100,7 +115,7 @@ export class ContentfulClient {
         requestEndTime,
       });
 
-      this.graphqlResultCache[cacheKey] = response;
+      this.graphqlMemCache[cacheKey] = response;
 
       return response;
     } catch (e) {
@@ -178,11 +193,12 @@ export class ContentfulClient {
   }
 
   private setupCacheBust() {
-    const cacheTTL = this.contentfulClientConfig.cacheTTL || DEFAULT_CACHE_TTL;
+    const cacheTTL =
+      this.contentfulClientConfig.memCacheTTL || DEFAULT_MEM_CACHE_TTL * 1000;
 
     setInterval(() => {
       this.locales = [];
-      this.graphqlResultCache = {};
+      this.graphqlMemCache = {};
     }, cacheTTL);
   }
 }

@@ -4,7 +4,6 @@
 import { Request, RequestApplicationState } from '@hapi/hapi';
 import { Token } from 'typedi';
 import { Logger } from 'mozlog';
-import { Firestore } from '@google-cloud/firestore';
 import { ConfigType } from '../config';
 
 /**
@@ -87,7 +86,7 @@ export interface AuthLogger extends Logger {
 // Container token types
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const AuthLogger = new Token<AuthLogger>('AUTH_LOGGER');
-export const AuthFirestore = new Token<Firestore>('AUTH_FIRESTORE');
 export const AppConfig = new Token<ConfigType>('APP_CONFIG');
+export { AuthFirestore } from '@fxa/shared/db/firestore';
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const ProfileClient = new Token<ProfileClient>('PROFILE_CLIENT');

@@ -2011,6 +2011,12 @@ const convictConf = convict({
       env: 'CONTENTFUL_GRAPHQL_ENVIRONMENT',
       format: String,
     },
+    firestoreCacheCollectionName: {
+      default: '',
+      doc: 'Firestore collection name to store Contentful query cache',
+      env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
+      format: String,
+    },
   },
 
   cloudTasks: {

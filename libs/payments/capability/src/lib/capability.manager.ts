@@ -40,14 +40,14 @@ export class CapabilityManager {
   ): Promise<Record<string, string[]>> {
     if (!subscribedPrices.length) return {};
 
-    const purchaseDetails =
-      await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
-        [...subscribedPrices]
-      );
-
     const result: Record<string, string[]> = {};
 
     for (const subscribedPrice of subscribedPrices) {
+      const purchaseDetails =
+        await this.contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+          [subscribedPrice]
+        );
+
       const capabilityOffering =
         purchaseDetails.capabilityOfferingForPlanId(subscribedPrice);
 
