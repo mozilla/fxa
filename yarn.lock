@@ -35883,19 +35883,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-loader@npm:^4.3.0":
-  version: 4.3.0
-  resolution: "file-loader@npm:4.3.0"
-  dependencies:
-    loader-utils: ^1.2.3
-    schema-utils: ^2.5.0
-  peerDependencies:
-    webpack: ^4.0.0
-  checksum: a005ac5599e96631e8ead32db874283ef821c121e93997b0d6f853db1284bcd7832e1ac59d39a21c201de22b6e33146996c28bd8c486893a5191c334a00f61b2
-  languageName: node
-  linkType: hard
-
-"file-loader@npm:^6.1.0, file-loader@npm:^6.2.0":
+"file-loader@npm:^6.2.0":
   version: 6.2.0
   resolution: "file-loader@npm:6.2.0"
   dependencies:
@@ -37400,7 +37388,7 @@ fsevents@~2.1.1:
     express: ^4.17.3
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.4
-    file-loader: ^6.1.0
+    file-loader: ^6.2.0
     firefox-profile: 4.3.2
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
@@ -37927,7 +37915,7 @@ fsevents@~2.1.1:
     classnames: ^2.5.1
     eslint: ^7.32.0
     fetch-mock: ^9.11.0
-    file-loader: ^4.3.0
+    file-loader: ^6.2.0
     fxa-shared: "workspace:*"
     grunt: ^1.6.1
     grunt-cli: ^1.4.3
@@ -58102,7 +58090,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^2.0.0, schema-utils@npm:^2.5.0, schema-utils@npm:^2.6.5":
+"schema-utils@npm:^2.0.0, schema-utils@npm:^2.6.5":
   version: 2.7.1
   resolution: "schema-utils@npm:2.7.1"
   dependencies:
