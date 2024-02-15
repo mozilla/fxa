@@ -871,9 +871,14 @@ describe('models/reliers/oauth', () => {
         });
     });
 
-    it('rejects if the client does not specify an email or id_token_hint', () => {
+    it('allow if the client does not specify an email or id_token_hint', () => {
       relier.unset('email');
       relier.unset('idTokenHint');
+      sinon.stub(account, 'sessionVerificationStatus').callsFake(() => {
+        return Promise.resolve({
+          verified: true,
+        });
+      });
       account.set({
         email: 'testuser@testuser.com',
         sessionToken: 'token',
@@ -881,10 +886,7 @@ describe('models/reliers/oauth', () => {
       });
       return relier
         .validatePromptNoneRequest(account)
-        .then(assert.fail, (err) => {
-          assert.isTrue(OAuthErrors.is(err, 'MISSING_PARAMETER'));
-          assert.equal(err.param, 'login_hint');
-        });
+        .then(assert.true, assert.fail);
     });
 
     it('rejects if no user is signed in', () => {

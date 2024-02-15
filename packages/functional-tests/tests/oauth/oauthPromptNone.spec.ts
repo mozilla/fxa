@@ -165,36 +165,6 @@ test.describe('severity-1 #smoke', () => {
       }
     });
 
-    test('fails if no login_hint', async ({
-      page,
-      target,
-      pages: { relier, login },
-    }) => {
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
-      await login.fillOutEmailFirstSignIn(email, password);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
-
-      const query = new URLSearchParams({
-        return_on_error: 'false',
-      });
-      await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
-      await relier.signInPromptNone();
-
-      //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'Missing OAuth parameter: login_hint'
-      );
-    });
-
     test('fails if login_hint is different to logged in user', async ({
       page,
       target,
@@ -245,6 +215,34 @@ test.describe('severity-1 #smoke', () => {
 
       const query = new URLSearchParams({
         login_hint: email,
+        return_on_error: 'false',
+      });
+      await page.goto(`${target.relierUrl}/?${query.toString()}`);
+
+      await relier.signInPromptNone();
+
+      //Verify logged in to relier
+      expect(await relier.isLoggedIn()).toBe(true);
+    });
+
+    test('succeeds if no login_hint is provided', async ({
+      page,
+      target,
+      pages: { relier, login },
+    }) => {
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(email, password);
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
+
+      const query = new URLSearchParams({
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);

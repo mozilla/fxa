@@ -449,23 +449,13 @@ var OAuthRelier = Relier.extend({
                 );
               }
             });
-        } else {
-          if (!requestedEmail) {
-            // yeah yeah, it's a bit strange to look at `email`
-            // and then say `login_hint` is missing. `login_hint`
-            // is the OIDC spec compliant name, we supported `email` first
-            // and don't want to break backwards compatibility.
-            // `login_hint` is copied to the `email` field if no `email`
-            // is specified. If neither is available, throw an error
-            // about `login_hint` since it's spec compliant.
-            throw OAuthErrors.toMissingParameterError('login_hint');
-          }
-
-          if (requestedEmail !== account.get('email')) {
-            throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
-          }
-          return Promise.resolve();
         }
+
+        if (requestedEmail && requestedEmail !== account.get('email')) {
+          throw OAuthErrors.toError('PROMPT_NONE_DIFFERENT_USER_SIGNED_IN');
+        }
+
+        return Promise.resolve();
       })
       .then(() => {
         // account has all the right bits associated with it,
