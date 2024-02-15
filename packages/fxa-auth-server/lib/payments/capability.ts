@@ -927,6 +927,28 @@ export class CapabilityService {
         return contentfulCapabilities;
       }
 
+      // before returning an error, check for capability duplicates
+      // since Contentful groups them all together
+      if (contentfulCapabilities.length > stripeCapabilities.length) {
+        // check if number of unique values in Contentful capabilities matches Stripe
+        const contentfulSet = new Set(Object.values(contentfulCapabilities));
+
+        if (isEqual(contentfulSet, Object.values(stripeCapabilities))) {
+          // double check that all of Stripe's key-value pairs are in Contentful data
+          if (
+            Object.keys(stripeCapabilities).every(
+              (key) =>
+                Object.prototype.hasOwnProperty.call(
+                  contentfulCapabilities,
+                  key
+                ) && contentfulCapabilities[key] === stripeCapabilities[key]
+            )
+          ) {
+            return contentfulCapabilities;
+          }
+        }
+      }
+
       if (this.logToSentry('planIdsToClientCapabilities.NoMatch')) {
         Sentry.withScope((scope) => {
           scope.setContext('planIdsToClientCapabilities', {
