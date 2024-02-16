@@ -20,12 +20,16 @@ export class CapabilityManager {
 
     if (!clients) return [];
 
-    return clients.map((client: ServiceResult) => ({
-      clientId: client.oauthClientId,
-      capabilities: client.capabilitiesCollection.items.map(
+    return clients.map((client: ServiceResult) => {
+      const capabilities = client.capabilitiesCollection.items.map(
         (capability: CapabilitiesResult) => capability.slug
-      ),
-    }));
+      );
+      const sortedCapabilities = capabilities.sort();
+      return {
+        clientId: client.oauthClientId,
+        capabilities: sortedCapabilities,
+      };
+    });
   }
 
   /**

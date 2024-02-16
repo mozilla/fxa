@@ -1156,23 +1156,23 @@ describe('CapabilityService', () => {
           {
             capabilities: [
               'exampleCap0',
-              'goodnewseveryone',
               'exampleCap1',
               'exampleCap3',
+              'goodnewseveryone',
             ],
             clientId: 'client1',
           },
           {
             capabilities: [
               'exampleCap0',
-              'goodnewseveryone',
               'exampleCap2',
               'exampleCap4',
-              'wibble',
-              'quux',
               'exampleCap5',
               'exampleCap6',
               'exampleCap7',
+              'goodnewseveryone',
+              'quux',
+              'wibble',
             ],
             clientId: 'client2',
           },

@@ -56,12 +56,12 @@ describe('CapabilityManager', () => {
           oauthClientId: 'client1',
           capabilitiesCollection: {
             items: [
+              CapabilitiesResultFactory({ slug: 'exampleCap8' }),
               CapabilitiesResultFactory({ slug: 'exampleCap0' }),
               CapabilitiesResultFactory({ slug: 'exampleCap2' }),
               CapabilitiesResultFactory({ slug: 'exampleCap4' }),
               CapabilitiesResultFactory({ slug: 'exampleCap5' }),
               CapabilitiesResultFactory({ slug: 'exampleCap6' }),
-              CapabilitiesResultFactory({ slug: 'exampleCap8' }),
             ],
           },
         }),
@@ -71,10 +71,9 @@ describe('CapabilityManager', () => {
       expect(result.length).toBe(1);
       expect(result[0].clientId).toBe('client1');
 
-      const actualCapabilities =
-        clientResults[0].capabilitiesCollection.items.map(
-          (capability) => capability.slug
-        );
+      const actualCapabilities = clientResults[0].capabilitiesCollection.items
+        .map((capability) => capability.slug)
+        .sort();
 
       expect(result[0].capabilities).toHaveLength(6);
       expect(result[0].capabilities).toStrictEqual(actualCapabilities);
