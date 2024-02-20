@@ -157,8 +157,12 @@ export const Signup = ({
   const ftlMsgResolver = useFtlMsgResolver();
 
   const localizedAgeIsRequiredError = ftlMsgResolver.getMsg(
-    'signup-age-check-input-error',
+    'auth-error-1031',
     'You must enter your age to sign up'
+  );
+  const localizedValidAgeError = ftlMsgResolver.getMsg(
+    'auth-error-1032',
+    'You must enter a valid age to sign up'
   );
 
   const onFocus = () => {
@@ -197,6 +201,9 @@ export const Signup = ({
         // TODO: probably a better way to set this?
         document.cookie = 'tooyoung=1;';
         navigate('/cannot_create_account');
+        return;
+      } else if (Number(age) > 130) {
+        setAgeCheckErrorText(localizedValidAgeError);
         return;
       }
 
@@ -293,6 +300,7 @@ export const Signup = ({
       integration,
       offeredSyncEngineConfigs,
       isSyncOAuth,
+      localizedValidAgeError,
     ]
   );
 
