@@ -28,6 +28,7 @@ describe('Customs', () => {
   const statsd = {
     increment: () => {},
     timing: () => {},
+    gauge: () => {},
   };
   const log = {
     trace: () => {},
@@ -44,6 +45,7 @@ describe('Customs', () => {
   beforeEach(() => {
     sandbox.stub(statsd, 'increment');
     sandbox.stub(statsd, 'timing');
+    sandbox.stub(statsd, 'gauge');
     request = newRequest();
     ip = request.app.clientAddress;
     email = newEmail();
@@ -743,6 +745,12 @@ describe('Customs', () => {
           })
         );
         assert.isTrue(statsd.timing.calledWithMatch('customs.check.success'));
+        assert.isTrue(
+          statsd.gauge.calledWithMatch('httpAgent.createSocketCount')
+        );
+        assert.isTrue(
+          statsd.gauge.calledWithMatch('httpsAgent.createSocketCount')
+        );
       }
     });
 
