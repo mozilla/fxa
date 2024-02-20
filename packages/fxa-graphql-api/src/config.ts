@@ -76,7 +76,7 @@ const conf = convict({
       doc: 'Firestore collection name to store Contentful query cache',
       format: String,
       env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
-      default: '',
+      default: 'fxa-graphql-api-contentful-query-cache',
     },
   },
   corsOrigin: {
