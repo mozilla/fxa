@@ -38372,7 +38372,7 @@ fsevents@~2.1.1:
     jest-environment-node: ^29.4.1
     json: ^11.0.0
     knex: ^2.4.2
-    kysely: ^0.26.1
+    kysely: ^0.27.2
     lint-staged: ^15.2.0
     mocha-junit-reporter: ^2.2.0
     mocha-multi: ^1.1.7
@@ -46459,10 +46459,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"kysely@npm:^0.26.1":
-  version: 0.26.1
-  resolution: "kysely@npm:0.26.1"
-  checksum: 4803313e58dd3a572de6bba88fdf8e0b7ed27ec180948104818ab4dca509ef6aa9f740383656ebc72b94d5605340219e1733c8939f29475a17e7d6050b247d78
+"kysely@npm:^0.27.2":
+  version: 0.27.2
+  resolution: "kysely@npm:0.27.2"
+  checksum: 099dc32e3a0d1c86f2a3bb43cc7657ced0b4b83c7fba42c2fcd309a9316b01673ec1b2d9fbbcd5f90367f4a6583a8be01f55cf819e613310c7f4632059e2b687
   languageName: node
   linkType: hard
 
