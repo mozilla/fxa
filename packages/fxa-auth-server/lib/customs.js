@@ -21,23 +21,25 @@ class CustomsClient {
     this.log = log;
     this.error = error;
     this.statsd = statsd;
-    const customsHttpAgent = config.get('customsHttpAgent');
+    const customsHttpAgentConfig = config.get('customsHttpAgent');
 
     if (url !== 'none') {
+      this.httpAgent = createHttpAgent(
+        customsHttpAgentConfig.maxSockets,
+        customsHttpAgentConfig.maxFreeSockets,
+        customsHttpAgentConfig.timeoutMs,
+        customsHttpAgentConfig.freeSocketTimeoutMs
+      );
+      this.httpsAgent = createHttpsAgent(
+        customsHttpAgentConfig.maxSockets,
+        customsHttpAgentConfig.maxFreeSockets,
+        customsHttpAgentConfig.timeoutMs,
+        customsHttpAgentConfig.freeSocketTimeoutMs
+      );
       this.axiosInstance = axios.create({
         baseURL: url,
-        httpAgent: createHttpAgent(
-          customsHttpAgent.maxSockets,
-          customsHttpAgent.maxFreeSockets,
-          customsHttpAgent.timeoutMs,
-          customsHttpAgent.freeSocketTimeoutMs
-        ),
-        httpsAgent: createHttpsAgent(
-          customsHttpAgent.maxSockets,
-          customsHttpAgent.maxFreeSockets,
-          customsHttpAgent.timeoutMs,
-          customsHttpAgent.freeSocketTimeoutMs
-        ),
+        httpAgent: this.httpAgent,
+        httpsAgent: this.httpsAgent,
       });
     }
   }
@@ -51,6 +53,8 @@ class CustomsClient {
     const startTime = performance.now();
 
     try {
+      this.logHttpAgentStatus();
+
       const response = await this.axiosInstance.post(endpoint, requestData);
 
       if (this.statsd) {
@@ -203,6 +207,31 @@ class CustomsClient {
       }
 
       throw this.error.requestBlocked(unblock);
+    }
+  }
+
+  logHttpAgentStatus() {
+    if (this.axiosInstance && this.statsd) {
+      this.logStatus(this.httpAgent, 'httpAgent');
+      this.logStatus(this.httpsAgent, 'httpsAgent');
+    }
+  }
+
+  logStatus(agent, name) {
+    if (agent) {
+      const status = agent.getCurrentStatus();
+      this.statsd.gauge(`${name}.createSocketCount`, status.createSocketCount);
+      this.statsd.gauge(
+        `${name}.createSocketErrorCount`,
+        status.createSocketErrorCount
+      );
+      this.statsd.gauge(`${name}.closeSocketCount`, status.closeSocketCount);
+      this.statsd.gauge(`${name}.errorSocketCount`, status.errorSocketCount);
+      this.statsd.gauge(
+        `${name}.timeoutSocketCount`,
+        status.timeoutSocketCount
+      );
+      this.statsd.gauge(`${name}.requestCount`, status.requestCount);
     }
   }
 }
