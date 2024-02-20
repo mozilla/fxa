@@ -8,7 +8,6 @@
 @import 'tailwindcss/variants';
 
 @import 'fxa-react/styles/index';
-@import './fonts';
 @import './unit-row';
 @import './drop-down-menu';
 @import './slider';

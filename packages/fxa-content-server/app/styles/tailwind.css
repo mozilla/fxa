@@ -7,7 +7,6 @@
 @import 'tailwindcss/utilities';
 
 @import 'fxa-react/styles/index';
-@import './tailwind/fonts';
 
 /* REACT NOTE: when we refactor to React it's going to be nicer to create reusable
  * components and ditch some of these custom component classes. */

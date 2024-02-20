@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import '../src/styles/tailwind.out.css';
-import '../src/styles/fonts';
 import './design-guide/design-guide.css';
 import { initializeRTL } from 'storybook-addon-rtl';
 

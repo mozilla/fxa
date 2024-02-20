@@ -115,7 +115,6 @@ module.exports = {
     },
     fontFamily: {
       body: [
-        'Inter',
         'system-ui',
         '-apple-system',
         'BlinkMacSystemFont',
@@ -130,7 +129,6 @@ module.exports = {
         'sans-serif',
       ],
       header: [
-        'Metropolis',
         'system-ui',
         '-apple-system',
         'BlinkMacSystemFont',

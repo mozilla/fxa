@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Page from '../Page';
 import Copiable from '../Copiable';
+import LinkExternal from 'fxa-react/components/LinkExternal';
 
 /**
  * Note: we have a handful of concatenated classes here, which PurgeCSS will not observe
@@ -95,9 +96,30 @@ export const Typography = ({ config }) => {
 
   return (
     <Page title="Typography">
+      <p className="my-2 max-w-4xl">
+        When we redesigned Settings in 2019, we used <b>Metropolis</b> as our
+        header font and <b>Inter</b> as our body font. These were removed in
+        early 2024 since they are deprecated, see{' '}
+        <LinkExternal
+          href="https://mozilla-hub.atlassian.net/browse/FXA-9058"
+          className="underline link-blue"
+        >
+          FXA-9058
+        </LinkExternal>{' '}
+        for more details. We are currently using <b>system fonts</b> for header
+        and body copy, see{' '}
+        <LinkExternal
+          href="https://github.com/mozilla/fxa/blob/main/packages/fxa-react/configs/tailwind.js"
+          className="underline link-blue"
+        >
+          the Tailwind config file
+        </LinkExternal>{' '}
+        "fontFamily" section to see fallbacks.
+      </p>
       <p className="mt-2 mb-8 max-w-4xl">
-        Because we use custom font-faces, we keep the number of font-weights low
-        as they would need to pull in additional custom fonts.
+        If we introduce custom font-faces in the future, we should keep the
+        number of font-weights low as they otherwise would need to pull in
+        additional custom fonts.
       </p>
       <div>
         {Object.keys(twFontFamilies).map((fontFamilyShortName) => (
