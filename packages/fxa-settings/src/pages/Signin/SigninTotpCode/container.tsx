@@ -29,6 +29,7 @@ export const SigninTotpCodeContainer = ({
   serviceName,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
   const navigate = useNavigate();
+  // TODO: FXA-9177, likely use Apollo cache here instead of location state
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: {
       verificationReason: string;

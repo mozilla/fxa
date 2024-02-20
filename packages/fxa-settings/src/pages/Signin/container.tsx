@@ -351,7 +351,6 @@ const SigninContainer = ({
       // };
       try {
         const { authPW } = await getCredentials(email, password);
-        console.log('!!! authPW', authPW);
         const { data } = await beginSignin({
           variables: {
             input: {
@@ -429,7 +428,7 @@ const SigninContainer = ({
         }
 
         // after accountProfile data is retrieved we must check verified status
-        // TODO: can we use the useSession hook here?
+        // TODO: FXA-9177 can we use the useSession hook here? Or update Apollo Cache
         const {
           verified,
           sessionVerified,
