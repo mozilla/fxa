@@ -24,8 +24,11 @@ import Storage from '../lib/storage';
 import random from '../lib/random';
 import { AuthUiErrorNos, AuthUiErrors } from '../lib/auth-errors/auth-errors';
 import { LinkedAccountProviderIds, MozServices } from '../lib/types';
-import { GET_LOCAL_SIGNED_IN_STATUS } from '../components/App/gql';
-import { AccountAvatar } from '../lib/interfaces';
+import {
+  GET_LOCAL_SIGNED_IN_STATUS,
+  GET_TOTP_STATUS,
+} from '../components/App/gql';
+import { AccountAvatar, AccountTotp } from '../lib/interfaces';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 
 export interface DeviceLocation {
@@ -94,10 +97,7 @@ export interface AccountData {
   emails: Email[];
   attachedClients: AttachedClient[];
   linkedAccounts: LinkedAccount[];
-  totp: {
-    exists: boolean;
-    verified: boolean;
-  };
+  totp: AccountTotp;
   subscriptions: {
     created: number;
     productName: string;
@@ -222,17 +222,6 @@ export const GET_RECOVERY_KEY_EXISTS = gql`
   query GetRecoveryKeyExists {
     account {
       recoveryKey
-    }
-  }
-`;
-
-export const GET_TOTP_STATUS = gql`
-  query GetRecoveryKeyExists {
-    account {
-      totp {
-        exists
-        verified
-      }
     }
   }
 `;

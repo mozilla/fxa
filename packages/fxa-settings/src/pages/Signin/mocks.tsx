@@ -20,7 +20,6 @@ import {
   BeginSigninResponse,
   BeginSigninResultHandlerError,
   CachedSigninHandler,
-  CachedSigninHandlerError,
   SigninIntegration,
   SigninProps,
 } from './interfaces';
@@ -29,6 +28,26 @@ import {
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../lib/auth-errors/auth-errors';
+import { HandledError } from '../../lib/interfaces';
+
+// TODO: There's some sharing opportunity with other parts of the codebase
+// probably move these or a version of these to pages/mocks and share
+export const MOCK_TOTP_STATUS_VERIFIED = {
+  account: {
+    totp: {
+      exists: true,
+      verified: true,
+    },
+  },
+};
+export const MOCK_TOTP_STATUS = {
+  account: {
+    totp: {
+      exists: true,
+      verified: false,
+    },
+  },
+};
 
 export function createMockSigninWebIntegration(): SigninIntegration {
   return {
@@ -95,7 +114,7 @@ export function createBeginSigninResponseError({
 export function createCachedSigninResponseError({
   errno = AuthUiErrors.SESSION_EXPIRED.errno!,
 } = {}): {
-  error: CachedSigninHandlerError;
+  error: HandledError;
 } {
   const message = AuthUiErrorNos[errno].message;
   return {

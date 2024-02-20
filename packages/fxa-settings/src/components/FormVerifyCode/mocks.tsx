@@ -19,7 +19,7 @@ export const Subject = ({
     submitButtonText: 'Check that code',
   };
 
-  const onFormSubmit = () => {
+  const onFormSubmit = async () => {
     alert('Trying to submit');
   };
 

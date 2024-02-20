@@ -4,10 +4,10 @@
 
 import React from 'react';
 import SigninTokenCode from '.';
-import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
 import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { createMockWebIntegration } from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninTokenCode',
@@ -16,7 +16,8 @@ export default {
 } as Meta;
 
 export const Default = () => (
-  <AppLayout>
-    <SigninTokenCode email={MOCK_ACCOUNT.primaryEmail.email} />
-  </AppLayout>
+  <SigninTokenCode
+    email={MOCK_ACCOUNT.primaryEmail.email}
+    integration={createMockWebIntegration()}
+  />
 );

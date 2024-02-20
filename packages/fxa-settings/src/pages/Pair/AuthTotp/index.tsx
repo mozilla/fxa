@@ -50,7 +50,7 @@ const AuthTotp = ({
     submitButtonText: 'Confirm',
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     try {
       // Check authentication code
       // logViewEvent('flow', `${viewName}.submit`, ENTRYPOINT_REACT);

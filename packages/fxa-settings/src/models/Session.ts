@@ -76,6 +76,7 @@ export class Session implements SessionData {
     return this.data.verified;
   }
 
+  // TODO: Use GQL verifyCode instead of authClient
   async verifySession(
     code: string,
     options: {

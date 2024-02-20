@@ -56,6 +56,11 @@ config.theme.extend = {
       '60%': { transform: 'scale(.8)' },
       '90%': { transform: 'scale(.9)' },
     },
+    shake: {
+      '0%, 100%': { transform: 'translateX(0)' },
+      '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-.25rem)' },
+      '20%, 40%, 60%, 80%': { transform: 'translateX(.25rem)' },
+    },
   },
   animation: {
     ...config.theme.extend.animation,
@@ -66,6 +71,7 @@ config.theme.extend = {
     'sparkle-lag-end': 'sparkle-lag-end 1.5s ease-in-out infinite',
     'pulse-up': 'pulse-up 5s ease-in-out infinite',
     heart: 'beat 1.5s infinite',
+    shake: 'shake 1s',
   },
 };
 

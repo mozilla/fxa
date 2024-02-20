@@ -22,7 +22,7 @@ export type FormAttributes = {
 export type FormVerifyCodeProps = {
   viewName: string;
   formAttributes: FormAttributes;
-  verifyCode: (code: string) => void;
+  verifyCode: (code: string) => Promise<void>;
   localizedCustomCodeRequiredMessage?: string;
   codeErrorMessage: string;
   setCodeErrorMessage: React.Dispatch<React.SetStateAction<string>>;
@@ -43,6 +43,7 @@ const FormVerifyCode = ({
   setClearMessages,
 }: FormVerifyCodeProps) => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedLabel = ftlMsgResolver.getMsg(
@@ -84,8 +85,10 @@ const FormVerifyCode = ({
     localizedDefaultCodeRequiredMessage,
   ]);
 
-  const onSubmit = ({ code }: FormData) => {
-    verifyCode(code.trim());
+  const onSubmit = async ({ code }: FormData) => {
+    setIsSubmitting(true);
+    await verifyCode(code.trim());
+    setIsSubmitting(false);
   };
 
   return (
@@ -120,7 +123,11 @@ const FormVerifyCode = ({
       />
 
       <FtlMsg id={formAttributes.submitButtonFtlId}>
-        <button type="submit" className="cta-primary cta-xl">
+        <button
+          type="submit"
+          className="cta-primary cta-xl"
+          disabled={isSubmitting}
+        >
           {formAttributes.submitButtonText}
         </button>
       </FtlMsg>

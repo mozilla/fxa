@@ -2,10 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useEffect, useState } from 'react';
-import { RouteComponentProps } from '@reach/router';
-import { FtlMsg } from 'fxa-react/lib/utils';
-import { /* useAccount, */ useFtlMsgResolver } from '../../../models';
+import React, { useCallback, useEffect, useState } from 'react';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import {
+  isOAuthIntegration,
+  useFtlMsgResolver,
+  useSession,
+} from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { MailImage } from '../../../components/images';
 import FormVerifyCode, {
@@ -14,30 +18,49 @@ import FormVerifyCode, {
 import { REACT_ENTRYPOINT } from '../../../constants';
 import CardHeader from '../../../components/CardHeader';
 import GleanMetrics from '../../../lib/glean';
-// import { ResendStatus } from "fxa-settings/src/lib/types";
-// import { ResendLinkErrorBanner, ResendEmailSuccessBanner } from "fxa-settings/src/components/Banner";
-
-// email will eventually be obtained from account context
-export type SigninTokenCodeProps = { email: string };
+import AppLayout from '../../../components/AppLayout';
+import { SigninTokenCodeProps } from './interfaces';
+import {
+  AuthUiErrors,
+  getLocalizedErrorMessage,
+} from '../../../lib/auth-errors/auth-errors';
+import Banner, {
+  BannerProps,
+  BannerType,
+  ResendEmailSuccessBanner,
+} from '../../../components/Banner';
+import VerificationReasons from '../../../constants/verification-reasons';
 
 export const viewName = 'signin-token-code';
 
+const SIX_DIGIT_NUMBER_REGEX = /^\d{6}$/;
+
 const SigninTokenCode = ({
+  integration,
   email,
+  verificationReason,
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const session = useSession();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // const account = useAccount();
-
+  const [banner, setBanner] = useState<Partial<BannerProps>>({
+    type: undefined,
+    children: undefined,
+  });
+  const [animateBanner, setAnimateBanner] = useState(false);
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
-  // const [resendStatus, setResendStatus] = useState<ResendStatus>(
-  //   ResendStatus['not sent']
-  // );
+  const [resendCodeLoading, setResendCodeLoading] = useState<boolean>(false);
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-token-code-required-error',
     'Confirmation code required'
+  );
+  const localizedInvalidCode = getLocalizedErrorMessage(
+    ftlMsgResolver,
+    AuthUiErrors.INVALID_VERIFICATION_CODE
   );
 
   const formAttributes: FormAttributes = {
@@ -53,50 +76,123 @@ const SigninTokenCode = ({
     GleanMetrics.loginConfirmation.view();
   }, []);
 
-  const handleResendCode = async () => {
-    // try {
-    // TODO: add resend code action
-    //   await account.verifySessionResendCode();
-    //   setResendStatus(ResendStatus['sent']);
-    // } catch (e) {
-    //   setResendStatus(ResendStatus['error']);
-    // }
+  const handleAnimationEnd = () => {
+    // We add the "shake" animation to bring attention to the success banner
+    // when the success banner was already displayed. We have to remove the
+    // class once the animation completes or the animation won't replay.
+    setAnimateBanner(false);
   };
 
-  const onSubmit = async () => {
+  const handleResendCode = async () => {
+    setResendCodeLoading(true);
     try {
-      GleanMetrics.loginConfirmation.submit();
-      // Check confirmation code
-
-      // Log success event
-      // The await of isDone is not entirely necessary when we are not
-      // redirecting the user to an RP.  However at the time of implementation
-      // for the Glean ping the redirect logic has not been implemented.
-      GleanMetrics.loginConfirmation.success();
-      await GleanMetrics.isDone();
-
-      // Check if isForcePasswordChange
-    } catch (e) {
-      // TODO: error handling, error message confirmation
-      // this should likely use auth-errors and display in a tooltip or banner
+      await session.sendVerificationCode();
+      if (banner.type === BannerType.success) {
+        setAnimateBanner(true);
+      } else {
+        setBanner({
+          type: BannerType.success,
+        });
+      }
+    } catch (error) {
+      const localizedErrorMessage =
+        error.errno === AuthUiErrors.THROTTLED.errno
+          ? getLocalizedErrorMessage(ftlMsgResolver, error)
+          : ftlMsgResolver.getMsg(
+              'link-expired-resent-code-error-message',
+              'Something went wrong. A new code could not be sent.'
+            );
+      setBanner({
+        type: BannerType.error,
+        children: <p>{localizedErrorMessage}</p>,
+      });
+    } finally {
+      setResendCodeLoading(false);
     }
   };
 
-  return (
-    // TODO: redirect to force_auth or signin if user has not initiated sign in
+  const onSubmit = useCallback(
+    async (code: string) => {
+      if (!SIX_DIGIT_NUMBER_REGEX.test(code)) {
+        setCodeErrorMessage(localizedInvalidCode);
+        return;
+      }
 
-    // TODO: handle bounced email
-    //       if the account no longer exists, redirect to sign up
-    //       if the account exists, notify that the account has been blocked
-    //       and provide correct support link
-    <>
+      GleanMetrics.loginConfirmation.submit();
+      try {
+        await session.verifySession(code);
+
+        // TODO: Bounced email redirect to `/signin_bounced`. Try
+        // reaching signin_token_code in one browser and deleting the account
+        // in another. You reach the "Sorry. We've locked your account" screen
+        GleanMetrics.loginConfirmation.success();
+
+        if (verificationReason === VerificationReasons.CHANGE_PASSWORD) {
+          GleanMetrics.isDone();
+          hardNavigateToContentServer(
+            `/post_verify/password/force_password_change${location.search}`
+          );
+          return;
+        }
+
+        if (integration.isSync()) {
+          // todo, sync stuff
+          // this might need to be separated into desktop v3 / oauth sync
+        }
+        if (isOAuthIntegration(integration)) {
+          // TODO: OAuth redirect stuff in oauth ticket
+          // The await of isDone is not entirely necessary when we are not
+          // redirecting the user to an RP.  However at the time of implementation
+          // for the Glean ping the redirect logic has not been implemented.
+          await GleanMetrics.isDone();
+        } else {
+          GleanMetrics.isDone();
+          navigate('/settings');
+        }
+      } catch (error) {
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
+        if (error.errno === AuthUiErrors.THROTTLED.errno) {
+          setBanner({
+            type: BannerType.error,
+            children: <p>{localizedErrorMessage}</p>,
+          });
+        } else {
+          setCodeErrorMessage(localizedErrorMessage);
+        }
+      }
+    },
+    [
+      ftlMsgResolver,
+      localizedInvalidCode,
+      session,
+      integration,
+      navigate,
+      verificationReason,
+      location.search,
+    ]
+  );
+
+  return (
+    <AppLayout>
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="signin-token-code-heading-2"
       />
-
-      {/* {resendStatus === ResendStatus["sent"] && <ResendEmailSuccessBanner />}
-      {resendStatus === ResendStatus["error"] && <ResendCodeErrorBanner />} */}
+      {banner.type === BannerType.success && banner.children === undefined && (
+        <ResendEmailSuccessBanner
+          animation={{
+            handleAnimationEnd,
+            animate: animateBanner,
+            className: 'animate-shake',
+          }}
+        />
+      )}
+      {banner.type && banner.children && (
+        <Banner type={banner.type}>{banner.children}</Banner>
+      )}
 
       <div className="flex justify-center mx-auto">
         <MailImage className="w-3/5" />
@@ -124,12 +220,16 @@ const SigninTokenCode = ({
           <p>Code expired?</p>
         </FtlMsg>
         <FtlMsg id="signin-token-code-resend-code-link">
-          <button id="resend" className="link-blue" onClick={handleResendCode}>
+          <button
+            className="link-blue"
+            onClick={handleResendCode}
+            disabled={resendCodeLoading}
+          >
             Email new code.
           </button>
         </FtlMsg>
       </div>
-    </>
+    </AppLayout>
   );
 };
 

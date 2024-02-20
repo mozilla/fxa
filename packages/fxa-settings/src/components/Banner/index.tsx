@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { ReactComponent as IconClose } from 'fxa-react/images/close.svg';
-import { FIREFOX_NOREPLY_EMAIL } from 'fxa-settings/src/constants';
+import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 
 export enum BannerType {
   info = 'info',
@@ -18,6 +18,7 @@ type DefaultProps = {
   type: BannerType;
   children: ReactElement | string;
   additionalClassNames?: string;
+  animation?: Animation;
 };
 
 type OptionalProps =
@@ -29,12 +30,19 @@ type OptionalProps =
 
 export type BannerProps = DefaultProps & OptionalProps;
 
+type Animation = {
+  className: string;
+  handleAnimationEnd: () => void;
+  animate: boolean;
+};
+
 const Banner = ({
   type,
   children,
   additionalClassNames,
   dismissible,
   setIsVisible,
+  animation,
 }: BannerProps) => {
   // Transparent border is for Windows HCM  - to ensure there is a border around the banner
   const baseClassNames =
@@ -48,8 +56,10 @@ const Banner = ({
         type === BannerType.success && 'bg-green-500 text-grey-900',
         type === BannerType.error && 'bg-red-700 text-white',
         dismissible && 'flex gap-2 items-center ',
+        animation?.animate && animation?.className,
         additionalClassNames
       )}
+      onAnimationEnd={animation?.handleAnimationEnd}
     >
       {dismissible ? (
         <>
@@ -72,25 +82,19 @@ const Banner = ({
 };
 export default Banner;
 
-export const ResendEmailSuccessBanner = () => {
+export const ResendEmailSuccessBanner = ({
+  animation,
+}: {
+  animation?: Animation;
+}) => {
   return (
-    <Banner type={BannerType.success}>
+    <Banner type={BannerType.success} {...{ animation }}>
       <FtlMsg
         id="link-expired-resent-link-success-message"
         vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
       >
         {`Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
     smooth delivery.`}
-      </FtlMsg>
-    </Banner>
-  );
-};
-
-export const ResendCodeErrorBanner = () => {
-  return (
-    <Banner type={BannerType.error}>
-      <FtlMsg id="link-expired-resent-code-error-message">
-        Something went wrong. A new code could not be sent.
       </FtlMsg>
     </Banner>
   );

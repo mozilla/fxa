@@ -8,3 +8,14 @@ export interface AccountAvatar {
   id: string | null;
   url: string | null;
 }
+
+export interface AccountTotp {
+  exists: boolean;
+  verified: boolean;
+}
+
+export interface HandledError {
+  errno: number;
+  message: string;
+  ftlId: string;
+}
