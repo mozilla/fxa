@@ -19,6 +19,9 @@ const config = {
     periodMs: 1000,
     rateLimitIntervalMs: 1000,
   },
+  statsd: {
+    enabled: false,
+  },
 };
 
 test('constructor', (t) => {

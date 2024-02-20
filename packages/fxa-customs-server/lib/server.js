@@ -17,6 +17,7 @@ const P = require('bluebird');
 P.promisifyAll(Memcached.prototype);
 const { configureSentry } = require('./sentry');
 const dataflow = require('./dataflow');
+const { StatsD } = require('hot-shots');
 
 module.exports = async function createServer(config, log) {
   var startupDefers = [];
@@ -33,6 +34,18 @@ module.exports = async function createServer(config, log) {
     );
     blockListManager.pollForUpdates();
   }
+
+  const statsd = config.statsd.enabled
+    ? new StatsD({
+        ...config.statsd,
+        errorHandler: (err) => {
+          // eslint-disable-next-line no-use-before-define
+          log.error('statsd.error', err);
+        },
+      })
+    : {
+        timing: () => {},
+      };
 
   var mc = new Memcached(config.memcache.address, {
     timeout: 500,
@@ -68,7 +81,8 @@ module.exports = async function createServer(config, log) {
       mc,
       reputationService,
       limits,
-      config.memcache.recordLifetimeSeconds
+      config.memcache.recordLifetimeSeconds,
+      statsd
     );
 
   const checkUserDefinedRateLimitRules = require('./user_defined_rules')(
@@ -119,6 +133,36 @@ module.exports = async function createServer(config, log) {
     log.error({ op: 'memcachedError', err: err });
     throw err;
   }
+  function normalizePath(path) {
+    path = path.indexOf('/') === 0 ? path.substr(1) : path;
+    return path.replace(/\//g, '_');
+  }
+  function reportMetrics(request) {
+    const path = normalizePath(request._route.path);
+    const statusCode = request.response.isBoom
+      ? request.response.output.statusCode
+      : request.response.statusCode;
+
+    const errno =
+      request.response.errno ||
+      (request.response.source && request.response.source.errno) ||
+      0;
+    statsd.timing(
+      'url_request',
+      request.info.completed - request.info.received,
+      1,
+      {
+        path,
+        method: request.method.toUpperCase(),
+        statusCode,
+        errno,
+      }
+    );
+  }
+
+  api.events.on('response', (request) => {
+    reportMetrics(request);
+  });
 
   function isAllowed(ip, email, phoneNumber) {
     return (
