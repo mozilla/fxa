@@ -50,7 +50,7 @@
     "jwks-rsa": "^3.0.0",
     "mozlog": "^3.0.2",
     "rimraf": "^5.0.0",
-    "sqs-consumer": "^7.2.1",
+    "sqs-consumer": "^8.2.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
