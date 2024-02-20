@@ -2012,7 +2012,7 @@ const convictConf = convict({
       format: String,
     },
     firestoreCacheCollectionName: {
-      default: '',
+      default: 'fxa-auth-server-contentful-query-cache',
       doc: 'Firestore collection name to store Contentful query cache',
       env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
       format: String,
