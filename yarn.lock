@@ -38363,7 +38363,7 @@ fsevents@~2.1.1:
     husky: ^4.2.5
     jest: ^29.5.0
     jest-environment-jsdom: ^29.5.0
-    jest-environment-node: ^29.4.1
+    jest-environment-node: ^29.7.0
     json: ^11.0.0
     knex: ^2.4.2
     kysely: ^0.27.2
@@ -43938,7 +43938,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jest-environment-node@npm:^29.4.1, jest-environment-node@npm:^29.5.0":
+"jest-environment-node@npm:^29.5.0":
   version: 29.5.0
   resolution: "jest-environment-node@npm:29.5.0"
   dependencies:
