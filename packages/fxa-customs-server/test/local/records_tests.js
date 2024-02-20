@@ -16,6 +16,10 @@ const reputationService = {
   get: sandbox.spy(() => Promise.resolve({})),
 };
 
+const statsd = {
+  timing: sandbox.spy(() => Promise.resolve()),
+};
+
 const limits = {};
 
 const recordLifetimeSeconds = 1;
@@ -24,7 +28,8 @@ var { fetchRecords, setRecords, setRecord } = require('../../lib/records')(
   mc,
   reputationService,
   limits,
-  recordLifetimeSeconds
+  recordLifetimeSeconds,
+  statsd
 );
 
 test('fetchRecords', function (t) {

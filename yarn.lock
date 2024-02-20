@@ -37538,6 +37538,7 @@ fsevents@~2.1.1:
     grunt-copyright: 0.3.0
     grunt-eslint: ^23.0.0
     hapi-swagger: ^17.1.0
+    hot-shots: ^10.0.0
     ip: ^1.1.8
     ip-reputation-js-client: ^6.0.4
     load-grunt-tasks: ^5.1.0
