@@ -357,6 +357,23 @@ describe('Signup page', () => {
           );
         });
       });
+
+      it('with age set over 130, does not submit and displays error', async () => {
+        const mockBeginSignupHandler = jest.fn();
+        renderWithLocalizationProvider(
+          <Subject beginSignupHandler={mockBeginSignupHandler} />
+        );
+        await fillOutForm('131');
+
+        submit();
+        await waitFor(() => {
+          expect(screen.getByTestId('tooltip')).toHaveTextContent(
+            'You must enter a valid age to sign up'
+          );
+        });
+        expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
+        expect(mockBeginSignupHandler).not.toBeCalled();
+      });
     });
 
     describe('fails for Relay email masks', () => {

@@ -24,4 +24,6 @@ auth-error-1003 = Local storage or cookies are still disabled
 auth-error-1008 = Your new password must be different
 auth-error-1010 = Valid password required
 auth-error-1011 = Valid email required
+auth-error-1031 = You must enter your age to sign up
+auth-error-1032 = You must enter a valid age to sign up
 auth-error-1062 = Invalid redirect
