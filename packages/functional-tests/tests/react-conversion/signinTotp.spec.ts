@@ -12,7 +12,9 @@ test.describe('severity-1 #smoke', () => {
 
     // https://testrail.stage.mozaws.net/index.php?/cases/view/1293446
     // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
-    test('add and remove totp', async ({
+    // FXA-9178
+    // eslint-disable-next-line playwright/no-skipped-test
+    test.skip('add and remove totp', async ({
       credentials,
       target,
       pages: { settings, totp, page, signupReact },
