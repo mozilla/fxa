@@ -126,6 +126,13 @@ export function makeRedisConfig() {
         env: 'ACCESS_TOKEN_REDIS_PORT',
         format: 'port',
       },
+      password: {
+        default: '',
+        env: 'ACCESS_TOKEN_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
       prefix: {
         default: 'at:',
         env: 'ACCESS_TOKEN_REDIS_KEY_PREFIX',
@@ -163,6 +170,13 @@ export function makeRedisConfig() {
         default: 6379,
         env: 'REFRESH_TOKEN_REDIS_PORT',
         format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'REFRESH_TOKEN_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
       },
       prefix: {
         default: 'rt:',

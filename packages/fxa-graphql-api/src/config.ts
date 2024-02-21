@@ -14,6 +14,7 @@ export interface RedisConfig {
   host: string;
   keyPrefix: string;
   port: number;
+  password: string;
 }
 
 const conf = convict({
@@ -210,6 +211,13 @@ const conf = convict({
         default: 6379,
         env: 'ACCESS_TOKEN_REDIS_PORT',
         format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'ACCESS_TOKEN_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
       },
       prefix: {
         default: 'at:',
