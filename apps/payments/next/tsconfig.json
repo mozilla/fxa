@@ -9,8 +9,15 @@
         "name": "next"
       }
     ],
-    "types": ["jest", "node"],
-    "lib": ["dom", "dom.iterable", "esnext"]
+    "types": [
+      "jest",
+      "node"
+    ],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ]
   },
   "include": [
     "**/*.ts",
@@ -19,7 +26,8 @@
     "**/*.jsx",
     "../../../apps/payments/next/.next/types/**/*.ts",
     "../../../dist/apps/payments/next/.next/types/**/*.ts",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
