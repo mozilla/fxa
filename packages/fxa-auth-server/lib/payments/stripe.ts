@@ -1625,16 +1625,20 @@ export class StripeHelper extends StripeHelperBase {
     );
   }
 
-  getPaymentProvider(customer: Stripe.Customer) {
-    const subscription = customer.subscriptions?.data.find((sub) =>
-      ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status)
-    );
-    if (subscription) {
-      return subscription.collection_method === 'send_invoice'
-        ? 'paypal'
-        : 'stripe';
+  getPaymentProvider(
+    customer: Stripe.Customer
+  ): 'not_chosen' | 'paypal' | 'stripe' {
+    const defaultPaymentMethod =
+      customer.invoice_settings.default_payment_method;
+    const paypalBillingAgreementId = customer.metadata.paypalAgreementId;
+
+    if (paypalBillingAgreementId) {
+      return 'paypal';
+    } else if (defaultPaymentMethod) {
+      return 'stripe';
+    } else {
+      return 'not_chosen';
     }
-    return 'not_chosen';
   }
 
   /**
