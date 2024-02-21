@@ -6,13 +6,15 @@ module.exports = function (
   mc,
   reputationService,
   limits,
-  recordLifetimeSeconds
+  recordLifetimeSeconds,
+  statsd
 ) {
   const IpEmailRecord = require('./ip_email_record')(limits);
   const EmailRecord = require('./email_record')(limits);
   const IpRecord = require('./ip_record')(limits);
   const UidRecord = require('./uid_record')(limits);
   const SmsRecord = require('./sms_record')(limits);
+  const { performance } = require('perf_hooks');
 
   /**
    * Fetch a single record keyed by `key`, parse the result using `parser`.
@@ -39,6 +41,8 @@ module.exports = function (
    *  `ipRecord`, `reputation`, `emailRecord`, `ipEmailRecord`, `smsRecord`, and `uidRecord`
    */
   async function fetchRecords(config) {
+    const startTime = performance.now();
+
     const records = {};
 
     const { ip, email, phoneNumber, uid } = config;
@@ -68,6 +72,8 @@ module.exports = function (
     if (uid) {
       records.uidRecord = await fetchRecord(uid, UidRecord.parse);
     }
+
+    statsd.timing('record_request', performance.now() - startTime, 1);
 
     return records;
   }

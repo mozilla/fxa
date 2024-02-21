@@ -232,6 +232,14 @@ class CustomsClient {
         status.timeoutSocketCount
       );
       this.statsd.gauge(`${name}.requestCount`, status.requestCount);
+
+      Object.keys(status.freeSockets).forEach((addr, value) => {
+        this.statsd.gauge(`${name}.freeSockets.${addr}`, value);
+      });
+
+      Object.keys(status.sockets).forEach((addr, value) => {
+        this.statsd.gauge(`${name}.sockets.${addr}`, value);
+      });
     }
   }
 }
