@@ -25,14 +25,14 @@ export const IconListItem = ({
   return (
     <li className={`flex gap-2 items-start my-2 ${listItemClassnames}`}>
       <span
-        className="ltr:mr-1 rtl:ml-1 text-grey-400"
+        className="me-1 text-grey-400"
         aria-hidden="true"
         role="img"
         data-testid="list-item-icon"
       >
         {icon}
       </span>
-      <span className="flex flex-col gap-4 text-start text-sm">{children}</span>
+      <span className="flex flex-col gap-4">{children}</span>
     </li>
   );
 };

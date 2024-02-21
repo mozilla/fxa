@@ -106,7 +106,7 @@ export const InputText = ({
   return (
     <label
       className={classNames(
-        'flex items-center rounded transition-all duration-100 ease-in-out border relative outline-none',
+        'flex text-start rounded transition-all duration-100 ease-in-out border relative outline-none',
         hasErrors || errorText ? 'border-red-700 shadow-input-red-focus' : '',
         !hasErrors && focused
           ? 'border-blue-400 shadow-input-blue-focus'
@@ -132,7 +132,7 @@ export const InputText = ({
         <input
           className={classNames(
             inputOnlyClassName,
-            'pb-1 pt-5 px-3 w-full font-body rounded',
+            'pb-1 pt-5 px-3 w-full font-body rounded text-start',
             focused ? 'outline-none border-none placeholder-grey-500' : '',
             disabled ? 'bg-grey-10 placeholder-transparent cursor-default' : ''
           )}
@@ -160,7 +160,7 @@ export const InputText = ({
       {errorText && (
         <Tooltip
           type="error"
-          anchorPosition="start"
+          anchorPosition={anchorPosition || 'start'}
           position={tooltipPosition}
           className="-mb-px"
           message={errorText}

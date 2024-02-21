@@ -37,6 +37,7 @@ describe('PasswordStrengthBalloon component', () => {
       'https://support.mozilla.org/kb/password-strength'
     );
   });
+
   it('displays checkmark icon when password requirements are respected', () => {
     renderWithLocalizationProvider(
       <PasswordStrengthBalloon
@@ -47,26 +48,11 @@ describe('PasswordStrengthBalloon component', () => {
       />
     );
 
-    const passwordMinCharRequirement = screen.getByTestId(
-      'password-min-char-req'
-    );
-    const passwordNotEmailRequirement = screen.getByTestId(
-      'password-not-email-req'
-    );
-    const passwordNotCommonRequirement = screen.getByTestId(
-      'password-not-common-req'
-    );
+    const checkmarks = screen.queryAllByText('icon-check-blue-50.svg');
+    expect(checkmarks).toHaveLength(3);
 
-    expect(
-      within(passwordMinCharRequirement).getByTitle('Pass')
-    ).toBeInTheDocument();
-    expect(
-      within(passwordNotEmailRequirement).getByTitle('Pass')
-    ).toBeInTheDocument();
-    expect(
-      within(passwordNotCommonRequirement).getByTitle('Pass')
-    ).toBeInTheDocument();
-    expect(screen.queryByTitle('Fail')).not.toBeInTheDocument();
+    const warnings = screen.queryAllByText('icon-warning-red-50.svg');
+    expect(warnings).toHaveLength(0);
   });
 
   it('displays alert icon when password is too short', () => {
@@ -82,9 +68,8 @@ describe('PasswordStrengthBalloon component', () => {
     const passwordMinCharRequirement = screen.getByTestId(
       'password-min-char-req'
     );
-    expect(
-      within(passwordMinCharRequirement).getByTitle('Fail')
-    ).toBeInTheDocument();
+    const imageElement = within(passwordMinCharRequirement).getByRole('img');
+    expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
   });
 
   it('displays alert icon when password is the same as email', () => {
@@ -100,9 +85,8 @@ describe('PasswordStrengthBalloon component', () => {
     const passwordNotEmailRequirement = screen.getByTestId(
       'password-not-email-req'
     );
-    expect(
-      within(passwordNotEmailRequirement).getByTitle('Fail')
-    ).toBeInTheDocument();
+    const imageElement = within(passwordNotEmailRequirement).getByRole('img');
+    expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
   });
 
   it('displays alert icon when password is common', () => {
@@ -118,8 +102,7 @@ describe('PasswordStrengthBalloon component', () => {
     const passwordNotCommonRequirement = screen.getByTestId(
       'password-not-common-req'
     );
-    expect(
-      within(passwordNotCommonRequirement).getByTitle('Fail')
-    ).toBeInTheDocument();
+    const imageElement = within(passwordNotCommonRequirement).getByRole('img');
+    expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
   });
 });

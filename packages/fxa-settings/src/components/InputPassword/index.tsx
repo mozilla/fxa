@@ -6,7 +6,7 @@ import React, { useState, useCallback, ChangeEvent } from 'react';
 import InputText, { InputTextProps } from '../InputText';
 import { ReactComponent as OpenEye } from './eye-open.svg';
 import { ReactComponent as ClosedEye } from './eye-closed.svg';
-import { useLocalization } from '@fluent/react';
+import { useFtlMsgResolver } from '../../models';
 
 export type InputPasswordProps = Omit<InputTextProps, 'type'>;
 
@@ -27,69 +27,83 @@ export const InputPassword = ({
   tooltipPosition,
   anchorPosition,
 }: InputPasswordProps) => {
-  const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
+  const ftlMsgResolver = useFtlMsgResolver();
+
   const [visible, setVisible] = useState<boolean>(false);
-  const { l10n } = useLocalization();
+  const [srOnlyVisibilityAnnouncement, setSROnlyVisibilityAnnouncement] =
+    useState<string>('');
+
+  const localizedPasswordNowVisible = ftlMsgResolver.getMsg(
+    'input-password-sr-only-now-visible',
+    'Your password is now visible on screen.'
+  );
+  const localizedPasswordNowHidden = ftlMsgResolver.getMsg(
+    'input-password-sr-only-now-hidden',
+    'Your password is now hidden.'
+  );
 
   function formatDataTestId(id: string) {
     return prefixDataTestId ? `${prefixDataTestId}-${id}` : id;
   }
 
+  const changeVisibilityStatus = useCallback(() => {
+    setSROnlyVisibilityAnnouncement(
+      visible ? localizedPasswordNowHidden : localizedPasswordNowVisible
+    );
+    setVisible(!visible);
+  }, [localizedPasswordNowHidden, localizedPasswordNowVisible, visible]);
+
   const onInputChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setHasContent(event.target.value.length > 0);
       onChange && onChange(event);
     },
     [onChange]
   );
 
   return (
-    <InputText
-      type={visible ? 'text' : 'password'}
-      {...{
-        defaultValue,
-        disabled,
-        label,
-        placeholder,
-        onChange: onInputChange,
-        onFocusCb,
-        onBlurCb,
-        className,
-        inputRef,
-        hasErrors,
-        errorText,
-        name,
-        prefixDataTestId,
-        tooltipPosition,
-        anchorPosition,
-      }}
-    >
+    <div className="relative">
+      <InputText
+        type={visible ? 'text' : 'password'}
+        autoComplete="off"
+        spellCheck={false}
+        aria-describedby=""
+        {...{
+          defaultValue,
+          disabled,
+          label,
+          placeholder,
+          onChange: onInputChange,
+          onFocusCb,
+          onBlurCb,
+          className,
+          inputRef,
+          hasErrors,
+          errorText,
+          name,
+          prefixDataTestId,
+          tooltipPosition,
+          anchorPosition,
+        }}
+      ></InputText>
       <button
         type="button"
         data-testid={formatDataTestId('visibility-toggle')}
-        className={`px-3 py-2 text-grey-500 box-content ${
-          !hasContent && 'hidden'
-        }`}
-        tabIndex={-1}
-        onClick={() => {
-          setVisible(!visible);
-        }}
+        className="absolute end-0 inset-y-0 my-auto mx-2 px-2 text-grey-500 box-content"
+        onClick={changeVisibilityStatus}
         title={
           visible
-            ? l10n.getString('input-password-hide', null, 'Hide password')
-            : l10n.getString('input-password-show', null, 'Show password')
+            ? ftlMsgResolver.getMsg('input-password-hide', 'Hide password')
+            : ftlMsgResolver.getMsg('input-password-show', 'Show password')
         }
         aria-label={
           visible
-            ? l10n.getString(
-                'input-password-hide-aria',
-                null,
-                'Hide password from screen.'
+            ? ftlMsgResolver.getMsg(
+                'input-password-hide-aria-2',
+                'Your password is currently visible on screen.'
               )
-            : l10n.getString(
-                'input-password-show-aria',
-                null,
-                'Show password as plain text. Your password will be visible on screen.'
+            : ftlMsgResolver.getMsg(
+                'input-password-show-aria-2',
+                'Your password is currently hidden.'
               )
         }
       >
@@ -109,7 +123,12 @@ export const InputPassword = ({
           />
         )}
       </button>
-    </InputText>
+      {srOnlyVisibilityAnnouncement && (
+        <span id="visibility-status" className="sr-only" aria-live="polite">
+          {srOnlyVisibilityAnnouncement}
+        </span>
+      )}
+    </div>
   );
 };
 

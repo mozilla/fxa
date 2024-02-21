@@ -94,7 +94,9 @@ describe('Signup page', () => {
     renderWithLocalizationProvider(<Subject />);
 
     // testAllL10n(screen, bundle);
-    await screen.findByRole('heading', { name: 'Set your password' });
+    await waitFor(() =>
+      screen.getByRole('heading', { name: 'Set your password' })
+    );
     screen.getByRole('link', { name: 'Change email' });
     screen.getByLabelText('Password');
     screen.getByLabelText('Repeat password');
@@ -152,8 +154,11 @@ describe('Signup page', () => {
   it('allows users to show and hide password input', async () => {
     renderWithLocalizationProvider(<Subject />);
 
-    const newPasswordInput = await screen.findByLabelText('Password');
+    const newPasswordInput = screen.getByLabelText('Password');
 
+    await waitFor(() => {
+      expect(newPasswordInput).toHaveAttribute('type', 'password');
+    });
     expect(newPasswordInput).toHaveAttribute('type', 'password');
     fireEvent.click(screen.getByTestId('new-password-visibility-toggle'));
     expect(newPasswordInput).toHaveAttribute('type', 'text');
@@ -168,7 +173,7 @@ describe('Signup page', () => {
       />
     );
 
-    const infoBannerLink = await screen.findByRole('link', {
+    const infoBannerLink = screen.getByRole('link', {
       name: /Find out here/,
     });
     await waitFor(() => {
@@ -208,7 +213,7 @@ describe('Signup page', () => {
     );
 
     // Choose what to sync options should be displayed if integration is sync
-    await screen.findByText('Choose what to sync');
+    await waitFor(() => screen.getByText('Choose what to sync'));
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(8);
 
@@ -224,7 +229,7 @@ describe('Signup page', () => {
   it('renders and handles newsletters', async () => {
     renderWithLocalizationProvider(<Subject />);
 
-    await screen.findByText('Get more from Mozilla:');
+    await waitFor(() => screen.getByText('Get more from Mozilla:'));
 
     const checkboxes = screen.getAllByRole('checkbox');
     expect(checkboxes).toHaveLength(3);
@@ -386,9 +391,12 @@ describe('Signup page', () => {
             );
             await fillOutForm();
             submit();
-            await screen.findByText(
-              'Email masks can’t be used to create an account.'
-            );
+
+            await waitFor(() => {
+              screen.getByText(
+                'Email masks can’t be used to create an account.'
+              );
+            });
           });
         }
       );
@@ -677,7 +685,9 @@ describe('Signup page', () => {
       await fillOutForm();
       submit();
 
-      await screen.findByText(AuthUiErrors.UNEXPECTED_ERROR.message);
+      await waitFor(() => {
+        screen.getByText(AuthUiErrors.UNEXPECTED_ERROR.message);
+      });
       expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
     });
@@ -740,7 +750,7 @@ describe('Signup page', () => {
   });
 
   describe('handle input errors', () => {
-    it('checks coppa is empty', () => {
+    it('checks coppa is empty', async () => {
       renderWithLocalizationProvider(
         <Subject
           {...{
@@ -769,16 +779,16 @@ describe('Signup page', () => {
       fireEvent.blur(ageInput);
       createAccountButton.click();
 
-      expect(
-        screen.getByText('You must enter your age to sign up')
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        screen.getByText('You must enter your age to sign up');
+      });
       expect(createAccountButton).toBeDisabled();
 
       // TODO: Make sure only valid values are accepted:
       //  https://mozilla-hub.atlassian.net/browse/FXA-8654
     });
 
-    it('shows error for non matching passwords', () => {
+    it('shows error for non matching passwords', async () => {
       renderWithLocalizationProvider(
         <Subject
           {...{
@@ -797,7 +807,9 @@ describe('Signup page', () => {
         target: { value: 'bar12346' },
       });
       fireEvent.blur(screen.getByTestId('verify-password-input-field'));
-      expect(screen.getByText('Passwords do not match')).toBeInTheDocument();
+      await waitFor(() => {
+        screen.getByText('Passwords do not match');
+      });
     });
   });
 });

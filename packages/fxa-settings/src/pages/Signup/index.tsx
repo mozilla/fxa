@@ -173,6 +173,7 @@ export const Signup = ({
   };
 
   const onFocusAgeInput = () => {
+    setAgeCheckErrorText('');
     if (!hasAgeInputFocused) {
       GleanMetrics.registration.engage({ reason: 'age' });
       setHasAgeInputFocused(true);
@@ -447,14 +448,14 @@ export const Signup = ({
             onBlurCb={onBlurAgeInput}
             errorText={ageCheckErrorText}
             tooltipPosition="bottom"
-            anchorPosition="start"
+            anchorPosition="end"
             prefixDataTestId="age"
           />
         </FtlMsg>
         <FtlMsg id="signup-coppa-check-explanation-link">
           <LinkExternal
             href="https://www.ftc.gov/business-guidance/resources/childrens-online-privacy-protection-rule-not-just-kids-sites"
-            className="link-blue text-start text-sm mb-8"
+            className="link-blue text-start text-sm py-1 -mt-2 mb-4 self-start"
           >
             Why do we ask?
           </LinkExternal>

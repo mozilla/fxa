@@ -9,23 +9,16 @@ import Tooltip from '.';
 
 const tooltipText = 'This is a tooltip';
 
-it('renders as expected with children', () => {
-  renderWithLocalizationProvider(<Tooltip message={tooltipText} />);
-  expect(screen.getByTestId('tooltip')).toHaveTextContent(tooltipText);
-});
+describe('tooltip component', () => {
+  it('renders as expected with children', () => {
+    renderWithLocalizationProvider(<Tooltip message={tooltipText} />);
+    expect(screen.getByTestId('tooltip')).toHaveTextContent(tooltipText);
+  });
 
-it('can be passed classNames', () => {
-  renderWithLocalizationProvider(
-    <Tooltip className="my-custom-class" message={tooltipText} />
-  );
-  expect(screen.getByTestId('tooltip')).toHaveClass('my-custom-class');
-});
-
-it('has title present when passed message', () => {
-  renderWithLocalizationProvider(
-    <Tooltip className="my-custom-class" message={tooltipText} />
-  );
-  expect(screen.getByTestId('tooltip').getAttribute('title')).toEqual(
-    tooltipText
-  );
+  it('can be passed classNames', () => {
+    renderWithLocalizationProvider(
+      <Tooltip className="my-custom-class" message={tooltipText} />
+    );
+    expect(screen.getByTestId('tooltip')).toHaveClass('my-custom-class');
+  });
 });
