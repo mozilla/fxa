@@ -42,7 +42,11 @@ describe('StripeMapperService', () => {
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans([stripePlan], 'en');
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan],
+          'en',
+          false
+        );
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
       );
@@ -63,7 +67,11 @@ describe('StripeMapperService', () => {
         }),
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans([stripePlan], 'en');
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan],
+          'en',
+          false
+        );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
@@ -87,7 +95,11 @@ describe('StripeMapperService', () => {
         }),
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans([stripePlan], 'en');
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan],
+          'en',
+          false
+        );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         validMetadata.webIconURL
@@ -115,7 +127,11 @@ describe('StripeMapperService', () => {
         metadata: planOverrideMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans([stripePlan], 'en');
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan],
+          'en',
+          false
+        );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(actualProduct.metadata?.['webIconURL']).toBe(
         planOverrideMetadata.webIconURL
@@ -137,7 +153,11 @@ describe('StripeMapperService', () => {
         }),
       });
       const { mappedPlans, nonMatchingPlans } =
-        await stripeMapper.mapContentfulToStripePlans([stripePlan], 'en');
+        await stripeMapper.mapContentfulToStripePlans(
+          [stripePlan],
+          'en',
+          false
+        );
       const actualProduct = mappedPlans[0].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['webIconURL']).toBe(
         expected.purchaseDetails.webIcon
@@ -186,7 +206,8 @@ describe('StripeMapperService', () => {
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
           [stripePlan1, stripePlan2],
-          'en'
+          'en',
+          false
         );
 
       expect(nonMatchingPlans.length).toBe(0);
@@ -238,7 +259,8 @@ describe('StripeMapperService', () => {
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
           [stripePlan1, stripePlan2],
-          'en'
+          'en',
+          false
         );
 
       expect(nonMatchingPlans[0].split(' - ')[1]).toBe(

@@ -24,7 +24,8 @@ describe('PlanMapperUtil', () => {
       defaultMapper = new PlanMapperUtil(
         defaultCommonContent,
         defaultPurchaseDetails,
-        stripeMetadata
+        stripeMetadata,
+        false
       );
     });
 
@@ -85,7 +86,8 @@ describe('PlanMapperUtil', () => {
     const defaultMapper = new PlanMapperUtil(
       commonContent,
       defaultPurchaseDetails,
-      stripeMetadata
+      stripeMetadata,
+      false
     );
     // Instead of having a test for each Stripe Metadata Key, only test
     // for keys with mapping logic, e.g. newsletterSlug
@@ -105,7 +107,8 @@ describe('PlanMapperUtil', () => {
       const mapper = new PlanMapperUtil(
         commonContent,
         defaultPurchaseDetails,
-        stripeMetadata
+        stripeMetadata,
+        false
       );
       const expected = null;
       const actual = mapper.getContentfulForMetadataKey(
@@ -131,7 +134,8 @@ describe('PlanMapperUtil', () => {
       const mapper = new PlanMapperUtil(
         defaultCommonContent,
         defaultPurchaseDetails,
-        metadata
+        metadata,
+        false
       );
       const expected = 'hubs,mdnplus,snp';
       const actual = mapper.getStripeForMetadataKey(
@@ -145,7 +149,8 @@ describe('PlanMapperUtil', () => {
       const mapper = new PlanMapperUtil(
         defaultCommonContent,
         defaultPurchaseDetails,
-        metadata
+        metadata,
+        false
       );
       const expected = undefined;
       const actual = mapper.getStripeForMetadataKey(
@@ -160,7 +165,8 @@ describe('PlanMapperUtil', () => {
       const defaultMapper = new PlanMapperUtil(
         defaultCommonContent,
         defaultPurchaseDetails,
-        stripeMetadata
+        stripeMetadata,
+        false
       );
       const result = defaultMapper.mergeStripeAndContentful();
       expect(result.errorFields.length).toBe(1);

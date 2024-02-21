@@ -146,6 +146,9 @@ const mockConfig = {
     stripeTaxRatesCacheTtlSeconds: 60,
   },
   currenciesToCountries: { ZAR: ['AS', 'CA'] },
+  contentful: {
+    enabled: false
+  },
 };
 
 const mockRedisConfig = {
@@ -3452,6 +3455,36 @@ describe('#integration - StripeHelper', () => {
       assert.equal(actual[0].product_metadata['webIconURL'], newWebIconURL);
       sinon.assert.calledOnce(Sentry.withScope);
       sinon.assert.calledOnce(sentryScope.setContext);
+    });
+
+    it('returns Contentful values when flag is enabled', async () => {
+      // enable flag
+      mockConfig.contentful.enabled = true;
+
+      // set container
+      const mockContentfulManager = {
+        getPurchaseWithDetailsOfferingContentByPlanIds: sinon.fake.resolves(),
+      };
+      Container.set(ContentfulManager, mockContentfulManager);
+
+      // set stripeHelper
+      const stripeHelper = new StripeHelper(log, mockConfig, mockStatsd);
+
+      // set sandbox and spies
+      sandbox
+      .stub(stripeHelper.stripe.plans, 'list')
+      .returns(asyncIterable([plan1, plan2, plan3]));
+      sandbox.spy(stripeHelper, 'allPlans');
+      sandbox.spy(stripeHelper, 'allConfiguredPlans');
+
+      // test method
+      await stripeHelper.allAbbrevPlans();
+
+      // test that flag is enabled and all spies called
+      assert.isTrue(mockConfig.contentful.enabled);
+      assert(stripeHelper.allConfiguredPlans.calledOnce);
+      assert(stripeHelper.allPlans.calledOnce);
+      assert(stripeHelper.stripe.plans.list.calledOnce);
     });
   });
 

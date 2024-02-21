@@ -94,6 +94,9 @@ export type StripeHelperConfig = {
     plansCacheTtlSeconds: number;
   };
   redis: any; // TODO
+  contentful: {
+    enabled: boolean;
+  };
 };
 
 /**
@@ -475,7 +478,8 @@ export abstract class StripeHelper {
         const validPlansMapped =
           await contentfulToStripeMapper.mapContentfulToStripePlans(
             validPlans,
-            acceptLanguage
+            acceptLanguage,
+            this.config.contentful.enabled
           );
 
         validPlansFinal.push(...validPlansMapped.mappedPlans);
@@ -536,7 +540,7 @@ export abstract class StripeHelper {
    */
   async expandResource<T>(
     resource: string | T,
-    resourceType: (typeof VALID_RESOURCE_TYPES)[number],
+    resourceType: typeof VALID_RESOURCE_TYPES[number],
     statusFilter?: Stripe.Subscription.Status[]
   ): Promise<T> {
     if (typeof resource !== 'string') {

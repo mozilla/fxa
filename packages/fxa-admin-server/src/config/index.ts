@@ -576,6 +576,14 @@ const conf = convict({
       env: 'NEWSLETTER_HOST',
     },
   },
+  contentful: {
+    enabled: {
+      doc: 'Whether to use Contentful',
+      format: Boolean,
+      default: false,
+      env: 'CONTENTFUL_ENABLED',
+    },
+  },
 });
 
 const configDir = __dirname;
