@@ -50,7 +50,7 @@ export async function fetchFromContentful() {
 
 export async function fetchCartData(cartId: string) {
   return {
-    id: '',
+    id: 'b6115e72-2a3f-4de8-a58a-e231bfeea85d',
     // state: CartState.START,
     state: CartState.FAIL,
     // errorReasonId: CartErrorReasonId.BASIC_ERROR,

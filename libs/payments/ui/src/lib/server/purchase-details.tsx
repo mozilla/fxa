@@ -6,7 +6,6 @@ import {
   getLocalizedCurrencyString,
 } from '@fxa/shared/l10n';
 import { FluentBundle } from '@fluent/bundle';
-import { headers } from 'next/headers';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
 import '../../styles/index.css';
@@ -57,6 +56,7 @@ export const ListLabelItem = ({
 
 type PurchaseDetailsProps = {
   interval: string;
+  locale: string;
   invoice: Invoice;
   purchaseDetails: {
     details: string[];
@@ -75,20 +75,12 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
     (taxAmount) => !taxAmount.inclusive
   );
 
-  // TODO - Temporary
-  // Identify an approach to ensure we don't have to perform this logic
-  // in every component/page that requires localization.
-  const languages = headers()
-    .get('Accept-Language')
-    ?.split(',')
-    .map((language) => language.split(';')[0]);
-
   // TODO
   // Move to instantiation on start up. Ideally getBundle's, generateBundle, is only called once at startup,
   // and then that instance is used for all requests.
   // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
   // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
-  const l10n = await getBundle(languages);
+  const l10n = await getBundle([props.locale]);
 
   return (
     <div className="component-card text-sm px-4 rounded-t-none tablet:rounded-t-lg">

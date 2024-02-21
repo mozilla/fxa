@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { determineLocale } from './determine-locale';
+import { determineLocale, getLocaleFromRequest } from './determine-locale';
 
 describe('l10n/determineLocale:', () => {
   it('finds a locale', () => {
@@ -57,5 +57,27 @@ describe('l10n/determineLocale:', () => {
     // by forcing them into that range.
     expect(determineLocale('en;q=0.5, fr;q=1.1')).toEqual('fr');
     expect(determineLocale('en;q=0.5, fr;q=-.1')).toEqual('en');
+  });
+
+  describe('getLocaleFromRequest', () => {
+    it('return searchParams', () => {
+      expect(getLocaleFromRequest({ locale: 'fr-FR' }, null)).toEqual('fr');
+    });
+
+    it('return searchParams in supportedLanguages', () => {
+      expect(
+        getLocaleFromRequest({ locale: 'ra-ND' }, null, ['ra-ND'])
+      ).toEqual('ra-ND');
+    });
+
+    it('return accept language', () => {
+      expect(getLocaleFromRequest({}, 'en-US;q=0.1, es-MX;q=0.8')).toEqual(
+        'es-MX'
+      );
+    });
+
+    it('return default locale', () => {
+      expect(getLocaleFromRequest({}, null)).toEqual('en-US');
+    });
   });
 });

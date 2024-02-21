@@ -3,41 +3,47 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { getBundle } from '@fxa/shared/l10n';
+import { getBundle, getLocaleFromRequest } from '@fxa/shared/l10n';
 
-import { getCartData, getContentfulContent } from '../../_lib/apiClient';
-import checkLogo from '../../../images/check.svg';
-import errorIcon from '../../../images/error.svg';
+import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
+import checkLogo from '../../../../../images/check.svg';
+import errorIcon from '../../../../../images/error.svg';
+import { CheckoutSearchParams } from '../../layout';
 // import { app } from '../../_nestapp/app';
-
-interface CheckoutParams {
-  offeringId: string;
-}
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-export default async function Error({ params }: { params: CheckoutParams }) {
-  // TODO - Fetch Cart ID from cookie
-  // https://nextjs.org/docs/app/api-reference/functions/cookies
-  const cartId = 'cart-uuid';
-  // TODO - Fetch locale from params
-  // Possible solution could be as link below
-  // https://nextjs.org/docs/app/building-your-application/routing/internationalization
-  const locale = 'en-US';
+// Temporary code for demo purposes only - Replaced as part of FXA-8822
+const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
+
+interface CheckoutParams {
+  offeringId: string;
+  cartId: string;
+}
+
+export default async function CheckoutError({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: CheckoutSearchParams;
+}) {
+  const headersList = headers();
+  const locale = getLocaleFromRequest(
+    searchParams,
+    headersList.get('accept-language'),
+    demoSupportedLanguages
+  );
 
   const contentfulData = getContentfulContent(params.offeringId, locale);
-  const cartData = getCartData(cartId);
+  const cartData = getCartData(params.cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
   /* eslint-disable @typescript-eslint/no-unused-vars */
   // const cartService = await app.getCartService();
 
-  const languages = headers()
-    .get('Accept-Language')
-    ?.split(',')
-    .map((language) => language.split(';')[0]);
-  const l10n = await getBundle(languages);
+  const l10n = await getBundle([locale]);
 
   const getErrorReason = (reason: string) => {
     switch (reason) {
@@ -80,6 +86,7 @@ export default async function Error({ params }: { params: CheckoutParams }) {
         aria-label="Purchase details"
       >
         <PurchaseDetails
+          locale={locale}
           interval={cart.interval}
           invoice={cart.nextInvoice}
           purchaseDetails={contentful.purchaseDetails}
@@ -110,6 +117,7 @@ export default async function Error({ params }: { params: CheckoutParams }) {
         </section>
 
         <TermsAndPrivacy
+          locale={locale}
           {...cart}
           {...contentful.commonContent}
           {...contentful.purchaseDetails}

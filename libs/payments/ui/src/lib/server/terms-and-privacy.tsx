@@ -1,6 +1,5 @@
 import { FluentBundle } from '@fluent/bundle';
 import { getBundle } from '@fxa/shared/l10n';
-import { headers } from 'next/headers';
 import {
   GenericTermItem,
   GenericTermsListItem,
@@ -59,6 +58,7 @@ function GenericTerms({
 }
 
 export interface TermsAndPrivacyProps {
+  locale: string;
   paymentProvider?: PaymentProvider;
   productName: string;
   termsOfServiceUrl: string;
@@ -68,6 +68,7 @@ export interface TermsAndPrivacyProps {
 }
 
 export async function TermsAndPrivacy({
+  locale,
   paymentProvider,
   productName,
   termsOfServiceUrl,
@@ -88,20 +89,12 @@ export async function TermsAndPrivacy({
     ),
   ];
 
-  // TODO - Temporary
-  // Identify an approach to ensure we don't have to perform this logic
-  // in every component/page that requires localization.
-  const languages = headers()
-    .get('Accept-Language')
-    ?.split(',')
-    .map((language) => language.split(';')[0]);
-
   // TODO
   // Move to instantiation on start up. Ideally getBundle's, generateBundle, is only called once at startup,
   // and then that instance is used for all requests.
   // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
   // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
-  const l10n = await getBundle(languages);
+  const l10n = await getBundle([locale]);
 
   return (
     <aside className="pt-14" aria-label="Terms and Privacy Notices">

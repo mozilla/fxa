@@ -8,7 +8,7 @@ import * as path from 'path';
 //   fr: new URL('./fr.ftl', import.meta.url),
 // };
 
-const DEFAULT_LOCALE = 'en-US';
+export const DEFAULT_LOCALE = 'en-US';
 // const AVAILABLE_LOCALES = {
 //   'en-US': 'English',
 //   fr: 'French',

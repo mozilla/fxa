@@ -1,26 +1,37 @@
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-
-import { getCartData, getContentfulContent } from '../../_lib/apiClient';
-import { app } from '../../_nestapp/app';
+import { getCartData, getContentfulContent } from '../../../_lib/apiClient';
+import { app } from '../../../_nestapp/app';
+import { headers } from 'next/headers';
+import { getLocaleFromRequest } from '@fxa/shared/l10n';
+import { CheckoutSearchParams } from '../layout';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
-
-interface CheckoutParams {
-  offeringId: string;
-}
 
 export const dynamic = 'force-dynamic';
 
-export default async function Index({ params }: { params: CheckoutParams }) {
-  // TODO - Fetch Cart ID from cookie
-  // https://nextjs.org/docs/app/api-reference/functions/cookies
-  const cartId = 'cart-uuid';
-  // TODO - Fetch locale from params
-  // Possible solution could be as link below
-  // https://nextjs.org/docs/app/building-your-application/routing/internationalization
-  const locale = 'en-US';
+interface CheckoutParams {
+  offeringId: string;
+  cartId: string;
+}
+
+// Temporary code for demo purposes only - Replaced as part of FXA-8822
+const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
+
+export default async function Checkout({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: CheckoutSearchParams;
+}) {
+  const headersList = headers();
+  const locale = getLocaleFromRequest(
+    searchParams,
+    headersList.get('accept-language'),
+    demoSupportedLanguages
+  );
 
   const contentfulData = getContentfulContent(params.offeringId, locale);
-  const cartData = getCartData(cartId);
+  const cartData = getCartData(params.cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
   /* eslint-disable @typescript-eslint/no-unused-vars */
   const cartService = await app.getCartService();
@@ -35,6 +46,7 @@ export default async function Index({ params }: { params: CheckoutParams }) {
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
           interval={cart.interval}
+          locale={locale}
           invoice={cart.nextInvoice}
           purchaseDetails={contentful.purchaseDetails}
         />
@@ -90,6 +102,7 @@ export default async function Index({ params }: { params: CheckoutParams }) {
         </section>
 
         <TermsAndPrivacy
+          locale={locale}
           {...cart}
           {...contentful.commonContent}
           {...contentful.purchaseDetails}
