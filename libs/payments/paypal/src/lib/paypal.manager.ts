@@ -4,8 +4,9 @@
 
 import { Injectable } from '@nestjs/common';
 import { PayPalClient } from './paypal.client';
+import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 
 @Injectable()
 export class PayPalManager {
-  constructor(private client: PayPalClient) {}
+  constructor(private db: AccountDatabase, private client: PayPalClient) {}
 }

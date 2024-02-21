@@ -10,7 +10,12 @@ import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 const TEST_DB = 'testAccount';
 const SQL_FILE_LOCATION = '../test';
 
-export type ACCOUNT_TABLES = 'accounts' | 'carts' | 'emails';
+export type ACCOUNT_TABLES =
+  | 'accounts'
+  | 'accountCustomers'
+  | 'paypalCustomers'
+  | 'carts'
+  | 'emails';
 
 export async function testAccountDatabaseSetup(
   tables: ACCOUNT_TABLES[]

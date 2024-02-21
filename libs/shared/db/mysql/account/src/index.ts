@@ -4,7 +4,11 @@
 
 export * from './lib/associated-types';
 export * from './lib/keysley-types';
-export { CartFactory } from './lib/factories';
+export {
+  CartFactory,
+  AccountCustomerFactory,
+  PaypalCustomerFactory,
+} from './lib/factories';
 export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
 export { testAccountDatabaseSetup } from './lib/tests';
 export type { ACCOUNT_TABLES } from './lib/tests';

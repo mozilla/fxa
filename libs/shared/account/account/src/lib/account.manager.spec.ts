@@ -11,16 +11,16 @@ import { AccountManager } from './account.manager';
 
 describe('accountManager', () => {
   let accountManager: AccountManager;
-  let kysleyDb: Kysely<DB>;
+  let kyselyDb: Kysely<DB>;
 
   beforeAll(async () => {
-    kysleyDb = await testAccountDatabaseSetup(['accounts', 'emails']);
-    accountManager = new AccountManager(kysleyDb);
+    kyselyDb = await testAccountDatabaseSetup(['accounts', 'emails']);
+    accountManager = new AccountManager(kyselyDb);
   });
 
   afterAll(async () => {
-    if (kysleyDb) {
-      await kysleyDb.destroy();
+    if (kyselyDb) {
+      await kyselyDb.destroy();
     }
   });
 
@@ -31,7 +31,7 @@ describe('accountManager', () => {
       expect(uid).toBeTruthy();
 
       // Fetch the account row
-      const account = await kysleyDb
+      const account = await kyselyDb
         .selectFrom('accounts')
         .selectAll()
         .where('uid', '=', Buffer.from(uid, 'hex'))
@@ -39,7 +39,7 @@ describe('accountManager', () => {
       expect(account?.email).toBe(email);
 
       // Fetch the emails row
-      const emailRow = await kysleyDb
+      const emailRow = await kyselyDb
         .selectFrom('emails')
         .selectAll()
         .where('uid', '=', Buffer.from(uid, 'hex'))
