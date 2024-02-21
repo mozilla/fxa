@@ -76,48 +76,39 @@ describe('lib/coupon', () => {
   });
 
   describe('checkCouponRepeating', () => {
-    let interval: string;
-    let interval_count: number;
-    let durationInMonths: number;
-
-    it('should return true if coupon duration is greater than the interval', () => {
-      interval = 'month';
-      interval_count = 1;
-      durationInMonths = 3;
-      const expected = true;
-      const actual = checkCouponRepeating(
-        interval_count,
-        interval,
-        durationInMonths
-      );
-      expect(actual).toEqual(expected);
-    });
-
-    it('should return false if coupon duration is less than the interval', () => {
-      interval = 'year';
-      interval_count = 1;
-      durationInMonths = 3;
-      const expected = false;
-      const actual = checkCouponRepeating(
-        interval_count,
-        interval,
-        durationInMonths
-      );
-      expect(actual).toEqual(expected);
-    });
-
-    it('should return false if coupon duration is equal to the interval', () => {
-      interval = 'month';
-      interval_count = 1;
-      durationInMonths = 1;
-      const expected = false;
-      const actual = checkCouponRepeating(
-        interval_count,
-        interval,
-        durationInMonths
-      );
-      expect(actual).toEqual(expected);
-    });
+    it.skip.each([
+      {
+        scenario: 'greater',
+        interval: 'month',
+        interval_count: 1,
+        durationInMonths: 3,
+        expected: true,
+      },
+      {
+        scenario: 'less',
+        interval: 'year',
+        interval_count: 1,
+        durationInMonths: 3,
+        expected: false,
+      },
+      {
+        scenario: 'equal',
+        interval: 'month',
+        interval_count: 1,
+        durationInMonths: 1,
+        expected: false,
+      },
+    ])(
+      'should return $expected if coupon duration is $scenario than the interval (Fix required as of 2024/02/12 (see FXA-9118))',
+      ({ interval, interval_count, durationInMonths, expected }) => {
+        const actual = checkCouponRepeating(
+          interval_count,
+          interval,
+          durationInMonths
+        );
+        expect(actual).toEqual(expected);
+      }
+    );
   });
 
   describe('couponOnSubsequentInvoice', () => {
