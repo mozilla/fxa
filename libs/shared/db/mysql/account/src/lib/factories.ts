@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { faker } from '@faker-js/faker';
 
-import { NewCart } from './associated-types';
+import { AccountCustomer, NewCart, PaypalCustomer } from './associated-types';
 import { CartState } from './keysley-types';
 
 export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
@@ -28,5 +28,26 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   updatedAt: faker.date.recent().getTime(),
   amount: faker.number.int(10000),
   version: 0,
+  ...override,
+});
+
+export const AccountCustomerFactory = (
+  override?: Partial<AccountCustomer>
+): AccountCustomer => ({
+  uid: Buffer.from(faker.string.uuid()),
+  stripeCustomerId: faker.string.uuid(),
+  createdAt: faker.date.recent().getTime(),
+  updatedAt: faker.date.recent().getTime(),
+  ...override,
+});
+
+export const PaypalCustomerFactory = (
+  override?: Partial<PaypalCustomer>
+): PaypalCustomer => ({
+  uid: Buffer.from(faker.string.uuid()),
+  billingAgreementId: faker.string.uuid(),
+  status: 'active',
+  createdAt: faker.date.recent().getTime(),
+  endedAt: null,
   ...override,
 });
