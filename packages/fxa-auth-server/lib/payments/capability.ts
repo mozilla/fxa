@@ -823,9 +823,10 @@ export class CapabilityService {
     return Object.entries(result).map(([clientId, capabilities]) => {
       // Merge dupes with Set
       const capabilitySet = new Set([...capabilitiesForAll, ...capabilities]);
+      const sortedCapabilities = Array.from(capabilitySet).sort();
       return {
         clientId,
-        capabilities: [...capabilitySet],
+        capabilities: sortedCapabilities,
       };
     });
   }
