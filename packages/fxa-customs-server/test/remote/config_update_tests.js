@@ -6,6 +6,12 @@ var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
 var mcHelper = require('../memcache-helper');
+const {
+  randomIp,
+  randomEmail,
+  randomPhoneNumber,
+  randomEmailDomain,
+} = require('../utils');
 
 const config = require('../../lib/config').getProperties();
 config.updatePollIntervalSeconds = 1;
@@ -16,8 +22,8 @@ var client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-var IP = '10.0.0.5';
-var EMAIL = 'test@example.com';
+var IP = randomIp();
+var EMAIL = randomEmail();
 
 Promise.promisifyAll(client, { multiArgs: true });
 
@@ -94,7 +100,7 @@ test('change nested limits', function (t) {
 });
 
 test('change allowedIPs', function (t) {
-  var x = ['127.0.0.1'];
+  var x = [randomIp()];
   return client
     .getAsync('/allowedIPs')
     .spread(function (req, res, obj) {
@@ -121,7 +127,7 @@ test('change allowedIPs', function (t) {
 });
 
 test('change allowedEmailDomains', function (t) {
-  var x = ['restmail.net'];
+  var x = [randomEmailDomain()];
   return client
     .getAsync('/allowedEmailDomains')
     .spread(function (req, res, obj) {
@@ -148,7 +154,7 @@ test('change allowedEmailDomains', function (t) {
 });
 
 test('change allowedPhoneNumbers', function (t) {
-  var allowedPhoneNumbers = ['13133249901'];
+  var allowedPhoneNumbers = [randomPhoneNumber()];
   return client
     .getAsync('/allowedPhoneNumbers')
     .spread(function (req, res, obj) {

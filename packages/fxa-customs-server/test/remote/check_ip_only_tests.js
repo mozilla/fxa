@@ -3,20 +3,15 @@
 
 'use strict';
 
-const memcached = require('../memcache-helper');
 const restifyClients = require('restify-clients');
-const test = require('tap').test;
+const { randomIp } = require('../utils');
 const TestServer = require('../test_server');
+const test = require('tap').test;
 
-const IP = '192.168.1.1';
+const IP = randomIp();
 const ACTION = 'wibble';
 
-const config = {
-  listen: {
-    port: 7000,
-  },
-};
-
+const config = require('../../lib/config').getProperties();
 const testServer = new TestServer(config);
 
 const client = restifyClients.createJsonClient({
@@ -27,13 +22,6 @@ test('startup', async function (t) {
   await testServer.start();
   t.type(testServer.server, 'object', 'test server was started');
   t.end();
-});
-
-test('clear everything', (t) => {
-  memcached.clearEverything((err) => {
-    t.notOk(err, 'memcached.clearEverything should not return an error');
-    t.end();
-  });
 });
 
 test('with ip and action', (t) => {

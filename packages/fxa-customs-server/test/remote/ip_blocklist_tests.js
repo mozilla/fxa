@@ -6,8 +6,9 @@ var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
 var TestServer = require('../test_server');
 var mcHelper = require('../memcache-helper');
+const { randomEmail } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
+var TEST_EMAIL = randomEmail();
 var ACTION = 'dummyAction';
 var BLOCK_IP = '1.93.0.224';
 var LOG_ONLY_BOTH_LIST_IP = '1.93.0.225';

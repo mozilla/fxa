@@ -6,11 +6,7 @@ var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
 var packageJson = require('../../package.json');
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
 
 test('startup', async function (t) {

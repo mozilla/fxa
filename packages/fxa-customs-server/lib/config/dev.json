@@ -1,0 +1,7 @@
+{
+  "redis": {
+    "customs": {
+      "enabled": false
+    }
+  }
+}

@@ -8,16 +8,16 @@
 
 const Hapi = require('@hapi/hapi');
 const HapiSwagger = require('hapi-swagger');
-const Memcached = require('memcached');
 const swaggerOptions = require('../docs/swagger/swagger-options');
 const API_DOCS = require('../docs/swagger/customs-server-api');
 const packageJson = require('../package.json');
 const blockReasons = require('./block_reasons');
 const P = require('bluebird');
-P.promisifyAll(Memcached.prototype);
+
 const { configureSentry } = require('./sentry');
 const dataflow = require('./dataflow');
 const { StatsD } = require('hot-shots');
+const Cache = require('./cache');
 
 module.exports = async function createServer(config, log) {
   var startupDefers = [];
@@ -47,14 +47,7 @@ module.exports = async function createServer(config, log) {
         timing: () => {},
       };
 
-  var mc = new Memcached(config.memcache.address, {
-    timeout: 500,
-    retries: 1,
-    retry: 1000,
-    reconnect: 1000,
-    idle: 30000,
-    namespace: 'fxa~',
-  });
+  const mc = new Cache(config);
 
   var reputationService = require('./reputationService')(config, log);
   const Settings = require('./settings/settings')(config, mc, log);

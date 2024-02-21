@@ -5,14 +5,11 @@ var test = require('tap').test;
 var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
 var mcHelper = require('../memcache-helper');
+const { randomEmail } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
+var TEST_EMAIL = randomEmail();
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
 
 test('startup', async function (t) {
@@ -33,17 +30,16 @@ var client = restifyClients.createJsonClient({
 });
 
 test('well-formed request', function (t) {
-  client.post('/passwordReset', { email: TEST_EMAIL }, function (
-    err,
-    req,
-    res,
-    obj
-  ) {
-    t.notOk(err, 'good request is successful');
-    t.equal(res.statusCode, 200, 'good request returns a 200');
-    t.ok(obj, 'got an obj, make jshint happy');
-    t.end();
-  });
+  client.post(
+    '/passwordReset',
+    { email: TEST_EMAIL },
+    function (err, req, res, obj) {
+      t.notOk(err, 'good request is successful');
+      t.equal(res.statusCode, 200, 'good request returns a 200');
+      t.ok(obj, 'got an obj, make jshint happy');
+      t.end();
+    }
+  );
 });
 
 test('missing email', function (t) {

@@ -6,16 +6,12 @@ var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var mcHelper = require('../memcache-helper');
+const { randomEmail, randomIp } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
-var TEST_IP = '192.0.2.1';
+var TEST_EMAIL = randomEmail();
+var TEST_IP = randomIp();
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
-
+const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
 
 var client = restifyClients.createJsonClient({

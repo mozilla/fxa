@@ -23,6 +23,7 @@
     "test": "scripts/test-local.sh",
     "test-unit": "yarn make-artifacts-dir && tap test/local --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-unit.xml",
     "test-integration": "yarn make-artifacts-dir && tap test/remote test/scripts --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration.xml",
+    "test-integration-redis": "CUSTOMS_REDIS_ENABLED=true yarn make-artifacts-dir && tap test/remote test/scripts --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration-redis.xml",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "make-artifacts-dir": "mkdir -p ../../artifacts/tests/$npm_package_name"
   },
