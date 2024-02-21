@@ -1783,33 +1783,27 @@ export class StripeHelper extends StripeHelperBase {
     status: Stripe.InvoiceListParams.Status,
     earliestCreatedDate?: Date
   ) {
-    const customer = await this.fetchCustomer(customerId, ['subscriptions']);
-    const subscriptions = customer?.subscriptions?.data;
-    if (subscriptions) {
-      const activeSubscriptionIds = subscriptions.map((sub) => sub.id);
-      const created = earliestCreatedDate
-        ? { gte: Math.floor(earliestCreatedDate.getTime() / 1000) }
-        : undefined;
-      const invoices = await this.stripe.invoices.list({
+    const activeSubscriptionIds = (
+      await this.stripe.subscriptions.list({
         customer: customerId,
-        status,
-        created,
-      });
+        status: 'active',
+      })
+    ).data.map((sub) => sub.id);
+    if (!activeSubscriptionIds.length) return [];
 
-      return invoices.data.filter((invoice) => {
-        if (!invoice?.subscription) {
-          return false;
-        }
+    const invoices = await this.stripe.invoices.list({
+      customer: customerId,
+      status,
+      created: earliestCreatedDate
+        ? { gte: Math.floor(earliestCreatedDate.getTime() / 1000) }
+        : undefined,
+    });
 
-        const subscriptionId =
-          typeof invoice.subscription === 'string'
-            ? invoice.subscription
-            : invoice.subscription.id;
-        return activeSubscriptionIds.includes(subscriptionId);
-      });
-    }
-
-    return [];
+    return invoices.data.filter((invoice) => {
+      // The invoice list we fetched did not expand the subscription so these must be strings
+      if (typeof invoice.subscription !== 'string') return false;
+      return activeSubscriptionIds.includes(invoice.subscription);
+    });
   }
 
   /**
