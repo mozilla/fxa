@@ -40,7 +40,7 @@
     "deep-equal": "2.2.0",
     "hapi-swagger": "^17.1.0",
     "hot-shots": "^10.0.0",
-    "ip": "^1.1.8",
+    "ip": "^1.1.9",
     "ip-reputation-js-client": "^6.0.4",
     "lodash.isequal": "4.5.0",
     "lodash.merge": "4.6.2",
