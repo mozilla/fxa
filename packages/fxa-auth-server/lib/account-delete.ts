@@ -339,10 +339,7 @@ export class AccountDeleteManager {
         'paid',
         createdDate
       );
-
-    if (!invoices.length) {
-      return;
-    }
+    if (!invoices.length) return;
     this.log.debug('AccountDeleteManager.refundSubscriptions', {
       customerId,
       invoicesToRefund: invoices.length,
