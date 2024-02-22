@@ -9038,10 +9038,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@faker-js/faker@npm:^8.1.0":
-  version: 8.3.1
-  resolution: "@faker-js/faker@npm:8.3.1"
-  checksum: 33efe912411fe61f43b313784a9ce041dfbfb54bc3b2f7b923a547f97beb6b3763534f9c37af25ab330982e6b36e6f7b040dfb35c115deb8c789d8ada413bd94
+"@faker-js/faker@npm:^8.4.1":
+  version: 8.4.1
+  resolution: "@faker-js/faker@npm:8.4.1"
+  checksum: d802d531f8929562715adc279cfec763c9a4bc596ec67b0ce43fd0ae61b285d2b0eec6f1f4aa852452a63721a842fe7e81926dce7bd92acca94b01e2a1f55f5a
   languageName: node
   linkType: hard
 
@@ -37979,7 +37979,7 @@ fsevents@~2.1.1:
     "@apollo/server": ^4.10.0
     "@babel/core": ^7.22.20
     "@babel/preset-react": ^7.23.3
-    "@faker-js/faker": ^8.1.0
+    "@faker-js/faker": ^8.4.1
     "@fluent/bundle": ^0.18.0
     "@fluent/react": ^0.15.2
     "@google-cloud/bigquery": ^7.4.0
