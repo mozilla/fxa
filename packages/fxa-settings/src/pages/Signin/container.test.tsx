@@ -13,7 +13,7 @@ import * as CryptoModule from 'fxa-auth-client/lib/crypto';
 import { LocationProvider } from '@reach/router';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import SigninContainer from './container';
-import { SigninContainerIntegration, SigninProps } from './interfaces';
+import { SigninProps } from './interfaces';
 import { MozServices } from '../../lib/types';
 import { screen, waitFor } from '@testing-library/react';
 import { ModelDataProvider } from '../../lib/model-data';
@@ -37,10 +37,11 @@ import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { GraphQLError } from 'graphql';
+import { Integration } from '../../models';
 
-let integration: SigninContainerIntegration;
+let integration: Integration;
 
-// TODO with Sync ticket
+// TODO: in FXA-9059 sync v3 desktop integration
 // function mockSyncDesktopV3Integration() {
 //   integration = {
 //     type: IntegrationType.SyncDesktopV3,
@@ -53,7 +54,8 @@ function mockWebIntegration() {
     type: IntegrationType.Web,
     getService: () => MozServices.Default,
     isSync: () => false,
-  };
+    wantsKeys: () => false,
+  } as Integration;
 }
 
 function applyDefaultMocks() {
@@ -427,6 +429,7 @@ describe('signin container', () => {
             authPW: MOCK_AUTH_PW,
             options: {
               verificationMethod: VerificationMethods.EMAIL_OTP,
+              keys: false,
             },
           },
         },
@@ -477,6 +480,7 @@ describe('signin container', () => {
               authPW: MOCK_AUTH_PW,
               options: {
                 verificationMethod: VerificationMethods.EMAIL_OTP,
+                keys: false,
               },
             },
           },

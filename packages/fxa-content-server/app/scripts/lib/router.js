@@ -260,7 +260,15 @@ Router = Router.extend({
     },
     'oauth(/)': createViewHandler(IndexView),
     'oauth/force_auth(/)': createViewHandler(ForceAuthView),
-    'oauth/signin(/)': createViewHandler(SignInPasswordView),
+    'oauth/signin(/)': function () {
+      this.createReactOrBackboneViewHandler('signin', SignInPasswordView, {
+        // see comment in fxa-settings/src/pages/Signin/container.tsx for param explanation
+        ...Url.searchParams(this.window.location.search),
+        email: this.user.get('emailFromIndex'),
+        hasLinkedAccount: this.user.get('hasLinkedAccount'),
+        hasPassword: this.user.get('hasPassword'),
+      });
+    },
     'oauth/signup(/)': function () {
       this.createReactOrBackboneViewHandler(
         'oauth/signup',
@@ -465,10 +473,22 @@ Router = Router.extend({
         SignInReportedView
       );
     },
-    'signin_token_code(/)': createViewHandler(SignInTokenCodeView, {
-      type: VerificationReasons.SIGN_IN,
-    }),
-    'signin_totp_code(/)': createViewHandler(SignInTotpCodeView),
+    'signin_token_code(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_token_code',
+        SignInTokenCodeView,
+        null,
+        {
+          type: VerificationReasons.SIGN_IN,
+        }
+      );
+    },
+    'signin_totp_code(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'signin_totp_code',
+        SignInTotpCodeView
+      );
+    },
     'signin_unblock(/)': function () {
       this.createReactOrBackboneViewHandler(
         'signin_unblock',

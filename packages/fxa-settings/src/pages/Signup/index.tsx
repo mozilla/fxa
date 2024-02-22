@@ -38,7 +38,6 @@ import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
-import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import {
   isClientMonitor,
   isClientPocket,
@@ -233,9 +232,9 @@ export const Signup = ({
 
         const accountData: StoredAccountData = {
           email,
-          uid: data.SignUp.uid,
+          uid: data.signUp.uid,
           lastLogin: Date.now(),
-          sessionToken: data.SignUp.sessionToken,
+          sessionToken: data.signUp.sessionToken,
           verified: false,
           metricsEnabled: true,
         };
@@ -253,10 +252,11 @@ export const Signup = ({
         ) {
           await firefox.fxaLogin({
             email,
-            keyFetchToken: data.SignUp.keyFetchToken,
-            sessionToken: data.SignUp.sessionToken,
-            uid: data.SignUp.uid,
-            unwrapBKey: data.unwrapBKey,
+            // keyFetchToken and unwrapBKey should always exist if Sync integration
+            keyFetchToken: data.signUp.keyFetchToken!,
+            unwrapBKey: data.unwrapBKey!,
+            sessionToken: data.signUp.sessionToken,
+            uid: data.signUp.uid,
             verified: false,
             services: {
               sync: {
@@ -271,7 +271,7 @@ export const Signup = ({
           state: {
             origin: 'signup',
             selectedNewsletterSlugs,
-            keyFetchToken: data.SignUp.keyFetchToken,
+            keyFetchToken: data.signUp.keyFetchToken,
             unwrapBKey: data.unwrapBKey,
             // Sync desktop v3 sends a web channel message up on Signup
             // while OAuth Sync does on confirm signup
@@ -334,7 +334,6 @@ export const Signup = ({
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Set your password"
         headingTextFtlId="signup-heading"

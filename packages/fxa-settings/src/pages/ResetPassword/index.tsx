@@ -26,7 +26,6 @@ import { isEmailValid } from 'fxa-shared/email/helpers';
 import { setOriginalTabMarker } from '../../lib/storage-utils';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
-import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import GleanMetrics from '../../lib/glean';
 
 export const viewName = 'reset-password';
@@ -160,7 +159,6 @@ const ResetPassword = ({
 
   return (
     <AppLayout>
-      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingWithDefaultServiceFtlId="reset-password-heading-w-default-service"
         headingWithCustomServiceFtlId="reset-password-heading-w-custom-service"

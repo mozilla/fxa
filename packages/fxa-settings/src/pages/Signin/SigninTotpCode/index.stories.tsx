@@ -10,6 +10,7 @@ import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 import { BeginSigninError } from '../interfaces';
+import { Subject } from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -18,20 +19,18 @@ export default {
 } as Meta;
 
 const storyWithProps = (props: {
-  handleNavigation: () => void;
   submitTotpCode: () => Promise<{ status: boolean; error?: BeginSigninError }>;
   serviceName: MozServices;
 }) => {
   const story = () => (
     <LocationProvider>
-      <SigninTotpCode {...props} />
+      <Subject {...props} />
     </LocationProvider>
   );
   return story;
 };
 
 export const Default = storyWithProps({
-  handleNavigation: () => {},
   submitTotpCode: async () => ({
     status: true,
   }),
@@ -39,7 +38,6 @@ export const Default = storyWithProps({
 });
 
 export const WithRelyingParty = storyWithProps({
-  handleNavigation: () => {},
   submitTotpCode: async () => ({
     status: true,
   }),
@@ -47,7 +45,6 @@ export const WithRelyingParty = storyWithProps({
 });
 
 export const WithIncorrectCode = storyWithProps({
-  handleNavigation: () => {},
   submitTotpCode: async () => ({
     status: false,
   }),
@@ -55,7 +52,6 @@ export const WithIncorrectCode = storyWithProps({
 });
 
 export const WithErrorState = storyWithProps({
-  handleNavigation: () => {},
   submitTotpCode: async () => ({
     status: false,
     error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError,

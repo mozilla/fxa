@@ -2,19 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as ReactUtils from 'fxa-react/lib/utils';
+
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../../lib/metrics';
 import GleanMetrics from '../../../lib/glean';
-import SigninTotpCode, { viewName } from '.';
 import { MozServices } from '../../../lib/types';
-import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   AuthUiError,
   AuthUiErrors,
 } from '../../../lib/auth-errors/auth-errors';
+import { Subject } from './mocks';
+import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
+import { createMockSigninOAuthIntegration } from '../mocks';
+import { SigninIntegration } from '../interfaces';
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -32,6 +36,18 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+const mockLocation = () => {
+  return {
+    pathname: '/signin_totp_cpde',
+  };
+};
+const mockNavigate = jest.fn();
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useNavigate: () => mockNavigate,
+  useLocation: () => mockLocation(),
+}));
+
 describe('Sign in with TOTP code page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -41,23 +57,15 @@ describe('Sign in with TOTP code page', () => {
   // });
 
   beforeEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
     (GleanMetrics.totpForm.view as jest.Mock).mockClear();
     (GleanMetrics.totpForm.submit as jest.Mock).mockClear();
     (GleanMetrics.totpForm.success as jest.Mock).mockClear();
   });
 
   it('renders as expected', () => {
-    renderWithLocalizationProvider(
-      <SigninTotpCode
-        {...{
-          handleNavigation: () => {},
-          submitTotpCode: async () => ({
-            status: true,
-          }),
-          serviceName: MozServices.Default,
-        }}
-      />
-    );
+    renderWithLocalizationProvider(<Subject />);
     // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
@@ -73,10 +81,8 @@ describe('Sign in with TOTP code page', () => {
 
   it('shows the relying party in the header when a service name is provided', () => {
     renderWithLocalizationProvider(
-      <SigninTotpCode
+      <Subject
         {...{
-          handleNavigation: () => {},
-          submitTotpCode: async () => ({ status: true }),
           serviceName: MozServices.MozillaVPN,
         }}
       />
@@ -88,36 +94,30 @@ describe('Sign in with TOTP code page', () => {
   });
 
   it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(
-      <SigninTotpCode
-        {...{
-          handleNavigation: () => {},
-          submitTotpCode: async () => ({ status: true }),
-          serviceName: MozServices.FirefoxSync,
-        }}
-      />
-    );
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    renderWithLocalizationProvider(<Subject />);
     expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
     expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
     expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
   });
 
   describe('submit totp code', () => {
-    async function renderAndSubmitTotpCode(response: {
-      status: boolean;
-      error?: AuthUiError;
-    }) {
-      const handleNavigation = jest.fn();
+    async function renderAndSubmitTotpCode(
+      response: {
+        status: boolean;
+        error?: AuthUiError;
+      },
+      finishOAuthFlowHandler?: FinishOAuthFlowHandler,
+      integration?: SigninIntegration
+    ) {
       const submitTotpCode = jest.fn().mockImplementation(async () => {
         return response;
       });
       renderWithLocalizationProvider(
-        <SigninTotpCode
+        <Subject
           {...{
-            handleNavigation,
+            finishOAuthFlowHandler,
+            integration,
             submitTotpCode,
-            serviceName: MozServices.FirefoxSync,
           }}
         />
       );
@@ -126,47 +126,73 @@ describe('Sign in with TOTP code page', () => {
         target: { value: '123456' },
       });
       screen.getByRole('button', { name: 'Confirm' }).click();
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await waitFor(() => expect(submitTotpCode).toBeCalledWith('123456'));
 
-      return { submitTotpCode, handleNavigation };
+      return { submitTotpCode };
     }
 
     it('submitsTotpCode and navigates', async () => {
-      const { submitTotpCode, handleNavigation } =
-        await renderAndSubmitTotpCode({ status: true });
+      await renderAndSubmitTotpCode({
+        status: true,
+      });
 
-      expect(submitTotpCode).toBeCalledWith('123456');
-      expect(handleNavigation).toBeCalledTimes(1);
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
+      expect(mockNavigate).toHaveBeenCalledWith('/settings');
     });
 
     it('shows error on invalid code', async () => {
-      const { submitTotpCode, handleNavigation } =
-        await renderAndSubmitTotpCode({ status: false });
+      await renderAndSubmitTotpCode({
+        status: false,
+      });
 
-      expect(submitTotpCode).toBeCalledWith('123456');
-      expect(handleNavigation).toBeCalledTimes(0);
       screen.getByText('Invalid two-step authentication code');
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
 
     it('shows general error on unexpected error', async () => {
-      const { submitTotpCode, handleNavigation } =
-        await renderAndSubmitTotpCode({
-          status: false,
-          error: AuthUiErrors.UNEXPECTED_ERROR,
-        });
+      await renderAndSubmitTotpCode({
+        status: false,
+        error: AuthUiErrors.UNEXPECTED_ERROR,
+      });
 
-      expect(submitTotpCode).toBeCalledWith('123456');
-      expect(handleNavigation).toBeCalledTimes(0);
       screen.getByText('Unexpected error');
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
+      expect(mockNavigate).not.toHaveBeenCalled();
+    });
+
+    describe('withOAuth integration', () => {
+      it('navigates to relying party on success', async () => {
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+        const integration = createMockSigninOAuthIntegration();
+        const hardNavigate = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementationOnce(() => {});
+
+        await waitFor(() =>
+          renderAndSubmitTotpCode(
+            {
+              status: true,
+            },
+            finishOAuthFlowHandler,
+            integration
+          )
+        );
+
+        expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
+        await waitFor(() =>
+          expect(hardNavigate).toHaveBeenCalledWith('someUri')
+        );
+      });
     });
   });
 });

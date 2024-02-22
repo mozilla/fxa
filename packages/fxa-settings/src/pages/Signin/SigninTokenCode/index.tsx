@@ -4,12 +4,8 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
-import {
-  isOAuthIntegration,
-  useFtlMsgResolver,
-  useSession,
-} from '../../../models';
+import { FtlMsg } from 'fxa-react/lib/utils';
+import { useFtlMsgResolver, useSession } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { MailImage } from '../../../components/images';
 import FormVerifyCode, {
@@ -29,21 +25,30 @@ import Banner, {
   BannerType,
   ResendEmailSuccessBanner,
 } from '../../../components/Banner';
-import VerificationReasons from '../../../constants/verification-reasons';
+import { handleNavigation } from '../utils';
 
 export const viewName = 'signin-token-code';
 
 const SIX_DIGIT_NUMBER_REGEX = /^\d{6}$/;
 
 const SigninTokenCode = ({
+  finishOAuthFlowHandler,
   integration,
-  email,
-  verificationReason,
+  signinLocationState,
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const {
+    email,
+    uid,
+    sessionToken,
+    verificationReason,
+    keyFetchToken,
+    unwrapBKey,
+  } = signinLocationState;
 
   const [banner, setBanner] = useState<Partial<BannerProps>>({
     type: undefined,
@@ -127,28 +132,23 @@ const SigninTokenCode = ({
         // in another. You reach the "Sorry. We've locked your account" screen
         GleanMetrics.loginConfirmation.success();
 
-        if (verificationReason === VerificationReasons.CHANGE_PASSWORD) {
-          GleanMetrics.isDone();
-          hardNavigateToContentServer(
-            `/post_verify/password/force_password_change${location.search}`
-          );
-          return;
-        }
+        const navigationOptions = {
+          email,
+          signinData: {
+            uid,
+            sessionToken,
+            verificationReason,
+            verified: true,
+            keyFetchToken,
+          },
+          unwrapBKey,
+          integration,
+          finishOAuthFlowHandler,
+          queryParams: location.search,
+        };
 
-        if (integration.isSync()) {
-          // todo, sync stuff
-          // this might need to be separated into desktop v3 / oauth sync
-        }
-        if (isOAuthIntegration(integration)) {
-          // TODO: OAuth redirect stuff in oauth ticket
-          // The await of isDone is not entirely necessary when we are not
-          // redirecting the user to an RP.  However at the time of implementation
-          // for the Glean ping the redirect logic has not been implemented.
-          await GleanMetrics.isDone();
-        } else {
-          GleanMetrics.isDone();
-          navigate('/settings');
-        }
+        await handleNavigation(navigationOptions, navigate);
+        GleanMetrics.isDone();
       } catch (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,
@@ -165,13 +165,19 @@ const SigninTokenCode = ({
       }
     },
     [
+      email,
+      finishOAuthFlowHandler,
       ftlMsgResolver,
-      localizedInvalidCode,
-      session,
       integration,
-      navigate,
-      verificationReason,
+      keyFetchToken,
+      localizedInvalidCode,
       location.search,
+      navigate,
+      session,
+      sessionToken,
+      uid,
+      unwrapBKey,
+      verificationReason,
     ]
   );
 

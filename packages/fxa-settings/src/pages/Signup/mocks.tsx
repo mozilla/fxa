@@ -65,7 +65,7 @@ export function createMockSignupOAuthIntegration(
 
 export const BEGIN_SIGNUP_HANDLER_RESPONSE = {
   data: {
-    SignUp: {
+    signUp: {
       uid: MOCK_UID,
       sessionToken: MOCK_SESSION_TOKEN,
       authAt: MOCK_AUTH_AT,
@@ -77,7 +77,7 @@ export const BEGIN_SIGNUP_HANDLER_RESPONSE = {
 
 export const BEGIN_SIGNUP_HANDLER_RESPONSE_UNDER_18 = {
   data: {
-    SignUp: {
+    signUp: {
       uid: MOCK_UID,
       sessionToken: MOCK_SESSION_TOKEN,
       authAt: MOCK_AUTH_AT,

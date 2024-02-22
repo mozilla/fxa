@@ -20,6 +20,9 @@ export type LocationState = {
   unwrapBKey?: string;
   offeredSyncEngines?: string[];
   declinedSyncEngines?: string[];
+  sessionToken?: hexstring;
+  email?: hexstring;
+  uid?: hexstring;
 };
 
 export type ConfirmSignupCodeContainerProps = {
@@ -28,9 +31,9 @@ export type ConfirmSignupCodeContainerProps = {
 } & RouteComponentProps;
 
 export type ConfirmSignupCodeProps = {
-  storedLocalAccount: StoredAccountData;
   email: string;
   sessionToken: hexstring;
+  uid: hexstring;
   integration: ConfirmSignupCodeIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   newsletterSlugs?: string[];

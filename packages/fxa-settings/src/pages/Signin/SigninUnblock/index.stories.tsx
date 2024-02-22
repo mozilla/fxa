@@ -12,9 +12,11 @@ import {
   MOCK_EMAIL,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
+  mockFinishOAuthFlowHandler,
 } from '../../mocks';
 import VerificationMethods from '../../../constants/verification-methods';
 import VerificationReasons from '../../../constants/verification-reasons';
+import { createMockSigninWebIntegration } from '../mocks';
 
 export default {
   title: 'Pages/Signin/SigninUnblock',
@@ -49,6 +51,8 @@ export const Default = () => (
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
       hasPassword={true}
+      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+      integration={createMockSigninWebIntegration()}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendSuccessResponse}
     />
@@ -61,6 +65,8 @@ export const WithResendError = () => (
       email={MOCK_EMAIL}
       hasLinkedAccount={false}
       hasPassword={true}
+      finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+      integration={createMockSigninWebIntegration()}
       signinWithUnblockCode={mockSuccessResponse}
       resendUnblockCodeHandler={mockResendErrorResponse}
     />

@@ -2,25 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import VerificationReasons from '../../../constants/verification-reasons';
 import { AccountTotp } from '../../../lib/interfaces';
-import { Integration } from '../../../models';
-
-export type SigninTokenCodeIntegration = Pick<Integration, 'type' | 'isSync'>;
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { SigninIntegration, SigninLocationState } from '../interfaces';
 
 export interface SigninTokenCodeProps {
-  email: string;
-  integration: SigninTokenCodeIntegration;
-  verificationReason?: VerificationReasons;
+  finishOAuthFlowHandler: FinishOAuthFlowHandler;
+  integration: SigninIntegration;
+  signinLocationState: SigninLocationState;
 }
 
-export interface TotpResponse {
+export interface TotpStatusResponse {
   account: {
     totp: AccountTotp;
   };
-}
-
-export interface SigninLocationState {
-  email?: string;
-  verificationReason?: VerificationReasons;
 }
