@@ -103,16 +103,8 @@ export class DatabaseService implements OnModuleDestroy {
     this.connectedServicesDb = new ConnectedServicesDb(
       mySqlOAuthShared,
       new ConnectedServicesCache(
-        new RedisShared(
-          { password: redisConfig.password, ...redisConfig.accessTokens },
-          logger,
-          metrics
-        ),
-        new RedisShared(
-          { password: redisConfig.password, ...redisConfig.refreshTokens },
-          logger,
-          metrics
-        ),
+        new RedisShared(redisConfig.accessTokens, logger, metrics),
+        new RedisShared(redisConfig.refreshTokens, logger, metrics),
         new RedisShared(
           { ...redisConfig, ...redisConfig.sessionTokens },
           logger,
