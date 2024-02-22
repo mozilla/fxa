@@ -25727,15 +25727,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "axios@npm:0.26.0"
-  dependencies:
-    follow-redirects: ^1.14.8
-  checksum: d7a8b898f4157bedeb2e06c03b16133b91b354c041205bea732ce58b7a21f373d22057b0eea0d482838145ce6ff482b359750d9bcb8dd19d45e3928e3c65c280
-  languageName: node
-  linkType: hard
-
 "axios@npm:^0.27.0":
   version: 0.27.2
   resolution: "axios@npm:0.27.2"
@@ -25743,6 +25734,17 @@ __metadata:
     follow-redirects: ^1.14.9
     form-data: ^4.0.0
   checksum: 38cb7540465fe8c4102850c4368053c21683af85c5fdf0ea619f9628abbcb59415d1e22ebc8a6390d2bbc9b58a9806c874f139767389c862ec9b772235f06854
+  languageName: node
+  linkType: hard
+
+"axios@npm:^0.28.0":
+  version: 0.28.0
+  resolution: "axios@npm:0.28.0"
+  dependencies:
+    follow-redirects: ^1.15.0
+    form-data: ^4.0.0
+    proxy-from-env: ^1.1.0
+  checksum: d3782377512e67510787bf325b664f16c8b595ccdbcf52fca58433fbd082e33c3ef58a19e7d016ce92666be5a1a5ea82028add0cb841077981df9617bd071615
   languageName: node
   linkType: hard
 
@@ -36171,7 +36173,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.14.8, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
+"follow-redirects@npm:^1.0.0, follow-redirects@npm:^1.14.0, follow-redirects@npm:^1.14.9, follow-redirects@npm:^1.15.0":
   version: 1.15.4
   resolution: "follow-redirects@npm:1.15.4"
   peerDependenciesMeta:
@@ -37391,7 +37393,7 @@ fsevents@~2.1.1:
     "@typescript-eslint/eslint-plugin": ^5.59.0
     "@typescript-eslint/parser": ^6.10.0
     audit-filter: ^0.5.0
-    axios: ^0.26.0
+    axios: ^0.28.0
     chance: ^1.1.8
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
