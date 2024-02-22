@@ -1,24 +1,25 @@
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { getCartData, getContentfulContent } from '../../_lib/apiClient';
+import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import checkLogo from '../../../images/check.svg';
-import circledConfirm from '../../../images/circled-confirm.svg';
-import { formatPlanPricing } from '../../../../../../libs/payments/ui/src/lib/utils/helpers';
+import checkLogo from '../../../../../images/check.svg';
+import circledConfirm from '../../../../../images/circled-confirm.svg';
+import { formatPlanPricing } from '../../../../../../../../libs/payments/ui/src/lib/utils/helpers';
 import {
   getBundle,
   getFormattedMsg,
+  getLocaleFromRequest,
   getLocalizedCurrency,
   getLocalizedDate,
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
+import { CheckoutSearchParams } from '../../layout';
 // import { app } from '../../_nestapp/app';
 
-interface CheckoutParams {
-  offeringId: string;
-}
-
 export const dynamic = 'force-dynamic';
+
+// Temporary code for demo purposes only - Replaced as part of FXA-8822
+const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
 
 type ConfirmationDetailProps = {
   title: string;
@@ -42,17 +43,27 @@ const ConfirmationDetail = ({
   );
 };
 
-export default async function Page({ params }: { params: CheckoutParams }) {
-  // TODO - Fetch Cart ID from cookie
-  // https://nextjs.org/docs/app/api-reference/functions/cookies
-  const cartId = 'cart-uuid';
-  // TODO - Fetch locale from params
-  // Possible solution could be as link below
-  // https://nextjs.org/docs/app/building-your-application/routing/internationalization
-  const locale = 'en-US';
+interface CheckoutParams {
+  offeringId: string;
+  cartId: string;
+}
+
+export default async function CheckoutSuccess({
+  params,
+  searchParams,
+}: {
+  params: CheckoutParams;
+  searchParams: CheckoutSearchParams;
+}) {
+  const headersList = headers();
+  const locale = getLocaleFromRequest(
+    searchParams,
+    headersList.get('accept-language'),
+    demoSupportedLanguages
+  );
 
   const contentfulData = getContentfulContent(params.offeringId, locale);
-  const cartData = getCartData(cartId);
+  const cartData = getCartData(params.cartId);
   const [contentful, cart] = await Promise.all([contentfulData, cartData]);
   /* eslint-disable @typescript-eslint/no-unused-vars */
   // const cartService = await app.getCartService();
@@ -63,11 +74,7 @@ export default async function Page({ params }: { params: CheckoutParams }) {
     cart.interval
   );
 
-  const languages = headers()
-    .get('Accept-Language')
-    ?.split(',')
-    .map((language) => language.split(';')[0]);
-  const l10n = await getBundle(languages);
+  const l10n = await getBundle([locale]);
 
   return (
     <>
@@ -87,6 +94,7 @@ export default async function Page({ params }: { params: CheckoutParams }) {
 
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
+          locale={locale}
           interval={cart.interval}
           invoice={cart.nextInvoice}
           purchaseDetails={contentful.purchaseDetails}
@@ -182,6 +190,7 @@ export default async function Page({ params }: { params: CheckoutParams }) {
         </section>
 
         <TermsAndPrivacy
+          locale={locale}
           {...cart}
           {...contentful.commonContent}
           {...contentful.purchaseDetails}

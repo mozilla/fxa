@@ -14,7 +14,7 @@ export default function Index() {
           <h2>123Done - Monthly</h2>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            href="/123done/checkout?interval=monthly"
+            href="/123done/checkout/b6115e72-2a3f-4de8-a58a-e231bfeea85d?interval=monthly"
           >
             Redirect
           </Link>
@@ -23,7 +23,7 @@ export default function Index() {
           <h2>123Done - Yearly</h2>
           <Link
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            href="/123done/checkout?interval=yearly"
+            href="/123done/checkout/b6115e72-2a3f-4de8-a58a-e231bfeea85d?interval=yearly"
           >
             Redirect
           </Link>
