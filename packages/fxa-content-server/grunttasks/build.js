@@ -48,6 +48,15 @@ module.exports = function (grunt) {
     // Update leaf node font and image URLs in the CSS bundle.
     'usemin:css',
 
+    // Tailwind 3.4.1 changed ltr: and rtl: classes to use a `:where... &` selector
+    // that can output an asterisk selector, e.g. `:where([dir="rtl"] *)`. Our `cssmin`
+    // grunttask minifies this to `:where([dir="rtl"]*)`, removing the space, which
+    // causes the style not to load. clean-css does not offer any formatting options
+    // to fix this for us, and since we plan to sunset content-server anyway and this
+    // is not a problem in our minification process for Settings, this is a temp hack
+    // that replaces `]*` with `] *` in our content-server Tailwind CSS file.
+    'replace:cssSelectorFix',
+
     // URLs inside the resources with children have been updated
     // and SRI hashes added to the main JS bundle. These files
     // are in their final state and can now be revved.
