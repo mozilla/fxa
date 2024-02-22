@@ -3,34 +3,54 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LocationProvider } from '@reach/router';
-import { IntegrationType } from '../../../models';
-import { SigninTokenCodeIntegration } from './interfaces';
+import { Integration, IntegrationType } from '../../../models';
+import { SigninTokenCodeProps } from './interfaces';
 import SigninTokenCode from '.';
-import { MOCK_EMAIL } from '../../mocks';
+import {
+  MOCK_EMAIL,
+  MOCK_SESSION_TOKEN,
+  MOCK_UID,
+  mockFinishOAuthFlowHandler,
+} from '../../mocks';
+import { MozServices } from '../../../lib/types';
 import VerificationReasons from '../../../constants/verification-reasons';
 
-export function createMockWebIntegration(): SigninTokenCodeIntegration {
+export function createMockWebIntegration() {
   return {
     type: IntegrationType.Web,
+    getService: () => MozServices.Default,
     isSync: () => false,
-  };
+    wantsKeys: () => false,
+  } as Integration;
 }
 
+export const createMockSigninLocationState = (
+  verificationReason?: VerificationReasons
+) => {
+  return {
+    email: MOCK_EMAIL,
+    uid: MOCK_UID,
+    sessionToken: MOCK_SESSION_TOKEN,
+    verified: false,
+    ...(verificationReason && { verificationReason }),
+  };
+};
+
 export const Subject = ({
+  finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   integration = createMockWebIntegration(),
-  verificationReason,
-}: {
-  integration?: SigninTokenCodeIntegration;
+  verificationReason = undefined,
+}: Partial<SigninTokenCodeProps> & {
   verificationReason?: VerificationReasons;
 }) => {
   return (
     <LocationProvider>
       <SigninTokenCode
         {...{
-          email: MOCK_EMAIL,
+          finishOAuthFlowHandler,
           integration,
-          verificationReason,
         }}
+        signinLocationState={createMockSigninLocationState(verificationReason)}
       />
     </LocationProvider>
   );

@@ -14,6 +14,9 @@ import {
   MOCK_SESSION_TOKEN,
   MOCK_UID,
   MOCK_AVATAR_NON_DEFAULT,
+  MOCK_UNWRAP_BKEY,
+  mockFinishOAuthFlowHandler,
+  MOCK_CLIENT_ID,
 } from '../mocks';
 import {
   BeginSigninError,
@@ -23,6 +26,7 @@ import {
   SendUnblockEmailHandler,
   SendUnblockEmailHandlerResponse,
   SigninIntegration,
+  SigninOAuthIntegration,
   SigninProps,
 } from './interfaces';
 import { LocationProvider } from '@reach/router';
@@ -42,6 +46,7 @@ export const MOCK_TOTP_STATUS_VERIFIED = {
     },
   },
 };
+
 export const MOCK_TOTP_STATUS = {
   account: {
     totp: {
@@ -51,17 +56,43 @@ export const MOCK_TOTP_STATUS = {
   },
 };
 
+export const MOCK_NO_TOTP = {
+  account: {
+    totp: {
+      exists: false,
+      verified: false,
+    },
+  },
+};
+
 export function createMockSigninWebIntegration(): SigninIntegration {
   return {
     type: IntegrationType.Web,
     isSync: () => false,
+    getService: () => MozServices.Default,
   };
 }
 
 export function createMockSigninSyncIntegration(): SigninIntegration {
   return {
-    type: IntegrationType.SyncDesktopV3,
+    type: IntegrationType.OAuth,
     isSync: () => true,
+    wantsKeys: () => true,
+    getService: () => MozServices.FirefoxSync,
+  };
+}
+
+export function createMockSigninOAuthIntegration(
+  clientId?: string,
+  wantsKeys: boolean = true
+): SigninOAuthIntegration {
+  return {
+    type: IntegrationType.OAuth,
+    getService: () => clientId || MOCK_CLIENT_ID,
+    isSync: () => false,
+    wantsKeys: () => wantsKeys,
+    wantsLogin: () => false,
+    wantsTwoStepAuthentication: () => false,
   };
 }
 
@@ -78,6 +109,7 @@ export function createBeginSigninResponse({
   verified = true,
   verificationMethod = MOCK_VERIFICATION.verificationMethod,
   verificationReason = MOCK_VERIFICATION.verificationReason,
+  keyFetchToken = undefined,
 }: Partial<BeginSigninResponse['signIn']> = {}): { data: BeginSigninResponse } {
   return {
     data: {
@@ -89,7 +121,9 @@ export function createBeginSigninResponse({
         verified,
         verificationMethod,
         verificationReason,
+        keyFetchToken,
       },
+      ...(keyFetchToken && { unwrapBKey: MOCK_UNWRAP_BKEY }),
     },
   };
 }
@@ -132,6 +166,7 @@ export const CACHED_SIGNIN_HANDLER_RESPONSE = {
     verified: true,
     sessionVerified: true,
     emailVerified: true,
+    uid: MOCK_UID,
     ...MOCK_VERIFICATION,
   },
 };
@@ -160,24 +195,28 @@ export const Subject = ({
   beginSigninHandler = mockBeginSigninHandler,
   cachedSigninHandler = mockCachedSigninHandler,
   sendUnblockEmailHandler = mockSendUnblockEmailHandler,
+  finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   ...props // overrides
-}: Partial<SigninProps> = {}) => (
-  <LocationProvider>
-    <Signin
-      {...{
-        integration,
-        email,
-        sessionToken,
-        serviceName,
-        hasLinkedAccount,
-        beginSigninHandler,
-        cachedSigninHandler,
-        sendUnblockEmailHandler,
-        hasPassword,
-        avatarData,
-        avatarLoading,
-        ...props,
-      }}
-    />
-  </LocationProvider>
-);
+}: Partial<SigninProps> = {}) => {
+  return (
+    <LocationProvider>
+      <Signin
+        {...{
+          integration,
+          email,
+          sessionToken,
+          serviceName,
+          hasLinkedAccount,
+          finishOAuthFlowHandler,
+          beginSigninHandler,
+          cachedSigninHandler,
+          sendUnblockEmailHandler,
+          hasPassword,
+          avatarData,
+          avatarLoading,
+          ...props,
+        }}
+      />
+    </LocationProvider>
+  );
+};

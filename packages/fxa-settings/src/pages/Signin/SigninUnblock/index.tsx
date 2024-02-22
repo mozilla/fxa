@@ -30,8 +30,7 @@ import {
   StoredAccountData,
   storeAccountData,
 } from '../../../lib/storage-utils';
-import { NavigationOptions } from '../interfaces';
-import { getNavigationTarget } from '../utils';
+import { handleNavigation } from '../utils';
 import { ResendStatus } from '../../../lib/types';
 
 export const viewName = 'signin-unblock';
@@ -42,7 +41,8 @@ const SigninUnblock = ({
   hasPassword,
   signinWithUnblockCode,
   resendUnblockCodeHandler,
-  wantsTwoStepAuthentication = false,
+  integration,
+  finishOAuthFlowHandler,
 }: SigninUnblockProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
 
@@ -124,15 +124,16 @@ const SigninUnblock = ({
 
       storeAccountData(accountData);
 
-      const navigationOptions: NavigationOptions = {
-        verified: data.signIn.verified,
-        verificationMethod: data.signIn.verificationMethod,
-        verificationReason: data.signIn.verificationReason,
-        wantsTwoStepAuthentication,
+      const navigationOptions = {
+        email,
+        signinData: data.signIn,
+        unwrapBKey: data.unwrapBKey,
+        integration,
+        finishOAuthFlowHandler,
+        queryParams: location.search,
       };
 
-      const { to, state } = getNavigationTarget(navigationOptions);
-      state ? navigate(to, { state }) : navigate(to);
+      await handleNavigation(navigationOptions, navigate);
     }
     if (error) {
       const localizedErrorMessage = getLocalizedErrorMessage(

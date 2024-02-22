@@ -9,10 +9,11 @@ import SigninUnblock, { viewName } from '.';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { LocationProvider } from '@reach/router';
-import { MOCK_EMAIL } from '../../mocks';
+import { MOCK_EMAIL, mockFinishOAuthFlowHandler } from '../../mocks';
 import {
   createBeginSigninResponse,
   createBeginSigninResponseError,
+  createMockSigninWebIntegration,
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
@@ -49,6 +50,10 @@ const renderWithSuccess = () => {
     .fn()
     .mockReturnValue(createBeginSigninResponse());
   resendUnblockCodeHandler = jest.fn().mockReturnValue({ success: true });
+  const finishOAuthFlowHandler = jest
+    .fn()
+    .mockReturnValueOnce(mockFinishOAuthFlowHandler);
+  const integration = createMockSigninWebIntegration();
 
   renderWithLocalizationProvider(
     <LocationProvider>
@@ -57,6 +62,8 @@ const renderWithSuccess = () => {
           email,
           hasLinkedAccount,
           hasPassword,
+          integration,
+          finishOAuthFlowHandler,
           signinWithUnblockCode,
           resendUnblockCodeHandler,
         }}
@@ -73,6 +80,7 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
     success: false,
     localizedErrorMessage: 'Something went wrong',
   });
+  const integration = createMockSigninWebIntegration();
 
   renderWithLocalizationProvider(
     <LocationProvider>
@@ -82,6 +90,8 @@ const renderWithError = (errno = AuthUiErrors.UNEXPECTED_ERROR.errno) => {
           hasLinkedAccount,
           hasPassword,
           signinWithUnblockCode,
+          integration,
+          finishOAuthFlowHandler: mockFinishOAuthFlowHandler,
           resendUnblockCodeHandler,
         }}
       />

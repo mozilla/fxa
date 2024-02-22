@@ -6,7 +6,7 @@
 import * as SigninTotpCodeModule from './index';
 import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as CacheModule from '../../../lib/cache';
-import * as UtilsModule from 'fxa-react/lib/utils';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import * as ReachRouterModule from '@reach/router';
 import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ApolloModule from '@apollo/client';
@@ -14,14 +14,25 @@ import * as ApolloModule from '@apollo/client';
 // Regular imports
 import { screen } from '@testing-library/react';
 import { LocationProvider } from '@reach/router';
-import { SigninTotpCodeContainer } from './container';
-import { MozServices } from '../../../lib/types';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import VerificationMethods from '../../../constants/verification-methods';
-import VerificationReasons from '../../../constants/verification-reasons';
 import { SigninTotpCodeProps } from './index';
 import { ApolloClient } from '@apollo/client';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import SigninTotpCodeContainer from './container';
+import { MozServices } from '../../../lib/types';
+import { createMockWebIntegration } from '../SigninTokenCode/mocks';
+import { Integration } from '../../../models';
+import {
+  MOCK_NON_TOTP_LOCATION_STATE,
+  MOCK_TOTP_LOCATION_STATE,
+} from './mocks';
+import { SigninLocationState } from '../interfaces';
+
+let integration: Integration;
+
+function mockWebIntegration() {
+  integration = createMockWebIntegration() as Integration;
+}
 
 let currentPageProps: SigninTotpCodeProps | undefined;
 function mockSigninTotpModule() {
@@ -52,6 +63,13 @@ function mockUseValidateModule(opts: any = {}) {
   });
 }
 
+jest.mock('../../../models', () => {
+  return {
+    ...jest.requireActual('../../../models'),
+    useAuthClient: jest.fn(),
+  };
+});
+
 function mockCache(opts: any = {}, isEmpty = false) {
   jest.spyOn(CacheModule, 'currentAccount').mockReturnValue(
     isEmpty
@@ -63,24 +81,22 @@ function mockCache(opts: any = {}, isEmpty = false) {
   );
 }
 
-let mockHardNavigate = jest.fn();
-function mockUtils() {
-  mockHardNavigate.mockReset();
-  jest.spyOn(UtilsModule, 'hardNavigate').mockImplementation(mockHardNavigate);
+function mockReactUtilsModule() {
+  jest
+    .spyOn(ReactUtils, 'hardNavigateToContentServer')
+    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 let mockNavigate = jest.fn();
-function mockReachRouter(opts?: { verificationMethod?: string }) {
+function mockReachRouter(mockLocationState?: SigninLocationState) {
   mockNavigate.mockReset();
   jest.spyOn(ReachRouterModule, 'useNavigate').mockReturnValue(mockNavigate);
   jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
     return {
       ...global.window.location,
-      state: {
-        verificationMethod:
-          opts?.verificationMethod || VerificationMethods.TOTP_2FA,
-        verificationReason: VerificationReasons.SIGN_IN,
-      },
+      pathname: '/signin_token_code',
+      state: mockLocationState,
     };
   });
 }
@@ -120,13 +136,14 @@ function applyDefaultMocks() {
   mockSigninTotpModule();
   mockLoadingSpinnerModule();
   mockUseValidateModule();
+  mockReactUtilsModule();
   mockCache();
-  mockReachRouter();
-  mockUtils();
+  mockReachRouter(MOCK_TOTP_LOCATION_STATE);
   mockVerifyTotp();
+  mockWebIntegration();
 }
 
-describe('signin container', () => {
+describe('signin totp code container', () => {
   beforeEach(() => {
     applyDefaultMocks();
   });
@@ -137,6 +154,7 @@ describe('signin container', () => {
       <LocationProvider>
         <SigninTotpCodeContainer
           {...{
+            integration,
             serviceName: MozServices.Default,
           }}
         />
@@ -148,35 +166,15 @@ describe('signin container', () => {
     }
   }
 
-  it('validates code and goes to settings', async () => {
+  it('returns true when code valid', async () => {
     await render();
     expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
     const result = await currentPageProps?.submitTotpCode('123456');
-    currentPageProps?.handleNavigation();
 
     expect(result?.status).toBeTruthy();
-    expect(mockHardNavigate).toBeCalledTimes(0);
-    expect(mockNavigate).toBeCalledTimes(1);
-    expect(mockNavigate).toBeCalledWith('/settings');
   });
 
-  it('validates code and goes to redirectTo location', async () => {
-    mockUseValidateModule({
-      redirectTo: 'http://foo.com',
-    });
-
-    await render();
-    expect(SigninTotpCodeModule.SigninTotpCode).toBeCalled();
-    const result = await currentPageProps?.submitTotpCode('123456');
-    currentPageProps?.handleNavigation();
-
-    expect(result?.status).toBeTruthy();
-    expect(mockHardNavigate).toBeCalledTimes(1);
-    expect(mockHardNavigate).toBeCalledWith('http://foo.com');
-    expect(mockNavigate).toBeCalledTimes(0);
-  });
-
-  it('shows invalid code error', async () => {
+  it('returns false when code not valid', async () => {
     mockVerifyTotp(false);
 
     await render();
@@ -197,22 +195,24 @@ describe('signin container', () => {
     expect(result?.error).toEqual(AuthUiErrors.UNEXPECTED_ERROR);
   });
 
-  it('redirects if there is no storedLocalAccount', async () => {
+  it('redirects if page is reached without location state', async () => {
+    mockReachRouter();
     mockCache({}, true);
     await render(false);
-    expect(mockNavigate).toBeCalledWith('/signin');
+    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
   });
 
-  it('redirects if there is sessionToken', async () => {
+  it('redirects if there is no sessionToken', async () => {
+    mockReachRouter();
     mockCache({ sessionToken: '' });
     await render(false);
-    expect(mockNavigate).toBeCalledWith('/signin');
+    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
   });
 
   it('redirects if verification method is not totp', async () => {
-    mockReachRouter({ verificationMethod: 'foo' });
+    mockReachRouter(MOCK_NON_TOTP_LOCATION_STATE);
     await render(false);
-    expect(mockNavigate).toBeCalledTimes(1);
-    expect(mockNavigate).toBeCalledWith('/signin');
+    expect(ReactUtils.hardNavigateToContentServer).toBeCalledTimes(1);
+    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
   });
 });

@@ -11,6 +11,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import VerificationMethods from '../../../constants/verification-methods';
 import { getLocalizedErrorMessage } from '../../../lib/auth-errors/auth-errors';
 import {
+  Integration,
   isOAuthIntegration,
   useAuthClient,
   useFtlMsgResolver,
@@ -18,7 +19,7 @@ import {
 
 // using default signin handlers
 import { BEGIN_SIGNIN_MUTATION } from '../gql';
-import { BeginSigninResponse, SigninContainerIntegration } from '../interfaces';
+import { BeginSigninResponse } from '../interfaces';
 
 import SigninUnblock from '.';
 import {
@@ -28,10 +29,14 @@ import {
 } from './interfaces';
 import { handleGQLError } from '../utils';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { MozServices } from '../../../lib/types';
 
 const SigninUnblockContainer = ({
   integration,
-}: { integration: SigninContainerIntegration } & RouteComponentProps) => {
+}: { integration: Integration } & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -44,22 +49,23 @@ const SigninUnblockContainer = ({
   const wantsTwoStepAuthentication =
     isOAuthIntegration(integration) && integration.wantsTwoStepAuthentication();
 
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
+
   const [beginSignin] = useMutation<BeginSigninResponse>(BEGIN_SIGNIN_MUTATION);
 
   const signinWithUnblockCode: BeginSigninWithUnblockCodeHandler = async (
     unblockCode: string
   ) => {
-    // TODO in FXA-6518 oauth ticket
-    // const service = integration.getService();
+    const service = integration.getService();
     const options = {
       verificationMethod: VerificationMethods.EMAIL_OTP,
+      keys: integration.wantsKeys(),
+      ...(service !== MozServices.Default && { service }),
       unblockCode,
     };
-    // TODO in FXA-6518 oauth ticket
-    //   // keys must be true to receive keyFetchToken for oAuth and syncDesktop
-    //   keys: isOAuth || isSyncDesktopV3,
-    //   service: service !== MozServices.Default ? service : undefined,
-    // };
     try {
       const { authPW } = await getCredentials(email, password);
       const { data } = await beginSignin({
@@ -91,6 +97,18 @@ const SigninUnblockContainer = ({
     }
   };
 
+  // TODO: UX for this, FXA-8106
+  if (oAuthDataError) {
+    return (
+      <AppLayout>
+        <CardHeader
+          headingText="Unexpected error"
+          headingTextFtlId="auth-error-999"
+        />
+      </AppLayout>
+    );
+  }
+
   if (!email || !password) {
     hardNavigateToContentServer('/');
     return <LoadingSpinner fullScreen />;
@@ -98,12 +116,14 @@ const SigninUnblockContainer = ({
   return (
     <SigninUnblock
       {...{
+        integration,
         email,
         hasLinkedAccount,
         hasPassword,
         signinWithUnblockCode,
         resendUnblockCodeHandler,
         wantsTwoStepAuthentication,
+        finishOAuthFlowHandler,
       }}
     />
   );

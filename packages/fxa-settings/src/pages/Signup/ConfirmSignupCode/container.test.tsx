@@ -12,7 +12,7 @@ import * as ReachRouterModule from '@reach/router';
 import * as SentryModule from 'fxa-shared/sentry/browser';
 import * as ReactUtils from 'fxa-react/lib/utils';
 
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import AuthClient from 'fxa-auth-client/browser';
 import { StoredAccountData } from '../../../lib/storage-utils';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
@@ -22,6 +22,7 @@ import {
   MOCK_EMAIL,
   MOCK_KEY_FETCH_TOKEN,
   MOCK_SESSION_TOKEN,
+  MOCK_UID,
   MOCK_UNWRAP_BKEY,
 } from '../../mocks';
 
@@ -49,11 +50,15 @@ let mockEmailBounceStatusQuery = jest.fn();
 
 function mockLocation(
   originIsSignup: boolean = true,
-  withIntegrationProps: boolean = true
+  withIntegrationProps: boolean = true,
+  withAccountInfo: boolean = true
 ) {
   jest.spyOn(ReachRouterModule, 'useLocation').mockImplementation(() => {
     return {
       state: {
+        uid: withAccountInfo ? MOCK_UID : undefined,
+        email: withAccountInfo ? MOCK_EMAIL : undefined,
+        sessionToken: withAccountInfo ? MOCK_SESSION_TOKEN : undefined,
         origin: originIsSignup ? 'signup' : null,
         selectedNewsletterSlugs: 'slugs',
         keyFetchToken: withIntegrationProps ? MOCK_KEY_FETCH_TOKEN : null,
@@ -79,7 +84,7 @@ function mockEmailBounceQuery() {
     .mockReturnValue(mockEmailBounceStatusQuery());
 }
 
-// Setup default mocks
+// Apply default mocks
 function applyMocks() {
   jest.resetAllMocks();
   jest.restoreAllMocks();
@@ -118,12 +123,6 @@ function applyMocks() {
         oAuthDataError: null,
       };
     });
-  jest.spyOn(CacheModule, 'currentAccount').mockImplementation(() => {
-    return {
-      email: MOCK_EMAIL,
-      sessionToken: MOCK_SESSION_TOKEN,
-    } as StoredAccountData;
-  });
   mockLocation();
   jest.spyOn(SentryModule.default, 'captureException');
   jest
@@ -133,7 +132,7 @@ function applyMocks() {
   mockEmailBounceQuery();
 }
 
-async function render(text?: string) {
+async function render() {
   renderWithLocalizationProvider(
     <SignupConfirmCodeContainer
       {...{
@@ -141,18 +140,43 @@ async function render(text?: string) {
       }}
     />
   );
-  await screen.findByText(text || 'confirm signup code mock');
 }
 
-describe('confirm-singup-container', () => {
+describe('confirm-signup-container', () => {
   beforeEach(() => {
     applyMocks();
   });
 
   describe('renders-default-state', () => {
-    it('renders as expected', async () => {
-      await render();
+    it('renders as expected with account info in location state', async () => {
+      render();
 
+      await waitFor(() =>
+        expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
+      );
+      expect(currentProps?.email).toEqual(MOCK_EMAIL);
+      expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
+      expect(currentProps?.integration).toBeDefined();
+      expect(currentProps?.finishOAuthFlowHandler).toBeDefined();
+      expect(currentProps?.newsletterSlugs).toEqual('slugs');
+      expect(currentProps?.keyFetchToken).toEqual(MOCK_KEY_FETCH_TOKEN);
+      expect(currentProps?.unwrapBKey).toEqual(MOCK_UNWRAP_BKEY);
+    });
+
+    it('renders as expected with account info in local storage', async () => {
+      mockLocation(true, true, false);
+      jest.spyOn(CacheModule, 'currentAccount').mockImplementationOnce(() => {
+        return {
+          uid: MOCK_UID,
+          email: MOCK_EMAIL,
+          sessionToken: MOCK_SESSION_TOKEN,
+        } as StoredAccountData;
+      });
+      render();
+
+      await waitFor(() =>
+        expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
+      );
       expect(currentProps?.email).toEqual(MOCK_EMAIL);
       expect(currentProps?.sessionToken).toEqual(MOCK_SESSION_TOKEN);
       expect(currentProps?.integration).toBeDefined();
@@ -180,38 +204,42 @@ describe('confirm-singup-container', () => {
     });
 
     it('redirects to email-first signup if there is a bounce on signup', async () => {
-      await render();
+      render();
+
+      await waitFor(() =>
+        expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
+      );
       expect(mockEmailBounceStatusQuery).toBeCalled();
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
-        '/?bouncedEmail=johndope%40example.com'
+        `/?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
 
     it('redirects to signin_bounced if there is a bounce that is not on signup', async () => {
       mockLocation(false);
-      await render();
+      render();
+
+      await waitFor(() =>
+        expect(screen.getByText('confirm signup code mock')).toBeInTheDocument()
+      );
       expect(mockEmailBounceStatusQuery).toBeCalled();
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
-        '/signin_bounced?bouncedEmail=johndope%40example.com'
+        `/signin_bounced?bouncedEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });
   });
 
   describe('renders-spinner', () => {
-    it('has no account', async () => {
-      jest.spyOn(CacheModule, 'currentAccount').mockImplementation(() => {
+    it('has no account in location state or local storage', async () => {
+      mockLocation(false, false, false);
+      jest.spyOn(CacheModule, 'currentAccount').mockImplementationOnce(() => {
         return {} as StoredAccountData;
       });
-      await render('loading spinner mock');
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
-        expect.stringMatching('/')
-      );
-    });
 
-    it('has no keyFetchToken or unwrapBKey and is an oauth integration', async () => {
-      mockLocation(true, false);
-      await render('loading spinner mock');
-      expect(SentryModule.default.captureException).toBeCalled();
+      render();
+      await waitFor(() =>
+        expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
+      );
       expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith(
         expect.stringMatching('/')
       );
@@ -220,7 +248,10 @@ describe('confirm-singup-container', () => {
     it('has missing integration', async () => {
       // Testing type safety violation
       integration = undefined as any as Integration;
-      await render('loading spinner mock');
+      render();
+      await waitFor(() =>
+        expect(screen.getByText('loading spinner mock')).toBeInTheDocument()
+      );
     });
   });
 
@@ -244,7 +275,10 @@ describe('confirm-singup-container', () => {
             oAuthDataError: new Error('BOOM'),
           };
         });
-      await render('Unexpected error');
+      render();
+      await waitFor(() =>
+        expect(screen.getByText('Unexpected error')).toBeInTheDocument()
+      );
     });
   });
 });

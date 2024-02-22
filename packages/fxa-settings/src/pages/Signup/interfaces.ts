@@ -15,8 +15,10 @@ export interface BeginSignupResponse {
     uid: string;
     sessionToken: hexstring;
     authAt: number;
-    keyFetchToken: hexstring;
+    // keyFetchToken and unwrapBKey are included if options.keys=true
+    keyFetchToken?: hexstring;
   };
+  unwrapBKey?: hexstring;
 }
 
 // full list @ fxa-auth-client/lib/client.ts, probably port over?
@@ -34,7 +36,7 @@ export type BeginSignupHandler = (
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {
-  data?: BeginSignupResponse & { unwrapBKey: hexstring };
+  data?: BeginSignupResponse;
   error?: HandledError;
 }
 

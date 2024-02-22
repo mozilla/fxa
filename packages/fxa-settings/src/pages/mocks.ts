@@ -32,3 +32,10 @@ export const MOCK_STORED_ACCOUNT = {
 };
 export const MOCK_AUTH_PW = 'apw123';
 export const MOCK_HEXSTRING_32 = '152e8ef9975a0f3356e062dfe09d3f23';
+export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
+  redirect: 'someUri',
+  code: 'someCode',
+  state: 'someState',
+};
+export const mockFinishOAuthFlowHandler = () =>
+  Promise.resolve(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);

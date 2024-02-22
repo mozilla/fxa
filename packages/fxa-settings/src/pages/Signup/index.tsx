@@ -38,7 +38,6 @@ import AppLayout from '../../components/AppLayout';
 import { SignupFormData, SignupProps } from './interfaces';
 import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
 import GleanMetrics from '../../lib/glean';
-import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import {
   isClientMonitor,
   isClientPocket,
@@ -253,10 +252,11 @@ export const Signup = ({
         ) {
           await firefox.fxaLogin({
             email,
-            keyFetchToken: data.SignUp.keyFetchToken,
+            // keyFetchToken and unwrapBKey should always exist if Sync integration
+            keyFetchToken: data.SignUp.keyFetchToken!,
+            unwrapBKey: data.unwrapBKey!,
             sessionToken: data.SignUp.sessionToken,
             uid: data.SignUp.uid,
-            unwrapBKey: data.unwrapBKey,
             verified: false,
             services: {
               sync: {
@@ -334,7 +334,6 @@ export const Signup = ({
     // TODO: FXA-8268, if force_auth && AuthErrors.is(error, 'DELETED_ACCOUNT'):
     //       - forceMessage('Account no longer exists. Recreate it?')
     <AppLayout>
-      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Set your password"
         headingTextFtlId="signup-heading"

@@ -620,7 +620,7 @@ describe('#integration - AccountResolver', () => {
         authClient.signUpWithAuthPW = jest
           .fn()
           .mockResolvedValue(mockRespPayload);
-        const result = await resolver.SignUp(headers, {
+        const result = await resolver.signUp(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
           options: { service: 'testo-co', atLeast18AtReg: false },
@@ -649,7 +649,7 @@ describe('#integration - AccountResolver', () => {
         authClient.signUpWithAuthPW = jest
           .fn()
           .mockResolvedValue(mockRespPayload);
-        const result = await resolver.SignUp(headers, {
+        const result = await resolver.signUp(headers, {
           authPW: '00000000',
           email: 'testo@example.xyz',
           passwordV2: {

@@ -29,8 +29,4 @@ export class SyncDesktopV3Integration extends SyncBasicIntegration<SyncIntegrati
     super(data, IntegrationType.SyncDesktopV3);
     this.setFeatures({ allowUidChange: true });
   }
-
-  isSync() {
-    return true;
-  }
 }

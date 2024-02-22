@@ -63,6 +63,7 @@ function mockIntegration() {
     type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
     isSync: () => true,
+    wantsKeys: () => true,
     features: {
       allowUidChange: false,
       fxaStatus: false,

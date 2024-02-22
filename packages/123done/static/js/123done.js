@@ -283,13 +283,6 @@ $(document).ready(function () {
     });
 
     $('button.prompt-none').click(function (ev) {
-      if (
-        !window.location.search.includes('login_hint=') &&
-        !navigator.userAgent.includes('FxATester')
-      ) {
-        alert('prompt=none requires a `login_hint` query parameter');
-        return;
-      }
       authenticate('prompt_none');
     });
 

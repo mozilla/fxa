@@ -5,6 +5,7 @@
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import Signin from '.';
 import {
+  Integration,
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   useAuthClient,
@@ -35,7 +36,6 @@ import {
   BeginSigninResponse,
   CachedSigninHandler,
   LocationState,
-  SigninContainerIntegration,
   PasswordChangeStartResponse,
   GetAccountKeysResponse,
   PasswordChangeFinishResponse,
@@ -59,6 +59,9 @@ import { KeyStretchExperiment } from '../../models/experiments';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import * as Sentry from '@sentry/browser';
 import { handleGQLError } from './utils';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import AppLayout from '../../components/AppLayout';
+import CardHeader from '../../components/CardHeader';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -76,11 +79,25 @@ import { handleGQLError } from './utils';
  * `/signup` to match content-server functionality.
  */
 
+function getAccountInfo(nonCachedEmail?: string) {
+  let email = nonCachedEmail;
+  let sessionToken: hexstring | undefined;
+  let uid: hexstring | undefined;
+  // only read from local storage if email isn't provided via query param or router state
+  if (!nonCachedEmail) {
+    const storedLocalAccount = currentAccount();
+    email = storedLocalAccount?.email;
+    sessionToken = storedLocalAccount?.sessionToken;
+    uid = storedLocalAccount?.uid;
+  }
+  return { email, sessionToken, uid };
+}
+
 const SigninContainer = ({
   integration,
   serviceName,
 }: {
-  integration: SigninContainerIntegration;
+  integration: Integration;
   serviceName: MozServices;
 } & RouteComponentProps) => {
   const config = useConfig();
@@ -94,8 +111,10 @@ const SigninContainer = ({
     useValidatedQueryParams(SigninQueryParams);
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
-  // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from query params (if available)
-  // and store in Apollo cache
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
 
   // email with either come from React signup (router state),
   // Backbone index (query param), or will be cached (local storage)
@@ -115,15 +134,9 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const nonCachedEmail = queryParamModel.email || emailFromLocationState;
-  let email = nonCachedEmail;
-  let sessionToken: hexstring | undefined;
-  // only read from local storage if email isn't provided via query param or router state
-  if (!nonCachedEmail) {
-    const storedLocalAccount = currentAccount();
-    email = storedLocalAccount?.email;
-    sessionToken = storedLocalAccount?.sessionToken;
-  }
+  const { email, sessionToken, uid } = getAccountInfo(
+    queryParamModel.email || emailFromLocationState
+  );
 
   const isOAuth = isOAuthIntegration(integration);
   const isSyncOAuth = isOAuth && integration.isSync();
@@ -198,10 +211,11 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // TODO in FXA-6518 oauth ticket
-      // const service = integration.getService();
+      const service = integration.getService();
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
+        keys: integration.wantsKeys(),
+        ...(service !== MozServices.Default && { service }),
       };
 
       const v1Credentials = await getCredentials(email, password);
@@ -328,11 +342,6 @@ const SigninContainer = ({
         }
       }
 
-      // TODO in FXA-6518 oauth ticket
-      //   // keys must be true to receive keyFetchToken for oAuth and syncDesktop
-      //   keys: isOAuth || isSyncDesktopV3,
-      //   service: service !== MozServices.Default ? service : undefined,
-      // };
       try {
         const { authPW } = await getCredentials(email, password);
         const { data } = await beginSignin({
@@ -352,12 +361,13 @@ const SigninContainer = ({
     },
     [
       beginSignin,
+      config,
       credentialStatus,
       getWrappedKeys,
+      integration,
       keyStretchExp.queryParamModel,
       passwordChangeFinish,
       passwordChangeStart,
-      config,
     ]
   );
 
@@ -408,6 +418,8 @@ const SigninContainer = ({
             verificationMethod,
             verificationReason,
             verified,
+            // Because the cached signin was a success, we know 'uid' exists
+            uid: uid!,
             sessionVerified, // might not need
             emailVerified, // might not need
           },
@@ -423,7 +435,7 @@ const SigninContainer = ({
         return { error };
       }
     },
-    [authClient]
+    [authClient, uid]
   );
 
   const sendUnblockEmailHandler = useCallback(
@@ -441,6 +453,17 @@ const SigninContainer = ({
     },
     [authClient, ftlMsgResolver]
   );
+  // TODO: UX for this, FXA-8106
+  if (oAuthDataError) {
+    return (
+      <AppLayout>
+        <CardHeader
+          headingText="Unexpected error"
+          headingTextFtlId="auth-error-999"
+        />
+      </AppLayout>
+    );
+  }
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
@@ -469,6 +492,7 @@ const SigninContainer = ({
         avatarData,
         avatarLoading,
         localizedErrorFromLocationState,
+        finishOAuthFlowHandler,
       }}
     />
   );

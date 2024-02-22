@@ -7,23 +7,21 @@ import * as SigninTokenCodeModule from '.';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as CacheModule from '../../../lib/cache';
 
-import { SigninTokenCodeIntegration, SigninTokenCodeProps } from './interfaces';
-import { IntegrationType } from '../../../models';
-import VerificationReasons from '../../../constants/verification-reasons';
-import { MOCK_TOTP_STATUS, MOCK_TOTP_STATUS_VERIFIED } from '../mocks';
+import { SigninTokenCodeProps } from './interfaces';
+import { Integration } from '../../../models';
+import { MOCK_NO_TOTP, MOCK_TOTP_STATUS } from '../mocks';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { LocationProvider } from '@reach/router';
 import SigninTokenCodeContainer from './container';
 import { screen, waitFor } from '@testing-library/react';
-import { MOCK_STORED_ACCOUNT } from '../../mocks';
+import { MOCK_EMAIL, MOCK_STORED_ACCOUNT } from '../../mocks';
+import { createMockWebIntegration } from '../../../lib/integrations/mocks';
+import { createMockSigninLocationState } from './mocks';
 
-let integration: SigninTokenCodeIntegration;
+let integration: Integration;
 
 function mockWebIntegration() {
-  integration = {
-    type: IntegrationType.Web,
-    isSync: () => false,
-  };
+  integration = createMockWebIntegration() as Integration;
 }
 
 function applyDefaultMocks() {
@@ -32,19 +30,24 @@ function applyDefaultMocks() {
 
   mockReactUtilsModule();
   mockWebIntegration();
-  mockApolloClientModule();
-  mockLocationState = {};
+  mockTotpStatusUseQuery();
 
   mockSigninTokenCodeModule();
   mockCurrentAccount();
 }
+
+jest.mock('../../../models', () => {
+  return {
+    ...jest.requireActual('../../../models'),
+    useAuthClient: jest.fn(),
+  };
+});
 
 // Set this when testing location state
 let mockLocationState = {};
 const mockLocation = () => {
   return {
     pathname: '/signin_token_code',
-    search: '?' + new URLSearchParams(mockLocationState),
     state: mockLocationState,
   };
 };
@@ -73,6 +76,7 @@ function mockReactUtilsModule() {
   jest
     .spyOn(ReactUtils, 'hardNavigateToContentServer')
     .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 // Set this when testing local storage
@@ -81,26 +85,17 @@ function mockCurrentAccount(storedAccount = { uid: '123' }) {
 }
 
 let mockTotpStatusQuery = jest.fn();
-function mockApolloClientModule() {
-  mockTotpStatusUseQuery();
-}
-
+// default for testing is no totp set up for the account
 function mockTotpStatusUseQuery() {
   mockTotpStatusQuery.mockImplementation(() => {
     return {
-      data: MOCK_TOTP_STATUS,
+      data: MOCK_NO_TOTP,
       loading: false,
     };
   });
 
   jest.spyOn(ApolloModule, 'useQuery').mockReturnValue(mockTotpStatusQuery());
 }
-
-const MOCK_ROUTER_STATE_EMAIL = 'from@routerstate.com';
-const MOCK_LOCATION_STATE_COMPLETE = {
-  email: MOCK_ROUTER_STATE_EMAIL,
-  verificationReason: VerificationReasons.SIGN_IN,
-};
 
 async function render() {
   renderWithLocalizationProvider(
@@ -122,43 +117,51 @@ describe('SigninTokenCode container', () => {
   describe('initial states', () => {
     describe('email', () => {
       it('can be set from router state', async () => {
-        mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
+        mockLocationState = createMockSigninLocationState();
         render();
+        await waitFor(() =>
+          expect(mockTotpStatusQuery).toReturnWith({
+            data: MOCK_NO_TOTP,
+            loading: false,
+          })
+        );
+        await waitFor(() =>
+          expect(screen.getByText('signin token code mock')).toBeInTheDocument()
+        );
         await waitFor(() => {
           expect(CacheModule.currentAccount).not.toBeCalled();
         });
-        expect(currentSigninTokenCodeProps?.email).toBe(
-          MOCK_ROUTER_STATE_EMAIL
+        expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
+          MOCK_EMAIL
         );
         expect(currentSigninTokenCodeProps?.integration).toBe(integration);
-        expect(currentSigninTokenCodeProps?.verificationReason).toBe(
-          MOCK_LOCATION_STATE_COMPLETE.verificationReason
-        );
         expect(SigninTokenCodeModule.default).toBeCalled();
       });
       it('router state takes precedence over local storage', async () => {
-        mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
+        mockLocationState = createMockSigninLocationState();
         render();
         expect(CacheModule.currentAccount).not.toBeCalled();
         await waitFor(() => {
-          expect(currentSigninTokenCodeProps?.email).toBe(
-            MOCK_ROUTER_STATE_EMAIL
+          expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
+            MOCK_EMAIL
           );
         });
         expect(SigninTokenCodeModule.default).toBeCalled();
       });
       it('is read from localStorage if email is not provided via router state', async () => {
+        mockLocationState = {};
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render();
         expect(CacheModule.currentAccount).toBeCalled();
         await waitFor(() => {
-          expect(currentSigninTokenCodeProps?.email).toBe(
+          expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
             MOCK_STORED_ACCOUNT.email
           );
         });
         expect(SigninTokenCodeModule.default).toBeCalled();
       });
       it('is handled if not provided in location state or local storage', async () => {
+        mockLocationState = {};
         render();
         expect(CacheModule.currentAccount).toBeCalled();
         expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
@@ -168,7 +171,7 @@ describe('SigninTokenCode container', () => {
 
     describe('totp status', () => {
       beforeEach(() => {
-        mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
+        mockLocationState = createMockSigninLocationState();
       });
 
       it('displays loading spinner when loading', () => {
@@ -190,7 +193,7 @@ describe('SigninTokenCode container', () => {
 
       it('redirects to totp screen if user has totp enabled', () => {
         mockTotpStatusQuery.mockImplementation(() => ({
-          data: MOCK_TOTP_STATUS_VERIFIED,
+          data: MOCK_TOTP_STATUS,
           loading: false,
         }));
         jest

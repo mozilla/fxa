@@ -38,6 +38,7 @@ import { Constants } from '../../lib/constants';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
 import { handleGQLError } from './utils';
+import VerificationMethods from '../../constants/verification-methods';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -63,7 +64,7 @@ import { handleGQLError } from './utils';
 
 export type SignupContainerIntegration = Pick<
   Integration,
-  'type' | 'getService' | 'features' | 'isSync'
+  'type' | 'getService' | 'features' | 'isSync' | 'wantsKeys'
 >;
 
 type LocationState = {
@@ -193,10 +194,9 @@ const SignupContainer = ({
     async (email, password, atLeast18AtReg) => {
       const service = integration.getService();
       const options: BeginSignUpOptions = {
-        verificationMethod: 'email-otp',
-        // keys must be true to receive keyFetchToken for oAuth and syncDesktop
-        keys: isOAuth || isSyncDesktopV3,
-        service: service !== MozServices.Default ? service : undefined,
+        verificationMethod: VerificationMethods.EMAIL_OTP,
+        keys: integration.wantsKeys(),
+        ...(service !== MozServices.Default && { service }),
         atLeast18AtReg,
       };
       try {
@@ -258,7 +258,7 @@ const SignupContainer = ({
         return handleGQLError(error);
       }
     },
-    [beginSignup, integration, isSyncDesktopV3, isOAuth, keyStretchExp, config]
+    [beginSignup, integration, keyStretchExp, config]
   );
 
   // TODO: probably a better way to read this?

@@ -2,55 +2,53 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useNavigate, useLocation } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../../models/pages/signin';
 import { SigninTotpCode } from './index';
 import { useMutation } from '@apollo/client';
-import { hardNavigate, hardNavigateToContentServer } from 'fxa-react/lib/utils';
-import { currentAccount } from '../../../lib/cache';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
-import VerificationReasons from '../../../constants/verification-reasons';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
-import { handleGQLError } from '../utils';
+import { getStoredAccountInfo, handleGQLError } from '../utils';
+import { SigninLocationState } from '../interfaces';
+import { Integration, useAuthClient } from '../../../models';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
 export const viewName = 'signin-totp-code';
 
 export type SigninTotpCodeContainerProps = {
+  integration: Integration;
   serviceName: MozServices;
 };
 
 export const SigninTotpCodeContainer = ({
+  integration,
   serviceName,
 }: SigninTotpCodeContainerProps & RouteComponentProps) => {
-  const navigate = useNavigate();
+  const authClient = useAuthClient();
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
   // TODO: FXA-9177, likely use Apollo cache here instead of location state
   const location = useLocation() as ReturnType<typeof useLocation> & {
-    state: {
-      verificationReason: string;
-      verificationMethod: string;
-    };
+    state: SigninLocationState;
   };
-  const { verificationReason, verificationMethod } = location.state;
-  const storedLocalAccount = currentAccount();
+
+  const signinLocationState =
+    location.state && Object.keys(location.state).length > 0
+      ? location.state
+      : getStoredAccountInfo();
+
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
+  const { redirectTo, service } = queryParamModel;
 
   const [verifyTotpCode] = useMutation(VERIFY_TOTP_CODE_MUTATION);
-
-  const handleNavigation = () => {
-    if (queryParamModel.redirectTo) {
-      hardNavigate(queryParamModel.redirectTo);
-    } else if (verificationReason === VerificationReasons.CHANGE_PASSWORD) {
-      // TODO: Check if postVerify routes are enabled. When they are, we won't
-      // need to hard navigate to content server.
-      hardNavigateToContentServer(
-        `/post_verify/password/force_password_change${location.search}`
-      );
-    } else {
-      navigate('/settings');
-    }
-  };
 
   const submitTotpCode = async (code: string) => {
     try {
@@ -58,7 +56,7 @@ export const SigninTotpCodeContainer = ({
         variables: {
           input: {
             code,
-            service: queryParamModel.service,
+            service,
           },
         },
       });
@@ -75,16 +73,38 @@ export const SigninTotpCodeContainer = ({
     }
   };
 
+  // TODO: UX for this, FXA-8106
+  if (oAuthDataError) {
+    return (
+      <AppLayout>
+        <CardHeader
+          headingText="Unexpected error"
+          headingTextFtlId="auth-error-999"
+        />
+      </AppLayout>
+    );
+  }
+
   if (
-    !storedLocalAccount ||
-    !storedLocalAccount.sessionToken ||
-    verificationMethod !== VerificationMethods.TOTP_2FA
+    !(Object.keys(signinLocationState).length > 0) ||
+    (signinLocationState.verificationMethod &&
+      signinLocationState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
-    navigate(`/signin${location.search}`);
+    hardNavigateToContentServer(`/${location.search ? location.search : ''}`);
+    return <LoadingSpinner fullScreen />;
   }
 
   return (
-    <SigninTotpCode {...{ handleNavigation, submitTotpCode, serviceName }} />
+    <SigninTotpCode
+      {...{
+        finishOAuthFlowHandler,
+        integration,
+        redirectTo,
+        signinLocationState,
+        submitTotpCode,
+        serviceName,
+      }}
+    />
   );
 };
 

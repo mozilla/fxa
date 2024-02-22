@@ -136,8 +136,8 @@ function constructOAuthRedirectUrl(oauthCode: OAuthCode, redirectUri: string) {
 export type FinishOAuthFlowHandler = (
   accountUid: string,
   sessionToken: string,
-  keyFetchToken: string,
-  unwrapKB: string
+  keyFetchToken?: string,
+  unwrapKB?: string
 ) => Promise<{ redirect: string; code: string; state: string }>;
 
 type FinishOAuthFlowHandlerResult = {
@@ -150,7 +150,7 @@ type FinishOAuthFlowHandlerResult = {
  * @param accountUid - Current account uid
  * @param sessionToken - Current session token
  * @param keyFetchToken - Current key fetch token
- * @param unwrapKB - Used to unwrap the account keys
+ * @param unwrapBKey - Used to unwrap the account keys
  * @returns An object containing the redirect URL, that can relay the new OAuthCode.
  */
 export function useFinishOAuthFlowHandler(
@@ -160,12 +160,12 @@ export function useFinishOAuthFlowHandler(
   const isSyncOAuth = isSyncOAuthIntegration(integration);
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
-    async (accountUid, sessionToken, keyFetchToken, unwrapKB) => {
+    async (accountUid, sessionToken, keyFetchToken, unwrapBKey) => {
       const oAuthIntegration = integration as OAuthIntegration;
 
       let keys;
-      if (integration.wantsKeys()) {
-        const { kB } = await authClient.accountKeys(keyFetchToken, unwrapKB);
+      if (integration.wantsKeys() && keyFetchToken && unwrapBKey) {
+        const { kB } = await authClient.accountKeys(keyFetchToken, unwrapBKey);
         keys = await constructKeysJwe(
           authClient,
           oAuthIntegration,

@@ -6,7 +6,7 @@ import { gql } from '@apollo/client';
 
 export const BEGIN_SIGNUP_MUTATION = gql`
   mutation SignUp($input: SignUpInput!) {
-    SignUp(input: $input) {
+    signUp(input: $input) {
       uid
       sessionToken
       authAt
