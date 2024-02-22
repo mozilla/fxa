@@ -584,6 +584,7 @@ describe('CapabilityService', () => {
       interval_count: 1,
     };
     const mockPlanTier2LongInterval = {
+      currency: 'usd',
       plan_id: 'plan_GHIJKL',
       product_id: 'prod_ABCDEF',
       product_metadata: {
@@ -592,6 +593,10 @@ describe('CapabilityService', () => {
       },
       interval: 'month',
       interval_count: 1,
+    };
+    const mockPlanTier2LongIntervalDiffCurr = {
+      ...mockPlanTier2LongInterval,
+      currency: 'eur',
     };
     const mockPlanNoProductOrder = {
       plan_id: 'plan_NOPRODUCTORDER',
@@ -705,6 +710,46 @@ describe('CapabilityService', () => {
         });
       });
 
+      it('returns upgrade for targetPlan with offering user is subscribed and interval is not shorter', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'upgrade',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual =
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier2ShortInterval
+          );
+        assert.deepEqual(actual, {
+          subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+          eligibleSourcePlan: mockPlanTier1ShortInterval,
+        });
+      });
+
+      it('returns upgrade for targetPlan with same offering and longer interval', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'same',
+            planId: mockPlanTier1ShortInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual =
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier1ShortInterval],
+            [],
+            mockPlanTier1LongInterval
+          );
+        assert.deepEqual(actual, {
+          subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+          eligibleSourcePlan: mockPlanTier1ShortInterval,
+        });
+      });
+
       it('returns downgrade for targetPlan with shorter interval but higher tier than user is subscribed to', async () => {
         mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
           {
@@ -741,6 +786,25 @@ describe('CapabilityService', () => {
             [mockPlanTier1ShortInterval],
             [],
             mockPlanTier1ShortInterval
+          );
+        assert.deepEqual(actual, {
+          subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
+        });
+      });
+
+      it('returns invalid for targetPlan with same offering user is subscribed to but different currency', async () => {
+        mockEligibilityManager.getOfferingOverlap = sinon.fake.resolves([
+          {
+            comparison: 'same',
+            planId: mockPlanTier2LongInterval.plan_id,
+            type: 'plan',
+          },
+        ]);
+        const actual =
+          await capabilityService.eligibilityFromEligibilityManager(
+            [mockPlanTier2LongInterval],
+            [],
+            mockPlanTier2LongIntervalDiffCurr
           );
         assert.deepEqual(actual, {
           subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
