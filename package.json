@@ -91,6 +91,7 @@
     "nest-typed-config": "^2.9.2",
     "nest-winston": "^1.9.4",
     "next": "^14.0.2",
+    "next-auth": "beta",
     "node-fetch": "^2.6.7",
     "nps": "^5.10.0",
     "objection": "^3.1.3",

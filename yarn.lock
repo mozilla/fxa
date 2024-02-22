@@ -516,6 +516,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@auth/core@npm:0.27.0":
+  version: 0.27.0
+  resolution: "@auth/core@npm:0.27.0"
+  dependencies:
+    "@panva/hkdf": ^1.1.1
+    "@types/cookie": 0.6.0
+    cookie: 0.6.0
+    jose: ^5.1.3
+    oauth4webapi: ^2.4.0
+    preact: 10.11.3
+    preact-render-to-string: 5.2.3
+  peerDependencies:
+    "@simplewebauthn/browser": ^9.0.1
+    "@simplewebauthn/server": ^9.0.2
+    nodemailer: ^6.8.0
+  peerDependenciesMeta:
+    "@simplewebauthn/browser":
+      optional: true
+    "@simplewebauthn/server":
+      optional: true
+    nodemailer:
+      optional: true
+  checksum: e3703a5886b063f5b502bf6d74d7ffecc25996ae682bd73c6d9322c8a53538e4da74257154e05c760efffb267c07f65912b87ad980f28ca564aa8bef415538f9
+  languageName: node
+  linkType: hard
+
 "@aw-web-design/x-default-browser@npm:1.4.126":
   version: 1.4.126
   resolution: "@aw-web-design/x-default-browser@npm:1.4.126"
@@ -14495,6 +14521,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@panva/hkdf@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@panva/hkdf@npm:1.1.1"
+  checksum: f0dd12903751d8792420353f809ed3c7de860cf506399759fff5f59f7acfef8a77e2b64012898cee7e5b047708fa0bd91dff5ef55a502bf8ea11aad9842160da
+  languageName: node
+  linkType: hard
+
 "@peculiar/asn1-schema@npm:^2.1.6":
   version: 2.1.8
   resolution: "@peculiar/asn1-schema@npm:2.1.8"
@@ -20988,6 +21021,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 0150048098eec1ff0df5d04e77fd44ff0fa8e732cc5d5e43a2fe603b2d3f05c9f1e369977a109844b8b449b096818c017737b166ccb52b569161642d884e17d2
+  languageName: node
+  linkType: hard
+
+"@types/cookie@npm:0.6.0":
+  version: 0.6.0
+  resolution: "@types/cookie@npm:0.6.0"
+  checksum: 5edce7995775b0b196b142883e4d4f71fd93c294eaec973670f1fa2540b70ea7390408ed513ddefef5fcb12a578100c76596e8f2a714b0c2ae9f70ee773f4510
   languageName: node
   linkType: hard
 
@@ -30230,6 +30270,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cookie@npm:0.6.0":
+  version: 0.6.0
+  resolution: "cookie@npm:0.6.0"
+  checksum: f56a7d32a07db5458e79c726b77e3c2eff655c36792f2b6c58d351fb5f61531e5b1ab7f46987150136e366c65213cbe31729e02a3eaed630c3bf7334635fb410
+  languageName: node
+  linkType: hard
+
 "cookiejar@npm:^2.1.3, cookiejar@npm:^2.1.4":
   version: 2.1.4
   resolution: "cookiejar@npm:2.1.4"
@@ -38034,6 +38081,7 @@ fsevents@~2.1.1:
     nest-typed-config: ^2.9.2
     nest-winston: ^1.9.4
     next: ^14.0.2
+    next-auth: beta
     node-fetch: ^2.6.7
     nps: ^5.10.0
     nx: 18.0.3
@@ -45083,6 +45131,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"jose@npm:^5.1.3":
+  version: 5.2.2
+  resolution: "jose@npm:5.2.2"
+  checksum: d23def3c1df8aae1ae59d1c027a073804034fe8b971dafe51f0452ca8f6eb7e5cd3e3c90b6e544776443e01e58c8f8eefbd1984dbcde378e693e0ebbd176584d
+  languageName: node
+  linkType: hard
+
 "jquery-modal@https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503":
   version: 0.7.1
   resolution: "jquery-modal@https://github.com/mozilla-fxa/jquery-modal.git#commit=0576775d1b4590314b114386019f4c7421c77503"
@@ -49631,6 +49686,28 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"next-auth@npm:beta":
+  version: 5.0.0-beta.11
+  resolution: "next-auth@npm:5.0.0-beta.11"
+  dependencies:
+    "@auth/core": 0.27.0
+  peerDependencies:
+    "@simplewebauthn/browser": ^9.0.1
+    "@simplewebauthn/server": ^9.0.2
+    next: ^14
+    nodemailer: ^6.6.5
+    react: ^18.2.0
+  peerDependenciesMeta:
+    "@simplewebauthn/browser":
+      optional: true
+    "@simplewebauthn/server":
+      optional: true
+    nodemailer:
+      optional: true
+  checksum: ae893112cbf8ea3966462021d7a1b654d5a34e8e85967f6a8626c804e9eefa26469021eb8e9199d9581dff891d927bea340c68e304fb98eec06ffad57aef183f
+  languageName: node
+  linkType: hard
+
 "next@npm:^14.0.2":
   version: 14.0.2
   resolution: "next@npm:14.0.2"
@@ -50682,6 +50759,13 @@ fsevents@~2.1.1:
   version: 0.9.0
   resolution: "oauth-sign@npm:0.9.0"
   checksum: 8f5497a127967866a3c67094c21efd295e46013a94e6e828573c62220e9af568cc1d2d04b16865ba583e430510fa168baf821ea78f355146d8ed7e350fc44c64
+  languageName: node
+  linkType: hard
+
+"oauth4webapi@npm:^2.4.0":
+  version: 2.10.3
+  resolution: "oauth4webapi@npm:2.10.3"
+  checksum: 339c5e6f8752644ceb603cd711e23c283bf8a6cf7a61a2ed2914fc270d1a178f3448585f22aaea59d5f05c6465f6e7988bc850765cf40359a8bb61e590fee706
   languageName: node
   linkType: hard
 
@@ -54185,6 +54269,24 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"preact-render-to-string@npm:5.2.3":
+  version: 5.2.3
+  resolution: "preact-render-to-string@npm:5.2.3"
+  dependencies:
+    pretty-format: ^3.8.0
+  peerDependencies:
+    preact: ">=10"
+  checksum: 6e46288d8956adde35b9fe3a21aecd9dea29751b40f0f155dea62f3896f27cb8614d457b32f48d33909d2da81135afcca6c55077520feacd7d15164d1371fb44
+  languageName: node
+  linkType: hard
+
+"preact@npm:10.11.3":
+  version: 10.11.3
+  resolution: "preact@npm:10.11.3"
+  checksum: 9387115aa0581e8226309e6456e9856f17dfc0e3d3e63f774de80f3d462a882ba7c60914c05942cb51d51e23e120dcfe904b8d392d46f29ad15802941fe7a367
+  languageName: node
+  linkType: hard
+
 "prebuild-install@npm:^7.1.1":
   version: 7.1.1
   resolution: "prebuild-install@npm:7.1.1"
@@ -54368,6 +54470,13 @@ fsevents@~2.1.1:
     ansi-styles: ^5.0.0
     react-is: ^18.0.0
   checksum: 032c1602383e71e9c0c02a01bbd25d6759d60e9c7cf21937dde8357aa753da348fcec5def5d1002c9678a8524d5fe099ad98861286550ef44de8808cc61e43b6
+  languageName: node
+  linkType: hard
+
+"pretty-format@npm:^3.8.0":
+  version: 3.8.0
+  resolution: "pretty-format@npm:3.8.0"
+  checksum: 21a114d43ef06978f8f7f6212be4649b0b094f05d9b30e14e37550bf35c8ca24d8adbca9e5adc4cc15d9eaf7a1e7a30478a4dc37b30982bfdf0292a5b385484c
   languageName: node
   linkType: hard
 

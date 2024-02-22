@@ -575,7 +575,7 @@ const conf = (module.exports = convict({
       },
       enabled_client_ids: {
         // 123done enabled for functional tests, 321done is not.
-        default: ['dcdb5ae7add825d2', '7f368c6886429f19'],
+        default: ['dcdb5ae7add825d2', '7f368c6886429f19', '32aaeb6f1c21316a'],
         doc: 'client_ids for which prompt=none is enabled',
         env: 'OAUTH_PROMPT_NONE_ENABLED_CLIENT_IDS',
         format: Array,
