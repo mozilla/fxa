@@ -451,9 +451,20 @@ export class CapabilityService {
         eligibleSourcePlan: overlapAbbrev,
       };
 
+    if (
+      overlap.comparison === OfferingComparison.UPGRADE ||
+      intervalComparison(
+        { unit: overlapAbbrev.interval, count: overlapAbbrev.interval_count },
+        { unit: targetPlan.interval, count: targetPlan.interval_count }
+      ) === IntervalComparison.LONGER
+    )
+      return {
+        subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
+        eligibleSourcePlan: overlapAbbrev,
+      };
+
     return {
-      subscriptionEligibilityResult: SubscriptionEligibilityResult.UPGRADE,
-      eligibleSourcePlan: overlapAbbrev,
+      subscriptionEligibilityResult: SubscriptionEligibilityResult.INVALID,
     };
   }
 
