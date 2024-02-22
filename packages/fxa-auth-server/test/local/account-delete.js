@@ -107,6 +107,9 @@ describe('AccountDeleteManager', function () {
       return [{ status: 'Active', billingAgreementId: 'B-test' }];
     });
     mockAuthModels.deleteAllPayPalBAs = sinon.spy(async () => {});
+    mockAuthModels.getAccountCustomerByUid = sinon.spy(async () => {
+      return { stripeCustomerId: 'cus_993' };
+    });
 
     mockOAuthDb = {
       removeTokensAndCodes: sinon.fake.resolves(),
@@ -152,15 +155,16 @@ describe('AccountDeleteManager', function () {
 
   describe('create tasks', function () {
     it('creates a delete account task by uid', async () => {
-      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
-      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
       const taskId = 'proj/testo/loc/us-n/q/del0/tasks/123';
       createTaskStub = sandbox.stub().resolves([{ name: taskId }]);
       const result = await accountDeleteManager.enqueue({
         uid,
         reason: 'fxa_unverified_account_delete',
       });
-      sinon.assert.calledOnceWithExactly(fetchCustomerStub, uid);
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
       sinon.assert.calledOnceWithExactly(
         mockStatsd.increment,
         'cloud-tasks.account-delete.enqueue.success'
@@ -175,7 +179,7 @@ describe('AccountDeleteManager', function () {
             body: Buffer.from(
               JSON.stringify({
                 uid,
-                customerId: 'cus_997',
+                customerId: 'cus_993',
                 reason: 'fxa_unverified_account_delete',
               })
             ).toString('base64'),
@@ -191,15 +195,16 @@ describe('AccountDeleteManager', function () {
     });
 
     it('creates a delete account task by email', async () => {
-      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_993' });
-      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
       const taskId = 'proj/testo/loc/us-n/q/del0/tasks/134';
       createTaskStub = sandbox.stub().resolves([{ name: taskId }]);
       const result = await accountDeleteManager.enqueue({
         email,
         reason: 'fxa_unverified_account_delete',
       });
-      sinon.assert.calledOnceWithExactly(fetchCustomerStub, uid);
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
       sinon.assert.calledOnceWithExactly(createTaskStub, {
         parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.deleteAccounts.queueName}`,
         task: {
@@ -342,15 +347,16 @@ describe('AccountDeleteManager', function () {
 
   describe('quickDelete', () => {
     it('should delete the account and queue', async () => {
-      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
-      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
       createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
       await accountDeleteManager.quickDelete(uid, deleteReason);
 
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
       });
-      sinon.assert.callCount(mockStripeHelper.fetchCustomer, 1);
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
     });
 
@@ -364,8 +370,6 @@ describe('AccountDeleteManager', function () {
     });
 
     it('should enqueue if an error happens during delete', async () => {
-      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
-      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
       createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
       mockFxaDb.deleteAccount = sandbox.stub().throws();
       await accountDeleteManager.quickDelete(uid, deleteReason);
@@ -373,7 +377,10 @@ describe('AccountDeleteManager', function () {
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
       });
-      sinon.assert.callCount(mockStripeHelper.fetchCustomer, 1);
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
       sinon.assert.callCount(mockOAuthDb.removeTokensAndCodes, 0);
       sinon.assert.calledOnceWithExactly(
         mockStatsd.increment,

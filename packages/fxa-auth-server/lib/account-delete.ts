@@ -4,6 +4,7 @@
 
 import {
   deleteAllPayPalBAs,
+  getAccountCustomerByUid,
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
@@ -153,10 +154,11 @@ export class AccountDeleteManager {
   }
 
   private async enqueueByUid(options: EnqueueByUidParam) {
-    const customer = await this.stripeHelper?.fetchCustomer(options.uid);
+    const { stripeCustomerId } =
+      (await getAccountCustomerByUid(options.uid)) || {};
     const task: DeleteTask = {
       uid: options.uid,
-      customerId: customer?.id,
+      customerId: stripeCustomerId,
       reason: options.reason,
     };
     return this.enqueueTask(task);
@@ -164,10 +166,11 @@ export class AccountDeleteManager {
 
   private async enqueueByEmail(options: EnqueueByEmailParam) {
     const account = await this.fxaDb.accountRecord(options.email);
-    const customer = await this.stripeHelper?.fetchCustomer(account.uid);
+    const { stripeCustomerId } =
+      (await getAccountCustomerByUid(account.uid)) || {};
     const task: DeleteTask = {
       uid: account.uid,
-      customerId: customer?.id,
+      customerId: stripeCustomerId,
       reason: options.reason,
     };
     return this.enqueueTask(task);
