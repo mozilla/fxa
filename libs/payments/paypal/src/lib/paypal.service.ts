@@ -2,9 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export * from './lib/paypal.client';
-export * from './lib/paypal.error';
-export * from './lib/paypal.manager';
-export * from './lib/paypal.service';
-export * from './lib/types';
-export * from './lib/util';
+import { Injectable } from '@nestjs/common';
+import { PayPalManager } from './paypal.manager';
+
+@Injectable()
+export class PayPalService {
+  constructor(private paypalManager: PayPalManager) {}
+}
