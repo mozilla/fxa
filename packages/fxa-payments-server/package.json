@@ -148,7 +148,7 @@
     "normalize.css": "8.0.1",
     "on-headers": "^1.0.2",
     "react-redux": "^9.1.0",
-    "react-router-dom": "^6.18.0",
+    "react-router-dom": "^6.22.1",
     "react-scripts": "^5.0.1",
     "react-stripe-elements": "^6.1.2",
     "react-transition-group": "^4.4.2",
