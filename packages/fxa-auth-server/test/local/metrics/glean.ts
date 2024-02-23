@@ -15,6 +15,21 @@ const recordRegEmailSentStub = sinon.stub();
 const recordRegAccVerifiedStub = sinon.stub();
 const recordRegCompleteStub = sinon.stub();
 const recordRegSubmitErrorStub = sinon.stub();
+const recordLoginSuccessStub = sinon.stub();
+const recordLoginSubmitBackendErrorStub = sinon.stub();
+const recordLoginTotpCodeSuccessStub = sinon.stub();
+const recordLoginTotpCodeFailureStub = sinon.stub();
+const recordLoginBackupCodeSuccessStub = sinon.stub();
+const recordLoginEmailConfirmationSentStub = sinon.stub();
+const recordLoginEmailConfirmationSuccessStub = sinon.stub();
+const recordLoginCompleteStub = sinon.stub();
+const recordPasswordResetEmailSentStub = sinon.stub();
+const recordPasswordResetCreateNewSuccessStub = sinon.stub();
+const recordAccountPasswordResetStub = sinon.stub();
+const recordPasswordResetRecoveryKeySuccessStub = sinon.stub();
+const recordPasswordResetRecoveryKeyCreateSuccessStub = sinon.stub();
+const recordAccessTokenCreatedStub = sinon.stub();
+const recordAccessTokenCheckedStub = sinon.stub();
 
 const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
   '../../../lib/metrics/glean',
@@ -27,6 +42,25 @@ const { gleanMetrics, logErrorWithGlean } = proxyquire.load(
         recordRegAccVerified: recordRegAccVerifiedStub,
         recordRegComplete: recordRegCompleteStub,
         recordRegSubmitError: recordRegSubmitErrorStub,
+        recordLoginSuccess: recordLoginSuccessStub,
+        recordLoginSubmitBackendError: recordLoginSubmitBackendErrorStub,
+        recordLoginTotpCodeSuccess: recordLoginTotpCodeSuccessStub,
+        recordLoginTotpCodeFailure: recordLoginTotpCodeFailureStub,
+        recordLoginBackupCodeSuccess: recordLoginBackupCodeSuccessStub,
+        recordLoginEmailConfirmationSent: recordLoginEmailConfirmationSentStub,
+        recordLoginEmailConfirmationSuccess:
+          recordLoginEmailConfirmationSuccessStub,
+        recordLoginComplete: recordLoginCompleteStub,
+        recordPasswordResetEmailSent: recordPasswordResetEmailSentStub,
+        recordPasswordResetCreateNewSuccess:
+          recordPasswordResetCreateNewSuccessStub,
+        recordAccountPasswordReset: recordAccountPasswordResetStub,
+        recordPasswordResetRecoveryKeySuccess:
+          recordPasswordResetRecoveryKeySuccessStub,
+        recordPasswordResetRecoveryKeyCreateSuccess:
+          recordPasswordResetRecoveryKeyCreateSuccessStub,
+        recordAccessTokenCreated: recordAccessTokenCreatedStub,
+        recordAccessTokenChecked: recordAccessTokenCheckedStub,
       }),
     },
   }
