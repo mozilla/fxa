@@ -65,7 +65,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await login.submit();
 
     // Verify user is redirected to the password page
-    await login.waitForPasswordHeader();
+    expect(await login.waitForPasswordHeader()).toBeVisible();
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });

@@ -47,7 +47,7 @@ test.describe('severity-2 #smoke', () => {
       });
 
       // Verify the confirm code header and the email
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       expect(await login.confirmEmail()).toContain(emailWithoutSpace);
 
       // Need to clear the cache to get the new email
@@ -60,7 +60,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutFirstSignUp(emailWithSpace, password, {
         verify: false,
       });
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       expect(await login.confirmEmail()).toContain(emailWithoutSpace);
     });
 

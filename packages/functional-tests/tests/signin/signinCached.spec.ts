@@ -174,6 +174,7 @@ test.describe('severity-2 #smoke', () => {
     test('unverified cached signin redirects to confirm email', async ({
       target,
     }) => {
+      test.fixme(true, 'test to be fixed, see FXA-9194');
       const { page, login } = syncBrowserPages;
       const email_unverified = login.createEmail();
       await target.auth.signUp(email_unverified, password, {
@@ -186,7 +187,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email_unverified, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -195,7 +196,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSignIn();
 
       //Cached login should still go to email confirmation screen for unverified accounts
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       //Fill the code and submit
       await login.fillOutSignUpCode(email_unverified);

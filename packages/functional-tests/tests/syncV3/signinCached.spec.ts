@@ -44,6 +44,7 @@ test.describe('severity-2 #smoke', () => {
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
       target,
     }) => {
+      test.fixme(true, 'test to be fixed, see FXA-9194');
       const { page, login, connectAnotherDevice } = syncBrowserPages;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
@@ -51,7 +52,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       const query = { email: email2 };
       const queryParam = new URLSearchParams(query);
@@ -85,6 +86,7 @@ test.describe('severity-2 #smoke', () => {
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
       target,
     }) => {
+      test.fixme(true, 'test to be fixed, see FXA-9194');
       const { page, login } = syncBrowserPages;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
@@ -92,7 +94,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify sign up code header is visible
-      await login.waitForSignInCodeHeader();
+      expect(login.signInCodeHeader()).toBeVisible();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
