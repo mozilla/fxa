@@ -38,7 +38,7 @@ import * as ReactUtils from 'fxa-react/lib/utils';
 
 // Typical imports
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import SignupContainer, { SignupContainerIntegration } from './container';
 import { IntegrationType, useAuthClient } from '../../models';
 import { MozServices } from '../../lib/types';
@@ -47,7 +47,7 @@ import { Constants } from '../../lib/constants';
 import { SignupProps } from './interfaces';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { GraphQLError } from 'graphql';
-import { ApolloClient, ApolloError } from '@apollo/client';
+import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
@@ -432,33 +432,41 @@ describe('sign-up-container', () => {
         true
       );
 
-      expect(result?.data).toBeNull();
+      expect(result?.data).toBeUndefined();
       expect(result?.error?.message).toEqual(
         AuthUiErrors.UNEXPECTED_ERROR.message
       );
     });
 
     it('handles error on gql mutation', async () => {
-      mockBeginSignupMutation.mockImplementation(() => {
-        const gqlError = new ApolloError({
-          graphQLErrors: [
-            new GraphQLError(AuthUiErrors.UNEXPECTED_ERROR.message),
-          ],
+      mockBeginSignupMutation.mockImplementation(async () => {
+        const gqlError = new GraphQLError(
+          AuthUiErrors.UNEXPECTED_ERROR.message
+        );
+        const error: GraphQLError = Object.assign(gqlError, {
+          extensions: {
+            ...(gqlError.extensions || {}),
+            errno: AuthUiErrors.UNEXPECTED_ERROR.errno,
+          },
         });
-        throw gqlError;
+        throw new ApolloModule.ApolloError({
+          graphQLErrors: [error],
+        });
       });
 
       await render();
-      const result = await currentSignupProps?.beginSignupHandler(
-        'foo@mozilla.com',
-        'test123',
-        true
-      );
+      await waitFor(async () => {
+        const result = await currentSignupProps?.beginSignupHandler(
+          'foo@mozilla.com',
+          'test123',
+          true
+        );
 
-      expect(result?.data).toBeNull();
-      expect(result?.error?.message).toEqual(
-        AuthUiErrors.UNEXPECTED_ERROR.message
-      );
+        expect(result?.data).toBeUndefined();
+        expect(result?.error?.message).toEqual(
+          AuthUiErrors.UNEXPECTED_ERROR.message
+        );
+      });
     });
   });
 });

@@ -34,7 +34,7 @@ export type BeginSignupHandler = (
 ) => Promise<BeginSignupResult>;
 
 export interface BeginSignupResult {
-  data?: (BeginSignupResponse & { unwrapBKey: hexstring }) | null;
+  data?: BeginSignupResponse & { unwrapBKey: hexstring };
   error?: HandledError;
 }
 

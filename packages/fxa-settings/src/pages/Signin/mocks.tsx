@@ -16,19 +16,21 @@ import {
   MOCK_AVATAR_NON_DEFAULT,
 } from '../mocks';
 import {
+  BeginSigninError,
   BeginSigninHandler,
   BeginSigninResponse,
-  BeginSigninResultHandlerError,
   CachedSigninHandler,
+  SendUnblockEmailHandler,
+  SendUnblockEmailHandlerResponse,
   SigninIntegration,
   SigninProps,
 } from './interfaces';
 import { LocationProvider } from '@reach/router';
 import {
+  AuthUiError,
   AuthUiErrorNos,
   AuthUiErrors,
 } from '../../lib/auth-errors/auth-errors';
-import { HandledError } from '../../lib/interfaces';
 
 // TODO: There's some sharing opportunity with other parts of the codebase
 // probably move these or a version of these to pages/mocks and share
@@ -96,8 +98,8 @@ export function createBeginSigninResponseError({
   errno = AuthUiErrors.INCORRECT_PASSWORD.errno!,
   verificationMethod,
   verificationReason,
-}: Partial<BeginSigninResultHandlerError> = {}): {
-  error: BeginSigninResultHandlerError;
+}: Partial<BeginSigninError> = {}): {
+  error: BeginSigninError;
 } {
   const message = AuthUiErrorNos[errno].message;
   return {
@@ -106,7 +108,6 @@ export function createBeginSigninResponseError({
       verificationMethod,
       verificationReason,
       message,
-      ftlId: 'fake-id',
     },
   };
 }
@@ -114,14 +115,14 @@ export function createBeginSigninResponseError({
 export function createCachedSigninResponseError({
   errno = AuthUiErrors.SESSION_EXPIRED.errno!,
 } = {}): {
-  error: HandledError;
+  error: AuthUiError;
 } {
   const message = AuthUiErrorNos[errno].message;
   return {
     error: {
+      name: '',
       errno,
       message,
-      ftlId: 'fake-id',
     },
   };
 }
@@ -135,11 +136,17 @@ export const CACHED_SIGNIN_HANDLER_RESPONSE = {
   },
 };
 
+export const SEND_UNBLOCK_EMAIL_HANDLER_RESPONSE: SendUnblockEmailHandlerResponse =
+  {};
+
 export const mockBeginSigninHandler: BeginSigninHandler = () =>
   Promise.resolve(createBeginSigninResponse());
 
 export const mockCachedSigninHandler: CachedSigninHandler = () =>
   Promise.resolve(CACHED_SIGNIN_HANDLER_RESPONSE);
+
+export const mockSendUnblockEmailHandler: SendUnblockEmailHandler = () =>
+  Promise.resolve(SEND_UNBLOCK_EMAIL_HANDLER_RESPONSE);
 
 export const Subject = ({
   integration = createMockSigninWebIntegration(),
@@ -152,6 +159,7 @@ export const Subject = ({
   email = MOCK_EMAIL,
   beginSigninHandler = mockBeginSigninHandler,
   cachedSigninHandler = mockCachedSigninHandler,
+  sendUnblockEmailHandler = mockSendUnblockEmailHandler,
   ...props // overrides
 }: Partial<SigninProps> = {}) => (
   <LocationProvider>
@@ -164,6 +172,7 @@ export const Subject = ({
         hasLinkedAccount,
         beginSigninHandler,
         cachedSigninHandler,
+        sendUnblockEmailHandler,
         hasPassword,
         avatarData,
         avatarLoading,

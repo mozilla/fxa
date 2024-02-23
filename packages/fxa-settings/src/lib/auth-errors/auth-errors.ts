@@ -5,6 +5,7 @@
 import { AuthServerError } from 'fxa-auth-client/browser';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
+import { HandledError } from '../interfaces';
 
 export type AuthUiError = AuthServerError & { version?: number };
 
@@ -631,21 +632,33 @@ const ERRORS = {
 type ErrorKey = keyof typeof ERRORS;
 type ErrorVal = { errno: number; message: string; version?: number };
 
+/**
+ * Utility function to retrieve the localized auth client error message
+ * - works for throttling errors that include a localized retry after value
+ * - returns an unexpected error if the error is unknown or does not have a localized message
+ * @param ftlMsgResolver
+ * @param err is an AuthClient error
+ * @returns
+ */
+
 export const getLocalizedErrorMessage = (
   ftlMsgResolver: FtlMsgResolver,
-  err: AuthUiError
+  error: AuthUiError | HandledError
 ) => {
   let localizedError: string;
 
-  if (err.errno && AuthUiErrorNos[err.errno]) {
-    if (err.retryAfterLocalized && err.errno === AuthUiErrors.THROTTLED.errno) {
+  if (error.errno && AuthUiErrorNos[error.errno]) {
+    if (
+      error.retryAfterLocalized &&
+      error.errno === AuthUiErrors.THROTTLED.errno
+    ) {
       // For throttling errors where a localized retry after value is provided
       localizedError = ftlMsgResolver.getMsg(
-        composeAuthUiErrorTranslationId(err),
-        AuthUiErrorNos[err.errno].message,
-        { retryAfter: err.retryAfterLocalized }
+        composeAuthUiErrorTranslationId(error),
+        AuthUiErrorNos[error.errno].message,
+        { retryAfter: error.retryAfterLocalized }
       );
-    } else if (err.errno === AuthUiErrors.THROTTLED.errno) {
+    } else if (error.errno === AuthUiErrors.THROTTLED.errno) {
       // For throttling errors where a localized retry after value is not available
       localizedError = ftlMsgResolver.getMsg(
         'auth-error-114-generic',
@@ -654,8 +667,8 @@ export const getLocalizedErrorMessage = (
     } else {
       // for all other recognized auth UI errors
       localizedError = ftlMsgResolver.getMsg(
-        composeAuthUiErrorTranslationId(err),
-        AuthUiErrorNos[err.errno].message
+        composeAuthUiErrorTranslationId(error),
+        AuthUiErrorNos[error.errno].message
       );
     }
   } else {

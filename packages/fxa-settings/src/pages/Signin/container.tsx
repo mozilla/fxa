@@ -8,6 +8,7 @@ import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
   useAuthClient,
+  useFtlMsgResolver,
 } from '../../models';
 import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
@@ -31,7 +32,6 @@ import {
   AvatarResponse,
   BeginSigninHandler,
   BeginSigninResponse,
-  BeginSigninResultError,
   CachedSigninHandler,
   LocationState,
   SigninContainerIntegration,
@@ -46,11 +46,10 @@ import {
   getKeysV2,
   unwrapKB,
 } from 'fxa-auth-client/lib/crypto';
-import { GraphQLError } from 'graphql';
 import {
-  AuthUiErrorNos,
+  AuthUiError,
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
@@ -58,6 +57,7 @@ import AuthenticationMethods from '../../constants/authentication-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import * as Sentry from '@sentry/browser';
+import { handleGQLError } from './utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -83,6 +83,7 @@ const SigninContainer = ({
   serviceName: MozServices;
 } & RouteComponentProps) => {
   const authClient = useAuthClient();
+  const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
@@ -91,16 +92,22 @@ const SigninContainer = ({
     useValidatedQueryParams(SigninQueryParams);
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
+  // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from query params (if available)
+  // and store in Apollo cache
+
   // email with either come from React signup (router state),
   // Backbone index (query param), or will be cached (local storage)
   const {
     email: emailFromLocationState,
+    // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
     hasLinkedAccount: hasLinkedAccountFromLocationState,
     hasPassword: hasPasswordFromLocationState,
+    localizedErrorMessage: localizedErrorFromLocationState,
   } = location.state || {};
 
   const [accountStatus, setAccountStatus] = useState({
     hasLinkedAccount:
+      // TODO: in FXA-9177, retrieve hasLinkedAccount and hasPassword from Apollo cache (not state)
       queryParamModel.hasLinkedAccount || hasLinkedAccountFromLocationState,
     hasPassword: queryParamModel.hasPassword || hasPasswordFromLocationState,
   });
@@ -131,32 +138,36 @@ const SigninContainer = ({
           accountStatus.hasLinkedAccount === undefined ||
           accountStatus.hasPassword === undefined
         ) {
-          // TODO: error handling for this (and in SignUp)
-          const { exists, hasLinkedAccount, hasPassword } =
-            await authClient.accountStatusByEmail(email, {
-              thirdPartyAuthStatus: true,
-            });
-          if (!exists) {
-            // For now, just pass back emailStatusChecked. When we convert the Index page
-            // we'll want to read from router state.
-            navigate(`/signup?email=${email}&emailStatusChecked=true`);
-            // TODO: Probably move this to the Index page onsubmit once
-            // the index page is converted to React, we need to run it in
-            // signup and signin for Sync
-          } else {
-            setAccountStatus({
-              hasLinkedAccount,
-              hasPassword,
-            });
-            if (isSyncWebChannel) {
-              firefox.fxaCanLinkAccount({ email: queryParamModel.email });
+          try {
+            const { exists, hasLinkedAccount, hasPassword } =
+              await authClient.accountStatusByEmail(email, {
+                thirdPartyAuthStatus: true,
+              });
+            if (!exists) {
+              // For now, just pass back emailStatusChecked. When we convert the Index page
+              // we'll want to read from router state.
+              navigate(`/signup?email=${email}&emailStatusChecked=true`);
+              // TODO: Probably move this to the Index page onsubmit once
+              // the index page is converted to React, we need to run it in
+              // signup and signin for Sync
+            } else {
+              // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
+              setAccountStatus({
+                hasLinkedAccount,
+                hasPassword,
+              });
+              if (isSyncWebChannel) {
+                firefox.fxaCanLinkAccount({ email });
+              }
             }
+          } catch (error) {
+            hardNavigateToContentServer(`/?prefillEmail=${email}`);
           }
         } else if (isSyncWebChannel) {
           // TODO: Probably move this to the Index page onsubmit once
           // the index page is converted to React, we need to run it in
           // signup and signin for Sync
-          firefox.fxaCanLinkAccount({ email: queryParamModel.email });
+          firefox.fxaCanLinkAccount({ email });
         }
       }
     })();
@@ -185,41 +196,11 @@ const SigninContainer = ({
 
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
-      // TODO in oauth ticket
+      // TODO in FXA-6518 oauth ticket
       // const service = integration.getService();
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
       };
-
-      function handleGqlError(error: any) {
-        // Show invalid password error
-        const graphQLError: GraphQLError = error.graphQLErrors?.[0];
-        if (graphQLError && graphQLError.extensions?.errno) {
-          const { errno, verificationReason, verificationMethod } =
-            graphQLError.extensions as BeginSigninResultError & {
-              [key: string]: any;
-            };
-          return {
-            error: {
-              errno,
-              verificationReason,
-              verificationMethod,
-              message: AuthUiErrorNos[errno].message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        } else {
-          const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
-          return {
-            data: null,
-            error: {
-              errno,
-              message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        }
-      }
 
       const v1Credentials = await getCredentials(email, password);
       let v2Credentials = null;
@@ -252,7 +233,7 @@ const SigninContainer = ({
           } catch (error) {
             // If the user enters the wrong password, they will see an invalid password error.
             // Other wise something has going wrong and we should show an general error.
-            return handleGqlError(error);
+            return handleGQLError(error);
           }
 
           // Determine wrapKb.
@@ -266,7 +247,7 @@ const SigninContainer = ({
               });
               wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
             } catch (error) {
-              const uiError = handleGqlError(error);
+              const uiError = handleGQLError(error);
               if (uiError.error.errno === 104) {
                 // NOOP - If the account is simply 'unverified', then go through normal flow.
                 // The password upgrade can occur later.
@@ -308,7 +289,8 @@ const SigninContainer = ({
               });
             } catch (error) {
               v2Credentials = null;
-              return handleGqlError(error);
+              // TODO consider additional error handling - any non-gql errors will return an unexpected error
+              return handleGQLError(error);
             }
           }
         } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
@@ -334,7 +316,7 @@ const SigninContainer = ({
 
             return { data };
           } catch (error) {
-            return handleGqlError(error);
+            return handleGQLError(error);
           }
         } else {
           // Something went wrong, don't fail, so user can still log in, but DO report it to sentry;
@@ -344,7 +326,7 @@ const SigninContainer = ({
         }
       }
 
-      // TODO in oauth ticket
+      // TODO in FXA-6518 oauth ticket
       //   // keys must be true to receive keyFetchToken for oAuth and syncDesktop
       //   keys: isOAuth || isSyncDesktopV3,
       //   service: service !== MozServices.Default ? service : undefined,
@@ -362,35 +344,8 @@ const SigninContainer = ({
         });
         return { data };
       } catch (error) {
-        const graphQLError: GraphQLError = error.graphQLErrors?.[0];
-        if (graphQLError && graphQLError.extensions?.errno) {
-          const { errno, verificationReason, verificationMethod } =
-            graphQLError.extensions as BeginSigninResultError & {
-              [key: string]: any;
-            };
-          return {
-            data: null,
-            error: {
-              errno,
-              verificationReason,
-              verificationMethod,
-              message: AuthUiErrorNos[errno].message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        } else {
-          // TODO: why is `errno` in `AuthServerError` possibly undefined?
-          // might want to grab from `ERRORS.UNEXPECTED_ERROR` instead
-          const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
-          return {
-            data: null,
-            error: {
-              errno,
-              message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        }
+        // TODO consider additional error handling - any non-gql errors will return an unexpected error
+        return handleGQLError(error);
       }
     },
     [
@@ -454,25 +409,34 @@ const SigninContainer = ({
             emailVerified, // might not need
           },
         };
-      } catch (error: any) {
+      } catch (error) {
         // If 'invalid token' is received from profile server, it means
         // the session token has expired
-        let { errno } = error;
+        const { errno } = error as AuthUiError;
         if (errno === AuthUiErrors.INVALID_TOKEN.errno) {
-          errno = AuthUiErrors.SESSION_EXPIRED.errno;
           discardSessionToken();
+          return { error: AuthUiErrors.SESSION_EXPIRED };
         }
-        return {
-          data: null,
-          error: {
-            errno,
-            ftlId: composeAuthUiErrorTranslationId(errno),
-            message: AuthUiErrorNos[errno].message,
-          },
-        };
+        return { error };
       }
     },
     [authClient]
+  );
+
+  const sendUnblockEmailHandler = useCallback(
+    async (email: string) => {
+      try {
+        await authClient.sendUnblockCode(email);
+        return { success: true };
+      } catch (error) {
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
+        return { localizedErrorMessage };
+      }
+    },
+    [authClient, ftlMsgResolver]
   );
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
@@ -495,11 +459,13 @@ const SigninContainer = ({
         email,
         beginSigninHandler,
         cachedSigninHandler,
+        sendUnblockEmailHandler,
         sessionToken,
         hasLinkedAccount,
         hasPassword,
         avatarData,
         avatarLoading,
+        localizedErrorFromLocationState,
       }}
     />
   );

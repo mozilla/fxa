@@ -8,10 +8,8 @@ import { Meta } from '@storybook/react';
 import { LocationProvider } from '@reach/router';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import {
-  AuthUiError,
-  AuthUiErrors,
-} from '../../../lib/auth-errors/auth-errors';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../interfaces';
 
 export default {
   title: 'Pages/Signin/SigninTotpCode',
@@ -21,7 +19,7 @@ export default {
 
 const storyWithProps = (props: {
   handleNavigation: () => void;
-  submitTotpCode: () => Promise<{ status: boolean; error?: AuthUiError }>;
+  submitTotpCode: () => Promise<{ status: boolean; error?: BeginSigninError }>;
   serviceName: MozServices;
 }) => {
   const story = () => (
@@ -60,7 +58,7 @@ export const WithErrorState = storyWithProps({
   handleNavigation: () => {},
   submitTotpCode: async () => ({
     status: false,
-    error: AuthUiErrors.UNEXPECTED_ERROR,
+    error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError,
   }),
   serviceName: MozServices.MozillaVPN,
 });

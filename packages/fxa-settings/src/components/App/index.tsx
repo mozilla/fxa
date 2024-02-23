@@ -61,14 +61,15 @@ import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfi
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
-import SigninReported from '../../pages/Signin/SigninReported';
 import SigninContainer from '../../pages/Signin/container';
+import SigninReported from '../../pages/Signin/SigninReported';
+import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
+import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
+import SigninUnblockContainer from '../../pages/Signin/SigninUnblock/container';
 import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import SignupContainer from '../../pages/Signup/container';
 import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 import WebChannelExample from '../../pages/WebChannelExample';
-import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
-import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -319,6 +320,7 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_verified/*"
         {...{ isSignedIn, serviceName }}
       />
+      <SigninUnblockContainer path="/signin_unblock/*" {...{ integration }} />
 
       {/* Signup */}
       <CannotCreateAccount path="/cannot_create_account/*" />

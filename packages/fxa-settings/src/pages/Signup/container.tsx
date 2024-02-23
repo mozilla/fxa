@@ -27,12 +27,6 @@ import {
   getCredentialsV2,
   getKeysV2,
 } from 'fxa-auth-client/lib/crypto';
-import { GraphQLError } from 'graphql';
-import {
-  AuthUiErrorNos,
-  AuthUiErrors,
-  composeAuthUiErrorTranslationId,
-} from '../../lib/auth-errors/auth-errors';
 import { LoadingSpinner } from 'fxa-react/components/LoadingSpinner';
 import { MozServices } from '../../lib/types';
 import {
@@ -43,6 +37,7 @@ import {
 import { Constants } from '../../lib/constants';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import { KeyStretchExperiment } from '../../models/experiments/key-stretch-experiment';
+import { handleGQLError } from './utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -257,33 +252,10 @@ const SignupContainer = ({
                 : credentialsV1.unwrapBKey,
             },
           };
-        }
-
-        return { data: null };
+        } else return { data: undefined };
       } catch (error) {
-        const graphQLError: GraphQLError = error.graphQLErrors?.[0];
-        if (graphQLError && graphQLError.extensions?.errno) {
-          const { errno } = graphQLError.extensions as { errno: number };
-          return {
-            error: {
-              errno,
-              message: AuthUiErrorNos[errno].message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        } else {
-          // TODO: why is `errno` in `AuthServerError` possibly undefined?
-          // might want to grab from `ERRORS.UNEXPECTED_ERROR` instead
-          const { errno = 999, message } = AuthUiErrors.UNEXPECTED_ERROR;
-          return {
-            data: null,
-            error: {
-              errno,
-              message,
-              ftlId: composeAuthUiErrorTranslationId({ errno }),
-            },
-          };
-        }
+        // TODO consider additional error handling - any non-gql errors will return an unexpected error
+        return handleGQLError(error);
       }
     },
     [beginSignup, integration, isSyncDesktopV3, isOAuth, keyStretchExp]

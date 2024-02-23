@@ -49,7 +49,7 @@ import firefox from '../../lib/channels/firefox';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
 import { isEmailMask } from 'fxa-shared/email/helpers';
 
@@ -209,11 +209,11 @@ export const Signup = ({
 
       // Disable creating accounts with email masks
       if (isEmailMask(email)) {
-        const message = 'Email masks can’t be used to create an account.';
-        const ftlId = composeAuthUiErrorTranslationId({
-          errno: AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT.errno,
-        });
-        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          AuthUiErrors.EMAIL_MASK_NEW_ACCOUNT
+        );
+        setBannerErrorText(localizedErrorMessage);
         return;
       }
 
@@ -283,8 +283,11 @@ export const Signup = ({
         });
       }
       if (error) {
-        const { message, ftlId } = error;
-        setBannerErrorText(ftlMsgResolver.getMsg(ftlId, message));
+        const localizedErrorMessage = getLocalizedErrorMessage(
+          ftlMsgResolver,
+          error
+        );
+        setBannerErrorText(localizedErrorMessage);
         // if the request errored, loading state must be marked as false to reenable submission
         setBeginSignupLoading(false);
       }

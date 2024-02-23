@@ -17,5 +17,6 @@ export interface AccountTotp {
 export interface HandledError {
   errno: number;
   message: string;
-  ftlId: string;
+  retryAfter?: number;
+  retryAfterLocalized?: string;
 }

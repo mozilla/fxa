@@ -305,7 +305,7 @@ const ConfirmSignupCode = ({
         }}
       />
 
-      <div className="animate-delayed-fade-in opacity-0 mt-5 text-grey-500 text-xs inline-flex gap-1">
+      <div className="animate-delayed-fade-in opacity-0 text-grey-500 text-xs inline-flex gap-1">
         <>
           <FtlMsg id="confirm-signup-code-code-expired">
             <p>Code expired?</p>
