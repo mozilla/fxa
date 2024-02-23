@@ -64,30 +64,6 @@ export class SubscribePage extends BaseLayout {
     await pay.click();
   }
 
-  async setPayPalInfo() {
-    const paypalButton = this.page.locator(
-      '[data-testid="paypal-button-container"]'
-    );
-    await paypalButton.waitFor({ state: 'visible' });
-
-    const paypalWindowPromise = this.page.waitForEvent('popup');
-    await this.page.locator('[data-testid="paypal-button-container"]').click();
-    const paypalWindow = await paypalWindowPromise;
-
-    await paypalWindow.waitForLoadState('load');
-    await paypalWindow.waitForURL(/checkoutnow/);
-    await paypalWindow.fill(
-      'input[type=email]',
-      'qa-test-no-balance-16@personal.example.com'
-    );
-    await paypalWindow.click('button[id=btnNext]');
-    await paypalWindow.waitForLoadState('load');
-    await paypalWindow.fill('input[type=password]', 'Ah4SboP6UDZx95I');
-    await paypalWindow.click('button[id=btnLogin]');
-    await paypalWindow.waitForLoadState();
-    await paypalWindow.click('button[id=consentButton]');
-  }
-
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
     await input.waitFor({ state: 'visible' });

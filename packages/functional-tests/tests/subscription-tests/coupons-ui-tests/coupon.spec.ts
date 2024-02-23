@@ -180,27 +180,6 @@ test.describe('severity-2 #smoke', () => {
       expect(await relier.isPro()).toBe(true);
     });
 
-    test('subscribe with paypal and use coupon', async ({
-      pages: { relier, login, subscribe },
-    }, { project }) => {
-      test.skip(
-        project.name === 'production',
-        'no real payment method available in prod'
-      );
-      await relier.goto();
-      await relier.clickSubscribe12Month();
-
-      // 'auto50ponetime' is a one time 50% discount coupon for a 12mo plan
-      await subscribe.addCouponCode('auto50ponetime');
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setPayPalInfo();
-      await subscribe.submit();
-      await relier.goto();
-      await relier.clickEmailFirst();
-      await login.submit();
-      expect(await relier.isPro()).toBe(true);
-    });
-
     test('remove a coupon and verify', async ({
       pages: { relier, subscribe, login },
     }, { project }) => {

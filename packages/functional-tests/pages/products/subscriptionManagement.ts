@@ -38,19 +38,6 @@ export class SubscriptionManagementPage extends BaseLayout {
     await this.page.locator('[data-testid="submit"]').click();
   }
 
-  async clickPaypalChange() {
-    const changeButton = this.page.locator(
-      '[data-testid="change-payment-update-button"]'
-    );
-    await changeButton.waitFor({ state: 'visible' });
-    const [paypalWindow] = await Promise.all([
-      this.page.waitForEvent('popup'),
-      this.page.locator('[data-testid="change-payment-update-button"]').click(),
-    ]);
-    await paypalWindow.waitForLoadState('load');
-    return paypalWindow;
-  }
-
   async fillSupportForm() {
     await this.page.locator('[data-testid="contact-support-button"]').click();
     await this.page.locator('#product_chosen a.chosen-single').click();
