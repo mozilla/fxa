@@ -19,13 +19,16 @@ function randomIp() {
 }
 
 const config = require('../../lib/config').getProperties();
+config.userDefinedRateLimitRules.getCredentialsStatusRules.limits.max = 2;
+config.userDefinedRateLimitRules.getCredentialsStatusRules.limits.periodMs = 1000;
+config.userDefinedRateLimitRules.getCredentialsStatusRules.limits.rateLimitIntervalMs = 1000;
 config.userDefinedRateLimitRules.totpCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.totpCodeRules.limits.rateLimitIntervalMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.max = 2;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.periodMs = 1000;
 config.userDefinedRateLimitRules.tokenCodeRules.limits.rateLimitIntervalMs = 1000;
 
-const ACTIONS = ['verifyTotpCode', 'verifyTokenCode'];
+const ACTIONS = ['verifyTotpCode', 'verifyTokenCode', 'getCredentialsStatus'];
 
 const testServer = new TestServer(config);
 

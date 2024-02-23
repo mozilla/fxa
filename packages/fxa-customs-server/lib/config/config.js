@@ -373,6 +373,33 @@ module.exports = function (fs, path, url, convict) {
     },
     tracing: tracingConfig,
     userDefinedRateLimitRules: {
+      getCredentialsStatusRules: {
+        actions: {
+          doc: 'Array of actions that this rule should be applied to',
+          default: ['getCredentialsStatus'],
+          format: Array,
+        },
+        limits: {
+          max: {
+            doc: 'max actions during `period` that can occur before rate limit is applied',
+            format: 'nat',
+            default: 120,
+            env: 'GET_CREDENTIALS_STATUS_RULE_MAX',
+          },
+          periodMs: {
+            doc: 'period needed before rate limit is reset',
+            format: 'duration',
+            default: '60 seconds',
+            env: 'GET_CREDENTIALS_STATUS_RULE_PERIOD_MS',
+          },
+          rateLimitIntervalMs: {
+            doc: 'how long rate limit is applied',
+            format: 'duration',
+            default: '15 minutes',
+            env: 'GET_CREDENTIALS_STATUS_RULE_LIMIT_INTERVAL_MS',
+          },
+        },
+      },
       totpCodeRules: {
         actions: {
           doc: 'Array of actions that this rule should be applied to',
