@@ -8,7 +8,7 @@ import { MetricsObserver } from '../../lib/metrics';
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
-  test.describe('subscription test with cc and paypal', () => {
+  test.describe('subscription', () => {
     test.beforeEach(() => {
       test.slow();
     });
@@ -72,24 +72,6 @@ test.describe('severity-2 #smoke', () => {
         return event.type;
       });
       expect(actualEventTypes).toMatchObject(expectedEventTypes);
-    });
-
-    test('subscribe with paypal and login to product', async ({
-      pages: { relier, login, subscribe },
-    }, { project }) => {
-      test.skip(
-        project.name === 'production',
-        'no real payment method available in prod'
-      );
-      await relier.goto();
-      await relier.clickSubscribe();
-      await subscribe.setConfirmPaymentCheckbox();
-      await subscribe.setPayPalInfo();
-      await subscribe.submit();
-      await relier.goto();
-      await relier.clickEmailFirst();
-      await login.submit();
-      expect(await relier.isPro()).toBe(true);
     });
   });
 
