@@ -14,9 +14,6 @@ const nextConfig = {
   },
   experimental: {
     serverComponentsExternalPackages: [
-      '@fxa/shared/db/mysql/account',
-      '@fxa/shared/db/mysql/core',
-      '@fxa/payments/cart',
       '@nestjs/core',
       '@nestjs/common',
       'class-transformer',
