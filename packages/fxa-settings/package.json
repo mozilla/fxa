@@ -236,7 +236,7 @@
     "grunt-contrib-watch": "^1.1.0",
     "jest-watch-typeahead": "0.6.5",
     "mutationobserver-shim": "^0.3.7",
-    "nx": "18.0.3",
+    "nx": "9999.0.1",
     "persistgraphql": "^0.3.11",
     "pm2": "^5.3.0",
     "postcss-assets": "^6.0.0",

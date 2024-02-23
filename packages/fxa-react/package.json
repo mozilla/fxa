@@ -86,7 +86,7 @@
     "identity-obj-proxy": "^3.0.0",
     "jest": "27.5.1",
     "jest-environment-jsdom": "^27.5.1",
-    "nx": "18.0.3",
+    "nx": "9999.0.1",
     "pm2": "^5.3.0",
     "postcss-import": "^16.0.0",
     "prettier": "^2.3.1",
