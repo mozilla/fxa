@@ -15,6 +15,7 @@ import {
   useFtlMsgResolver,
   isSyncDesktopV3Integration,
   isSyncOAuthIntegration,
+  useConfig,
 } from '../../../models';
 import WarningMessage from '../../../components/WarningMessage';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
@@ -71,6 +72,7 @@ const CompleteResetPassword = ({
   const navigate = useNavigate();
   const navigateWithoutRerender = useNavigateWithoutRerender();
   const keyStretchExperiment = useValidatedQueryParams(KeyStretchExperiment);
+  const config = useConfig();
   const account = useAccount();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state: CompleteResetPasswordLocationState;
@@ -217,7 +219,7 @@ const CompleteResetPassword = ({
         GleanMetrics.resetPassword.createNewSubmit();
 
         const accountResetData = await account.completeResetPassword(
-          keyStretchExperiment.queryParamModel.isV2(),
+          keyStretchExperiment.queryParamModel.isV2(config),
           token,
           code,
           emailToUse,
@@ -268,6 +270,7 @@ const CompleteResetPassword = ({
       ftlMsgResolver,
       setLinkStatus,
       keyStretchExperiment,
+      config,
     ]
   );
 

@@ -82,6 +82,12 @@ export interface Config {
     signUpRoutes: boolean;
     signInRoutes: boolean;
   };
+  rolloutRates?: {
+    keyStretchV2?: number;
+  };
+  featureFlags?: {
+    keyStretchV2?: boolean;
+  };
 }
 
 export function getDefault() {

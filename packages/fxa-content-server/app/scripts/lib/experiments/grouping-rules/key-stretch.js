@@ -6,19 +6,20 @@
 
 const BaseGroupingRule = require('./base');
 
-const GROUPS = [
-  'control',
-  'v2',
-];
+const GROUPS = ['control', 'v2'];
 
-const ROLLOUT_RATE = 0.0;
+const DEFAULT_ROLLOUT_RATE = 0.0;
 
 module.exports = class KeyStretchGroupingRule extends BaseGroupingRule {
   constructor() {
     super();
-    this.name = 'key-stretch';
+    this.name = 'keyStretchV2';
     this.groups = GROUPS;
-    this.rolloutRate = ROLLOUT_RATE;
+    this.rolloutRate = DEFAULT_ROLLOUT_RATE;
+  }
+
+  setRolloutRate(rate) {
+    this.rolloutRate = rate;
   }
 
   /**

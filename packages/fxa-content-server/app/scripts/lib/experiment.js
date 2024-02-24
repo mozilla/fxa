@@ -15,6 +15,7 @@ const UA_OVERRIDE = 'FxATester';
  */
 const STARTUP_EXPERIMENTS = {
   generalizedReactApp: BaseExperiment,
+  keyStretchV2: BaseExperiment,
 };
 
 /**

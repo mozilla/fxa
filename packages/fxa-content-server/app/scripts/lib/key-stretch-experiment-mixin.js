@@ -8,9 +8,7 @@
    dependsOn: [ExperimentMixin],
 
    isInKeyStretchExperiment() {
-     const experimentGroup = this.getAndReportExperimentGroup(
-       'key-stretch'
-     );
+     const experimentGroup = this.getAndReportExperimentGroup('keyStretchV2');
      return experimentGroup === 'v2';
    },
  };
