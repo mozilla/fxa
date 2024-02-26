@@ -203,7 +203,7 @@ test.describe('severity-1 #smoke', () => {
       });
       await resendButton.waitFor();
       await resendButton.click();
-      await page.getByText(/Email resent/).waitFor();
+      await page.getByText(/Email re-sent/).waitFor();
     });
 
     test('open /reset_password page, enter unknown email, wait for error', async ({

@@ -116,7 +116,7 @@ describe('SigninTokenCode page', () => {
     it('on success, renders banner', async () => {
       session = mockSession();
       await renderAndResend();
-      screen.getByText('Email resent.', { exact: false });
+      screen.getByText('Email re-sent.', { exact: false });
     });
     it('on throttled error, renders banner with throttled message', async () => {
       session = {

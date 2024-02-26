@@ -60,6 +60,7 @@ const Banner = ({
         additionalClassNames
       )}
       onAnimationEnd={animation?.handleAnimationEnd}
+      role="status"
     >
       {dismissible ? (
         <>
@@ -93,7 +94,7 @@ export const ResendEmailSuccessBanner = ({
         id="link-expired-resent-link-success-message"
         vars={{ accountsEmail: FIREFOX_NOREPLY_EMAIL }}
       >
-        {`Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
+        {`Email re-sent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a
     smooth delivery.`}
       </FtlMsg>
     </Banner>

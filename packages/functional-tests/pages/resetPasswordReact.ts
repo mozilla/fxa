@@ -92,7 +92,7 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   async resendSuccessMessageVisible(page: BaseLayout['page'] = this.page) {
-    await page.getByText(/Email resent/).waitFor();
+    await page.getByText(/Email re-sent/).waitFor();
   }
 
   async unknownAccountError(page: BaseLayout['page'] = this.page) {

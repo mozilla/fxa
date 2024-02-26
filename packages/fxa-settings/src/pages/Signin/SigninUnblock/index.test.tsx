@@ -236,7 +236,7 @@ describe('SigninUnblock', () => {
       resendButton.click();
       expect(resendUnblockCodeHandler).toHaveBeenCalled();
       await waitFor(() => {
-        expect(screen.getByText(/Email resent/)).toBeInTheDocument();
+        expect(screen.getByText(/Email re-sent/)).toBeInTheDocument();
       });
     });
 
