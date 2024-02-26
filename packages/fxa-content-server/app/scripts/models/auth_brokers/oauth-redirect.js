@@ -166,6 +166,10 @@ export default BaseAuthenticationBroker.extend({
     });
   },
 
+  onFxaStatus(response) {
+    return proto.onFxaStatus.call(this, response);
+  },
+
   getOAuthResult(account) {
     if (!account || !account.get('sessionToken')) {
       return Promise.reject(AuthErrors.toError('INVALID_TOKEN'));
