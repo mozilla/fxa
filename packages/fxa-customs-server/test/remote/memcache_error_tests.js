@@ -11,6 +11,7 @@ var TEST_IP = '192.0.2.1';
 
 const config = require('../../lib/config').getProperties();
 config.memcache.address = '128.0.0.1:12131';
+config.redis.customs.port = '6380';
 
 var testServer = new TestServer(config);
 
@@ -31,18 +32,22 @@ var client = restifyClients.createJsonClient({
   url: 'http://localhost:' + config.listen.port,
 });
 
-test('request with disconnected memcache', function (t) {
-  client.post(
-    '/check',
-    { email: TEST_EMAIL, ip: TEST_IP, action: 'someRandomAction' },
-    function (err, req, res, obj) {
-      t.equal(res.statusCode, 200, 'check worked');
-      t.equal(obj.block, true, 'request was blocked');
-      t.equal(obj.retryAfter, 900, 'retry after');
-      t.end();
-    }
-  );
-});
+test(
+  'request with disconnected memcache',
+  { skip: config.redis.customs.enabled },
+  function (t) {
+    client.post(
+      '/check',
+      { email: TEST_EMAIL, ip: TEST_IP, action: 'someRandomAction' },
+      function (err, req, res, obj) {
+        t.equal(res.statusCode, 200, 'check worked');
+        t.equal(obj.block, true, 'request was blocked');
+        t.equal(obj.retryAfter, 900, 'retry after');
+        t.end();
+      }
+    );
+  }
+);
 
 test('teardown', async function (t) {
   await testServer.stop();

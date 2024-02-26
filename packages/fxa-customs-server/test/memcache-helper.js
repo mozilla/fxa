@@ -5,12 +5,20 @@
 'use strict';
 
 var P = require('bluebird');
-var Memcached = require('memcached');
-P.promisifyAll(Memcached.prototype);
+const Cache = require('../lib/cache');
 
 var config = {
   memcache: {
     address: process.env.MEMCACHE_ADDRESS || 'localhost:11211',
+  },
+  redis: {
+    customs: {
+      enabled: process.env.CUSTOMS_REDIS_ENABLED === 'true',
+      host: 'localhost',
+      password: '',
+      port: 6379,
+      prefix: 'customs:',
+    },
   },
   limits: {
     blockIntervalSeconds: 1,
@@ -43,14 +51,7 @@ var config = {
   },
 };
 
-var mc = new Memcached(config.memcache.address, {
-  timeout: 500,
-  retries: 1,
-  retry: 1000,
-  reconnect: 1000,
-  idle: 30000,
-  namespace: 'fxa~',
-});
+var mc = new Cache(config);
 
 module.exports.mc = mc;
 
@@ -85,22 +86,35 @@ var IpRecord = require('../lib/ip_record')(limits);
 
 module.exports.limits = limits;
 
-function blockedEmailCheck(cb) {
-  setTimeout(
-    // give memcache time to flush the writes
-    function () {
-      mc.get(TEST_EMAIL, function (err, data) {
-        var er = EmailRecord.parse(data);
-        mc.end();
-        cb(er.shouldBlock());
-      });
-    }
-  );
+async function blockedEmailCheck(email, cb) {
+  if (config.redis.customs.enabled) {
+    return P.resolve(true).then(async () => {
+      const result = await mc.getAsync(email);
+      var er = EmailRecord.parse(result);
+      cb(er.shouldBlock());
+    });
+  }
+  // give memcache time to flush the writes
+  setTimeout(function () {
+    mc.client.get(email, function (err, data) {
+      var er = EmailRecord.parse(data);
+      mc.client.end();
+      cb(er.shouldBlock());
+    });
+  });
 }
 
 module.exports.blockedEmailCheck = blockedEmailCheck;
 
 function blockedIpCheck(cb) {
+  if (config.redis.customs.enabled) {
+    return Promise.resolve(true).then(async () => {
+      const result = await mc.getAsync(TEST_IP);
+      var er = IpRecord.parse(result);
+      cb(er.shouldBlock());
+    });
+  }
+
   setTimeout(
     // give memcache time to flush the writes
     function () {
@@ -124,7 +138,7 @@ function badLoginCheck() {
     var ipEmailRecord = IpEmailRecord.parse(d1);
     var ipRecord = IpRecord.parse(d2);
     var emailRecord = EmailRecord.parse(d3);
-    mc.end();
+    mc.client.end();
     return {
       ipEmailRecord: ipEmailRecord,
       ipRecord: ipRecord,
@@ -136,7 +150,17 @@ function badLoginCheck() {
 module.exports.badLoginCheck = badLoginCheck;
 
 function clearEverything(cb) {
-  mc.itemsAsync()
+  if (config.redis.customs.enabled) {
+    return mc.client.redis.flushall(function (err) {
+      if (err) {
+        return cb(err);
+      }
+      cb();
+    });
+  }
+
+  mc.client
+    .itemsAsync()
     .then(function (result) {
       var firstServer = result[0];
 
@@ -148,7 +172,7 @@ function clearEverything(cb) {
       // get a cachedump for each slabid and slab.number
       var cachedumps = keys
         .map(function (stats) {
-          return mc.cachedumpAsync(
+          return mc.client.cachedumpAsync(
             firstServer.server,
             stats,
             firstServer[stats].number
@@ -167,7 +191,7 @@ function clearEverything(cb) {
               dump
                 .filter((item) => /^fxa~/.test(item.key))
                 .map(function (item) {
-                  return mc.delAsync(item.key.replace(/^fxa~/, ''));
+                  return mc.client.delAsync(item.key.replace(/^fxa~/, ''));
                 })
             );
           });
@@ -176,7 +200,7 @@ function clearEverything(cb) {
       return P.all(cachedumps);
     })
     .then(function () {
-      mc.end();
+      mc.client.end();
       cb();
     })
     .catch(cb);
@@ -191,7 +215,7 @@ function setLimits(settings) {
     limits[k] = settings[k];
   }
   return limits.push().then(function (s) {
-    mc.end();
+    mc.client.end();
     return s;
   });
 }
@@ -201,7 +225,7 @@ module.exports.setLimits = setLimits;
 function setAllowedIPs(ips) {
   allowedIPs.setAll(ips);
   return allowedIPs.push().then(function (ips) {
-    mc.end();
+    mc.client.end();
     return ips;
   });
 }
@@ -211,7 +235,7 @@ module.exports.setAllowedIPs = setAllowedIPs;
 function setAllowedEmailDomains(domains) {
   allowedEmailDomains.setAll(domains);
   return allowedEmailDomains.push().then(function (domains) {
-    mc.end();
+    mc.client.end();
     return domains;
   });
 }
@@ -221,7 +245,7 @@ module.exports.setAllowedEmailDomains = setAllowedEmailDomains;
 function setAllowedPhoneNumbers(phoneNumbers) {
   allowedPhoneNumbers.setAll(phoneNumbers);
   return allowedPhoneNumbers.push().then((phoneNumbers) => {
-    mc.end();
+    mc.client.end();
     return phoneNumbers;
   });
 }
@@ -237,9 +261,13 @@ function setRequestChecks(settings) {
     requestChecks[k] = settings[k];
   }
   return requestChecks.push().then(function (s) {
-    mc.end();
+    mc.client.end();
     return s;
   });
 }
 
 module.exports.setAllowedEmailDomains = setAllowedEmailDomains;
+
+if (config.redis.customs.enabled) {
+  mc.client.end = function () {};
+}

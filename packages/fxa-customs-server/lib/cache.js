@@ -24,6 +24,9 @@ class Cache {
 
   async setAsync(key, value, lifetime) {
     if (this.useRedis) {
+      if (lifetime === 0) {
+        return this.client.redis.set(key, JSON.stringify(value));
+      }
       // Set the value in redis. We use 'EX' to set the expiration time in seconds.
       return this.client.redis.set(key, JSON.stringify(value), 'EX', lifetime);
     }
@@ -33,7 +36,11 @@ class Cache {
   async getAsync(key) {
     if (this.useRedis) {
       const value = await this.client.redis.get(key);
-      return JSON.parse(value);
+      try {
+        return JSON.parse(value);
+      } catch (err) {
+        return {};
+      }
     } else {
       return this.client.getAsync(key);
     }
