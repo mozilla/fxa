@@ -163,7 +163,8 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
 
     if (!cwtsStatus) {
       // applications may choose to skip the CWTS screen
-      return this.set('chooseWhatToSyncWebV1Engines', null);
+      this.set('chooseWhatToSyncWebV1Engines', null);
+      return proto.onFxaStatus.call(this, response);
     }
 
     const supportedEngines =
@@ -174,7 +175,8 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
         engines: supportedEngines,
         window: this.window,
       });
-      return this.set('chooseWhatToSyncWebV1Engines', syncEngines);
+      this.set('chooseWhatToSyncWebV1Engines', syncEngines);
+      return proto.onFxaStatus.call(this, response);
     }
     return proto.onFxaStatus.call(this, response);
   },
