@@ -5,7 +5,7 @@
 import type { OperationVariables } from '@apollo/client';
 import { GraphQLClient } from 'graphql-request';
 import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { determineLocale } from '@fxa/shared/l10n';
 import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClientConfig } from './contentful.client.config';
@@ -17,10 +17,13 @@ import {
 import { ContentfulErrorResponse } from './types';
 import EventEmitter from 'events';
 import {
-  FirestoreCacheable,
+  FirestoreAdapter,
   NetworkFirstStrategy,
 } from '@fxa/shared/db/type-cacheable';
 import { CONTENTFUL_QUERY_CACHE_KEY, cacheKeyForQuery } from './util';
+import { Cacheable } from '@type-cacheable/core';
+import { FirestoreService } from '@fxa/shared/db/firestore';
+import { Firestore } from '@google-cloud/firestore';
 
 const DEFAULT_FIRESTORE_CACHE_TTL = 604800; // Seconds. 604800 is 7 days.
 const DEFAULT_MEM_CACHE_TTL = 300; // Seconds
@@ -49,7 +52,10 @@ export class ContentfulClient {
   ) => EventEmitter;
   private graphqlMemCache: Record<string, unknown> = {};
 
-  constructor(private contentfulClientConfig: ContentfulClientConfig) {
+  constructor(
+    private contentfulClientConfig: ContentfulClientConfig,
+    @Inject(FirestoreService) private firestore: Firestore
+  ) {
     this.setupCacheBust();
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);
@@ -64,20 +70,19 @@ export class ContentfulClient {
     return result;
   }
 
-  @FirestoreCacheable(
-    {
-      cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
-      strategy: new NetworkFirstStrategy(),
-      ttlSeconds: (_, context) =>
-        context.contentfulClientConfig.firestoreCacheTTL ||
-        DEFAULT_FIRESTORE_CACHE_TTL,
-    },
-    {
-      collectionName: (_, context) =>
+  @Cacheable({
+    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+    strategy: new NetworkFirstStrategy(),
+    ttlSeconds: (_, context: ContentfulClient) =>
+      context.contentfulClientConfig.firestoreCacheTTL ||
+      DEFAULT_FIRESTORE_CACHE_TTL,
+    client: (_, context: ContentfulClient) =>
+      new FirestoreAdapter(
+        context.firestore,
         context.contentfulClientConfig.firestoreCacheCollectionName ||
-        CONTENTFUL_QUERY_CACHE_KEY,
-    }
-  )
+          CONTENTFUL_QUERY_CACHE_KEY
+      ),
+  })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables

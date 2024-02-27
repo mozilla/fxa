@@ -13,6 +13,7 @@ import {
   ContentfulError,
 } from './contentful.error';
 import { ContentfulCDNErrorFactory } from './factories';
+import { Firestore } from '@google-cloud/firestore';
 
 jest.mock('graphql-request', () => ({
   GraphQLClient: function () {
@@ -22,12 +23,15 @@ jest.mock('graphql-request', () => ({
   },
 }));
 
-jest.mock('@fxa/shared/db/type-cacheable', () => ({
-  FirestoreCacheable: () => {
+jest.mock('@type-cacheable/core', () => ({
+  Cacheable: () => {
     return (target: any, propertyKey: any, descriptor: any) => {
       return descriptor;
     };
   },
+}));
+
+jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
 }));
 
@@ -36,14 +40,17 @@ describe('ContentfulClient', () => {
   const onCallback = jest.fn();
 
   beforeEach(() => {
-    contentfulClient = new ContentfulClient({
-      cdnApiUri: faker.string.uuid(),
-      graphqlApiKey: faker.string.uuid(),
-      graphqlApiUri: faker.string.uuid(),
-      graphqlSpaceId: faker.string.uuid(),
-      graphqlEnvironment: faker.string.uuid(),
-      firestoreCacheCollectionName: faker.string.uuid(),
-    });
+    contentfulClient = new ContentfulClient(
+      {
+        cdnApiUri: faker.string.uuid(),
+        graphqlApiKey: faker.string.uuid(),
+        graphqlApiUri: faker.string.uuid(),
+        graphqlSpaceId: faker.string.uuid(),
+        graphqlEnvironment: faker.string.uuid(),
+        firestoreCacheCollectionName: faker.string.uuid(),
+      },
+      {} as unknown as Firestore
+    );
     contentfulClient.on('response', onCallback);
   });
 

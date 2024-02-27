@@ -250,8 +250,6 @@
   },
   "homepage": "https://github.com/mozilla/fxa/tree/main/packages/fxa-shared#readme",
   "devDependencies": {
-    "@type-cacheable/core": "^13.0.0",
-    "@type-cacheable/ioredis-adapter": "^10.0.4",
     "@types/accept-language-parser": "^1.5.3",
     "@types/chai": "^4.2.18",
     "@types/chance": "^1.1.2",
