@@ -39,7 +39,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       await login.fillOutSignUpCode(email);
 
@@ -58,7 +58,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       await client.accountDestroy(bouncedEmail, password);
 
       //Verify error message
@@ -71,7 +71,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
       await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page

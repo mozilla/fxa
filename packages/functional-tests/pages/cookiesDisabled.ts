@@ -7,10 +7,10 @@ import { BaseLayout } from './layout';
 export class CookiesDisabledPage extends BaseLayout {
   readonly path = 'cookies_disabled';
 
-  async waitForCookiesDisabledHeader() {
-    await this.page.waitForSelector('.card-header', {
-      timeout: 3000,
-    });
+  async cookiesDisabledHeader() {
+    const header = this.page.locator('.card-header');
+    await header.waitFor();
+    return header;
   }
 
   async clickRetry() {
@@ -18,8 +18,6 @@ export class CookiesDisabledPage extends BaseLayout {
   }
 
   async isCookiesDiabledError() {
-    return this.page
-      .getByText('Local storage or cookies are still disabled')
-      .isVisible();
+    return this.page.getByText('Local storage or cookies are still disabled');
   }
 }

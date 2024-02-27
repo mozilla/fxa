@@ -53,7 +53,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
       //Unblock the email
@@ -74,7 +74,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(blockedEmail);
       await login.enterUnblockCode('incorrect');
 
@@ -101,7 +101,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(blockedEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(blockedEmail);
 
       //Click resend link
@@ -144,7 +144,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(newEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(newEmail);
 
       //Unblock the email
@@ -161,14 +161,14 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
 
       //Verify sign in block header
-      await login.waitForSigninUnblockHeader();
+      expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(unverifiedEmail);
 
       //Unblock the email
       await login.unblock(unverifiedEmail);
 
       //Verify confirm code header
-      await login.waitForSignUpCodeHeader();
+      expect(login.signUpCodeHeader()).toBeVisible();
 
       await login.fillOutSignInCode(unverifiedEmail);
 
