@@ -939,18 +939,17 @@ export class CapabilityService {
         return contentfulCapabilities;
       }
 
-      if (this.logToSentry('planIdsToClientCapabilities.NoMatch')) {
-        Sentry.withScope((scope) => {
-          scope.setContext('planIdsToClientCapabilities', {
-            contentful: contentfulCapabilities,
-            stripe: stripeCapabilities,
-          });
-          Sentry.captureMessage(
-            `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
-            'error' as SeverityLevel
-          );
+      Sentry.withScope((scope) => {
+        scope.setContext('planIdsToClientCapabilities', {
+          subscribedPrices,
+          contentful: contentfulCapabilities,
+          stripe: stripeCapabilities,
         });
-      }
+        Sentry.captureMessage(
+          `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
+          'error' as SeverityLevel
+        );
+      });
     } catch (error) {
       this.log.error('subscriptions.planIdsToClientCapabilities', {
         error: error,
