@@ -21,12 +21,15 @@ import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StatsD } from 'hot-shots';
 
-jest.mock('@fxa/shared/db/type-cacheable', () => ({
-  FirestoreCacheable: () => {
+jest.mock('@type-cacheable/core', () => ({
+  Cacheable: () => {
     return (target: any, propertyKey: any, descriptor: any) => {
       return descriptor;
     };
   },
+}));
+
+jest.mock('@fxa/shared/db/type-cacheable', () => ({
   NetworkFirstStrategy: function () {},
 }));
 
@@ -36,7 +39,7 @@ describe('ContentfulManager', () => {
   let mockStatsd: StatsD;
 
   beforeEach(async () => {
-    mockClient = new ContentfulClient({} as any);
+    mockClient = new ContentfulClient({} as any, {} as any);
     mockStatsd = {
       timing: jest.fn().mockReturnValue({}),
     } as unknown as StatsD;

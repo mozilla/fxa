@@ -76,6 +76,8 @@
     "@sentry/node": "^7.100.1",
     "@sentry/opentelemetry-node": "^7.100.1",
     "@swc/helpers": "~0.5.0",
+    "@type-cacheable/core": "^14.0.1",
+    "@type-cacheable/ioredis-adapter": "^10.0.4",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "diffparser": "^2.0.1",

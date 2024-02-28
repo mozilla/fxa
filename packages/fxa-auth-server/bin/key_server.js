@@ -123,15 +123,19 @@ async function run(config) {
       config.contentful.environment &&
       config.contentful.firestoreCacheCollectionName
     ) {
-      const contentfulClient = new ContentfulClient({
-        cdnApiUri: config.contentful.cdnUrl,
-        graphqlApiUri: config.contentful.graphqlUrl,
-        graphqlApiKey: config.contentful.apiKey,
-        graphqlSpaceId: config.contentful.spaceId,
-        graphqlEnvironment: config.contentful.environment,
-        firestoreCacheCollectionName:
-          config.contentful.firestoreCacheCollectionName,
-      });
+      const firestore = Container.get(AuthFirestore);
+      const contentfulClient = new ContentfulClient(
+        {
+          cdnApiUri: config.contentful.cdnUrl,
+          graphqlApiUri: config.contentful.graphqlUrl,
+          graphqlApiKey: config.contentful.apiKey,
+          graphqlSpaceId: config.contentful.spaceId,
+          graphqlEnvironment: config.contentful.environment,
+          firestoreCacheCollectionName:
+            config.contentful.firestoreCacheCollectionName,
+        },
+        firestore
+      );
       const contentfulManager = new ContentfulManager(contentfulClient, statsd);
       Container.set(ContentfulManager, contentfulManager);
       const capabilityManager = new CapabilityManager(contentfulManager);

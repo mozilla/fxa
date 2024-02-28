@@ -72,8 +72,6 @@
     "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^11.0.2",
     "@mozilla/glean": "^4.0.0",
-    "@type-cacheable/core": "^13.0.0",
-    "@type-cacheable/ioredis-adapter": "^10.0.4",
     "@types/convict": "5.2.2",
     "@types/ejs": "^3.0.6",
     "@types/mjml": "^4.7.0",
