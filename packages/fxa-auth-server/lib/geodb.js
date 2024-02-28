@@ -71,7 +71,17 @@ module.exports = (log) => {
       };
     } catch (err) {
       log.trace('geodb.1', { err: err.message });
-      return {};
+      return {
+        location: {
+          city: null,
+          country: null,
+          countryCode: null,
+          state: null,
+          stateCode: null,
+          postalCode: null,
+        },
+        timeZone: null,
+      };
     }
   };
 };
