@@ -1145,10 +1145,12 @@ describe('CapabilityService', () => {
         await assertExpectedCapabilities(clientId, expected[clientId]);
       }
 
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.callCount(sentryScope.setContext, 5);
+      sinon.assert.calledWithExactly(
         sentryScope.setContext,
         'planIdsToClientCapabilities',
         {
+          subscribedPrices: ['plan_123456', 'plan_876543', 'plan_PLAY'],
           contentful: {
             c1: ['capAlpha'],
             c4: ['capBeta', 'capDelta', 'capEpsilon'],
@@ -1164,7 +1166,8 @@ describe('CapabilityService', () => {
         }
       );
 
-      sinon.assert.calledOnceWithExactly(
+      sinon.assert.callCount(Sentry.captureMessage, 5);
+      sinon.assert.calledWithExactly(
         Sentry.captureMessage,
         `CapabilityService.planIdsToClientCapabilities - Returned Stripe as plan ids to client capabilities did not match.`,
         'error'
