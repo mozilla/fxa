@@ -7,6 +7,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 import { usePageViewEvent } from '../../../lib/metrics';
+import GleanMetrics from '../../../lib/glean';
 import SigninTotpCode, { viewName } from '.';
 import { MozServices } from '../../../lib/types';
 import { REACT_ENTRYPOINT } from '../../../constants';
@@ -20,6 +21,17 @@ jest.mock('../../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
 }));
 
+jest.mock('../../../lib/glean', () => ({
+  __esModule: true,
+  default: {
+    totpForm: {
+      view: jest.fn(),
+      submit: jest.fn(),
+      success: jest.fn(),
+    },
+  },
+}));
+
 describe('Sign in with TOTP code page', () => {
   // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
   // TODO: in FXA-6461
@@ -27,6 +39,12 @@ describe('Sign in with TOTP code page', () => {
   // beforeAll(async () => {
   //   bundle = await getFtlBundle('settings');
   // });
+
+  beforeEach(() => {
+    (GleanMetrics.totpForm.view as jest.Mock).mockClear();
+    (GleanMetrics.totpForm.submit as jest.Mock).mockClear();
+    (GleanMetrics.totpForm.success as jest.Mock).mockClear();
+  });
 
   it('renders as expected', () => {
     renderWithLocalizationProvider(
@@ -80,6 +98,9 @@ describe('Sign in with TOTP code page', () => {
       />
     );
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
+    expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
+    expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(0);
+    expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
   });
 
   describe('submit totp code', () => {
@@ -116,6 +137,9 @@ describe('Sign in with TOTP code page', () => {
 
       expect(submitTotpCode).toBeCalledWith('123456');
       expect(handleNavigation).toBeCalledTimes(1);
+      expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
     });
 
     it('shows error on invalid code', async () => {
@@ -125,6 +149,9 @@ describe('Sign in with TOTP code page', () => {
       expect(submitTotpCode).toBeCalledWith('123456');
       expect(handleNavigation).toBeCalledTimes(0);
       screen.getByText('Invalid two-step authentication code');
+      expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
     });
 
     it('shows general error on unexpected error', async () => {
@@ -137,6 +164,9 @@ describe('Sign in with TOTP code page', () => {
       expect(submitTotpCode).toBeCalledWith('123456');
       expect(handleNavigation).toBeCalledTimes(0);
       screen.getByText('Unexpected error');
+      expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
+      expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
     });
   });
 });

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
@@ -64,12 +64,16 @@ export const SigninTotpCode = ({
     submitButtonText: 'Confirm',
   };
 
+  useEffect(() => {
+    GleanMetrics.totpForm.view();
+  }, []);
+
   const onSubmit = async (code: string) => {
     setGeneralError('');
     setCodeErrorMessage('');
 
     const { status, error } = await submitTotpCode(code);
-    GleanMetrics.loginConfirmation.submit();
+    GleanMetrics.totpForm.submit();
     logViewEvent('flow', `${viewName}.submit`);
     setSuccess(status);
 
@@ -86,6 +90,7 @@ export const SigninTotpCode = ({
       );
       setCodeErrorMessage(localizedErrorMessage);
     } else {
+      GleanMetrics.totpForm.success();
       handleNavigation();
     }
   };
