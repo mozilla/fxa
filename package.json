@@ -73,7 +73,7 @@
     "@opentelemetry/sdk-trace-web": "^1.21.0",
     "@sentry/browser": "^7.100.1",
     "@sentry/integrations": "^7.100.1",
-    "@sentry/node": "^7.100.1",
+    "@sentry/node": "^7.103.0",
     "@sentry/opentelemetry-node": "^7.100.1",
     "@swc/helpers": "~0.5.0",
     "@type-cacheable/core": "^14.0.1",
