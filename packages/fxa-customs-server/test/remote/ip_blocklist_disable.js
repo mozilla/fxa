@@ -6,19 +6,16 @@ var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
 var TestServer = require('../test_server');
 var mcHelper = require('../memcache-helper');
+const { randomEmail } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
+var TEST_EMAIL = randomEmail();
 var ACTION = 'dummyAction';
 var BLOCK_IP = '1.93.0.224';
 const ENDPOINTS = ['/check', '/checkIpOnly'];
 
 process.env.IP_BLOCKLIST_ENABLE = false;
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
 
 test('startup', async function (t) {

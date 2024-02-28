@@ -65,7 +65,7 @@ test('maximum number of emails', function (t) {
       t.equal(obj.block, false, 'resending the code');
 
       return new Promise(function (resolve, reject) {
-        mcHelper.blockedEmailCheck(function (isBlocked) {
+        mcHelper.blockedEmailCheck(TEST_EMAIL, function (isBlocked) {
           t.equal(isBlocked, false, 'account is still not blocked');
           resolve();
         });

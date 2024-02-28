@@ -29,7 +29,7 @@ config.reputationService = {
   suspectBelow: 60,
   hawkId: 'root',
   hawkKey: 'toor',
-  baseUrl: 'http://localhost:9009',
+  baseUrl: 'http://127.0.0.1:9009',
   timeout: 25,
 };
 

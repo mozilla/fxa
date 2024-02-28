@@ -6,9 +6,10 @@ var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var mcHelper = require('../memcache-helper');
+const { randomEmail, randomIp } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
-var TEST_IP = '192.0.2.1';
+var TEST_EMAIL = randomEmail();
+var TEST_IP = randomIp();
 
 const config = require('../../lib/config').getProperties();
 config.limits.rateLimitIntervalSeconds = 1;
@@ -76,7 +77,7 @@ test('too many sent emails', function (t) {
       t.equal(obj.block, true, 'operation blocked');
 
       return new Promise(function (resolve, reject) {
-        mcHelper.blockedEmailCheck(function (isBlocked) {
+        mcHelper.blockedEmailCheck(TEST_EMAIL, function (isBlocked) {
           t.equal(isBlocked, true, 'account is blocked');
           resolve();
         });
@@ -90,7 +91,7 @@ test('too many sent emails', function (t) {
 
 test('failed logins expire', function (t) {
   setTimeout(function () {
-    mcHelper.blockedEmailCheck(function (isBlocked) {
+    mcHelper.blockedEmailCheck(TEST_EMAIL, function (isBlocked) {
       t.equal(isBlocked, false, 'account no longer blocked');
       t.end();
     });

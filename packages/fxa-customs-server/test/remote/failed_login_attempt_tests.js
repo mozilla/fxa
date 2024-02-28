@@ -5,15 +5,12 @@ var test = require('tap').test;
 var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
 var mcHelper = require('../memcache-helper');
+const { randomEmail, randomIp } = require('../utils');
 
-var TEST_EMAIL = 'test@example.com';
-var TEST_IP = '192.0.2.1';
+var TEST_EMAIL = randomEmail();
+var TEST_IP = randomIp();
 
-var config = {
-  listen: {
-    port: 7000,
-  },
-};
+const config = require('../../lib/config').getProperties();
 var testServer = new TestServer(config);
 
 test('startup', async function (t) {
@@ -47,17 +44,16 @@ test('well-formed request', function (t) {
 });
 
 test('missing ip', function (t) {
-  client.post('/failedLoginAttempt', { email: TEST_EMAIL }, function (
-    err,
-    req,
-    res,
-    obj
-  ) {
-    t.equal(res.statusCode, 400, 'bad request returns a 400');
-    t.type(obj.code, 'string', 'bad request returns an error code');
-    t.type(obj.message, 'string', 'bad request returns an error message');
-    t.end();
-  });
+  client.post(
+    '/failedLoginAttempt',
+    { email: TEST_EMAIL },
+    function (err, req, res, obj) {
+      t.equal(res.statusCode, 400, 'bad request returns a 400');
+      t.type(obj.code, 'string', 'bad request returns an error code');
+      t.type(obj.message, 'string', 'bad request returns an error message');
+      t.end();
+    }
+  );
 });
 
 test('missing email and ip', function (t) {

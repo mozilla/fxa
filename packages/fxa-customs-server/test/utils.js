@@ -6,8 +6,16 @@
 const crypto = require('crypto');
 
 module.exports = {
+  randomPhoneNumber: function () {
+    return `1${Math.floor(Math.random() * 10000000000)}`;
+  },
+
   randomEmail: function () {
     return Math.floor(Math.random() * 10000) + '@email.com';
+  },
+
+  randomEmailDomain: function () {
+    return `@${Math.floor(Math.random() * 10000) + 'email.com'}`;
   },
 
   randomIp: function () {

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 const { tracingConfig } = require('fxa-shared/tracing/config');
+const { makeRedisConfig } = require('fxa-shared/db/config');
 
 module.exports = function (fs, path, url, convict) {
   var conf = convict({
@@ -186,6 +187,7 @@ module.exports = function (fs, path, url, convict) {
         env: 'RECORD_LIFETIME_SECONDS',
       },
     },
+    redis: makeRedisConfig(),
     allowedIPs: {
       doc: 'An array of IPs that will not be blocked or rate-limited.',
       format: Array,

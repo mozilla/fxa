@@ -275,5 +275,37 @@ export function makeRedisConfig() {
         doc: 'Minimum connection count for the subhub responses Redis pool',
       },
     },
+
+    customs: {
+      enabled: {
+        default: false,
+        doc: 'Enable Redis for customs server rate limiting',
+        format: Boolean,
+        env: 'CUSTOMS_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'CUSTOMS_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'CUSTOMS_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
+      prefix: {
+        default: 'customs:',
+        env: 'CUSTOMS_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for custom server records in Redis',
+      },
+    },
   };
 }
