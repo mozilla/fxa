@@ -89,8 +89,8 @@ const SigninUnblock = ({
     }
     if (!isValidCodeFormat(unblockCode)) {
       return ftlMsgResolver.getMsg(
-        'signin-unblock-code-incorrect-format',
-        'Authorization can only contain letters and/or numbers'
+        'signin-unblock-code-incorrect-format-2',
+        'Authorization code can only contain letters and/or numbers'
       );
     }
     return;
