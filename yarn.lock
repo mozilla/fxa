@@ -20486,19 +20486,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/dom@npm:^9.2.0":
-  version: 9.2.0
-  resolution: "@testing-library/dom@npm:9.2.0"
+"@testing-library/dom@npm:^9.3.4":
+  version: 9.3.4
+  resolution: "@testing-library/dom@npm:9.3.4"
   dependencies:
     "@babel/code-frame": ^7.10.4
     "@babel/runtime": ^7.12.5
     "@types/aria-query": ^5.0.1
-    aria-query: ^5.0.0
+    aria-query: 5.1.3
     chalk: ^4.1.0
     dom-accessibility-api: ^0.5.9
     lz-string: ^1.5.0
     pretty-format: ^27.0.2
-  checksum: b145f43cd06ff083012cf2503aff6ccba97ff80715fcb106fe64af690f5536557bf24d37b97e8d685bbe3803d7f71d685ce71426cb1b9e250c3611e4372dcfa9
+  checksum: dfd6fb0d6c7b4dd716ba3c47309bc9541b4a55772cb61758b4f396b3785efe2dbc75dc63423545c039078c7ffcc5e4b8c67c2db1b6af4799580466036f70026f
   languageName: node
   linkType: hard
 
@@ -37931,7 +37931,7 @@ fsevents@~2.1.1:
     "@storybook/addons": ^7.5.2
     "@storybook/react": ^7.1.1
     "@storybook/react-webpack5": ^7.0.23
-    "@testing-library/dom": ^9.2.0
+    "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/user-event": ^14.5.1
     "@types/babel__preset-env": ^7
@@ -38006,7 +38006,7 @@ fsevents@~2.1.1:
     "@storybook/react-webpack5": ^7.0.23
     "@storybook/testing-library": ^0.2.0
     "@svgr/webpack": ^5.5.0
-    "@testing-library/dom": ^9.2.0
+    "@testing-library/dom": ^9.3.4
     "@testing-library/jest-dom": ^6.1.3
     "@testing-library/react-hooks": ^8.0.0
     "@testing-library/user-event": ^14.5.1
