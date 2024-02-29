@@ -9,6 +9,6 @@ signin-unblock-submit-button = Continue
 # Shown when the user attempts to submit the form without including a code
 signin-unblock-code-required-error = Authorization code required
 signin-unblock-code-incorrect-length = Authorization code must contain 8 characters
-signin-unblock-code-incorrect-format = Authorization can only contain letters and/or numbers
+signin-unblock-code-incorrect-format-2 = Authorization code can only contain letters and/or numbers
 signin-unblock-resend-code-button = Not in inbox or spam folder? Resend
 signin-unblock-support-link = Why is this happening?

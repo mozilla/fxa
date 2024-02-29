@@ -151,7 +151,7 @@ describe('SigninUnblock', () => {
       submitButton.click();
       await waitFor(() => {
         expect(screen.getByTestId('tooltip')).toHaveTextContent(
-          'Authorization can only contain letters and/or numbers'
+          'Authorization code can only contain letters and/or numbers'
         );
       });
       expect(GleanMetrics.login.submit).not.toHaveBeenCalled();
