@@ -1,6 +1,6 @@
-## Firefox Accounts
+## Mozilla Accounts
 
-The Firefox Accounts (fxa) monorepo
+The Mozilla Accounts (formerly Firefox Accounts, still abbreviated as fxa) monorepo
 
 ### Table of Contents
 
@@ -24,4 +24,4 @@ See the separate [CONTRIBUTING.md](https://github.com/mozilla/fxa/blob/main/CONT
 
 ### Documentation
 
-The [Firefox Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/) serves as a documentation hub for Firefox Accounts and Subscription Platform.
+The [Firefox Ecosystem Platform](https://mozilla.github.io/ecosystem-platform/) serves as a documentation hub for Mozilla Accounts and Subscription Platform.
