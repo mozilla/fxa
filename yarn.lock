@@ -32805,6 +32805,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dotenv@npm:^16.4.5":
+  version: 16.4.5
+  resolution: "dotenv@npm:16.4.5"
+  checksum: 301a12c3d44fd49888b74eb9ccf9f07a1f5df43f489e7fcb89647a2edcd84c42d6bc349dc8df099cd18f07c35c7b04685c1a4f3e6a6a9e6b30f8d48c15b7f49c
+  languageName: node
+  linkType: hard
+
 "dset@npm:^3.1.2":
   version: 3.1.2
   resolution: "dset@npm:3.1.2"
@@ -38033,7 +38040,7 @@ fsevents@~2.1.1:
     classnames: ^2.5.1
     css-loader: ^6.8.1
     css-minimizer-webpack-plugin: ^5.0.1
-    dotenv: ^10.0.0
+    dotenv: ^16.4.5
     dotenv-expand: ^10.0.0
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
