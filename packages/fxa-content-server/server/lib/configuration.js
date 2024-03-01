@@ -220,6 +220,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS',
     },
+    keyStretchV2: {
+      default: true,
+      doc: 'Enables V2 key stretching',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_KEY_STRETCH_V2',
+    },
   },
   showReactApp: {
     simpleRoutes: {
@@ -788,6 +794,14 @@ const conf = (module.exports = convict({
     doc: 'Tells webpack how to optimize build. See https://webpack.js.org/configuration/mode/',
     env: 'WEBPACK_MODE_OVERRIDE',
     format: String,
+  },
+  rolloutRates: {
+    keyStretchV2: {
+      default: 0,
+      doc: 'The rollout rate for key stretching changes. Valid values are from 0 to 1.0',
+      env: 'ROLLOUT_KEY_STRETCH_V2',
+      format: Number,
+    },
   },
   statsd: {
     enabled: {

@@ -139,7 +139,7 @@ function determineKeyStretchVersion() {
   if (params.get('stretch') === '2') {
     return 2;
   }
-  if (ExperimentMixin.isInExperimentGroup('key-stretch', 'v2')) {
+  if (ExperimentMixin.isInExperimentGroup('keyStretchV2', 'v2')) {
     return 2;
   }
 

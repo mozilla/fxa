@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
  import { assert } from 'chai';
- import Experiment from 'lib/experiments/grouping-rules/key-stretch-v2';
+ import Experiment from 'lib/experiments/grouping-rules/key-stretch';
 
- describe('lib/experiments/grouping-rules/key-stretch-v2', () => {
+ describe('lib/experiments/grouping-rules/key-stretch', () => {
    let experiment;
 
    beforeEach(() => {
@@ -36,13 +36,13 @@
      });
 
      it('returns true if rollout 100%', () => {
-      experiment.rolloutRate = 1.0;
-      assert.isTrue(
-        experiment.choose({
-          experimentGroupingRules: { choose: () => experiment.name },
-          uniqueUserId: 'user-id',
-        })
-      );
-    });
+       experiment.rolloutRate = 1.0;
+       assert.isTrue(
+         experiment.choose({
+           experimentGroupingRules: { choose: () => experiment.name },
+           uniqueUserId: 'user-id',
+         })
+       );
+     });
    });
  });

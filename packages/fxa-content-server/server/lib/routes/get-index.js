@@ -59,6 +59,9 @@ module.exports = function (config) {
   const GLEAN_LOG_PINGS = config.get('glean.logPings');
   const GLEAN_DEBUG_VIEW_TAG = config.get('glean.debugViewTag');
 
+  // Rather than relay all rollout rates, hand pick the ones that are applicable
+  const ROLLOUT_RATES = config.get('rolloutRates');
+
   // Note that this list is only enforced for clients that use login_hint/email
   // with prompt=none. id_token_hint clients are not subject to this check.
   const PROMPT_NONE_ENABLED_CLIENT_IDS = new Set(
@@ -89,6 +92,7 @@ module.exports = function (config) {
     profileUrl: PROFILE_SERVER_URL,
     release: RELEASE,
     redirectAllowlist: REDIRECT_CHECK_ALLOW_LIST,
+    rolloutRates: ROLLOUT_RATES,
     scopedKeysEnabled: SCOPED_KEYS_ENABLED,
     scopedKeysValidation: SCOPED_KEYS_VALIDATION,
     sentry: {

@@ -25,6 +25,18 @@ class ExperimentChoiceIndex {
     this._experimentGroupingRules =
       options.experimentGroupingRules || experimentGroupingRules;
     this._featureFlags = options.featureFlags;
+
+    // Apply configured rollout rates
+    if (options.rolloutRates) {
+      for (const rule of this._experimentGroupingRules) {
+        if (typeof rule.setRolloutRate === 'function') {
+          const rate = options.rolloutRates[rule.name];
+          if (typeof rate === 'number') {
+            rule.setRolloutRate(rate);
+          }
+        }
+      }
+    }
   }
 
   /**

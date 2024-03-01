@@ -38,7 +38,7 @@ export function initializeAppContext() {
     new UrlQueryData(new ReachRouterWindow())
   );
   const authClient = new AuthClient(config.servers.auth.url, {
-    keyStretchVersion: keyStretchExperiment.isV2() ? 2 : 1
+    keyStretchVersion: keyStretchExperiment.isV2(config) ? 2 : 1,
   });
   const apolloClient = createApolloClient(config.servers.gql.url);
   const account = new Account(authClient, apolloClient);

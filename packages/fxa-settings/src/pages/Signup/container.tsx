@@ -205,7 +205,7 @@ const SignupContainer = ({
         // If enabled, add in V2 key stretching support
         let credentialsV2 = undefined;
         let passwordV2 = undefined;
-        if (keyStretchExp.queryParamModel.isV2()) {
+        if (keyStretchExp.queryParamModel.isV2(config)) {
           credentialsV2 = await getCredentialsV2({
             password,
             clientSalt: await createSaltV2(),
@@ -258,7 +258,7 @@ const SignupContainer = ({
         return handleGQLError(error);
       }
     },
-    [beginSignup, integration, isSyncDesktopV3, isOAuth, keyStretchExp]
+    [beginSignup, integration, isSyncDesktopV3, isOAuth, keyStretchExp, config]
   );
 
   // TODO: probably a better way to read this?
