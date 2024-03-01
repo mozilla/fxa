@@ -6,6 +6,10 @@ import Glean from '@mozilla/glean/web';
 
 import { accountsEvents } from './pings';
 import * as event from './event';
+import * as email from './email';
+import * as reg from './reg';
+import * as login from './login';
+import * as cachedLogin from './cachedLogin';
 import { userIdSha256 } from './account';
 import { oauthClientId, service } from './relyingParty';
 import { deviceType, entrypoint, flowId } from './session';
@@ -105,6 +109,68 @@ const populateMetrics = async (properties: EventProperties = {}) => {
   utm.term.set(flowEventMetadata.utmTerm || '');
 };
 
+const recordEventMetric = (eventName: string) => {
+  switch (eventName) {
+    case 'email_first_view':
+      email.firstView.record();
+      break;
+    case 'reg_view':
+      reg.view.record();
+      break;
+    case 'reg_engage':
+      reg.engage.record();
+      break;
+    case 'reg_submit':
+      reg.submit.record();
+      break;
+    case 'reg_submit_success':
+      reg.submitSuccess.record();
+      break;
+    case 'reg_signup_code_view':
+      reg.signupCodeView.record();
+      break;
+    case 'reg_signup_code_submit':
+      reg.signupCodeSubmit.record();
+      break;
+    case 'login_view':
+      login.view.record();
+      break;
+    case 'login_submit':
+      login.submit.record();
+      break;
+    case 'login_submit_success':
+      login.submitSuccess.record();
+      break;
+    case 'login_submit_frontend_error':
+      login.submitFrontendError.record();
+      break;
+    case 'cached_login_view':
+      cachedLogin.view.record();
+      break;
+    case 'cached_login_submit':
+      cachedLogin.submit.record();
+      break;
+    case 'cached_login_success_view':
+      cachedLogin.successView.record();
+      break;
+    case 'login_email_confirmation_view':
+      login.emailConfirmationView.record();
+      break;
+    case 'login_email_confirmation_submit':
+      login.emailConfirmationSubmit.record();
+      break;
+    case 'login_totp_form_view':
+      login.totpFormView.record();
+      break;
+    case 'login_totp_code_submit':
+      login.totpCodeSubmit.record();
+      break;
+    case 'login_totp_code_success_view':
+      login.totpCodeSuccessView.record();
+      break;
+  }
+};
+
 const createEventFn =
   (eventName) =>
   async (properties: EventProperties = {}) => {
@@ -115,6 +181,10 @@ const createEventFn =
     const fn = async () => {
       event.name.set(eventName);
       await populateMetrics(properties);
+
+      // recording the event metric triggers the event ping because Glean is initialized with `maxEvents: 1`
+      recordEventMetric(eventName);
+
       accountsEvents.submit();
     };
 

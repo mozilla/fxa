@@ -19,8 +19,8 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const campaign = new StringMetricType({
   category: 'utm',
   name: 'campaign',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -39,8 +39,8 @@ export const campaign = new StringMetricType({
 export const content = new StringMetricType({
   category: 'utm',
   name: 'content',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -56,8 +56,8 @@ export const content = new StringMetricType({
 export const medium = new StringMetricType({
   category: 'utm',
   name: 'medium',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -73,8 +73,8 @@ export const medium = new StringMetricType({
 export const source = new StringMetricType({
   category: 'utm',
   name: 'source',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -91,7 +91,7 @@ export const source = new StringMetricType({
 export const term = new StringMetricType({
   category: 'utm',
   name: 'term',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
