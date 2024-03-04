@@ -536,32 +536,48 @@ describe('#integration - StripeHelper', () => {
       customerExpanded = deepCopy(customer1);
     });
 
-    it('returns payment_provider is "paypal"', async () => {
-      customerExpanded.invoice_settings.default_payment_method = null;
-      customerExpanded.metadata.paypalAgreementId = 'ppba12345';
+    describe('returns correct value based on collection_method', () => {
+      describe('when collection_method is "send_invoice"', () => {
+        it('payment_provider is "paypal"', async () => {
+          subscription2.collection_method = 'send_invoice';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'paypal'
+          );
+        });
+      });
 
-      assert.strictEqual(
-        stripeHelper.getPaymentProvider(customerExpanded),
-        'paypal'
-      );
-    });
+      describe('when the customer has a canceled subscription', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data[0] = cancelledSubscription;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
+          );
+        });
+      });
 
-    it('returns payment_provider is "stripe"', async () => {
-      customerExpanded.invoice_settings.default_payment_method = 'pm_12345';
+      describe('when the customer has no subscriptions', () => {
+        it('payment_provider is "not_chosen"', async () => {
+          customerExpanded.subscriptions.data = [];
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'not_chosen'
+          );
+        });
+      });
 
-      assert.strictEqual(
-        stripeHelper.getPaymentProvider(customerExpanded),
-        'stripe'
-      );
-    });
-
-    it('returns payment_provider is "not_chosen"', async () => {
-      customerExpanded.invoice_settings.default_payment_method = null;
-
-      assert.strictEqual(
-        stripeHelper.getPaymentProvider(customerExpanded),
-        'not_chosen'
-      );
+      describe('when collection_method is "instant"', () => {
+        it('payment_provider is "stripe"', async () => {
+          subscription2.collection_method = 'instant';
+          customerExpanded.subscriptions.data[0] = subscription2;
+          assert.strictEqual(
+            stripeHelper.getPaymentProvider(customerExpanded),
+            'stripe'
+          );
+        });
+      });
     });
   });
 
@@ -5176,9 +5192,6 @@ describe('#integration - StripeHelper', () => {
         email,
         metadata: {
           userid: uid,
-        },
-        invoice_settings: {
-          default_payment_method: 'pm_12345',
         },
         subscriptions: {
           data: [
