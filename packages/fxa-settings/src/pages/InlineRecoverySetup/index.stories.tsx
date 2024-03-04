@@ -4,7 +4,6 @@
 
 import React from 'react';
 import InlineRecoverySetup, { InlineRecoverySetupProps } from '.';
-import AppLayout from '../../components/AppLayout';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
@@ -16,49 +15,30 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const cancelSetupHandler = () => {};
+const verifyTotpHandler = async () => true;
+const successfulSetupHandler = () => {};
+const props = {
+  recoveryCodes: MOCK_RECOVERY_CODES,
+  serviceName: MOCK_SERVICE_NAME,
+  cancelSetupHandler,
+  verifyTotpHandler,
+  successfulSetupHandler,
+};
+
 const ComponentWithRouter = (props: InlineRecoverySetupProps) => (
   <LocationProvider>
-    <AppLayout>
-      <InlineRecoverySetup {...props} />
-    </AppLayout>
+    <InlineRecoverySetup {...props} />
   </LocationProvider>
 );
 
 export const Default = () => (
   <ComponentWithRouter
     recoveryCodes={MOCK_RECOVERY_CODES}
-    showConfirmation={false}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyTotpHandler={verifyTotpHandler}
+    successfulSetupHandler={successfulSetupHandler}
   />
 );
 
-export const ServiceNameDontShowConfirmation = () => (
-  <ComponentWithRouter
-    recoveryCodes={MOCK_RECOVERY_CODES}
-    showConfirmation={false}
-    serviceName={MOCK_SERVICE_NAME}
-  />
-);
-
-export const isIOS = () => (
-  <ComponentWithRouter
-    recoveryCodes={MOCK_RECOVERY_CODES}
-    showConfirmation={false}
-    serviceName={MOCK_SERVICE_NAME}
-    isIOS={true}
-  />
-);
-
-export const ShowConfirmation = () => (
-  <ComponentWithRouter
-    recoveryCodes={MOCK_RECOVERY_CODES}
-    showConfirmation={true}
-  />
-);
-
-export const ShowConfirmationWithServiceName = () => (
-  <ComponentWithRouter
-    recoveryCodes={MOCK_RECOVERY_CODES}
-    showConfirmation={true}
-    serviceName={MOCK_SERVICE_NAME}
-  />
-);
+export const WithServiceName = () => <ComponentWithRouter {...props} />;

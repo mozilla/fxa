@@ -9,7 +9,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';
 
-describe('AccountResolver', () => {
+describe('SessionResolver', () => {
   let resolver: SessionResolver;
   let logger: any;
   let authClient: any;

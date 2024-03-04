@@ -2,38 +2,38 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { usePageViewEvent } from '../../lib/metrics';
-import { isOAuthIntegration, useFtlMsgResolver } from '../../models';
-import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import {
-  RouteComponentProps,
   Link,
+  RouteComponentProps,
   useLocation,
   useNavigate,
 } from '@reach/router';
-import InputPassword from '../../components/InputPassword';
-import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
-import { REACT_ENTRYPOINT } from '../../constants';
-import CardHeader from '../../components/CardHeader';
-import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import GleanMetrics from '../../lib/glean';
-import AppLayout from '../../components/AppLayout';
-import { SigninFormData, SigninProps } from './interfaces';
-import Avatar from '../../components/Settings/Avatar';
-import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import classNames from 'classnames';
-import {
-  isClientMonitor,
-  isClientPocket,
-} from '../../models/integrations/client-matching';
-import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
+import CardHeader from '../../components/CardHeader';
+import InputPassword from '../../components/InputPassword';
+import Avatar from '../../components/Settings/Avatar';
+import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
+import ThirdPartyAuth from '../../components/ThirdPartyAuth';
+import { REACT_ENTRYPOINT } from '../../constants';
 import {
   AuthUiErrors,
   getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
+import GleanMetrics from '../../lib/glean';
+import { usePageViewEvent } from '../../lib/metrics';
+import { StoredAccountData, storeAccountData } from '../../lib/storage-utils';
+import { isOAuthIntegration, useFtlMsgResolver } from '../../models';
+import {
+  isClientMonitor,
+  isClientPocket,
+} from '../../models/integrations/client-matching';
+import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
 
 export const viewName = 'signin';
@@ -142,6 +142,13 @@ const Signin = ({
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
           isPasswordNeededRef.current = true;
         }
+        if (
+          error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
+          error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
+        ) {
+          navigate('/inline_totp_setup');
+          return;
+        }
         setLocalizedBannerMessage(localizedErrorMessage);
         setSigninLoading(false);
       }
@@ -237,8 +244,6 @@ const Signin = ({
               break;
             case AuthUiErrors.TOTP_REQUIRED.errno:
             case AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno:
-              // TODO in FXA-9235 OAuth error handling ticket
-              // case OAuthError.MISMATCH_ACR_VALUES.errno:
               navigate('/inline_totp_setup');
               break;
             default:

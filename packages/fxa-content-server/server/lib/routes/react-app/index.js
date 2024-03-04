@@ -124,6 +124,15 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
       routes: reactRoute.getRoutes(['web_channel_example']),
       fullProdRollout: false,
     },
+
+    inlineTotpRoutes: {
+      featureFlagOn: showReactApp.inlineTotpRoutes,
+      routes: reactRoute.getRoutes([
+        'inline_totp_setup',
+        'inline_recovery_setup',
+      ]),
+      fullProdRollout: false,
+    },
   };
 };
 
