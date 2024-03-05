@@ -49,6 +49,10 @@ const { CurrencyHelper } = require('../../../../lib/payments/currencies');
 const { asyncIterable } = require('../../../mocks');
 const { RefusedError } = require('../../../../lib/payments/paypal/error');
 const { RefundType } = require('@fxa/payments/paypal');
+const {
+  FirestoreStripeErrorBuilder,
+  FirestoreStripeError,
+} = require('fxa-shared/payments/stripe-firestore');
 
 let config, log, db, customs, push, mailer, profile, mockCapabilityService;
 
@@ -289,6 +293,91 @@ describe('StripeWebhookHandler', () => {
             )
           )
         );
+      });
+
+      describe('FirestoreStripeErrorBuilder errors', () => {
+        beforeEach(() => {
+          const fixture = deepCopy(eventCustomerSourceExpiring);
+          StripeWebhookHandlerInstance.stripeHelper.constructWebhookEvent.returns(
+            fixture
+          );
+        });
+
+        it('should throw with FirestoreStripeErrorBuilder if no customerId is provided', async () => {
+          const expectedError = new FirestoreStripeErrorBuilder(
+            'testError',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
+          );
+          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+          try {
+            await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+            assert.fail('handleWebhookEvent should throw an error');
+          } catch (error) {
+            assert.deepEqual(error, expectedError);
+          }
+        });
+
+        it('should throw with error from checkIfAccountExists if it rejects', async () => {
+          const handlerError = new FirestoreStripeErrorBuilder(
+            'testError',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND,
+            'cus_123'
+          );
+          const expectedError = new Error('UnknownError');
+          handlerStubs.handleCustomerSourceExpiringEvent.throws(handlerError);
+          sandbox
+            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .rejects(expectedError);
+
+          try {
+            await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+            assert.fail('handleWebhookEvent should throw an error');
+          } catch (error) {
+            assert.deepEqual(error, expectedError);
+          }
+        });
+
+        it('should throw error if accountExists true', async () => {
+          const expectedError = new FirestoreStripeErrorBuilder(
+            'testError',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND,
+            'cus_123'
+          );
+          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+          sandbox
+            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .resolves(true);
+          try {
+            await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+            assert.fail('handleWebhookEvent should throw an error');
+          } catch (error) {
+            assert.deepEqual(error, expectedError);
+          }
+        });
+
+        it('should ignore error if accountExists false', async () => {
+          let errorThrown = null;
+          const expectedError = new FirestoreStripeErrorBuilder(
+            'testError',
+            FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND,
+            'cus_123'
+          );
+          handlerStubs.handleCustomerSourceExpiringEvent.throws(expectedError);
+          sandbox
+            .stub(StripeWebhookHandlerInstance, 'checkIfAccountExists')
+            .resolves(false);
+          try {
+            await StripeWebhookHandlerInstance.handleWebhookEvent(request);
+          } catch (error) {
+            errorThrown = error;
+          }
+          assert.calledWith(
+            StripeWebhookHandlerInstance.log.error,
+            'subscriptions.handleWebhookEvent.failure',
+            { error: expectedError }
+          );
+          assert.isNull(errorThrown);
+        });
       });
 
       describe('when the event.type is coupon.created', () => {

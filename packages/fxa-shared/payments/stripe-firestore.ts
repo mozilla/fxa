@@ -14,13 +14,17 @@ export enum FirestoreStripeError {
   STRIPE_CUSTOMER_DELETED = 'StripeCustomerDeleted',
 }
 
-export function newFirestoreStripeError(
-  message: string,
-  code: FirestoreStripeError
-): Error {
-  const error = new Error(message);
-  error.name = code;
-  return error;
+export class FirestoreStripeErrorBuilder extends Error {
+  public customerId?: string;
+  constructor(
+    message: string,
+    code: FirestoreStripeError,
+    customerId?: string
+  ) {
+    super(message);
+    this.name = code;
+    this.customerId = customerId;
+  }
 }
 
 /**
@@ -124,9 +128,10 @@ export class StripeFirestore {
       if (ignoreErrors) {
         return customer;
       }
-      throw newFirestoreStripeError(
+      throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} was deleted`,
-        FirestoreStripeError.STRIPE_CUSTOMER_DELETED
+        FirestoreStripeError.STRIPE_CUSTOMER_DELETED,
+        customerId
       );
     }
 
@@ -135,9 +140,10 @@ export class StripeFirestore {
       if (ignoreErrors) {
         return customer;
       }
-      throw newFirestoreStripeError(
+      throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} has no uid`,
-        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID
+        FirestoreStripeError.STRIPE_CUSTOMER_MISSING_UID,
+        customerId
       );
     }
 
@@ -174,16 +180,18 @@ export class StripeFirestore {
     invoice: Partial<Stripe.Invoice>,
     ignoreErrors: boolean = false
   ) {
+    const customerId = invoice.customer as string;
     const customerSnap = await this.customerCollectionDbRef
-      .where('id', '==', invoice.customer as string)
+      .where('id', '==', customerId)
       .get();
     if (customerSnap.empty) {
       if (ignoreErrors) {
         return invoice;
       }
-      throw newFirestoreStripeError(
+      throw new FirestoreStripeErrorBuilder(
         `Customer ${invoice.customer} was not found`,
-        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        customerId
       );
     }
 
@@ -209,16 +217,18 @@ export class StripeFirestore {
     paymentMethod: Partial<Stripe.PaymentMethod>,
     ignoreErrors: boolean = false
   ) {
+    const customerId = paymentMethod.customer as string;
     const customerSnap = await this.customerCollectionDbRef
-      .where('id', '==', paymentMethod.customer as string)
+      .where('id', '==', customerId)
       .get();
     if (customerSnap.empty) {
       if (ignoreErrors) {
         return paymentMethod;
       }
-      throw newFirestoreStripeError(
+      throw new FirestoreStripeErrorBuilder(
         `Customer ${paymentMethod.customer} was not found`,
-        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        customerId
       );
     }
 
@@ -251,9 +261,10 @@ export class StripeFirestore {
         return customerSnap.docs[0].data() as Stripe.Customer;
       }
     }
-    throw newFirestoreStripeError(
+    throw new FirestoreStripeErrorBuilder(
       `Customer ${options.customerId || options.uid} was not found`,
-      FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+      FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+      options.customerId
     );
   }
 
@@ -272,9 +283,10 @@ export class StripeFirestore {
       .where('id', '==', customerId)
       .get();
     if (customerSnap.empty) {
-      throw newFirestoreStripeError(
+      throw new FirestoreStripeErrorBuilder(
         `Customer ${customerId} was not found`,
-        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND
+        FirestoreStripeError.FIRESTORE_CUSTOMER_NOT_FOUND,
+        customerId
       );
     }
 
@@ -297,7 +309,7 @@ export class StripeFirestore {
     if (!subscriptionSnap.empty) {
       return subscriptionSnap.docs[0].data() as Stripe.Subscription;
     }
-    throw newFirestoreStripeError(
+    throw new FirestoreStripeErrorBuilder(
       `Subscription ${subscriptionId} was not found`,
       FirestoreStripeError.FIRESTORE_SUBSCRIPTION_NOT_FOUND
     );
@@ -314,7 +326,7 @@ export class StripeFirestore {
     if (!invoiceSnap.empty) {
       return invoiceSnap.docs[0].data() as Stripe.Invoice;
     }
-    throw newFirestoreStripeError(
+    throw new FirestoreStripeErrorBuilder(
       `Invoice ${invoiceId} was not found`,
       FirestoreStripeError.FIRESTORE_INVOICE_NOT_FOUND
     );
@@ -331,7 +343,7 @@ export class StripeFirestore {
     if (!paymentMethodSnap.empty) {
       return paymentMethodSnap.docs[0].data() as Stripe.PaymentMethod;
     }
-    throw newFirestoreStripeError(
+    throw new FirestoreStripeErrorBuilder(
       `Payment method ${paymentMethodId} was not found`,
       FirestoreStripeError.FIRESTORE_PAYMENT_METHOD_NOT_FOUND
     );
