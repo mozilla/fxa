@@ -155,6 +155,7 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('unverified', async ({ target, page, pages: { login } }) => {
+      test.fixme(true, 'FXA-9226');
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });

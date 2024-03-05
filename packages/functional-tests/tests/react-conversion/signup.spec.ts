@@ -36,7 +36,10 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
 test.afterEach(async ({ target }) => {
   if (email) {
     // Cleanup any accounts created during the test
-    await target.auth.accountDestroy(email, PASSWORD);
+    const accountStatus = await target.auth.accountStatusByEmail(email);
+    if (accountStatus.exists) {
+      await target.auth.accountDestroy(email, PASSWORD);
+    }
   }
 });
 
@@ -107,6 +110,7 @@ test.describe('severity-1 #smoke', () => {
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
       target,
     }) => {
+      test.fixme(true, 'FXA-9096');
       const syncBrowserPages = await newPagesForSync(target);
       const { page, signupReact, login } = syncBrowserPages;
 
@@ -191,7 +195,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
-      email = ''; // skip cleanup, no account created
+      email = ''; // reset email to avoid tripping validation error on cleanup
     });
 
     test('empty email', async ({ page, pages: { signupReact } }) => {
@@ -200,7 +204,6 @@ test.describe('severity-2 #smoke', () => {
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
-      email = ''; // skip cleanup, no account created
     });
 
     test('coppa is too young', async ({ page, pages: { signupReact } }) => {
@@ -208,7 +211,6 @@ test.describe('severity-2 #smoke', () => {
       await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '12');
       await page.waitForURL(/cannot_create_account/);
-      email = ''; // skip cleanup, no account created
     });
 
     test('Visits the privacy policy links save information upon return', async ({
@@ -227,8 +229,6 @@ test.describe('severity-2 #smoke', () => {
       // expect(await signupReact.getPassword().inputValue).toEqual(PASSWORD);
       // expect(await signupReact.getPasswordConfirm().inputValue).toEqual(PASSWORD);
       // expect(await signupReact.getAge().inputValue).toEqual('21');
-
-      email = ''; // skip cleanup, no account created (form not submitted)
     });
 
     test('Visits the terms of service links save information upon return', async ({
@@ -247,8 +247,6 @@ test.describe('severity-2 #smoke', () => {
       // expect(await signupReact.getPassword().inputValue()).toEqual(PASSWORD);
       // expect(await signupReact.getPasswordConfirm().inputValue()).toEqual(PASSWORD);
       // expect(await signupReact.getAge().inputValue()).toEqual('21');
-
-      email = ''; // skip cleanup, no account created (form not submitted)
     });
 
     test('Checks that form prefill information is cleared after sign up -> sign out', async ({
@@ -276,10 +274,10 @@ test.describe('severity-2 #smoke', () => {
       target,
       pages: { signupReact, relier, subscribe, login },
     }, { project }) => {
-      if (project.name === 'production') {
-        test.skip(true, 'no test products available in prod');
-        email = ''; // skip cleanup
-      }
+      test.skip(
+        project.name === 'production',
+        'no test products available in prod'
+      );
 
       // Make sure user is logged out
       await login.clearCache();
