@@ -116,7 +116,7 @@ executors:
     resource_class: << parameters.resource_class >>
     docker:
       - image: mozilla/fxa-circleci:ci-test-runner-nx
-      - image: cimg/mysql:8.0.28
+      - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
       - image: memcached
@@ -140,7 +140,7 @@ executors:
       - image: redis
       - image: memcached
       - image: pafortin/goaws
-      - image: cimg/mysql:8.0.28
+      - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
     environment:
