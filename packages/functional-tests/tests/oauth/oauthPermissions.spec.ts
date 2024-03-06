@@ -23,7 +23,13 @@ test.describe('severity-1 #smoke', () => {
     test.afterEach(async ({ target }) => {
       if (email) {
         // Cleanup any accounts created during the test
-        await target.auth.accountDestroy(email, password);
+        const credentials = await target.auth.signIn(email, password);
+        await target.auth.accountDestroy(
+          email,
+          password,
+          {},
+          credentials.sessionToken
+        );
       }
     });
 

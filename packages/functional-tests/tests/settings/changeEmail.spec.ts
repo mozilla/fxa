@@ -19,6 +19,23 @@ test.describe('severity-1 #smoke', () => {
       }
     );
 
+    test.afterEach(async ({ credentials, target }) => {
+      try {
+        const newCreds = await target.auth.signIn(
+          newEmail,
+          credentials.password
+        );
+        await target.auth.accountDestroy(
+          newEmail,
+          credentials.password,
+          {},
+          newCreds.sessionToken
+        );
+      } catch (err) {
+        // ignore
+      }
+    });
+
     test('change primary email and login', async ({
       credentials,
       page,
@@ -130,20 +147,36 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('change primary - unblock', () => {
+    let newEmail;
     test.beforeEach(
       async ({ credentials, pages: { settings, secondaryEmail } }) => {
         test.slow();
         await settings.goto();
         await settings.secondaryEmail.clickAdd();
-        const newEmail = `blocked${Math.floor(
-          Math.random() * 100000
-        )}@restmail.net`;
+        newEmail = `blocked${Math.floor(Math.random() * 100000)}@restmail.net`;
         await secondaryEmail.addAndVerify(newEmail);
         await settings.secondaryEmail.clickMakePrimary();
         credentials.email = newEmail;
         await settings.signOut();
       }
     );
+
+    test.afterEach(async ({ credentials, target }) => {
+      try {
+        const newCreds = await target.auth.signIn(
+          newEmail,
+          credentials.password
+        );
+        await target.auth.accountDestroy(
+          newEmail,
+          credentials.password,
+          {},
+          newCreds.sessionToken
+        );
+      } catch (err) {
+        // ignore
+      }
+    });
 
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
       credentials,

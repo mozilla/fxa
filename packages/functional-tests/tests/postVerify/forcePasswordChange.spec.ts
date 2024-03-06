@@ -6,13 +6,14 @@ import { test, expect } from '../../lib/fixtures/standard';
 let email;
 const password = 'password';
 const newPassword = 'new_password';
+let emailUserCreds;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
     test.beforeEach(async ({ target, pages: { login } }) => {
       test.slow();
       email = login.createEmail('forcepwdchange{id}');
-      await target.auth.signUp(email, password, {
+      emailUserCreds = await target.auth.signUp(email, password, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -20,9 +21,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        await target.auth.accountDestroy(email, newPassword);
+      // Cleanup any accounts created during the test
+      try {
+        await target.auth.accountDestroy(
+          email,
+          newPassword,
+          {},
+          emailUserCreds.sessionToken
+        );
+      } catch (e) {
+        // ignore
       }
     });
 

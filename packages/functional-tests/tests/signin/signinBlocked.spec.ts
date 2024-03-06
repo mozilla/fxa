@@ -38,7 +38,13 @@ test.describe('severity-2 #smoke', () => {
       for (const email of emails) {
         if (email) {
           try {
-            await target.auth.accountDestroy(email, password);
+            const creds = await target.auth.signIn(email, password);
+            await target.auth.accountDestroy(
+              email,
+              password,
+              {},
+              creds.sessionToken
+            );
           } catch (e) {
             // Handle any errors if needed
           }

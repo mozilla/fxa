@@ -19,6 +19,8 @@ test.describe('severity-2 #smoke', () => {
     /* Password for fake account */
     const password = 'passwordzxcv';
 
+    let emailUserCreds;
+
     /* eslint-disable camelcase */
     const queryParameters = {
       client_id: '7f368c6886429f19',
@@ -37,17 +39,20 @@ test.describe('severity-2 #smoke', () => {
     test.beforeEach(async ({ target }, { project }) => {
       // The `sync` prefix is needed to force confirmation.
       email = `sync${Math.random()}@restmail.net`;
-      await target.createAccount(email, password);
+      emailUserCreds = await target.createAccount(email, password);
     });
 
     test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        try {
-          await target.auth.accountDestroy(email, password);
-        } catch (e) {
-          // ignore
-        }
+      // Cleanup any accounts created during the test
+      try {
+        await target.auth.accountDestroy(
+          email,
+          password,
+          {},
+          emailUserCreds.sessionToken
+        );
+      } catch (e) {
+        // ignore
       }
     });
 

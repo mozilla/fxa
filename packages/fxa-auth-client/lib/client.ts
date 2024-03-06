@@ -888,7 +888,7 @@ export default class AuthClient {
     options: {
       skipCaseError?: boolean;
     } = {},
-    sessionToken?: hexstring
+    sessionToken: hexstring
   ): Promise<any> {
     const credentials = await crypto.getCredentials(email, password);
     const payload = {
@@ -896,15 +896,7 @@ export default class AuthClient {
       authPW: credentials.authPW,
     };
     try {
-      if (sessionToken) {
-        return await this.sessionPost(
-          '/account/destroy',
-          sessionToken,
-          payload
-        );
-      } else {
-        return await this.request('POST', '/account/destroy', payload);
-      }
+      return await this.sessionPost('/account/destroy', sessionToken, payload);
     } catch (error: any) {
       if (
         error &&

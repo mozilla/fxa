@@ -90,7 +90,7 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { relier, login },
     }) => {
-      await target.auth.signUp(email, password, {
+      const creds = await target.auth.signUp(email, password, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -101,7 +101,7 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
-      await target.auth.accountDestroy(email, password);
+      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -160,10 +160,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        await target.auth.accountDestroy(email, password);
-      }
+      // Cleanup any accounts created during the test
+      const creds = await target.auth.signIn(email, password);
+      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
     });
 
     test('fails if login_hint is different to logged in user', async ({

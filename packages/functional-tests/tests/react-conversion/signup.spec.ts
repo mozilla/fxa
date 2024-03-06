@@ -34,12 +34,15 @@ test.beforeEach(async ({ pages: { configPage, login } }) => {
 });
 
 test.afterEach(async ({ target }) => {
-  if (email) {
-    // Cleanup any accounts created during the test
-    const accountStatus = await target.auth.accountStatusByEmail(email);
-    if (accountStatus.exists) {
-      await target.auth.accountDestroy(email, PASSWORD);
+  // Cleanup any accounts created during the test
+  try {
+    if (!email) {
+      return;
     }
+    const creds = await target.auth.signIn(email, PASSWORD);
+    await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
+  } catch (e) {
+    // ignore
   }
 });
 
@@ -110,7 +113,6 @@ test.describe('severity-1 #smoke', () => {
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
       syncBrowserPages: { page, signupReact, login },
     }) => {
-      test.fixme(true, 'FXA-9096');
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {

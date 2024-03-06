@@ -114,7 +114,7 @@ test.describe('severity-2 #smoke', () => {
       );
       const email = login.createEmail('sync{id}');
       const password = 'password123';
-      await target.createAccount(email, password);
+      const creds = await target.createAccount(email, password);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
@@ -122,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Verify the header after login
       expect(login.signInCodeHeader()).toBeVisible();
-      await target.auth.accountDestroy(email, password);
+      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
       await page.waitForURL(/signin_bounced/);
 
       //Verify sign in bounced header
