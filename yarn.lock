@@ -18054,6 +18054,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/core-client@npm:7.6.17":
+  version: 7.6.17
+  resolution: "@storybook/core-client@npm:7.6.17"
+  dependencies:
+    "@storybook/client-logger": 7.6.17
+    "@storybook/preview-api": 7.6.17
+  checksum: 5bc150d8c636c5ffd40a4a8f72e60d689580508bb41aa6b544c9ff8b20860afd000498bdd77c6de62f56651f99ef88af67e4b47caba41ec27e5a748099f690f0
+  languageName: node
+  linkType: hard
+
 "@storybook/core-common@npm:7.0.26, @storybook/core-common@npm:^7.0.12":
   version: 7.0.26
   resolution: "@storybook/core-common@npm:7.0.26"
@@ -18776,6 +18786,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/docs-tools@npm:7.6.17":
+  version: 7.6.17
+  resolution: "@storybook/docs-tools@npm:7.6.17"
+  dependencies:
+    "@storybook/core-common": 7.6.17
+    "@storybook/preview-api": 7.6.17
+    "@storybook/types": 7.6.17
+    "@types/doctrine": ^0.0.3
+    assert: ^2.1.0
+    doctrine: ^3.0.0
+    lodash: ^4.17.21
+  checksum: 62700508d74ab40717095e1684c036c4b2b9e104c397cd2ffcf455e116b90ba8e51cda3f501934eb31c5bc8646a99cd4c46b362bb833772cd0898ba2bd8e2544
+  languageName: node
+  linkType: hard
+
 "@storybook/global@npm:^5.0.0":
   version: 5.0.0
   resolution: "@storybook/global@npm:5.0.0"
@@ -18815,19 +18840,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/html@npm:^7.5.2":
-  version: 7.5.3
-  resolution: "@storybook/html@npm:7.5.3"
+"@storybook/html@npm:^7.6.17":
+  version: 7.6.17
+  resolution: "@storybook/html@npm:7.6.17"
   dependencies:
-    "@storybook/core-client": 7.5.3
-    "@storybook/docs-tools": 7.5.3
+    "@storybook/core-client": 7.6.17
+    "@storybook/docs-tools": 7.6.17
     "@storybook/global": ^5.0.0
-    "@storybook/preview-api": 7.5.3
-    "@storybook/types": 7.5.3
+    "@storybook/preview-api": 7.6.17
+    "@storybook/types": 7.6.17
     ts-dedent: ^2.0.0
   peerDependencies:
     "@babel/core": "*"
-  checksum: c9b5347de9728eedb05da229bab6b3cfa85efb156129a2df27d287fb8acfd37479989f1ff3eae674ce2d76c3f7da9c7b99286aa316b7f5ea6c4f76e752cd3884
+  checksum: b211357db610f50f940d914e6dcd58ab82cd36bea3d876c23c9ca039e71adc1c7e7771e6a58d7dda5769ac71f8a02dab90713771a41e60349284db512376a691
   languageName: node
   linkType: hard
 
@@ -37237,7 +37262,7 @@ fsevents@~2.1.1:
     "@storybook/addon-controls": ^7.0.23
     "@storybook/addon-docs": ^7.6.12
     "@storybook/addon-toolbars": ^7.0.23
-    "@storybook/html": ^7.5.2
+    "@storybook/html": ^7.6.17
     "@storybook/html-webpack5": ^7.6.13
     "@types/async-retry": ^1
     "@types/babel__core": 7.1.14

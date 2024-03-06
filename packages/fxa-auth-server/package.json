@@ -147,7 +147,7 @@
     "@storybook/addon-controls": "^7.0.23",
     "@storybook/addon-docs": "^7.6.12",
     "@storybook/addon-toolbars": "^7.0.23",
-    "@storybook/html": "^7.5.2",
+    "@storybook/html": "^7.6.17",
     "@storybook/html-webpack5": "^7.6.13",
     "@types/async-retry": "^1",
     "@types/babel__core": "7.1.14",
