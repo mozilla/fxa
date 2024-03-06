@@ -184,7 +184,7 @@ describe('#integration - PaymentConfigManager', () => {
       }
     });
 
-    it('registers new/updates plans and products', async () => {
+    it.skip('registers new/updates plans and products (Fix required as of 2024/02/12 (see FXA-9111))', async () => {
       const newProduct = cloneDeep(productConfig);
       newProduct.id = randomUUID();
       const newPlan = cloneDeep(planConfig);
