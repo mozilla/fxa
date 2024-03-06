@@ -1,15 +1,15 @@
 ## Component - PlanDetails
 
-plan-details-header = Produktdetails
-plan-details-list-price = Listenpreis
-plan-details-show-button = Details anzeigen
-plan-details-hide-button = Details ausblenden
-plan-details-total-label = Gesamt
-plan-details-tax = Steuern und Gebühren
+next-plan-details-header = Produktdetails
+next-plan-details-list-price = Listenpreis
+next-plan-details-show-button = Details anzeigen
+next-plan-details-hide-button = Details ausblenden
+next-plan-details-total-label = Gesamt
+next-plan-details-tax = Steuern und Gebühren
 
-terms = Nutzungsbedingungen
-privacy = Datenschutzhinweis
-terms-download = Nutzungsbedingungen herunterladen
+next-terms = Nutzungsbedingungen
+next-privacy = Datenschutzhinweis
+next-terms-download = Nutzungsbedingungen herunterladen
 
 payment-confirmation-thanks-heading = Vielen Dank!
 

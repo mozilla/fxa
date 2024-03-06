@@ -134,6 +134,9 @@ packages/fxa-payments-server/fxa-content-server-l10n/
 packages/fxa-payments-server/public/locales
 packages/fxa-payments-server/test
 
+# payments-next
+apps/payments/next/public/locales
+
 # fxa-profile-server
 packages/fxa-profile-server/var
 packages/fxa-profile-server/BUCKET_NAME

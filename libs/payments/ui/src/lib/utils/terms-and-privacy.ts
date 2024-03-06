@@ -88,13 +88,13 @@ export function buildFirefoxAccountsTerms(
           key: 'fxa-terms-1',
           href: `${contentServerURL}/legal/terms`,
           text: 'Terms of Service',
-          localizationId: 'terms',
+          localizationId: 'next-terms',
         },
         {
           key: 'fxa-terms-2',
           href: `${contentServerURL}/legal/privacy`,
           text: 'Privacy Notice',
-          localizationId: 'privacy',
+          localizationId: 'next-privacy',
         },
       ],
     },
@@ -114,7 +114,7 @@ export function buildProductTerms(
       key: 'product-terms-1',
       href: termsOfService,
       text: 'Terms of Service',
-      localizationId: 'terms',
+      localizationId: 'next-terms',
     });
   }
 
@@ -123,7 +123,7 @@ export function buildProductTerms(
       key: 'product-terms-2',
       href: privacyNotice,
       text: 'Privacy Notice',
-      localizationId: 'privacy',
+      localizationId: 'next-privacy',
     });
   }
 
@@ -132,7 +132,7 @@ export function buildProductTerms(
       key: 'product-terms-3',
       href: termsOfServiceDownload,
       text: 'Download Terms',
-      localizationId: 'terms-download',
+      localizationId: 'next-terms-download',
     });
   }
 
