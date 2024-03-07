@@ -38511,7 +38511,7 @@ fsevents@~2.1.1:
     resolve: ^1.22.8
     resolve-url-loader: ^5.0.0
     sass-loader: ^14.1.0
-    semver: ^7.5.2
+    semver: ^7.6.0
     sinon: ^15.0.1
     source-map-loader: ^3.0.0
     storybook: ^7.0.23
@@ -38747,7 +38747,7 @@ fsevents@~2.1.1:
     react-test-renderer: ^18.2.0
     reflect-metadata: ^0.2.1
     rxjs: ^7.8.1
-    semver: ^7.5.2
+    semver: ^7.6.0
     stylelint: ^15.10.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
@@ -58898,6 +58898,17 @@ resolve@1.1.7:
   bin:
     semver: bin/semver.js
   checksum: 9d58db16525e9f749ad0a696a1f27deabaa51f66e91d2fa2b0db3de3e9644e8677de3b7d7a03f4c15bc81521e0c3916d7369e0572dbde250d9bedf5194e2a8a7
+  languageName: node
+  linkType: hard
+
+"semver@npm:^7.6.0":
+  version: 7.6.0
+  resolution: "semver@npm:7.6.0"
+  dependencies:
+    lru-cache: ^6.0.0
+  bin:
+    semver: bin/semver.js
+  checksum: 7427f05b70786c696640edc29fdd4bc33b2acf3bbe1740b955029044f80575fc664e1a512e4113c3af21e767154a94b4aa214bf6cd6e42a1f6dba5914e0b208c
   languageName: node
   linkType: hard
 
