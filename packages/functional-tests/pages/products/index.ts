@@ -64,6 +64,20 @@ export class SubscribePage extends BaseLayout {
     await pay.click();
   }
 
+  async clickPayPal() {
+    const paypalButtonSelector = '[data-testid="paypal-button-container"]';
+
+    // Start waiting for popup before clicking
+    const paypalPopupPromise = this.page.waitForEvent('popup');
+    await this.page.locator(paypalButtonSelector).click();
+    const paypalPopup = await paypalPopupPromise;
+
+    // Wait for the popup to load
+    await paypalPopup.waitForLoadState();
+
+    return paypalPopup;
+  }
+
   async addCouponCode(code) {
     const input = this.page.locator('[data-testid="coupon-input"]');
     await input.waitFor({ state: 'visible' });

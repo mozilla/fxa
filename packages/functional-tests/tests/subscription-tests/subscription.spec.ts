@@ -73,6 +73,23 @@ test.describe('severity-2 #smoke', () => {
       });
       expect(actualEventTypes).toMatchObject(expectedEventTypes);
     });
+
+    test('subscribe with paypal opens popup', async ({
+      pages: { relier, subscribe },
+    }, { project }) => {
+      test.skip(
+        project.name === 'production',
+        'no real payment method available in prod'
+      );
+      await relier.goto();
+      await relier.clickSubscribe();
+      await subscribe.setConfirmPaymentCheckbox();
+      const paypalPopup = await subscribe.clickPayPal();
+      expect(
+        await paypalPopup.title(),
+        'The PayPal popup title was not as expected'
+      ).toContain('PayPal');
+    });
   });
 
   test.describe('Flow, acquisition and new user checkout funnel metrics', () => {
