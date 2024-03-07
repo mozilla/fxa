@@ -47,7 +47,7 @@ export type AppleJWTSETPayload = {
   aud: string;
   iat: number;
   jti: string;
-  events: AppleSETEvent;
+  events: string;
 };
 
 async function getUidFromSub(sub: string, db: any, provider: Provider) {

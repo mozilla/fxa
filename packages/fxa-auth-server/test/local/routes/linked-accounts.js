@@ -837,6 +837,7 @@ describe('/linked_account', function () {
         },
       };
       baseEvent.events.type = type;
+      baseEvent.events = JSON.stringify(baseEvent.events);
       return baseEvent;
     }
 
