@@ -33,7 +33,7 @@ import {
   RefundTransactionOptions,
   RefundType,
   TransactionSearchOptions,
-} from './types';
+} from './paypal.client.types';
 import { objectToNVP, toIsoString } from './util';
 
 describe('PayPalClient', () => {
