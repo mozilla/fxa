@@ -200,7 +200,7 @@
     "lodash.chunk": "4.2.0",
     "lodash.pick": "4.4.0",
     "mailparser": "0.6.1",
-    "mjml-browser": "^4.14.1",
+    "mjml-browser": "^4.15.3",
     "mocha": "^10.0.0",
     "moment": "^2.29.4",
     "nock": "^13.5.1",
