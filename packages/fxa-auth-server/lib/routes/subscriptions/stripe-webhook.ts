@@ -4,7 +4,10 @@
 import { ServerRoute } from '@hapi/hapi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/types';
-import { Account } from 'fxa-shared/db/models/auth';
+import {
+  Account,
+  getUidAndEmailByStripeCustomerId,
+} from 'fxa-shared/db/models/auth';
 import { ACTIVE_SUBSCRIPTION_STATUSES } from 'fxa-shared/subscriptions/stripe';
 import isA from 'joi';
 import { Stripe } from 'stripe';
@@ -33,6 +36,7 @@ import {
 import { AuthLogger, AuthRequest } from '../../types';
 import { subscriptionProductMetadataValidator } from '../validators';
 import { StripeHandler } from './stripe';
+import { FirestoreStripeErrorBuilder } from 'fxa-shared/payments/stripe-firestore';
 
 // ALLOWED_EXPAND_RESOURCE_TYPES is a map of "types" of Stripe objects that we
 // will fetch the latest of for the webhook event, _instead of_ using the
@@ -78,6 +82,11 @@ export class StripeWebhookHandler extends StripeHandler {
     if (config.subscriptions.paypalNvpSigCredentials.enabled) {
       this.paypalHelper = Container.get(PayPalHelper);
     }
+  }
+
+  private async checkIfAccountExists(customerId: string) {
+    const result = await getUidAndEmailByStripeCustomerId(customerId);
+    return !!result.uid;
   }
 
   /**
@@ -230,7 +239,14 @@ export class StripeWebhookHandler extends StripeHandler {
       const firestoreHandled = await this.processEventToFirestore(event);
       await this.dispatchEventToHandler(request, event, firestoreHandled);
     } catch (error) {
-      if (!IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno)) {
+      if (error instanceof FirestoreStripeErrorBuilder && error?.customerId) {
+        // Check if the Account record for this customerId still exists
+        // If the Account record does not exist, it can be assumed that related
+        // Firestore and Stripe records no longer exist either, and the
+        // error can be ignored
+        const accountExists = await this.checkIfAccountExists(error.customerId);
+        if (accountExists) throw error;
+      } else if (!IGNORABLE_STRIPE_WEBHOOK_ERRNOS.includes(error.errno)) {
         // Error is not ignorable, so re-throw.
         throw error;
       }
