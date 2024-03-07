@@ -4,6 +4,7 @@
 
 import { Command } from 'commander';
 import { StatsD } from 'hot-shots';
+import PQueue from 'p-queue';
 import { Container } from 'typedi';
 
 import appConfig from '../config';
@@ -111,6 +112,11 @@ const init = async () => {
       '--table-scan [true|false]',
       'Acknowledge that you are fine with a table scan on the accounts table.  Defaults to false.',
       false
+    )
+    .option(
+      '--task-enqueue-limit <number>',
+      'The maximum amount of tasks to enqueue per second.',
+      200
     );
 
   program.parse(process.argv);
@@ -121,6 +127,9 @@ const init = async () => {
   const hasDateRange =
     program.startDate && program.endDate && program.endDate > program.startDate;
   const reason = ReasonForDeletionOptions.Unverified;
+  const taskLimit = program.taskEnqueueLimit
+    ? parseInt(program.taskEnqueueLimit)
+    : 200;
 
   if (!hasUid && !hasEmail && !hasDateRange) {
     throw new Error(
@@ -226,10 +235,22 @@ const init = async () => {
       return 0;
     }
 
+    const queue = new PQueue({ interval: 1000, intervalCap: taskLimit });
+
     for (const x of accounts) {
-      const result = await accountDeleteManager.enqueue({ uid: x.uid, reason });
-      console.log(`Created cloud task ${result} for uid ${x.uid}`);
+      queue.add(async () => {
+        try {
+          const result = await accountDeleteManager.enqueue({
+            uid: x.uid,
+            reason,
+          });
+          console.log(`Created cloud task ${result} for uid ${x.uid}`);
+        } catch (err) {
+          console.error('Errored creating task', err);
+        }
+      });
     }
+    await queue.onIdle(); // Wait for the queue to empty and promises to complete
   }
 
   return 0;
