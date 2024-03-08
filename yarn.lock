@@ -37926,7 +37926,7 @@ fsevents@~2.1.1:
     sinon-chai: ^3.7.0
     sinon-express-mock: ^2.2.1
     source-map: ^0.7.3
-    source-map-loader: ^1.1.1
+    source-map-loader: ^5.0.0
     stream-browserify: ^3.0.0
     tailwindcss: ^3.4.1
     thread-loader: ^4.0.2
@@ -38513,7 +38513,7 @@ fsevents@~2.1.1:
     sass-loader: ^14.1.0
     semver: ^7.6.0
     sinon: ^15.0.1
-    source-map-loader: ^3.0.0
+    source-map-loader: ^5.0.0
     storybook: ^7.0.23
     storybook-addon-rtl: ^0.5.0
     style-loader: ^3.3.3
@@ -59940,22 +59940,6 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"source-map-loader@npm:^1.1.1":
-  version: 1.1.1
-  resolution: "source-map-loader@npm:1.1.1"
-  dependencies:
-    abab: ^2.0.5
-    iconv-lite: ^0.6.2
-    loader-utils: ^2.0.0
-    schema-utils: ^3.0.0
-    source-map: ^0.6.1
-    whatwg-mimetype: ^2.3.0
-  peerDependencies:
-    webpack: ^4.0.0 || ^5.0.0
-  checksum: 7060956435c611e7d59ec697e5110249495977fbeaaff95f50fd93c569fc91b362e2402ff72b1dcae7af109b81136203bd3f3d499233c45edb92c92da6c4c14b
-  languageName: node
-  linkType: hard
-
 "source-map-loader@npm:^3.0.0":
   version: 3.0.2
   resolution: "source-map-loader@npm:3.0.2"
@@ -59966,6 +59950,18 @@ resolve@1.1.7:
   peerDependencies:
     webpack: ^5.0.0
   checksum: d5a4e2ab190c93ae5cba68c247fbaa9fd560333c91060602b634c399a8a4b3205b8c07714c3bcdb0a11c6cc5476c06256bd8e824e71fbbb7981e8fad5cba4a00
+  languageName: node
+  linkType: hard
+
+"source-map-loader@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "source-map-loader@npm:5.0.0"
+  dependencies:
+    iconv-lite: ^0.6.3
+    source-map-js: ^1.0.2
+  peerDependencies:
+    webpack: ^5.72.1
+  checksum: 66d6fbaa87a14197647515f274b9a685a84d0ddb95c3d9801bfb1ce28fc24000954c73548fe09c52c0bad660eb10d963b0c60d5c5943ccf2c8292a8d957f2acb
   languageName: node
   linkType: hard
 

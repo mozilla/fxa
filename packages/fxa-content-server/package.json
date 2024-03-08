@@ -125,7 +125,7 @@
     "sass-loader": "^14.1.0",
     "serve-static": "^1.14.2",
     "source-map": "^0.7.3",
-    "source-map-loader": "^1.1.1",
+    "source-map-loader": "^5.0.0",
     "stream-browserify": "^3.0.0",
     "thread-loader": "^4.0.2",
     "time-grunt": "2.0.0",
