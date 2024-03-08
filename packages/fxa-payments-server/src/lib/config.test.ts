@@ -142,6 +142,7 @@ const expectedMergedConfig = {
     dsn: 'https://foo.sentry.io/bar',
     env: 'test',
     sampleRate: 1.0,
+    tracesSampleRate: 0,
     serverName: 'fxa-payments-server',
   },
   servers: {
