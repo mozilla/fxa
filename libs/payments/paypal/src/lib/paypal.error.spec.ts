@@ -42,8 +42,8 @@ describe('PayPal Errors', () => {
       expect(error.name).toEqual('PayPalNVPError');
       expect(error.message).toEqual(message);
       expect(error).toBeInstanceOf(VError);
-      expect(error.raw).toEqual(raw);
-      expect(error.data).toStrictEqual(data);
+      expect(VError.info(error).raw).toEqual(raw);
+      expect(VError.info(error).data).toStrictEqual(data);
     });
   });
 });

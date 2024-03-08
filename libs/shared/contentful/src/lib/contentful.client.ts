@@ -169,10 +169,9 @@ export class ContentfulClient {
 
       if (!response.ok) {
         const errorResult = results as ContentfulErrorResponse;
-        throw new ContentfulCDNError(
-          { info: errorResult },
-          errorResult.message
-        );
+        throw new ContentfulCDNError(errorResult.message, {
+          info: errorResult,
+        });
       }
 
       // Assign value to locale "cache"
@@ -190,10 +189,9 @@ export class ContentfulClient {
       if (error instanceof ContentfulCDNError) {
         throw error;
       } else {
-        throw new ContentfulCDNExecutionError(
-          error,
-          'Contentful: Execution Error'
-        );
+        throw new ContentfulCDNExecutionError('Contentful: Execution Error', {
+          cause: error,
+        });
       }
     }
   }

@@ -8,81 +8,74 @@ import {
 import { CartState } from '@fxa/shared/db/mysql/account';
 
 export class CartError extends BaseError {
-  constructor(message: string, cause?: Error) {
-    super(
-      {
-        ...(cause && { cause }),
-      },
-      message
-    );
-    this.name = this.constructor.name;
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, {
+      name: 'CartError',
+      cause,
+      info,
+    });
   }
 }
-
-// TODO - Add information about the cart that caused the errors
 
 export class CartNotCreatedError extends CartError {
-  data: SetupCart;
   constructor(data: SetupCart, cause: Error) {
-    super('Cart not created', cause);
-    this.data = data;
+    super('Cart not created', data, cause);
   }
 }
+
 export class CartNotFoundError extends CartError {
-  cartId: string;
   constructor(cartId: string, cause: Error) {
-    super('Cart not found', cause);
-    this.cartId = cartId;
+    super('Cart not found', { cartId }, cause);
   }
 }
+
 export class CartVersionMismatchError extends CartError {
-  cartId: string;
   constructor(cartId: string) {
-    super('Cart version mismatch');
-    this.cartId = cartId;
+    super('Cart version mismatch', { cartId });
   }
 }
+
 export class CartNotUpdatedError extends CartError {
-  cartId: string;
-  data?: FinishCart | FinishErrorCart | UpdateCart;
   constructor(
     cartId: string,
     data?: FinishCart | FinishErrorCart | UpdateCart,
     cause?: Error
   ) {
-    super('Cart not updated', cause);
-    this.cartId = cartId;
-    this.data = data;
+    super(
+      'Cart not updated',
+      {
+        ...data,
+        cartId,
+      },
+      cause
+    );
   }
 }
+
 export class CartStateFinishedError extends CartError {
   constructor() {
-    super('Cart state is already finished');
+    super('Cart state is already finished', {});
   }
 }
+
 export class CartNotDeletedError extends CartError {
-  cartId: string;
   constructor(cartId: string, cause?: Error) {
-    super('Cart not deleted', cause);
-    this.cartId = cartId;
+    super('Cart not deleted', { cartId }, cause);
   }
 }
+
 export class CartNotRestartedError extends CartError {
-  previousCartId: string;
   constructor(previousCartId: string, cause: Error) {
-    super('Cart not created', cause);
-    this.previousCartId = previousCartId;
+    super('Cart not created', { previousCartId }, cause);
   }
 }
 
 export class CartInvalidStateForActionError extends CartError {
-  cartId: string;
-  state: CartState;
-  action: string;
   constructor(cartId: string, state: CartState, action: string) {
-    super('Invalid state for executed action');
-    this.cartId = cartId;
-    this.state = state;
-    this.action = action;
+    super('Invalid state for executed action', {
+      cartId,
+      state,
+      action,
+    });
   }
 }

@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 import { Kysely } from 'kysely';
 
@@ -18,13 +21,15 @@ import {
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
+import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
-describe('paypalManager', () => {
+describe('PaypalManager', () => {
   let kyselyDb: Kysely<DB>;
   let paypalClient: PayPalClient;
   let paypalManager: PayPalManager;
   let stripeClient: StripeClient;
   let stripeManager: StripeManager;
+  let paypalCustomerManager: PaypalCustomerManager;
 
   beforeAll(async () => {
     kyselyDb = await testAccountDatabaseSetup([
@@ -41,17 +46,20 @@ describe('paypalManager', () => {
 
     stripeClient = new StripeClient({} as any);
     stripeManager = new StripeManager(stripeClient);
-    paypalManager = new PayPalManager(kyselyDb, paypalClient, stripeManager);
+    paypalCustomerManager = new PaypalCustomerManager(kyselyDb);
+
+    paypalManager = new PayPalManager(
+      kyselyDb,
+      paypalClient,
+      stripeManager,
+      paypalCustomerManager
+    );
   });
 
   afterAll(async () => {
     if (kyselyDb) {
       await kyselyDb.destroy();
     }
-  });
-
-  it('instantiates class (TODO: remove me)', () => {
-    expect(paypalManager).toBeTruthy();
   });
 
   describe('getBillingAgreement', () => {

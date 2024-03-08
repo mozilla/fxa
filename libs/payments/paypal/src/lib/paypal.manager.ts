@@ -12,13 +12,15 @@ import {
 import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
+import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
 @Injectable()
 export class PayPalManager {
   constructor(
     private db: AccountDatabase,
     private client: PayPalClient,
-    private stripeManager: StripeManager
+    private stripeManager: StripeManager,
+    private paypalCustomerManager: PaypalCustomerManager
   ) {}
 
   /**
@@ -51,7 +53,6 @@ export class PayPalManager {
    * @param customer
    * @returns
    */
-
   async getCustomerPayPalSubscriptions(customer: Stripe.Customer) {
     const subscriptions = await this.stripeManager.getSubscriptions(
       customer.id

@@ -7,10 +7,10 @@ import { BaseError } from '@fxa/shared/error';
 export class StripeError extends BaseError {
   constructor(message: string, cause?: Error) {
     super(
+      message,
       {
-        ...(cause && { cause }),
+        cause,
       },
-      message
     );
   }
 }
