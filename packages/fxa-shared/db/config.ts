@@ -295,7 +295,7 @@ export function makeRedisConfig() {
       },
       password: {
         default: '',
-        env: 'REDIS_PASSWORD',
+        env: 'CUSTOMS_REDIS_PASSWORD',
         format: String,
         sensitive: true,
         doc: `Password for connecting to redis`,
