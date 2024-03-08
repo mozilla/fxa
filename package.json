@@ -147,7 +147,7 @@
     "@babel/core": "^7.22.20",
     "@babel/preset-react": "^7.23.3",
     "@graphql-codegen/cli": "5.0.0",
-    "@graphql-codegen/client-preset": "^4.1.0",
+    "@graphql-codegen/client-preset": "^4.2.4",
     "@graphql-codegen/typescript": "^4.0.1",
     "@graphql-codegen/typescript-document-nodes": "^4.0.1",
     "@nestjs/cli": "^9.4.0",
