@@ -5,13 +5,10 @@ import { BaseError } from '@fxa/shared/error';
 
 export class AccountError extends BaseError {
   constructor(message: string, cause?: Error) {
-    super(
-      {
-        name: 'AccountError',
-        ...(cause && { cause }),
-      },
-      message
-    );
+    super(message, {
+      name: 'AccountError',
+      cause,
+    });
   }
 }
 

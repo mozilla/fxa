@@ -35,13 +35,15 @@ export class PayPalNVPError extends BaseError {
 
   constructor(raw: string, data: NVPErrorResponse, params: any) {
     const { message, cause, errorCode } = params;
-    super(
-      {
-        name: 'PayPalNVPError',
-        ...(cause && { cause }),
+    super(message, {
+      name: 'PayPalNVPError',
+      cause,
+      info: {
+        raw,
+        data,
+        errorCode,
       },
-      message
-    );
+    });
     this.raw = raw;
     this.data = data;
     this.errorCode = errorCode;

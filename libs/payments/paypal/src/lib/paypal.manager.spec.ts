@@ -6,11 +6,13 @@ import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 import { NVPSetExpressCheckoutResponseFactory } from './factories';
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
+import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
-describe('paypalManager', () => {
+describe('PaypalManager', () => {
   let kyselyDb: Kysely<DB>;
   let paypalClient: PayPalClient;
   let paypalManager: PayPalManager;
+  let paypalCustomerManager: PaypalCustomerManager;
 
   beforeAll(async () => {
     kyselyDb = await testAccountDatabaseSetup([
@@ -25,17 +27,15 @@ describe('paypalManager', () => {
       signature: faker.string.uuid(),
     });
 
-    paypalManager = new PayPalManager(kyselyDb, paypalClient);
+    paypalCustomerManager = new PaypalCustomerManager(kyselyDb);
+
+    paypalManager = new PayPalManager(paypalClient, paypalCustomerManager);
   });
 
   afterAll(async () => {
     if (kyselyDb) {
       await kyselyDb.destroy();
     }
-  });
-
-  it('instantiates class (TODO: remove me)', () => {
-    expect(paypalManager).toBeTruthy();
   });
 
   describe('getCheckoutToken', () => {

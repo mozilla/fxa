@@ -200,10 +200,9 @@ describe('ContentfulClient', () => {
         await expect(() =>
           contentfulClient.getLocale(ACCEPT_LANGUAGE)
         ).rejects.toThrow(
-          new ContentfulCDNError(
-            { info: cdnErrorResult },
-            cdnErrorResult.message
-          )
+          new ContentfulCDNError(cdnErrorResult.message, {
+            info: cdnErrorResult,
+          })
         );
         expect(onCallback).toHaveBeenCalledWith(
           expect.objectContaining({
@@ -221,7 +220,9 @@ describe('ContentfulClient', () => {
         await expect(() =>
           contentfulClient.getLocale(ACCEPT_LANGUAGE)
         ).rejects.toThrow(
-          new ContentfulCDNExecutionError(error, 'Contentful: Execution Error')
+          new ContentfulCDNExecutionError('Contentful: Execution Error', {
+            cause: error,
+          })
         );
       });
     });

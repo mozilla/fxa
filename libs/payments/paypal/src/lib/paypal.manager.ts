@@ -3,12 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { PayPalClient } from './paypal.client';
+import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
 @Injectable()
 export class PayPalManager {
-  constructor(private db: AccountDatabase, private client: PayPalClient) {}
+  constructor(
+    private client: PayPalClient,
+    private paypalCustomerManager: PaypalCustomerManager
+  ) {}
 
   /**
    * Get a token authorizing transaction to move to the next stage.

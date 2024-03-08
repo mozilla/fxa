@@ -27,13 +27,13 @@ export function newFirestoreStripeError(
 export class StripeFirestoreError extends BaseError {
   documentPath?: string;
   constructor(cause: Error, docPath?: string, message?: string) {
-    super(
-      {
-        name: 'StripeFirestoreError',
-        ...(cause && { cause }),
+    super(message || cause.message, {
+      name: 'StripeFirestoreError',
+      cause,
+      info: {
+        documentPath: docPath,
       },
-      message || cause.message
-    );
+    });
     this.documentPath = docPath;
   }
 }
