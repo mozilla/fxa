@@ -35,7 +35,7 @@ export function buildSentryConfig(config: SentryConfigOpts, log: ILogger) {
     clientName: config.sentry?.clientName,
     serverName: config.sentry?.serverName,
     fxaName: config.sentry?.clientName || config.sentry?.serverName,
-    tracesSampleRate: config.sentry?.tracesSampleRate || 1.0,
+    tracesSampleRate: config.sentry?.tracesSampleRate,
   };
 
   return opts;

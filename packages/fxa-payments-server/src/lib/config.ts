@@ -15,13 +15,12 @@ export interface Config {
     termsOfService: string;
   };
   newsletterId: string;
-  productRedirectURLs: {
-    [productId: string]: string;
-  };
+  productRedirectURLs: { [productId: string]: string };
   sentry: {
     dsn: string;
     env: string;
     sampleRate: number;
+    tracesSampleRate?: number;
     clientName?: string;
     serverName?: string;
   };
@@ -74,6 +73,7 @@ export function defaultConfig(): Config {
       dsn: '',
       env: 'local',
       sampleRate: 1.0,
+      tracesSampleRate: 0,
       serverName: 'fxa-payments-server',
       clientName: 'fxa-payments-client',
     },
