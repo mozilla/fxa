@@ -38865,6 +38865,11 @@ fsevents@~2.1.1:
     eslint-plugin-react-hooks: 4.6.0
     graphql: ^16.8.0
     graphql-request: ^6.1.0
+    grunt: ^1.6.1
+    grunt-cli: ^1.4.3
+    grunt-contrib-concat: ^2.1.0
+    grunt-contrib-copy: ^1.0.0
+    grunt-contrib-watch: ^1.1.0
     hot-shots: ^10.0.0
     husky: ^4.2.5
     jest: ^29.5.0
@@ -40246,7 +40251,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-contrib-copy@npm:1.0.0":
+"grunt-contrib-copy@npm:1.0.0, grunt-contrib-copy@npm:^1.0.0":
   version: 1.0.0
   resolution: "grunt-contrib-copy@npm:1.0.0"
   dependencies:

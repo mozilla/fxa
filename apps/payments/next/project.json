@@ -79,6 +79,9 @@
     "delete": {
       "command": "pm2 delete apps/payments/next/pm2.config.js"
     },
+    "l10n-merge": {
+      "command": "yarn grunt --gruntfile='apps/payments/next/Gruntfile.js' merge-ftl"
+    },
     "storybook": {
       "executor": "@nx/storybook:storybook",
       "options": {

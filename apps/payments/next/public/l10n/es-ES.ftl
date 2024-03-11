@@ -1,11 +1,11 @@
 ## Component - PlanDetails
 
-plan-details-header = Detalles del producto
-plan-details-list-price = Lista de precios
-plan-details-show-button = Mostrar detalles
-plan-details-hide-button = Ocultar detalles
-plan-details-total-label = Total
-plan-details-tax = Impuestos y tasas
+next-plan-details-header = Detalles del producto
+next-plan-details-list-price = Lista de precios
+next-plan-details-show-button = Mostrar detalles
+next-plan-details-hide-button = Ocultar detalles
+next-plan-details-total-label = Total
+next-plan-details-tax = Impuestos y tasas
 
 plan-price-interval-day =
     { $intervalCount ->
@@ -51,9 +51,9 @@ plan-price-interval-year =
            *[other] { $amount } cada { $intervalCount } años
         }
 
-terms = Términos del servicio
-privacy = Aviso de privacidad
-terms-download = Descargar términos
+next-terms = Términos del servicio
+next-privacy = Aviso de privacidad
+next-terms-download = Descargar términos
 
 payment-confirmation-thanks-heading = ¡Gracias!
 

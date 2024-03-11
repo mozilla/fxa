@@ -118,7 +118,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
       </div>
 
       <h3 className="text-grey-600 font-semibold my-4">
-        {l10n.getMessage('plan-details-header')?.value?.toString() ||
+        {l10n.getMessage('next-plan-details-header')?.value?.toString() ||
           `Plan Details`}
       </h3>
 
@@ -134,7 +134,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {!!listAmount && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'plan-details-list-price',
+              labelLocalizationId: 'next-plan-details-list-price',
               labelFallbackText: 'List Price',
               amount: listAmount,
               currency,
@@ -146,7 +146,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {!!discountAmount && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'coupon-promo-code',
+              labelLocalizationId: 'next-coupon-promo-code',
               labelFallbackText: 'Promo Code',
               amount: discountAmount,
               currency,
@@ -159,7 +159,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {exclusiveTaxRates.length === 1 && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'plan-details-tax',
+              labelLocalizationId: 'next-plan-details-tax',
               labelFallbackText: 'Taxes and Fees',
               amount: exclusiveTaxRates[0].amount,
               currency,
@@ -185,8 +185,9 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
 
       <div className="plan-details-item pt-4 pb-6 font-semibold">
         <span className="text-base">
-          {l10n.getMessage('plan-details-total-label')?.value?.toString() ||
-            `Total`}
+          {l10n
+            .getMessage('next-plan-details-total-label')
+            ?.value?.toString() || `Total`}
         </span>
         <span
           className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"

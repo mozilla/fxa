@@ -1,11 +1,11 @@
 ## Component - PlanDetails
 
-plan-details-header = Product details
-plan-details-list-price = List Price
-plan-details-show-button = Show details
-plan-details-hide-button = Hide details
-plan-details-total-label = Total
-plan-details-tax = Taxes and Fees
+next-plan-details-header = Product details
+next-plan-details-list-price = List Price
+next-plan-details-show-button = Show details
+next-plan-details-hide-button = Hide details
+next-plan-details-total-label = Total
+next-plan-details-tax = Taxes and Fees
 
 ## Subscription upgrade plan details - shared by multiple components, including plan details and payment form
 ## $amount (Number) - The amount billed. It will be formatted as currency.
@@ -24,9 +24,9 @@ plan-price-interval-yearly = { $amount } yearly
 list-positive-amount = { $amount }
 list-negative-amount = - { $amount }
 
-terms = Terms of Service
-privacy = Privacy Notice
-terms-download = Download Terms
+next-terms = Terms of Service
+next-privacy = Privacy Notice
+next-terms-download = Download Terms
 
 payment-confirmation-thanks-heading = Thank you!
 
