@@ -47,7 +47,7 @@ export const Tooltip = ({
   return (
     <div
       data-testid={formatDataTestId('tooltip')}
-      title={message}
+      aria-live="polite"
       className={classNames(
         `z-50 absolute py-2 px-6 text-center text-white
          rounded text-xs font-header font-bold
@@ -59,12 +59,11 @@ export const Tooltip = ({
           'ltr:left-1/2 ltr:-translate-x-1/2 rtl:right-1/2 rtl:translate-x-1/2':
             anchorPosition === 'middle',
           'start-0': anchorPosition === 'start',
-          'end-0': anchorPosition === 'end',
+          'end-0 me-1': anchorPosition === 'end',
           'bottom-full': position === 'top',
-          'top-full': position === 'bottom',
+          'top-full mt-2': position === 'bottom',
         }
       )}
-      aria-live="polite"
     >
       <span
         className={classNames('absolute', caretClass(type, position), {

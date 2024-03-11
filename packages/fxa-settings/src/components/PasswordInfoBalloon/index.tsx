@@ -8,24 +8,30 @@ import { KeyIconListItem } from '../IconListItem';
 
 export const PasswordInfoBalloon = () => {
   return (
-    <ul className="input-balloon">
-      <KeyIconListItem>
-        <>
-          <FtlMsg id="password-info-balloon-why-password-info">
-            <p>
-              You need this password to access any encrypted data you store with
-              us.
-            </p>
-          </FtlMsg>
-          <FtlMsg id="password-info-balloon-reset-risk-info">
-            <p>
-              A reset means potentially losing data like passwords and
-              bookmarks.
-            </p>
-          </FtlMsg>
-        </>
-      </KeyIconListItem>
-    </ul>
+    <div
+      className="input-balloon"
+      id="password-info-balloon"
+      aria-live="polite"
+    >
+      <ul>
+        <KeyIconListItem>
+          <>
+            <FtlMsg id="password-info-balloon-why-password-info">
+              <p>
+                You need this password to access any encrypted data you store
+                with us.
+              </p>
+            </FtlMsg>
+            <FtlMsg id="password-info-balloon-reset-risk-info">
+              <p>
+                A reset means potentially losing data like passwords and
+                bookmarks.
+              </p>
+            </FtlMsg>
+          </>
+        </KeyIconListItem>
+      </ul>
+    </div>
   );
 };
 

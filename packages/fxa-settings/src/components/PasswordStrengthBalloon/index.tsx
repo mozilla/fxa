@@ -17,11 +17,7 @@ export type PasswordStrengthBalloonProps = {
 };
 
 const ValidationIcon = ({ hasError }: { hasError: boolean }) => {
-  return hasError ? (
-    <AlertIcon role="img" title="Fail" />
-  ) : (
-    <BlueCheckIcon role="img" title="Pass" />
-  );
+  return hasError ? <AlertIcon role="img" /> : <BlueCheckIcon role="img" />;
 };
 
 export const PasswordStrengthBalloon = ({
@@ -31,7 +27,11 @@ export const PasswordStrengthBalloon = ({
   isCommon,
 }: PasswordStrengthBalloonProps) => {
   return (
-    <div className="input-balloon text-xs">
+    <div
+      className="input-balloon"
+      id="password-strength-balloon"
+      aria-live="polite"
+    >
       <FtlMsg id="password-strength-balloon-heading">
         <h2 className="mb-2">Password requirements</h2>
       </FtlMsg>

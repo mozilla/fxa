@@ -87,6 +87,10 @@ export const FormPasswordWithBalloons = ({
     useState<boolean>(false);
   const [hasBlurredConfirmPwd, setHasBlurredConfirmPwd] =
     useState<boolean>(false);
+  const [srOnlyPwdFeedbackMessage, setSROnlyPwdFeedbackMessage] =
+    useState<string>();
+  const [srOnlyConfirmPwdFeedbackMessage, setSROnlyConfirmPwdFeedbackMessage] =
+    useState<string>();
 
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedPasswordMatchError = ftlMsgResolver.getMsg(
@@ -142,6 +146,8 @@ export const FormPasswordWithBalloons = ({
 
   const onNewPwdFocus = () => {
     showNewPwdBalloon();
+    setSROnlyPwdFeedbackMessage('');
+    setSROnlyConfirmPwdFeedbackMessage('');
     setPasswordMatchErrorText('');
     if (!hasNewPwdFocused && onFocusMetricsEvent) {
       onFocusMetricsEvent();
@@ -151,11 +157,40 @@ export const FormPasswordWithBalloons = ({
 
   const onNewPwdBlur = () => {
     // do not hide the password strength balloon if there are errors in the new password
-    if (getValues('newPassword') !== '' && !errors.newPassword) {
+    if (!errors.newPassword) {
       hideNewPwdBalloon();
+      const srOnlyPasswordMeetsRequirements = ftlMsgResolver.getMsg(
+        'form-password-sr-requirements-met',
+        'The entered password respects all password requirements.'
+      );
+      setSROnlyPwdFeedbackMessage(srOnlyPasswordMeetsRequirements);
+    } else {
+      // if there are errors on blur, announce a screen-reader only message
+      // visual feedback is provided by the password strength ballon
+      if (errors.newPassword?.types?.length) {
+        const srOnlyTooShortMessage = ftlMsgResolver.getMsg(
+          'form-password-sr-too-short-message',
+          'Password must contain at least 8 characters.'
+        );
+        setSROnlyPwdFeedbackMessage(srOnlyTooShortMessage);
+      } else if (errors.newPassword?.types?.notEmail) {
+        const srOnlyNotEmailMessage = ftlMsgResolver.getMsg(
+          'form-password-sr-not-email-message',
+          'Password must not contain your email address.'
+        );
+        setSROnlyPwdFeedbackMessage(srOnlyNotEmailMessage);
+      } else if (errors.newPassword?.types?.uncommon) {
+        const srOnlyNotCommonMessage = ftlMsgResolver.getMsg(
+          'form-password-sr-not-common-message',
+          'Password must not be a commonly used password.'
+        );
+        setSROnlyPwdFeedbackMessage(srOnlyNotCommonMessage);
+      }
     }
     if (
       hasBlurredConfirmPwd &&
+      !errors.newPassword &&
+      getValues('confirmPassword') !== '' &&
       getValues('confirmPassword') !== getValues('newPassword')
     ) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
@@ -166,6 +201,18 @@ export const FormPasswordWithBalloons = ({
     }
   };
 
+  const onFocusConfirmPassword = useCallback(() => {
+    setPasswordMatchErrorText('');
+    setSROnlyPwdFeedbackMessage('');
+    setSROnlyConfirmPwdFeedbackMessage('');
+    if (
+      passwordFormType === 'signup' &&
+      getValues('newPassword') !== '' &&
+      !errors.newPassword
+    )
+      showConfirmPwdBalloon();
+  }, [errors.newPassword, getValues, passwordFormType, showConfirmPwdBalloon]);
+
   const onBlurConfirmPassword = useCallback(() => {
     setHasBlurredConfirmPwd(true);
     passwordFormType === 'signup' &&
@@ -174,31 +221,50 @@ export const FormPasswordWithBalloons = ({
 
     if (getValues('confirmPassword') !== getValues('newPassword')) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
-    } else if (!formState.isValid) {
+    } else {
+      const srOnlyPasswordsMatch = ftlMsgResolver.getMsg(
+        'form-password-sr-passwords-match',
+        'Entered passwords match.'
+      );
+      setSROnlyConfirmPwdFeedbackMessage(srOnlyPasswordsMatch);
+    }
+
+    if (!formState.isValid) {
       trigger('newPassword');
     }
   }, [
+    formState,
+    ftlMsgResolver,
     getValues,
     hideConfirmPwdBalloon,
     isConfirmPwdBalloonVisible,
     localizedPasswordMatchError,
     passwordFormType,
     setPasswordMatchErrorText,
-    formState,
     trigger,
   ]);
 
   const onChangePassword = (inputName: string) => {
+    const newPassword = getValues('newPassword');
+    const confirmPassword = getValues('confirmPassword');
     if (inputName === 'newPassword') {
       !hasUserTakenAction && setHasUserTakenAction(true);
       trigger('newPassword');
+    }
+
+    if (!errors.newPassword) {
+      setSROnlyPwdFeedbackMessage('');
     }
 
     if (!hasBlurredConfirmPwd) {
       return;
     }
 
-    if (getValues('confirmPassword') !== getValues('newPassword')) {
+    if (
+      hasBlurredConfirmPwd &&
+      confirmPassword !== newPassword &&
+      confirmPassword !== ''
+    ) {
       setPasswordMatchErrorText(localizedPasswordMatchError);
     } else {
       setPasswordMatchErrorText('');
@@ -215,11 +281,11 @@ export const FormPasswordWithBalloons = ({
            the password manager tries to save the old password
            as the username. */}
         <input type="email" value={email} className="hidden" readOnly />
-        <div className="relative mb-4">
+
+        <div className="relative mb-4" aria-atomic="true">
           <FtlMsg id={templateValues.passwordFtlId} attrs={{ label: true }}>
             <InputPassword
               name="newPassword"
-              className="text-start"
               label={templateValues.passwordLabel}
               onFocusCb={onFocusMetricsEvent ? onNewPwdFocus : undefined}
               onBlurCb={onNewPwdBlur}
@@ -247,21 +313,31 @@ export const FormPasswordWithBalloons = ({
                 },
               })}
               prefixDataTestId="new-password"
+              aria-describedby="password-requirements"
             />
           </FtlMsg>
-          {isNewPwdBalloonVisible && (
-            <PasswordStrengthBalloon
-              {...{
-                hasUserTakenAction,
-                isTooShort: errors.newPassword?.types?.length,
-                isSameAsEmail: errors.newPassword?.types?.notEmail,
-                isCommon: errors.newPassword?.types?.uncommon,
-              }}
-            />
-          )}
+          <span
+            id="password-requirements"
+            aria-live="polite"
+            className="text-xs"
+          >
+            {isNewPwdBalloonVisible && (
+              <PasswordStrengthBalloon
+                {...{
+                  hasUserTakenAction,
+                  isTooShort: errors.newPassword?.types?.length,
+                  isSameAsEmail: errors.newPassword?.types?.notEmail,
+                  isCommon: errors.newPassword?.types?.uncommon,
+                }}
+              />
+            )}
+            {srOnlyPwdFeedbackMessage && (
+              <span className="sr-only">{srOnlyPwdFeedbackMessage}</span>
+            )}
+          </span>
         </div>
 
-        <div className="relative mb-4">
+        <div className=" relative mb-4">
           <FtlMsg
             id={templateValues.confirmPasswordFtlId}
             attrs={{ label: true }}
@@ -272,14 +348,8 @@ export const FormPasswordWithBalloons = ({
               className="text-start"
               // onFocusCb and onBlurCb control visibility of PasswordInfoBalloon
               // Only used for the 'signup' page
-              onFocusCb={
-                passwordFormType === 'signup' &&
-                getValues('newPassword') !== '' &&
-                !errors.newPassword
-                  ? showConfirmPwdBalloon
-                  : undefined
-              }
-              onBlurCb={() => onBlurConfirmPassword()}
+              onFocusCb={onFocusConfirmPassword}
+              onBlurCb={onBlurConfirmPassword}
               onChange={() => onChangePassword('confirmPassword')}
               hasErrors={errors.confirmPassword && passwordMatchErrorText}
               errorText={passwordMatchErrorText}
@@ -290,10 +360,20 @@ export const FormPasswordWithBalloons = ({
               anchorPosition="end"
               tooltipPosition="bottom"
               prefixDataTestId="verify-password"
+              aria-describedby="repeat-password-information"
             />
           </FtlMsg>
 
-          {isConfirmPwdBalloonVisible && <PasswordInfoBalloon />}
+          <span
+            id="repeat-password-information"
+            aria-live="polite"
+            className="text-xs"
+          >
+            {isConfirmPwdBalloonVisible && <PasswordInfoBalloon />}
+            {srOnlyConfirmPwdFeedbackMessage && (
+              <span className="sr-only">{srOnlyConfirmPwdFeedbackMessage}</span>
+            )}
+          </span>
         </div>
 
         {children}
