@@ -34,7 +34,7 @@ import {
   ResponseEvent,
   SetExpressCheckoutOptions,
   TransactionSearchOptions,
-} from './types';
+} from './paypal.client.types';
 import { nvpToObject, objectToNVP, toIsoString } from './util';
 import { PaypalClientConfig } from './paypal.client.config';
 

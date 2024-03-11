@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { L_LIST } from './constants';
-import { IpnMerchPmtType, IpnMessage } from './types';
+import { IpnMerchPmtType, IpnMessage } from './paypal.client.types';
 
 /**
  * Returns an ISO string without milliseconds appropriate for PayPal dates.

@@ -3,8 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/paypal.client';
+export * from './lib/paypal.client.types';
 export * from './lib/paypal.error';
 export * from './lib/paypal.manager';
 export * from './lib/paypal.service';
-export * from './lib/types';
+export * from './lib/paypal.types';
 export * from './lib/util';

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError, BaseMultiError } from '@fxa/shared/error';
-import { NVPErrorResponse } from './types';
+import { NVPErrorResponse } from './paypal.client.types';
 
 export class PayPalClientError extends BaseMultiError {
   public raw: string;

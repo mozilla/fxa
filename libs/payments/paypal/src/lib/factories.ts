@@ -16,8 +16,8 @@ import {
   NVPBaseResponse,
   NVPBAUpdateTransactionResponse,
   NVPErrorSeverity,
-} from './types';
-import { TransactionSearchResult } from './types';
+  TransactionSearchResult,
+} from './paypal.client.types';
 
 export const NVPBaseResponseFactory = (
   override?: Partial<NVPBaseResponse>
