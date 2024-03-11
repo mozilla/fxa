@@ -20,7 +20,7 @@
     "build-l10n": "nx l10n-merge && nx l10n-merge-test",
     "compile": "nx build-ts",
     "clean": "rimraf dist",
-    "l10n-prime": "yarn l10n:prime fxa-react",
+    "l10n-prime": "yarn l10n:prime packages/fxa-react",
     "l10n-merge": "yarn grunt merge-ftl",
     "l10n-merge-test": "yarn grunt merge-ftl:test",
     "l10n-watch": "yarn grunt watch-ftl",
