@@ -319,7 +319,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.omitby": "^4.6.0",
     "lodash.pick": "^4.4.0",
-    "moment": "^2.29.4",
+    "moment": "^2.30.1",
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
