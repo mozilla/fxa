@@ -69,7 +69,7 @@ describe('LinkExpiredResetPassword', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          `Email resent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a smooth delivery.`
+          `Email re-sent. Add ${FIREFOX_NOREPLY_EMAIL} to your contacts to ensure a smooth delivery.`
         )
       ).toBeInTheDocument();
     });

@@ -39,12 +39,12 @@ describe('ConfirmWithLink component', () => {
     });
     expect(
       screen.queryByText(
-        'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+        'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
       )
     ).not.toBeInTheDocument();
     fireEvent.click(resendEmailButton);
     screen.getByText(
-      'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+      'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
     );
   });
 

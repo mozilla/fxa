@@ -292,7 +292,7 @@ describe('Resending a new code from ConfirmSignupCode page', () => {
     await waitFor(() => {
       expect(
         screen.getByText(
-          'Email resent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
+          'Email re-sent. Add accounts@firefox.com to your contacts to ensure a smooth delivery.'
         )
       ).toBeInTheDocument();
     });
