@@ -7,6 +7,9 @@ import { StatsD } from 'hot-shots';
 import PQueue from 'p-queue';
 import { Container } from 'typedi';
 
+import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
+import { CloudTasksClient } from '@google-cloud/tasks';
+
 import appConfig from '../config';
 import {
   AccountDeleteManager,
@@ -193,6 +196,14 @@ const init = async () => {
     statsd,
   });
 
+  // Replace the client with one that uses the fallback to HTTP for higher concurrency
+  const tasksConfig = config.cloudTasks;
+  accountDeleteManager['cloudTasksClient'] = new CloudTasksClient({
+    projectId: tasksConfig.projectId,
+    keyFilename: tasksConfig.credentials.keyFilename ?? undefined,
+    fallback: true,
+  });
+
   if (useSpecifiedAccounts) {
     const { uids, emails } = limitSpecifiedAccounts(program, limit);
 
@@ -223,26 +234,27 @@ const init = async () => {
       return 0;
     }
 
-    const accounts = await fxaDb.getEmailUnverifiedAccounts({
-      startCreatedAtDate: program.startDate,
-      endCreatedAtDate: program.endDate,
-      limit: limit === Infinity ? undefined : limit,
-      fields: ['uid'],
-    });
-
-    if (accounts.length === 0) {
-      console.log('No unverified accounts found with the given date range.');
-      return 0;
-    }
+    const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
+    const accounts = kyselyDb
+      .selectFrom('accounts')
+      .where('accounts.emailVerified', '=', 0)
+      .where('accounts.createdAt', '>=', program.startDate)
+      .where('accounts.createdAt', '<=', program.endDate)
+      .leftJoin('accountCustomers', 'accounts.uid', 'accountCustomers.uid')
+      .select(['accounts.uid', 'accountCustomers.stripeCustomerId']);
 
     // Scaling suggestion is 500/5/50 rule, may start at 500/sec, and increase every 5 minutes by 50%.
     // They also note increased latency may occur past 1000/sec, so we stop increasing as we approach that.
-    const scaleUpIntervalMins = 6;
+    const scaleUpIntervalMins = 5;
     let lastScaleUp = Date.now();
     let rateLimit = taskLimit;
-    let queue = new PQueue({ interval: 1000, intervalCap: rateLimit });
+    let queue = new PQueue({
+      interval: 1000,
+      intervalCap: rateLimit,
+      concurrency: rateLimit * 2,
+    });
 
-    for (const x of accounts) {
+    for await (const row of accounts.stream()) {
       if (
         rateLimit < 950 &&
         Date.now() - lastScaleUp > scaleUpIntervalMins * 60 * 1000
@@ -250,15 +262,25 @@ const init = async () => {
         await queue.onIdle();
         lastScaleUp = Date.now();
         rateLimit = Math.floor(rateLimit * 1.5);
-        queue = new PQueue({ interval: 1000, intervalCap: rateLimit });
+        queue = new PQueue({
+          interval: 1000,
+          intervalCap: rateLimit,
+          concurrency: rateLimit * 2,
+        });
       }
+
+      await queue.onSizeLessThan(rateLimit * 4); // Back-pressure
+
       queue.add(async () => {
         try {
-          const result = await accountDeleteManager.enqueue({
-            uid: x.uid,
+          const result = await accountDeleteManager['enqueueTask']({
+            uid: row.uid.toString('hex'),
+            customerId: row.stripeCustomerId || undefined,
             reason,
           });
-          console.log(`Created cloud task ${result} for uid ${x.uid}`);
+          console.log(
+            `Created cloud task ${result} for uid ${row.uid.toString('hex')}`
+          );
         } catch (err) {
           console.error('Errored creating task', err);
         }
