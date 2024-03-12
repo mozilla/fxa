@@ -182,7 +182,12 @@ describe('#integration - AccountResolver', () => {
         ];
         const securityEvents = resolver.securityEvents(user!);
         expect(securityEvents).toStrictEqual([
-          { name: 'account.created', verified: true, createdAt },
+          {
+            name: 'account.created',
+            verified: true,
+            createdAt,
+            ipAddr: undefined,
+          },
         ]);
       });
     });
