@@ -20633,6 +20633,43 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@swc-node/core@npm:^1.10.6":
+  version: 1.13.0
+  resolution: "@swc-node/core@npm:1.13.0"
+  peerDependencies:
+    "@swc/core": ">= 1.3"
+    "@swc/types": ">= 0.1"
+  checksum: 12056f1458c535c54c889aafbe969feef9329210657e1d22235b7d795856ec88e4a8e2116572371698ff2c0b184ebe7935ec857748262d5fcf0bd5b1563649b7
+  languageName: node
+  linkType: hard
+
+"@swc-node/register@npm:~1.6.7":
+  version: 1.6.8
+  resolution: "@swc-node/register@npm:1.6.8"
+  dependencies:
+    "@swc-node/core": ^1.10.6
+    "@swc-node/sourcemap-support": ^0.3.0
+    colorette: ^2.0.19
+    debug: ^4.3.4
+    pirates: ^4.0.5
+    tslib: ^2.5.0
+  peerDependencies:
+    "@swc/core": ">= 1.3"
+    typescript: ">= 4.3"
+  checksum: 70bfbd1e9d969318f68e11b9db86ca4d99c52f5f8a8aa4e3c63b1d512d8b4909c034a5e1346b243c45483d13c47f57b0943f6a1cafbe6f884d14d1026e0396c7
+  languageName: node
+  linkType: hard
+
+"@swc-node/sourcemap-support@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "@swc-node/sourcemap-support@npm:0.3.0"
+  dependencies:
+    source-map-support: ^0.5.21
+    tslib: ^2.5.0
+  checksum: a3c837ed790238ef88682eb342b75d756eba5eb3b6cfe6cf14a597bd78dfc9a9797f1e54a4977c1297e5324fba2e33bd76ab8aa9c396ad463693de2001180c9e
+  languageName: node
+  linkType: hard
+
 "@swc/cli@npm:~0.1.62":
   version: 0.1.62
   resolution: "@swc/cli@npm:0.1.62"
@@ -20893,7 +20930,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/helpers@npm:0.5.2, @swc/helpers@npm:~0.5.0":
+"@swc/helpers@npm:0.5.2":
   version: 0.5.2
   resolution: "@swc/helpers@npm:0.5.2"
   dependencies:
@@ -20908,6 +20945,15 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: 273fd3f3fc461a92f3790cc551ea054745c6d6959afbe1232e6d7aa1c722bbc114d308aab96bef5c78fc0303c85c7b472ef00e2253251cc89737f3b1af56e5a5
+  languageName: node
+  linkType: hard
+
+"@swc/helpers@npm:~0.5.2":
+  version: 0.5.6
+  resolution: "@swc/helpers@npm:0.5.6"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: 45de57097e1f6f356f571c7a4f55c692a46b0404c8601e5d9552e152000dfe541ff529d3d01c8a4abf60799d6e7d0078936e40be0a203ca356299d5d6adea765
   languageName: node
   linkType: hard
 
@@ -38831,9 +38877,10 @@ fsevents@~2.1.1:
     "@storybook/html-webpack5": ^7.6.13
     "@storybook/nextjs": ^7.6.14
     "@storybook/react-webpack5": ^7.4.5
+    "@swc-node/register": ~1.6.7
     "@swc/cli": ~0.1.62
     "@swc/core": ~1.4.6
-    "@swc/helpers": ~0.5.0
+    "@swc/helpers": ~0.5.2
     "@testing-library/react": ^14.2.1
     "@type-cacheable/core": ^14.0.1
     "@type-cacheable/ioredis-adapter": ^10.0.4
@@ -60184,7 +60231,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"source-map-support@npm:0.5.21, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
+"source-map-support@npm:0.5.21, source-map-support@npm:^0.5.21, source-map-support@npm:~0.5.12, source-map-support@npm:~0.5.20":
   version: 0.5.21
   resolution: "source-map-support@npm:0.5.21"
   dependencies:
