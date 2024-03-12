@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, newPagesForSync, test } from '../../lib/fixtures/standard';
-import { createCustomEventDetail, FirefoxCommand } from '../../lib/channels';
+import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import { expect, test } from '../../lib/fixtures/standard';
 import {
   syncDesktopV3QueryParams,
   syncMobileOAuthQueryParams,
@@ -108,12 +108,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
-      target,
+      syncBrowserPages: { page, signupReact, login },
     }) => {
       test.fixme(true, 'FXA-9096');
-      const syncBrowserPages = await newPagesForSync(target);
-      const { page, signupReact, login } = syncBrowserPages;
-
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -148,10 +145,10 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
-    test('signup sync desktop v3, verify account', async ({ target }) => {
+    test('signup sync desktop v3, verify account', async ({
+      syncBrowserPages: { page, signupReact, login },
+    }) => {
       test.slow();
-      const syncBrowserPages = await newPagesForSync(target);
-      const { page, signupReact, login } = syncBrowserPages;
 
       await signupReact.goto('/', syncDesktopV3QueryParams);
       await signupReact.fillOutEmailFirst(email);
@@ -180,8 +177,6 @@ test.describe('severity-1 #smoke', () => {
 
       await page.waitForURL(/connect_another_device/);
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
-
-      await syncBrowserPages.browser?.close();
     });
   });
 });

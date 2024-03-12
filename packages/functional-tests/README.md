@@ -198,30 +198,10 @@ async signOut() {
 }
 ```
 
-6. Use `beforeEach` and `afterEach`: Use `beforeEach` and `afterEach` hooks to set up and tear down the test environment, or using `test.slow()` to mark the test as slow and tripling the test timeout, or running a test in a particular environment etc.
+6. Use `fixtures` to set up and tear down the test environment or run a test in a particular environment etc.
 
-7. When writing any test that use Firefox Sync, use the `newPagesForSync` helper function. This function creates a new browser and a new browser context to avoid any Sync data being shared between tests. After your test is complete, ensure that the browser is closed to free up memory.
+7. Use `test.slow()` to mark the test as slow and triple the test timeout.
 
-Example:
-
-```ts
-let syncBrowserPages;
-test.beforeEach(async ({ target, pages: { login } }) => {
-  test.slow();
-  syncBrowserPages = await newPagesForSync(target);
-});
-
-test.afterEach(async () => {
-  await syncBrowserPages.browser?.close();
-});
-
-test('open directly to /signup page, refresh on the /signup page', async ({
-  target,
-}) => {
-  // Open new pages in browser specifcally for Sync
-  const { page, login } = syncBrowserPages;
-  // ... The rest of your test
-});
-```
+8. When writing tests that use Firefox Sync, use the `syncBrowserPages` fixture. This fixture creates a new browser and a new browser context to avoid any Sync data being shared between tests. After your test is complete, the fixture will ensure that the browser is closed to free up memory.
 
 By following these best practices, you can minimize the likelihood of race conditions in your Playwright tests and ensure more reliable and consistent test results.

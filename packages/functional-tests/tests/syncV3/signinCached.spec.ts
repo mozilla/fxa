@@ -2,18 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
+
 const password = 'passwordzxcv';
 let email;
 let email2;
-let syncBrowserPages;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
-    test.beforeEach(async ({ target }) => {
+    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
       test.slow(); //This test has steps for email rendering that runs slow on stage
-      syncBrowserPages = await newPagesForSync(target);
-      const { login } = syncBrowserPages;
       email = login.createEmail('sync{id}');
       email2 = login.createEmail();
       await target.auth.signUp(email, password, {
@@ -28,7 +26,6 @@ test.describe('severity-2 #smoke', () => {
 
     test.afterEach(async ({ target }) => {
       test.slow(); //The cleanup was timing out and exceeding 3000ms
-      await syncBrowserPages.browser?.close();
       const emails = [email, email2];
       for (const email of emails) {
         if (email) {
@@ -43,9 +40,9 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
       target,
+      syncBrowserPages: { page, login, connectAnotherDevice },
     }) => {
       test.fixme(true, 'test to be fixed, see FXA-9194');
-      const { page, login, connectAnotherDevice } = syncBrowserPages;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
@@ -85,9 +82,9 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
       target,
+      syncBrowserPages: { page, login },
     }) => {
       test.fixme(true, 'test to be fixed, see FXA-9194');
-      const { page, login } = syncBrowserPages;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );

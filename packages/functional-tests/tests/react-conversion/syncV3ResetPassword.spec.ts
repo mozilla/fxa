@@ -2,12 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe.configure({ mode: 'parallel' });
-let syncBrowserPages;
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
@@ -16,12 +15,13 @@ test.describe('severity-1 #smoke', () => {
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
-
-      syncBrowserPages = await newPagesForSync(target);
     });
 
-    test('reset pw for sync user', async ({ credentials, target }) => {
-      const { page, resetPasswordReact } = syncBrowserPages;
+    test('reset pw for sync user', async ({
+      credentials,
+      target,
+      syncBrowserPages: { page, resetPasswordReact },
+    }) => {
       await page.goto(
         getReactFeatureFlagUrl(
           target,

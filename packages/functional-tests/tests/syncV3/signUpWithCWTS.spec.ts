@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
-import uaStrings from '../../lib/ua-strings';
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
+import { expect, test } from '../../lib/fixtures/standard';
+import uaStrings from '../../lib/ua-strings';
 
 const password = 'passwordzxcv';
 let email;
-let syncBrowserPages;
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -22,19 +21,16 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('Sync v3 sign up and CWTS', () => {
-    test.beforeEach(async ({ target }) => {
+    test.beforeEach(async ({ syncBrowserPages: { login } }) => {
       //Sync tests run a little slower and flake
       test.slow();
-      syncBrowserPages = await newPagesForSync(target);
-      const { login } = syncBrowserPages;
       email = login.createEmail('sync{id}');
     });
 
-    test.afterEach(async () => {
-      await syncBrowserPages.browser?.close();
-    });
-
-    test('verify with signup code and CWTS', async ({ target }) => {
+    test('verify with signup code and CWTS', async ({
+      target,
+      syncBrowserPages,
+    }) => {
       const { login, page, signinTokenCode, connectAnotherDevice } =
         syncBrowserPages;
       const query = new URLSearchParams({
@@ -89,7 +85,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verify at CWTS', async ({ target }) => {
+    test('verify at CWTS', async ({ target, syncBrowserPages }) => {
       const { login, page, signinTokenCode, connectAnotherDevice } =
         syncBrowserPages;
       const query = new URLSearchParams({
@@ -134,8 +130,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('engines not supported', async ({ target }) => {
-      const { login, page, signinTokenCode } = syncBrowserPages;
+    test('engines not supported', async ({
+      target,
+      syncBrowserPages: { login, page, signinTokenCode },
+    }) => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -167,8 +165,8 @@ test.describe('severity-1 #smoke', () => {
 
     test('neither `creditcards` nor `addresses` supported', async ({
       target,
+      syncBrowserPages: { login, page, signinTokenCode },
     }) => {
-      const { login, page, signinTokenCode } = syncBrowserPages;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -201,8 +199,10 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.isCWTSEngineCreditCards()).toBe(false);
     });
 
-    test('`creditcards` and `addresses` supported', async ({ target }) => {
-      const { login, page, signinTokenCode } = syncBrowserPages;
+    test('`creditcards` and `addresses` supported', async ({
+      target,
+      syncBrowserPages: { login, page, signinTokenCode },
+    }) => {
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });

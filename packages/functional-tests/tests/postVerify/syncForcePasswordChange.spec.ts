@@ -2,17 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 let email;
 const password = 'password';
 const newPassword = 'new_password';
-let syncBrowserPages;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
-    test.beforeEach(async ({ target }) => {
-      syncBrowserPages = await newPagesForSync(target);
-      const { login } = syncBrowserPages;
+    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
       email = login.createEmail('forcepwdchange{id}');
       await target.auth.signUp(email, password, {
         lang: 'en',
@@ -21,14 +18,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test.afterEach(async ({ target }) => {
-      await syncBrowserPages.browser?.close();
       if (email) {
         // Cleanup any accounts created during the test
         await target.auth.accountDestroy(email, newPassword);
       }
     });
 
-    test('force change password on login - sync', async ({ target }) => {
+    test('force change password on login - sync', async ({
+      target,
+      syncBrowserPages,
+    }) => {
       const { page, login, postVerify, connectAnotherDevice } =
         syncBrowserPages;
       await page.goto(
