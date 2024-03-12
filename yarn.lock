@@ -21203,15 +21203,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@type-cacheable/ioredis-adapter@npm:^10.0.4":
-  version: 10.0.4
-  resolution: "@type-cacheable/ioredis-adapter@npm:10.0.4"
+"@type-cacheable/ioredis-adapter@npm:^14.1.0":
+  version: 14.1.0
+  resolution: "@type-cacheable/ioredis-adapter@npm:14.1.0"
   dependencies:
-    compare-versions: ^4.0.0
+    compare-versions: ^6.0.0
   peerDependencies:
-    "@type-cacheable/core": ^10.0.0
-    ioredis: ^4.14.1
-  checksum: 0716d9566bd2fb3da00ca26138576cc7300ba2142232527fc040290e9ec3c5dbe644977dbe16c9e5f8487a8b3a907b3d7b9da651e046f7c946332f87414621e2
+    "@type-cacheable/core": ^13.0.0
+    ioredis: ^5
+  checksum: 116bc09ea4cf3d15f616fbd7e20142db130dac351e0da9fd67d16b24d52d96019ae8748646f1a30e5f99d44abe3c159f365a7ff9a94dea538d5855c835731b78
   languageName: node
   linkType: hard
 
@@ -30577,10 +30577,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"compare-versions@npm:^4.0.0":
-  version: 4.1.4
-  resolution: "compare-versions@npm:4.1.4"
-  checksum: c1617544b79c2f36a1d543c50efd0da1a994040294c8923218080bc0df46da83ca414e3378282e93cab073744995124946417d130d8987e8efb5d1a73c0c4ba6
+"compare-versions@npm:^6.0.0":
+  version: 6.1.0
+  resolution: "compare-versions@npm:6.1.0"
+  checksum: d4e2a45706a023d8d0b6680338b66b79e20bd02d1947f0ac6531dab634cbed89fa373b3f03d503c5e489761194258d6e1bae67a07f88b1efc61648454f2d47e7
   languageName: node
   linkType: hard
 
@@ -38836,7 +38836,7 @@ fsevents@~2.1.1:
     "@swc/helpers": ~0.5.0
     "@testing-library/react": ^14.2.1
     "@type-cacheable/core": ^14.0.1
-    "@type-cacheable/ioredis-adapter": ^10.0.4
+    "@type-cacheable/ioredis-adapter": ^14.1.0
     "@types/babel__core": ^7
     "@types/jest": ^29.5.1
     "@types/mysql": ^2
