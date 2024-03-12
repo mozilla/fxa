@@ -562,6 +562,11 @@ export class LoginPage extends BaseLayout {
     await this.page.waitForURL(/accounts\.google\.com/);
   }
 
+  async clickContinueWithApple() {
+    await this.page.getByText('Continue with Apple').click();
+    await this.page.waitForURL(/appleid\.apple\.com/);
+  }
+
   async clearCache() {
     await this.page.goto(`${this.target.contentServerUrl}/clear`);
     await this.page.context().clearCookies();
