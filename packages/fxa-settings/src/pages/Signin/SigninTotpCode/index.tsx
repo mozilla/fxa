@@ -186,12 +186,16 @@ export const SigninTotpCode = ({
         />
         <div className="mt-5 link-blue text-sm flex justify-between">
           <FtlMsg id="signin-totp-code-other-account-link">
-            <Link to="/signin" className="text-start">
+            <Link to={`/signin${location.search}`} className="text-start">
               Use a different account
             </Link>
           </FtlMsg>
           <FtlMsg id="signin-totp-code-recovery-code-link">
-            <Link to="/signin_recovery_code" className="text-end">
+            <Link
+              to={`/signin_recovery_code${location.search}`}
+              state={signinLocationState}
+              className="text-end"
+            >
               Trouble entering code?
             </Link>
           </FtlMsg>

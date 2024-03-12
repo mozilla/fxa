@@ -24,6 +24,9 @@ import { SessionReauthedAccountPayload } from './dto/payload/session-reauthed-ac
 import { CatchGatewayError } from './lib/error';
 import { Session as SessionType, SessionStatus } from './model/session';
 import { SessionVerifyCodeInput } from './dto/input/session-verify-code';
+import { ConsumeRecoveryCodePayload } from './dto/payload/consume-recovery-code';
+import { ConsumeRecoveryCodeInput } from './dto/input/consume-recovery-code';
+import { UnverifiedSessionGuard } from '../auth/unverified-session-guard';
 
 @Resolver((of: any) => SessionType)
 export class SessionResolver {
@@ -121,6 +124,24 @@ export class SessionResolver {
     );
     return {
       clientMutationId: input.clientMutationId,
+    };
+  }
+
+  @Mutation((returns) => ConsumeRecoveryCodePayload, {
+    description:
+      'Verify session with a 2FA backup authentication (recovery) code',
+  })
+  @UseGuards(UnverifiedSessionGuard, GqlCustomsGuard)
+  @CatchGatewayError
+  public async consumeRecoveryCode(
+    @GqlSessionToken() token: string,
+    @Args('input', { type: () => ConsumeRecoveryCodeInput })
+    input: ConsumeRecoveryCodeInput
+  ): Promise<ConsumeRecoveryCodePayload> {
+    const result = await this.authAPI.consumeRecoveryCode(token, input.code);
+    return {
+      clientMutationId: input.clientMutationId,
+      ...result,
     };
   }
 }

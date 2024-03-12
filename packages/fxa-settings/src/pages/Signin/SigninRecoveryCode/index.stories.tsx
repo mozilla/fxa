@@ -4,29 +4,74 @@
 
 import React from 'react';
 import SigninRecoveryCode from '.';
-import AppLayout from '../../../components/AppLayout';
 import { Meta } from '@storybook/react';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
 import { MozServices } from '../../../lib/types';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { BeginSigninError } from '../interfaces';
+import { LocationProvider } from '@reach/router';
+import { mockSigninLocationState } from '../mocks';
+import { mockFinishOAuthFlowHandler } from '../../mocks';
+import { mockWebIntegration } from './mocks';
 
 export default {
   title: 'Pages/Signin/SigninRecoveryCode',
   component: SigninRecoveryCode,
-  decorators: [withLocalization],
+  decorators: [
+    withLocalization,
+    (Story) => (
+      <LocationProvider>
+        <Story />
+      </LocationProvider>
+    ),
+  ],
 } as Meta;
 
+const mockSubmitSuccess = () =>
+  Promise.resolve({ data: { consumeRecoveryCode: { remaining: 3 } } });
+const mockCodeError = () =>
+  Promise.resolve({
+    error: AuthUiErrors.INVALID_RECOVERY_CODE as BeginSigninError,
+  });
+
+const mockOtherError = () =>
+  Promise.resolve({
+    error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError,
+  });
+
 export const Default = () => (
-  <AppLayout>
-    <SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />
-  </AppLayout>
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    signinLocationState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
 );
 
 export const WithServiceName = () => (
-  <AppLayout>
-    <SigninRecoveryCode
-      email={MOCK_ACCOUNT.primaryEmail.email}
-      serviceName={MozServices.MozillaVPN}
-    />
-  </AppLayout>
+  <SigninRecoveryCode
+    serviceName={MozServices.MozillaVPN}
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    signinLocationState={mockSigninLocationState}
+    submitRecoveryCode={mockSubmitSuccess}
+  />
+);
+
+export const WithCodeErrorOnSubmit = () => (
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    signinLocationState={mockSigninLocationState}
+    submitRecoveryCode={mockCodeError}
+  />
+);
+
+export const WithBannerErrorOnSubmit = () => (
+  <SigninRecoveryCode
+    finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+    integration={mockWebIntegration}
+    signinLocationState={mockSigninLocationState}
+    submitRecoveryCode={mockOtherError}
+  />
 );

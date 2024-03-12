@@ -7,12 +7,10 @@ import classNames from 'classnames';
 import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { Account, useFtlMsgResolver } from '../../models';
-import { usePageViewEvent } from '../../lib/metrics';
 import { TwoFactorAuthImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
-import { REACT_ENTRYPOINT } from '../../constants';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
 
@@ -26,8 +24,6 @@ type InlineTotpSetupProps = {
   verifyCodeHandler: (code: string) => void;
 };
 
-export const viewName = 'inline-totp-setup';
-
 export const InlineTotpSetup = ({
   totp,
   email,
@@ -35,8 +31,6 @@ export const InlineTotpSetup = ({
   cancelSetupHandler,
   verifyCodeHandler,
 }: InlineTotpSetupProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedQRCodeAltText = ftlMsgResolver.getMsg(
     'tfa-qr-code-alt',

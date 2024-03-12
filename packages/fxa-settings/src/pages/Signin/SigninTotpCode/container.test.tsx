@@ -8,7 +8,6 @@ import * as UseValidateModule from '../../../lib/hooks/useValidate';
 import * as CacheModule from '../../../lib/cache';
 import * as ReactUtils from 'fxa-react/lib/utils';
 import * as ReachRouterModule from '@reach/router';
-import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ApolloModule from '@apollo/client';
 
 // Regular imports
@@ -27,6 +26,7 @@ import {
   MOCK_TOTP_LOCATION_STATE,
 } from './mocks';
 import { SigninLocationState } from '../interfaces';
+import { mockLoadingSpinnerModule } from '../../mocks';
 
 let integration: Integration;
 
@@ -43,12 +43,6 @@ function mockSigninTotpModule() {
       currentPageProps = props;
       return <div>signin totp code mock</div>;
     });
-}
-
-function mockLoadingSpinnerModule() {
-  jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
-    return <div>loading spinner mock</div>;
-  });
 }
 
 function mockUseValidateModule(opts: any = {}) {

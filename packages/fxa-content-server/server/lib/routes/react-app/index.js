@@ -75,6 +75,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'complete_signin',
         'signin_unblock',
         'force_auth',
+        'signin_recovery_code',
       ]),
       fullProdRollout: false,
     },

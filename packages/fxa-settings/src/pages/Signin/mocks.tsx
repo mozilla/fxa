@@ -88,6 +88,13 @@ export const MOCK_NO_TOTP = {
   },
 };
 
+export const mockSigninLocationState = {
+  email: MOCK_EMAIL,
+  sessionToken: MOCK_SESSION_TOKEN,
+  uid: MOCK_UID,
+  verified: false,
+};
+
 export function createMockSigninWebIntegration(): SigninIntegration {
   return {
     type: IntegrationType.Web,

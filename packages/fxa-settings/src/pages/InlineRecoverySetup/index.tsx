@@ -4,12 +4,10 @@
 
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import DataBlock from '../../components/DataBlock';
-import { REACT_ENTRYPOINT } from '../../constants';
 import { RecoveryCodesImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import AppLayout from '../../components/AppLayout';
@@ -29,8 +27,6 @@ export type InlineRecoverySetupProps = {
   successfulSetupHandler: () => void;
 };
 
-export const viewName = 'inline-recovery-setup';
-
 const InlineRecoverySetup = ({
   recoveryCodes,
   serviceName,
@@ -38,8 +34,6 @@ const InlineRecoverySetup = ({
   verifyTotpHandler,
   successfulSetupHandler,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
-
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedIncorrectBackupCodeError = ftlMsgResolver.getMsg(
     'tfa-incorrect-recovery-code-1',
