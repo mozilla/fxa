@@ -235,38 +235,37 @@ const init = async () => {
     }
 
     const kyselyDb = await setupAccountDatabase(config.database.mysql.auth);
-    const accounts = kyselyDb
+    const accounts = await kyselyDb
       .selectFrom('accounts')
       .where('accounts.emailVerified', '=', 0)
       .where('accounts.createdAt', '>=', program.startDate)
       .where('accounts.createdAt', '<=', program.endDate)
       .leftJoin('accountCustomers', 'accounts.uid', 'accountCustomers.uid')
-      .select(['accounts.uid', 'accountCustomers.stripeCustomerId']);
+      .select(['accounts.uid', 'accountCustomers.stripeCustomerId'])
+      .execute();
 
     // Scaling suggestion is 500/5/50 rule, may start at 500/sec, and increase every 5 minutes by 50%.
     // They also note increased latency may occur past 1000/sec, so we stop increasing as we approach that.
     const scaleUpIntervalMins = 5;
     let lastScaleUp = Date.now();
     let rateLimit = taskLimit;
-    let queue = new PQueue({
+    const queue = new PQueue({
       interval: 1000,
       intervalCap: rateLimit,
       concurrency: rateLimit * 2,
     });
 
-    for await (const row of accounts.stream()) {
+    for (const row of accounts) {
       if (
         rateLimit < 950 &&
         Date.now() - lastScaleUp > scaleUpIntervalMins * 60 * 1000
       ) {
-        await queue.onIdle();
-        lastScaleUp = Date.now();
         rateLimit = Math.floor(rateLimit * 1.5);
-        queue = new PQueue({
-          interval: 1000,
-          intervalCap: rateLimit,
-          concurrency: rateLimit * 2,
-        });
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        queue['#intervalCap'] = rateLimit; // This is private, but we need to update it
+        queue.concurrency = rateLimit * 2;
+        lastScaleUp = Date.now();
       }
 
       await queue.onSizeLessThan(rateLimit * 4); // Back-pressure
