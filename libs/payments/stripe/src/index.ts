@@ -5,8 +5,11 @@ export { InvoiceFactory } from './lib/factories/invoice.factory';
 export { PriceFactory } from './lib/factories/price.factory';
 export { PlanFactory } from './lib/factories/plan.factory';
 export { ProductFactory } from './lib/factories/product.factory';
-export { SubscriptionItemFactory } from './lib/factories/subscription-item.factory';
-export { SubscriptionFactory } from './lib/factories/subscription.factory';
+export {
+  SubscriptionFactory,
+  SubscriptionItemFactory,
+  SubscriptionListFactory,
+} from './lib/factories/subscription.factory';
 export * from './lib/stripe.client';
 export * from './lib/stripe.constants';
 export * from './lib/stripe.error';

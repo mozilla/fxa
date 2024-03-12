@@ -5,7 +5,10 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { StripeManager } from '@fxa/payments/stripe';
+import {
+  ACTIVE_SUBSCRIPTION_STATUSES,
+  StripeManager,
+} from '@fxa/payments/stripe';
 import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
@@ -40,6 +43,24 @@ export class PayPalManager {
       street2: response.STREET2,
       zip: response.ZIP,
     };
+  }
+
+  /**
+   * Retrieves PayPal subscriptions
+   *
+   * @param customer
+   * @returns
+   */
+
+  async getCustomerPayPalSubscriptions(customer: Stripe.Customer) {
+    const subscriptions = await this.stripeManager.getSubscriptions(
+      customer.id
+    );
+    return subscriptions.data.filter(
+      (sub) =>
+        ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
+        sub.collection_method === 'send_invoice'
+    );
   }
 
   /**

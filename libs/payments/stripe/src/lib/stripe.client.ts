@@ -28,6 +28,18 @@ export class StripeClient {
     return this.stripe.customers.retrieve(customerId);
   }
 
+  /**
+   * Retrieves subscriptions directly from Stripe
+   *
+   * @param customerId
+   * @returns
+   */
+  async fetchSubscriptions(customerId: string) {
+    return this.stripe.subscriptions.list({
+      customer: customerId,
+    });
+  }
+
   async finalizeInvoice(
     invoiceId: string,
     params?: Stripe.InvoiceFinalizeInvoiceParams | undefined

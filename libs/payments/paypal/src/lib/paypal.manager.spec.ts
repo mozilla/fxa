@@ -6,6 +6,8 @@ import {
   InvoiceFactory,
   StripeClient,
   StripeManager,
+  SubscriptionFactory,
+  SubscriptionListFactory,
 } from '@fxa/payments/stripe';
 import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 
@@ -111,6 +113,42 @@ describe('paypalManager', () => {
       expect(result).toEqual(expected);
       expect(paypalClient.baUpdate).toBeCalledTimes(1);
       expect(paypalClient.baUpdate).toBeCalledWith({ billingAgreementId });
+    });
+  });
+
+  describe('getCustomerPayPalSubscriptions', () => {
+    it('return customer subscriptions where collection method is send_invoice', async () => {
+      const mockPayPalSubscription = SubscriptionFactory({
+        collection_method: 'send_invoice',
+        status: 'active',
+      });
+
+      const mockSubscriptionList = SubscriptionListFactory({
+        object: 'list',
+        url: '/v1/subscriptions',
+        has_more: false,
+        data: [mockPayPalSubscription],
+      });
+
+      const mockCustomer = CustomerFactory({
+        subscriptions: {
+          object: 'list',
+          data: [mockPayPalSubscription],
+          has_more: true,
+          url: '/v1/customers/customer12345/subscriptions',
+        },
+      });
+
+      const expected = [mockPayPalSubscription];
+
+      stripeManager.getSubscriptions = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscriptionList);
+
+      const result = await paypalManager.getCustomerPayPalSubscriptions(
+        mockCustomer
+      );
+      expect(result).toEqual(expected);
     });
   });
 
