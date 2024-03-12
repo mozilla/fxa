@@ -29,6 +29,10 @@ test.describe('severity-2 #smoke', () => {
         // Cleanup any accounts created during the test
         await target.auth.accountDestroy(email, password);
       }
+      if (email2) {
+        // Cleanup any accounts created during the test
+        await target.auth.accountDestroy(email2, password);
+      }
     });
 
     test('sign in twice, on second attempt email will be cached', async ({
