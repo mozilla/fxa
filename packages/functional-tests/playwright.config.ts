@@ -10,7 +10,7 @@ const CI = !!process.env.CI;
 // see .vscode/launch.json
 const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
-const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '2');
+const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '16');
 
 let retries = 0,
   workers = NUM_WORKERS || 2,

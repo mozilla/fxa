@@ -116,6 +116,9 @@ export abstract class BaseLayout {
    * index page has been converted to React and our event handling moved.
    */
   async sendWebChannelMessage(customEventDetail: CustomEventDetail) {
+    // Using waitForTimeout is naturally flaky, I'm not sure of other options
+    // to ensure that browser has had time send all web channel messages.
+    await this.page.waitForTimeout(2000);
     await this.page.evaluate(
       ({ customEventDetail }) => {
         window.dispatchEvent(

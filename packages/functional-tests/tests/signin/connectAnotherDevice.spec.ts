@@ -19,7 +19,12 @@ test.describe('severity-2 #smoke', () => {
         signupReact,
       } = await newPagesForSync(target);
       const config = await configPage.getConfig();
-      await target.auth.accountDestroy(credentials.email, credentials.password);
+      await target.auth.accountDestroy(
+        credentials.email,
+        credentials.password,
+        {},
+        credentials.sessionToken
+      );
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,

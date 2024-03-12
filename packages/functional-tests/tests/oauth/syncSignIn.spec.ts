@@ -16,11 +16,13 @@ test.describe('severity-1 #smoke', () => {
   test.describe('signin with OAuth after Sync', () => {
     test.afterEach(async ({ target }) => {
       if (email) {
-        await target.auth.accountDestroy(email, password);
+        const creds = await target.auth.signIn(email, password);
+        await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
         email = '';
       }
       if (email2) {
-        await target.auth.accountDestroy(email2, password);
+        const creds = await target.auth.signIn(email2, password);
+        await target.auth.accountDestroy(email2, password, {}, creds.sessionToken);
         email2 = '';
       }
     });
@@ -78,7 +80,8 @@ test.describe('severity-1 #smoke', () => {
   test.describe('signin to Sync after OAuth', () => {
     test.afterEach(async ({ target }) => {
       if (email) {
-        await target.auth.accountDestroy(email, password);
+        const creds = await target.auth.signIn(email, password);
+        await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
         email = '';
       }
     });

@@ -46,7 +46,13 @@ test.describe('severity-2 #smoke', () => {
 
     test.afterEach(async ({ target }) => {
       if (email) {
-        await target.auth.accountDestroy(email, secondPassword);
+        const creds = await target.auth.signIn(email, secondPassword);
+        await target.auth.accountDestroy(
+          email,
+          secondPassword,
+          {},
+          creds.sessionToken
+        );
       }
     });
 

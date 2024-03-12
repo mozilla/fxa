@@ -2367,8 +2367,8 @@ export const accountRoutes = (
       options: {
         ...ACCOUNT_DOCS.ACCOUNT_DESTROY_POST,
         auth: {
-          mode: 'optional',
           strategy: 'sessionToken',
+          payload: 'required',
         },
         validate: {
           payload: isA.object({

@@ -41,6 +41,7 @@ test.describe('severity-1 #smoke', () => {
       await page.getByText('Two-step authentication disabled').waitFor();
       const status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
+      credentials.secret = null;
 
       await relier.goto();
       await relier.clickEmailFirst();

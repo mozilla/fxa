@@ -43,8 +43,10 @@ test.describe('fxa_status web channel message in Settings', () => {
   test.afterEach(async ({ target }) => {
     if (!skipTest) {
       // Cleanup any accounts created during the test
-      await target.auth.accountDestroy(browserEmail, password);
-      await target.auth.accountDestroy(otherEmail, password);
+      const credsBrowser = await target.auth.signIn(browserEmail, password);
+      const credsEmail = await target.auth.signIn(otherEmail, password);
+      await target.auth.accountDestroy(browserEmail, password, {}, credsBrowser.sessionToken);
+      await target.auth.accountDestroy(otherEmail, password, {}, credsEmail.sessionToken);
     }
   });
 

@@ -1,5 +1,5 @@
-import { Browser, test as base, expect, firefox } from '@playwright/test';
-import { TargetName, ServerTarget, create, Credentials } from '../targets';
+import { Browser, expect, firefox, test as base } from '@playwright/test';
+import { create, Credentials, ServerTarget, TargetName } from '../targets';
 import { EmailClient } from '../email';
 import { create as createPages } from '../../pages';
 import { BaseTarget } from '../targets/base';
@@ -36,45 +36,60 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     const password = 'passwordzxcv';
     await target.email.clear(email);
     let credentials: Credentials;
+
     try {
       credentials = await target.createAccount(email, password);
     } catch (e) {
-      await target.auth.accountDestroy(email, password);
+      const newCreds = await target.auth.signIn(email, password);
+      await target.auth.accountDestroy(
+        email,
+        password,
+        {},
+        newCreds.sessionToken
+      );
       credentials = await target.createAccount(email, password);
     }
 
     await use(credentials);
 
     //teardown
-    await target.email.clear(credentials.email);
+    await target.email.clear(email);
+
     try {
-      await target.auth.accountDestroy(credentials.email, credentials.password);
-    } catch (error: any) {
-      if (error.message === 'Unconfirmed session') {
-        // If totp was enabled we'll need a verified session to destroy the account
-        if (credentials.secret) {
-          // we don't know if the original session still exists
-          // the test may have called signOut()
-          const { sessionToken } = await target.auth.signIn(
-            credentials.email,
-            credentials.password
-          );
-          credentials.sessionToken = sessionToken;
-          await target.auth.verifyTotpCode(
-            sessionToken,
-            await getCode(credentials.secret)
-          );
-          await target.auth.accountDestroy(
-            credentials.email,
-            credentials.password,
-            {},
-            sessionToken
-          );
-        } else {
-          throw error;
-        }
-      } else if (error.message !== 'Unknown account') {
-        throw error;
+      // we don't know if the original session still exists
+      // the test may have called signOut()
+      const { sessionToken } = await target.auth.signIn(
+        email,
+        credentials.password
+      );
+
+      if (credentials.secret) {
+        credentials.sessionToken = sessionToken;
+        await target.auth.verifyTotpCode(
+          sessionToken,
+          await getCode(credentials.secret)
+        );
+      }
+
+      await target.auth.accountDestroy(
+        email,
+        credentials.password,
+        {},
+        sessionToken
+      );
+    } catch (err) {
+      if (
+        err.message ===
+        'Sign in with this email type is not currently supported'
+      ) {
+        // The user changed their primary email, the test case must manually destroy the account
+      } else if (
+        err.message === 'The request was blocked for security reasons'
+      ) {
+        // Some accounts are always prompted to unblock their account, ie emails starting
+        // `blocked.`. These accounts need to be destroyed in the test case
+      } else if (err.message !== 'Unknown account') {
+        throw err;
       }
       //s'ok
     }

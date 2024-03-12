@@ -27,11 +27,13 @@ test.describe('severity-2 #smoke', () => {
       test.slow(); //The cleanup was timing out and exceeding 3000ms
       if (email) {
         // Cleanup any accounts created during the test
-        await target.auth.accountDestroy(email, password);
+        const creds = await target.auth.signIn(email, password);
+        await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
       }
       if (email2) {
         // Cleanup any accounts created during the test
-        await target.auth.accountDestroy(email2, password);
+        const creds = await target.auth.signIn(email2, password);
+        await target.auth.accountDestroy(email2, password, {}, creds.sessionToken);
       }
     });
 

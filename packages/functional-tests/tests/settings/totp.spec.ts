@@ -32,6 +32,7 @@ test.describe('severity-1 #smoke', () => {
       await page.getByText('Two-step authentication disabled').waitFor();
       status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
+      credentials.secret = null;
 
       // Login to verify no prompt for code
       await settings.signOut();
