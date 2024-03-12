@@ -2,30 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { expect, test } from '../../lib/fixtures/standard';
 
 const password = 'passwordzxcv';
 let email;
-let syncBrowserPages;
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign in', () => {
-    test.beforeEach(async ({ target }) => {
+    test.beforeEach(async ({ syncBrowserPages: { login } }) => {
       test.slow();
-      syncBrowserPages = await newPagesForSync(target);
-      const { login } = syncBrowserPages;
       email = login.createEmail('sync{id}');
     });
 
-    test.afterEach(async () => {
-      test.slow(); //The cleanup was timing out and exceeding 3000ms
-      await syncBrowserPages.browser?.close();
-    });
-
-    test('verified, does not need to confirm', async ({ target }) => {
+    test('verified, does not need to confirm', async ({
+      target,
+      syncBrowserPages,
+    }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
       const email = login.createEmail();
@@ -44,7 +39,7 @@ test.describe('severity-2 #smoke', () => {
     });
 
     // TODO in FXA-8973 - use sign in not sign up flow
-    test('verified, resend', async ({ target }) => {
+    test('verified, resend', async ({ target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
@@ -82,7 +77,7 @@ test.describe('severity-2 #smoke', () => {
     });
 
     // TODO in FXA-8973 - use sign in not sign up flow
-    test('verified - invalid code', async ({ target }) => {
+    test('verified - invalid code', async ({ target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
@@ -112,7 +107,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verified, blocked', async ({ target }) => {
+    test('verified, blocked', async ({ target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
@@ -132,7 +127,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('unverified', async ({ target }) => {
+    test('unverified', async ({ target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
@@ -154,6 +149,7 @@ test.describe('severity-2 #smoke', () => {
     test('add TOTP and confirm sync signin', async ({
       credentials,
       target,
+      syncBrowserPages,
     }) => {
       const { page, login, connectAnotherDevice, settings, totp } =
         syncBrowserPages;
@@ -180,10 +176,8 @@ test.describe('severity-1 #smoke', () => {
     test('user signed into browser and OAuth login', async ({
       target,
       credentials,
+      syncBrowserPages: { page, login, relier, settings },
     }) => {
-      const { browser, page, login, relier, settings } = await newPagesForSync(
-        target
-      );
       await page.goto(
         target.contentServerUrl +
           '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
@@ -225,8 +219,6 @@ test.describe('severity-1 #smoke', () => {
       await settings.disconnectSync(credentials);
 
       expect(page.url()).toContain(login.url);
-
-      await browser?.close();
     });
   });
 });

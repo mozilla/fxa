@@ -2,20 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 const password = 'passwordzxcv';
-let syncBrowserPages;
 let email;
 let email2;
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('signin with OAuth after Sync', () => {
-    test.beforeEach(async ({ target }) => {
-      test.slow();
-      syncBrowserPages = await newPagesForSync(target);
-    });
+  test.beforeEach(async ({ target }) => {
+    test.slow();
+  });
 
+  test.describe('signin with OAuth after Sync', () => {
     test.afterEach(async ({ target }) => {
       if (email) {
         await target.auth.accountDestroy(email, password);
@@ -25,18 +23,19 @@ test.describe('severity-1 #smoke', () => {
         await target.auth.accountDestroy(email2, password);
         email2 = '';
       }
-      await syncBrowserPages.browser?.close();
     });
 
-    test('signin to OAuth with Sync creds', async ({ target }) => {
-      const {
+    test('signin to OAuth with Sync creds', async ({
+      target,
+      syncBrowserPages: {
         configPage,
         page,
         login,
         connectAnotherDevice,
         relier,
         signupReact,
-      } = syncBrowserPages;
+      },
+    }) => {
       const config = await configPage.getConfig();
 
       email = login.createEmail('sync{id}');
@@ -77,28 +76,24 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('signin to Sync after OAuth', () => {
-    test.beforeEach(async ({ target }) => {
-      test.slow();
-      syncBrowserPages = await newPagesForSync(target);
-    });
-
     test.afterEach(async ({ target }) => {
       if (email) {
         await target.auth.accountDestroy(email, password);
         email = '';
       }
-      await syncBrowserPages.browser?.close();
     });
 
-    test('email-first Sync signin', async ({ target }) => {
-      const {
+    test('email-first Sync signin', async ({
+      target,
+      syncBrowserPages: {
         configPage,
         page,
         login,
         connectAnotherDevice,
         relier,
         signupReact,
-      } = syncBrowserPages;
+      },
+    }) => {
       const config = await configPage.getConfig();
 
       const email = login.createEmail('sync{id}');

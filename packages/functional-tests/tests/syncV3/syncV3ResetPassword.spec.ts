@@ -2,29 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Firefox Desktop Sync v3 reset password', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    test.slow();
-
+  test('reset pw, test pw validation, verify same browser', async ({
+    pages: { configPage },
+    credentials,
+    target,
+    syncBrowserPages: { page, login, resetPassword },
+  }) => {
     const config = await configPage.getConfig();
     test.skip(
       config.showReactApp.resetPasswordRoutes === true,
       'Scheduled for removal as part of React conversion (see FXA-8267).'
     );
-  });
+    test.slow();
 
-  test('reset pw, test pw validation, verify same browser', async ({
-    credentials,
-    target,
-  }) => {
-    const { browser, page, login, resetPassword } = await newPagesForSync(
-      target
-    );
     await page.goto(
       `${target.contentServerUrl}/reset_password?context=fx_desktop_v3&service=sync&forceExperiment=generalizedReactApp&forceExperimentGroup=control`
     );
@@ -63,7 +59,5 @@ test.describe('Firefox Desktop Sync v3 reset password', () => {
 
     await resetPassword.resetNewPassword('Newpassword@');
     await resetPassword.completeResetPasswordHeader();
-
-    await browser?.close();
   });
 });

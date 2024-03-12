@@ -15,6 +15,7 @@ export type POMS = ReturnType<typeof createPages>;
 
 export type TestOptions = {
   pages: POMS;
+  syncBrowserPages: POMS;
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -82,6 +83,14 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   pages: async ({ target, page }, use) => {
     const pages = createPages(page, target);
     await use(pages);
+  },
+
+  syncBrowserPages: async ({ target }, use) => {
+    const syncBrowserPages = await newPagesForSync(target);
+
+    await use(syncBrowserPages);
+
+    await syncBrowserPages.browser?.close();
   },
 
   storageState: async ({ target, credentials }, use) => {

@@ -2,35 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 const password = 'passwordzxcv';
 const incorrectPassword = 'password123';
-let email, syncBrowserPages;
+let email;
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.signUpRoutes === true,
-      'these tests are specific to backbone, skip if seeing React version'
-    );
-  });
-
   test.describe('Firefox Desktop Sync v3 sign up', () => {
-    test.beforeEach(async ({ target, pages: { login } }) => {
+    test.beforeEach(async ({ pages: { configPage, login } }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if seeing React version'
+      );
       test.slow();
       email = login.createEmail('sync{id}');
-      syncBrowserPages = await newPagesForSync(target);
     });
 
-    test.afterEach(async () => {
-      await syncBrowserPages.browser?.close();
-    });
-
-    test('sync sign up', async ({ target }) => {
+    test('sync sign up', async ({ target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
@@ -60,8 +52,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('coppa disabled', async ({ target }) => {
-      const { page, login, connectAnotherDevice } = syncBrowserPages;
+    test('coppa disabled', async ({
+      target,
+      syncBrowserPages: { page, login, connectAnotherDevice },
+    }) => {
       const query = { coppa: 'false' };
       const queryParam = new URLSearchParams(query);
       await page.goto(
@@ -81,8 +75,10 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
-    test('email specified by relier, invalid', async ({ target }) => {
-      const { page, login } = syncBrowserPages;
+    test('email specified by relier, invalid', async ({
+      target,
+      syncBrowserPages: { page, login },
+    }) => {
       const invalidEmail = 'invalid@@';
       const query = { email: invalidEmail };
       const queryParam = new URLSearchParams(query);
@@ -94,8 +90,10 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.getTooltipError()).toContain('Valid email required');
     });
 
-    test('email specified by relier, empty string', async ({ target }) => {
-      const { page, login } = syncBrowserPages;
+    test('email specified by relier, empty string', async ({
+      target,
+      syncBrowserPages: { page, login },
+    }) => {
       const emptyEmail = '';
       const query = { email: emptyEmail };
       const queryParam = new URLSearchParams(query);
@@ -107,8 +105,10 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.getTooltipError()).toContain('Valid email required');
     });
 
-    test('email specified by relier, not registered', async ({ target }) => {
-      const { page, login } = syncBrowserPages;
+    test('email specified by relier, not registered', async ({
+      target,
+      syncBrowserPages: { page, login },
+    }) => {
       const query = { email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
@@ -127,8 +127,8 @@ test.describe('severity-1 #smoke', () => {
     test('email specified by relier, registered', async ({
       credentials,
       target,
+      syncBrowserPages: { page, login },
     }) => {
-      const { page, login } = syncBrowserPages;
       const query = { email: credentials.email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
