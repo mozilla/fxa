@@ -5,6 +5,7 @@ CREATE TABLE `securityEvents` (
   `ipAddrHmac` binary(32) NOT NULL,
   `createdAt` bigint NOT NULL,
   `tokenVerificationId` binary(16) DEFAULT NULL,
+  `ipAddr` VARCHAR(39) DEFAULT NULL,
   KEY `nameId` (`nameId`),
   KEY `securityEvents_uid_tokenVerificationId` (`uid`,`tokenVerificationId`),
   KEY `securityEvents_uid_ipAddrHmac_createdAt` (`uid`,`ipAddrHmac`,`createdAt`),
