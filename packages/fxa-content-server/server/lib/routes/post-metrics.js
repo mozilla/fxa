@@ -37,7 +37,6 @@ const {
   DOMAIN: DOMAIN_TYPE,
   EXPERIMENT: EXPERIMENT_TYPE,
   HEX32: HEX32_TYPE,
-  INTEGER: INTEGER_TYPE,
   NEWSLETTERS: NEWSLETTERS,
   OFFSET: OFFSET_TYPE,
   REFERRER: REFERRER_TYPE,
@@ -49,10 +48,6 @@ const {
   UTM: UTM_TYPE,
   UTM_CAMPAIGN: UTM_CAMPAIGN_TYPE,
 } = validation.TYPES;
-
-// a user can disable navigationTiming, in which case all values are `null`
-// negative values are allowed until we figure out the cause of #4722
-const NAVIGATION_TIMING_TYPE = INTEGER_TYPE.allow(null).required();
 
 const BODY_SCHEMA = {
   broker: STRING_TYPE.regex(BROKER_PATTERN).required(),
@@ -68,7 +63,7 @@ const BODY_SCHEMA = {
     .array()
     .items(
       joi.object().keys({
-        offset: OFFSET_TYPE.max(MAX_EVENT_OFFSET).required(),
+        offset: OFFSET_TYPE.required(),
         type: STRING_TYPE.regex(EVENT_TYPE_PATTERN).required(),
       })
     )
@@ -98,32 +93,7 @@ const BODY_SCHEMA = {
       })
     )
     .required(),
-  navigationTiming: joi
-    .object()
-    .keys({
-      connectEnd: NAVIGATION_TIMING_TYPE.required(),
-      connectStart: NAVIGATION_TIMING_TYPE.required(),
-      domainLookupEnd: NAVIGATION_TIMING_TYPE.required(),
-      domainLookupStart: NAVIGATION_TIMING_TYPE.required(),
-      domComplete: NAVIGATION_TIMING_TYPE.required(),
-      domContentLoadedEventEnd: NAVIGATION_TIMING_TYPE.required(),
-      domContentLoadedEventStart: NAVIGATION_TIMING_TYPE.required(),
-      domInteractive: NAVIGATION_TIMING_TYPE.required(),
-      domLoading: NAVIGATION_TIMING_TYPE.required(),
-      fetchStart: NAVIGATION_TIMING_TYPE.required(),
-      loadEventEnd: NAVIGATION_TIMING_TYPE.required(),
-      loadEventStart: NAVIGATION_TIMING_TYPE.required(),
-      navigationStart: NAVIGATION_TIMING_TYPE.required(),
-      redirectEnd: NAVIGATION_TIMING_TYPE.required(),
-      redirectStart: NAVIGATION_TIMING_TYPE.required(),
-      requestStart: NAVIGATION_TIMING_TYPE.required(),
-      responseEnd: NAVIGATION_TIMING_TYPE.required(),
-      responseStart: NAVIGATION_TIMING_TYPE.required(),
-      secureConnectionStart: NAVIGATION_TIMING_TYPE.required(),
-      unloadEventEnd: NAVIGATION_TIMING_TYPE.required(),
-      unloadEventStart: NAVIGATION_TIMING_TYPE.required(),
-    })
-    .optional(),
+  navigationTiming: joi.object().optional(),
   newsletters: NEWSLETTERS.optional(),
   numStoredAccounts: OFFSET_TYPE.min(0).optional(),
   // TODO: Delete plan_id and product_id after the camel-cased equivalents
@@ -159,7 +129,7 @@ const BODY_SCHEMA = {
   utm_term: UTM_TYPE.required(),
 };
 
-module.exports = function () {
+module.exports = function (statsd) {
   const metricsCollector = new MetricsCollector();
 
   return {
@@ -186,15 +156,66 @@ module.exports = function () {
       const requestReceivedTime = Date.now();
       const metrics = req.body || {};
 
+      // We don't want to use validation rules for the following cases. They
+      // can occur if a page is loaded, and then submitted at a much later point
+      // in time. Perhaps the users device is hibernated or a mobile browser
+      // is put into a background/suspend state. Either way, large durations
+      // or event offsets are bogus, and can be thrown out.
+
+      // Check that duration is sane
+      if (metrics.duration < 0 || metrics.duration > MAX_EVENT_OFFSET) {
+        if (statsd) {
+          statsd.increment('post_metrics.bad_duration');
+        }
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: `invalid duration`,
+          statusCode: 400,
+          validation: {
+            keys: ['offset'],
+          },
+        });
+      }
+
+      // Check that the delta between the start and flush time is sane
       const maxOffset = metrics.flushTime - metrics.startTime;
+      if (maxOffset < 0 || maxOffset > MAX_EVENT_OFFSET) {
+        if (statsd) {
+          statsd.increment('post_metrics.bad_flush_time');
+        }
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: `max offset exceeds maximum of ${MAX_EVENT_OFFSET}`,
+          statusCode: 400,
+          validation: {
+            keys: ['offset'],
+          },
+        });
+      }
+
+      // Check that even offsets are sane
       const invalidEvent = findInvalidEventOffsets(metrics.events, maxOffset);
       if (invalidEvent) {
-        const error = new MaxOffsetError(invalidEvent.offset, maxOffset);
-        return res.status(400).json(error);
+        if (statsd) {
+          statsd.increment('post_metrics.bad_event_offset');
+        }
+        return res.status(400).json({
+          error: 'Bad Request',
+          message: `offset exceeds maximum of ${maxOffset}`,
+          statusCode: 400,
+          validation: {
+            keys: ['offset'],
+          },
+        });
       }
 
       // don't wait around to send a response.
       res.json({ success: true });
+
+      // We no longer report timing data from metrics. Ignore posted values.
+      if (metrics.navigationTiming) {
+        metrics.navigationTiming = undefined;
+      }
 
       process.nextTick(() => {
         metrics.agent = req.get('user-agent');
@@ -212,16 +233,8 @@ module.exports = function () {
 };
 
 function findInvalidEventOffsets(events, maxOffset) {
-  return _.find(events, (event) => event.offset > maxOffset);
-}
-
-function MaxOffsetError(offset, maxOffset) {
-  return {
-    error: 'Bad Request',
-    message: `offset exceeds maximum of ${maxOffset}`,
-    statusCode: 400,
-    validation: {
-      keys: ['offset'],
-    },
-  };
+  return _.find(
+    events,
+    (event) => event.offset > maxOffset || event.offset < 0
+  );
 }

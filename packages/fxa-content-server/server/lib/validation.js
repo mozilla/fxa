@@ -43,7 +43,7 @@ const TYPES = {
   HEX32: joi.string().regex(/^[0-9a-f]{32}$/),
   INTEGER: joi.number().integer(),
   NEWSLETTERS: joi.array().items(joi.string().max(30)).allow('none'),
-  OFFSET: joi.number().integer().min(0),
+  OFFSET: joi.number().integer(),
   REFERRER: joi
     .string()
     .max(2048)

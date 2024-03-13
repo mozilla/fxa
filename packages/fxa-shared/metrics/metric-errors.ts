@@ -13,15 +13,3 @@ export class InvalidMetricError extends Error {
     super(`Bad metric encountered: ${name} - ${violation}`);
   }
 }
-
-export class InvalidNavigationTimingError extends Error {
-  constructor(
-    public readonly name: string,
-    public readonly violation: string,
-    public readonly critical: boolean,
-    public readonly val: string | number | null | undefined,
-    public readonly limitOrDefault?: string | number
-  ) {
-    super(`Bad timing metric encountered: ${name} - ${violation}`);
-  }
-}

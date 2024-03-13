@@ -56,7 +56,6 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
 
   metrics.location = geodbConfig.enabled ? geolocate(req) : {};
 
-  let emitPerformanceEvents = false;
   const events = metrics.events || [];
   const { initialView } = metrics;
   events.forEach((event) => {
@@ -72,7 +71,6 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       });
 
       if (event.type === 'loaded') {
-        emitPerformanceEvents = true;
         event = Object.assign({}, event, {
           type: `flow.performance.${initialView}`,
         });
@@ -103,36 +101,6 @@ const metricsRequest = (req, metrics, requestReceivedTime) => {
       logFlowEvent(event, metrics, req);
     }
   });
-
-  const navigationTiming = metrics.navigationTiming;
-  if (emitPerformanceEvents && navigationTiming) {
-    PERFORMANCE_TIMINGS.forEach((item) => {
-      const relativeTime = item.timings.reduce((sum, timing) => {
-        const from = navigationTiming[timing.from];
-        const until = navigationTiming[timing.until];
-        if (from >= 0 && until > from) {
-          sum += until - from;
-        }
-        return sum;
-      }, 0);
-      const absoluteTime = metrics.flowBeginTime + relativeTime;
-
-      if (
-        relativeTime > 0 &&
-        isValidTime(absoluteTime, requestReceivedTime, FLOW_ID_EXPIRY)
-      ) {
-        logFlowEvent(
-          {
-            flowTime: relativeTime,
-            time: absoluteTime,
-            type: `flow.performance.${initialView}.${item.event}`,
-          },
-          metrics,
-          req
-        );
-      }
-    });
-  }
 };
 
 function isValidFlowData(metrics, requestReceivedTime) {

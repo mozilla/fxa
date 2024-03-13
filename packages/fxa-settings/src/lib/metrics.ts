@@ -80,18 +80,7 @@ let configurableProperties: ConfigurableProperties = defaultConfigProps();
 
 function defaultConfigProps(): ConfigurableProperties {
   const startTime = () => {
-    try {
-      return (
-        window.performance.timeOrigin +
-        (
-          window.performance.getEntriesByType(
-            'navigation'
-          )[0] as PerformanceNavigationTiming
-        ).fetchStart
-      );
-    } catch (e) {
-      return Date.now();
-    }
+    return Date.now();
   };
 
   return {

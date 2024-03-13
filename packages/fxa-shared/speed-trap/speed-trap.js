@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import guid from './guid';
-import NavigationTiming from './navigation-timing';
 import Timers from './timers';
 import Events from './events';
-import { getPerformanceApi } from './performance-factory';
 
 var SpeedTrap = {
   init: function (options) {
@@ -14,20 +12,13 @@ var SpeedTrap = {
     // This will provide the browser's performance API, or a fallback version which has
     // reduced functionality. The exact performance API can also be passed in as option
     // for testing purposes.
-    this.performance = options.performance || getPerformanceApi();
-    this.baseTime = parseInt(this.performance.timeOrigin);
-
-    this.navigationTiming = Object.create(NavigationTiming);
-    this.navigationTiming.init({
-      performance: this.performance,
-      useL1Timings: options.useL1Timings,
-    });
+    this.baseTime = Date.now();
 
     this.timers = Object.create(Timers);
-    this.timers.init({ performance: this.performance });
+    this.timers.init();
 
     this.events = Object.create(Events);
-    this.events.init({ performance: this.performance });
+    this.events.init();
 
     this.uuid = guid();
 
@@ -64,12 +55,9 @@ var SpeedTrap = {
       // if cookies are disabled, sessionStorage access will blow up.
     }
 
-    const navigationTiming = this.navigationTiming.diff();
-
     return {
       uuid: this.uuid,
       puuid: previousPageUUID,
-      navigationTiming,
       // eslint-disable-next-line no-undef
       referrer: document.referrer || '',
       tags: this.tags,
@@ -99,43 +87,20 @@ var SpeedTrap = {
 
     return {
       uuid: this.uuid,
-      // The performance API keeps track of the current duration. The exact way this is done
-      // may vary depending on the browser's implementation. We will assume that as long as we
-      // stay within the confines of the browser's implementation, this value is reasonable.
-      // What is not reasonable is assuming the that we can Subtract Date.now() from
-      // performance.timeOrigin or performance.timings.navigationStart and get a valid value.
-      // It's very likely the performance API is using a monotonic clock that does not match our
-      // current system clock.
-      duration: parseInt(this.performance.now()),
+      duration: Date.now() - this.baseTime,
       timers: this.timers.get(),
       events: this.events.get(),
     };
   },
 
   /**
-   * Return the current time using speed trap's clock. If the performance api is available
-   * its monotonic clock will be used. Otherwise the system clock is used (ie Date.now()).
+   * Return the current time. We used to performance api's clock, but this proved unreliable due to variations between browsers.
    *
-   * Note: The system clock is susceptible to edge cases were a machine sleeps during a load
-   * operation. In this case we may result produce a very large metric.
-   *
-   * Note: performance.now() will likely differ from Date.now() and is not expected to be the real
-   * time. Please be aware of what underlying implementation is in use when calling this function.
+   * Note: We used to use performance.now(), which is a monotonic clock, but this proved problematic due to unreliable implementations
+   * on some systems.
    */
   now: function () {
-    // Chrome's performance api returns floats, but our API requires integers.
-    return parseInt(this.performance.timeOrigin + this.performance.now());
-  },
-
-  /**
-   * Legacy browsers can end up in suspect states when a machine is put into sleep mode during
-   * metrics collection. This flag indicates the machine is likely in an invalid state.
-   */
-  isInSuspectState: function () {
-    if (this.performance.unreliable === true) {
-      return this.performance.isInSuspectState();
-    }
-    return false;
+    return Date.now();
   },
 };
 

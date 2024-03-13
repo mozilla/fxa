@@ -26,10 +26,6 @@ jest.mock('./window', () => {
   return {
     window: {
       ...realWindow,
-      performance: {
-        timeOrigin: 1596647781678,
-        getEntriesByType: jest.fn().mockReturnValue([{ fetchStart: 250 }]),
-      },
       location: {
         ...realWindow.location,
         search: '?x=y&a=b',
@@ -57,14 +53,15 @@ jest.mock('../models', () => ({
 }));
 
 const deviceId = 'v8v0b6';
-const flowBeginTime = window.performance.timeOrigin - 500;
+const fakeNow = 1709771784368;
+const flowBeginTime = fakeNow - 500;
 const flowId = 'lWOSc42Ga5g';
 
 const eventGroup = 'great';
 const eventType = 'escape';
 const eventSlug = `${eventGroup}.${eventType}`;
 
-const dateNow = window.performance.timeOrigin + 500;
+const dateNow = fakeNow + 500;
 
 // Sometimes native properties are read-only,
 // and cannot be traditionally mocked, so let's
@@ -200,17 +197,13 @@ describe('setProperties', () => {
 describe('logEvents', () => {
   it('transforms event slugs into proper event objects for the payload', () => {
     const eventSlug = 'wild.flower';
-
+    Date.now = jest.fn(() => dateNow + 250);
     initAndLog(eventSlug);
 
     expectPayloadProperties({
       // this timestamp comes from stubbing Date.now, flowBeginTime, and performance.timeOrigin
       events: [{ type: eventSlug, offset: 250 }],
     });
-    expect(window.performance.getEntriesByType).toHaveBeenNthCalledWith(
-      1,
-      'navigation'
-    );
   });
 
   it('includes passed in eventProperties in the payload', () => {
@@ -225,6 +218,7 @@ describe('logEvents', () => {
   });
 
   it('sets the duration property on the payload', () => {
+    Date.now = jest.fn(() => dateNow + 250);
     initAndLog();
     expectPayloadProperties({ duration: 250 });
   });
