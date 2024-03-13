@@ -16044,15 +16044,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sentry/integrations@npm:^7.100.1":
-  version: 7.100.1
-  resolution: "@sentry/integrations@npm:7.100.1"
+"@sentry/core@npm:7.106.1":
+  version: 7.106.1
+  resolution: "@sentry/core@npm:7.106.1"
   dependencies:
-    "@sentry/core": 7.100.1
-    "@sentry/types": 7.100.1
-    "@sentry/utils": 7.100.1
+    "@sentry/types": 7.106.1
+    "@sentry/utils": 7.106.1
+  checksum: c9110b25a94f798c08c260ff5c6bbca6f315fe04e10ee42cefdd06c27c0780c32c5b90672d5da92bcdd25048bcdcede810c2c217156dd9d3ec41ac5fe38ea363
+  languageName: node
+  linkType: hard
+
+"@sentry/integrations@npm:^7.106.1":
+  version: 7.106.1
+  resolution: "@sentry/integrations@npm:7.106.1"
+  dependencies:
+    "@sentry/core": 7.106.1
+    "@sentry/types": 7.106.1
+    "@sentry/utils": 7.106.1
     localforage: ^1.8.1
-  checksum: 9389c1f67361bf3d33beb5f819ff212b5ac49faacb3a6de176767f7d2056a06db7a0a1d6a568438adec0dd0567d3931bfaa4947b9aa04e4ca1d25a273a0c6b6c
+  checksum: b2ab2e4f293364e1300de354ff1ba38c219e6cd158d88ddb3fe6973545c98f396a3c65249e71bd86694e9ce232cb67c6a4051ba0df4d5628019f50f90989bf8e
   languageName: node
   linkType: hard
 
@@ -16110,6 +16120,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sentry/types@npm:7.106.1":
+  version: 7.106.1
+  resolution: "@sentry/types@npm:7.106.1"
+  checksum: 565d103db296d9bb4b9b6b9b7aa0d5ed5fb2414d0b09b3f8a296da293515c15f8978701c26cd18567f5b07dde9df406145fe7b9b39a9b13f26a31f23a31eb49d
+  languageName: node
+  linkType: hard
+
 "@sentry/utils@npm:7.100.1":
   version: 7.100.1
   resolution: "@sentry/utils@npm:7.100.1"
@@ -16125,6 +16142,15 @@ __metadata:
   dependencies:
     "@sentry/types": 7.103.0
   checksum: 6438af087b3f74f7b39dd95c58840984ab62a9a77e4c16a579c73cb07187f41597109d8132f0e5ef1ebef7c6cc71b2a7e86948a345eb737c5975887b335cecb4
+  languageName: node
+  linkType: hard
+
+"@sentry/utils@npm:7.106.1":
+  version: 7.106.1
+  resolution: "@sentry/utils@npm:7.106.1"
+  dependencies:
+    "@sentry/types": 7.106.1
+  checksum: 983e9f73b1912709cee544867b40ad769df15b4dc95015976a525c9313ea9a8218ce2557ffb13b4f66fb88b4ef11f71618c16e78d01c60274dfdcd69a6979588
   languageName: node
   linkType: hard
 
@@ -38868,7 +38894,7 @@ fsevents@~2.1.1:
     "@opentelemetry/sdk-trace-node": ^1.22.0
     "@opentelemetry/sdk-trace-web": ^1.22.0
     "@sentry/browser": ^7.100.1
-    "@sentry/integrations": ^7.100.1
+    "@sentry/integrations": ^7.106.1
     "@sentry/node": ^7.103.0
     "@sentry/opentelemetry-node": ^7.100.1
     "@storybook/addon-essentials": ^7.6.15
