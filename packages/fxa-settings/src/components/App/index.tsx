@@ -2,13 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
   RouteComponentProps,
   Router,
   useLocation,
   useNavigate,
 } from '@reach/router';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 
 import { QueryParams } from '../..';
 
@@ -21,14 +21,15 @@ import { LinkType, MozServices } from '../../lib/types';
 import {
   Integration,
   isWebIntegration,
+  OAuthIntegration,
   useConfig,
   useInitialMetricsQueryState,
   useIntegration,
   useLocalSignedInQueryState,
 } from '../../models';
 import {
-  SettingsContext,
   initializeSettingsContext,
+  SettingsContext,
 } from '../../models/contexts/SettingsContext';
 import { CreateCompleteResetPasswordLink } from '../../models/reset-password/verification/factory';
 
@@ -37,39 +38,41 @@ import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import sentryMetrics from 'fxa-shared/sentry/browser';
 
 // Components
-import { ScrollToTop } from '../Settings/ScrollToTop';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import { ScrollToTop } from '../Settings/ScrollToTop';
 
 // Pages
-import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
-import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
 import CannotCreateAccount from '../../pages/CannotCreateAccount';
 import Clear from '../../pages/Clear';
 import CookiesDisabled from '../../pages/CookiesDisabled';
-import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
-import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
-import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
-import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
+import InlineRecoverySetupContainer from '../../pages/InlineRecoverySetup/container';
+import InlineTotpSetupContainer from '../../pages/InlineTotpSetup/container';
 import Legal from '../../pages/Legal';
-import LegalTerms from '../../pages/Legal/Terms';
 import LegalPrivacy from '../../pages/Legal/Privacy';
-import LinkValidator from '../LinkValidator';
-import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
-import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
+import LegalTerms from '../../pages/Legal/Terms';
+import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
 import ResetPassword from '../../pages/ResetPassword';
+import AccountRecoveryConfirmKey from '../../pages/ResetPassword/AccountRecoveryConfirmKey';
+import AccountRecoveryResetPasswordContainer from '../../pages/ResetPassword/AccountRecoveryResetPassword/container';
+import CompleteResetPasswordContainer from '../../pages/ResetPassword/CompleteResetPassword/container';
+import ConfirmResetPassword from '../../pages/ResetPassword/ConfirmResetPassword';
 import ResetPasswordConfirmed from '../../pages/ResetPassword/ResetPasswordConfirmed';
 import ResetPasswordWithRecoveryKeyVerified from '../../pages/ResetPassword/ResetPasswordWithRecoveryKeyVerified';
+import CompleteSigninContainer from '../../pages/Signin/CompleteSignin/container';
+import SigninContainer from '../../pages/Signin/container';
+import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
-import SigninContainer from '../../pages/Signin/container';
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
 import SigninUnblockContainer from '../../pages/Signin/SigninUnblock/container';
-import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
+import ConfirmSignupCodeContainer from '../../pages/Signup/ConfirmSignupCode/container';
 import SignupContainer from '../../pages/Signup/container';
-import ThirdPartyAuthCallback from '../../pages/PostVerify/ThirdPartyAuthCallback';
+import PrimaryEmailVerified from '../../pages/Signup/PrimaryEmailVerified';
+import SignupConfirmed from '../../pages/Signup/SignupConfirmed';
 import WebChannelExample from '../../pages/WebChannelExample';
+import LinkValidator from '../LinkValidator';
 
 const Settings = lazy(() => import('../Settings'));
 
@@ -347,6 +350,17 @@ const AuthAndAccountSetupRoutes = ({
       />
       <SignupConfirmed
         path="/signup_verified/*"
+        {...{ isSignedIn, serviceName }}
+      />
+
+      <InlineTotpSetupContainer
+        path="/inline_totp_setup/*"
+        integration={integration as OAuthIntegration}
+        {...{ isSignedIn, serviceName }}
+      />
+      <InlineRecoverySetupContainer
+        path="/inline_recovery_setup/*"
+        integration={integration as OAuthIntegration}
         {...{ isSignedIn, serviceName }}
       />
     </Router>

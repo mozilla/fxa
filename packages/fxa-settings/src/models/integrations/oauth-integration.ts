@@ -27,6 +27,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
+import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 
 export interface OAuthIntegrationFeatures extends IntegrationFeatures {
   webChannelSupport: boolean;
@@ -197,6 +198,39 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     return this.data.redirectUri;
   }
 
+  getRedirectToRPUrl(
+    extraParams: Record<string, number | string | undefined> = {}
+  ) {
+    const redirectUrl = new URL(this.getRedirectUri());
+    const params = {
+      ...extraParams,
+
+      action: this.data.action,
+      state: this.data.state,
+
+      flowId: this.data.flowId,
+      flowBeginTime: this.data.flowBeginTime,
+      deviceId: this.data.deviceId,
+
+      utmCampaign: this.data.utmCampaign,
+      utmContent: this.data.utmContent,
+      utmMedium: this.data.utmMedium,
+      utmSource: this.data.utmSource,
+      utmTerm: this.data.utmTerm,
+    };
+
+    const redirectParams = Object.fromEntries(
+      Object.entries(params).filter(([_, v]) => v !== undefined)
+    );
+
+    redirectUrl.search = new URLSearchParams(redirectParams).toString();
+    return redirectUrl.toString();
+  }
+
+  getRedirectWithErrorUrl(err: AuthUiError) {
+    return this.getRedirectToRPUrl({ error: err.errno });
+  }
+
   // prefer client id if available (for oauth) otherwise fallback to service (e.g. for sync)
   getService() {
     return this.data.clientId || this.data.service;
@@ -263,6 +297,10 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
 
   isTrusted() {
     return this.clientInfo?.trusted === true;
+  }
+
+  returnOnError() {
+    return this.data.returnOnError !== false;
   }
 
   wantsConsent() {

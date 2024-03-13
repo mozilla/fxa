@@ -2,38 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
-import { screen } from '@testing-library/react';
-import { renderWithRouter } from '../../models/mocks';
-// import { getFtlBundle, testL10n } from 'fxa-react/lib/test-utils';
-// import { FluentBundle } from '@fluent/bundle';
+import { act, screen, waitFor } from '@testing-library/react';
+import userEvent, { UserEvent } from '@testing-library/user-event';
 import InlineRecoverySetup, { viewName } from '.';
-import { usePageViewEvent } from '../../lib/metrics';
-import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
-import { MozServices } from '../../lib/types';
 import { REACT_ENTRYPOINT } from '../../constants';
+import { usePageViewEvent } from '../../lib/metrics';
+import { MozServices } from '../../lib/types';
+import { renderWithRouter } from '../../models/mocks';
+import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 
 jest.mock('../../lib/metrics', () => ({
+  logViewEvent: jest.fn(),
   usePageViewEvent: jest.fn(),
 }));
+const cancelSetupHandler = jest.fn();
+const verifyTotpHandler = jest.fn();
+const successSetupHandler = jest.fn();
+const props = {
+  recoveryCodes: MOCK_RECOVERY_CODES,
+  cancelSetupHandler: cancelSetupHandler,
+  verifyTotpHandler: verifyTotpHandler,
+  successfulSetupHandler: successSetupHandler,
+};
 
 describe('InlineRecoverySetup', () => {
-  // let bundle: FluentBundle;
+  let user: UserEvent;
+
   beforeAll(async () => {
     global.URL.createObjectURL = jest.fn();
-    //   bundle = await getFtlBundle('settings');
   });
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
+
   it('renders default content as expected', () => {
-    renderWithRouter(
-      <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation={false}
-      />
-    );
-    // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    // testL10n(ftlMsgMock, bundle, {
-    //   email: exampleEmail,
-    // });
+    renderWithRouter(<InlineRecoverySetup {...props} />);
     screen.getByRole('heading', {
       name: `Save backup authentication codes to continue to ${MozServices.Default}`,
     });
@@ -49,34 +53,24 @@ describe('InlineRecoverySetup', () => {
       screen.getByRole('button', { name: 'Continue' })
     ).toBeInTheDocument();
   });
+
   it('renders as expected with a custom service name', () => {
     renderWithRouter(
-      <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation={false}
-        serviceName={MOCK_SERVICE_NAME}
-      />
+      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
     );
-    // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    // testL10n(ftlMsgMock, bundle, {
-    //   email: exampleEmail,
-    // });
     screen.getByRole('heading', {
       name: `Save backup authentication codes to continue to ${MOCK_SERVICE_NAME}`,
     });
   });
 
-  it('renders "showConfirmation" content as expected', () => {
-    renderWithRouter(
-      <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation
-      />
+  it('renders "showConfirmation" content as expected', async () => {
+    renderWithRouter(<InlineRecoverySetup {...props} />);
+
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
     );
-    // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    // testL10n(ftlMsgMock, bundle, {
-    //   email: exampleEmail,
-    // });
+
     screen.getByRole('heading', {
       name: `Confirm backup authentication code to continue to ${MozServices.Default}`,
     });
@@ -86,50 +80,108 @@ describe('InlineRecoverySetup', () => {
     screen.getByRole('button', { name: 'Back' });
     screen.getByRole('button', { name: 'Cancel setup' });
   });
-  it('renders "showConfirmation" content as expected with a custom service name', () => {
+
+  it('renders "showConfirmation" content as expected with a custom service name', async () => {
     renderWithRouter(
-      <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation
-        serviceName={MOCK_SERVICE_NAME}
-      />
+      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
     );
-    // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    // testL10n(ftlMsgMock, bundle, {
-    //   email: exampleEmail,
-    // });
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
     screen.getByRole('heading', {
       name: `Confirm backup authentication code to continue to ${MOCK_SERVICE_NAME}`,
     });
   });
-  it('renders as expected when context is iOS', () => {
+
+  it('shows an error on incorrect recovery code submission', async () => {
+    renderWithRouter(
+      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
+    await act(
+      async () =>
+        await user.type(
+          screen.getByLabelText('Backup authentication code'),
+          'chargingelephant'
+        )
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Confirm' }))
+    );
+    await screen.findByText('Incorrect backup authentication code');
+  });
+
+  it('calls the successful setup callback on correct recovery code', async () => {
+    const verifyTotpHandler = jest.fn().mockResolvedValue(true);
+    const successfulSetupHandler = jest.fn();
     renderWithRouter(
       <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation={false}
-        isIOS
+        serviceName={MOCK_SERVICE_NAME}
+        {...props}
+        {...{ verifyTotpHandler, successfulSetupHandler }}
       />
     );
-    // const ftlMsgMock = screen.getAllByTestId('ftlmsg-mock')[1];
-    // testL10n(ftlMsgMock, bundle, {
-    //   email: exampleEmail,
-    // });
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
+    await act(
+      async () =>
+        await user.type(
+          screen.getByLabelText('Backup authentication code'),
+          MOCK_RECOVERY_CODES[0]
+        )
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Confirm' }))
+    );
 
-    expect(screen.queryByTestId('databutton-download')).not.toBeInTheDocument();
+    await waitFor(() => {
+      expect(verifyTotpHandler).toHaveBeenCalled();
+      expect(successfulSetupHandler).toHaveBeenCalled();
+    });
+  });
 
-    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Print' })
-    ).not.toBeInTheDocument();
+  it('shows an error when failed to verify totp', async () => {
+    const verifyTotpHandler = jest.fn().mockResolvedValue(false);
+    const successfulSetupHandler = jest.fn();
+    renderWithRouter(
+      <InlineRecoverySetup
+        serviceName={MOCK_SERVICE_NAME}
+        {...props}
+        {...{ verifyTotpHandler, successfulSetupHandler }}
+      />
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
+    await act(
+      async () =>
+        await user.type(
+          screen.getByLabelText('Backup authentication code'),
+          MOCK_RECOVERY_CODES[0]
+        )
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Confirm' }))
+    );
+    expect(verifyTotpHandler).toHaveBeenCalled();
+    expect(successfulSetupHandler).not.toHaveBeenCalled();
+    await screen.findByText(
+      'There was a problem confirming your backup authentication code'
+    );
   });
 
   it('emits the expected metrics on render', () => {
-    renderWithRouter(
-      <InlineRecoverySetup
-        recoveryCodes={MOCK_RECOVERY_CODES}
-        showConfirmation={false}
-      />
-    );
+    renderWithRouter(<InlineRecoverySetup {...props} />);
     expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

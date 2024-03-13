@@ -89,6 +89,8 @@ describe('views/mixins/signin-mixin', function () {
         unsafeDisplayError: sinon.spy(),
         user: user,
         isInPushLoginExperiment: sinon.spy(),
+
+        isInReactExperiment: () => false,
       };
     });
 

@@ -233,8 +233,18 @@ Router = Router.extend({
         ...Url.searchParams(this.window.location.search),
       });
     },
-    'inline_totp_setup(/)': createViewHandler(InlineTotpSetupView),
-    'inline_recovery_setup(/)': createViewHandler(InlineRecoverySetupView),
+    'inline_totp_setup(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'inline_totp_setup',
+        InlineTotpSetupView
+      );
+    },
+    'inline_recovery_setup(/)': function () {
+      this.createReactOrBackboneViewHandler(
+        'inline_recovery_setup',
+        InlineRecoverySetupView
+      );
+    },
     'legal(/)': function () {
       this.createReactViewHandler('legal');
     },

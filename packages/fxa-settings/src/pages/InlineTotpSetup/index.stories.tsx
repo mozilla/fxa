@@ -6,8 +6,7 @@ import React from 'react';
 import InlineTotpSetup from '.';
 import { Meta } from '@storybook/react';
 import { MozServices } from '../../lib/types';
-import AppLayout from '../../components/AppLayout';
-import { MOCK_CODE, MOCK_EMAIL } from './mocks';
+import { MOCK_EMAIL, MOCK_TOTP_TOKEN } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 
 export default {
@@ -16,18 +15,24 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
+const cancelSetupHandler = () => {};
+const verifyCodeHandler = () => {};
+
 export const Default = () => (
-  <AppLayout>
-    <InlineTotpSetup code={MOCK_CODE} email={MOCK_EMAIL} />
-  </AppLayout>
+  <InlineTotpSetup
+    totp={MOCK_TOTP_TOKEN}
+    email={MOCK_EMAIL}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyCodeHandler={verifyCodeHandler}
+  />
 );
 
 export const WithCustomService = () => (
-  <AppLayout>
-    <InlineTotpSetup
-      code={MOCK_CODE}
-      email={MOCK_EMAIL}
-      serviceName={MozServices.Monitor}
-    />
-  </AppLayout>
+  <InlineTotpSetup
+    totp={MOCK_TOTP_TOKEN}
+    email={MOCK_EMAIL}
+    serviceName={MozServices.Monitor}
+    cancelSetupHandler={cancelSetupHandler}
+    verifyCodeHandler={verifyCodeHandler}
+  />
 );

@@ -288,6 +288,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'REACT_CONVERSION_WEB_CHANNEL_EXAMPLE_ROUTES',
     },
+    inlineTotpRoutes: {
+      default: false,
+      doc: 'Enable users to visit the "inline" 2fa setup routes',
+      format: Boolean,
+      env: 'REACT_CONVERSION_INLINE_TOTP_ROUTES',
+    },
   },
   brandMessagingMode: {
     default: 'none',

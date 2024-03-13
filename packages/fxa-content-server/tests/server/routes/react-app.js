@@ -40,6 +40,7 @@ const showReactAppAll = {
   pairRoutes: true,
   postVerifyOtherRoutes: true,
   postVerifyCADViaQRRoutes: true,
+  inlineTotpRoutes: true,
 };
 
 function getEmptyClientReactRouteGroups(showReactApp = showReactAppAll) {
