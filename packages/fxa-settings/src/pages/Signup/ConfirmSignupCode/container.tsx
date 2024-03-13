@@ -6,22 +6,35 @@ import React, { useCallback, useEffect } from 'react';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { currentAccount } from '../../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import {
-  Integration,
-  isOAuthIntegration,
-  useAuthClient,
-} from '../../../models';
+import { Integration, useAuthClient } from '../../../models';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader from '../../../components/CardHeader';
 import ConfirmSignupCode from '.';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
-import sentryMetrics from 'fxa-shared/sentry/browser';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
 
 export const POLL_INTERVAL = 5000;
+
+function getAccountInfo(
+  emailFromLocationState?: string,
+  sessionTokenFromLocationState?: string,
+  uidFromLocationState?: string
+) {
+  let email = emailFromLocationState;
+  let sessionToken = sessionTokenFromLocationState;
+  let uid = uidFromLocationState;
+  // only read from local storage if email isn't provided via router state
+  if (!email || !sessionToken || !uid) {
+    const storedLocalAccount = currentAccount();
+    email = storedLocalAccount?.email;
+    sessionToken = storedLocalAccount?.sessionToken;
+    uid = storedLocalAccount?.uid;
+  }
+  return { email, sessionToken, uid };
+}
 
 const SignupConfirmCodeContainer = ({
   integration,
@@ -39,11 +52,19 @@ const SignupConfirmCodeContainer = ({
     declinedSyncEngines,
     keyFetchToken,
     unwrapBKey,
+    sessionToken: sessionTokenFromLocationState,
+    email: emailFromLocationState,
+    uid: uidFromLocationState,
   } = location.state || {};
   const navigate = useNavigate();
 
-  const storedLocalAccount = currentAccount();
-  const { email, sessionToken } = storedLocalAccount || {};
+  // If a user tries to signin and they haven't verified their account yet, we pass
+  // this state through router state and redirect here. Otherwise, we read from localStorage.
+  const { email, sessionToken, uid } = getAccountInfo(
+    emailFromLocationState,
+    sessionTokenFromLocationState,
+    uidFromLocationState
+  );
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
     authClient,
@@ -105,19 +126,7 @@ const SignupConfirmCodeContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  if (!storedLocalAccount || !sessionToken || !email) {
-    /* Users who reach this page should have account data set in localStorage.
-   * Account data is persisted local storage after creating an (unverified) account
-   * and after sign in. Users may also have localStorage set by the browser if
-   * they are logged in.
-
-   * The session token from local storage is required to verify the signup code.
-   * If this page is reached without an account in localStorage (e.g., directly from
-   * URL) or if the local storage is invalidated/cleared, redirect to `/`.
-
-   * TOOD: when we pull the account.verifySession call into the container component,
-   * ensure we're only reading from localStorage once. `sessionToken()` also reads from
-   * localStorage. */
+  if (!uid || !sessionToken || !email) {
     navigateToContentServer('/');
     return <LoadingSpinner fullScreen />;
   }
@@ -134,24 +143,10 @@ const SignupConfirmCodeContainer = ({
     );
   }
 
-  // Users in this state should never reach this as they should see the Backbone version
-  // of this page until we convert signin to React, but guard against anyway. See
-  // comment in `router.js` for this route for more info.
-  if (isOAuthIntegration(integration) && (!keyFetchToken || !unwrapBKey)) {
-    // Report an error to Sentry on the off-chance that this React page is reached without required state
-    sentryMetrics.captureException(
-      new Error(
-        'WARNING: User should not have reached ConfirmSignupCode in React without required state for OAuth integration. Redirecting to Backbone signin page.'
-      )
-    );
-    navigateToContentServer('/');
-    return <LoadingSpinner fullScreen />;
-  }
-
   return (
     <ConfirmSignupCode
       {...{
-        storedLocalAccount,
+        uid,
         email,
         sessionToken,
         integration,

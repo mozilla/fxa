@@ -504,9 +504,9 @@ describe('Signup page', () => {
         const commonFxaLoginOptions = {
           email: MOCK_EMAIL,
           keyFetchToken:
-            BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.keyFetchToken,
-          sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.sessionToken,
-          uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.SignUp.uid,
+            BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.keyFetchToken,
+          sessionToken: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.sessionToken,
+          uid: BEGIN_SIGNUP_HANDLER_RESPONSE.data.signUp.uid,
           unwrapBKey: BEGIN_SIGNUP_HANDLER_RESPONSE.data.unwrapBKey,
           verified: false,
         };

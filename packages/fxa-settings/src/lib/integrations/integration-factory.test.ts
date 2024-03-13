@@ -242,7 +242,7 @@ describe('lib/integrations/integration-factory', () => {
       it('has correct state', async () => {
         expect(integration.type).toEqual(IntegrationType.OAuth);
         expect(integration.isSync()).toBeTruthy();
-        expect(integration.wantsKeys()).toBeFalsy();
+        expect(integration.wantsKeys()).toBeTruthy();
         expect(integration.isTrusted()).toBeTruthy();
       });
     });

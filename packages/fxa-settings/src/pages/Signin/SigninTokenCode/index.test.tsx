@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import * as utils from 'fxa-react/lib/utils';
+import * as ReactUtils from 'fxa-react/lib/utils';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
@@ -13,11 +13,12 @@ import { viewName } from '.';
 import { mockAppContext, mockSession } from '../../../models/mocks';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import { Session, AppContext } from '../../../models';
-import { SigninTokenCodeIntegration } from './interfaces';
+import { SigninTokenCodeProps } from './interfaces';
 import { Subject } from './mocks';
 import { MOCK_SIGNUP_CODE } from '../../Signup/ConfirmSignupCode/mocks';
-import { MOCK_EMAIL } from '../../mocks';
+import { MOCK_EMAIL, MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { createMockSigninOAuthIntegration } from '../mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
 
 jest.mock('../../../lib/metrics', () => ({
@@ -37,29 +38,55 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
+function applyDefaultMocks() {
+  jest.resetAllMocks();
+  jest.restoreAllMocks();
+
+  mockReactUtilsModule();
+}
+
+// Set this when testing location state
+let mockLocationState = {};
+const mockLocation = () => {
+  return {
+    pathname: '/signin_token_code',
+    search: '?' + new URLSearchParams(mockLocationState),
+    state: mockLocationState,
+  };
+};
 const mockNavigate = jest.fn();
-jest.mock('@reach/router', () => ({
-  ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-}));
+jest.mock('@reach/router', () => {
+  return {
+    __esModule: true,
+    ...jest.requireActual('@reach/router'),
+    useNavigate: () => mockNavigate,
+    useLocation: () => mockLocation(),
+  };
+});
 
 let session: Session;
-function render({
-  integration,
-  verificationReason,
-}: {
-  integration?: SigninTokenCodeIntegration;
-  verificationReason?: VerificationReasons;
-} = {}) {
+function render(
+  props: Partial<SigninTokenCodeProps> & {
+    verificationReason?: VerificationReasons;
+  } = {}
+) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
-      <Subject {...{ integration, verificationReason }} />
+      <Subject {...props} />
     </AppContext.Provider>
   );
 }
 
+function mockReactUtilsModule() {
+  jest
+    .spyOn(ReactUtils, 'hardNavigateToContentServer')
+    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
+}
+
 describe('SigninTokenCode page', () => {
   beforeEach(() => {
+    applyDefaultMocks();
     session = {
       verifySession: jest.fn().mockResolvedValue(true),
       sendVerificationCode: jest.fn().mockResolvedValue(true),
@@ -206,14 +233,14 @@ describe('SigninTokenCode page', () => {
     });
 
     describe('on success', () => {
-      let hardNavigateToContentServerSpy: jest.SpyInstance;
+      let hardNavigateSpy: jest.SpyInstance;
       beforeEach(() => {
-        hardNavigateToContentServerSpy = jest
-          .spyOn(utils, 'hardNavigateToContentServer')
+        hardNavigateSpy = jest
+          .spyOn(ReactUtils, 'hardNavigate')
           .mockImplementation(() => {});
       });
       afterEach(() => {
-        hardNavigateToContentServerSpy.mockRestore();
+        hardNavigateSpy.mockRestore();
       });
 
       async function expectSuccessGleanEvents() {
@@ -233,20 +260,35 @@ describe('SigninTokenCode page', () => {
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();
-        render({ verificationReason: VerificationReasons.CHANGE_PASSWORD });
+        const verificationReason = VerificationReasons.CHANGE_PASSWORD;
+        render({ verificationReason });
         submitCode();
 
         await expectSuccessGleanEvents();
-        expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
           '/post_verify/password/force_password_change'
         );
       });
       // it('with sync integration', () => {
-      //   // TODO with sync ticket
+      //   // TODO in FXA-9059 sync v3 desktop integration
       // });
-      // it('with OAuth integration', () => {
-      //   // TODO with OAuth
-      // });
+      it('with OAuth integration', async () => {
+        session = mockSession();
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+        const integration = createMockSigninOAuthIntegration();
+        const hardNavigate = jest
+          .spyOn(ReactUtils, 'hardNavigate')
+          .mockImplementation(() => {});
+
+        render({ finishOAuthFlowHandler, integration });
+        submitCode();
+        await expectSuccessGleanEvents();
+        await waitFor(() => {
+          expect(hardNavigate).toHaveBeenCalledWith('someUri');
+        });
+      });
     });
   });
 });

@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-const t = (msg: string) => msg;
-
 export type AuthError = {
   errno: number;
   message: string;
@@ -11,40 +9,40 @@ export type AuthError = {
   interpolate?: boolean;
 };
 
-export const UNEXPECTED_ERROR = t('Unexpected error');
+export const UNEXPECTED_ERROR = 'Unexpected error';
 
 export const ERRORS: Record<string, AuthError> = {
   UNKNOWN_CLIENT: {
     errno: 101,
-    message: t('Unknown client'),
+    message: 'Unknown client',
   },
   INCORRECT_REDIRECT: {
     errno: 103,
-    message: t('Incorrect redirect_uri'),
+    message: 'Incorrect redirect_uri',
   },
   INVALID_ASSERTION: {
     errno: 104,
-    message: t('Invalid assertion'),
+    message: 'Invalid assertion',
   },
   UNKNOWN_CODE: {
     errno: 105,
-    message: t('Unknown code'),
+    message: 'Unknown code',
   },
   INCORRECT_CODE: {
     errno: 106,
-    message: t('Incorrect code'),
+    message: 'Incorrect code',
   },
   EXPIRED_CODE: {
     errno: 107,
-    message: t('Expired code'),
+    message: 'Expired code',
   },
   INVALID_TOKEN: {
     errno: 108,
-    message: t('Invalid token'),
+    message: 'Invalid token',
   },
   INVALID_PARAMETER: {
     errno: 109,
-    message: t('Invalid OAuth parameter: %(param)s'),
+    message: 'Invalid OAuth parameter: %(param)s',
   },
   INVALID_RESPONSE_TYPE: {
     errno: 110,
@@ -52,11 +50,11 @@ export const ERRORS: Record<string, AuthError> = {
   },
   UNAUTHORIZED: {
     errno: 111,
-    message: t('Unauthorized'),
+    message: 'Unauthorized',
   },
   FORBIDDEN: {
     errno: 112,
-    message: t('Forbidden'),
+    message: 'Forbidden',
   },
   INVALID_CONTENT_TYPE: {
     errno: 113,
@@ -69,7 +67,7 @@ export const ERRORS: Record<string, AuthError> = {
   },
   EXPIRED_TOKEN: {
     errno: 115,
-    message: t('Expired token'),
+    message: 'Expired token',
   },
   NOT_PUBLIC_CLIENT: {
     errno: 116,
@@ -97,15 +95,15 @@ export const ERRORS: Record<string, AuthError> = {
   },
   SERVER_UNAVAILABLE: {
     errno: 201,
-    message: t('System unavailable, try again soon'),
+    message: 'System unavailable, try again soon',
   },
   DISABLED_CLIENT_ID: {
     errno: 202,
-    message: t('System unavailable, try again soon'),
+    message: 'System unavailable, try again soon',
   },
   SERVICE_UNAVAILABLE: {
     errno: 998,
-    message: t('System unavailable, try again soon'),
+    message: 'System unavailable, try again soon',
   },
   UNEXPECTED_ERROR: {
     errno: 999,
@@ -113,7 +111,7 @@ export const ERRORS: Record<string, AuthError> = {
   },
   TRY_AGAIN: {
     errno: 1000,
-    message: t('Something went wrong. Please close this tab and try again.'),
+    message: 'Something went wrong. Please close this tab and try again.',
   },
   INVALID_RESULT: {
     errno: 1001,
@@ -132,11 +130,11 @@ export const ERRORS: Record<string, AuthError> = {
   */
   USER_CANCELED_OAUTH_LOGIN: {
     errno: 1004,
-    message: t('no message'),
+    message: 'no message',
   },
   MISSING_PARAMETER: {
     errno: 1005,
-    message: t('Missing OAuth parameter: %(param)s'),
+    message: 'Missing OAuth parameter: %(params)',
     response_error_code: 'invalid_request',
   },
   INVALID_PAIRING_CLIENT: {
@@ -160,22 +158,22 @@ export const ERRORS: Record<string, AuthError> = {
   },
   PROMPT_NONE_NOT_SIGNED_IN: {
     errno: 1010,
-    message: t('User is not signed in'),
+    message: 'User is not signed in',
     response_error_code: 'login_required',
   },
   PROMPT_NONE_DIFFERENT_USER_SIGNED_IN: {
     errno: 1011,
-    message: t('A different user is signed in'),
+    message: 'A different user is signed in',
     response_error_code: 'account_selection_required',
   },
   PROMPT_NONE_UNVERIFIED: {
     errno: 1012,
-    message: t('Unverified user or session'),
+    message: 'Unverified user or session',
     response_error_code: 'interaction_required',
   },
   PROMPT_NONE_INVALID_ID_TOKEN_HINT: {
     errno: 1013,
-    message: t('Invalid id_token_hint'),
+    message: 'Invalid id_token_hint',
     response_error_code: 'invalid_request',
   },
 };

@@ -63,6 +63,7 @@ function mockIntegration() {
     type: IntegrationType.SyncDesktopV3,
     getService: () => MozServices.Default,
     isSync: () => true,
+    wantsKeys: () => true,
     features: {
       allowUidChange: false,
       fxaStatus: false,
@@ -146,7 +147,7 @@ function mockApolloClientModule() {
     return {
       data: {
         unwrapBKey: 'foo',
-        SignUp: {
+        signUp: {
           uid: 'uid123',
           keyFetchToken: 'kft123',
           sessionToken: 'st123',
@@ -413,9 +414,9 @@ describe('sign-up-container', () => {
         },
       });
       expect(handlerResult?.data?.unwrapBKey).toBeDefined();
-      expect(handlerResult?.data?.SignUp?.uid).toEqual('uid123');
-      expect(handlerResult?.data?.SignUp?.keyFetchToken).toEqual('kft123');
-      expect(handlerResult?.data?.SignUp?.sessionToken).toEqual('st123');
+      expect(handlerResult?.data?.signUp?.uid).toEqual('uid123');
+      expect(handlerResult?.data?.signUp?.keyFetchToken).toEqual('kft123');
+      expect(handlerResult?.data?.signUp?.sessionToken).toEqual('st123');
     });
 
     it('handles error fetching credentials', async () => {

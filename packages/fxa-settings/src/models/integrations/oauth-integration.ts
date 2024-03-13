@@ -283,6 +283,9 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   wantsKeys(): boolean {
+    if (this.isSync()) {
+      return true;
+    }
     if (!this.opts.scopedKeysEnabled) {
       return false;
     }

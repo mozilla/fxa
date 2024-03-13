@@ -3,17 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { Link, RouteComponentProps } from '@reach/router';
+import {
+  Link,
+  RouteComponentProps,
+  useLocation,
+  useNavigate,
+} from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
-import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
+import { logViewEvent } from '../../../lib/metrics';
 import { TwoFactorAuthImage } from '../../../components/images';
 import CardHeader from '../../../components/CardHeader';
 import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MozServices } from '../../../lib/types';
-import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   AuthUiErrors,
   getLocalizedErrorMessage,
@@ -21,34 +25,58 @@ import {
 import Banner, { BannerType } from '../../../components/Banner';
 import AppLayout from '../../../components/AppLayout';
 import GleanMetrics from '../../../lib/glean';
-import { BeginSigninError } from '../interfaces';
+import {
+  BeginSigninError,
+  SigninIntegration,
+  SigninLocationState,
+} from '../interfaces';
+import { handleNavigation } from '../utils';
+import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { storeAccountData } from '../../../lib/storage-utils';
 
 // TODO: show a banner success message if a user is coming from reset password
 // in FXA-6491. This differs from content-server where currently, users only
 // get an email confirmation with no success message.
 
 export type SigninTotpCodeProps = {
+  finishOAuthFlowHandler: FinishOAuthFlowHandler;
+  integration: SigninIntegration;
+  redirectTo?: string;
+  signinLocationState: SigninLocationState;
   // TODO: Switch to gql error shaped object
   submitTotpCode: (
     totpCode: string
   ) => Promise<{ error?: BeginSigninError; status: boolean }>;
-  handleNavigation: () => void;
   serviceName?: MozServices;
 };
 
 export const viewName = 'signin-totp-code';
 
 export const SigninTotpCode = ({
+  finishOAuthFlowHandler,
+  integration,
+  redirectTo,
+  signinLocationState,
   submitTotpCode,
-  handleNavigation,
   serviceName,
 }: SigninTotpCodeProps & RouteComponentProps) => {
-  usePageViewEvent(viewName, REACT_ENTRYPOINT);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [success, setSuccess] = useState<boolean>(false);
   const [generalError, setGeneralError] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
+
+  const {
+    email,
+    uid,
+    sessionToken,
+    verificationMethod,
+    verificationReason,
+    keyFetchToken,
+    unwrapBKey,
+  } = signinLocationState;
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-totp-code-required-error',
@@ -91,7 +119,33 @@ export const SigninTotpCode = ({
       setCodeErrorMessage(localizedErrorMessage);
     } else {
       GleanMetrics.totpForm.success();
-      handleNavigation();
+
+      storeAccountData({
+        sessionToken,
+        email,
+        uid,
+        // Update verification status of stored current account
+        verified: true,
+      });
+
+      const navigationOptions = {
+        email,
+        signinData: {
+          uid,
+          sessionToken,
+          verificationReason,
+          verificationMethod,
+          verified: true,
+          keyFetchToken,
+        },
+        unwrapBKey,
+        integration,
+        finishOAuthFlowHandler,
+        redirectTo,
+        queryParams: location.search,
+      };
+
+      handleNavigation(navigationOptions, navigate);
     }
   };
 

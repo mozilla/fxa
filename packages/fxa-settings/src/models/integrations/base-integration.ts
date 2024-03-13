@@ -142,6 +142,11 @@ export abstract class Integration<
   wantsKeys(): boolean {
     return false;
   }
+
+  wantsLogin(): boolean {
+    return false;
+  }
+
   wantsTwoStepAuthentication(): boolean {
     return false;
   }

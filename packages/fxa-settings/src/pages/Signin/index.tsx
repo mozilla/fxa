@@ -17,10 +17,9 @@ import TermsPrivacyAgreement from '../../components/TermsPrivacyAgreement';
 import { REACT_ENTRYPOINT } from '../../constants';
 import CardHeader from '../../components/CardHeader';
 import ThirdPartyAuth from '../../components/ThirdPartyAuth';
-import { BrandMessagingPortal } from '../../components/BrandMessaging';
 import GleanMetrics from '../../lib/glean';
 import AppLayout from '../../components/AppLayout';
-import { NavigationOptions, SigninFormData, SigninProps } from './interfaces';
+import { SigninFormData, SigninProps } from './interfaces';
 import Avatar from '../../components/Settings/Avatar';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import classNames from 'classnames';
@@ -35,7 +34,7 @@ import {
   AuthUiErrors,
   getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
-import { getNavigationTarget } from './utils';
+import { handleNavigation } from './utils';
 
 export const viewName = 'signin';
 
@@ -57,6 +56,7 @@ const Signin = ({
   avatarData,
   avatarLoading,
   localizedErrorFromLocationState,
+  finishOAuthFlowHandler,
 }: SigninProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const location = useLocation();
@@ -71,8 +71,9 @@ const Signin = ({
   const [signinLoading, setSigninLoading] = useState<boolean>(false);
 
   const isOAuth = isOAuthIntegration(integration);
-  const isPocketClient = isOAuth && isClientPocket(integration.getService());
-  const isMonitorClient = isOAuth && isClientMonitor(integration.getService());
+  const clientId = integration.getService();
+  const isPocketClient = isOAuth && isClientPocket(clientId);
+  const isMonitorClient = isOAuth && isClientMonitor(clientId);
   const hasLinkedAccountAndNoPassword = hasLinkedAccount && !hasPassword;
 
   // We must use a ref because we may update this value in a callback
@@ -107,9 +108,6 @@ const Signin = ({
     }
   }, [isPasswordNeededRef]);
 
-  const wantsTwoStepAuthentication =
-    isOAuth && integration.wantsTwoStepAuthentication();
-
   const signInWithCachedAccount = useCallback(
     async (sessionToken: hexstring) => {
       setSigninLoading(true);
@@ -120,17 +118,21 @@ const Signin = ({
       if (data) {
         GleanMetrics.cachedLogin.success();
 
-        const navigationOptions: NavigationOptions = {
+        const navigationOptions = {
           email,
-          verified: data.verified,
-          verificationMethod: data.verificationMethod,
-          verificationReason: data.verificationReason,
-          sessionVerified: data.sessionVerified,
-          wantsTwoStepAuthentication,
+          signinData: {
+            verified: data.verified,
+            verificationMethod: data.verificationMethod,
+            verificationReason: data.verificationReason,
+            uid: data.uid,
+            sessionToken,
+          },
+          integration,
+          finishOAuthFlowHandler,
+          queryParams: location.search,
         };
 
-        const { to, state } = getNavigationTarget(navigationOptions);
-        state ? navigate(to, { state }) : navigate(to);
+        await handleNavigation(navigationOptions, navigate);
       }
       if (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
@@ -150,7 +152,9 @@ const Signin = ({
       ftlMsgResolver,
       navigate,
       setLocalizedBannerMessage,
-      wantsTwoStepAuthentication,
+      integration,
+      finishOAuthFlowHandler,
+      location.search,
     ]
   );
 
@@ -175,16 +179,16 @@ const Signin = ({
 
         storeAccountData(accountData);
 
-        const navigationOptions: NavigationOptions = {
+        const navigationOptions = {
           email,
-          verified: data.signIn.verified,
-          verificationMethod: data.signIn.verificationMethod,
-          verificationReason: data.signIn.verificationReason,
-          wantsTwoStepAuthentication,
+          signinData: data.signIn,
+          unwrapBKey: data.unwrapBKey,
+          integration,
+          finishOAuthFlowHandler,
+          queryParams: location.search,
         };
 
-        const { to, state } = getNavigationTarget(navigationOptions);
-        state ? navigate(to, { state }) : navigate(to);
+        await handleNavigation(navigationOptions, navigate);
       }
       if (error) {
         GleanMetrics.login.error({ reason: error.message });
@@ -233,7 +237,7 @@ const Signin = ({
               break;
             case AuthUiErrors.TOTP_REQUIRED.errno:
             case AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno:
-              // TODO in FXA-6518 Oauth ticket (this isn't in AuthUiErrors)
+              // TODO in FXA-9235 OAuth error handling ticket
               // case OAuthError.MISMATCH_ACR_VALUES.errno:
               navigate('/inline_totp_setup');
               break;
@@ -254,7 +258,9 @@ const Signin = ({
       navigate,
       sendUnblockEmailHandler,
       setLocalizedBannerMessage,
-      wantsTwoStepAuthentication,
+      finishOAuthFlowHandler,
+      integration,
+      location.search,
     ]
   );
 
@@ -283,7 +289,6 @@ const Signin = ({
 
   return (
     <AppLayout>
-      <BrandMessagingPortal {...{ viewName }} />
       {isPasswordNeededRef.current ? (
         <CardHeader
           headingText="Enter your password"
@@ -296,7 +301,7 @@ const Signin = ({
           subheadingWithDefaultServiceFtlId="signin-subheader-without-logo-default"
           subheadingWithCustomServiceFtlId="signin-subheader-without-logo-with-servicename"
           subheadingWithLogoFtlId="signin-subheader-with-logo"
-          {...{ serviceName }}
+          {...{ clientId, serviceName }}
         />
       )}
       {localizedBannerMessage && (

@@ -3,17 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
-import {
-  SigninTokenCodeIntegration,
-  TotpResponse,
-  SigninLocationState,
-} from './interfaces';
+import { TotpStatusResponse } from './interfaces';
 import SigninTokenCode from '.';
 import { useQuery } from '@apollo/client';
 import { GET_TOTP_STATUS } from '../../../components/App/gql';
-import { currentAccount } from '../../../lib/cache';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { Integration, useAuthClient } from '../../../models';
+import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import AppLayout from '../../../components/AppLayout';
+import CardHeader from '../../../components/CardHeader';
+import { SigninLocationState } from '../interfaces';
+import { getStoredAccountInfo } from '../utils';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -21,41 +22,65 @@ import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 const SigninTokenCodeContainer = ({
   integration,
 }: {
-  integration: SigninTokenCodeIntegration;
+  integration: Integration;
 } & RouteComponentProps) => {
   const navigate = useNavigate();
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: SigninLocationState;
   };
-  // TODO: We may want to store "verificationReason" in local apollo
-  // cache instead of passing it via location state, depending on
-  // if we reference it in another spot or two and if we need
-  // some action to happen dependent on it that should occur
-  // without first reaching /signin.
-  const { email: emailFromLocationState, verificationReason } =
-    location.state || {};
-  // read from localStorage if email isn't provided via router state
-  const email = emailFromLocationState
-    ? emailFromLocationState
-    : currentAccount()?.email;
+
+  const signinLocationState =
+    location.state && Object.keys(location.state).length > 0
+      ? location.state
+      : getStoredAccountInfo();
+
+  const authClient = useAuthClient();
+  const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
+    authClient,
+    integration
+  );
 
   // reads from cache if coming from /signin
   const { data: totpData, loading: totpLoading } =
-    useQuery<TotpResponse>(GET_TOTP_STATUS);
+    useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
 
-  if (!email) {
-    hardNavigateToContentServer('/');
+  if (Object.keys(signinLocationState).length < 1) {
+    hardNavigateToContentServer(`/${location.search ? location.search : ''}`);
     return <LoadingSpinner fullScreen />;
   }
+
   if (totpLoading) {
     return <LoadingSpinner fullScreen />;
   }
-  if (totpData?.account.totp.verified) {
+
+  // redirect if there is 2FA is set up for the account,
+  // but the session is not TOTP verified
+  if (totpData?.account.totp.exists && !totpData?.account.totp.verified) {
     navigate('/signin_totp_code');
     return <LoadingSpinner fullScreen />;
   }
 
-  return <SigninTokenCode {...{ email, integration, verificationReason }} />;
+  // TODO: UX for this, FXA-8106
+  if (oAuthDataError) {
+    return (
+      <AppLayout>
+        <CardHeader
+          headingText="Unexpected error"
+          headingTextFtlId="auth-error-999"
+        />
+      </AppLayout>
+    );
+  }
+
+  return (
+    <SigninTokenCode
+      {...{
+        finishOAuthFlowHandler,
+        integration,
+        signinLocationState,
+      }}
+    />
+  );
 };
 
 export default SigninTokenCodeContainer;

@@ -40,17 +40,16 @@ import {
 } from '../../../models';
 import { ConfirmSignupCodeProps } from './interfaces';
 import firefox from '../../../lib/channels/firefox';
-import { persistAccount } from '../../../lib/storage-utils';
-import { BrandMessagingPortal } from '../../../components/BrandMessaging';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
+import { storeAccountData } from '../../../lib/storage-utils';
 
 export const viewName = 'confirm-signup-code';
 
 const ConfirmSignupCode = ({
-  storedLocalAccount,
   email,
   sessionToken,
+  uid,
   integration,
   finishOAuthFlowHandler,
   newsletterSlugs: newsletters,
@@ -150,12 +149,15 @@ const ConfirmSignupCode = ({
         REACT_ENTRYPOINT
       );
 
-      // Update verification status of stored current account
-      storedLocalAccount.verified = true;
-      persistAccount(storedLocalAccount);
+      storeAccountData({
+        sessionToken,
+        email,
+        uid,
+        // Update verification status of stored current account
+        verified: true,
+      });
 
       if (hasSelectedNewsletters) {
-        // to match parity with content-server event, viewName is NOT included
         logViewEvent(`flow`, 'newsletter.subscribed', REACT_ENTRYPOINT);
       }
 
@@ -176,7 +178,7 @@ const ConfirmSignupCode = ({
           return;
         } else {
           const { redirect, code, state } = await finishOAuthFlowHandler(
-            storedLocalAccount.uid,
+            uid,
             sessionToken,
             // yes, non-null operator is gross, but it's temporary.
             // see note in container component / router.js for this page, once
@@ -218,8 +220,6 @@ const ConfirmSignupCode = ({
             });
           }
         } else {
-          // TODO: Check if we ever want to show 'signup_confirmed' (Ready view)
-          // Backbone had a base navigation behaviour navigating there
           alertBar.success(
             ftlMsgResolver.getMsg(
               'confirm-signup-code-success-alert',
@@ -272,7 +272,6 @@ const ConfirmSignupCode = ({
 
   return (
     <AppLayout title={localizedPageTitle}>
-      <BrandMessagingPortal {...{ viewName }} />
       <CardHeader
         headingText="Enter confirmation code"
         headingAndSubheadingFtlId="confirm-signup-code-heading-2"

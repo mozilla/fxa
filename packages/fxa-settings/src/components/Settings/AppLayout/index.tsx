@@ -7,7 +7,6 @@ import HeaderLockup from '../HeaderLockup';
 import ContentSkip from '../ContentSkip';
 import Footer from 'fxa-react/components/Footer';
 import { AlertBar } from '../AlertBar';
-import { BrandMessagingPortal } from '../../BrandMessaging';
 
 type AppLayoutProps = {
   children: React.ReactNode;
@@ -21,7 +20,6 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
     >
       <ContentSkip />
       <div id="body-top" className="hidden mobileLandscape:block" />
-      <BrandMessagingPortal viewName="settings" />
       <HeaderLockup />
       <div className="max-w-screen-desktopXl flex-1 w-full mx-auto tablet:px-20 desktop:px-12">
         <main id="main" data-testid="main" className="w-full">

@@ -532,7 +532,7 @@ export class AccountResolver {
     description: 'Call auth-server to sign up an account',
   })
   @CatchGatewayError
-  public async SignUp(
+  public async signUp(
     @GqlXHeaders() headers: Headers,
     @Args('input', { type: () => SignUpInput })
     input: SignUpInput
