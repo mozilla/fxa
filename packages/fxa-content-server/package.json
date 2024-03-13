@@ -15,7 +15,7 @@
     "glean-generate": "yarn glean translate ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml -f javascript -o app/scripts/lib/glean",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "l10n-create-json": "NODE_OPTIONS=--openssl-legacy-provider grunt l10n-create-json",
-    "l10n-prime": "yarn l10n:prime packages/fxa-content-server",
+    "l10n-prime": "yarn l10n:prime fxa-content-server",
     "lint": "yarn lint-glean && eslint app server tests --cache",
     "lint-glean": "yarn glean glinter ../fxa-shared/metrics/glean/fxa-ui-pings.yaml ../fxa-shared/metrics/glean/fxa-ui-metrics.yaml",
     "start": "pm2 start pm2.config.js && yarn check:url localhost:3030/bundle/app.bundle.js",

@@ -20,10 +20,10 @@ fi
 
 
 # Move to monorepo root
-cd $(git rev-parse --show-toplevel)
+cd "$(dirname "$0")/../.."
 
 # Check path is valid
-target_folder="$PACKAGE/$FOLDER"
+target_folder="packages/$PACKAGE/$FOLDER"
 if [ ! -d "$target_folder" ]; then
     echo "$PREFIX: Invalid location! The path $target_folder must exist. Did a yarn l10n:prime command get called."
     exit 1
