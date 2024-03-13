@@ -266,7 +266,7 @@
     "@types/lodash.pick": "^4",
     "@types/mocha": "^8.2.2",
     "@types/mysql": "^2",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/proxyquire": "^1.3.28",
     "@types/sinon": "10.0.1",
     "@types/superagent": "^4.1.11",
