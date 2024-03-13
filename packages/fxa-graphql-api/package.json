@@ -61,7 +61,7 @@
     "objection": "^3.1.3",
     "rimraf": "^5.0.0",
     "superagent": "^8.1.2",
-    "tslib": "^2.5.0"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.4.0",
@@ -72,7 +72,7 @@
     "@types/graphql": "^14.5.0",
     "@types/ioredis": "^4.26.4",
     "@types/jest": "^29.2.5",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/superagent": "4.1.11",
@@ -88,6 +88,6 @@
     "pm2": "^5.3.0",
     "prettier": "^2.3.1",
     "supertest": "^6.3.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.4.2"
   }
 }

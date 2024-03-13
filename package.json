@@ -108,12 +108,12 @@
     "react-ga4": "^2.1.0",
     "rxjs": "^7.8.1",
     "semver": "^7.6.0",
-    "tslib": "^2.5.0",
+    "tslib": "^2.6.2",
     "uuid": "^9.0.0",
     "winston": "^3.11.0"
   },
   "engines": {
-    "node": "^18.18.2"
+    "node": "^20.11.1"
   },
   "husky": {
     "hooks": {
@@ -175,7 +175,7 @@
     "@types/babel__core": "^7",
     "@types/jest": "^29.5.1",
     "@types/mysql": "^2",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/passport-jwt": "^4",
@@ -217,9 +217,9 @@
     "stylelint-config-recommended-scss": "^14.0.0",
     "tailwindcss": "^3.4.1",
     "ts-jest": "^29.1.2",
-    "ts-node": "^10.9.1",
-    "tsc-alias": "^1.8.7",
-    "typescript": "^5.3.3"
+    "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.4.2"
   },
   "workspaces": [
     "packages/*"
@@ -231,7 +231,7 @@
     "@graphql-typed-document-node/core": "3.2.0",
     "@nestjs/cli/typescript": "^4.5.2",
     "@svgr/webpack": "^8.0.1",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/react": "^18",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "css-minimizer-webpack-plugin": ">=4 <5",

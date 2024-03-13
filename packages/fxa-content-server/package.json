@@ -177,7 +177,7 @@
     "sinon-express-mock": "^2.2.1",
     "tailwindcss": "^3.4.1",
     "ts-loader": "^8.4.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "upng-js": "2.1.0",
     "url-loader": "4.1.1",
     "webpack-dev-middleware": "^6.1.1",

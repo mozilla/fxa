@@ -19,6 +19,7 @@ const hasJsxRuntime = (() => {
 
 module.exports = babelJest.createTransformer({
   plugins: [
+    ['@babel/plugin-transform-typescript', { allowDeclareFields: true }],
     'babel-plugin-transform-typescript-metadata',
     ['@babel/plugin-proposal-decorators', { version: 'legacy' }],
     ['@babel/plugin-proposal-class-properties', { loose: true }],

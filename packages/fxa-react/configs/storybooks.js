@@ -96,6 +96,12 @@ const customizeWebpackConfig = ({ config }) => ({
                 loader: require.resolve('babel-loader'),
                 options: {
                   presets: [['react-app', { flow: false, typescript: true }]],
+                  plugins: [
+                    [
+                      '@babel/plugin-transform-typescript',
+                      { allowDeclareFields: true },
+                    ],
+                  ],
                 },
               };
             }
