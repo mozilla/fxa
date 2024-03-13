@@ -29,6 +29,7 @@ import {
   GoogleJWTSETPayload,
   AppleJWTSETPayload,
   appleEventHandlers,
+  AppleSETEvent,
 } from './utils/third-party-events';
 
 const HEX_STRING = validators.HEX_STRING;
@@ -82,28 +83,37 @@ export class LinkedAccountHandler {
   async handleAppleSET(request: AuthRequest) {
     this.statsd.increment('handleAppleSET.received');
 
-    const tokenBuffer = request.payload as ArrayBuffer;
-    const token = tokenBuffer.toString();
+    // Apple does not set the JWT header, instead they pass it as
+    // in a payload object.
+    const { payload: token } = request.payload as any;
 
     if (!this.applePublicKey) {
       this.applePublicKey = await getApplePublicKey(token);
     }
 
     try {
-      const { clientId, teamId } = this.config.appleAuthConfig;
+      const { clientId } = this.config.appleAuthConfig;
       const jwtPayload = (await validateSecurityToken(
         token,
         clientId,
         this.applePublicKey.pem,
-        teamId
+        APPLE_AUD
       )) as AppleJWTSETPayload;
+
+      const { events } = jwtPayload;
+      const parsedEventData: AppleSETEvent = JSON.parse(events);
+
       this.statsd.increment('handleAppleSET.decoded');
 
-      const eventType = jwtPayload.events.type;
+      const eventType = parsedEventData.type;
 
       if (appleEventHandlers[eventType as keyof typeof appleEventHandlers]) {
+        this.statsd.increment(`handleAppleSET.processing.${eventType}`);
+        this.log.debug('handleAppleSET.processing', {
+          eventType,
+        });
         await appleEventHandlers[eventType as keyof typeof appleEventHandlers](
-          jwtPayload.events,
+          parsedEventData,
           this.log,
           this.db
         );
@@ -152,6 +162,10 @@ export class LinkedAccountHandler {
 
       // Process each event type
       for (const eventType in jwtPayload.events) {
+        this.statsd.increment(`handleGoogleSET.processing.${eventType}`);
+        this.log.debug('handleGoogleSET.processing', {
+          eventType,
+        });
         if (
           googleEventHandlers[eventType as keyof typeof googleEventHandlers]
         ) {
@@ -172,6 +186,9 @@ export class LinkedAccountHandler {
       }
     } catch (err) {
       this.statsd.increment('handleGoogleSET.validationError');
+      this.log.debug('handleGoogleSET.validationError', {
+        err,
+      });
       throw err;
     }
 
@@ -358,7 +375,11 @@ export class LinkedAccountHandler {
         // verified
         const emailCode = await random.hex(16);
         const authSalt = await random.hex(32);
-        const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(32, 32, 32);
+        const [kA, wrapWrapKb, wrapWrapKbVersion2] = await random.hex(
+          32,
+          32,
+          32
+        );
         accountRecord = await this.db.createAccount({
           uid: uuid.v4({}, Buffer.alloc(16)).toString('hex'),
           createdAt: Date.now(),
@@ -554,14 +575,6 @@ export const linkedAccountRoutes = (
     {
       method: 'POST',
       path: '/linked_account/webhook/apple_event_receiver',
-      options: {
-        payload: {
-          // Security events use the content type application/secevent+jwt,
-          // It isn't clearly documented, but the payload is a JWT buffer.
-          parse: 'gunzip',
-          allow: 'application/secevent+jwt',
-        },
-      },
       handler: async (request: AuthRequest) => handler.handleAppleSET(request),
     },
   ];
