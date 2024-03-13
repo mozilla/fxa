@@ -113,7 +113,7 @@
     "winston": "^3.11.0"
   },
   "engines": {
-    "node": "^20.11.1"
+    "node": "^18.18.2"
   },
   "husky": {
     "hooks": {
@@ -174,7 +174,7 @@
     "@types/babel__core": "^7",
     "@types/jest": "^29.5.1",
     "@types/mysql": "^2",
-    "@types/node": "^20.11.1",
+    "@types/node": "^18.18.2",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/passport-jwt": "^4",
@@ -230,7 +230,7 @@
     "@graphql-typed-document-node/core": "3.2.0",
     "@nestjs/cli/typescript": "^4.5.2",
     "@svgr/webpack": "^8.0.1",
-    "@types/node": "^20.11.1",
+    "@types/node": "^18.18.2",
     "@types/react": "^18",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "css-minimizer-webpack-plugin": ">=4 <5",

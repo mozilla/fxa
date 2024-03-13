@@ -72,7 +72,7 @@
     "@types/graphql": "^14.5.0",
     "@types/ioredis": "^4.26.4",
     "@types/jest": "^29.2.5",
-    "@types/node": "^20.11.1",
+    "@types/node": "^18.18.2",
     "@types/passport": "^1.0.6",
     "@types/passport-http-bearer": "^1.0.36",
     "@types/superagent": "4.1.11",
