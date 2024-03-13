@@ -76,7 +76,7 @@
     "@types/jest": "^26.0.23",
     "@types/jsdom": "^16.2.11",
     "@types/nock": "^11.1.0",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/postcss-import": "^12",
     "@types/react-redux": "^7.1.18",
     "@types/react-stripe-elements": "^6.0.6",
