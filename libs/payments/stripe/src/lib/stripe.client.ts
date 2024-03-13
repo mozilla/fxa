@@ -29,6 +29,20 @@ export class StripeClient {
   }
 
   /**
+   * Updates customer object with the values of the parameters passed
+   *
+   * @param customerId The Stripe customer ID of the customer to update
+   * @param params Values to be updated in customer object
+   * @returns The updated customer object or throws an error if paramaters are invalid
+   */
+  async updateCustomer(
+    customerId: string,
+    params: Stripe.CustomerUpdateParams
+  ) {
+    return this.stripe.customers.update(customerId, params);
+  }
+
+  /**
    * Retrieves subscriptions directly from Stripe
    *
    * @param customerId

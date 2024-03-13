@@ -141,4 +141,75 @@ describe('StripeManager', () => {
       expect(result).toEqual(true);
     });
   });
+
+  describe('update customer tax ID', () => {
+    it('returns customer tax id if found', async () => {
+      const mockCustomer = CustomerFactory({
+        invoice_settings: {
+          custom_fields: [{ name: 'Tax ID', value: 'LeeroyJenkins' }],
+          default_payment_method: null,
+          footer: null,
+          rendering_options: null,
+        },
+      });
+
+      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+
+      const result = await manager.getCustomerTaxId(mockCustomer.id);
+
+      expect(result).toEqual('LeeroyJenkins');
+    });
+
+    it('returns undefined when customer tax id not found', async () => {
+      const mockCustomer = CustomerFactory();
+
+      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+
+      const result = await manager.getCustomerTaxId(mockCustomer.id);
+
+      expect(result).toBeUndefined();
+    });
+
+    it('updates customer object with incoming tax id when match is not found', async () => {
+      const mockCustomer = CustomerFactory();
+      const mockUpdatedCustomer = CustomerFactory({
+        invoice_settings: {
+          custom_fields: [{ name: 'Tax ID', value: 'EU1234' }],
+          default_payment_method: null,
+          footer: null,
+          rendering_options: null,
+        },
+      });
+
+      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+
+      mockClient.updateCustomer = jest
+        .fn()
+        .mockResolvedValueOnce(mockUpdatedCustomer);
+
+      const result = await manager.setCustomerTaxId(mockCustomer.id, 'EU1234');
+
+      expect(result).toEqual(mockUpdatedCustomer);
+    });
+
+    it('does not update customer object when incoming tax id matches existing tax id', async () => {
+      const mockCustomer = CustomerFactory({
+        invoice_settings: {
+          custom_fields: [{ name: 'Tax ID', value: 'T43CAK315A713' }],
+          default_payment_method: null,
+          footer: null,
+          rendering_options: null,
+        },
+      });
+
+      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+
+      const result = await manager.setCustomerTaxId(
+        mockCustomer.id,
+        'T43CAK315A713'
+      );
+
+      expect(result).toBeUndefined();
+    });
+  });
 });

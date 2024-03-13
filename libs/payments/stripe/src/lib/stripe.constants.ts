@@ -38,3 +38,5 @@ export const STRIPE_MINIMUM_CHARGE_AMOUNTS = {
   sek: 300,
   sgd: 50,
 } as { [key: string]: number };
+
+export const MOZILLA_TAX_ID = 'Tax ID';
