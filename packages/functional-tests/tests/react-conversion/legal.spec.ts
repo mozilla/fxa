@@ -6,53 +6,102 @@ import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('legal', () => {
-    test('start at legal page', async ({ page, target }) => {
-      await page.goto(`${target.contentServerUrl}/legal`);
+    test('users can navigate between legal and privacy notice', async ({
+      pages: { legal, privacy },
+    }) => {
+      await legal.goto();
 
-      // Verify legal page is visible
-      await expect(
-        page.locator('.card-header:has-text("Legal")')
-      ).toBeEnabled();
+      await expect(legal.pageHeader).toBeVisible();
+      await expect(legal.privacyNoticeLink).toBeVisible();
 
-      // Verify Terms Of Service link is visible
-      await expect(
-        page.locator('a:has-text("Terms of Service")')
-      ).toBeVisible();
+      await legal.clickPrivacyNoticeLink();
 
-      // Currently Back button on this page is not working,
-      // check https://mozilla-hub.atlassian.net/browse/FXA-6874
-      // await page.locator('a:has-text("Terms of Service")').click();
-      //await page.locator('button:has-text("Back")').click();
-      //expect(await page.locator('.card-header:has-text("Legal")').isVisible()).toBeTruthy();
+      await expect(privacy.pageHeader).toBeVisible();
 
-      // Verify Privacy Notice link is visible
-      await expect(
-        page.locator('a:has-text("Privacy Notice")')
-      ).toBeVisible();
-      await page.locator('a:has-text("Privacy Notice")').click();
-      await page.waitForURL(`${target.contentServerUrl}/legal/privacy`);
-      await page.locator('button:has-text("Back")').click();
-      await page.waitForURL(`${target.contentServerUrl}/legal`);
-      await page.waitForSelector('.card-header:has-text("Legal")');
+      await privacy.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
     });
 
-    test('start at terms page', async ({ page, target }) => {
-      await page.goto(`${target.contentServerUrl}/legal/terms`);
+    test('users can navigate from privacy notice to legal', async ({
+      pages: { legal, privacy },
+    }) => {
+      test.fixme(true, 'Fix required as of 2024/03/13 (see FXA-9280).');
 
-      // Verify legal page is visible
-      // this text is not in our codebase, it's pulled from the `legal-docs` repo
-      await page
-        .locator('text="Firefox Cloud Services: Terms of Service"')
-        .isVisible();
+      await privacy.goto();
+
+      await expect(privacy.pageHeader).toBeVisible();
+      await expect(privacy.backButton).toBeVisible();
+
+      await privacy.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
     });
 
-    test('start at privacy page', async ({ page, target }) => {
-      await page.goto(`${target.contentServerUrl}/legal/privacy`);
+    test('users can navigate from privacy notice to legal from third-party', async ({
+      page,
+      pages: { legal, privacy },
+    }) => {
+      test.fixme(true, 'Fix required as of 2024/03/13 (see FXA-9280).');
 
-      // Verify privacy page is visible
-      await page.waitForTimeout(1000);
-      // this text is not in our codebase, it's pulled from the `legal-docs` repo
-      await page.locator('text="Firefox Privacy Notice"').isVisible();
+      await page.goto(`https://www.mozilla.org/en-US/`);
+      await privacy.goto();
+
+      await expect(privacy.pageHeader).toBeVisible();
+      await expect(privacy.backButton).toBeVisible();
+
+      await privacy.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
+    });
+
+    test('users can navigate between legal and terms of service', async ({
+      pages: { legal, termsOfService },
+    }) => {
+      await legal.goto();
+
+      await expect(legal.pageHeader).toBeVisible();
+      await expect(legal.termsOfServiceLink).toBeVisible();
+
+      await legal.clickTermsOfServiceLink();
+
+      await expect(termsOfService.pageHeader).toBeVisible();
+
+      await termsOfService.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
+    });
+
+    test('users can navigate from terms of service to legal', async ({
+      pages: { legal, termsOfService },
+    }) => {
+      test.fixme(true, 'Fix required as of 2024/03/13 (see FXA-9280).');
+
+      await termsOfService.goto();
+
+      await expect(termsOfService.pageHeader).toBeVisible();
+      await expect(termsOfService.backButton).toBeVisible();
+
+      await termsOfService.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
+    });
+
+    test('users can navigate from terms of service to legal from third-party', async ({
+      page,
+      pages: { legal, termsOfService },
+    }) => {
+      test.fixme(true, 'Fix required as of 2024/03/13 (see FXA-9280).');
+
+      await page.goto(`https://www.mozilla.org/en-US/`);
+      await termsOfService.goto();
+
+      await expect(termsOfService.pageHeader).toBeVisible();
+      await expect(termsOfService.backButton).toBeVisible();
+
+      await termsOfService.clickBackButton();
+
+      await expect(legal.pageHeader).toBeVisible();
     });
   });
 });
