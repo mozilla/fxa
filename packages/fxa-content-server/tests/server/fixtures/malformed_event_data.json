@@ -36,29 +36,6 @@
       "clicked": true
     }
   ],
-  "navigationTiming": {
-    "navigationStart": 0,
-    "unloadEventStart": null,
-    "unloadEventEnd": null,
-    "redirectStart": null,
-    "redirectEnd": null,
-    "fetchStart": 202,
-    "domainLookupStart": 202,
-    "domainLookupEnd": 202,
-    "connectStart": 202,
-    "connectEnd": 202,
-    "secureConnectionStart": null,
-    "requestStart": 208,
-    "responseStart": 464,
-    "responseEnd": 466,
-    "domLoading": 466,
-    "domInteractive": 627,
-    "domContentLoadedEventStart": 627,
-    "domContentLoadedEventEnd": 628,
-    "domComplete": 689,
-    "loadEventStart": 689,
-    "loadEventEnd": 689
-  },
   "screen": {
     "devicePixelRatio": 2,
     "clientWidth": 819,

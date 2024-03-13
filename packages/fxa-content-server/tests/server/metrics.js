@@ -59,10 +59,11 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
     'type',
     'error.unknown context.auth.108'
   ),
-  'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)': testValidMetricsEvent(
-    'type',
-    'signin-permissions.checkbox.change.profile:display_name.unchecked'
-  ),
+  'valid error-type (signin-permissions.checkbox.change.profile:display_name.unchecked)':
+    testValidMetricsEvent(
+      'type',
+      'signin-permissions.checkbox.change.profile:display_name.unchecked'
+    ),
   'valid experiment choice (pushLogin)': testValidMetricsField('experiments', [
     { choice: 'pushLogin', group: 'treatment' },
   ]),
@@ -70,11 +71,6 @@ suite.tests['#post /metrics - returns 200 with valid data'] = {
   'valid lang (pt)': testValidMetricsField('lang', 'pt'),
   'valid lang (pt-BR)': testValidMetricsField('lang', 'pt-BR'),
   'valid lang (pt-br)': testValidMetricsField('lang', 'pt-br'),
-  // negative values are allowed until we figure out the cause of #4722
-  'valid navigationTiming connectEnd': testValidNavigationTimingField(
-    'connectEnd',
-    -12
-  ),
   'valid referrer (android-app://com.google.android.gm)': testValidMetricsField(
     'referrer',
     'android-app://com.google.android.gm'
@@ -107,6 +103,20 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid broker (#)': testInvalidMetricsField('broker', '#'),
   'invalid context (!)': testInvalidMetricsField('context', '!'),
   'invalid duration (-1)': testInvalidMetricsField('duration', -1),
+  'invalid duration (MAX_EVENT_OFFSET + 1)': testInvalidMetricsField(
+    'duration',
+    MAX_EVENT_OFFSET + 1
+  ),
+  'invalid flushTime (VALID_METRICS.startTime + MAX_EVENT_OFFSET + 1)':
+    testInvalidMetricsData(
+      'flushTime',
+      VALID_METRICS.startTime + MAX_EVENT_OFFSET + 1
+    ),
+  'invalid startTime (VALID_METRICS.flushTime - MAX_EVENT_OFFSET - 1)':
+    testInvalidMetricsData(
+      'startTime',
+      VALID_METRICS.flushTime - MAX_EVENT_OFFSET - 1
+    ),
   'invalid entryPoint (15612!$@%%asdf<>)': testInvalidMetricsField(
     'entrypoint',
     '15612!$@%%asdf<>'
@@ -120,10 +130,10 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
     'entrypoint_variation',
     'blee;'
   ),
-  'invalid event offset (<FLUSH_TIME_START_TIME_DIFF + 1>)': testInvalidMetricsField(
-    'events',
-    [{ offset: FLUSH_TIME_START_TIME_DIFF + 1, type: 'offset-too-high-nono' }]
-  ), //eslint-disable-line max-len
+  'invalid event offset (<FLUSH_TIME_START_TIME_DIFF + 1>)':
+    testInvalidMetricsField('events', [
+      { offset: FLUSH_TIME_START_TIME_DIFF + 1, type: 'offset-too-high-nono' },
+    ]), //eslint-disable-line max-len
   'invalid event offset (<MAX_EVENT_OFFSET + 1>)': testInvalidMetricsField(
     'events',
     [{ offset: MAX_EVENT_OFFSET + 1, type: 'more-than-two-days-nono' }]
@@ -165,94 +175,6 @@ suite.tests['#post /metrics - returns 400 with invalid data'] = {
   'invalid marketing url (notaurl)': testInvalidMetricsField('marketing', [
     { campaignId: 'marketing123', clicked: true, url: 'notaurl' },
   ]),
-  'invalid navigationTiming ([])': testInvalidMetricsField(
-    'navigationTiming',
-    []
-  ),
-  'invalid navigationTiming connectEnd (asdf)': testInvalidNavigationTimingField(
-    'connectEnd',
-    'asdf'
-  ),
-  'invalid navigationTiming connectStart (undefined)': testInvalidNavigationTimingField(
-    'connectStart',
-    undefined
-  ),
-  'invalid navigationTiming domComplete (#$)': testInvalidNavigationTimingField(
-    'domComplete',
-    '#$'
-  ),
-  'invalid navigationTiming domContentLoadedEventEnd ()': testInvalidNavigationTimingField(
-    'domContentLoadedEventEnd',
-    ''
-  ),
-  'invalid navigationTiming domContentLoadedEventStart (55a)': testInvalidNavigationTimingField(
-    'domContentLoadedEventStart',
-    '55a'
-  ),
-  'invalid navigationTiming domInteractive (a55)': testInvalidNavigationTimingField(
-    'domInteractive',
-    'a55'
-  ),
-  'invalid navigationTiming domLoading ("")': testInvalidNavigationTimingField(
-    'domLoading',
-    '""'
-  ),
-  'invalid navigationTiming domainLookupEnd (|)': testInvalidNavigationTimingField(
-    'domainLookupEnd',
-    '|'
-  ),
-  'invalid navigationTiming domainLookupStart (0u000)': testInvalidNavigationTimingField(
-    'domainLookupStart',
-    '0u000'
-  ),
-  'invalid navigationTiming fetchStart (<>)': testInvalidNavigationTimingField(
-    'fetchStart',
-    '<>'
-  ),
-  'invalid navigationTiming loadEventEnd (   )': testInvalidNavigationTimingField(
-    'loadEventEnd',
-    '   '
-  ),
-  'invalid navigationTiming loadEventStart (+=)': testInvalidNavigationTimingField(
-    'loadEventStart',
-    '+='
-  ),
-  'invalid navigationTiming navigationStart (*)': testInvalidNavigationTimingField(
-    'navigationStart',
-    '*'
-  ),
-  'invalid navigationTiming redirectEnd ( )': testInvalidNavigationTimingField(
-    'redirectEnd',
-    ' '
-  ),
-  'invalid navigationTiming redirectStart (\\)': testInvalidNavigationTimingField(
-    'redirectStart',
-    '\\'
-  ),
-  'invalid navigationTiming requestStart ({})': testInvalidNavigationTimingField(
-    'requestStart',
-    {}
-  ),
-  'invalid navigationTiming responseEnd ([])': testInvalidNavigationTimingField(
-    'responseEnd',
-    []
-  ),
-  'invalid navigationTiming responseStart (true)': testInvalidNavigationTimingField(
-    'responseStart',
-    true
-  ),
-  'invalid navigationTiming secureConnectionStart (false)': testInvalidNavigationTimingField(
-    'secureConnectionStart',
-    false
-  ),
-  'invalid navigationTiming unloadEventEnd (&)': testInvalidNavigationTimingField(
-    'unloadEventEnd',
-    '&'
-  ),
-  'invalid navigationTiming unloadEventStart ([])': testInvalidNavigationTimingField(
-    'unloadEventStart',
-    '[]'
-  ),
   'invalid numStoredAccounts ({})': testInvalidMetricsField(
     'numStoredAccounts',
     {}
@@ -360,26 +282,10 @@ function testValidMetricsData(body, contentType) {
     });
 }
 
-function testValidNavigationTimingField(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics.navigationTiming[fieldName] = fieldValue;
-    return testValidMetricsData(metrics);
-  };
-}
-
 function testInvalidMetricsField(fieldName, fieldValue) {
   return function () {
     var metrics = deepCopy(VALID_METRICS);
     metrics[fieldName] = fieldValue;
-    return testInvalidMetricsData(metrics);
-  };
-}
-
-function testInvalidNavigationTimingField(fieldName, fieldValue) {
-  return function () {
-    var metrics = deepCopy(VALID_METRICS);
-    metrics.navigationTiming[fieldName] = fieldValue;
     return testInvalidMetricsData(metrics);
   };
 }

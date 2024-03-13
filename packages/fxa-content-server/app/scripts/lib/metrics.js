@@ -63,7 +63,6 @@ const ALLOWED_FIELDS = [
   'isSampledUser',
   'lang',
   'marketing',
-  'navigationTiming',
   'newsletters',
   'numStoredAccounts',
   'planId',
@@ -365,15 +364,8 @@ _.extend(Metrics.prototype, Backbone.Events, {
       isDeviceIdValid: Validate.isDeviceIdValid,
     });
 
-    // Short circuit if bad navigation timing data is detected.
-    if (validator.hasInvalidNavigationTimingData(filteredData)) {
-      return Promise.resolve(false);
-    }
-
     validator.sanitizeDeviceId(filteredData);
-    validator.sanitizeDuration(filteredData);
     validator.sanitizeEvents(filteredData);
-    validator.sanitizeNavigationTiming(filteredData);
     validator.sanitizeUtmParams(filteredData);
 
     // For now, if any data is coerced and resulted in a critical error being
@@ -506,21 +498,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
     var allowedData = _.pick(this.getAllData(), ALLOWED_FIELDS);
 
     return _.pick(allowedData, (value, key) => {
-      // navigationTiming is sent once, with 'loaded' event.
-      if (key === 'navigationTiming') {
-        if (this._navigationTimingFlushed) {
-          return false;
-        }
-
-        this._navigationTimingFlushed =
-          allowedData.events &&
-          allowedData.events.some((x) => x.type === 'loaded');
-
-        // return false until the first true,
-        // once true, the if above will return false.
-        return this._navigationTimingFlushed;
-      }
-
       return !_.isUndefined(value) && value !== '';
     });
   },
@@ -537,15 +514,6 @@ _.extend(Metrics.prototype, Backbone.Events, {
   _send(data, isPageUnloading) {
     if (!this._metricsEnabled) {
       return Promise.resolve(true);
-    }
-
-    // This case will only be hit for legacy browsers that
-    // don't support the performance API and went into sleep
-    // state. During metrics collection. In these cases the
-    // metrics generated are not reliable and should not be
-    // reported.
-    if (this._speedTrap.isInSuspectState()) {
-      return Promise.resolve();
     }
 
     const url = `${this._collector}/metrics`;

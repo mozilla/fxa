@@ -2,12 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  InvalidMetricError,
-  InvalidNavigationTimingError,
-} from './metric-errors';
+import { InvalidMetricError } from './metric-errors';
 import * as Sentry from '@sentry/browser';
-import { InvalidL1Val, InvalidL2Val } from '../speed-trap/navigation-timing';
 
 export const UTM_REGEX = /^[\w\/.%-]{1,128}$/;
 export const DEVICE_ID_REGEX = /^[0-9a-f]{32}$|^none$/;
@@ -75,10 +71,7 @@ export class MetricErrorReporter {
    * Note: The error.critical and capture flags operate independently. There might be situations where
    * you want to report the error, but it is not critical... or vice versa.
    */
-  public report(
-    error: InvalidMetricError | InvalidNavigationTimingError,
-    capture: boolean = true
-  ) {
+  public report(error: InvalidMetricError, capture: boolean = true) {
     if (error.critical) {
       this._critical++;
     }
@@ -165,74 +158,6 @@ export class MetricValidator {
   }
 
   /**
-   * This will make sure duration is a sane value.
-   *
-   * Coercion of data will be reported and counted as a critical error.
-   */
-  public sanitizeDuration(data: Pick<CheckedMetrics, 'duration'>) {
-    data.duration = this.clamp(
-      'duration',
-      data.duration,
-      0,
-      MAX_SAFE_INTEGER,
-      0
-    );
-  }
-
-  /**
-   * Check for bad potentially bad navigation timing values.
-   */
-  public hasInvalidNavigationTimingData(
-    data: Pick<CheckedMetrics, 'navigationTiming'>
-  ) {
-    // Check for magic numbers that indicate bad navigation timing data.
-    return Object.values(data?.navigationTiming || []).some(
-      (x) => x === InvalidL1Val || x === InvalidL2Val
-    );
-  }
-
-  /**
-   * Make sure navigation timings are sane values.
-   *
-   * Coercion of data will be reported and counted as a critical error.
-   */
-  public sanitizeNavigationTiming(
-    data: Pick<CheckedMetrics, 'navigationTiming'>
-  ) {
-    // Navigation timing
-    if (data.navigationTiming == null) {
-      return;
-    }
-
-    const { navigationTiming } = data;
-
-    const clamp = (name: keyof CheckMetricsNavigationTiming) => {
-      // Navigation timings can be null. All this and coerce other null like things
-      // into a null value.
-      if (
-        typeof navigationTiming[name] !== 'number' &&
-        !navigationTiming[name]
-      ) {
-        navigationTiming[name] = null;
-        return;
-      }
-
-      navigationTiming[name] = this.clamp(
-        `navigationTiming.${name}`,
-        navigationTiming[name],
-        0,
-        MAX_SAFE_INTEGER,
-        0
-      );
-    };
-
-    clamp('connectStart');
-    clamp('connectEnd');
-    clamp('domainLookupEnd');
-    clamp('redirectStart');
-  }
-
-  /**
    * There are appear to be some issues with event data. This routine ensures
    * the event offset is a sane number [0, maxEventOffset], and that the event
    * types are valid string values.
@@ -245,15 +170,6 @@ export class MetricValidator {
     }
 
     for (const event of data.events) {
-      // Make sure offset is a valid value
-      event.offset = this.clamp(
-        'event.offset',
-        event.offset,
-        0,
-        this.maxEventOffset,
-        0
-      );
-
       // Truncate as soon as an invalid character is hit. There is a limited set of valid characters for event type;
       // however, the invoking code is sometimes a bit fast and loose with what gets provided here. e.g. Sometimes a
       // noisy error messages is provided. Looking at existing data, this approach should allow most scenarios to
@@ -298,84 +214,5 @@ export class MetricValidator {
     sanitize('utm_medium');
     sanitize('utm_term');
     sanitize('utm_source');
-  }
-
-  /**
-   * Attempts to enforce a numeric range on a number
-   * @param {string} metricName - name of value being checked, if blank no error will be reported to sentry
-   * @param {any} val - value to clamp
-   * @param {number} min - minimum allowed value
-   * @param {number} max - maximum allowed value
-   * @param {any} def - default value if 'val' is not a number
-   * @param {boolean} critical - whether or not the value is considered critical.
-   * @returns A number between min and max. If the initial value is not a number, and no
-   * default value was provided, then the initial value is returned.
-   */
-  public clamp(
-    metricName: string,
-    val: any,
-    min: number,
-    max: number,
-    def?: any,
-    critical: boolean = true
-  ) {
-    // Check inputs
-    if (min > max) {
-      throw new Error('min must be less than max');
-    }
-    if (def && (def < min || def > max)) {
-      throw new Error('def must be between min and max');
-    }
-
-    // Make sure value is an integer. Note this code can be called for a javascript context, so
-    // we have limited assurance on type safety.
-    let parsedVal = parseInt(val);
-
-    // Try to set a default value if one was provided and val isn't already a valid number
-    if (Number.isNaN(parsedVal)) {
-      parsedVal = parseInt(def);
-      this.errorReporter.report(
-        new InvalidMetricError(
-          metricName,
-          'not a number',
-          critical,
-          parsedVal,
-          min
-        )
-      );
-
-      // Short circuit, this means a valid default value not provided, so return
-      // the original value.
-      if (Number.isNaN(parsedVal)) {
-        return val;
-      }
-    }
-
-    // Clamp to ranges
-    if (parsedVal < min) {
-      this.errorReporter.report(
-        new InvalidMetricError(
-          metricName,
-          'below limit',
-          critical,
-          parsedVal,
-          min
-        )
-      );
-      parsedVal = min;
-    } else if (parsedVal > max) {
-      this.errorReporter.report(
-        new InvalidMetricError(
-          metricName,
-          'above limit',
-          critical,
-          parsedVal,
-          max
-        )
-      );
-      parsedVal = max;
-    }
-
-    return parsedVal;
   }
 }

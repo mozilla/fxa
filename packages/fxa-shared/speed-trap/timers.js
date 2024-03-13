@@ -4,18 +4,13 @@
 
 class Timers {
   init(options) {
-    if (!options || !options.performance) {
-      throw new Error('options.performance required');
-    }
-
     this.completed = {};
     this.running = {};
-    this.performance = options.performance;
-    this.baseTime = parseInt(options.performance.timeOrigin);
+    this.baseTime = Date.now();
   }
 
   start(name) {
-    var start = this.performance.now();
+    var start = Date.now();
     if (typeof this.running[name] === 'number') {
       throw new Error(name + ' timer already started');
     }
@@ -24,7 +19,7 @@ class Timers {
   }
 
   stop(name) {
-    var stop = this.performance.now();
+    var stop = Date.now();
 
     if (typeof this.running[name] !== 'number') {
       throw new Error(name + ' timer not started');

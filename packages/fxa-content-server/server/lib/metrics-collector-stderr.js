@@ -43,20 +43,6 @@ function copyFields(fields, to, from) {
   });
 }
 
-function isValidNavigationTimingValue(value) {
-  return typeof value !== 'undefined' && value !== null;
-}
-
-function addNavigationTiming(loggableEvent, event) {
-  const navigationTiming = event.navigationTiming;
-
-  // eslint-disable-next-line no-unused-vars
-  for (const key in navigationTiming) {
-    if (isValidNavigationTimingValue(navigationTiming[key])) {
-      loggableEvent['nt.' + key] = navigationTiming[key];
-    }
-  }
-}
 
 function addEvents(loggableEvent, event) {
   if (event.events && event.events.forEach) {
@@ -105,7 +91,6 @@ function toLoggableEvent(event) {
     event
   );
 
-  addNavigationTiming(loggableEvent, event);
   addEvents(loggableEvent, event);
   addScreenSize(loggableEvent, event);
 

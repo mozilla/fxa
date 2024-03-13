@@ -3,21 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 class Events {
-  init(options) {
+  init() {
     this.events = [];
-
-    if (!options || !options.performance) {
-      throw new Error('options.performance is required!');
-    }
-    this.performance = options.performance;
+    this.start = Date.now();
   }
 
   capture(name) {
     this.events.push({
       type: name,
-
-      // Chrome produces floats, but our API expects integers
-      offset: parseInt(this.performance.now()),
+      offset: Date.now() - this.start,
     });
   }
 

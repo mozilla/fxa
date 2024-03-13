@@ -92,17 +92,6 @@ function tryCaptureValidationError(err) {
     }
 
     if (errorDetails) {
-      // We are ignoring all navigation timings issues until we come up with a better
-      // solution for capturing timing data. See FXA-7005.
-      if (
-        typeof errorDetails.details.some === 'function' &&
-        errorDetails.details.some(
-          (detail) => (detail.message || '').indexOf('navigationTiming.') >= 0
-        )
-      ) {
-        return false;
-      }
-
       const message = `${errorDetails}`;
       const validationError = errorDetails.details.reduce((a, v) => {
         // Try to get the key for the field that failed validation and update
