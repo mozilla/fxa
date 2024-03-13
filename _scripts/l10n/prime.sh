@@ -12,8 +12,8 @@ if [ -z "$PACKAGE" ]; then
 fi
 
 # Move to monorepo root
-ROOT_FOLDER=$(git rev-parse --show-toplevel)
-cd $ROOT_FOLDER
+cd "$(dirname "$0")/../.."
+ROOT_FOLDER=$(pwd)
 
 if [ ! -d "$ROOT_FOLDER/external/l10n/locale" ]; then
     echo "$PREFIX: No external/l10n folder exists! Run yarn l10n:clone script first."
@@ -21,7 +21,7 @@ if [ ! -d "$ROOT_FOLDER/external/l10n/locale" ]; then
 fi
 
 # Check path is valid
-TARGET_FOLDER="$PACKAGE/$FOLDER"
+TARGET_FOLDER="packages/$PACKAGE/$FOLDER"
 rm -rf "$TARGET_FOLDER"
 mkdir -p "$TARGET_FOLDER"
 

@@ -26,7 +26,7 @@
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "glean-generate": "yarn glean translate ../fxa-shared/metrics/glean/fxa-backend-pings.yaml ../fxa-shared/metrics/glean/fxa-backend-metrics.yaml -f typescript_server -o lib/metrics/glean",
     "glean-lint": "yarn glean glinter ../fxa-shared/metrics/glean/fxa-backend-pings.yaml ../fxa-shared/metrics/glean/fxa-backend-metrics.yaml",
-    "l10n-prime": "yarn l10n:prime packages/fxa-auth-server",
+    "l10n-prime": "yarn l10n:prime fxa-auth-server",
     "l10n-merge": "yarn grunt merge-ftl",
     "l10n-merge-test": "yarn grunt merge-ftl:test",
     "l10n-watch": "yarn grunt watch-ftl",
