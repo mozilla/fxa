@@ -61,5 +61,11 @@ module.exports = {
       autorestart: false,
       kill_timeout: 20000,
     },
+    {
+      name: 'cloud-tasks-emulator',
+      script: '_scripts/cloud-tasks-emulator.sh',
+      autorestart: false,
+      kill_timeout: 20000,
+    },
   ],
 };

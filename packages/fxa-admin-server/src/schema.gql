@@ -153,6 +153,17 @@ type Account {
   accountEvents: [AccountEvent!]
 }
 
+type AccountDeleteResponse {
+  taskName: String!
+  locator: String!
+  status: String!
+}
+
+type AccountDeleteTaskStatus {
+  taskName: String!
+  status: String!
+}
+
 type RelyingParty {
   id: ID!
   name: String!
@@ -170,6 +181,7 @@ type Query {
   accountByUid(uid: String!): Account
   accountByEmail(email: String!, autoCompleted: Boolean!): Account
   getEmailsLike(search: String!): [Email!]
+  getDeleteStatus(taskNames: [String!]!): [AccountDeleteTaskStatus!]!
   relyingParties: [RelyingParty!]!
 }
 
@@ -182,6 +194,7 @@ type Mutation {
   recordAdminSecurityEvent(uid: String!, name: String!): Boolean!
   unlinkAccount(uid: String!): Boolean!
   unsubscribeFromMailingLists(uid: String!): Boolean!
+  deleteAccounts(locators: [String!]!): [AccountDeleteResponse!]!
   clearEmailBounce(email: String!): Boolean!
   updateNotes(id: String!, notes: String!): Boolean!
 }

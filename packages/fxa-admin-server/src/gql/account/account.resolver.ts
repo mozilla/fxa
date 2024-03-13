@@ -19,7 +19,7 @@ import {
   SessionToken,
 } from 'fxa-shared/connected-services';
 import { AttachedSession } from 'fxa-shared/connected-services/models/AttachedSession';
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import { SecurityEventNames } from 'fxa-shared/db/models/auth/security-event';
 import { AdminPanelFeature } from 'fxa-shared/guards';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -42,6 +42,16 @@ import { AuthClientService } from '../../backend/auth-client.service';
 import { FirestoreService } from '../../backend/firestore.service';
 import AuthClient from 'fxa-auth-client';
 import { BasketService } from '../../newsletters/basket.service';
+import {
+  CloudTasks,
+  CloudTasksService,
+} from '../../backend/cloud-tasks.service';
+import { ReasonForDeletion } from '../../../../../libs/shared/cloud-tasks/src';
+import {
+  AccountDeleteResponse,
+  AccountDeleteStatus,
+  AccountDeleteTaskStatus,
+} from '../model/account-delete-task.model';
 
 const ACCOUNT_COLUMNS = [
   'uid',
@@ -102,7 +112,8 @@ export class AccountResolver {
     private eventLogging: EventLoggingService,
     private basketService: BasketService,
     @Inject(AuthClientService) private authAPI: AuthClient,
-    @Inject(FirestoreService) private firestore: Firestore
+    @Inject(FirestoreService) private firestore: Firestore,
+    @Inject(CloudTasksService) private cloudTask: CloudTasks
   ) {}
 
   @Features(AdminPanelFeature.AccountSearch)
@@ -432,5 +443,129 @@ export class AccountResolver {
     }
 
     return success;
+  }
+
+  @Features(AdminPanelFeature.DeleteAccount)
+  @Query((returns) => [AccountDeleteTaskStatus])
+  public async getDeleteStatus(
+    @Args('taskNames', { type: () => [String] }) taskNames: string[]
+  ) {
+    const results = [];
+    for (const taskName of taskNames) {
+      try {
+        const [result] = await this.cloudTask.accountTasks.getTaskStatus(
+          taskName
+        );
+        if (result == null) {
+          results.push({
+            taskName,
+            status: 'Unknown task',
+          });
+        } else {
+          results.push({
+            taskName,
+            status: result.lastAttempt?.responseStatus?.message || 'Pending',
+          });
+        }
+      } catch (error) {
+        if (error.code === 9) {
+          results.push({
+            taskName,
+            status: 'Task completed.',
+          });
+        } else {
+          results.push({
+            taskName,
+            status: 'Could not locate task.',
+          });
+        }
+      }
+    }
+    return results;
+  }
+
+  @Features(AdminPanelFeature.DeleteAccount)
+  @Mutation((returns) => [AccountDeleteResponse])
+  public async deleteAccounts(
+    @Args('locators', { type: () => [String] }) locators: string[],
+    @CurrentUser() user: string
+  ) {
+    this.eventLogging.onEvent('deleteAccounts');
+
+    if (locators.length > 1000) {
+      throw new Error('Provide less than 1000 account locators.');
+    }
+
+    /** Helper function to query account and create cloud task */
+    const createTask = async (
+      locator: string
+    ): Promise<AccountDeleteResponse> => {
+      // Important! Log this action for historical record
+      this.log.info('deleteAccounts', { locator, user });
+
+      let account: Account | undefined;
+      if (/@/.test(locator)) {
+        account = await this.db.account
+          .query()
+          .select(ACCOUNT_COLUMNS.map((c) => 'accounts.' + c))
+          .innerJoin('emails', 'emails.uid', 'accounts.uid')
+          .where('emails.normalizedEmail', locator.toLocaleLowerCase())
+          .first();
+      } else if (/.*/.test(locator)) {
+        let uidBuffer;
+        try {
+          uidBuffer = uuidTransformer.to(locator);
+        } catch (err) {
+          return {
+            taskName: '',
+            locator,
+            status: AccountDeleteStatus.NoAccount,
+          };
+        }
+        account = await this.db.account
+          .query()
+          .select(ACCOUNT_COLUMNS)
+          .findOne({ uid: uidBuffer });
+      }
+
+      if (!account) {
+        return {
+          taskName: '',
+          locator,
+          status: AccountDeleteStatus.NoAccount,
+        };
+      }
+      // Locate stripe customer
+      const { stripeCustomerId } =
+        (await getAccountCustomerByUid(account.uid)) || {};
+
+      const taskName = await this.cloudTask.accountTasks.deleteAccount({
+        uid: account.uid,
+        customerId: stripeCustomerId,
+        reason: ReasonForDeletion.UserRequested,
+      });
+
+      if (taskName) {
+        return {
+          taskName,
+          locator,
+          status: AccountDeleteStatus.Success,
+        };
+      }
+
+      return {
+        taskName: '',
+        locator,
+        status: AccountDeleteStatus.Failure,
+      };
+    };
+
+    const promises = [];
+    for (const locator of locators) {
+      promises.push(createTask(locator));
+    }
+
+    const result = await Promise.all(promises);
+    return result;
   }
 }

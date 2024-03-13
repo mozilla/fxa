@@ -115,6 +115,11 @@ const conf = convict({
       env: 'PUBLIC_URL',
       format: 'url',
     },
+    hotReloadWebsocket: {
+      default: 'ws://localhost:8092/ws',
+      env: 'HOT_RELOAD_WEBSOCKET',
+      format: String,
+    },
     useHttps: {
       default: false,
       doc: 'set to true to serve directly over https',

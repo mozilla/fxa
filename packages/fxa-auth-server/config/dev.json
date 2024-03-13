@@ -1,4 +1,10 @@
 {
+  "cloudTasks": {
+    "useLocalEmulator": true,
+    "deleteAccounts": {
+      "taskUrl": "http://localhost:9000/v1/cloud-tasks/accounts/delete"
+    }
+  },
   "contentServer": {
     "url": "http://localhost:3030"
   },

@@ -21,7 +21,7 @@ export default function cspBlocking(config: { [key: string]: any }) {
   const SENTRY_SERVER = 'https://*.sentry.io';
   const CDN_URL = config.get('staticResources.url');
   const PUBLIC_URL = config.get('listen.publicUrl');
-  const HOT_RELOAD_WEBSOCKET = PUBLIC_URL.replace(/^http/, 'ws');
+  const HOT_RELOAD_WEBSOCKET = config.get('listen.hotReloadWebsocket');
 
   //
   // Double quoted values

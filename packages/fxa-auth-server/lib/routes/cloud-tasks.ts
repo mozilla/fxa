@@ -48,7 +48,7 @@ export const cloudTaskRoutes = (log: AuthLogger, config: ConfigType) => {
       path: accountDeleteCloudTaskPath,
       options: {
         auth: {
-          mode: 'required',
+          mode: config.cloudTasks.useLocalEmulator ? 'try' : 'required',
           payload: false,
           strategy: 'cloudTasksOIDC',
         },

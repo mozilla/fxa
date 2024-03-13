@@ -5,6 +5,7 @@ import convict from 'convict';
 import fs from 'fs';
 import { makeRedisConfig } from 'fxa-shared/db/config';
 import { tracingConfig } from 'fxa-shared/tracing/config';
+import { CloudTasksConvictConfigFactory } from '@fxa/shared/cloud-tasks';
 import path from 'path';
 import url from 'url';
 
@@ -2024,51 +2025,7 @@ const convictConf = convict({
       format: Boolean,
     },
   },
-
-  cloudTasks: {
-    projectId: {
-      default: '',
-      doc: 'The GCP project id.  Optional when in an environment with Application Default Credentials.',
-      env: 'AUTH_CLOUDTASKS_PROJECT_ID',
-      format: String,
-    },
-    locationId: {
-      default: '',
-      doc: 'Google cloud location id, e.g. us-west1',
-      env: 'AUTH_CLOUDTASKS_LOCATION_ID',
-      format: String,
-    },
-    credentials: {
-      keyFilename: {
-        default: '',
-        doc: 'Path to service account key.  Optional when in an environment where authentication with services is automatic.',
-        env: 'AUTH_CLOUDTASKS_KEY_FILE',
-        format: String,
-      },
-    },
-    oidc: {
-      aud: {
-        default: '',
-        doc: 'The audience value of the id token payload.',
-        env: 'AUTH_CLOUDTASKS_OIDC_AUD',
-        format: String,
-      },
-      serviceAccountEmail: {
-        default: '',
-        doc: 'The GCP service account email address.',
-        env: 'AUTH_CLOUDTASKS_OIDC_EMAIL',
-        format: String,
-      },
-    },
-    deleteAccounts: {
-      queueName: {
-        default: '',
-        doc: 'The name of the queue.  It should match the x-cloudtasks-queuename header value sent to the target.',
-        env: 'AUTH_CLOUDTASKS_DEL_ACCT_QUEUENAME',
-        format: String,
-      },
-    },
-  },
+  cloudTasks: CloudTasksConvictConfigFactory(),
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

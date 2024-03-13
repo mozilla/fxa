@@ -159,6 +159,17 @@ export interface Account {
     accountEvents?: Nullable<AccountEvent[]>;
 }
 
+export interface AccountDeleteResponse {
+    taskName: string;
+    locator: string;
+    status: string;
+}
+
+export interface AccountDeleteTaskStatus {
+    taskName: string;
+    status: string;
+}
+
 export interface RelyingParty {
     id: string;
     name: string;
@@ -176,6 +187,7 @@ export interface IQuery {
     accountByUid(uid: string): Nullable<Account> | Promise<Nullable<Account>>;
     accountByEmail(email: string, autoCompleted: boolean): Nullable<Account> | Promise<Nullable<Account>>;
     getEmailsLike(search: string): Nullable<Email[]> | Promise<Nullable<Email[]>>;
+    getDeleteStatus(taskNames: string[]): AccountDeleteTaskStatus[] | Promise<AccountDeleteTaskStatus[]>;
     relyingParties(): RelyingParty[] | Promise<RelyingParty[]>;
 }
 
@@ -188,6 +200,7 @@ export interface IMutation {
     recordAdminSecurityEvent(uid: string, name: string): boolean | Promise<boolean>;
     unlinkAccount(uid: string): boolean | Promise<boolean>;
     unsubscribeFromMailingLists(uid: string): boolean | Promise<boolean>;
+    deleteAccounts(locators: string[]): AccountDeleteResponse[] | Promise<AccountDeleteResponse[]>;
     clearEmailBounce(email: string): boolean | Promise<boolean>;
     updateNotes(id: string, notes: string): boolean | Promise<boolean>;
 }
