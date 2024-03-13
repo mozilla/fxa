@@ -36,17 +36,20 @@
         "libs/shared/account/account/src/index.ts"
       ],
       "@fxa/shared/contentful": ["libs/shared/contentful/src/index.ts"],
-      "@fxa/shared/db/type-cacheable": ["libs/shared/db/type-cacheable/src/index.ts"],
       "@fxa/shared/db/firestore": ["libs/shared/db/firestore/src/index.ts"],
       "@fxa/shared/db/mysql/account": [
         "libs/shared/db/mysql/account/src/index.ts"
       ],
       "@fxa/shared/db/mysql/core": ["libs/shared/db/mysql/core/src/index.ts"],
+      "@fxa/shared/db/type-cacheable": [
+        "libs/shared/db/type-cacheable/src/index.ts"
+      ],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
-      "@fxa/shared/styles/*": ["libs/shared/styles/src/lib/*"]
+      "@fxa/shared/styles/*": ["libs/shared/styles/src/lib/*"],
+      "@fxa/shared/cloud-tasks": ["libs/shared/cloud-tasks/src/index.ts"]
     },
     "typeRoots": [
       "./types",

@@ -8,6 +8,7 @@ import { Path } from 'convict';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import config, { AppConfig } from './config';
 import { FirestoreService } from './backend/firestore.service';
+import { CloudTasksService } from './backend/cloud-tasks.service';
 
 export const mockConfigOverrides: any = {};
 export const MockConfig: Provider = {
@@ -55,4 +56,13 @@ export const logger = {
 export const MockLogService: Provider = {
   provide: MozLoggerService,
   useValue: logger,
+};
+
+export const MockCloudTaskFactory: Provider = {
+  provide: CloudTasksService,
+  useFactory: () => {
+    return {
+      accountTasks: {},
+    };
+  },
 };

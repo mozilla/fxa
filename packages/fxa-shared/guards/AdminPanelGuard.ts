@@ -22,6 +22,7 @@ export enum PermissionLevel {
 export enum AdminPanelFeature {
   AccountSearch = 'AccountSearch',
   AccountHistory = 'AccountHistory',
+  AccountDelete = 'AccountDelete',
   ConnectedServices = 'ConnectedServices',
   LinkedAccounts = 'LinkedAccounts',
   ClearEmailBounces = 'ClearEmailBounces',
@@ -30,6 +31,7 @@ export enum AdminPanelFeature {
   EnableAccount = 'EnableAccount',
   UnverifyEmail = 'UnverifyEmail',
   UnlinkAccount = 'UnlinkAccount',
+  DeleteAccount = 'DeleteAccount',
   RelyingParties = 'RelyingParties',
   RelyingPartiesEditNotes = 'RelyingPartiesEditNotes',
   SendPasswordResetEmail = 'SendPasswordResetEmail',
@@ -96,6 +98,10 @@ const defaultAdminPanelPermissions: Permissions = {
     name: 'Account History',
     level: PermissionLevel.Support,
   },
+  [AdminPanelFeature.AccountDelete]: {
+    name: 'Delete Account By Email/UID',
+    level: PermissionLevel.Admin,
+  },
   [AdminPanelFeature.ConnectedServices]: {
     name: 'View Active Sessions',
     level: PermissionLevel.Support,
@@ -126,6 +132,10 @@ const defaultAdminPanelPermissions: Permissions = {
   },
   [AdminPanelFeature.UnlinkAccount]: {
     name: 'Unlink Account',
+    level: PermissionLevel.Admin,
+  },
+  [AdminPanelFeature.DeleteAccount]: {
+    name: 'DeleteAccount Account',
     level: PermissionLevel.Admin,
   },
   [AdminPanelFeature.RelyingParties]: {

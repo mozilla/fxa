@@ -44,6 +44,7 @@ import { AccountResolver } from './account.resolver';
 import { AuthClientService } from '../../backend/auth-client.service';
 import { FirestoreService } from '../../backend/firestore.service';
 import { BasketService } from '../../newsletters/basket.service';
+import { CloudTasksService } from '../../backend/cloud-tasks.service';
 
 export const chance = new Chance();
 
@@ -155,6 +156,29 @@ describe('#integration - AccountResolver', () => {
       },
     };
 
+    const MockCloudTasks: Provider = {
+      provide: CloudTasksService,
+      useFactory: () => {
+        return {
+          accountTasks: {
+            deleteAccount: jest.fn().mockReturnValue([
+              {
+                locator: USER_1.email,
+                status: 'Pending',
+                taskName: 'user-1-task',
+              },
+              {
+                locator: USER_2.email,
+                status: 'Pending',
+                taskName: 'user-2-task',
+              },
+            ]),
+            getTaskStatus: jest.fn().mockReturnValue([{}, {}]),
+          },
+        };
+      },
+    };
+
     basketService = {};
     const MockBasket: Provider = {
       provide: BasketService,
@@ -215,6 +239,7 @@ describe('#integration - AccountResolver', () => {
         MockDb,
         MockFirestoreService,
         MockAuthClient,
+        MockCloudTasks,
       ],
     }).compile();
 
@@ -476,5 +501,30 @@ describe('#integration - AccountResolver', () => {
 
     expect(user).toBeDefined();
     expect(user.verifierSetAt).toBeDefined();
+  });
+
+  it('deletes accounts', async () => {
+    const result = await resolver.deleteAccounts([USER_1.email], 'joe');
+
+    const user1 = result.find((x) => x.locator === USER_1.email);
+    expect(user1?.status).toEqual('Success');
+    expect(user1?.taskName).not.toEqual('');
+
+    const statusResult = await resolver.getDeleteStatus([user1!.taskName]);
+
+    expect(
+      statusResult.find((x) => x.taskName === user1!.taskName)?.status
+    ).toBeDefined();
+  });
+
+  it('attempts to delete invalid account and indicates failure', async () => {
+    const result = await resolver.deleteAccounts(
+      ['foobazzzz@mozilla.com'],
+      'joe'
+    );
+    expect(result).toBeDefined();
+    expect(result[0].locator).toEqual('foobazzzz@mozilla.com');
+    expect(result[0].status).toEqual('No account found');
+    expect(result[0].taskName).toEqual('');
   });
 });

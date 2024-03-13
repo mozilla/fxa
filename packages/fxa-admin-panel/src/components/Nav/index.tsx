@@ -37,6 +37,21 @@ export const Nav = () => (
             </NavLink>
           </li>
         </Guard>
+        <Guard features={[AdminPanelFeature.AccountDelete]}>
+          <li>
+            <NavLink
+              to="/account-delete"
+              className={({ isActive }) => getNavLinkClassName(isActive)}
+            >
+              <img
+                className="inline-flex mr-2 w-4"
+                src={accountIcon}
+                alt="account icon"
+              />
+              Account Delete
+            </NavLink>
+          </li>
+        </Guard>
         <Guard features={[AdminPanelFeature.RelyingParties]}>
           <li>
             <NavLink

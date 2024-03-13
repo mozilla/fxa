@@ -12,6 +12,7 @@ import { PagePermissions } from './components/PagePermissions';
 import { IClientConfig, IUserInfo } from '../interfaces';
 import { AdminPanelFeature, AdminPanelGuard } from 'fxa-shared/guards';
 import PageRelyingParties from './components/PageRelyingParties';
+import PageAccountDelete from './components/PageAccountDelete';
 
 const App = ({ config }: { config: IClientConfig }) => {
   const [guard, setGuard] = useState<AdminPanelGuard>(config.guard);
@@ -33,6 +34,9 @@ const App = ({ config }: { config: IClientConfig }) => {
                   path="/relying-parties"
                   element={<PageRelyingParties />}
                 />
+              )}
+              {guard.allow(AdminPanelFeature.AccountDelete, user.group) && (
+                <Route path="/account-delete" element={<PageAccountDelete />} />
               )}
               <Route path="/permissions" element={<PagePermissions />} />
             </Routes>
