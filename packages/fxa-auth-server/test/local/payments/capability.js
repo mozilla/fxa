@@ -4,6 +4,7 @@
 
 'use strict';
 
+const config = require('../../../config').default.getProperties();
 const sinon = require('sinon');
 const assert = { ...sinon.assert, ...require('chai').assert };
 const { Container } = require('typedi');
@@ -14,7 +15,7 @@ const {
   mockPlans,
   mockContentfulPlanIdsToClientCapabilities,
 } = require('../../mocks');
-const { AuthLogger } = require('../../../lib/types');
+const { AppConfig, AuthLogger } = require('../../../lib/types');
 const { StripeHelper } = require('../../../lib/payments/stripe');
 const { PlayBilling } = require('../../../lib/payments/iap/google-play');
 const { AppleIAP } = require('../../../lib/payments/iap/apple-app-store');
@@ -94,6 +95,7 @@ describe('CapabilityService', () => {
   let mockPaymentConfigManager;
   let mockConfigPlans;
   let mockCapabilityManager;
+  let mockConfig;
 
   beforeEach(async () => {
     mockAuthEvents.on = sinon.fake.returns({});
@@ -170,7 +172,10 @@ describe('CapabilityService', () => {
         mockContentfulPlanIdsToClientCapabilities
       ),
     };
+    mockConfig = {...config, contentful: { enabled: false }};
     log = mockLog();
+
+    Container.set(AppConfig, mockConfig);
     Container.set(AuthLogger, log);
     Container.set(StripeHelper, mockStripeHelper);
     Container.set(PlayBilling, mockPlayBilling);
@@ -1341,6 +1346,56 @@ describe('CapabilityService', () => {
         contentful: mockClientsFromContentful,
         stripe: mockClientsFromStripe,
       });
+    });
+  });
+
+  describe('Contentful flag is enabled', () => {
+    it('returns planIdsToClientCapabilities from Contentful', async () => {
+      mockConfig.contentful.enabled = true;
+
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([
+        UID,
+      ]);
+
+      const mockContentfulCapabilities =
+        await mockCapabilityManager.planIdsToClientCapabilities(
+          capabilityService.subscribedPrices
+        );
+
+        const expected = {
+          '*': [ 'capAll' ],
+          c1: [ 'capZZ', 'cap4', 'cap5', 'capAlpha' ],
+          c2: [ 'cap5', 'cap6', 'capC', 'capD' ],
+          c3: [ 'capD', 'capE' ]
+        };
+
+        assert.deepEqual(mockContentfulCapabilities, expected);
+    });
+
+    it('returns getClients from Contentful', async () => {
+      mockConfig.contentful.enabled = true;
+
+      const mockClientsFromContentful =
+        await mockCapabilityManager.getClients();
+
+      const expected = [
+        {
+          capabilities: ['exampleCap0', 'exampleCap1', 'exampleCap3'],
+          clientId: 'client1',
+        },
+        {
+          capabilities: [
+            'exampleCap0',
+            'exampleCap2',
+            'exampleCap4',
+            'exampleCap5',
+            'exampleCap6',
+            'exampleCap7',
+          ],
+          clientId: 'client2',
+        },
+      ];
+      assert.deepEqual(mockClientsFromContentful, expected);
     });
   });
 });

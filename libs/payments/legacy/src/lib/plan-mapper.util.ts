@@ -13,7 +13,8 @@ export class PlanMapperUtil {
   constructor(
     private commonContent: OfferingCommonContentResult,
     private purchaseDetails: PurchaseDetailsTransformed,
-    private stripeMetadata: Stripe.Metadata | null
+    private stripeMetadata: Stripe.Metadata | null,
+    private contentfulEnabled: boolean
   ) {}
 
   /**
@@ -25,6 +26,12 @@ export class PlanMapperUtil {
     stripeValue?: string,
     contentfulValue?: string | null
   ) {
+    // If contentful config enabled, skip comparison and
+    // return undefined if null, otherwise contentfulValue
+    if (this.contentfulEnabled) {
+      return contentfulValue === null ? undefined : contentfulValue;
+    }
+
     // Return undefined if stripe and contentful aren't provided
     if (stripeValue === undefined && contentfulValue === null) {
       return undefined;

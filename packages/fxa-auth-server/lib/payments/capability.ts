@@ -34,7 +34,8 @@ import { SeverityLevel } from '@sentry/types';
 
 import error from '../error';
 import { authEvents } from '../events';
-import { AuthLogger, AuthRequest, ProfileClient } from '../types';
+import { AppConfig, AuthLogger, AuthRequest, ProfileClient } from '../types';
+import { ConfigType } from '../../config';
 import { PaymentConfigManager } from './configuration/manager';
 import { AppleIAP } from './iap/apple-app-store/apple-iap';
 import { AppStoreSubscriptionPurchase } from './iap/apple-app-store/subscription-purchase';
@@ -74,6 +75,7 @@ export class CapabilityService {
   private capabilityManager?: CapabilityManager;
   private sentryLogCounter = new Map<string, number>();
   private eligibilityManager?: EligibilityManager;
+  private config: ConfigType;
 
   constructor() {
     // TODO: the mock stripeHelper here fixes this specific instance when
@@ -103,6 +105,7 @@ export class CapabilityService {
       this.eligibilityManager = Container.get(EligibilityManager);
     }
 
+    this.config = Container.get(AppConfig);
     this.log = Container.get(AuthLogger);
 
     // Register the event handlers for capability changes.
@@ -168,7 +171,7 @@ export class CapabilityService {
         {
           subscriptionId: sub.id,
         },
-        'Subscription customer was not a string.'
+        new Error('Subscription customer was not a string.')
       );
     }
     if (!uid) {
@@ -321,6 +324,8 @@ export class CapabilityService {
     targetPlanId: string,
     useFirestoreProductConfigs = false
   ): Promise<SubscriptionChangeEligibility> {
+    const contentfulEnabled = this.config.contentful.enabled;
+
     const allPlansByPlanId = await this.allAbbrevPlansByPlanId();
 
     const targetPlan = allPlansByPlanId[targetPlanId];
@@ -329,6 +334,34 @@ export class CapabilityService {
     const [stripeSubscribedPlans, iapSubscribedPlans] =
       await this.getAllSubscribedAbbrevPlans(uid, allPlansByPlanId);
 
+    if (contentfulEnabled) {
+      if (!this.eligibilityManager) {
+        throw error.internalValidationError(
+          'eligibilityResult',
+          {},
+          new Error('CapabilityManager not found.')
+        );
+      } else {
+        try {
+          const eligibilityManagerResult =
+            await this.eligibilityFromEligibilityManager(
+              stripeSubscribedPlans,
+              iapSubscribedPlans,
+              targetPlan
+            );
+
+          return eligibilityManagerResult;
+        } catch (err) {
+          throw error.internalValidationError(
+            'subscriptions.getPlanEligibility',
+            {},
+            err
+          );
+        }
+      }
+    }
+
+    // TODO: will be removed in FXA-8918
     const stripeEligibilityResult = await this.eligibilityFromStripeMetadata(
       stripeSubscribedPlans,
       iapSubscribedPlans,
@@ -361,11 +394,12 @@ export class CapabilityService {
           );
         });
       }
-    } catch (error) {
-      this.log.error('subscriptions.getPlanEligibility', { error: error });
-      Sentry.captureException(error);
+    } catch (err) {
+      this.log.error('subscriptions.getPlanEligibility', { error: err });
+      Sentry.captureException(err);
     }
     return stripeEligibilityResult;
+    // END TODO: will be removed in FXA-8918
   }
 
   /**
@@ -764,6 +798,7 @@ export class CapabilityService {
   /**
    * Fetch the list of capabilities for the given plan ids from Stripe.
    */
+  // TODO: will be removed in FXA-8918
   private async planIdsToClientCapabilitiesFromStripe(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
@@ -800,6 +835,7 @@ export class CapabilityService {
   /**
    * Retrieve the client capabilities from Stripe
    */
+  // TODO: will be removed in FXA-8918
   async getClientsFromStripe() {
     let result: ClientIdCapabilityMap = {};
 
@@ -856,6 +892,32 @@ export class CapabilityService {
    * Retrieve the client capabilities
    */
   async getClients() {
+    const contentfulEnabled = this.config.contentful.enabled;
+
+    if (contentfulEnabled) {
+      if (!this.capabilityManager) {
+        throw error.internalValidationError(
+          'getClients',
+          {},
+          new Error('CapabilityManager not found.')
+        );
+      } else {
+        try {
+          const clientsFromContentful =
+            await this.capabilityManager.getClients();
+
+          return clientsFromContentful;
+        } catch (err) {
+          throw error.internalValidationError(
+            'subscriptions.getClients',
+            {},
+            err
+          );
+        }
+      }
+    }
+
+    // TODO: will be removed in FXA-8918
     const clientsFromStripe = await this.getClientsFromStripe();
 
     if (!this.capabilityManager) {
@@ -892,11 +954,12 @@ export class CapabilityService {
           );
         });
       }
-    } catch (error) {
-      this.log.error('subscriptions.getClients', { error: error });
-      Sentry.captureException(error);
+    } catch (err) {
+      this.log.error('subscriptions.getClients', { error: err });
+      Sentry.captureException(err);
     }
     return clientsFromStripe;
+    // END TODO: will be removed in FXA-8918
   }
 
   /**
@@ -905,6 +968,34 @@ export class CapabilityService {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<ClientIdCapabilityMap> {
+    const contentfulEnabled = this.config.contentful.enabled;
+
+    if (contentfulEnabled) {
+      if (!this.capabilityManager) {
+        throw error.internalValidationError(
+          'planIdsToClientCapabilities',
+          {},
+          new Error('CapabilityManager not found.')
+        );
+      } else {
+        try {
+          const contentfulCapabilities =
+            await this.capabilityManager.planIdsToClientCapabilities(
+              subscribedPrices
+            );
+
+          return contentfulCapabilities;
+        } catch (err) {
+          throw error.internalValidationError(
+            'subscriptions.planIdsToClientCapabilities',
+            {},
+            err
+          );
+        }
+      }
+    }
+
+    // TODO: will be removed in FXA-8918
     const stripeCapabilities = await this.planIdsToClientCapabilitiesFromStripe(
       subscribedPrices
     );
@@ -950,13 +1041,14 @@ export class CapabilityService {
           'error' as SeverityLevel
         );
       });
-    } catch (error) {
+    } catch (err) {
       this.log.error('subscriptions.planIdsToClientCapabilities', {
-        error: error,
+        error: err,
       });
-      Sentry.captureException(error);
+      Sentry.captureException(err);
     }
 
     return stripeCapabilities;
+    // END TODO: will be removed in FXA-8918
   }
 }

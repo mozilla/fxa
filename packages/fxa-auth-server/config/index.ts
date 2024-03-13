@@ -2017,6 +2017,12 @@ const convictConf = convict({
       env: 'CONTENTFUL_FIRESTORE_CACHE_COLLECTION_NAME',
       format: String,
     },
+    enabled: {
+      default: false,
+      doc: 'Whether to use Contentful',
+      env: 'CONTENTFUL_ENABLED',
+      format: Boolean,
+    },
   },
 
   cloudTasks: {

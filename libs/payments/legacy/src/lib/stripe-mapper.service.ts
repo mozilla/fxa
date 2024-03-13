@@ -58,7 +58,8 @@ export class StripeMapperService {
    */
   async mapContentfulToStripePlans(
     plans: Stripe.Plan[],
-    acceptLanguage: string
+    acceptLanguage: string,
+    contentfulEnabled: boolean
   ) {
     const mappedPlans: Stripe.Plan[] = [];
     const validPlanIds = plans.map((plan) => plan.id);
@@ -100,7 +101,8 @@ export class StripeMapperService {
       const planMapper = new PlanMapperUtil(
         commonContent,
         purchaseDetails,
-        mergedStripeMetadata
+        mergedStripeMetadata,
+        contentfulEnabled
       );
 
       const { metadata, errorFields } = planMapper.mergeStripeAndContentful();
