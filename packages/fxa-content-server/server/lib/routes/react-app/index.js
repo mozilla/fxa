@@ -9,7 +9,7 @@ const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
  * group object it should go in and add a new object in `routes` by calling `.getRoute`
  * or setting `routes` with `.getRoutes` on the react route object.
  *
- * If a routeGroup should always be rendered with React in production, set `fullProdRollout` to true.
+ * If a routeGroup should always be rendered with React in production, set `fullRollout` to true.
  * These routes can still be turned off on SRE side by switching featureFlagOn to false
  * on stage or prod for the relevant route if needed. React will ALWAYS be off for the routeGroup
  * if featureFlagOn is set to false.
@@ -24,7 +24,7 @@ const { TERMS_PRIVACY_REGEX } = require('./content-server-routes');
 const getReactRouteGroups = (showReactApp, reactRoute) => {
   return {
     simpleRoutes: {
-      featureFlagOn: showReactApp.simpleRoutes,
+      featureFlagOn: showReactApp.simpleRoutes.enabled,
       routes: reactRoute.getRoutes([
         'cannot_create_account',
         'clear',
@@ -37,11 +37,11 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         // * /<locale>/legal/privacy
         TERMS_PRIVACY_REGEX,
       ]),
-      fullProdRollout: true,
+      fullRollout: showReactApp.simpleRoutes.fullRollout,
     },
 
     resetPasswordRoutes: {
-      featureFlagOn: showReactApp.resetPasswordRoutes,
+      featureFlagOn: showReactApp.resetPasswordRoutes.enabled,
       routes: reactRoute.getRoutes([
         'reset_password',
         'complete_reset_password',
@@ -51,17 +51,19 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'account_recovery_confirm_key',
         'account_recovery_reset_password',
       ]),
-      fullProdRollout: true,
+      fullRollout: showReactApp.resetPasswordRoutes.fullRollout,
     },
 
+    // TODO: in FXA-9279 verify if we can remove this route group
+    // (routes included in signin/signup)
     oauthRoutes: {
-      featureFlagOn: showReactApp.oauthRoutes,
+      featureFlagOn: showReactApp.oauthRoutes.enabled,
       routes: [],
-      fullProdRollout: false,
+      fullRollout: showReactApp.oauthRoutes.fullRollout,
     },
 
     signInRoutes: {
-      featureFlagOn: showReactApp.signInRoutes,
+      featureFlagOn: showReactApp.signInRoutes.enabled,
       routes: reactRoute.getRoutes([
         'signin',
         'oauth/signin',
@@ -76,11 +78,11 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_unblock',
         'force_auth',
       ]),
-      fullProdRollout: false,
+      fullRollout: showReactApp.signInRoutes.fullRollout,
     },
 
     signUpRoutes: {
-      featureFlagOn: showReactApp.signUpRoutes,
+      featureFlagOn: showReactApp.signUpRoutes.enabled,
       routes: reactRoute.getRoutes([
         'signup',
         'confirm_signup_code',
@@ -89,49 +91,49 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signup_verified',
         'oauth/signup',
       ]),
-      fullProdRollout: true,
+      fullRollout: showReactApp.signUpRoutes.fullRollout,
     },
 
     pairRoutes: {
-      featureFlagOn: showReactApp.pairRoutes,
+      featureFlagOn: showReactApp.pairRoutes.enabled,
       routes: [],
-      fullProdRollout: false,
+      fullRollout: showReactApp.pairRoutes.fullRollout,
     },
 
     postVerifyOtherRoutes: {
-      featureFlagOn: showReactApp.postVerifyOtherRoutes,
+      featureFlagOn: showReactApp.postVerifyOtherRoutes.enabled,
       routes: [],
-      fullProdRollout: false,
+      fullRollout: showReactApp.postVerifyOtherRoutes.fullRollout,
     },
 
     postVerifyCADViaQRRoutes: {
-      featureFlagOn: showReactApp.postVerifyCADViaQRRoutes,
+      featureFlagOn: showReactApp.postVerifyCADViaQRRoutes.enabled,
       routes: [],
-      fullProdRollout: false,
+      fullRollout: showReactApp.postVerifyCADViaQRRoutes.fullRollout,
     },
 
     postVerifyThirdPartyAuthRoutes: {
-      featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes,
+      featureFlagOn: showReactApp.postVerifyThirdPartyAuthRoutes.enabled,
       routes: reactRoute.getRoutes([
         'post_verify/third_party_auth/callback',
         'post_verify/third_party_auth/set_password',
       ]),
-      fullProdRollout: false,
+      fullRollout: showReactApp.postVerifyThirdPartyAuthRoutes.fullRollout,
     },
 
     webChannelExampleRoutes: {
-      featureFlagOn: showReactApp.webChannelExampleRoutes,
+      featureFlagOn: showReactApp.webChannelExampleRoutes.enabled,
       routes: reactRoute.getRoutes(['web_channel_example']),
-      fullProdRollout: false,
+      fullRollout: showReactApp.webChannelExampleRoutes.fullRollout,
     },
 
     inlineTotpRoutes: {
-      featureFlagOn: showReactApp.inlineTotpRoutes,
+      featureFlagOn: showReactApp.inlineTotpRoutes.enabled,
       routes: reactRoute.getRoutes([
         'inline_totp_setup',
         'inline_recovery_setup',
       ]),
-      fullProdRollout: false,
+      fullRollout: showReactApp.inlineTotpRoutes.fullRollout,
     },
   };
 };

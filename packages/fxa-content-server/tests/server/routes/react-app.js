@@ -32,15 +32,15 @@ const { registerSuite } = intern.getInterface('object');
 const assert = intern.getPlugin('chai').assert;
 
 const showReactAppAll = {
-  simpleRoutes: true,
-  resetPasswordRoutes: true,
-  oauthRoutes: true,
-  signInRoutes: true,
-  signUpRoutes: true,
-  pairRoutes: true,
-  postVerifyOtherRoutes: true,
-  postVerifyCADViaQRRoutes: true,
-  inlineTotpRoutes: true,
+  simpleRoutes: { enabled: true, fullRollout: true },
+  resetPasswordRoutes: { enabled: true, fullRollout: true },
+  oauthRoutes: { enabled: true, fullRollout: true },
+  signInRoutes: { enabled: true, fullRollout: true },
+  signUpRoutes: { enabled: true, fullRollout: true },
+  pairRoutes: { enabled: true, fullRollout: true },
+  postVerifyOtherRoutes: { enabled: true, fullRollout: true },
+  postVerifyCADViaQRRoutes: { enabled: true, fullRollout: true },
+  inlineTotpRoutes: { enabled: true, fullRollout: true },
 };
 
 function getEmptyClientReactRouteGroups(showReactApp = showReactAppAll) {

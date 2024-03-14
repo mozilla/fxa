@@ -30,14 +30,18 @@ const GROUPS = [
  * in and either 2a) append `showReactApp=true` to the URL _or_ 2b) to see it in a flow, append
  * the following query params to the page that will navigate to the page you're interested in:
  * `?forceExperiment=generalizedReactApp&forceExperimentGroup=react` */
-const ROLLOUT_RATE = 0.15;
+const DEFAULT_ROLLOUT_RATE = 0.0;
 
 module.exports = class GeneralizedReactApp extends BaseGroupingRule {
   constructor() {
     super();
     this.name = 'generalizedReactApp';
     this.groups = GROUPS;
-    this.rolloutRate = ROLLOUT_RATE;
+    this.rolloutRate = DEFAULT_ROLLOUT_RATE;
+  }
+
+  setRolloutRate(rate) {
+    this.rolloutRate = rate;
   }
 
   /**

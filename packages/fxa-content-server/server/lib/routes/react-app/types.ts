@@ -21,7 +21,7 @@ export interface ReactRouteGroup {
     // only server-side react route groups contain the route definition
     definition?: RouteDefinition;
   }[];
-  fullProdRollout: boolean;
+  fullRollout: boolean;
 }
 
 export interface GetRouteDefinition {
@@ -46,18 +46,23 @@ export interface AddRoutes {
   (app: Express, routeHelpers: RouteHelpers, middleware: RequestHandler): void;
 }
 
+type RolloutConfig = {
+  enabled: boolean;
+  fullRollout: boolean;
+};
+
 type ShowReactApp = {
-  simpleRoutes: boolean;
-  resetPasswordRoutes: boolean;
-  oauthRoutes: boolean;
-  signInRoutes: boolean;
-  signUpRoutes: boolean;
-  pairRoutes: boolean;
-  postVerifyOtherRoutes: boolean;
-  postVerifyCADViaQRRoutes: boolean;
-  postVerifyThirdPartyAuthRoutes: boolean;
-  webChannelExampleRoutes: boolean;
-  inlineTotpRoutes: boolean;
+  simpleRoutes: RolloutConfig;
+  resetPasswordRoutes: RolloutConfig;
+  oauthRoutes: RolloutConfig;
+  signInRoutes: RolloutConfig;
+  signUpRoutes: RolloutConfig;
+  pairRoutes: RolloutConfig;
+  postVerifyOtherRoutes: RolloutConfig;
+  postVerifyCADViaQRRoutes: RolloutConfig;
+  postVerifyThirdPartyAuthRoutes: RolloutConfig;
+  webChannelExampleRoutes: RolloutConfig;
+  inlineTotpRoutes: RolloutConfig;
 };
 
 export interface ReactRouteGroups {

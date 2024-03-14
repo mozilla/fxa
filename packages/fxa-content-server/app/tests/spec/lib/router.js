@@ -32,37 +32,37 @@ describe('lib/router', () => {
   // environment variables and routes groups are mocked to decouple from values
   // that are changing as we gradually roll out these routes to react in production
   const mockShowReactAppConfig = {
-    alwaysOnRoutes: true,
-    sometimesOnRoutes: true,
-    neverOnRoutes: false,
-    emergencyOffRoutes: false,
-    fullProdUndefinedRoutes: true,
+    alwaysOnRoutes: { enabled: true, fullRollout: true },
+    sometimesOnRoutes: { enabled: true, fullRollout: false },
+    neverOnRoutes: { enabled: false, fullRollout: false },
+    emergencyOffRoutes: { enabled: false, fullRollout: true },
+    fullRolloutUndefinedRoutes: { enabled: true },
   };
 
   const mockReactRouteGroups = {
     alwaysOnRoutes: {
-      featureFlagOn: mockShowReactAppConfig.alwaysOnRoutes,
+      featureFlagOn: mockShowReactAppConfig.alwaysOnRoutes.enabled,
       routes: ['alwaysOnRoute'],
-      fullProdRollout: true,
+      fullRollout: mockShowReactAppConfig.alwaysOnRoutes.fullRollout,
     },
     sometimesOnRoutes: {
-      featureFlagOn: mockShowReactAppConfig.sometimesOnRoutes,
+      featureFlagOn: mockShowReactAppConfig.sometimesOnRoutes.enabled,
       routes: ['sometimesOnRoute', 'view'],
-      fullProdRollout: false,
+      fullRollout: mockShowReactAppConfig.sometimesOnRoutes.fullRollout,
     },
     neverOnRoutes: {
-      featureFlagOn: mockShowReactAppConfig.neverOnRoutes,
+      featureFlagOn: mockShowReactAppConfig.neverOnRoutes.enabled,
       routes: ['neverOnRoute'],
-      fullProdRollout: false,
+      fullRollout: mockShowReactAppConfig.neverOnRoutes.fullRollout,
     },
     emergencyOffRoutes: {
-      featureFlagOn: mockShowReactAppConfig.emergencyOffRoutes,
+      featureFlagOn: mockShowReactAppConfig.emergencyOffRoutes.enabled,
       routes: ['emergencyOffRoute'],
-      fullProdRollout: true,
+      fullRollout: mockShowReactAppConfig.emergencyOffRoutes.fullRollout,
     },
-    fullProdUndefinedRoutes: {
-      featureFlagOn: mockShowReactAppConfig.fullProdUndefinedRoutes,
-      routes: ['fullProdUndefinedRoute'],
+    fullRolloutUndefinedRoutes: {
+      featureFlagOn: mockShowReactAppConfig.fullRolloutUndefinedRoutes.enabled,
+      routes: ['fullRolloutUndefinedRoute'],
     },
   };
 
@@ -547,7 +547,7 @@ describe('lib/router', () => {
 
         it('when feature flag is on, full prod rollout is undefined, but user is in experiment group', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => true);
-          assert.isTrue(router.showReactApp('fullProdUndefinedRoute'));
+          assert.isTrue(router.showReactApp('fullRolloutUndefinedRoute'));
         });
 
         // enrolment in experiment is irrelevant if fully rolled out in production
@@ -583,7 +583,7 @@ describe('lib/router', () => {
 
         it('when feature flag is on, full prod rollout is undefined, and user is not experiment group', () => {
           sinon.stub(router, 'isInReactExperiment').callsFake(() => false);
-          assert.isFalse(router.showReactApp('fullProdUndefinedRoute'));
+          assert.isFalse(router.showReactApp('fullRolloutUndefinedRoute'));
         });
 
         it('when feature flag is on, route is not fully rolled out to production, and user is not in experiment', () => {

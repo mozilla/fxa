@@ -34,5 +34,15 @@ describe('lib/experiments/grouping-rules/generalized-react-app', () => {
         })
       );
     });
+
+    it('returns true if rollout 100%', () => {
+      experiment.rolloutRate = 1.0;
+      assert.isTrue(
+        experiment.choose({
+          experimentGroupingRules: { choose: () => experiment.name },
+          uniqueUserId: 'user-id',
+        })
+      );
+    });
   });
 });

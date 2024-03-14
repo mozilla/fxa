@@ -580,7 +580,7 @@ Router = Router.extend({
         return (
           reactRouteGroups[routeGroup].featureFlagOn &&
           (this.isInReactExperiment() ||
-            reactRouteGroups[routeGroup].fullProdRollout === true)
+            reactRouteGroups[routeGroup].fullRollout === true)
         );
       }
     }

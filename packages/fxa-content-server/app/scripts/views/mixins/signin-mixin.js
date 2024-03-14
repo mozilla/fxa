@@ -139,7 +139,7 @@ export default {
         ) {
           if (
             this.isInReactExperiment() &&
-            this.config?.showReactApp?.inlineTotpRoutes
+            this.config?.showReactApp?.inlineTotpRoutes.enabled
           ) {
             return this.window.location.assign(
               `/inline_totp_setup${this.window.location.search}`
