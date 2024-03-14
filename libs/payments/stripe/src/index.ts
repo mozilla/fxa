@@ -8,4 +8,6 @@ export { ProductFactory } from './lib/factories/product.factory';
 export { SubscriptionItemFactory } from './lib/factories/subscription-item.factory';
 export { SubscriptionFactory } from './lib/factories/subscription.factory';
 export * from './lib/stripe.client';
+export * from './lib/stripe.constants';
+export * from './lib/stripe.error';
 export * from './lib/stripe.manager';
