@@ -25,6 +25,8 @@ import { PostVerifyPage } from './postVerify';
 import { ResetPasswordReactPage } from './resetPasswordReact';
 import { SignupReactPage } from './signupReact';
 import { ConfigPage } from './config';
+import { PrivacyPage } from './privacy';
+import { TermsOfService } from './termsOfService';
 export function create(page: Page, target: BaseTarget) {
   return {
     avatar: new AvatarPage(page, target),
@@ -53,5 +55,7 @@ export function create(page: Page, target: BaseTarget) {
     postVerify: new PostVerifyPage(page, target),
     signupReact: new SignupReactPage(page, target),
     configPage: new ConfigPage(page, target),
+    privacy: new PrivacyPage(page, target),
+    termsOfService: new TermsOfService(page, target),
   };
 }
