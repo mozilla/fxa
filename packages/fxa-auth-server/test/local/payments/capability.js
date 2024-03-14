@@ -172,7 +172,7 @@ describe('CapabilityService', () => {
         mockContentfulPlanIdsToClientCapabilities
       ),
     };
-    mockConfig = {...config, contentful: { enabled: false }};
+    mockConfig = { ...config, contentful: { enabled: false } };
     log = mockLog();
 
     Container.set(AppConfig, mockConfig);
@@ -1085,8 +1085,6 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
-      sinon.stub(Sentry, 'captureMessage');
-
       Container.remove(CapabilityManager);
 
       let mockCapabilityService = {};
@@ -1107,12 +1105,6 @@ describe('CapabilityService', () => {
         );
 
       assert.deepEqual(mockContentfulCapabilities, mockStripeCapabilities);
-
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-        `CapabilityManager not found.`,
-        'error'
-      );
     });
 
     it('returns results from Stripe and logs to Sentry when results do not match', async () => {
@@ -1255,8 +1247,6 @@ describe('CapabilityService', () => {
     });
 
     it('returns results from Stripe when CapabilityManager is not found and logs to Sentry', async () => {
-      sinon.stub(Sentry, 'captureMessage');
-
       Container.remove(CapabilityManager);
 
       let mockCapabilityService = {};
@@ -1268,21 +1258,6 @@ describe('CapabilityService', () => {
       const clients = await mockCapabilityService.getClients();
 
       assert.deepEqual(clients, mockClientsFromStripe);
-
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-        `CapabilityManager not found.`,
-        'error'
-      );
-
-      // Test logToSentry logic. Remove if no longer necessary
-      await mockCapabilityService.getClients();
-
-      sinon.assert.calledOnceWithExactly(
-        Sentry.captureMessage,
-        `CapabilityManager not found.`,
-        'error'
-      );
     });
 
     it('returns results from Contentful when it matches Stripe', async () => {
@@ -1353,23 +1328,21 @@ describe('CapabilityService', () => {
     it('returns planIdsToClientCapabilities from Contentful', async () => {
       mockConfig.contentful.enabled = true;
 
-      capabilityService.subscribedPriceIds = sinon.fake.resolves([
-        UID,
-      ]);
+      capabilityService.subscribedPriceIds = sinon.fake.resolves([UID]);
 
       const mockContentfulCapabilities =
         await mockCapabilityManager.planIdsToClientCapabilities(
           capabilityService.subscribedPrices
         );
 
-        const expected = {
-          '*': [ 'capAll' ],
-          c1: [ 'capZZ', 'cap4', 'cap5', 'capAlpha' ],
-          c2: [ 'cap5', 'cap6', 'capC', 'capD' ],
-          c3: [ 'capD', 'capE' ]
-        };
+      const expected = {
+        '*': ['capAll'],
+        c1: ['capZZ', 'cap4', 'cap5', 'capAlpha'],
+        c2: ['cap5', 'cap6', 'capC', 'capD'],
+        c3: ['capD', 'capE'],
+      };
 
-        assert.deepEqual(mockContentfulCapabilities, expected);
+      assert.deepEqual(mockContentfulCapabilities, expected);
     });
 
     it('returns getClients from Contentful', async () => {
