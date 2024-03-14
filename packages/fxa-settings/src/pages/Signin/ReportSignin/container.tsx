@@ -26,7 +26,7 @@ const ReportSigninContainer = (_: RouteComponentProps) => {
         queryParamModel.uid,
         queryParamModel.unblockCode
       );
-      navigate('/signin_reported?showReactApp=true');
+      navigate('/signin_reported');
     } catch (e) {
       // TODO verify error message to display
       setErrorMessage(

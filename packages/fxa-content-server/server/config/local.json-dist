@@ -50,12 +50,31 @@
     "count": 3
   },
   "showReactApp": {
-    "simpleRoutes": true,
-    "resetPasswordRoutes": true,
-    "signUpRoutes": true,
-    "signInRoutes": true
+    "simpleRoutes": {
+      "enabled": true,
+      "fullRollout": true
+    },
+    "resetPasswordRoutes": {
+      "enabled": true,
+      "fullRollout": true
+    },
+    "signUpRoutes": {
+      "enabled": true,
+      "fullRollout": false
+    },
+    "signInRoutes": {
+      "enabled": true,
+      "fullRollout": false
+    },
+    "inlineTotpRoutes": {
+      "enabled": true,
+      "fullRollout": false
+    }
   },
   "featureFlags": {
     "sendFxAStatusOnSettings": true
+  },
+  "rolloutRates": {
+    "generalizedReactApp": 1.0
   }
 }

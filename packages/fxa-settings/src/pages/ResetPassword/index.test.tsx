@@ -161,16 +161,13 @@ describe('PageResetPassword', () => {
       MOCK_SERVICE
     );
 
-    expect(mockNavigate).toHaveBeenCalledWith(
-      'confirm_reset_password?showReactApp=true',
-      {
-        replace: true,
-        state: {
-          email: 'johndope@example.com',
-          passwordForgotToken: '123',
-        },
-      }
-    );
+    expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
+      replace: true,
+      state: {
+        email: 'johndope@example.com',
+        passwordForgotToken: '123',
+      },
+    });
   });
 
   it('submit success with trailing space in email', async () => {
@@ -195,16 +192,13 @@ describe('PageResetPassword', () => {
         MOCK_ACCOUNT.primaryEmail.email
       );
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        'confirm_reset_password?showReactApp=true',
-        {
-          replace: true,
-          state: {
-            email: 'johndope@example.com',
-            passwordForgotToken: '123',
-          },
-        }
-      );
+      expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
+        replace: true,
+        state: {
+          email: 'johndope@example.com',
+          passwordForgotToken: '123',
+        },
+      });
     });
   });
 
@@ -226,16 +220,13 @@ describe('PageResetPassword', () => {
         MOCK_ACCOUNT.primaryEmail.email
       );
 
-      expect(mockNavigate).toHaveBeenCalledWith(
-        'confirm_reset_password?showReactApp=true',
-        {
-          replace: true,
-          state: {
-            email: 'johndope@example.com',
-            passwordForgotToken: '123',
-          },
-        }
-      );
+      expect(mockNavigate).toHaveBeenCalledWith('confirm_reset_password', {
+        replace: true,
+        state: {
+          email: 'johndope@example.com',
+          passwordForgotToken: '123',
+        },
+      });
     });
   });
 

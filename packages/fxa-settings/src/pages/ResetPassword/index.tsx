@@ -79,7 +79,7 @@ const ResetPassword = ({
 
   const navigateToConfirmPwReset = useCallback(
     (stateData: ConfirmResetPasswordLocationState) => {
-      navigate('confirm_reset_password?showReactApp=true', {
+      navigate('confirm_reset_password', {
         state: stateData,
         replace: true,
       });

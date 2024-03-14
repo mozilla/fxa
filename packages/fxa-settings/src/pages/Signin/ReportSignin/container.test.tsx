@@ -177,9 +177,7 @@ describe('report-signin-container', () => {
       expect(currentReportSigninProps).toBeDefined();
       await currentReportSigninProps?.submitReport();
       expect(mockAuthClient.rejectUnblockCode).toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith(
-        '/signin_reported?showReactApp=true'
-      );
+      expect(mockNavigate).toHaveBeenCalledWith('/signin_reported');
       expect(currentReportSigninProps?.errorMessage).toBe('');
     });
 

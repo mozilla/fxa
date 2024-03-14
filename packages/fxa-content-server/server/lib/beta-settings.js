@@ -79,6 +79,8 @@ const settingsConfig = {
   redirectAllowlist: config.get('redirect_check.allow_list'),
   sendFxAStatusOnSettings: config.get('featureFlags.sendFxAStatusOnSettings'),
   showReactApp: {
+    // TODO: in FXA-9279 validate that proper values are passed - consider experiment enrolment, enabled, fullRollout
+    // TODO: in FXA-9279 add documentation about default local settings
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     signInRoutes: config.get('showReactApp.signInRoutes'),
     inlineTotpRoutes: config.get('showReactApp.inlineTotpRoutes'),
