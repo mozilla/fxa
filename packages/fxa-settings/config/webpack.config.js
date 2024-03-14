@@ -431,6 +431,10 @@ module.exports = function (webpackEnv) {
                   ],
                 ],
                 plugins: [
+                  [
+                    '@babel/plugin-transform-typescript',
+                    { allowDeclareFields: true },
+                  ],
                   'babel-plugin-transform-typescript-metadata',
                   isEnvDevelopment &&
                     shouldUseReactRefresh &&

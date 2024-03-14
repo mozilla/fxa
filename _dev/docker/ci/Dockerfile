@@ -4,7 +4,7 @@
 
 # Runs tests and common CI operations. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:18.18 as test-runner
+FROM cimg/node:20.11 as test-runner
 RUN sudo apt-get update && sudo apt-get install -y \
     python3-venv
 WORKDIR /home/circleci
@@ -30,7 +30,7 @@ RUN yarn install --immutable;
 # Acts as an intermediate stage for adding the firefox install. Note,
 # that a yarn install must happen first to ensure the correct version
 # of firefox is installed. Also note that the functional-test-runner
-# must based on cimg/node:18.17-browsers, which is why this stage
+# must based on cimg/node:20.11-browsers, which is why this stage
 # is necessary.
 FROM builder as playwright-install
 RUN npx playwright install firefox;
@@ -38,7 +38,7 @@ RUN npx playwright install firefox;
 
 # Runs functional tests in our CI. Needs minimal install. Assumes
 # workspace will be restored into the project folder.
-FROM cimg/node:18.18-browsers as functional-test-runner
+FROM cimg/node:20.11-browsers as functional-test-runner
 WORKDIR /home/circleci
 COPY --chown=circleci:circleci --from=playwright-install /home/circleci/.cache/ms-playwright .cache/ms-playwright/
 COPY --chown=circleci:circleci project project

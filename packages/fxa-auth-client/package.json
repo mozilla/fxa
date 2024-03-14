@@ -46,16 +46,13 @@
   "author": "",
   "license": "MPL-2.0",
   "dependencies": {
-    "@peculiar/webcrypto": "^1.4.0",
-    "abab": "^2.0.6",
-    "abort-controller": "^3.0.0",
     "node-fetch": "^2.6.7"
   },
   "devDependencies": {
     "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
     "@types/mocha": "^8",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/node-fetch": "^2.5.7",
     "@types/prettier": "^2",
     "asmcrypto.js": "^0.22.0",
@@ -66,7 +63,7 @@
     "fast-text-encoding": "^1.0.4",
     "mocha": "^10.0.0",
     "prettier": "^2.8.7",
-    "typescript": "^5.3.3",
+    "typescript": "^5.4.2",
     "webcrypto-liner": "^1.4.0"
   },
   "mocha": {

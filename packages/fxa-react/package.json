@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.15.0",
+    "@babel/plugin-transform-typescript": "^7.23.6",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.2",
@@ -66,7 +67,7 @@
     "@types/classnames": "^2.3.1",
     "@types/file-loader": "^5.0.0",
     "@types/jest": "^26.0.23",
-    "@types/node": "^18.18.2",
+    "@types/node": "^20.11.1",
     "@types/postcss-import": "^14",
     "@types/prettier": "2.3.0",
     "@types/react-helmet": "^6.1.6",
@@ -93,8 +94,8 @@
     "rimraf": "^5.0.0",
     "sass-loader": "^14.1.0",
     "storybook": "^7.0.23",
-    "tsc-alias": "^1.8.7",
-    "typescript": "^5.3.3",
+    "tsc-alias": "^1.8.8",
+    "typescript": "^5.4.2",
     "webpack": "^5.84.1"
   },
   "repository": {

@@ -41,9 +41,7 @@ interface EventResponse {
 
 @Injectable()
 export class ContentfulClient {
-  client = new GraphQLClient(
-    `${this.contentfulClientConfig.graphqlApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}?access_token=${this.contentfulClientConfig.graphqlApiKey}`
-  );
+  client: GraphQLClient;
   private locales: string[] = [];
   private emitter: EventEmitter;
   public on: (
@@ -56,6 +54,9 @@ export class ContentfulClient {
     private contentfulClientConfig: ContentfulClientConfig,
     @Inject(FirestoreService) private firestore: Firestore
   ) {
+    this.client = new GraphQLClient(
+      `${this.contentfulClientConfig.graphqlApiUri}/spaces/${this.contentfulClientConfig.graphqlSpaceId}/environments/${this.contentfulClientConfig.graphqlEnvironment}?access_token=${this.contentfulClientConfig.graphqlApiKey}`
+    );
     this.setupCacheBust();
     this.emitter = new EventEmitter();
     this.on = this.emitter.on.bind(this.emitter);

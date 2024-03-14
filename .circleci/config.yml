@@ -53,7 +53,7 @@ executors:
   tiny-executor:
     resource_class: small
     docker:
-      - image: cimg/node:18.17
+      - image: cimg/node:20.11.1
     environment:
       HUSKY_SKIP_INSTALL: 1
 
@@ -65,7 +65,7 @@ executors:
         default: medium
       image:
         type: string
-        default: cimg/node:18.17
+        default: cimg/node:20.11.1
     resource_class: << parameters.resource_class >>
     docker:
       - image: << parameters.image >>
@@ -83,7 +83,7 @@ executors:
   # step, and the saving the initial a workspace state.
   build-executor:
     docker:
-      - image: mozilla/fxa-circleci:ci-builder-nx
+      - image: mozilla/fxa-circleci:ci-builder-v2
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -99,7 +99,7 @@ executors:
         default: medium
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-nx
+      - image: mozilla/fxa-circleci:ci-test-runner-v2
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
@@ -115,7 +115,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-test-runner-nx
+      - image: mozilla/fxa-circleci:ci-test-runner-v2
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
@@ -136,7 +136,7 @@ executors:
         default: large
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-nx
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v2
       - image: redis
       - image: memcached
       - image: pafortin/goaws
@@ -174,7 +174,7 @@ executors:
         default: medium+
     resource_class: << parameters.resource_class >>
     docker:
-      - image: mozilla/fxa-circleci:ci-functional-test-runner-nx
+      - image: mozilla/fxa-circleci:ci-functional-test-runner-v2
     environment:
       NODE_ENV: development
       CUSTOMS_SERVER_URL: none
@@ -429,7 +429,7 @@ commands:
             docker build . \
                 -f ./project/_dev/docker/ci/Dockerfile \
                 --target << parameters.target >> \
-                -t mozilla/fxa-circleci:ci-<< parameters.target >>-nx
+                -t mozilla/fxa-circleci:ci-<< parameters.target >>-v2
 
   create-fxa-ci-images:
     # Build CI images. Images are built on top of each other. Each is optimized for a specific task.
@@ -458,10 +458,10 @@ commands:
           name: Push CI Images and Extract Yarn Cache
           command: |
             docker login -u $DOCKER_USER_fxa_circleci -p $DOCKER_PASS_fxa_circleci
-            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-nx
-            docker push mozilla/fxa-circleci:ci-test-runner-nx
-            docker push mozilla/fxa-circleci:ci-functional-test-runner-nx
-            docker push mozilla/fxa-circleci:ci-builder-nx
+            .circleci/docker-copy-cache.sh mozilla/fxa-circleci:ci-builder-v2
+            docker push mozilla/fxa-circleci:ci-test-runner-v2
+            docker push mozilla/fxa-circleci:ci-functional-test-runner-v2
+            docker push mozilla/fxa-circleci:ci-builder-v2
             wait
 
 jobs:
@@ -849,11 +849,12 @@ workflows:
           name: Deploy CI Images
           executor:
             name: docker-build-executor
-            image: cimg/node:18.17-browsers
+            image: cimg/node:20.11.1-browsers
           filters:
             branches:
               only:
                 - main
+                - chore/update-tsconfig-for-node-20
             tags:
               ignore: /.*/
           force-deploy: << pipeline.parameters.force-deploy-fxa-ci-images >>
@@ -1114,7 +1115,7 @@ workflows:
           name: Deploy CI Images (nightly)
           executor:
             name: docker-build-executor
-            image: cimg/node:16.13-browsers
+            image: cimg/node:20.11.1-browsers
           # Note, setting force-deploy as true will result in rebuilding the images regardless
           # of whether or not there are package modifications.
           force-deploy: true

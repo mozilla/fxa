@@ -135,7 +135,7 @@ export class OAuthIntegrationData extends BaseIntegrationData {
   @IsOptional()
   @IsString()
   @bind()
-  redirectTo: string | undefined;
+  declare redirectTo: string | undefined;
 
   // TODO - Validation - This should be a URL, but it is encoded and must be decoded in order to validate.
   @IsOptional()

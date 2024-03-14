@@ -2224,6 +2224,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-create-class-features-plugin@npm:^7.23.6":
+  version: 7.24.0
+  resolution: "@babel/helper-create-class-features-plugin@npm:7.24.0"
+  dependencies:
+    "@babel/helper-annotate-as-pure": ^7.22.5
+    "@babel/helper-environment-visitor": ^7.22.20
+    "@babel/helper-function-name": ^7.23.0
+    "@babel/helper-member-expression-to-functions": ^7.23.0
+    "@babel/helper-optimise-call-expression": ^7.22.5
+    "@babel/helper-replace-supers": ^7.22.20
+    "@babel/helper-skip-transparent-expression-wrappers": ^7.22.5
+    "@babel/helper-split-export-declaration": ^7.22.6
+    semver: ^6.3.1
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: 407ad4a9bf982a40a2c34c65bfc5d1349bb100076b2310f11889d803b354609f27f5397705aca0c047dfecb145321ec18ec1e27be7bc642cb69a32204781400d
+  languageName: node
+  linkType: hard
+
 "@babel/helper-create-regexp-features-plugin@npm:^7.16.0":
   version: 7.16.0
   resolution: "@babel/helper-create-regexp-features-plugin@npm:7.16.0"
@@ -2546,7 +2565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-member-expression-to-functions@npm:^7.22.15":
+"@babel/helper-member-expression-to-functions@npm:^7.22.15, @babel/helper-member-expression-to-functions@npm:^7.23.0":
   version: 7.23.0
   resolution: "@babel/helper-member-expression-to-functions@npm:7.23.0"
   dependencies:
@@ -6319,6 +6338,20 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 01ba1d5d41c6b41c139fc6f2df744a82e7572335209976a75f0007ebbaea02dcb3265c44123afe09cc3f4aafb177bcb967a20af0218a95eae4fd883f6dd9d0d6
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-transform-typescript@npm:^7.23.6":
+  version: 7.23.6
+  resolution: "@babel/plugin-transform-typescript@npm:7.23.6"
+  dependencies:
+    "@babel/helper-annotate-as-pure": ^7.22.5
+    "@babel/helper-create-class-features-plugin": ^7.23.6
+    "@babel/helper-plugin-utils": ^7.22.5
+    "@babel/plugin-syntax-typescript": ^7.23.3
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 0462241843d14dff9f1a4c49ab182a6f01a5f7679957c786b08165dac3e8d49184011f05ca204183d164c54b9d3496d1b3005f904fa8708e394e6f15bf5548e6
   languageName: node
   linkType: hard
 
@@ -22689,12 +22722,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^18.18.2":
-  version: 18.18.9
-  resolution: "@types/node@npm:18.18.9"
+"@types/node@npm:^20.11.1":
+  version: 20.11.27
+  resolution: "@types/node@npm:20.11.27"
   dependencies:
     undici-types: ~5.26.4
-  checksum: 629ce20357586144031cb43d601617eef45e59460dea6b1e123f708e6885664f44d54f65e5b72b2614af5b8613f3652ced832649c0b991accbc6a85139befa51
+  checksum: 24a134a3c18e7261b6d6385c2b7714b6cf93663f30d5df8ca95c649f9cef917a422d77bfd4a18b2c7d190d3a39f445b345ecd9ef6f994e61c7e92f400ecbe80f
   languageName: node
   linkType: hard
 
@@ -37745,7 +37778,7 @@ fsevents@~2.1.1:
     serve-static: ^1.14.2
     supertest: ^6.3.0
     tailwindcss-textshadow: ^2.1.3
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     webpack: ^5.84.1
   languageName: unknown
   linkType: soft
@@ -37759,7 +37792,7 @@ fsevents@~2.1.1:
     "@nestjs/cli": ^9.4.0
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/pem-jwk": ^2
     "@types/supertest": ^2.0.11
     "@types/yargs": ^17.0.0
@@ -37788,8 +37821,8 @@ fsevents@~2.1.1:
     supertest: ^6.3.0
     ts-jest: ^29.1.2
     ts-morph: ^21.0.1
-    tslib: ^2.5.0
-    typescript: ^5.3.3
+    tslib: ^2.6.2
+    typescript: ^5.4.2
     yargs: ^17.0.1
   languageName: unknown
   linkType: soft
@@ -37798,15 +37831,12 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "fxa-auth-client@workspace:packages/fxa-auth-client"
   dependencies:
-    "@peculiar/webcrypto": ^1.4.0
     "@types/assert": ^1.5.4
     "@types/fast-text-encoding": ^1
     "@types/mocha": ^8
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/node-fetch": ^2.5.7
     "@types/prettier": ^2
-    abab: ^2.0.6
-    abort-controller: ^3.0.0
     asmcrypto.js: ^0.22.0
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
@@ -37816,7 +37846,7 @@ fsevents@~2.1.1:
     mocha: ^10.0.0
     node-fetch: ^2.6.7
     prettier: ^2.8.7
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     webcrypto-liner: ^1.4.0
   languageName: unknown
   linkType: soft
@@ -37862,7 +37892,7 @@ fsevents@~2.1.1:
     "@types/mjml": ^4.7.0
     "@types/mocha": ^8.2.2
     "@types/nock": ^11.1.0
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/node-zendesk": ^2.0.2
     "@types/nodemailer": ^6.4.2
     "@types/request": 2.48.5
@@ -37972,11 +38002,11 @@ fsevents@~2.1.1:
     stripe: ^11.12.0
     superagent: ^8.1.2
     through: 2.3.8
-    tsc-alias: ^1.8.7
+    tsc-alias: ^1.8.8
     type-fest: ^4.12.0
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     uuid: ^9.0.0
     verror: ^1.10.1
     web-push: 3.4.4
@@ -38133,7 +38163,7 @@ fsevents@~2.1.1:
     thread-loader: ^4.0.2
     time-grunt: 2.0.0
     ts-loader: ^8.4.0
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     ua-parser-js: 1.0.35
     underscore: ^1.13.1
     upng-js: 2.1.0
@@ -38228,7 +38258,7 @@ fsevents@~2.1.1:
     "@types/convict": ^5.2.2
     "@types/express": ^4.17.12
     "@types/jest": ^26.0.23
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/passport": ^1.0.6
     "@types/passport-jwt": ^3.0.5
     "@types/rimraf": 3.0.0
@@ -38270,7 +38300,7 @@ fsevents@~2.1.1:
     ts-loader: ^8.4.0
     tsconfig-paths: ^4.2.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     uuid: ^9.0.0
   languageName: unknown
   linkType: soft
@@ -38308,7 +38338,7 @@ fsevents@~2.1.1:
     "@types/graphql": ^14.5.0
     "@types/ioredis": ^4.26.4
     "@types/jest": ^29.2.5
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/passport": ^1.0.6
     "@types/passport-http-bearer": ^1.0.36
     "@types/superagent": 4.1.11
@@ -38348,8 +38378,8 @@ fsevents@~2.1.1:
     rimraf: ^5.0.0
     superagent: ^8.1.2
     supertest: ^6.3.0
-    tslib: ^2.5.0
-    typescript: ^5.3.3
+    tslib: ^2.6.2
+    typescript: ^5.4.2
   languageName: unknown
   linkType: soft
 
@@ -38411,7 +38441,7 @@ fsevents@~2.1.1:
     "@types/jest": ^26.0.23
     "@types/jsdom": ^16.2.11
     "@types/nock": ^11.1.0
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/postcss-import": ^12
     "@types/react-redux": ^7.1.18
     "@types/react-stripe-elements": ^6.0.6
@@ -38484,7 +38514,7 @@ fsevents@~2.1.1:
     storybook-addon-mock: 4.2.1
     supertest: ^6.3.0
     typedi: ^0.8.0
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     uuid: ^9.0.0
     wait-for-expect: ^3.0.2
     webpack: ^5.84.1
@@ -38540,6 +38570,7 @@ fsevents@~2.1.1:
   resolution: "fxa-react@workspace:packages/fxa-react"
   dependencies:
     "@babel/core": ^7.15.0
+    "@babel/plugin-transform-typescript": ^7.23.6
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.23.3
     "@babel/preset-typescript": ^7.23.2
@@ -38559,7 +38590,7 @@ fsevents@~2.1.1:
     "@types/classnames": ^2.3.1
     "@types/file-loader": ^5.0.0
     "@types/jest": ^26.0.23
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/postcss-import": ^14
     "@types/prettier": 2.3.0
     "@types/react-helmet": ^6.1.6
@@ -38594,8 +38625,8 @@ fsevents@~2.1.1:
     sinon: ^9.2.3
     storybook: ^7.0.23
     tailwindcss-dir: ^4.0.0
-    tsc-alias: ^1.8.7
-    typescript: ^5.3.3
+    tsc-alias: ^1.8.8
+    typescript: ^5.4.2
     webpack: ^5.84.1
   languageName: unknown
   linkType: soft
@@ -38605,6 +38636,7 @@ fsevents@~2.1.1:
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
     "@babel/core": ^7.22.5
+    "@babel/plugin-transform-typescript": ^7.23.6
     "@babel/preset-typescript": ^7.23.0
     "@babel/types": ^7.22.5
     "@emotion/react": ^11.11.1
@@ -38636,7 +38668,7 @@ fsevents@~2.1.1:
     "@types/jest": ^26.0.23
     "@types/lodash.groupby": ^4
     "@types/material-ui": ^0.21.8
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/prop-types": ^15
     "@types/reach__router": ^1.3.11
     "@types/react-router": ^5.1.19
@@ -38722,7 +38754,7 @@ fsevents@~2.1.1:
     tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
     ts-jest: ^29.1.2
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     ua-parser-js: 1.0.35
     uuid: ^9.0.0
     webpack: ^5.84.1
@@ -38754,7 +38786,7 @@ fsevents@~2.1.1:
     "@types/lodash.pick": ^4
     "@types/mocha": ^8.2.2
     "@types/mysql": ^2
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/proxyquire": ^1.3.28
     "@types/sinon": 10.0.1
     "@types/superagent": ^4.1.11
@@ -38805,10 +38837,10 @@ fsevents@~2.1.1:
     superagent: ^8.1.2
     ts-jest: ^29.1.2
     ts-loader: ^8.4.0
-    tsc-alias: ^1.8.7
+    tsc-alias: ^1.8.8
     tsconfig-paths: ^4.2.0
     typesafe-node-firestore: ^1.4.1
-    typescript: ^5.3.3
+    typescript: ^5.4.2
     underscore: ^1.13.1
     uuid: ^9.0.0
   languageName: unknown
@@ -38888,7 +38920,7 @@ fsevents@~2.1.1:
     "@types/babel__core": ^7
     "@types/jest": ^29.5.1
     "@types/mysql": ^2
-    "@types/node": ^18.18.2
+    "@types/node": ^20.11.1
     "@types/passport": ^1.0.6
     "@types/passport-http-bearer": ^1.0.36
     "@types/passport-jwt": ^4
@@ -38960,10 +38992,10 @@ fsevents@~2.1.1:
     stylelint-config-recommended-scss: ^14.0.0
     tailwindcss: ^3.4.1
     ts-jest: ^29.1.2
-    ts-node: ^10.9.1
-    tsc-alias: ^1.8.7
-    tslib: ^2.5.0
-    typescript: ^5.3.3
+    ts-node: ^10.9.2
+    tsc-alias: ^1.8.8
+    tslib: ^2.6.2
+    typescript: ^5.4.2
     uuid: ^9.0.0
     winston: ^3.11.0
   languageName: unknown
@@ -63319,7 +63351,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"ts-node@npm:10.9.1, ts-node@npm:^10.9.1":
+"ts-node@npm:10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
   dependencies:
@@ -63354,6 +63386,44 @@ resolve@1.1.7:
     ts-node-transpile-only: dist/bin-transpile.js
     ts-script: dist/bin-script-deprecated.js
   checksum: 090adff1302ab20bd3486e6b4799e90f97726ed39e02b39e566f8ab674fd5bd5f727f43615debbfc580d33c6d9d1c6b1b3ce7d8e3cca3e20530a145ffa232c35
+  languageName: node
+  linkType: hard
+
+"ts-node@npm:^10.9.2":
+  version: 10.9.2
+  resolution: "ts-node@npm:10.9.2"
+  dependencies:
+    "@cspotcode/source-map-support": ^0.8.0
+    "@tsconfig/node10": ^1.0.7
+    "@tsconfig/node12": ^1.0.7
+    "@tsconfig/node14": ^1.0.0
+    "@tsconfig/node16": ^1.0.2
+    acorn: ^8.4.1
+    acorn-walk: ^8.1.1
+    arg: ^4.1.0
+    create-require: ^1.1.0
+    diff: ^4.0.1
+    make-error: ^1.1.1
+    v8-compile-cache-lib: ^3.0.1
+    yn: 3.1.1
+  peerDependencies:
+    "@swc/core": ">=1.2.50"
+    "@swc/wasm": ">=1.2.50"
+    "@types/node": "*"
+    typescript: ">=2.7"
+  peerDependenciesMeta:
+    "@swc/core":
+      optional: true
+    "@swc/wasm":
+      optional: true
+  bin:
+    ts-node: dist/bin.js
+    ts-node-cwd: dist/bin-cwd.js
+    ts-node-esm: dist/bin-esm.js
+    ts-node-script: dist/bin-script.js
+    ts-node-transpile-only: dist/bin-transpile.js
+    ts-script: dist/bin-script-deprecated.js
+  checksum: fde256c9073969e234526e2cfead42591b9a2aec5222bac154b0de2fa9e4ceb30efcd717ee8bc785a56f3a119bdd5aa27b333d9dbec94ed254bd26f8944c67ac
   languageName: node
   linkType: hard
 
@@ -63401,9 +63471,9 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"tsc-alias@npm:^1.8.7":
-  version: 1.8.7
-  resolution: "tsc-alias@npm:1.8.7"
+"tsc-alias@npm:^1.8.8":
+  version: 1.8.8
+  resolution: "tsc-alias@npm:1.8.8"
   dependencies:
     chokidar: ^3.5.3
     commander: ^9.0.0
@@ -63413,7 +63483,7 @@ resolve@1.1.7:
     plimit-lit: ^1.2.6
   bin:
     tsc-alias: dist/bin/index.js
-  checksum: 77f721ea797a62a7cc74acda0baf928bb654bccb210471b63fef1e70a27a823c60f5832f51aa5976d573412bc90731e90774abf9127f3b6b13f284839f988d47
+  checksum: 204852f75ce516c991813c371e4b3cda8767c50b6ad12b5c1b5f0227eb7e69fef559775fc829ba744b37dfd9930a1632dbabd62366a474fa0e174b2625ccb54f
   languageName: node
   linkType: hard
 
@@ -63808,7 +63878,17 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@npm:^5.3.3, typescript@npm:~5.3.2":
+"typescript@npm:^5.4.2":
+  version: 5.4.2
+  resolution: "typescript@npm:5.4.2"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: 96d80fde25a09bcb04d399082fb27a808a9e17c2111e43849d2aafbd642d835e4f4ef0de09b0ba795ec2a700be6c4c2c3f62bf4660c05404c948727b5bbfb32a
+  languageName: node
+  linkType: hard
+
+"typescript@npm:~5.3.2":
   version: 5.3.3
   resolution: "typescript@npm:5.3.3"
   bin:
@@ -63818,13 +63898,13 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^5.3.3#~builtin<compat/typescript>, typescript@patch:typescript@~5.3.2#~builtin<compat/typescript>":
-  version: 5.3.3
-  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=d73830"
+"typescript@patch:typescript@^5.4.2#~builtin<compat/typescript>":
+  version: 5.4.2
+  resolution: "typescript@patch:typescript@npm%3A5.4.2#~builtin<compat/typescript>::version=5.4.2&hash=d73830"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: f61375590b3162599f0f0d5b8737877ac0a7bc52761dbb585d67e7b8753a3a4c42d9a554c4cc929f591ffcf3a2b0602f65ae3ce74714fd5652623a816862b610
+  checksum: c1b669146bca5529873aae60870e243fa8140c85f57ca32c42f898f586d73ce4a6b4f6bb02ae312729e214d7f5859a0c70da3e527a116fdf5ad00c9fc733ecc6
   languageName: node
   linkType: hard
 
@@ -63835,6 +63915,16 @@ resolve@1.1.7:
     tsc: bin/tsc
     tsserver: bin/tsserver
   checksum: 2eee5c37cad4390385db5db5a8e81470e42e8f1401b0358d7390095d6f681b410f2c4a0c496c6ff9ebd775423c7785cdace7bcdad76c7bee283df3d9718c0f20
+  languageName: node
+  linkType: hard
+
+"typescript@patch:typescript@~5.3.2#~builtin<compat/typescript>":
+  version: 5.3.3
+  resolution: "typescript@patch:typescript@npm%3A5.3.3#~builtin<compat/typescript>::version=5.3.3&hash=d73830"
+  bin:
+    tsc: bin/tsc
+    tsserver: bin/tsserver
+  checksum: f61375590b3162599f0f0d5b8737877ac0a7bc52761dbb585d67e7b8753a3a4c42d9a554c4cc929f591ffcf3a2b0602f65ae3ce74714fd5652623a816862b610
   languageName: node
   linkType: hard
 
