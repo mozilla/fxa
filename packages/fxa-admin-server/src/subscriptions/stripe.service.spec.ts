@@ -18,7 +18,6 @@ import {
 import {
   iapPurchaseToPlan,
   StripePaymentConfigManagerService,
-  StripeFactory,
   StripeFirestoreService,
   StripeService,
   validateStripePlan,
@@ -29,7 +28,7 @@ describe('Stripe Factory', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [MockConfig, StripeFactory],
+      providers: [MockConfig, MockStripeFactory],
     }).compile();
 
     service = module.get<Stripe>('STRIPE');
