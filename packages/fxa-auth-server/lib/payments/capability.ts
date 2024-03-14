@@ -920,16 +920,7 @@ export class CapabilityService {
     // TODO: will be removed in FXA-8918
     const clientsFromStripe = await this.getClientsFromStripe();
 
-    if (!this.capabilityManager) {
-      if (this.logToSentry('getClients.CapabilityManagerNotFound')) {
-        Sentry.captureMessage(
-          `CapabilityManager not found.`,
-          'error' as SeverityLevel
-        );
-      }
-
-      return clientsFromStripe;
-    }
+    if (!this.capabilityManager) return clientsFromStripe;
 
     try {
       const clientsFromContentful = await this.capabilityManager.getClients();
@@ -1000,20 +991,7 @@ export class CapabilityService {
       subscribedPrices
     );
 
-    if (!this.capabilityManager) {
-      if (
-        this.logToSentry(
-          'planIdsToClientCapabilities.CapabilityManagerNotFound'
-        )
-      ) {
-        Sentry.captureMessage(
-          `CapabilityManager not found.`,
-          'error' as SeverityLevel
-        );
-      }
-
-      return stripeCapabilities;
-    }
+    if (!this.capabilityManager) return stripeCapabilities;
 
     try {
       const contentfulCapabilities =
