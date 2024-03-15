@@ -118,7 +118,7 @@ export const AccountSearch = () => {
     <div data-testid="account-search">
       <h2 className="header-page">Account Search</h2>
       <p className="mb-1">
-        Search for a Firefox user account by email or UID and view its details,
+        Search for a Mozilla user account by email or UID and view its details,
         including: secondary emails, email bounces, time-based one-time
         passwords, recovery keys, and current session.
       </p>

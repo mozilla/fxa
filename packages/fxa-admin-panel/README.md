@@ -1,4 +1,4 @@
-# Firefox Accounts Admin Panel
+# Mozilla Accounts Admin Panel
 
 The FxA Admin Panel is an internal resource for FxA Admins to access a set of convenience tools.
 
