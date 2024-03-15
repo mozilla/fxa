@@ -86,7 +86,12 @@ const hasJsxRuntime = (() => {
 })();
 
 const allFxa = path.resolve(__dirname, '../../');
-const importPaths = [allFxa, path.resolve(__dirname, '../../../node_modules')];
+const sharedAssets = path.resolve(__dirname, '../../../libs/shared/assets/');
+const importPaths = [
+  allFxa,
+  sharedAssets,
+  path.resolve(__dirname, '../../../node_modules'),
+];
 
 // This is the production and development configuration.
 // It is focused on developer experience, fast rebuilds, and a minimal bundle.

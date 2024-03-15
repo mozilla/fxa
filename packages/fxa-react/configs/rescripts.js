@@ -7,7 +7,12 @@ const { resolve } = require('path');
 const permitAdditionalJSImports = (config) => {
   // We're just gonna call all of fxa fair game ;)
   const allFxa = resolve(__dirname, '../../');
-  const importPaths = [allFxa, resolve(__dirname, '../../../node_modules')];
+  const sharedAssets = resolve(__dirname, '../../../libs/shared/assets/');
+  const importPaths = [
+    allFxa,
+    sharedAssets,
+    resolve(__dirname, '../../../node_modules'),
+  ];
   // Update ModuleScopePlugin's appSrcs to allow our new directory
   config.resolve.plugins.forEach((plugin) => {
     if (plugin.constructor && plugin.constructor.name === 'ModuleScopePlugin') {

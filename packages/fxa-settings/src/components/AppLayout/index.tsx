@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import mozLogo from 'fxa-react/images/moz-logo-bw-rgb.svg';
+import mozLogo from '../../../../../libs/shared/assets/src/images/moz-logo-bw-rgb.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useLocalization } from '@fluent/react';
 import Head from 'fxa-react/components/Head';

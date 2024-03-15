@@ -1,31 +1,31 @@
 {
-  "name": "shared-styles",
+  "name": "shared-assets",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/shared/styles/src",
+  "sourceRoot": "libs/shared/assets/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/shared/styles",
-        "main": "libs/shared/styles/src/lib/index.css",
-        "tsConfig": "libs/shared/styles/tsconfig.lib.json",
-        "assets": ["libs/shared/styles/*.md"]
+        "outputPath": "dist/libs/shared/assets",
+        "main": "libs/shared/assets/src/lib/index.css",
+        "tsConfig": "libs/shared/assets/tsconfig.lib.json",
+        "assets": ["libs/shared/assets/*.md"]
       }
     },
     "lint": {
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/shared/styles/**/*.ts"]
+        "lintFilePatterns": ["libs/shared/assets/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/shared/styles/jest.config.ts"
+        "jestConfig": "libs/shared/assets/jest.config.ts"
       }
     }
   },

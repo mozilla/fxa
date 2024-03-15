@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { useEscKeydownEffect, useChangeFocusEffect } from '../../../lib/hooks';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as CloseIcon } from '../../../../../../libs/shared/assets/src/images/close.svg';
 import { alertContent, alertType, alertVisible } from '../../../models';
 import { useReactiveVar } from '@apollo/client';
 import { useClickOutsideEffect } from 'fxa-react/lib/hooks';

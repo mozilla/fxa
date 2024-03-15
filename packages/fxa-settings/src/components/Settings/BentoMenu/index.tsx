@@ -8,13 +8,13 @@ import LinkExternal from 'fxa-react/components/LinkExternal';
 import { useEscKeydownEffect } from '../../../lib/hooks';
 
 import monitorIcon from './monitor.svg';
-import pocketIcon from 'fxa-react/images/pocket.svg';
+import pocketIcon from '../../../../../../libs/shared/assets/src/images/pocket.svg';
 import desktopIcon from './desktop.svg';
 import mobileIcon from './mobile.svg';
 import relayIcon from './relay.svg';
 import vpnIcon from './vpn-logo.svg';
 import { ReactComponent as BentoIcon } from './bento.svg';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as CloseIcon } from '../../../../../../libs/shared/assets/src/images/close.svg';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models/hooks';
 

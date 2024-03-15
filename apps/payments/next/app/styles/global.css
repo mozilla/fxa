@@ -2,7 +2,7 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
-@import '../../../../../libs/shared/styles/src/lib/index.css';
+@import '../../../../../libs/shared/assets/src/styles/index.css';
 
 /* layout */
 body {

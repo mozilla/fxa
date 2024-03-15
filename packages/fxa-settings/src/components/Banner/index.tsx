@@ -5,7 +5,7 @@
 import classNames from 'classnames';
 import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as IconClose } from 'fxa-react/images/close.svg';
+import { ReactComponent as IconClose } from '../../../../../libs/shared/assets/src/images/close.svg';
 import { FIREFOX_NOREPLY_EMAIL } from '../../constants';
 
 export enum BannerType {
