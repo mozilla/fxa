@@ -6,6 +6,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { CustomerFactory } from './factories/customer.factory';
 import { InvoiceFactory } from './factories/invoice.factory';
+import {
+  SubscriptionFactory,
+  SubscriptionListFactory,
+} from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 import { StripeManager } from './stripe.manager';
 
@@ -69,6 +73,36 @@ describe('StripeManager', () => {
       expect(() => manager.getMinimumAmount('fake')).toThrow(
         'Currency does not have a minimum charge amount available.'
       );
+    });
+  });
+
+  describe('getSubscriptions', () => {
+    it('returns subscriptions', async () => {
+      const mockSubscription = SubscriptionFactory();
+      const mockSubscriptionList = SubscriptionListFactory({
+        object: 'list',
+        url: '/v1/subscriptions',
+        has_more: false,
+        data: [mockSubscription],
+      });
+
+      const mockCustomer = CustomerFactory({
+        subscriptions: {
+          object: 'list',
+          data: [mockSubscription],
+          has_more: true,
+          url: '/v1/customers/customer12345/subscriptions',
+        },
+      });
+
+      const expected = mockSubscriptionList;
+
+      mockClient.fetchSubscriptions = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscriptionList);
+
+      const result = await manager.getSubscriptions(mockCustomer.id);
+      expect(result).toEqual(expected);
     });
   });
 

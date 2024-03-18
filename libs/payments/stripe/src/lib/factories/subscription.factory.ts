@@ -4,7 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import { Stripe } from 'stripe';
-import { SubscriptionItemFactory } from './subscription-item.factory';
+import { PriceFactory } from './price.factory';
 
 export const SubscriptionFactory = (
   override?: Partial<Stripe.Subscription>
@@ -60,5 +60,53 @@ export const SubscriptionFactory = (
   trial_end: null,
   trial_settings: null,
   trial_start: null,
+  ...override,
+});
+
+export const SubscriptionItemFactory = (
+  override?: Partial<Stripe.SubscriptionItem>
+): Stripe.SubscriptionItem => ({
+  id: `si_${faker.string.alphanumeric({ length: 14 })}`,
+  object: 'subscription_item',
+  billing_thresholds: null,
+  created: faker.number.int(),
+  metadata: {},
+  plan: {
+    id: `plan_${faker.string.alphanumeric({ length: 14 })}`,
+    object: 'plan',
+    active: true,
+    aggregate_usage: null,
+    amount: faker.number.int({ max: 1000 }),
+    amount_decimal: faker.commerce.price({ min: 1000 }),
+    billing_scheme: 'per_unit',
+    created: faker.number.int(),
+    currency: faker.finance.currencyCode(),
+    interval: 'month',
+    interval_count: 1,
+    livemode: false,
+    metadata: {
+      productOrder: '1',
+    },
+    nickname: faker.string.alphanumeric(),
+    product: `prod_${faker.string.alphanumeric({ length: 24 })}`,
+    tiers_mode: null,
+    transform_usage: null,
+    trial_period_days: null,
+    usage_type: 'licensed',
+  },
+  price: PriceFactory(),
+  quantity: 1,
+  subscription: `sub_${faker.string.alphanumeric({ length: 24 })}`,
+  tax_rates: [],
+  ...override,
+});
+
+export const SubscriptionListFactory = (
+  override?: Partial<Stripe.ApiList<Stripe.Subscription>>
+): Stripe.ApiList<Stripe.Subscription> => ({
+  object: 'list',
+  url: '/v1/subscriptions',
+  has_more: false,
+  data: [SubscriptionFactory()],
   ...override,
 });

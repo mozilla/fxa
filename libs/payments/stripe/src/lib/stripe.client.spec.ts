@@ -5,6 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { CustomerFactory } from './factories/customer.factory';
 import { InvoiceFactory } from './factories/invoice.factory';
+import { SubscriptionListFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 
 describe('StripeClient', () => {
@@ -30,6 +31,20 @@ describe('StripeClient', () => {
 
       const result = await mockClient.fetchCustomer(mockCustomer.id);
       expect(result).toEqual(mockCustomer);
+    });
+  });
+
+  describe('fetchSubscriptions', () => {
+    it('returns subscriptions from Stripe', async () => {
+      const mockCustomer = CustomerFactory();
+      const mockSubscriptionList = SubscriptionListFactory();
+
+      mockClient.stripe.subscriptions.list = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscriptionList);
+
+      const result = await mockClient.fetchSubscriptions(mockCustomer.id);
+      expect(result).toEqual(mockSubscriptionList);
     });
   });
 
