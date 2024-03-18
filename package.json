@@ -154,7 +154,7 @@
     "@nestjs/schematics": "^10.1.1",
     "@nestjs/testing": "^10.3.2",
     "@nx/eslint-plugin": "18.0.3",
-    "@nx/jest": "18.0.3",
+    "@nx/jest": "18.1.1",
     "@nx/js": "18.0.3",
     "@nx/next": "18.0.3",
     "@nx/node": "18.0.3",
