@@ -352,7 +352,7 @@ const conf = convict({
     accountsCdn: {
       url: {
         default: 'https://accounts-static.cdn.mozilla.net',
-        doc: 'The URL of the Firefox Accounts static content CDN',
+        doc: 'The URL of the Mozilla Accounts static content CDN',
         env: 'FXA_STATIC_CDN_URL',
         format: 'url',
       },
