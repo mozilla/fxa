@@ -11,9 +11,18 @@ if [ -z "$PACKAGE" ]; then
     exit 1
 fi
 
-# Move to monorepo root
-cd "$(dirname "$0")/../.."
+#Split PACKAGE by /
+PACKAGE_FOLDER_ARR=(${PACKAGE//\// })
+
+# No cd necessary for apps/*
+# Applications in apps/* should already be in monorepo root
+if [[ "${PACKAGE_FOLDER_ARR[0]}" == "packages" ]]; then
+    # Move to monorepo root
+    cd "$(dirname "$0")/../.."
+fi
+
 ROOT_FOLDER=$(pwd)
+echo $ROOT_FOLDER
 
 if [ ! -d "$ROOT_FOLDER/external/l10n/locale" ]; then
     echo "$PREFIX: No external/l10n folder exists! Run yarn l10n:clone script first."
@@ -21,7 +30,7 @@ if [ ! -d "$ROOT_FOLDER/external/l10n/locale" ]; then
 fi
 
 # Check path is valid
-TARGET_FOLDER="packages/$PACKAGE/$FOLDER"
+TARGET_FOLDER="$PACKAGE/$FOLDER"
 rm -rf "$TARGET_FOLDER"
 mkdir -p "$TARGET_FOLDER"
 

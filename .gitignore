@@ -154,6 +154,9 @@ packages/fxa-settings/legal-docs/
 packages/fxa-settings/public/legal-docs
 packages/fxa-settings/test/
 
+# payments-next
+apps/payments/next/public/locales
+
 Library
 .node
 process.yml

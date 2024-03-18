@@ -18,12 +18,18 @@ if [ -z "$BUNDLES" ]; then
     exit 1
 fi
 
+#Split PACKAGE by /
+PACKAGE_FOLDER_ARR=(${PACKAGE//\// })
 
-# Move to monorepo root
-cd "$(dirname "$0")/../.."
+# No cd necessary for apps/*
+# Applications in apps/* should already be in monorepo root
+if [[ "${PACKAGE_FOLDER_ARR[0]}" == "packages" ]]; then
+    # Move to monorepo root
+    cd "$(dirname "$0")/../.."
+fi
 
 # Check path is valid
-target_folder="packages/$PACKAGE/$FOLDER"
+target_folder="$PACKAGE/$FOLDER"
 if [ ! -d "$target_folder" ]; then
     echo "$PREFIX: Invalid location! The path $target_folder must exist. Did a yarn l10n:prime command get called."
     exit 1
