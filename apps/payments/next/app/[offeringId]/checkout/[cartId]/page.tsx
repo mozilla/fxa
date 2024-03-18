@@ -1,6 +1,6 @@
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { getCartData, getContentfulContent } from '../../../_lib/apiClient';
-import { app } from '../../../_nestapp/app';
+import { app } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getLocaleFromRequest } from '@fxa/shared/l10n';
 import { CheckoutSearchParams } from '../layout';
@@ -13,9 +13,6 @@ interface CheckoutParams {
   cartId: string;
 }
 
-// Temporary code for demo purposes only - Replaced as part of FXA-8822
-const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
-
 export default async function Checkout({
   params,
   searchParams,
@@ -26,8 +23,7 @@ export default async function Checkout({
   const headersList = headers();
   const locale = getLocaleFromRequest(
     searchParams,
-    headersList.get('accept-language'),
-    demoSupportedLanguages
+    headersList.get('accept-language')
   );
 
   const contentfulData = getContentfulContent(params.offeringId, locale);
