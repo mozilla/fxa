@@ -6,3 +6,4 @@
 
 export * from './lib/utils/helpers';
 export * from './lib/client/components/StripeWrapper';
+export * from './lib/client/components/Providers';

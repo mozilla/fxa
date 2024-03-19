@@ -10,7 +10,7 @@ export class LocalizerBindingsClient implements ILocalizerBindings {
     this.opts = Object.assign(
       {
         translations: {
-          basePath: './locales',
+          basePath: '/locales',
         },
       },
       opts
