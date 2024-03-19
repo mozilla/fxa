@@ -30192,21 +30192,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"clean-css@npm:^5.0.1":
-  version: 5.1.1
-  resolution: "clean-css@npm:5.1.1"
-  dependencies:
-    source-map: ~0.6.0
-  checksum: 808b2dd30820d93e6eedabf924d9e491018dc203e75ee7bf1faf96f070987c95a7c8541125c2ed31dbd13404d2ef7c4a7a3b34b61a248c7233ac70fb3e474363
-  languageName: node
-  linkType: hard
-
 "clean-css@npm:^5.2.2":
   version: 5.3.2
   resolution: "clean-css@npm:5.3.2"
   dependencies:
     source-map: ~0.6.0
   checksum: 8787b281acc9878f309b5f835d410085deedfd4e126472666773040a6a8a72f472a1d24185947d23b87b1c419bf2c5ed429395d5c5ff8279c98b05d8011e9758
+  languageName: node
+  linkType: hard
+
+"clean-css@npm:^5.3.2":
+  version: 5.3.3
+  resolution: "clean-css@npm:5.3.3"
+  dependencies:
+    source-map: ~0.6.0
+  checksum: 941987c14860dd7d346d5cf121a82fd2caf8344160b1565c5387f7ccca4bbcaf885bace961be37c4f4713ce2d8c488dd89483c1add47bb779790edbfdcc79cbc
   languageName: node
   linkType: hard
 
@@ -38331,7 +38331,7 @@ fsevents@~2.1.1:
     grunt-contrib-clean: ^2.0.1
     grunt-contrib-concat: 2.1.0
     grunt-contrib-copy: 1.0.0
-    grunt-contrib-cssmin: 4.0.0
+    grunt-contrib-cssmin: 5.0.0
     grunt-contrib-htmlmin: 3.1.0
     grunt-copyright: 0.3.0
     grunt-file-rev: 1.0.2
@@ -40574,14 +40574,14 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"grunt-contrib-cssmin@npm:4.0.0":
-  version: 4.0.0
-  resolution: "grunt-contrib-cssmin@npm:4.0.0"
+"grunt-contrib-cssmin@npm:5.0.0":
+  version: 5.0.0
+  resolution: "grunt-contrib-cssmin@npm:5.0.0"
   dependencies:
-    chalk: ^4.1.0
-    clean-css: ^5.0.1
+    chalk: ^4.1.2
+    clean-css: ^5.3.2
     maxmin: ^3.0.0
-  checksum: 427b1ca862eae0acf8b1d5bdb97b6e9bcf2a3974852c95538aa3401683f539fecbab9ca641a1d1f0b9c27975149e06ed937b8ed99608850b2534449e884ddbf3
+  checksum: 8cb8669564bba41f9a2697f0500f5fa43c76b5ed8ac21a315f28ddf3df5e5f9c4d6a4f0af614dda12f8a985fd7f419144fa811b548ed805ee6511a3bd55335c1
   languageName: node
   linkType: hard
 
