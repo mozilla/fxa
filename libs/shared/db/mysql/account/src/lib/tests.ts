@@ -6,8 +6,8 @@ import path from 'path';
 import { Kysely, sql } from 'kysely';
 
 import { DB, setupAccountDatabase } from '@fxa/shared/db/mysql/account';
+import { v4 } from 'uuid';
 
-const TEST_DB = 'testAccount';
 const SQL_FILE_LOCATION = '../test';
 
 export type ACCOUNT_TABLES =
@@ -29,13 +29,15 @@ export async function testAccountDatabaseSetup(
     user: 'root',
   });
 
-  await sql`DROP DATABASE IF EXISTS ${sql.table(TEST_DB)}`.execute(db);
-  await sql`CREATE DATABASE ${sql.table(TEST_DB)}`.execute(db);
+  const testDbName = `testAccount-${v4()}`;
+
+  await sql`DROP DATABASE IF EXISTS ${sql.table(testDbName)}`.execute(db);
+  await sql`CREATE DATABASE ${sql.table(testDbName)}`.execute(db);
   await db.destroy();
 
   db = await setupAccountDatabase({
     host: 'localhost',
-    database: TEST_DB,
+    database: testDbName,
     password: '',
     port: 3306,
     user: 'root',
