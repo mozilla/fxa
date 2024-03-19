@@ -10,7 +10,7 @@
   "dependencies": {
     "eslint": "6.6.0",
     "eslint-config-prettier": "9.1.0",
-    "ramda": "^0.26.1"
+    "ramda": "^0.29.1"
   },
   "devDependencies": {
     "mocha": "^10.2.0"
