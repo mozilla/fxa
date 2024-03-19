@@ -16,6 +16,7 @@ export type POMS = ReturnType<typeof createPages>;
 export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
+  email: string;
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -106,6 +107,21 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await use(syncBrowserPages);
 
     await syncBrowserPages.browser?.close();
+  },
+
+  email: async ({ target, pages: { login } }, use) => {
+    // Setup
+    const password = 'passwordzxcv';
+    const email = login.createEmail();
+    await login.clearCache();
+
+    await use(email);
+
+    // Teardown
+    if (email) {
+      const creds = await target.auth.signIn(email, password);
+      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+    }
   },
 
   storageState: async ({ target, credentials }, use) => {
