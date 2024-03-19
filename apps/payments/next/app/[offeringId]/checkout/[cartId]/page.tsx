@@ -6,6 +6,8 @@ import { getLocaleFromRequest } from '@fxa/shared/l10n';
 import { CheckoutSearchParams } from '../layout';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
 
+// import { LocalizationProvider } from '@fluent/react';
+
 export const dynamic = 'force-dynamic';
 
 interface CheckoutParams {

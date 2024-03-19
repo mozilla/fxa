@@ -2,6 +2,7 @@
 import { FluentBundle, FluentResource, FluentVariable } from '@fluent/bundle';
 import * as fs from 'fs';
 import * as path from 'path';
+import { EN_GB_LOCALES } from './other-languages';
 
 // const ftl: Record<string, URL> = {
 //   'en-US': new URL('./en-US.ftl', import.meta.url),
@@ -70,6 +71,27 @@ async function generateBundles() {
   }
 
   return bundles;
+}
+
+// in progress
+function getBundleGenerator(
+  locales: string[],
+  messages: { [key: string]: string[] }
+) {
+  return function* generateFluentBundles() {
+    for (const locale of locales) {
+      const sourceLocale = EN_GB_LOCALES.includes(locale) ? 'en-GB' : locale;
+      const bundle = new FluentBundle(locale);
+
+      for (const i of messages[sourceLocale]) {
+        const resource = new FluentResource(i);
+        bundle.addResource(resource);
+      }
+
+      // pause and resume generator function
+      yield bundle;
+    }
+  };
 }
 
 export async function getBundle(languages: string[] | undefined) {
