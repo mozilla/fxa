@@ -11,29 +11,30 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes === true,
-        'these tests are specific to backbone, skip if seeing React version'
-      );
+      // test.skip(
+      //   config.showReactApp.signUpRoutes === true,
+      //   'these tests are specific to backbone, skip if seeing React version'
+      // );
       test.slow();
-      email = login.createEmail();
-      await login.clearCache();
+      //email = login.createEmail();
+      //await login.clearCache();
     });
 
-    test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        const credentials = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          credentials.sessionToken
-        );
-      }
-    });
+    // test.afterEach(async ({ target }) => {
+    //   if (email) {
+    //     // Cleanup any accounts created during the test
+    //     const credentials = await target.auth.signIn(email, password);
+    //     await target.auth.accountDestroy(
+    //       email,
+    //       password,
+    //       {},
+    //       credentials.sessionToken
+    //     );
+    //   }
+    // });
 
     test('signup without `prompt=consent`', async ({
+      email,
       pages: { login, relier },
     }) => {
       await relier.goto();
@@ -47,6 +48,7 @@ test.describe('severity-1 #smoke', () => {
     test('signup with `prompt=consent`', async ({
       target,
       page,
+      email,
       pages: { login, relier },
     }) => {
       const query = { prompt: 'consent' };
@@ -69,7 +71,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign in', () => {
     test.beforeEach(async ({ pages: { login } }) => {
       test.slow();
-      await login.clearCache();
+      //await login.clearCache();
     });
 
     test('signin without `prompt=consent`', async ({
