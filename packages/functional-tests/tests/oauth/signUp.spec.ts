@@ -57,7 +57,7 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
       target,
-      pages: { login, relier },
+      pages: { login, relier, page },
     }) => {
       const client = await login.getFxaClient(target);
 
@@ -67,7 +67,29 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
-      await client.accountDestroy(bouncedEmail, password);
+
+      try {
+        const accounts = await page.evaluate(() => {
+          return JSON.parse(
+            localStorage.getItem('__fxa_storage.accounts') || '{}'
+          );
+        });
+        let account;
+        Object.keys(accounts).forEach((uid) => {
+          const foundAccount = accounts[uid];
+          if (foundAccount.email === bouncedEmail) {
+            account = foundAccount;
+          }
+        });
+        await client.accountDestroy(
+          bouncedEmail,
+          password,
+          {},
+          account.sessionToken
+        );
+      } catch (e) {
+        // ignore
+      }
 
       //Verify error message
       expect(await login.getTooltipError()).toContain(
