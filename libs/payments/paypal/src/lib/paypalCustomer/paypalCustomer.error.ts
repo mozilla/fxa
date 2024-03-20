@@ -23,7 +23,7 @@ export class PaypalCustomerNotCreatedError extends PaypalCustomerManagerError {
 }
 
 export class PaypalCustomerNotFoundError extends PaypalCustomerManagerError {
-  constructor(uid: string, cause: Error) {
+  constructor(uid: string, cause?: Error) {
     super('PaypalCustomer not found', {
       info: {
         uid,
@@ -55,6 +55,17 @@ export class PaypalCustomerNotDeletedError extends PaypalCustomerManagerError {
       info: {
         uid,
         billingAgreementId,
+      },
+      cause,
+    });
+  }
+}
+
+export class PaypalCustomerMultipleRecordsError extends PaypalCustomerManagerError {
+  constructor(uid: string, cause?: Error) {
+    super('Multiple PaypalCustomer records', {
+      info: {
+        uid,
       },
       cause,
     });

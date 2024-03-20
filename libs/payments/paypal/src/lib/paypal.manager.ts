@@ -12,6 +12,10 @@ import {
 import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
+import {
+  PaypalCustomerNotFoundError,
+  PaypalCustomerMultipleRecordsError,
+} from './paypalCustomer/paypalCustomer.error';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
 @Injectable()
@@ -48,10 +52,26 @@ export class PayPalManager {
   }
 
   /**
+   * Retrieves the customer’s current paypal billing agreement ID from the
+   * auth database via the Paypal repository
+   */
+  async getCustomerBillingAgreementId(customer: Stripe.Customer) {
+    const paypalCustomer =
+      await this.paypalCustomerManager.fetchPaypalCustomersByUid(
+        customer.metadata.userid
+      );
+    const firstRecord = paypalCustomer.at(0);
+
+    if (!firstRecord)
+      throw new PaypalCustomerNotFoundError(customer.metadata.uid);
+    if (paypalCustomer.length > 1)
+      throw new PaypalCustomerMultipleRecordsError(customer.metadata.uid);
+
+    return firstRecord.billingAgreementId;
+  }
+
+  /**
    * Retrieves PayPal subscriptions
-   *
-   * @param customer
-   * @returns
    */
   async getCustomerPayPalSubscriptions(customer: Stripe.Customer) {
     const subscriptions = await this.stripeManager.getSubscriptions(
@@ -75,10 +95,6 @@ export class PayPalManager {
 
   /**
    * Process an invoice when amount is greater than minimum amount
-   *
-   * @param customer
-   * @param invoice
-   * @param ipaddress
    */
   async processNonZeroInvoice(
     customer: Stripe.Customer,
@@ -92,8 +108,6 @@ export class PayPalManager {
 
   /**
    * Finalize and process a draft invoice that has no amounted owed.
-   *
-   * @param invoice
    */
   async processZeroInvoice(invoiceId: string) {
     // It appears for subscriptions that do not require payment, the invoice
@@ -106,8 +120,6 @@ export class PayPalManager {
    * Process an invoice
    * If amount is less than minimum amount, call processZeroInvoice
    * If amount is greater than minimum amount, call processNonZeroInvoice (legacy PaypalHelper processInvoice)
-   *
-   * @param invoice
    */
   async processInvoice(invoice: Stripe.Invoice) {
     const amountInCents = invoice.amount_due;

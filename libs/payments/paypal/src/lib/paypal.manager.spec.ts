@@ -21,6 +21,11 @@ import {
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
+import {
+  PaypalCustomerNotFoundError,
+  PaypalCustomerMultipleRecordsError,
+} from './paypalCustomer/paypalCustomer.error';
+import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 
 describe('PaypalManager', () => {
@@ -121,6 +126,48 @@ describe('PaypalManager', () => {
       expect(result).toEqual(expected);
       expect(paypalClient.baUpdate).toBeCalledTimes(1);
       expect(paypalClient.baUpdate).toBeCalledWith({ billingAgreementId });
+    });
+  });
+
+  describe('getCustomerBillingAgreementId', () => {
+    it("returns the customer's current PayPal billing agreement ID", async () => {
+      const mockPayPalCustomer = ResultPaypalCustomerFactory();
+      const mockStripeCustomer = CustomerFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([mockPayPalCustomer]);
+
+      const result = await paypalManager.getCustomerBillingAgreementId(
+        mockStripeCustomer
+      );
+      expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
+    });
+
+    it('throws PaypalCustomerNotFoundError if no PayPal customer record', async () => {
+      const mockStripeCustomer = CustomerFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([]);
+
+      expect(
+        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer)
+      ).rejects.toBeInstanceOf(PaypalCustomerNotFoundError);
+    });
+
+    it('throws PaypalCustomerMultipleRecordsError if more than one PayPal customer found', async () => {
+      const mockPayPalCustomer1 = ResultPaypalCustomerFactory();
+      const mockPayPalCustomer2 = ResultPaypalCustomerFactory();
+      const mockStripeCustomer = CustomerFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([mockPayPalCustomer1, mockPayPalCustomer2]);
+
+      expect(
+        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer)
+      ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
   });
 

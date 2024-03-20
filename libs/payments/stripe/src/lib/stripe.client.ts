@@ -20,9 +20,6 @@ export class StripeClient {
 
   /**
    * Retrieves a customer record directly from Stripe
-   *
-   * @param customerId The Stripe customer ID of the customer to fetch
-   * @returns The customer record for the customerId provided
    */
   async fetchCustomer(customerId: string) {
     return this.stripe.customers.retrieve(customerId);
@@ -30,9 +27,6 @@ export class StripeClient {
 
   /**
    * Retrieves subscriptions directly from Stripe
-   *
-   * @param customerId
-   * @returns
    */
   async fetchSubscriptions(customerId: string) {
     return this.stripe.subscriptions.list({
