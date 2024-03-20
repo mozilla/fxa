@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { use } from 'passport';
 import { test, expect } from '../../lib/fixtures/standard';
 
 //let email;
@@ -16,22 +17,7 @@ test.describe('severity-1 #smoke', () => {
         'these tests are specific to backbone, skip if seeing React version'
       );
       test.slow();
-      //email = login.createEmail();
-      //await login.clearCache();
     });
-
-    // test.afterEach(async ({ target }) => {
-    //   if (email) {
-    //     // Cleanup any accounts created during the test
-    //     const credentials = await target.auth.signIn(email, password);
-    //     await target.auth.accountDestroy(
-    //       email,
-    //       password,
-    //       {},
-    //       credentials.sessionToken
-    //     );
-    //   }
-    // });
 
     test('signup without `prompt=consent`', async ({
       standardEmail,

@@ -117,8 +117,11 @@ export const test = base.extend<TestOptions, WorkerOptions>({
 
     await use(standardEmail);
 
-    // Teardown
-    if (standardEmail) {
+    //Teardown
+    try {
+      if (!standardEmail) {
+        return;
+      }
       const creds = await target.auth.signIn(standardEmail, password);
       await target.auth.accountDestroy(
         standardEmail,
@@ -126,6 +129,8 @@ export const test = base.extend<TestOptions, WorkerOptions>({
         {},
         creds.sessionToken
       );
+    } catch (e) {
+      // ignore
     }
   },
 
