@@ -38245,7 +38245,7 @@ fsevents@~2.1.1:
     web-push: 3.4.4
     webpack: ^5.84.1
     webpack-watch-files-plugin: ^1.2.1
-    ws: ^8.13.0
+    ws: ^8.16.0
   bin:
     fxa-auth: ./bin/key_server.js
   languageName: unknown
