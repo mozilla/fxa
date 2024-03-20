@@ -9,23 +9,17 @@ const newPassword = 'new_password';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
-    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
-      email = login.createEmail('forcepwdchange{id}');
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-    });
-
-    test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        const creds = await target.auth.signIn(email, newPassword);
-        await target.auth.accountDestroy(email, newPassword, {}, creds.sessionToken);
+    test.beforeEach(
+      async ({ target, forceChangeEmail, syncBrowserPages: { login } }) => {
+        await target.auth.signUp(forceChangeEmail, password, {
+          lang: 'en',
+          preVerified: 'true',
+        });
       }
-    });
+    );
 
     test('force change password on login - sync', async ({
+      forceChangeEmail,
       target,
       syncBrowserPages,
     }) => {
@@ -37,8 +31,8 @@ test.describe('severity-2 #smoke', () => {
           waitUntil: 'load',
         }
       );
-      await login.fillOutEmailFirstSignIn(email, password);
-      await login.fillOutSignInCode(email);
+      await login.fillOutEmailFirstSignIn(forceChangeEmail, password);
+      await login.fillOutSignInCode(forceChangeEmail);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);

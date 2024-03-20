@@ -17,6 +17,7 @@ export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
   standardEmail: string;
+  forceChangeEmail: string;
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -125,6 +126,31 @@ export const test = base.extend<TestOptions, WorkerOptions>({
       const creds = await target.auth.signIn(standardEmail, password);
       await target.auth.accountDestroy(
         standardEmail,
+        password,
+        {},
+        creds.sessionToken
+      );
+    } catch (e) {
+      // ignore
+    }
+  },
+
+  forceChangeEmail: async ({ target, pages: { login } }, use) => {
+    // Setup
+    const password = 'new_password';
+    const forceChangeEmail = login.createEmail('forcepwdchange{id}');
+    await login.clearCache();
+
+    await use(forceChangeEmail);
+
+    //Teardown
+    try {
+      if (!forceChangeEmail) {
+        return;
+      }
+      const creds = await target.auth.signIn(forceChangeEmail, password);
+      await target.auth.accountDestroy(
+        forceChangeEmail,
         password,
         {},
         creds.sessionToken
