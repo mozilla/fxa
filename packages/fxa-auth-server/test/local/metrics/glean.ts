@@ -200,26 +200,24 @@ describe('Glean server side events', () => {
         assert.equal(metrics['relying_party_service'], 'brass_monkey');
       });
 
-      it('uses the service name from the config', async () => {
-        const mappingsConfig = {
-          ...config,
-          oauth: { clientIds: { quux: 'sly_fox' } },
-        };
+      it('uses the client id in the service name property', async () => {
         const req = {
           ...request,
-          auth: {
-            ...request.auth,
-            credentials: {
-              ...request.auth.credentials,
-              client_id: 'quux',
-              service: 'wibble',
+          app: {
+            ...request.app,
+            metricsContext: {
+              ...request.app.metricsContext,
+              client_id: undefined,
+              service: '7f1a38488a0df47b',
             },
           },
         };
-        glean = gleanMetrics(mappingsConfig);
         await glean.login.success(req);
         const metrics = recordStub.args[0][0];
-        assert.equal(metrics['relying_party_service'], 'sly_fox');
+        assert.equal(
+          metrics['relying_party_oauth_client_id'],
+          '7f1a38488a0df47b'
+        );
       });
     });
 
