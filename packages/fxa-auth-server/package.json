@@ -223,7 +223,7 @@
     "typescript": "^5.4.2",
     "webpack": "^5.84.1",
     "webpack-watch-files-plugin": "^1.2.1",
-    "ws": "^8.13.0"
+    "ws": "^8.16.0"
   },
   "mocha": {
     "reporter": "mocha-multi",
