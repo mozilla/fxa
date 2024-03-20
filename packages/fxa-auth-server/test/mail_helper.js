@@ -5,7 +5,7 @@
 /* eslint-disable no-console */
 
 'use strict';
-const MailParser = require('mailparser').MailParser;
+const simpleParser = require('mailparser').simpleParser;
 const simplesmtp = require('simplesmtp');
 
 const config = require('../config').default.getProperties();
@@ -17,8 +17,7 @@ const TEMPLATES_WITH_NO_CODE = new Set(['passwordResetEmail']);
 const users = {};
 
 function emailName(emailAddress) {
-  const utf8Address = Buffer.from(emailAddress, 'binary').toString('utf-8');
-  return utf8Address.split('@')[0];
+  return emailAddress.split('@')[0];
 }
 
 module.exports = (printLogs) => {
@@ -35,8 +34,32 @@ module.exports = (printLogs) => {
         SMTPBanner: 'FXATEST',
       },
       (req) => {
-        const mp = new MailParser({ defaultCharset: 'utf-8' });
-        mp.on('end', (mail) => {
+        simpleParser(req, {}, (err, parsed) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
+          const mail = { headers: {} };
+
+          parsed.headers.forEach((val, key) => {
+            mail.headers[key] = val.text ?? val;
+          });
+          mail.headers['content-type'] = mail.headers['content-type'].value;
+          mail['text'] = parsed.text;
+          mail['html'] = parsed.html;
+          mail['from'] = parsed.headers.get('from').value;
+          mail['to'] = parsed.headers.get('to').value;
+          mail['subject'] = parsed.headers.get('subject');
+          mail['date'] = parsed.headers.get('date');
+          mail['messageId'] = parsed.headers
+            .get('message-id')
+            .replace(/<(.*?)>/g, '$1');
+
+          if (parsed.headers.has('cc')) {
+            mail['cc'] = parsed.headers.get('cc').value;
+          }
+
           const link = mail.headers['x-link'];
           const rc = mail.headers['x-recovery-code'];
           const rul = mail.headers['x-report-signin-link'];
@@ -86,7 +109,6 @@ module.exports = (printLogs) => {
             }
           }
         });
-        req.pipe(mp);
         req.accept();
       }
     );
