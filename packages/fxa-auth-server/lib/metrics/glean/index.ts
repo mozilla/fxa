@@ -8,6 +8,7 @@ import { version } from '../../../package.json';
 import { createHash } from 'crypto';
 import { AuthRequest } from '../../types';
 import * as AppError from '../../error';
+import { clientId as clientIdValidator } from '../../oauth/validators';
 
 // According to @types/hapi, request.auth.credentials.user is of type
 // UserCredentials, which is just {}. That's not actually the case and it
@@ -51,30 +52,35 @@ const findUid = (request: MetricsRequest, metricsData?: MetricsData): string =>
 const sha256HashUid = (uid: string) =>
   createHash('sha256').update(uid).digest('hex');
 
-const findOauthClientId = (
-  request: MetricsRequest,
-  metricsData?: MetricsData
-): string =>
-  metricsData?.oauthClientId ||
-  request.auth.credentials?.client_id ||
-  request.payload?.client_id ||
-  '';
-
 const findServiceName = async (request: MetricsRequest) => {
   const metricsContext = await request.app.metricsContext;
+  return metricsContext.service || '';
+};
 
-  if (metricsContext.service) {
-    return metricsContext.service;
-  }
+const findOauthClientId = async (
+  request: MetricsRequest,
+  metricsData?: MetricsData
+): Promise<string> => {
+  const clientId =
+    metricsData?.oauthClientId ||
+    request.auth.credentials?.client_id ||
+    request.payload?.client_id;
 
-  const clientId = findOauthClientId(request);
+  // for OAuth the content-server places the client id into the service
+  // property for metrics, so we'll check that value for something shaped like
+  // an oauth id
+  const clientIdInService = async () => {
+    const service = await findServiceName(request);
+    const { error } = clientIdValidator.validate(service);
 
-  // use the client id to service name mapping from the app config
-  if (clientId && appConfig.oauth.clientIds[clientId]) {
-    return appConfig.oauth.clientIds[clientId];
-  }
+    if (!error) {
+      return service;
+    }
 
-  return '';
+    return null;
+  };
+
+  return clientId || (await clientIdInService()) || '';
 };
 
 const createEventFn =
@@ -104,7 +110,10 @@ const createEventFn =
         account_user_id_sha256: '',
         event_name: eventName,
         event_reason: metricsData?.reason || '',
-        relying_party_oauth_client_id: findOauthClientId(request, metricsData),
+        relying_party_oauth_client_id: await findOauthClientId(
+          request,
+          metricsData
+        ),
         relying_party_service: await findServiceName(request),
         session_device_type: request.app.ua.deviceType || '',
         session_entrypoint: metricsContext.entrypoint || '',
