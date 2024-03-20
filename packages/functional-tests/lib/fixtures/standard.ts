@@ -18,6 +18,9 @@ export type TestOptions = {
   syncBrowserPages: POMS;
   standardEmail: string;
   forceChangeEmail: string;
+  syncEmail: string;
+  bouncedEmail: string;
+  blockedEmail: string;
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -151,6 +154,81 @@ export const test = base.extend<TestOptions, WorkerOptions>({
       const creds = await target.auth.signIn(forceChangeEmail, password);
       await target.auth.accountDestroy(
         forceChangeEmail,
+        password,
+        {},
+        creds.sessionToken
+      );
+    } catch (e) {
+      // ignore
+    }
+  },
+
+  syncEmail: async ({ target, pages: { login } }, use) => {
+    // Setup
+    const password = 'passwordzxcv';
+    const syncEmail = login.createEmail('sync{id}');
+    await login.clearCache();
+
+    await use(syncEmail);
+
+    //Teardown
+    try {
+      if (!syncEmail) {
+        return;
+      }
+      const creds = await target.auth.signIn(syncEmail, password);
+      await target.auth.accountDestroy(
+        syncEmail,
+        password,
+        {},
+        creds.sessionToken
+      );
+    } catch (e) {
+      // ignore
+    }
+  },
+
+  bouncedEmail: async ({ target, pages: { login } }, use) => {
+    // Setup
+    const password = 'passwordzxcv';
+    const bouncedEmail = login.createEmail('bounced{id}');
+    await login.clearCache();
+
+    await use(bouncedEmail);
+
+    //Teardown
+    try {
+      if (!bouncedEmail) {
+        return;
+      }
+      const creds = await target.auth.signIn(bouncedEmail, password);
+      await target.auth.accountDestroy(
+        bouncedEmail,
+        password,
+        {},
+        creds.sessionToken
+      );
+    } catch (e) {
+      // ignore
+    }
+  },
+
+  blockedEmail: async ({ target, pages: { login } }, use) => {
+    // Setup
+    const password = 'passwordzxcv';
+    const blockedEmail = login.createEmail('blocked{id}');
+    await login.clearCache();
+
+    await use(blockedEmail);
+
+    //Teardown
+    try {
+      if (!blockedEmail) {
+        return;
+      }
+      const creds = await target.auth.signIn(blockedEmail, password);
+      await target.auth.accountDestroy(
+        blockedEmail,
         password,
         {},
         creds.sessionToken

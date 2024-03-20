@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { expect, test } from '../../lib/fixtures/standard';
-let email;
 const password = 'password';
 const newPassword = 'new_password';
 

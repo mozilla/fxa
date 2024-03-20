@@ -4,52 +4,30 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 
-let email;
-let bouncedEmail;
 const password = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Oauth sign up', () => {
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
-      if (config.showReactApp.signUpRoutes === true) {
-        email = '';
-        test.skip(
-          true,
-          'this test is specific to backbone, skip if serving react'
-        );
-      } else {
-        test.slow();
-        email = login.createEmail();
-        bouncedEmail = login.createEmail('bounced{id}');
-        await login.clearCache();
-      }
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if seeing React version'
+      );
+      test.slow();
     });
 
-    test.afterEach(async ({ target }) => {
-      // Cleanup any accounts created during the test
-      try {
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          creds.sessionToken
-        );
-      } catch (e) {
-        // ignore
-      }
-    });
-
-    test('sign up', async ({ pages: { login, relier } }) => {
+    test('sign up', async ({ standardEmail, pages: { login, relier } }) => {
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(standardEmail, password, {
+        verify: false,
+      });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
 
-      await login.fillOutSignUpCode(email);
+      await login.fillOutSignUpCode(standardEmail);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
@@ -57,6 +35,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
       target,
+      credentials,
+      bouncedEmail,
+      standardEmail,
       pages: { login, relier },
     }) => {
       const client = await login.getFxaClient(target);
@@ -67,7 +48,12 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
-      await client.accountDestroy(bouncedEmail, password);
+      await target.auth.accountDestroy(
+        bouncedEmail,
+        password,
+        {},
+        credentials.sessionToken
+      );
 
       //Verify error message
       expect(await login.getTooltipError()).toContain(
@@ -76,11 +62,13 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setEmail('');
 
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(standardEmail, password, {
+        verify: false,
+      });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
-      await login.fillOutSignUpCode(email);
+      await login.fillOutSignUpCode(standardEmail);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);

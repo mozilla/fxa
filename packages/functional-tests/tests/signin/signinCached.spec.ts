@@ -9,42 +9,34 @@ let email2;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin cached', () => {
-    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-      email = login.createEmail('sync{id}');
-      email2 = login.createEmail();
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await target.auth.signUp(email2, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-    });
-
-    test.afterEach(async ({ target }) => {
-      test.slow(); //The cleanup was timing out and exceeding 3000ms
-      if (email) {
-        // Cleanup any accounts created during the test
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+    test.beforeEach(
+      async ({
+        syncEmail,
+        standardEmail,
+        target,
+        syncBrowserPages: { login },
+      }) => {
+        test.slow(); //This test has steps for email rendering that runs slow on stage
+        await target.auth.signUp(syncEmail, password, {
+          lang: 'en',
+          preVerified: 'true',
+        });
+        await target.auth.signUp(standardEmail, password, {
+          lang: 'en',
+          preVerified: 'true',
+        });
       }
-      if (email2) {
-        // Cleanup any accounts created during the test
-        const creds = await target.auth.signIn(email2, password);
-        await target.auth.accountDestroy(email2, password, {}, creds.sessionToken);
-      }
-    });
+    );
 
     test('sign in twice, on second attempt email will be cached', async ({
       target,
+      syncEmail,
       syncBrowserPages: { page, login },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -53,7 +45,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -62,12 +54,13 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
       target,
+      syncEmail,
       syncBrowserPages: { page, login, settings },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -76,10 +69,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.denormalizeStoredEmail(email);
+      await login.denormalizeStoredEmail(syncEmail);
       await page.reload();
 
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -87,17 +80,19 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify email is normalized
       const primary = await settings.primaryEmail.statusText();
-      expect(primary).toEqual(email);
+      expect(primary).toEqual(syncEmail);
     });
 
     test('sign in once, use a different account', async ({
       target,
+      syncEmail,
+      standardEmail,
       syncBrowserPages: { page, login },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -105,9 +100,9 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
-      await login.fillOutEmailFirstSignIn(email2, password);
+      await login.fillOutEmailFirstSignIn(standardEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -117,28 +112,29 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email2);
+      expect(await login.getPrefilledEmail()).toContain(standardEmail);
     });
 
     test('expired cached credentials', async ({
       target,
+      syncEmail,
       syncBrowserPages: { page, login },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
-      await login.destroySession(email);
+      await login.destroySession(syncEmail);
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.setPassword(password);
       await login.clickSubmit();
 
@@ -148,12 +144,13 @@ test.describe('severity-2 #smoke', () => {
 
     test('cached credentials that expire while on page', async ({
       target,
+      syncEmail,
       syncBrowserPages: { page, login },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -163,9 +160,9 @@ test.describe('severity-2 #smoke', () => {
       });
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
 
-      await login.destroySession(email);
+      await login.destroySession(syncEmail);
       await login.clickSignIn();
 
       //Session expired error should show.
