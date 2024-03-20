@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { LocationProvider } from '@reach/router';
-import { Integration, IntegrationType } from '../../../models';
+import { IntegrationType } from '../../../models';
 import { SigninTokenCodeProps } from './interfaces';
 import SigninTokenCode from '.';
 import {
   MOCK_EMAIL,
+  MOCK_KEY_FETCH_TOKEN,
   MOCK_SESSION_TOKEN,
   MOCK_UID,
+  MOCK_UNWRAP_BKEY,
   mockFinishOAuthFlowHandler,
 } from '../../mocks';
 import { MozServices } from '../../../lib/types';
@@ -21,10 +23,11 @@ export function createMockWebIntegration() {
     getService: () => MozServices.Default,
     isSync: () => false,
     wantsKeys: () => false,
-  } as Integration;
+  };
 }
 
 export const createMockSigninLocationState = (
+  wantsKeys = false,
   verificationReason?: VerificationReasons
 ) => {
   return {
@@ -32,7 +35,11 @@ export const createMockSigninLocationState = (
     uid: MOCK_UID,
     sessionToken: MOCK_SESSION_TOKEN,
     verified: false,
-    ...(verificationReason && { verificationReason }),
+    verificationReason,
+    ...(wantsKeys && {
+      keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+      unwrapBKey: MOCK_UNWRAP_BKEY,
+    }),
   };
 };
 
@@ -50,7 +57,10 @@ export const Subject = ({
           finishOAuthFlowHandler,
           integration,
         }}
-        signinLocationState={createMockSigninLocationState(verificationReason)}
+        signinState={createMockSigninLocationState(
+          integration.wantsKeys(),
+          verificationReason
+        )}
       />
     </LocationProvider>
   );

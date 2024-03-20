@@ -16,9 +16,14 @@ import {
 } from '../../../lib/auth-errors/auth-errors';
 import { Subject } from './mocks';
 import { MOCK_OAUTH_FLOW_HANDLER_RESPONSE } from '../../mocks';
-import { createMockSigninOAuthIntegration } from '../mocks';
+import {
+  createMockSigninOAuthIntegration,
+  createMockSigninSyncIntegration,
+} from '../mocks';
 import { SigninIntegration } from '../interfaces';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import firefox from '../../../lib/channels/firefox';
+import * as utils from 'fxa-react/lib/utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -142,6 +147,41 @@ describe('Sign in with TOTP code page', () => {
       expect(mockNavigate).toHaveBeenCalledWith('/settings');
     });
 
+    // When CAD is converted to React, just test navigation since CAD will handle fxaLogin
+    describe('fxaLogin webchannel message (tempHandleSyncLogin)', () => {
+      let fxaLoginSpy: jest.SpyInstance;
+      let hardNavigateSpy: jest.SpyInstance;
+      beforeEach(() => {
+        fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+        hardNavigateSpy = jest
+          .spyOn(utils, 'hardNavigate')
+          .mockImplementation(() => {});
+      });
+      it('is sent if Sync integration and navigates to CAD', async () => {
+        const integration = createMockSigninSyncIntegration();
+        await waitFor(() =>
+          renderAndSubmitTotpCode(
+            {
+              status: true,
+            },
+            undefined,
+            integration
+          )
+        );
+        expect(fxaLoginSpy).toHaveBeenCalled();
+        expect(hardNavigateSpy).toHaveBeenCalledWith(
+          '/connect_another_device?showSuccessMessage=true'
+        );
+      });
+      it('is not sent otherwise', async () => {
+        await renderAndSubmitTotpCode({
+          status: true,
+        });
+        expect(fxaLoginSpy).not.toHaveBeenCalled();
+        expect(hardNavigateSpy).not.toBeCalled();
+      });
+    });
+
     it('shows error on invalid code', async () => {
       await renderAndSubmitTotpCode({
         status: false,
@@ -167,7 +207,7 @@ describe('Sign in with TOTP code page', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    describe('withOAuth integration', () => {
+    describe('with OAuth integration', () => {
       it('navigates to relying party on success', async () => {
         const finishOAuthFlowHandler = jest
           .fn()

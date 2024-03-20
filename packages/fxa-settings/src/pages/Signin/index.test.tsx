@@ -12,6 +12,7 @@ import {
   createBeginSigninResponseError,
   createCachedSigninResponseError,
   createMockSigninOAuthIntegration,
+  createMockSigninSyncIntegration,
   Subject,
 } from './mocks';
 import {
@@ -34,6 +35,7 @@ import {
   MONITOR_CLIENTIDS,
   POCKET_CLIENTIDS,
 } from '../../models/integrations/client-matching';
+import firefox from '../../lib/channels/firefox';
 // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 // import { FluentBundle } from '@fluent/bundle';
 jest.mock('../../lib/metrics', () => ({
@@ -173,6 +175,19 @@ describe('Signin', () => {
         differentAccountLinkRendered();
       });
 
+      it('does not render third party auth for sync', () => {
+        const integration = createMockSigninSyncIntegration();
+        render({ integration });
+        enterPasswordAndSubmit();
+
+        expect(
+          screen.queryByRole('button', { name: /Continue with Google/ })
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByRole('button', { name: /Continue with Apple/ })
+        ).not.toBeInTheDocument();
+      });
+
       it('emits an event on forgot password link click', async () => {
         render();
         fireEvent.click(screen.getByText('Forgot password?'));
@@ -306,82 +321,159 @@ describe('Signin', () => {
             });
           });
 
-          describe('OAuth integration', () => {
-            describe('wants keys', () => {
-              it('navigates to /confirm_signup_code with router state including keys', async () => {
-                const beginSigninHandler = jest.fn().mockReturnValueOnce(
-                  createBeginSigninResponse({
-                    verified: false,
-                    verificationReason: VerificationReasons.SIGN_UP,
-                    keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-                    unwrapBKey: MOCK_UNWRAP_BKEY,
-                  })
-                );
-                const finishOAuthFlowHandler = jest
-                  .fn()
-                  .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-                const integration = createMockSigninOAuthIntegration();
-                render({
-                  beginSigninHandler,
-                  integration,
-                  finishOAuthFlowHandler,
-                });
+          // When CAD is converted to React, just test navigation since CAD will handle fxaLogin
+          describe('fxaLogin webchannel message (tempHandleSyncLogin)', () => {
+            let fxaLoginSpy: jest.SpyInstance;
+            let hardNavigateSpy: jest.SpyInstance;
+            beforeEach(() => {
+              fxaLoginSpy = jest.spyOn(firefox, 'fxaLogin');
+              hardNavigateSpy = jest
+                .spyOn(utils, 'hardNavigate')
+                .mockImplementation(() => {});
+            });
+            it('is sent if Sync integration and navigates to CAD', async () => {
+              const beginSigninHandler = jest
+                .fn()
+                .mockReturnValueOnce(createBeginSigninResponse());
+              const integration = createMockSigninSyncIntegration();
+              render({ beginSigninHandler, integration });
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                expect(fxaLoginSpy).toHaveBeenCalled();
+              });
+              expect(hardNavigateSpy).toHaveBeenCalledWith(
+                '/connect_another_device?showSuccessMessage=true'
+              );
+            });
+            it('is not sent otherwise', async () => {
+              render();
+              enterPasswordAndSubmit();
+              expect(fxaLoginSpy).not.toHaveBeenCalled();
+              expect(hardNavigateSpy).not.toBeCalled();
+            });
+          });
 
-                enterPasswordAndSubmit();
-                await waitFor(() => {
-                  expect(mockNavigate).toHaveBeenCalledWith(
-                    '/confirm_signup_code',
-                    {
-                      state: {
-                        email: MOCK_EMAIL,
-                        uid: MOCK_UID,
-                        sessionToken: MOCK_SESSION_TOKEN,
-                        verified: false,
-                        verificationReason: 'signup',
-                        verificationMethod: 'email-otp',
-                        keyFetchToken: MOCK_KEY_FETCH_TOKEN,
-                        unwrapBKey: MOCK_UNWRAP_BKEY,
-                      },
-                    }
-                  );
-                });
+          describe('OAuth integration', () => {
+            let fxaOAuthLoginSpy: jest.SpyInstance;
+            let hardNavigateSpy: jest.SpyInstance;
+            let finishOAuthFlowHandler: jest.Mock;
+            beforeEach(() => {
+              fxaOAuthLoginSpy = jest.spyOn(firefox, 'fxaOAuthLogin');
+              hardNavigateSpy = jest
+                .spyOn(utils, 'hardNavigate')
+                .mockImplementation(() => {});
+              finishOAuthFlowHandler = jest
+                .fn()
+                .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+            });
+            it('unverified, wantsKeys, navigates to /confirm_signup_code with keys', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  verified: false,
+                  verificationReason: VerificationReasons.SIGN_UP,
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                })
+              );
+              const integration = createMockSigninOAuthIntegration();
+              render({
+                beginSigninHandler,
+                integration,
+                finishOAuthFlowHandler,
+              });
+
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                expect(mockNavigate).toHaveBeenCalledWith(
+                  '/confirm_signup_code',
+                  {
+                    state: {
+                      email: MOCK_EMAIL,
+                      uid: MOCK_UID,
+                      sessionToken: MOCK_SESSION_TOKEN,
+                      verified: false,
+                      verificationReason: 'signup',
+                      verificationMethod: 'email-otp',
+                      keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                      unwrapBKey: MOCK_UNWRAP_BKEY,
+                    },
+                  }
+                );
               });
             });
+            it('unverified, does not want keys, navigates to /confirm_signup_code without keys', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  verified: false,
+                  verificationReason: VerificationReasons.SIGN_UP,
+                })
+              );
+              const integration = createMockSigninOAuthIntegration();
+              render({
+                beginSigninHandler,
+                integration,
+                finishOAuthFlowHandler,
+              });
 
-            describe('does not want keys', () => {
-              it('navigates to /confirm_signup_code with router state and no keys', async () => {
-                const beginSigninHandler = jest.fn().mockReturnValueOnce(
-                  createBeginSigninResponse({
-                    verified: false,
-                    verificationReason: VerificationReasons.SIGN_UP,
-                  })
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                expect(mockNavigate).toHaveBeenCalledWith(
+                  '/confirm_signup_code',
+                  {
+                    state: {
+                      email: MOCK_EMAIL,
+                      uid: MOCK_UID,
+                      sessionToken: MOCK_SESSION_TOKEN,
+                      verified: false,
+                      verificationReason: 'signup',
+                      verificationMethod: 'email-otp',
+                    },
+                  }
                 );
-                const finishOAuthFlowHandler = jest
-                  .fn()
-                  .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-                const integration = createMockSigninOAuthIntegration();
-                render({
-                  beginSigninHandler,
-                  integration,
-                  finishOAuthFlowHandler,
-                });
-
-                enterPasswordAndSubmit();
-                await waitFor(() => {
-                  expect(mockNavigate).toHaveBeenCalledWith(
-                    '/confirm_signup_code',
-                    {
-                      state: {
-                        email: MOCK_EMAIL,
-                        uid: MOCK_UID,
-                        sessionToken: MOCK_SESSION_TOKEN,
-                        verified: false,
-                        verificationReason: 'signup',
-                        verificationMethod: 'email-otp',
-                      },
-                    }
-                  );
-                });
+              });
+            });
+            it('verified, not sync, navigates to RP redirect', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                })
+              );
+              const integration = createMockSigninOAuthIntegration();
+              render({
+                beginSigninHandler,
+                integration,
+                finishOAuthFlowHandler,
+              });
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                expect(fxaOAuthLoginSpy).not.toHaveBeenCalled();
+                expect(hardNavigateSpy).toHaveBeenCalledWith(
+                  MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect
+                );
+              });
+            });
+            it('verified, sync, navigates to CAD and sends fxaOAuthLogin', async () => {
+              const beginSigninHandler = jest.fn().mockReturnValueOnce(
+                createBeginSigninResponse({
+                  keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                  unwrapBKey: MOCK_UNWRAP_BKEY,
+                })
+              );
+              const integration = createMockSigninOAuthIntegration({
+                isSync: true,
+              });
+              render({
+                beginSigninHandler,
+                integration,
+                finishOAuthFlowHandler,
+              });
+              enterPasswordAndSubmit();
+              await waitFor(() => {
+                expect(fxaOAuthLoginSpy).toHaveBeenCalled();
+                expect(hardNavigateSpy).toHaveBeenCalledWith(
+                  '/connect_another_device?showSuccessMessage=true'
+                );
               });
             });
           });
@@ -583,6 +675,14 @@ describe('with sessionToken', () => {
         hardNavigateSpy.mockRestore();
       });
 
+      it('always renders password input when integration wants keys', () => {
+        const integration = createMockSigninOAuthIntegration({
+          wantsKeys: true,
+        });
+        render({ integration });
+        passwordInputRendered();
+      });
+
       it('navigates to OAuth redirect', async () => {
         const cachedSigninHandler = jest
           .fn()
@@ -682,10 +782,10 @@ describe('with sessionToken', () => {
         <Subject
           sessionToken={MOCK_SESSION_TOKEN}
           serviceName={MozServices.Pocket}
-          integration={createMockSigninOAuthIntegration(
-            POCKET_CLIENTIDS[0],
-            false
-          )}
+          integration={createMockSigninOAuthIntegration({
+            clientId: POCKET_CLIENTIDS[0],
+            wantsKeys: false,
+          })}
         />
       );
 
@@ -696,7 +796,9 @@ describe('with sessionToken', () => {
     it('shows Pocket-specific TOS', () => {
       renderWithLocalizationProvider(
         <Subject
-          integration={createMockSigninOAuthIntegration(POCKET_CLIENTIDS[0])}
+          integration={createMockSigninOAuthIntegration({
+            clientId: POCKET_CLIENTIDS[0],
+          })}
         />
       );
 
@@ -723,7 +825,9 @@ describe('with sessionToken', () => {
     it('shows Monitor-specific TOS', async () => {
       renderWithLocalizationProvider(
         <Subject
-          integration={createMockSigninOAuthIntegration(MONITOR_CLIENTIDS[0])}
+          integration={createMockSigninOAuthIntegration({
+            clientId: MONITOR_CLIENTIDS[0],
+          })}
         />
       );
 
@@ -746,5 +850,3 @@ describe('with sessionToken', () => {
     });
   });
 });
-
-// TODO in FXA-9059: make sure third party auth is not rendered for sync if account has a password

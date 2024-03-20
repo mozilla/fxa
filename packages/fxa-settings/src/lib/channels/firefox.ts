@@ -108,7 +108,7 @@ export type FxAOAuthLogin = {
   code: string;
   redirect: string;
   state: string;
-  // For sync oauth
+  // For sync oauth signup
   declinedSyncEngines?: string[];
   offeredSyncEngines?: string[];
 };
@@ -337,7 +337,7 @@ export class Firefox extends EventTarget {
   }
 
   fxaCanLinkAccount(options: FxACanLinkAccount) {
-    this.send(FirefoxCommand.Login, options);
+    this.send(FirefoxCommand.CanLinkAccount, options);
   }
 
   async requestSignedInUser(context: string) {

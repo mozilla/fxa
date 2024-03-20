@@ -131,9 +131,7 @@ describe('SigninTokenCode container', () => {
         await waitFor(() => {
           expect(CacheModule.currentAccount).not.toBeCalled();
         });
-        expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
-          MOCK_EMAIL
-        );
+        expect(currentSigninTokenCodeProps?.signinState.email).toBe(MOCK_EMAIL);
         expect(currentSigninTokenCodeProps?.integration).toBe(integration);
         expect(SigninTokenCodeModule.default).toBeCalled();
       });
@@ -142,7 +140,7 @@ describe('SigninTokenCode container', () => {
         render();
         expect(CacheModule.currentAccount).not.toBeCalled();
         await waitFor(() => {
-          expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
+          expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_EMAIL
           );
         });
@@ -154,7 +152,7 @@ describe('SigninTokenCode container', () => {
         render();
         expect(CacheModule.currentAccount).toBeCalled();
         await waitFor(() => {
-          expect(currentSigninTokenCodeProps?.signinLocationState.email).toBe(
+          expect(currentSigninTokenCodeProps?.signinState.email).toBe(
             MOCK_STORED_ACCOUNT.email
           );
         });

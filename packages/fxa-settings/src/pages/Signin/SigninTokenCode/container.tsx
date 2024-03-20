@@ -29,7 +29,7 @@ const SigninTokenCodeContainer = ({
     state?: SigninLocationState;
   };
 
-  const signinLocationState =
+  const signinState =
     location.state && Object.keys(location.state).length > 0
       ? location.state
       : getStoredAccountInfo();
@@ -44,8 +44,8 @@ const SigninTokenCodeContainer = ({
   const { data: totpData, loading: totpLoading } =
     useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
 
-  if (Object.keys(signinLocationState).length < 1) {
-    hardNavigateToContentServer(`/${location.search ? location.search : ''}`);
+  if (Object.keys(signinState).length < 1) {
+    hardNavigateToContentServer(`/${location.search || ''}`);
     return <LoadingSpinner fullScreen />;
   }
 
@@ -77,7 +77,7 @@ const SigninTokenCodeContainer = ({
       {...{
         finishOAuthFlowHandler,
         integration,
-        signinLocationState,
+        signinState,
       }}
     />
   );

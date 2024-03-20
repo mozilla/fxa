@@ -145,7 +145,7 @@ export const SigninTotpCode = ({
         queryParams: location.search,
       };
 
-      handleNavigation(navigationOptions, navigate);
+      await handleNavigation(navigationOptions, navigate, true);
     }
   };
 

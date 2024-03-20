@@ -19,7 +19,12 @@ const replaceFrom = /\bserver: server\b/;
 const replaceTo = 'contentUrl: "http://localhost:3030"';
 
 function replace() {
-  const filePath = path.join(iosPath, 'RustFxA', 'RustFirefoxAccounts.swift');
+  const filePath = path.join(
+    iosPath,
+    'firefox-ios',
+    'RustFxA',
+    'RustFirefoxAccounts.swift'
+  );
   let fileContent = fs.readFileSync(filePath, 'utf8');
   const match = fileContent.match(regex);
 

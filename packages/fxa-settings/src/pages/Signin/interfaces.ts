@@ -17,7 +17,7 @@ export interface AvatarResponse {
 }
 
 export type SigninIntegration =
-  | Pick<Integration, 'type' | 'isSync' | 'getService'>
+  | Pick<Integration, 'type' | 'isSync' | 'getService' | 'wantsKeys'>
   | SigninOAuthIntegration;
 
 export type SigninOAuthIntegration = Pick<
@@ -160,10 +160,11 @@ export interface NavigationOptions {
     verified: boolean;
     verificationMethod?: VerificationMethods;
     verificationReason?: VerificationReasons;
-    // keyFetchToken and unwrapBKey are included if options.keys=true
-    // These will never exist for the cached signin (prompt=none)
+    // keyFetchToken is included if options.keys=true
+    // This (and unwrapBKey) will never exist for the cached signin (prompt=none)
     keyFetchToken?: hexstring;
   };
+  // unwrapBKey is included if integration.wantsKeys()
   unwrapBKey?: hexstring;
   integration: SigninIntegration;
   finishOAuthFlowHandler: FinishOAuthFlowHandler;

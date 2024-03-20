@@ -6,8 +6,6 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import Signin from '.';
 import {
   Integration,
-  isOAuthIntegration,
-  isSyncDesktopV3Integration,
   useAuthClient,
   useFtlMsgResolver,
   useConfig,
@@ -16,7 +14,6 @@ import { MozServices } from '../../lib/types';
 import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
-import firefox from '../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
 import { FetchResult, useMutation, useQuery } from '@apollo/client';
@@ -138,10 +135,7 @@ const SigninContainer = ({
     queryParamModel.email || emailFromLocationState
   );
 
-  const isOAuth = isOAuthIntegration(integration);
-  const isSyncOAuth = isOAuth && integration.isSync();
-  const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
-  const isSyncWebChannel = isSyncOAuth || isSyncDesktopV3;
+  const wantsKeys = integration.wantsKeys();
 
   useEffect(() => {
     (async () => {
@@ -162,31 +156,24 @@ const SigninContainer = ({
               // For now, just pass back emailStatusChecked. When we convert the Index page
               // we'll want to read from router state.
               navigate(`/signup?email=${email}&emailStatusChecked=true`);
-              // TODO: Probably move this to the Index page onsubmit once
-              // the index page is converted to React, we need to run it in
-              // signup and signin for Sync
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
               setAccountStatus({
                 hasLinkedAccount,
                 hasPassword,
               });
-              if (isSyncWebChannel) {
-                firefox.fxaCanLinkAccount({ email });
-              }
             }
           } catch (error) {
             hardNavigateToContentServer(`/?prefillEmail=${email}`);
           }
-        } else if (isSyncWebChannel) {
-          // TODO: Probably move this to the Index page onsubmit once
-          // the index page is converted to React, we need to run it in
-          // signup and signin for Sync
-          firefox.fxaCanLinkAccount({ email });
         }
+      } else {
+        hardNavigateToContentServer('/');
       }
     })();
-  });
+    // Only run this on initial render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { data: avatarData, loading: avatarLoading } =
     useQuery<AvatarResponse>(AVATAR_QUERY);
@@ -214,7 +201,7 @@ const SigninContainer = ({
       const service = integration.getService();
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
-        keys: integration.wantsKeys(),
+        keys: wantsKeys,
         ...(service !== MozServices.Default && { service }),
       };
 
@@ -296,10 +283,10 @@ const SigninContainer = ({
                 password,
                 clientSalt:
                   credentialStatusData.data?.credentialStatus.clientSalt ||
-                  (await createSaltV2()),
+                  createSaltV2(),
               });
 
-              const kB = await unwrapKB(wrapKb, v1Credentials.unwrapBKey);
+              const kB = unwrapKB(wrapKb, v1Credentials.unwrapBKey);
               const keys = await getKeysV2({
                 kB,
                 v1: v1Credentials,
@@ -347,7 +334,17 @@ const SigninContainer = ({
               },
             });
 
-            return { data };
+            if (data) {
+              return {
+                data: {
+                  ...data,
+                  ...(wantsKeys && {
+                    unwrapBKey: v2Credentials.unwrapBKey,
+                  }),
+                },
+              };
+            }
+            return { data: undefined };
           } catch (error) {
             return handleGQLError(error);
           }
@@ -370,7 +367,18 @@ const SigninContainer = ({
             },
           },
         });
-        return { data };
+
+        if (data) {
+          return {
+            data: {
+              ...data,
+              ...(wantsKeys && {
+                unwrapBKey: v1Credentials.unwrapBKey,
+              }),
+            },
+          };
+        }
+        return { data: undefined };
       } catch (error) {
         // TODO consider additional error handling - any non-gql errors will return an unexpected error
         return handleGQLError(error);
@@ -385,6 +393,7 @@ const SigninContainer = ({
       keyStretchExp.queryParamModel,
       passwordChangeFinish,
       passwordChangeStart,
+      wantsKeys,
     ]
   );
 
