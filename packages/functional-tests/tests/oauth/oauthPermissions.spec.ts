@@ -4,17 +4,17 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 
-let email;
+//let email;
 const password = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
-      // test.skip(
-      //   config.showReactApp.signUpRoutes === true,
-      //   'these tests are specific to backbone, skip if seeing React version'
-      // );
+      test.skip(
+        config.showReactApp.signUpRoutes === true,
+        'these tests are specific to backbone, skip if seeing React version'
+      );
       test.slow();
       //email = login.createEmail();
       //await login.clearCache();
@@ -34,12 +34,14 @@ test.describe('severity-1 #smoke', () => {
     // });
 
     test('signup without `prompt=consent`', async ({
-      email,
+      standardEmail,
       pages: { login, relier },
     }) => {
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(standardEmail, password, {
+        verify: false,
+      });
 
       //no permissions asked for, straight to confirm
       expect(login.signUpCodeHeader()).toBeVisible();
@@ -48,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      email,
+      standardEmail,
       pages: { login, relier },
     }) => {
       const query = { prompt: 'consent' };
@@ -57,7 +59,9 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(standardEmail, password, {
+        verify: false,
+      });
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);
@@ -71,7 +75,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign in', () => {
     test.beforeEach(async ({ pages: { login } }) => {
       test.slow();
-      //await login.clearCache();
+      await login.clearCache();
     });
 
     test('signin without `prompt=consent`', async ({
