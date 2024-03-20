@@ -10,7 +10,7 @@ import { useClickOutsideEffect } from 'fxa-react/lib/hooks';
 import Portal from 'fxa-react/components/Portal';
 
 import './index.scss';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as CloseIcon } from '../../../../../libs/shared/assets/src/images/close.svg';
 
 type DialogMessageProps = {
   className?: string;

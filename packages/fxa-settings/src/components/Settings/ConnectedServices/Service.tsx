@@ -13,7 +13,7 @@ import { ReactComponent as MobileIcon } from './mobile.svg';
 import { ReactComponent as SyncIcon } from './sync.svg';
 import { ReactComponent as TabletIcon } from './tablet.svg';
 import { ReactComponent as MonitorIcon } from './monitor.svg';
-import { ReactComponent as PocketIcon } from 'fxa-react/images/pocket.svg';
+import { ReactComponent as PocketIcon } from '../../../../../../libs/shared/assets/src/images/pocket.svg';
 import { ReactComponent as LockwiseIcon } from './lockwise.svg';
 import { ReactComponent as RelayIcon } from './relay.svg';
 import { ReactComponent as AddonIcon } from './addon.svg';

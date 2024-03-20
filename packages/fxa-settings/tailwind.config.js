@@ -30,7 +30,7 @@ config.theme.extend = {
   backgroundImage: {
     ...config.theme.extend.backgroundImage,
     /* TODO: move this to `fxa-react`, FXA-5745 */
-    'ff-logo': "url('../../../fxa-react/images/ff-logo.svg')",
+    'ff-logo': "url('../../libs/shared/assets/src/images/ff-logo.svg')",
   },
   keyframes: {
     ...config.theme.extend.keyframes,

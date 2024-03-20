@@ -4,7 +4,7 @@
 
 import React, { ReactElement } from 'react';
 import { Localized } from '@fluent/react';
-import logo from '../../images/moz-m-logo.svg';
+import logo from '../../../../libs/shared/assets/src/images/moz-m-logo.svg';
 
 type LogoLockupProps = {
   children: string | ReactElement;

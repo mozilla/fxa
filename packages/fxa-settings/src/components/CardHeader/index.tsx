@@ -5,7 +5,7 @@
 import React, { ReactElement } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { MozServices } from '../../lib/types';
-import { ReactComponent as PocketLogo } from 'fxa-react/images/pocket.svg';
+import { ReactComponent as PocketLogo } from '../../../../../libs/shared/assets/src/images/pocket.svg';
 
 // NOTE: this component is heavily tested in components that use it and has complete line
 // coverage. However, we may file an issue out of FXA-6589 to add more explicit coverage.

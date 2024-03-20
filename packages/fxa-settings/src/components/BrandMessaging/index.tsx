@@ -6,10 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { useConfig } from '../../models';
 import { useMetrics } from '../../lib/metrics';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as CloseIcon } from '../../../../../libs/shared/assets/src/images/close.svg';
 import { Localized } from '@fluent/react';
 import { createPortal } from 'react-dom';
-import logo from 'fxa-react/images/moz-m-logo.svg';
+import logo from '../../../../../libs/shared/assets/src/images/moz-m-logo.svg';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 export const bannerClosedLocalStorageKey =

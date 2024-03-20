@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useContext, useState } from 'react';
 import { AppContext } from '../../lib/AppContext';
-import logo from 'fxa-react/images/moz-m-logo.svg';
+import logo from '../../../../../libs/shared/assets/src/images/moz-m-logo.svg';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Profile } from '../../store/types';
-import mozillaLogo from 'fxa-react/images/moz-logo-bw-rgb.svg';
+import mozillaLogo from '../../../../../libs/shared/assets/src/images/moz-logo-bw-rgb.svg';
 import { useLocalization } from '@fluent/react';
 
 export type HeaderProps = {

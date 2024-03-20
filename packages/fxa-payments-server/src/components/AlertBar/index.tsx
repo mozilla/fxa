@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { ReactComponent as CloseIcon } from 'fxa-react/images/close.svg';
+import { ReactComponent as CloseIcon } from '../../../../../libs/shared/assets/src/images/close.svg';
 import { Localized } from '@fluent/react';
 import classNames from 'classnames';
 import Portal from 'fxa-react/components/Portal';
