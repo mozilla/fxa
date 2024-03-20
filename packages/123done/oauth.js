@@ -51,7 +51,7 @@ function setupOAuthFlow(req, action, options = {}, cb) {
     client_id: config.client_id,
     pkce_client_id: config.pkce_client_id,
     redirect_uri: config.redirect_uri,
-    scope: config.scopes,
+    scope: 'openid email',
   };
   if (action) {
     params.action = action;
@@ -66,9 +66,12 @@ function setupOAuthFlow(req, action, options = {}, cb) {
     params.max_age = options.max_age;
   }
 
+  const issuer = 'http://localhost:9000/v1/oidc/.well-known/openid-configuration';
+  console.log("config", config);
   request.get(
     {
-      uri: config.issuer_uri + '/.well-known/openid-configuration',
+      // uri: config.issuer_uri + '/.well-known/openid-configuration',
+      uri: issuer,
     },
     function (err, r, body) {
       if (err) {
@@ -85,6 +88,7 @@ function setupOAuthFlow(req, action, options = {}, cb) {
 
       // eslint-disable-next-line fxa/async-crypto-random
       params.state = crypto.randomBytes(32).toString('hex');
+      params.response_type = 'code'
       req.session.state = params.state;
       oauthFlows[params.state] = { params: params, config: config };
 
@@ -241,20 +245,27 @@ module.exports = function (app, db) {
       delete oauthFlows[state];
       delete req.session.state;
 
+      console.log("oauthConfig", oauthConfig)
       request.post(
         {
           uri: oauthConfig.token_endpoint,
-          json: {
+          form: {
             code: code,
             client_id: config.client_id,
             client_secret: config.client_secret,
+            grant_type: 'authorization_code',
+            scopes: 'openid email',
           },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
         },
         function (err, r, body) {
           if (err) {
             return res.send(r.status, err);
           }
 
+          body = JSON.parse(body);
           console.log(err, body); //eslint-disable-line no-console
           req.session.scopes = body.scopes;
           req.session.token_type = body.token_type;
@@ -262,6 +273,7 @@ module.exports = function (app, db) {
           var token = (req.session.token = body.access_token);
           var id_token = body.id_token;
 
+          console.log("body.scopes", body.scopes); //eslint-disable-line no-console
           // Verify signature and extract claims from id_token
           verifyIdToken(oauthConfig, id_token)
             .then(function (claims) {
@@ -269,6 +281,7 @@ module.exports = function (app, db) {
               req.session.amr = claims.amr;
               req.session.acr = claims.acr;
               // Fetch additional profile data.
+              console.log("verifyIdToken", claims); //eslint-disable-line no-console
               request.get(
                 {
                   uri: oauthConfig.userinfo_endpoint,
@@ -304,6 +317,7 @@ module.exports = function (app, db) {
                     'Error: Client secret mismatch, please verify secret or obtain from an Admin.'
                   );
               }
+
               return res.send(400, err);
             });
         }
