@@ -297,6 +297,13 @@ module.exports = function (app, db) {
               );
             })
             .catch(function (err) {
+              if (err.message === 'malformed') {
+                return res
+                  .status(400)
+                  .send(
+                    'Error: Client secret mismatch, please verify secret or obtain from an Admin.'
+                  );
+              }
               return res.send(400, err);
             });
         }
