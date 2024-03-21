@@ -12,7 +12,7 @@ test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign up', () => {
     test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
 
-    test.beforeEach(async ({ pages: { configPage, login } }) => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
@@ -121,7 +121,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Verify user lands on the sign up password page
-      expect(await login.signUpPasswordHeader()).toBe(true);
+      await expect(login.signUpPasswordHeader).toBeVisible();
 
       // Verify the correct email is displayed
       expect(await login.getPrefilledEmail()).toMatch(email);

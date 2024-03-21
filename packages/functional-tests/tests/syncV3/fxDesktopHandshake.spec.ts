@@ -13,7 +13,7 @@ test.describe('severity-2 #smoke', () => {
     test.use({
       emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
     });
-    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
+    test.beforeEach(async ({ emails, target }) => {
       test.slow();
       const [email, syncEmail] = emails;
       await target.auth.signUp(email, PASSWORD, {

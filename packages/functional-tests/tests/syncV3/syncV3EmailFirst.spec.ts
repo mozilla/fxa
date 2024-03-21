@@ -4,26 +4,25 @@
 
 import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
-let email;
-
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.beforeEach(async ({ pages: { login } }) => {
+  test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
+  test.beforeEach(async () => {
     test.slow();
-    email = login.createEmail('sync{id}');
   });
 
-  // TODO: is this something we want to support once index/email-first is converted to React?
   test('open directly to /signup page, refresh on the /signup page', async ({
+    emails,
     pages: { configPage },
     target,
     syncBrowserPages: { page, login },
   }) => {
+    const [email] = emails;
     const config = await configPage.getConfig();
-    test.skip(
+    test.fixme(
       config.showReactApp.signUpRoutes === true,
-      'Not currently supported in React Signup'
+      'Not currently supported in React Signup FXA-8973'
     );
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
@@ -33,20 +32,21 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     await login.submit();
 
     // Verify user is redirected to the set password page
-    expect(await login.signUpPasswordHeader()).toBe(true);
+    await expect(login.signUpPasswordHeader).toBeVisible();
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });
-    await page.waitForTimeout(1000);
 
     // refresh sends the user back to the first step
     await login.waitForEmailHeader();
   });
 
   test('open directly to /signin page, refresh on the /signin page', async ({
+    emails,
     target,
     syncBrowserPages: { page, login },
   }) => {
+    const [email] = emails;
     await target.auth.signUp(email, PASSWORD, {
       lang: 'en',
       preVerified: 'true',
@@ -63,7 +63,6 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
 
     //Refresh the page
     await page.reload({ waitUntil: 'load' });
-    await page.waitForTimeout(1000);
 
     // refresh sends the user back to the first step
     await login.waitForEmailHeader();

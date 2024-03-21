@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       await page.waitForURL(`${target.contentServerUrl}/oauth/signup**`);
-      expect(await login.signUpPasswordHeader()).toEqual(true);
+      await expect(login.signUpPasswordHeader).toBeVisible();
       // email provided as login hint is displayed on the signup page
       await expect(page.getByText(email).isVisible()).toBeTruthy();
 

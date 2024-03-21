@@ -30,6 +30,7 @@ export const selectors = {
   RESET_PASSWORD_EXPIRED_HEADER: '#fxa-reset-link-expired-header',
   RESET_PASSWORD_HEADER: '#fxa-reset-password-header',
   SIGN_UP_CODE_HEADER: 'h1:has-text("Enter confirmation code")',
+  SIGN_UP_PASSWORD_HEADER: '#fxa-signup-password-header',
   SIGNIN_BOUNCED_HEADER: '#fxa-signin-bounced-header',
   BOUNCED_CREATE_ACCOUNT: '#create-account',
   SIGN_IN_CODE_HEADER: '#fxa-signin-code-header',
@@ -47,17 +48,8 @@ export const selectors = {
   VPASSWORD: ':nth-match(input[type=password],2)',
   SYNC_CONNECTED_HEADER: '#fxa-connected-heading',
   NOTES_HEADER: '#notes-by-firefox',
-  MIN_LENGTH_MET: '#password-too-short.password-strength-met',
-  MIN_LENGTH_FAIL: '#password-too-short.password-strength-fail',
-  NOT_COMMON_FAIL: '#password-too-common.password-strength-fail',
-  NOT_COMMON_UNMET: '#password-too-common.password-strength-unmet',
-  NOT_COMMON_MET: '#password-too-common.password-strength-met',
-  NOT_EMAIL_UNMET: '#password-same-as-email.password-strength-unmet',
-  NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
-  NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   PERMISSION_ACCEPT: '#accept',
   DO_NOT_SYNC: '#do-not-sync-device',
-  CWTS_PAGE_HEADER: '#fxa-choose-what-to-sync-header',
 };
 
 type FirstSignUpOptions = {
@@ -105,8 +97,16 @@ export class LoginPage extends BaseLayout {
     return this.page.getByLabel('Addresses', { exact: true });
   }
 
+  get CWTSDoNotSync() {
+    return this.page.getByLabel('Do not sync', { exact: true });
+  }
+
   get emailHeader() {
     return this.page.locator(selectors.EMAIL_HEADER);
+  }
+
+  get signUpPasswordHeader() {
+    return this.page.getByRole('heading', { name: 'Set your password' });
   }
 
   async getFxaClient(target) {
@@ -176,54 +176,6 @@ export class LoginPage extends BaseLayout {
       await this.setCode(recoveryCode);
       await this.submit();
     }
-  }
-
-  async minLengthFailError() {
-    const error = this.page.locator(selectors.MIN_LENGTH_FAIL);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async minLengthSuccess() {
-    const error = this.page.locator(selectors.MIN_LENGTH_MET);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notEmailUnmetError() {
-    const error = this.page.locator(selectors.NOT_EMAIL_UNMET);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notEmailFailError() {
-    const error = this.page.locator(selectors.NOT_EMAIL_FAIL);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notEmailSuccess() {
-    const error = this.page.locator(selectors.NOT_EMAIL_MET);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notCommonPasswordUnmetError() {
-    const error = this.page.locator(selectors.NOT_COMMON_UNMET);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notCommonPasswordSuccess() {
-    const error = this.page.locator(selectors.NOT_COMMON_MET);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
-  }
-
-  async notCommonPasswordFailError() {
-    const error = this.page.locator(selectors.NOT_COMMON_FAIL);
-    await error.waitFor({ state: 'visible' });
-    return error.isVisible();
   }
 
   async fillOutFirstSignUp(
@@ -450,14 +402,6 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT).click();
   }
 
-  async isCWTSPageHeader() {
-    return this.page.locator(selectors.CWTS_PAGE_HEADER).isVisible();
-  }
-
-  async isDoNotSync() {
-    return this.page.locator(selectors.DO_NOT_SYNC).isVisible();
-  }
-
   async isSyncConnectedHeader() {
     return this.page.isVisible(selectors.SYNC_CONNECTED_HEADER, {
       timeout: 100,
@@ -466,14 +410,6 @@ export class LoginPage extends BaseLayout {
 
   async signInPasswordHeader() {
     const header = this.page.locator(selectors.PASSWORD_HEADER);
-    await header.waitFor();
-    return header.isVisible();
-  }
-
-  async signUpPasswordHeader() {
-    const header = this.page.getByRole('heading', {
-      name: 'Set your password',
-    });
     await header.waitFor();
     return header.isVisible();
   }

@@ -32,4 +32,8 @@ export class DeleteAccountPage extends SettingsLayout {
   submit() {
     return this.page.click('[data-testid="delete-account-button"]');
   }
+
+  success() {
+    return this.page.locator('.success');
+  }
 }

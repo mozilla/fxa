@@ -13,7 +13,7 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Desktop Sync V3 force auth', () => {
-    test.beforeEach(async ({ target }) => {
+    test.beforeEach(async () => {
       test.slow();
     });
 
@@ -94,7 +94,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
-        'force_auth is no longer supported for signup with react'
+        'force_auth is no longer supported for signup with react, FXA-9410'
       );
       const email = `sync${Math.random()}@restmail.net`;
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -107,9 +107,9 @@ test.describe('severity-1 #smoke', () => {
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
       await expect(emailInput).toBeDisabled();
-      await expect(
-        await (await login.getUseDifferentAccountLink()).count()
-      ).toEqual(0);
+      expect(await (await login.getUseDifferentAccountLink()).count()).toEqual(
+        0
+      );
       await login.fillOutFirstSignUp(email, credentials.password, {
         enterEmail: false,
       });
@@ -127,7 +127,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
-        'force_auth is no longer supported for signup with react'
+        'force_auth is no longer supported for signup with react, FXA-9410'
       );
       const email = `sync${Math.random()}@restmail.net`;
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
@@ -139,9 +139,9 @@ test.describe('severity-1 #smoke', () => {
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
       await expect(emailInput).toBeDisabled();
-      await expect(
-        await (await login.getUseDifferentAccountLink()).count()
-      ).toEqual(0);
+      expect(await (await login.getUseDifferentAccountLink()).count()).toEqual(
+        0
+      );
     });
 
     test('sync v3 with an unregistered email, unregistered uid', async ({
@@ -152,7 +152,7 @@ test.describe('severity-1 #smoke', () => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
-        'force_auth is no longer supported for signup with react'
+        'force_auth is no longer supported for signup with react, FXA-9410'
       );
       const email = `sync${Math.random()}@restmail.net`;
       const uid = makeUid();
@@ -166,9 +166,9 @@ test.describe('severity-1 #smoke', () => {
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
       await expect(emailInput).toBeDisabled();
-      await expect(
-        await (await login.getUseDifferentAccountLink()).count()
-      ).toEqual(0);
+      expect(await (await login.getUseDifferentAccountLink()).count()).toEqual(
+        0
+      );
     });
 
     test('blocked with an registered email, unregistered uid', async ({

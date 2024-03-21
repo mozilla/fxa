@@ -9,7 +9,7 @@ test.describe('severity-2 #smoke', () => {
     test.use({
       emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
     });
-    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
+    test.beforeEach(async ({ emails, target }) => {
       test.slow(); //This test has steps for email rendering that runs slow on stage
       const [email, syncEmail] = emails;
       await target.auth.signUp(syncEmail, PASSWORD, {
