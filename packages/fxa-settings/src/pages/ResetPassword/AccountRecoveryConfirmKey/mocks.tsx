@@ -20,11 +20,13 @@ import AccountRecoveryConfirmKey from '.';
 import { MOCK_SERVICE } from '../../mocks';
 import { AccountRecoveryConfirmKeyBaseIntegration } from './interfaces';
 
+// Extend base mocks
+export * from '../../mocks';
+
 export const MOCK_SERVICE_NAME = MozServices.FirefoxSync;
 export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';
 export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_RECOVERY_KEY_ID = 'mockRecoveryKeyId';
-export const MOCK_KB = 'mockkB';
 
 // TODO: combine a lot of mocks with AccountRecoveryResetPassword
 const fxDesktopV3ContextParam = { context: 'fx_desktop_v3' };

@@ -314,6 +314,7 @@ describe('Signin', () => {
                     verified: false,
                     verificationReason: VerificationReasons.SIGN_UP,
                     keyFetchToken: MOCK_KEY_FETCH_TOKEN,
+                    unwrapBKey: MOCK_UNWRAP_BKEY,
                   })
                 );
                 const finishOAuthFlowHandler = jest

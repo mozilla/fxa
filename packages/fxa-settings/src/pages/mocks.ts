@@ -11,8 +11,11 @@ export const MOCK_REDIRECT_URI = 'http://localhost:8080/123Done';
 export const MOCK_CLIENT_ID = '123';
 export const MOCK_SERVICE = MozServices.TestService;
 export const MOCK_SESSION_TOKEN = 'sessionToken';
-export const MOCK_UNWRAP_BKEY = 'unwrapBKey';
+export const MOCK_UNWRAP_BKEY = '10000000000000000123456789abcdef';
+export const MOCK_KA = '10000000000000000123456789abcdef';
+export const MOCK_KB = '10000000000000000123456789abcdef';
 export const MOCK_KEY_FETCH_TOKEN = 'keyFetchToken';
+export const MOCK_KEY_FETCH_TOKEN_2 = 'keyFetchToken2';
 export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_AUTH_AT = 12345;
 export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';
@@ -31,7 +34,6 @@ export const MOCK_STORED_ACCOUNT = {
   verified: false,
 };
 export const MOCK_AUTH_PW = 'apw123';
-export const MOCK_HEXSTRING_32 = '152e8ef9975a0f3356e062dfe09d3f23';
 export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
   redirect: 'someUri',
   code: 'someCode',
@@ -39,3 +41,13 @@ export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
 };
 export const mockFinishOAuthFlowHandler = () =>
   Promise.resolve(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
+export const MOCK_WRAP_KB = '0123456789abcdef0123456789abcdef';
+export const MOCK_HEXSTRING_32 = '0123456789abcdef0123456789abcdef';
+
+export const MOCK_CLIENT_SALT =
+  'identity.mozilla.com/picl/v1/quickStretchV2:0123456789abcdef0123456789abcdef';
+
+export const MOCK_UNWRAP_BKEY_V2 = '20000000000000000123456789abcdef';
+export const MOCK_WRAP_KB_V2 = '20000000000000000123456789abcdef';
+export const MOCK_AUTH_PW_V2 = 'apw234';
+export const MOCK_PASSWORD_CHANGE_TOKEN = '123456789abcdef0';
