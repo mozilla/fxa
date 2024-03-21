@@ -86,6 +86,8 @@ describe('models/password_strength/password_strength_balloon', () => {
     [
       'password',
       '12firefox account34',
+      'mozilla accounts',
+      'MozillaAccounts',
       'firefox accounts',
       'FirefoxAccounts',
       'firefox sync',
