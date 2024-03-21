@@ -1,55 +1,26 @@
 import { Invoice } from '@fxa/payments/cart';
 import {
-  getFormattedMsg,
   getLocalizedCurrency,
   getLocalizedCurrencyString,
 } from '@fxa/shared/l10n';
-import { FluentBundle } from '@fluent/bundle';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
 import '../../styles/index.css';
 import { app } from '@fxa/payments/ui/server';
 
 type ListLabelItemProps = {
-  labelLocalizationId: string;
-  labelFallbackText: string;
-  amount: number;
-  currency: string;
-  l10n: FluentBundle;
-  positiveAmount?: boolean;
+  labelText: string;
+  amountText: string;
 };
 
 export const ListLabelItem = ({
-  labelLocalizationId,
-  labelFallbackText,
-  amount,
-  currency,
-  l10n,
-  positiveAmount = true,
+  labelText,
+  amountText,
 }: ListLabelItemProps) => {
   return (
     <li className="plan-details-item">
-      {l10n.getMessage(labelLocalizationId)?.value?.toString() ||
-        labelFallbackText}
-      <div>
-        {positiveAmount
-          ? getFormattedMsg(
-              l10n,
-              `list-positive-amount`,
-              `${getLocalizedCurrencyString(amount, currency)}`,
-              {
-                amount: getLocalizedCurrency(amount, currency),
-              }
-            )
-          : getFormattedMsg(
-              l10n,
-              `list-negative-amount`,
-              `- ${getLocalizedCurrencyString(amount, currency)}`,
-              {
-                amount: getLocalizedCurrency(amount, currency),
-              }
-            )}
-      </div>
+      {labelText}
+      <div>{amountText}</div>
     </li>
   );
 };
@@ -67,7 +38,7 @@ type PurchaseDetailsProps = {
 };
 
 export async function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { purchaseDetails, invoice, interval } = props;
+  const { purchaseDetails, invoice, interval, locale } = props;
   const { currency, listAmount, discountAmount, totalAmount, taxAmounts } =
     invoice;
   const { details, subtitle, productName, webIcon } = purchaseDetails;
@@ -81,8 +52,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
   // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
   // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
   //const l10n = await getBundle([props.locale]);
-  const localizer = await app.getLocalizerServer();
-  const l10n = localizer.getBundle(props.locale);
+  const zl10n = await app.getLocalizerServer();
 
   return (
     <div className="component-card text-sm px-4 rounded-t-none tablet:rounded-t-lg">
@@ -105,8 +75,8 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
           </h2>
 
           <p className="text-grey-400 mt-1 mb-0">
-            {getFormattedMsg(
-              l10n,
+            {zl10n.getFormattedMsg(
+              locale,
               `plan-price-interval-${interval}`,
               formatPlanPricing(listAmount, currency, interval),
               {
@@ -120,8 +90,11 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
       </div>
 
       <h3 className="text-grey-600 font-semibold my-4">
-        {l10n.getMessage('next-plan-details-header')?.value?.toString() ||
-          `Plan Details`}
+        {zl10n.getFormattedMsg(
+          locale,
+          'next-plan-details-header',
+          'Plan Details'
+        )}
       </h3>
 
       <ul className="row-divider-grey-200 text-grey-400 m-0 px-3 list-disc">
@@ -136,11 +109,19 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {!!listAmount && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'next-plan-details-list-price',
-              labelFallbackText: 'List Price',
-              amount: listAmount,
-              currency,
-              l10n,
+              labelText: zl10n.getFormattedMsg(
+                locale,
+                'next-plan-details-list-price',
+                'List Price'
+              ),
+              amountText: zl10n.getFormattedMsg(
+                locale,
+                'list-postive-amount',
+                `${getLocalizedCurrencyString(listAmount, currency)}`,
+                {
+                  amount: getLocalizedCurrency(listAmount, currency),
+                }
+              ),
             }}
           />
         )}
@@ -148,12 +129,19 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {!!discountAmount && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'next-coupon-promo-code',
-              labelFallbackText: 'Promo Code',
-              amount: discountAmount,
-              currency,
-              l10n,
-              subtractValue: true,
+              labelText: zl10n.getFormattedMsg(
+                locale,
+                'next-coupon-promo-code',
+                'Promo Code'
+              ),
+              amountText: zl10n.getFormattedMsg(
+                locale,
+                'list-negative-amount',
+                `- ${getLocalizedCurrencyString(discountAmount, currency)}`,
+                {
+                  amount: getLocalizedCurrency(discountAmount, currency),
+                }
+              ),
             }}
           />
         )}
@@ -161,11 +149,25 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         {exclusiveTaxRates.length === 1 && (
           <ListLabelItem
             {...{
-              labelLocalizationId: 'next-plan-details-tax',
-              labelFallbackText: 'Taxes and Fees',
-              amount: exclusiveTaxRates[0].amount,
-              currency,
-              l10n,
+              labelText: zl10n.getFormattedMsg(
+                locale,
+                'next-plan-details-tax',
+                'Taxes and Fees'
+              ),
+              amountText: zl10n.getFormattedMsg(
+                locale,
+                'list-positive-amount',
+                `${getLocalizedCurrencyString(
+                  exclusiveTaxRates[0].amount,
+                  currency
+                )}`,
+                {
+                  amount: getLocalizedCurrency(
+                    exclusiveTaxRates[0].amount,
+                    currency
+                  ),
+                }
+              ),
             }}
           />
         )}
@@ -174,11 +176,15 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
           exclusiveTaxRates.map((taxRate, idx) => (
             <ListLabelItem
               {...{
-                labelLocalizationId: '',
-                labelFallbackText: taxRate.title,
-                amount: taxRate.amount,
-                currency,
-                l10n,
+                labelText: zl10n.getFormattedMsg(locale, '', taxRate.title),
+                amountText: zl10n.getFormattedMsg(
+                  locale,
+                  'list-positive-amount',
+                  `${getLocalizedCurrencyString(taxRate.amount, currency)}`,
+                  {
+                    amount: getLocalizedCurrency(taxRate.amount, currency),
+                  }
+                ),
               }}
               key={taxRate.title}
             />
@@ -187,17 +193,19 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
 
       <div className="plan-details-item pt-4 pb-6 font-semibold">
         <span className="text-base">
-          {l10n
-            .getMessage('next-plan-details-total-label')
-            ?.value?.toString() || `Total`}
+          {zl10n.getFormattedMsg(
+            locale,
+            'next-plan-details-total-label',
+            'Total'
+          )}
         </span>
         <span
           className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
           data-testid="total-price"
           id="total-price"
         >
-          {getFormattedMsg(
-            l10n,
+          {zl10n.getFormattedMsg(
+            locale,
             `plan-price-interval-${interval}`,
             formatPlanPricing(totalAmount, currency, interval),
             {

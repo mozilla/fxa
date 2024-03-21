@@ -1,5 +1,6 @@
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import type { ILocalizerBindings } from './localizer.interfaces';
+import { DEFAULT_LOCALE } from '../l10n';
 
 export class LocalizerBase {
   protected readonly bindings: ILocalizerBindings;
@@ -61,7 +62,7 @@ export class LocalizerBase {
    * Returns the set of translated strings for the specified locale.
    * @param locale Locale to use, defaults to en.
    */
-  protected async fetchTranslatedMessages(locale = 'en') {
+  protected async fetchTranslatedMessages(locale = DEFAULT_LOCALE) {
     const mainFtlPath = `${this.bindings.opts.translations.basePath}/${locale}/main.ftl`;
     return this.bindings.fetchResource(mainFtlPath);
   }
