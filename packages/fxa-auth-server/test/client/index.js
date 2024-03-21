@@ -29,8 +29,10 @@ module.exports = (config) => {
     this.totpAuthenticator = null;
     this.options = options || {};
 
-    if (!(this.options.version === "" || this.options.version === "V2")) {
-      throw new Error('options.version must be provided! '+ JSON.stringify(this.options))
+    if (!(this.options.version === '' || this.options.version === 'V2')) {
+      throw new Error(
+        'options.version must be provided! ' + JSON.stringify(this.options)
+      );
     }
   }
 
@@ -59,7 +61,11 @@ module.exports = (config) => {
     });
   };
 
-  Client.prototype.setupCredentialsV2 = async function (email, password, originalLoginEmail) {
+  Client.prototype.setupCredentialsV2 = async function (
+    email,
+    password,
+    originalLoginEmail
+  ) {
     this.email = email;
 
     // Note that using the originalLoginEmail is to main parity with V1. V2 actually no longer
@@ -89,10 +95,10 @@ module.exports = (config) => {
     this.unwrapBKeyVersion2 = unwrapBKeyVersion2;
   };
 
-  Client.create = function (origin, email, password, options) {
+  Client.create = function (origin, email, password, options = {}) {
     const c = new Client(origin, options);
 
-    if (options.version === "V2") {
+    if (options.version === 'V2') {
       return (async function () {
         await c.setupCredentials(email, password);
         await c.setupCredentialsV2(email, password);
@@ -114,7 +120,7 @@ module.exports = (config) => {
   Client.login = function (origin, email, password, options) {
     const c = new Client(origin, options);
 
-    if(c.options.version === "V2") {
+    if (c.options.version === 'V2') {
       return (async function () {
         await c.setupCredentials(email, password);
         await c.setupCredentialsV2(email, password, options.originalLoginEmail);
@@ -128,7 +134,12 @@ module.exports = (config) => {
     });
   };
 
-  Client.upgradeCredentials = async function (origin, email, password, options) {
+  Client.upgradeCredentials = async function (
+    origin,
+    email,
+    password,
+    options
+  ) {
     const c = new Client(origin, options);
     await c.setupCredentials(email, password);
     await c.auth(options);
@@ -145,7 +156,7 @@ module.exports = (config) => {
     options = {}
   ) {
     const c = new Client(origin, options);
-    if(options.version === "V2") {
+    if (options.version === 'V2') {
       return (async function () {
         await c.setupCredentials(email, oldPassword);
         await c.setupCredentialsV2(email, oldPassword);
@@ -284,7 +295,7 @@ module.exports = (config) => {
 
   Client.prototype.auth = function (opts) {
     if (!this.authPW) {
-      throw new Error('authPW not set')
+      throw new Error('authPW not set');
     }
     return this.api.accountLogin(this.email, this.authPW, opts).then((data) => {
       this.uid = data.uid;
@@ -300,7 +311,11 @@ module.exports = (config) => {
     });
   };
   Client.prototype.authV2 = async function (opts) {
-    const data = await this.api.accountLogin(this.email, this.authPWVersion2, opts)
+    const data = await this.api.accountLogin(
+      this.email,
+      this.authPWVersion2,
+      opts
+    );
     this.uid = data.uid;
     this.sessionToken = data.sessionToken;
     this.emailVerified = data.verified;
@@ -314,7 +329,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.login = function (opts) {
-    if (this.options.version === "V2") {
+    if (this.options.version === 'V2') {
       return this.authV2(opts);
     }
     return this.auth(opts);
@@ -333,7 +348,12 @@ module.exports = (config) => {
 
   Client.prototype.reauth = function (opts) {
     return this.api
-      .sessionReauth(this.sessionToken, this.email, this.authPWVersion2 || this.authPW, opts)
+      .sessionReauth(
+        this.sessionToken,
+        this.email,
+        this.authPWVersion2 || this.authPW,
+        opts
+      )
       .then((data) => {
         this.uid = data.uid;
         if (this.authPWVersion2) {
@@ -451,8 +471,7 @@ module.exports = (config) => {
     headers,
     sessionToken
   ) {
-
-    if (this.options.version === "V2") {
+    if (this.options.version === 'V2') {
       return this.changePasswordV2(newPassword, headers, sessionToken);
     }
 
@@ -496,7 +515,12 @@ module.exports = (config) => {
     headers,
     sessionToken
   ) {
-    const json = await this.api.passwordChangeStartV2(this.email, this.authPW, this.authPWVersion2, headers);
+    const json = await this.api.passwordChangeStartV2(
+      this.email,
+      this.authPW,
+      this.authPWVersion2,
+      headers
+    );
     this.keyFetchToken = json.keyFetchToken;
     this.keyFetchTokenVersion2 = json.keyFetchTokenVersion2;
     this.passwordChangeToken = json.passwordChangeToken;
@@ -527,13 +551,17 @@ module.exports = (config) => {
 
     this.sessionToken = res.sessionToken ? res.sessionToken : this.sessionToken;
     this.authAt = res.authAt ? res.authAt : this.authAt;
-    this.keyFetchToken = res.keyFetchToken ? res.keyFetchToken : this.keyFetchToken;
-    this.keyFetchTokenVersion2 = res.keyFetchTokenVersion2 ? res.keyFetchTokenVersion2 : this.keyFetchTokenVersion2;
+    this.keyFetchToken = res.keyFetchToken
+      ? res.keyFetchToken
+      : this.keyFetchToken;
+    this.keyFetchTokenVersion2 = res.keyFetchTokenVersion2
+      ? res.keyFetchTokenVersion2
+      : this.keyFetchTokenVersion2;
     return res;
   };
 
   Client.prototype.keys = async function () {
-    if (this.options.version === "V2") {
+    if (this.options.version === 'V2') {
       return await this.keysV2();
     }
 
@@ -543,13 +571,12 @@ module.exports = (config) => {
     return await this.getKeysV1();
   };
   Client.prototype.keysV2 = async function () {
-
     if (!this.keyFetchTokenVersion2) {
       await this.authV2();
     }
 
     return await this.getKeysV2();
-  }
+  };
 
   Client.prototype.attachedClients = function () {
     const o = this.sessionToken ? Promise.resolve(null) : this.login();
@@ -702,15 +729,14 @@ module.exports = (config) => {
   };
 
   Client.prototype.destroyAccount = function () {
-    const authPW = this.options.version === "V2" && this.authPWVersion2 ? this.authPWVersion2 : this.authPW;
+    const authPW =
+      this.options.version === 'V2' && this.authPWVersion2
+        ? this.authPWVersion2
+        : this.authPW;
 
     if (this.sessionToken) {
       return this.api
-        .accountDestroyWithSessionToken(
-          this.email,
-          authPW,
-          this.sessionToken
-        )
+        .accountDestroyWithSessionToken(this.email, authPW, this.sessionToken)
         .then(this._clear.bind(this));
     }
     return this.api
@@ -747,7 +773,7 @@ module.exports = (config) => {
   };
 
   Client.prototype.lockAccount = function () {
-    return this.api.accountLock(this.email, this.authPWVersion2 ||this.authPW);
+    return this.api.accountLock(this.email, this.authPWVersion2 || this.authPW);
   };
 
   Client.prototype.resendAccountUnlockCode = function (lang) {
@@ -846,9 +872,14 @@ module.exports = (config) => {
     headers,
     options = {}
   ) {
-
-    if (this.options.version === "V2") {
-      return this.resetAccountWithRecoveryKeyV2(newPassword, kB, recoveryKeyId, headers, options);
+    if (this.options.version === 'V2') {
+      return this.resetAccountWithRecoveryKeyV2(
+        newPassword,
+        kB,
+        recoveryKeyId,
+        headers,
+        options
+      );
     }
 
     if (!this.accountResetToken) {
@@ -911,18 +942,17 @@ module.exports = (config) => {
     this.deriveWrapKbFromKb();
     this.deriveWrapKbVersion2FromKb();
 
-    const response = await this.api
-        .accountResetWithRecoveryKeyV2(
-          this.accountResetToken,
-          this.authPW,
-          this.authPWVersion2,
-          this.wrapKb,
-          this.wrapKbVersion2,
-          this.clientSalt,
-          recoveryKeyId,
-          headers,
-          options
-        )
+    const response = await this.api.accountResetWithRecoveryKeyV2(
+      this.accountResetToken,
+      this.authPW,
+      this.authPWVersion2,
+      this.wrapKb,
+      this.wrapKbVersion2,
+      this.clientSalt,
+      recoveryKeyId,
+      headers,
+      options
+    );
 
     // Update to the new verified tokens
     this.sessionToken = response.sessionToken;
@@ -934,7 +964,11 @@ module.exports = (config) => {
     return response;
   };
 
-  Client.prototype.resetPassword = async function (newPassword, headers, options) {
+  Client.prototype.resetPassword = async function (
+    newPassword,
+    headers,
+    options
+  ) {
     if (!this.accountResetToken) {
       throw new Error(
         'call verifyPasswordResetCode before calling resetPassword'
@@ -964,7 +998,11 @@ module.exports = (config) => {
     this.keyFetchTokenVersion2 = response.keyFetchTokenVersion2;
     return response;
   };
-  Client.prototype.resetPasswordV2 = async function (newPassword, headers, options) {
+  Client.prototype.resetPasswordV2 = async function (
+    newPassword,
+    headers,
+    options
+  ) {
     if (!this.accountResetToken) {
       throw new Error(
         'call verifyPasswordResetCode before calling resetPassword'
@@ -1095,23 +1133,26 @@ module.exports = (config) => {
     return resFinish;
   };
 
-  Client.prototype.getClientSalt = async function(email) {
+  Client.prototype.getClientSalt = async function (email) {
     const response = await this.getCredentialsStatus(email || this.email);
     return response?.clientSalt;
-  }
+  };
 
-  Client.prototype.getCredentialsStatus = async function(email, originalLoginEmail) {
+  Client.prototype.getCredentialsStatus = async function (
+    email,
+    originalLoginEmail
+  ) {
     try {
-      const response = await this.api.getCredentialsStatus(originalLoginEmail || email);
-      return response
+      const response = await this.api.getCredentialsStatus(
+        originalLoginEmail || email
+      );
+      return response;
+    } catch (error) {
+      return {};
     }
-    catch (error) {
-      return { }
-    }
-  }
+  };
 
   Client.prototype.generateNewWrapKb = function () {
-
     if (!this.unwrapBKey) {
       throw new Error('unwrapBKey never determined. Aborting operation.');
     }
@@ -1127,12 +1168,11 @@ module.exports = (config) => {
     //
     this.wrapKb = crypto.randomBytes(32).toString('hex');
     this.kB = butil.xorBuffers(this.wrapKb, this.unwrapBKey).toString('hex');
-  }
+  };
 
   Client.prototype.deriveWrapKbFromKb = function () {
-
     if (!this.kB) {
-      throw new Error('kB never determined! Aborting operation.')
+      throw new Error('kB never determined! Aborting operation.');
     }
 
     if (!this.unwrapBKey) {
@@ -1141,14 +1181,10 @@ module.exports = (config) => {
 
     // By deriving the value this way, we ensure a single kB value. Note that this relies on the
     // fact the server will be using the current wrapKb for the V1 password
-    this.wrapKb = butil.xorBuffers(
-      this.kB,
-      this.unwrapBKey
-    ).toString('hex');
+    this.wrapKb = butil.xorBuffers(this.kB, this.unwrapBKey).toString('hex');
   };
 
   Client.prototype.deriveWrapKbVersion2FromKb = function () {
-
     if (!this.kB) {
       throw new Error('kB never set. Aborting operation.');
     }
@@ -1159,10 +1195,9 @@ module.exports = (config) => {
 
     // By deriving the value this way, we ensure a single kB value. Note that this relies on the
     // fact the server will be using the current wrapKb for the V1 password
-    this.wrapKbVersion2 = butil.xorBuffers(
-      this.kB,
-      this.unwrapBKeyVersion2
-    ).toString('hex');
+    this.wrapKbVersion2 = butil
+      .xorBuffers(this.kB, this.unwrapBKeyVersion2)
+      .toString('hex');
   };
 
   Client.prototype.getKeys = async function (keyFetchToken) {
@@ -1172,50 +1207,48 @@ module.exports = (config) => {
     const data = await this.api.accountKeys(keyFetchToken);
     const token = await tokens.KeyFetchToken.fromHex(keyFetchToken);
     return await token.unbundleKeys(data.bundle);
-  }
+  };
   Client.prototype.getKeysV1 = async function () {
     try {
       const keys = await this.getKeys(this.keyFetchToken);
       this.keyFetchToken = null;
-      keys.kB = butil
-          .xorBuffers(keys.wrapKb, this.unwrapBKey)
-          .toString('hex');
+      keys.kB = butil.xorBuffers(keys.wrapKb, this.unwrapBKey).toString('hex');
 
       this.kA = keys.kA;
       this.kB = keys.kB;
       this.wrapKb = keys.wrapKb;
-      return keys
+      return keys;
     } catch (err) {
       if (err && err.errno !== 104) {
         this.keyFetchTokenVersion2 = null;
       }
       throw err;
     }
-  }
+  };
   Client.prototype.getKeysV2 = async function () {
     try {
       const keys = await this.getKeys(this.keyFetchTokenVersion2, true);
       this.keyFetchTokenVersion2 = null;
       keys.kB = butil
         .xorBuffers(keys.wrapKb, this.unwrapBKeyVersion2)
-        .toString('hex')
+        .toString('hex');
 
       this.kA = keys.kA;
       this.kB = keys.kB;
       this.wrapKbVersion2 = keys.wrapKb;
       this.keyFetchTokenVersion2 = null;
 
-      return keys
+      return keys;
     } catch (err) {
       if (err && err.errno !== 104) {
         this.keyFetchTokenVersion2 = null;
       }
       throw err;
     }
-  }
+  };
 
-  Client.prototype.getState = function() {
-    if (this.options.version === "V2") {
+  Client.prototype.getState = function () {
+    if (this.options.version === 'V2') {
       return {
         version: this.options.version,
         kB: this.kB,
@@ -1223,7 +1256,7 @@ module.exports = (config) => {
         unwrapBKey: this.unwrapBKeyVersion2,
         authPW: this.authPWVersion2,
         keyFetchToken: this.keyFetchTokenVersion2,
-      }
+      };
     }
     return {
       version: this.options.version,
@@ -1232,33 +1265,32 @@ module.exports = (config) => {
       unwrapBKey: this.unwrapBKey,
       authPW: this.authPW,
       keyFetchToken: this.keyFetchToken,
-    }
-  }
+    };
+  };
 
-  Client.prototype.stubAccount = async function(clientId) {
+  Client.prototype.stubAccount = async function (clientId) {
     return await this.api.stubAccount(this.email, clientId);
-  }
+  };
 
-  Client.prototype.finishAccountSetup = async function(token) {
+  Client.prototype.finishAccountSetup = async function (token) {
     let response;
-    if (this.options.version === "V2") {
+    if (this.options.version === 'V2') {
       await this.generateNewWrapKb();
       await this.deriveWrapKbVersion2FromKb();
       response = await this.api.finishAccountSetup(
         token,
         this.email,
-        this.authPW.toString('hex') ,
+        this.authPW.toString('hex'),
         this.wrapKb,
         this.authPWVersion2.toString('hex'),
         this.wrapKbVersion2,
         this.clientSalt
       );
-    }
-    else {
+    } else {
       response = await this.api.finishAccountSetup(
         token,
         this.email,
-        this.authPW.toString('hex') ,
+        this.authPW.toString('hex')
       );
     }
 
@@ -1266,8 +1298,8 @@ module.exports = (config) => {
     const sessionToken = response.sessionToken;
     const verified = response.verified;
 
-    return {uid, sessionToken, verified};
-  }
+    return { uid, sessionToken, verified };
+  };
 
   return Client;
 };
