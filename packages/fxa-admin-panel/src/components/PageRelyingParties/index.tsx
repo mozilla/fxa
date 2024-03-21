@@ -244,9 +244,9 @@ export const PageRelyingParties = () => {
       </p>
 
       <p>
-        Firefox accounts integrates with Mozilla groups on request via OAuth,
+        Mozilla accounts integrates with Mozilla groups on request via OAuth,
         OpenID, and webhooks, allowing them to offer users authentication and/or
-        authorization with their Firefox account. These groups assume an RP
+        authorization with their Mozilla account. These groups assume an RP
         role. See{' '}
         <LinkExternal
           href="https://mozilla.github.io/ecosystem-platform/relying-parties/tutorials/integration-with-fxa"

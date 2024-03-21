@@ -17,7 +17,7 @@ type AppLayoutProps = {
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const logoLockup = (
     <LogoLockup className="text-white font-semibold text-shadow-md">
-      Firefox Accounts Admin Panel
+      Mozilla Accounts Admin Panel
     </LogoLockup>
   );
 
