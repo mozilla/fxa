@@ -6,6 +6,7 @@
 
 const url = require('url');
 const tracing = require('fxa-shared/tracing/node-tracing');
+const oauthDB = require('../oauth/db');
 
 module.exports = function (
   log,
@@ -201,6 +202,8 @@ module.exports = function (
     basePath = '';
   }
 
+  const oidcRoutes = require('./oauth/oidc')({ log, oauthDB, db, mailer, statsd, glean })
+
   const v1Routes = [].concat(
     account,
     oauth,
@@ -219,7 +222,8 @@ module.exports = function (
     subscriptions,
     newsletters,
     linkedAccounts,
-    cloudTasks
+    cloudTasks,
+    oidcRoutes
   );
 
   function optionallyIgnoreTrace(fn) {
