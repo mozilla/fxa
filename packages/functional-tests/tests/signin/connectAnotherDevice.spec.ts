@@ -4,6 +4,8 @@
 
 import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
 
+const AGE_21 = '21';
+
 test.describe('severity-2 #smoke', () => {
   test.describe('connect_another_device', () => {
     test('signup Fx Desktop, load /connect_another_device page', async ({
@@ -32,8 +34,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       if (config.showReactApp.signUpRoutes === true) {
-        await signupReact.fillOutEmailFirst(credentials.email);
-        await signupReact.fillOutSignupForm(credentials.password);
+        await signupReact.fillOutEmailForm(credentials.email);
+        await signupReact.fillOutSignupForm(credentials.password, AGE_21);
         await signupReact.fillOutCodeForm(credentials.email);
       } else {
         await login.fillOutFirstSignUp(credentials.email, credentials.password);

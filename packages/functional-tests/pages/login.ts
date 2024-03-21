@@ -56,15 +56,6 @@ export const selectors = {
   NOT_EMAIL_MET: '#password-same-as-email.password-strength-met',
   NOT_EMAIL_FAIL: '#password-same-as-email.password-strength-fail',
   PERMISSION_ACCEPT: '#accept',
-  CWTS_ENGINE_HEADER: 'text="Choose what to sync"',
-  CWTS_ENGINE_BOOKMARKS: 'label:has-text("Bookmarks")',
-  CWTS_ENGINE_HISTORY: 'label:has-text("History")',
-  CWTS_ENGINE_PASSWORDS: '#sync-engine-passwords',
-  CWTS_ENGINE_ADDONS: '#sync-engine-addons',
-  CWTS_ENGINE_TABS: '#sync-engine-tabs',
-  CWTS_ENGINE_PREFS: '#sync-engine-prefs',
-  CWTS_ENGINE_CREDITCARDS: 'label:has-text("Payment Methods")',
-  CWTS_ENGINE_ADDRESSES: '#sync-engine-addresses',
   DO_NOT_SYNC: '#do-not-sync-device',
   CWTS_PAGE_HEADER: '#fxa-choose-what-to-sync-header',
 };
@@ -77,6 +68,42 @@ type FirstSignUpOptions = {
 
 export class LoginPage extends BaseLayout {
   readonly path = '';
+
+  get CWTSEngineHeader() {
+    return this.page.getByRole('heading', { name: 'Choose what to sync' });
+  }
+
+  get CWTSEngineBookmarks() {
+    return this.page.getByLabel('Bookmarks', { exact: true });
+  }
+
+  get CWTSEngineHistory() {
+    return this.page.getByLabel('History', { exact: true });
+  }
+
+  get CWTSEnginePasswords() {
+    return this.page.getByLabel('Passwords', { exact: true });
+  }
+
+  get CWTSEngineAddons() {
+    return this.page.getByLabel('Add-ons', { exact: true });
+  }
+
+  get CWTSEngineOpenTabs() {
+    return this.page.getByLabel('Open Tabs', { exact: true });
+  }
+
+  get CWTSEnginePreferences() {
+    return this.page.getByLabel('Preferences', { exact: true });
+  }
+
+  get CWTSEngineCreditCards() {
+    return this.page.getByLabel('Payment Methods', { exact: true });
+  }
+
+  get CWTSEngineAddresses() {
+    return this.page.getByLabel('Addresses', { exact: true });
+  }
 
   get emailHeader() {
     return this.page.locator(selectors.EMAIL_HEADER);
@@ -348,7 +375,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async isChangeEmailLinkVisible() {
-    const link = await this.page.locator(selectors.LINK_CHANGE_EMAIL);
+    const link = this.page.locator(selectors.LINK_CHANGE_EMAIL);
     return link.isVisible();
   }
 
@@ -423,58 +450,12 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT).click();
   }
 
-  async waitForCWTSEngineHeader() {
-    await this.page.waitForSelector(selectors.CWTS_ENGINE_HEADER, {
-      timeout: 2000,
-    });
-  }
-
   async isCWTSPageHeader() {
     return this.page.locator(selectors.CWTS_PAGE_HEADER).isVisible();
   }
 
-  async isCWTSEngineCreditCards() {
-    return this.page.locator(selectors.CWTS_ENGINE_CREDITCARDS).isVisible();
-  }
-
-  async isCWTSEngineBookmarks() {
-    return this.page.locator(selectors.CWTS_ENGINE_BOOKMARKS).isVisible();
-  }
-
-  async isCWTSEngineHistory() {
-    return this.page.locator(selectors.CWTS_ENGINE_HISTORY).isVisible();
-  }
-
-  async isCWTSEnginePasswords() {
-    return this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).isVisible();
-  }
-
-  async isCWTSEngineAddons() {
-    return this.page.locator(selectors.CWTS_ENGINE_ADDONS).isVisible();
-  }
-
-  async isCWTSEnginePrefs() {
-    return this.page.locator(selectors.CWTS_ENGINE_PREFS).isVisible();
-  }
-
-  async isCWTSEngineTabs() {
-    return this.page.locator(selectors.CWTS_ENGINE_TABS).isVisible();
-  }
-
-  async isCWTSEngineAddresses() {
-    return this.page.locator(selectors.CWTS_ENGINE_ADDRESSES).isVisible();
-  }
-
   async isDoNotSync() {
     return this.page.locator(selectors.DO_NOT_SYNC).isVisible();
-  }
-
-  async uncheckCWTSEngineHistory() {
-    await this.page.locator(selectors.CWTS_ENGINE_HISTORY).click();
-  }
-
-  async uncheckCWTSEnginePasswords() {
-    await this.page.locator(selectors.CWTS_ENGINE_PASSWORDS).click();
   }
 
   async isSyncConnectedHeader() {

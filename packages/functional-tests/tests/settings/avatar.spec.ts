@@ -12,11 +12,11 @@ test.describe('severity-1 #smoke', () => {
     pages: { settings },
   }) => {
     await settings.goto();
-    await settings.clickAvatarIcon();
-    await expect(settings.avatarMenu).toBeVisible();
-    await expect(settings.avatarMenu).toContainText(credentials.email);
+    await settings.avatarDropDownMenuToggle.click();
+    await expect(settings.avatarDropDownMenu).toBeVisible();
+    await expect(settings.avatarDropDownMenu).toContainText(credentials.email);
     await page.keyboard.press('Escape');
-    await expect(settings.avatarMenu).toBeHidden();
+    await expect(settings.avatarDropDownMenu).toBeHidden();
     await settings.signOut();
   });
 

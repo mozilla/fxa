@@ -68,17 +68,17 @@ test.describe('severity-1 #smoke', () => {
       await login.setAge('21');
 
       // The CWTS form is on the same signup page
-      await login.waitForCWTSEngineHeader();
-      expect(await login.isCWTSEngineBookmarks()).toBe(true);
-      expect(await login.isCWTSEngineHistory()).toBe(true);
-      expect(await login.isCWTSEnginePasswords()).toBe(true);
-      expect(await login.isCWTSEngineTabs()).toBe(true);
-      expect(await login.isCWTSEnginePrefs()).toBe(true);
-      expect(await login.isCWTSEngineAddresses()).toBe(false);
+      await expect(login.CWTSEngineHeader).toBeVisible();
+      await expect(login.CWTSEngineBookmarks).toBeVisible();
+      await expect(login.CWTSEngineHistory).toBeVisible();
+      await expect(login.CWTSEnginePasswords).toBeVisible();
+      await expect(login.CWTSEngineAddons).toBeVisible();
+      await expect(login.CWTSEnginePreferences).toBeVisible();
+      await expect(login.CWTSEngineAddresses).toBeHidden();
 
       // Uncheck the passwords and history engines
-      await login.uncheckCWTSEngineHistory();
-      await login.uncheckCWTSEnginePasswords();
+      await login.CWTSEngineHistory.click();
+      await login.CWTSEnginePasswords.click();
       await signinTokenCode.clickSubmitButton();
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
       await login.fillOutSignUpCode(email);
@@ -119,9 +119,9 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify the CWTS page and the checkboxes
       expect(await login.isCWTSPageHeader()).toBe(true);
-      expect(await login.isCWTSEngineAddresses()).toBe(false);
+      await expect(login.CWTSEngineAddresses).toBeHidden();
       expect(await login.isDoNotSync()).toBe(false);
-      expect(await login.isCWTSEngineCreditCards()).toBe(false);
+      await expect(login.CWTSEngineCreditCards).toBeHidden();
       await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
       await login.noSuchWebChannelMessage(FirefoxCommand.Login);
       await signinTokenCode.clickSubmitButton();
@@ -159,8 +159,8 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify the CWTS page and the checkboxes
       expect(await login.isCWTSPageHeader()).toBe(true);
-      expect(await login.isCWTSEngineAddresses()).toBe(false);
-      expect(await login.isCWTSEngineCreditCards()).toBe(false);
+      await expect(login.CWTSEngineAddresses).toBeHidden();
+      await expect(login.CWTSEngineCreditCards).toBeHidden();
     });
 
     test('neither `creditcards` nor `addresses` supported', async ({
@@ -195,8 +195,8 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify the CWTS page and the checkboxes
       expect(await login.isCWTSPageHeader()).toBe(true);
-      expect(await login.isCWTSEngineAddresses()).toBe(false);
-      expect(await login.isCWTSEngineCreditCards()).toBe(false);
+      await expect(login.CWTSEngineAddresses).toBeHidden();
+      await expect(login.CWTSEngineCreditCards).toBeHidden();
     });
 
     test('`creditcards` and `addresses` supported', async ({
@@ -231,8 +231,8 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify the CWTS page and the checkboxes
       expect(await login.isCWTSPageHeader()).toBe(true);
-      expect(await login.isCWTSEngineAddresses()).toBe(true);
-      expect(await login.isCWTSEngineCreditCards()).toBe(true);
+      await expect(login.CWTSEngineAddresses).toBeVisible();
+      await expect(login.CWTSEngineCreditCards).toBeVisible();
     });
   });
 });
