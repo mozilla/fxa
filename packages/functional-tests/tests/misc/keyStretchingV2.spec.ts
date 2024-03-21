@@ -26,6 +26,7 @@ import { ChangePasswordPage } from '../../pages/settings/changePassword';
  * key stretched passwords. We need to ensure that operations are interchangeable!
  */
 test.describe('key-stretching-v2', () => {
+  const AGE_21 = '21';
   let email = '';
   let password = '';
 
@@ -105,9 +106,10 @@ test.describe('key-stretching-v2', () => {
         await page.goto(
           `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
         );
-        await signupReact.fillOutEmailFirst(email);
+
+        await signupReact.fillOutEmailForm(email);
         await page.waitForSelector('#root');
-        await signupReact.fillOutSignupForm(password);
+        await signupReact.fillOutSignupForm(password, AGE_21);
         await signupReact.fillOutCodeForm(email);
         await page.waitForURL(/settings/);
       }
@@ -131,7 +133,7 @@ test.describe('key-stretching-v2', () => {
         await page.goto(
           `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
         );
-        await signupReact.fillOutEmailFirst(email);
+        await signupReact.fillOutEmailForm(email);
         await page.fill('[name="password"]', password);
         await page.click('[type="submit"]');
         await page.waitForURL(/settings/);

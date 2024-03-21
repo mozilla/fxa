@@ -1,9 +1,60 @@
+import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { EmailHeader, EmailType } from '../lib/email';
 
 export class SignupReactPage extends BaseLayout {
   readonly path = 'signup';
+
+  get emailFormHeading() {
+    return this.page.getByRole('heading', {
+      name: /^Enter your email|^Continue to your Mozilla account/,
+    });
+  }
+
+  get emailTextbox() {
+    return this.page.getByRole('textbox', { name: 'Enter your email' });
+  }
+
+  get submitButton() {
+    return this.page.getByRole('button', { name: 'Sign up or sign in' });
+  }
+
+  get signupFormHeading() {
+    return this.page.getByRole('heading', { name: 'Set your password' });
+  }
+
+  get passwordTextbox() {
+    return this.page.getByTestId('new-password-input-field');
+  }
+
+  get verifyPasswordTextbox() {
+    return this.page.getByTestId('verify-password-input-field');
+  }
+
+  get ageTextbox() {
+    return this.page.getByTestId('age-input-field');
+  }
+
+  get createAccountButton() {
+    return this.page.getByRole('button', { name: 'Create account' });
+  }
+
+  get codeFormHeading() {
+    return this.page.getByRole('heading', { name: /^Enter confirmation code/ });
+  }
+
+  get codeTextbox() {
+    return this.page.getByTestId('confirm-signup-code-input-field');
+  }
+
+  get confirmButton() {
+    return this.page.getByRole('button', { name: 'Confirm' });
+  }
+
+  get cannotCreateAccountHeading() {
+    return this.page.getByRole('heading', { name: 'Cannot create account' });
+  }
 
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
@@ -13,64 +64,28 @@ export class SignupReactPage extends BaseLayout {
     );
   }
 
-  async setEmail(value: string) {
-    const emailInput = await this.getEmail();
-    return emailInput.fill(value);
+  async fillOutEmailForm(email: string) {
+    await expect(
+      this.emailFormHeading,
+      'The Email form heading is missing or not as expected. ' +
+        'Are you filling out the right form?'
+    ).toBeVisible();
+
+    await this.emailTextbox.fill(email);
+    await this.submitButton.click();
   }
 
-  getEmail() {
-    return this.page.getByRole('textbox', { name: 'email' });
-  }
+  async fillOutSignupForm(password: string, age: string) {
+    await expect(
+      this.signupFormHeading,
+      'The Signup form heading is missing or not as expected. ' +
+        'Are you filling out the right form?'
+    ).toBeVisible();
 
-  async setPassword(value: string) {
-    const newPasswordInput = this.getPassword();
-    return newPasswordInput.fill(value);
-  }
-
-  getPassword() {
-    return this.page.getByRole('textbox', {
-      name: 'Password',
-      exact: true,
-    });
-  }
-
-  async setPasswordConfirm(value: string) {
-    const confirmPasswordInput = this.getPasswordConfirm();
-    return confirmPasswordInput.fill(value);
-  }
-
-  getPasswordConfirm() {
-    return this.page.getByRole('textbox', {
-      name: 'Repeat password',
-    });
-  }
-
-  async setAge(value: string) {
-    const ageInput = this.getAge();
-    await ageInput.fill(value);
-  }
-
-  getAge() {
-    return this.page.getByLabel('How old are you?');
-  }
-
-  async setCode(value: string) {
-    const codeInput = this.page.getByLabel('Enter 6-digit code');
-    return codeInput.fill(value);
-  }
-
-  async fillOutEmailFirst(email: string) {
-    await this.setEmail(email);
-    await this.submit('Sign up or sign in');
-  }
-
-  async fillOutSignupForm(password: string, age = '21', submit = true) {
-    await this.setPassword(password);
-    await this.setPasswordConfirm(password);
-    await this.setAge(age);
-    if (submit) {
-      await this.submit('Create account');
-    }
+    await this.passwordTextbox.fill(password);
+    await this.verifyPasswordTextbox.fill(password);
+    await this.ageTextbox.fill(age);
+    await this.createAccountButton.click();
   }
 
   async fillOutCodeForm(email: string) {
@@ -79,40 +94,19 @@ export class SignupReactPage extends BaseLayout {
       EmailType.verifyShortCode,
       EmailHeader.shortCode
     );
-    await this.setCode(code);
-    await this.submit('Confirm');
+
+    await expect(
+      this.codeFormHeading,
+      'The Confirmation Code form heading is missing or not as expected. ' +
+        'Are you filling out the right form?'
+    ).toBeVisible();
+
+    await this.codeTextbox.fill(code);
+    await this.confirmButton.click();
   }
 
-  async goToEmailFirstAndCreateAccount(
-    params: URLSearchParams,
-    email: string,
-    password: string
-  ) {
-    await this.goto('/', params);
-    // fill out email first form
-    await this.fillOutEmailFirst(email);
-    await this.page.waitForURL(/signup/);
-    await this.page.waitForSelector('#root');
-    await this.fillOutSignupForm(password);
-    await this.page.waitForURL(/confirm_signup_code/);
-    await this.fillOutCodeForm(email);
-  }
-
-  async submit(label: string) {
-    await this.page.getByRole('button', { name: label }).click();
-  }
-
-  async confirmCodeHeading() {
-    this.page.getByRole('heading', { name: /Enter confirmation code/ });
-  }
-
-  async visitTermsOfServiceLink() {
-    const link = this.page.getByText('Terms of Service');
-    link.click();
-  }
-
-  async visitPrivacyPolicyLink() {
-    const link = this.page.getByText('Privacy Notice');
-    link.click();
+  async waitForRoot() {
+    const root = this.page.locator('#root');
+    await root.waitFor();
   }
 }

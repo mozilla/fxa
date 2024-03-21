@@ -96,8 +96,8 @@ test.describe('severity-1 #smoke', () => {
       // Expect Mozilla Accounts to be signed in and AMO to be in Connected Services
       await settings.goto();
       await expect(page.getByRole('link', { name: 'Add-ons' })).toBeVisible();
-      await settings.clickAvatarIcon();
-      await settings.clickSignOut();
+      await settings.avatarDropDownMenuToggle.click();
+      await settings.avatarMenuSignOut.click();
     }
   );
 

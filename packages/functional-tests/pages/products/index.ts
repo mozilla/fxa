@@ -3,6 +3,10 @@ import { randomUUID } from 'crypto';
 import { BaseLayout } from '../layout';
 
 export class SubscribePage extends BaseLayout {
+  get setupSubscriptionFormHeading() {
+    return this.page.getByRole('heading', { name: 'Set up your subscription' });
+  }
+
   async visitSignIn() {
     const link = this.page.getByText('Sign In');
     await link.click();

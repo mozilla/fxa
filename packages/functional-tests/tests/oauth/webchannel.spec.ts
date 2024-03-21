@@ -41,9 +41,9 @@ test.describe('severity-1 #smoke', () => {
       await login.submit();
 
       // the CWTS form is on the same signup page
-      await login.waitForCWTSEngineHeader();
-      expect(await login.isCWTSEngineBookmarks()).toBe(true);
-      expect(await login.isCWTSEngineHistory()).toBe(true);
+      await expect(login.CWTSEngineHeader).toBeVisible();
+      await expect(login.CWTSEngineBookmarks).toBeVisible();
+      await expect(login.CWTSEngineHistory).toBeVisible();
 
       await login.fillOutFirstSignUp(email, PASSWORD, {
         enterEmail: false,
