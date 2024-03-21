@@ -101,25 +101,6 @@ test.describe('severity-1 #smoke', () => {
     }
   );
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293352
-  test('can login to pocket #1293352', async ({
-    credentials,
-    page,
-    pages: { login },
-  }, { project }) => {
-    test.fixme(true, 'pocket logout hangs after link clicked');
-    test.skip(project.name !== 'production', 'uses prod pocket');
-    await page.goto('https://getpocket.com/login');
-    await Promise.all([
-      page.click('a:has-text("Continue with Firefox")'),
-      page.waitForNavigation(),
-    ]);
-    await login.login(credentials.email, credentials.password);
-    expect(page.url()).toContain('https://getpocket.com/my-list');
-    await page.click('[aria-label="Open Account Menu"]');
-    await page.click('a:has-text("Log out")');
-  });
-
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
   test.fixme(
     'can login to monitor #1293364',
