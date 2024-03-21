@@ -3,55 +3,45 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Invoice } from '@fxa/payments/cart';
-import {
-  getFormattedMsg,
-  getLocalizedCurrency,
-  getLocalizedCurrencyString,
-} from '@fxa/shared/l10n';
-import { FluentBundle } from '@fluent/bundle';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
+import { LocalizerRsc } from '@fxa/shared/l10n/server';
 import '../../styles/index.css';
-import { app } from '@fxa/payments/ui/server';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
   labelFallbackText: string;
   amount: number;
   currency: string;
-  l10n: FluentBundle;
+  l10n: LocalizerRsc;
   positiveAmount?: boolean;
 };
-
 export const ListLabelItem = ({
+  l10n,
   labelLocalizationId,
   labelFallbackText,
   amount,
   currency,
-  l10n,
   positiveAmount = true,
 }: ListLabelItemProps) => {
   return (
     <li className="plan-details-item">
-      {l10n.getMessage(labelLocalizationId)?.value?.toString() ||
-        labelFallbackText}
+      {l10n.getString(labelLocalizationId, labelFallbackText)}
       <div>
         {positiveAmount
-          ? getFormattedMsg(
-              l10n,
+          ? l10n.getString(
               `list-positive-amount`,
-              `${getLocalizedCurrencyString(amount, currency)}`,
               {
-                amount: getLocalizedCurrency(amount, currency),
-              }
+                amount: l10n.getLocalizedCurrency(amount, currency),
+              },
+              `${l10n.getLocalizedCurrencyString(amount, currency)}`
             )
-          : getFormattedMsg(
-              l10n,
+          : l10n.getString(
               `list-negative-amount`,
-              `- ${getLocalizedCurrencyString(amount, currency)}`,
               {
-                amount: getLocalizedCurrency(amount, currency),
-              }
+                amount: l10n.getLocalizedCurrency(amount, currency),
+              },
+              `- ${l10n.getLocalizedCurrencyString(amount, currency)}`
             )}
       </div>
     </li>
@@ -59,8 +49,8 @@ export const ListLabelItem = ({
 };
 
 type PurchaseDetailsProps = {
+  l10n: LocalizerRsc;
   interval: string;
-  locale: string;
   invoice: Invoice;
   purchaseDetails: {
     details: string[];
@@ -71,22 +61,13 @@ type PurchaseDetailsProps = {
 };
 
 export async function PurchaseDetails(props: PurchaseDetailsProps) {
-  const { purchaseDetails, invoice, interval } = props;
+  const { purchaseDetails, invoice, interval, l10n } = props;
   const { currency, listAmount, discountAmount, totalAmount, taxAmounts } =
     invoice;
   const { details, subtitle, productName, webIcon } = purchaseDetails;
   const exclusiveTaxRates = taxAmounts.filter(
     (taxAmount) => !taxAmount.inclusive
   );
-
-  // TODO
-  // Move to instantiation on start up. Ideally getBundle's, generateBundle, is only called once at startup,
-  // and then that instance is used for all requests.
-  // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
-  // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
-  //const l10n = await getBundle([props.locale]);
-  const localizer = await app.getLocalizerServer();
-  const l10n = localizer.getBundle(props.locale);
 
   return (
     <div className="component-card text-sm px-4 rounded-t-none tablet:rounded-t-lg">
@@ -109,13 +90,12 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
           </h2>
 
           <p className="text-grey-400 mt-1 mb-0">
-            {getFormattedMsg(
-              l10n,
+            {l10n.getString(
               `plan-price-interval-${interval}`,
-              formatPlanPricing(listAmount, currency, interval),
               {
-                amount: getLocalizedCurrency(listAmount, currency),
-              }
+                amount: l10n.getLocalizedCurrency(listAmount, currency),
+              },
+              formatPlanPricing(listAmount, currency, interval)
             )}
             &nbsp;&bull;&nbsp;
             {subtitle}
@@ -124,8 +104,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
       </div>
 
       <h3 className="text-grey-600 font-semibold my-4">
-        {l10n.getMessage('next-plan-details-header')?.value?.toString() ||
-          `Plan Details`}
+        {l10n.getString('next-plan-details-header', 'Plan Details')}
       </h3>
 
       <ul className="row-divider-grey-200 text-grey-400 m-0 px-3 list-disc">
@@ -157,7 +136,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
               amount: discountAmount,
               currency,
               l10n,
-              subtractValue: true,
+              positiveAmount: false,
             }}
           />
         )}
@@ -175,7 +154,7 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
         )}
 
         {exclusiveTaxRates.length > 1 &&
-          exclusiveTaxRates.map((taxRate, idx) => (
+          exclusiveTaxRates.map((taxRate) => (
             <ListLabelItem
               {...{
                 labelLocalizationId: '',
@@ -191,22 +170,19 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
 
       <div className="plan-details-item pt-4 pb-6 font-semibold">
         <span className="text-base">
-          {l10n
-            .getMessage('next-plan-details-total-label')
-            ?.value?.toString() || `Total`}
+          {l10n.getString('next-plan-details-total-label', 'Total')}
         </span>
         <span
           className="overflow-hidden text-ellipsis text-lg whitespace-nowrap"
           data-testid="total-price"
           id="total-price"
         >
-          {getFormattedMsg(
-            l10n,
+          {l10n.getString(
             `plan-price-interval-${interval}`,
-            formatPlanPricing(totalAmount, currency, interval),
             {
-              amount: getLocalizedCurrency(totalAmount, currency),
-            }
+              amount: l10n.getLocalizedCurrency(totalAmount, currency),
+            },
+            formatPlanPricing(totalAmount, currency, interval)
           )}
         </span>
       </div>

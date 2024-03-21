@@ -1,5 +1,9 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { FluentBundle, FluentResource } from '@fluent/bundle';
 import type { ILocalizerBindings } from './localizer.interfaces';
+import { DEFAULT_LOCALE } from '../l10n.constants';
 
 export class LocalizerBase {
   protected readonly bindings: ILocalizerBindings;
@@ -7,6 +11,9 @@ export class LocalizerBase {
     this.bindings = bindings;
   }
 
+  /**
+   * @@todo - Add logic to optionally report errors in fetch
+   */
   protected async fetchMessages(currentLocales: string[]) {
     const fetchedPending: Record<string, Promise<string>> = {};
     const fetched: Record<string, string> = {};
@@ -27,13 +34,6 @@ export class LocalizerBase {
     fetchedLocales.forEach((fetchedLocale) => {
       if (fetchedLocale.status === 'fulfilled') {
         fetched[fetchedLocale.value.locale] = fetchedLocale.value.fetchedLocale;
-      }
-
-      if (fetchedLocale.status === 'rejected') {
-        console.error(
-          'Could not fetch locale with reason: ',
-          fetchedLocale.reason
-        );
       }
     });
     return fetched;
@@ -61,7 +61,7 @@ export class LocalizerBase {
    * Returns the set of translated strings for the specified locale.
    * @param locale Locale to use, defaults to en.
    */
-  protected async fetchTranslatedMessages(locale = 'en') {
+  protected async fetchTranslatedMessages(locale = DEFAULT_LOCALE) {
     const mainFtlPath = `${this.bindings.opts.translations.basePath}/${locale}/main.ftl`;
     return this.bindings.fetchResource(mainFtlPath);
   }

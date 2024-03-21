@@ -1,13 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
 import { headers } from 'next/headers';
 
-import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { getLocaleFromRequest } from '@fxa/shared/l10n';
-
+import { PurchaseDetails, TermsAndPrivacy, app } from '@fxa/payments/ui/server';
 import { getCartData, getContentfulContent } from '../../../_lib/apiClient';
+import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 // TODO - Replace these placeholders as part of FXA-8227
 export const metadata = {
@@ -34,14 +32,21 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: CheckoutParams;
 }) {
-  const headersList = headers();
-  const locale = getLocaleFromRequest(
-    params,
-    headersList.get('accept-language')
-  );
-  const contentfulData = getContentfulContent(params.offeringId, locale);
-  const cartData = getCartData(params.cartId);
-  const [contentful, cart] = await Promise.all([contentfulData, cartData]);
+  // Temporarily defaulting to `accept-language`
+  // This to be updated in FXA-9404
+  //const locale = getLocaleFromRequest(
+  //  params,
+  //  headers().get('accept-language')
+  //);
+  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
+  const contentfulDataPromise = getContentfulContent(params.offeringId, locale);
+  const cartDataPromise = getCartData(params.cartId);
+  const l10nPromise = app.getL10n(locale);
+  const [contentful, cart, l10n] = await Promise.all([
+    contentfulDataPromise,
+    cartDataPromise,
+    l10nPromise,
+  ]);
 
   return (
     <>
@@ -51,8 +56,8 @@ export default async function RootLayout({
 
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
+          l10n={l10n}
           interval={cart.interval}
-          locale={locale}
           invoice={cart.nextInvoice}
           purchaseDetails={contentful.purchaseDetails}
         />
@@ -61,7 +66,7 @@ export default async function RootLayout({
       <div className="page-body rounded-t-lg tablet:rounded-t-none">
         {children}
         <TermsAndPrivacy
-          locale={locale}
+          l10n={l10n}
           {...cart}
           {...contentful.commonContent}
           {...contentful.purchaseDetails}
