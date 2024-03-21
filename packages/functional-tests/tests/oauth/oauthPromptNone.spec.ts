@@ -161,8 +161,15 @@ test.describe('severity-1 #smoke', () => {
 
     test.afterEach(async ({ target }) => {
       // Cleanup any accounts created during the test
-      const creds = await target.auth.signIn(email, password);
-      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+      if (email) {
+        const creds = await target.auth.signIn(email, password);
+        await target.auth.accountDestroy(
+          email,
+          password,
+          {},
+          creds.sessionToken
+        );
+      }
     });
 
     test('fails if login_hint is different to logged in user', async ({
