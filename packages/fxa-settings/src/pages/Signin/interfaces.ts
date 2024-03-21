@@ -72,7 +72,6 @@ export interface BeginSigninResponse {
     verified: boolean;
     verificationMethod: VerificationMethods;
     verificationReason: VerificationReasons;
-    // keyFetchToken and unwrapBKey are included if options.keys=true
     keyFetchToken?: hexstring;
   };
   unwrapBKey?: hexstring;

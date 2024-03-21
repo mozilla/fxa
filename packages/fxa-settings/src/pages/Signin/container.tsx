@@ -19,7 +19,7 @@ import { useCallback, useEffect, useState } from 'react';
 import firefox from '../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
-import { useMutation, useQuery } from '@apollo/client';
+import { FetchResult, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
   BEGIN_SIGNIN_MUTATION,
@@ -220,13 +220,22 @@ const SigninContainer = ({
 
       const v1Credentials = await getCredentials(email, password);
       let v2Credentials = null;
+      let unverifiedAccount = false;
 
       if (keyStretchExp.queryParamModel.isV2(config)) {
-        const credentialStatusData = await credentialStatus({
-          variables: {
-            input: email,
-          },
-        });
+        let credentialStatusData: FetchResult<CredentialStatusResponse>;
+        try {
+          credentialStatusData = await credentialStatus({
+            variables: {
+              input: email,
+            },
+          });
+        } catch (error) {
+          Sentry.captureMessage(
+            'Failure to finish v2 upgrade. Could not fetch credential status.'
+          );
+          return handleGQLError(error);
+        }
 
         // We might have to upgrade the credentials in place.
         if (credentialStatusData.data?.credentialStatus.upgradeNeeded) {
@@ -249,6 +258,9 @@ const SigninContainer = ({
           } catch (error) {
             // If the user enters the wrong password, they will see an invalid password error.
             // Other wise something has going wrong and we should show an general error.
+            Sentry.captureMessage(
+              'Failure to finish v2 upgrade. Could not start password change.'
+            );
             return handleGQLError(error);
           }
 
@@ -267,8 +279,12 @@ const SigninContainer = ({
               if (uiError.error.errno === 104) {
                 // NOOP - If the account is simply 'unverified', then go through normal flow.
                 // The password upgrade can occur later.
+                unverifiedAccount = true;
               } else {
-                return uiError;
+                Sentry.captureMessage(
+                  'Failure to finish v2 upgrade. Could not get wrapped keys.'
+                );
+                return handleGQLError(error);
               }
             }
           }
@@ -304,8 +320,9 @@ const SigninContainer = ({
                 },
               });
             } catch (error) {
-              v2Credentials = null;
-              // TODO consider additional error handling - any non-gql errors will return an unexpected error
+              Sentry.captureMessage(
+                'Failure to finish v2 upgrade. Could not finish password change.'
+              );
               return handleGQLError(error);
             }
           }
@@ -334,7 +351,7 @@ const SigninContainer = ({
           } catch (error) {
             return handleGQLError(error);
           }
-        } else {
+        } else if (unverifiedAccount === false) {
           // Something went wrong, don't fail, so user can still log in, but DO report it to sentry;
           Sentry.captureMessage(
             'Failure to finish v2 upgrade. V2 credentials are null.'
