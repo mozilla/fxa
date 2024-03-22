@@ -32,17 +32,18 @@ test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
     test('signup web', async ({
       page,
-      standardEmail,
       target,
       pages: { settings, signupReact },
+      emails,
     }) => {
+      const [email] = emails;
       await signupReact.goto();
       await expect(page.getByText('Enter your email')).toBeVisible();
 
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await page.waitForSelector('#root');
       await signupReact.fillOutSignupForm(PASSWORD);
-      await signupReact.fillOutCodeForm(standardEmail);
+      await signupReact.fillOutCodeForm(email);
 
       // Verify logged into settings page
       await page.waitForURL(/settings/);
@@ -51,10 +52,11 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth', async ({
       page,
-      standardEmail,
       target,
       pages: { relier, signupReact },
+      emails,
     }) => {
+      const [email] = emails;
       relier.goto();
       relier.clickEmailFirst();
 
@@ -63,11 +65,7 @@ test.describe('severity-1 #smoke', () => {
       const params = new URL(page.url()).searchParams;
 
       // reload email-first page with React experiment params
-      await signupReact.goToEmailFirstAndCreateAccount(
-        params,
-        standardEmail,
-        PASSWORD
-      );
+      await signupReact.goToEmailFirstAndCreateAccount(params, email, PASSWORD);
 
       // expect to be redirected to relier after confirming signup code
       await page.waitForURL(target.relierUrl);
@@ -77,10 +75,12 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup oauth with missing redirect_uri', async ({
       page,
-      standardEmail,
       target,
       pages: { relier, signupReact },
+      emails,
     }) => {
+      const [email] = emails;
+
       relier.goto();
       relier.clickEmailFirst();
 
@@ -90,11 +90,7 @@ test.describe('severity-1 #smoke', () => {
       params.delete('redirect_uri');
 
       // reload email-first page without redirect_uri, but with React experiment params
-      await signupReact.goToEmailFirstAndCreateAccount(
-        params,
-        standardEmail,
-        PASSWORD
-      );
+      await signupReact.goToEmailFirstAndCreateAccount(params, email, PASSWORD);
 
       // redirectUri should have fallen back to the clientInfo config redirect URI
       // Expect to be redirected to relier
@@ -104,9 +100,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
-      standardEmail,
       syncBrowserPages: { page, signupReact, login },
+      emails,
     }) => {
+      const [email] = emails;
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -120,7 +117,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.goto('/authorization', syncMobileOAuthQueryParams);
 
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await page.waitForURL(/signup/, {
         waitUntil: 'load',
       });
@@ -136,19 +133,20 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.isCWTSEngineCreditCards()).toBe(false);
 
       await signupReact.fillOutSignupForm(PASSWORD);
-      await signupReact.fillOutCodeForm(standardEmail);
+      await signupReact.fillOutCodeForm(email);
       await page.waitForURL(/connect_another_device/);
       await signupReact.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
     test('signup sync desktop v3, verify account', async ({
-      standardEmail,
       syncBrowserPages: { page, signupReact, login },
+      emails,
     }) => {
       test.slow();
+      const [email] = emails;
 
       await signupReact.goto('/', syncDesktopV3QueryParams);
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await page.waitForURL(/signup/);
       await page.waitForSelector('#root');
       // Wait for page to render
@@ -170,7 +168,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutSignupForm(PASSWORD);
       await login.checkWebChannelMessage(FirefoxCommand.Login);
-      await signupReact.fillOutCodeForm(standardEmail);
+      await signupReact.fillOutCodeForm(email);
 
       await page.waitForURL(/connect_another_device/);
       await expect(page.getByText('You’re signed into Firefox')).toBeVisible();
@@ -180,18 +178,13 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signup react', () => {
-    test('signup invalid email', async ({
-      standardEmail,
-      page,
-      pages: { signupReact },
-    }) => {
-      standardEmail = 'invalid';
+    test('signup invalid email', async ({ page, pages: { signupReact } }) => {
+      const email = 'invalid';
       await signupReact.goto();
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await expect(
         page.getByText('Valid email required', { exact: true })
       ).toBeVisible();
-      standardEmail = ''; // reset email to avoid tripping validation error on cleanup
     });
 
     test('empty email', async ({ page, pages: { signupReact } }) => {
@@ -203,23 +196,27 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('coppa is too young', async ({
-      standardEmail,
       page,
       pages: { signupReact },
+      emails,
     }) => {
+      const [email] = emails;
+
       await signupReact.goto();
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '12');
       await page.waitForURL(/cannot_create_account/);
     });
 
     test('Visits the privacy policy links save information upon return', async ({
       page,
-      standardEmail,
       pages: { signupReact },
+      emails,
     }) => {
+      const [email] = emails;
+
       await signupReact.goto();
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '21', false);
       await signupReact.visitPrivacyPolicyLink();
       await page.waitForURL(/legal\/privacy/);
@@ -234,11 +231,12 @@ test.describe('severity-2 #smoke', () => {
 
     test('Visits the terms of service links save information upon return', async ({
       page,
-      standardEmail,
       pages: { signupReact },
+      emails,
     }) => {
+      const [email] = emails;
       await signupReact.goto();
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD, '21', false);
       await signupReact.visitTermsOfServiceLink();
       await page.waitForURL(/legal\/terms/);
@@ -253,20 +251,21 @@ test.describe('severity-2 #smoke', () => {
 
     test('Checks that form prefill information is cleared after sign up -> sign out', async ({
       page,
-      standardEmail,
       pages: { signupReact, settings },
+      emails,
     }) => {
+      const [email] = emails;
       await signupReact.goto();
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD);
-      await signupReact.fillOutCodeForm(standardEmail);
+      await signupReact.fillOutCodeForm(email);
       await page.waitForURL(/settings/);
       await settings.signOut();
       await signupReact.goto();
 
       // TBD: No pre fill support currently. Do we even need this?
       await expect(signupReact.getEmail()).toHaveValue('');
-      await signupReact.fillOutEmailFirst('new-' + standardEmail);
+      await signupReact.fillOutEmailFirst('new-' + email);
       await expect(signupReact.getPassword()).toHaveValue('');
       await expect(signupReact.getPasswordConfirm()).toHaveValue('');
       await expect(signupReact.getAge()).toHaveValue('');
@@ -274,14 +273,15 @@ test.describe('severity-2 #smoke', () => {
 
     test('signup via product page and redirect after confirm', async ({
       page,
-      standardEmail,
       target,
       pages: { signupReact, relier, subscribe, login },
+      emails,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no test products available in prod'
       );
+      const [email] = emails;
 
       // Make sure user is logged out
       await login.clearCache();
@@ -296,9 +296,9 @@ test.describe('severity-2 #smoke', () => {
       // Preserve search params but add in react experiment parameters
       const searchParams = new URL(page.url()).searchParams;
       await signupReact.goto('/', searchParams);
-      await signupReact.fillOutEmailFirst(standardEmail);
+      await signupReact.fillOutEmailFirst(email);
       await signupReact.fillOutSignupForm(PASSWORD);
-      await signupReact.fillOutCodeForm(standardEmail);
+      await signupReact.fillOutCodeForm(email);
       /*
        * We must `waitUntil: 'load'` due to redirects that occur here. Note,
        * React signup for SubPlat has one additional redirect compared to Backbone.

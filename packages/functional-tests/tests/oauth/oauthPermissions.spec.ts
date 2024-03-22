@@ -20,12 +20,13 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup without `prompt=consent`', async ({
-      standardEmail,
       pages: { login, relier },
+      emails,
     }) => {
+      const [email] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 
@@ -36,16 +37,17 @@ test.describe('severity-1 #smoke', () => {
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      standardEmail,
       pages: { login, relier },
+      emails,
     }) => {
+      const [email] = emails;
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
       await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
         waitUntil: 'load',
       });
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 

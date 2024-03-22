@@ -32,17 +32,21 @@ test.describe('severity-2 #smoke', () => {
       scope: 'profile https://identity.mozilla.com/apps/notes',
     };
     /* eslint-enable camelcase */
-
-    test.beforeEach(async ({ syncEmail, target }, { project }) => {
+    test.use({ emailTemplates: ['sync{id}'] });
+    test.beforeEach(async ({ target, emails }, { project }) => {
       // The `sync` prefix is needed to force confirmation.
+      const [syncEmail] = emails;
+
       emailUserCreds = await target.createAccount(syncEmail, password);
     });
 
     test('verified - invalid token', async ({
       page,
-      syncEmail,
       pages: { login, relier, signinTokenCode },
+      emails,
     }) => {
+      const [syncEmail] = emails;
+
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page
@@ -64,10 +68,12 @@ test.describe('severity-2 #smoke', () => {
 
     test('verified - valid code', async ({
       target,
-      syncEmail,
       page,
       pages: { login, relier, signinTokenCode },
+      emails,
     }) => {
+      const [syncEmail] = emails;
+
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page

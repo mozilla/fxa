@@ -4,35 +4,29 @@
 
 import { expect, test } from '../../lib/fixtures/standard';
 const password = 'passwordzxcv';
-let email;
-let email2;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin cached', () => {
-    test.beforeEach(
-      async ({
-        syncEmail,
-        standardEmail,
-        target,
-        syncBrowserPages: { login },
-      }) => {
-        test.slow(); //This test has steps for email rendering that runs slow on stage
-        await target.auth.signUp(syncEmail, password, {
-          lang: 'en',
-          preVerified: 'true',
-        });
-        await target.auth.signUp(standardEmail, password, {
-          lang: 'en',
-          preVerified: 'true',
-        });
-      }
-    );
+    test.use({ emailTemplates: ['', 'sync{id}'] });
+    test.beforeEach(async ({ target, syncBrowserPages: { login }, emails }) => {
+      test.slow(); //This test has steps for email rendering that runs slow on stage
+      const [email, syncEmail] = emails;
+      await target.auth.signUp(syncEmail, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+    });
 
     test('sign in twice, on second attempt email will be cached', async ({
       target,
-      syncEmail,
       syncBrowserPages: { page, login },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -54,9 +48,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
       target,
-      syncEmail,
       syncBrowserPages: { page, login, settings },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -85,10 +80,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('sign in once, use a different account', async ({
       target,
-      syncEmail,
-      standardEmail,
       syncBrowserPages: { page, login },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -102,7 +97,7 @@ test.describe('severity-2 #smoke', () => {
       //Check prefilled email
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
-      await login.fillOutEmailFirstSignIn(standardEmail, password);
+      await login.fillOutEmailFirstSignIn(email, password);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -112,14 +107,15 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(standardEmail);
+      expect(await login.getPrefilledEmail()).toContain(email);
     });
 
     test('expired cached credentials', async ({
       target,
-      syncEmail,
       syncBrowserPages: { page, login },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -144,9 +140,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('cached credentials that expire while on page', async ({
       target,
-      syncEmail,
       syncBrowserPages: { page, login },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });

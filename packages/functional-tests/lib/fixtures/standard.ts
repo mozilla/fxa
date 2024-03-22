@@ -16,11 +16,8 @@ export type POMS = ReturnType<typeof createPages>;
 export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
-  standardEmail: string;
-  forceChangeEmail: string;
-  syncEmail: string;
-  bouncedEmail: string;
-  blockedEmail: string;
+  emailTemplates: string[];
+  emails: string[];
   credentials: Credentials;
 };
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
@@ -113,129 +110,19 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await syncBrowserPages.browser?.close();
   },
 
-  standardEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
+  emailTemplates: [''],
+
+  emails: async ({ target, pages: { login }, emailTemplates }, use) => {
     const password = 'passwordzxcv';
-    const standardEmail = login.createEmail();
-    await login.clearCache();
+    const emails = await Promise.all(
+      emailTemplates.map(async (t) => login.createEmail(t))
+    );
 
-    await use(standardEmail);
+    await use(emails);
 
-    //Teardown
-    try {
-      if (!standardEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(standardEmail, password);
-      await target.auth.accountDestroy(
-        standardEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  forceChangeEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'new_password';
-    const forceChangeEmail = login.createEmail('forcepwdchange{id}');
-    await login.clearCache();
-
-    await use(forceChangeEmail);
-
-    //Teardown
-    try {
-      if (!forceChangeEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(forceChangeEmail, password);
-      await target.auth.accountDestroy(
-        forceChangeEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  syncEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const syncEmail = login.createEmail('sync{id}');
-    await login.clearCache();
-
-    await use(syncEmail);
-
-    //Teardown
-    try {
-      if (!syncEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(syncEmail, password);
-      await target.auth.accountDestroy(
-        syncEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  bouncedEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const bouncedEmail = login.createEmail('bounced{id}');
-    await login.clearCache();
-
-    await use(bouncedEmail);
-
-    //Teardown
-    try {
-      if (!bouncedEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(bouncedEmail, password);
-      await target.auth.accountDestroy(
-        bouncedEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  blockedEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const blockedEmail = login.createEmail('blocked{id}');
-    await login.clearCache();
-
-    await use(blockedEmail);
-
-    //Teardown
-    try {
-      if (!blockedEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(blockedEmail, password);
-      await target.auth.accountDestroy(
-        blockedEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
+    await Promise.all(
+      emails.map(async (e) => await teardownEmail(target, e, password))
+    );
   },
 
   storageState: async ({ target, credentials }, use) => {
@@ -292,4 +179,17 @@ export async function newPagesForSync(target: BaseTarget) {
     ...(await newPages(browser, target)),
     browser: browser,
   };
+}
+
+export async function teardownEmail(
+  target: BaseTarget,
+  email: string,
+  password: string
+) {
+  try {
+    const creds = await target.auth.signIn(email, password);
+    await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+  } catch (e) {
+    // ignore
+  }
 }

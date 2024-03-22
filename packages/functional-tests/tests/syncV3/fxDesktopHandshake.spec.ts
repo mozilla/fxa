@@ -12,31 +12,26 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox desktop user info handshake', () => {
-    test.beforeEach(
-      async ({
-        standardEmail,
-        syncEmail,
-        target,
-        syncBrowserPages: { login },
-      }) => {
-        test.slow();
-        await target.auth.signUp(standardEmail, password, {
-          lang: 'en',
-          preVerified: 'true',
-        });
-        await target.auth.signUp(syncEmail, password, {
-          lang: 'en',
-          preVerified: 'true',
-        });
-      }
-    );
+    test.use({ emailTemplates: ['', 'sync{id}'] });
+    test.beforeEach(async ({ target, syncBrowserPages: { login }, emails }) => {
+      test.slow();
+      const [email, syncEmail] = emails;
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await target.auth.signUp(syncEmail, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+    });
 
     test('Non-Sync - user signed into browser, user signed in locally', async ({
       target,
-      syncEmail,
-      standardEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
@@ -59,7 +54,7 @@ test.describe('severity-2 #smoke', () => {
       const eventDetailStatusSignIn = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: standardEmail,
+          signedInUser: email,
         }
       );
       await page.goto(
@@ -91,9 +86,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('Sync - no user signed into browser, user signed in locally', async ({
       target,
-      syncEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
@@ -133,10 +129,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('Sync force_auth page - user signed into browser is different to requested user', async ({
       target,
-      standardEmail,
-      syncEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
         email: syncEmail,
@@ -144,7 +140,7 @@ test.describe('severity-2 #smoke', () => {
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: standardEmail,
+          signedInUser: email,
         }
       );
       await page.goto(
@@ -159,10 +155,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('Non-Sync force_auth page - user signed into browser is different to requested user', async ({
       target,
-      standardEmail,
-      syncEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
         email: syncEmail,
@@ -170,7 +166,7 @@ test.describe('severity-2 #smoke', () => {
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: standardEmail,
+          signedInUser: email,
         }
       );
       await page.goto(
@@ -185,17 +181,18 @@ test.describe('severity-2 #smoke', () => {
 
     test('Sync - user signed into browser, no user signed in locally', async ({
       target,
-      standardEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: standardEmail,
+        email: email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: standardEmail,
+          signedInUser: email,
         }
       );
       await page.goto(
@@ -205,22 +202,23 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(standardEmail);
+      expect(await login.getPrefilledEmail()).toContain(email);
     });
 
     test('Non-Sync - user signed into browser, no user signed in locally', async ({
       target,
-      standardEmail,
       syncBrowserPages: { login, page },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: standardEmail,
+        email: email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: standardEmail,
+          signedInUser: email,
         }
       );
       await page.goto(
@@ -228,7 +226,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(standardEmail);
+      expect(await login.getPrefilledEmail()).toContain(email);
       await login.setPassword(password);
       await login.clickSubmit();
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -236,9 +234,10 @@ test.describe('severity-2 #smoke', () => {
 
     test('Non-Sync settings page - no user signed into browser, user signed in locally', async ({
       target,
-      syncEmail,
       syncBrowserPages: { login, page, settings },
+      emails,
     }) => {
+      const [email, syncEmail] = emails;
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });

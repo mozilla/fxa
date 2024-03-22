@@ -12,14 +12,16 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings', () => {
+    test.use({ emailTemplates: ['sync{id}'] });
     test.beforeEach(
       async ({
         target,
-        syncEmail,
         syncBrowserPages: { login, connectAnotherDevice, page },
+        emails,
       }) => {
         test.slow();
-        await target.auth.signUp(syncEmail, firstPassword, {
+        const [email] = emails;
+        await target.auth.signUp(email, firstPassword, {
           lang: 'en',
           preVerified: 'true',
         });
@@ -33,11 +35,11 @@ test.describe('severity-2 #smoke', () => {
           `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
         );
         await login.respondToWebChannelMessage(customEventDetail);
-        await login.fillOutEmailFirstSignIn(syncEmail, firstPassword);
+        await login.fillOutEmailFirstSignIn(email, firstPassword);
         expect(login.signInCodeHeader()).toBeVisible();
 
         await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
-        await login.fillOutSignInCode(syncEmail);
+        await login.fillOutSignInCode(email);
         await login.checkWebChannelMessage(FirefoxCommand.Login);
         await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
       }
@@ -85,19 +87,20 @@ test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
     test('sign in, delete the account', async ({
       target,
-      syncEmail,
       syncBrowserPages: { login, settings, deleteAccount, page },
+      emails,
     }) => {
       test.slow();
-      await target.auth.signUp(syncEmail, firstPassword, {
+      const [email] = emails;
+      await target.auth.signUp(email, firstPassword, {
         lang: 'en',
         preVerified: 'true',
       });
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.fillOutEmailFirstSignIn(syncEmail, firstPassword);
-      await login.fillOutSignInCode(syncEmail);
+      await login.fillOutEmailFirstSignIn(email, firstPassword);
+      await login.fillOutSignInCode(email);
 
       //Go to setting page
       await page.goto(
