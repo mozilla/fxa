@@ -194,7 +194,7 @@
     "@babel/core": "^7.22.5",
     "@babel/plugin-transform-typescript": "^7.23.6",
     "@babel/preset-typescript": "^7.23.0",
-    "@babel/types": "^7.22.5",
+    "@babel/types": "^7.24.0",
     "@storybook/addon-actions": "^8.0.0",
     "@storybook/addon-essentials": "^7.6.15",
     "@storybook/addon-interactions": "^7.6.16",
