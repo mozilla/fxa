@@ -350,7 +350,10 @@ module.exports = function (webpackEnv) {
           ]
         ),
       ],
-      fallback: { fs: false, path: false },
+      fallback: {
+        fs: false,
+        path: false,
+      },
     },
     module: {
       strictExportPresence: true,

@@ -9,6 +9,7 @@ import { AccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 import { Module } from '@nestjs/common';
 
 import { RootConfig } from './config';
+import { LocalizerServerFactory } from '@fxa/shared/l10n/server';
 
 @Module({
   imports: [
@@ -27,6 +28,11 @@ import { RootConfig } from './config';
     }),
   ],
   controllers: [],
-  providers: [AccountDatabaseNestFactory, CartService, CartManager],
+  providers: [
+    AccountDatabaseNestFactory,
+    CartService,
+    CartManager,
+    LocalizerServerFactory,
+  ],
 })
 export class AppModule {}

@@ -8,7 +8,6 @@ export const {
   signOut,
 } = NextAuth({
   ...authConfig,
-  debug: true,
   providers: [
     {
       id: 'fxa',

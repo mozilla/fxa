@@ -1,6 +1,5 @@
 import { Invoice } from '@fxa/payments/cart';
 import {
-  getBundle,
   getFormattedMsg,
   getLocalizedCurrency,
   getLocalizedCurrencyString,
@@ -9,6 +8,7 @@ import { FluentBundle } from '@fluent/bundle';
 import Image from 'next/image';
 import { formatPlanPricing } from '../utils/helpers';
 import '../../styles/index.css';
+import { app } from '@fxa/payments/ui/server';
 
 type ListLabelItemProps = {
   labelLocalizationId: string;
@@ -80,7 +80,9 @@ export async function PurchaseDetails(props: PurchaseDetailsProps) {
   // and then that instance is used for all requests.
   // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
   // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
-  const l10n = await getBundle([props.locale]);
+  //const l10n = await getBundle([props.locale]);
+  const localizer = await app.getLocalizerServer();
+  const l10n = localizer.getBundle(props.locale);
 
   return (
     <div className="component-card text-sm px-4 rounded-t-none tablet:rounded-t-lg">
