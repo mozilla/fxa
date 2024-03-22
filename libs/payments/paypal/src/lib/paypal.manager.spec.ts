@@ -62,6 +62,29 @@ describe('PaypalManager', () => {
     }
   });
 
+  describe('cancelBillingAgreement', () => {
+    it('cancels a billing agreement', async () => {
+      const billingAgreementId = faker.string.sample();
+
+      paypalClient.baUpdate = jest
+        .fn()
+        .mockResolvedValueOnce(NVPBAUpdateTransactionResponseFactory());
+
+      const result = await paypalManager.cancelBillingAgreement(
+        billingAgreementId
+      );
+      expect(result).toBeUndefined();
+      expect(paypalClient.baUpdate).toBeCalledWith({
+        billingAgreementId,
+        cancel: true,
+      });
+    });
+
+    it('throws an error', async () => {
+      expect(paypalManager.cancelBillingAgreement).rejects.toThrowError();
+    });
+  });
+
   describe('getBillingAgreement', () => {
     it('returns agreement details (active status)', async () => {
       const billingAgreementId = faker.string.sample();

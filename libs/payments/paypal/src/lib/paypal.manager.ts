@@ -24,6 +24,13 @@ export class PayPalManager {
   ) {}
 
   /**
+   * Cancels a billing agreement.
+   */
+  async cancelBillingAgreement(billingAgreementId: string): Promise<void> {
+    await this.client.baUpdate({ billingAgreementId, cancel: true });
+  }
+
+  /**
    * Get Billing Agreement details by calling the update Billing Agreement API.
    * Parses the API call response for country code and billing agreement status
    */
