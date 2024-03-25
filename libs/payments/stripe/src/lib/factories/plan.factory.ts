@@ -5,7 +5,9 @@
 import { faker } from '@faker-js/faker';
 import { StripePlan } from '../stripe.client.types';
 
-export const PlanFactory = (override?: Partial<StripePlan>): StripePlan => ({
+export const StripePlanFactory = (
+  override?: Partial<StripePlan>
+): StripePlan => ({
   id: `plan_${faker.string.alphanumeric({ length: 24 })}`,
   object: 'plan',
   active: true,

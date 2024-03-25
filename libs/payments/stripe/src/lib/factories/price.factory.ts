@@ -5,7 +5,9 @@
 import { faker } from '@faker-js/faker';
 import { StripePrice } from '../stripe.client.types';
 
-export const PriceFactory = (override?: Partial<StripePrice>): StripePrice => ({
+export const StripePriceFactory = (
+  override?: Partial<StripePrice>
+): StripePrice => ({
   id: `price_${faker.string.alphanumeric({ length: 24 })}`,
   object: 'price',
   active: true,
