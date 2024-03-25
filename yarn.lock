@@ -38262,7 +38262,6 @@ fsevents@~2.1.1:
     lodash.pick: 4.4.0
     luxon: ^2.5.2
     mailparser: 0.6.1
-    memcached: ^2.2.2
     mjml: ^4.13.0
     mjml-browser: ^4.15.3
     mocha: ^10.0.0

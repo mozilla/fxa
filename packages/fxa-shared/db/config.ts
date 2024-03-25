@@ -307,5 +307,43 @@ export function makeRedisConfig() {
         doc: 'Key prefix for custom server records in Redis',
       },
     },
+
+    metrics: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for storing metrics data (metricsContext)',
+        format: Boolean,
+        env: 'METRICS_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'METRICS_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'METRICS_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'METRICS_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to redis`,
+      },
+      prefix: {
+        default: 'metrics:',
+        env: 'METRICS_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for metrics records in Redis',
+      },
+      lifetime: {
+        default: 7200,
+        env: 'METRICS_REDIS_RECORD_LIFETIME',
+        format: Number,
+        doc: 'Default time that a metric record will be stored in Redis',
+      },
+    },
   };
 }

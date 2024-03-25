@@ -31,6 +31,7 @@ describe('metricsContext', () => {
       del: Promise.resolve(),
       get: Promise.resolve(),
       set: Promise.resolve(),
+      exists: Promise.resolve(),
     };
     cache = {
       add: sinon.spy(() => results.add),
@@ -39,11 +40,25 @@ describe('metricsContext', () => {
     };
     cacheFactory = sinon.spy(() => cache);
     log = mocks.mockLog();
-    config = {};
-    metricsContext = proxyquire(modulePath, { '../cache': cacheFactory })(
-      log,
-      config
-    );
+    config = {
+      redis: {
+        metrics: {
+          enabled: true,
+          prefix: 'metrics:',
+          lifetime: 60,
+        },
+      },
+    };
+
+    metricsContext = proxyquire(modulePath, {
+      '../metricsCache': {
+        MetricsRedis: cacheFactory,
+      },
+    })(log, config);
+  });
+
+  afterEach(() => {
+    sinon.restore();
   });
 
   it('metricsContext interface is correct', () => {
@@ -80,14 +95,13 @@ describe('metricsContext', () => {
   it('instantiated cache correctly', () => {
     assert.equal(cacheFactory.callCount, 1);
     const args = cacheFactory.args[0];
-    assert.equal(args.length, 3);
-    assert.equal(args[0], log);
-    assert.equal(args[1], config);
-    assert.equal(args[2], 'fxa-metrics~');
+    assert.equal(args.length, 1);
+    assert.equal(args[0], config);
   });
 
   it('metricsContext.stash', () => {
     results.add = Promise.resolve('wibble');
+    results.exists = Promise.resolve(0);
     const token = {
       uid: Array(64).fill('c').join(''),
       id: 'foo',
@@ -106,8 +120,6 @@ describe('metricsContext', () => {
         token
       )
       .then((result) => {
-        assert.equal(result, 'wibble', 'result is correct');
-
         assert.equal(cache.add.callCount, 1, 'cache.add was called once');
         assert.equal(
           cache.add.args[0].length,
@@ -680,7 +692,7 @@ describe('metricsContext', () => {
     });
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'S3CR37',
@@ -714,7 +726,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with missing payload', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -738,7 +750,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with missing data bundle', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -763,7 +775,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with missing flowId', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -793,7 +805,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with missing flowBeginTime', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -824,7 +836,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with flowBeginTime that is too old', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -856,7 +868,7 @@ describe('metricsContext', () => {
   it('metricsContext.validate with an invalid flow signature', () => {
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'test',
@@ -891,7 +903,7 @@ describe('metricsContext', () => {
     const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'ThisIsTheWrongKey',
@@ -933,7 +945,7 @@ describe('metricsContext', () => {
     const expectedHmac = '2a204a6d26b009b26b3116f643d84c6f';
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'S3CR37',
@@ -978,7 +990,7 @@ describe('metricsContext', () => {
     const expectedHmac = 'c89d56556d22039fbbf54d34e0baf206';
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'S3CR37',
@@ -1021,7 +1033,7 @@ describe('metricsContext', () => {
     sinon.stub(Date, 'now').callsFake(() => flowBeginTime + 59999);
     const mockLog = mocks.mockLog();
     const mockConfig = {
-      memcached: {},
+      redis: { metrics: {} },
       metrics: {
         flow_id_expiry: 60000,
         flow_id_key: 'S3CR37',

@@ -8,6 +8,7 @@ const bufferEqualConstantTime = require('buffer-equal-constant-time');
 const crypto = require('crypto');
 const HEX_STRING = require('../routes/validators').HEX_STRING;
 const isA = require('joi');
+const { MetricsRedis } = require('../metricsCache');
 
 const FLOW_ID_LENGTH = 64;
 
@@ -50,7 +51,7 @@ const SCHEMA = isA
   .and('flowId', 'flowBeginTime');
 
 module.exports = function (log, config) {
-  const cache = require('../cache')(log, config, 'fxa-metrics~');
+  const cache = new MetricsRedis(config);
 
   return {
     stash,
