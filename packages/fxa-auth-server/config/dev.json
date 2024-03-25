@@ -188,7 +188,8 @@
       "5882386c6d801776": "firefox-desktop",
       "98e6508e88680e1a": "fxa-settings",
       "7377719276ad44ee": "pocket-mobile",
-      "749818d3f2e7857f": "pocket-web"
+      "749818d3f2e7857f": "pocket-web",
+      "a958794159236f76": "thunderbird"
     },
     "clients": [
       {
@@ -379,6 +380,17 @@
         "publicClient": true
       },
       {
+        "name": "Thunderbird",
+        "id": "a958794159236f76",
+        "hashedSecret": "4cc7c40ddc178fd4337a804ded2abfa9a9db89fc257a71afeabb1561e2b14bbc",
+        "imageUri": "",
+        "redirectUri": "urn:ietf:wg:oauth:2.0:oob",
+        "allowedScopes": "https://identity.thunderbird.net/apps/sync",
+        "trusted": true,
+        "canGrant": true,
+        "publicClient": true
+      },
+      {
         "id": "d15ab1edd15ab1ed",
         "hashedSecret": "289a885946ee316844d9ffd0d725ee714901548a1e6507f1a40fb3c2ae0c99f1",
         "name": "Disabled Client",
@@ -397,7 +409,8 @@
         "98e6508e88680e1a",
         "dcdb5ae7add825d2",
         "325b4083e32fe8e7",
-        "5882386c6d801776"
+        "5882386c6d801776",
+        "a958794159236f76"
       ]
     },
     "openid": {
@@ -434,6 +447,10 @@
       },
       {
         "scope": "https://identity.mozilla.com/apps/send",
+        "hasScopedKeys": true
+      },
+      {
+        "scope": "https://identity.thunderbird.net/apps/sync",
         "hasScopedKeys": true
       }
     ]
