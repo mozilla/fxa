@@ -21,6 +21,28 @@ export class StripeManager {
   constructor(private client: StripeClient) {}
 
   /**
+   * Returns minimum amount for valid currency
+   * Throws error for invalid currency
+   *
+   * @param currency
+   * @returns
+   */
+  getMinimumAmount(currency: string): number {
+    if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
+      return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
+    }
+
+    throw new SubscriptionStripeError();
+  }
+
+  /**
+   * Returns the correct tax id for currency
+   */
+  getTaxIdForCurrency(currency: string) {
+    return this.client.taxIds[currency.toUpperCase() ?? ''];
+  }
+
+  /**
    * Retrieves a customer record
    */
   async fetchActiveCustomer(customerId: string) {
@@ -36,18 +58,6 @@ export class StripeManager {
     return this.client.finalizeInvoice(invoiceId, {
       auto_advance: false,
     });
-  }
-
-  /**
-   * Returns minimum amount for valid currency
-   * Throws error for invalid currency
-   */
-  getMinimumAmount(currency: string): number {
-    if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
-      return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
-    }
-
-    throw new SubscriptionStripeError();
   }
 
   /**

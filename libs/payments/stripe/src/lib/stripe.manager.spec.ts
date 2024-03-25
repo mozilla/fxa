@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test, TestingModule } from '@nestjs/testing';
+import { faker } from '@faker-js/faker';
 
 import { CustomerFactory } from './factories/customer.factory';
 import { InvoiceFactory } from './factories/invoice.factory';
@@ -18,7 +19,10 @@ describe('StripeManager', () => {
   let mockClient: StripeClient;
 
   beforeEach(async () => {
-    mockClient = new StripeClient({} as any);
+    mockClient = new StripeClient({
+      apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -73,6 +77,22 @@ describe('StripeManager', () => {
       expect(() => manager.getMinimumAmount('fake')).toThrow(
         'Currency does not have a minimum charge amount available.'
       );
+    });
+  });
+
+  describe('getTaxIdForCurrency', () => {
+    it('returns the correct tax id for currency', async () => {
+      const mockCurrency = 'eur';
+
+      const result = manager.getTaxIdForCurrency(mockCurrency);
+      expect(result).toEqual('EU1234');
+    });
+
+    it('returns empty string when no  tax id found', async () => {
+      const mockCurrency = faker.finance.currencyCode();
+
+      const result = manager.getTaxIdForCurrency(mockCurrency);
+      expect(result).toEqual(undefined);
     });
   });
 

@@ -14,6 +14,7 @@ describe('StripeClient', () => {
   beforeEach(() => {
     mockClient = new StripeClient({
       apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
     });
   });
 
