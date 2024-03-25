@@ -16,7 +16,8 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.signOut();
 
       await relier.goto();
@@ -33,7 +34,8 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
 
       await settings.totp.clickDisable();
       await settings.clickModalConfirm();

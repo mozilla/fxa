@@ -110,7 +110,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Toggle switch, verify the alert bar appears and its status
       await settings.dataCollection.toggleShareData('off');
-      expect(await settings.alertBarText()).toContain('Opt out successful.');
+      await expect(settings.alertBar).toHaveText(/Opt out successful/);
       expect(await settings.dataCollection.getToggleStatus()).toBe('false');
 
       // Subscribe to plan and verify URL does not include flow parameter

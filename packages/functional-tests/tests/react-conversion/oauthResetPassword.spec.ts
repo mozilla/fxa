@@ -189,7 +189,8 @@ test.describe('severity-1 #smoke', () => {
   async function addTotpFlow({ credentials, pages: { totp, settings } }) {
     await settings.goto();
     await settings.totp.clickAdd();
-    await totp.enable(credentials);
+    const { secret } = await totp.fillTwoStepAuthenticationForm();
+    credentials.secret = secret;
   }
 
   /**

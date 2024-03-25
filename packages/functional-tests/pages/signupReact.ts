@@ -65,22 +65,14 @@ export class SignupReactPage extends BaseLayout {
   }
 
   async fillOutEmailForm(email: string) {
-    await expect(
-      this.emailFormHeading,
-      'The Email form heading is missing or not as expected. ' +
-        'Are you filling out the right form?'
-    ).toBeVisible();
+    await expect(this.emailFormHeading).toBeVisible();
 
     await this.emailTextbox.fill(email);
     await this.submitButton.click();
   }
 
   async fillOutSignupForm(password: string, age: string) {
-    await expect(
-      this.signupFormHeading,
-      'The Signup form heading is missing or not as expected. ' +
-        'Are you filling out the right form?'
-    ).toBeVisible();
+    await expect(this.signupFormHeading).toBeVisible();
 
     await this.passwordTextbox.fill(password);
     await this.verifyPasswordTextbox.fill(password);
@@ -95,11 +87,7 @@ export class SignupReactPage extends BaseLayout {
       EmailHeader.shortCode
     );
 
-    await expect(
-      this.codeFormHeading,
-      'The Confirmation Code form heading is missing or not as expected. ' +
-        'Are you filling out the right form?'
-    ).toBeVisible();
+    await expect(this.codeFormHeading).toBeVisible();
 
     await this.codeTextbox.fill(code);
     await this.confirmButton.click();

@@ -145,7 +145,7 @@ test.describe('severity-1 #smoke', () => {
         await signupReact.fillOutCodeForm(newEmail);
       }
 
-      expect(await settings.alertBarText()).toContain(
+      await expect(settings.alertBar).toHaveText(
         'Account confirmed successfully'
       );
       const primaryEmail = await settings.primaryEmail.statusText();
