@@ -89,7 +89,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signup_verified',
         'oauth/signup',
       ]),
-      fullProdRollout: true,
+      fullProdRollout: false,
     },
 
     pairRoutes: {

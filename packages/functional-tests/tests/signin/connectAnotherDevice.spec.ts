@@ -29,7 +29,12 @@ test.describe('severity-2 #smoke', () => {
       );
 
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
+        `${
+          target.contentServerUrl
+        }?context=fx_desktop_v3&service=sync&action=email${
+          config.showReactApp.signUpRoutes &&
+          '&forceExperiment=generalizedReactApp&forceExperimentGroup=react'
+        }`,
         { waitUntil: 'load' }
       );
 

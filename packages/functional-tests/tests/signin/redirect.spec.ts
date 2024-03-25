@@ -11,8 +11,13 @@ test.describe('severity-2 #smoke', () => {
     test.beforeEach(
       async ({ credentials, pages: { settings, login, configPage } }) => {
         const config = await configPage.getConfig();
-        signUpReactEnabled = config.showReactApp.signUpRoutes === true;
+        // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
+        // to `true`, but when we're only at 15% and the flag is "on", URLs need to have
+        // the force experiment params. Since we'll be porting these over for React, for now,
+        // skip these tests if the flag is on.
+        test.skip(config.showReactApp.signUpRoutes === true);
 
+        signUpReactEnabled = config.showReactApp.signUpRoutes === true;
         await settings.goto();
         await settings.signOut();
         await login.login(credentials.email, credentials.password);

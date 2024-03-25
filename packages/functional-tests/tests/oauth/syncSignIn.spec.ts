@@ -10,8 +10,14 @@ let email;
 let email2;
 
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async ({ target }) => {
+  test.beforeEach(async ({ pages: { configPage }, target }) => {
     test.slow();
+    // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
+    // to `true`, but when we're only at 15% and the flag is "on", flows would need to
+    // be accessed with the force experiment params. Since we'll be porting these over
+    // for React, for now, skip these tests if the flag is on.
+    const config = await configPage.getConfig();
+    test.skip(config.showReactApp.signUpRoutes === true);
   });
 
   test.describe('signin with OAuth after Sync', () => {

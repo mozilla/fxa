@@ -121,6 +121,11 @@ test.describe('severity-1 #smoke', () => {
       pages: { configPage, deleteAccount, login, signupReact, settings },
     }) => {
       const config = await configPage.getConfig();
+      // NOTE: This passes for React when `fullProdRollout` for React Signup is set
+      // to `true`, but when we're only at 15% and the flag is "on", flows would need to
+      // be accessed with the force experiment params. Since we'll be porting these over
+      // for React, for now, skip these tests if the flag is on.
+      test.skip(config.showReactApp.signUpRoutes === true);
 
       // Click delete account
       await settings.clickDeleteAccount();
