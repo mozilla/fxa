@@ -6,6 +6,10 @@ export abstract class SettingsLayout extends BaseLayout {
     return this.page.locator('[data-testid="drop-down-bento-menu"]');
   }
 
+  get alertBar() {
+    return this.page.getByTestId('alert-bar-content');
+  }
+
   get avatarDropDownMenu() {
     return this.page.getByTestId('drop-down-avatar-menu');
   }
@@ -24,11 +28,6 @@ export abstract class SettingsLayout extends BaseLayout {
 
   goto(query?: string) {
     return super.goto('load', query);
-  }
-
-  async alertBarText() {
-    const alert = this.page.locator('[data-testid=alert-bar-content]');
-    return alert.textContent();
   }
 
   async waitForAlertBar() {

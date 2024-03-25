@@ -67,6 +67,18 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('data-collection', DataCollectionRow);
   }
 
+  get settingsHeading() {
+    return this.page.getByRole('heading', { name: 'Settings' });
+  }
+
+  get twoStepAuthenticationStatus() {
+    return this.page.getByTestId('two-step-unit-row-header-value');
+  }
+
+  get addTwoStepAuthenticationButton() {
+    return this.page.getByTestId('two-step-unit-row-route');
+  }
+
   clickDeleteAccount() {
     return Promise.all([
       this.page.locator('[data-testid=settings-delete-account]').click(),

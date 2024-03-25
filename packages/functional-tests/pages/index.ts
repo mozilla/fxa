@@ -23,6 +23,7 @@ import { LegalPage } from './legal';
 import { CookiesDisabledPage } from './cookiesDisabled';
 import { PostVerifyPage } from './postVerify';
 import { ResetPasswordReactPage } from './resetPasswordReact';
+import { SigninReactPage } from './signinReact';
 import { SignupReactPage } from './signupReact';
 import { ConfigPage } from './config';
 import { PrivacyPage } from './privacy';
@@ -53,6 +54,7 @@ export function create(page: Page, target: BaseTarget) {
     legal: new LegalPage(page, target),
     cookiesDisabled: new CookiesDisabledPage(page, target),
     postVerify: new PostVerifyPage(page, target),
+    signinReact: new SigninReactPage(page, target),
     signupReact: new SignupReactPage(page, target),
     configPage: new ConfigPage(page, target),
     privacy: new PrivacyPage(page, target),

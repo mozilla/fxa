@@ -156,7 +156,8 @@ test.describe('severity-2 #smoke', () => {
 
       await settings.goto();
       await settings.totp.clickAdd();
-      await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.signOut();
 
       // Sync sign in

@@ -6,47 +6,76 @@ import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
-    test.beforeEach(async () => {
+    test.beforeEach(async ({}) => {
       test.slow();
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293446
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
-    // FXA-9178
-    // eslint-disable-next-line playwright/no-skipped-test
-    test.skip('add and remove totp', async ({
+    test('add totp', async ({
       credentials,
       target,
-      pages: { settings, totp, page, signupReact },
+      pages: { settings, totp, page, signinReact, signupReact },
     }) => {
       await settings.goto();
-      let status = await settings.totp.statusText();
-      expect(status).toEqual('Not Set');
-      await settings.totp.clickAdd();
-      const { secret } = await totp.enable(credentials);
-      await settings.waitForAlertBar();
-      status = await settings.totp.statusText();
-      expect(status).toEqual('Enabled');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
+
+      await settings.addTwoStepAuthenticationButton.click();
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication enabled'
+      );
+      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
 
       await settings.signOut();
-
       await page.goto(
         `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
+      await signupReact.fillOutEmailForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+      const code = await totp.getNextCode(credentials.secret);
+      await signinReact.fillOutAuthenticationForm(code);
 
-      await signupReact.fillOutEmailFirst(credentials.email);
-      await page.fill('[name="password"]', credentials.password);
-      await page.click('[type="submit"]');
+      await expect(page).toHaveURL(/settings/);
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
+    });
+
+    test('error message when totp code is invalid', async ({
+      credentials,
+      target,
+      pages: { settings, totp, page, signinReact, signupReact },
+    }) => {
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
+
+      await settings.addTwoStepAuthenticationButton.click();
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication enabled'
+      );
+      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
+
+      await settings.signOut();
+      await page.goto(
+        `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
+      await signupReact.fillOutEmailForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
       await page.waitForURL(/signin_totp_code/);
-      await page.waitForSelector('#root');
-      await page.fill('[name="code"]', '111111');
-      await page.click('[type="submit"]');
-      page.getByText('Invalid two-step authentication code');
+      await signinReact.fillOutAuthenticationForm('111111');
 
-      const code = await totp.getNextCode(secret);
-      await page.fill('[name="code"]', code);
-      await page.click('[type="submit"]');
-      await page.waitForURL(/settings/);
+      await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(
+        'Invalid two-step authentication code'
+      );
     });
   });
 });

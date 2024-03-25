@@ -22,7 +22,8 @@ test.describe('severity-1 #smoke', () => {
       let status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
       await settings.totp.clickAdd();
-      await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.waitForAlertBar();
       status = await settings.totp.statusText();
       expect(status).toEqual('Enabled');
@@ -49,7 +50,8 @@ test.describe('severity-1 #smoke', () => {
       let status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
       await settings.totp.clickAdd();
-      await totp.enable(credentials, 'qr');
+      const { secret } = await totp.fillTwoStepAuthenticationForm('qr');
+      credentials.secret = secret;
       await settings.waitForAlertBar();
       status = await settings.totp.statusText();
       expect(status).toEqual('Enabled');
@@ -62,7 +64,8 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
       await login.setTotp(credentials.secret);
@@ -78,7 +81,9 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      const { recoveryCodes } = await totp.enable(credentials);
+      const { secret, recoveryCodes } =
+        await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.totp.clickChange();
       await settings.clickModalConfirm();
       const newCodes = await totp.getRecoveryCodes();
@@ -86,8 +91,8 @@ test.describe('severity-1 #smoke', () => {
         expect(newCodes).not.toContain(code);
       }
       await settings.clickRecoveryCodeAck();
-      await totp.setRecoveryCode(newCodes[0]);
-      await totp.submit();
+      await totp.step3RecoveryCodeTextbox.fill(newCodes[0]);
+      await totp.step3FinishButton.click();
       await settings.waitForAlertBar();
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
@@ -113,7 +118,9 @@ test.describe('severity-1 #smoke', () => {
     }, { project }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      const { recoveryCodes } = await totp.enable(credentials);
+      const { secret, recoveryCodes } =
+        await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.signOut();
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
         await login.login(
@@ -148,10 +155,11 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      const { secret } = await totp.enable(credentials);
+      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
-      await login.setTotp(secret);
+      await login.setTotp(credentials.secret);
       await settings.clickDeleteAccount();
       await deleteAccount.checkAllBoxes();
       await deleteAccount.clickContinue();

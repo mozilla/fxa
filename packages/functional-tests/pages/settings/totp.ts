@@ -1,15 +1,68 @@
 import jsQR from 'jsqr';
 import UPNG from 'upng-js';
+import { expect } from '../../lib/fixtures/standard';
 import { SettingsLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { DataTrioComponent } from './components/dataTrio';
-import { Credentials } from '../../lib/targets';
+
+export type TotpCredentials = {
+  secret: string;
+  recoveryCodes: string[];
+};
 
 export class TotpPage extends SettingsLayout {
   readonly path = 'settings/two_step_authentication';
 
   get dataTrio() {
     return new DataTrioComponent(this.page);
+  }
+
+  get twoStepAuthenticationHeading() {
+    return this.page.getByRole('heading', { name: 'Two-step authentication' });
+  }
+
+  get step1Heading() {
+    return this.page.getByRole('heading', { name: 'Step 1 of 3' });
+  }
+
+  get step1CantScanCodeLink() {
+    return this.page.getByTestId('cant-scan-code');
+  }
+
+  get step1ManualCode() {
+    return this.page.getByTestId('manual-code');
+  }
+
+  get step1AuthenticationCodeTextbox() {
+    return this.page.getByTestId('totp-input-label');
+  }
+
+  get step1SubmitButton() {
+    return this.page.getByTestId('submit-totp');
+  }
+
+  get step2Heading() {
+    return this.page.getByRole('heading', { name: 'Step 2 of 3' });
+  }
+
+  get step2recoveryCodes() {
+    return this.page.getByTestId('datablock');
+  }
+
+  get step2ContinueButton() {
+    return this.page.getByTestId('ack-recovery-code');
+  }
+
+  get step3Heading() {
+    return this.page.getByRole('heading', { name: 'Step 3 of 3' });
+  }
+
+  get step3FinishButton() {
+    return this.page.getByTestId('submit-recovery-code');
+  }
+
+  get step3RecoveryCodeTextbox() {
+    return this.page.getByTestId('recovery-code-input-field');
   }
 
   async useQRCode() {
@@ -39,66 +92,39 @@ export class TotpPage extends SettingsLayout {
     return await getCode(secret);
   }
 
-  async useManualCode() {
-    await this.page.click('[data-testid=cant-scan-code]');
-    const secret = (
-      await this.page.innerText('[data-testid=manual-code]')
-    ).replace(/\s/g, '');
+  async useManualCode(): Promise<string> {
+    await this.step1CantScanCodeLink.click();
+    const secret = (await this.step1ManualCode.innerText())?.replace(/\s/g, '');
     const code = await getCode(secret);
-    await this.page.fill('input[type=text]', code);
+    await this.step1AuthenticationCodeTextbox.fill(code);
     return secret;
   }
 
-  submit() {
-    return this.page.click('button[type=submit]');
-  }
-
-  clickClose() {
-    return Promise.all([
-      this.page.locator('[data-testid=close-button]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
-  }
-
   async getRecoveryCodes(): Promise<string[]> {
-    await this.page.waitForSelector('[data-testid=datablock]');
-    return this.page.$$eval('[data-testid=datablock] span', (elements) =>
-      elements.map((el) => (el as HTMLElement).innerText)
-    );
+    const codesRaw = await this.step2recoveryCodes.textContent();
+    return codesRaw ? codesRaw.trim().split(/\s+/) : [];
   }
 
-  setRecoveryCode(code: string) {
-    return this.page.fill('[data-testid=recovery-code-input-field]', code);
-  }
+  async fillTwoStepAuthenticationForm(
+    method: 'qr' | 'manual' = 'manual'
+  ): Promise<TotpCredentials> {
+    await expect(this.twoStepAuthenticationHeading).toBeVisible();
+    await expect(this.step1Heading).toBeVisible();
 
-  async enable(credentials: Credentials, method: 'qr' | 'manual' = 'manual') {
-    await this.waitForStep(1, 3);
     const secret =
       method === 'qr' ? await this.useQRCode() : await this.useManualCode();
-    await this.submit();
-    await this.waitForStep(2, 3);
+    await this.step1SubmitButton.click();
+
+    await expect(this.step2Heading).toBeVisible();
+
     const recoveryCodes = await this.getRecoveryCodes();
-    await this.submit();
-    await this.waitForStep(3, 3);
-    await this.setRecoveryCode(recoveryCodes[0]);
-    await this.submit();
-    await this.waitForEnabled();
-    if (credentials) {
-      credentials.secret = secret === null ? undefined : secret;
-    }
-    return {
-      secret,
-      recoveryCodes,
-    };
-  }
+    await this.step2ContinueButton.click();
 
-  async waitForStep(step: number, of: number) {
-    await this.page.getByText(`STEP ${step} of ${of}`).waitFor();
-  }
+    await expect(this.step3Heading).toBeVisible();
 
-  async waitForEnabled() {
-    await this.page
-      .getByTestId(`two-step-disable-button-unit-row-modal`)
-      .waitFor();
+    await this.step3RecoveryCodeTextbox.fill(recoveryCodes[0]);
+    await this.step3FinishButton.click();
+
+    return { secret, recoveryCodes };
   }
 }

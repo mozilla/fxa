@@ -19,7 +19,7 @@ test.describe('severity-1 #smoke', () => {
     await settings.closeAlertBar();
     await settings.secondaryEmail.clickDelete();
     await settings.waitForAlertBar();
-    expect(await settings.alertBarText()).toContain('successfully deleted');
+    await expect(settings.alertBar).toHaveText(/successfully deleted/);
     await settings.secondaryEmail.clickAdd();
     await secondaryEmail.setEmail(newEmail);
     await secondaryEmail.submit();
@@ -28,7 +28,7 @@ test.describe('severity-1 #smoke', () => {
     expect(await settings.secondaryEmail.statusText()).toContain('UNCONFIRMED');
     await settings.secondaryEmail.clickDelete();
     await settings.waitForAlertBar();
-    expect(await settings.alertBarText()).toContain('successfully deleted');
+    await expect(settings.alertBar).toHaveText(/successfully deleted/);
   });
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293504
