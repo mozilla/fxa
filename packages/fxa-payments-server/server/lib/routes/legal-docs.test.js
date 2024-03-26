@@ -17,7 +17,6 @@ jest.mock('@sentry/node', () => ({
   ...jest.requireActual('@sentry/node'),
   ...mockSentry,
 }));
-const Sentry = require('@sentry/node');
 
 const legalDocsRoute = require('./legal-docs');
 const validUrl = 'https://accounts-static.cdn.mozilla.net/vpn';

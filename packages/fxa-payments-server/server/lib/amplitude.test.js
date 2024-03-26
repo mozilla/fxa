@@ -39,7 +39,6 @@ jest.mock('@sentry/node', () => ({
   ...jest.requireActual('@sentry/node'),
   ...mockSentry,
 }));
-const Sentry = require('@sentry/node');
 const { Container } = require('typedi');
 const { StatsD } = require('hot-shots');
 jest.mock('../config', () => ({
