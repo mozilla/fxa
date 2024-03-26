@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Stripe } from 'stripe';
+import { StripeCard } from '../stripe.client.types';
 
-export const CardFactory = (override?: Partial<Stripe.Card>): Stripe.Card => ({
+export const CardFactory = (override?: Partial<StripeCard>): StripeCard => ({
   id: 'card',
   object: 'card',
   address_city: faker.location.city(),

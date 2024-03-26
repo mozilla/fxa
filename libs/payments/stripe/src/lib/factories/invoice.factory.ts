@@ -3,12 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Stripe } from 'stripe';
 import { InvoiceLineItemFactory } from './invoice-line-item.factory';
+import { StripeInvoice } from '../stripe.client.types';
 
 export const InvoiceFactory = (
-  override?: Partial<Stripe.Invoice>
-): Stripe.Invoice => ({
+  override?: Partial<StripeInvoice>
+): StripeInvoice => ({
   id: `in_${faker.string.alphanumeric({ length: 24 })}`,
   object: 'invoice',
   account_country: null,

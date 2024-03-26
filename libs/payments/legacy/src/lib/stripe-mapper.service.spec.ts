@@ -61,10 +61,9 @@ describe('StripeMapperService', () => {
       const validMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const stripePlan = PlanFactory({
-        product: ProductFactory({
-          metadata: validMetadata,
-        }),
+      const stripePlan = PlanFactory() as Stripe.Plan;
+      stripePlan.product = ProductFactory({
+        metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
@@ -89,10 +88,9 @@ describe('StripeMapperService', () => {
       const validMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const stripePlan = PlanFactory({
-        product: ProductFactory({
-          metadata: validMetadata,
-        }),
+      const stripePlan = PlanFactory() as Stripe.Plan;
+      stripePlan.product = ProductFactory({
+        metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
@@ -121,10 +119,10 @@ describe('StripeMapperService', () => {
         webIconURL: 'https://plan.override/emailIcon',
       });
       const stripePlan = PlanFactory({
-        product: ProductFactory({
-          metadata: validMetadata,
-        }),
         metadata: planOverrideMetadata,
+      }) as Stripe.Plan;
+      stripePlan.product = ProductFactory({
+        metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
@@ -147,10 +145,9 @@ describe('StripeMapperService', () => {
         productSet: 'set',
         productOrder: 'order',
       };
-      const stripePlan = PlanFactory({
-        product: ProductFactory({
-          metadata: productMetadata,
-        }),
+      const stripePlan = PlanFactory() as Stripe.Plan;
+      stripePlan.product = ProductFactory({
+        metadata: productMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
@@ -190,18 +187,18 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const stripePlan1 = PlanFactory({
-        product,
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in English',
         }),
-      });
+      }) as Stripe.Plan;
+      stripePlan1.product = product;
       const stripePlan2 = PlanFactory({
-        product,
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
         }),
-      });
+      }) as Stripe.Plan;
+      stripePlan2.product = product;
 
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
@@ -243,18 +240,18 @@ describe('StripeMapperService', () => {
         metadata: productMetadata,
       });
       const stripePlan1 = PlanFactory({
-        product,
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in German',
         }),
-      });
+      }) as Stripe.Plan;
+      stripePlan1.product = product;
       const stripePlan2 = PlanFactory({
-        product,
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
         }),
-      });
+      }) as Stripe.Plan;
+      stripePlan2.product = product;
 
       const { mappedPlans, nonMatchingPlans } =
         await stripeMapper.mapContentfulToStripePlans(
