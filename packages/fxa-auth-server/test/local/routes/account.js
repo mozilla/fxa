@@ -10,6 +10,7 @@ const assert = { ...sinon.assert, ...require('chai').assert };
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 const proxyquire = require('proxyquire');
+const { AccountTasks, ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 const uuid = require('uuid');
 const crypto = require('crypto');
@@ -19,10 +20,7 @@ const otplib = require('otplib');
 const { Container } = require('typedi');
 const { CapabilityService } = require('../../../lib/payments/capability');
 const { AccountEventsManager } = require('../../../lib/account-events');
-const {
-  AccountDeleteManager,
-  ReasonForDeletionOptions,
-} = require('../../../lib/account-delete');
+const { AccountDeleteManager } = require('../../../lib/account-delete');
 const { normalizeEmail } = require('fxa-shared').email.helpers;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const {
@@ -44,7 +42,11 @@ function hexString(bytes) {
   return crypto.randomBytes(bytes).toString('hex');
 }
 
-const mockAccountQuickDelete = sinon.fake.resolves();
+let mockAccountQuickDelete = sinon.fake.resolves();
+let mockAccountTasksDeleteAccount = sinon.fake(async (...args) => {});
+const mockGetAccountCustomerByUid = sinon.fake.resolves({
+  stripeCustomerId: 'customer123',
+});
 
 const makeRoutes = function (options = {}, requireMocks = {}) {
   Container.set(CapabilityService, options.capabilityService || sinon.fake);
@@ -95,10 +97,12 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     options.verificationReminders || mocks.mockVerificationReminders();
   const subscriptionAccountReminders =
     options.subscriptionAccountReminders || mocks.mockVerificationReminders();
-  const { accountRoutes } = proxyquire(
-    '../../../lib/routes/account',
-    requireMocks || {}
-  );
+  const { accountRoutes } = proxyquire('../../../lib/routes/account', {
+    ...(requireMocks || {}),
+    'fxa-shared/db/models/auth': {
+      getAccountCustomerByUid: mockGetAccountCustomerByUid,
+    },
+  });
   const signupUtils =
     options.signupUtils ||
     require('../../../lib/routes/utils/signup')(
@@ -116,11 +120,20 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     ...(options.oauth || {}),
   };
 
+  mockAccountTasksDeleteAccount = sinon.fake.resolves();
+  const accountTasks = {
+    deleteAccount: mockAccountTasksDeleteAccount,
+    queueEnabled: true,
+  };
+  Container.set(AccountTasks, accountTasks);
+
   // We have to do some redirection with proxyquire because dependency
   // injection changes the class
   const AccountDeleteManagerMock = proxyquire('../../../lib/account-delete', {
-    'fxa-shared/db/models/auth':
-      requireMocks['fxa-shared/db/models/auth'] || {},
+    'fxa-shared/db/models/auth': {
+      ...(requireMocks['fxa-shared/db/models/auth'] || {}),
+      getAccountCustomerByUid: mockGetAccountCustomerByUid,
+    },
   });
   const accountManagerMock = new AccountDeleteManagerMock.AccountDeleteManager({
     fxaDb: db,
@@ -128,10 +141,11 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
     config,
     push,
     pushbox,
-    statsd: { increment: sinon.fake.returns({}) },
+  });
+  mockAccountQuickDelete = sinon.fake(async (...args) => {
+    return {};
   });
   accountManagerMock.quickDelete = mockAccountQuickDelete;
-  mockAccountQuickDelete.resetHistory();
   Container.set(AccountDeleteManager, accountManagerMock);
 
   return accountRoutes(
@@ -3810,7 +3824,7 @@ describe('/account/destroy', () => {
     return getRoute(accountRoutes, '/account/destroy');
   }
 
-  it('should delete the account', () => {
+  it('should delete the account and enqueue account task', () => {
     const route = buildRoute();
 
     return runTest(route, mockRequest, () => {
@@ -3823,11 +3837,43 @@ describe('/account/destroy', () => {
         userAgent: 'test user-agent',
         uid: uid,
       });
+
       sinon.assert.calledOnceWithExactly(
         mockAccountQuickDelete,
         uid,
-        ReasonForDeletionOptions.UserRequested
+        ReasonForDeletion.UserRequested
       );
+
+      sinon.assert.calledOnceWithExactly(mockGetAccountCustomerByUid, uid);
+      sinon.assert.calledOnceWithExactly(mockAccountTasksDeleteAccount, {
+        uid,
+        customerId: 'customer123',
+        reason: ReasonForDeletion.UserRequested,
+      });
+    });
+  });
+
+  it('should delete the account and enqueue account task on error', () => {
+    const route = buildRoute();
+
+    // Here we act like there's an error when calling accountDeleteManager.quickDelete(...)
+    mockAccountQuickDelete = sinon.fake.rejects();
+
+    return runTest(route, mockRequest, () => {
+      sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
+      sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
+        country: 'United States',
+        event: 'account.deleted',
+        region: 'California',
+        service: undefined,
+        userAgent: 'test user-agent',
+        uid: uid,
+      });
+      sinon.assert.calledOnceWithExactly(mockAccountTasksDeleteAccount, {
+        uid,
+        customerId: 'customer123',
+        reason: ReasonForDeletion.UserRequested,
+      });
     });
   });
 
@@ -3846,7 +3892,7 @@ describe('/account/destroy', () => {
       sinon.assert.calledOnceWithExactly(
         mockAccountQuickDelete,
         uid,
-        ReasonForDeletionOptions.UserRequested
+        ReasonForDeletion.UserRequested
       );
     });
   });
