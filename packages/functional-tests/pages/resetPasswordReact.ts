@@ -8,6 +8,12 @@ export class ResetPasswordReactPage extends BaseLayout {
     return this.page.goto(getReactFeatureFlagUrl(this.target, route, query));
   }
 
+  get generateRecoveryKeyButton() {
+    return this.page.getByRole('button', {
+      name: 'Generate a new account recovery key',
+    });
+  }
+
   // page can be passed in as an optional prop - useful when a test uses more than one page
   getEmailValue(page: BaseLayout['page'] = this.page) {
     return page.getByRole('textbox', { name: 'Email' }).inputValue();

@@ -201,13 +201,13 @@ test.describe('severity-1 #smoke', () => {
     pages: { settings, recoveryKey },
   }) {
     await settings.goto();
-    await settings.recoveryKey.clickCreate();
-    await recoveryKey.clickStart();
+    await settings.accountRecoveryKeyCreateButton.click();
+    await recoveryKey.getStartedButton.click();
     await recoveryKey.setPassword(credentials.password);
-    await recoveryKey.clickCreateAccountRecoveryKey();
-    const accountRecoveryKey = await recoveryKey.getKey();
-    await recoveryKey.clickNext();
-    await recoveryKey.clickFinish();
+    await recoveryKey.createKeyButton.click();
+    const accountRecoveryKey = await recoveryKey.recoveryKey.innerText();
+    await recoveryKey.continueWithoutDownloadingLink.click();
+    await recoveryKey.finishButton.click();
 
     return accountRecoveryKey;
   }

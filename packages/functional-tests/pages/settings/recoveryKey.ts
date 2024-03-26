@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { SettingsLayout } from './layout';
 import { DataTrioComponent } from './components/dataTrio';
 
@@ -6,6 +7,73 @@ export class RecoveryKeyPage extends SettingsLayout {
 
   get dataTrio() {
     return new DataTrioComponent(this.page);
+  }
+
+  get accountRecoveryKeyHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Account Recovery Key',
+      exact: true,
+    });
+  }
+
+  get createRecoveryKeyHeading() {
+    return this.page.getByRole('heading', {
+      name: /^Create an account recovery key/,
+    });
+  }
+
+  get getStartedButton() {
+    return this.page.getByRole('button', { name: 'Get started' });
+  }
+
+  get passwordHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Re-enter your password for security',
+    });
+  }
+
+  get createKeyPasswordTextbox() {
+    return this.page.getByRole('textbox', { name: 'password' });
+  }
+
+  get createKeyButton() {
+    return this.page.getByRole('button', {
+      name: 'Create account recovery key',
+    });
+  }
+
+  get recoveryKeyCreatedHeading() {
+    return this.page.getByRole('heading', {
+      name: /^Account recovery key created/,
+    });
+  }
+
+  get recoveryKey() {
+    return this.page.getByTestId('datablock');
+  }
+
+  get recoveryKeyCopyButton() {
+    return this.page.getByRole('button', { name: 'Copy' });
+  }
+
+  get continueWithoutDownloadingLink() {
+    return this.page.getByRole('link', {
+      name: 'Continue without downloading',
+    });
+  }
+
+  get hintHeading() {
+    return this.page.getByRole('heading', {
+      name: 'Add a hint to help find your key',
+    });
+  }
+
+  get hintTextbox() {
+    return this.page.getByRole('textbox', { name: 'hint' });
+  }
+
+  get finishButton() {
+    return this.page.getByRole('button', { name: 'Finish' });
   }
 
   getKey() {
@@ -28,12 +96,6 @@ export class RecoveryKeyPage extends SettingsLayout {
     return this.page.locator('.lost-recovery-key').click();
   }
 
-  async clickCreateAccountRecoveryKey() {
-    return this.page
-      .getByRole('button', { name: 'Create account recovery key' })
-      .click();
-  }
-
   submit() {
     return Promise.all([
       this.page.locator('button[type=submit]').click(),
@@ -42,7 +104,7 @@ export class RecoveryKeyPage extends SettingsLayout {
   }
 
   async clickStart() {
-    return this.page.getByRole('button', { name: 'Get started' }).click();
+    return this.getStartedButton.click();
   }
 
   async clickDownload() {
@@ -61,24 +123,51 @@ export class RecoveryKeyPage extends SettingsLayout {
       //@ts-ignore
       navigator.clipboard.writeText = (text) => (window.clipboardText = text);
     });
-    await this.page.getByRole('button', { name: 'Copy' }).click();
+    await this.recoveryKeyCopyButton.click();
     //@ts-ignore
     return this.page.evaluate(() => window.clipboardText);
   }
 
   async clickNext() {
-    return this.page
-      .getByRole('link', {
-        name: 'Continue without downloading',
-      })
-      .click();
+    return this.continueWithoutDownloadingLink.click();
   }
 
   setHint(hint: string) {
-    return this.page.getByRole('textbox').fill(hint);
+    return this.hintTextbox.fill(hint);
   }
 
   async clickFinish() {
-    return this.page.getByRole('button', { name: 'Finish' }).click();
+    return this.finishButton.click();
+  }
+
+  async fillOutRecoveryKeyForms(
+    password: string,
+    hint: string
+  ): Promise<string> {
+    await expect(this.accountRecoveryKeyHeading).toBeVisible();
+    await expect(this.createRecoveryKeyHeading).toBeVisible();
+
+    // View 1/4 info
+    await this.getStartedButton.click();
+
+    await expect(this.passwordHeading).toBeVisible();
+
+    // View 2/4 confirm password and generate key
+    await this.createKeyPasswordTextbox.fill(password);
+    await this.createKeyButton.click();
+
+    await expect(this.recoveryKeyCreatedHeading).toBeVisible();
+
+    // View 3/4 key download
+    const key = await this.recoveryKey.innerText(); // Store key to be used later
+    await this.continueWithoutDownloadingLink.click();
+
+    await expect(this.hintHeading).toBeVisible();
+
+    // View 4/4 hint
+    await this.hintTextbox.fill(hint);
+    await this.finishButton.click();
+
+    return key;
   }
 }
