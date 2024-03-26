@@ -8,17 +8,15 @@ const newPassword = 'new_password';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
-    test.beforeEach(
-      async ({ target, forceChangeEmail, syncBrowserPages: { login } }) => {
-        await target.auth.signUp(forceChangeEmail, password, {
-          lang: 'en',
-          preVerified: 'true',
-        });
-      }
-    );
+    test.beforeEach(async ({ target, email, syncBrowserPages: { login } }) => {
+      await target.auth.signUp(email, password, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+    });
 
     test('force change password on login - sync', async ({
-      forceChangeEmail,
+      email,
       target,
       syncBrowserPages,
     }) => {
@@ -30,8 +28,8 @@ test.describe('severity-2 #smoke', () => {
           waitUntil: 'load',
         }
       );
-      await login.fillOutEmailFirstSignIn(forceChangeEmail, password);
-      await login.fillOutSignInCode(forceChangeEmail);
+      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutSignInCode(email);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);

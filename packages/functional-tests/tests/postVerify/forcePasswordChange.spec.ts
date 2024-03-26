@@ -9,24 +9,24 @@ let emailUserCreds;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
-    test.beforeEach(async ({ forceChangeEmail, target, pages: { login } }) => {
+    test.beforeEach(async ({ email, target, pages: { login } }) => {
       test.slow();
-      emailUserCreds = await target.auth.signUp(forceChangeEmail, password, {
+      emailUserCreds = await target.auth.signUp(email, password, {
         lang: 'en',
         preVerified: 'true',
       });
     });
 
     test('navigate to page directly and can change password', async ({
-      forceChangeEmail,
+      email,
       target,
       pages: { page, login, postVerify },
     }) => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(forceChangeEmail, password);
-      await login.fillOutSignInCode(forceChangeEmail);
+      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutSignInCode(email);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
@@ -40,13 +40,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('force change password on login - oauth', async ({
-      forceChangeEmail,
+      email,
       pages: { login, postVerify, relier },
     }) => {
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutEmailFirstSignIn(forceChangeEmail, password);
-      await login.fillOutSignInCode(forceChangeEmail);
+      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutSignInCode(email);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);

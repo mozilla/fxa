@@ -13,17 +13,45 @@ const DEBUG = !!process.env.DEBUG;
 export { expect };
 export type POMS = ReturnType<typeof createPages>;
 
+type EmailFixtureOptions = {
+  prefix: string; // Prefix for the email address
+  password: string; // Password for the email address
+};
+
 export type TestOptions = {
   pages: POMS;
   syncBrowserPages: POMS;
-  standardEmail: string;
-  forceChangeEmail: string;
-  syncEmail: string;
-  bouncedEmail: string;
-  blockedEmail: string;
+  //standardEmail: string;
+  //forceChangeEmail: string;
+  //syncEmail: string;
+  //bouncedEmail: string;
+  //blockedEmail: string;
   credentials: Credentials;
+  emailOptions: EmailFixtureOptions;
+  email: string;
 };
+
 export type WorkerOptions = { targetName: TargetName; target: ServerTarget };
+
+// Define the fixture function
+/*export const emailFixture = async({ target, pages: { login }, emailOptions }, use): Promise<void> => {
+  const email = login.createEmail(emailOptions.prefix); // Generate email based on the prefix
+  await login.clearCache(); // Clear cache for each email
+
+  // Pass the generated email to the test along with the password
+  await use(email);
+
+  // Teardown
+  try {
+    if (!email) {
+      return;
+    }
+    const creds = await target.auth.signIn(email, emailOptions.password);
+    await target.auth.accountDestroy(email, emailOptions.password, {}, creds.sessionToken);
+  } catch (e) {
+    // ignore
+  }
+};*/
 
 export const test = base.extend<TestOptions, WorkerOptions>({
   targetName: ['local', { scope: 'worker', option: true }],
@@ -35,6 +63,10 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     },
     { scope: 'worker', auto: true },
   ],
+
+  emailOptions: { prefix: '', password: 'passwordzxcv' }, // Default options for the fixture
+
+  //email: emailFixture,
 
   credentials: async ({ target }, use, testInfo) => {
     const email = EmailClient.emailFromTestTitle(testInfo.title);
@@ -113,131 +145,6 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await syncBrowserPages.browser?.close();
   },
 
-  standardEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const standardEmail = login.createEmail();
-    await login.clearCache();
-
-    await use(standardEmail);
-
-    //Teardown
-    try {
-      if (!standardEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(standardEmail, password);
-      await target.auth.accountDestroy(
-        standardEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  forceChangeEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'new_password';
-    const forceChangeEmail = login.createEmail('forcepwdchange{id}');
-    await login.clearCache();
-
-    await use(forceChangeEmail);
-
-    //Teardown
-    try {
-      if (!forceChangeEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(forceChangeEmail, password);
-      await target.auth.accountDestroy(
-        forceChangeEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  syncEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const syncEmail = login.createEmail('sync{id}');
-    await login.clearCache();
-
-    await use(syncEmail);
-
-    //Teardown
-    try {
-      if (!syncEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(syncEmail, password);
-      await target.auth.accountDestroy(
-        syncEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  bouncedEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const bouncedEmail = login.createEmail('bounced{id}');
-    await login.clearCache();
-
-    await use(bouncedEmail);
-
-    //Teardown
-    try {
-      if (!bouncedEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(bouncedEmail, password);
-      await target.auth.accountDestroy(
-        bouncedEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
-  blockedEmail: async ({ target, pages: { login } }, use) => {
-    // Setup
-    const password = 'passwordzxcv';
-    const blockedEmail = login.createEmail('blocked{id}');
-    await login.clearCache();
-
-    await use(blockedEmail);
-
-    //Teardown
-    try {
-      if (!blockedEmail) {
-        return;
-      }
-      const creds = await target.auth.signIn(blockedEmail, password);
-      await target.auth.accountDestroy(
-        blockedEmail,
-        password,
-        {},
-        creds.sessionToken
-      );
-    } catch (e) {
-      // ignore
-    }
-  },
-
   storageState: async ({ target, credentials }, use) => {
     // This is to store our session without logging in through the ui
     await use({
@@ -267,6 +174,33 @@ export const test = base.extend<TestOptions, WorkerOptions>({
         },
       ],
     });
+  },
+
+  email: async (
+    { target, pages: { login }, emailOptions },
+    use
+  ): Promise<void> => {
+    const email = login.createEmail(emailOptions.prefix); // Generate email based on the prefix
+    await login.clearCache(); // Clear cache for each email
+
+    // Pass the generated email to the test along with the password
+    await use(email);
+
+    // Teardown
+    try {
+      if (!email) {
+        return;
+      }
+      const creds = await target.auth.signIn(email, emailOptions.password);
+      await target.auth.accountDestroy(
+        email,
+        emailOptions.password,
+        {},
+        creds.sessionToken
+      );
+    } catch (e) {
+      // ignore
+    }
   },
 });
 

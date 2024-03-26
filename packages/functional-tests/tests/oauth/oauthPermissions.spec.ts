@@ -2,30 +2,31 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { use } from 'passport';
 import { test, expect } from '../../lib/fixtures/standard';
 
-//let email;
 const password = 'passwordzxcv';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
     test.beforeEach(async ({ pages: { configPage, login } }) => {
-      const config = await configPage.getConfig();
-      test.skip(
-        config.showReactApp.signUpRoutes === true,
-        'these tests are specific to backbone, skip if seeing React version'
-      );
+      // const config = await configPage.getConfig();
+      // test.skip(
+      //   config.showReactApp.signUpRoutes === true,
+      //   'these tests are specific to backbone, skip if seeing React version'
+      // );
       test.slow();
     });
 
     test('signup without `prompt=consent`', async ({
-      standardEmail,
+      email,
       pages: { login, relier },
     }) => {
+      test.use({
+        emailOptions: { prefix: 'sync{id}', password: 'passwordzxcv' },
+      });
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 
@@ -36,7 +37,7 @@ test.describe('severity-1 #smoke', () => {
     test('signup with `prompt=consent`', async ({
       target,
       page,
-      standardEmail,
+      email,
       pages: { login, relier },
     }) => {
       const query = { prompt: 'consent' };
@@ -45,7 +46,7 @@ test.describe('severity-1 #smoke', () => {
         waitUntil: 'load',
       });
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 

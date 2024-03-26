@@ -17,17 +17,17 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
     });
 
-    test('sign up', async ({ standardEmail, pages: { login, relier } }) => {
+    test('sign up', async ({ email, pages: { login, relier } }) => {
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
 
-      await login.fillOutSignUpCode(standardEmail);
+      await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
@@ -36,20 +36,19 @@ test.describe('severity-1 #smoke', () => {
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
       target,
       credentials,
-      bouncedEmail,
-      standardEmail,
+      email,
       pages: { login, relier },
     }) => {
       const client = await login.getFxaClient(target);
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
+      await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
       await target.auth.accountDestroy(
-        bouncedEmail,
+        email,
         password,
         {},
         credentials.sessionToken
@@ -62,13 +61,13 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setEmail('');
 
-      await login.fillOutFirstSignUp(standardEmail, password, {
+      await login.fillOutFirstSignUp(email, password, {
         verify: false,
       });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
-      await login.fillOutSignUpCode(standardEmail);
+      await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);

@@ -33,14 +33,14 @@ test.describe('severity-2 #smoke', () => {
     };
     /* eslint-enable camelcase */
 
-    test.beforeEach(async ({ syncEmail, target }, { project }) => {
+    test.beforeEach(async ({ email, target }, { project }) => {
       // The `sync` prefix is needed to force confirmation.
-      emailUserCreds = await target.createAccount(syncEmail, password);
+      emailUserCreds = await target.createAccount(email, password);
     });
 
     test('verified - invalid token', async ({
       page,
-      syncEmail,
+      email,
       pages: { login, relier, signinTokenCode },
     }) => {
       await relier.goto(toQueryString(queryParameters));
@@ -49,14 +49,14 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(syncEmail, password);
+      await login.fillOutEmailFirstSignIn(email, password);
 
       // Check that the sign in page is show, and is asking for a sign in code
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       // This will cause the token become 'invalid' and ultimately cause an
       // INVALID_TOKEN error to be thrown.
-      await login.destroySession(syncEmail);
+      await login.destroySession(email);
       await page.waitForURL(/oauth\/signin/);
       // Destroying the session should direct user back to sign in page
       await login.passwordHeader.waitFor({ state: 'visible' });
@@ -64,7 +64,7 @@ test.describe('severity-2 #smoke', () => {
 
     test('verified - valid code', async ({
       target,
-      syncEmail,
+      email,
       page,
       pages: { login, relier, signinTokenCode },
     }) => {
@@ -74,7 +74,7 @@ test.describe('severity-2 #smoke', () => {
       await relier.clickEmailFirst();
 
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(syncEmail, password);
+      await login.fillOutEmailFirstSignIn(email, password);
 
       // Enter invalid code, ensure it doesn't work
       await signinTokenCode.input.fill('000000');
@@ -93,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       const code = await target.email.waitForEmail(
-        syncEmail,
+        email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );
