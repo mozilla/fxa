@@ -34,6 +34,23 @@ describe('StripeClient', () => {
     });
   });
 
+  describe('updateCustomer', () => {
+    it('updates an existing customer from Stripe', async () => {
+      const mockCustomer = CustomerFactory();
+      const mockUpdatedCustomer = CustomerFactory();
+
+      mockClient.stripe.customers.update = jest
+        .fn()
+        .mockResolvedValueOnce(mockUpdatedCustomer);
+
+      const result = await mockClient.updateCustomer(mockCustomer.id, {
+        balance: mockUpdatedCustomer.balance,
+      });
+
+      expect(result.balance).toEqual(mockUpdatedCustomer.balance);
+    });
+  });
+
   describe('fetchSubscriptions', () => {
     it('returns subscriptions from Stripe', async () => {
       const mockCustomer = CustomerFactory();

@@ -21,6 +21,12 @@ export class CustomerDeletedError extends StripeError {
   }
 }
 
+export class CustomerNotFoundError extends StripeError {
+  constructor() {
+    super('Customer not found');
+  }
+}
+
 export class SubscriptionStripeError extends StripeError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');

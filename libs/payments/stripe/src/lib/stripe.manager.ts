@@ -6,8 +6,15 @@ import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
-import { STRIPE_MINIMUM_CHARGE_AMOUNTS } from './stripe.constants';
-import { CustomerDeletedError, SubscriptionStripeError } from './stripe.error';
+import {
+  STRIPE_MINIMUM_CHARGE_AMOUNTS,
+  MOZILLA_TAX_ID,
+} from './stripe.constants';
+import {
+  CustomerDeletedError,
+  CustomerNotFoundError,
+  SubscriptionStripeError,
+} from './stripe.error';
 
 @Injectable()
 export class StripeManager {
@@ -73,5 +80,47 @@ export class StripeManager {
       customer.tax?.automatic_tax === 'supported' ||
       customer.tax?.automatic_tax === 'not_collecting'
     );
+  }
+
+  /**
+   * Updates customer object with incoming tax ID if existing tax ID does not match
+   *
+   * @param customerId Customer ID of customer to be updated
+   * @param taxId Customer tax ID to be updated if different from existing tax ID
+   * @returns True if the customer was updated, false otherwise
+   */
+  async setCustomerTaxId(customerId: string, taxId: string) {
+    const customerTaxId = await this.getCustomerTaxId(customerId);
+
+    if (!customerTaxId || customerTaxId !== taxId) {
+      return await this.client.updateCustomer(customerId, {
+        invoice_settings: {
+          custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
+        },
+      });
+    }
+
+    return;
+  }
+
+  /**
+   * Returns tax ID of customer
+   *
+   * @param customerId ID of customer to fetch and check existing tax ID
+   * @returns The tax ID of customer or undefined if not found
+   */
+  async getCustomerTaxId(customerId: string) {
+    const customer = await this.client.fetchCustomer(customerId);
+
+    if (!customer) throw new CustomerNotFoundError();
+    if (customer.deleted) throw new CustomerDeletedError();
+
+    const customFields = customer.invoice_settings.custom_fields || [];
+
+    const taxIdFields = customFields.filter((customField: any) => {
+      return customField.name === MOZILLA_TAX_ID;
+    });
+
+    return taxIdFields.at(0)?.value;
   }
 }
