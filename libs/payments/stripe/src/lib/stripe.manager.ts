@@ -22,9 +22,6 @@ export class StripeManager {
 
   /**
    * Retrieves a customer record
-   *
-   * @param customerId
-   * @returns
    */
   async fetchActiveCustomer(customerId: string) {
     const customer = await this.client.fetchCustomer(customerId);
@@ -44,9 +41,6 @@ export class StripeManager {
   /**
    * Returns minimum amount for valid currency
    * Throws error for invalid currency
-   *
-   * @param currency
-   * @returns
    */
   getMinimumAmount(currency: string): number {
     if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
@@ -58,8 +52,6 @@ export class StripeManager {
 
   /**
    * Retrieves subscriptions
-   *
-   * @param customerId
    */
   async getSubscriptions(customerId: string) {
     return this.client.fetchSubscriptions(customerId);
