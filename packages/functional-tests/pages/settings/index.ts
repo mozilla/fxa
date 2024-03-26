@@ -71,6 +71,14 @@ export class SettingsPage extends SettingsLayout {
     return this.page.getByRole('heading', { name: 'Settings' });
   }
 
+  get accountRecoveryKeyStatus() {
+    return this.page.getByTestId('recovery-key-unit-row-header-value');
+  }
+
+  get accountRecoveryKeyCreateButton() {
+    return this.page.getByTestId('recovery-key-unit-row-route');
+  }
+
   get twoStepAuthenticationStatus() {
     return this.page.getByTestId('two-step-unit-row-header-value');
   }

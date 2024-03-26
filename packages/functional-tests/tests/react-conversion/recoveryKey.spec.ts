@@ -1,83 +1,59 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
-let key;
-let hint;
-let originalEncryptionKeys;
-
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
+const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key react', () => {
-    test.beforeEach(
-      async ({
-        target,
-        credentials,
-        pages: { login, configPage, settings, recoveryKey },
-      }) => {
-        // Generating and consuming recovery keys is a slow process
-        test.slow();
-
-        // Ensure that the react reset password route feature flag is enabled
-        const config = await configPage.getConfig();
-        test.skip(config.showReactApp.resetPasswordRoutes !== true);
-
-        await settings.goto();
-        let status = await settings.recoveryKey.statusText();
-        expect(status).toEqual('Not Set');
-
-        await settings.goto();
-        await settings.recoveryKey.clickCreate();
-        // View 1/4 info
-        await recoveryKey.clickStart();
-        // View 2/4 confirm password and generate key
-        await recoveryKey.setPassword(credentials.password);
-        await recoveryKey.submit();
-
-        // View 3/4 key download
-        // Store key to be used later
-        key = await recoveryKey.getKey();
-        await recoveryKey.clickNext();
-
-        // View 4/4 hint
-        // store hint to be used later
-        hint = 'secret key location';
-        await recoveryKey.setHint(hint);
-        await recoveryKey.clickFinish();
-
-        // Verify status as 'enabled'
-        status = await settings.recoveryKey.statusText();
-        expect(status).toEqual('Enabled');
-
-        // Ensure password reset occurs with no session token available
-        await login.clearCache();
-        // Stash original encryption keys to be verified later
-        const res = await target.auth.sessionReauth(
-          credentials.sessionToken,
-          credentials.email,
-          credentials.password,
-          {
-            keys: true,
-            reason: 'recovery_key',
-          }
-        );
-        originalEncryptionKeys = await target.auth.accountKeys(
-          res.keyFetchToken,
-          res.unwrapBKey
-        );
-      }
-    );
-
     test('can reset password with recovery key', async ({
-      credentials,
       target,
       page,
-      pages: { resetPasswordReact },
+      credentials,
+      pages: { configPage, settings, recoveryKey, login, resetPasswordReact },
     }) => {
-      await resetPasswordReact.goto();
+      // Generating and consuming recovery keys is a slow process
+      test.slow();
 
-      // Verify react page is loaded
-      await page.waitForSelector('#root');
+      // Ensure that the react reset password route feature flag is enabled
+      const config = await configPage.getConfig();
+      test.skip(config.showReactApp.resetPasswordRoutes !== true);
+
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+
+      await settings.accountRecoveryKeyCreateButton.click();
+
+      const key = await recoveryKey.fillOutRecoveryKeyForms(
+        credentials.password,
+        HINT
+      );
+
+      // Verify status as 'enabled'
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.accountRecoveryKeyStatus).toHaveText('Enabled');
+
+      // Ensure password reset occurs with no session token available
+      await login.clearCache();
+
+      // Stash original encryption keys to be verified later
+      const accountData = await target.auth.sessionReauth(
+        credentials.sessionToken,
+        credentials.email,
+        credentials.password,
+        {
+          keys: true,
+          reason: 'recovery_key',
+        }
+      );
+      const originalEncryptionKeys = await target.auth.accountKeys(
+        accountData.keyFetchToken,
+        accountData.unwrapBKey
+      );
+
+      await resetPasswordReact.goto();
 
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
       await resetPasswordReact.confirmResetPasswordHeadingVisible();
@@ -92,8 +68,6 @@ test.describe('severity-1 #smoke', () => {
 
       // Loads the React version
       await page.goto(link);
-      // Verify react page is loaded
-      await page.waitForSelector('#root');
 
       await resetPasswordReact.confirmRecoveryKeyHeadingVisible();
 
@@ -104,9 +78,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
       // After using a recovery key to reset password, expect to be prompted to create a new one
-      await page
-        .getByRole('button', { name: 'Generate a new account recovery key' })
-        .click();
+      await resetPasswordReact.generateRecoveryKeyButton.click();
       await page.waitForURL(/settings\/account_recovery/);
 
       // Attempt to login with new password
@@ -115,7 +87,7 @@ test.describe('severity-1 #smoke', () => {
         NEW_PASSWORD
       );
 
-      const res = await target.auth.sessionReauth(
+      const newAccountData = await target.auth.sessionReauth(
         sessionToken,
         credentials.email,
         NEW_PASSWORD,
@@ -125,8 +97,8 @@ test.describe('severity-1 #smoke', () => {
         }
       );
       const newEncryptionKeys = await target.auth.accountKeys(
-        res.keyFetchToken,
-        res.unwrapBKey
+        newAccountData.keyFetchToken,
+        newAccountData.unwrapBKey
       );
       expect(originalEncryptionKeys).toEqual(newEncryptionKeys);
 
