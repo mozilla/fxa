@@ -63,6 +63,7 @@ import SigninContainer from '../../pages/Signin/container';
 import ReportSigninContainer from '../../pages/Signin/ReportSignin/container';
 import SigninBounced from '../../pages/Signin/SigninBounced';
 import SigninConfirmed from '../../pages/Signin/SigninConfirmed';
+import SigninRecoveryCodeContainer from '../../pages/Signin/SigninRecoveryCode/container';
 import SigninReported from '../../pages/Signin/SigninReported';
 import SigninTokenCodeContainer from '../../pages/Signin/SigninTokenCode/container';
 import SigninTotpCodeContainer from '../../pages/Signin/SigninTotpCode/container';
@@ -313,6 +314,10 @@ const AuthAndAccountSetupRoutes = ({
       <SigninConfirmed
         path="/signin_confirmed/*"
         {...{ isSignedIn, serviceName }}
+      />
+      <SigninRecoveryCodeContainer
+        path="/signin_recovery_code/*"
+        {...{ integration, serviceName }}
       />
       <SigninReported path="/signin_reported/*" />
       <SigninTokenCodeContainer

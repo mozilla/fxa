@@ -19,8 +19,6 @@ import CardHeader from '../../../components/CardHeader';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 
-export const viewName = 'signin-totp-code';
-
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
   serviceName: MozServices;

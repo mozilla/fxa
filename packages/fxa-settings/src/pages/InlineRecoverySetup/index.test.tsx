@@ -4,7 +4,7 @@
 
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
-import InlineRecoverySetup, { viewName } from '.';
+import InlineRecoverySetup from '.';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
@@ -178,10 +178,5 @@ describe('InlineRecoverySetup', () => {
     await screen.findByText(
       'There was a problem confirming your backup authentication code'
     );
-  });
-
-  it('emits the expected metrics on render', () => {
-    renderWithRouter(<InlineRecoverySetup {...props} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

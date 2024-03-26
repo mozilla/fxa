@@ -28,7 +28,6 @@ import React from 'react';
 // TIP - Import modules for mocking. Not that `* as` lend themselves to using jest.spyOn.
 import * as SignupModule from './index';
 import * as ModelsModule from '../../models';
-import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
 import * as ApolloModule from '@apollo/client';
 import * as UseValidateModule from '../../lib/hooks/useValidate';
 import * as FirefoxModule from '../../lib/channels/firefox';
@@ -51,6 +50,7 @@ import { ApolloClient } from '@apollo/client';
 import { ModelDataProvider } from '../../lib/model-data';
 import AuthClient from 'fxa-auth-client/browser';
 import { LocationProvider } from '@reach/router';
+import { mockLoadingSpinnerModule } from '../mocks';
 
 // TIP - Sometimes, we want to mock inputs. In this case they can be mocked directly and
 // often times a mocking util isn't even necessary. Note that using the Dependency Inversion
@@ -90,11 +90,6 @@ function mockSignupModule() {
       currentSignupProps = props;
       return <div>signup mock</div>;
     });
-}
-function mockLoadingSpinnerModule() {
-  jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
-    return <div>loading spinner mock</div>;
-  });
 }
 
 // TIP - Most modules can be easily mocked via jest.spyOn. As you can see this very clean.

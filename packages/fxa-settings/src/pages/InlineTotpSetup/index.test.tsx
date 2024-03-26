@@ -5,17 +5,10 @@
 import { act, screen } from '@testing-library/react';
 import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import InlineTotpSetup, { viewName } from '.';
-import { REACT_ENTRYPOINT } from '../../constants';
+import InlineTotpSetup from '.';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { MOCK_EMAIL, MOCK_TOTP_TOKEN } from './mocks';
-
-jest.mock('../../lib/metrics', () => ({
-  logViewEvent: jest.fn(),
-  usePageViewEvent: jest.fn(),
-}));
 
 const cancelSetupHandler = jest.fn();
 const verifyCodeHandler = jest.fn();
@@ -154,10 +147,5 @@ describe('InlineTotpSetup', () => {
     );
     await screen.findByText('Invalid two-step authentication code');
     expect(verifyCodeHandler).toBeCalledWith('000000');
-  });
-
-  it('emits the expected metrics on render', () => {
-    renderWithLocalizationProvider(<InlineTotpSetup {...mockProps} />);
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
   });
 });

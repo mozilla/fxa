@@ -134,4 +134,22 @@ describe('SessionResolver', () => {
       clientMutationId: 'testid',
     });
   });
+
+  it('consumes a backup authentication (recovery) code', async () => {
+    const token = 'totallylegit';
+    const mockRespPayload = { remaining: 3 };
+    authClient.consumeRecoveryCode = jest
+      .fn()
+      .mockResolvedValue(mockRespPayload);
+    const result = await resolver.consumeRecoveryCode(token, {
+      clientMutationId: 'testid',
+      code: '00000000',
+    });
+    expect(authClient.consumeRecoveryCode).toBeCalledTimes(1);
+    expect(authClient.consumeRecoveryCode).toBeCalledWith(token, '00000000');
+    expect(result).toStrictEqual({
+      clientMutationId: 'testid',
+      ...mockRespPayload,
+    });
+  });
 });

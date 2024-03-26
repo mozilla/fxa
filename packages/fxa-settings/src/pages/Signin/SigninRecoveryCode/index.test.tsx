@@ -4,19 +4,17 @@
 
 import React from 'react';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider'; // import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
-// import { FluentBundle } from '@fluent/bundle';
-import { usePageViewEvent } from '../../../lib/metrics';
-import SigninRecoveryCode, { viewName } from '.';
-import { MOCK_ACCOUNT } from '../../../models/mocks';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+import SigninRecoveryCode from '.';
 import { MozServices } from '../../../lib/types';
-import { REACT_ENTRYPOINT } from '../../../constants';
 import GleanMetrics from '../../../lib/glean';
-
-jest.mock('../../../lib/metrics', () => ({
-  usePageViewEvent: jest.fn(),
-  logViewEvent: jest.fn(),
-}));
+import {
+  createMockSigninWebIntegration,
+  mockSigninLocationState,
+} from '../mocks';
+import { LocationProvider } from '@reach/router';
+import { MOCK_RECOVERY_CODE } from '../../mocks';
+import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -26,27 +24,29 @@ jest.mock('../../../lib/glean', () => ({
       submit: jest.fn(),
       success: jest.fn(),
     },
-    isDone: jest.fn(),
   },
 }));
+
+const mockFinishOAuthFlowHandler = jest.fn();
+const mockIntegration = createMockSigninWebIntegration();
 
 describe('PageSigninRecoveryCode', () => {
   beforeEach(() => {
     jest.resetAllMocks();
   });
 
-  // TODO: enable l10n tests when they've been updated to handle embedded tags in ftl strings
-  // TODO: in FXA-6461
-  // let bundle: FluentBundle;
-  // beforeAll(async () => {
-  //   bundle = await getFtlBundle('settings');
-  // });
-
   it('renders as expected', () => {
+    const mockSubmitRecoveryCode = jest.fn();
     renderWithLocalizationProvider(
-      <SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />
+      <LocationProvider>
+        <SigninRecoveryCode
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          integration={mockIntegration}
+          signinLocationState={mockSigninLocationState}
+          submitRecoveryCode={mockSubmitRecoveryCode}
+        />
+      </LocationProvider>
     );
-    // testAllL10n(screen, bundle);
 
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
@@ -68,11 +68,17 @@ describe('PageSigninRecoveryCode', () => {
   });
 
   it('shows the relying party in the header when a service name is provided', () => {
+    const mockSubmitRecoveryCode = jest.fn();
     renderWithLocalizationProvider(
-      <SigninRecoveryCode
-        email={MOCK_ACCOUNT.primaryEmail.email}
-        serviceName={MozServices.MozillaVPN}
-      />
+      <LocationProvider>
+        <SigninRecoveryCode
+          finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+          integration={mockIntegration}
+          signinLocationState={mockSigninLocationState}
+          submitRecoveryCode={mockSubmitRecoveryCode}
+          serviceName={MozServices.MozillaVPN}
+        />
+      </LocationProvider>
     );
     const headingEl = screen.getByRole('heading', { level: 1 });
     expect(headingEl).toHaveTextContent(
@@ -80,33 +86,128 @@ describe('PageSigninRecoveryCode', () => {
     );
   });
 
-  it('emits a metrics event on render', () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />
-    );
-    expect(usePageViewEvent).toHaveBeenCalledWith(viewName, REACT_ENTRYPOINT);
-    expect(GleanMetrics.loginBackupCode.view).toBeCalledTimes(1);
+  describe('metrics', () => {
+    it('emits a metrics event on render', () => {
+      const mockSubmitRecoveryCode = jest.fn();
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={mockIntegration}
+            signinLocationState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCode}
+          />
+        </LocationProvider>
+      );
+      expect(GleanMetrics.loginBackupCode.view).toBeCalledTimes(1);
+    });
+
+    it('emits metrics events on submit and success', async () => {
+      const mockSubmitRecoveryCode = jest
+        .fn()
+        .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={mockIntegration}
+            signinLocationState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCode}
+          />
+        </LocationProvider>
+      );
+
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      await waitFor(() => {
+        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+      });
+      button.click();
+
+      await waitFor(() => {
+        expect(mockSubmitRecoveryCode).toHaveBeenCalled();
+        expect(GleanMetrics.loginBackupCode.submit).toBeCalledTimes(1);
+        expect(GleanMetrics.loginBackupCode.success).toBeCalledTimes(1);
+      });
+    });
   });
 
-  // TODO at the time of the Glean metrics implementation the page is mostly a
-  // scaffold, without the code submission implementation.  That is why a
-  // "submission" will always result in a success event.
-  it('emits metrics events on submit', async () => {
-    renderWithLocalizationProvider(
-      <SigninRecoveryCode email={MOCK_ACCOUNT.primaryEmail.email} />
-    );
-    fireEvent.input(
-      screen.getByLabelText('Enter 10-digit backup authentication code'),
-      {
-        target: { value: 'fffx999000' },
-      }
-    );
-    fireEvent.click(screen.getByText('Confirm'));
-
-    await waitFor(() => {
-      expect(GleanMetrics.loginBackupCode.submit).toBeCalledTimes(1);
-      expect(GleanMetrics.loginBackupCode.success).toBeCalledTimes(1);
-      expect(GleanMetrics.isDone).toBeCalledTimes(1);
+  describe('submit with error', () => {
+    it('shows an error tooltip when submit without code', async () => {
+      const mockSubmitRecoveryCode = jest.fn();
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={mockIntegration}
+            signinLocationState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCode}
+          />
+        </LocationProvider>
+      );
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      button.click();
+      await waitFor(() => {
+        const tooltip = screen.getByTestId('tooltip');
+        expect(tooltip).toHaveTextContent(
+          'Backup authentication code required'
+        );
+      });
+    });
+    it('shows an error tooltip when invalid code error response on submit', async () => {
+      const mockSubmitRecoveryCodeWithError = jest.fn().mockResolvedValueOnce({
+        error: { errno: AuthUiErrors.INVALID_RECOVERY_CODE.errno },
+      });
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={mockIntegration}
+            signinLocationState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCodeWithError}
+          />
+        </LocationProvider>
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      await waitFor(() => {
+        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+      });
+      button.click();
+      await waitFor(() => {
+        const tooltip = screen.getByTestId('tooltip');
+        expect(tooltip).toHaveTextContent('Invalid backup authentication code');
+      });
+    });
+    it('shows an error banner for other errors on submit', async () => {
+      const mockSubmitRecoveryCodeWithError = jest.fn().mockResolvedValueOnce({
+        // error response, but not invalid code
+        error: {},
+      });
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
+            integration={mockIntegration}
+            signinLocationState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCodeWithError}
+          />
+        </LocationProvider>
+      );
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      await waitFor(() => {
+        expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+      });
+      button.click();
+      await waitFor(() => {
+        const tooltip = screen.queryByTestId('tooltip');
+        expect(tooltip).not.toBeInTheDocument();
+        screen.getByText('Unexpected error');
+      });
     });
   });
 });

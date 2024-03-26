@@ -2,6 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import * as LoadingSpinnerModule from 'fxa-react/components/LoadingSpinner';
+
 import { MozServices } from '../lib/types';
 import { MOCK_ACCOUNT } from '../models/mocks';
 
@@ -20,6 +22,7 @@ export const MOCK_RESET_TOKEN = 'mockResetToken';
 export const MOCK_AUTH_AT = 12345;
 export const MOCK_PASSWORD = 'notYourAveragePassW0Rd';
 export const MOCK_UNBLOCK_CODE = 'A1B2C3D4';
+export const MOCK_RECOVERY_CODE = 'a1b2c3d4e5';
 export const MOCK_AVATAR_NON_DEFAULT = {
   id: 'abc123',
   url: 'http://placekitten.com/512/512',
@@ -51,3 +54,9 @@ export const MOCK_UNWRAP_BKEY_V2 = '20000000000000000123456789abcdef';
 export const MOCK_WRAP_KB_V2 = '20000000000000000123456789abcdef';
 export const MOCK_AUTH_PW_V2 = 'apw234';
 export const MOCK_PASSWORD_CHANGE_TOKEN = '123456789abcdef0';
+
+export function mockLoadingSpinnerModule() {
+  jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
+    return <div>loading spinner mock</div>;
+  });
+}
