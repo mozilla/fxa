@@ -2,91 +2,85 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
-import { Kysely } from 'kysely';
+import { Test } from '@nestjs/testing';
 
 import {
   StripeApiListFactory,
-  StripeClient,
-  StripeConfig,
   StripeCustomerFactory,
   StripeInvoiceFactory,
   StripeManager,
+  StripeResponseFactory,
   StripeSubscription,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
-import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
+import {
+  AccountDbProvider,
+  MockAccountDatabaseNestFactory,
+} from '@fxa/shared/db/mysql/account';
 
 import {
+  NVPCreateBillingAgreementResponseFactory,
   NVPBAUpdateTransactionResponseFactory,
   NVPSetExpressCheckoutResponseFactory,
 } from './factories';
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
+import {
+  AmountExceedsPayPalCharLimitError,
+  PaypalManagerError,
+} from './paypal.error';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
-import { PaypalManagerError } from './paypal.error';
 
-describe('PaypalManager', () => {
-  let kyselyDb: Kysely<DB>;
-  let paypalClient: PayPalClient;
+describe('PayPalManager', () => {
   let paypalManager: PayPalManager;
-  let stripeClient: StripeClient;
-  let stripeConfig: StripeConfig;
+  let paypalClient: PayPalClient;
   let stripeManager: StripeManager;
   let paypalCustomerManager: PaypalCustomerManager;
 
-  beforeAll(async () => {
-    kyselyDb = await testAccountDatabaseSetup([
-      'paypalCustomers',
-      'accountCustomers',
-    ]);
+  beforeEach(async () => {
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        PayPalManager,
+        {
+          provide: AccountDbProvider,
+          useValue: MockAccountDatabaseNestFactory,
+        },
+        PayPalClient,
+        StripeManager,
+        PaypalCustomerManager,
+      ],
+    })
+      .overrideProvider(PayPalClient)
+      .useValue({
+        createBillingAgreement: jest.fn(),
+        baUpdate: jest.fn(),
+        setExpressCheckout: jest.fn(),
+      })
+      .overrideProvider(StripeManager)
+      .useValue({
+        getMinimumAmount: jest.fn(),
+        getSubscriptions: jest.fn(),
+        finalizeInvoiceWithoutAutoAdvance: jest.fn(),
+        fetchActiveCustomer: jest.fn(),
+      })
+      .overrideProvider(PaypalCustomerManager)
+      .useValue({
+        createPaypalCustomer: jest.fn(),
+        fetchPaypalCustomersByUid: jest.fn(),
+      })
+      .compile();
 
-    paypalClient = new PayPalClient({
-      sandbox: false,
-      user: faker.string.uuid(),
-      pwd: faker.string.uuid(),
-      signature: faker.string.uuid(),
-    });
-
-    stripeConfig = {
-      apiKey: faker.string.uuid(),
-      taxIds: { EUR: 'EU1234' },
-    };
-
-    stripeClient = new StripeClient({} as any);
-    stripeManager = new StripeManager(stripeClient, stripeConfig);
-    paypalCustomerManager = new PaypalCustomerManager(kyselyDb);
-
-    paypalManager = new PayPalManager(
-      paypalClient,
-      stripeManager,
-      paypalCustomerManager
-    );
+    paypalManager = moduleRef.get(PayPalManager);
+    paypalClient = moduleRef.get(PayPalClient);
+    stripeManager = moduleRef.get(StripeManager);
+    paypalCustomerManager = moduleRef.get(PaypalCustomerManager);
   });
 
-  afterAll(async () => {
-    if (kyselyDb) {
-      await kyselyDb.destroy();
-    }
-  });
-
-  describe('createBillingAgreement', () => {
-    it('creates a billing agreement', async () => {
-      const token = faker.string.uuid();
-      const mockBillingAgreement = NVPBAUpdateTransactionResponseFactory();
-
-      paypalClient.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValueOnce(mockBillingAgreement);
-
-      const result = await paypalManager.createBillingAgreement(token);
-      expect(result).toEqual(mockBillingAgreement.BILLINGAGREEMENTID);
-      expect(paypalClient.createBillingAgreement).toBeCalledWith({
-        token,
-      });
-    });
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('getOrCreateBillingAgreementId', () => {
@@ -116,25 +110,23 @@ describe('PaypalManager', () => {
     it('returns a new billing agreement when no billing agreement exists and token passed', async () => {
       const uid = faker.string.uuid();
       const token = faker.string.uuid();
-      const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+      const mockBillingAgreementId = faker.string.uuid();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+      paypalManager.getCustomerBillingAgreementId = jest
         .fn()
-        .mockResolvedValueOnce([]);
+        .mockResolvedValueOnce(undefined);
 
-      paypalClient.createBillingAgreement = jest
+      paypalManager.createBillingAgreement = jest
         .fn()
-        .mockResolvedValueOnce(mockNewBillingAgreement);
+        .mockResolvedValueOnce(mockBillingAgreementId);
 
       const result = await paypalManager.getOrCreateBillingAgreementId(
         uid,
         false,
         token
       );
-      expect(result).toEqual(mockNewBillingAgreement.BILLINGAGREEMENTID);
-      expect(paypalClient.createBillingAgreement).toBeCalledWith({
-        token,
-      });
+      expect(result).toEqual(mockBillingAgreementId);
+      expect(paypalManager.createBillingAgreement).toBeCalledWith(uid, token);
     });
 
     it('throws an error if no billing agreement id is present and user has subscriptions', async () => {
@@ -179,13 +171,14 @@ describe('PaypalManager', () => {
     it('cancels a billing agreement', async () => {
       const billingAgreementId = faker.string.sample();
 
-      paypalClient.baUpdate = jest
-        .fn()
+      jest
+        .spyOn(paypalClient, 'baUpdate')
         .mockResolvedValueOnce(NVPBAUpdateTransactionResponseFactory());
 
       const result = await paypalManager.cancelBillingAgreement(
         billingAgreementId
       );
+
       expect(result).toBeUndefined();
       expect(paypalClient.baUpdate).toBeCalledWith({
         billingAgreementId,
@@ -194,112 +187,144 @@ describe('PaypalManager', () => {
     });
 
     it('throws an error', async () => {
-      expect(paypalManager.cancelBillingAgreement).rejects.toThrowError();
+      const billingAgreementId = faker.string.sample();
+
+      jest.spyOn(paypalClient, 'baUpdate').mockRejectedValue(new Error('Boom'));
+
+      expect(() =>
+        paypalManager.cancelBillingAgreement(billingAgreementId)
+      ).rejects.toThrowError();
+    });
+  });
+
+  describe('createBillingAgreement', () => {
+    it('creates a billing agreement', async () => {
+      const uid = faker.string.uuid();
+      const token = faker.string.uuid();
+
+      const billingAgreement = NVPCreateBillingAgreementResponseFactory();
+      const paypalCustomer = ResultPaypalCustomerFactory();
+
+      jest
+        .spyOn(paypalClient, 'createBillingAgreement')
+        .mockResolvedValue(billingAgreement);
+
+      jest
+        .spyOn(paypalCustomerManager, 'createPaypalCustomer')
+        .mockResolvedValue(paypalCustomer);
+
+      const result = await paypalManager.createBillingAgreement(uid, token);
+
+      expect(paypalClient.createBillingAgreement).toHaveBeenCalledWith({
+        token,
+      });
+
+      expect(paypalCustomerManager.createPaypalCustomer).toHaveBeenCalledWith({
+        uid: uid,
+        billingAgreementId: billingAgreement.BILLINGAGREEMENTID,
+        status: 'active',
+        endedAt: null,
+      });
+
+      expect(result).toEqual(paypalCustomer.billingAgreementId);
+    });
+
+    it('throws an error', async () => {
+      expect(paypalManager.createBillingAgreement).rejects.toThrowError();
     });
   });
 
   describe('getBillingAgreement', () => {
     it('returns agreement details (active status)', async () => {
+      const nvpBillingAgreementMock = NVPBAUpdateTransactionResponseFactory();
       const billingAgreementId = faker.string.sample();
-      const successfulBAUpdateResponse = NVPBAUpdateTransactionResponseFactory({
-        BILLINGAGREEMENTSTATUS: 'Active',
-      });
 
-      paypalClient.baUpdate = jest
-        .fn()
-        .mockResolvedValueOnce(successfulBAUpdateResponse);
-
-      const expected = {
-        city: successfulBAUpdateResponse.CITY,
-        countryCode: successfulBAUpdateResponse.COUNTRYCODE,
-        firstName: successfulBAUpdateResponse.FIRSTNAME,
-        lastName: successfulBAUpdateResponse.LASTNAME,
-        state: successfulBAUpdateResponse.STATE,
-        status: BillingAgreementStatus.Active,
-        street: successfulBAUpdateResponse.STREET,
-        street2: successfulBAUpdateResponse.STREET2,
-        zip: successfulBAUpdateResponse.ZIP,
-      };
+      const baUpdateMock = jest
+        .spyOn(paypalClient, 'baUpdate')
+        .mockResolvedValue(nvpBillingAgreementMock);
 
       const result = await paypalManager.getBillingAgreement(
         billingAgreementId
       );
-      expect(result).toEqual(expected);
-      expect(paypalClient.baUpdate).toBeCalledTimes(1);
-      expect(paypalClient.baUpdate).toBeCalledWith({ billingAgreementId });
+      expect(result).toEqual({
+        city: nvpBillingAgreementMock.CITY,
+        countryCode: nvpBillingAgreementMock.COUNTRYCODE,
+        firstName: nvpBillingAgreementMock.FIRSTNAME,
+        lastName: nvpBillingAgreementMock.LASTNAME,
+        state: nvpBillingAgreementMock.STATE,
+        status: BillingAgreementStatus.Active,
+        street: nvpBillingAgreementMock.STREET,
+        street2: nvpBillingAgreementMock.STREET2,
+        zip: nvpBillingAgreementMock.ZIP,
+      });
+      expect(baUpdateMock).toBeCalledTimes(1);
+      expect(baUpdateMock).toBeCalledWith({ billingAgreementId });
     });
 
     it('returns agreement details (cancelled status)', async () => {
       const billingAgreementId = faker.string.sample();
-      const successfulBAUpdateResponse = NVPBAUpdateTransactionResponseFactory({
+      const nvpBillingAgreementMock = NVPBAUpdateTransactionResponseFactory({
         BILLINGAGREEMENTSTATUS: 'Canceled',
       });
 
-      paypalClient.baUpdate = jest
-        .fn()
-        .mockResolvedValueOnce(successfulBAUpdateResponse);
-
-      const expected = {
-        city: successfulBAUpdateResponse.CITY,
-        countryCode: successfulBAUpdateResponse.COUNTRYCODE,
-        firstName: successfulBAUpdateResponse.FIRSTNAME,
-        lastName: successfulBAUpdateResponse.LASTNAME,
-        state: successfulBAUpdateResponse.STATE,
-        status: BillingAgreementStatus.Cancelled,
-        street: successfulBAUpdateResponse.STREET,
-        street2: successfulBAUpdateResponse.STREET2,
-        zip: successfulBAUpdateResponse.ZIP,
-      };
+      const baUpdateMock = jest
+        .spyOn(paypalClient, 'baUpdate')
+        .mockResolvedValue(nvpBillingAgreementMock);
 
       const result = await paypalManager.getBillingAgreement(
         billingAgreementId
       );
-      expect(result).toEqual(expected);
-      expect(paypalClient.baUpdate).toBeCalledTimes(1);
-      expect(paypalClient.baUpdate).toBeCalledWith({ billingAgreementId });
+      expect(result).toEqual({
+        city: nvpBillingAgreementMock.CITY,
+        countryCode: nvpBillingAgreementMock.COUNTRYCODE,
+        firstName: nvpBillingAgreementMock.FIRSTNAME,
+        lastName: nvpBillingAgreementMock.LASTNAME,
+        state: nvpBillingAgreementMock.STATE,
+        status: BillingAgreementStatus.Cancelled,
+        street: nvpBillingAgreementMock.STREET,
+        street2: nvpBillingAgreementMock.STREET2,
+        zip: nvpBillingAgreementMock.ZIP,
+      });
+      expect(baUpdateMock).toBeCalledTimes(1);
+      expect(baUpdateMock).toBeCalledWith({ billingAgreementId });
     });
   });
 
   describe('getCustomerBillingAgreementId', () => {
     it("returns the customer's current PayPal billing agreement ID", async () => {
+      const uid = faker.string.uuid();
       const mockPayPalCustomer = ResultPaypalCustomerFactory();
-      const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
-        .mockResolvedValueOnce([mockPayPalCustomer]);
+        .mockResolvedValue([mockPayPalCustomer]);
 
-      const result = await paypalManager.getCustomerBillingAgreementId(
-        mockStripeCustomer.id
-      );
+      const result = await paypalManager.getCustomerBillingAgreementId(uid);
       expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
     });
 
     it('returns undefined if no PayPal customer record', async () => {
-      const mockStripeCustomer = StripeCustomerFactory();
+      const uid = faker.string.uuid();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
-        .mockResolvedValueOnce([]);
+        .mockResolvedValue([]);
 
-      const result = await paypalManager.getCustomerBillingAgreementId(
-        mockStripeCustomer.id
-      );
+      const result = await paypalManager.getCustomerBillingAgreementId(uid);
       expect(result).toEqual(undefined);
     });
 
     it('throws PaypalCustomerMultipleRecordsError if more than one PayPal customer found', async () => {
+      const uid = faker.string.uuid();
       const mockPayPalCustomer1 = ResultPaypalCustomerFactory();
       const mockPayPalCustomer2 = ResultPaypalCustomerFactory();
-      const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
-        .mockResolvedValueOnce([mockPayPalCustomer1, mockPayPalCustomer2]);
+        .mockResolvedValue([mockPayPalCustomer1, mockPayPalCustomer2]);
 
-      expect.assertions(1);
       expect(
-        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer.id)
+        paypalManager.getCustomerBillingAgreementId(uid)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
   });
@@ -328,23 +353,21 @@ describe('PaypalManager', () => {
       );
       expect(result).toEqual(expected);
     });
+  });
 
-    it('returns empty array when no subscriptions', async () => {
-      const mockCustomer = StripeCustomerFactory();
-      const mockPayPalSubscription = [] as StripeSubscription[];
-      const mockSubscriptionList = StripeApiListFactory([
-        mockPayPalSubscription,
-      ]);
+  it('returns empty array when no subscriptions', async () => {
+    const mockCustomer = StripeCustomerFactory();
+    const mockPayPalSubscription = [] as StripeSubscription[];
+    const mockSubscriptionList = StripeApiListFactory([mockPayPalSubscription]);
 
-      stripeManager.getSubscriptions = jest
-        .fn()
-        .mockResolvedValueOnce(mockSubscriptionList);
+    stripeManager.getSubscriptions = jest
+      .fn()
+      .mockResolvedValueOnce(mockSubscriptionList);
 
-      const result = await paypalManager.getCustomerPayPalSubscriptions(
-        mockCustomer.id
-      );
-      expect(result).toEqual([]);
-    });
+    const result = await paypalManager.getCustomerPayPalSubscriptions(
+      mockCustomer.id
+    );
+    expect(result).toEqual([]);
   });
 
   describe('getCheckoutToken', () => {
@@ -387,36 +410,67 @@ describe('PaypalManager', () => {
 
   describe('processInvoice', () => {
     it('calls processZeroInvoice when amount is less than minimum amount', async () => {
-      const mockInvoice = StripeInvoiceFactory({
-        amount_due: 0,
-        currency: 'usd',
-      });
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          amount_due: 0,
+          currency: 'usd',
+        })
+      );
 
-      paypalManager.processZeroInvoice = jest.fn().mockResolvedValueOnce({});
+      jest.spyOn(stripeManager, 'getMinimumAmount').mockReturnValue(10);
+      jest
+        .spyOn(paypalManager, 'processZeroInvoice')
+        .mockResolvedValue(mockInvoice);
+      jest.spyOn(paypalManager, 'processNonZeroInvoice').mockResolvedValue();
 
-      const result = await paypalManager.processInvoice(mockInvoice);
-      expect(result).toEqual({});
+      await paypalManager.processInvoice(mockInvoice);
       expect(paypalManager.processZeroInvoice).toBeCalledWith(mockInvoice.id);
+      expect(paypalManager.processNonZeroInvoice).not.toHaveBeenCalled();
     });
 
     it('calls PayPalManager processNonZeroInvoice when amount is greater than minimum amount', async () => {
-      const mockCustomer = StripeCustomerFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
       const mockInvoice = StripeInvoiceFactory({
         amount_due: 50,
         currency: 'usd',
       });
 
-      stripeManager.fetchActiveCustomer = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
-      paypalManager.processNonZeroInvoice = jest.fn().mockResolvedValueOnce({});
+      jest.spyOn(stripeManager, 'getMinimumAmount').mockReturnValue(10);
+      jest
+        .spyOn(stripeManager, 'fetchActiveCustomer')
+        .mockResolvedValue(mockCustomer);
+      jest
+        .spyOn(paypalManager, 'processZeroInvoice')
+        .mockResolvedValue(StripeResponseFactory(mockInvoice));
+      jest.spyOn(paypalManager, 'processNonZeroInvoice').mockResolvedValue();
 
-      const result = await paypalManager.processInvoice(mockInvoice);
-      expect(result).toEqual({});
+      await paypalManager.processInvoice(mockInvoice);
+
       expect(paypalManager.processNonZeroInvoice).toBeCalledWith(
         mockCustomer,
         mockInvoice
       );
+      expect(paypalManager.processZeroInvoice).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('getPayPalAmountStringFromAmountInCents', () => {
+    it('returns correctly formatted string', () => {
+      const amountInCents = 9999999999;
+      const expectedResult = (amountInCents / 100).toFixed(2);
+
+      const result =
+        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents);
+
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('throws an error if number exceeds digit limit', () => {
+      const amountInCents = 12345678910;
+
+      expect(() => {
+        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents);
+      }).toThrow(AmountExceedsPayPalCharLimitError);
     });
   });
 });

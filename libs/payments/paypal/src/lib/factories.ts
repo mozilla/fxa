@@ -4,6 +4,7 @@
 
 import { faker } from '@faker-js/faker';
 import {
+  NVPCreateBillingAgreementResponse,
   NVPDoReferenceTransactionResponse,
   NVPError,
   NVPErrorResponse,
@@ -59,6 +60,14 @@ export const NVPSetExpressCheckoutResponseFactory = (
 ): NVPSetExpressCheckoutResponse => ({
   ...NVPResponseFactory(),
   TOKEN: faker.string.uuid(),
+  ...override,
+});
+
+export const NVPCreateBillingAgreementResponseFactory = (
+  override?: Partial<NVPCreateBillingAgreementResponse>
+): NVPCreateBillingAgreementResponse => ({
+  ...NVPResponseFactory(),
+  BILLINGAGREEMENTID: faker.string.alphanumeric(),
   ...override,
 });
 

@@ -8,6 +8,8 @@ import {
   UpdatePaypalCustomer,
 } from './paypalCustomer.types';
 
+import { BillingAgreement, BillingAgreementStatus } from '../paypal.types';
+
 export const ResultPaypalCustomerFactory = (
   override?: Partial<ResultPaypalCustomer>
 ): ResultPaypalCustomer => ({
@@ -52,5 +54,20 @@ export const UpdatePaypalCustomerFactory = (
   }),
   status: 'active',
   endedAt: null,
+  ...override,
+});
+
+export const BillingAgreementFactory = (
+  override?: Partial<BillingAgreement>
+): BillingAgreement => ({
+  city: faker.location.city(),
+  countryCode: faker.location.countryCode(),
+  firstName: faker.person.firstName(),
+  lastName: faker.person.lastName(),
+  state: faker.location.state(),
+  status: BillingAgreementStatus.Active,
+  street: faker.location.streetAddress(),
+  street2: faker.location.streetAddress(),
+  zip: faker.location.zipCode(),
   ...override,
 });
