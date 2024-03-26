@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
-
-let email;
-const password = 'passwordzxcv';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth prompt none', () => {
+    test.use({ emailOptions: [{ PASSWORD }] });
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
@@ -16,15 +14,15 @@ test.describe('severity-1 #smoke', () => {
         project.name === 'production',
         'test plan not yet available in prod'
       );
-      email = login.createEmail();
-      await login.clearCache();
     });
 
     test('fails if no user logged in', async ({
+      emails,
       page,
       target,
       pages: { relier },
     }) => {
+      const [email] = emails;
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
@@ -36,13 +34,16 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.promptNoneError()).toContain('User is not signed in');
     });
 
-    test('fails RP that is not allowed', async ({ page, pages: { relier } }, {
-      project,
-    }) => {
+    test('fails RP that is not allowed', async ({
+      emails,
+      page,
+      pages: { relier },
+    }, { project }) => {
       test.skip(
         project.name !== 'local',
         'we dont have an untrusted oauth for stage and prod'
       );
+      const [email] = emails;
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
@@ -57,10 +58,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if requesting keys', async ({
+      emails,
       page,
       target,
       pages: { relier },
     }) => {
+      const [email] = emails;
       const query = new URLSearchParams({
         client_id: '7f368c6886429f19', // eslint-disable-line camelcase
         forceUA:
@@ -86,22 +89,24 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if session is no longer valid', async ({
+      emails,
       page,
       target,
       pages: { relier, login },
     }) => {
-      const creds = await target.auth.signUp(email, password, {
+      const [email] = emails;
+      const creds = await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
-      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+      await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -115,19 +120,21 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if account is not verified', async ({
+      emails,
       page,
       target,
       pages: { relier, login },
     }) => {
       test.fixme(true, 'test to be fixed, see FXA-9194');
-      await target.auth.signUp(email, password, {
+      const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
@@ -148,6 +155,9 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('oauth prompt none with emails', () => {
+    test.use({
+      emailOptions: [{ PASSWORD }],
+    });
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
@@ -155,36 +165,23 @@ test.describe('severity-1 #smoke', () => {
         project.name === 'production',
         'test plan not yet available in prod'
       );
-      email = login.createEmail();
-      await login.clearCache();
-    });
-
-    test.afterEach(async ({ target }) => {
-      // Cleanup any accounts created during the test
-      if (email) {
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          creds.sessionToken
-        );
-      }
     });
 
     test('fails if login_hint is different to logged in user', async ({
+      emails,
       page,
       target,
       pages: { relier, login },
     }) => {
-      await target.auth.signUp(email, password, {
+      const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -204,18 +201,20 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('succeeds if login_hint same as logged in user', async ({
+      emails,
       page,
       target,
       pages: { relier, login },
     }) => {
-      await target.auth.signUp(email, password, {
+      const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -233,18 +232,20 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('succeeds if no login_hint is provided', async ({
+      emails,
       page,
       target,
       pages: { relier, login },
     }) => {
-      await target.auth.signUp(email, password, {
+      const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);

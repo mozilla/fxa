@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin here', () => {
@@ -113,16 +113,15 @@ test.describe('severity-2 #smoke', () => {
         'bounced email functionality does not currently work for react'
       );
       const email = login.createEmail('sync{id}');
-      const password = 'password123';
-      const creds = await target.createAccount(email, password);
+      const creds = await target.createAccount(email, PASSWORD);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       // Verify the header after login
       expect(login.signInCodeHeader()).toBeVisible();
-      await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
+      await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
       await page.waitForURL(/signin_bounced/);
 
       //Verify sign in bounced header

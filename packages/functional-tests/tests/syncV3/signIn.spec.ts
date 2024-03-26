@@ -3,47 +3,47 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EmailHeader, EmailType } from '../../lib/email';
-import { expect, test } from '../../lib/fixtures/standard';
-
-const password = 'passwordzxcv';
-let email;
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign in', () => {
+    test.use({
+      emailOptions: [
+        { prefix: 'sync{id}', PASSWORD },
+        { prefix: 'blocked{id}', PASSWORD },
+      ],
+    });
     test.beforeEach(async ({ syncBrowserPages: { login } }) => {
       test.slow();
-      email = login.createEmail('sync{id}');
     });
 
     test('verified, does not need to confirm', async ({
       target,
+      credentials,
       syncBrowserPages,
     }) => {
+      const email = credentials.email;
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-      const email = login.createEmail();
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
       await login.setEmail(email);
       await signinTokenCode.clickSubmitButton();
-      await login.setPassword(password);
+      await login.setPassword(PASSWORD);
       await login.submit();
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     // TODO in FXA-8973 - use sign in not sign up flow
-    test('verified, resend', async ({ target, syncBrowserPages }) => {
+    test('verified, resend', async ({ emails, target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
       const config = await configPage.getConfig();
+      const [email] = emails;
       test.fixme(
         config.showReactApp.signUpRoutes,
         'this test goes through the signup flow instead of sign in, skipping for react'
@@ -54,8 +54,8 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.setEmail(email);
       await signinTokenCode.clickSubmitButton();
-      await login.setPassword(password);
-      await login.confirmPassword(password);
+      await login.setPassword(PASSWORD);
+      await login.confirmPassword(PASSWORD);
       await login.setAge('21');
       await login.submit();
 
@@ -77,11 +77,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     // TODO in FXA-8973 - use sign in not sign up flow
-    test('verified - invalid code', async ({ target, syncBrowserPages }) => {
+    test('verified - invalid code', async ({
+      emails,
+      target,
+      syncBrowserPages,
+    }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
       const config = await configPage.getConfig();
+      const [email] = emails;
       test.fixme(
         config.showReactApp.signUpRoutes,
         'this test goes through the signup flow instead of sign in, skipping for react'
@@ -92,8 +97,8 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.setEmail(email);
       await signinTokenCode.clickSubmitButton();
-      await login.setPassword(password);
-      await login.confirmPassword(password);
+      await login.setPassword(PASSWORD);
+      await login.confirmPassword(PASSWORD);
       await login.setAge('21');
       await login.submit();
 
@@ -107,12 +112,11 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verified, blocked', async ({ target, syncBrowserPages }) => {
+    test('verified, blocked', async ({ emails, target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-
-      const blockedEmail = login.createEmail('blocked{id}');
-      await target.auth.signUp(blockedEmail, password, {
+      const [, blockedEmail] = emails;
+      await target.auth.signUp(blockedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -121,17 +125,17 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.setEmail(blockedEmail);
       await signinTokenCode.clickSubmitButton();
-      await login.setPassword(password);
+      await login.setPassword(PASSWORD);
       await login.submit();
       await login.unblock(blockedEmail);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('unverified', async ({ target, syncBrowserPages }) => {
+    test('unverified', async ({ emails, target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-
-      await target.auth.signUp(email, password, {
+      const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
@@ -140,7 +144,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.setEmail(email);
       await signinTokenCode.clickSubmitButton();
-      await login.setPassword(password);
+      await login.setPassword(PASSWORD);
       await login.submit();
       await login.fillOutSignInCode(email);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();

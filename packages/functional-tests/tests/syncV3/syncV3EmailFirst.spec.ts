@@ -2,9 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
-const PASSWORD = 'passwordzxcv';
 let email;
 
 test.describe.configure({ mode: 'parallel' });

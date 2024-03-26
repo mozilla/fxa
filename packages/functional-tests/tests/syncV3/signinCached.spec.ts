@@ -2,62 +2,42 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
-
-const password = 'passwordzxcv';
-let email;
-let email2;
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
-    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-      email = login.createEmail('sync{id}');
-      email2 = login.createEmail();
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await target.auth.signUp(email2, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
+    test.use({
+      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
     });
-
-    test.afterEach(async ({ target }) => {
-      test.slow(); //The cleanup was timing out and exceeding 3000ms
-      const emails = [email, email2];
-      for (const email of emails) {
-        if (email) {
-          try {
-            const creds = await target.auth.signIn(email, password);
-            await target.auth.accountDestroy(
-              email,
-              password,
-              {},
-              creds.sessionToken
-            );
-          } catch (e) {
-            // Handle any errors if needed
-          }
-        }
-      }
+    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
+      test.slow(); //This test has steps for email rendering that runs slow on stage
+      const [email, syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await target.auth.signUp(email, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
     });
 
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
+      emails,
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
     }) => {
+      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify sign up code header is visible
       expect(login.signInCodeHeader()).toBeVisible();
 
-      const query = { email: email2 };
+      const query = { email: email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
         `${
@@ -66,8 +46,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email2);
-      await login.setPassword(password);
+      expect(await login.getPrefilledEmail()).toContain(email);
+      await login.setPassword(PASSWORD);
       await login.clickSubmit();
       await connectAnotherDevice.clickNotNow();
 
@@ -81,20 +61,22 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
     });
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify sign up code header is visible
       expect(login.signInCodeHeader()).toBeVisible();
@@ -102,10 +84,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
-      await login.fillOutEmailFirstSignIn(email2, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -117,7 +99,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
     });
