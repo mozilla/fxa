@@ -19,12 +19,25 @@ const DISABLED_CLIENT_ID = 'd15ab1edd15ab1ed';
 const NON_DISABLED_CLIENT_ID = '98e6508e88680e1a';
 const CODE_WITH_KEYS = 'afafaf';
 const CODE_WITHOUT_KEYS = 'f0f0f0';
+const SESSION_TOKEN_ID =
+  '59b50ae469002428046e8712700f357c6fb3cdcda998a9789638436173e38c14';
 
 const mockDb = { touchSessionToken: sinon.stub() };
 const mockStatsD = { increment: sinon.stub() };
 const mockGlean = { oauth: { tokenCreated: sinon.stub() } };
+const mockDevice = {
+  findDeviceIdByUidAndSessionId: async () => '42cbcdce5c0a84a532b2722633af9f03',
+  findDeviceIdByUidAndRefreshTokenId: async () =>
+    'e553a430d7e5b904b1edd15a33af9f03',
+};
+
+let getRefreshTokenReturnVal = null;
+
 const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
-  '../../oauth/assertion': async () => true,
+  '../../oauth/assertion': async () => ({
+    uid: UID,
+    'fxa-sessionTokenId': SESSION_TOKEN_ID,
+  }),
   '../../oauth/client': {
     authenticateClient: (_, params) => ({
       id: buf(params.client_id),
@@ -40,10 +53,19 @@ const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
       }
       return t;
     },
-    validateRequestedGrant: () => ({ offline: true, scope: 'testo' }),
+    validateRequestedGrant: () => ({
+      clientId: buf(CLIENT_ID),
+      userId: buf(UID),
+      sessionTokenId: buf(SESSION_TOKEN_ID),
+      offline: true,
+      scope: 'testo',
+    }),
   },
   '../../oauth/util': {
     makeAssertionJWT: async () => ({}),
+  },
+  'fxa-shared/db/models/auth': {
+    Device: mockDevice,
   },
 })({
   log: {
@@ -52,7 +74,7 @@ const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
   },
   oauthDB: {
     async getRefreshToken() {
-      return null;
+      return getRefreshTokenReturnVal;
     },
     async getCode(x) {
       if (hex(x) === CODE_WITH_KEYS) {
@@ -61,6 +83,7 @@ const tokenRoutes = proxyquire('../../../lib/routes/oauth/token', {
           clientId: buf(CLIENT_ID),
           createdAt: Date.now(),
           keysJwe: 'mykeys',
+          sessionTokenId: SESSION_TOKEN_ID,
         };
       }
       if (hex(x) === CODE_WITHOUT_KEYS) {
@@ -336,7 +359,7 @@ describe('/token POST', function () {
       mockGlean.oauth.tokenCreated.reset();
     });
 
-    it('logs the token created event', async () => {
+    it('logs the token created event with authorization code grant', async () => {
       const request = {
         payload: {
           client_id: CLIENT_ID,
@@ -346,10 +369,116 @@ describe('/token POST', function () {
         emitMetricsEvent: () => {},
       };
       await route.config.handler(request);
-      sinon.assert.calledOnceWithExactly(
-        mockGlean.oauth.tokenCreated,
-        request,
-        { uid: UID, oauthClientId: CLIENT_ID, reason: 'authorization_code' }
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          sinon.assert.calledOnceWithExactly(
+            mockGlean.oauth.tokenCreated,
+            request,
+            {
+              uid: UID,
+              oauthClientId: CLIENT_ID,
+              reason: 'authorization_code',
+              syncDeviceId: '42cbcdce5c0a84a532b2722633af9f03',
+            }
+          );
+          resolve(undefined);
+        }, 20)
+      );
+    });
+
+    it('logs the token created event with refresh token grant', async () => {
+      getRefreshTokenReturnVal = {
+        tokenId: buf(REFRESH_TOKEN),
+        clientId: buf(CLIENT_ID),
+        scope: { difference: () => {} },
+        userId: buf(UID),
+      };
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'refresh_token',
+          refresh_token: REFRESH_TOKEN,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          sinon.assert.calledOnceWithExactly(
+            mockGlean.oauth.tokenCreated,
+            request,
+            {
+              uid: UID,
+              oauthClientId: CLIENT_ID,
+              reason: 'refresh_token',
+              syncDeviceId: 'e553a430d7e5b904b1edd15a33af9f03',
+            }
+          );
+          resolve(undefined);
+        }, 20)
+      );
+    });
+
+    it('logs the token created event with fxa assertion grant', async () => {
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'fxa-credentials',
+          scope: 'profile',
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          sinon.assert.calledOnceWithExactly(
+            mockGlean.oauth.tokenCreated,
+            request,
+            {
+              uid: UID,
+              oauthClientId: CLIENT_ID,
+              reason: 'fxa-credentials',
+              syncDeviceId: '42cbcdce5c0a84a532b2722633af9f03',
+            }
+          );
+          resolve(undefined);
+        }, 20)
+      );
+    });
+
+    it('logs the token created event without sync device id', async () => {
+      getRefreshTokenReturnVal = {
+        tokenId: buf(REFRESH_TOKEN),
+        clientId: buf(CLIENT_ID),
+        scope: { difference: () => {} },
+        userId: buf(UID),
+      };
+      sinon
+        .stub(mockDevice, 'findDeviceIdByUidAndRefreshTokenId')
+        .resolves(null);
+      const request = {
+        payload: {
+          client_id: CLIENT_ID,
+          grant_type: 'refresh_token',
+          refresh_token: REFRESH_TOKEN,
+        },
+        emitMetricsEvent: () => {},
+      };
+      await route.config.handler(request);
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          sinon.assert.calledOnceWithExactly(
+            mockGlean.oauth.tokenCreated,
+            request,
+            {
+              uid: UID,
+              oauthClientId: CLIENT_ID,
+              reason: 'refresh_token',
+              syncDeviceId: null,
+            }
+          );
+          resolve(undefined);
+        }, 20)
       );
     });
   });

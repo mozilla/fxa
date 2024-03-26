@@ -238,4 +238,30 @@ export class Device extends BaseAuthModel {
     );
     return this.fromRows(rows).shift() || null;
   }
+
+  static async findDeviceIdByUidAndSessionId(
+    uid: string,
+    sessionTokenId: string
+  ) {
+    const device = await Device.query()
+      .select('id')
+      .where('uid', uuidTransformer.to(uid))
+      .where('sessionTokenId', uuidTransformer.to(sessionTokenId))
+      .first();
+
+    return device ? device.id : null;
+  }
+
+  static async findDeviceIdByUidAndRefreshTokenId(
+    uid: string,
+    refreshTokenId: string
+  ) {
+    const device = await Device.query()
+      .select('id')
+      .where('uid', uuidTransformer.to(uid))
+      .where('refreshTokenId', uuidTransformer.to(refreshTokenId))
+      .first();
+
+    return device ? device.id : null;
+  }
 }

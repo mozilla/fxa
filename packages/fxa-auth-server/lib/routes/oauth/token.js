@@ -49,6 +49,7 @@ const {
   authenticateClient,
   clientAuthValidators,
 } = require('../../oauth/client');
+const { Device } = require('fxa-shared/db/models/auth');
 const ScopeSet = require('fxa-shared').oauth.scopes;
 const OAUTH_DOCS = require('../../../docs/swagger/oauth-api').default;
 const OAUTH_SERVER_DOCS =
@@ -356,6 +357,28 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     );
   }
 
+  async function emitTokenCreatedGleanEvent(req, grant, metrics) {
+    const findSyncDeviceId = async (grant, metrics) => {
+      if (grant.sessionTokenId) {
+        return await Device.findDeviceIdByUidAndSessionId(
+          metrics.uid,
+          grant.sessionTokenId
+        );
+      }
+      if (grant.tokenId) {
+        return await Device.findDeviceIdByUidAndRefreshTokenId(
+          metrics.uid,
+          grant.tokenId
+        );
+      }
+      return null;
+    };
+
+    const syncDeviceId = await findSyncDeviceId(grant, metrics);
+
+    await glean.oauth.tokenCreated(req, { ...metrics, syncDeviceId });
+  }
+
   async function tokenHandler(req) {
     var params = req.payload;
     const client = await authenticateClient(req.headers, params);
@@ -380,10 +403,10 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
       service: oauthClientId,
       uid,
     });
-    glean.oauth.tokenCreated(req, {
+    emitTokenCreatedGleanEvent(req, grant, {
       uid,
       oauthClientId,
-      reason: req.payload?.grant_type || '',
+      reason: req.payload?.grant_type,
     });
 
     // the client receiving keys at the end of the scoped keys flow

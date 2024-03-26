@@ -23,6 +23,7 @@ type MetricsData = {
   uid?: string;
   reason?: string;
   oauthClientId?: string;
+  syncDeviceId?: string;
 };
 
 type GleanEventFnOptions = {
@@ -118,6 +119,7 @@ const createEventFn =
         session_device_type: request.app.ua.deviceType || '',
         session_entrypoint: metricsContext.entrypoint || '',
         session_flow_id: metricsContext.flowId || '',
+        session_sync_device_id: metricsData?.syncDeviceId || '',
         utm_campaign: metricsContext.utmCampaign || '',
         utm_content: metricsContext.utmContent || '',
         utm_medium: metricsContext.utmMedium || '',

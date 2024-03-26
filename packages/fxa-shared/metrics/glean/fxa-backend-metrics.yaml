@@ -150,6 +150,27 @@ session:
     data_sensitivity:
       - interaction
 
+  sync_device_id:
+    type: string
+    description: |
+      A hexadecimal of 16 random bytes that is used to identify the browser
+      profile from which a Mozilla account user is signed into Sync.  It is
+      part of the Device Commands feature (e.g. Send Tab).  The value is
+      generated server-side on FxA when the "device" is registered.
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-9355
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1888216
+    expires: never
+    data_sensitivity:
+      - technical
+
 utm:
   campaign:
     description: |
