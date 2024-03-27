@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Account } from 'fxa-shared/db/models/auth';
+import { Account, getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AppStoreSubscription,
   PlayStoreSubscription,
@@ -42,11 +42,9 @@ import requestHelper from './utils/request_helper';
 import validators from './validators';
 import { AccountEventsManager } from '../account-events';
 import { gleanMetrics } from '../metrics/glean';
-import {
-  AccountDeleteManager,
-  ReasonForDeletionOptions,
-} from '../account-delete';
+import { AccountDeleteManager } from '../account-delete';
 import { uuidTransformer } from 'fxa-shared/db/transformers';
+import { AccountTasks, ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
 
@@ -67,6 +65,7 @@ export class AccountHandler {
   private capabilityService: CapabilityService;
   private accountEventsManager: AccountEventsManager;
   private accountDeleteManager: AccountDeleteManager;
+  private accountTasks: AccountTasks;
 
   constructor(
     private log: AuthLogger,
@@ -82,7 +81,6 @@ export class AccountHandler {
     private subscriptionAccountReminders: any,
     private oauth: any,
     private stripeHelper: StripeHelper,
-    private pushbox: any,
     private glean: ReturnType<typeof gleanMetrics>
   ) {
     this.otpUtils = require('./utils/otp')(log, config, db);
@@ -104,6 +102,7 @@ export class AccountHandler {
     this.capabilityService = Container.get(CapabilityService);
     this.accountEventsManager = Container.get(AccountEventsManager);
     this.accountDeleteManager = Container.get(AccountDeleteManager);
+    this.accountTasks = Container.get(AccountTasks);
   }
 
   private async generateRandomValues() {
@@ -1846,11 +1845,21 @@ export class AccountHandler {
 
     await this.accountDeleteManager.quickDelete(
       accountRecord.uid,
-      ReasonForDeletionOptions.UserRequested
+      ReasonForDeletion.UserRequested
     );
     await request.emitMetricsEvent('account.deleted', {
       uid: accountRecord.uid,
     });
+
+    if (this.accountTasks.queueEnabled) {
+      const result = await getAccountCustomerByUid(accountRecord.uid);
+      await this.accountTasks.deleteAccount({
+        uid: accountRecord.uid,
+        customerId: result?.stripeCustomerId,
+        reason: ReasonForDeletion.UserRequested,
+      });
+    }
+
     return {};
   }
 
@@ -1935,7 +1944,6 @@ export const accountRoutes = (
     subscriptionAccountReminders,
     oauth,
     stripeHelper,
-    pushbox,
     glean
   );
   const routes = [

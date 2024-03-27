@@ -8,25 +8,23 @@ import PQueue from 'p-queue';
 import { Container } from 'typedi';
 
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
-import { CloudTasksClient } from '@google-cloud/tasks';
 
 import appConfig from '../config';
-import {
-  AccountDeleteManager,
-  ReasonForDeletionOptions,
-} from '../lib/account-delete';
 import * as random from '../lib/crypto/random';
 import DB from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
 import initLog from '../lib/log';
-import oauthDb from '../lib/oauth/db';
 import { CurrencyHelper } from '../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../lib/payments/stripe';
-import { pushboxApi } from '../lib/pushbox';
 import initRedis from '../lib/redis';
 import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
+import {
+  AccountTasksFactory,
+  ReasonForDeletion,
+} from '@fxa/shared/cloud-tasks';
+import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 
 const collect = () => (val: string, xs: string[]) => {
   xs.push(val);
@@ -129,7 +127,7 @@ const init = async () => {
   const hasEmail = program.email.length > 0;
   const hasDateRange =
     program.startDate && program.endDate && program.endDate > program.startDate;
-  const reason = ReasonForDeletionOptions.Unverified;
+  const reason = ReasonForDeletion.Unverified;
   const taskLimit = program.taskEnqueueLimit
     ? parseInt(program.taskEnqueueLimit)
     : 200;
@@ -175,7 +173,6 @@ const init = async () => {
     random.base32(config.signinUnblock.codeLength) as any // TS type inference is failing pretty hard with this
   );
   const fxaDb = await db.connect(config, redis);
-  const pushbox = pushboxApi(log, config, statsd);
 
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
@@ -187,22 +184,7 @@ const init = async () => {
   const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
-  const accountDeleteManager = new AccountDeleteManager({
-    fxaDb,
-    oauthDb,
-    config,
-    push: {} as any, // Not needed when enqueuing
-    pushbox,
-    statsd,
-  });
-
-  // Replace the client with one that uses the fallback to HTTP for higher concurrency
-  const tasksConfig = config.cloudTasks;
-  accountDeleteManager['cloudTasksClient'] = new CloudTasksClient({
-    projectId: tasksConfig.projectId,
-    keyFilename: tasksConfig.credentials.keyFilename ?? undefined,
-    fallback: true,
-  });
+  const accountTasks = AccountTasksFactory(config, statsd);
 
   if (useSpecifiedAccounts) {
     const { uids, emails } = limitSpecifiedAccounts(program, limit);
@@ -213,7 +195,11 @@ const init = async () => {
         console.error(`Account with uid ${x} is verified.  Skipping.`);
         continue;
       }
-      const result = await accountDeleteManager.enqueue({ uid: x, reason });
+      const result = await accountTasks.deleteAccount({
+        uid: x,
+        customerId: (await getAccountCustomerByUid(x))?.stripeCustomerId,
+        reason,
+      });
       console.log(`Created cloud task ${result} for uid ${x}`);
     }
 
@@ -223,7 +209,11 @@ const init = async () => {
         console.error(`Account with email ${x} is verified.  Skipping.`);
         continue;
       }
-      const result = await accountDeleteManager.enqueue({ email: x, reason });
+      const result = await accountTasks.deleteAccount({
+        uid: acct.uid,
+        customerId: (await getAccountCustomerByUid(acct.uid))?.stripeCustomerId,
+        reason,
+      });
       console.log(`Created cloud task ${result} for uid ${x}`);
     }
   }
@@ -272,7 +262,7 @@ const init = async () => {
 
       queue.add(async () => {
         try {
-          const result = await accountDeleteManager['enqueueTask']({
+          const result = await accountTasks.deleteAccount({
             uid: row.uid.toString('hex'),
             customerId: row.stripeCustomerId || undefined,
             reason,

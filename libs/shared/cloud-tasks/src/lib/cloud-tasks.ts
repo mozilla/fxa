@@ -6,6 +6,24 @@ import { CloudTasksConfig } from './cloud-tasks.types';
 
 /** Base class for encapsulating common cloud task operations */
 export class CloudTasks {
+  /**
+   * Indicates if a queue has been configured and is enabled.
+   */
+  public get queueEnabled() {
+    // If a keyFilename was supplied, the cloud task queue can be considered enabled.
+    if (this.config.cloudTasks.credentials.keyFilename) {
+      return true;
+    }
+
+    // If we specify a local emulator is being used, then no keyFilename is required,
+    // and the task queue can be considered enabled.
+    if (this.config.cloudTasks.useLocalEmulator) {
+      return true;
+    }
+
+    return false;
+  }
+
   protected constructor(
     protected readonly config: CloudTasksConfig,
     protected readonly client: Pick<CloudTasksClient, 'createTask' | 'getTask'>

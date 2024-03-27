@@ -37,6 +37,10 @@ import {
   AuthLogger,
   ProfileClient,
 } from '../lib/types';
+import {
+  AccountTasks,
+  AccountTasksFactory,
+} from '../../../libs/shared/cloud-tasks/src';
 
 const config = configProperties.getProperties();
 const mailer = null;
@@ -121,13 +125,16 @@ DB.connect(config).then(async (db: any) => {
     Container.set(PayPalHelper, paypalHelper);
   }
 
+  const accountTasks = AccountTasksFactory(config, statsd);
+  Container.set(AccountTasks, accountTasks);
+
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: db,
     oauthDb: oauthDB,
+    config,
     push,
     pushbox,
-    statsd,
-  } as any);
+  });
   Container.set(AccountDeleteManager, accountDeleteManager);
 
   // Load the account-deletion route, so we can use its logic directly.
