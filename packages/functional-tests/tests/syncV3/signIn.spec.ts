@@ -38,15 +38,14 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified, resend', async ({ target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
       const config = await configPage.getConfig();
       test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
+        true,
+        'to be fixed to use signin and not signup flow, see FXA-8973'
       );
 
       await page.goto(
@@ -76,15 +75,14 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified - invalid code', async ({ target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
       const config = await configPage.getConfig();
       test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
+        true,
+        'to be fixed to use signin and not signup flow, see FXA-8973'
       );
 
       await page.goto(
@@ -185,11 +183,6 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.login(credentials.email, credentials.password);
       expect(await login.isSyncConnectedHeader()).toBe(true);
-
-      // Normally we wouldn't need this delay, but because we are
-      // disconnecting the sync service, we need to ensure that the device
-      // record and web channels have been sent and created.
-      await page.waitForTimeout(1000);
 
       await relier.goto();
       await relier.clickEmailFirst();
