@@ -20,11 +20,7 @@ export class AccountTasks extends CloudTasks {
     super(config, cloudTaskClient);
   }
 
-  /**
-   * Adds an account to the delete account task queue.
-   * @param deleteTask The info necessary to queue an account deletion.
-   * @returns A taskName
-   */
+  /** Add an account to the task queue. */
   public async deleteAccount(deleteTask: DeleteAccountTask) {
     try {
       const result = await this.enqueueTask({

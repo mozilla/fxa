@@ -44,12 +44,14 @@ describe('AccountDeleteManager', function () {
   let mockConfig;
   let accountDeleteManager;
   let mockAuthModels;
+  let createTaskStub;
 
   beforeEach(() => {
     const { PayPalHelper } = require('../../lib/payments/paypal/helper');
     const { StripeHelper } = require('../../lib/payments/stripe');
 
     sandbox.reset();
+    createTaskStub = sandbox.stub();
     mockFxaDb = {
       ...mocks.mockDB({ email: email, uid: uid }),
       fetchAccountSubscriptions: sinon.spy(
@@ -105,7 +107,7 @@ describe('AccountDeleteManager', function () {
       return [{ status: 'Active', billingAgreementId: 'B-test' }];
     });
     mockAuthModels.deleteAllPayPalBAs = sinon.spy(async () => {});
-    mockAuthModels.getAccountCustomerByUid = sinon.spy(async (...args) => {
+    mockAuthModels.getAccountCustomerByUid = sinon.spy(async () => {
       return { stripeCustomerId: 'cus_993' };
     });
 
@@ -122,6 +124,14 @@ describe('AccountDeleteManager', function () {
     Container.set(PlayBilling, mockPlayBilling);
 
     const { AccountDeleteManager } = proxyquire('../../lib/account-delete', {
+      '@google-cloud/tasks': {
+        CloudTasksClient: class CloudTasksClient {
+          constructor() {}
+          createTask(...args) {
+            return createTaskStub.apply(null, args);
+          }
+        },
+      },
       'fxa-shared/db/models/auth': mockAuthModels,
     });
 
@@ -141,6 +151,104 @@ describe('AccountDeleteManager', function () {
 
   it('can be instantiated', () => {
     assert.ok(accountDeleteManager);
+  });
+
+  describe('create tasks', function () {
+    it('creates a delete account task by uid', async () => {
+      const taskId = 'proj/testo/loc/us-n/q/del0/tasks/123';
+      createTaskStub = sandbox.stub().resolves([{ name: taskId }]);
+      const result = await accountDeleteManager.enqueue({
+        uid,
+        reason: 'fxa_unverified_account_delete',
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'cloud-tasks.account-delete.enqueue.success'
+      );
+      sinon.assert.calledOnceWithExactly(createTaskStub, {
+        parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.deleteAccounts.queueName}`,
+        task: {
+          httpRequest: {
+            url: `${mockConfig.publicUrl}/v${mockConfig.apiVersion}/cloud-tasks/accounts/delete`,
+            httpMethod: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: Buffer.from(
+              JSON.stringify({
+                uid,
+                customerId: 'cus_993',
+                reason: 'fxa_unverified_account_delete',
+              })
+            ).toString('base64'),
+            oidcToken: {
+              audience: mockConfig.cloudTasks.oidc.aud,
+              serviceAccountEmail:
+                mockConfig.cloudTasks.oidc.serviceAccountEmail,
+            },
+          },
+        },
+      });
+      assert.equal(result, taskId);
+    });
+
+    it('creates a delete account task by email', async () => {
+      const taskId = 'proj/testo/loc/us-n/q/del0/tasks/134';
+      createTaskStub = sandbox.stub().resolves([{ name: taskId }]);
+      const result = await accountDeleteManager.enqueue({
+        email,
+        reason: 'fxa_unverified_account_delete',
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
+      sinon.assert.calledOnceWithExactly(createTaskStub, {
+        parent: `projects/${mockConfig.cloudTasks.projectId}/locations/${mockConfig.cloudTasks.locationId}/queues/${mockConfig.cloudTasks.deleteAccounts.queueName}`,
+        task: {
+          httpRequest: {
+            url: `${mockConfig.publicUrl}/v${mockConfig.apiVersion}/cloud-tasks/accounts/delete`,
+            httpMethod: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: Buffer.from(
+              JSON.stringify({
+                uid,
+                customerId: 'cus_993',
+
+                reason: 'fxa_unverified_account_delete',
+              })
+            ).toString('base64'),
+            oidcToken: {
+              audience: mockConfig.cloudTasks.oidc.aud,
+              serviceAccountEmail:
+                mockConfig.cloudTasks.oidc.serviceAccountEmail,
+            },
+          },
+        },
+      });
+      assert.equal(result, taskId);
+    });
+
+    it('throws when task creation fails', async () => {
+      const fetchCustomerStub = sandbox.stub().resolves({ id: 'cus_997' });
+      mockStripeHelper['fetchCustomer'] = fetchCustomerStub;
+      createTaskStub = sandbox.stub().throws();
+      try {
+        await accountDeleteManager.enqueue({
+          uid,
+          reason: 'fxa_unverified_account_delete',
+        });
+        assert.fail('An error should have been thrown.');
+      } catch (err) {
+        sinon.assert.calledOnceWithExactly(
+          mockStatsd.increment,
+          'cloud-tasks.account-delete.enqueue.failure'
+        );
+        assert.instanceOf(err, Error);
+      }
+    });
   });
 
   describe('delete account', function () {
@@ -238,12 +346,17 @@ describe('AccountDeleteManager', function () {
   });
 
   describe('quickDelete', () => {
-    it('should delete the account', async () => {
+    it('should delete the account and queue', async () => {
+      createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
       await accountDeleteManager.quickDelete(uid, deleteReason);
 
       sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
         uid,
       });
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
     });
 
@@ -254,6 +367,25 @@ describe('AccountDeleteManager', function () {
       } catch (err) {
         assert.match(err.message, /^quickDelete only supports user/);
       }
+    });
+
+    it('should enqueue if an error happens during delete', async () => {
+      createTaskStub = sandbox.stub().resolves([{ name: 'test' }]);
+      mockFxaDb.deleteAccount = sandbox.stub().throws();
+      await accountDeleteManager.quickDelete(uid, deleteReason);
+
+      sinon.assert.calledWithMatch(mockFxaDb.deleteAccount, {
+        uid,
+      });
+      sinon.assert.calledOnceWithExactly(
+        mockAuthModels.getAccountCustomerByUid,
+        uid
+      );
+      sinon.assert.callCount(mockOAuthDb.removeTokensAndCodes, 0);
+      sinon.assert.calledOnceWithExactly(
+        mockStatsd.increment,
+        'cloud-tasks.account-delete.enqueue.success'
+      );
     });
   });
 

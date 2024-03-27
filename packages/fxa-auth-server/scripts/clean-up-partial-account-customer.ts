@@ -3,28 +3,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Command } from 'commander';
-import {
-  AccountCustomers,
-  getAccountCustomerByUid,
-} from 'fxa-shared/db/models/auth';
+import { AccountCustomers } from 'fxa-shared/db/models/auth';
 import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 
 import appConfig from '../config';
+import {
+  AccountDeleteManager,
+  ReasonForDeletionOptions,
+} from '../lib/account-delete';
 import * as random from '../lib/crypto/random';
 import DB from '../lib/db';
 import { setupFirestore } from '../lib/firestore-db';
 import initLog from '../lib/log';
+import oauthDb from '../lib/oauth/db';
 import { CurrencyHelper } from '../lib/payments/currencies';
 import { createStripeHelper, StripeHelper } from '../lib/payments/stripe';
+import { pushboxApi } from '../lib/pushbox';
 import initRedis from '../lib/redis';
 import Token from '../lib/tokens';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import { parseDryRun } from './lib/args';
-import {
-  AccountTasksFactory,
-  ReasonForDeletion,
-} from '@fxa/shared/cloud-tasks';
 
 const dryRun = async (program: Command, limit: number) => {
   const countQuery = AccountCustomers.query()
@@ -67,7 +66,7 @@ const init = async () => {
   program.parse(process.argv);
   const isDryRun = parseDryRun(program.dryRun);
   const limit = program.limit ? parseInt(program.limit) : Infinity;
-  const reason = ReasonForDeletion.Cleanup;
+  const reason = ReasonForDeletionOptions.Cleanup;
 
   if (limit <= 0) {
     throw new Error('The limit should be a positive integer.');
@@ -89,7 +88,7 @@ const init = async () => {
     random.base32(config.signinUnblock.codeLength) as any // TS type inference is failing pretty hard with this
   );
   // connect to db here so the dry run could get a row count
-  await db.connect(config, redis);
+  const fxaDb = await db.connect(config, redis);
 
   if (isDryRun) {
     console.log(
@@ -99,6 +98,7 @@ const init = async () => {
     return dryRun(program, limit);
   }
 
+  const pushbox = pushboxApi(log, config, statsd);
   Container.set(AppConfig, config);
   Container.set(AuthLogger, log);
   const authFirestore = setupFirestore(config);
@@ -108,7 +108,14 @@ const init = async () => {
   const stripeHelper = createStripeHelper(log, config, statsd);
   Container.set(StripeHelper, stripeHelper);
 
-  const accountTasks = AccountTasksFactory(config, statsd);
+  const accountDeleteManager = new AccountDeleteManager({
+    fxaDb,
+    oauthDb,
+    config,
+    push: {} as any, // Push isn't needed for enqueuing
+    pushbox,
+    statsd,
+  });
 
   const query = AccountCustomers.query()
     .select({ uid: 'accountCustomers.uid' })
@@ -124,11 +131,7 @@ const init = async () => {
   const rows = await query;
 
   for (const x of rows) {
-    const result = await accountTasks.deleteAccount({
-      uid: x.uid,
-      customerId: (await getAccountCustomerByUid(x.uid))?.stripeCustomerId,
-      reason,
-    });
+    const result = await accountDeleteManager.enqueue({ uid: x.uid, reason });
     console.log(`Created cloud task ${result} for uid ${x.uid}`);
   }
 
