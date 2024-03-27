@@ -5,6 +5,7 @@
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
+import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 
 const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
@@ -22,22 +23,14 @@ test.describe('severity-1 #smoke', () => {
       target,
       credentials,
       context,
-      pages: { login, resetPasswordReact },
+      pages: { login, resetPasswordReact, settings },
     }) => {
       await resetPasswordReact.goto();
 
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
-
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
-
-      // Wait for navigation after email submitted
-      await page.waitForURL(
-        getReactFeatureFlagUrl(target, '/confirm_reset_password')
-      );
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
 
       // Verify confirm password reset page rendered
-      await resetPasswordReact.confirmResetPasswordHeadingVisible();
+      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
       const link = await target.email.waitForEmail(
         credentials.email,
@@ -47,15 +40,18 @@ test.describe('severity-1 #smoke', () => {
 
       // Open link in a new window
       const diffPage = await context.newPage();
+      const diffResetPasswordReact = new ResetPasswordReactPage(
+        diffPage,
+        target
+      );
       await diffPage.goto(link);
 
-      // Renders the React version of complete password reset page
-      await page.waitForSelector('#root');
-
-      await resetPasswordReact.completeResetPwdHeadingVisible(diffPage);
+      await expect(
+        diffResetPasswordReact.createNewPasswordHeading
+      ).toBeVisible();
 
       // Create and submit new password
-      await resetPasswordReact.submitNewPassword(NEW_PASSWORD, diffPage);
+      await diffResetPasswordReact.fillOutNewPasswordForm(NEW_PASSWORD);
 
       // Wait for new page to navigate
       await diffPage.waitForURL(/reset_password_verified/);
@@ -66,96 +62,90 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(target.contentServerUrl);
 
       // Verify password reset confirmation page is rendered
-      await resetPasswordReact.resetPwdConfirmedHeadingVisible(diffPage);
+      await expect(
+        diffResetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
 
       await diffPage.close();
 
       // Verify initial page redirected to sign in and sign in page rendered
-      await login.emailHeader.waitFor();
+      await expect(login.emailHeader).toBeVisible();
 
       await login.setEmail(credentials.email);
       await login.clickSubmit();
       await page.waitForURL(`${target.contentServerUrl}/signin`);
 
+      await expect(login.passwordHeader).toBeVisible();
+
       await login.setPassword(NEW_PASSWORD);
       await login.clickSubmit();
       await page.waitForURL(`${target.contentServerUrl}/settings`);
 
-      await page.getByRole('heading', { name: 'Settings', level: 2 }).waitFor();
-
+      await expect(settings.settingsHeading).toBeVisible();
       // Check that connected service name is not empty!
-      expect(await page.getByTestId('service-name').innerText()).toContain(
-        'Firefox'
-      );
+      await expect(settings.connectedServiceName).toContainText('Firefox');
 
       // Cleanup requires setting this value to correct password
       credentials.password = NEW_PASSWORD;
     });
 
-    test('cannot set an invalid password', async ({
-      page,
-      target,
-      credentials,
-      context,
-      pages: { login, resetPasswordReact },
-    }) => {
-      await resetPasswordReact.goto();
+    const testCases = [
+      {
+        name: 'short password',
+        error_msg: 'At least 8 characters',
+        password: '2short',
+      },
+      {
+        name: 'common password',
+        error_msg: 'Not a commonly used password',
+        password: 'password',
+      },
+      { name: 'email as password', error_msg: 'Not your email' },
+    ];
+    for (const { name, error_msg, password } of testCases) {
+      test(`cannot set an invalid password - ${name}`, async ({
+        target,
+        credentials,
+        context,
+        pages: { resetPasswordReact },
+      }) => {
+        // eslint-disable-next-line playwright/no-conditional-in-test
+        const passwordValue = password ?? credentials.email;
 
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
+        await resetPasswordReact.goto();
 
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+        await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      // Wait for navigation after email submitted
-      await page.waitForURL(
-        getReactFeatureFlagUrl(target, '/confirm_reset_password')
-      );
+        // Verify confirm password reset page rendered
+        await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-      // Verify confirm password reset page rendered
-      await resetPasswordReact.confirmResetPasswordHeadingVisible();
+        // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
+        const link = await target.email.waitForEmail(
+          credentials.email,
+          EmailType.recovery,
+          EmailHeader.link
+        );
 
-      // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
-      const link = await target.email.waitForEmail(
-        credentials.email,
-        EmailType.recovery,
-        EmailHeader.link
-      );
+        // Open link in a new window
+        const diffPage = await context.newPage();
+        const diffResetPasswordReact = new ResetPasswordReactPage(
+          diffPage,
+          target
+        );
+        await diffPage.goto(link);
 
-      // Open link in a new window
-      const diffPage = await context.newPage();
-      await diffPage.goto(link);
+        await expect(
+          diffResetPasswordReact.createNewPasswordHeading
+        ).toBeVisible();
 
-      // Renders the React version of complete password reset page
-      await page.waitForSelector('#root');
-      await resetPasswordReact.completeResetPwdHeadingVisible(diffPage);
+        await diffResetPasswordReact.fillOutNewPasswordForm(passwordValue);
 
-      // Attempt to submit short password
-      await resetPasswordReact.submitNewPassword('2short', diffPage);
-
-      await diffPage.getByText('At least 8 characters').waitFor();
-      await expect(
-        diffPage.getByRole('textbox', { name: 'New password' })
-      ).toBeFocused();
-
-      // Attempt to submit email as password
-      await resetPasswordReact.submitNewPassword(credentials.email, diffPage);
-
-      await diffPage.getByText('Not your email').waitFor();
-      await expect(
-        diffPage.getByRole('textbox', { name: 'New password' })
-      ).toBeFocused();
-
-      // Attempt to submit a common password
-      await resetPasswordReact.submitNewPassword('password', diffPage);
-
-      await diffPage.getByText('Not a commonly used password').waitFor();
-      await expect(
-        diffPage.getByRole('textbox', { name: 'New password' })
-      ).toBeFocused();
-    });
+        await expect(diffPage.getByText(error_msg)).toBeVisible();
+        await expect(diffResetPasswordReact.newPasswordTextbox).toBeFocused();
+      });
+    }
 
     test('visit confirmation screen without initiating reset_password, user is redirected to /reset_password', async ({
-      target,
       page,
       pages: { resetPasswordReact },
     }) => {
@@ -163,60 +153,48 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify its redirected to react reset password page
       await expect(page.locator('#root')).toBeEnabled();
-      await resetPasswordReact.resetPasswordHeadingVisible();
+      await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
     });
 
     test('open /reset_password page from /signin', async ({
       credentials,
-      page,
-      pages: { login },
+      pages: { login, resetPasswordReact },
     }) => {
       await login.goto();
+
+      await expect(login.emailHeader).toBeVisible();
+
       await login.setEmail(credentials.email);
       await login.submit();
-      await login.clickForgotPassword();
-      // Verify react page has been loaded - to be enabled when link to react page from sign in is active
-      // await page.waitForSelector('#root');
-    });
 
-    // tests for submission success with leading/trailing whitespace in email has been moved to unit tests
+      await login.clickForgotPassword();
+
+      await expect(resetPasswordReact.resetPasswordHeading).toBeVisible();
+    });
 
     test('open confirm_reset_password page, click resend', async ({
       credentials,
-      target,
-      page,
       pages: { resetPasswordReact },
     }) => {
       await resetPasswordReact.goto();
 
-      // Verify react page is loaded
-      await page.waitForSelector('#root');
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
-      await page.waitForURL(
-        getReactFeatureFlagUrl(target, '/confirm_reset_password')
-      );
-      await resetPasswordReact.confirmResetPasswordHeadingVisible();
+      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-      const resendButton = page.getByRole('button', {
-        name: 'Not in inbox or spam folder? Resend',
-      });
-      await resendButton.waitFor();
-      await resendButton.click();
-      await page.getByText(/Email re-sent/).waitFor();
+      resetPasswordReact.resendButton.click();
+
+      await expect(resetPasswordReact.statusBar).toHaveText(/Email re-sent/);
     });
 
     test('open /reset_password page, enter unknown email, wait for error', async ({
-      target,
-      page,
-      pages: { login, resetPasswordReact },
+      pages: { resetPasswordReact },
     }) => {
       await resetPasswordReact.goto();
 
-      // Verify react page is loaded
-      await page.waitForSelector('#root');
-      await resetPasswordReact.fillEmailToResetPwd('email@restmail.net');
-      await page.getByText('Unknown account').waitFor();
+      await resetPasswordReact.fillOutEmailForm('email@restmail.net');
+
+      await expect(resetPasswordReact.statusBar).toHaveText('Unknown account');
     });
 
     test('browse directly to page with email on query params', async ({
@@ -227,13 +205,12 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await resetPasswordReact.goto(undefined, `email=${credentials.email}`);
 
-      // Verify react page is loaded
-      await page.waitForSelector('#root');
-
       //The email shouldn't be pre-filled
-      const emailInput = await resetPasswordReact.getEmailValue();
+      const emailInput = await resetPasswordReact.emailTextbox.inputValue();
+
       expect(emailInput).toEqual('');
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
       await page.waitForURL(
         getReactFeatureFlagUrl(
           target,
@@ -241,8 +218,8 @@ test.describe('severity-1 #smoke', () => {
           `email=${encodeURIComponent(credentials.email)}`
         )
       );
-      await page.waitForSelector('#root');
-      await resetPasswordReact.confirmResetPasswordHeadingVisible();
+
+      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
     });
   });
 });
