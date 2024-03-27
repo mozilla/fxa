@@ -121,11 +121,14 @@ executors:
       - image: jdlk7/firestore-emulator
       - image: memcached
       - image: redis
+      - image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
+        command: -queue "projects/test/locations/test/queues/delete-accounts-queue"
     environment:
       NODE_ENV: development
       FIRESTORE_EMULATOR_HOST: localhost:9090
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
+      AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
 
   # For anything that needs a full stack to run and needs browsers available for
   # ui test automation. This image requires a restored workspace state.
@@ -143,6 +146,8 @@ executors:
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
+      - image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
+        command: -queue "projects/test/locations/test/queues/delete-accounts-queue"
     environment:
       NODE_ENV: development
       FXA_EMAIL_ENV: development
@@ -164,6 +169,7 @@ executors:
       REACT_CONVERSION_POST_VERIFY_CAD_VIA_QR_ROUTES: true
       CUSTOMS_SERVER_URL: none
       HUSKY_SKIP_INSTALL: 1
+      AUTH_CLOUDTASKS_USE_LOCAL_EMULATOR: true
 
   # Contains a pre-installed fxa stack and browsers for doing ui test
   # automation. Perfect for running smoke tests against remote targets.

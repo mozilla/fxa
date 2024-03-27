@@ -8,31 +8,31 @@ import { parseDryRun } from './lib/args';
 import { FieldPath, Firestore } from '@google-cloud/firestore';
 import { AppConfig, AuthFirestore, AuthLogger } from '../lib/types';
 import Container from 'typedi';
-import {
-  AccountDeleteManager,
-  ReasonForDeletionOptions,
-} from '../lib/account-delete';
 import { ConfigType } from '../config';
-import oauthDb from '../lib/oauth/db';
 import { StatsD } from 'hot-shots';
-import pushboxApi from '../lib/pushbox';
 import { setupAccountDatabase } from '@fxa/shared/db/mysql/account';
 import { AccountManager } from '@fxa/shared/account/account';
 import { uuidTransformer } from 'packages/fxa-shared/db/transformers';
 import * as pckg from '../package.json';
+import {
+  AccountTasks,
+  ReasonForDeletion,
+  AccountTasksFactory,
+} from '@fxa/shared/cloud-tasks';
+import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 
 class CleanupFirestoreHelper {
   private firestore: Firestore;
   private log: AuthLogger;
   private config: ConfigType;
-  private accountDeleteManager: AccountDeleteManager;
+  private accountTasks: AccountTasks;
   private accountManager: AccountManager;
 
   constructor(private batchSize: number, private dryRun: boolean) {
     this.firestore = Container.get<Firestore>(AuthFirestore);
     this.log = Container.get(AuthLogger);
     this.config = Container.get(AppConfig);
-    this.accountDeleteManager = Container.get(AccountDeleteManager);
+    this.accountTasks = Container.get(AccountTasks);
     this.accountManager = Container.get(AccountManager);
   }
 
@@ -104,10 +104,11 @@ class CleanupFirestoreHelper {
     }
 
     await Promise.all(
-      uids.map((uid) =>
-        this.accountDeleteManager.enqueue({
+      uids.map(async (uid) =>
+        this.accountTasks.deleteAccount({
           uid,
-          reason: ReasonForDeletionOptions.Cleanup,
+          customerId: (await getAccountCustomerByUid(uid))?.stripeCustomerId,
+          reason: ReasonForDeletion.Cleanup,
         })
       )
     );
@@ -153,25 +154,14 @@ export async function init() {
   const batchSize = parseInt(options.batchSize);
   const isDryRun = parseDryRun(options.dryRun);
 
-  const { database: fxaDb } = await setupProcessingTaskObjects(
-    'cleanup-delete-partial-firestore'
-  );
+  // TBD, do we still need this? fxaDb is no longer referenced...
+  await setupProcessingTaskObjects('cleanup-delete-partial-firestore');
 
   const config = Container.get(AppConfig);
   const statsd = Container.get(StatsD);
-  const log = Container.get(AuthLogger);
-  const pushbox = pushboxApi(log, config, statsd);
 
-  const accountDeleteManager = new AccountDeleteManager({
-    fxaDb,
-    oauthDb,
-    config,
-    push: {} as any,
-    pushbox,
-    statsd,
-  });
-
-  Container.set(AccountDeleteManager, accountDeleteManager);
+  const accountTasks = AccountTasksFactory(config, statsd);
+  Container.set(AccountTasks, accountTasks);
 
   const accountDb = await setupAccountDatabase(config.database.mysql.auth);
   const accountManager = new AccountManager(accountDb);
