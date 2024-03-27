@@ -94,6 +94,7 @@ export class LinkedAccountHandler {
     try {
       const jwtPayload = (await validateSecurityToken(
         token,
+        this.config.appleAuthConfig.securityEventsClientIds,
         this.applePublicKey.pem,
         APPLE_AUD
       )) as AppleJWTSETPayload;
@@ -152,6 +153,7 @@ export class LinkedAccountHandler {
 
       const jwtPayload = (await validateSecurityToken(
         token,
+        this.config.googleAuthConfig.securityEventsClientIds,
         this.goooglePublicKey.pem,
         this.goooglePublicKey.issuer
       )) as GoogleJWTSETPayload;

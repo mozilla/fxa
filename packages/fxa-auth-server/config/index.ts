@@ -203,6 +203,12 @@ const convictConf = convict({
       format: String,
       doc: 'Apple auth token endpoint',
     },
+    securityEventsClientIds: {
+      default: ['com.mozilla.firefox.accounts.auth'],
+      env: 'APPLE_AUTH_SECURITY_EVENTS_CLIENT_IDS',
+      format: Array,
+      doc: 'Apple auth security events client ids',
+    },
   },
   googleAuthConfig: {
     clientId: {
@@ -229,6 +235,14 @@ const convictConf = convict({
       env: 'GOOGLE_AUTH_TOKEN_ENDPOINT',
       format: String,
       doc: 'Google auth token endpoint',
+    },
+    securityEventsClientIds: {
+      default: [
+        '218517873053-th4taguk9dvf03rrgk8sigon84oigf5l.apps.googleusercontent.com',
+      ],
+      env: 'GOOGLE_AUTH_SECURITY_EVENTS_CLIENT_IDS',
+      format: Array,
+      doc: 'Google auth security events client ids',
     },
   },
   googleMapsApiKey: {
