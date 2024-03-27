@@ -37,10 +37,6 @@ const { AccountDeleteManager } = require('../lib/account-delete');
 const { gleanMetrics } = require('../lib/metrics/glean');
 const Customs = require('../lib/customs');
 const Profile = require('../lib/profile/client');
-const {
-  AccountTasks,
-  AccountTasksFactory,
-} = require('@fxa/shared/cloud-tasks');
 async function run(config) {
   Container.set(AppConfig, config);
 
@@ -180,15 +176,12 @@ async function run(config) {
 
   // The AccountDeleteManager is dependent on some of the object set into
   // Container above.
-  const accountTasks = AccountTasksFactory(config, statsd);
-  Container.set(AccountTasks, accountTasks);
-
   const accountDeleteManager = new AccountDeleteManager({
     fxaDb: database,
     oauthDb,
-    config,
     push,
     pushbox,
+    statsd,
   });
   Container.set(AccountDeleteManager, accountDeleteManager);
 
