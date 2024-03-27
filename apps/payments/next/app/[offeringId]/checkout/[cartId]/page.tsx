@@ -35,10 +35,6 @@ export default async function Checkout({
 
   return (
     <>
-      <header className="page-title-container">
-        <h1 className="page-header">Under Construction</h1>
-      </header>
-
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
           interval={cart.interval}

@@ -2,7 +2,6 @@ import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import checkLogo from '../../../../../images/check.svg';
 import circledConfirm from '../../../../../images/circled-confirm.svg';
 import { formatPlanPricing } from '../../../../../../../../libs/payments/ui/src/lib/utils/helpers';
 import {
@@ -14,7 +13,6 @@ import {
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
 import { CheckoutSearchParams } from '../../layout';
-// import { app } from '../../_nestapp/app';
 
 export const dynamic = 'force-dynamic';
 
@@ -78,20 +76,6 @@ export default async function CheckoutSuccess({
 
   return (
     <>
-      <header className="page-title-container">
-        <h1 className="page-header">
-          {l10n.getMessage('subscription-success-title')?.value?.toString() ||
-            'Subscription confirmation'}
-        </h1>
-        <div className="page-subheader">
-          <Image src={checkLogo} alt="" />
-          <span className="page-subheader-text">
-            {l10n.getMessage('sub-guarantee')?.value?.toString() ||
-              '30-day money-back guarantee'}
-          </span>
-        </div>
-      </header>
-
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails
           locale={locale}

@@ -16,5 +16,13 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <>{children}</>;
+  return (
+    <>
+      <header className="page-title-container">
+        <h1 className="page-header">Under Construction</h1>
+      </header>
+
+      {children}
+    </>
+  );
 }
