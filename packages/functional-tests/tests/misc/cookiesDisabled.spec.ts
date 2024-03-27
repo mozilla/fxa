@@ -71,6 +71,7 @@ test.describe('cookies disabled', () => {
     page,
     pages: { cookiesDisabled, login },
   }) => {
+    test.fixme(true, 'Fix required as of 2024/03/22 (see FXA-9323).');
     //Goto cookies enabled url
     await page.goto(
       `${target.contentServerUrl}/verify_email?disable_local_storage=1&uid=240103bbecd645848103021e7d245bcb&code=fc46f44802b2a2ce979f39b2187aa1c0`,
