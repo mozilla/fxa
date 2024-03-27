@@ -35,7 +35,7 @@ const {
 const {
   VX_REGEX: CLIENT_SALT_STRING,
 } = require('../../lib/routes/utils/client-key-stretch');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
+const { ReasonForDeletion } = require('./cloud-tasks');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;

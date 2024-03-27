@@ -37,10 +37,7 @@ import {
   AuthLogger,
   ProfileClient,
 } from '../lib/types';
-import {
-  AccountTasks,
-  AccountTasksFactory,
-} from '../../../libs/shared/cloud-tasks/src';
+import { AccountTasks, AccountTasksFactory } from '@fxa/shared/cloud-tasks';
 
 const config = configProperties.getProperties();
 const mailer = null;
