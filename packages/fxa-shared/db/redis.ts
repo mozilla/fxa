@@ -191,7 +191,7 @@ export class RedisShared {
     await this.redis.quit();
   }
 
-  async del(key: string) {
+  async del(key: string): Promise<number | undefined> {
     const result = await this.redis.del(key);
     return result;
   }

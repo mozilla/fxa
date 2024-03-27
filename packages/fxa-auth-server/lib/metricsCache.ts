@@ -4,29 +4,43 @@
 
 'use strict';
 
-const { RedisShared } = require('fxa-shared/db/redis');
-const { Container } = require('typedi');
-const { AuthLogger } = require('./types');
-const { StatsD } = require('hot-shots');
+import { RedisShared, Config as RedisSharedConfig } from 'fxa-shared/db/redis';
+import { Container } from 'typedi';
+import { AuthLogger } from './types';
+import { StatsD } from 'hot-shots';
 
 function resolveLogger() {
   if (Container.has(AuthLogger)) {
     return Container.get(AuthLogger);
   }
+  return;
 }
 function resolveMetrics() {
   if (Container.has(StatsD)) {
     return Container.get(StatsD);
   }
+  return;
 }
 
+export type MetricsRedisConfig = {
+  redis: {
+    metrics: RedisSharedConfig & {
+      lifetime: number;
+    };
+  };
+};
+
 export class MetricsRedis extends RedisShared {
-  constructor(config) {
+  private enabled: boolean;
+  private lifetime: number;
+  private prefix: string;
+
+  constructor(config: MetricsRedisConfig) {
     super(config.redis.metrics, resolveLogger(), resolveMetrics());
-    this.enabled = config.redis?.metrics?.enabled || false;
-    this.config = config;
-    this.prefix = config.redis?.metrics?.prefix || 'metrics:';
-    this.lifetime = config.redis?.metrics?.lifetime || 7200;
+    this.enabled = config.redis.metrics.enabled || false;
+    // TBD - Assigned but not used?
+    this.prefix = config.redis.metrics.prefix || 'metrics:';
+    this.lifetime = config.redis.metrics.lifetime || 7200;
   }
 
   /**
@@ -39,7 +53,7 @@ export class MetricsRedis extends RedisShared {
    * @param {string} key
    * @param data
    */
-  async add(key, data) {
+  async add(key: string, data: any) {
     if (!this.enabled) {
       return;
     }
@@ -60,7 +74,7 @@ export class MetricsRedis extends RedisShared {
    *
    * @param {string} key
    */
-  async del(key) {
+  async del(key: string) {
     if (!this.enabled) {
       return;
     }
@@ -73,14 +87,14 @@ export class MetricsRedis extends RedisShared {
    *
    * @param {string} key
    */
-  async get(key) {
+  async get(key: string) {
     if (!this.enabled) {
       return {};
     }
 
     try {
       const value = await this.redis.get(key);
-      return JSON.parse(value);
+      return JSON.parse(value || '{}');
     } catch (err) {
       return {};
     }
