@@ -21,23 +21,6 @@ test.describe('severity-1 #smoke', () => {
       }
     );
 
-    test.afterEach(async ({ credentials, target }) => {
-      try {
-        const newCreds = await target.auth.signIn(
-          newEmail,
-          credentials.password
-        );
-        await target.auth.accountDestroy(
-          newEmail,
-          credentials.password,
-          {},
-          newCreds.sessionToken
-        );
-      } catch (err) {
-        // ignore
-      }
-    });
-
     test('change primary email and login', async ({
       credentials,
       page,
@@ -167,23 +150,6 @@ test.describe('severity-1 #smoke', () => {
         await settings.signOut();
       }
     );
-
-    test.afterEach(async ({ credentials, target }) => {
-      try {
-        const newCreds = await target.auth.signIn(
-          newEmail,
-          credentials.password
-        );
-        await target.auth.accountDestroy(
-          newEmail,
-          credentials.password,
-          {},
-          newCreds.sessionToken
-        );
-      } catch (err) {
-        // ignore
-      }
-    });
 
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
       credentials,

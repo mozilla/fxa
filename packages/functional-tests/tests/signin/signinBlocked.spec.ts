@@ -2,61 +2,47 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
-const password = 'passwordzxcv';
-let blockedEmail;
-let email;
-let newEmail;
-let unverifiedEmail;
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin blocked', () => {
-    test.beforeEach(async ({ target, pages: { login } }) => {
+    test.use({
+      emailOptions: [
+        { PASSWORD },
+        { prefix: 'blocked{id}', PASSWORD },
+        { prefix: 'blocked{id}', PASSWORD },
+        { prefix: 'blocked{id}', PASSWORD },
+      ],
+    });
+
+    test.beforeEach(async ({ emails, target, pages: { login } }) => {
       test.slow(); //This test has steps for email rendering that runs slow on stage
-      blockedEmail = login.createEmail('blocked{id}');
-      await target.auth.signUp(blockedEmail, password, {
+      const [email, blockedEmail, , unverifiedEmail] = emails;
+      await target.auth.signUp(blockedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
-      email = await login.createEmail();
-      await target.auth.signUp(email, password, {
+      await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
-      newEmail = login.createEmail('blocked{id}');
-      unverifiedEmail = login.createEmail('blocked{id}');
-      await target.auth.signUp(unverifiedEmail, password, {
+      await target.auth.signUp(unverifiedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
-      await login.clearCache();
     });
 
-    test.afterEach(async ({ target }) => {
-      test.slow(); //The cleanup was timing out and exceeding 3000ms
-      const emails = [blockedEmail, email, newEmail, unverifiedEmail];
-      for (const email of emails) {
-        if (email) {
-          try {
-            const creds = await target.auth.signIn(email, password);
-            await target.auth.accountDestroy(
-              email,
-              password,
-              {},
-              creds.sessionToken
-            );
-          } catch (e) {
-            // Handle any errors if needed
-          }
-        }
-      }
-    });
-
-    test('valid code entered', async ({ target, page, pages: { login } }) => {
+    test('valid code entered', async ({
+      emails,
+      target,
+      page,
+      pages: { login },
+    }) => {
+      const [, blockedEmail, ,] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(blockedEmail, password);
+      await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
       expect(login.signInUnblockHeader()).toBeVisible();
@@ -70,14 +56,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('incorrect code entered', async ({
+      emails,
       target,
       page,
       pages: { login },
     }) => {
+      const [, blockedEmail, ,] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(blockedEmail, password);
+      await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
       expect(login.signInUnblockHeader()).toBeVisible();
@@ -97,14 +85,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('resend', async ({
+      emails,
       target,
       page,
       pages: { login, resetPassword },
     }) => {
+      const [, blockedEmail, ,] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(blockedEmail, password);
+      await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
       expect(login.signInUnblockHeader()).toBeVisible();
@@ -126,14 +116,16 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('with primary email changed', async ({
+      emails,
       target,
       page,
       pages: { login, settings, secondaryEmail },
     }) => {
+      const [email, , newEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -147,7 +139,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(newEmail, password);
+      await login.fillOutEmailFirstSignIn(newEmail, PASSWORD);
 
       //Verify sign in block header
       expect(login.signInUnblockHeader()).toBeVisible();
@@ -160,12 +152,13 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
     });
 
-    test('unverified', async ({ target, page, pages: { login } }) => {
+    test('unverified', async ({ emails, target, page, pages: { login } }) => {
       test.fixme(true, 'FXA-9226');
+      const [, , , unverifiedEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(unverifiedEmail, password);
+      await login.fillOutEmailFirstSignIn(unverifiedEmail, PASSWORD);
 
       //Verify sign in block header
       expect(login.signInUnblockHeader()).toBeVisible();

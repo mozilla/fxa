@@ -2,13 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
-
-let email;
-const password = 'passwordzxcv';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth permissions for trusted reliers - sign up', () => {
+    test.use({ emailOptions: [{ PASSWORD }] });
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
       test.skip(
@@ -16,46 +14,35 @@ test.describe('severity-1 #smoke', () => {
         'these tests are specific to backbone, skip if seeing React version'
       );
       test.slow();
-      email = login.createEmail();
-      await login.clearCache();
-    });
-
-    test.afterEach(async ({ target }) => {
-      if (email) {
-        // Cleanup any accounts created during the test
-        const credentials = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          credentials.sessionToken
-        );
-      }
     });
 
     test('signup without `prompt=consent`', async ({
+      emails,
       pages: { login, relier },
     }) => {
+      const [email] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //no permissions asked for, straight to confirm
-      expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader()).toBeVisible();
     });
 
     test('signup with `prompt=consent`', async ({
+      emails,
       target,
       page,
       pages: { login, relier },
     }) => {
+      const [email] = emails;
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
       await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
         waitUntil: 'load',
       });
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);

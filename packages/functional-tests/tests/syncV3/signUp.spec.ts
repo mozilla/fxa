@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
-const password = 'passwordzxcv';
 const incorrectPassword = 'password123';
-let email;
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign up', () => {
+    test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
+
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
       test.skip(
@@ -19,13 +19,12 @@ test.describe('severity-1 #smoke', () => {
         'these tests are specific to backbone, skip if seeing React version'
       );
       test.slow();
-      email = login.createEmail('sync{id}');
     });
 
-    test('sync sign up', async ({ target, syncBrowserPages }) => {
+    test('sync sign up', async ({ emails, target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-
+      const [email] = emails;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
         { waitUntil: 'load' }
@@ -37,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.getPrefilledEmail()).toMatch(email);
 
       // Passwords do not match should cause an error
-      await login.setPassword(password);
+      await login.setPassword(PASSWORD);
       await login.confirmPassword(incorrectPassword);
       await login.setAge('21');
       await signinTokenCode.clickSubmitButton();
@@ -46,16 +45,18 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.getTooltipError()).toContain('Passwords do not match');
 
       // Fix the error
-      await login.confirmPassword(password);
+      await login.confirmPassword(PASSWORD);
       await login.submit();
       await login.fillOutSignUpCode(email);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('coppa disabled', async ({
+      emails,
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
     }) => {
+      const [email] = emails;
       const query = { coppa: 'false' };
       const queryParam = new URLSearchParams(query);
       await page.goto(
@@ -66,8 +67,8 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.setEmail(email);
       await login.submit();
-      await login.setPassword(password);
-      await login.confirmPassword(password);
+      await login.setPassword(PASSWORD);
+      await login.confirmPassword(PASSWORD);
 
       // Age textbox is not on the page and click submit
       await login.submit();
@@ -106,9 +107,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('email specified by relier, not registered', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email] = emails;
       const query = { email };
       const queryParam = new URLSearchParams(query);
       await page.goto(

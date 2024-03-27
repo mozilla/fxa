@@ -2,49 +2,36 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
-const password = 'passwordzxcv';
-let email;
-let email2;
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin cached', () => {
-    test.beforeEach(async ({ target, syncBrowserPages: { login } }) => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-      email = login.createEmail('sync{id}');
-      email2 = login.createEmail();
-      await target.auth.signUp(email, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await target.auth.signUp(email2, password, {
-        lang: 'en',
-        preVerified: 'true',
-      });
+    test.use({
+      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
     });
-
-    test.afterEach(async ({ target }) => {
-      test.slow(); //The cleanup was timing out and exceeding 3000ms
-      if (email) {
-        // Cleanup any accounts created during the test
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(email, password, {}, creds.sessionToken);
-      }
-      if (email2) {
-        // Cleanup any accounts created during the test
-        const creds = await target.auth.signIn(email2, password);
-        await target.auth.accountDestroy(email2, password, {}, creds.sessionToken);
-      }
+    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
+      test.slow(); //This test has steps for email rendering that runs slow on stage
+      const [email, syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await target.auth.signUp(email, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
     });
 
     test('sign in twice, on second attempt email will be cached', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -53,7 +40,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -61,13 +48,15 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
+      emails,
       target,
       syncBrowserPages: { page, login, settings },
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -76,10 +65,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.denormalizeStoredEmail(email);
+      await login.denormalizeStoredEmail(syncEmail);
       await page.reload();
 
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -87,17 +76,19 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify email is normalized
       const primary = await settings.primaryEmail.statusText();
-      expect(primary).toEqual(email);
+      expect(primary).toEqual(syncEmail);
     });
 
     test('sign in once, use a different account', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -105,9 +96,9 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.useDifferentAccountLink();
-      await login.fillOutEmailFirstSignIn(email2, password);
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -117,29 +108,31 @@ test.describe('severity-2 #smoke', () => {
         waitUntil: 'load',
       });
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email2);
+      expect(await login.getPrefilledEmail()).toContain(email);
     });
 
     test('expired cached credentials', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
-      await login.destroySession(email);
+      await login.destroySession(syncEmail);
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
-      await login.setPassword(password);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      await login.setPassword(PASSWORD);
       await login.clickSubmit();
 
       //Verify logged in on Settings page
@@ -147,13 +140,15 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('cached credentials that expire while on page', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -163,16 +158,16 @@ test.describe('severity-2 #smoke', () => {
       });
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
 
-      await login.destroySession(email);
+      await login.destroySession(syncEmail);
       await login.clickSignIn();
 
       //Session expired error should show.
       expect(await login.signInError()).toContain(
         'Session expired. Sign in to continue.'
       );
-      await login.setPassword(password);
+      await login.setPassword(PASSWORD);
       await login.clickSubmit();
 
       //Verify logged in on Settings page
@@ -180,19 +175,21 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('unverified cached signin redirects to confirm email', async ({
+      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
+      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
       const email_unverified = login.createEmail();
-      await target.auth.signUp(email_unverified, password, {
+      await target.auth.signUp(email_unverified, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutEmailFirstSignIn(email_unverified, password);
+      await login.fillOutEmailFirstSignIn(email_unverified, PASSWORD);
 
       //Verify sign up code header is visible
       expect(login.signUpCodeHeader()).toBeVisible();

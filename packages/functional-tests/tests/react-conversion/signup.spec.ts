@@ -3,7 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import { expect, test as base } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
+import { PASSWORD } from '../../lib/fixtures/standard';
+
 import {
   syncDesktopV3QueryParams,
   syncMobileOAuthQueryParams,
@@ -11,7 +13,6 @@ import {
 
 const AGE_12 = '12';
 const AGE_21 = '21';
-const PASSWORD = 'passwordzxcv';
 
 const eventDetailLinkAccount = createCustomEventDetail(
   FirefoxCommand.LinkAccount,
@@ -19,29 +20,6 @@ const eventDetailLinkAccount = createCustomEventDetail(
     ok: true,
   }
 );
-
-export const test = base.extend({
-  email: async ({ target, pages: { login } }, use) => {
-    const email = login.createEmail('signup_react{id}');
-    await login.clearCache();
-
-    await use(email);
-
-    try {
-      const creds = await target.auth.signIn(email, PASSWORD);
-      await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
-    } catch (error) {
-      // If the account is not created during the execution of the test, which
-      // can happen if the test fails prematurly, an exception will be thrown
-      // during email cleanup
-      const ERROR = 'Bad Request';
-      const MESSAGE = 'Unknown account';
-      if (!(error.error === ERROR && error.message == MESSAGE)) {
-        throw error;
-      }
-    }
-  },
-});
 
 test.beforeEach(async ({ pages: { configPage } }) => {
   test.slow();
@@ -54,11 +32,13 @@ test.beforeEach(async ({ pages: { configPage } }) => {
 
 test.describe('severity-1 #smoke', () => {
   test.describe('signup react', () => {
+    test.use({ emailOptions: [{ prefix: 'signup_react{id}', PASSWORD }] });
     test('signup web', async ({
       page,
       pages: { settings, signupReact },
-      email,
+      emails,
     }) => {
+      const [email] = emails;
       await signupReact.goto();
 
       await signupReact.fillOutEmailForm(email);
@@ -74,11 +54,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth', async ({
+      emails,
       page,
       target,
       pages: { relier, signupReact },
-      email,
     }) => {
+      const [email] = emails;
       relier.goto();
 
       relier.clickEmailFirst();
@@ -104,11 +85,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth with missing redirect_uri', async ({
+      emails,
       page,
       target,
       pages: { relier, signupReact },
-      email,
     }) => {
+      const [email] = emails;
       relier.goto();
 
       relier.clickEmailFirst();
@@ -136,9 +118,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
+      emails,
       syncBrowserPages: { page, login, signupReact },
-      email,
     }) => {
+      const [email] = emails;
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
@@ -182,8 +165,9 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup sync desktop v3, verify account', async ({
       syncBrowserPages: { page, signupReact, login },
-      email,
+      emails,
     }) => {
+      const [email] = emails;
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       await signupReact.goto('/', syncDesktopV3QueryParams);
 
@@ -224,6 +208,7 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signup react', () => {
+    test.use({ emailOptions: [{ prefix: 'signup_react{id}', PASSWORD }] });
     test('signup invalid email', async ({ page, pages: { signupReact } }) => {
       const invalidEmail = 'invalid';
 
@@ -251,8 +236,9 @@ test.describe('severity-2 #smoke', () => {
     test('coppa is too young', async ({
       page,
       pages: { login, signupReact },
-      email,
+      emails,
     }) => {
+      const [email] = emails;
       await signupReact.goto();
 
       await signupReact.fillOutEmailForm(email);
@@ -267,8 +253,9 @@ test.describe('severity-2 #smoke', () => {
       page,
       target,
       pages: { signupReact, relier, subscribe, settings },
-      email,
+      emails,
     }, { project }) => {
+      const [email] = emails;
       test.skip(
         project.name === 'production',
         'no test products available in prod'

@@ -2,49 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
-
-let email;
-let bouncedEmail;
-const password = 'passwordzxcv';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Oauth sign up', () => {
+    test.use({
+      emailOptions: [{ PASSWORD }, { prefix: 'bounced{id}', PASSWORD }],
+    });
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
       if (config.showReactApp.signUpRoutes === true) {
-        email = '';
         test.skip(
           true,
           'this test is specific to backbone, skip if serving react'
         );
       } else {
         test.slow();
-        email = login.createEmail();
-        bouncedEmail = login.createEmail('bounced{id}');
-        await login.clearCache();
       }
     });
 
-    test.afterEach(async ({ target }) => {
-      // Cleanup any accounts created during the test
-      try {
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          creds.sessionToken
-        );
-      } catch (e) {
-        // ignore
-      }
-    });
-
-    test('sign up', async ({ pages: { login, relier } }) => {
+    test('sign up', async ({ emails, pages: { login, relier } }) => {
+      const [email, ,] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
@@ -56,14 +37,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
+      emails,
       target,
       pages: { login, relier, page },
     }) => {
+      const [email, bouncedEmail] = emails;
       const client = await login.getFxaClient(target);
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(bouncedEmail, password, { verify: false });
+      await login.fillOutFirstSignUp(bouncedEmail, PASSWORD, { verify: false });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();
@@ -83,7 +66,7 @@ test.describe('severity-1 #smoke', () => {
         });
         await client.accountDestroy(
           bouncedEmail,
-          password,
+          PASSWORD,
           {},
           account.sessionToken
         );
@@ -98,7 +81,7 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setEmail('');
 
-      await login.fillOutFirstSignUp(email, password, { verify: false });
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify sign up code header
       expect(login.signUpCodeHeader()).toBeVisible();

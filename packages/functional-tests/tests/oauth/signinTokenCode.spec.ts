@@ -3,23 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EmailHeader, EmailType } from '../../lib/email';
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth signin token code', () => {
+    test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
     function toQueryString(obj) {
       return Object.entries(obj)
         .map((x) => `${x[0]}=${x[1]}`)
         .join('&');
     }
-
-    /* Email for fake account */
-    let email = '';
-
-    /* Password for fake account */
-    const password = 'passwordzxcv';
-
-    let emailUserCreds;
 
     /* eslint-disable camelcase */
     const queryParameters = {
@@ -36,61 +29,51 @@ test.describe('severity-2 #smoke', () => {
     };
     /* eslint-enable camelcase */
 
-    test.beforeEach(async ({ target }, { project }) => {
+    test.beforeEach(async ({ target, emails }, { project }) => {
       // The `sync` prefix is needed to force confirmation.
-      email = `sync${Math.random()}@restmail.net`;
-      emailUserCreds = await target.createAccount(email, password);
-    });
-
-    test.afterEach(async ({ target }) => {
-      // Cleanup any accounts created during the test
-      try {
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          emailUserCreds.sessionToken
-        );
-      } catch (e) {
-        // ignore
-      }
+      const [syncEmail] = emails;
+      await target.createAccount(syncEmail, PASSWORD);
     });
 
     test('verified - invalid token', async ({
+      emails,
       page,
       pages: { login, relier, signinTokenCode },
     }) => {
+      const [syncEmail] = emails;
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
 
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       // Check that the sign in page is show, and is asking for a sign in code
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       // This will cause the token become 'invalid' and ultimately cause an
       // INVALID_TOKEN error to be thrown.
-      await login.destroySession(email);
+      await login.destroySession(syncEmail);
       await page.waitForURL(/oauth\/signin/);
       // Destroying the session should direct user back to sign in page
       await login.passwordHeader.waitFor({ state: 'visible' });
     });
 
     test('verified - valid code', async ({
+      emails,
       target,
       page,
       pages: { login, relier, signinTokenCode },
     }) => {
+      const [syncEmail] = emails;
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
 
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(email, password);
+      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       // Enter invalid code, ensure it doesn't work
       await signinTokenCode.input.fill('000000');
@@ -109,7 +92,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       const code = await target.email.waitForEmail(
-        email,
+        syncEmail,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );

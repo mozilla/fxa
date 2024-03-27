@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
+import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
 const AGE_21 = '21';
-const password = 'passwordzxcv';
-let email;
-let email2;
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(async ({ pages: { configPage }, target }) => {
@@ -21,30 +18,11 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('signin with OAuth after Sync', () => {
-    test.afterEach(async ({ target }) => {
-      if (email) {
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          creds.sessionToken
-        );
-        email = '';
-      }
-      if (email2) {
-        const creds = await target.auth.signIn(email2, password);
-        await target.auth.accountDestroy(
-          email2,
-          password,
-          {},
-          creds.sessionToken
-        );
-        email2 = '';
-      }
+    test.use({
+      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
     });
-
     test('signin to OAuth with Sync creds', async ({
+      emails,
       target,
       syncBrowserPages: {
         configPage,
@@ -55,17 +33,14 @@ test.describe('severity-1 #smoke', () => {
         signupReact,
       },
     }) => {
+      const [email, syncEmail] = emails;
       const config = await configPage.getConfig();
-
-      email = login.createEmail('sync{id}');
-      email2 = login.createEmail();
-
-      await target.createAccount(email, password);
+      await target.createAccount(syncEmail, PASSWORD);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      await login.login(email, password);
-      await login.fillOutSignInCode(email);
+      await login.login(syncEmail, PASSWORD);
+      await login.fillOutSignInCode(syncEmail);
       // eslint-disable-next-line playwright/prefer-web-first-assertions
       expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
 
@@ -74,11 +49,11 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
       if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(email2, password);
+        await login.fillOutFirstSignUp(email, PASSWORD);
       } else {
-        await signupReact.fillOutEmailForm(email2);
-        await signupReact.fillOutSignupForm(password, AGE_21);
-        await signupReact.fillOutCodeForm(email2);
+        await signupReact.fillOutEmailForm(email);
+        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+        await signupReact.fillOutCodeForm(email);
       }
 
       // RP is logged in, logout then back in again
@@ -88,27 +63,18 @@ test.describe('severity-1 #smoke', () => {
       await relier.clickSignIn();
 
       // By default, we should see the email we signed up for Sync with
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
       await login.clickSignIn();
       expect(await relier.isLoggedIn()).toBe(true);
     });
   });
 
   test.describe('signin to Sync after OAuth', () => {
-    test.afterEach(async ({ target }) => {
-      if (email) {
-        const creds = await target.auth.signIn(email, password);
-        await target.auth.accountDestroy(
-          email,
-          password,
-          {},
-          creds.sessionToken
-        );
-        email = '';
-      }
+    test.use({
+      emailOptions: [{ prefix: 'sync{id}', PASSWORD }],
     });
-
     test('email-first Sync signin', async ({
+      emails,
       target,
       syncBrowserPages: {
         configPage,
@@ -119,26 +85,25 @@ test.describe('severity-1 #smoke', () => {
         signupReact,
       },
     }) => {
+      const [syncEmail] = emails;
       const config = await configPage.getConfig();
-
-      const email = login.createEmail('sync{id}');
       await relier.goto();
       await relier.clickEmailFirst();
       if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(email, password);
+        await login.fillOutFirstSignUp(syncEmail, PASSWORD);
       } else {
-        await signupReact.fillOutEmailForm(email);
-        await signupReact.fillOutSignupForm(password, AGE_21);
-        await signupReact.fillOutCodeForm(email);
+        await signupReact.fillOutEmailForm(syncEmail);
+        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+        await signupReact.fillOutCodeForm(syncEmail);
       }
       expect(await relier.isLoggedIn()).toBe(true);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      expect(await login.getPrefilledEmail()).toContain(email);
-      await login.setPassword(password);
+      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      await login.setPassword(PASSWORD);
       await login.submit();
-      await login.fillOutSignInCode(email);
+      await login.fillOutSignInCode(syncEmail);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
