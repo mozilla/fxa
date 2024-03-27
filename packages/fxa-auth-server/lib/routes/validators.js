@@ -35,7 +35,6 @@ const {
 const {
   VX_REGEX: CLIENT_SALT_STRING,
 } = require('../../lib/routes/utils/client-key-stretch');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 // Match any non-empty hex-encoded string.
 const HEX_STRING = /^(?:[a-fA-F0-9]{2})+$/;
@@ -122,9 +121,6 @@ module.exports.uid = module.exports.hexString.length(32);
 module.exports.clientId = module.exports.hexString.length(16);
 module.exports.clientSecret = module.exports.hexString;
 module.exports.idToken = module.exports.jwt;
-module.exports.reasonForAccountDeletion = isA
-  .string()
-  .valid(...Object.values(ReasonForDeletion));
 module.exports.refreshToken = module.exports.hexString.length(64);
 module.exports.sessionToken = module.exports.hexString.length(64);
 module.exports.sessionTokenId = module.exports.hexString.length(64);

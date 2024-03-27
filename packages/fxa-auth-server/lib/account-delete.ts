@@ -4,10 +4,13 @@
 
 import {
   deleteAllPayPalBAs,
+  getAccountCustomerByUid,
   getAllPayPalBAByUid,
 } from 'fxa-shared/db/models/auth';
+import { StatsD } from 'hot-shots';
 import { Container } from 'typedi';
 
+import { CloudTasksClient } from '@google-cloud/tasks';
 import * as Sentry from '@sentry/node';
 
 import { ConfigType } from '../config';
@@ -18,10 +21,10 @@ import { AppleIAP } from './payments/iap/apple-app-store/apple-iap';
 import { PlayBilling } from './payments/iap/google-play/play-billing';
 import { PayPalHelper } from './payments/paypal/helper';
 import { StripeHelper } from './payments/stripe';
-import { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 import { StripeFirestoreMultiError } from './payments/stripe-firestore';
 import pushBuilder from './push';
 import pushboxApi from './pushbox';
+import { accountDeleteCloudTaskPath } from './routes/cloud-tasks';
 import { AppConfig, AuthLogger, AuthRequest } from './types';
 
 type FxaDbDeleteAccount = Pick<
@@ -39,17 +42,54 @@ type PushForDeleteAccount = Pick<
 >;
 type Log = AuthLogger & { activityEvent: (data: Record<string, any>) => void };
 
+export const ReasonForDeletionOptions = {
+  UserRequested: 'fxa_user_requested_account_delete',
+  Unverified: 'fxa_unverified_account_delete',
+  Cleanup: 'fxa_cleanup_account_delete',
+} as const;
+export type ReasonForDeletion =
+  (typeof ReasonForDeletionOptions)[keyof typeof ReasonForDeletionOptions];
+export const ReasonForDeletionValues = Object.values(ReasonForDeletionOptions);
+
+type DeleteTask = {
+  uid: string;
+  customerId?: string;
+  reason: ReasonForDeletion;
+};
+type EnqueueByUidParam = {
+  uid: string;
+  reason: ReasonForDeletion;
+};
+type EnqueueByEmailParam = {
+  email: string;
+  reason: ReasonForDeletion;
+};
+
+const isEnqueueByUidParam = (
+  x: EnqueueByUidParam | EnqueueByEmailParam
+): x is EnqueueByUidParam => (x as EnqueueByUidParam).uid !== undefined;
+const isEnqueueByEmailParam = (
+  x: EnqueueByUidParam | EnqueueByEmailParam
+): x is EnqueueByEmailParam => (x as EnqueueByEmailParam).email !== undefined;
+
 export class AccountDeleteManager {
   private fxaDb: FxaDbDeleteAccount;
   private oauthDb: OAuthDbDeleteAccount;
   private push: PushForDeleteAccount;
   private pushbox: PushboxDeleteAccount;
+  private statsd: StatsD;
   private stripeHelper?: StripeHelper;
   private paypalHelper?: PayPalHelper;
   private appleIap?: AppleIAP;
   private playBilling?: PlayBilling;
   private log: Log;
   private config: ConfigType;
+  private tasksEnabled = false;
+  private tasksRequired = false;
+
+  private cloudTasksClient: CloudTasksClient;
+  private queueName;
+  private taskUrl;
 
   constructor({
     fxaDb,
@@ -57,18 +97,21 @@ export class AccountDeleteManager {
     config,
     push,
     pushbox,
+    statsd,
   }: {
     fxaDb: FxaDbDeleteAccount;
     oauthDb: OAuthDbDeleteAccount;
     config: ConfigType;
     push: PushForDeleteAccount;
     pushbox: PushboxDeleteAccount;
+    statsd: StatsD;
   }) {
     this.fxaDb = fxaDb;
     this.oauthDb = oauthDb;
     this.config = config;
     this.push = push;
     this.pushbox = pushbox;
+    this.statsd = statsd;
 
     if (Container.has(StripeHelper)) {
       this.stripeHelper = Container.get(StripeHelper);
@@ -82,11 +125,81 @@ export class AccountDeleteManager {
     if (Container.has(PlayBilling)) {
       this.playBilling = Container.get(PlayBilling);
     }
-
     this.log = Container.get(AuthLogger) as Log;
-
-    // Is this intentional? Config is passed in the constructor
     this.config = Container.get(AppConfig);
+    const tasksConfig = this.config.cloudTasks;
+
+    this.cloudTasksClient = new CloudTasksClient({
+      projectId: tasksConfig.projectId,
+      keyFilename: tasksConfig.credentials.keyFilename ?? undefined,
+    });
+    this.queueName = `projects/${tasksConfig.projectId}/locations/${tasksConfig.locationId}/queues/${tasksConfig.deleteAccounts.queueName}`;
+    this.taskUrl = `${this.config.publicUrl}/v${this.config.apiVersion}${accountDeleteCloudTaskPath}`;
+    this.tasksEnabled = !!tasksConfig.credentials.keyFilename;
+    this.tasksRequired = ['stage', 'prod'].includes(this.config.env);
+  }
+
+  public async enqueue(options: EnqueueByUidParam | EnqueueByEmailParam) {
+    if (isEnqueueByUidParam(options)) {
+      return this.enqueueByUid(options);
+    }
+
+    if (isEnqueueByEmailParam(options)) {
+      return this.enqueueByEmail(options);
+    }
+
+    throw new Error(
+      `Failed to enqueue account delete cloud task with ${options}.`
+    );
+  }
+
+  private async enqueueByUid(options: EnqueueByUidParam) {
+    const { stripeCustomerId } =
+      (await getAccountCustomerByUid(options.uid)) || {};
+    const task: DeleteTask = {
+      uid: options.uid,
+      customerId: stripeCustomerId,
+      reason: options.reason,
+    };
+    return this.enqueueTask(task);
+  }
+
+  private async enqueueByEmail(options: EnqueueByEmailParam) {
+    const account = await this.fxaDb.accountRecord(options.email);
+    const { stripeCustomerId } =
+      (await getAccountCustomerByUid(account.uid)) || {};
+    const task: DeleteTask = {
+      uid: account.uid,
+      customerId: stripeCustomerId,
+      reason: options.reason,
+    };
+    return this.enqueueTask(task);
+  }
+
+  private async enqueueTask(task: DeleteTask) {
+    try {
+      const taskResult = await this.cloudTasksClient.createTask({
+        parent: this.queueName,
+        task: {
+          httpRequest: {
+            url: this.taskUrl,
+            httpMethod: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: Buffer.from(JSON.stringify(task)).toString('base64'),
+            oidcToken: {
+              audience: this.config.cloudTasks.oidc.aud,
+              serviceAccountEmail:
+                this.config.cloudTasks.oidc.serviceAccountEmail,
+            },
+          },
+        },
+      });
+      this.statsd.increment('cloud-tasks.account-delete.enqueue.success');
+      return taskResult[0].name;
+    } catch (err) {
+      this.statsd.increment('cloud-tasks.account-delete.enqueue.failure');
+      throw err;
+    }
   }
 
   /**
@@ -127,7 +240,7 @@ export class AccountDeleteManager {
    * deletion.
    */
   public async quickDelete(uid: string, reason: ReasonForDeletion) {
-    if (reason !== ReasonForDeletion.UserRequested) {
+    if (reason !== ReasonForDeletionOptions.UserRequested) {
       throw new Error('quickDelete only supports user requested deletions');
     }
 
@@ -138,6 +251,10 @@ export class AccountDeleteManager {
       // If the account wasn't fully deleted, we should log the error and
       // still queue the account for cleanup.
       this.log.error('quickDelete', { uid, error });
+    }
+    // Only queue if enabled or is in stage/prod.
+    if (this.tasksEnabled || this.tasksRequired) {
+      await this.enqueueByUid({ uid, reason });
     }
   }
 
@@ -212,7 +329,7 @@ export class AccountDeleteManager {
     });
 
     // Currently only support auto refund of invoices for unverified accounts
-    if (deleteReason !== ReasonForDeletion.Unverified || !customerId) {
+    if (deleteReason !== ReasonForDeletionOptions.Unverified || !customerId) {
       return;
     }
 

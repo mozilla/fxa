@@ -11,7 +11,6 @@ const plan1 = require('../payments/fixtures/stripe/plan1.json');
 const validProductMetadata = plan1.product.metadata;
 const { MozillaSubscriptionTypes } = require('fxa-shared/subscriptions/types');
 const { deepCopy } = require('../payments/util');
-const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 
 describe('lib/routes/validators:', () => {
   it('isValidEmailAddress returns true for valid email addresses', () => {
@@ -1137,29 +1136,6 @@ describe('lib/routes/validators:', () => {
     it('requires proper length', () => {
       assert.exists(validators.recoveryCode(5).validate('1234').error);
       assert.exists(validators.recoveryCode(11).validate('123456').error);
-    });
-  });
-
-  describe('reason for account deletion', () => {
-    it('validates valid reason', () => {
-      assert.notExists(
-        validators.reasonForAccountDeletion.validate(ReasonForDeletion.Cleanup)
-          .error
-      );
-      assert.notExists(
-        validators.reasonForAccountDeletion.validate(
-          ReasonForDeletion.UserRequested
-        ).error
-      );
-      assert.notExists(
-        validators.reasonForAccountDeletion.validate(
-          ReasonForDeletion.Unverified
-        ).error
-      );
-    });
-
-    it('requires valid reason', () => {
-      assert.exists(validators.reasonForAccountDeletion.validate('blah').error);
     });
   });
 });

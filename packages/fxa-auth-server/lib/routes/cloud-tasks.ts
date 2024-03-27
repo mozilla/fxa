@@ -7,11 +7,19 @@ import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-import { AccountDeleteManager } from '../account-delete';
+import {
+  AccountDeleteManager,
+  ReasonForDeletion,
+  ReasonForDeletionValues,
+} from '../account-delete';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
 
-import { DeleteAccountTask } from '@fxa/shared/cloud-tasks';
+export type DeleteAccountTaskPayload = {
+  uid: string;
+  customerId?: string;
+  reason: ReasonForDeletion;
+};
 
 export class CloudTaskHandler {
   private accountDeleteManager: AccountDeleteManager;
@@ -20,7 +28,7 @@ export class CloudTaskHandler {
     this.accountDeleteManager = Container.get(AccountDeleteManager);
   }
 
-  async deleteAccount(taskPayload: DeleteAccountTask) {
+  async deleteAccount(taskPayload: DeleteAccountTaskPayload) {
     this.log.debug('Received delete account task', taskPayload);
     await this.accountDeleteManager.deleteAccount(
       taskPayload.uid,
@@ -56,12 +64,14 @@ export const cloudTaskRoutes = (log: AuthLogger, config: ConfigType) => {
               .string()
               .optional()
               .description(DESCRIPTION.customerId),
-            reason: validators.reasonForAccountDeletion,
+            reason: isA.string().valid(...ReasonForDeletionValues),
           }),
         },
       },
       handler: (request: AuthRequest) =>
-        cloudTaskHandler.deleteAccount(request.payload as DeleteAccountTask),
+        cloudTaskHandler.deleteAccount(
+          request.payload as DeleteAccountTaskPayload
+        ),
     },
   ];
 
