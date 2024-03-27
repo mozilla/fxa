@@ -64,6 +64,23 @@ export function currentAccount(
   return all[uid];
 }
 
+export function lastStoredAccount() {
+  const all = accounts() || {};
+
+  let latestAccount: StoredAccountData | undefined = undefined;
+  for (const key in all) {
+    const account = all[key];
+    if (
+      account?.lastLogin != null &&
+      (latestAccount?.lastLogin == null ||
+        latestAccount.lastLogin < account.lastLogin)
+    ) {
+      latestAccount = account;
+    }
+  }
+  return latestAccount;
+}
+
 export function sessionToken(newToken?: hexstring) {
   try {
     const account = currentAccount();
