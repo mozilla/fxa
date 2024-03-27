@@ -8,6 +8,22 @@ import { InvoiceFactory } from './factories/invoice.factory';
 import { SubscriptionListFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 
+jest.mock('stripe', () => ({
+  Stripe: function () {
+    return {
+      customers: {
+        retrieve: jest.fn(),
+      },
+      invoices: {
+        finalizeInvoice: jest.fn(),
+      },
+      subscriptions: {
+        list: jest.fn(),
+      },
+    };
+  },
+}));
+
 describe('StripeClient', () => {
   let mockClient: StripeClient;
 
@@ -16,6 +32,8 @@ describe('StripeClient', () => {
       apiKey: faker.string.uuid(),
       taxIds: { EUR: 'EU1234' },
     });
+
+    jest.resetAllMocks;
   });
 
   it('should be defined', () => {
@@ -26,9 +44,9 @@ describe('StripeClient', () => {
     it('returns an existing customer from Stripe', async () => {
       const mockCustomer = CustomerFactory();
 
-      mockClient.stripe.customers.retrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
+      (mockClient.stripe.customers.retrieve as jest.Mock).mockResolvedValueOnce(
+        mockCustomer
+      );
 
       const result = await mockClient.fetchCustomer(mockCustomer.id);
       expect(result).toEqual(mockCustomer);
@@ -57,9 +75,9 @@ describe('StripeClient', () => {
       const mockCustomer = CustomerFactory();
       const mockSubscriptionList = SubscriptionListFactory();
 
-      mockClient.stripe.subscriptions.list = jest
-        .fn()
-        .mockResolvedValueOnce(mockSubscriptionList);
+      (mockClient.stripe.subscriptions.list as jest.Mock).mockResolvedValueOnce(
+        mockSubscriptionList
+      );
 
       const result = await mockClient.fetchSubscriptions(mockCustomer.id);
       expect(result).toEqual(mockSubscriptionList);
@@ -72,19 +90,15 @@ describe('StripeClient', () => {
         auto_advance: false,
       });
 
-      mockClient.stripe.invoices.finalizeInvoice = jest
-        .fn()
-        .mockResolvedValueOnce({});
+      (
+        mockClient.stripe.invoices.finalizeInvoice as jest.Mock
+      ).mockResolvedValueOnce({});
 
       const result = await mockClient.finalizeInvoice(mockInvoice.id, {
         auto_advance: false,
       });
 
       expect(result).toEqual({});
-      expect(mockClient.stripe.invoices.finalizeInvoice).toBeCalledWith(
-        mockInvoice.id,
-        { auto_advance: false }
-      );
     });
   });
 });

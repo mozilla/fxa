@@ -8,6 +8,7 @@ import {
   CustomerFactory,
   InvoiceFactory,
   StripeClient,
+  StripeConfig,
   StripeManager,
   SubscriptionFactory,
   SubscriptionListFactory,
@@ -33,6 +34,7 @@ describe('PaypalManager', () => {
   let paypalClient: PayPalClient;
   let paypalManager: PayPalManager;
   let stripeClient: StripeClient;
+  let stripeConfig: StripeConfig;
   let stripeManager: StripeManager;
   let paypalCustomerManager: PaypalCustomerManager;
 
@@ -49,8 +51,13 @@ describe('PaypalManager', () => {
       signature: faker.string.uuid(),
     });
 
+    stripeConfig = {
+      apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
+    };
+
     stripeClient = new StripeClient({} as any);
-    stripeManager = new StripeManager(stripeClient);
+    stripeManager = new StripeManager(stripeClient, stripeConfig);
     paypalCustomerManager = new PaypalCustomerManager(kyselyDb);
 
     paypalManager = new PayPalManager(

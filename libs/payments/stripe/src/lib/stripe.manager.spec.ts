@@ -12,11 +12,13 @@ import {
   SubscriptionListFactory,
 } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
+import { StripeConfig } from './stripe.config';
 import { StripeManager } from './stripe.manager';
 
 describe('StripeManager', () => {
   let manager: StripeManager;
   let mockClient: StripeClient;
+  let mockConfig: StripeConfig;
 
   beforeEach(async () => {
     mockClient = new StripeClient({
@@ -24,9 +26,15 @@ describe('StripeManager', () => {
       taxIds: { EUR: 'EU1234' },
     });
 
+    mockConfig = {
+      apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: StripeClient, useValue: mockClient },
+        { provide: StripeConfig, useValue: mockConfig },
         StripeManager,
       ],
     }).compile();

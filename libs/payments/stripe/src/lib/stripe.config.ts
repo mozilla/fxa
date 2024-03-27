@@ -4,7 +4,7 @@
 
 import { IsObject, IsString } from 'class-validator';
 
-export class StripeClientConfig {
+export class StripeConfig {
   @IsString()
   public readonly apiKey!: string;
 

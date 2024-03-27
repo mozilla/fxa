@@ -6,12 +6,9 @@ import { BaseError } from '@fxa/shared/error';
 
 export class StripeError extends BaseError {
   constructor(message: string, cause?: Error) {
-    super(
-      message,
-      {
-        cause,
-      },
-    );
+    super(message, {
+      cause,
+    });
   }
 }
 
@@ -27,7 +24,7 @@ export class CustomerNotFoundError extends StripeError {
   }
 }
 
-export class SubscriptionStripeError extends StripeError {
+export class StripeNoMinimumChargeAmountAvailableError extends StripeError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');
   }

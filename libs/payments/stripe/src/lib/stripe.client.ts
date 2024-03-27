@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { StripeClientConfig } from './stripe.client.config';
+import { StripeConfig } from './stripe.config';
 import {
   StripeCustomer,
   StripeDeletedCustomer,
@@ -19,16 +19,12 @@ import {
  */
 @Injectable()
 export class StripeClient {
-  public readonly stripe: Stripe;
-  public taxIds: { [key: string]: string };
-
-  constructor(private stripeClientConfig: StripeClientConfig) {
-    this.stripe = new Stripe(this.stripeClientConfig.apiKey, {
+  readonly stripe: Stripe;
+  constructor(private stripeConfig: StripeConfig) {
+    this.stripe = new Stripe(this.stripeConfig.apiKey, {
       apiVersion: '2022-11-15',
       maxNetworkRetries: 3,
     });
-
-    this.taxIds = this.stripeClientConfig.taxIds;
   }
 
   /**
