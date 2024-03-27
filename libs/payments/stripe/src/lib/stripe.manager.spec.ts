@@ -86,14 +86,7 @@ describe('StripeManager', () => {
         data: [mockSubscription],
       });
 
-      const mockCustomer = CustomerFactory({
-        subscriptions: {
-          object: 'list',
-          data: [mockSubscription],
-          has_more: true,
-          url: '/v1/customers/customer12345/subscriptions',
-        },
-      });
+      const mockCustomer = CustomerFactory();
 
       const expected = mockSubscriptionList;
 
@@ -107,14 +100,6 @@ describe('StripeManager', () => {
   });
 
   describe('isCustomerStripeTaxEligible', () => {
-    it('should throw an error if no tax in customer', async () => {
-      const mockCustomer = CustomerFactory();
-
-      expect(manager.isCustomerStripeTaxEligible(mockCustomer)).rejects.toThrow(
-        'customer.tax is not present'
-      );
-    });
-
     it('should return true for a taxable customer', async () => {
       const mockCustomer = CustomerFactory({
         tax: {

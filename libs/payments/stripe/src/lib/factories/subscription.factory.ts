@@ -3,12 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Stripe } from 'stripe';
 import { PriceFactory } from './price.factory';
+import {
+  StripeApiList,
+  StripeSubscription,
+  StripeSubscriptionItem,
+} from '../stripe.client.types';
 
 export const SubscriptionFactory = (
-  override?: Partial<Stripe.Subscription>
-): Stripe.Subscription => ({
+  override?: Partial<StripeSubscription>
+): StripeSubscription => ({
   id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   object: 'subscription',
   application: null,
@@ -64,8 +68,8 @@ export const SubscriptionFactory = (
 });
 
 export const SubscriptionItemFactory = (
-  override?: Partial<Stripe.SubscriptionItem>
-): Stripe.SubscriptionItem => ({
+  override?: Partial<StripeSubscriptionItem>
+): StripeSubscriptionItem => ({
   id: `si_${faker.string.alphanumeric({ length: 14 })}`,
   object: 'subscription_item',
   billing_thresholds: null,
@@ -102,8 +106,8 @@ export const SubscriptionItemFactory = (
 });
 
 export const SubscriptionListFactory = (
-  override?: Partial<Stripe.ApiList<Stripe.Subscription>>
-): Stripe.ApiList<Stripe.Subscription> => ({
+  override?: Partial<StripeApiList<StripeSubscription>>
+): StripeApiList<StripeSubscription> => ({
   object: 'list',
   url: '/v1/subscriptions',
   has_more: false,

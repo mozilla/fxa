@@ -3,9 +3,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Stripe } from 'stripe';
+import { StripePlan } from '../stripe.client.types';
 
-export const PlanFactory = (override?: Partial<Stripe.Plan>): Stripe.Plan => ({
+export const PlanFactory = (override?: Partial<StripePlan>): StripePlan => ({
   id: `plan_${faker.string.alphanumeric({ length: 24 })}`,
   object: 'plan',
   active: true,

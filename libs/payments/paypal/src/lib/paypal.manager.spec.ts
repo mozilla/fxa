@@ -208,14 +208,7 @@ describe('PaypalManager', () => {
         data: [mockPayPalSubscription],
       });
 
-      const mockCustomer = CustomerFactory({
-        subscriptions: {
-          object: 'list',
-          data: [mockPayPalSubscription],
-          has_more: true,
-          url: '/v1/customers/customer12345/subscriptions',
-        },
-      });
+      const mockCustomer = CustomerFactory();
 
       const expected = [mockPayPalSubscription];
 
@@ -224,7 +217,7 @@ describe('PaypalManager', () => {
         .mockResolvedValueOnce(mockSubscriptionList);
 
       const result = await paypalManager.getCustomerPayPalSubscriptions(
-        mockCustomer
+        mockCustomer.id
       );
       expect(result).toEqual(expected);
     });
@@ -287,7 +280,6 @@ describe('PaypalManager', () => {
       const mockInvoice = InvoiceFactory({
         amount_due: 50,
         currency: 'usd',
-        customer: mockCustomer,
       });
 
       stripeManager.fetchActiveCustomer = jest

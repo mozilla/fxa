@@ -14,3 +14,4 @@ export * from './lib/stripe.client';
 export * from './lib/stripe.constants';
 export * from './lib/stripe.error';
 export * from './lib/stripe.manager';
+export * from './lib/stripe.client.types';

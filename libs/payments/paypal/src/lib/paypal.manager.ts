@@ -3,10 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { Stripe } from 'stripe';
 
 import {
   ACTIVE_SUBSCRIPTION_STATUSES,
+  StripeCustomer,
+  StripeInvoice,
   StripeManager,
 } from '@fxa/payments/stripe';
 import { AccountDatabase } from '@fxa/shared/db/mysql/account';
@@ -62,7 +63,7 @@ export class PayPalManager {
    * Retrieves the customer’s current paypal billing agreement ID from the
    * auth database via the Paypal repository
    */
-  async getCustomerBillingAgreementId(customer: Stripe.Customer) {
+  async getCustomerBillingAgreementId(customer: StripeCustomer) {
     const paypalCustomer =
       await this.paypalCustomerManager.fetchPaypalCustomersByUid(
         customer.metadata.userid
@@ -80,10 +81,8 @@ export class PayPalManager {
   /**
    * Retrieves PayPal subscriptions
    */
-  async getCustomerPayPalSubscriptions(customer: Stripe.Customer) {
-    const subscriptions = await this.stripeManager.getSubscriptions(
-      customer.id
-    );
+  async getCustomerPayPalSubscriptions(customerId: string) {
+    const subscriptions = await this.stripeManager.getSubscriptions(customerId);
     return subscriptions.data.filter(
       (sub) =>
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&
@@ -104,8 +103,8 @@ export class PayPalManager {
    * Process an invoice when amount is greater than minimum amount
    */
   async processNonZeroInvoice(
-    customer: Stripe.Customer,
-    invoice: Stripe.Invoice,
+    customer: StripeCustomer,
+    invoice: StripeInvoice,
     ipaddress?: string
   ) {
     // TODO in M3b: Implement legacy processInvoice as processNonZeroInvoice here
@@ -128,14 +127,15 @@ export class PayPalManager {
    * If amount is less than minimum amount, call processZeroInvoice
    * If amount is greater than minimum amount, call processNonZeroInvoice (legacy PaypalHelper processInvoice)
    */
-  async processInvoice(invoice: Stripe.Invoice) {
+  async processInvoice(invoice: StripeInvoice) {
+    if (!invoice.customer) throw new Error('Customer not present on invoice');
     const amountInCents = invoice.amount_due;
 
     if (amountInCents < this.stripeManager.getMinimumAmount(invoice.currency)) {
       return await this.processZeroInvoice(invoice.id);
     } else {
       const customer = await this.stripeManager.fetchActiveCustomer(
-        invoice.customer as string
+        invoice.customer
       );
       return await this.processNonZeroInvoice(customer, invoice);
     }

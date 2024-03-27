@@ -3,11 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Stripe } from 'stripe';
+import { StripeProduct } from '../stripe.client.types';
 
 export const ProductFactory = (
-  override?: Partial<Stripe.Product>
-): Stripe.Product => ({
+  override?: Partial<StripeProduct>
+): StripeProduct => ({
   id: `prod_${faker.string.alphanumeric({ length: 14 })}`,
   object: 'product',
   active: true,
