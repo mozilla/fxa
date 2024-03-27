@@ -14,7 +14,7 @@ __metadata:
     convict: ^6.2.4
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    express: ^4.17.3
+    express: ^4.19.2
     fxa-jwtool: ^0.7.2
     ioredis: ^5.0.6
     morgan: ^1.10.0
@@ -28765,7 +28765,7 @@ __metadata:
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
     eslint: ^7.32.0
-    express: ^4.17.3
+    express: ^4.19.2
     fxa-shared: "workspace:*"
     intel: 1.2.0
     mocha: ^10.0.0
@@ -36298,6 +36298,45 @@ __metadata:
   languageName: node
   linkType: hard
 
+"express@npm:^4.19.2":
+  version: 4.19.2
+  resolution: "express@npm:4.19.2"
+  dependencies:
+    accepts: ~1.3.8
+    array-flatten: 1.1.1
+    body-parser: 1.20.2
+    content-disposition: 0.5.4
+    content-type: ~1.0.4
+    cookie: 0.6.0
+    cookie-signature: 1.0.6
+    debug: 2.6.9
+    depd: 2.0.0
+    encodeurl: ~1.0.2
+    escape-html: ~1.0.3
+    etag: ~1.8.1
+    finalhandler: 1.2.0
+    fresh: 0.5.2
+    http-errors: 2.0.0
+    merge-descriptors: 1.0.1
+    methods: ~1.1.2
+    on-finished: 2.4.1
+    parseurl: ~1.3.3
+    path-to-regexp: 0.1.7
+    proxy-addr: ~2.0.7
+    qs: 6.11.0
+    range-parser: ~1.2.1
+    safe-buffer: 5.2.1
+    send: 0.18.0
+    serve-static: 1.15.0
+    setprototypeof: 1.2.0
+    statuses: 2.0.1
+    type-is: ~1.6.18
+    utils-merge: 1.0.1
+    vary: ~1.1.2
+  checksum: 212dbd6c2c222a96a61bc927639c95970a53b06257080bb9e2838adb3bffdb966856551fdad1ab5dd654a217c35db94f987d0aa88d48fb04d306340f5f34dca5
+  languageName: node
+  linkType: hard
+
 "ext-list@npm:^2.0.0":
   version: 2.2.2
   resolution: "ext-list@npm:2.2.2"
@@ -37645,7 +37684,7 @@ __metadata:
     client-sessions: 0.8.x
     ejs: ^3.1.6
     eslint: ^7.32.0
-    express: ^4.17.3
+    express: ^4.19.2
     fxa-shared: "workspace:*"
     morgan: ^1.10.0
     pm2: ^5.3.0
@@ -38057,7 +38096,7 @@ fsevents@~2.1.1:
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-react: ^7.32.2
-    express: ^4.17.3
+    express: ^4.19.2
     express-http-proxy: ^2.0.0
     fxa-admin-server: "workspace:*"
     fxa-react: "workspace:*"
@@ -38105,7 +38144,7 @@ fsevents@~2.1.1:
     eslint: ^8.18.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-prettier: ^4.2.1
-    express: ^4.17.3
+    express: ^4.19.2
     fxa-auth-client: "workspace:*"
     fxa-shared: "workspace:*"
     googleapis: ^134.0.0
@@ -38372,7 +38411,7 @@ fsevents@~2.1.1:
     esbuild-register: ^3.5.0
     eslint: ^7.32.0
     expose-loader: 5.0.0
-    express: ^4.17.3
+    express: ^4.19.2
     extract-loader: 5.1.0
     fast-text-encoding: ^1.0.4
     file-loader: ^6.2.0
@@ -38578,7 +38617,7 @@ fsevents@~2.1.1:
     eslint-config-prettier: ^9.1.0
     eslint-config-react-app: ^7.0.1
     eslint-plugin-import: ^2.29.1
-    express: ^4.17.3
+    express: ^4.19.2
     factory-bot-ts: ^0.1.5
     fxa-jwtool: ^0.7.2
     fxa-shared: "workspace:*"
@@ -38655,7 +38694,7 @@ fsevents@~2.1.1:
     esbuild-register: ^3.5.0
     eslint: ^7.32.0
     eslint-config-react-app: ^7.0.1
-    express: ^4.17.3
+    express: ^4.19.2
     fxa-auth-client: "workspace:*"
     fxa-auth-server: "workspace:*"
     fxa-profile-server: "workspace:*"
@@ -38768,7 +38807,7 @@ fsevents@~2.1.1:
     eslint-plugin-import: ^2.29.1
     eslint-plugin-jest: ^27.6.0
     eslint-plugin-react: ^7.32.2
-    express: ^4.17.3
+    express: ^4.19.2
     express-http-proxy: ^2.0.0
     fxa-auth-server: "workspace:*"
     fxa-geodb: "workspace:*"
@@ -39104,7 +39143,7 @@ fsevents@~2.1.1:
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
     eslint: ^7.32.0
-    express: ^4.17.3
+    express: ^4.19.2
     find-up: ^5.0.0
     generic-pool: ^3.8.2
     graphql: ^16.8.0
