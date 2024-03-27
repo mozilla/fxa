@@ -266,21 +266,21 @@ export async function getGooglePublicKey(
  * Validate a JWT security token against public key.
  *
  * @param token
- * @param clientId
+ * @param clientIds
  * @param publicKeyPem
  * @param issuer
  * @returns {Promise}
  */
 export async function validateSecurityToken(
   token: string,
-  clientId: string,
+  clientIds: [string],
   publicKeyPem: any,
   issuer: string
 ) {
   // Decode the token, validating its signature, audience, and issuer
   return jwt.verify(token, publicKeyPem, {
     algorithms: ['RS256'],
-    audience: [clientId],
+    audience: clientIds,
     issuer: issuer,
   });
 }
