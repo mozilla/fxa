@@ -408,25 +408,6 @@ describe('signin container', () => {
         );
       });
     });
-    describe('web channel messages', () => {
-      let fxaLoginSpy: jest.SpyInstance;
-      beforeEach(() => {
-        fxaLoginSpy = jest.spyOn(firefox, 'fxaCanLinkAccount');
-      });
-
-      // TODO in Sync ticket. Is this being sent under the right conditions?
-      // it('are sent for sync', async () => {
-      //   mockSyncDesktopV3Integration();
-      //   render();
-      //   await waitFor(() => {
-      //     expect(fxaLoginSpy).toBeCalledWith({ email: MOCK_QUERY_PARAM_EMAIL });
-      //   });
-      // });
-      it('are not sent for non-sync', () => {
-        render([mockGqlAvatarUseQuery()]);
-        expect(fxaLoginSpy).not.toBeCalled();
-      });
-    });
   });
 
   describe('hasLinkedAccount and hasPassword are provided', () => {

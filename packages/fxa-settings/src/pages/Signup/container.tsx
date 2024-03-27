@@ -99,45 +99,38 @@ const SignupContainer = ({
   const isSyncOAuth = isOAuth && integration.isSync();
   const isSyncDesktopV3 = isSyncDesktopV3Integration(integration);
   const isSyncWebChannel = isSyncOAuth || isSyncDesktopV3;
+  const wantsKeys = integration.wantsKeys();
 
   useEffect(() => {
     (async () => {
       // Modify this once index is converted to React
-      if (!validationError) {
-        // emailStatusChecked can be passed from React Signin when users hit /signin
-        // with an email query param that we already determined doesn't exist.
-        // It's supplied by Backbone when going from Backbone Index page to React signup.
-        if (!queryParamModel.emailStatusChecked && !emailStatusChecked) {
-          const { exists, hasLinkedAccount, hasPassword } =
-            await authClient.accountStatusByEmail(queryParamModel.email, {
-              thirdPartyAuthStatus: true,
+      // emailStatusChecked can be passed from React Signin when users hit /signin
+      // with an email query param that we already determined doesn't exist.
+      // It's supplied by Backbone when going from Backbone Index page to React signup.
+      if (
+        !validationError &&
+        !queryParamModel.emailStatusChecked &&
+        !emailStatusChecked
+      ) {
+        const { exists, hasLinkedAccount, hasPassword } =
+          await authClient.accountStatusByEmail(queryParamModel.email, {
+            thirdPartyAuthStatus: true,
+          });
+        if (exists) {
+          if (config.showReactApp.signInRoutes) {
+            navigate(`/signin`, {
+              replace: true,
+              state: {
+                email: queryParamModel.email,
+                hasLinkedAccount,
+                hasPassword,
+              },
             });
-          if (exists) {
-            if (config.showReactApp.signInRoutes) {
-              navigate(`/signin`, {
-                replace: true,
-                state: {
-                  email: queryParamModel.email,
-                  hasLinkedAccount,
-                  hasPassword,
-                },
-              });
-            } else {
-              hardNavigateToContentServer(
-                `/signin?email=${queryParamModel.email}`
-              );
-            }
-            // TODO: Probably move this to the Index page onsubmit once
-            // the index page is converted to React, we need to run it in
-            // signup and signin for Sync
-          } else if (isSyncWebChannel) {
-            firefox.fxaCanLinkAccount({ email: queryParamModel.email });
+          } else {
+            hardNavigateToContentServer(
+              `/signin?email=${queryParamModel.email}`
+            );
           }
-        } else if (isSyncWebChannel) {
-          // TODO: Probably move this to the Index page onsubmit once
-          // the index page is converted to React, we need to run it in
-          // signup and signin for Sync
-          firefox.fxaCanLinkAccount({ email: queryParamModel.email });
         }
       }
       setShowLoadingSpinner(false);
@@ -195,7 +188,7 @@ const SignupContainer = ({
       const service = integration.getService();
       const options: BeginSignUpOptions = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
-        keys: integration.wantsKeys(),
+        keys: wantsKeys,
         ...(service !== MozServices.Default && { service }),
         atLeast18AtReg,
       };
@@ -247,9 +240,11 @@ const SignupContainer = ({
           return {
             data: {
               ...data,
-              unwrapBKey: credentialsV2
-                ? credentialsV2.unwrapBKey
-                : credentialsV1.unwrapBKey,
+              ...(wantsKeys && {
+                unwrapBKey: credentialsV2
+                  ? credentialsV2.unwrapBKey
+                  : credentialsV1.unwrapBKey,
+              }),
             },
           };
         } else return { data: undefined };
@@ -258,7 +253,7 @@ const SignupContainer = ({
         return handleGQLError(error);
       }
     },
-    [beginSignup, integration, keyStretchExp, config]
+    [beginSignup, integration, keyStretchExp, config, wantsKeys]
   );
 
   // TODO: probably a better way to read this?

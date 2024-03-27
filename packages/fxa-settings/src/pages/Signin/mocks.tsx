@@ -100,6 +100,7 @@ export function createMockSigninWebIntegration(): SigninIntegration {
     type: IntegrationType.Web,
     isSync: () => false,
     getService: () => MozServices.Default,
+    wantsKeys: () => false,
   };
 }
 
@@ -112,14 +113,19 @@ export function createMockSigninSyncIntegration(): SigninIntegration {
   };
 }
 
-export function createMockSigninOAuthIntegration(
-  clientId?: string,
-  wantsKeys: boolean = true
-): SigninOAuthIntegration {
+export function createMockSigninOAuthIntegration({
+  clientId,
+  wantsKeys = true,
+  isSync = false,
+}: {
+  clientId?: string;
+  wantsKeys?: boolean;
+  isSync?: boolean;
+} = {}): SigninOAuthIntegration {
   return {
     type: IntegrationType.OAuth,
     getService: () => clientId || MOCK_CLIENT_ID,
-    isSync: () => false,
+    isSync: () => isSync,
     wantsKeys: () => wantsKeys,
     wantsLogin: () => false,
     wantsTwoStepAuthentication: () => false,

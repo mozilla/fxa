@@ -6,7 +6,11 @@ import React from 'react';
 import Signin from '.';
 import { MozServices } from '../../lib/types';
 import { Meta } from '@storybook/react';
-import { Subject, createMockSigninSyncIntegration } from './mocks';
+import {
+  Subject,
+  createMockSigninOAuthIntegration,
+  createMockSigninSyncIntegration,
+} from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { SigninProps } from './interfaces';
 import { MOCK_SERVICE, MOCK_SESSION_TOKEN } from '../mocks';
@@ -28,9 +32,10 @@ export const SignInToSettingsWithPassword = storyWithProps();
 export const SignInToRelyingPartyWithPassword = storyWithProps({
   serviceName: MOCK_SERVICE,
 });
-// TODO with OAuth ticket, needs OAuth integration
+
 export const SignInToPocketWithPassword = storyWithProps({
   serviceName: MozServices.Pocket,
+  integration: createMockSigninOAuthIntegration(),
 });
 
 export const SignInToSettingsWithCachedCredentials = storyWithProps({
@@ -40,10 +45,16 @@ export const SignInToRelyingPartyWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   serviceName: MOCK_SERVICE,
 });
-// TODO with OAuth ticket, needs OAuth integration
+
 export const SignInToPocketWithCachedCredentials = storyWithProps({
   sessionToken: MOCK_SESSION_TOKEN,
   serviceName: MozServices.Pocket,
+  integration: createMockSigninOAuthIntegration(),
+});
+
+export const SignInToSyncWithCachedCredentials = storyWithProps({
+  sessionToken: MOCK_SESSION_TOKEN,
+  integration: createMockSigninOAuthIntegration({ wantsKeys: true }),
 });
 
 export const HasLinkedAccountAndNoPassword = storyWithProps({

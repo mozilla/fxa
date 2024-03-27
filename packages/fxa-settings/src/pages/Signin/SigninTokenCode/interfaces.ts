@@ -9,7 +9,7 @@ import { SigninIntegration, SigninLocationState } from '../interfaces';
 export interface SigninTokenCodeProps {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
-  signinLocationState: SigninLocationState;
+  signinState: SigninLocationState;
 }
 
 export interface TotpStatusResponse {

@@ -43,6 +43,7 @@ import firefox from '../../../lib/channels/firefox';
 import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { storeAccountData } from '../../../lib/storage-utils';
+import { getSyncNavigate } from '../../Signin/utils';
 
 export const viewName = 'confirm-signup-code';
 
@@ -119,14 +120,6 @@ const ConfirmSignupCode = ({
     }
   }
 
-  function navigateToCAD() {
-    // Connect another device tells Sync the user is signed in
-    // TODO: regular navigate when this page is converted
-    const searchParams = new URLSearchParams(location.search);
-    searchParams.set('showSuccessMessage', 'true');
-    hardNavigateToContentServer(`/connect_another_device?${searchParams}`);
-  }
-
   async function verifySession(code: string) {
     logViewEvent(`flow.${viewName}`, 'submit', REACT_ENTRYPOINT);
     GleanMetrics.signupConfirmation.submit();
@@ -162,7 +155,8 @@ const ConfirmSignupCode = ({
       }
 
       if (isSyncDesktopV3Integration(integration)) {
-        navigateToCAD();
+        const { to } = getSyncNavigate(location.search);
+        hardNavigateToContentServer(to);
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
@@ -197,7 +191,8 @@ const ConfirmSignupCode = ({
               state,
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
-            navigateToCAD();
+            const { to } = getSyncNavigate(location.search);
+            hardNavigateToContentServer(to);
             return;
           } else {
             // Navigate to relying party
