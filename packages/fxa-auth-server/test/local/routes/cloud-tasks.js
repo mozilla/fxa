@@ -8,11 +8,8 @@ const sinon = require('sinon');
 const mocks = require('../../mocks');
 const getRoute = require('../../routes_helpers').getRoute;
 const { cloudTaskRoutes } = require('../../../lib/routes/cloud-tasks');
-const {
-  AccountDeleteManager,
-  ReasonForDeletionOptions,
-} = require('../../../lib/account-delete');
-
+const { AccountDeleteManager } = require('../../../lib/account-delete');
+const { ReasonForDeletion } = require('@fxa/shared/cloud-tasks');
 const mockConfig = {
   cloudTasks: {
     deleteAccounts: { queueName: 'del-accts' },
@@ -45,7 +42,7 @@ describe('/cloud-tasks/accounts/delete', () => {
   it('should delete the account', async () => {
     try {
       const req = {
-        payload: { uid, reason: ReasonForDeletionOptions.Unverified },
+        payload: { uid, reason: ReasonForDeletion.Unverified },
       };
 
       await route.handler(req);
