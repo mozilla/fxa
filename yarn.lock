@@ -38509,7 +38509,7 @@ fsevents@~2.1.1:
     webcrypto-liner: 1.4.0
     webpack: ^5.78.0
     webpack-cli: ^5.1.4
-    webpack-dev-middleware: ^6.1.1
+    webpack-dev-middleware: ^6.1.2
     xmlhttprequest: ^1.8.0
     yargs: ^17.0.1
   languageName: unknown
@@ -65826,6 +65826,24 @@ resolve@1.1.7:
     webpack:
       optional: true
   checksum: 3bced6ef644b20f2e76df9db1c5209f4a73761d7d307fe29ae20bc00397d4f9727af2607f98794c6c7c57d5c1a48bfa12690168b08f5d46820b07aab2c63640c
+  languageName: node
+  linkType: hard
+
+"webpack-dev-middleware@npm:^6.1.2":
+  version: 6.1.2
+  resolution: "webpack-dev-middleware@npm:6.1.2"
+  dependencies:
+    colorette: ^2.0.10
+    memfs: ^3.4.12
+    mime-types: ^2.1.31
+    range-parser: ^1.2.1
+    schema-utils: ^4.0.0
+  peerDependencies:
+    webpack: ^5.0.0
+  peerDependenciesMeta:
+    webpack:
+      optional: true
+  checksum: 6e962341db5b3ac8526cd678fc6b128adcb92c288aab767948ab7d01591d7837d2d97cf9329d307831b1d51c831fcea4d8f2eb514efe8c8654ae2a4ae9d9f1fb
   languageName: node
   linkType: hard
 
