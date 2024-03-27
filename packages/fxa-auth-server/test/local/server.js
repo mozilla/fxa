@@ -815,9 +815,10 @@ function getConfig() {
       keepAlive: false,
     },
     env: 'prod',
-    memcached: {
-      lifetime: 0,
-      address: 'none',
+    redis: {
+      metrics: {
+        enabled: false,
+      },
     },
     metrics: {
       flow_id_expiry: 7200000,

@@ -266,25 +266,6 @@ const convictConf = convict({
       format: Boolean,
     },
   },
-  memcached: {
-    address: {
-      doc: 'Address:port of the memcached server (or `none` to disable memcached)',
-      default: 'localhost:11211',
-      env: 'MEMCACHE_METRICS_CONTEXT_ADDRESS',
-    },
-    idle: {
-      doc: 'Idle timeout for memcached connections (milliseconds)',
-      format: Number,
-      default: 30000,
-      env: 'MEMCACHE_METRICS_CONTEXT_IDLE',
-    },
-    lifetime: {
-      doc: 'Lifetime for memcached values (seconds)',
-      format: 'nat',
-      default: 7200,
-      env: 'MEMCACHE_METRICS_CONTEXT_LIFETIME',
-    },
-  },
   publicUrl: {
     format: 'url',
     default: 'http://localhost:9000',
