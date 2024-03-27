@@ -13,6 +13,9 @@ import validators from './validators';
 
 import { DeleteAccountTask } from '@fxa/shared/cloud-tasks';
 
+/** Work around for path module resolution in validator.js which is still using cjs. */
+export { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
+
 export class CloudTaskHandler {
   private accountDeleteManager: AccountDeleteManager;
 
