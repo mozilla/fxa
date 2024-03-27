@@ -121,6 +121,14 @@ function mockCurrentAccount(storedAccount = { uid: '123' }) {
   jest.spyOn(CacheModule, 'discardSessionToken');
 }
 
+function mockLastStoredAccount(storedAccount: {
+  uid: string;
+  email: string;
+  sessionToken: string;
+}) {
+  jest.spyOn(CacheModule, 'lastStoredAccount').mockReturnValue(storedAccount);
+}
+
 const MOCK_QUERY_PARAM_EMAIL = 'from@queryparams.com';
 let MOCK_QUERY_PARAM_MODEL = {
   email: MOCK_QUERY_PARAM_EMAIL,
@@ -289,6 +297,21 @@ describe('signin container', () => {
         expect(CacheModule.currentAccount).toBeCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
+        });
+        expect(SigninModule.default).toBeCalled();
+      });
+      it('falls back to last logged in account in local storage if current local storage account does not exist', async () => {
+        const LAST_STORED_ACCOUNT = {
+          ...MOCK_STORED_ACCOUNT,
+          email: 'foo@bar.com',
+        };
+        mockCurrentAccount(undefined);
+        mockLastStoredAccount(LAST_STORED_ACCOUNT);
+        render([mockGqlAvatarUseQuery()]);
+        expect(CacheModule.currentAccount).toBeCalled();
+        expect(CacheModule.lastStoredAccount).toBeCalled();
+        await waitFor(() => {
+          expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
         });
         expect(SigninModule.default).toBeCalled();
       });

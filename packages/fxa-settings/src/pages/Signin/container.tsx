@@ -18,7 +18,12 @@ import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import firefox from '../../lib/channels/firefox';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
+import {
+  cache,
+  currentAccount,
+  discardSessionToken,
+  lastStoredAccount,
+} from '../../lib/cache';
 import { FetchResult, useMutation, useQuery } from '@apollo/client';
 import {
   AVATAR_QUERY,
@@ -62,6 +67,7 @@ import { handleGQLError } from './utils';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import AppLayout from '../../components/AppLayout';
 import CardHeader from '../../components/CardHeader';
+import { setCurrentAccount } from '../../lib/storage-utils';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -90,6 +96,18 @@ function getAccountInfo(nonCachedEmail?: string) {
     sessionToken = storedLocalAccount?.sessionToken;
     uid = storedLocalAccount?.uid;
   }
+
+  // If there is still not an email, try locating the last logged in account.
+  if (!email) {
+    const lastStoredLocalAccount = lastStoredAccount();
+    if (lastStoredLocalAccount) {
+      email = lastStoredLocalAccount.email;
+      sessionToken = lastStoredLocalAccount.sessionToken;
+      uid = lastStoredLocalAccount.uid;
+      setCurrentAccount(lastStoredLocalAccount.uid);
+    }
+  }
+
   return { email, sessionToken, uid };
 }
 
