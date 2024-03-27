@@ -44,7 +44,7 @@
     "convict-format-with-moment": "^6.2.0",
     "convict-format-with-validator": "^6.2.0",
     "eslint-config-react-app": "^7.0.1",
-    "express": "^4.17.3",
+    "express": "^4.19.2",
     "fxa-auth-client": "workspace:*",
     "fxa-auth-server": "workspace:*",
     "fxa-profile-server": "workspace:*",
