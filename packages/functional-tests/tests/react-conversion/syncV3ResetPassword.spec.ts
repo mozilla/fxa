@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { expect } from '@playwright/test';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
@@ -40,7 +41,7 @@ test.describe('severity-1 #smoke', () => {
         })
         .waitFor();
 
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
 
       // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
       let link = await target.email.waitForEmail(
@@ -52,10 +53,12 @@ test.describe('severity-1 #smoke', () => {
 
       await page.goto(link);
 
-      await resetPasswordReact.submitNewPassword('Newpassword@');
+      await resetPasswordReact.fillOutNewPasswordForm('Newpassword@');
       await page.waitForURL(/reset_password_verified/);
 
-      await resetPasswordReact.resetPwdConfirmedHeadingVisible();
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
 
       // Update credentials file so that account can be deleted as part of test cleanup
       credentials.password = 'Newpassword@';

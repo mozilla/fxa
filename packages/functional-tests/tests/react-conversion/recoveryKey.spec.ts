@@ -55,8 +55,8 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPasswordReact.goto();
 
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
-      await resetPasswordReact.confirmResetPasswordHeadingVisible();
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
       // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
       let link = await target.email.waitForEmail(
@@ -69,12 +69,12 @@ test.describe('severity-1 #smoke', () => {
       // Loads the React version
       await page.goto(link);
 
-      await resetPasswordReact.confirmRecoveryKeyHeadingVisible();
+      await expect(resetPasswordReact.confirmRecoveryKeyHeading).toBeVisible();
 
       await resetPasswordReact.submitRecoveryKey(key);
       await page.waitForURL(/account_recovery_reset_password/);
 
-      await resetPasswordReact.submitNewPassword(NEW_PASSWORD);
+      await resetPasswordReact.fillOutNewPasswordForm(NEW_PASSWORD);
       await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
       // After using a recovery key to reset password, expect to be prompted to create a new one

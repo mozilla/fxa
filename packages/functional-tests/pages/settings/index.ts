@@ -59,6 +59,10 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('two-step', TotpRow);
   }
 
+  get connectedServiceName() {
+    return this.page.getByTestId('service-name');
+  }
+
   get connectedServices() {
     return this.lazyRow('connected-services', ConnectedServicesRow);
   }

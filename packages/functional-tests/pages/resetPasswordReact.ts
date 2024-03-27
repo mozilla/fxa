@@ -1,11 +1,38 @@
+import { expect } from '@playwright/test';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
 import { BaseLayout } from './layout';
 
 export class ResetPasswordReactPage extends BaseLayout {
   readonly path = '';
 
-  goto(route = '/reset_password', query?: string) {
-    return this.page.goto(getReactFeatureFlagUrl(this.target, route, query));
+  get resetPasswordHeading() {
+    return this.page.getByRole('heading', { name: /^Reset password/ });
+  }
+
+  get emailTextbox() {
+    return this.page.getByRole('textbox', { name: 'email' });
+  }
+
+  get beginResetButton() {
+    return this.page.getByRole('button', { name: 'Begin reset' });
+  }
+
+  get resetEmailSentHeading() {
+    return this.page.getByRole('heading', { name: 'Reset email sent' });
+  }
+
+  get resendButton() {
+    return this.page.getByRole('button', {
+      name: 'Not in inbox or spam folder? Resend',
+    });
+  }
+
+  get statusBar() {
+    return this.page.getByRole('status');
+  }
+
+  get createNewPasswordHeading() {
+    return this.page.getByRole('heading', { name: 'Create new password' });
   }
 
   get generateRecoveryKeyButton() {
@@ -14,67 +41,44 @@ export class ResetPasswordReactPage extends BaseLayout {
     });
   }
 
-  // page can be passed in as an optional prop - useful when a test uses more than one page
-  getEmailValue(page: BaseLayout['page'] = this.page) {
-    return page.getByRole('textbox', { name: 'Email' }).inputValue();
+  get newPasswordHeading() {
+    return this.page.getByRole('heading', { name: 'Create new password' });
   }
 
-  async resetPasswordHeadingVisible(page: BaseLayout['page'] = this.page) {
-    const heading = page.getByRole('heading', {
-      // Full heading might include "continue to [relying party]"
-      name: /Reset password/,
-    });
-    await heading.waitFor();
+  get newPasswordTextbox() {
+    return this.page.getByRole('textbox', { name: 'New password' });
   }
 
-  async confirmResetPasswordHeadingVisible(
-    page: BaseLayout['page'] = this.page
-  ) {
-    const heading = page.getByRole('heading', {
-      name: 'Reset email sent',
-    });
-    await heading.waitFor();
+  get reenterPasswordTextbox() {
+    return this.page.getByRole('textbox', { name: 'Re-enter password' });
   }
 
-  async completeResetPwdHeadingVisible(page: BaseLayout['page'] = this.page) {
-    const heading = page.getByRole('heading', {
-      name: 'Create new password',
-    });
-    await heading.waitFor();
+  get resetPasswordButton() {
+    return this.page.getByRole('button', { name: 'Reset password' });
   }
 
-  async resetPwdConfirmedHeadingVisible(page: BaseLayout['page'] = this.page) {
-    const heading = page.getByRole('heading', {
+  get passwordResetConfirmationHeading() {
+    return this.page.getByRole('heading', {
       name: 'Your password has been reset',
     });
-    await heading.waitFor();
   }
 
-  async confirmRecoveryKeyHeadingVisible(page: BaseLayout['page'] = this.page) {
-    const heading = page.getByRole('heading', {
+  get confirmRecoveryKeyHeading() {
+    return this.page.getByRole('heading', {
       name: 'Reset password with account recovery key',
     });
-    await heading.waitFor();
   }
 
-  async resetPwdLinkExpiredHeadingVisible(
-    page: BaseLayout['page'] = this.page
-  ) {
-    const heading = page.getByRole('heading', {
-      name: 'Reset password link expired',
-    });
-    await heading.waitFor();
+  goto(route = '/reset_password', query?: string) {
+    return this.page.goto(getReactFeatureFlagUrl(this.target, route, query));
   }
 
-  async submitNewPassword(
-    password: string,
-    page: BaseLayout['page'] = this.page
-  ) {
-    await page.getByRole('textbox', { name: 'New password' }).fill(password);
-    await page
-      .getByRole('textbox', { name: 'Re-enter password' })
-      .fill(password);
-    await page.getByRole('button', { name: 'Reset password' }).click();
+  async fillOutNewPasswordForm(password: string) {
+    await expect(this.newPasswordHeading).toBeVisible();
+
+    await this.newPasswordTextbox.fill(password);
+    await this.reenterPasswordTextbox.fill(password);
+    await this.resetPasswordButton.click();
   }
 
   async submitRecoveryKey(key: string, page: BaseLayout['page'] = this.page) {
@@ -84,34 +88,11 @@ export class ResetPasswordReactPage extends BaseLayout {
     await submitButton.click();
   }
 
-  async fillEmailToResetPwd(email, page: BaseLayout['page'] = this.page) {
-    await page.getByRole('textbox', { name: 'Email' }).fill(email);
-    await page.getByRole('button', { name: 'Begin reset' }).click();
-  }
+  async fillOutEmailForm(email: string): Promise<void> {
+    await expect(this.resetPasswordHeading).toBeVisible();
 
-  async clickResendLink(page: BaseLayout['page'] = this.page) {
-    const resendLink = page.getByRole('link', {
-      name: 'Not in inbox or spam folder? Resend',
-    });
-    await resendLink.waitFor();
-    await resendLink.click();
-  }
-
-  async resendSuccessMessageVisible(page: BaseLayout['page'] = this.page) {
-    await page.getByText(/Email re-sent/).waitFor();
-  }
-
-  async unknownAccountError(page: BaseLayout['page'] = this.page) {
-    await page.getByText('Unknown account').waitFor();
-  }
-
-  async addQueryParamsToLink(link: string, query: object) {
-    query = query || {};
-    const parsedLink = new URL(link);
-    for (const paramName in query) {
-      parsedLink.searchParams.set(paramName, query[paramName]);
-    }
-    return parsedLink.toString();
+    await this.emailTextbox.fill(email);
+    await this.beginResetButton.click();
   }
 
   async clickDontHaveRecoveryKey(page: BaseLayout['page'] = this.page) {
