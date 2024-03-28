@@ -43,7 +43,7 @@ export const Default = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
-    signinLocationState={mockSigninLocationState}
+    signinState={mockSigninLocationState}
     submitRecoveryCode={mockSubmitSuccess}
   />
 );
@@ -53,7 +53,7 @@ export const WithServiceName = () => (
     serviceName={MozServices.MozillaVPN}
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
-    signinLocationState={mockSigninLocationState}
+    signinState={mockSigninLocationState}
     submitRecoveryCode={mockSubmitSuccess}
   />
 );
@@ -62,7 +62,7 @@ export const WithCodeErrorOnSubmit = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
-    signinLocationState={mockSigninLocationState}
+    signinState={mockSigninLocationState}
     submitRecoveryCode={mockCodeError}
   />
 );
@@ -71,7 +71,7 @@ export const WithBannerErrorOnSubmit = () => (
   <SigninRecoveryCode
     finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
     integration={mockWebIntegration}
-    signinLocationState={mockSigninLocationState}
+    signinState={mockSigninLocationState}
     submitRecoveryCode={mockOtherError}
   />
 );

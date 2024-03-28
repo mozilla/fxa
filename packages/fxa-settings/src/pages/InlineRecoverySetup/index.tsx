@@ -4,7 +4,6 @@
 
 import React, { useCallback, useState } from 'react';
 import { RouteComponentProps } from '@reach/router';
-import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../models';
 import DataBlock from '../../components/DataBlock';
@@ -18,14 +17,7 @@ import {
   AuthUiErrors,
   composeAuthUiErrorTranslationId,
 } from '../../lib/auth-errors/auth-errors';
-
-export type InlineRecoverySetupProps = {
-  recoveryCodes: Array<string>;
-  serviceName?: MozServices;
-  cancelSetupHandler: () => void;
-  verifyTotpHandler: () => Promise<boolean>;
-  successfulSetupHandler: () => void;
-};
+import { InlineRecoverySetupProps } from './interfaces';
 
 const InlineRecoverySetup = ({
   recoveryCodes,
@@ -33,6 +25,7 @@ const InlineRecoverySetup = ({
   cancelSetupHandler,
   verifyTotpHandler,
   successfulSetupHandler,
+  email,
 }: InlineRecoverySetupProps & RouteComponentProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
   const localizedIncorrectBackupCodeError = ftlMsgResolver.getMsg(
@@ -55,8 +48,8 @@ const InlineRecoverySetup = ({
         <Banner type={BannerType.success}>
           <p>
             {ftlMsgResolver.getMsg(
-              'postAddTwoStepAuthentication-title-2',
-              'You turned on two-step authentication'
+              'inline-recovery-2fa-enabled',
+              'Two-step authentication enabled'
             )}
           </p>
         </Banner>
@@ -199,7 +192,8 @@ const InlineRecoverySetup = ({
               separator=" "
               onCopy={copyRecoveryCodes}
               contentType="Backup authentication codes"
-            ></DataBlock>
+              {...{ email }}
+            />
             <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">
               <FtlMsg id="inline-recovery-cancel-button">
                 <button

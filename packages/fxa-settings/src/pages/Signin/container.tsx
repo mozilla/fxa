@@ -162,6 +162,7 @@ const SigninContainer = ({
 
   useEffect(() => {
     (async () => {
+      const queryParams = new URLSearchParams(location.search);
       // Tweak this once index page is converted to React
       if (!validationError && email) {
         // if you directly hit /signin with email param or we read from localstorage
@@ -178,7 +179,9 @@ const SigninContainer = ({
             if (!exists) {
               // For now, just pass back emailStatusChecked. When we convert the Index page
               // we'll want to read from router state.
-              navigate(`/signup?email=${email}&emailStatusChecked=true`);
+              queryParams.set('email', email);
+              queryParams.set('emailStatusChecked', 'true');
+              navigate(`/signup?${queryParams}`);
             } else {
               // TODO: in FXA-9177, also set hasLinkedAccount and hasPassword in Apollo cache
               setAccountStatus({
@@ -187,11 +190,12 @@ const SigninContainer = ({
               });
             }
           } catch (error) {
-            hardNavigateToContentServer(`/?prefillEmail=${email}`);
+            queryParams.set('prefillEmail', email);
+            hardNavigateToContentServer(`/?${queryParams}`);
           }
         }
       } else {
-        hardNavigateToContentServer('/');
+        hardNavigateToContentServer(`/?${queryParams}`);
       }
     })();
     // Only run this on initial render
@@ -437,7 +441,7 @@ const SigninContainer = ({
           AuthenticationMethods.OTP
         );
         if (totpIsActive) {
-          // Cache this for /signin_token_code and /settings
+          // Cache this for subsequent requests
           cache.modify({
             id: cache.identify({ __typename: 'Account' }),
             fields: {

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver, useSession } from '../../../models';
 import { usePageViewEvent } from '../../../lib/metrics';
@@ -39,7 +39,6 @@ const SigninTokenCode = ({
 }: SigninTokenCodeProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const session = useSession();
-  const navigate = useNavigate();
   const location = useLocation();
 
   const {
@@ -167,7 +166,7 @@ const SigninTokenCode = ({
         };
 
         await GleanMetrics.isDone();
-        await handleNavigation(navigationOptions, navigate);
+        await handleNavigation(navigationOptions);
       } catch (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,
@@ -191,7 +190,6 @@ const SigninTokenCode = ({
       keyFetchToken,
       localizedInvalidCode,
       location.search,
-      navigate,
       session,
       sessionToken,
       uid,

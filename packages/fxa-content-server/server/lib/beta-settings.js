@@ -81,7 +81,6 @@ const settingsConfig = {
   showReactApp: {
     signUpRoutes: config.get('showReactApp.signUpRoutes'),
     signInRoutes: config.get('showReactApp.signInRoutes'),
-    inlineTotpRoutes: config.get('showReactApp.inlineTotpRoutes'),
   },
   rolloutRates: {
     keyStretchV2: config.get('rolloutRates.keyStretchV2'),

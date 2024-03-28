@@ -5,23 +5,22 @@
 import React from 'react';
 import { screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Account, AppContext } from '../../models';
 import GetDataTrio from './index';
-import { MOCK_ACCOUNT } from '../../models/mocks';
+import { MOCK_EMAIL } from '../../pages/mocks';
 
 const contentType = 'Firefox account recovery key';
 const value = 'Sun Tea';
 const url = 'https://mozilla.org';
 
-const account = { ...MOCK_ACCOUNT } as unknown as Account;
 const setTooltipVisible = jest.fn();
 
 it('renders Trio as expected', () => {
   window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
-    <AppContext.Provider value={{ account }}>
-      <GetDataTrio {...{ value, contentType, url, setTooltipVisible }} />
-    </AppContext.Provider>
+    <GetDataTrio
+      {...{ value, contentType, url, setTooltipVisible }}
+      email={MOCK_EMAIL}
+    />
   );
   expect(screen.getByTestId('databutton-download')).toBeInTheDocument();
   expect(screen.getByTestId('databutton-download')).toHaveAttribute(
@@ -35,9 +34,10 @@ it('renders Trio as expected', () => {
 it('renders single Copy button as expected', () => {
   window.URL.createObjectURL = jest.fn();
   renderWithLocalizationProvider(
-    <AppContext.Provider value={{ account }}>
-      <GetDataTrio {...{ value, contentType, url, setTooltipVisible }} />
-    </AppContext.Provider>
+    <GetDataTrio
+      {...{ value, contentType, url, setTooltipVisible }}
+      email={MOCK_EMAIL}
+    />
   );
   expect(screen.getByTestId('databutton-copy')).toBeInTheDocument();
 });

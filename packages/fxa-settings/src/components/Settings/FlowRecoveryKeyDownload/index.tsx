@@ -34,6 +34,7 @@ export type FlowRecoveryKeyDownloadProps = {
   navigateForward: () => void;
   recoveryKeyValue: string;
   viewName: string;
+  email: string;
 };
 
 export const FlowRecoveryKeyDownload = ({
@@ -43,6 +44,7 @@ export const FlowRecoveryKeyDownload = ({
   navigateForward,
   recoveryKeyValue,
   viewName,
+  email,
 }: FlowRecoveryKeyDownloadProps) => {
   return (
     <FlowContainer
@@ -75,6 +77,7 @@ export const FlowRecoveryKeyDownload = ({
             logViewEvent(`flow.${viewName}`, `recovery-key.copy-option`)
           }
           isInline
+          {...{ email }}
         />
         <div className="bg-grey-10 p-4 rounded-lg text-grey-400 text-sm">
           <FtlMsg id="flow-recovery-key-download-storage-ideas-heading-v2">

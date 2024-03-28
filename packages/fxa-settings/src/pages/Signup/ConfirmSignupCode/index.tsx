@@ -173,7 +173,13 @@ const ConfirmSignupCode = ({
 
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          hardNavigateToContentServer(`oauth/signin${location.search}`);
+          // Remove the 'email' query param because this should be read from
+          // local storage on the next screen. Once the index page has been converted
+          // to React and we no longer need to pass 'email' we can improve this.
+          const queryParams = new URLSearchParams(location.search);
+          queryParams.delete('email');
+          queryParams.delete('emailStatusChecked');
+          hardNavigateToContentServer(`oauth/signin?${queryParams}`);
           return;
         } else {
           const { redirect, code, state } = await finishOAuthFlowHandler(

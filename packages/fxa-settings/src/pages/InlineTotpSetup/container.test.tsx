@@ -4,6 +4,7 @@
 
 import * as ApolloClientModule from '@apollo/client';
 import * as InlineTotpSetupModule from './index';
+import * as utils from 'fxa-react/lib/utils';
 
 import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
@@ -11,20 +12,21 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { MozServices } from '../../lib/types';
 import { OAuthIntegration } from '../../models';
 import InlineTotpSetupContainer from './container';
-import { MOCK_TOTP_TOKEN } from './mocks';
-import { waitFor } from '@testing-library/react';
+import {
+  MOCK_TOTP_TOKEN,
+  MOCK_QUERY_PARAMS,
+  MOCK_SIGNIN_LOCATION_STATE,
+  MOCK_EMAIL,
+  MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
+} from './mocks';
+import { screen, waitFor } from '@testing-library/react';
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
+import { MOCK_NO_TOTP, MOCK_TOTP_STATUS_VERIFIED } from '../Signin/mocks';
+import { SigninLocationState } from '../Signin/interfaces';
 
-const defaultQueryParams = {
-  client_id: 'dcdb5ae7add825d2',
-  pkce_client_id: '38a6b9b3a65a1871',
-  redirect_uri: 'http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth',
-  scope: 'profile%20openid',
-  acr_values: 'AAL2',
-};
 const mockLocationHook = (
-  queryParams: Record<string, string> = defaultQueryParams,
-  state: unknown = undefined
+  queryParams: Record<string, string> = MOCK_QUERY_PARAMS,
+  state: SigninLocationState | null = MOCK_SIGNIN_LOCATION_STATE
 ) => {
   return {
     pathname: '/inline_totp_setup',
@@ -42,12 +44,10 @@ jest.mock('@reach/router', () => {
   };
 });
 
-let mockAccountHook: () => any = () => null;
 let mockSessionHook: () => any = () => null;
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
-    useAccount: jest.fn(() => mockAccountHook()),
     useSession: jest.fn(() => mockSessionHook()),
   };
 });
@@ -60,6 +60,7 @@ jest.mock('../../lib/totp', () => {
   };
 });
 
+let mockTotpStatusQuery = jest.fn();
 function setMocks() {
   mockCheckCode = () => true;
   let mockCreateTotpMutation = jest
@@ -76,6 +77,15 @@ function setMocks() {
       reset: () => {},
     },
   ]);
+  mockTotpStatusQuery.mockImplementation(() => {
+    return {
+      data: MOCK_NO_TOTP,
+      loading: false,
+    };
+  });
+  jest
+    .spyOn(ApolloClientModule, 'useQuery')
+    .mockReturnValue(mockTotpStatusQuery());
   jest.spyOn(InlineTotpSetupModule, 'default');
   (InlineTotpSetupModule.default as jest.Mock).mockReset();
   mockNavigateHook.mockReset();
@@ -113,19 +123,9 @@ describe('InlineTotpSetupContainer', () => {
       );
     });
 
-    it('redirects when there is no account', () => {
+    it('redirects when there is no signin state', () => {
       render();
-      const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`,
-        { state: undefined }
-      );
-    });
-
-    it('redirects when there is no session', () => {
-      mockAccountHook = () => ({ uid: 'quux' });
-      render();
-      const location = mockLocationHook();
+      const location = mockLocationHook(MOCK_QUERY_PARAMS, null);
       expect(mockNavigateHook).toHaveBeenCalledWith(
         `/signup${location.search}`,
         { state: undefined }
@@ -133,47 +133,61 @@ describe('InlineTotpSetupContainer', () => {
     });
 
     it('redirects when the session is not verified', async () => {
-      mockAccountHook = () => ({ uid: 'quux' });
       mockSessionHook = () => ({ isSessionVerified: async () => false });
       render();
       const location = mockLocationHook();
       await waitFor(() => {
         expect(mockNavigateHook).toHaveBeenCalledWith(
           `/signin_token_code${location.search}`,
-          { state: undefined }
+          { state: MOCK_SIGNIN_LOCATION_STATE }
         );
       });
     });
 
     it('redirects when totp is active on the account', async () => {
-      mockAccountHook = () => ({
-        uid: 'quux',
-        refresh: () => {},
-        totpActive: true,
-      });
       mockSessionHook = () => ({ isSessionVerified: async () => true });
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: MOCK_TOTP_STATUS_VERIFIED,
+          loading: false,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
       render();
       const location = mockLocationHook();
       await waitFor(() => {
         expect(mockNavigateHook).toHaveBeenCalledWith(
           `/signin_totp_code${location.search}`,
-          { state: undefined }
+          { state: MOCK_SIGNIN_LOCATION_STATE }
         );
       });
     });
   });
 
   describe('renders', () => {
-    const mockEmail = 'nomannisanislandexcepttheisleofmann@example.gg';
-
     beforeEach(() => {
-      mockAccountHook = () => ({
-        uid: 'quux',
-        email: mockEmail,
-        refresh: () => {},
-        totpActive: false,
-      });
       mockSessionHook = () => ({ isSessionVerified: async () => true });
+    });
+
+    it('displays loading spinner when loading', async () => {
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: null,
+          loading: true,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
+
+      render();
+      await waitFor(() => {
+        expect(mockTotpStatusQuery).toBeCalled();
+      });
+      screen.getByLabelText('Loading…');
+      expect(InlineTotpSetupModule.default).not.toBeCalled();
     });
 
     it('invokes InlineTotpSetup with the correct props', async () => {
@@ -183,7 +197,7 @@ describe('InlineTotpSetupContainer', () => {
         const args = (InlineTotpSetupModule.default as jest.Mock).mock
           .calls[0][0];
         expect(args.totp).toBe(MOCK_TOTP_TOKEN);
-        expect(args.email).toBe(mockEmail);
+        expect(args.email).toBe(MOCK_EMAIL);
         expect(args.serviceName).toBe(MozServices.Default);
       });
     });
@@ -191,10 +205,9 @@ describe('InlineTotpSetupContainer', () => {
     describe('callbacks', () => {
       describe('cancelSetupHandler', () => {
         it('redirects when returnOnError is true', async () => {
-          Object.defineProperty(window, 'location', {
-            writable: true,
-            value: { assign: jest.fn() },
-          });
+          const hardNavigateSpy = jest
+            .spyOn(utils, 'hardNavigate')
+            .mockImplementation(() => {});
           render();
           await waitFor(() => {
             expect(InlineTotpSetupModule.default).toHaveBeenCalled();
@@ -203,7 +216,7 @@ describe('InlineTotpSetupContainer', () => {
             .calls[0][0];
           const cancelSetupHandler = args.cancelSetupHandler;
           cancelSetupHandler();
-          expect(window.location.assign).toHaveBeenCalledWith(
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
             'https://localhost:8080/?error=160'
           );
         });
@@ -289,8 +302,8 @@ describe('InlineTotpSetupContainer', () => {
           const verifyCodeHandler = args.verifyCodeHandler;
           await verifyCodeHandler('1010');
           expect(mockNavigateHook).toHaveBeenCalledWith(
-            `/inline_recovery_setup?${new URLSearchParams(defaultQueryParams)}`,
-            { state: { totp: MOCK_TOTP_TOKEN } }
+            `/inline_recovery_setup?${new URLSearchParams(MOCK_QUERY_PARAMS)}`,
+            { state: MOCK_SIGNIN_RECOVERY_LOCATION_STATE }
           );
         });
       });

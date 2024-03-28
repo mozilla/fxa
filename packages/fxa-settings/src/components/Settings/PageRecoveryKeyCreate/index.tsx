@@ -25,7 +25,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   usePageViewEvent(viewName);
   const location = useLocation();
 
-  const { recoveryKey } = useAccount();
+  const { recoveryKey, email } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
   const navigate = useNavigate();
 
@@ -93,7 +93,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
       {/* Download recovery key */}
       {currentStep === 3 && (
         <FlowRecoveryKeyDownload
-          {...{ ...sharedStepProps }}
+          {...{ ...sharedStepProps, email }}
           recoveryKeyValue={formattedRecoveryKey}
         />
       )}

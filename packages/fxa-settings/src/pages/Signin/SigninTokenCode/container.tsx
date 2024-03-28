@@ -14,7 +14,7 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader from '../../../components/CardHeader';
 import { SigninLocationState } from '../interfaces';
-import { getStoredAccountInfo } from '../utils';
+import { getSigninState } from '../utils';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -29,10 +29,7 @@ const SigninTokenCodeContainer = ({
     state?: SigninLocationState;
   };
 
-  const signinState =
-    location.state && Object.keys(location.state).length > 0
-      ? location.state
-      : getStoredAccountInfo();
+  const signinState = getSigninState(location.state);
 
   const authClient = useAuthClient();
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -44,7 +41,7 @@ const SigninTokenCodeContainer = ({
   const { data: totpData, loading: totpLoading } =
     useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
 
-  if (Object.keys(signinState).length < 1) {
+  if (!signinState) {
     hardNavigateToContentServer(`/${location.search || ''}`);
     return <LoadingSpinner fullScreen />;
   }

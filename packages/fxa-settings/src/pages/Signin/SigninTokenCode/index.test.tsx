@@ -25,6 +25,7 @@ import {
 import { createMockSigninLocationState } from './mocks';
 import VerificationReasons from '../../../constants/verification-reasons';
 import firefox from '../../../lib/channels/firefox';
+import { navigate } from '@reach/router';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -50,12 +51,11 @@ function applyDefaultMocks() {
   mockReactUtilsModule();
 }
 
-const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => {
   return {
     __esModule: true,
     ...jest.requireActual('@reach/router'),
-    useNavigate: () => mockNavigate,
+    navigate: jest.fn(),
     useLocation: () => () => {},
   };
 });
@@ -270,7 +270,7 @@ describe('SigninTokenCode page', () => {
         submitCode();
 
         await expectSuccessGleanEvents();
-        expect(mockNavigate).toHaveBeenCalledWith('/settings');
+        expect(navigate).toHaveBeenCalledWith('/settings');
       });
       it('when verificationReason is a force password change', async () => {
         session = mockSession();

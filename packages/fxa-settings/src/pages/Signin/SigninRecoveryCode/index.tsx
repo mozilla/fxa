@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { RecoveryCodesImage } from '../../../components/images';
@@ -35,7 +30,7 @@ const SigninRecoveryCode = ({
   integration,
   redirectTo,
   serviceName,
-  signinLocationState,
+  signinState,
   submitRecoveryCode,
 }: SigninRecoveryCodeProps & RouteComponentProps) => {
   useEffect(() => {
@@ -50,7 +45,6 @@ const SigninRecoveryCode = ({
     'Backup authentication code required'
   );
   const location = useLocation();
-  const navigate = useNavigate();
 
   const formAttributes: FormAttributes = {
     inputFtlId: 'signin-recovery-code-input-label',
@@ -69,7 +63,7 @@ const SigninRecoveryCode = ({
     verificationReason,
     keyFetchToken,
     unwrapBKey,
-  } = signinLocationState;
+  } = signinState;
 
   const onSuccessNavigate = useCallback(() => {
     const navigationOptions = {
@@ -89,7 +83,7 @@ const SigninRecoveryCode = ({
       queryParams: location.search,
     };
 
-    handleNavigation(navigationOptions, navigate);
+    handleNavigation(navigationOptions);
   }, [
     email,
     integration,
@@ -97,7 +91,6 @@ const SigninRecoveryCode = ({
     keyFetchToken,
     location.search,
     redirectTo,
-    navigate,
     sessionToken,
     verificationMethod,
     verificationReason,
@@ -184,7 +177,7 @@ const SigninRecoveryCode = ({
         <FtlMsg id="signin-recovery-code-back-link">
           <Link
             to={`/signin_totp_code${location.search || ''}`}
-            state={signinLocationState}
+            state={signinState}
           >
             Back
           </Link>

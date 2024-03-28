@@ -322,7 +322,8 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
                 onAction={logDataTrioActionEvent}
                 onCopy={copyRecoveryCodes}
                 contentType="Backup authentication codes"
-              ></DataBlock>
+                email={account.email}
+              />
             </div>
           </div>
           <div className="flex justify-center mt-6 mb-4 mx-auto max-w-64">

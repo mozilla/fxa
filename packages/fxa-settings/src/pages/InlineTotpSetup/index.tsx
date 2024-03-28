@@ -4,25 +4,15 @@
 
 import React, { useState, useCallback } from 'react';
 import classNames from 'classnames';
-import { MozServices } from '../../lib/types';
 import { FtlMsg } from 'fxa-react/lib/utils';
-import { Account, useFtlMsgResolver } from '../../models';
+import { useFtlMsgResolver } from '../../models';
 import { TwoFactorAuthImage } from '../../components/images';
 import CardHeader from '../../components/CardHeader';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormVerifyCode from '../../components/FormVerifyCode';
 import AppLayout from '../../components/AppLayout';
 import Banner, { BannerType } from '../../components/Banner';
-
-export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;
-
-type InlineTotpSetupProps = {
-  totp: TotpToken;
-  email: string;
-  serviceName?: MozServices;
-  cancelSetupHandler: () => void;
-  verifyCodeHandler: (code: string) => void;
-};
+import { InlineTotpSetupProps } from './interfaces';
 
 export const InlineTotpSetup = ({
   totp,

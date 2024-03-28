@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import * as ApolloClientModule from '@apollo/client';
-import * as InlineRecoverySetupModule from './index';
+import * as InlineRecoverySetupModule from '.';
+import * as utils from 'fxa-react/lib/utils';
 
 import { ApolloClient } from '@apollo/client';
 import { LocationProvider } from '@reach/router';
@@ -11,28 +12,29 @@ import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localiz
 import { AuthUiError, AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { MozServices } from '../../lib/types';
 import { OAuthIntegration } from '../../models';
-import { MOCK_TOTP_TOKEN } from '../InlineTotpSetup/mocks';
+import {
+  MOCK_QUERY_PARAMS,
+  MOCK_SIGNIN_LOCATION_STATE,
+  MOCK_SIGNIN_RECOVERY_LOCATION_STATE,
+  MOCK_TOTP_TOKEN,
+} from '../InlineTotpSetup/mocks';
 import InlineRecoverySetupContainer from './container';
 import AuthClient from 'fxa-auth-client/browser';
 import { waitFor } from '@testing-library/react';
+import {
+  MOCK_NO_TOTP,
+  MOCK_OAUTH_FLOW_HANDLER_RESPONSE,
+  MOCK_TOTP_STATUS_VERIFIED,
+} from '../Signin/mocks';
+import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 
-const mockEmail = 'nomannisanislandexcepttheisleofmann@example.gg';
-const defaultQueryParams = {
-  client_id: 'dcdb5ae7add825d2',
-  pkce_client_id: '38a6b9b3a65a1871',
-  redirect_uri: 'http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth',
-  scope: 'profile%20openid',
-  acr_values: 'AAL2',
-};
-let locationState: any = { totp: MOCK_TOTP_TOKEN };
-const mockLocationHook = (
-  queryParams: Record<string, string> = defaultQueryParams,
-  state: unknown = locationState
-) => {
+let mockLocationState = {};
+const mockSearch = '?' + new URLSearchParams(MOCK_QUERY_PARAMS);
+const mockLocationHook = () => {
   return {
-    pathname: '/inline_totp_setup',
-    search: '?' + new URLSearchParams(queryParams),
-    state,
+    pathname: '/inline_recovery_setup',
+    search: mockSearch,
+    state: mockLocationState,
   };
 };
 const mockNavigateHook = jest.fn();
@@ -45,15 +47,20 @@ jest.mock('@reach/router', () => {
   };
 });
 
+jest.mock('../../lib/oauth/hooks.tsx', () => {
+  return {
+    __esModule: true,
+    useFinishOAuthFlowHandler: jest.fn(),
+  };
+});
+
 const mockAuthClient = new AuthClient('http://localhost:9000', {
   keyStretchVersion: 1,
 });
-let mockAccountHook: () => any = () => null;
 let mockSessionHook: () => any = () => ({ token: 'ABBA' });
 jest.mock('../../models', () => {
   return {
     ...jest.requireActual('../../models'),
-    useAccount: jest.fn(() => mockAccountHook()),
     useSession: jest.fn(() => mockSessionHook()),
     useAuthClient: jest.fn(() => mockAuthClient),
   };
@@ -78,14 +85,9 @@ let mockVerifyTotpMutation = jest
   .fn()
   .mockResolvedValue({ data: { verifyTotp: { success: true } } });
 
+let mockTotpStatusQuery = jest.fn();
 function setMocks() {
-  locationState = { totp: MOCK_TOTP_TOKEN };
-  mockAccountHook = () => ({
-    uid: 'quux',
-    email: mockEmail,
-    refresh: () => {},
-    totpActive: false,
-  });
+  mockLocationState = {};
   mockSessionHook = () => ({ token: 'ABBA' });
 
   jest.spyOn(ApolloClientModule, 'useMutation').mockReturnValue([
@@ -99,10 +101,23 @@ function setMocks() {
       reset: () => {},
     },
   ]);
-
+  mockTotpStatusQuery.mockImplementation(() => {
+    return {
+      data: MOCK_NO_TOTP,
+      loading: false,
+    };
+  });
+  jest
+    .spyOn(ApolloClientModule, 'useQuery')
+    .mockReturnValue(mockTotpStatusQuery());
   (InlineRecoverySetupModule.default as jest.Mock).mockReset();
-
   mockNavigateHook.mockReset();
+  (useFinishOAuthFlowHandler as jest.Mock).mockImplementation(() => ({
+    finishOAuthFlowHandler: jest
+      .fn()
+      .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE),
+    oAuthDataError: null,
+  }));
 }
 
 const defaultProps = {
@@ -129,51 +144,49 @@ describe('InlineRecoverySetupContainer', () => {
 
   describe('redirects away', () => {
     it('redirects when user is not signed in', () => {
+      mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
       render({ isSignedIn: false });
-      const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`
-      );
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
     });
 
-    it('redirects when there is no account', () => {
-      mockAccountHook = () => null;
+    it('redirects when there is no signin state', () => {
       render();
-      const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`
-      );
-    });
-
-    it('redirects when there is no session', () => {
-      mockSessionHook = () => null;
-      render();
-      const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`
-      );
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
     });
 
     it('redirects when there is no totp token', () => {
-      locationState = {};
+      mockLocationState = MOCK_SIGNIN_LOCATION_STATE;
       render();
-      const location = mockLocationHook();
-      expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signup${location.search}`
-      );
+      expect(mockNavigateHook).toHaveBeenCalledWith(`/signup${mockSearch}`);
     });
 
-    it('redirects when totp is already active', () => {
-      mockAccountHook = () => ({ totpActive: true });
+    it('redirects when totp is already active', async () => {
+      mockSessionHook = () => ({ isSessionVerified: async () => true });
+      mockTotpStatusQuery.mockImplementation(() => {
+        return {
+          data: MOCK_TOTP_STATUS_VERIFIED,
+          loading: false,
+        };
+      });
+      jest
+        .spyOn(ApolloClientModule, 'useQuery')
+        .mockReturnValue(mockTotpStatusQuery());
+      mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
+
       render();
-      const location = mockLocationHook();
       expect(mockNavigateHook).toHaveBeenCalledWith(
-        `/signin_totp_code${location.search}`
+        `/signin_totp_code${mockSearch}`,
+        {
+          state: MOCK_SIGNIN_LOCATION_STATE,
+        }
       );
     });
   });
 
   describe('renders', () => {
+    beforeEach(() => {
+      mockLocationState = MOCK_SIGNIN_RECOVERY_LOCATION_STATE;
+    });
     it('invokes InlineRecoverySetup with the correct props', async () => {
       render();
       await waitFor(() => {
@@ -188,10 +201,9 @@ describe('InlineRecoverySetupContainer', () => {
     describe('callbacks', () => {
       describe('cancelSetupHandler', () => {
         it('redirects when returnOnError is true', async () => {
-          Object.defineProperty(window, 'location', {
-            writable: true,
-            value: { assign: jest.fn() },
-          });
+          const hardNavigateSpy = jest
+            .spyOn(utils, 'hardNavigate')
+            .mockImplementation(() => {});
           render();
           await waitFor(() => {
             expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
@@ -200,7 +212,7 @@ describe('InlineRecoverySetupContainer', () => {
             .calls[0][0];
           const cancelSetupHandler = args.cancelSetupHandler;
           cancelSetupHandler();
-          expect(window.location.assign).toHaveBeenCalledWith(
+          expect(hardNavigateSpy).toHaveBeenCalledWith(
             'https://localhost:8080/?error=160'
           );
         });
@@ -247,9 +259,26 @@ describe('InlineRecoverySetupContainer', () => {
         });
       });
 
-      // The redirect implementation is to be completed in another issue:
-      // FXA-6518.  We'll add the test for that in a follow-up.
-      // describe('successfulSetupHandler', () => {});
+      describe('successfulSetupHandler', () => {
+        it('calls finishOAuthFlowHandler and navigates to RP', async () => {
+          const hardNavigateSpy = jest
+            .spyOn(utils, 'hardNavigate')
+            .mockImplementation(() => {});
+
+          render();
+          await waitFor(() => {
+            expect(InlineRecoverySetupModule.default).toHaveBeenCalled();
+          });
+          const args = (InlineRecoverySetupModule.default as jest.Mock).mock
+            .calls[0][0];
+          const successfulSetupHandler = args.successfulSetupHandler;
+          await successfulSetupHandler();
+
+          expect(hardNavigateSpy).toBeCalledWith(
+            MOCK_OAUTH_FLOW_HANDLER_RESPONSE.redirect
+          );
+        });
+      });
     });
   });
 });

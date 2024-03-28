@@ -11,7 +11,7 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback } from 'react';
-import { getStoredAccountInfo, handleGQLError } from '../utils';
+import { getSigninState, handleGQLError } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
@@ -41,12 +41,7 @@ export const SigninRecoveryCodeContainer = ({
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { redirectTo } = queryParamModel;
 
-  const signinLocationState =
-    location.state && location.state.sessionToken
-      ? location.state
-      : getStoredAccountInfo();
-
-  const { sessionToken } = signinLocationState;
+  const signinState = getSigninState(location.state);
 
   const [consumeRecoveryCode] = useMutation<ConsumeRecoveryCodeResponse>(
     CONSUME_RECOVERY_CODE_MUTATION
@@ -82,7 +77,7 @@ export const SigninRecoveryCodeContainer = ({
     );
   }
 
-  if (!sessionToken) {
+  if (!signinState) {
     hardNavigateToContentServer(`/${location.search}`);
     return <LoadingSpinner fullScreen />;
   }
@@ -94,7 +89,7 @@ export const SigninRecoveryCodeContainer = ({
         integration,
         redirectTo,
         serviceName,
-        signinLocationState,
+        signinState,
         submitRecoveryCode,
       }}
     />

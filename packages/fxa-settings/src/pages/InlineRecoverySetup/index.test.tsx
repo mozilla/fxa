@@ -5,11 +5,10 @@
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent, { UserEvent } from '@testing-library/user-event';
 import InlineRecoverySetup from '.';
-import { REACT_ENTRYPOINT } from '../../constants';
-import { usePageViewEvent } from '../../lib/metrics';
 import { MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
+import { MOCK_EMAIL } from '../mocks';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -37,7 +36,7 @@ describe('InlineRecoverySetup', () => {
   });
 
   it('renders default content as expected', () => {
-    renderWithRouter(<InlineRecoverySetup {...props} />);
+    renderWithRouter(<InlineRecoverySetup {...props} email={MOCK_EMAIL} />);
     screen.getByRole('heading', {
       name: `Save backup authentication codes to continue to ${MozServices.Default}`,
     });
@@ -56,7 +55,11 @@ describe('InlineRecoverySetup', () => {
 
   it('renders as expected with a custom service name', () => {
     renderWithRouter(
-      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
+      <InlineRecoverySetup
+        serviceName={MOCK_SERVICE_NAME}
+        email={MOCK_EMAIL}
+        {...props}
+      />
     );
     screen.getByRole('heading', {
       name: `Save backup authentication codes to continue to ${MOCK_SERVICE_NAME}`,
@@ -64,7 +67,7 @@ describe('InlineRecoverySetup', () => {
   });
 
   it('renders "showConfirmation" content as expected', async () => {
-    renderWithRouter(<InlineRecoverySetup {...props} />);
+    renderWithRouter(<InlineRecoverySetup email={MOCK_EMAIL} {...props} />);
 
     await act(
       async () =>
@@ -83,7 +86,11 @@ describe('InlineRecoverySetup', () => {
 
   it('renders "showConfirmation" content as expected with a custom service name', async () => {
     renderWithRouter(
-      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
+      <InlineRecoverySetup
+        email={MOCK_EMAIL}
+        serviceName={MOCK_SERVICE_NAME}
+        {...props}
+      />
     );
     await act(
       async () =>
@@ -96,7 +103,11 @@ describe('InlineRecoverySetup', () => {
 
   it('shows an error on incorrect recovery code submission', async () => {
     renderWithRouter(
-      <InlineRecoverySetup serviceName={MOCK_SERVICE_NAME} {...props} />
+      <InlineRecoverySetup
+        email={MOCK_EMAIL}
+        serviceName={MOCK_SERVICE_NAME}
+        {...props}
+      />
     );
     await act(
       async () =>
@@ -122,6 +133,7 @@ describe('InlineRecoverySetup', () => {
     renderWithRouter(
       <InlineRecoverySetup
         serviceName={MOCK_SERVICE_NAME}
+        email={MOCK_EMAIL}
         {...props}
         {...{ verifyTotpHandler, successfulSetupHandler }}
       />
@@ -153,6 +165,7 @@ describe('InlineRecoverySetup', () => {
     const successfulSetupHandler = jest.fn();
     renderWithRouter(
       <InlineRecoverySetup
+        email={MOCK_EMAIL}
         serviceName={MOCK_SERVICE_NAME}
         {...props}
         {...{ verifyTotpHandler, successfulSetupHandler }}

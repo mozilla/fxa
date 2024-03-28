@@ -9,6 +9,7 @@ import GetDataTrio, {
   GetDataCopySingletonInline,
 } from './index';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { MOCK_EMAIL } from '../../pages/mocks';
 
 export default {
   title: 'Components/GetDataTrio',
@@ -20,7 +21,11 @@ export const Default = () => {
   const [, setTooltipVisible] = useState(false);
   return (
     <div className="p-10 max-w-xs">
-      <GetDataTrio value="Copy that" {...{ setTooltipVisible }} />
+      <GetDataTrio
+        value="Copy that"
+        email={MOCK_EMAIL}
+        {...{ setTooltipVisible }}
+      />
     </div>
   );
 };
@@ -29,7 +34,11 @@ export const SingleCopyButton = () => {
   const [, setTooltipVisible] = useState(false);
   return (
     <div className="p-10 max-w-xs">
-      <GetDataCopySingleton value="Copy that" {...{ setTooltipVisible }} />
+      <GetDataCopySingleton
+        value="Copy that"
+        email={MOCK_EMAIL}
+        {...{ setTooltipVisible }}
+      />
     </div>
   );
 };
@@ -40,6 +49,7 @@ export const SingleCopyButtonInline = () => {
     <div className="p-10 max-w-xs">
       <GetDataCopySingletonInline
         value="Copy that"
+        email={MOCK_EMAIL}
         {...{ setTooltipVisible }}
       />
     </div>

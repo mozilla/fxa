@@ -24,6 +24,7 @@ import { SigninIntegration } from '../interfaces';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import * as utils from 'fxa-react/lib/utils';
+import { navigate } from '@reach/router';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -46,10 +47,10 @@ const mockLocation = () => {
     pathname: '/signin_totp_cpde',
   };
 };
-const mockNavigate = jest.fn();
+
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
+  navigate: jest.fn(),
   useLocation: () => mockLocation(),
 }));
 
@@ -144,7 +145,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(1);
-      expect(mockNavigate).toHaveBeenCalledWith('/settings');
+      expect(navigate).toHaveBeenCalledWith('/settings');
     });
 
     // When CAD is converted to React, just test navigation since CAD will handle fxaLogin
@@ -191,7 +192,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     it('shows general error on unexpected error', async () => {
@@ -204,7 +205,7 @@ describe('Sign in with TOTP code page', () => {
       expect(GleanMetrics.totpForm.view).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.totpForm.success).toHaveBeenCalledTimes(0);
-      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(navigate).not.toHaveBeenCalled();
     });
 
     describe('with OAuth integration', () => {

@@ -5,7 +5,6 @@
 // Shared implementation of `signIn` view method
 
 import AuthErrors from '../../lib/auth-errors';
-import GeneralizedReactAppExperimentMixin from '../../lib/generalized-react-app-experiment-mixin';
 import GleanMetrics from '../../lib/glean';
 import OAuthErrors from '../../lib/oauth-errors';
 import NavigateBehavior from '../behaviors/navigate';
@@ -15,11 +14,7 @@ import VerificationReasons from '../../lib/verification-reasons';
 import PushLoginExperiment from './push-login-experiment-mixin';
 
 export default {
-  dependsOn: [
-    GeneralizedReactAppExperimentMixin,
-    ResumeTokenMixin,
-    PushLoginExperiment,
-  ],
+  dependsOn: [ResumeTokenMixin, PushLoginExperiment],
 
   /**
    * Sign in a user
@@ -137,14 +132,6 @@ export default {
           AuthErrors.is(err, 'INSUFFICIENT_ACR_VALUES') ||
           OAuthErrors.is(err, 'MISMATCH_ACR_VALUES')
         ) {
-          if (
-            this.isInReactExperiment() &&
-            this.config?.showReactApp?.inlineTotpRoutes
-          ) {
-            return this.window.location.assign(
-              `/inline_totp_setup${this.window.location.search}`
-            );
-          }
           return this.navigate('inline_totp_setup', {
             account: account,
             onSubmitComplete: this.onSignInSuccess.bind(this),
