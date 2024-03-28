@@ -6,10 +6,8 @@ import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { getBundle, getLocaleFromRequest } from '@fxa/shared/l10n';
 
 import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
-import checkLogo from '../../../../../images/check.svg';
 import errorIcon from '../../../../../images/error.svg';
 import { CheckoutSearchParams } from '../../layout';
-// import { app } from '../../_nestapp/app';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -67,20 +65,6 @@ export default async function CheckoutError({
 
   return (
     <>
-      <header className="page-title-container">
-        <h1 className="page-header">
-          {l10n.getMessage('subscription-error-title')?.value?.toString() ||
-            'Error confirming subscription…'}
-        </h1>
-        <div className="page-subheader">
-          <Image src={checkLogo} alt="" />
-          <span className="page-subheader-text">
-            {l10n.getMessage('sub-guarantee')?.value?.toString() ||
-              '30-day money-back guarantee'}
-          </span>
-        </div>
-      </header>
-
       <section
         className="payment-panel hidden tablet:block"
         aria-label="Purchase details"
@@ -93,7 +77,7 @@ export default async function CheckoutError({
         />
       </section>
 
-      <div className="page-body rounded-t-none tablet:rounded-t-long">
+      <div className="page-body rounded-t-none tablet:rounded-t-lg">
         <section
           className="page-message-container h-[640px]"
           aria-label="Payment error"
