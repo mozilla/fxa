@@ -33,13 +33,10 @@ export type MetricsRedisConfig = {
 export class MetricsRedis extends RedisShared {
   private enabled: boolean;
   private lifetime: number;
-  private prefix: string;
 
   constructor(config: MetricsRedisConfig) {
     super(config.redis.metrics, resolveLogger(), resolveMetrics());
     this.enabled = config.redis.metrics.enabled || false;
-    // TBD - Assigned but not used?
-    this.prefix = config.redis.metrics.prefix || 'metrics:';
     this.lifetime = config.redis.metrics.lifetime || 7200;
   }
 
