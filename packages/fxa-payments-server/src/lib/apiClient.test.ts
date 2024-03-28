@@ -53,7 +53,6 @@ import {
 import { Config, defaultConfig } from './config';
 import { PaymentProvider } from './PaymentProvider';
 import {
-  deepCopy,
   MOCK_ACTIVE_SUBSCRIPTIONS,
   MOCK_CHECKOUT_TOKEN,
   MOCK_CUSTOMER,

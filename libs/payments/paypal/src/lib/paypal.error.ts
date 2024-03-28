@@ -49,3 +49,19 @@ export class PayPalNVPError extends BaseError {
     this.errorCode = errorCode;
   }
 }
+
+export class PayPalError extends BaseError {
+  constructor(message: string, info: Record<string, any>, cause?: Error) {
+    super(message, {
+      name: 'PayPalError',
+      cause,
+      info,
+    });
+  }
+}
+
+export class AmountExceedsPayPalCharLimitError extends PayPalError {
+  constructor(amountInCents: number) {
+    super('Amount must be less than 10 characters', { amountInCents });
+  }
+}

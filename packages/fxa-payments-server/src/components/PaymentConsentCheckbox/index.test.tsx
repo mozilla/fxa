@@ -73,14 +73,16 @@ describe('components/PaymentConsentCheckbox', () => {
 
   describe('Legal', () => {
     describe('rendering the legal checkbox Localized component', () => {
-      function runTests(plan: Plan, expectedMsgId: string) {
+      async function runTests(plan: Plan, expectedMsgId: string) {
         const props = { plan };
 
         const testRenderer = TestRenderer.create(
           withLocalizationProvider(<WrapCheckbox {...props} />)
         );
         const testInstance = testRenderer.root;
-        const legalCheckbox = testInstance.findByProps({ id: expectedMsgId });
+        const legalCheckbox = await testInstance.findByProps({
+          id: expectedMsgId,
+        });
 
         expect(legalCheckbox.props.children.props.children[0]).toBe(
           'I authorize Mozilla to charge my payment method for the amount shown, according to'

@@ -16,11 +16,13 @@ import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 
 import {
   NVPBAUpdateTransactionResponseFactory,
+  NVPCreateBillingAgreementResponseFactory,
   NVPSetExpressCheckoutResponseFactory,
 } from './factories';
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
+import { AmountExceedsPayPalCharLimitError } from './paypal.error';
 import {
   PaypalCustomerNotFoundError,
   PaypalCustomerMultipleRecordsError,
@@ -87,6 +89,28 @@ describe('PaypalManager', () => {
 
     it('throws an error', async () => {
       expect(paypalManager.cancelBillingAgreement).rejects.toThrowError();
+    });
+  });
+
+  describe('createBillingAgreement', () => {
+    it('creates a billing agreement', async () => {
+      const token = faker.string.uuid();
+      const mockResponse = NVPCreateBillingAgreementResponseFactory();
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockResponse);
+
+      const result = await paypalManager.createBillingAgreement({ token });
+
+      expect(result).toEqual(mockResponse.BILLINGAGREEMENTID);
+      expect(paypalClient.createBillingAgreement).toBeCalledWith({
+        token,
+      });
+    });
+
+    it('throws an error', async () => {
+      expect(paypalManager.createBillingAgreement).rejects.toThrowError();
     });
   });
 
@@ -293,6 +317,27 @@ describe('PaypalManager', () => {
         mockCustomer,
         mockInvoice
       );
+    });
+  });
+
+  describe('getPayPalAmountStringFromAmountInCents', () => {
+    it('returns correctly formatted string', () => {
+      const amountInCents = faker.number.int({ max: 9999999999 });
+      const result = (amountInCents / 100).toFixed(2);
+
+      expect(
+        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents)
+      ).toEqual(result.toString());
+    });
+
+    it('throws an error if number exceeds digit limit', () => {
+      const amountInCents = faker.number.int({ min: 12345678910 });
+
+      try {
+        paypalManager.getPayPalAmountStringFromAmountInCents(amountInCents);
+      } catch (error) {
+        expect(error).toBeInstanceOf(AmountExceedsPayPalCharLimitError);
+      }
     });
   });
 });
