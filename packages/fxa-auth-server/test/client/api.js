@@ -8,7 +8,6 @@ module.exports = (config) => {
   const EventEmitter = require('events').EventEmitter;
   const util = require('util');
 
-  const hawk = require('@hapi/hawk');
   const request = require('request');
 
   const tokens = require('../../lib/tokens')({ trace: function () {} }, config);
@@ -34,7 +33,7 @@ module.exports = (config) => {
     if (offset) {
       verify.localtimeOffsetMsec = offset;
     }
-    return hawk.client.header(url, method, verify).header;
+    return `Hawk id="${verify.credentials.id}"`;
   }
 
   ClientApi.prototype.doRequest = function (
@@ -1382,19 +1381,14 @@ module.exports = (config) => {
   };
 
   ClientApi.prototype.stubAccount = function (email, clientId) {
-    return this.doRequest(
-      'POST',
-      `${this.baseURL}/account/stub`,
-      null,
-      {
-        email,
-        clientId,
-        wantsSetupToken: true
-      }
-    );
-  }
+    return this.doRequest('POST', `${this.baseURL}/account/stub`, null, {
+      email,
+      clientId,
+      wantsSetupToken: true,
+    });
+  };
 
-  ClientApi.prototype.finishAccountSetup = async function(
+  ClientApi.prototype.finishAccountSetup = async function (
     token,
     email,
     authPW,
@@ -1414,10 +1408,10 @@ module.exports = (config) => {
         wrapKb,
         authPWVersion2,
         wrapKbVersion2,
-        clientSalt
+        clientSalt,
       }
     );
-  }
+  };
 
   ClientApi.heartbeat = function (origin) {
     return new ClientApi(origin).doRequest('GET', `${origin}/__heartbeat__`);
