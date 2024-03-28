@@ -3,14 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { PriceFactory } from './price.factory';
+import { StripePriceFactory } from './price.factory';
 import {
-  StripeApiList,
   StripeSubscription,
   StripeSubscriptionItem,
 } from '../stripe.client.types';
 
-export const SubscriptionFactory = (
+export const StripeSubscriptionFactory = (
   override?: Partial<StripeSubscription>
 ): StripeSubscription => ({
   id: `sub_${faker.string.alphanumeric({ length: 24 })}`,
@@ -40,7 +39,7 @@ export const SubscriptionFactory = (
   ended_at: null,
   items: {
     object: 'list',
-    data: [SubscriptionItemFactory()],
+    data: [StripeSubscriptionItemFactory()],
     has_more: false,
     url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric({
       length: 24,
@@ -67,7 +66,7 @@ export const SubscriptionFactory = (
   ...override,
 });
 
-export const SubscriptionItemFactory = (
+export const StripeSubscriptionItemFactory = (
   override?: Partial<StripeSubscriptionItem>
 ): StripeSubscriptionItem => ({
   id: `si_${faker.string.alphanumeric({ length: 14 })}`,
@@ -98,19 +97,9 @@ export const SubscriptionItemFactory = (
     trial_period_days: null,
     usage_type: 'licensed',
   },
-  price: PriceFactory(),
+  price: StripePriceFactory(),
   quantity: 1,
   subscription: `sub_${faker.string.alphanumeric({ length: 24 })}`,
   tax_rates: [],
-  ...override,
-});
-
-export const SubscriptionListFactory = (
-  override?: Partial<StripeApiList<StripeSubscription>>
-): StripeApiList<StripeSubscription> => ({
-  object: 'list',
-  url: '/v1/subscriptions',
-  has_more: false,
-  data: [SubscriptionFactory()],
   ...override,
 });

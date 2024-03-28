@@ -3,22 +3,39 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { CustomerFactory } from './factories/customer.factory';
-import { InvoiceFactory } from './factories/invoice.factory';
-import { SubscriptionListFactory } from './factories/subscription.factory';
+import { StripeCustomerFactory } from './factories/customer.factory';
+import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripeClient } from './stripe.client';
+import { Stripe } from 'stripe';
+import {
+  StripeApiListFactory,
+  StripeResponseFactory,
+} from './factories/api-list.factory';
+import { StripeSubscriptionFactory } from './factories/subscription.factory';
 
+const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
+  return jest.fn<ReturnType<T>, Parameters<T>>();
+};
+const mockStripeCustomersRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.customers.retrieve>();
+const mockStripeCustomersUpdate =
+  mockJestFnGenerator<typeof Stripe.prototype.customers.update>();
+const mockStripeFinalizeInvoice =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
+const mockStripeSubscriptionsList =
+  mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
 jest.mock('stripe', () => ({
   Stripe: function () {
     return {
       customers: {
-        retrieve: jest.fn(),
+        retrieve: mockStripeCustomersRetrieve,
+        update: mockStripeCustomersUpdate,
       },
       invoices: {
-        finalizeInvoice: jest.fn(),
+        finalizeInvoice: mockStripeFinalizeInvoice,
       },
       subscriptions: {
-        list: jest.fn(),
+        list: mockStripeSubscriptionsList,
       },
     };
   },
@@ -42,25 +59,23 @@ describe('StripeClient', () => {
 
   describe('fetchCustomer', () => {
     it('returns an existing customer from Stripe', async () => {
-      const mockCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
+      const mockResponse = StripeResponseFactory(mockCustomer);
 
-      (mockClient.stripe.customers.retrieve as jest.Mock).mockResolvedValueOnce(
-        mockCustomer
-      );
+      mockStripeCustomersRetrieve.mockResolvedValueOnce(mockResponse);
 
       const result = await mockClient.fetchCustomer(mockCustomer.id);
-      expect(result).toEqual(mockCustomer);
+      expect(result).toEqual(mockResponse);
     });
   });
 
   describe('updateCustomer', () => {
     it('updates an existing customer from Stripe', async () => {
-      const mockCustomer = CustomerFactory();
-      const mockUpdatedCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
+      const mockUpdatedCustomer = StripeCustomerFactory();
+      const mockResponse = StripeResponseFactory(mockUpdatedCustomer);
 
-      mockClient.stripe.customers.update = jest
-        .fn()
-        .mockResolvedValueOnce(mockUpdatedCustomer);
+      mockStripeCustomersUpdate.mockResolvedValueOnce(mockResponse);
 
       const result = await mockClient.updateCustomer(mockCustomer.id, {
         balance: mockUpdatedCustomer.balance,
@@ -72,12 +87,12 @@ describe('StripeClient', () => {
 
   describe('fetchSubscriptions', () => {
     it('returns subscriptions from Stripe', async () => {
-      const mockCustomer = CustomerFactory();
-      const mockSubscriptionList = SubscriptionListFactory();
-
-      (mockClient.stripe.subscriptions.list as jest.Mock).mockResolvedValueOnce(
-        mockSubscriptionList
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscriptionList = StripeResponseFactory(
+        StripeApiListFactory([StripeSubscriptionFactory()])
       );
+
+      mockStripeSubscriptionsList.mockResolvedValue(mockSubscriptionList);
 
       const result = await mockClient.fetchSubscriptions(mockCustomer.id);
       expect(result).toEqual(mockSubscriptionList);
@@ -86,19 +101,18 @@ describe('StripeClient', () => {
 
   describe('finalizeInvoice', () => {
     it('works successfully', async () => {
-      const mockInvoice = InvoiceFactory({
+      const mockInvoice = StripeInvoiceFactory({
         auto_advance: false,
       });
+      const mockResponse = StripeResponseFactory(mockInvoice);
 
-      (
-        mockClient.stripe.invoices.finalizeInvoice as jest.Mock
-      ).mockResolvedValueOnce({});
+      mockStripeFinalizeInvoice.mockResolvedValue(mockResponse);
 
       const result = await mockClient.finalizeInvoice(mockInvoice.id, {
         auto_advance: false,
       });
 
-      expect(result).toEqual({});
+      expect(result).toEqual(mockResponse);
     });
   });
 });

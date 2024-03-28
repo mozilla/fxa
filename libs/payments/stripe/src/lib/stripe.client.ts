@@ -19,7 +19,7 @@ import {
  */
 @Injectable()
 export class StripeClient {
-  readonly stripe: Stripe;
+  private readonly stripe: Stripe;
   constructor(private stripeConfig: StripeConfig) {
     this.stripe = new Stripe(this.stripeConfig.apiKey, {
       apiVersion: '2022-11-15',
