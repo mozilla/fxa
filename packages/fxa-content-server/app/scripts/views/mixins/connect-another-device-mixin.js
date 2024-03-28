@@ -105,7 +105,8 @@ export default {
     const isNotActionEmail = this.relier.get('action') !== 'email';
     if (
       this.isDefault() &&
-      context === Constants.FX_DESKTOP_V3_CONTEXT &&
+      (context === Constants.FX_DESKTOP_V3_CONTEXT ||
+        context === Constants.OAUTH_WEBCHANNEL_CONTEXT) &&
       (entrypoint === Constants.FIREFOX_TOOLBAR_ENTRYPOINT ||
         (isNotActionEmail &&
           [
