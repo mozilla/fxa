@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Provider } from '@nestjs/common';
-import { LocalizerBindingsServer, LocalizerServer } from './localizer.server';
+import { LocalizerServer } from './localizer.server';
+import { LocalizerBindingsServer } from './localizer.server.bindings';
 
 export const LocalizerServerFactory: Provider<LocalizerServer> = {
   provide: LocalizerServer,
