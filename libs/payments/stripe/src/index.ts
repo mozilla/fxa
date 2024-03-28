@@ -9,6 +9,10 @@ export {
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
 } from './lib/factories/subscription.factory';
+export {
+  StripeApiListFactory,
+  StripeResponseFactory,
+} from './lib/factories/api-list.factory';
 export * from './lib/stripe.client';
 export * from './lib/stripe.config';
 export * from './lib/stripe.constants';

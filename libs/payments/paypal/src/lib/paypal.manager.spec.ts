@@ -5,13 +5,13 @@ import { faker } from '@faker-js/faker';
 import { Kysely } from 'kysely';
 
 import {
-  CustomerFactory,
-  InvoiceFactory,
+  StripeCustomerFactory,
+  StripeInvoiceFactory,
   StripeClient,
   StripeConfig,
   StripeManager,
-  SubscriptionFactory,
-  SubscriptionListFactory,
+  StripeSubscriptionFactory,
+  StripeApiListFactory,
 } from '@fxa/payments/stripe';
 import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 
@@ -162,7 +162,7 @@ describe('PaypalManager', () => {
   describe('getCustomerBillingAgreementId', () => {
     it("returns the customer's current PayPal billing agreement ID", async () => {
       const mockPayPalCustomer = ResultPaypalCustomerFactory();
-      const mockStripeCustomer = CustomerFactory();
+      const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
@@ -175,7 +175,7 @@ describe('PaypalManager', () => {
     });
 
     it('throws PaypalCustomerNotFoundError if no PayPal customer record', async () => {
-      const mockStripeCustomer = CustomerFactory();
+      const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
@@ -189,7 +189,7 @@ describe('PaypalManager', () => {
     it('throws PaypalCustomerMultipleRecordsError if more than one PayPal customer found', async () => {
       const mockPayPalCustomer1 = ResultPaypalCustomerFactory();
       const mockPayPalCustomer2 = ResultPaypalCustomerFactory();
-      const mockStripeCustomer = CustomerFactory();
+      const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
@@ -203,19 +203,16 @@ describe('PaypalManager', () => {
 
   describe('getCustomerPayPalSubscriptions', () => {
     it('return customer subscriptions where collection method is send_invoice', async () => {
-      const mockPayPalSubscription = SubscriptionFactory({
+      const mockPayPalSubscription = StripeSubscriptionFactory({
         collection_method: 'send_invoice',
         status: 'active',
       });
 
-      const mockSubscriptionList = SubscriptionListFactory({
-        object: 'list',
-        url: '/v1/subscriptions',
-        has_more: false,
-        data: [mockPayPalSubscription],
-      });
+      const mockSubscriptionList = StripeApiListFactory([
+        mockPayPalSubscription,
+      ]);
 
-      const mockCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
 
       const expected = [mockPayPalSubscription];
 
@@ -253,7 +250,7 @@ describe('PaypalManager', () => {
 
   describe('processZeroInvoice', () => {
     it('finalizes invoices with no amount set to zero', async () => {
-      const mockInvoice = InvoiceFactory();
+      const mockInvoice = StripeInvoiceFactory();
 
       stripeManager.finalizeInvoiceWithoutAutoAdvance = jest
         .fn()
@@ -270,7 +267,7 @@ describe('PaypalManager', () => {
 
   describe('processInvoice', () => {
     it('calls processZeroInvoice when amount is less than minimum amount', async () => {
-      const mockInvoice = InvoiceFactory({
+      const mockInvoice = StripeInvoiceFactory({
         amount_due: 0,
         currency: 'usd',
       });
@@ -283,8 +280,8 @@ describe('PaypalManager', () => {
     });
 
     it('calls PayPalManager processNonZeroInvoice when amount is greater than minimum amount', async () => {
-      const mockCustomer = CustomerFactory();
-      const mockInvoice = InvoiceFactory({
+      const mockCustomer = StripeCustomerFactory();
+      const mockInvoice = StripeInvoiceFactory({
         amount_due: 50,
         currency: 'usd',
       });
