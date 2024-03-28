@@ -12,8 +12,6 @@ export type DeleteAccountCloudTaskConfig = CloudTasksConfig & {
       queueName: string;
     };
   };
-  publicUrl: string;
-  apiVersion: string;
 };
 
 /** Reasons an account can be deleted. */
@@ -28,7 +26,7 @@ export type DeleteAccountTask = {
   /** The account id */
   uid: string;
   /** The customer id, i.e. a stripe customer id if applicable */
-  customerId?: string;
+  customerId: string | undefined;
   /** Reason for deletion */
   reason: ReasonForDeletion;
 };

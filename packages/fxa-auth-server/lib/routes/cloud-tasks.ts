@@ -7,19 +7,14 @@ import { Container } from 'typedi';
 
 import { ConfigType } from '../../config';
 import DESCRIPTION from '../../docs/swagger/shared/descriptions';
-import {
-  AccountDeleteManager,
-  ReasonForDeletion,
-  ReasonForDeletionValues,
-} from '../account-delete';
+import { AccountDeleteManager } from '../account-delete';
 import { AuthLogger, AuthRequest } from '../types';
 import validators from './validators';
 
-export type DeleteAccountTaskPayload = {
-  uid: string;
-  customerId?: string;
-  reason: ReasonForDeletion;
-};
+import { DeleteAccountTask } from '@fxa/shared/cloud-tasks';
+
+/** Work around for path module resolution in validator.js which is still using cjs. */
+export { ReasonForDeletion } from '@fxa/shared/cloud-tasks';
 
 export class CloudTaskHandler {
   private accountDeleteManager: AccountDeleteManager;
@@ -28,7 +23,7 @@ export class CloudTaskHandler {
     this.accountDeleteManager = Container.get(AccountDeleteManager);
   }
 
-  async deleteAccount(taskPayload: DeleteAccountTaskPayload) {
+  async deleteAccount(taskPayload: DeleteAccountTask) {
     this.log.debug('Received delete account task', taskPayload);
     await this.accountDeleteManager.deleteAccount(
       taskPayload.uid,
@@ -64,14 +59,12 @@ export const cloudTaskRoutes = (log: AuthLogger, config: ConfigType) => {
               .string()
               .optional()
               .description(DESCRIPTION.customerId),
-            reason: isA.string().valid(...ReasonForDeletionValues),
+            reason: validators.reasonForAccountDeletion,
           }),
         },
       },
       handler: (request: AuthRequest) =>
-        cloudTaskHandler.deleteAccount(
-          request.payload as DeleteAccountTaskPayload
-        ),
+        cloudTaskHandler.deleteAccount(request.payload as DeleteAccountTask),
     },
   ];
 
