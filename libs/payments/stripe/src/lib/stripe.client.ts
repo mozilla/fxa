@@ -52,7 +52,10 @@ export class StripeClient {
     customerId: string,
     params: Stripe.CustomerUpdateParams
   ) {
-    const result = await this.stripe.customers.update(customerId, params);
+    const result = await this.stripe.customers.update(customerId, {
+      ...params,
+      expand: ['tax'],
+    });
 
     return result as StripeCustomer;
   }
