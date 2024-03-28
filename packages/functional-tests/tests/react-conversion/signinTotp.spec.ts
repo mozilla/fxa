@@ -21,7 +21,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
 
       await settings.addTwoStepAuthenticationButton.click();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -55,7 +55,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
 
       await settings.addTwoStepAuthenticationButton.click();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
