@@ -5,13 +5,13 @@ import { faker } from '@faker-js/faker';
 import { Kysely } from 'kysely';
 
 import {
-  StripeCustomerFactory,
-  StripeInvoiceFactory,
+  StripeApiListFactory,
   StripeClient,
   StripeConfig,
+  StripeCustomerFactory,
+  StripeInvoiceFactory,
   StripeManager,
   StripeSubscriptionFactory,
-  StripeApiListFactory,
 } from '@fxa/payments/stripe';
 import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
 

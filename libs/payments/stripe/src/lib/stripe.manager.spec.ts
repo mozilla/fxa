@@ -5,10 +5,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { faker } from '@faker-js/faker';
 
+import { StripeApiListFactory } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
-import { StripeApiListFactory } from './factories/api-list.factory';
 import { StripeClient } from './stripe.client';
 import { StripeConfig } from './stripe.config';
 import { StripeManager } from './stripe.manager';

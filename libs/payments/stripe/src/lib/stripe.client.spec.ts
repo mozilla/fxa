@@ -3,15 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { StripeCustomerFactory } from './factories/customer.factory';
-import { StripeInvoiceFactory } from './factories/invoice.factory';
-import { StripeClient } from './stripe.client';
 import { Stripe } from 'stripe';
+
 import {
   StripeApiListFactory,
   StripeResponseFactory,
 } from './factories/api-list.factory';
+import { StripeCustomerFactory } from './factories/customer.factory';
+import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripeClient } from './stripe.client';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
   return jest.fn<ReturnType<T>, Parameters<T>>();
@@ -24,6 +25,7 @@ const mockStripeFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeSubscriptionsList =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
+
 jest.mock('stripe', () => ({
   Stripe: function () {
     return {
@@ -49,8 +51,10 @@ describe('StripeClient', () => {
       apiKey: faker.string.uuid(),
       taxIds: { EUR: 'EU1234' },
     });
+  });
 
-    jest.resetAllMocks;
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {

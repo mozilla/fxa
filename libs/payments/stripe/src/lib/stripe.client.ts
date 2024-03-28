@@ -5,13 +5,13 @@
 import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
-import { StripeConfig } from './stripe.config';
 import {
   StripeCustomer,
   StripeDeletedCustomer,
   StripeInvoice,
   StripeSubscription,
 } from './stripe.client.types';
+import { StripeConfig } from './stripe.config';
 
 /**
  * A wrapper for Stripe that enforces that results have deterministic typings

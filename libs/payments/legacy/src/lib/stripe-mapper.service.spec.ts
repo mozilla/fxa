@@ -1,4 +1,5 @@
 import { Stripe } from 'stripe';
+
 import {
   ContentfulClient,
   PurchaseWithDetailsOfferingContentUtil,
@@ -6,8 +7,9 @@ import {
   PurchaseWithDetailsOfferingContentTransformedFactory,
   PurchaseDetailsTransformedFactory,
 } from '@fxa/shared/contentful';
+import { StripePlanFactory, StripeProductFactory } from '@fxa/payments/stripe';
+
 import { StripeMapperService } from './stripe-mapper.service';
-import { ProductFactory, PlanFactory } from '@fxa/payments/stripe';
 import { StripeMetadataWithContentfulFactory } from './factories';
 
 describe('StripeMapperService', () => {
@@ -37,7 +39,7 @@ describe('StripeMapperService', () => {
       const validMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const stripePlan = PlanFactory({
+      const stripePlan = StripePlanFactory({
         product: 'stringvalue',
         metadata: validMetadata,
       });
@@ -61,8 +63,8 @@ describe('StripeMapperService', () => {
       const validMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const stripePlan = PlanFactory() as Stripe.Plan;
-      stripePlan.product = ProductFactory({
+      const stripePlan = StripePlanFactory() as Stripe.Plan;
+      stripePlan.product = StripeProductFactory({
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
@@ -88,8 +90,8 @@ describe('StripeMapperService', () => {
       const validMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://example.com/webIconURL',
       });
-      const stripePlan = PlanFactory() as Stripe.Plan;
-      stripePlan.product = ProductFactory({
+      const stripePlan = StripePlanFactory() as Stripe.Plan;
+      stripePlan.product = StripeProductFactory({
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
@@ -118,10 +120,10 @@ describe('StripeMapperService', () => {
       const planOverrideMetadata = StripeMetadataWithContentfulFactory({
         webIconURL: 'https://plan.override/emailIcon',
       });
-      const stripePlan = PlanFactory({
+      const stripePlan = StripePlanFactory({
         metadata: planOverrideMetadata,
       }) as Stripe.Plan;
-      stripePlan.product = ProductFactory({
+      stripePlan.product = StripeProductFactory({
         metadata: validMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
@@ -145,8 +147,8 @@ describe('StripeMapperService', () => {
         productSet: 'set',
         productOrder: 'order',
       };
-      const stripePlan = PlanFactory() as Stripe.Plan;
-      stripePlan.product = ProductFactory({
+      const stripePlan = StripePlanFactory() as Stripe.Plan;
+      stripePlan.product = StripeProductFactory({
         metadata: productMetadata,
       });
       const { mappedPlans, nonMatchingPlans } =
@@ -183,16 +185,16 @@ describe('StripeMapperService', () => {
         productSet: 'set',
         productOrder: 'order',
       };
-      const product = ProductFactory({
+      const product = StripeProductFactory({
         metadata: productMetadata,
       });
-      const stripePlan1 = PlanFactory({
+      const stripePlan1 = StripePlanFactory({
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in English',
         }),
       }) as Stripe.Plan;
       stripePlan1.product = product;
-      const stripePlan2 = PlanFactory({
+      const stripePlan2 = StripePlanFactory({
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
@@ -236,16 +238,16 @@ describe('StripeMapperService', () => {
         productSet: 'set',
         productOrder: 'order',
       };
-      const product = ProductFactory({
+      const product = StripeProductFactory({
         metadata: productMetadata,
       });
-      const stripePlan1 = PlanFactory({
+      const stripePlan1 = StripePlanFactory({
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in German',
         }),
       }) as Stripe.Plan;
       stripePlan1.product = product;
-      const stripePlan2 = PlanFactory({
+      const stripePlan2 = StripePlanFactory({
         metadata: StripeMetadataWithContentfulFactory({
           'product:details:1': 'Detail 1 in French',
           'product:details:2': 'Detail 2 in French',
