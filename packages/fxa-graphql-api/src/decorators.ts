@@ -53,20 +53,31 @@ export function extractRequiredHeaders(req?: {
   const incomingHeaders = new Headers(req?.headers || {});
   const outGoingHeaders: Record<string, string> = {};
 
-  // Set the x-forwarded-for header since the auth-server will use this
-  // to determine client geolocation. See fxa/templates/nginx-configmap.yaml in web-infra for details
-  const xForwardedFor = incomingHeaders.get('X-Forwarded-For');
-  if (typeof xForwardedFor === 'string' && xForwardedFor) {
-    outGoingHeaders['x-forwarded-for'] = xForwardedFor;
-  } else if (req?.ip) {
-    outGoingHeaders['x-forwarded-for'] = req.ip;
+  function propagate(key: string, fallback?: string) {
+    const val = incomingHeaders.get(key);
+    if (val != null) {
+      outGoingHeaders[key.toLowerCase()] = val;
+      return true;
+    } else if (fallback) {
+      outGoingHeaders[key.toLowerCase()] = fallback;
+    }
+    return false;
   }
 
-  // Set the user agent headers. Connected devices use this header for display name purposes
-  const ua = incomingHeaders.get('user-agent');
-  if (ua) {
-    outGoingHeaders['user-agent'] = ua;
-  }
+  // Set the x-forwarded-for header since the auth-server will use this
+  // to determine client geolocation. See fxa/templates/nginx-configmap.yaml in web-infra for details
+  propagate('X-Forwarded-For', req?.ip);
+
+  // Set the accept language. This is important for any action that will deliver an email at
+  // a later point in time, e.g. signup.
+  propagate('Accept-Language');
+
+  // Copy tracing headers
+  propagate('sentry-trace');
+  propagate('baggage');
+
+  // Copy the user agent. Matters for customs and error reporting.
+  propagate('user-agent');
 
   return new Headers(outGoingHeaders);
 }
