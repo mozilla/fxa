@@ -269,6 +269,17 @@ describe('Glean server side events', () => {
         const metrics = recordStub.args[0][0];
         assert.equal(metrics['session_flow_id'], '101');
       });
+
+      it('sets the sync device id', async () => {
+        await glean.oauth.tokenCreated(request, {
+          syncDeviceId: '0d9c6deefb33faca6a6e8e2f9012b3b543777f98',
+        });
+        const metrics = recordStub.args[0][0];
+        assert.equal(
+          metrics['session_sync_device_id'],
+          '0d9c6deefb33faca6a6e8e2f9012b3b543777f98'
+        );
+      });
     });
 
     describe('utm', () => {
