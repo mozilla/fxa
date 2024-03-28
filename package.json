@@ -168,7 +168,7 @@
     "@storybook/html-webpack5": "^7.6.13",
     "@storybook/nextjs": "^7.6.14",
     "@storybook/react-webpack5": "^7.4.5",
-    "@swc-node/register": "~1.6.7",
+    "@swc-node/register": "~1.9.0",
     "@swc/cli": "~0.1.62",
     "@swc/core": "~1.4.6",
     "@testing-library/react": "^14.2.1",
