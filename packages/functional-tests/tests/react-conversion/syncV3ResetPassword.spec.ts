@@ -31,15 +31,10 @@ test.describe('severity-1 #smoke', () => {
         )
       );
 
-      // Verify react page has been loaded
-      await page.waitForSelector('#root');
-
       // Check that the sync relier is in the heading
-      await page
-        .getByRole('heading', {
-          name: /Firefox Sync/,
-        })
-        .waitFor();
+      await expect(resetPasswordReact.resetPasswordHeading).toHaveText(
+        /Firefox Sync/
+      );
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
