@@ -155,6 +155,7 @@
     "@types/chai-as-promised": "^7",
     "@types/dedent": "^0",
     "@types/hapi__hapi": "^20.0.10",
+    "@types/hapi__hawk": "^8.0.6",
     "@types/ioredis": "^4.26.4",
     "@types/jsdom": "^16",
     "@types/jsonwebtoken": "^8.5.1",

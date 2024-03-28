@@ -8,7 +8,6 @@ const fs = require('fs');
 const Hapi = require('@hapi/hapi');
 const HapiSwagger = require('hapi-swagger');
 const path = require('path');
-const url = require('url');
 const { getRemoteAddressChain } = require('./getRemoteAddressChain');
 const userAgent = require('./userAgent');
 const schemeRefreshToken = require('./routes/auth-schemes/refresh-token');
@@ -87,31 +86,6 @@ async function create(log, error, config, routes, db, statsd, glean) {
   const metricsContext = require('./metrics/context')(log, config);
   const metricsEvents = require('./metrics/events')(log, config, glean);
   const { sharedSecret: SUBSCRIPTIONS_SECRET } = config.subscriptions;
-
-  // Hawk needs to calculate request signatures based on public URL,
-  // not the local URL to which it is bound.
-  const publicURL = url.parse(config.publicUrl);
-  const defaultPorts = {
-    'http:': 80,
-    'https:': 443,
-  };
-  const hawkOptions = {
-    host: publicURL.hostname,
-    port: publicURL.port ? publicURL.port : defaultPorts[publicURL.protocol],
-
-    // We're seeing massive clock skew in deployed clients, and it's
-    // making auth harder than it needs to be.  This effectively disables
-    // the timestamp checks by setting it to a humongous value.
-    timestampSkewSec: 20 * 365 * 24 * 60 * 60, // 20 years, +/- a few days
-
-    nonceFunc: function nonceCheck(key, nonce, ts) {
-      // Since we've disabled timestamp checks, there's not much point
-      // keeping a nonce cache.  Instead we use this as an opportunity
-      // to report on the clock skew values seen in the wild.
-      const skew = Date.now() / 1000 - +ts;
-      log.trace('server.nonceFunc', { skew: skew });
-    },
-  };
 
   function makeCredentialFn(dbGetFn) {
     return function (id) {
@@ -396,41 +370,48 @@ async function create(log, error, config, routes, db, statsd, glean) {
     };
   };
 
-  await server.register(require('@hapi/hawk'));
   await server.register(require('hapi-auth-jwt2'));
 
-  server.auth.strategy('sessionToken', 'hawk', {
-    getCredentialsFunc: makeCredentialFn(db.sessionToken.bind(db)),
-    hawk: hawkOptions,
-  });
-  server.auth.strategy('keyFetchToken', 'hawk', {
-    getCredentialsFunc: makeCredentialFn(db.keyFetchToken.bind(db)),
-    hawk: hawkOptions,
-  });
+  const hawkFxAToken = require('./routes/auth-schemes/hawk-fxa-token');
+  // Register auth strategies for all token types. These strategies support Hawk (without validation) and FxA token types.
+  server.auth.scheme(
+    'fxa-hawk-session-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.sessionToken.bind(db)))
+  );
+  server.auth.scheme(
+    'fxa-hawk-keyFetch-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.keyFetchToken.bind(db)))
+  );
+  server.auth.scheme(
+    'fxa-hawk-keyFetch-with-verification-token',
+    hawkFxAToken.strategy(
+      makeCredentialFn(db.keyFetchTokenWithVerificationStatus.bind(db))
+    )
+  );
+  server.auth.scheme(
+    'fxa-hawk-accountReset-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.accountResetToken.bind(db)))
+  );
+  server.auth.scheme(
+    'fxa-hawk-passwordForgot-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordForgotToken.bind(db)))
+  );
+  server.auth.scheme(
+    'fxa-hawk-passwordChange-token',
+    hawkFxAToken.strategy(makeCredentialFn(db.passwordChangeToken.bind(db)))
+  );
+
+  server.auth.strategy('sessionToken', 'fxa-hawk-session-token');
+  server.auth.strategy('keyFetchToken', 'fxa-hawk-keyFetch-token');
   server.auth.strategy(
     // This strategy fetches the keyFetchToken with its
     // verification state. It doesn't check that state.
     'keyFetchTokenWithVerificationStatus',
-    'hawk',
-    {
-      getCredentialsFunc: makeCredentialFn(
-        db.keyFetchTokenWithVerificationStatus.bind(db)
-      ),
-      hawk: hawkOptions,
-    }
+    'fxa-hawk-keyFetch-with-verification-token'
   );
-  server.auth.strategy('accountResetToken', 'hawk', {
-    getCredentialsFunc: makeCredentialFn(db.accountResetToken.bind(db)),
-    hawk: hawkOptions,
-  });
-  server.auth.strategy('passwordForgotToken', 'hawk', {
-    getCredentialsFunc: makeCredentialFn(db.passwordForgotToken.bind(db)),
-    hawk: hawkOptions,
-  });
-  server.auth.strategy('passwordChangeToken', 'hawk', {
-    getCredentialsFunc: makeCredentialFn(db.passwordChangeToken.bind(db)),
-    hawk: hawkOptions,
-  });
+  server.auth.strategy('accountResetToken', 'fxa-hawk-accountReset-token');
+  server.auth.strategy('passwordForgotToken', 'fxa-hawk-passwordForgot-token');
+  server.auth.strategy('passwordChangeToken', 'fxa-hawk-passwordChange-token');
 
   server.auth.scheme(authOauth.AUTH_SCHEME, authOauth.strategy);
   server.auth.strategy('oauthToken', authOauth.AUTH_SCHEME, config.oauth);
