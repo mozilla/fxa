@@ -6,16 +6,10 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { getBundle, getLocaleFromRequest } from '@fxa/shared/l10n';
 
-import {
-  getCartData,
-  getContentfulContent,
-} from '../../../../../../_lib/apiClient';
-import checkLogo from '../../../../../../../images/check.svg';
+import { getCartData } from '../../../../../../_lib/apiClient';
 import errorIcon from '../../../../../../../images/error.svg';
-// import { app } from '../../_nestapp/app';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
@@ -43,9 +37,8 @@ export default async function CheckoutError({
     demoSupportedLanguages
   );
 
-  const contentfulData = getContentfulContent(params.offeringId, locale);
   const cartData = getCartData(params.cartId);
-  const [contentful, cart] = await Promise.all([contentfulData, cartData]);
+  const [cart] = await Promise.all([cartData]);
   /* eslint-disable @typescript-eslint/no-unused-vars */
   // const cartService = await app.getCartService();
 
@@ -73,63 +66,27 @@ export default async function CheckoutError({
 
   return (
     <>
-      <header className="page-title-container">
-        <h1 className="page-header">
-          {l10n.getMessage('subscription-error-title')?.value?.toString() ||
-            'Error confirming subscription…'}
-        </h1>
-        <div className="page-subheader">
-          <Image src={checkLogo} alt="" />
-          <span className="page-subheader-text">
-            {l10n.getMessage('sub-guarantee')?.value?.toString() ||
-              '30-day money-back guarantee'}
-          </span>
-        </div>
-      </header>
-
       <section
-        className="payment-panel hidden tablet:block"
-        aria-label="Purchase details"
+        className="page-message-container h-[640px]"
+        aria-label="Payment error"
       >
-        <PurchaseDetails
-          locale={locale}
-          interval={cart.interval}
-          invoice={cart.nextInvoice}
-          purchaseDetails={contentful.purchaseDetails}
-        />
-      </section>
+        <Image src={errorIcon} alt="" className="mt-16 mb-10" />
+        <p className="page-message px-7 py-0 mb-4 ">
+          {l10n
+            .getMessage(getErrorReason(cart.errorReasonId).messageFtl)
+            ?.value?.toString() || getErrorReason(cart.errorReasonId).message}
+        </p>
 
-      <div className="page-body rounded-t-none tablet:rounded-t-long">
-        <section
-          className="page-message-container h-[640px]"
-          aria-label="Payment error"
+        <Link
+          className="page-button"
+          href={`/${params.offeringId}/checkout?interval=monthly`}
         >
-          <Image src={errorIcon} alt="" className="mt-16 mb-10" />
-          <p className="page-message px-7 py-0 mb-4 ">
-            {l10n
-              .getMessage(getErrorReason(cart.errorReasonId).messageFtl)
-              ?.value?.toString() || getErrorReason(cart.errorReasonId).message}
-          </p>
-
-          <Link
-            className="page-button"
-            href={`/${params.offeringId}/checkout?interval=monthly`}
-          >
-            {l10n
-              .getMessage(getErrorReason(cart.errorReasonId).buttonFtl)
-              ?.value?.toString() ||
-              getErrorReason(cart.errorReasonId).buttonLabel}
-          </Link>
-        </section>
-
-        <TermsAndPrivacy
-          locale={locale}
-          {...cart}
-          {...contentful.commonContent}
-          {...contentful.purchaseDetails}
-          showFXALinks={true}
-        />
-      </div>
+          {l10n
+            .getMessage(getErrorReason(cart.errorReasonId).buttonFtl)
+            ?.value?.toString() ||
+            getErrorReason(cart.errorReasonId).buttonLabel}
+        </Link>
+      </section>
     </>
   );
 }
