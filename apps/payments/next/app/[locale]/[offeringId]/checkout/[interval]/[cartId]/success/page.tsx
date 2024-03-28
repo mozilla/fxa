@@ -1,10 +1,17 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
+import {
+  getCartData,
+  getContentfulContent,
+} from '../../../../../../_lib/apiClient';
 import { headers } from 'next/headers';
 import Image from 'next/image';
-import checkLogo from '../../../../../images/check.svg';
-import circledConfirm from '../../../../../images/circled-confirm.svg';
-import { formatPlanPricing } from '../../../../../../../../libs/payments/ui/src/lib/utils/helpers';
+import checkLogo from '../../../../../../../images/check.svg';
+import circledConfirm from '../../../../../../../images/circled-confirm.svg';
+import { formatPlanPricing } from '@fxa/payments/ui';
 import {
   getBundle,
   getFormattedMsg,
@@ -13,7 +20,6 @@ import {
   getLocalizedDate,
   getLocalizedDateString,
 } from '@fxa/shared/l10n';
-import { CheckoutSearchParams } from '../../layout';
 // import { app } from '../../_nestapp/app';
 
 export const dynamic = 'force-dynamic';
@@ -44,20 +50,20 @@ const ConfirmationDetail = ({
 };
 
 interface CheckoutParams {
-  offeringId: string;
   cartId: string;
+  locale: string;
+  interval: string;
+  offeringId: string;
 }
 
 export default async function CheckoutSuccess({
   params,
-  searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: CheckoutSearchParams;
 }) {
   const headersList = headers();
   const locale = getLocaleFromRequest(
-    searchParams,
+    params,
     headersList.get('accept-language'),
     demoSupportedLanguages
   );

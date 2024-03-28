@@ -11,12 +11,12 @@ import { parseAcceptLanguage } from './parse-accept-language';
  * @returns The best fitting locale
  */
 export function getLocaleFromRequest(
-  searchParams: { locale?: string },
+  params: { locale?: string },
   acceptLanguage: string | null,
   supportedLanguages?: string[]
 ) {
-  if (searchParams.locale) {
-    return determineLocale(searchParams?.locale, supportedLanguages);
+  if (params.locale) {
+    return determineLocale(params?.locale, supportedLanguages);
   }
 
   if (acceptLanguage) {

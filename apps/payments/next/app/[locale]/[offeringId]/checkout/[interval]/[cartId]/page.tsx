@@ -1,28 +1,30 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
-import { getCartData, getContentfulContent } from '../../../_lib/apiClient';
+import {
+  getCartData,
+  getContentfulContent,
+} from '../../../../../_lib/apiClient';
 import { app } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { getLocaleFromRequest } from '@fxa/shared/l10n';
-import { CheckoutSearchParams } from '../layout';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
 
 export const dynamic = 'force-dynamic';
 
 interface CheckoutParams {
-  offeringId: string;
   cartId: string;
+  locale: string;
+  interval: string;
+  offeringId: string;
 }
 
-export default async function Checkout({
-  params,
-  searchParams,
-}: {
-  params: CheckoutParams;
-  searchParams: CheckoutSearchParams;
-}) {
+export default async function Checkout({ params }: { params: CheckoutParams }) {
   const headersList = headers();
   const locale = getLocaleFromRequest(
-    searchParams,
+    params,
     headersList.get('accept-language')
   );
 

@@ -1,3 +1,7 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,10 +9,12 @@ import Link from 'next/link';
 import { PurchaseDetails, TermsAndPrivacy } from '@fxa/payments/ui/server';
 import { getBundle, getLocaleFromRequest } from '@fxa/shared/l10n';
 
-import { getCartData, getContentfulContent } from '../../../../_lib/apiClient';
-import checkLogo from '../../../../../images/check.svg';
-import errorIcon from '../../../../../images/error.svg';
-import { CheckoutSearchParams } from '../../layout';
+import {
+  getCartData,
+  getContentfulContent,
+} from '../../../../../../_lib/apiClient';
+import checkLogo from '../../../../../../../images/check.svg';
+import errorIcon from '../../../../../../../images/error.svg';
 // import { app } from '../../_nestapp/app';
 
 // forces dynamic rendering
@@ -19,20 +25,20 @@ export const dynamic = 'force-dynamic';
 const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
 
 interface CheckoutParams {
-  offeringId: string;
   cartId: string;
+  locale: string;
+  interval: string;
+  offeringId: string;
 }
 
 export default async function CheckoutError({
   params,
-  searchParams,
 }: {
   params: CheckoutParams;
-  searchParams: CheckoutSearchParams;
 }) {
   const headersList = headers();
   const locale = getLocaleFromRequest(
-    searchParams,
+    params,
     headersList.get('accept-language'),
     demoSupportedLanguages
   );
