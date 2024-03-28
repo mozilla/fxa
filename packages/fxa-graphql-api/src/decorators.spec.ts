@@ -24,11 +24,23 @@ describe('gql decorators', () => {
     });
 
     it('forwards relevant headers', () => {
+      const lang = 'en-US';
+      const traceId = '00b30317128040e29364590a05812bb0';
+      const baggage = `sentry-environment=local,sentry-release=0.0.0,sentry-public_key=adb27d09f83f43b8852e61ce4c8a487b,sentry-trace_id=${traceId}`;
+
       const headers = extractRequiredHeaders({
         ip,
-        headers: { 'user-agent': agent },
+        headers: {
+          'user-agent': agent,
+          'Accept-Language': lang,
+          'sentry-trace': traceId,
+          baggage,
+        },
       });
       expect(headers.get('user-agent')).toEqual(agent);
+      expect(headers.get('accept-language')).toEqual(lang);
+      expect(headers.get('sentry-trace')).toEqual(traceId);
+      expect(headers.get('baggage')).toEqual(baggage);
     });
 
     it('does not forward irrelevant headers', () => {
