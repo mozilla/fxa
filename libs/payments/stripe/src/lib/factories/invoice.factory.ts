@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { InvoiceLineItemFactory } from './invoice-line-item.factory';
+import { StripeInvoiceLineItemFactory } from './invoice-line-item.factory';
 import { StripeInvoice } from '../stripe.client.types';
 
-export const InvoiceFactory = (
+export const StripeInvoiceFactory = (
   override?: Partial<StripeInvoice>
 ): StripeInvoice => ({
   id: `in_${faker.string.alphanumeric({ length: 24 })}`,
@@ -53,7 +53,7 @@ export const InvoiceFactory = (
   latest_revision: null,
   lines: {
     object: 'list',
-    data: [InvoiceLineItemFactory()],
+    data: [StripeInvoiceLineItemFactory()],
     has_more: false,
     url: faker.internet.url(),
   },

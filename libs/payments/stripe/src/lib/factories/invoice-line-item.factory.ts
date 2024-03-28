@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { StripeInvoiceLineItem } from '../stripe.client.types';
 
-export const InvoiceLineItemFactory = (
+export const StripeInvoiceLineItemFactory = (
   override?: Partial<StripeInvoiceLineItem>
 ): StripeInvoiceLineItem => ({
   id: faker.string.alphanumeric(10),

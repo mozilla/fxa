@@ -3,26 +3,36 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Test, TestingModule } from '@nestjs/testing';
+import { faker } from '@faker-js/faker';
 
-import { CustomerFactory } from './factories/customer.factory';
-import { InvoiceFactory } from './factories/invoice.factory';
-import {
-  SubscriptionFactory,
-  SubscriptionListFactory,
-} from './factories/subscription.factory';
+import { StripeApiListFactory } from './factories/api-list.factory';
+import { StripeCustomerFactory } from './factories/customer.factory';
+import { StripeInvoiceFactory } from './factories/invoice.factory';
+import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
+import { StripeConfig } from './stripe.config';
 import { StripeManager } from './stripe.manager';
 
 describe('StripeManager', () => {
   let manager: StripeManager;
   let mockClient: StripeClient;
+  let mockConfig: StripeConfig;
 
   beforeEach(async () => {
-    mockClient = new StripeClient({} as any);
+    mockClient = new StripeClient({
+      apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
+    });
+
+    mockConfig = {
+      apiKey: faker.string.uuid(),
+      taxIds: { EUR: 'EU1234' },
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: StripeClient, useValue: mockClient },
+        { provide: StripeConfig, useValue: mockConfig },
         StripeManager,
       ],
     }).compile();
@@ -37,7 +47,7 @@ describe('StripeManager', () => {
 
   describe('fetchActiveCustomer', () => {
     it('returns an existing customer from Stripe', async () => {
-      const mockCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
 
       mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
 
@@ -48,7 +58,7 @@ describe('StripeManager', () => {
 
   describe('finalizeInvoiceWithoutAutoAdvance', () => {
     it('works successfully', async () => {
-      const mockInvoice = InvoiceFactory({
+      const mockInvoice = StripeInvoiceFactory({
         auto_advance: false,
       });
 
@@ -76,17 +86,28 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('getTaxIdForCurrency', () => {
+    it('returns the correct tax id for currency', async () => {
+      const mockCurrency = 'eur';
+
+      const result = manager.getTaxIdForCurrency(mockCurrency);
+      expect(result).toEqual('EU1234');
+    });
+
+    it('returns empty string when no  tax id found', async () => {
+      const mockCurrency = faker.finance.currencyCode();
+
+      const result = manager.getTaxIdForCurrency(mockCurrency);
+      expect(result).toEqual(undefined);
+    });
+  });
+
   describe('getSubscriptions', () => {
     it('returns subscriptions', async () => {
-      const mockSubscription = SubscriptionFactory();
-      const mockSubscriptionList = SubscriptionListFactory({
-        object: 'list',
-        url: '/v1/subscriptions',
-        has_more: false,
-        data: [mockSubscription],
-      });
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
 
-      const mockCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
 
       const expected = mockSubscriptionList;
 
@@ -101,7 +122,7 @@ describe('StripeManager', () => {
 
   describe('isCustomerStripeTaxEligible', () => {
     it('should return true for a taxable customer', async () => {
-      const mockCustomer = CustomerFactory({
+      const mockCustomer = StripeCustomerFactory({
         tax: {
           automatic_tax: 'supported',
           ip_address: null,
@@ -114,7 +135,7 @@ describe('StripeManager', () => {
     });
 
     it('should return true for a customer in a not-collecting location', async () => {
-      const mockCustomer = CustomerFactory({
+      const mockCustomer = StripeCustomerFactory({
         tax: {
           automatic_tax: 'not_collecting',
           ip_address: null,
@@ -129,7 +150,7 @@ describe('StripeManager', () => {
 
   describe('update customer tax ID', () => {
     it('returns customer tax id if found', async () => {
-      const mockCustomer = CustomerFactory({
+      const mockCustomer = StripeCustomerFactory({
         invoice_settings: {
           custom_fields: [{ name: 'Tax ID', value: 'LeeroyJenkins' }],
           default_payment_method: null,
@@ -146,7 +167,7 @@ describe('StripeManager', () => {
     });
 
     it('returns undefined when customer tax id not found', async () => {
-      const mockCustomer = CustomerFactory();
+      const mockCustomer = StripeCustomerFactory();
 
       mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
 
@@ -156,8 +177,8 @@ describe('StripeManager', () => {
     });
 
     it('updates customer object with incoming tax id when match is not found', async () => {
-      const mockCustomer = CustomerFactory();
-      const mockUpdatedCustomer = CustomerFactory({
+      const mockCustomer = StripeCustomerFactory();
+      const mockUpdatedCustomer = StripeCustomerFactory({
         invoice_settings: {
           custom_fields: [{ name: 'Tax ID', value: 'EU1234' }],
           default_payment_method: null,
@@ -178,7 +199,7 @@ describe('StripeManager', () => {
     });
 
     it('does not update customer object when incoming tax id matches existing tax id', async () => {
-      const mockCustomer = CustomerFactory({
+      const mockCustomer = StripeCustomerFactory({
         invoice_settings: {
           custom_fields: [{ name: 'Tax ID', value: 'T43CAK315A713' }],
           default_payment_method: null,
