@@ -9,7 +9,6 @@ const ROOT_DIR = '../..';
 const { assert } = require('chai');
 const EndpointError = require('poolee/lib/error')(require('util').inherits);
 const error = require(`${ROOT_DIR}/lib/error`);
-const hawk = require('@hapi/hawk');
 const knownIpLocation = require('../known-ip-location');
 const mocks = require('../mocks');
 const proxyquire = require('proxyquire');
@@ -669,17 +668,7 @@ describe('lib/server', () => {
         describe('authenticated request, session token not expired:', () => {
           beforeEach(() => {
             response = 'ok';
-            const auth = hawk.client.header(
-              `${config.publicUrl}account/status`,
-              'GET',
-              {
-                credentials: {
-                  id: 'deadbeef',
-                  key: 'baadf00d',
-                  algorithm: 'sha256',
-                },
-              }
-            );
+            const auth = { header: `Hawk id="deadbeef"` };
             return instance.inject({
               headers: {
                 authorization: auth.header,
@@ -720,17 +709,9 @@ describe('lib/server', () => {
           .then((s) => {
             instance = s;
             return instance.start().then(() => {
-              const auth = hawk.client.header(
-                `${config.publicUrl}account/status`,
-                'GET',
-                {
-                  credentials: {
-                    id: 'deadbeef',
-                    key: 'baadf00d',
-                    algorithm: 'sha256',
-                  },
-                }
-              );
+              const auth = {
+                header: `Hawk id="deadbeef"`,
+              };
               return instance.inject({
                 headers: {
                   authorization: auth.header,

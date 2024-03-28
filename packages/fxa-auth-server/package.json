@@ -69,7 +69,6 @@
     "@google-cloud/tasks": "^4.0.1",
     "@googlemaps/google-maps-services-js": "^3.3.16",
     "@hapi/hapi": "^20.2.1",
-    "@hapi/hawk": "^8.0.0",
     "@hapi/hoek": "^11.0.2",
     "@mozilla/glean": "^4.0.0",
     "@types/convict": "5.2.2",
