@@ -66,8 +66,14 @@ export class RelierPage extends BaseLayout {
     return waitForNavigation;
   }
 
-  clickChooseFlow() {
-    return this.page.locator('button.sign-choose').click();
+  async clickChooseFlow() {
+    await this.page.waitForTimeout(1000); //necessary for production environment otherwise waitForURL times out
+    await this.page.locator('button.sign-choose').click();
+    // We need to add a `waitUntil` option here because the page gets redirected from
+    // /authorization to /oauth before the page is fully loaded.
+    return this.page.waitForURL(`${this.target.contentServerUrl}/oauth/**`, {
+      waitUntil: 'load',
+    });
   }
 
   async signInPromptNone() {

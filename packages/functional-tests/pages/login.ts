@@ -437,6 +437,10 @@ export class LoginPage extends BaseLayout {
     return header;
   }
 
+  waitForSigninPasswordHeader() {
+    return this.page.locator(selectors.SIGNIN_PASSWORD_HEADER);
+  }
+
   async clickSignIn() {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
   }
@@ -464,7 +468,7 @@ export class LoginPage extends BaseLayout {
     });
   }
 
-  async signInPasswordHeader() {
+  async enterPasswordHeader() {
     const header = this.page.locator(selectors.PASSWORD_HEADER);
     await header.waitFor();
     return header.isVisible();
