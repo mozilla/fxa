@@ -1,12 +1,13 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 import { DEFAULT_LOCALE } from './l10n';
 import { parseAcceptLanguage } from './parse-accept-language';
 
 /**
  * Get the best fitting locale, prioritizing request search params, followed by request header AcceptLanguage and DEFAULT_LOCALE as default
- * @param searchParams - Search parameters of the request
+ * @param params - parameters of the request
  * @param acceptLanguage - Accept language from request header
  * @returns The best fitting locale
  */
