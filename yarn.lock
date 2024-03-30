@@ -20758,7 +20758,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc-node/core@npm:^1.10.6":
+"@swc-node/core@npm:^1.13.0":
   version: 1.13.0
   resolution: "@swc-node/core@npm:1.13.0"
   peerDependencies:
@@ -20768,30 +20768,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc-node/register@npm:~1.6.7":
-  version: 1.6.8
-  resolution: "@swc-node/register@npm:1.6.8"
+"@swc-node/register@npm:~1.9.0":
+  version: 1.9.0
+  resolution: "@swc-node/register@npm:1.9.0"
   dependencies:
-    "@swc-node/core": ^1.10.6
-    "@swc-node/sourcemap-support": ^0.3.0
-    colorette: ^2.0.19
+    "@swc-node/core": ^1.13.0
+    "@swc-node/sourcemap-support": ^0.5.0
+    colorette: ^2.0.20
     debug: ^4.3.4
-    pirates: ^4.0.5
-    tslib: ^2.5.0
+    pirates: ^4.0.6
+    tslib: ^2.6.2
   peerDependencies:
     "@swc/core": ">= 1.3"
     typescript: ">= 4.3"
-  checksum: 70bfbd1e9d969318f68e11b9db86ca4d99c52f5f8a8aa4e3c63b1d512d8b4909c034a5e1346b243c45483d13c47f57b0943f6a1cafbe6f884d14d1026e0396c7
+  checksum: 5e08ece47a4a69deaa6594dfab2c018212d61bacb3bb8ba35875a319188eb83bbc14d58b8843cf424954fc0cbfd3e03a44956b8cfc81eed3d1b7c06b6f90a904
   languageName: node
   linkType: hard
 
-"@swc-node/sourcemap-support@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "@swc-node/sourcemap-support@npm:0.3.0"
+"@swc-node/sourcemap-support@npm:^0.5.0":
+  version: 0.5.0
+  resolution: "@swc-node/sourcemap-support@npm:0.5.0"
   dependencies:
     source-map-support: ^0.5.21
-    tslib: ^2.5.0
-  checksum: a3c837ed790238ef88682eb342b75d756eba5eb3b6cfe6cf14a597bd78dfc9a9797f1e54a4977c1297e5324fba2e33bd76ab8aa9c396ad463693de2001180c9e
+    tslib: ^2.6.2
+  checksum: 2163f2ae337dafa07f62492a78d1e7b272207c91f1f7b5a9ab95ba929b7dfa93a4db1188dbafde117dae7219805ba9aac9693fd2066563992dba2239295181ee
   languageName: node
   linkType: hard
 
@@ -39030,7 +39030,7 @@ fsevents@~2.1.1:
     "@storybook/html-webpack5": ^7.6.13
     "@storybook/nextjs": ^7.6.14
     "@storybook/react-webpack5": ^7.4.5
-    "@swc-node/register": ~1.6.7
+    "@swc-node/register": ~1.9.0
     "@swc/cli": ~0.1.62
     "@swc/core": ~1.4.6
     "@swc/helpers": ~0.5.2
