@@ -109,13 +109,4 @@ export class ResetPasswordPage extends BaseLayout {
     await this.page.locator(selectors.SUBMIT).click();
     await this.page.waitForURL(/confirm_reset_password/);
   }
-
-  async addQueryParamsToLink(link: string, query: object) {
-    query = query || {};
-    const parsedLink = new URL(link);
-    for (const paramName in query) {
-      parsedLink.searchParams.set(paramName, query[paramName]);
-    }
-    return parsedLink.toString();
-  }
 }
