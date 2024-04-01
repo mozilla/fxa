@@ -37,8 +37,11 @@ test.describe('force auth react', () => {
   test('redirects to signup with unregistered email', async ({
     page,
     target,
-    pages: { signupReact },
+    pages: { configPage, signupReact },
   }) => {
+    const config = await configPage.getConfig();
+    test.skip(config.showReactApp.signUpRoutes !== true);
+
     const unregisteredEmail = `rando${Math.random()}@example.com`;
     const url = getReactFeatureFlagUrl(
       target,
