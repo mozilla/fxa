@@ -556,12 +556,14 @@ export class Account implements AccountData {
   async resetPassword(
     email: string,
     service?: string,
-    redirectTo?: string
+    redirectTo?: string,
+    metricsContext?: MetricsContext
   ): Promise<PasswordForgotSendCodePayload> {
     let options: {
       service?: string;
       resume?: string;
       redirectTo?: string;
+      metricsContext?: MetricsContext;
     } = {
       resume: 'e30=', // base64 json for {}
     };
@@ -575,6 +577,10 @@ export class Account implements AccountData {
 
     if (redirectTo) {
       options.redirectTo = redirectTo;
+    }
+
+    if (metricsContext) {
+      options.metricsContext = metricsContext;
     }
 
     const result = await this.authClient.passwordForgotSendCode(email, options);
@@ -616,12 +622,6 @@ export class Account implements AccountData {
       }
       throw AuthUiErrors.UNEXPECTED_ERROR;
     }
-  }
-  async resendResetPassword(
-    email: string
-  ): Promise<PasswordForgotSendCodePayload> {
-    const result = await this.authClient.passwordForgotSendCode(email);
-    return result;
   }
 
   /**

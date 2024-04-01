@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { QueryParams } from '../..';
 import { MozServices } from '../../lib/types';
 import {
   BaseIntegration,
@@ -31,6 +32,7 @@ export interface ResetPasswordProps {
   forceAuth?: boolean;
   serviceName?: MozServices;
   integration: ResetPasswordIntegration;
+  flowQueryParams?: QueryParams;
 }
 
 export interface ResetPasswordFormData {

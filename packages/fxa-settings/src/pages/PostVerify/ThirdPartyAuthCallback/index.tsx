@@ -17,6 +17,8 @@ import {
   StoredAccountData,
   storeAccountData,
 } from '../../../lib/storage-utils';
+import { QueryParams } from '../../..';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 
 type LinkedAccountData = {
   uid: hexstring;
@@ -34,7 +36,9 @@ type LinkedAccountData = {
 
 // All use of params should be reworked to use `useValidatedQueryParams` hook in FXA-8834
 
-const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
+const ThirdPartyAuthCallback = ({
+  flowQueryParams,
+}: { flowQueryParams?: QueryParams } & RouteComponentProps) => {
   const navigate = useNavigate();
   const account = useAccount();
   const params = new URLSearchParams(window.location.search);
@@ -138,7 +142,14 @@ const ThirdPartyAuthCallback = (_: RouteComponentProps) => {
         // The response contains a session token that can be used
         // to sign the user in to FxA or to complete an Oauth flow.
         const linkedAccount: LinkedAccountData =
-          await account.verifyAccountThirdParty(code, provider);
+          await account.verifyAccountThirdParty(
+            code,
+            provider,
+            undefined,
+            queryParamsToMetricsContext(
+              flowQueryParams as unknown as Record<string, string>
+            )
+          );
 
         completeSignIn(linkedAccount);
       } catch (error) {

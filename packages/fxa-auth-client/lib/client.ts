@@ -118,16 +118,22 @@ export type AuthServerError = Error & {
   retryAfterLocalized?: string;
 };
 
-export interface MetricsContext {
-  deviceId?: string;
-  flowId?: string;
-  flowBeginTime?: number;
-  utmCampaign?: string;
-  utmContext?: string;
-  utmMedium?: string;
-  utmSource?: string;
-  utmTerm?: string;
-}
+export const MetricsContextKeys = [
+  'deviceId',
+  'flowId',
+  'flowBeginTime',
+  'utmCampaign',
+  'utmContext',
+  'utmMedium',
+  'utmSource',
+  'utmTerm',
+] as const;
+export type MetricsContext = Omit<
+  {
+    [k in (typeof MetricsContextKeys)[number]]?: string;
+  },
+  'flowBeginTime'
+> & { flowBeginTime?: number };
 
 export type VerificationMethod =
   | 'email'

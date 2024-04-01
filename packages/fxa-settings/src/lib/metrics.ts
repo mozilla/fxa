@@ -8,6 +8,7 @@ import { v4 as uuid } from 'uuid';
 import { QueryParams } from '..';
 import { once } from './utilities';
 import { useEffect } from 'react';
+import { MetricsContext, MetricsContextKeys } from 'fxa-auth-client/browser';
 
 export const settingsViewName = 'settings';
 
@@ -506,4 +507,21 @@ export function addExperiment(choice: string, group: string) {
   } else {
     configurableProperties.experiments.push(experiment);
   }
+}
+
+/**
+ * Take a record and pick out key-values for a MetricsContext.  Note that the
+ * value passed in could've been asserted to be of QueryParam type with
+ * specific keys but the value is actually a record of all the URL query params
+ */
+export function queryParamsToMetricsContext(
+  queryParams: Record<string, string>
+): MetricsContext {
+  const metricsContext: MetricsContext = {};
+  return MetricsContextKeys.reduce((acc, k) => {
+    if (queryParams[k]) {
+      acc[k] = queryParams[k] as any;
+    }
+    return acc;
+  }, metricsContext);
 }

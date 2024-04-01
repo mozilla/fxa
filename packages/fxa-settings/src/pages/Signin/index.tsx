@@ -415,8 +415,9 @@ const Signin = ({
         {!hasLinkedAccountAndNoPassword && (
           <FtlMsg id="signin-forgot-password-link">
             <Link
-              // TODO, pass params?
-              to="/reset_password"
+              to={`/reset_password${
+                location?.search ? `/${location?.search}` : ''
+              }`}
               className="text-sm link-blue"
               onClick={() =>
                 !isPasswordNeededRef.current
