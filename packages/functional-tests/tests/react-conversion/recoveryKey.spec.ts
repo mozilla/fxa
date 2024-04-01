@@ -57,15 +57,11 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.fillOutEmailForm(credentials.email);
       await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-      // We need to append `&showReactApp=true` to reset link in order to enroll in reset password experiment
-      let link = await target.email.waitForEmail(
+      const link = await target.email.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
       );
-      link = `${link}&showReactApp=true`;
-
-      // Loads the React version
       await page.goto(link);
 
       await expect(resetPasswordReact.confirmRecoveryKeyHeading).toBeVisible();
