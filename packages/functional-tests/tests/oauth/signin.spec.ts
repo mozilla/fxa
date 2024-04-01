@@ -175,7 +175,7 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
 
       // User shown signin enter password page
-      await expect(await login.isSigninPasswordHeader()).toBeVisible();
+      await expect(await login.signInPasswordHeader()).toEqual(true);
     });
 
     test('verified, blocked', async ({ target, pages: { login, relier } }) => {
