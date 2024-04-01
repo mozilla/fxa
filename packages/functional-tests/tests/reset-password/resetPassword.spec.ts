@@ -146,7 +146,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(url);
 
       //The email shouldn't be pre-filled
-      expect(await resetPassword.getEmailValue()).toBeEmpty();
+      await expect(resetPassword.getEmailValue()).toBeEmpty();
       await resetPassword.fillOutResetPassword(credentials.email);
       await resetPassword.confirmResetPasswordHeader();
     });

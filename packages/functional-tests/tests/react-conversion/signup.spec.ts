@@ -176,7 +176,7 @@ test.describe('severity-1 #smoke', () => {
       await signupReact.waitForRoot();
 
       // Wait for page to render
-      expect(page.getByText('Set your password')).toBeVisible();
+      await expect(page.getByText('Set your password')).toBeVisible();
 
       await signupReact.respondToWebChannelMessage(eventDetailLinkAccount);
       await signupReact.checkWebChannelMessage(FirefoxCommand.FxAStatus);

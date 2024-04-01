@@ -54,8 +54,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
@@ -93,8 +95,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_FIREFOX}.*`, 'i'))
       ).toBeVisible();
     });
@@ -134,8 +138,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
@@ -172,8 +178,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
@@ -219,8 +227,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
@@ -267,8 +277,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_with_recovery_key_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
@@ -310,8 +322,10 @@ test.describe('severity-1 #smoke', () => {
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
       await page.waitForURL(/reset_password_verified/);
-      expect(resetPasswordReact.passwordResetConfirmationHeading).toBeVisible();
-      expect(
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+      await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
     });
