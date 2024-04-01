@@ -420,9 +420,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async isSigninPasswordHeader() {
-    return this.page.isVisible(selectors.SIGNIN_PASSWORD_HEADER, {
-      timeout: 100,
-    });
+    return this.page.locator(selectors.SIGNIN_PASSWORD_HEADER);
   }
 
   async isSigninBouncedHeader() {
