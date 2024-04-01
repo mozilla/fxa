@@ -70,7 +70,6 @@ test.describe('severity-1 #smoke', () => {
       );
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
-      await page.waitForURL(/signin_totp_code/);
       await signinReact.fillOutAuthenticationForm('111111');
 
       await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(

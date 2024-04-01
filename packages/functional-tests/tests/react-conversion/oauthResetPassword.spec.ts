@@ -53,7 +53,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -94,7 +94,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -137,7 +137,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -177,7 +177,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -226,7 +226,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -276,7 +276,8 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_with_recovery_key_verified/);
+
+      await expect(page).toHaveURL(/reset_password_with_recovery_key_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
@@ -321,7 +322,7 @@ test.describe('severity-1 #smoke', () => {
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
       // and let the user re-authenticate with the relier.
-      await page.waitForURL(/reset_password_verified/);
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();

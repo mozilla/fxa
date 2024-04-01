@@ -4,7 +4,6 @@
 
 import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 
 test.describe('severity-1 #smoke', () => {
@@ -71,13 +70,11 @@ test.describe('severity-1 #smoke', () => {
 
       await login.setEmail(credentials.email);
       await login.clickSubmit();
-      await page.waitForURL(`${target.contentServerUrl}/signin`);
 
       await expect(login.passwordHeader).toBeVisible();
 
       await login.setPassword(NEW_PASSWORD);
       await login.clickSubmit();
-      await page.waitForURL(`${target.contentServerUrl}/settings`);
 
       await expect(settings.settingsHeading).toBeVisible();
       // Check that connected service name is not empty!
@@ -196,25 +193,15 @@ test.describe('severity-1 #smoke', () => {
 
     test('browse directly to page with email on query params', async ({
       credentials,
-      target,
-      page,
       pages: { resetPasswordReact },
     }) => {
       await resetPasswordReact.goto(undefined, `email=${credentials.email}`);
 
       //The email shouldn't be pre-filled
       const emailInput = await resetPasswordReact.emailTextbox.inputValue();
-
       expect(emailInput).toEqual('');
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      await page.waitForURL(
-        getReactFeatureFlagUrl(
-          target,
-          '/confirm_reset_password',
-          `email=${encodeURIComponent(credentials.email)}`
-        )
-      );
 
       await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
     });

@@ -46,8 +46,8 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(link);
 
       await resetPasswordReact.fillOutNewPasswordForm('Newpassword@');
-      await page.waitForURL(/reset_password_verified/);
 
+      await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();

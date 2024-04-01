@@ -67,10 +67,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(resetPasswordReact.confirmRecoveryKeyHeading).toBeVisible();
 
       await resetPasswordReact.submitRecoveryKey(key);
-      await page.waitForURL(/account_recovery_reset_password/);
 
       await resetPasswordReact.fillOutNewPasswordForm(NEW_PASSWORD);
-      await page.waitForURL(/reset_password_with_recovery_key_verified/);
 
       // After using a recovery key to reset password, expect to be prompted to create a new one
       await resetPasswordReact.generateRecoveryKeyButton.click();

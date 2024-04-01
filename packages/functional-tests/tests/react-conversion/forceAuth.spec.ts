@@ -27,7 +27,6 @@ test.describe('force auth react', () => {
       )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
     );
     await page.goto(url);
-    await page.waitForURL(/\/force_auth/);
 
     await expect(signinReact.passwordFormHeading).toBeVisible();
     await expect(page.getByText(credentials.email)).toBeVisible();
@@ -51,7 +50,6 @@ test.describe('force auth react', () => {
       )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
     );
     await page.goto(url);
-    await page.waitForURL(/\/signup/);
 
     await expect(signupReact.signupFormHeading).toBeVisible();
     await expect(page.getByText(unregisteredEmail)).toBeVisible();
