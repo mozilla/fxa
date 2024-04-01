@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import { screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react';
+import { UserEvent, userEvent } from '@testing-library/user-event';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 import { getFtlBundle, testAllL10n } from 'fxa-react/lib/test-utils';
 import { FluentBundle } from '@fluent/bundle';
@@ -13,6 +14,11 @@ import { MOCK_PASSWORD } from '../../pages/mocks';
 
 describe('FormPasswordWithBalloons component', () => {
   let bundle: FluentBundle;
+  let user: UserEvent;
+
+  beforeEach(() => {
+    user = userEvent.setup();
+  });
   beforeAll(async () => {
     bundle = await getFtlBundle('settings');
   });
@@ -80,5 +86,20 @@ describe('FormPasswordWithBalloons component', () => {
         ).toBeVisible(),
       { timeout: SHOW_BALLOON_TIMEOUT + 200 }
     );
+  });
+
+  // TODO in FXA-7482, review our password requirements and best way to display them
+  it('disallows space-only passwords', async () => {
+    renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
+    const passwordField = screen.getByLabelText('Password');
+    user.type(passwordField, '        ');
+
+    await waitFor(() => screen.getByText('Password requirements'));
+    expect(screen.queryAllByText('icon-check-blue-50.svg')).toHaveLength(2);
+    const passwordMinCharRequirement = screen.getByTestId(
+      'password-min-char-req'
+    );
+    const imageElement = within(passwordMinCharRequirement).getByRole('img');
+    expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
   });
 });

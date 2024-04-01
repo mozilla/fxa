@@ -296,7 +296,10 @@ export const FormPasswordWithBalloons = ({
               inputRef={register({
                 required: true,
                 validate: {
-                  length: (value: string) => value.length > 7,
+                  // TODO in FXA-7482, review our password requirements and best way to display them
+                  // For now, this most closely matches parity to Backbone for a space-only password
+                  length: (value: string) =>
+                    value.length > 7 && value.trim() !== '',
                   notEmail: (value: string) => {
                     return !passwordValidator.isSameAsEmail(
                       value.toLowerCase()
