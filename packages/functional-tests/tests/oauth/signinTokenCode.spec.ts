@@ -85,7 +85,7 @@ test.describe('severity-2 #smoke', () => {
       await signinTokenCode.successMessage.waitFor({ state: 'visible' });
       await expect(signinTokenCode.successMessage).toBeVisible();
       await expect(signinTokenCode.successMessage).toContainText(
-        'Email resent.'
+        /Email re-?sent/
       );
 
       // Correctly submits the token code and navigates to oauth page
