@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
-
-const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('reset password react', () => {

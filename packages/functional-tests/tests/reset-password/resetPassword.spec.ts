@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-
-const NEW_PASSWORD = 'passwordzxcv';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Reset password current', () => {

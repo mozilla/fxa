@@ -1,7 +1,6 @@
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 
-const NEW_PASSWORD = 'notYourAveragePassW0Rd';
 const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
