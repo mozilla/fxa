@@ -33,6 +33,7 @@ const mockLogViewEvent = jest.fn();
 const mockLogPageViewEvent = jest.fn();
 
 jest.mock('../../lib/metrics', () => ({
+  ...jest.requireActual('../../lib/metrics'),
   usePageViewEvent: jest.fn(),
   logViewEvent: jest.fn(),
   useMetrics: jest.fn(() => ({
@@ -69,7 +70,10 @@ const render = (ui: any, account?: Account) => {
 };
 
 const ResetPasswordWithWebIntegration = () => (
-  <ResetPassword integration={createMockResetPasswordWebIntegration()} />
+  <ResetPassword
+    integration={createMockResetPasswordWebIntegration()}
+    flowQueryParams={{ flowId: '00ff' }}
+  />
 );
 
 describe('PageResetPassword', () => {
@@ -158,11 +162,13 @@ describe('PageResetPassword', () => {
 
     expect(account.resetPassword).toHaveBeenCalledWith(
       MOCK_ACCOUNT.primaryEmail.email,
-      MOCK_SERVICE
+      MOCK_SERVICE,
+      undefined,
+      {}
     );
 
     expect(mockNavigate).toHaveBeenCalledWith(
-      'confirm_reset_password?showReactApp=true',
+      '/confirm_reset_password?showReactApp=true',
       {
         replace: true,
         state: {
@@ -192,11 +198,14 @@ describe('PageResetPassword', () => {
 
     await waitFor(() => {
       expect(account.resetPassword).toHaveBeenCalledWith(
-        MOCK_ACCOUNT.primaryEmail.email
+        MOCK_ACCOUNT.primaryEmail.email,
+        undefined,
+        undefined,
+        { flowId: '00ff' }
       );
 
       expect(mockNavigate).toHaveBeenCalledWith(
-        'confirm_reset_password?showReactApp=true',
+        '/confirm_reset_password?showReactApp=true',
         {
           replace: true,
           state: {
@@ -223,11 +232,14 @@ describe('PageResetPassword', () => {
     fireEvent.click(await screen.findByText('Begin reset'));
     await waitFor(() => {
       expect(account.resetPassword).toHaveBeenCalledWith(
-        MOCK_ACCOUNT.primaryEmail.email
+        MOCK_ACCOUNT.primaryEmail.email,
+        undefined,
+        undefined,
+        { flowId: '00ff' }
       );
 
       expect(mockNavigate).toHaveBeenCalledWith(
-        'confirm_reset_password?showReactApp=true',
+        '/confirm_reset_password?showReactApp=true',
         {
           replace: true,
           state: {

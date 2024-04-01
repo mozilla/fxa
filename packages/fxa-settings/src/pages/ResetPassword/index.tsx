@@ -2,12 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
 import { getLocalizedErrorMessage } from '../../lib/auth-errors/auth-errors';
-import { usePageViewEvent, useMetrics } from '../../lib/metrics';
+import {
+  usePageViewEvent,
+  useMetrics,
+  queryParamsToMetricsContext,
+} from '../../lib/metrics';
 import {
   isOAuthIntegration,
   useAccount,
@@ -27,6 +31,7 @@ import { setOriginalTabMarker } from '../../lib/storage-utils';
 import { ResetPasswordFormData, ResetPasswordProps } from './interfaces';
 import { ConfirmResetPasswordLocationState } from './ConfirmResetPassword/interfaces';
 import GleanMetrics from '../../lib/glean';
+import { MetricsContext } from 'fxa-auth-client/browser';
 
 export const viewName = 'reset-password';
 
@@ -35,6 +40,7 @@ const ResetPassword = ({
   prefillEmail,
   forceAuth,
   integration,
+  flowQueryParams = {},
 }: ResetPasswordProps & RouteComponentProps) => {
   usePageViewEvent(viewName, REACT_ENTRYPOINT);
   const [errorText, setErrorText] = useState<string>('');
@@ -43,6 +49,7 @@ const ResetPassword = ({
   const account = useAccount();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
+  const location = useLocation();
 
   // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
   setOriginalTabMarker();
@@ -79,12 +86,14 @@ const ResetPassword = ({
 
   const navigateToConfirmPwReset = useCallback(
     (stateData: ConfirmResetPasswordLocationState) => {
-      navigate('confirm_reset_password?showReactApp=true', {
+      const searchParams = new URLSearchParams(location.search);
+      searchParams.set('showReactApp', 'true');
+      navigate(`/confirm_reset_password?${searchParams}`, {
         state: stateData,
         replace: true,
       });
     },
-    [navigate]
+    [location, navigate]
   );
 
   const clearError = useCallback(() => {
@@ -95,7 +104,7 @@ const ResetPassword = ({
   }, [errorText, setErrorText]);
 
   const submitEmail = useCallback(
-    async (email: string) => {
+    async (email: string, options: { metricsContext: MetricsContext }) => {
       try {
         clearError();
 
@@ -104,14 +113,21 @@ const ResetPassword = ({
           integration.saveOAuthState();
           const result = await account.resetPassword(
             email,
-            integration.getService()
+            integration.getService(),
+            undefined,
+            options?.metricsContext
           );
           navigateToConfirmPwReset({
             passwordForgotToken: result.passwordForgotToken,
             email,
           });
         } else {
-          const result = await account.resetPassword(email);
+          const result = await account.resetPassword(
+            email,
+            undefined,
+            undefined,
+            options?.metricsContext
+          );
           navigateToConfirmPwReset({
             passwordForgotToken: result.passwordForgotToken,
             email,
@@ -140,9 +156,13 @@ const ResetPassword = ({
       );
     } else {
       GleanMetrics.resetPassword.submit();
-      submitEmail(sanitizedEmail);
+      submitEmail(sanitizedEmail, {
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
+      });
     }
-  }, [ftlMsgResolver, getValues, submitEmail]);
+  }, [flowQueryParams, ftlMsgResolver, getValues, submitEmail]);
 
   const ControlledLinkRememberPassword = ({
     control,

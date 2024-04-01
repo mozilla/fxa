@@ -235,7 +235,11 @@ test.describe('severity-1 #smoke', () => {
       expect(emailInput).toEqual('');
       await resetPasswordReact.fillEmailToResetPwd(credentials.email);
       await page.waitForURL(
-        getReactFeatureFlagUrl(target, '/confirm_reset_password')
+        getReactFeatureFlagUrl(
+          target,
+          '/confirm_reset_password',
+          `email=${encodeURIComponent(credentials.email)}`
+        )
       );
       await page.waitForSelector('#root');
       await resetPasswordReact.confirmResetPasswordHeadingVisible();

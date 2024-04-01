@@ -177,7 +177,10 @@ export const App = ({
 
   return (
     <Router basepath="/">
-      <AuthAndAccountSetupRoutes {...{ isSignedIn, integration }} path="/*" />
+      <AuthAndAccountSetupRoutes
+        {...{ isSignedIn, integration, flowQueryParams }}
+        path="/*"
+      />
       <SettingsRoutes {...{ isSignedIn, integration }} path="/settings/*" />
     </Router>
   );
@@ -237,7 +240,12 @@ const SettingsRoutes = ({
 const AuthAndAccountSetupRoutes = ({
   isSignedIn,
   integration,
-}: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
+  flowQueryParams,
+}: {
+  isSignedIn: boolean;
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
   const localAccount = currentAccount();
   // TODO: MozServices / string discrepancy, FXA-6802
   const serviceName = integration.getServiceName() as MozServices;
@@ -257,7 +265,10 @@ const AuthAndAccountSetupRoutes = ({
       <WebChannelExample path="/web_channel_example/*" />
 
       {/* Post verify */}
-      <ThirdPartyAuthCallback path="/post_verify/third_party_auth/callback/*" />
+      <ThirdPartyAuthCallback
+        path="/post_verify/third_party_auth/callback/*"
+        {...{ flowQueryParams }}
+      />
 
       {/* Reset password */}
       <LinkValidator
@@ -291,7 +302,10 @@ const AuthAndAccountSetupRoutes = ({
         path="/confirm_reset_password/*"
         {...{ integration }}
       />
-      <ResetPassword path="/reset_password/*" {...{ integration }} />
+      <ResetPassword
+        path="/reset_password/*"
+        {...{ integration, flowQueryParams }}
+      />
       <ResetPasswordWithRecoveryKeyVerified
         path="/reset_password_with_recovery_key_verified/*"
         {...{ integration, isSignedIn }}
@@ -303,12 +317,18 @@ const AuthAndAccountSetupRoutes = ({
 
       {/* Signin */}
       <ReportSigninContainer path="/report_signin/*" />
-      <SigninContainer path="/force_auth/*" {...{ integration, serviceName }} />
+      <SigninContainer
+        path="/force_auth/*"
+        {...{ integration, serviceName, flowQueryParams }}
+      />
       <SigninContainer
         path="/oauth/signin/*"
-        {...{ integration, serviceName }}
+        {...{ integration, serviceName, flowQueryParams }}
       />
-      <SigninContainer path="/signin/*" {...{ integration, serviceName }} />
+      <SigninContainer
+        path="/signin/*"
+        {...{ integration, serviceName, flowQueryParams }}
+      />
       <SigninBounced email={localAccount?.email} path="/signin_bounced/*" />
       <CompleteSigninContainer path="/complete_signin/*" />
       <SigninConfirmed
@@ -332,7 +352,10 @@ const AuthAndAccountSetupRoutes = ({
         path="/signin_verified/*"
         {...{ isSignedIn, serviceName }}
       />
-      <SigninUnblockContainer path="/signin_unblock/*" {...{ integration }} />
+      <SigninUnblockContainer
+        path="/signin_unblock/*"
+        {...{ integration, flowQueryParams }}
+      />
 
       {/* Signup */}
       <CannotCreateAccount path="/cannot_create_account/*" />

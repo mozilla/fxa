@@ -33,10 +33,16 @@ import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import AppLayout from '../../../components/AppLayout';
 import CardHeader from '../../../components/CardHeader';
 import { MozServices } from '../../../lib/types';
+import { QueryParams } from '../../..';
+import { queryParamsToMetricsContext } from '../../../lib/metrics';
 
 const SigninUnblockContainer = ({
   integration,
-}: { integration: Integration } & RouteComponentProps) => {
+  flowQueryParams,
+}: {
+  integration: Integration;
+  flowQueryParams: QueryParams;
+} & RouteComponentProps) => {
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -86,7 +92,11 @@ const SigninUnblockContainer = ({
 
   const resendUnblockCodeHandler: ResendUnblockCodeHandler = async () => {
     try {
-      await authClient.sendUnblockCode(email);
+      await authClient.sendUnblockCode(email, {
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as Record<string, string>
+        ),
+      });
       return { success: true };
     } catch (error) {
       const localizedErrorMessage = getLocalizedErrorMessage(
