@@ -89,7 +89,7 @@
     "jest-environment-jsdom": "^27.5.1",
     "nx": "18.0.3",
     "pm2": "^5.3.0",
-    "postcss-import": "^16.0.0",
+    "postcss-import": "^16.1.0",
     "prettier": "^2.3.1",
     "rimraf": "^5.0.0",
     "sass-loader": "^14.1.0",
