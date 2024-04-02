@@ -153,7 +153,7 @@
     "react-stripe-elements": "^6.1.2",
     "react-transition-group": "^4.4.2",
     "redux": "^4.2.0",
-    "redux-promise-middleware": "^6.1.2",
+    "redux-promise-middleware": "^6.2.0",
     "redux-thunk": "^2.4.1",
     "serve-static": "^1.14.2",
     "typedi": "^0.8.0",

@@ -38617,7 +38617,7 @@ fsevents@~2.1.1:
     react-transition-group: ^4.4.2
     redux: ^4.2.0
     redux-devtools-extension: ^2.13.9
-    redux-promise-middleware: ^6.1.2
+    redux-promise-middleware: ^6.2.0
     redux-thunk: ^2.4.1
     serve-static: ^1.14.2
     sinon: ^9.0.3
@@ -57513,12 +57513,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux-promise-middleware@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "redux-promise-middleware@npm:6.1.2"
+"redux-promise-middleware@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "redux-promise-middleware@npm:6.2.0"
   peerDependencies:
-    redux: ^2.0.0 || ^3.0.0 || ^4.0.0
-  checksum: c4e31113351ccfa6e83c61cd83c4865115c98171dfad5ad8c94dc1bf6b3fcb4d60c858f73d1380a216fc4b46b13245bf1a8a91f8197ace56699d69997e68ac39
+    redux: ^2.0.0 || ^3.0.0 || ^4.0.0 || ^5.0.0
+  checksum: 2ff81c973682597ca00d75e2de1345a4a8a9009102fae5bb04cacf3a285abb889c32bfac988b95b650220c6c621c2979fadb572860fdc16bc82de38f2bf45426
   languageName: node
   linkType: hard
 
