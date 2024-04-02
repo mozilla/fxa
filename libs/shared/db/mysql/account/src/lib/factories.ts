@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 
 import { AccountCustomer, NewCart, PaypalCustomer } from './associated-types';
-import { CartState } from './keysley-types';
+import { CartState } from './kysely-types';
 
 export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   id: Buffer.from(
@@ -48,7 +48,9 @@ export const AccountCustomerFactory = (
     }),
     'hex'
   ),
-  stripeCustomerId: faker.string.uuid(),
+  stripeCustomerId: faker.string.alphanumeric({
+    length: 14,
+  }),
   createdAt: faker.date.recent().getTime(),
   updatedAt: faker.date.recent().getTime(),
   ...override,
