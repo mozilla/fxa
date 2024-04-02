@@ -21,9 +21,9 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
-      await settings.accountRecoveryKeyCreateButton.click();
+      await settings.recoveryKey.createButton.click();
 
       const key = await recoveryKey.fillOutRecoveryKeyForms(
         credentials.password,
@@ -32,7 +32,7 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify status as 'enabled'
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Enabled');
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       // Ensure password reset occurs with no session token available
       await login.clearCache();

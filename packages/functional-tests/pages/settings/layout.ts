@@ -2,6 +2,10 @@ import { expect } from '@playwright/test';
 import { BaseLayout } from '../layout';
 
 export abstract class SettingsLayout extends BaseLayout {
+  get settingsHeading() {
+    return this.page.getByRole('heading', { name: 'Settings' });
+  }
+
   get bentoMenu() {
     return this.page.locator('[data-testid="drop-down-bento-menu"]');
   }

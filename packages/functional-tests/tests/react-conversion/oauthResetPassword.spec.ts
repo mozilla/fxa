@@ -243,7 +243,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       // Goes to settings and enables the account recovery key on user's account.
       await settings.goto();
-      await settings.accountRecoveryKeyCreateButton.click();
+      await settings.recoveryKey.createButton.click();
       const accountRecoveryKey = await recoveryKey.fillOutRecoveryKeyForms(
         credentials.password,
         'hint'
@@ -294,7 +294,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       // Goes to settings and enables totp on user's account.
       await settings.goto();
-      await settings.addTwoStepAuthenticationButton.click();
+      await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
 

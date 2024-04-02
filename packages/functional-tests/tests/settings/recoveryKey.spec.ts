@@ -25,10 +25,10 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       // Create new recovery key
-      await settings.accountRecoveryKeyCreateButton.click();
+      await settings.recoveryKey.createButton.click();
 
       // View 1/4 info
       await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
@@ -59,10 +59,10 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       // Create new recovery key
-      await settings.accountRecoveryKeyCreateButton.click();
+      await settings.recoveryKey.createButton.click();
 
       // View 1/4 info
       await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
@@ -124,20 +124,20 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
-      await settings.accountRecoveryKeyCreateButton.click();
+      await settings.recoveryKey.createButton.click();
       await recoveryKey.fillOutRecoveryKeyForms(credentials.password, HINT);
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Enabled');
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
       await settings.recoveryKey.clickDelete();
       await settings.clickModalConfirm();
 
       await settings.waitForAlertBar();
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.accountRecoveryKeyStatus).toHaveText('Not Set');
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
   });
 });
