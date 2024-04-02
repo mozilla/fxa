@@ -71,6 +71,9 @@ const SigninUnblockContainer = ({
       keys: integration.wantsKeys(),
       ...(service !== MozServices.Default && { service }),
       unblockCode,
+      metricsContext: queryParamsToMetricsContext(
+        flowQueryParams as unknown as Record<string, string>
+      ),
     };
     try {
       const { authPW } = await getCredentials(email, password);

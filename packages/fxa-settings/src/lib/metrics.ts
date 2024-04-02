@@ -520,7 +520,12 @@ export function queryParamsToMetricsContext(
   const metricsContext: MetricsContext = {};
   return MetricsContextKeys.reduce((acc, k) => {
     if (queryParams[k]) {
-      acc[k] = queryParams[k] as any;
+      // Special case for flowBeginTime, which is a number
+      if (k === 'flowBeginTime') {
+        acc[k] = Number(queryParams[k]);
+      } else {
+        acc[k] = queryParams[k] as any;
+      }
     }
     return acc;
   }, metricsContext);
