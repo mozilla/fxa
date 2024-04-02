@@ -10374,19 +10374,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/hawk@npm:^8.0.0":
-  version: 8.0.0
-  resolution: "@hapi/hawk@npm:8.0.0"
-  dependencies:
-    "@hapi/b64": 5.x.x
-    "@hapi/boom": 9.x.x
-    "@hapi/cryptiles": 5.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/sntp": 4.x.x
-  checksum: 71b46194845d819c561f83a9d1e68f2e20d586700a1a21f5701511da3786f3b64d7edea7b145c5b6285a6ed884a1f15e279ca0370e4d6f7f6e3e8e5d384ce42b
-  languageName: node
-  linkType: hard
-
 "@hapi/heavy@npm:^7.0.1":
   version: 7.0.1
   resolution: "@hapi/heavy@npm:7.0.1"
@@ -10511,18 +10498,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@hapi/sntp@npm:4.x.x":
-  version: 4.0.0
-  resolution: "@hapi/sntp@npm:4.0.0"
-  dependencies:
-    "@hapi/boom": 9.x.x
-    "@hapi/bounce": 2.x.x
-    "@hapi/hoek": 9.x.x
-    "@hapi/teamwork": 4.x.x
-  checksum: 4bab7212e747748ffaee23598b76570f75cd05627e2fabd0e31e740316009283e22f67be672ff3406b809ff91a0701533581caeeea3a2d6f39132473ad0a6b2e
-  languageName: node
-  linkType: hard
-
 "@hapi/somever@npm:^3.0.0":
   version: 3.0.1
   resolution: "@hapi/somever@npm:3.0.1"
@@ -10560,13 +10535,6 @@ __metadata:
     "@hapi/pez": ^5.0.1
     "@hapi/wreck": 17.x.x
   checksum: f10702ba7ab931752ee360c05d66586ed9ef3e1c77e2cb19532146e20843407b9014e3a064c0ce388683fcf99a1e9107b2a1cbf033fda3d7a02fae7c633a848b
-  languageName: node
-  linkType: hard
-
-"@hapi/teamwork@npm:4.x.x":
-  version: 4.0.0
-  resolution: "@hapi/teamwork@npm:4.0.0"
-  checksum: e23f66c52dd1abac855f0f60357d500274e3dea5dc2c473deaf84b9d23b27b00d653a70aab3a05359f1b34520e9bc71c533b36ceb90d486ee9e2770fad379651
   languageName: node
   linkType: hard
 
@@ -37977,7 +37945,6 @@ fsevents@~2.1.1:
     "@google-cloud/tasks": ^4.0.1
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
-    "@hapi/hawk": ^8.0.0
     "@hapi/hoek": ^11.0.2
     "@mozilla/glean": ^4.0.0
     "@storybook/addon-controls": ^7.4.6
