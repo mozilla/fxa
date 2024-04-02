@@ -226,6 +226,9 @@ const SigninContainer = ({
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
         ...(service !== MozServices.Default && { service }),
+        metricsContext: queryParamsToMetricsContext(
+          flowQueryParams as unknown as ReturnType<typeof searchParams>
+        ),
       };
 
       const v1Credentials = await getCredentials(email, password);
@@ -417,6 +420,7 @@ const SigninContainer = ({
       passwordChangeFinish,
       passwordChangeStart,
       wantsKeys,
+      flowQueryParams,
     ]
   );
 

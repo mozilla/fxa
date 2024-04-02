@@ -44,8 +44,8 @@ import {
   mockGqlGetAccountKeysMutation,
   mockGqlPasswordChangeFinishMutation,
   mockGqlPasswordChangeStartMutation,
+  MOCK_FLOW_ID,
 } from './mocks';
-import firefox from '../../lib/channels/firefox';
 import AuthClient from 'fxa-auth-client/browser';
 import VerificationMethods from '../../constants/verification-methods';
 import VerificationReasons from '../../constants/verification-reasons';
@@ -250,6 +250,7 @@ function render(mocks: Array<MockedResponse>) {
             integration,
             serviceName: MozServices.Default,
           }}
+          flowQueryParams={{ flowId: MOCK_FLOW_ID }}
         />
       </LocationProvider>
     </MockedProvider>

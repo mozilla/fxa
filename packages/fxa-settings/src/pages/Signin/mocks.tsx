@@ -27,6 +27,7 @@ import {
   MOCK_WRAP_KB_V2,
   MOCK_KA,
   MOCK_KEY_FETCH_TOKEN_2,
+  MOCK_FLOW_ID,
 } from '../mocks';
 import {
   BeginSigninError,
@@ -163,6 +164,7 @@ export function mockGqlBeginSigninMutation(opts: { keys: boolean }) {
           options: {
             ...opts,
             verificationMethod: VerificationMethods.EMAIL_OTP,
+            metricsContext: { flowId: MOCK_FLOW_ID },
           },
         },
       },
@@ -273,6 +275,7 @@ export function mockBeginSigninMutationWithV2Password() {
           options: {
             verificationMethod: VerificationMethods.EMAIL_OTP,
             keys: false,
+            metricsContext: { flowId: MOCK_FLOW_ID },
           },
         },
       },

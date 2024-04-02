@@ -54,6 +54,7 @@ export const MOCK_UNWRAP_BKEY_V2 = '20000000000000000123456789abcdef';
 export const MOCK_WRAP_KB_V2 = '20000000000000000123456789abcdef';
 export const MOCK_AUTH_PW_V2 = 'apw234';
 export const MOCK_PASSWORD_CHANGE_TOKEN = '123456789abcdef0';
+export const MOCK_FLOW_ID = '00ff';
 
 export function mockLoadingSpinnerModule() {
   jest.spyOn(LoadingSpinnerModule, 'LoadingSpinner').mockImplementation(() => {
