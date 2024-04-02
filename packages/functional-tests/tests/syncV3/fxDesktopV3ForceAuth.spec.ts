@@ -106,7 +106,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput).toBeDisabled();
+      await expect(emailInput).toBeDisabled();
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);
@@ -138,7 +138,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput).toBeDisabled();
+      await expect(emailInput).toBeDisabled();
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);
@@ -165,7 +165,7 @@ test.describe('severity-1 #smoke', () => {
       const emailInputValue = await login.getEmailInput();
       expect(emailInputValue).toBe(email);
       const emailInput = await login.getEmailInputElement();
-      expect(emailInput).toBeDisabled();
+      await expect(emailInput).toBeDisabled();
       await expect(
         await (await login.getUseDifferentAccountLink()).count()
       ).toEqual(0);

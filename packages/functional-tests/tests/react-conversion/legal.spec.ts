@@ -14,11 +14,11 @@ test.describe('severity-2 #smoke', () => {
       await expect(legal.pageHeader).toBeVisible();
       await expect(legal.privacyNoticeLink).toBeVisible();
 
-      await legal.clickPrivacyNoticeLink();
+      await legal.privacyNoticeLink.click();
 
       await expect(privacy.pageHeader).toBeVisible();
 
-      await privacy.clickBackButton();
+      await privacy.backButton.click();
 
       await expect(legal.pageHeader).toBeVisible();
     });
@@ -31,11 +31,11 @@ test.describe('severity-2 #smoke', () => {
       await expect(legal.pageHeader).toBeVisible();
       await expect(legal.termsOfServiceLink).toBeVisible();
 
-      await legal.clickTermsOfServiceLink();
+      await legal.termsOfServiceLink.click();
 
       await expect(termsOfService.pageHeader).toBeVisible();
 
-      await termsOfService.clickBackButton();
+      await termsOfService.backButton.click();
 
       await expect(legal.pageHeader).toBeVisible();
     });

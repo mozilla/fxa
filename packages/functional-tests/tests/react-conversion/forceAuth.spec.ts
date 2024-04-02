@@ -11,14 +11,13 @@ test.describe('force auth react', () => {
     // Ensure that the feature flag is enabled
     const config = await configPage.getConfig();
     test.skip(config.showReactApp.signInRoutes !== true);
-    test.skip(config.showReactApp.signUpRoutes !== true);
   });
 
   test('displays signin with registered email', async ({
     page,
     target,
     credentials,
-    pages: { signupReact, resetPasswordReact },
+    pages: { signinReact },
   }) => {
     const url = getReactFeatureFlagUrl(
       target,
@@ -28,42 +27,32 @@ test.describe('force auth react', () => {
       )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
     );
     await page.goto(url);
-    await page.waitForURL(/\/force_auth/);
 
-    // Verify react page has been loaded
-    await page.waitForSelector('#root');
-    await page.waitForSelector('input[name="password"]');
-
-    await expect(page.getByText('Enter your password')).toBeVisible();
+    await expect(signinReact.passwordFormHeading).toBeVisible();
     await expect(page.getByText(credentials.email)).toBeVisible();
-    await expect(page.getByText('Sign in')).toBeVisible();
+    await expect(signinReact.signInButton).toBeVisible();
   });
 
   test('redirects to signup with unregistered email', async ({
     page,
     target,
-    credentials,
-    context,
-    pages: { login, resetPasswordReact },
+    pages: { configPage, signupReact },
   }) => {
-    const randoEmail = `rando${Math.random()}@example.com`;
+    const config = await configPage.getConfig();
+    test.skip(config.showReactApp.signUpRoutes !== true);
+
+    const unregisteredEmail = `rando${Math.random()}@example.com`;
     const url = getReactFeatureFlagUrl(
       target,
       '/force_auth',
       `email=${encodeURIComponent(
-        randoEmail
+        unregisteredEmail
       )}&context=fx_desktop_v3&entrypoint=fxa_app_menu_reverify&action=email&service=sync`
     );
     await page.goto(url);
-    await page.waitForURL(/\/signup/);
 
-    // Verify react page has been loaded
-    await page.waitForSelector('#root');
-    await page.waitForSelector('input[name="newPassword"]');
-    await page.waitForSelector('input[name="confirmPassword"]');
-
-    await expect(page.getByText('Set your password')).toBeVisible();
-    await expect(page.getByText(randoEmail)).toBeVisible();
-    await expect(page.getByText('Create account')).toBeVisible();
+    await expect(signupReact.signupFormHeading).toBeVisible();
+    await expect(page.getByText(unregisteredEmail)).toBeVisible();
+    await expect(signupReact.createAccountButton).toBeVisible();
   });
 });

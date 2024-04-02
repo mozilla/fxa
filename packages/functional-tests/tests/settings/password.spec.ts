@@ -19,16 +19,18 @@ test.describe('severity-1 #smoke', () => {
       waitUntil: 'load',
     });
     if (config.showReactApp.resetPasswordRoutes === true) {
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
       const link = await target.email.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
       );
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.submitNewPassword(credentials.password);
+      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
       // TODO: React reset PW does not currently take users to Settings, FXA-8266
-      await resetPasswordReact.resetPwdConfirmedHeadingVisible();
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
     } else {
       await login.setEmail(credentials.email);
       await login.clickSubmit();
@@ -78,7 +80,7 @@ test.describe('severity-1 #smoke', () => {
       waitUntil: 'load',
     });
     if (config.showReactApp.resetPasswordRoutes === true) {
-      await resetPasswordReact.fillEmailToResetPwd(credentials.email);
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
       const link = await target.email.waitForEmail(
         credentials.email,
         EmailType.recovery,
@@ -86,9 +88,11 @@ test.describe('severity-1 #smoke', () => {
       );
       await page.goto(link, { waitUntil: 'load' });
       await resetPasswordReact.clickDontHaveRecoveryKey();
-      await resetPasswordReact.submitNewPassword(credentials.password);
+      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
       // TODO: React reset PW does not currently take users to Settings, FXA-8266
-      await resetPasswordReact.resetPwdConfirmedHeadingVisible();
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
       await settings.goto();
     } else {
       await login.setEmail(credentials.email);

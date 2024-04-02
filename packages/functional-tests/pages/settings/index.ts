@@ -59,24 +59,16 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('two-step', TotpRow);
   }
 
+  get connectedServiceName() {
+    return this.page.getByTestId('service-name');
+  }
+
   get connectedServices() {
     return this.lazyRow('connected-services', ConnectedServicesRow);
   }
 
   get dataCollection() {
     return this.lazyRow('data-collection', DataCollectionRow);
-  }
-
-  get settingsHeading() {
-    return this.page.getByRole('heading', { name: 'Settings' });
-  }
-
-  get twoStepAuthenticationStatus() {
-    return this.page.getByTestId('two-step-unit-row-header-value');
-  }
-
-  get addTwoStepAuthenticationButton() {
-    return this.page.getByTestId('two-step-unit-row-route');
   }
 
   clickDeleteAccount() {

@@ -86,6 +86,14 @@ export class SecondaryEmailRow extends UnitRow {
 }
 
 export class RecoveryKeyRow extends UnitRow {
+  get status() {
+    return this.page.getByTestId('recovery-key-unit-row-header-value');
+  }
+
+  get createButton() {
+    return this.page.getByTestId('recovery-key-unit-row-route');
+  }
+
   clickCreate() {
     return this.clickCta();
   }
@@ -98,6 +106,14 @@ export class RecoveryKeyRow extends UnitRow {
 }
 
 export class TotpRow extends UnitRow {
+  get status() {
+    return this.page.getByTestId('two-step-unit-row-header-value');
+  }
+
+  get addButton() {
+    return this.page.getByTestId('two-step-unit-row-route');
+  }
+
   clickAdd() {
     return this.clickCta();
   }

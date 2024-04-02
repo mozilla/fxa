@@ -24,13 +24,13 @@ test.describe('cookies disabled', () => {
 
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
-    expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
+    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
 
     //Click retry
     await cookiesDisabled.clickRetry();
 
     //Verify the error
-    expect(await cookiesDisabled.isCookiesDiabledError()).toBeVisible();
+    await expect(await cookiesDisabled.isCookiesDiabledError()).toBeVisible();
   });
 
   test('synthesize enabling cookies by visiting the enter email page, then cookies_disabled, then clicking "try again', async ({
@@ -56,7 +56,7 @@ test.describe('cookies disabled', () => {
 
     //Verify the Cookies disabled header
     await page.waitForURL(/\/cookies_disabled/);
-    expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
+    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
 
     //Click retry
     await cookiesDisabled.clickRetry();
@@ -85,6 +85,6 @@ test.describe('cookies disabled', () => {
     await page.waitForTimeout(500);
 
     //Verify the Cookies disabled header
-    expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
+    await expect(await cookiesDisabled.cookiesDisabledHeader()).toBeVisible();
   });
 });

@@ -12,9 +12,4 @@ export class PrivacyPage extends BaseLayout {
       name: 'Mozilla Accounts Privacy Notice',
     });
   }
-
-  async clickBackButton() {
-    await this.backButton.click();
-    await this.page.waitForURL(/\/legal$/);
-  }
 }

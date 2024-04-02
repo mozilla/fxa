@@ -3,13 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
-import { EmailHeader, EmailType } from '../../lib/email';
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
 
-let status;
-let key;
-let hint;
+const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key test', () => {
@@ -18,31 +15,6 @@ test.describe('severity-1 #smoke', () => {
         // Generating and consuming recovery keys is a slow process
         // Mail delivery can also be slow
         test.slow();
-
-        await settings.goto();
-        let status = await settings.recoveryKey.statusText();
-        expect(status).toEqual('Not Set');
-        await settings.recoveryKey.clickCreate();
-        // View 1/4 info
-        await recoveryKey.clickStart();
-        // View 2/4 confirm password and generate key
-        await recoveryKey.setPassword(credentials.password);
-        await recoveryKey.submit();
-
-        // View 3/4 key download
-        // Store key to be used later
-        key = await recoveryKey.getKey();
-        await recoveryKey.clickNext();
-
-        // View 4/4 hint
-        // store hint to be used later
-        hint = 'secret key location';
-        await recoveryKey.setHint(hint);
-        await recoveryKey.clickFinish();
-
-        // Verify status as 'enabled'
-        status = await settings.recoveryKey.statusText();
-        expect(status).toEqual('Enabled');
       }
     );
 
@@ -50,17 +22,30 @@ test.describe('severity-1 #smoke', () => {
       credentials,
       pages: { recoveryKey, settings },
     }) => {
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
       // Create new recovery key
-      await settings.recoveryKey.clickCreate();
+      await settings.recoveryKey.createButton.click();
+
       // View 1/4 info
-      await recoveryKey.clickStart();
+      await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
+
+      await recoveryKey.getStartedButton.click();
+
       // View 2/4 confirm password and generate key
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
+      await expect(recoveryKey.passwordHeading).toBeVisible();
+
+      await recoveryKey.createKeyPasswordTextbox.fill(credentials.password);
+      await recoveryKey.createKeyButton.click();
 
       // View 3/4 key download
+      await expect(recoveryKey.recoveryKeyCreatedHeading).toBeVisible();
+
       // Store key to be used later
-      const newKey = await recoveryKey.getKey();
+      const newKey = await recoveryKey.recoveryKey.innerText();
 
       // Test copy
       const clipboard = await recoveryKey.clickCopy();
@@ -71,17 +56,30 @@ test.describe('severity-1 #smoke', () => {
       credentials,
       pages: { recoveryKey, settings },
     }) => {
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
       // Create new recovery key
-      await settings.recoveryKey.clickCreate();
+      await settings.recoveryKey.createButton.click();
+
       // View 1/4 info
-      await recoveryKey.clickStart();
+      await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
+
+      await recoveryKey.getStartedButton.click();
+
       // View 2/4 confirm password and generate key
-      await recoveryKey.setPassword(credentials.password);
-      await recoveryKey.submit();
+      await expect(recoveryKey.passwordHeading).toBeVisible();
+
+      await recoveryKey.createKeyPasswordTextbox.fill(credentials.password);
+      await recoveryKey.createKeyButton.click();
 
       // View 3/4 key download
+      await expect(recoveryKey.recoveryKeyCreatedHeading).toBeVisible();
+
       // Store key to be used later
-      const newKey = await recoveryKey.getKey();
+      const newKey = await recoveryKey.recoveryKey.innerText();
 
       // Test download
       const dl = await recoveryKey.clickDownload();
@@ -119,15 +117,27 @@ test.describe('severity-1 #smoke', () => {
       }
     });
 
-    test('revoke recovery key', async ({ pages: { settings } }) => {
+    test('revoke recovery key', async ({
+      credentials,
+      pages: { settings, recoveryKey },
+    }) => {
       await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
+      await settings.recoveryKey.createButton.click();
+      await recoveryKey.fillOutRecoveryKeyForms(credentials.password, HINT);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
       await settings.recoveryKey.clickDelete();
       await settings.clickModalConfirm();
-      await settings.waitForAlertBar();
-      status = await settings.recoveryKey.statusText();
 
-      // Verify status as 'not set'
-      expect(status).toEqual('Not Set');
+      await settings.waitForAlertBar();
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
   });
 });

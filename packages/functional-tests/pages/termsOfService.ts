@@ -12,9 +12,4 @@ export class TermsOfService extends BaseLayout {
       name: 'Mozilla Accounts Terms of Service',
     });
   }
-
-  async clickBackButton() {
-    await this.backButton.click();
-    await this.page.waitForURL(/\/legal$/);
-  }
 }

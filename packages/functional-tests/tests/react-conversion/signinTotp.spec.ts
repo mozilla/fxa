@@ -18,17 +18,17 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
+      await expect(settings.totp.status).toHaveText('Not Set');
 
-      await settings.addTwoStepAuthenticationButton.click();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      await settings.totp.addButton.click();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication enabled'
       );
-      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
+      await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
       await page.goto(
@@ -41,7 +41,7 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
+      await expect(settings.totp.status).toHaveText('Enabled');
     });
 
     test('error message when totp code is invalid', async ({
@@ -52,17 +52,17 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
-      await expect(settings.twoStepAuthenticationStatus).toHaveText('Not Set');
+      await expect(settings.totp.status).toHaveText('Not Set');
 
-      await settings.addTwoStepAuthenticationButton.click();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      await settings.totp.addButton.click();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
         'Two-step authentication enabled'
       );
-      await expect(settings.twoStepAuthenticationStatus).toHaveText('Enabled');
+      await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
       await page.goto(
@@ -70,7 +70,6 @@ test.describe('severity-1 #smoke', () => {
       );
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
-      await page.waitForURL(/signin_totp_code/);
       await signinReact.fillOutAuthenticationForm('111111');
 
       await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(

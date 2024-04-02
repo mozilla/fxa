@@ -49,7 +49,7 @@ test.describe('severity-1 #smoke', () => {
       await login.acceptOauthPermissions();
 
       //Verify sign up code header
-      expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader()).toBeVisible();
     });
   });
 

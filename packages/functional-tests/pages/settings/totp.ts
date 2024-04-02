@@ -105,7 +105,7 @@ export class TotpPage extends SettingsLayout {
     return codesRaw ? codesRaw.trim().split(/\s+/) : [];
   }
 
-  async fillTwoStepAuthenticationForm(
+  async fillOutTwoStepAuthenticationForm(
     method: 'qr' | 'manual' = 'manual'
   ): Promise<TotpCredentials> {
     await expect(this.twoStepAuthenticationHeading).toBeVisible();

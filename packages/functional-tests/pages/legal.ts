@@ -14,14 +14,4 @@ export class LegalPage extends BaseLayout {
   get termsOfServiceLink() {
     return this.page.getByRole('link', { name: 'Terms of Service' });
   }
-
-  async clickPrivacyNoticeLink() {
-    this.privacyNoticeLink.click();
-    await this.page.waitForURL(/\/legal\/privacy/);
-  }
-
-  async clickTermsOfServiceLink() {
-    this.termsOfServiceLink.click();
-    await this.page.waitForURL(/\/legal\/terms/);
-  }
 }

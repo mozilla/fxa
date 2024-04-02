@@ -22,7 +22,7 @@ test.describe('severity-1 #smoke', () => {
       let status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
       await settings.totp.clickAdd();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
       await settings.waitForAlertBar();
       status = await settings.totp.statusText();
@@ -50,7 +50,7 @@ test.describe('severity-1 #smoke', () => {
       let status = await settings.totp.statusText();
       expect(status).toEqual('Not Set');
       await settings.totp.clickAdd();
-      const { secret } = await totp.fillTwoStepAuthenticationForm('qr');
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm('qr');
       credentials.secret = secret;
       await settings.waitForAlertBar();
       status = await settings.totp.statusText();
@@ -64,7 +64,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
@@ -82,7 +82,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
       await settings.totp.clickAdd();
       const { secret, recoveryCodes } =
-        await totp.fillTwoStepAuthenticationForm();
+        await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
       await settings.totp.clickChange();
       await settings.clickModalConfirm();
@@ -119,7 +119,7 @@ test.describe('severity-1 #smoke', () => {
       await settings.goto();
       await settings.totp.clickAdd();
       const { secret, recoveryCodes } =
-        await totp.fillTwoStepAuthenticationForm();
+        await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
       await settings.signOut();
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
@@ -155,7 +155,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       await settings.goto();
       await settings.totp.clickAdd();
-      const { secret } = await totp.fillTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
       credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);

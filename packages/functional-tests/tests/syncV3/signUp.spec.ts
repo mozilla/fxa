@@ -141,7 +141,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Verify user lands on the sign in password page
-      expect(await login.waitForPasswordHeader()).toBeVisible();
+      await expect(await login.waitForPasswordHeader()).toBeVisible();
 
       // Verify the correct email is displayed
       expect(await login.getPrefilledEmail()).toContain(credentials.email);
