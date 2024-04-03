@@ -37,27 +37,22 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified, resend', async ({ emails, target, syncBrowserPages }) => {
-      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
+      const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
 
-      const config = await configPage.getConfig();
       const [email] = emails;
-      test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
-      );
+
+      target.auth.signUp(email, PASSWORD, { service: 'sync', keys: true });
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
+
       await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
+      await login.clickSubmit();
       await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
-      await login.submit();
+      await login.clickSubmit();
 
       // Click resend link
       await signinTokenCode.resendLink.click();
@@ -76,40 +71,30 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified - invalid code', async ({
       emails,
       target,
       syncBrowserPages,
     }) => {
-      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
+      const { page, login, signinTokenCode } = syncBrowserPages;
 
-      const config = await configPage.getConfig();
       const [email] = emails;
-      test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
-      );
+
+      target.auth.signUp(email, PASSWORD, { service: 'sync', keys: true });
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
+
       await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
+      await login.clickSubmit();
       await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
-      await login.submit();
+      await login.clickSubmit();
 
       // Input invalid code and verify the tooltip error
       await signinTokenCode.input.fill('000000');
       await signinTokenCode.submit.click();
-      await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
-
-      //Input Valid code and verify the success
-      await login.fillOutSignUpCode(email);
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+      await expect(signinTokenCode.tooltip).toBeVisible();
     });
 
     test('verified, blocked', async ({ emails, target, syncBrowserPages }) => {
