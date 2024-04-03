@@ -103,7 +103,7 @@
     "hot-shots": "^10.0.0",
     "i18n-iso-countries": "^7.6.0",
     "ioredis": "^4.28.2",
-    "joi": "^17.8.3",
+    "joi": "^17.12.2",
     "jose": "^5.0.1",
     "jsdom": "^24.0.0",
     "jsonwebtoken": "^9.0.0",

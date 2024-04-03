@@ -139,7 +139,7 @@
     "helmet": "^7.1.0",
     "hot-shots": "^10.0.0",
     "jest-watch-typeahead": "0.6.5",
-    "joi": "^17.8.3",
+    "joi": "^17.12.2",
     "jquery-modal": "https://github.com/mozilla-fxa/jquery-modal.git#0576775d1b4590314b114386019f4c7421c77503",
     "morgan": "^1.10.0",
     "mozlog": "^3.0.2",
