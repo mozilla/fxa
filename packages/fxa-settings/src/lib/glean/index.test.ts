@@ -504,7 +504,7 @@ describe('lib/glean', () => {
       });
 
       it('submits a ping with the login_submit_frontend_error event name and a reason', async () => {
-        GleanMetrics.login.error({ reason: 'quux' });
+        GleanMetrics.login.error({ event: { reason: 'quux' } });
         await new Promise((resolve) =>
           setTimeout(() => {
             sinon.assert.calledOnce(setEventNameStub);

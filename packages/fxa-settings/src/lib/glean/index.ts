@@ -4,12 +4,15 @@
 
 import Glean from '@mozilla/glean/web';
 import UAParser from 'ua-parser-js';
+import { Entries } from 'type-fest';
 import {
   GleanMetricsConfig,
   eventsMap,
   EventMapKeys,
-  EventProperties,
   eventPropertyNames,
+  EventsMap,
+  GleanPingMetrics,
+  PropertyNameT,
 } from 'fxa-shared/metrics/glean/web/index';
 import { accountsEvents } from 'fxa-shared/metrics/glean/web/pings';
 import * as event from 'fxa-shared/metrics/glean/web/event';
@@ -23,6 +26,7 @@ import {
   entrypoint,
   flowId,
 } from 'fxa-shared/metrics/glean/web/session';
+import * as sync from 'fxa-shared/metrics/glean/web/sync';
 import * as utm from 'fxa-shared/metrics/glean/web/utm';
 import { FlowQueryParams } from '../..';
 import { Integration } from '../../models';
@@ -44,7 +48,7 @@ type GleanMetricsT = {
   setEnabled: (enabled: boolean) => void;
   isDone: () => Promise<void>;
 } & {
-  [k in EventMapKeys]: { [k: string]: PingFn };
+  [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
 };
 
 let EXEC_MUTEX = false;
@@ -104,9 +108,19 @@ const getDeviceType: () => DeviceTypes | void = () => {
   }
 };
 
-const populateMetrics = async (properties: EventProperties) => {
-  for (const n of eventPropertyNames) {
-    event[n].set(properties[n] || '');
+const populateMetrics = async (gleanPingMetrics: GleanPingMetrics) => {
+  if (gleanPingMetrics?.event) {
+    // The event here is the Glean `event` metric type, not an "metrics event" in
+    // a more general sense
+    for (const n of eventPropertyNames as PropertyNameT) {
+      event[n].set(gleanPingMetrics.event[n] || '');
+    }
+  }
+
+  if (gleanPingMetrics?.sync?.cwts) {
+    Object.entries(gleanPingMetrics.sync.cwts).forEach(([k, v]) => {
+      sync.cwts[k].set(v);
+    });
   }
 
   userIdSha256.set('');
@@ -135,14 +149,14 @@ const populateMetrics = async (properties: EventProperties) => {
 
 const createEventFn =
   (eventName: string) =>
-  (properties: EventProperties = {}) => {
+  (gleanPingMetrics: GleanPingMetrics = {}) => {
     if (!gleanEnabled) {
       return;
     }
 
     const fn = async () => {
       event.name.set(eventName);
-      await populateMetrics(properties);
+      await populateMetrics(gleanPingMetrics);
       accountsEvents.submit();
     };
 
@@ -204,13 +218,14 @@ export const GleanMetrics: Pick<
     }),
 };
 
-for (const [page, events] of Object.entries(eventsMap)) {
-  (GleanMetrics as GleanMetricsT)[page as EventMapKeys] = Object.entries(
-    events
-  ).reduce((acc: { [key: string]: PingFn }, [evt, name]) => {
-    acc[evt] = createEventFn(name);
-    return acc;
-  }, {});
+for (const [page, events] of Object.entries(eventsMap) as Entries<EventsMap>) {
+  (GleanMetrics as any)[page] = Object.entries(events).reduce(
+    (acc: { [key: string]: PingFn }, [evt, name]) => {
+      acc[evt] = createEventFn(name);
+      return acc;
+    },
+    {}
+  );
 }
 
 export default GleanMetrics as GleanMetricsT;

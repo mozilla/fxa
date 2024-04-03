@@ -19,7 +19,14 @@ export type PropertyName = PropertyNameT[number];
 export type EventProperties = {
   [k in PropertyName]?: string;
 };
-export type EventMapKeys = keyof typeof eventsMap;
+export type EventsMap = typeof eventsMap;
+export type EventMapKeys = keyof EventsMap;
+
+// Type for optional values
+export type GleanPingMetrics = {
+  event?: EventProperties;
+  sync?: { cwts: Record<string, boolean> };
+};
 
 export const eventsMap = {
   emailFirst: {
@@ -32,6 +39,7 @@ export const eventsMap = {
     submit: 'reg_submit',
     success: 'reg_submit_success',
     complete: 'reg_success_view',
+    cwts: 'reg_cwts_engage',
   },
 
   signupConfirmation: {
@@ -51,6 +59,7 @@ export const eventsMap = {
     view: 'cached_login_view',
     submit: 'cached_login_submit',
     success: 'cached_login_success_view',
+    forgotPassword: 'cached_login_forgot_pwd_submit',
   },
 
   loginConfirmation: {
@@ -88,4 +97,4 @@ export const eventsMap = {
     recoveryKeyResetSuccessView:
       'password_reset_recovery_key_create_success_view',
   },
-};
+} as const;

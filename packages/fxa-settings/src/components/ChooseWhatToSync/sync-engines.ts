@@ -12,17 +12,12 @@
  *    on something like user agent if needed.
  * - `ftlId` is the id for localization
  */
-export type EngineConfig = {
-  defaultChecked: boolean;
-  id: string;
-  text: string;
-  include?: false;
-  ftlId: string;
-};
+export type EngineConfig = (typeof defaultDesktopV3SyncEngineConfigs)[number];
 
-export type WebChannelEngineConfig = EngineConfig & {
-  include: false;
-};
+export type WebChannelEngineConfig =
+  (typeof webChannelDesktopV3EngineConfigs)[number];
+
+export type SyncEngineId = EngineConfig['id'] | WebChannelEngineConfig['id'];
 
 /* These sync engines are always offered to the user in Sync fx_desktop_v3
  * and other engines can be received and added with a webchannel message.
@@ -31,7 +26,7 @@ export type WebChannelEngineConfig = EngineConfig & {
  * desktop on FF 123+, we do not display options by default and instead, we
  * receive the webchannel message and overwrite the options.
  */
-export const defaultDesktopV3SyncEngineConfigs: EngineConfig[] = [
+export const defaultDesktopV3SyncEngineConfigs = [
   {
     defaultChecked: true,
     id: 'bookmarks',
@@ -68,11 +63,11 @@ export const defaultDesktopV3SyncEngineConfigs: EngineConfig[] = [
     text: 'Preferences',
     ftlId: 'choose-what-to-sync-option-prefs',
   },
-];
+] as const;
 
 // These options will only be available through fx_desktop_v3 if we receive a
 // webchannel message from the browser including them via `status.capabilities.engines`.
-export const webChannelDesktopV3EngineConfigs: WebChannelEngineConfig[] = [
+export const webChannelDesktopV3EngineConfigs = [
   {
     defaultChecked: true,
     id: 'addresses',
@@ -87,13 +82,13 @@ export const webChannelDesktopV3EngineConfigs: WebChannelEngineConfig[] = [
     ftlId: 'choose-what-to-sync-option-paymentmethods',
     include: false,
   },
-];
+] as const;
 
 export const getSyncEngineIds = (syncEnginesConfigsToGet = syncEngineConfigs) =>
   syncEnginesConfigsToGet.map((engine) => engine.id);
 
 // All available sync engines, for all versions of FF desktop and mobile.
-export const syncEngineConfigs: EngineConfig[] = [
+export const syncEngineConfigs: (EngineConfig | WebChannelEngineConfig)[] = [
   ...defaultDesktopV3SyncEngineConfigs,
   ...webChannelDesktopV3EngineConfigs,
 ];

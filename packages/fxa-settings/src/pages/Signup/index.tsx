@@ -21,7 +21,6 @@ import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons'
 import InputText from '../../components/InputText';
 import ChooseWhatToSync from '../../components/ChooseWhatToSync';
 import {
-  EngineConfig,
   defaultDesktopV3SyncEngineConfigs,
   getSyncEngineIds,
   syncEngineConfigs,
@@ -72,7 +71,7 @@ export const Signup = ({
 
   const onFocusMetricsEvent = () => {
     logViewEvent(settingsViewName, `${viewName}.engage`);
-    GleanMetrics.registration.engage({ reason: 'password' });
+    GleanMetrics.registration.engage({ event: { reason: 'password' } });
   };
 
   const [beginSignupLoading, setBeginSignupLoading] = useState<boolean>(false);
@@ -107,7 +106,7 @@ export const Signup = ({
   }, [integration]);
 
   const [offeredSyncEngineConfigs, setOfferedSyncEngineConfigs] = useState<
-    EngineConfig[] | undefined
+    typeof syncEngineConfigs | undefined
   >();
 
   useEffect(() => {
@@ -173,7 +172,7 @@ export const Signup = ({
   const onFocusAgeInput = () => {
     setAgeCheckErrorText('');
     if (!hasAgeInputFocused) {
-      GleanMetrics.registration.engage({ reason: 'age' });
+      GleanMetrics.registration.engage({ event: { reason: 'age' } });
       setHasAgeInputFocused(true);
     }
   };
@@ -246,6 +245,18 @@ export const Signup = ({
           getSyncEngineIds(offeredSyncEngineConfigs || []);
 
         if (integration.isSync()) {
+          const syncEngines = {
+            offeredEngines: getOfferedSyncEngines(),
+            declinedEngines: declinedSyncEngines,
+          };
+          const syncOptions = syncEngines.offeredEngines.reduce(
+            (acc, syncEngId) => {
+              acc[syncEngId] = !declinedSyncEngines.includes(syncEngId);
+              return acc;
+            },
+            {} as Record<string, boolean>
+          );
+          GleanMetrics.registration.cwts({ sync: { cwts: syncOptions } });
           await firefox.fxaLogin({
             email,
             // keyFetchToken and unwrapBKey should always exist if Sync integration
@@ -255,10 +266,7 @@ export const Signup = ({
             uid: data.signUp.uid,
             verified: false,
             services: {
-              sync: {
-                offeredEngines: getOfferedSyncEngines(),
-                declinedEngines: declinedSyncEngines,
-              },
+              sync: syncEngines,
             },
           });
         }
