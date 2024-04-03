@@ -5,20 +5,43 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
+import { StripeCustomer } from './stripe.client.types';
+import { StripeConfig } from './stripe.config';
 import {
-  STRIPE_MINIMUM_CHARGE_AMOUNTS,
   MOZILLA_TAX_ID,
+  STRIPE_MINIMUM_CHARGE_AMOUNTS,
 } from './stripe.constants';
 import {
   CustomerDeletedError,
   CustomerNotFoundError,
-  SubscriptionStripeError,
+  StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
-import { StripeCustomer } from './stripe.client.types';
 
 @Injectable()
 export class StripeManager {
-  constructor(private client: StripeClient) {}
+  private taxIds: { [key: string]: string };
+  constructor(private client: StripeClient, private config: StripeConfig) {
+    this.taxIds = this.config.taxIds;
+  }
+
+  /**
+   * Returns minimum amount for valid currency
+   * Throws error for invalid currency
+   */
+  getMinimumAmount(currency: string): number {
+    if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
+      return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
+    }
+
+    throw new StripeNoMinimumChargeAmountAvailableError();
+  }
+
+  /**
+   * Returns the correct tax id for currency
+   */
+  getTaxIdForCurrency(currency: string) {
+    return this.taxIds[currency.toUpperCase()];
+  }
 
   /**
    * Retrieves a customer record
@@ -36,18 +59,6 @@ export class StripeManager {
     return this.client.finalizeInvoice(invoiceId, {
       auto_advance: false,
     });
-  }
-
-  /**
-   * Returns minimum amount for valid currency
-   * Throws error for invalid currency
-   */
-  getMinimumAmount(currency: string): number {
-    if (STRIPE_MINIMUM_CHARGE_AMOUNTS[currency]) {
-      return STRIPE_MINIMUM_CHARGE_AMOUNTS[currency];
-    }
-
-    throw new SubscriptionStripeError();
   }
 
   /**

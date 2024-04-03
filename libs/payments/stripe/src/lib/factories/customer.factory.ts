@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 import { StripeCustomer } from '../stripe.client.types';
 
-export const CustomerFactory = (
+export const StripeCustomerFactory = (
   override?: Partial<StripeCustomer>
 ): StripeCustomer => ({
   id: `cus_${faker.string.alphanumeric({ length: 14 })}`,

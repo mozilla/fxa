@@ -5,7 +5,9 @@
 import { faker } from '@faker-js/faker';
 import { StripeCard } from '../stripe.client.types';
 
-export const CardFactory = (override?: Partial<StripeCard>): StripeCard => ({
+export const StripeCardFactory = (
+  override?: Partial<StripeCard>
+): StripeCard => ({
   id: 'card',
   object: 'card',
   address_city: faker.location.city(),
