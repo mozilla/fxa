@@ -7,8 +7,6 @@ import { EmailHeader, EmailType } from '../../lib/email';
 import { test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
-test.describe.configure({ mode: 'parallel' });
-
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
     test.beforeEach(async ({ target, pages: { configPage } }) => {

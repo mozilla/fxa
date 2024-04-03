@@ -4,17 +4,9 @@
 
 import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
-  test.beforeEach(async ({ pages: { configPage }, target }) => {
+  test.beforeEach(() => {
     test.slow();
-    // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
-    // to `true`, but when we're only at 15% and the flag is "on", flows would need to
-    // be accessed with the force experiment params. Since we'll be porting these over
-    // for React, for now, skip these tests if the flag is on.
-    const config = await configPage.getConfig();
-    test.skip(config.showReactApp.signUpRoutes === true);
   });
 
   test.describe('signin with OAuth after Sync', () => {
@@ -24,17 +16,9 @@ test.describe('severity-1 #smoke', () => {
     test('signin to OAuth with Sync creds', async ({
       emails,
       target,
-      syncBrowserPages: {
-        configPage,
-        page,
-        login,
-        connectAnotherDevice,
-        relier,
-        signupReact,
-      },
+      syncBrowserPages: { page, login, connectAnotherDevice, relier },
     }) => {
       const [email, syncEmail] = emails;
-      const config = await configPage.getConfig();
       await target.createAccount(syncEmail, PASSWORD);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
@@ -48,13 +32,8 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
-      if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(email, PASSWORD);
-      } else {
-        await signupReact.fillOutEmailForm(email);
-        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
-        await signupReact.fillOutCodeForm(email);
-      }
+
+      await login.fillOutFirstSignUp(email, PASSWORD);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
@@ -76,26 +55,14 @@ test.describe('severity-1 #smoke', () => {
     test('email-first Sync signin', async ({
       emails,
       target,
-      syncBrowserPages: {
-        configPage,
-        page,
-        login,
-        connectAnotherDevice,
-        relier,
-        signupReact,
-      },
+      syncBrowserPages: { page, login, connectAnotherDevice, relier },
     }) => {
       const [syncEmail] = emails;
-      const config = await configPage.getConfig();
       await relier.goto();
       await relier.clickEmailFirst();
-      if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(syncEmail, PASSWORD);
-      } else {
-        await signupReact.fillOutEmailForm(syncEmail);
-        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
-        await signupReact.fillOutCodeForm(syncEmail);
-      }
+
+      await login.fillOutFirstSignUp(syncEmail, PASSWORD);
+
       expect(await relier.isLoggedIn()).toBe(true);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`

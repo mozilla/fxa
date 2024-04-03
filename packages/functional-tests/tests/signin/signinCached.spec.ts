@@ -27,7 +27,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login },
     }) => {
-      const [email, syncEmail] = emails;
+      const [syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -52,7 +52,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login, settings },
     }) => {
-      const [email, syncEmail] = emails;
+      const [syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -115,7 +115,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login },
     }) => {
-      const [email, syncEmail] = emails;
+      const [syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -143,7 +143,7 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login },
     }) => {
-      const [email, syncEmail] = emails;
+      const [syncEmail] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -174,11 +174,9 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('unverified cached signin redirects to confirm email', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
-      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
       const email_unverified = login.createEmail();
       await target.auth.signUp(email_unverified, PASSWORD, {

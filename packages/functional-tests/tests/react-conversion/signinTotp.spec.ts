@@ -7,13 +7,17 @@ import { getCode } from 'fxa-settings/src/lib/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
-    test.beforeEach(async ({}) => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
       test.slow();
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes !== true,
+        'React signInRoutes not enabled'
+      );
     });
 
     test('add totp', async ({
       credentials,
-      target,
       pages: { settings, totp, page, signinReact, signupReact },
     }) => {
       await settings.goto();
@@ -32,9 +36,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
-      await page.goto(
-        `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
+      await signinReact.goto();
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
       const code = await getCode(credentials.secret);
@@ -47,7 +49,6 @@ test.describe('severity-1 #smoke', () => {
 
     test('error message when totp code is invalid', async ({
       credentials,
-      target,
       pages: { settings, totp, page, signinReact, signupReact },
     }) => {
       await settings.goto();
@@ -66,9 +67,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Enabled');
 
       await settings.signOut();
-      await page.goto(
-        `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
-      );
+      await signinReact.goto();
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
       await signinReact.fillOutAuthenticationForm('111111');

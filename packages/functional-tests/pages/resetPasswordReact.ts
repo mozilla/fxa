@@ -70,9 +70,9 @@ export class ResetPasswordReactPage extends BaseLayout {
   }
 
   get recoveryKeyTextbox() {
-    return this.page
-      .getByRole('textbox', { name: 'recoveryKey' })
-      .or(this.page.getByTestId('account-recovery-confirm-key-input-field'));
+    return this.page.getByRole('textbox', {
+      name: 'Enter account recovery key',
+    });
   }
 
   get confirmRecoveryKeyButton() {

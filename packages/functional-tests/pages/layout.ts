@@ -53,6 +53,18 @@ export abstract class BaseLayout {
     return this.page.screenshot({ fullPage: true });
   }
 
+  async clearCache() {
+    await this.page.goto(`${this.target.contentServerUrl}/clear`);
+    await this.page.context().clearCookies();
+    await this.page.waitForTimeout(2000);
+  }
+
+  async clearSessionStorage() {
+    await this.page.evaluate(() => {
+      sessionStorage.clear();
+    });
+  }
+
   async checkWebChannelMessage(command) {
     await this.page.evaluate(async (command) => {
       const noNotificationError = new Error(

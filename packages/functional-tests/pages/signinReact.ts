@@ -5,6 +5,7 @@
 import { expect } from '@playwright/test';
 import { BaseLayout } from './layout';
 import { getReactFeatureFlagUrl } from '../lib/react-flag';
+import { EmailHeader, EmailType } from '../lib/email';
 
 export class SigninReactPage extends BaseLayout {
   readonly path = 'signin';
@@ -27,8 +28,36 @@ export class SigninReactPage extends BaseLayout {
     });
   }
 
+  get cachedSigninHeading() {
+    return this.page.getByRole('heading', { name: /^Sign in/ });
+  }
+
+  get codeFormHeading() {
+    return this.page.getByRole('heading', { name: 'Boop' });
+  }
+
+  get codeTextbox() {
+    return this.page.getByRole('textbox', { name: 'Enter 6-digit code' });
+  }
+
   get confirmButton() {
     return this.page.getByRole('button', { name: 'Confirm' });
+  }
+
+  get emailFirstHeading() {
+    return this.page.getByRole('heading', { name: /^Enter your email/ });
+  }
+
+  get emailFirstSubmitButton() {
+    return this.page.getByRole('button', { name: 'Sign up or sign in' });
+  }
+
+  get emailTextbox() {
+    return this.page.getByRole('textbox', { name: 'Email' });
+  }
+
+  get forgotPasswordLink() {
+    return this.page.getByRole('link', { name: /^Forgot password/ });
   }
 
   get passwordFormHeading() {
@@ -41,6 +70,12 @@ export class SigninReactPage extends BaseLayout {
 
   get signInButton() {
     return this.page.getByRole('button', { name: 'Sign in' });
+  }
+
+  get syncSignInHeading() {
+    return this.page.getByRole('heading', {
+      name: /^Continue to your Mozilla account/,
+    });
   }
 
   goto(route = '/', params = new URLSearchParams()) {
@@ -58,10 +93,28 @@ export class SigninReactPage extends BaseLayout {
     await this.confirmButton.click();
   }
 
+  async fillOutEmailFirstForm(email) {
+    await this.emailTextbox.fill(email);
+    await this.emailFirstSubmitButton.click();
+  }
+
   async fillOutPasswordForm(password: string): Promise<void> {
     await expect(this.passwordFormHeading).toBeVisible();
 
     await this.passwordTextbox.fill(password);
     await this.signInButton.click();
+  }
+
+  async fillOutCodeForm(email: string) {
+    const code = await this.target.email.waitForEmail(
+      email,
+      EmailType.verifyShortCode || EmailType.verifyLoginCode,
+      EmailHeader.shortCode || EmailHeader.signinCode
+    );
+
+    await expect(this.codeFormHeading).toBeVisible();
+
+    await this.codeTextbox.fill(code);
+    await this.confirmButton.click();
   }
 }

@@ -21,16 +21,16 @@ const eventDetailLinkAccount = createCustomEventDetail(
   }
 );
 
-test.beforeEach(async ({ pages: { configPage } }) => {
-  test.slow();
-  // Ensure that the feature flag is enabled
-  const config = await configPage.getConfig();
-  if (config.showReactApp.signUpRoutes !== true) {
-    test.skip(true, 'Skip tests if not on React signUpRoutes');
-  }
-});
-
 test.describe('severity-1 #smoke', () => {
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    test.slow();
+    // Ensure that the feature flag is enabled
+    const config = await configPage.getConfig();
+    if (config.showReactApp.signUpRoutes !== true) {
+      test.skip(true, 'Skip tests if not on React signUpRoutes');
+    }
+  });
+
   test.describe('signup react', () => {
     test.use({ emailOptions: [{ prefix: 'signup_react{id}', PASSWORD }] });
     test('signup web', async ({
@@ -64,12 +64,13 @@ test.describe('severity-1 #smoke', () => {
 
       relier.clickEmailFirst();
 
-      // wait for navigation, and get search params
-      await page.waitForURL(/oauth\//);
-      const params = new URL(page.url()).searchParams;
+      // wait for navigation
+      await expect(page).toHaveURL(/oauth\//);
 
-      // reload email-first page with React experiment params
-      await signupReact.goto('/', params);
+      // reload page with React experiment params
+      await page.goto(
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
 
       await signupReact.fillOutEmailForm(email);
 
@@ -97,11 +98,16 @@ test.describe('severity-1 #smoke', () => {
 
       // wait for navigation, and get search params
       await page.waitForURL(/oauth\//);
+      const path = new URL(page.url()).pathname;
       const params = new URL(page.url()).searchParams;
       params.delete('redirect_uri');
+      params.append('forceExperiment', 'generalizedReactApp');
+      params.append('forceExperimentGroup', 'react');
 
       // reload email-first page without redirect_uri, but with React experiment params
-      await signupReact.goto('/', params);
+      await page.goto(`${target.contentServerUrl}${path}?${params.toString()}`);
+      // expect the url to no longer contain a redirect uri
+      await expect(page).toHaveURL(/^((?!redirect_uri).)*$/);
 
       await signupReact.fillOutEmailForm(email);
 
@@ -264,12 +270,16 @@ test.describe('severity-2 #smoke', () => {
       await relier.goto();
       await relier.clickSubscribe6Month();
 
+      // wait for navigation
+      await expect(page).toHaveURL(/checkout\//);
+
+      // reload page with React experiment params
+      await page.goto(
+        `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
+      );
+
       // Click the sign in link
       await subscribe.visitSignIn();
-
-      // Preserve search params but add in react experiment parameters
-      const searchParams = new URL(page.url()).searchParams;
-      await signupReact.goto('/', searchParams);
 
       await signupReact.fillOutEmailForm(email);
 
