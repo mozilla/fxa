@@ -40,7 +40,7 @@ export class LocalizerBase {
   }
 
   protected createBundleGenerator(fetched: Record<string, string>) {
-    async function* generateBundles(currentLocales: string[]) {
+    function* generateBundles(currentLocales: string[]) {
       for (const locale of currentLocales) {
         const source = fetched[locale];
         if (source) {

@@ -12,3 +12,5 @@ export * from './lib/other-languages';
 export * from './lib/parse-accept-language';
 export { default as supportedLanguages } from './lib/supported-languages.json';
 export * from './lib/localizer/localizer.base';
+export * from './lib/localizer/localizer.client';
+export * from './lib/localizer/localizer.client.bindings';
