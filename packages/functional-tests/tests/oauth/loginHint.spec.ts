@@ -44,7 +44,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Email is prefilled
       await expect(await login.getPrefilledEmail()).toEqual(credentials.email);
-      expect(await login.signInPasswordHeader()).toEqual(true);
+      expect(await login.enterPasswordHeader()).toEqual(true);
 
       await login.useDifferentAccountLink();
 
@@ -61,7 +61,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Email is prefilled
       await expect(await login.getPrefilledEmail()).toEqual(credentials.email);
-      expect(await login.signInPasswordHeader()).toEqual(true);
+      expect(await login.enterPasswordHeader()).toEqual(true);
 
       await login.useDifferentAccountLink();
 
@@ -92,7 +92,7 @@ test.describe('severity-2 #smoke', () => {
 
       // Email is prefilled
       await expect(await login.getPrefilledEmail()).toEqual(loginHintEmail);
-      expect(await login.signInPasswordHeader()).toEqual(true);
+      expect(await login.enterPasswordHeader()).toEqual(true);
 
       await login.useDifferentAccountLink();
 
