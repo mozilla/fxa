@@ -10,6 +10,7 @@ import { Module } from '@nestjs/common';
 
 import { RootConfig } from './config';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
   controllers: [],
   providers: [
     AccountDatabaseNestFactory,
+    AccountCustomerManager,
     CartService,
     CartManager,
     LocalizerRscFactoryProvider,

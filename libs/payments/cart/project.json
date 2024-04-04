@@ -21,11 +21,20 @@
         "lintFilePatterns": ["libs/payments/cart/**/*.ts"]
       }
     },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/payments/cart/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    },
     "test-integration": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/payments/cart/jest.config.ts"
+        "jestConfig": "libs/payments/cart/jest.config.ts",
+        "testPathPattern": ["\\.in\\.spec\\.ts$"]
       }
     }
   },
