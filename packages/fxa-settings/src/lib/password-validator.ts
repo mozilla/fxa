@@ -14,6 +14,8 @@ const BANNED_SERVICE_NAMES = [
   'lockbox',
   'fxlockbox',
   'mozilla',
+  'mozilla account',
+  'mozillaaccount',
   'sumo',
   'sync',
   // These need to be sorted by length so that the largest match

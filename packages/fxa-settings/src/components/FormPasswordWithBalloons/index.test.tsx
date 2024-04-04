@@ -102,4 +102,18 @@ describe('FormPasswordWithBalloons component', () => {
     const imageElement = within(passwordMinCharRequirement).getByRole('img');
     expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
   });
+
+  it('disallows common passwords', async () => {
+    renderWithLocalizationProvider(<Subject passwordFormType="signup" />);
+    const passwordField = screen.getByLabelText('Password');
+    user.type(passwordField, 'mozilla accounts');
+    await waitFor(() => screen.getByText('Password requirements'));
+    expect(screen.queryAllByText('icon-check-blue-50.svg')).toHaveLength(2);
+
+    const passwordNotCommonRequirement = screen.getByTestId(
+      'password-not-common-req'
+    );
+    const imageElement = within(passwordNotCommonRequirement).getByRole('img');
+    expect(imageElement).toHaveTextContent('icon-warning-red-50.svg');
+  });
 });
