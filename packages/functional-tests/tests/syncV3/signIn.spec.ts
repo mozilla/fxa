@@ -15,6 +15,7 @@ test.describe('severity-2 #smoke', () => {
         { prefix: 'blocked{id}', PASSWORD },
       ],
     });
+
     test.beforeEach(async ({ syncBrowserPages: { login } }) => {
       test.slow();
     });
@@ -37,16 +38,14 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified, resend', async ({ emails, target, syncBrowserPages }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-
-      const config = await configPage.getConfig();
       const [email] = emails;
+      const config = await configPage.getConfig();
       test.fixme(
         config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
+        'this test goes through the signup flow instead of sign in, skipping for react, see FXA-8973'
       );
 
       await page.goto(
@@ -76,7 +75,6 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    // TODO in FXA-8973 - use sign in not sign up flow
     test('verified - invalid code', async ({
       emails,
       target,
@@ -84,14 +82,12 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
-
-      const config = await configPage.getConfig();
       const [email] = emails;
+      const config = await configPage.getConfig();
       test.fixme(
         config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react'
+        'this test goes through the signup flow instead of sign in, skipping for react, see FXA-8973'
       );
-
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
@@ -174,56 +170,47 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
-});
 
-test.describe('severity-1 #smoke', () => {
-  test.describe('OAuth and Fx Desktop handshake', () => {
-    test('user signed into browser and OAuth login', async ({
-      target,
-      credentials,
-      syncBrowserPages: { page, login, relier, settings },
-    }) => {
-      await page.goto(
-        target.contentServerUrl +
-          '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
-      );
-      await login.login(credentials.email, credentials.password);
-      expect(await login.isSyncConnectedHeader()).toBe(true);
+  test.describe('severity-1 #smoke', () => {
+    test.describe('OAuth and Fx Desktop handshake', () => {
+      test('user signed into browser and OAuth login', async ({
+        target,
+        credentials,
+        syncBrowserPages: { page, login, relier, settings },
+      }) => {
+        await page.goto(
+          target.contentServerUrl +
+            '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
+        );
+        await login.login(credentials.email, credentials.password);
+        expect(await login.isSyncConnectedHeader()).toBe(true);
 
-      // Normally we wouldn't need this delay, but because we are
-      // disconnecting the sync service, we need to ensure that the device
-      // record and web channels have been sent and created.
-      await page.waitForTimeout(1000);
+        await relier.goto();
+        await relier.clickEmailFirst();
 
-      await relier.goto();
-      await relier.clickEmailFirst();
+        // User can sign in with cached credentials, no password needed.
+        expect(await login.getPrefilledEmail()).toContain(credentials.email);
+        expect(await login.isCachedLogin()).toBe(true);
 
-      // User can sign in with cached credentials, no password needed.
-      await expect(await login.getPrefilledEmail()).toContain(
-        credentials.email
-      );
-      await expect(await login.isCachedLogin()).toBe(true);
+        await login.submit();
+        expect(await relier.isLoggedIn()).toBe(true);
 
-      await login.submit();
-      expect(await relier.isLoggedIn()).toBe(true);
+        await relier.signOut();
 
-      await relier.signOut();
+        // Attempt to sign back in
+        await relier.clickEmailFirst();
 
-      // Attempt to sign back in
-      await relier.clickEmailFirst();
+        expect(await login.getPrefilledEmail()).toContain(credentials.email);
+        expect(await login.isCachedLogin()).toBe(true);
 
-      await expect(await login.getPrefilledEmail()).toContain(
-        credentials.email
-      );
-      await expect(await login.isCachedLogin()).toBe(true);
+        await login.submit();
+        expect(await relier.isLoggedIn()).toBe(true);
 
-      await login.submit();
-      expect(await relier.isLoggedIn()).toBe(true);
+        // Disconnect sync otherwise we can have flaky tests.
+        await settings.disconnectSync(credentials);
 
-      // Disconnect sync otherwise we can have flaky tests.
-      await settings.disconnectSync(credentials);
-
-      expect(page.url()).toContain(login.url);
+        expect(page.url()).toContain(login.url);
+      });
     });
   });
 });
