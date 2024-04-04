@@ -135,7 +135,11 @@ function SentryMetrics(config) {
     Sentry.init({
       ...opts,
       instrumenter: 'otel',
-      integrations: [new Sentry.BrowserTracing()],
+      integrations: [
+        Sentry.browserTracingIntegration({
+          enableInp: true,
+        }),
+      ],
       beforeSend(event) {
         event = tagFxaName(event, opts.clientName);
         event = beforeSend(event);
