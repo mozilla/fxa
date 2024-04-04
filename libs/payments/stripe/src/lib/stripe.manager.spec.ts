@@ -49,7 +49,9 @@ describe('StripeManager', () => {
     it('returns an existing customer from Stripe', async () => {
       const mockCustomer = StripeCustomerFactory();
 
-      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+      mockClient.customersRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockCustomer);
 
       const result = await manager.fetchActiveCustomer(mockCustomer.id);
       expect(result).toEqual(mockCustomer);
@@ -62,7 +64,7 @@ describe('StripeManager', () => {
         auto_advance: false,
       });
 
-      mockClient.finalizeInvoice = jest.fn().mockResolvedValueOnce({});
+      mockClient.invoicesFinalizeInvoice = jest.fn().mockResolvedValueOnce({});
 
       const result = await manager.finalizeInvoiceWithoutAutoAdvance(
         mockInvoice.id
@@ -111,7 +113,7 @@ describe('StripeManager', () => {
 
       const expected = mockSubscriptionList;
 
-      mockClient.fetchSubscriptions = jest
+      mockClient.subscriptionsList = jest
         .fn()
         .mockResolvedValueOnce(mockSubscriptionList);
 
@@ -159,7 +161,9 @@ describe('StripeManager', () => {
         },
       });
 
-      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+      mockClient.customersRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockCustomer);
 
       const result = await manager.getCustomerTaxId(mockCustomer.id);
 
@@ -169,7 +173,9 @@ describe('StripeManager', () => {
     it('returns undefined when customer tax id not found', async () => {
       const mockCustomer = StripeCustomerFactory();
 
-      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+      mockClient.customersRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockCustomer);
 
       const result = await manager.getCustomerTaxId(mockCustomer.id);
 
@@ -187,9 +193,11 @@ describe('StripeManager', () => {
         },
       });
 
-      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+      mockClient.customersRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockCustomer);
 
-      mockClient.updateCustomer = jest
+      mockClient.customersUpdate = jest
         .fn()
         .mockResolvedValueOnce(mockUpdatedCustomer);
 
@@ -208,7 +216,9 @@ describe('StripeManager', () => {
         },
       });
 
-      mockClient.fetchCustomer = jest.fn().mockResolvedValueOnce(mockCustomer);
+      mockClient.customersRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockCustomer);
 
       const result = await manager.setCustomerTaxId(
         mockCustomer.id,

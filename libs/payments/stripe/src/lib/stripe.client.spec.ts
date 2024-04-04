@@ -24,8 +24,10 @@ const mockStripeCustomersUpdate =
   mockJestFnGenerator<typeof Stripe.prototype.customers.update>();
 const mockStripeRetrieveUpcomingInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieveUpcoming>();
-const mockStripeFinalizeInvoice =
+const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
+const mockStripeInvoicesRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
 const mockStripeSubscriptionsList =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
 
@@ -37,8 +39,9 @@ jest.mock('stripe', () => ({
         update: mockStripeCustomersUpdate,
       },
       invoices: {
+        retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
-        finalizeInvoice: mockStripeFinalizeInvoice,
+        finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
       },
       subscriptions: {
         list: mockStripeSubscriptionsList,
@@ -61,23 +64,19 @@ describe('StripeClient', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
-    expect(mockClient).toBeDefined();
-  });
-
-  describe('fetchCustomer', () => {
+  describe('customersRetrieve', () => {
     it('returns an existing customer from Stripe', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockResponse = StripeResponseFactory(mockCustomer);
 
       mockStripeCustomersRetrieve.mockResolvedValueOnce(mockResponse);
 
-      const result = await mockClient.fetchCustomer(mockCustomer.id);
+      const result = await mockClient.customersRetrieve(mockCustomer.id);
       expect(result).toEqual(mockResponse);
     });
   });
 
-  describe('updateCustomer', () => {
+  describe('customersUpdate', () => {
     it('updates an existing customer from Stripe', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockUpdatedCustomer = StripeCustomerFactory();
@@ -85,7 +84,7 @@ describe('StripeClient', () => {
 
       mockStripeCustomersUpdate.mockResolvedValueOnce(mockResponse);
 
-      const result = await mockClient.updateCustomer(mockCustomer.id, {
+      const result = await mockClient.customersUpdate(mockCustomer.id, {
         balance: mockUpdatedCustomer.balance,
       });
 
@@ -93,7 +92,7 @@ describe('StripeClient', () => {
     });
   });
 
-  describe('fetchSubscriptions', () => {
+  describe('subscriptionsList', () => {
     it('returns subscriptions from Stripe', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockSubscriptionList = StripeResponseFactory(
@@ -102,14 +101,14 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsList.mockResolvedValue(mockSubscriptionList);
 
-      const result = await mockClient.fetchSubscriptions({
+      const result = await mockClient.subscriptionsList({
         customer: mockCustomer.id,
       });
       expect(result).toEqual(mockSubscriptionList);
     });
   });
 
-  describe('retrieveUpcomingInvoice', () => {
+  describe('invoicesRetrieveUpcoming', () => {
     it('calls stripe successfully', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockInvoice = StripeUpcomingInvoiceFactory();
@@ -117,7 +116,7 @@ describe('StripeClient', () => {
 
       mockStripeRetrieveUpcomingInvoice.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.retrieveUpcomingInvoice({
+      const result = await mockClient.invoicesRetrieveUpcoming({
         customer: mockCustomer.id,
       });
 
@@ -125,18 +124,31 @@ describe('StripeClient', () => {
     });
   });
 
-  describe('finalizeInvoice', () => {
+  describe('invoicesFinalizeInvoice', () => {
     it('works successfully', async () => {
       const mockInvoice = StripeInvoiceFactory({
         auto_advance: false,
       });
       const mockResponse = StripeResponseFactory(mockInvoice);
 
-      mockStripeFinalizeInvoice.mockResolvedValue(mockResponse);
+      mockStripeInvoicesFinalizeInvoice.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.finalizeInvoice(mockInvoice.id, {
+      const result = await mockClient.invoicesFinalizeInvoice(mockInvoice.id, {
         auto_advance: false,
       });
+
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('invoicesRetrieve', () => {
+    it('works successfully', async () => {
+      const mockInvoice = StripeInvoiceFactory();
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeInvoicesRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.invoicesRetrieve(mockInvoice.id);
 
       expect(result).toEqual(mockResponse);
     });

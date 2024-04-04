@@ -47,7 +47,7 @@ export class StripeManager {
    * Retrieves a customer record
    */
   async fetchActiveCustomer(customerId: string) {
-    const customer = await this.client.fetchCustomer(customerId);
+    const customer = await this.client.customersRetrieve(customerId);
     if (customer.deleted) throw new CustomerDeletedError();
     return customer;
   }
@@ -56,7 +56,7 @@ export class StripeManager {
    * Finalizes an invoice and marks auto_advance as false.
    */
   async finalizeInvoiceWithoutAutoAdvance(invoiceId: string) {
-    return this.client.finalizeInvoice(invoiceId, {
+    return this.client.invoicesFinalizeInvoice(invoiceId, {
       auto_advance: false,
     });
   }
@@ -65,7 +65,7 @@ export class StripeManager {
    * Retrieves subscriptions
    */
   async getSubscriptions(customerId: string) {
-    return this.client.fetchSubscriptions({
+    return this.client.subscriptionsList({
       customer: customerId,
     });
   }
@@ -93,7 +93,7 @@ export class StripeManager {
     const customerTaxId = await this.getCustomerTaxId(customerId);
 
     if (!customerTaxId || customerTaxId !== taxId) {
-      return await this.client.updateCustomer(customerId, {
+      return await this.client.customersUpdate(customerId, {
         invoice_settings: {
           custom_fields: [{ name: MOZILLA_TAX_ID, value: taxId }],
         },
@@ -110,7 +110,7 @@ export class StripeManager {
    * @returns The tax ID of customer or undefined if not found
    */
   async getCustomerTaxId(customerId: string) {
-    const customer = await this.client.fetchCustomer(customerId);
+    const customer = await this.client.customersRetrieve(customerId);
 
     if (!customer) throw new CustomerNotFoundError();
     if (customer.deleted) throw new CustomerDeletedError();
