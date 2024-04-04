@@ -11,6 +11,7 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
+import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 
@@ -21,6 +22,8 @@ const mockStripeCustomersRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.customers.retrieve>();
 const mockStripeCustomersUpdate =
   mockJestFnGenerator<typeof Stripe.prototype.customers.update>();
+const mockStripeRetrieveUpcomingInvoice =
+  mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieveUpcoming>();
 const mockStripeFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeSubscriptionsList =
@@ -34,6 +37,7 @@ jest.mock('stripe', () => ({
         update: mockStripeCustomersUpdate,
       },
       invoices: {
+        retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
         finalizeInvoice: mockStripeFinalizeInvoice,
       },
       subscriptions: {
@@ -98,8 +102,26 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsList.mockResolvedValue(mockSubscriptionList);
 
-      const result = await mockClient.fetchSubscriptions(mockCustomer.id);
+      const result = await mockClient.fetchSubscriptions({
+        customer: mockCustomer.id,
+      });
       expect(result).toEqual(mockSubscriptionList);
+    });
+  });
+
+  describe('retrieveUpcomingInvoice', () => {
+    it('calls stripe successfully', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockInvoice = StripeUpcomingInvoiceFactory();
+      const mockResponse = StripeResponseFactory(mockInvoice);
+
+      mockStripeRetrieveUpcomingInvoice.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.retrieveUpcomingInvoice({
+        customer: mockCustomer.id,
+      });
+
+      expect(result).toEqual(mockResponse);
     });
   });
 

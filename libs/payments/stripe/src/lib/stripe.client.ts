@@ -10,6 +10,7 @@ import {
   StripeDeletedCustomer,
   StripeInvoice,
   StripeSubscription,
+  StripeUpcomingInvoice,
 } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 
@@ -33,8 +34,12 @@ export class StripeClient {
    * @param customerId The Stripe customer ID of the customer to fetch
    * @returns The customer record for the customerId provided
    */
-  async fetchCustomer(customerId: string) {
+  async fetchCustomer(
+    customerId: string,
+    params?: Stripe.CustomerRetrieveParams
+  ) {
     const result = await this.stripe.customers.retrieve(customerId, {
+      ...params,
       expand: ['tax'],
     });
     return result as StripeCustomer | StripeDeletedCustomer;
@@ -49,7 +54,7 @@ export class StripeClient {
    */
   async updateCustomer(
     customerId: string,
-    params: Stripe.CustomerUpdateParams
+    params?: Stripe.CustomerUpdateParams
   ) {
     const result = await this.stripe.customers.update(customerId, {
       ...params,
@@ -62,22 +67,31 @@ export class StripeClient {
   /**
    * Retrieves subscriptions directly from Stripe
    */
-  async fetchSubscriptions(customerId: string) {
+  async fetchSubscriptions(params?: Stripe.SubscriptionListParams) {
     const result = await this.stripe.subscriptions.list({
-      customer: customerId,
+      ...params,
+      expand: undefined,
     });
 
     return result as Stripe.ApiList<StripeSubscription>;
   }
 
+  async retrieveUpcomingInvoice(params?: Stripe.InvoiceRetrieveUpcomingParams) {
+    const result = await this.stripe.invoices.retrieveUpcoming({
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeUpcomingInvoice;
+  }
+
   async finalizeInvoice(
     invoiceId: string,
-    params?: Stripe.InvoiceFinalizeInvoiceParams | undefined
+    params?: Stripe.InvoiceFinalizeInvoiceParams
   ) {
-    const result = await this.stripe.invoices.finalizeInvoice(
-      invoiceId,
-      params
-    );
+    const result = await this.stripe.invoices.finalizeInvoice(invoiceId, {
+      ...params,
+      expand: undefined,
+    });
     return result as StripeInvoice;
   }
 }

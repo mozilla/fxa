@@ -65,7 +65,9 @@ export class StripeManager {
    * Retrieves subscriptions
    */
   async getSubscriptions(customerId: string) {
-    return this.client.fetchSubscriptions(customerId);
+    return this.client.fetchSubscriptions({
+      customer: customerId,
+    });
   }
 
   /**
