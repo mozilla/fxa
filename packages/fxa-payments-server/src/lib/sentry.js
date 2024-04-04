@@ -140,7 +140,11 @@ SentryMetrics.prototype = {
 
       Sentry.init({
         ...opts,
-        integrations: [new Sentry.BrowserTracing()],
+        integrations: [
+          Sentry.browserTracingIntegration({
+            enableInp: true,
+          }),
+        ],
         beforeSend(event) {
           event = tagCriticalEvent(event);
           event = tagFxaName(event, opts.clientName);
