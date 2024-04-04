@@ -170,6 +170,33 @@ export type StripeInvoice = NegotiateExpanded<
   | 'test_clock'
 >;
 
+/**
+ * Stripe.UpcomingInvoice with expanded fields removed
+ */
+export type StripeUpcomingInvoice = NegotiateExpanded<
+  never,
+  DeepOverride<
+    Stripe.UpcomingInvoice,
+    {
+      lines: Stripe.ApiList<StripeInvoiceLineItem>;
+      discount: StripeDiscount | null;
+    }
+  >,
+  | 'charge'
+  | 'customer'
+  | 'payment_intent'
+  | 'subscription'
+  | 'account_tax_ids'
+  | 'application'
+  | 'default_payment_method'
+  | 'default_source'
+  | 'discounts'
+  | 'latest_revision'
+  | 'on_behalf_of'
+  | 'quote'
+  | 'test_clock'
+>;
+
 export type StripeSubscriptionItem = Stripe.SubscriptionItem;
 
 /**
