@@ -12,6 +12,7 @@ import { RootConfig } from './config';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import { NextJSActionsService } from './nextjs-actions.service';
+import { GeodbManager, GeodbNestFactory } from '@fxa/shared/geodb';
 
 @Module({
   imports: [
@@ -37,6 +38,8 @@ import { NextJSActionsService } from './nextjs-actions.service';
     CartService,
     CartManager,
     LocalizerRscFactoryProvider,
+    GeodbNestFactory,
+    GeodbManager,
   ],
 })
 export class AppModule {}

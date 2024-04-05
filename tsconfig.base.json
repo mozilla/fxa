@@ -47,11 +47,12 @@
         "libs/shared/db/type-cacheable/src/index.ts"
       ],
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
+      "@fxa/shared/geodb": ["libs/shared/geodb/src/index.ts"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
       "@fxa/shared/l10n/server": ["libs/shared/l10n/src/server.ts"],
       "@fxa/shared/l10n/client": ["libs/shared/l10n/src/client.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
-      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
     },
     "typeRoots": [
       "./types",
