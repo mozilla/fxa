@@ -166,8 +166,8 @@ const SigninTokenCode = ({
           queryParams: location.search,
         };
 
+        await GleanMetrics.isDone();
         await handleNavigation(navigationOptions, navigate);
-        GleanMetrics.isDone();
       } catch (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,

@@ -42,7 +42,16 @@ jest.mock('@reach/router', () => ({
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
-  default: { signupConfirmation: { view: jest.fn(), submit: jest.fn() } },
+  default: {
+    registration: {
+      complete: jest.fn(),
+    },
+    signupConfirmation: {
+      view: jest.fn(),
+      submit: jest.fn(),
+    },
+    isDone: jest.fn(),
+  },
 }));
 
 jest.mock('../../../lib/hooks/useWebRedirect');
@@ -212,6 +221,7 @@ describe('ConfirmSignupCode page', () => {
       submit();
 
       await waitFor(() => {
+        expect(GleanMetrics.registration.complete).toHaveBeenCalledTimes(1);
         expect(hardNavigateSpy).toHaveBeenCalledWith(redirectTo);
       });
     });
@@ -235,6 +245,7 @@ describe('ConfirmSignupCode page', () => {
       submit();
 
       await waitFor(() => {
+        expect(GleanMetrics.registration.complete).toHaveBeenCalledTimes(1);
         expect(mockNavigate).toHaveBeenCalledWith('/settings', {
           replace: true,
         });
