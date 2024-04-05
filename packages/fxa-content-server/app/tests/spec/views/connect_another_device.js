@@ -108,20 +108,35 @@ describe('views/connect_another_device', () => {
         beforeEach(() => {
           sinon.stub(view, '_isSignedIn').callsFake(() => true);
           relier.set('entrypoint', entrypoint);
-          relier.set('context', 'fx_desktop_v3');
           sinon.spy(view, 'navigate');
-
           windowMock.navigator.userAgent =
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:55.0) Gecko/20100101 Firefox/55.0';
+        });
 
-          return view.render().then(() => {
-            view.afterVisible();
+        describe('with fx_desktop_v3 context', () => {
+          beforeEach(() => {
+            relier.set('context', 'fx_desktop_v3');
+            return view.render().then(() => {
+              view.afterVisible();
+            });
+          });
+          it('redirects and shows pairing', () => {
+            assert.isTrue(view._isSignedIn.called);
+            assert.isTrue(view.navigate.calledWith('/pair'));
           });
         });
 
-        it('redirects and shows pairing', () => {
-          assert.isTrue(view._isSignedIn.called);
-          assert.isTrue(view.navigate.calledWith('/pair'));
+        describe('with oauth_webchannel_v1 context', () => {
+          beforeEach(() => {
+            relier.set('context', 'oauth_webchannel_v1');
+            return view.render().then(() => {
+              view.afterVisible();
+            });
+          });
+          it('redirects and shows pairing', () => {
+            assert.isTrue(view._isSignedIn.called);
+            assert.isTrue(view.navigate.calledWith('/pair'));
+          });
         });
       });
     });
