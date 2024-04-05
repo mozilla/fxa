@@ -120,13 +120,7 @@ async function create(log, error, config, routes, db, statsd, glean) {
     host: config.listen.host,
     port: config.listen.port,
     routes: {
-      cors: {
-        additionalExposedHeaders: ['Timestamp', 'Accept-Language'],
-        additionalHeaders: ['sentry-trace', 'baggage'],
-        // If we're accepting CORS from any origin then use Hapi's "ignore" mode,
-        // which is more forgiving of missing Origin header.
-        origin: config.corsOrigin[0] === '*' ? 'ignore' : config.corsOrigin,
-      },
+      cors: { origin: ['*'] },
       security: {
         hsts: {
           maxAge: 31536000,

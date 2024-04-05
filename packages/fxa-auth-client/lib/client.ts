@@ -1715,18 +1715,44 @@ export default class AuthClient {
       code_challenge?: string;
     } = {}
   ) {
-    return this.sessionPost('/oauth/authorization', sessionToken, {
-      access_type: options.access_type,
-      acr_values: options.acr_values,
-      client_id: clientId,
-      code_challenge: options.code_challenge,
-      code_challenge_method: options.code_challenge_method,
-      keys_jwe: options.keys_jwe,
-      redirect_uri: options.redirect_uri,
-      response_type: options.response_type,
-      scope: options.scope,
-      state,
-    });
+    console.log('Login /auth');
+    const accountProfile = await this.accountProfile(sessionToken);
+
+    const searchParams = new URLSearchParams(window.location.search);
+
+    const loginUrl = `http://localhost:9000/v1/interaction/${searchParams.get(
+      'interaction'
+    )}/login`;
+
+    try {
+      // Create a form dynamically
+      const form = document.createElement('form');
+      form.action = loginUrl;
+      form.method = 'POST';
+
+      form.enctype = 'application/x-www-form-urlencoded';
+
+      const emailInput = document.createElement('input');
+      emailInput.type = 'hidden';
+      emailInput.name = 'email';
+      emailInput.value = accountProfile.email;
+
+      const passwordInput = document.createElement('input');
+      passwordInput.type = 'hidden';
+      passwordInput.name = 'password';
+      passwordInput.value = 'test2';
+
+      form.appendChild(emailInput);
+      form.appendChild(passwordInput);
+
+      // Append the form to the body
+      document.body.appendChild(form);
+
+      // Submit the form
+      form.submit();
+    } catch (err) {
+      console.log('Login /auth error', err);
+    }
   }
 
   async createOAuthToken(

@@ -32,11 +32,13 @@ const { once } = require('events');
 
 module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
   const configuration = {
-    clients: [{
-      client_id: 'dcdb5ae7add825d2',
-      client_secret: process.env.CLIENT_SECRET_123DONE || 'change me',
-      redirect_uris: ['http://localhost:8080/api/oauth'],
-    }],
+    clients: [
+      {
+        client_id: 'dcdb5ae7add825d2',
+        client_secret: process.env.CLIENT_SECRET_123DONE || 'change me',
+        redirect_uris: ['http://localhost:8080/api/oauth'],
+      },
+    ],
     pkce: {
       required: () => false,
     },
@@ -44,20 +46,17 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
     claims: {
       email: ['email'],
     },
+    cookies: {
+      long: {
+        httpOnly: true,
+        overwrite: true,
+        sameSite: 'lax',
+      },
+    },
     findAccount: async (ctx, sub, token) => {
       const account = await db.accountRecord(sub);
       return {
         accountId: account.email,
-        // @param use {string} - can either be "id_token" or "userinfo", depending on
-        //   where the specific claims are intended to be put in
-        // @param scope {string} - the intended scope, while oidc-provider will mask
-        //   claims depending on the scope automatically you might want to skip
-        //   loading some claims from external resources or through db projection etc. based on this
-        //   detail or not return them in ID Tokens but only UserInfo and so on
-        // @param claims {object} - the part of the claims authorization parameter for either
-        //   "id_token" or "userinfo" (depends on the "use" param)
-        // @param rejected {Array[String]} - claim names that were rejected by the end-user, you might
-        //   want to skip loading some claims from external resources or through db projection
         async claims(use, scope, claims, rejected) {
           return {
             sub: account.uid,
@@ -66,13 +65,132 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         },
       };
     },
+    interactions: {
+      url(ctx, interaction) {
+        // For other interactions, return the default URL
+        return `/v1/interaction/${interaction.uid}`;
+      },
+    },
+    features: {
+      // disable the packaged interactions
+      devInteractions: { enabled: false },
+    },
   };
 
   const oidc = new Provider('http://localhost:3030', configuration);
 
+  oidc.use(async (ctx, next) => {
+    console.log('pre middleware', ctx.method, ctx.path);
+    await next();
+    console.log('post middleware', ctx.method, ctx.url);
+  });
+
   const callback = oidc.callback();
 
   return [
+    {
+      path: '/interaction/{uid}',
+      method: 'GET',
+      async handler(request, h) {
+        try {
+          const { uid } = request.params;
+          const details = await oidc.interactionDetails(
+            request.raw.req,
+            request.raw.res
+          );
+
+          if (details.prompt.name === 'consent') {
+            // Automatically approve consent
+            const interactionDetails = await oidc.interactionDetails(
+              request.raw.req,
+              request.raw.res
+            );
+            const {
+              prompt: { details },
+              params,
+              session: { accountId },
+            } = interactionDetails;
+
+            let { grantId } = interactionDetails;
+            let grant;
+
+            if (grantId) {
+              // we'll be modifying existing grant in existing session
+              grant = await oidc.Grant.find(grantId);
+            } else {
+              // we're establishing a new grant
+              grant = new oidc.Grant({
+                accountId,
+                clientId: params.client_id,
+              });
+            }
+
+            if (details.missingOIDCScope) {
+              grant.addOIDCScope(details.missingOIDCScope.join(' '));
+            }
+            if (details.missingOIDCClaims) {
+              grant.addOIDCClaims(details.missingOIDCClaims);
+            }
+            if (details.missingResourceScopes) {
+              for (const [indicator, scopes] of Object.entries(
+                details.missingResourceScopes
+              )) {
+                grant.addResourceScope(indicator, scopes.join(' '));
+              }
+            }
+
+            grantId = await grant.save();
+
+            const consent = {};
+            if (!interactionDetails.grantId) {
+              // we don't have to pass grantId to consent, we're just modifying existing one
+              consent.grantId = grantId;
+            }
+
+            const result = { consent };
+            await oidc.interactionFinished(
+              request.raw.req,
+              request.raw.res,
+              result,
+              { mergeWithLastSubmission: true }
+            );
+
+            await once(request.raw.res, 'finish');
+            return request.raw.res.finished ? h.abandon : h.continue;
+          }
+          if (details.prompt.name === 'login') {
+            const searchParams = new URLSearchParams(details.params);
+            searchParams.set('response_mode', 'query');
+            return h.redirect(
+              `http://localhost:3030/oauth/signin/?${searchParams.toString()}&interaction=${uid}`
+            );
+          }
+        } catch (err) {
+          console.log(err);
+        }
+      },
+    },
+    {
+      method: 'POST',
+      path: '/interaction/{uid}/login',
+      async handler(request, h) {
+        const { email } = request.payload;
+        // Verify the user/session token
+
+        // Finish the interaction
+        await oidc.interactionFinished(
+          request.raw.req,
+          request.raw.res,
+          {
+            login: { accountId: email },
+          },
+          { mergeWithLastSubmission: false }
+        );
+        await once(request.raw.res, 'finish');
+
+        return request.raw.res.finished ? h.abandon : h.continue;
+      },
+    },
     {
       path: `/oidc/{any*}`,
       method: '*',
@@ -88,7 +206,7 @@ module.exports = ({ log, oauthDB, db, mailer, devices, statsd, glean }) => {
         delete req.originalUrl;
 
         return res.finished ? h.abandon : h.continue;
-      }
-    }
+      },
+    },
   ];
 };
