@@ -6,10 +6,12 @@ import { Injectable } from '@nestjs/common';
 import { Stripe } from 'stripe';
 
 import {
+  StripeApiList,
   StripeCustomer,
   StripeDeletedCustomer,
   StripeInvoice,
   StripePaymentMethod,
+  StripeResponse,
   StripeSubscription,
   StripeUpcomingInvoice,
 } from './stripe.client.types';
@@ -37,12 +39,6 @@ export class StripeClient {
     });
   }
 
-  /**
-   * Retrieves a customer record directly from Stripe
-   *
-   * @param customerId The Stripe customer ID of the customer to fetch
-   * @returns The customer record for the customerId provided
-   */
   async customersRetrieve(
     customerId: string,
     params?: Stripe.CustomerRetrieveParams
@@ -51,16 +47,17 @@ export class StripeClient {
       ...params,
       expand: ['tax'],
     });
-    return result as StripeCustomer | StripeDeletedCustomer;
+    return result as StripeResponse<StripeCustomer | StripeDeletedCustomer>;
   }
 
-  /**
-   * Updates customer object with the values of the parameters passed
-   *
-   * @param customerId The Stripe customer ID of the customer to update
-   * @param params Values to be updated in customer object
-   * @returns The updated customer object or throws an error if paramaters are invalid
-   */
+  async customersCreate(params?: Stripe.CustomerCreateParams) {
+    const result = await this.stripe.customers.create({
+      ...params,
+      expand: ['tax'],
+    });
+    return result as StripeResponse<StripeCustomer>;
+  }
+
   async customersUpdate(
     customerId: string,
     params?: Stripe.CustomerUpdateParams
@@ -70,51 +67,37 @@ export class StripeClient {
       expand: ['tax'],
     });
 
-    return result as StripeCustomer;
+    return result as StripeResponse<StripeCustomer>;
   }
 
-  /**
-   * Retrieves subscriptions directly from Stripe
-   */
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
     const result = await this.stripe.subscriptions.list({
       ...params,
       expand: undefined,
     });
 
-    return result as Stripe.ApiList<StripeSubscription>;
+    return result as StripeApiList<StripeSubscription>;
   }
 
-  async invoicesRetrieveUpcoming(
-    params?: Stripe.InvoiceRetrieveUpcomingParams
-  ) {
-    const result = await this.stripe.invoices.retrieveUpcoming({
+  async subscriptionsCreate(params: Stripe.SubscriptionCreateParams) {
+    const result = await this.stripe.subscriptions.create({
       ...params,
       expand: undefined,
     });
-    return result as StripeUpcomingInvoice;
+
+    return result as StripeResponse<StripeSubscription>;
   }
 
-  async invoicesFinalizeInvoice(
-    invoiceId: string,
-    params?: Stripe.InvoiceFinalizeInvoiceParams
-  ) {
-    const result = await this.stripe.invoices.finalizeInvoice(invoiceId, {
-      ...params,
-      expand: undefined,
-    });
-    return result as StripeInvoice;
-  }
-
-  async paymentMethodsAttach(
+  async subscriptionsCancel(
     id: string,
-    params: Stripe.PaymentMethodAttachParams
+    params?: Stripe.SubscriptionCancelParams
   ) {
-    const result = await this.stripe.paymentMethods.attach(id, {
+    const result = await this.stripe.subscriptions.cancel(id, {
       ...params,
       expand: undefined,
     });
-    return result as StripePaymentMethod;
+
+    return result as StripeResponse<StripeSubscription>;
   }
 
   async invoicesRetrieve(
@@ -125,6 +108,38 @@ export class StripeClient {
       ...params,
       expand: undefined,
     });
-    return result as StripeInvoice;
+    return result as StripeResponse<StripeInvoice>;
+  }
+
+  async invoicesRetrieveUpcoming(
+    params?: Stripe.InvoiceRetrieveUpcomingParams
+  ) {
+    const result = await this.stripe.invoices.retrieveUpcoming({
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeUpcomingInvoice>;
+  }
+
+  async invoicesFinalizeInvoice(
+    invoiceId: string,
+    params?: Stripe.InvoiceFinalizeInvoiceParams
+  ) {
+    const result = await this.stripe.invoices.finalizeInvoice(invoiceId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeInvoice>;
+  }
+
+  async paymentMethodsAttach(
+    id: string,
+    params: Stripe.PaymentMethodAttachParams
+  ) {
+    const result = await this.stripe.paymentMethods.attach(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentMethod>;
   }
 }
