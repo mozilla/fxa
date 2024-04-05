@@ -304,6 +304,12 @@ export type StripeCard = NegotiateExpanded<
   'customer' | 'account'
 >;
 
+export type StripePaymentMethod = NegotiateExpanded<
+  never,
+  Stripe.PaymentMethod,
+  'customer'
+>;
+
 export type StripeApiList<T> = Stripe.ApiList<T>;
 export type StripeApiListPromise<T> = Stripe.ApiListPromise<T>;
 export type StripeResponse<T> = Stripe.Response<T>;
