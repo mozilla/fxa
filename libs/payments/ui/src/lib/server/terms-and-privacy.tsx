@@ -2,8 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { FluentBundle } from '@fluent/bundle';
-import { getBundle } from '@fxa/shared/l10n';
 import {
   GenericTermItem,
   GenericTermsListItem,
@@ -12,6 +10,7 @@ import {
   buildPaymentTerms,
   buildProductTerms,
 } from '../utils/terms-and-privacy';
+import { LocalizerRsc } from '@fxa/shared/l10n/server';
 
 const CONTENT_SERVER_URL = 'https://accounts.stage.mozaws.net'; // TODO - Get from config once FXA-7503 lands
 
@@ -20,7 +19,7 @@ type GenericTermsProps = {
   titleId: string;
   titleLocalizationId: string;
   items: GenericTermsListItem[];
-  l10n: FluentBundle;
+  l10n: LocalizerRsc;
 };
 
 function GenericTerms({
@@ -37,7 +36,7 @@ function GenericTerms({
       aria-labelledby={titleId}
     >
       <h4 className="m-0 font-semibold text-grey-400" id={titleId}>
-        {l10n.getMessage(titleLocalizationId)?.value?.toString() || title}
+        {l10n.getString(titleLocalizationId, title)}
       </h4>
 
       <ul className="flex justify-center gap-4 m-0 text-grey-500">
@@ -50,8 +49,7 @@ function GenericTerms({
               rel="noreferrer"
               className="text-blue-500 underline"
             >
-              {l10n.getMessage(item.localizationId)?.value?.toString() ||
-                item.text}
+              {l10n.getString(item.localizationId, item.text)}
               <span className="sr-only">Opens in new window</span>
             </a>
           </li>
@@ -62,7 +60,7 @@ function GenericTerms({
 }
 
 export interface TermsAndPrivacyProps {
-  locale: string;
+  l10n: LocalizerRsc;
   paymentProvider?: PaymentProvider;
   productName: string;
   termsOfServiceUrl: string;
@@ -72,7 +70,7 @@ export interface TermsAndPrivacyProps {
 }
 
 export async function TermsAndPrivacy({
-  locale,
+  l10n,
   paymentProvider,
   productName,
   termsOfServiceUrl,
@@ -92,13 +90,6 @@ export async function TermsAndPrivacy({
       termsOfServiceDownloadUrl
     ),
   ];
-
-  // TODO
-  // Move to instantiation on start up. Ideally getBundle's, generateBundle, is only called once at startup,
-  // and then that instance is used for all requests.
-  // Approach 1 (Experimental): https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation
-  // Approach 2 (Node global): https://github.com/vercel/next.js/blob/canary/examples/with-knex/knex/index.js#L13
-  const l10n = await getBundle([locale]);
 
   return (
     <aside className="pt-14" aria-label="Terms and Privacy Notices">

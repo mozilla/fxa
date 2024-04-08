@@ -6,17 +6,35 @@ import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { getBundle, getLocaleFromRequest } from '@fxa/shared/l10n';
+import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import { getCartData } from '../../../../../../_lib/apiClient';
 import errorIcon from '../../../../../../../images/error.svg';
+import { app } from '@fxa/payments/ui/server';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-// Temporary code for demo purposes only - Replaced as part of FXA-8822
-const demoSupportedLanguages = ['en-US', 'fr-FR', 'es-ES', 'de-DE'];
+const getErrorReason = (reason: string) => {
+  switch (reason) {
+    case 'iap_upgrade_contact_support':
+      return {
+        buttonFtl: 'next-payment-error-manage-subscription-button',
+        buttonLabel: 'Manage my subscription',
+        message:
+          'You can still get this product — please contact support so we can help you.',
+        messageFtl: 'next-iap-upgrade-contact-support',
+      };
+    default:
+      return {
+        buttonFtl: 'next-payment-error-retry-button',
+        buttonLabel: 'Try again',
+        message: 'Something went wrong. Please try again later.',
+        messageFtl: 'next-basic-error-message',
+      };
+  }
+};
 
 interface CheckoutParams {
   cartId: string;
@@ -30,39 +48,19 @@ export default async function CheckoutError({
 }: {
   params: CheckoutParams;
 }) {
-  const headersList = headers();
-  const locale = getLocaleFromRequest(
-    params,
-    headersList.get('accept-language'),
-    demoSupportedLanguages
-  );
+  // Temporarily defaulting to `accept-language`
+  // This to be updated in FXA-9404
+  //const locale = getLocaleFromRequest(
+  //  params,
+  //  headers().get('accept-language')
+  //);
+  const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
-  const cartData = getCartData(params.cartId);
-  const [cart] = await Promise.all([cartData]);
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  // const cartService = await app.getCartService();
+  const cartDataPromise = getCartData(params.cartId);
+  const l10nPromise = app.getL10n(locale);
+  const [cart, l10n] = await Promise.all([cartDataPromise, l10nPromise]);
 
-  const l10n = await getBundle([locale]);
-
-  const getErrorReason = (reason: string) => {
-    switch (reason) {
-      case 'iap_upgrade_contact_support':
-        return {
-          buttonFtl: 'payment-error-manage-subscription-button',
-          buttonLabel: 'Manage my subscription',
-          message:
-            'You can still get this product — please contact support so we can help you.',
-          messageFtl: 'iap-upgrade-contact-support',
-        };
-      default:
-        return {
-          buttonFtl: 'payment-error-retry-button',
-          buttonLabel: 'Try again',
-          message: 'Something went wrong. Please try again later.',
-          messageFtl: 'basic-error-message',
-        };
-    }
-  };
+  const errorReason = getErrorReason(cart.errorReasonId);
 
   return (
     <>
@@ -72,19 +70,14 @@ export default async function CheckoutError({
       >
         <Image src={errorIcon} alt="" className="mt-16 mb-10" />
         <p className="page-message px-7 py-0 mb-4 ">
-          {l10n
-            .getMessage(getErrorReason(cart.errorReasonId).messageFtl)
-            ?.value?.toString() || getErrorReason(cart.errorReasonId).message}
+          {l10n.getString(errorReason.messageFtl, errorReason.message)}
         </p>
 
         <Link
           className="page-button"
           href={`/${params.offeringId}/checkout?interval=monthly`}
         >
-          {l10n
-            .getMessage(getErrorReason(cart.errorReasonId).buttonFtl)
-            ?.value?.toString() ||
-            getErrorReason(cart.errorReasonId).buttonLabel}
+          {l10n.getString(errorReason.buttonFtl, errorReason.buttonLabel)}
         </Link>
       </section>
     </>

@@ -39013,6 +39013,8 @@ fsevents@~2.1.1:
     class-transformer: ^0.5.1
     class-validator: ^0.14.1
     diffparser: ^2.0.1
+    esbuild: ^0.17.15
+    esbuild-register: ^3.5.0
     eslint: ^7.32.0
     eslint-config-next: 14.1.4
     eslint-plugin-fxa: "workspace:*"
@@ -39065,6 +39067,7 @@ fsevents@~2.1.1:
     reflect-metadata: ^0.2.1
     rxjs: ^7.8.1
     semver: ^7.6.0
+    server-only: ^0.0.1
     stylelint: ^16.2.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
@@ -59531,6 +59534,13 @@ resolve@1.1.7:
     parseurl: ~1.3.3
     send: 0.17.2
   checksum: d97f3183b1dfcd8ce9c0e37e18e87fd31147ed6c8ee0b2c3a089d795e44ee851ca5061db01574f806d54f4e4b70bc694d9ca64578653514e04a28cbc97a1de05
+  languageName: node
+  linkType: hard
+
+"server-only@npm:^0.0.1":
+  version: 0.0.1
+  resolution: "server-only@npm:0.0.1"
+  checksum: c432348956641ea3f460af8dc3765f3a1bdbcf7a1e0205b0756d868e6e6fe8934cdee6bff68401a1dd49ba4a831c75916517a877446d54b334f7de36fa273e53
   languageName: node
   linkType: hard
 

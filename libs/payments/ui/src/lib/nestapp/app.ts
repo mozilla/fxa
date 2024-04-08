@@ -8,7 +8,7 @@ import { CartService } from '@fxa/payments/cart';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
-import { LocalizerServer } from '@fxa/shared/l10n/server';
+import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
 
 class AppSingleton {
@@ -22,10 +22,11 @@ class AppSingleton {
     }
   }
 
-  async getLocalizerServer() {
+  async getL10n(acceptLanguage: string) {
     // Temporary until Next.js canary lands
     await this.initialize();
-    return this.app.get(LocalizerServer);
+    const localizerRscFactory = this.app.get(LocalizerRscFactory);
+    return localizerRscFactory.createLocalizerRsc(acceptLanguage);
   }
 
   async getCartService() {
