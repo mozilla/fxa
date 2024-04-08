@@ -142,6 +142,11 @@ const ConfirmSignupCode = ({
         REACT_ENTRYPOINT
       );
 
+      GleanMetrics.registration.complete();
+      // since many of the branches below lead to a redirect, we'll wait for
+      // the Glean requests
+      await GleanMetrics.isDone();
+
       storeAccountData({
         sessionToken,
         email,

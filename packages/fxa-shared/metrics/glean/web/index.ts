@@ -31,6 +31,7 @@ export const eventsMap = {
     engage: 'reg_engage',
     submit: 'reg_submit',
     success: 'reg_submit_success',
+    complete: 'reg_success_view',
   },
 
   signupConfirmation: {
