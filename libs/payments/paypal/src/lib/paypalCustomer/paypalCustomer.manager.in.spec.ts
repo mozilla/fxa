@@ -14,7 +14,7 @@ import {
   PaypalCustomerNotUpdatedError,
 } from './paypalCustomer.error';
 
-describe('PaypalManager', () => {
+describe('PaypalCustomerManager', () => {
   let kyselyDb: Kysely<DB>;
   let paypalCustomerManager: PaypalCustomerManager;
 

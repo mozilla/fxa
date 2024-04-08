@@ -6,6 +6,6 @@ This library works with the account storage layer, providing account manipulatio
 
 Run `nx build shared-account-account` to build the library.
 
-## Running unit tests
+## Running integration tests
 
-Run `nx test shared-account-account` to execute the unit tests via [Jest](https://jestjs.io).
+Run `nx run shared-account-account:test-integration` to execute the integration tests via [Jest](https://jestjs.io).

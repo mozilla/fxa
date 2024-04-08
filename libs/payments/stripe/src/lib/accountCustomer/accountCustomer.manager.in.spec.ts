@@ -16,7 +16,7 @@ import {
 import { CreateAccountCustomerFactory } from './accountCustomer.factories';
 import { AccountCustomerManager } from './accountCustomer.manager';
 
-describe('AccountManager', () => {
+describe('AccountCustomer Manager', () => {
   let kyselyDb: Kysely<DB>;
   let accountCustomerManager: AccountCustomerManager;
 
