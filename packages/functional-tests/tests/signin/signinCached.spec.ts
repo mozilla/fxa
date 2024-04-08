@@ -75,8 +75,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Verify email is normalized
-      const primary = await settings.primaryEmail.statusText();
-      expect(primary).toEqual(syncEmail);
+      await expect(settings.primaryEmail.status).toHaveText(syncEmail);
     });
 
     test('sign in once, use a different account', async ({

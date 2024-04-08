@@ -155,20 +155,12 @@ test.describe('key-stretching-v2', () => {
       version: 1 | 2,
       opts: Pick<Opts, 'settings' | 'recoveryKey'>
     ) {
+      const hint = 'secret key location';
       const { settings, recoveryKey } = opts;
 
       await settings.goto(version === 2 ? 'stretch=2' : '');
-      await settings.recoveryKey.clickCreate();
-      await recoveryKey.clickStart();
-      await recoveryKey.setPassword(password);
-      await recoveryKey.submit();
-
-      const key = await recoveryKey.getKey();
-      await recoveryKey.clickNext();
-      await recoveryKey.setHint('secret key location');
-      await recoveryKey.clickFinish();
-
-      return key;
+      await settings.recoveryKey.createButton.click();
+      return await recoveryKey.createRecoveryKey(password, hint);
     }
 
     async function _changePassword(
@@ -176,14 +168,15 @@ test.describe('key-stretching-v2', () => {
       opts: Pick<Opts, 'settings' | 'changePassword'>
     ) {
       const { settings, changePassword } = opts;
+      const newPassword = 'new' + password;
       await settings.goto(version === 2 ? 'stretch=2' : '');
       await settings.clickChangePassword();
-      await changePassword.fillOutChangePassword(password, 'new' + password);
-      await changePassword.setCurrentPassword(password);
-      password = 'new' + password;
-      await changePassword.setNewPassword(password);
-      await changePassword.setConfirmPassword(password);
-      await changePassword.submit();
+
+      await expect(changePassword.changePasswordHeading).toBeVisible();
+
+      await changePassword.currentPasswordTextbox.fill(password);
+      await changePassword.newPasswordTextbox.fill(newPassword);
+      await changePassword.confirmPasswordTextbox.fill(newPassword);
     }
 
     async function _resetPassword(
@@ -211,7 +204,7 @@ test.describe('key-stretching-v2', () => {
         await page.waitForSelector('#root');
 
         if (key) {
-          await resetPasswordReact.submitRecoveryKey(key);
+          await resetPasswordReact.fillOutRecoveryKeyForm(key);
           if (stretch) {
             await page.waitForURL(/account_recovery_reset_password.*stretch=2/);
           } else {

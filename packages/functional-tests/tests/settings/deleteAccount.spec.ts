@@ -5,37 +5,85 @@
 import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293493
-  test('delete account and cancel delete #1293493', async ({
+  test('cancel delete account step 1', async ({
+    pages: { settings, deleteAccount },
+  }) => {
+    test.slow();
+    await settings.goto();
+
+    await settings.deleteAccountButton.click();
+
+    await expect(deleteAccount.deleteAccountHeading).toBeVisible();
+    await expect(deleteAccount.step1Heading).toBeVisible();
+
+    await deleteAccount.cancelButton.click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+  });
+
+  test('cancel delete account step 2', async ({
+    pages: { settings, deleteAccount },
+  }) => {
+    test.slow();
+    await settings.goto();
+
+    await settings.deleteAccountButton.click();
+
+    await expect(deleteAccount.deleteAccountHeading).toBeVisible();
+    await expect(deleteAccount.step1Heading).toBeVisible();
+
+    await deleteAccount.checkAllBoxes();
+    await deleteAccount.continueButton.click();
+
+    await expect(deleteAccount.step2Heading).toBeVisible();
+
+    await deleteAccount.cancelButton.click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+  });
+
+  test('delete account', async ({
     credentials,
     pages: { settings, deleteAccount, page },
   }) => {
     test.slow();
     await settings.goto();
-    await settings.clickDeleteAccount();
+
+    await settings.deleteAccountButton.click();
+
+    await expect(deleteAccount.deleteAccountHeading).toBeVisible();
+    await expect(deleteAccount.step1Heading).toBeVisible();
+
     await deleteAccount.checkAllBoxes();
+    await deleteAccount.continueButton.click();
 
-    // Click cancel to cancel the deletion
-    await deleteAccount.clickCancel();
+    await expect(deleteAccount.step2Heading).toBeVisible();
 
-    // Click Delete account again
-    await settings.clickDeleteAccount();
+    await deleteAccount.passwordTextbox.fill(credentials.password);
+    await deleteAccount.deleteButton.click();
+
+    await expect(page.getByText('Account deleted successfully')).toBeVisible();
+  });
+
+  test('delete account incorrect password', async ({
+    pages: { settings, deleteAccount, page },
+  }) => {
+    test.slow();
+    await settings.goto();
+
+    await settings.deleteAccountButton.click();
+
+    await expect(deleteAccount.deleteAccountHeading).toBeVisible();
+    await expect(deleteAccount.step1Heading).toBeVisible();
+
     await deleteAccount.checkAllBoxes();
-    await deleteAccount.clickContinue();
+    await deleteAccount.continueButton.click();
 
-    // Enter incorrect password
-    await deleteAccount.setPassword('incorrect password');
-    await deleteAccount.submit();
+    await expect(deleteAccount.step2Heading).toBeVisible();
 
-    // Verifying that the tooltip throws error
-    expect(await deleteAccount.toolTipText()).toContain('Incorrect password');
+    await deleteAccount.passwordTextbox.fill('incorrect password');
+    await deleteAccount.deleteButton.click();
 
-    // Enter correct password
-    await deleteAccount.setPassword(credentials.password);
-    await deleteAccount.submit();
-    const success = await page.waitForSelector('.success');
-    // TODO: "Error: toBeVisible can be only used with Locator object"
-    // eslint-disable-next-line playwright/prefer-web-first-assertions
-    expect(await success.isVisible()).toBeTruthy();
+    await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
   });
 });

@@ -3,12 +3,42 @@ import { SettingsLayout } from './layout';
 export class DeleteAccountPage extends SettingsLayout {
   readonly path = 'settings/delete_account';
 
+  get deleteAccountHeading() {
+    return this.page.getByRole('heading', { name: 'Delete account' });
+  }
+
+  get step1Heading() {
+    return this.page.getByRole('heading', { name: 'Step 1 of 2' });
+  }
+
+  get cancelButton() {
+    return this.page.getByRole('button', { name: 'Cancel' });
+  }
+
+  get continueButton() {
+    return this.page.getByRole('button', { name: 'Continue' });
+  }
+
+  get step2Heading() {
+    return this.page.getByRole('heading', { name: 'Step 2 of 2' });
+  }
+
+  get passwordTextbox() {
+    return this.page.getByRole('textbox', { name: 'password' });
+  }
+
+  get deleteButton() {
+    return this.page.getByRole('button', { name: 'Delete' });
+  }
+
+  get tooltip() {
+    return this.page.getByTestId('tooltip');
+  }
+
   async checkAllBoxes() {
-    await this.page.waitForSelector(':nth-match(input[type=checkbox], 4)');
-    for (let i = 1; i < 5; i++) {
-      await this.page.click(
-        `:nth-match(label[data-testid=checkbox-container], ${i})`
-      );
+    const checkBoxes = this.page.getByTestId('checkbox-container');
+    for (let i = 0; i < (await checkBoxes.count()); i++) {
+      await checkBoxes.nth(i).click();
     }
   }
 
@@ -16,17 +46,8 @@ export class DeleteAccountPage extends SettingsLayout {
     return this.page.click('button[data-testid=continue-button]');
   }
 
-  clickCancel() {
-    return this.page.click('button[data-testid=cancel-button]');
-  }
-
   setPassword(password: string) {
     return this.page.fill('input[type=password]', password);
-  }
-
-  async toolTipText() {
-    await this.page.isVisible('[data-testid="tooltip"]');
-    return this.page.innerText('[data-testid="tooltip"]');
   }
 
   submit() {

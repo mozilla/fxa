@@ -248,8 +248,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await settings.goto();
-      const primaryEmail = await settings.primaryEmail.statusText();
-      expect(primaryEmail).toEqual(syncEmail);
+      await expect(settings.primaryEmail.status).toHaveText(syncEmail);
     });
   });
 });

@@ -1,34 +1,61 @@
+import { expect } from '@playwright/test';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { SettingsLayout } from './layout';
 
 export class SecondaryEmailPage extends SettingsLayout {
   readonly path = 'settings/emails';
 
-  setEmail(email: string) {
-    return this.page.locator('input[type=email]').fill(email);
+  get secondaryEmailHeading() {
+    return this.page.getByRole('heading', { name: 'Secondary email' });
   }
 
-  setVerificationCode(code: string) {
-    return this.page.locator('input[type=text]').fill(code);
+  get step1Heading() {
+    return this.page.getByRole('heading', { name: 'Step 1 of 2' });
+  }
+
+  get emailTextbox() {
+    return this.page.getByRole('textbox', { name: 'email' });
+  }
+
+  get saveButton() {
+    return this.page.getByRole('button', { name: 'Save' });
+  }
+
+  get step2Heading() {
+    return this.page.getByRole('heading', { name: 'Step 2 of 2' });
+  }
+
+  get verificationCodeTextbox() {
+    return this.page.getByTestId('verification-code-input-field');
+  }
+
+  get confirmButton() {
+    return this.page.getByRole('button', { name: 'confirm' });
   }
 
   async submit() {
     const waitForNavigation = this.page.waitForEvent('framenavigated');
-    await this.page.locator('button[type=submit]').click();
+    await this.saveButton.click();
     return waitForNavigation;
   }
 
-  async addAndVerify(email: string) {
+  async addSecondaryEmail(email: string): Promise<void> {
     await this.target.email.clear(email);
-    await this.setEmail(email);
-    await this.submit();
-    const code = await this.target.email.waitForEmail(
+
+    await expect(this.secondaryEmailHeading).toBeVisible();
+    await expect(this.step1Heading).toBeVisible();
+
+    await this.emailTextbox.fill(email);
+    await this.saveButton.click();
+    const code: string = await this.target.email.waitForEmail(
       email,
       EmailType.verifySecondaryCode,
       EmailHeader.verifyCode
     );
-    await this.setVerificationCode(code);
-    await this.submit();
-    return code;
+
+    await expect(this.step2Heading).toBeVisible();
+
+    await this.verificationCodeTextbox.fill(code);
+    await this.confirmButton.click();
   }
 }

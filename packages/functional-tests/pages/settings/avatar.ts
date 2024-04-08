@@ -3,38 +3,32 @@ import { SettingsLayout } from './layout';
 export class AvatarPage extends SettingsLayout {
   readonly path = 'settings/avatar';
 
-  async clickAddPhoto() {
-    const [filechooser] = await Promise.all([
-      this.page.waitForEvent('filechooser'),
-      this.page.locator('[data-testid=add-photo-btn]').click(),
-    ]);
-    return filechooser;
+  get profilePictureHeading() {
+    return this.page.getByRole('heading', { name: 'Profile picture' });
   }
 
-  clickTakePhoto() {
-    return this.page.click('[data-testid=take-photo-btn]');
+  get photo() {
+    return this.page
+      .getByTestId('flow-container')
+      .getByTestId('avatar-nondefault');
   }
 
-  async clickRemove() {
-    await Promise.all([
-      this.page.click('[data-testid=remove-photo-btn]'),
-      this.page.waitForEvent('framenavigated'),
-    ]);
-    // HACK we don't really have a good way to distinguish
-    // between monogram avatars and user set images
-    // and if we return directly after navigation
-    // react may not have updated the image yet
-    await this.page.waitForSelector('img[src*="avatar"]');
+  get addPhotoButton() {
+    return this.page.getByRole('button', { name: 'Add photo' });
   }
 
-  clickSave() {
-    return Promise.all([
-      this.page.locator('[data-testid=save-button]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
+  get removePhotoButton() {
+    return this.page.getByRole('button', { name: 'Remove photo' });
   }
 
-  clickCancel() {
-    return this.page.click('[data-testid=close-button]');
+  get saveButton() {
+    return this.page.getByRole('button', { name: 'Save' });
+  }
+
+  async addPhoto(path: string): Promise<void> {
+    const fileChooserPromise = this.page.waitForEvent('filechooser');
+    await this.addPhotoButton.click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(path);
   }
 }

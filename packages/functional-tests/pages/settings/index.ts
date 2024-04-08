@@ -71,11 +71,8 @@ export class SettingsPage extends SettingsLayout {
     return this.lazyRow('data-collection', DataCollectionRow);
   }
 
-  clickDeleteAccount() {
-    return Promise.all([
-      this.page.locator('[data-testid=settings-delete-account]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
+  get deleteAccountButton() {
+    return this.page.getByTestId('settings-delete-account');
   }
 
   async disconnectSync(creds) {
@@ -85,7 +82,7 @@ export class SettingsPage extends SettingsLayout {
 
     await sync?.signout();
     await this.page.click('text=Rather not say >> input[name="reason"]');
-    await this.clickModalConfirm();
+    await this.modalConfirmButton.click();
 
     await this.page.evaluate((uid) => {
       window.dispatchEvent(
@@ -100,14 +97,6 @@ export class SettingsPage extends SettingsLayout {
         })
       );
     }, creds.uid);
-  }
-
-  async clickEmailPreferences() {
-    const [emailPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
-      this.page.locator('[data-testid=nav-link-newsletters]').click(),
-    ]);
-    return emailPage;
   }
 
   async clickPaidSubscriptions() {

@@ -1,91 +1,68 @@
+import { expect } from '@playwright/test';
 import { SettingsLayout } from './layout';
 
 export class ChangePasswordPage extends SettingsLayout {
   readonly path = 'settings/change_password';
 
-  setCurrentPassword(password: string) {
-    return this.page.fill(
-      '[data-testid=current-password-input-field]',
-      password
-    );
+  get changePasswordHeading() {
+    return this.page.getByRole('heading', { name: 'Change password' });
   }
 
-  setNewPassword(password: string) {
-    return this.page.fill('[data-testid=new-password-input-field]', password);
+  get currentPasswordTextbox() {
+    return this.page.getByTestId('current-password-input-field');
   }
 
-  setConfirmPassword(password: string) {
-    return this.page.fill(
-      '[data-testid=verify-password-input-field]',
-      password
-    );
+  get newPasswordTextbox() {
+    return this.page.getByTestId('new-password-input-field');
   }
 
-  async fillOutChangePassword(oldPassword, newPassword) {
-    await this.setCurrentPassword(oldPassword);
-    await this.setNewPassword(newPassword);
-    await this.setConfirmPassword(newPassword);
+  get confirmPasswordTextbox() {
+    return this.page.getByTestId('verify-password-input-field');
   }
 
-  async changePasswordTooltip() {
-    return this.page.innerText('[data-testid=tooltip]');
+  get passwordError() {
+    return this.page
+      .getByRole('listitem')
+      .filter({ has: this.page.getByTestId('icon-invalid') });
   }
 
-  async passwordLengthError() {
-    const error = this.page.locator('[data-testid=icon-invalid]');
-    error.locator(':scope', { hasText: 'At least 8 characters' });
-    await error.waitFor();
-    return error.isVisible();
+  get passwordLengthInvalidIcon() {
+    return this.page
+      .getByTestId('change-password-length')
+      .getByTestId('icon-invalid');
   }
 
-  async validPasswordLength() {
-    const error = this.page.locator('[data-testid=change-password-length]', {
-      has: this.page.locator('[data-testid=icon-unset]'),
-    });
-    error.locator(':scope', { hasText: 'At least 8 characters' });
-    await error.waitFor();
-    return error.isVisible();
+  get passwordLengthUnsetIcon() {
+    return this.page
+      .getByTestId('change-password-length')
+      .getByTestId('icon-unset');
   }
 
-  async passwordSameAsEmailError() {
-    const error = this.page.locator('[data-testid=icon-invalid]');
-    error.locator(':scope', { hasText: 'Not your email address' });
-    await error.waitFor();
-    return error.isVisible();
+  get saveButton() {
+    return this.page.getByRole('button', { name: 'Save' });
   }
 
-  async commonPasswordError() {
-    const error = this.page.locator('[data-testid=icon-invalid]');
-    error.locator(':scope', { hasText: 'Not a commonly used password' });
-    await error.waitFor();
-    return error.isVisible();
+  get cancelButton() {
+    return this.page.getByRole('button', { name: 'Cancel' });
   }
 
-  async confirmPasswordError() {
-    const error = this.page.locator('[data-testid=icon-invalid]');
-    error.locator(':scope', { hasText: 'New password matches confirmation' });
-    await error.waitFor();
-    return error.isVisible();
+  get forgotPasswordLink() {
+    return this.page.getByTestId('nav-link-reset-password');
   }
 
-  async submitButton() {
-    const submit = this.page.locator('button[type=submit]');
-    await submit.waitFor();
-    return submit.isEnabled();
+  get tooltip() {
+    return this.page.getByTestId('tooltip');
   }
 
-  async clickCancelChangePassword() {
-    return this.page.locator('[data-testid=cancel-password-button]').click();
-  }
+  async fillOutChangePassword(
+    oldPassword: string,
+    newPassword: string
+  ): Promise<void> {
+    await expect(this.changePasswordHeading).toBeVisible();
 
-  async changePasswordSuccess() {
-    return this.page.innerText('[data-testid=alert-bar-content]');
-  }
-
-  submit() {
-    return Promise.all([
-      this.page.locator('button[type=submit]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
+    await this.currentPasswordTextbox.fill(oldPassword);
+    await this.newPasswordTextbox.fill(newPassword);
+    await this.confirmPasswordTextbox.fill(newPassword);
+    await this.saveButton.click();
   }
 }

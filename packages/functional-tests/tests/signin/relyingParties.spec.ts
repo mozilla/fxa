@@ -61,7 +61,7 @@ test.describe('severity-1 #smoke', () => {
       await rp.signout();
     }
 
-    await settings.waitForAlertBar();
+    await expect(settings.alertBar).toBeVisible();
     services = await settings.connectedServices.services();
     expect(services.length).toEqual(2);
   });

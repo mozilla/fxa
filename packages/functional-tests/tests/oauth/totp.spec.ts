@@ -15,8 +15,8 @@ test.describe('severity-1 #smoke', () => {
       pages: { login, relier, settings, totp },
     }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      await settings.totp.addButton.click();
+      const { secret } = await totp.fillOutTotpForms();
       credentials.secret = secret;
       await settings.signOut();
 
@@ -33,16 +33,15 @@ test.describe('severity-1 #smoke', () => {
       pages: { login, relier, settings, totp, page },
     }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      await settings.totp.addButton.click();
+      const { secret } = await totp.fillOutTotpForms();
       credentials.secret = secret;
 
-      await settings.totp.clickDisable();
+      await settings.totp.disableButton.click();
       await settings.clickModalConfirm();
       // wait for alert bar message
       await page.getByText('Two-step authentication disabled').waitFor();
-      const status = await settings.totp.statusText();
-      expect(status).toEqual('Not Set');
+      await expect(settings.totp.status).toHaveText('Not Set');
       credentials.secret = null;
 
       await relier.goto();

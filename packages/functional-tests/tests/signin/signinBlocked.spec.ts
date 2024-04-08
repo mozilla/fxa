@@ -131,9 +131,9 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await settings.goto();
-      await settings.secondaryEmail.clickAdd();
-      await secondaryEmail.addAndVerify(newEmail);
-      await settings.secondaryEmail.clickMakePrimary();
+      await settings.secondaryEmail.addButton.click();
+      await secondaryEmail.addSecondaryEmail(newEmail);
+      await settings.secondaryEmail.makePrimaryButton.click();
       await settings.signOut();
 
       await page.goto(target.contentServerUrl, {

@@ -59,14 +59,11 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Change password
-      await settings.password.clickChange();
+      await settings.password.changeButton.click();
       await changePassword.fillOutChangePassword(PASSWORD, NEW_PASSWORD);
-      await changePassword.submit();
 
       //Verify success message
-      expect(await changePassword.changePasswordSuccess()).toContain(
-        'Password updated'
-      );
+      await expect(settings.alertBar).toHaveText('Password updated');
     });
 
     test('sign in, change the password by browsing directly to settings', async ({
@@ -76,15 +73,12 @@ test.describe('severity-2 #smoke', () => {
       await settings.goto();
 
       //Change password
-      await settings.password.clickChange();
+      await settings.password.changeButton.click();
       await login.noSuchWebChannelMessage(FirefoxCommand.ChangePassword);
       await changePassword.fillOutChangePassword(PASSWORD, NEW_PASSWORD);
-      await changePassword.submit();
 
       //Verify success message
-      expect(await changePassword.changePasswordSuccess()).toContain(
-        'Password updated'
-      );
+      await expect(settings.alertBar).toHaveText('Password updated');
     });
   });
 
@@ -115,7 +109,7 @@ test.describe('severity-2 #smoke', () => {
         `${target.contentServerUrl}/settings?context=fx_desktop_v3&service=sync`
       );
       //Click Delete account
-      await settings.clickDeleteAccount();
+      await settings.deleteAccountButton.click();
       await deleteAccount.checkAllBoxes();
       await deleteAccount.clickContinue();
 

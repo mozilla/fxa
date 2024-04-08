@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
+import { getCode } from 'fxa-settings/src/lib/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
@@ -21,7 +22,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Not Set');
 
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTotpForms();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -36,7 +37,7 @@ test.describe('severity-1 #smoke', () => {
       );
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
-      const code = await totp.getNextCode(credentials.secret);
+      const code = await getCode(credentials.secret);
       await signinReact.fillOutAuthenticationForm(code);
 
       await expect(page).toHaveURL(/settings/);
@@ -55,7 +56,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.totp.status).toHaveText('Not Set');
 
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      const { secret } = await totp.fillOutTotpForms();
       credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
