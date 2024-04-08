@@ -4,7 +4,7 @@
 import { Kysely } from 'kysely';
 
 import { createDialect, MySQLConfig } from '@fxa/shared/db/mysql/core';
-import { DB } from './keysley-types';
+import { DB } from './kysely-types';
 
 export type AccountDatabase = Kysely<DB>;
 export const AccountDbProvider = Symbol('AccountDbProvider');

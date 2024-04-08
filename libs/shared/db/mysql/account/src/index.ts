@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/associated-types';
-export * from './lib/keysley-types';
+export * from './lib/kysely-types';
 export {
   CartFactory,
   AccountCustomerFactory,

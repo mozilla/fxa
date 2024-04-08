@@ -11,7 +11,7 @@ import {
   Accounts,
   Carts,
   PaypalCustomers,
-} from './keysley-types';
+} from './kysely-types';
 
 export type Account = Selectable<Accounts>;
 export type NewAccount = Insertable<Accounts>;

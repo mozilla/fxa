@@ -24,7 +24,7 @@
         ]
       }
     },
-    "test-unit": {
+    "test-integration": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
