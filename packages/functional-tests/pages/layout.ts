@@ -7,7 +7,12 @@ import { BaseTarget } from '../lib/targets/base';
 import { CustomEventDetail } from '../lib/channels';
 
 export abstract class BaseLayout {
-  readonly path?: string;
+  /**
+   * The expected path of the current page. This works with checkPath(). If left empty,
+   * checkPath will always pass. If defined, checkPass will enforce that this value is
+   * in the URL.
+   */
+  abstract get path(): string;
 
   constructor(public page: Page, protected readonly target: BaseTarget) {}
 
@@ -17,6 +22,23 @@ export abstract class BaseLayout {
 
   get url() {
     return `${this.baseUrl}/${this.path}`;
+  }
+
+  /**
+   * Checks that the current path maps to the POM's expected path. This can be called before querying for locators in
+   * child classes to make locators more robust and avoid false positives. If the current path does not exist in the URL,
+   * an error will be thrown.
+   */
+  checkPath() {
+    if (this.path) {
+      if (this.page.url().indexOf(this.path) < 0) {
+        throw new Error(
+          `Invalid page state detected! Expected ${
+            this.path
+          } to be in url, ${this.page.url()}`
+        );
+      }
+    }
   }
 
   goto(

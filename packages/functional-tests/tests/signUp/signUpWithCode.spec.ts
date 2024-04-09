@@ -66,7 +66,7 @@ test.describe('severity-1 #smoke', () => {
       });
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
       await login.setCode('1234');
-      await signinTokenCode.clickSubmitButton();
+      await signinTokenCode.submit.click();
       expect(await login.getTooltipError()).toContain(
         'Invalid or expired confirmation code'
       );

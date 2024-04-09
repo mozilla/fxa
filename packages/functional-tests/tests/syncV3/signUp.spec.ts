@@ -22,15 +22,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync sign up', async ({ emails, target, syncBrowserPages }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
+      const { page, login, connectAnotherDevice } = syncBrowserPages;
       const [email] = emails;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
         { waitUntil: 'load' }
       );
       await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
+      await login.clickSubmit();
 
       // Verify the email is correct
       expect(await login.getPrefilledEmail()).toMatch(email);
@@ -39,7 +38,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setPassword(PASSWORD);
       await login.confirmPassword(incorrectPassword);
       await login.setAge('21');
-      await signinTokenCode.clickSubmitButton();
+      await login.clickSubmit();
 
       // Verify the error message
       expect(await login.getTooltipError()).toContain('Passwords do not match');

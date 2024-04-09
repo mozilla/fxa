@@ -70,14 +70,14 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
 
   test('enter a firefox.com address', async ({
     target,
-    syncBrowserPages: { login, page, signinTokenCode },
+    syncBrowserPages: { login, page },
   }) => {
     await page.goto(
       `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
     await login.setEmail('testuser@firefox.com');
-    await signinTokenCode.clickSubmitButton();
+    await login.clickSubmit();
 
     // Verify the error
     expect(await login.getTooltipError()).toContain(

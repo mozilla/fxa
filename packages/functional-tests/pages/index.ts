@@ -14,7 +14,10 @@ import { RelierPage } from './relier';
 import { SecondaryEmailPage } from './settings/secondaryEmail';
 import { SettingsPage } from './settings';
 import { SignInPage } from './signin';
-import { SigninTokenCodePage } from './signinTokenCode';
+import { SigninTokenCodePage } from './signinTokenCode.ts';
+import { SigninTotpCodePage } from './signinTotpCode.ts';
+import { SigninUnblockPage } from './signinUnblock.ts';
+import { ConfirmSignupCodePage } from './confirmSignupCodePage.ts';
 import { SubscribePage } from './products';
 import { TotpPage } from './settings/totp';
 import { SubscriptionManagementPage } from './products/subscriptionManagement';
@@ -28,6 +31,7 @@ import { SignupReactPage } from './signupReact';
 import { ConfigPage } from './config';
 import { PrivacyPage } from './privacy';
 import { TermsOfService } from './termsOfService';
+
 export function create(page: Page, target: BaseTarget) {
   return {
     avatar: new AvatarPage(page, target),
@@ -46,6 +50,9 @@ export function create(page: Page, target: BaseTarget) {
     settings: new SettingsPage(page, target),
     signIn: new SignInPage(page, target),
     signinTokenCode: new SigninTokenCodePage(page, target),
+    signinTotpCode: new SigninTotpCodePage(page, target),
+    signinUnblock: new SigninUnblockPage(page, target),
+    confirmSignupCode: new ConfirmSignupCodePage(page, target),
     subscribe: new SubscribePage(page, target),
     totp: new TotpPage(page, target),
     subscriptionManagement: new SubscriptionManagementPage(page, target),
