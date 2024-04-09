@@ -3,7 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { headers } from 'next/headers';
 
-import { PurchaseDetails, TermsAndPrivacy, app } from '@fxa/payments/ui/server';
+import {
+  app,
+  PurchaseDetails,
+  SubscriptionTitle,
+  TermsAndPrivacy,
+} from '@fxa/payments/ui/server';
 import { getCartData, getContentfulContent } from '../../../_lib/apiClient';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
@@ -50,9 +55,7 @@ export default async function RootLayout({
 
   return (
     <>
-      <header className="page-title-container">
-        <h1 className="page-header">Under Construction</h1>
-      </header>
+      <SubscriptionTitle cartState={cart.state} l10n={l10n} />
 
       <section className="payment-panel" aria-label="Purchase details">
         <PurchaseDetails

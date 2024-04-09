@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 // Use this file to export React server components
-export * from './lib/server/purchase-details';
-export * from './lib/server/terms-and-privacy';
 export * from './lib/nestapp/app';
+export * from './lib/server/purchase-details';
+export * from './lib/server/subscription-title';
+export * from './lib/server/terms-and-privacy';
