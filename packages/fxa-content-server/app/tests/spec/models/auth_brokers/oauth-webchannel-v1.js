@@ -304,15 +304,13 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
     });
   });
 
-  [
-    'afterCompleteSignInWithCode',
-    'afterSignIn',
-    'afterSignUpConfirmationPoll',
-  ].forEach((brokerMethod) => {
-    describe(brokerMethod, () => {
-      it('notifies the channel of login with required fields', () => {
-        return broker[brokerMethod](account).then((result) => {
-          assert.isTrue(broker.send.calledTwice);
+  describe('afterSignIn', () => {
+    it('redirects to ConnectAnotherDevice, notifies the channel of login with required fields', () => {
+      return broker
+        .afterSignIn(account)
+        .then((behavior) => {
+          assert.equal(behavior.type, 'connect-another-device');
+
           assert.calledWithExactly(broker.send.getCall(0), LOGIN_MESSAGE, {
             sessionToken: 'abc123',
             email: 'test@email.com',
@@ -320,6 +318,12 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
             verified: true,
             verifiedCanLinkAccount: false,
           });
+          return new Promise((resolve) => {
+            // Hack to ensure 2nd broker.send assertion is after it occurs
+            setTimeout(resolve, 0);
+          });
+        })
+        .then(() => {
           assert.calledWithExactly(
             broker.send.getCall(1),
             OAUTH_LOGIN_MESSAGE,
@@ -327,18 +331,53 @@ describe('models/auth_brokers/oauth-webchannel-v1', () => {
               code: VALID_OAUTH_CODE,
               state: 'state',
               redirect: 'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
-              action: brokerMethod.includes('SignIn') ? 'signin' : 'signup',
+              action: 'signin',
             }
           );
         });
-      });
+    });
 
-      it('does not notifiy the channel of login with missing fields', () => {
-        account.unset('uid');
-        return broker[brokerMethod](account).then((result) => {
-          assert.isTrue(broker.send.calledOnce);
-        });
+    it('does not notifiy the channel of login with missing fields', () => {
+      account.unset('uid');
+      return broker.afterSignIn(account).then(() => {
+        assert.isTrue(broker.send.notCalled);
       });
     });
   });
+
+  ['afterCompleteSignInWithCode', 'afterSignUpConfirmationPoll'].forEach(
+    (brokerMethod) => {
+      describe(brokerMethod, () => {
+        it('notifies the channel of login with required fields', () => {
+          return broker[brokerMethod](account).then((result) => {
+            assert.isTrue(broker.send.calledTwice);
+            assert.calledWithExactly(broker.send.getCall(0), LOGIN_MESSAGE, {
+              sessionToken: 'abc123',
+              email: 'test@email.com',
+              uid: 'uid',
+              verified: true,
+              verifiedCanLinkAccount: false,
+            });
+            assert.calledWithExactly(
+              broker.send.getCall(1),
+              OAUTH_LOGIN_MESSAGE,
+              {
+                code: VALID_OAUTH_CODE,
+                state: 'state',
+                redirect: 'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
+                action: brokerMethod.includes('SignIn') ? 'signin' : 'signup',
+              }
+            );
+          });
+        });
+
+        it('does not notifiy the channel of login with missing fields', () => {
+          account.unset('uid');
+          return broker[brokerMethod](account).then((result) => {
+            assert.isTrue(broker.send.calledOnce);
+          });
+        });
+      });
+    }
+  );
 });

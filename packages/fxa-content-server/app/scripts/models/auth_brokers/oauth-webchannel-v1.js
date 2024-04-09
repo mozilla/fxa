@@ -14,6 +14,7 @@ import OAuthRedirectAuthenticationBroker from './oauth-redirect';
 import ScopedKeys from 'lib/crypto/scoped-keys';
 import WebChannel from '../../lib/channels/web';
 import SyncEngines from '../sync-engines';
+import ConnectAnotherDeviceBehavior from '../../views/behaviors/connect-another-device';
 
 const ALLOWED_LOGIN_FIELDS = ['email', 'sessionToken', 'uid', 'verified'];
 
@@ -79,9 +80,12 @@ const OAuthWebChannelBroker = OAuthRedirectAuthenticationBroker.extend({
   },
 
   afterSignIn(account) {
-    return this._notifyRelierOfLogin(account).then(() =>
-      proto.afterSignIn.call(this, account)
-    );
+    return this._notifyRelierOfLogin(account).then(() => {
+      // Take user to CAD, or enact default behavior if ineligible
+      return new ConnectAnotherDeviceBehavior(
+        proto.afterSignIn.call(this, account)
+      );
+    });
   },
 
   afterSignUpConfirmationPoll(account) {
