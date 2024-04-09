@@ -51,7 +51,7 @@ describe('AccountDeleteManager', function () {
 
     sandbox.reset();
     mockFxaDb = {
-      ...mocks.mockDB({ email: email, uid: uid }),
+      ...mocks.mockDB({ email: email, emailVerified: true, uid: uid }),
       fetchAccountSubscriptions: sinon.spy(
         async (uid) => expectedSubscriptions
       ),
@@ -188,6 +188,8 @@ describe('AccountDeleteManager', function () {
       sinon.assert.calledOnceWithExactly(mockOAuthDb.removeTokensAndCodes, uid);
       sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
         uid,
+        email,
+        emailVerified: true,
         event: 'account.deleted',
       });
     });
