@@ -6,10 +6,14 @@ import { Injectable } from '@nestjs/common';
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
 
 @Injectable()
 export class CartService {
-  constructor(private cartManager: CartManager) {}
+  constructor(
+    private cartManager: CartManager,
+    private accountCustomerManager: AccountCustomerManager
+  ) {}
 
   /**
    * Initialize a brand new cart
@@ -28,13 +32,16 @@ export class CartService {
     // - Check if user is eligible to subscribe to plan, else throw error
     // - Fetch invoice preview total from Stripe for `amount`
     // - Fetch stripeCustomerId if uid is passed and has a customer id
+    const stripeCustomerId = args.uid
+      ? await this.accountCustomerManager.getStripeCustomerIdByUid(args.uid)
+      : undefined;
 
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
       amount: 0,
       uid: args.uid,
-      stripeCustomerId: undefined,
+      stripeCustomerId: stripeCustomerId || undefined,
       experiment: args.experiment,
     });
 

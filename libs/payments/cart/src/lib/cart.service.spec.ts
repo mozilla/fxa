@@ -8,14 +8,16 @@ import { CartService } from './cart.service';
 import { faker } from '@faker-js/faker';
 import { ResultCartFactory, UpdateCartFactory } from './cart.factories';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
 
 describe('#payments-cart - service', () => {
   let cartService: CartService;
   let cartManager: CartManager;
+  let accountCustomerManager: AccountCustomerManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [CartService, CartManager],
+      providers: [CartService, CartManager, AccountCustomerManager],
     })
       .overrideProvider(CartManager)
       .useValue({
@@ -27,10 +29,15 @@ describe('#payments-cart - service', () => {
         finishErrorCart: jest.fn(),
         deleteCart: jest.fn(),
       })
+      .overrideProvider(AccountCustomerManager)
+      .useValue({
+        getStripeCustomerIdByUid: jest.fn(),
+      })
       .compile();
 
     cartService = moduleRef.get(CartService);
     cartManager = moduleRef.get(CartManager);
+    accountCustomerManager = moduleRef.get(AccountCustomerManager);
   });
 
   describe('setupCart', () => {
@@ -42,6 +49,9 @@ describe('#payments-cart - service', () => {
         promoCode: faker.word.noun(),
         uid: faker.string.uuid(),
       };
+      jest
+        .spyOn(accountCustomerManager, 'getStripeCustomerIdByUid')
+        .mockResolvedValue('cus_id');
 
       await cartService.setupCart(args);
 
@@ -50,7 +60,7 @@ describe('#payments-cart - service', () => {
         offeringConfigId: args.offeringConfigId,
         amount: 0,
         uid: args.uid,
-        stripeCustomerId: undefined,
+        stripeCustomerId: 'cus_id',
         experiment: args.experiment,
       });
     });

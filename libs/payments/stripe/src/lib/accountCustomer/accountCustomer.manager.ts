@@ -4,10 +4,8 @@
 
 import { Inject, Injectable } from '@nestjs/common';
 
-import {
-  AccountDatabase,
-  AccountDbProvider,
-} from '@fxa/shared/db/mysql/account';
+import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
+import { AccountDbProvider } from '@fxa/shared/db/mysql/account';
 import {
   AccountCustomerNotCreatedError,
   AccountCustomerNotDeletedError,
@@ -64,6 +62,15 @@ export class AccountCustomerManager {
       };
     } catch (error) {
       throw new AccountCustomerNotFoundError(uid, error);
+    }
+  }
+
+  public async getStripeCustomerIdByUid(uid: string) {
+    try {
+      const { stripeCustomerId } = await this.getAccountCustomerByUid(uid);
+      return stripeCustomerId;
+    } catch (error) {
+      return null;
     }
   }
 
