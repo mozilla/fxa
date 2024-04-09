@@ -4,6 +4,8 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { SettingsPage } from '../../pages/settings';
+import { TotpCredentials, TotpPage } from '../../pages/settings/totp';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
@@ -12,28 +14,22 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293446
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293452
     test('add and remove totp', async ({
       credentials,
-      pages: { settings, totp, login, page },
+      pages: { settings, totp, login },
     }) => {
       await settings.goto();
-      let status = await settings.totp.statusText();
-      expect(status).toEqual('Not Set');
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      const { secret } = await addTotp(settings, totp);
       credentials.secret = secret;
-      await settings.waitForAlertBar();
-      status = await settings.totp.statusText();
-      expect(status).toEqual('Enabled');
-      await settings.totp.clickDisable();
-      await settings.clickModalConfirm();
-      // wait for alert bar message
-      await page.getByText('Two-step authentication disabled').waitFor();
-      status = await settings.totp.statusText();
-      expect(status).toEqual('Not Set');
-      credentials.secret = null;
+      await settings.totp.disableButton.click();
+      await settings.modalConfirmButton.click();
+      credentials.secret = '';
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication disabled'
+      );
+      await expect(settings.totp.status).toHaveText('Not Set');
 
       // Login to verify no prompt for code
       await settings.signOut();
@@ -41,87 +37,103 @@ test.describe('severity-1 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293445
-    test('totp use QR code #1293445', async ({
+    test('totp use QR code', async ({
       credentials,
       pages: { settings, totp },
     }) => {
       await settings.goto();
-      let status = await settings.totp.statusText();
-      expect(status).toEqual('Not Set');
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm('qr');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.totp.status).toHaveText('Not Set');
+
+      await settings.totp.addButton.click();
+      const secret = await totp.fillOutStep1FormQR();
+      const recoveryCodes = await totp.fillOutStep2Form();
+      await totp.fillOutStep3Form(recoveryCodes[0]);
       credentials.secret = secret;
-      await settings.waitForAlertBar();
-      status = await settings.totp.statusText();
-      expect(status).toEqual('Enabled');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Two-step authentication enabled'
+      );
+      await expect(settings.totp.status).toHaveText('Enabled');
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293459
     test('add TOTP and login', async ({
       credentials,
       pages: { login, settings, totp },
     }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      const { secret } = await addTotp(settings, totp);
       credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
       await login.setTotp(credentials.secret);
-      const status = await settings.totp.statusText();
-      expect(status).toEqual('Enabled');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.totp.status).toHaveText('Enabled');
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293450
-    test('can change backup authentication codes #1293450', async ({
+    test('totp invalid recovery code', async ({
+      credentials,
+      pages: { settings, totp, login },
+    }) => {
+      await settings.goto();
+      const { secret } = await addTotp(settings, totp);
+      credentials.secret = secret;
+      await settings.signOut();
+      await login.login(credentials.email, credentials.password);
+      await login.clickUseRecoveryCode();
+      await login.setCode('invalid!!!!');
+      await login.submitButton.click();
+
+      await expect(login.tooltip).toHaveText(
+        'Invalid backup authentication code'
+      );
+    });
+
+    test('can change backup authentication codes', async ({
       credentials,
       page,
       pages: { settings, totp, login },
     }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret, recoveryCodes } =
-        await totp.fillOutTwoStepAuthenticationForm();
+      const { secret, recoveryCodes } = await addTotp(settings, totp);
       credentials.secret = secret;
-      await settings.totp.clickChange();
-      await settings.clickModalConfirm();
+      await settings.totp.changeButton.click();
+      await settings.modalConfirmButton.click();
+
       const newCodes = await totp.getRecoveryCodes();
-      for (const code of recoveryCodes) {
-        expect(newCodes).not.toContain(code);
-      }
-      await settings.clickRecoveryCodeAck();
+      expect(newCodes.some((c) => recoveryCodes.includes(c))).toBe(false);
+
+      await totp.step2ContinueButton.click();
       await totp.step3RecoveryCodeTextbox.fill(newCodes[0]);
       await totp.step3FinishButton.click();
-      await settings.waitForAlertBar();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Account backup authentication codes updated'
+      );
+
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
-
-      // Make sure an invalid code doesn't work
       await login.clickUseRecoveryCode();
-      await login.setCode('invalid!!!!');
-      await login.submitButton.click();
-      await expect(login.tooltip).toContainText('Invalid');
-
-      // Apply the correct code
       await login.setCode(newCodes[0]);
       await login.submit();
 
       expect(page.url()).toContain(settings.url);
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293460
-    test('can get new backup authentication codes via email #1293460', async ({
+    test('can get new backup authentication codes via email', async ({
       target,
       credentials,
       pages: { page, login, settings, totp },
-    }, { project }) => {
+    }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret, recoveryCodes } =
-        await totp.fillOutTwoStepAuthenticationForm();
+      const { secret, recoveryCodes } = await addTotp(settings, totp);
       credentials.secret = secret;
       await settings.signOut();
+
       for (let i = 0; i < recoveryCodes.length - 3; i++) {
         await login.login(
           credentials.email,
@@ -147,28 +159,51 @@ test.describe('severity-1 #smoke', () => {
       expect(newCodes.length).toEqual(recoveryCodes.length);
     });
 
-    // https://testrail.stage.mozaws.net/index.php?/cases/view/1293461
-    test('delete account with totp enabled #1293461', async ({
+    test('delete account with totp enabled', async ({
       credentials,
       page,
       pages: { settings, totp, login, deleteAccount },
     }) => {
       await settings.goto();
-      await settings.totp.clickAdd();
-      const { secret } = await totp.fillOutTwoStepAuthenticationForm();
+      const { secret } = await addTotp(settings, totp);
       credentials.secret = secret;
       await settings.signOut();
       await login.login(credentials.email, credentials.password);
       await login.setTotp(credentials.secret);
-      await settings.clickDeleteAccount();
+
+      await settings.deleteAccountButton.click();
+
+      await expect(deleteAccount.deleteAccountHeading).toBeVisible();
+      await expect(deleteAccount.step1Heading).toBeVisible();
+
       await deleteAccount.checkAllBoxes();
-      await deleteAccount.clickContinue();
-      await deleteAccount.setPassword(credentials.password);
-      await deleteAccount.submit();
-      const success = await page.waitForSelector('.success');
-      // TODO: "Error: toBeVisible can be only used with Locator object"
-      // eslint-disable-next-line playwright/prefer-web-first-assertions
-      expect(await success.isVisible()).toBeTruthy();
+      await deleteAccount.continueButton.click();
+
+      await expect(deleteAccount.step2Heading).toBeVisible();
+
+      await deleteAccount.passwordTextbox.fill(credentials.password);
+      await deleteAccount.deleteButton.click();
+
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 });
+
+async function addTotp(
+  settings: SettingsPage,
+  totp: TotpPage
+): Promise<TotpCredentials> {
+  await expect(settings.settingsHeading).toBeVisible();
+  await expect(settings.totp.status).toHaveText('Not Set');
+
+  await settings.totp.addButton.click();
+  const totpCredentials = await totp.fillOutTotpForms();
+
+  await expect(settings.settingsHeading).toBeVisible();
+  await expect(settings.alertBar).toHaveText('Two-step authentication enabled');
+  await expect(settings.totp.status).toHaveText('Enabled');
+
+  return totpCredentials;
+}

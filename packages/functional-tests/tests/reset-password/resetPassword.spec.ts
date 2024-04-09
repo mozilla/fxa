@@ -69,6 +69,27 @@ test.describe('severity-2 #smoke', () => {
       credentials.password = NEW_PASSWORD;
     });
 
+    test('forgot password', async ({
+      target,
+      credentials,
+      page,
+      pages: { login, settings },
+    }) => {
+      await page.goto(target.contentServerUrl + '/reset_password');
+      await login.setEmail(credentials.email);
+      await login.clickSubmit();
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link, { waitUntil: 'load' });
+      await login.setNewPassword(credentials.password);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toBeVisible();
+    });
+
     test('visit confirmation screen without initiating reset_password, user is redirected to /reset_password', async ({
       target,
       page,

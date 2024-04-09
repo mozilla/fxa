@@ -5,19 +5,20 @@ const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key react', () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      test.slow();
+
+      // Ensure that the react reset password route feature flag is enabled
+      const config = await configPage.getConfig();
+      test.skip(config.showReactApp.resetPasswordRoutes !== true);
+    });
+
     test('can reset password with recovery key', async ({
       target,
       page,
       credentials,
       pages: { configPage, settings, recoveryKey, login, resetPasswordReact },
     }) => {
-      // Generating and consuming recovery keys is a slow process
-      test.slow();
-
-      // Ensure that the react reset password route feature flag is enabled
-      const config = await configPage.getConfig();
-      test.skip(config.showReactApp.resetPasswordRoutes !== true);
-
       await settings.goto();
 
       await expect(settings.settingsHeading).toBeVisible();
@@ -25,7 +26,7 @@ test.describe('severity-1 #smoke', () => {
 
       await settings.recoveryKey.createButton.click();
 
-      const key = await recoveryKey.fillOutRecoveryKeyForms(
+      const key = await recoveryKey.createRecoveryKey(
         credentials.password,
         HINT
       );
@@ -63,13 +64,8 @@ test.describe('severity-1 #smoke', () => {
         EmailHeader.link
       );
       await page.goto(link);
-
-      await expect(resetPasswordReact.confirmRecoveryKeyHeading).toBeVisible();
-
-      await resetPasswordReact.submitRecoveryKey(key);
-
+      await resetPasswordReact.fillOutRecoveryKeyForm(key);
       await resetPasswordReact.fillOutNewPasswordForm(NEW_PASSWORD);
-
       // After using a recovery key to reset password, expect to be prompted to create a new one
       await resetPasswordReact.generateRecoveryKeyButton.click();
       await page.waitForURL(/settings\/account_recovery/);
@@ -97,6 +93,45 @@ test.describe('severity-1 #smoke', () => {
 
       // Cleanup requires setting this value to correct password
       credentials.password = NEW_PASSWORD;
+    });
+
+    test('forgot password has account recovery key but skip using it', async ({
+      target,
+      credentials,
+      page,
+      pages: { settings, recoveryKey, resetPasswordReact },
+    }) => {
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
+      await settings.recoveryKey.createButton.click();
+      await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+      await resetPasswordReact.goto();
+
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link);
+      await resetPasswordReact.forgotKeyLink.click();
+      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
   });
 });

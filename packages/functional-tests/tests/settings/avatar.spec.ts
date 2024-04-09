@@ -4,35 +4,67 @@
 
 import { test, expect } from '../../lib/fixtures/standard';
 
+const AVATAR_IMAGE_PATH = './pages/settings/avatar.png';
+
 test.describe('severity-1 #smoke', () => {
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293498
-  test('settings avatar drop-down #1293498', async ({
+  test('open and close avatar drop-down menu', async ({
     credentials,
-    page,
     pages: { settings },
   }) => {
     await settings.goto();
+
+    await expect(settings.avatarDropDownMenu).toBeHidden();
+
     await settings.avatarDropDownMenuToggle.click();
+
     await expect(settings.avatarDropDownMenu).toBeVisible();
     await expect(settings.avatarDropDownMenu).toContainText(credentials.email);
-    await page.keyboard.press('Escape');
+
+    await settings.settingsHeading.click(); // Click anywhere outside menu
+
     await expect(settings.avatarDropDownMenu).toBeHidden();
-    await settings.signOut();
   });
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293513
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293517
-  test('upload avatar #1293513 #1293517', async ({
+  test('upload and remove avatar profile photo', async ({
     pages: { settings, avatar },
   }) => {
     await settings.goto();
-    await settings.avatar.clickAdd();
-    const filechooser = await avatar.clickAddPhoto();
-    await filechooser.setFiles('./pages/settings/avatar.png');
-    await avatar.clickSave();
-    expect(await settings.avatar.isDefault()).toBeFalsy();
-    await settings.avatar.clickChange();
-    await avatar.clickRemove();
-    expect(await settings.avatar.isDefault()).toBeTruthy();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.avatar.photo).toHaveAttribute('src', /avatar/);
+    await expect(settings.avatarDropDownMenuPhoto).toHaveAttribute(
+      'src',
+      /avatar/
+    );
+
+    await settings.avatar.addButton.click();
+
+    await expect(avatar.profilePictureHeading).toBeVisible();
+    await expect(avatar.photo).toHaveAttribute('src', /avatar/);
+    await expect(avatar.saveButton).toBeDisabled();
+
+    await avatar.addPhoto(AVATAR_IMAGE_PATH);
+    await avatar.saveButton.click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.avatar.photo).not.toHaveAttribute('src', /avatar/);
+    await expect(settings.avatarDropDownMenuPhoto).not.toHaveAttribute(
+      'src',
+      /avatar/
+    );
+
+    await settings.avatar.changeButton.click();
+
+    await expect(avatar.profilePictureHeading).toBeVisible();
+    await expect(avatar.photo).not.toHaveAttribute('src', /avatar/);
+
+    await avatar.removePhotoButton.click();
+
+    await expect(settings.settingsHeading).toBeVisible();
+    await expect(settings.avatar.photo).toHaveAttribute('src', /avatar/);
+    await expect(settings.avatarDropDownMenuPhoto).toHaveAttribute(
+      'src',
+      /avatar/
+    );
   });
 });

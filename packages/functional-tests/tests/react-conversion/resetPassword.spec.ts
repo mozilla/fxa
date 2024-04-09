@@ -84,20 +84,42 @@ test.describe('severity-1 #smoke', () => {
       credentials.password = NEW_PASSWORD;
     });
 
+    test('forgot password', async ({
+      target,
+      credentials,
+      page,
+      pages: { resetPasswordReact },
+    }) => {
+      await resetPasswordReact.goto();
+
+      await resetPasswordReact.fillOutEmailForm(credentials.email);
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link);
+      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+
+      await expect(
+        resetPasswordReact.passwordResetConfirmationHeading
+      ).toBeVisible();
+    });
+
     const testCases = [
       {
         name: 'short password',
-        error_msg: 'At least 8 characters',
+        error: 'At least 8 characters',
         password: '2short',
       },
       {
         name: 'common password',
-        error_msg: 'Not a commonly used password',
+        error: 'Not a commonly used password',
         password: 'password',
       },
-      { name: 'email as password', error_msg: 'Not your email' },
+      { name: 'email as password', error: 'Not your email' },
     ];
-    for (const { name, error_msg, password } of testCases) {
+    for (const { name, error, password } of testCases) {
       test(`cannot set an invalid password - ${name}`, async ({
         target,
         credentials,
@@ -134,7 +156,7 @@ test.describe('severity-1 #smoke', () => {
 
         await diffResetPasswordReact.fillOutNewPasswordForm(passwordValue);
 
-        await expect(diffPage.getByText(error_msg)).toBeVisible();
+        await expect(diffPage.getByText(error)).toBeVisible();
         await expect(diffResetPasswordReact.newPasswordTextbox).toBeFocused();
       });
     }

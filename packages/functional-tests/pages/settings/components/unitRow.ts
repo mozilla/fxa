@@ -4,30 +4,8 @@ import { ConnectedService } from './connectedService';
 export class UnitRow {
   constructor(readonly page: Page, readonly id: string) {}
 
-  protected async clickCta() {
-    const waitForNavigation = this.page.waitForEvent('framenavigated');
-    await this.page.locator(`[data-testid=${this.id}-unit-row-route]`).click();
-    return waitForNavigation;
-  }
-
-  protected clickShowModal() {
-    return this.page.locator(`[data-testid=${this.id}-unit-row-modal]`).click();
-  }
-
-  protected clickShowSecondaryModal() {
-    return this.page
-      .locator(`[data-testid=${this.id}-secondary-unit-row-modal]`)
-      .click();
-  }
-
-  statusText() {
-    return this.page
-      .locator(`[data-testid=${this.id}-unit-row-header-value]`)
-      .innerText();
-  }
-
-  clickRefresh() {
-    return this.page.locator(`[data-testid=${this.id}-refresh]`).click();
+  get status() {
+    return this.page.getByTestId(`${this.id}-unit-row-header-value`);
   }
 
   async screenshot() {
@@ -39,91 +17,80 @@ export class UnitRow {
 }
 
 export class AvatarRow extends UnitRow {
-  async isDefault() {
-    const el = await this.page.$('[data-testid=avatar-nondefault]');
-    if (!el) {
-      return true;
-    }
-    const src = await el.getAttribute('src');
-    return src?.includes('/avatar/');
+  get photo() {
+    return this.page
+      .getByTestId('settings-profile')
+      .getByTestId('avatar-nondefault');
   }
 
-  clickAdd() {
-    return this.clickCta();
+  get addButton() {
+    return this.page.getByTestId('avatar-unit-row-route');
   }
 
-  clickChange() {
-    return this.clickCta();
+  get changeButton() {
+    return this.page.getByTestId('avatar-unit-row-route');
   }
 }
 
 export class DisplayNameRow extends UnitRow {
-  clickAdd() {
-    return this.clickCta();
+  get addButton() {
+    return this.page.getByTestId('display-name-unit-row-route');
+  }
+
+  get changeButton() {
+    return this.page.getByTestId('display-name-unit-row-route');
   }
 }
 
 export class PasswordRow extends UnitRow {
-  clickChange() {
-    return this.clickCta();
+  get changeButton() {
+    return this.page.getByTestId('password-unit-row-route');
   }
 }
 
 export class PrimaryEmailRow extends UnitRow {}
 
 export class SecondaryEmailRow extends UnitRow {
-  clickAdd() {
-    return this.clickCta();
+  get addButton() {
+    return this.page.getByTestId('secondary-email-unit-row-route');
   }
-  clickMakePrimary() {
-    return this.page
-      .locator('[data-testid=secondary-email-make-primary]')
-      .click();
+
+  get makePrimaryButton() {
+    return this.page.getByTestId('secondary-email-make-primary');
   }
-  clickDelete() {
-    return this.page.locator('[data-testid=secondary-email-delete]').click();
+
+  get deleteButton() {
+    return this.page.getByTestId('secondary-email-delete');
+  }
+
+  get unverifiedText() {
+    return this.page.getByTestId('secondary-email-unverified-text');
   }
 }
 
 export class RecoveryKeyRow extends UnitRow {
-  get status() {
-    return this.page.getByTestId('recovery-key-unit-row-header-value');
-  }
-
   get createButton() {
     return this.page.getByTestId('recovery-key-unit-row-route');
   }
 
-  clickCreate() {
-    return this.clickCta();
-  }
-
-  clickDelete() {
-    return this.page
-      .getByRole('button', { name: 'Delete account recovery key' })
-      .click();
+  get deleteButton() {
+    return this.page.getByRole('button', {
+      name: 'Delete account recovery key',
+    });
   }
 }
 
 export class TotpRow extends UnitRow {
-  get status() {
-    return this.page.getByTestId('two-step-unit-row-header-value');
-  }
-
   get addButton() {
     return this.page.getByTestId('two-step-unit-row-route');
   }
 
-  clickAdd() {
-    return this.clickCta();
+  get disableButton() {
+    return this.page.getByTestId('two-step-disable-button-unit-row-modal');
   }
-  clickChange() {
-    return this.clickShowModal();
-  }
-  clickDisable() {
-    return this.page
-      .locator(`[data-testid=two-step-disable-button-unit-row-modal]`)
-      .click();
+
+  get changeButton() {
+    return this.page.getByTestId('two-step-unit-row-modal');
   }
 }
 

@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { test, expect } from '../../lib/fixtures/standard';
+import { EmailHeader, EmailType } from '../../lib/email';
 import fs from 'fs';
 import pdfParse from 'pdf-parse';
 
@@ -10,13 +11,11 @@ const HINT = 'secret key location';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('recovery key test', () => {
-    test.beforeEach(
-      async ({ credentials, pages: { settings, recoveryKey } }) => {
-        // Generating and consuming recovery keys is a slow process
-        // Mail delivery can also be slow
-        test.slow();
-      }
-    );
+    test.beforeEach(async () => {
+      // Generating and consuming recovery keys is a slow process
+      // Mail delivery can also be slow
+      test.slow();
+    });
 
     test('can copy recovery key', async ({
       credentials,
@@ -27,27 +26,12 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
-      // Create new recovery key
       await settings.recoveryKey.createButton.click();
+      await recoveryKey.acknowledgeInfoForm();
+      await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
 
-      // View 1/4 info
-      await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
-
-      await recoveryKey.getStartedButton.click();
-
-      // View 2/4 confirm password and generate key
-      await expect(recoveryKey.passwordHeading).toBeVisible();
-
-      await recoveryKey.createKeyPasswordTextbox.fill(credentials.password);
-      await recoveryKey.createKeyButton.click();
-
-      // View 3/4 key download
       await expect(recoveryKey.recoveryKeyCreatedHeading).toBeVisible();
-
-      // Store key to be used later
       const newKey = await recoveryKey.recoveryKey.innerText();
-
-      // Test copy
       const clipboard = await recoveryKey.clickCopy();
       expect(clipboard).toEqual(newKey);
     });
@@ -61,24 +45,11 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
-      // Create new recovery key
       await settings.recoveryKey.createButton.click();
+      await recoveryKey.acknowledgeInfoForm();
+      await recoveryKey.fillOutConfirmPasswordForm(credentials.password);
 
-      // View 1/4 info
-      await expect(recoveryKey.createRecoveryKeyHeading).toBeVisible();
-
-      await recoveryKey.getStartedButton.click();
-
-      // View 2/4 confirm password and generate key
-      await expect(recoveryKey.passwordHeading).toBeVisible();
-
-      await recoveryKey.createKeyPasswordTextbox.fill(credentials.password);
-      await recoveryKey.createKeyButton.click();
-
-      // View 3/4 key download
       await expect(recoveryKey.recoveryKeyCreatedHeading).toBeVisible();
-
-      // Store key to be used later
       const newKey = await recoveryKey.recoveryKey.innerText();
 
       // Test download
@@ -98,17 +69,13 @@ test.describe('severity-1 #smoke', () => {
         await dl.saveAs(filename);
         expect(fs.existsSync(filename)).toBeTruthy();
 
-        const getPDF = async (file) => {
+        const getPDF = async (file: fs.PathOrFileDescriptor) => {
           const readFileSync = fs.readFileSync(file);
-          try {
-            const pdfExtract = await pdfParse(readFileSync);
-            // Verify downloaded file contains key
-            expect(pdfExtract.text).toContain(newKey);
-            // Verify the PDF file contains only one page
-            expect(pdfExtract.numpages).toEqual(1);
-          } catch (error) {
-            throw new Error(error);
-          }
+          const pdfExtract = await pdfParse(readFileSync);
+          // Verify downloaded file contains key
+          expect(pdfExtract.text).toContain(newKey);
+          // Verify the PDF file contains only one page
+          expect(pdfExtract.numpages).toEqual(1);
         };
         getPDF(filename);
       } finally {
@@ -127,16 +94,62 @@ test.describe('severity-1 #smoke', () => {
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
 
       await settings.recoveryKey.createButton.click();
-      await recoveryKey.fillOutRecoveryKeyForms(credentials.password, HINT);
+      await recoveryKey.createRecoveryKey(credentials.password, HINT);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Enabled');
 
-      await settings.recoveryKey.clickDelete();
-      await settings.clickModalConfirm();
+      await settings.recoveryKey.deleteButton.click();
 
-      await settings.waitForAlertBar();
+      await expect(settings.recoveryKeyModalHeading).toBeVisible();
+
+      await settings.modalConfirmButton.click();
+
       await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toHaveText(
+        'Account recovery key removed'
+      );
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+    });
+
+    test('forgot password has account recovery key but skip using it', async ({
+      target,
+      credentials,
+      page,
+      pages: { settings, login, configPage, recoveryKey },
+    }, { project }) => {
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.resetPasswordRoutes === true,
+        'Scheduled for removal as part of React conversion (see FXA-8267).'
+      );
+      test.slow(project.name !== 'local', 'email delivery can be slow');
+
+      await settings.goto();
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Not Set');
+
+      await settings.recoveryKey.createButton.click();
+      await recoveryKey.createRecoveryKey(credentials.password, 'hint');
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.recoveryKey.status).toHaveText('Enabled');
+
+      await page.goto(target.contentServerUrl + '/reset_password');
+      await login.setEmail(credentials.email);
+      await login.clickSubmit();
+      const link = await target.email.waitForEmail(
+        credentials.email,
+        EmailType.recovery,
+        EmailHeader.link
+      );
+      await page.goto(link);
+      await login.clickDontHaveRecoveryKey();
+      await login.setNewPassword(credentials.password);
+
+      await expect(settings.settingsHeading).toBeVisible();
+      await expect(settings.alertBar).toBeVisible();
       await expect(settings.recoveryKey.status).toHaveText('Not Set');
     });
   });

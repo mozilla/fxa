@@ -5,8 +5,6 @@
 import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
 import { oauthWebchannelV1 } from '../../lib/query-params';
 
-let skipTest = false;
-
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('fxa_status web channel message in Settings', () => {
@@ -22,8 +20,7 @@ test.describe('fxa_status web channel message in Settings', () => {
       // Ensure that the feature flag is enabled
       const [email, otherEmail] = emails;
       const config = await configPage.getConfig();
-      skipTest = config.featureFlags.sendFxAStatusOnSettings !== true;
-      test.skip(skipTest);
+      test.skip(config.featureFlags.sendFxAStatusOnSettings !== true);
       await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
@@ -51,7 +48,7 @@ test.describe('fxa_status web channel message in Settings', () => {
     // accessing the setting with a `context=oauth_webchannel_v1` the account
     // signed into the browser takes precedence
     await settings.goto(oauthWebchannelV1.toString());
-    expect(await settings.primaryEmail.statusText()).toBe(email);
+    await expect(settings.primaryEmail.status).toHaveText(email);
   });
 
   test('message is not sent when loading without oauth web channel context', async ({
@@ -62,6 +59,6 @@ test.describe('fxa_status web channel message in Settings', () => {
     // We verify that when accessing the setting without the `context=oauth_webchannel_v1`
     // the newer account takes precedence
     await settings.goto();
-    expect(await settings.primaryEmail.statusText()).toBe(otherEmail);
+    await expect(settings.primaryEmail.status).toHaveText(otherEmail);
   });
 });

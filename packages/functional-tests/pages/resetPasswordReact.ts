@@ -69,6 +69,24 @@ export class ResetPasswordReactPage extends BaseLayout {
     });
   }
 
+  get recoveryKeyTextbox() {
+    return this.page
+      .getByRole('textbox', { name: 'recoveryKey' })
+      .or(this.page.getByTestId('account-recovery-confirm-key-input-field'));
+  }
+
+  get confirmRecoveryKeyButton() {
+    return this.page.getByRole('button', {
+      name: 'Confirm account recovery key',
+    });
+  }
+
+  get forgotKeyLink() {
+    return this.page.getByRole('link', {
+      name: 'Don’t have an account recovery key?',
+    });
+  }
+
   goto(route = '/reset_password', query?: string) {
     return this.page.goto(getReactFeatureFlagUrl(this.target, route, query));
   }
@@ -81,11 +99,11 @@ export class ResetPasswordReactPage extends BaseLayout {
     await this.resetPasswordButton.click();
   }
 
-  async submitRecoveryKey(key: string, page: BaseLayout['page'] = this.page) {
-    const recoveryKeyInput = page.getByRole('textbox');
-    const submitButton = page.getByRole('button');
-    await recoveryKeyInput.fill(key);
-    await submitButton.click();
+  async fillOutRecoveryKeyForm(key: string) {
+    await expect(this.confirmRecoveryKeyHeading).toBeVisible();
+
+    await this.recoveryKeyTextbox.fill(key);
+    await this.confirmRecoveryKeyButton.click();
   }
 
   async fillOutEmailForm(email: string): Promise<void> {
@@ -93,13 +111,5 @@ export class ResetPasswordReactPage extends BaseLayout {
 
     await this.emailTextbox.fill(email);
     await this.beginResetButton.click();
-  }
-
-  async clickDontHaveRecoveryKey(page: BaseLayout['page'] = this.page) {
-    const forgotKeyLink = page.getByRole('link', {
-      name: 'Don’t have an account recovery key?',
-    });
-    await forgotKeyLink.waitFor();
-    await forgotKeyLink.click();
   }
 }

@@ -1,24 +1,32 @@
+import { expect } from '@playwright/test';
 import { SettingsLayout } from './layout';
 
 export class DisplayNamePage extends SettingsLayout {
   readonly path = 'settings/display_name';
 
-  displayName() {
-    return this.page.$eval('input[type=text]', (el: any) => el.value);
+  get displayNameHeading() {
+    return this.page.getByRole('heading', { name: 'Display name' });
   }
 
-  setDisplayName(name: string) {
-    return this.page.fill('input[type=text]', name);
+  get displayNameTextbox() {
+    return this.page.getByTestId('input-field');
   }
 
-  clickCancelDisplayName() {
-    return this.page.click('[data-testid="cancel-display-name"]');
+  get cancelButton() {
+    return this.page.getByRole('button', { name: 'Cancel' });
   }
 
-  submit() {
-    return Promise.all([
-      this.page.locator('button[type=submit]').click(),
-      this.page.waitForEvent('framenavigated'),
-    ]);
+  get saveButton() {
+    return this.page.getByRole('button', { name: 'Save' });
+  }
+
+  async fillOutForm(name: string, submit = false) {
+    await expect(this.displayNameHeading).toBeVisible();
+
+    await this.displayNameTextbox.fill(name);
+
+    if (submit) {
+      this.saveButton.click();
+    }
   }
 }

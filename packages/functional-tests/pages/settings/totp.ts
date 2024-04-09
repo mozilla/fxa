@@ -33,6 +33,10 @@ export class TotpPage extends SettingsLayout {
     return this.page.getByTestId('manual-code');
   }
 
+  get step1QRCode() {
+    return this.page.getByTestId('2fa-qr-code');
+  }
+
   get step1AuthenticationCodeTextbox() {
     return this.page.getByTestId('totp-input-label');
   }
@@ -65,9 +69,11 @@ export class TotpPage extends SettingsLayout {
     return this.page.getByTestId('recovery-code-input-field');
   }
 
-  async useQRCode() {
-    const qr = await this.page.waitForSelector('[data-testid="2fa-qr-code"]');
-    const png = await qr.screenshot();
+  async fillOutStep1FormQR(): Promise<string> {
+    await expect(this.twoStepAuthenticationHeading).toBeVisible();
+    await expect(this.step1Heading).toBeVisible();
+
+    const png = await this.step1QRCode.screenshot();
     const img = UPNG.decode(png);
     const { data } = jsQR(
       new Uint8ClampedArray(UPNG.toRGBA8(img)[0]),
@@ -84,19 +90,20 @@ export class TotpPage extends SettingsLayout {
     }
 
     const code = await getCode(secret);
-    await this.page.fill('input[type=text]', code);
+    await this.step1AuthenticationCodeTextbox.fill(code);
+    await this.step1SubmitButton.click();
     return secret;
   }
 
-  async getNextCode(secret: string) {
-    return await getCode(secret);
-  }
+  async fillOutStep1FormManual(): Promise<string> {
+    await expect(this.twoStepAuthenticationHeading).toBeVisible();
+    await expect(this.step1Heading).toBeVisible();
 
-  async useManualCode(): Promise<string> {
     await this.step1CantScanCodeLink.click();
     const secret = (await this.step1ManualCode.innerText())?.replace(/\s/g, '');
     const code = await getCode(secret);
     await this.step1AuthenticationCodeTextbox.fill(code);
+    await this.step1SubmitButton.click();
     return secret;
   }
 
@@ -105,26 +112,25 @@ export class TotpPage extends SettingsLayout {
     return codesRaw ? codesRaw.trim().split(/\s+/) : [];
   }
 
-  async fillOutTwoStepAuthenticationForm(
-    method: 'qr' | 'manual' = 'manual'
-  ): Promise<TotpCredentials> {
-    await expect(this.twoStepAuthenticationHeading).toBeVisible();
-    await expect(this.step1Heading).toBeVisible();
-
-    const secret =
-      method === 'qr' ? await this.useQRCode() : await this.useManualCode();
-    await this.step1SubmitButton.click();
-
+  async fillOutStep2Form(): Promise<string[]> {
     await expect(this.step2Heading).toBeVisible();
 
     const recoveryCodes = await this.getRecoveryCodes();
     await this.step2ContinueButton.click();
+    return recoveryCodes;
+  }
 
+  async fillOutStep3Form(recoveryCode: string): Promise<void> {
     await expect(this.step3Heading).toBeVisible();
 
-    await this.step3RecoveryCodeTextbox.fill(recoveryCodes[0]);
+    await this.step3RecoveryCodeTextbox.fill(recoveryCode);
     await this.step3FinishButton.click();
+  }
 
+  async fillOutTotpForms(): Promise<TotpCredentials> {
+    const secret = await this.fillOutStep1FormManual();
+    const recoveryCodes = await this.fillOutStep2Form();
+    await this.fillOutStep3Form(recoveryCodes[0]);
     return { secret, recoveryCodes };
   }
 }
