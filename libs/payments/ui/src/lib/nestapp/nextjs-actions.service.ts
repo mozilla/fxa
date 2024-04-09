@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CartService } from '@fxa/payments/cart';
+import { CartService, UpdateCart } from '@fxa/payments/cart';
 import { Injectable } from '@nestjs/common';
 
 /**
@@ -15,8 +15,21 @@ export class NextJSActionsService {
   constructor(private cartService: CartService) {}
 
   async getCart(cartId: string) {
+    // TODO: validate incoming arguments with class-validator
+
     const cart = await this.cartService.getCart(cartId);
 
     return cart;
+  }
+
+  async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
+    // TODO: validate incoming arguments with class-validator
+
+    await this.cartService.updateCart(cartId, version, {
+      uid: cartDetails.uid,
+      taxAddress: cartDetails.taxAddress,
+      couponCode: cartDetails.couponCode,
+      email: cartDetails.email,
+    });
   }
 }
