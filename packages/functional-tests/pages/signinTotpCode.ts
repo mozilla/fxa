@@ -4,16 +4,11 @@
 
 import { BaseTokenCodePage } from './baseTokenCode';
 
-export class SigninTokenCodePage extends BaseTokenCodePage {
-  readonly path = '/signin_token_code';
+export class SigninTotpCodePage extends BaseTokenCodePage {
+  readonly path = '/signin_totp_code';
 
-  get tokenCodeHeader() {
+  get input() {
     this.checkPath();
-    return this.page.locator('#fxa-signin-code-header');
-  }
-
-  get resendLink() {
-    this.checkPath();
-    return this.page.locator('#resend');
+    return this.page.locator('input[type=number]');
   }
 }

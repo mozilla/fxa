@@ -2,8 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { sign } from 'crypto';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import { getCode } from 'fxa-settings/src/lib/totp';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -20,129 +22,186 @@ test.describe('severity-2 #smoke', () => {
       test.slow();
     });
 
-    test('verified, does not need to confirm', async ({
+    test('verified email, does not need to confirm', async ({
       target,
       credentials,
       syncBrowserPages,
     }) => {
       const email = credentials.email;
-      const { page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
+      const { page, login, connectAnotherDevice } = syncBrowserPages;
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
-      await login.setPassword(PASSWORD);
-      await login.submit();
+      await login.login(email, PASSWORD);
+
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
-    test('verified, resend', async ({ emails, target, syncBrowserPages }) => {
-      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
+    test('verified email with signin verification, can ask to resend code', async ({
+      emails,
+      target,
+      syncBrowserPages,
+    }) => {
+      const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
+
       const [email] = emails;
-      const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react, see FXA-8973'
-      );
+
+      // Simulate a new sign up that requires a signin verification code.
+      target.auth.signUp(email, PASSWORD, {
+        service: 'sync',
+        preVerified: 'true',
+      });
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
-      await login.submit();
+      await login.login(email, PASSWORD);
 
       // Click resend link
       await signinTokenCode.resendLink.click();
-      await signinTokenCode.successMessage.waitFor({ state: 'visible' });
       await expect(signinTokenCode.successMessage).toBeVisible();
       await expect(signinTokenCode.successMessage).toContainText(
         /Email re-?sent/
       );
       const code = await target.email.waitForEmail(
         email,
-        EmailType.verifyShortCode,
-        EmailHeader.shortCode
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
       );
       await signinTokenCode.input.fill(code);
-      await login.submit();
+      await signinTokenCode.submit.click();
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verified - invalid code', async ({
+    test('verified email with signin verification, accepts valid sign in code', async ({
       emails,
       target,
       syncBrowserPages,
     }) => {
-      const { configPage, page, login, connectAnotherDevice, signinTokenCode } =
+      const { page, login, connectAnotherDevice, signinTokenCode } =
         syncBrowserPages;
+
       const [email] = emails;
-      const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.signUpRoutes,
-        'this test goes through the signup flow instead of sign in, skipping for react, see FXA-8973'
-      );
+
+      // Simulate a new sign up that requires a signin verification code.
+      target.auth.signUp(email, PASSWORD, {
+        service: 'sync',
+        preVerified: 'true',
+      });
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
-      await login.submit();
+      await login.login(email, PASSWORD);
+
+      const code = await target.email.waitForEmail(
+        email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.input.fill(code);
+      await signinTokenCode.submit.click();
+
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+    });
+
+    test('verified email with signin verification, rejects invalid signin code', async ({
+      emails,
+      target,
+      syncBrowserPages,
+    }) => {
+      const { page, login, connectAnotherDevice, signinTokenCode } =
+        syncBrowserPages;
+
+      const [email] = emails;
+
+      // Simulate a new sign up that requires a signin verification code.
+      target.auth.signUp(email, PASSWORD, {
+        service: 'sync',
+        preVerified: 'true',
+      });
+
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
+      );
+      await login.login(email, PASSWORD);
 
       // Input invalid code and verify the tooltip error
       await signinTokenCode.input.fill('000000');
       await signinTokenCode.submit.click();
+
+      await expect(signinTokenCode.tooltip).toBeVisible();
       await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
 
-      //Input Valid code and verify the success
-      await login.fillOutSignUpCode(email);
+      const code = await target.email.waitForEmail(
+        email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await signinTokenCode.input.fill(code);
+      await signinTokenCode.submit.click();
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verified, blocked', async ({ emails, target, syncBrowserPages }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
+    test('verified email, in blocked state', async ({
+      emails,
+      target,
+      syncBrowserPages,
+    }) => {
+      const { page, login, signinUnblock, connectAnotherDevice } =
         syncBrowserPages;
       const [, blockedEmail] = emails;
       await target.auth.signUp(blockedEmail, PASSWORD, {
+        service: 'sync',
         lang: 'en',
         preVerified: 'true',
       });
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.setEmail(blockedEmail);
-      await signinTokenCode.clickSubmitButton();
-      await login.setPassword(PASSWORD);
-      await login.submit();
-      await login.unblock(blockedEmail);
+      await login.login(blockedEmail, PASSWORD);
+
+      const code = await target.email.waitForEmail(
+        blockedEmail,
+        EmailType.unblockCode,
+        EmailHeader.unblockCode
+      );
+      await signinUnblock.input.fill(code);
+      await signinUnblock.submit.click();
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('unverified', async ({ emails, target, syncBrowserPages }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
+    test('unverified email', async ({ emails, target, syncBrowserPages }) => {
+      const { page, login, connectAnotherDevice, confirmSignupCode } =
         syncBrowserPages;
       const [email] = emails;
+
       await target.auth.signUp(email, PASSWORD, {
+        service: 'sync',
         lang: 'en',
         preVerified: 'false',
       });
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.setEmail(email);
-      await signinTokenCode.clickSubmitButton();
-      await login.setPassword(PASSWORD);
-      await login.submit();
-      await login.fillOutSignInCode(email);
+      await login.login(email, PASSWORD);
+
+      // Since the account is not verified yet, we'd expect to see the signup code confirmation
+      const code = await target.email.waitForEmail(
+        email,
+        EmailType.verifyLoginCode,
+        EmailHeader.signinCode
+      );
+      await confirmSignupCode.input.fill(code);
+      await confirmSignupCode.submit.click();
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
@@ -151,8 +210,14 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages,
     }) => {
-      const { page, login, connectAnotherDevice, settings, totp } =
-        syncBrowserPages;
+      const {
+        page,
+        login,
+        connectAnotherDevice,
+        settings,
+        totp,
+        signinTotpCode,
+      } = syncBrowserPages;
 
       await settings.goto();
       await settings.totp.addButton.click();
@@ -160,13 +225,17 @@ test.describe('severity-2 #smoke', () => {
       credentials.secret = secret;
       await settings.signOut();
 
-      // Sync sign in
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
         { waitUntil: 'load' }
       );
+
       await login.login(credentials.email, credentials.password);
-      await login.setTotp(credentials.secret);
+
+      const code = await getCode(credentials.secret);
+      await signinTotpCode.input.fill(code);
+      await signinTotpCode.submit.click();
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });
