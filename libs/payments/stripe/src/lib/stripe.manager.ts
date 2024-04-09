@@ -62,6 +62,25 @@ export class StripeManager {
   }
 
   /**
+   * Cancels incomplete subscription
+   */
+  async cancelIncompleteSubscriptionsToPrice(
+    customerId: string,
+    priceId: string
+  ) {
+    const subscriptions = await this.getSubscriptions(customerId);
+    const targetSubs = subscriptions.data.filter((sub) =>
+      sub.items.data.find((item) => item.price.id === priceId)
+    );
+
+    for (const sub of targetSubs) {
+      if (sub && sub.status === 'incomplete') {
+        await this.client.subscriptionsCancel(sub.id);
+      }
+    }
+  }
+
+  /**
    * Retrieves subscriptions
    */
   async getSubscriptions(customerId: string) {
