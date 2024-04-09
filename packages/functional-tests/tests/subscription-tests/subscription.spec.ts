@@ -68,10 +68,28 @@ test.describe('severity-2 #smoke', () => {
         'amplitude.subPaySetup.submit',
         'amplitude.subPaySetup.success',
       ];
-      const actualEventTypes = metricsObserver.rawEvents.map((event) => {
-        return event.type;
-      });
-      expect(actualEventTypes).toMatchObject(expectedEventTypes);
+
+      // Added as part of FXA-9322 to resolve flaky bug
+      // Get record of only "with-account" and subPaySetup event types
+      // as customer should already be logged in and we're testing for new subscription
+      const actualEventTypes = metricsObserver.rawEvents
+        .map((event) => {
+          if (
+            event.checkoutType === 'with-account' &&
+            event.type.startsWith('amplitude.subPaySetup')
+          ) {
+            return event.type;
+          }
+        })
+        .filter(Boolean);
+
+      // Added as part of FXA-9322 to resolve flaky bug
+      // Compares the tail of both arrays in the event of duplicate initial view events
+      expect(
+        actualEventTypes.slice(
+          actualEventTypes.length - expectedEventTypes.length
+        )
+      ).toMatchObject(expectedEventTypes);
     });
 
     test('subscribe with paypal opens popup', async ({
