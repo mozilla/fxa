@@ -74,6 +74,7 @@ jest.mock('../../lib/glean', () => ({
       engage: jest.fn(),
       submit: jest.fn(),
       success: jest.fn(),
+      cwts: jest.fn(),
     },
   },
 }));
@@ -249,10 +250,10 @@ describe('Signup page', () => {
     await waitFor(() => {
       expect(GleanMetrics.registration.engage).toBeCalledTimes(2);
       expect(GleanMetrics.registration.engage).toBeCalledWith({
-        reason: 'password',
+        event: { reason: 'password' },
       });
       expect(GleanMetrics.registration.engage).toBeCalledWith({
-        reason: 'age',
+        event: { reason: 'age' },
       });
     });
   });
@@ -550,6 +551,16 @@ describe('Signup page', () => {
               },
             });
             expect(GleanMetrics.registration.success).toHaveBeenCalledTimes(1);
+            await waitFor(() => {
+              expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
+                sync: {
+                  cwts: offeredEngines.reduce((acc, engine) => {
+                    acc[engine] = true;
+                    return acc;
+                  }, {} as Record<string, boolean>),
+                },
+              });
+            });
           });
         });
 
@@ -614,6 +625,21 @@ describe('Signup page', () => {
                 },
               },
             });
+
+            await waitFor(() => {
+              expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
+                sync: {
+                  cwts: {
+                    ...offeredEngines.reduce((acc, engine) => {
+                      acc[engine] = true;
+                      return acc;
+                    }, {} as Record<string, boolean>),
+                    prefs: false,
+                    bookmarks: false,
+                  },
+                },
+              });
+            });
           });
           it('zero CWTS options selected', async () => {
             await fillOutForm();
@@ -641,6 +667,17 @@ describe('Signup page', () => {
                   offeredEngines,
                 },
               },
+            });
+
+            await waitFor(() => {
+              expect(GleanMetrics.registration.cwts).toHaveBeenCalledWith({
+                sync: {
+                  cwts: offeredEngines.reduce((acc, engine) => {
+                    acc[engine] = false;
+                    return acc;
+                  }, {} as Record<string, boolean>),
+                },
+              });
             });
           });
         });

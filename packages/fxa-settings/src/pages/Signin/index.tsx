@@ -192,7 +192,7 @@ const Signin = ({
         await handleNavigation(navigationOptions, true);
       }
       if (error) {
-        GleanMetrics.login.error({ reason: error.message });
+        GleanMetrics.login.error({ event: { reason: error.message } });
         const { errno } = error;
 
         const localizedErrorMessage = getLocalizedErrorMessage(

@@ -150,6 +150,37 @@ session:
     data_sensitivity:
       - interaction
 
+sync:
+  cwts:
+    type: labeled_boolean
+    description: |
+      The set of Sync engine options at the time of an account sign up via
+      Sync.  For example, if the user only opted into syncing their Firefox
+      bookmarks and history, then "bookmarks" and "history" will have true for
+      their values, while the rest of the labels will have false.
+    labels:
+      - bookmarks
+      - history
+      - passwords
+      - addons
+      - tabs
+      - prefs
+      - addresses
+      - creditcards
+    lifetime: ping
+    send_in_pings:
+      - accounts-events
+    notification_emails:
+      - vzare@mozilla.com
+      - fxa-staff@mozilla.com
+    bugs:
+      - https://mozilla-hub.atlassian.net/browse/FXA-8254
+    data_reviews:
+      - https://bugzilla.mozilla.org/show_bug.cgi?id=1890377
+    expires: never
+    data_sensitivity:
+      - interaction
+
 utm:
   campaign:
     description: |

@@ -486,7 +486,7 @@ describe('Signin', () => {
           });
           expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
           expect(GleanMetrics.login.error).toHaveBeenCalledWith({
-            reason: response.error.message,
+            event: { reason: response.error.message },
           });
           expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
         });
@@ -549,7 +549,7 @@ describe('Signin', () => {
         });
         expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.login.error).toHaveBeenCalledWith({
-          reason: AuthUiErrors.EMAIL_HARD_BOUNCE.message,
+          event: { reason: AuthUiErrors.EMAIL_HARD_BOUNCE.message },
         });
         expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
       });

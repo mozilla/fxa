@@ -5,10 +5,10 @@
 import React, { ChangeEvent } from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import InputCheckboxBlue from '../InputCheckboxBlue';
-import { EngineConfig } from './sync-engines';
+import { syncEngineConfigs } from './sync-engines';
 
 export type ChooseWhatToSyncProps = {
-  offeredSyncEngineConfigs: EngineConfig[];
+  offeredSyncEngineConfigs: typeof syncEngineConfigs;
   setDeclinedSyncEngines: React.Dispatch<React.SetStateAction<string[]>>;
 };
 
