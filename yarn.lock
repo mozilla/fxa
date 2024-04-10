@@ -9360,12 +9360,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/tasks@npm:^4.0.1":
-  version: 4.1.0
-  resolution: "@google-cloud/tasks@npm:4.1.0"
+"@google-cloud/tasks@npm:^5.3.0":
+  version: 5.3.0
+  resolution: "@google-cloud/tasks@npm:5.3.0"
   dependencies:
     google-gax: ^4.0.4
-  checksum: a04ec8ec8f538b74e81e6d2d5834d964ff86d78f67b3a1287779575180c998da6637dd41e8ec0913de208873d679deecde78d89fa8bd483094abb8ec5161992c
+  checksum: 492e3c90d92ff819e6fa4c41a9d075e207e6179c67831c59ac590ad1b2dab0f198081b0f444df5b474aa394b3fc2fc09b13bbedc706050844bb333a771dbf731
   languageName: node
   linkType: hard
 
@@ -37868,7 +37868,7 @@ fsevents@~2.1.1:
   resolution: "fxa-admin-server@workspace:packages/fxa-admin-server"
   dependencies:
     "@golevelup/ts-jest": ^0.4.0
-    "@google-cloud/tasks": ^4.0.1
+    "@google-cloud/tasks": ^5.3.0
     "@nestjs/cli": ^9.4.0
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
@@ -37942,7 +37942,7 @@ fsevents@~2.1.1:
     "@fluent/bundle": ^0.18.0
     "@fluent/dom": ^0.9.0
     "@fluent/langneg": ^0.7.0
-    "@google-cloud/tasks": ^4.0.1
+    "@google-cloud/tasks": ^5.3.0
     "@googlemaps/google-maps-services-js": ^3.3.16
     "@hapi/hapi": ^20.2.1
     "@hapi/hoek": ^11.0.2
