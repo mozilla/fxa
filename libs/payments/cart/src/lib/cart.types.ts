@@ -54,7 +54,7 @@ export interface TaxAmount {
 
 export type UpdateCart = {
   uid?: string;
-  taxAddress?: string;
+  taxAddress?: TaxAddress;
   couponCode?: string;
   email?: string;
 };

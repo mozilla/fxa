@@ -4,12 +4,18 @@
 
 'use server';
 
+import { plainToClass } from 'class-transformer';
 import { app } from '../nestapp/app';
+import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
 
 export const getCartAction = async (cartId: string) => {
   const actionsService = await app.getActionsService();
 
-  const cart = await actionsService.getCart(cartId);
+  const cart = await actionsService.getCart(
+    plainToClass(GetCartActionArgs, {
+      cartId,
+    })
+  );
 
   return cart;
 };

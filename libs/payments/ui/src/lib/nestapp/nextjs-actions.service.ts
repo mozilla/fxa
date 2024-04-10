@@ -2,8 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { CartService, UpdateCart } from '@fxa/payments/cart';
+import { CartService } from '@fxa/payments/cart';
 import { Injectable } from '@nestjs/common';
+import { GetCartActionArgs } from './validators/GetCartActionArgs';
+import { Validator } from 'class-validator';
+import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -14,22 +17,21 @@ import { Injectable } from '@nestjs/common';
 export class NextJSActionsService {
   constructor(private cartService: CartService) {}
 
-  async getCart(cartId: string) {
-    // TODO: validate incoming arguments with class-validator
+  async getCart(args: GetCartActionArgs) {
+    new Validator().validateOrReject(args);
 
-    const cart = await this.cartService.getCart(cartId);
+    const cart = await this.cartService.getCart(args.cartId);
 
     return cart;
   }
 
-  async updateCart(cartId: string, version: number, cartDetails: UpdateCart) {
-    // TODO: validate incoming arguments with class-validator
+  async updateCart(args: UpdateCartActionArgs) {
+    new Validator().validateOrReject(args);
 
-    await this.cartService.updateCart(cartId, version, {
-      uid: cartDetails.uid,
-      taxAddress: cartDetails.taxAddress,
-      couponCode: cartDetails.couponCode,
-      email: cartDetails.email,
-    });
+    await this.cartService.updateCart(
+      args.cartId,
+      args.version,
+      args.cartDetails
+    );
   }
 }

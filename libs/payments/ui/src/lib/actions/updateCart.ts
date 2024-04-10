@@ -6,6 +6,8 @@
 
 import { UpdateCart } from '@fxa/payments/cart';
 import { app } from '../nestapp/app';
+import { UpdateCartActionArgs } from '../nestapp/validators/UpdateCartActionArgs';
+import { plainToClass } from 'class-transformer';
 
 export const updateCartAction = async (
   cartId: string,
@@ -14,5 +16,11 @@ export const updateCartAction = async (
 ) => {
   const actionsService = await app.getActionsService();
 
-  await actionsService.updateCart(cartId, version, cartDetails);
+  await actionsService.updateCart(
+    plainToClass(UpdateCartActionArgs, {
+      cartId,
+      version,
+      cartDetails,
+    })
+  );
 };
