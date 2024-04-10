@@ -122,6 +122,18 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('cancelSubscription', () => {
+    it('calls stripeclient', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+
+      mockClient.subscriptionsCancel = jest
+        .fn()
+        .mockResolvedValueOnce(undefined);
+
+      await manager.cancelSubscription(mockSubscription.id);
+    });
+  });
+
   describe('isCustomerStripeTaxEligible', () => {
     it('should return true for a taxable customer', async () => {
       const mockCustomer = StripeCustomerFactory({
