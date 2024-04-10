@@ -12,6 +12,12 @@ import mozlog, { Logger } from 'mozlog';
 
 const GLEAN_EVENT_MOZLOG_TYPE = 'glean-server-event';
 type LoggerOptions = { app: string; fmt?: 'heka' };
+type Event = {
+  category: string;
+  name: string;
+  extra?: Record<string, any>;
+  timestamp?: number;
+};
 
 let _logger: Logger;
 
@@ -101,7 +107,8 @@ class AccountsEventsServerEvent {
     utm_source: string;
     utm_term: string;
   }) {
-    const timestamp = new Date().toISOString();
+    const now = new Date();
+    const timestamp = now.toISOString();
     const eventPayload = {
       metrics: {
         string: {
@@ -154,7 +161,1551 @@ class AccountsEventsServerEvent {
     _logger.info(GLEAN_EVENT_MOZLOG_TYPE, ping);
   }
 }
+class EventsServerEventLogger {
+  _applicationId: string;
+  _appDisplayVersion: string;
+  _channel: string;
+  /**
+   * Create EventsServerEventLogger instance.
+   *
+   * @param {string} applicationId - The application ID.
+   * @param {string} appDisplayVersion - The application display version.
+   * @param {string} channel - The channel.
+   * @param {LoggerOptions} logger_options - The logger options.
+   */
+  constructor(
+    applicationId: string,
+    appDisplayVersion: string,
+    channel: string,
+    logger_options: LoggerOptions
+  ) {
+    this._applicationId = applicationId;
+    this._appDisplayVersion = appDisplayVersion;
+    this._channel = channel;
 
+    if (!_logger) {
+      // append '-glean' to `logger_options.app` to avoid collision with other loggers and double logging
+      logger_options.app = logger_options.app + '-glean';
+      // set the format to `heka` so messages are properly ingested and decoded
+      logger_options.fmt = 'heka';
+      // mozlog types declaration requires a typePrefix to be passed when creating a logger
+      // we don't want a typePrefix, so we pass `undefined`
+      _logger = mozlog(logger_options)(undefined);
+    }
+  }
+  #record({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+    event,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+    event: Event;
+  }) {
+    const now = new Date();
+    const timestamp = now.toISOString();
+    event.timestamp = now.getTime();
+    const eventPayload = {
+      metrics: {
+        string: {
+          'account.user_id_sha256': account_user_id_sha256,
+          'relying_party.oauth_client_id': relying_party_oauth_client_id,
+          'relying_party.service': relying_party_service,
+          'session.device_type': session_device_type,
+          'session.entrypoint': session_entrypoint,
+          'session.flow_id': session_flow_id,
+          'utm.campaign': utm_campaign,
+          'utm.content': utm_content,
+          'utm.medium': utm_medium,
+          'utm.source': utm_source,
+          'utm.term': utm_term,
+        },
+      },
+      events: [event],
+      ping_info: {
+        seq: 0, // this is required, however doesn't seem to be useful in server context
+        start_time: timestamp,
+        end_time: timestamp,
+      },
+      // `Unknown` fields below are required in the Glean schema, however they are not useful in server context
+      client_info: {
+        telemetry_sdk_build: 'glean_parser v7.2.2.dev8+g91d4c811',
+        first_run_date: 'Unknown',
+        os: 'Unknown',
+        os_version: 'Unknown',
+        architecture: 'Unknown',
+        app_build: 'Unknown',
+        app_display_version: this._appDisplayVersion,
+        app_channel: this._channel,
+      },
+    };
+    const eventPayloadSerialized = JSON.stringify(eventPayload);
+
+    // This is the message structure that Decoder expects: https://github.com/mozilla/gcp-ingestion/pull/2400
+    const ping = {
+      document_namespace: this._applicationId,
+      document_type: 'events',
+      document_version: '1',
+      document_id: uuidv4(),
+      user_agent: user_agent,
+      ip_address: ip_address,
+      payload: eventPayloadSerialized,
+    };
+
+    // this is similar to how FxA currently logs with mozlog: https://github.com/mozilla/fxa/blob/4c5c702a7fcbf6f8c6b1f175e9172cdd21471eac/packages/fxa-auth-server/lib/log.js#L289
+    _logger.info(GLEAN_EVENT_MOZLOG_TYPE, ping);
+  }
+  /**
+   * Record and submit a access_token_checked event:
+   * An OAuth access token was verified.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordAccessTokenChecked({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'access_token',
+      name: 'checked',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a access_token_created event:
+   * An OAuth access token was created.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} reason - additional context-dependent info, e.g. the cause of an error.
+   */
+  recordAccessTokenCreated({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+    reason,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+    reason: string;
+  }) {
+    const event = {
+      category: 'access_token',
+      name: 'created',
+      extra: {
+        reason: reason,
+      },
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a account_password_reset event:
+   * Forgot Password Complete Successful completion of the forgot password funnel.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordAccountPasswordReset({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'account',
+      name: 'password_reset',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_backup_code_success event:
+   * Login Backup Code Success Event that indicates the user successfully authenticated via backup codes.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginBackupCodeSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'backup_code_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_complete event:
+   * Login Complete Event that indicates the login process is complete.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginComplete({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'complete',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_email_confirmation_sent event:
+   * Login Email Sent Event that indicates an email was sent to confirm email.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginEmailConfirmationSent({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'email_confirmation_sent',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_email_confirmation_success event:
+   * Login Email Confirmed (BE) Event that indicates a user successfully confirmed their email for the login flow by entering the code sent in the confirmation email.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginEmailConfirmationSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'email_confirmation_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_submit_backend_error event:
+   * Login Submission Failure (Server) Event that indicates an attempt to login by clicking "Sign in" on the login page was not successful. Ideally we would have additional data on why the login failed. We might expect most reasons to be "Incorrect password".
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} reason - additional context-dependent info, e.g. the cause of an error.
+   */
+  recordLoginSubmitBackendError({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+    reason,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+    reason: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'submit_backend_error',
+      extra: {
+        reason: reason,
+      },
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_success event:
+   * Login Submission Success Event that indicates an attempt to login by clicking "Sign in" on the login page was successful.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_totp_code_failure event:
+   * The user failed to enter a correct TOTP for 2FA.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginTotpCodeFailure({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'totp_code_failure',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a login_totp_code_success event:
+   * Login 2FA Success (BE) Event that indicates a user successfully authenticated via 2FA.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordLoginTotpCodeSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'login',
+      name: 'totp_code_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a password_reset_create_new_success event:
+   * Create New Password Success (BE) A new password was successfully created'
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordPasswordResetCreateNewSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'password_reset',
+      name: 'create_new_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a password_reset_email_sent event:
+   * Forgot Password Email Link Sent Link to reset password sent to the FxA email address'
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordPasswordResetEmailSent({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'password_reset',
+      name: 'email_sent',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a password_reset_recovery_key_create_success event:
+   * Forgot Password w/ Recovery Key Create New Password Success (BE) User successfully submits the form to create a new password'
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordPasswordResetRecoveryKeyCreateSuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'password_reset',
+      name: 'recovery_key_create_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a password_reset_recovery_key_success event:
+   * Forgot Password Confirm Recovery Key Success Successful recovery key input for the forgot password flow'
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordPasswordResetRecoveryKeySuccess({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'password_reset',
+      name: 'recovery_key_success',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a reg_acc_created event:
+   * Registration Submission Success Event that indicates registration was successful.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordRegAccCreated({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'reg',
+      name: 'acc_created',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a reg_acc_verified event:
+   * Registration Email Confirmed Event that indicates a user successfully entered and submitted the email confirmation code from the confirmation email.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordRegAccVerified({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'reg',
+      name: 'acc_verified',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a reg_complete event:
+   * Confirmation of Registration Successful (BE) Event that indicates a new account was successfully registered.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordRegComplete({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'reg',
+      name: 'complete',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a reg_email_sent event:
+   * Registration Email Sent Event that indicates a registration email was sent in order to get email confirmation.
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   */
+  recordRegEmailSent({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+  }) {
+    const event = {
+      category: 'reg',
+      name: 'email_sent',
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+  /**
+   * Record and submit a reg_submit_error event:
+   * Registration Submission Failure (Server) Event that indicates an attempt to submit a registration (clicking "Create account") was not successful. Ideally we would have additional data including reasons why the submission failed. We might expect most failed reasons to be "Incorrect password".
+   * Event is logged using internal mozlog logger.
+   *
+   * @param {string} user_agent - The user agent.
+   * @param {string} ip_address - The IP address. Will be used to decode Geo
+   *                              information and scrubbed at ingestion.
+   * @param {string} account_user_id_sha256 - A hex string of a sha256 hash of the account's uid.
+   * @param {string} relying_party_oauth_client_id - The client id of the relying party.
+   * @param {string} relying_party_service - The service name of the relying party.
+   * @param {string} session_device_type - one of 'mobile', 'tablet', or ''.
+   * @param {string} session_entrypoint - entrypoint to the service.
+   * @param {string} session_flow_id - an ID generated by FxA for its flow metrics.
+   * @param {string} utm_campaign - A marketing campaign.  For example, if a user signs into FxA from selecting a Mozilla VPN plan on Mozilla VPN's product site, then value of this metric could be 'vpn-product-page'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters.  The special value of 'page+referral+-+not+part+of+a+campaign' is also allowed..
+   * @param {string} utm_content - The content on which the user acted.  For example, if the user clicked on the "Get started here" link in "Looking for Firefox Sync? Get started here", then the value for this metric would be 'fx-sync-get-started'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_medium - The "medium" on which the user acted.  For example, if the user clicked on a link in an email, then the value of this metric would be 'email'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_source - The source from where the user started.  For example, if the user clicked on a link on the Mozilla accounts web site, this value could be 'fx-website'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} utm_term - This metric is similar to the `utm.source`; it is used in the Firefox browser.  For example, if the user started from about:welcome, then the value could be 'aboutwelcome-default-screen'.  The value has a max length of 128 characters with the alphanumeric characters, _ (underscore), forward slash (/), . (period), % (percentage sign), and - (hyphen) in the allowed set of characters..
+   * @param {string} reason - additional context-dependent info, e.g. the cause of an error.
+   */
+  recordRegSubmitError({
+    user_agent,
+    ip_address,
+    account_user_id_sha256,
+    relying_party_oauth_client_id,
+    relying_party_service,
+    session_device_type,
+    session_entrypoint,
+    session_flow_id,
+    utm_campaign,
+    utm_content,
+    utm_medium,
+    utm_source,
+    utm_term,
+    reason,
+  }: {
+    user_agent: string;
+    ip_address: string;
+    account_user_id_sha256: string;
+    relying_party_oauth_client_id: string;
+    relying_party_service: string;
+    session_device_type: string;
+    session_entrypoint: string;
+    session_flow_id: string;
+    utm_campaign: string;
+    utm_content: string;
+    utm_medium: string;
+    utm_source: string;
+    utm_term: string;
+    reason: string;
+  }) {
+    const event = {
+      category: 'reg',
+      name: 'submit_error',
+      extra: {
+        reason: reason,
+      },
+    };
+    this.#record({
+      user_agent,
+      ip_address,
+      account_user_id_sha256,
+      relying_party_oauth_client_id,
+      relying_party_service,
+      session_device_type,
+      session_entrypoint,
+      session_flow_id,
+      utm_campaign,
+      utm_content,
+      utm_medium,
+      utm_source,
+      utm_term,
+      event,
+    });
+  }
+}
+
+/**
+ * Factory function that creates an instance of Glean Server Event Logger to
+ * record `accounts-events` ping events.
+ * @param {string} applicationId - The application ID.
+ * @param {string} appDisplayVersion - The application display version.
+ * @param {string} channel - The channel.
+ * @param {Object} logger_options - The logger options.
+ * @returns {EventsServerEventLogger} An instance of EventsServerEventLogger.
+ */
 export const createAccountsEventsEvent = function ({
   applicationId,
   appDisplayVersion,
@@ -167,6 +1718,34 @@ export const createAccountsEventsEvent = function ({
   logger_options: LoggerOptions;
 }) {
   return new AccountsEventsServerEvent(
+    applicationId,
+    appDisplayVersion,
+    channel,
+    logger_options
+  );
+};
+
+/**
+ * Factory function that creates an instance of Glean Server Event Logger to
+ * record `events` ping events.
+ * @param {string} applicationId - The application ID.
+ * @param {string} appDisplayVersion - The application display version.
+ * @param {string} channel - The channel.
+ * @param {Object} logger_options - The logger options.
+ * @returns {EventsServerEventLogger} An instance of EventsServerEventLogger.
+ */
+export const createEventsServerEventLogger = function ({
+  applicationId,
+  appDisplayVersion,
+  channel,
+  logger_options,
+}: {
+  applicationId: string;
+  appDisplayVersion: string;
+  channel: string;
+  logger_options: LoggerOptions;
+}) {
+  return new EventsServerEventLogger(
     applicationId,
     appDisplayVersion,
     channel,
