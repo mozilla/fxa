@@ -70,6 +70,10 @@ export class StripeManager {
     });
   }
 
+  async cancelSubscription(subscriptionId: string) {
+    return this.client.subscriptionsCancel(subscriptionId);
+  }
+
   /**
    * Check if customer's automatic tax status indicates that they're eligible for automatic tax.
    * Creating a subscription with automatic_tax enabled requires a customer with an address
