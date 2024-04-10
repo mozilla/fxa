@@ -8,6 +8,7 @@ import { Meta } from '@storybook/react';
 import { useFtlMsgResolver } from '../../../models';
 import { withLocalization } from 'fxa-react/lib/storybooks';
 import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
 export default {
   title: 'Components/Settings/FlowRecoveryKeyDownload',
@@ -44,7 +45,9 @@ export const Default = () => {
         navigateBackward,
         navigateForward,
         viewName,
+        email: MOCK_EMAIL,
       }}
+      email={MOCK_EMAIL}
       recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
     />
   );

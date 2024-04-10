@@ -133,7 +133,7 @@ const Signin = ({
           queryParams: location.search,
         };
 
-        await handleNavigation(navigationOptions, navigate);
+        await handleNavigation(navigationOptions);
       }
       if (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
@@ -143,13 +143,6 @@ const Signin = ({
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
           isPasswordNeededRef.current = true;
         }
-        if (
-          error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
-          error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
-        ) {
-          navigate('/inline_totp_setup');
-          return;
-        }
         setLocalizedBannerMessage(localizedErrorMessage);
         setSigninLoading(false);
       }
@@ -158,7 +151,6 @@ const Signin = ({
       cachedSigninHandler,
       email,
       ftlMsgResolver,
-      navigate,
       setLocalizedBannerMessage,
       integration,
       finishOAuthFlowHandler,
@@ -197,7 +189,7 @@ const Signin = ({
           queryParams: location.search,
         };
 
-        await handleNavigation(navigationOptions, navigate, true);
+        await handleNavigation(navigationOptions, true);
       }
       if (error) {
         GleanMetrics.login.error({ reason: error.message });
@@ -243,10 +235,6 @@ const Signin = ({
             case AuthUiErrors.EMAIL_HARD_BOUNCE.errno:
             case AuthUiErrors.EMAIL_SENT_COMPLAINT.errno:
               navigate('/signin_bounced');
-              break;
-            case AuthUiErrors.TOTP_REQUIRED.errno:
-            case AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno:
-              navigate('/inline_totp_setup');
               break;
             default:
               setLocalizedBannerMessage(localizedErrorMessage);

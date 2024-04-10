@@ -15,7 +15,7 @@ import {
   AuthUiErrors,
 } from '../../lib/auth-errors/auth-errors';
 import { isOAuthIntegration } from '../../models';
-import { NavigateFn } from '@reach/router';
+import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
@@ -41,14 +41,13 @@ export function getSyncNavigate(queryParams: string) {
 // Backbone) completes the signin with fxa_status.
 //
 // In Backbone happy path signin (session is verified after signin) as well as
-// Backbone 'signin_totp_code', we send key/token data up on the CAD page itself
-// with an fxa_status message. We don't want to do this with React signin until
-// CAD is converted to React because we'd need to pass this data back to
-// Backbone. This means temporarily we need to send the sync data up _before_
-// we hard navigate to CAD in these two flows.
+// Backbone 'signin_totp_code' and `signin_unblock`, we send key/token data up on
+// the CAD page itself with an fxa_status message. We don't want to do this with
+// React signin until CAD is converted to React because we'd need to pass this
+// data back to Backbone. This means temporarily we need to send the sync data up
+// _before_ we hard navigate to CAD in these flows.
 export async function handleNavigation(
   navigationOptions: NavigationOptions,
-  navigate: NavigateFn,
   tempHandleSyncLogin = false
 ) {
   const { to, state, shouldHardNavigate } = await getNavigationTarget(
@@ -97,18 +96,18 @@ const getNavigationTarget = async ({
     sessionToken,
   } = signinData;
 
-  const getUnverifiedNav = () => {
-    const state = {
-      email,
-      uid,
-      sessionToken,
-      verified,
-      verificationMethod,
-      verificationReason,
-      keyFetchToken,
-      unwrapBKey,
-    };
+  const createSigninLocationState = (): SigninLocationState => ({
+    email,
+    uid,
+    sessionToken,
+    verified,
+    verificationMethod,
+    verificationReason,
+    keyFetchToken,
+    unwrapBKey,
+  });
 
+  const getUnverifiedNav = () => {
     const getUnverifiedNavTo = () => {
       // TODO in FXA-9177 Consider storing state in Apollo cache instead of location state
       if (
@@ -124,7 +123,7 @@ const getNavigationTarget = async ({
       return `/signin_token_code${queryParams}`;
     };
 
-    return { to: getUnverifiedNavTo(), state };
+    return { to: getUnverifiedNavTo(), state: createSigninLocationState() };
   };
 
   if (!verified) {
@@ -144,24 +143,40 @@ const getNavigationTarget = async ({
   // OAuth redirect can only be obtained when the session is verified
   // otherwise oauth/authorization endpoint throws an "unconfirmed session" error
   if (isOAuth) {
-    const { redirect, code, state } = await finishOAuthFlowHandler(
-      uid,
-      sessionToken,
-      keyFetchToken,
-      unwrapBKey
-    );
+    try {
+      const { redirect, code, state } = await finishOAuthFlowHandler(
+        uid,
+        sessionToken,
+        keyFetchToken,
+        unwrapBKey
+      );
 
-    if (integration.isSync()) {
-      firefox.fxaOAuthLogin({
-        action: 'signin',
-        code,
-        redirect,
-        state,
-      });
-      return getSyncNavigate(queryParams);
+      if (integration.isSync()) {
+        firefox.fxaOAuthLogin({
+          action: 'signin',
+          code,
+          redirect,
+          state,
+        });
+        return getSyncNavigate(queryParams);
+      }
+      return { to: redirect, shouldHardNavigate: true };
+    } catch (error) {
+      if (
+        error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
+        error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
+      ) {
+        return {
+          to: `/inline_totp_setup${queryParams}`,
+          state: createSigninLocationState(),
+        };
+      }
+      // TODO: whatdo otherwise, show error in UI? We should add a try/catch
+      // whenever we call this and need to handle these cases. FXA-9235
+      // We are not checking `integration.returnOnError` when prompt=none.
     }
-    return { to: redirect, shouldHardNavigate: true };
   }
+
   if (integration.isSync()) {
     return getSyncNavigate(queryParams);
   }
@@ -198,17 +213,25 @@ export const handleGQLError = (error: any) => {
   return { error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError };
 };
 
+export function getSigninState(
+  locationState?: SigninLocationState
+): SigninLocationState | null {
+  return locationState && Object.keys(locationState).length > 0
+    ? locationState
+    : getStoredAccountInfo();
+}
+
 // When SigninLocationState is not available from the router state,
 // this method can be used to check local storage
-export function getStoredAccountInfo() {
+function getStoredAccountInfo() {
   const { email, sessionToken, uid, verified } = currentAccount() || {};
   if (email && sessionToken && uid && verified !== undefined) {
-    const currentAccountData = {
+    return {
       email,
       sessionToken,
       uid,
       verified,
-    } as SigninLocationState;
-    return currentAccountData;
-  } else return {} as SigninLocationState;
+    };
+  }
+  return null;
 }

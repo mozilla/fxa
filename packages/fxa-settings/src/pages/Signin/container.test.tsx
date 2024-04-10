@@ -405,7 +405,7 @@ describe('signin container', () => {
       render([mockGqlAvatarUseQuery()]);
       await waitFor(() => {
         expect(mockNavigate).toHaveBeenCalledWith(
-          `/signup?email=${MOCK_QUERY_PARAM_EMAIL}&emailStatusChecked=true`
+          `/signup?email=from%40queryparams.com&emailStatusChecked=true`
         );
       });
     });

@@ -8,7 +8,7 @@ import { AuthUiError } from '../../lib/auth-errors/auth-errors';
 import { AccountAvatar } from '../../lib/interfaces';
 import { FinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
-import { Integration } from '../../models';
+import { Account, Integration } from '../../models';
 
 export interface AvatarResponse {
   account: {
@@ -187,3 +187,5 @@ export interface SigninLocationState {
   keyFetchToken?: hexstring;
   unwrapBKey?: hexstring;
 }
+
+export type TotpToken = Awaited<ReturnType<Account['createTotp']>>;

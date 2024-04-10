@@ -5,10 +5,8 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
-import { Account, AppContext } from '../../models';
-import DataBlock from './index';
 import { act } from 'react-dom/test-utils';
-import { MOCK_ACCOUNT, mockAppContext } from '../../models/mocks';
+import { Subject } from './mocks';
 
 const singleValue = 'ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F';
 
@@ -23,41 +21,25 @@ const multiValue = [
   'D4J6KY8FL4',
 ];
 
-const account = {
-  ...MOCK_ACCOUNT,
-} as unknown as Account;
-
 Object.defineProperty(window.navigator, 'clipboard', {
   value: { writeText: jest.fn() },
 });
 window.URL.createObjectURL = jest.fn();
 
 it('can render single values', () => {
-  renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={singleValue} />
-    </AppContext.Provider>
-  );
+  renderWithLocalizationProvider(<Subject />);
   expect(screen.getByText(singleValue)).toBeInTheDocument();
 });
 
 it('can render multiple values', () => {
-  renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={multiValue} />
-    </AppContext.Provider>
-  );
+  renderWithLocalizationProvider(<Subject value={multiValue} />);
   multiValue.forEach((value) => {
     expect(screen.getByText(value)).toBeInTheDocument();
   });
 });
 
 it('can apply spacing to multiple values', () => {
-  renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={multiValue} separator=" " />
-    </AppContext.Provider>
-  );
+  renderWithLocalizationProvider(<Subject value={multiValue} separator=" " />);
 
   expect(screen.getByTestId('datablock').textContent?.trim()).toEqual(
     multiValue.join(' ')
@@ -66,9 +48,7 @@ it('can apply spacing to multiple values', () => {
 
 it('displays only Copy icon in iOS', () => {
   renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={multiValue} separator=" " isIOS />
-    </AppContext.Provider>
+    <Subject value={multiValue} separator=" " isIOS />
   );
 
   expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
@@ -81,11 +61,7 @@ it('displays only Copy icon in iOS', () => {
 });
 
 it('displays a tooltip on action', async () => {
-  renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={multiValue} />
-    </AppContext.Provider>
-  );
+  renderWithLocalizationProvider(<Subject value={multiValue} />);
   await act(async () => {
     fireEvent.click(await screen.findByTestId('databutton-copy'));
   });
@@ -96,12 +72,7 @@ it('displays a tooltip on action', async () => {
 
 it('sets download file name', async () => {
   renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock
-        value={multiValue}
-        contentType="Firefox account recovery key"
-      />
-    </AppContext.Provider>
+    <Subject value={multiValue} contentType="Firefox account recovery key" />
   );
   let element = await screen.findByTestId('databutton-download');
   expect(element).toBeInTheDocument();
@@ -111,11 +82,7 @@ it('sets download file name', async () => {
 });
 
 it('sets has fallback download file name', async () => {
-  renderWithLocalizationProvider(
-    <AppContext.Provider value={mockAppContext({ account })}>
-      <DataBlock value={multiValue} />
-    </AppContext.Provider>
-  );
+  renderWithLocalizationProvider(<Subject value={multiValue} />);
   const element = await screen.findByTestId('databutton-download');
   expect(element).toBeInTheDocument();
   expect(element.getAttribute('download')).toContain('Firefox.txt');

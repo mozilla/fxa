@@ -133,7 +133,7 @@ const SigninUnblock = ({
         queryParams: location.search,
       };
 
-      await handleNavigation(navigationOptions, navigate);
+      await handleNavigation(navigationOptions, true);
     }
     if (error) {
       const localizedErrorMessage = getLocalizedErrorMessage(

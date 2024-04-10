@@ -8,7 +8,7 @@ import { ReactComponent as CopyIcon } from './copy.svg';
 import { ReactComponent as InlineCopyIcon } from './copy-inline.svg';
 import { ReactComponent as DownloadIcon } from './download.svg';
 import { ReactComponent as PrintIcon } from './print.svg';
-import { useAccount, useFtlMsgResolver } from '../../models';
+import { useFtlMsgResolver } from '../../models';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
 export type DownloadContentType =
@@ -28,6 +28,7 @@ export type GetDataTrioProps = {
   contentType?: DownloadContentType;
   onAction?: (type: 'download' | 'copy' | 'print') => void;
   setTooltipVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  email: string;
 };
 
 export const GetDataCopySingleton = ({
@@ -115,6 +116,7 @@ export const GetDataTrio = ({
   contentType,
   onAction,
   setTooltipVisible,
+  email,
 }: GetDataTrioProps) => {
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -135,7 +137,6 @@ export const GetDataTrio = ({
     printWindow.print();
     printWindow.close();
   }, [value, pageTitle]);
-  const { primaryEmail } = useAccount();
 
   return (
     <div className="flex justify-between w-4/5 max-w-48">
@@ -150,7 +151,7 @@ export const GetDataTrio = ({
               type: 'text/plain',
             })
           )}
-          download={`${primaryEmail.email} ${contentType}.txt`}
+          download={`${email} ${contentType}.txt`}
           data-testid="databutton-download"
           className="w-12 h-12 relative inline-block text-grey-500 rounded active:text-blue-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500 hover:bg-grey-50"
           onClick={() => {
@@ -170,7 +171,9 @@ export const GetDataTrio = ({
         </a>
       </FtlMsg>
 
-      <GetDataCopySingleton {...{ onAction, value, setTooltipVisible }} />
+      <GetDataCopySingleton
+        {...{ onAction, value, setTooltipVisible, email }}
+      />
 
       {/** This only opens the page that is responsible
        *   for triggering the print screen.

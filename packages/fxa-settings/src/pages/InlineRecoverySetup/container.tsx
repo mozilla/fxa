@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { useMutation } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState } from 'react';
@@ -12,15 +12,13 @@ import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
 import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
-import {
-  OAuthIntegration,
-  useAccount,
-  useAuthClient,
-  useSession,
-} from '../../models';
-import { TotpToken } from '../InlineTotpSetup';
+import { OAuthIntegration, useAuthClient } from '../../models';
 import { VERIFY_TOTP_MUTATION } from './gql';
 import InlineRecoverySetup from './index';
+import { hardNavigate } from 'fxa-react/lib/utils';
+import { SigninRecoveryLocationState } from './interfaces';
+import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
+import { GET_TOTP_STATUS } from '../../components/App/gql';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,
@@ -31,8 +29,6 @@ export const InlineRecoverySetupContainer = ({
   integration: OAuthIntegration;
   serviceName: MozServices;
 } & RouteComponentProps) => {
-  const account = useAccount();
-  const session = useSession();
   const navigate = useNavigate();
 
   const authClient = useAuthClient();
@@ -42,19 +38,21 @@ export const InlineRecoverySetupContainer = ({
   );
 
   const location = useLocation() as ReturnType<typeof useLocation> & {
-    state: {
-      totp: TotpToken;
-    };
+    state?: SigninRecoveryLocationState;
   };
-  const totp = location.state?.totp;
+  const signinRecoveryLocationState = location.state;
+  const { totp, ...signinLocationState } = signinRecoveryLocationState || {};
 
   const [recoveryCodes, setRecoveryCodes] = useState<string[]>();
   const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
     VERIFY_TOTP_MUTATION
   );
 
+  const { data: totpStatus, loading: totpStatusLoading } =
+    useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
+
   const verifyTotpHandler = useCallback(async () => {
-    const code = await getCode(totp.secret);
+    const code = await getCode(totp!.secret);
     const result = await verifyTotp({
       variables: { input: { code, service: serviceName } },
     });
@@ -62,19 +60,22 @@ export const InlineRecoverySetupContainer = ({
   }, [serviceName, totp, verifyTotp]);
 
   const successfulSetupHandler = useCallback(async () => {
+    // When this is called, we know signinRecoveryLocationState exists.
     const { redirect } = await finishOAuthFlowHandler(
-      account.uid,
-      session.token
+      signinRecoveryLocationState!.uid,
+      signinRecoveryLocationState!.sessionToken,
+      signinRecoveryLocationState!.keyFetchToken,
+      signinRecoveryLocationState!.unwrapBKey
     );
-    window.location.assign(redirect);
-  }, [account, finishOAuthFlowHandler, session]);
+    hardNavigate(redirect);
+  }, [signinRecoveryLocationState, finishOAuthFlowHandler]);
 
   const cancelSetupHandler = useCallback(() => {
     const error = AuthUiErrors.TOTP_REQUIRED;
 
     if (integration.returnOnError()) {
       const url = integration.getRedirectWithErrorUrl(error);
-      window.location.assign(url);
+      hardNavigate(url);
       return;
     }
 
@@ -82,21 +83,24 @@ export const InlineRecoverySetupContainer = ({
   }, [integration]);
 
   useEffect(() => {
-    // Some basic sanity checks
-    if (!isSignedIn || !account || !session || !totp) {
-      navigate(`/signup${location.search}`);
-      return;
-    }
+    setRecoveryCodes(totp?.recoveryCodes);
+  }, [totp]);
 
-    if (account.totpActive) {
-      navigate(`/signin_totp_code${location.search}`);
-      return;
-    }
+  // Some basic sanity checks
+  if (!isSignedIn || !signinRecoveryLocationState?.email || !totp) {
+    navigate(`/signup${location.search}`);
+    return <LoadingSpinner fullScreen />;
+  }
 
-    setRecoveryCodes(totp.recoveryCodes);
-  }, [isSignedIn, account, session, totp, navigate, location.search]);
+  if (totpStatus?.account.totp.verified) {
+    navigate(`/signin_totp_code${location.search}`, {
+      state: signinLocationState,
+    });
+    return <LoadingSpinner fullScreen />;
+  }
 
-  if (!recoveryCodes) {
+  // !recoveryCodes check should happen after checking !totp
+  if (!recoveryCodes || totpStatusLoading) {
     return <LoadingSpinner fullScreen />;
   }
 
@@ -114,11 +118,14 @@ export const InlineRecoverySetupContainer = ({
 
   return (
     <InlineRecoverySetup
-      recoveryCodes={recoveryCodes}
-      serviceName={serviceName}
-      cancelSetupHandler={cancelSetupHandler}
-      verifyTotpHandler={verifyTotpHandler}
-      successfulSetupHandler={successfulSetupHandler}
+      {...{
+        recoveryCodes,
+        serviceName,
+        cancelSetupHandler,
+        verifyTotpHandler,
+        successfulSetupHandler,
+        email: signinRecoveryLocationState.email,
+      }}
     />
   );
 };

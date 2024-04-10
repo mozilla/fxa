@@ -8,6 +8,7 @@ import { logViewEvent } from '../../../lib/metrics';
 import FlowRecoveryKeyDownload from './';
 import { renderWithRouter } from '../../../models/mocks';
 import { MOCK_RECOVERY_KEY_VALUE } from './mocks';
+import { MOCK_EMAIL } from '../../../pages/mocks';
 
 const localizedBackButtonTitle = 'Back to settings';
 const localizedPageTitle = 'Account Recovery Key';
@@ -40,6 +41,7 @@ const renderFlowPage = () => {
         navigateBackward,
         viewName,
       }}
+      email={MOCK_EMAIL}
       recoveryKeyValue={MOCK_RECOVERY_KEY_VALUE}
     />
   );

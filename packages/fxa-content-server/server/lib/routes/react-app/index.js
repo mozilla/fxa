@@ -76,6 +76,8 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'signin_unblock',
         'force_auth',
         'signin_recovery_code',
+        'inline_totp_setup',
+        'inline_recovery_setup',
       ]),
       fullProdRollout: false,
     },
@@ -123,15 +125,6 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
     webChannelExampleRoutes: {
       featureFlagOn: showReactApp.webChannelExampleRoutes,
       routes: reactRoute.getRoutes(['web_channel_example']),
-      fullProdRollout: false,
-    },
-
-    inlineTotpRoutes: {
-      featureFlagOn: showReactApp.inlineTotpRoutes,
-      routes: reactRoute.getRoutes([
-        'inline_totp_setup',
-        'inline_recovery_setup',
-      ]),
       fullProdRollout: false,
     },
   };

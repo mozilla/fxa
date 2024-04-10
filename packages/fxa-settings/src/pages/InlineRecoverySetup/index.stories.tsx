@@ -3,11 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React from 'react';
-import InlineRecoverySetup, { InlineRecoverySetupProps } from '.';
+import InlineRecoverySetup from '.';
 import { LocationProvider } from '@reach/router';
 import { Meta } from '@storybook/react';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 import { withLocalization } from 'fxa-react/lib/storybooks';
+import { InlineRecoverySetupProps } from './interfaces';
+import { MOCK_EMAIL } from '../mocks';
 
 export default {
   title: 'Pages/InlineRecoverySetup',
@@ -38,7 +40,10 @@ export const Default = () => (
     cancelSetupHandler={cancelSetupHandler}
     verifyTotpHandler={verifyTotpHandler}
     successfulSetupHandler={successfulSetupHandler}
+    email={MOCK_EMAIL}
   />
 );
 
-export const WithServiceName = () => <ComponentWithRouter {...props} />;
+export const WithServiceName = () => (
+  <ComponentWithRouter {...props} email={MOCK_EMAIL} />
+);

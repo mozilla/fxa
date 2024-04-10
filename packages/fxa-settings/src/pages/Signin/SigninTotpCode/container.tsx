@@ -10,7 +10,7 @@ import { useMutation } from '@apollo/client';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
-import { getStoredAccountInfo, handleGQLError } from '../utils';
+import { getSigninState, handleGQLError } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
@@ -38,10 +38,7 @@ export const SigninTotpCodeContainer = ({
     state: SigninLocationState;
   };
 
-  const signinLocationState =
-    location.state && Object.keys(location.state).length > 0
-      ? location.state
-      : getStoredAccountInfo();
+  const signinState = getSigninState(location.state);
 
   const { queryParamModel } = useValidatedQueryParams(SigninQueryParams);
   const { redirectTo, service } = queryParamModel;
@@ -84,9 +81,9 @@ export const SigninTotpCodeContainer = ({
   }
 
   if (
-    !(Object.keys(signinLocationState).length > 0) ||
-    (signinLocationState.verificationMethod &&
-      signinLocationState.verificationMethod !== VerificationMethods.TOTP_2FA)
+    !signinState ||
+    (signinState.verificationMethod &&
+      signinState.verificationMethod !== VerificationMethods.TOTP_2FA)
   ) {
     hardNavigateToContentServer(`/${location.search ? location.search : ''}`);
     return <LoadingSpinner fullScreen />;
@@ -98,7 +95,7 @@ export const SigninTotpCodeContainer = ({
         finishOAuthFlowHandler,
         integration,
         redirectTo,
-        signinLocationState,
+        signinState,
         submitTotpCode,
         serviceName,
       }}

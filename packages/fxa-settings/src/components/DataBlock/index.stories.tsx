@@ -5,7 +5,8 @@
 import React from 'react';
 import { Meta } from '@storybook/react';
 import { withLocalization } from 'fxa-react/lib/storybooks';
-import DataBlock from './index';
+import { Subject } from './mocks';
+import DataBlock from '.';
 
 export default {
   title: 'Components/DataBlock',
@@ -13,20 +14,14 @@ export default {
   decorators: [withLocalization],
 } as Meta;
 
-export const SingleCodeInlineCopy = () => (
-  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" isInline />
-);
+export const SingleCodeInlineCopy = () => <Subject isInline />;
 
-export const SingleCode = () => (
-  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" />
-);
+export const SingleCode = () => <Subject />;
 
-export const SingleCodeOnIOS = () => (
-  <DataBlock value="ANMD 1S09 7Y2Y 4EES 02CW BJ6Z PYKP H69F" isIOS />
-);
+export const SingleCodeOnIOS = () => <Subject isIOS />;
 
 export const MultipleCodes = () => (
-  <DataBlock
+  <Subject
     value={[
       'C1OFZW7R04',
       'XVKRLKERT4',

@@ -17,6 +17,7 @@ import {
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { handleNavigation } from '../utils';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -37,6 +38,10 @@ const mockNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
   useNavigate: () => mockNavigate,
+}));
+
+jest.mock('../utils', () => ({
+  handleNavigation: jest.fn(),
 }));
 
 const email = MOCK_EMAIL;
@@ -220,7 +225,7 @@ describe('SigninUnblock', () => {
       await waitFor(() => {
         expect(signinWithUnblockCode).toHaveBeenCalledTimes(1);
       });
-      expect(mockNavigate).toHaveBeenCalled();
+      expect(handleNavigation).toHaveBeenCalled();
     });
 
     it('emits expected metrics events', async () => {

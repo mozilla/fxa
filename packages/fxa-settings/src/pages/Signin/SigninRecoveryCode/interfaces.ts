@@ -15,7 +15,7 @@ export type SigninRecoveryCodeProps = {
   integration: SigninIntegration;
   redirectTo?: string;
   serviceName?: MozServices;
-  signinLocationState: SigninLocationState;
+  signinState: SigninLocationState;
   submitRecoveryCode: SubmitRecoveryCode;
 };
 

@@ -42,7 +42,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
-          signinLocationState={mockSigninLocationState}
+          signinState={mockSigninLocationState}
           submitRecoveryCode={mockSubmitRecoveryCode}
         />
       </LocationProvider>
@@ -74,7 +74,7 @@ describe('PageSigninRecoveryCode', () => {
         <SigninRecoveryCode
           finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
           integration={mockIntegration}
-          signinLocationState={mockSigninLocationState}
+          signinState={mockSigninLocationState}
           submitRecoveryCode={mockSubmitRecoveryCode}
           serviceName={MozServices.MozillaVPN}
         />
@@ -94,7 +94,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
-            signinLocationState={mockSigninLocationState}
+            signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
         </LocationProvider>
@@ -111,7 +111,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
-            signinLocationState={mockSigninLocationState}
+            signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
         </LocationProvider>
@@ -141,7 +141,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
-            signinLocationState={mockSigninLocationState}
+            signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCode}
           />
         </LocationProvider>
@@ -164,7 +164,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
-            signinLocationState={mockSigninLocationState}
+            signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
         </LocationProvider>
@@ -191,7 +191,7 @@ describe('PageSigninRecoveryCode', () => {
           <SigninRecoveryCode
             finishOAuthFlowHandler={mockFinishOAuthFlowHandler}
             integration={mockIntegration}
-            signinLocationState={mockSigninLocationState}
+            signinState={mockSigninLocationState}
             submitRecoveryCode={mockSubmitRecoveryCodeWithError}
           />
         </LocationProvider>

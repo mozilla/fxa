@@ -48,7 +48,7 @@ export const Subject = ({
   finishOAuthFlowHandler = mockFinishOAuthFlowHandler,
   integration = mockWebIntegration,
   serviceName = MozServices.Default,
-  signinLocationState = MOCK_TOTP_LOCATION_STATE,
+  signinState = MOCK_TOTP_LOCATION_STATE,
   submitTotpCode = mockSubmitTotpCode,
 }: Partial<SigninTotpCodeProps>) => {
   return (
@@ -58,7 +58,7 @@ export const Subject = ({
           finishOAuthFlowHandler,
           integration,
           serviceName,
-          signinLocationState,
+          signinState,
           submitTotpCode,
         }}
       />

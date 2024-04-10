@@ -146,6 +146,7 @@ export const Page2faReplaceRecoveryCodes = (_: RouteComponentProps) => {
                   separator=" "
                   onCopy={copyRecoveryCodes}
                   contentType="Backup authentication codes"
+                  email={account.email}
                 />
               ) : (
                 <LoadingSpinner />

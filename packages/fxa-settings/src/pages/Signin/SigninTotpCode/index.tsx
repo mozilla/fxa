@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import {
-  Link,
-  RouteComponentProps,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { Link, RouteComponentProps, useLocation } from '@reach/router';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useFtlMsgResolver } from '../../../models';
 import { logViewEvent } from '../../../lib/metrics';
@@ -42,7 +37,7 @@ export type SigninTotpCodeProps = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
   integration: SigninIntegration;
   redirectTo?: string;
-  signinLocationState: SigninLocationState;
+  signinState: SigninLocationState;
   // TODO: Switch to gql error shaped object
   submitTotpCode: (
     totpCode: string
@@ -56,12 +51,11 @@ export const SigninTotpCode = ({
   finishOAuthFlowHandler,
   integration,
   redirectTo,
-  signinLocationState,
+  signinState,
   submitTotpCode,
   serviceName,
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const location = useLocation();
-  const navigate = useNavigate();
 
   const [success, setSuccess] = useState<boolean>(false);
   const [generalError, setGeneralError] = useState<string>('');
@@ -76,7 +70,7 @@ export const SigninTotpCode = ({
     verificationReason,
     keyFetchToken,
     unwrapBKey,
-  } = signinLocationState;
+  } = signinState;
 
   const localizedCustomCodeRequiredMessage = ftlMsgResolver.getMsg(
     'signin-totp-code-required-error',
@@ -145,7 +139,7 @@ export const SigninTotpCode = ({
         queryParams: location.search,
       };
 
-      await handleNavigation(navigationOptions, navigate, true);
+      await handleNavigation(navigationOptions, true);
     }
   };
 
@@ -193,7 +187,7 @@ export const SigninTotpCode = ({
           <FtlMsg id="signin-totp-code-recovery-code-link">
             <Link
               to={`/signin_recovery_code${location.search}`}
-              state={signinLocationState}
+              state={signinState}
               className="text-end"
             >
               Trouble entering code?
