@@ -41,6 +41,15 @@ const URIENCODEDFILTERED = encodeURIComponent(FILTERED);
  * @param {Sentry.Event} event
  */
 function filterSentryEvent(event, hint) {
+  // This flag indicates the error was captured by us. Without this, we were seeing
+  // errors propagate from instrumentation libraries, thereby creating duplicates
+  // and create errors without expected context. This appeared to start happening
+  // when we enabled tracing. See the reportError function if you are curious about
+  // how this gets set, and wired into hapi's error handling.
+  if (event.extra?.report !== true) {
+    return null;
+  }
+
   // If we encounter a WError, we likely want to filter it out. These errors are
   // intentionally relayed to the client, and don't constitute unexpected errors.
   // Note, that these might arrive here from our reportSentryError function, or

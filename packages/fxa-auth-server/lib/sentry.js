@@ -43,6 +43,21 @@ function reportSentryError(err, request) {
         return sentryEvent;
       });
     }
+
+    // Important! Set a flag so that we know this is an error captured
+    // and reported by our code. Once we added tracing, we started seeing errors
+    // propagate in other ways. By setting a breakpoint or adding a console.trace
+    // in beforeSend, we can see that Sentry's internal libraries are picking up
+    // and reporting errors too. This causes problems because:
+    //  - It means errors are double captured
+    //  - It means that extra error info added below won't be there are errors
+    //    where captured by this function.
+    //  - It means the duplicate error might have a different shape, and fool
+    //    our ignoreErrors() check.
+    //
+    // See the filterSentryEvent function to see how this flag is used.
+    //
+    scope.setExtra('report', true);
     scope.setExtra('exception', exception);
     // If additional data was added to the error, extract it.
     if (err.output && typeof err.output.payload === 'object') {
