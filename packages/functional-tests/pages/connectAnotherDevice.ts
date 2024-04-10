@@ -24,10 +24,18 @@ export class ConnectAnotherDevicePage extends BaseLayout {
     return this.page.locator(this.selectors.FXA_CONNECTED_HEADER);
   }
 
+  get connectAnotherDeviceButton() {
+    return this.page.getByRole('link', { name: 'Connect another device' });
+  }
+
   get signInButton() {
     return this.page.locator(
       this.selectors.CONNECT_ANOTHER_DEVICE_SIGNIN_BUTTON
     );
+  }
+
+  get notNowButton() {
+    return this.page.getByRole('link', { name: 'Not now' });
   }
 
   get installFxDesktop() {

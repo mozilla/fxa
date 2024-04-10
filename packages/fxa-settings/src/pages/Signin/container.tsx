@@ -529,7 +529,7 @@ const SigninContainer = ({
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
-    hardNavigateToContentServer('/');
+    hardNavigateToContentServer(`/${location.search}`);
     return <LoadingSpinner fullScreen />;
   }
 

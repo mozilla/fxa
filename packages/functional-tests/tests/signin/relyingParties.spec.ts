@@ -20,20 +20,23 @@ test.describe('severity-1 #smoke', () => {
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email',
       { waitUntil: 'load' }
     );
-    await page.waitForTimeout(1000);
 
     await login.login(credentials.email, credentials.password);
 
     expect(await login.isSyncConnectedHeader()).toBe(true);
 
-    // Normally we wouldn't need this delay, but because we are
+    // Normally we wouldn't need this delay, but because we will be
     // disconnecting the sync service, we need to ensure that the device
     // record and web channels have been sent and created.
     await page.waitForTimeout(1000);
 
     await settings.disconnectSync(credentials);
 
-    expect(page.url()).toContain(login.url);
+    // See above, we need to wait for disconnect to complete
+    await page.waitForTimeout(1000);
+
+    // confirm left settings and back at sign in
+    expect(page.url()).toBe(login.url);
 
     await browser.close();
   });

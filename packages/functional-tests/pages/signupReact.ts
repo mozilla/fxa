@@ -56,6 +56,10 @@ export class SignupReactPage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Cannot create account' });
   }
 
+  get resendCodeButton() {
+    return this.page.getByRole('button', { name: /Email new code./ });
+  }
+
   goto(route = '/', params = new URLSearchParams()) {
     params.set('forceExperiment', 'generalizedReactApp');
     params.set('forceExperimentGroup', 'react');

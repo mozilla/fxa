@@ -488,12 +488,6 @@ export class LoginPage extends BaseLayout {
     await this.page.waitForURL(/appleid\.apple\.com/);
   }
 
-  async clearCache() {
-    await this.page.goto(`${this.target.contentServerUrl}/clear`);
-    await this.page.context().clearCookies();
-    return this.page.waitForTimeout(2000);
-  }
-
   async getErrorMessage() {
     return this.page.locator(selectors.ERROR).innerText();
   }
@@ -509,12 +503,6 @@ export class LoginPage extends BaseLayout {
     await this.goto();
     return this.page.evaluate(() => {
       console.log('getStorage', localStorage.getItem('__fxa_storage.accounts'));
-    });
-  }
-
-  async clearSessionStorage() {
-    await this.page.evaluate(() => {
-      sessionStorage.clear();
     });
   }
 

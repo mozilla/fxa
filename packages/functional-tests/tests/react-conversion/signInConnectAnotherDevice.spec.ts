@@ -6,20 +6,22 @@ import { test, expect } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('connect_another_device', () => {
-    test('signin Fx Desktop, verify /connect_another_device page', async ({
+    test('react signin Fx Desktop, load /connect_another_device page', async ({
       credentials,
-      syncBrowserPages: { connectAnotherDevice, page, login },
-      target,
+      syncBrowserPages: { configPage, connectAnotherDevice, page, signinReact },
     }) => {
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
-        { waitUntil: 'load' }
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signInRoutes !== true,
+        'Skip tests if React signInRoutes not enabled'
+      );
+      await signinReact.goto(
+        undefined,
+        new URLSearchParams('context=fx_desktop_v3&service=sync&action=email')
       );
 
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
-      );
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(page).toHaveURL(/connect_another_device/);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
