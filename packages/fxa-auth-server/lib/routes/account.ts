@@ -1847,9 +1847,6 @@ export class AccountHandler {
       accountRecord.uid,
       ReasonForDeletion.UserRequested
     );
-    await request.emitMetricsEvent('account.deleted', {
-      uid: accountRecord.uid,
-    });
 
     if (this.accountTasks.queueEnabled) {
       const result = await getAccountCustomerByUid(accountRecord.uid);

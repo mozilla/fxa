@@ -102,7 +102,7 @@ export class AccountDeleteManager {
     reason: ReasonForDeletion,
     customerId?: string
   ) {
-    const existsInDatabase = await this.deleteAccountFromDb(uid);
+    await this.deleteAccountFromDb(uid);
     await this.deleteOAuthTokens(uid);
     // see comment in the function on why we are not awaiting
     this.deletePushboxRecords(uid);
@@ -111,12 +111,6 @@ export class AccountDeleteManager {
     await this.deleteFirestoreCustomer(uid);
     await this.appleIap?.purchaseManager.deletePurchases(uid);
     await this.playBilling?.purchaseManager.deletePurchases(uid);
-
-    // This is to avoid logging the same event twice if the account was already
-    // deleted from the db.
-    if (existsInDatabase) {
-      this.log.activityEvent({ uid, event: 'account.deleted' });
-    }
   }
 
   /**
@@ -150,10 +144,18 @@ export class AccountDeleteManager {
     // because obviously we can't retrieve the devices list after!
     try {
       // Check to see if we have an account, this throws if it was deleted
-      await this.fxaDb.account(uid);
+      const account = await this.fxaDb.account(uid);
+
       const devices = await this.fxaDb.devices(uid);
 
       await this.fxaDb.deleteAccount({ uid });
+      this.log.activityEvent({
+        uid,
+        email: account.primaryEmail?.email,
+        emailVerified: account.primaryEmail?.isVerified,
+        event: 'account.deleted',
+      });
+
       try {
         await this.push.notifyAccountDestroyed(uid, devices);
         await this.log.notifyAttachedServices('delete', {} as AuthRequest, {

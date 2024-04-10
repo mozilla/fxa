@@ -3829,14 +3829,6 @@ describe('/account/destroy', () => {
 
     return runTest(route, mockRequest, () => {
       sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
-      sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
-        country: 'United States',
-        event: 'account.deleted',
-        region: 'California',
-        service: undefined,
-        userAgent: 'test user-agent',
-        uid: uid,
-      });
 
       sinon.assert.calledOnceWithExactly(
         mockAccountQuickDelete,
@@ -3861,14 +3853,6 @@ describe('/account/destroy', () => {
 
     return runTest(route, mockRequest, () => {
       sinon.assert.calledOnceWithExactly(mockDB.accountRecord, email);
-      sinon.assert.calledOnceWithExactly(mockLog.activityEvent, {
-        country: 'United States',
-        event: 'account.deleted',
-        region: 'California',
-        service: undefined,
-        userAgent: 'test user-agent',
-        uid: uid,
-      });
       sinon.assert.calledOnceWithExactly(mockAccountTasksDeleteAccount, {
         uid,
         customerId: 'customer123',
