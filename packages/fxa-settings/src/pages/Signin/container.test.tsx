@@ -319,7 +319,7 @@ describe('signin container', () => {
       it('is handled if not provided in query params, location state, or local storage', async () => {
         render([mockGqlAvatarUseQuery()]);
         expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/?');
         expect(SigninModule.default).not.toBeCalled();
       });
     });
