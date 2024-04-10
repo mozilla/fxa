@@ -17389,6 +17389,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@storybook/addons@npm:^7.4.2":
+  version: 7.6.17
+  resolution: "@storybook/addons@npm:7.6.17"
+  dependencies:
+    "@storybook/manager-api": 7.6.17
+    "@storybook/preview-api": 7.6.17
+    "@storybook/types": 7.6.17
+  checksum: d93befc3af9fc6de12ef2088d5d78dfcba40253bec9fb3294a4f597ae5d1149156646f45e2dae354ac8c4723e2f9bbb555e6c82936d6deee7e7dffbdc4d54289
+  languageName: node
+  linkType: hard
+
 "@storybook/addons@npm:^7.5.2":
   version: 7.5.3
   resolution: "@storybook/addons@npm:7.5.3"
@@ -17520,7 +17531,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/blocks@npm:7.6.17":
+"@storybook/blocks@npm:7.6.17, @storybook/blocks@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/blocks@npm:7.6.17"
   dependencies:
@@ -18005,7 +18016,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/channels@npm:7.6.17":
+"@storybook/channels@npm:7.6.17, @storybook/channels@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/channels@npm:7.6.17"
   dependencies:
@@ -18411,7 +18422,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/components@npm:7.6.17":
+"@storybook/components@npm:7.6.17, @storybook/components@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/components@npm:7.6.17"
   dependencies:
@@ -18814,7 +18825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/core-events@npm:7.6.17":
+"@storybook/core-events@npm:7.6.17, @storybook/core-events@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/core-events@npm:7.6.17"
   dependencies:
@@ -19389,7 +19400,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/manager-api@npm:7.6.17":
+"@storybook/manager-api@npm:7.6.17, @storybook/manager-api@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/manager-api@npm:7.6.17"
   dependencies:
@@ -20401,7 +20412,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/theming@npm:7.6.17":
+"@storybook/theming@npm:7.6.17, @storybook/theming@npm:^7.4.2":
   version: 7.6.17
   resolution: "@storybook/theming@npm:7.6.17"
   dependencies:
@@ -38589,7 +38600,7 @@ fsevents@~2.1.1:
     serve-static: ^1.14.2
     sinon: ^9.0.3
     storybook: ^7.0.23
-    storybook-addon-mock: 4.2.1
+    storybook-addon-mock: 4.3.0
     supertest: ^6.3.0
     typedi: ^0.8.0
     typescript: ^5.4.2
@@ -60854,28 +60865,32 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"storybook-addon-mock@npm:4.2.1":
-  version: 4.2.1
-  resolution: "storybook-addon-mock@npm:4.2.1"
+"storybook-addon-mock@npm:4.3.0":
+  version: 4.3.0
+  resolution: "storybook-addon-mock@npm:4.3.0"
   dependencies:
+    "@storybook/addons": ^7.4.2
+    "@storybook/blocks": ^7.4.2
+    "@storybook/channels": ^7.4.2
+    "@storybook/components": ^7.4.2
+    "@storybook/core-events": ^7.4.2
+    "@storybook/manager-api": ^7.4.2
+    "@storybook/theming": ^7.4.2
     mock-xmlhttprequest: ^8.1.0
     path-to-regexp: ^6.2.1
     polished: ^4.2.2
+    prop-types: ^15.8.1
+    storybook: ^7.4.2
+    whatwg-fetch: ^3.6.19
   peerDependencies:
-    "@storybook/addons": ^7.0.0
-    "@storybook/blocks": ^7.0.0
-    "@storybook/components": ^7.0.2
-    "@storybook/manager-api": ^7.0.0
-    "@storybook/theming": ^7.0.0
     react: ^16.8.0 || ^17.0.0 || ^18.0.0
     react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-    storybook: ^7.0.0
   peerDependenciesMeta:
     react:
       optional: true
     react-dom:
       optional: true
-  checksum: 0b1c96443f7e1ca3a6375ff4b682787673802f1b4cc0b8a536212c3c636512c3b6a19e85c15779228c628a9e2020d61a5533c0f9017b2e7f94855f42936381da
+  checksum: 7f9c4b95e35faf61dcc438a3e6c97421d50f5c37376af99a21b8d8850605f6cd86d8c1a62375baf5471cde939c4e5f38743f8bffe508de7cf42e8b27f9252af1
   languageName: node
   linkType: hard
 
@@ -60906,7 +60921,7 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"storybook@npm:^7.4.6":
+"storybook@npm:^7.4.2, storybook@npm:^7.4.6":
   version: 7.6.17
   resolution: "storybook@npm:7.6.17"
   dependencies:
@@ -65885,6 +65900,13 @@ resolve@1.1.7:
   version: 2.0.4
   resolution: "whatwg-fetch@npm:2.0.4"
   checksum: de7c65a68d7d62e2f144a6b30293370b3ad82b65ebcd68f2ac8e8bbe7ede90febd98ba9486b78c1cbc950e0e8838fa5c2727f939899ab3fc7b71a04be52d33a5
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.6.19":
+  version: 3.6.20
+  resolution: "whatwg-fetch@npm:3.6.20"
+  checksum: c58851ea2c4efe5c2235f13450f426824cf0253c1d45da28f45900290ae602a20aff2ab43346f16ec58917d5562e159cd691efa368354b2e82918c2146a519c5
   languageName: node
   linkType: hard
 
