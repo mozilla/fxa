@@ -164,7 +164,7 @@ test.describe('severity-2 #smoke', () => {
       await login.unblock(unverifiedEmail);
 
       //Verify confirm code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
 
       await login.fillOutSignInCode(unverifiedEmail);
 

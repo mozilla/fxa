@@ -27,7 +27,6 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
     }) => {
-      test.fixme(true, 'test to be fixed, see FXA-9194');
       await Promise.all(
         emails.map(async (email) => {
           await target.auth.signUp(email, PASSWORD, {
@@ -43,7 +42,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify sign up code header is visible
-      await expect(login.signInCodeHeader()).toBeVisible();
+      await expect(login.signInCodeHeader).toBeVisible();
 
       const query = { email: email };
       const queryParam = new URLSearchParams(query);
@@ -79,7 +78,6 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login },
     }) => {
-      test.fixme(true, 'test to be fixed, see FXA-9194');
       await Promise.all(
         emails.map(async (email) => {
           await target.auth.signUp(email, PASSWORD, {
@@ -95,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify sign up code header is visible
-      await expect(login.signInCodeHeader()).toBeVisible();
+      await expect(login.signInCodeHeader).toBeVisible();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',

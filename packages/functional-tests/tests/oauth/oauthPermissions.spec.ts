@@ -25,7 +25,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //no permissions asked for, straight to confirm
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
     });
 
     test('signup with `prompt=consent`', async ({
@@ -48,7 +48,7 @@ test.describe('severity-1 #smoke', () => {
       await login.acceptOauthPermissions();
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
     });
   });
 

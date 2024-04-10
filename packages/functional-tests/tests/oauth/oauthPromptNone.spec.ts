@@ -129,7 +129,6 @@ test.describe('severity-1 #smoke', () => {
       target,
       pages: { relier, login },
     }) => {
-      test.fixme(true, 'test to be fixed, see FXA-9194');
       const [email] = emails;
       await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
@@ -141,7 +140,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
 
       const query = new URLSearchParams({
         login_hint: email,

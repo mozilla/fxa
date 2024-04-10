@@ -160,7 +160,6 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
       emails,
     }) => {
-      test.fixme(true, 'test to be fixed, see FXA-9194');
       const [email_unverified] = emails;
       await target.auth.signUp(email_unverified, PASSWORD, {
         lang: 'en',
@@ -172,7 +171,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email_unverified, PASSWORD);
 
       //Verify sign up code header is visible
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -181,7 +180,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickSignIn();
 
       //Cached login should still go to email confirmation screen for unverified accounts
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
 
       //Fill the code and submit
       await login.fillOutSignUpCode(email_unverified);

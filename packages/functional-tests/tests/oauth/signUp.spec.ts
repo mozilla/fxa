@@ -28,7 +28,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
 
       await login.fillOutSignUpCode(email);
 
@@ -57,7 +57,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(bouncedEmail, PASSWORD, { verify: false });
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
 
       try {
         const accounts = await page.evaluate(() => {
@@ -92,7 +92,7 @@ test.describe('severity-1 #smoke', () => {
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify sign up code header
-      await expect(login.signUpCodeHeader()).toBeVisible();
+      await expect(login.signUpCodeHeader).toBeVisible();
       await login.fillOutSignUpCode(email);
 
       //Verify logged in on relier page
