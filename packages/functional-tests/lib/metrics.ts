@@ -94,7 +94,7 @@ const REQUIRED_FIELDS_BY_EVENT_TYPE_MAP = {
 };
 
 export class MetricsObserver {
-  public rawEvents: (object & { type: string })[];
+  public rawEvents: (object & { type: string; checkoutType: string })[];
   private subscribePage: SubscribePage;
 
   constructor(subscribePage: SubscribePage) {
