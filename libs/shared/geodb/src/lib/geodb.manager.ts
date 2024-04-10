@@ -1,8 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, Injectable } from '@nestjs/common';
 import { GeodbProvider } from './geodb.provider';
 import type { GeodbCityReader } from './geodb.provider';
 import { getLocationData } from './geodb.repository';
 import { GeodbManagerConfig } from './geodb.config';
+import { TaxAddress } from './geodb.types';
 
 Injectable();
 export class GeodbManager {
@@ -11,7 +15,7 @@ export class GeodbManager {
     private config: GeodbManagerConfig
   ) {}
 
-  getTaxAddress(ip: string) {
+  getTaxAddress(ip: string): TaxAddress | undefined {
     const { locationOverride } = this.config;
     if (locationOverride.countryCode && locationOverride.postalCode) {
       return {

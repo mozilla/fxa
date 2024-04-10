@@ -19,8 +19,8 @@ export default async function CheckoutNew({
 }) {
   const { offeringId, interval } = params;
   const ip = (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
-  const cartService = await app.getCartService();
-  const { id: cartId } = await cartService.setupCart({
+  const actionsService = await app.getActionsService();
+  const { id: cartId } = await actionsService.setupCart({
     interval,
     offeringConfigId: offeringId,
     ip,

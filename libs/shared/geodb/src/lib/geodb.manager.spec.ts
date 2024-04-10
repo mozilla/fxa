@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test, TestingModule } from '@nestjs/testing';
 import { GeodbManager } from './geodb.manager';
 import { GeodbManagerConfig } from './geodb.config';
@@ -7,6 +10,10 @@ import {
   CountryRecordFactory,
   PostalRecordFactory,
 } from './maxmind.factories';
+import {
+  GeodbManagerConfigFactory,
+  TaxAddressFactory,
+} from './geodb.factories';
 
 const mockGetLocationData = jest.fn();
 
@@ -20,28 +27,27 @@ jest.mock('./geodb.repository', () => {
 
 describe('GeodbManager', () => {
   let manager: GeodbManager;
-  const mockReader = {};
   let mockConfig = {
-    locationOverride: {
-      countryCode: '',
-      postalCode: '',
-    },
+    ...GeodbManagerConfigFactory(),
   };
 
   beforeEach(async () => {
-    mockConfig = {
-      locationOverride: {
+    mockConfig = GeodbManagerConfigFactory({
+      locationOverride: TaxAddressFactory({
         countryCode: '',
         postalCode: '',
-      },
-    };
+      }),
+    });
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: GeodbProvider, useValue: mockReader },
-        { provide: GeodbManagerConfig, useValue: mockConfig },
+        { provide: GeodbProvider, useValue: {} },
+        GeodbManagerConfig,
         GeodbManager,
       ],
-    }).compile();
+    })
+      .overrideProvider(GeodbManagerConfig)
+      .useValue(mockConfig)
+      .compile();
 
     manager = module.get<GeodbManager>(GeodbManager);
   });

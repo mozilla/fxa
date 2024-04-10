@@ -9,15 +9,30 @@ import { faker } from '@faker-js/faker';
 import { ResultCartFactory, UpdateCartFactory } from './cart.factories';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
+import {
+  GeodbManager,
+  GeodbManagerConfig,
+  GeodbManagerConfigFactory,
+  GeodbProvider,
+  TaxAddressFactory,
+} from '@fxa/shared/geodb';
 
 describe('#payments-cart - service', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let accountCustomerManager: AccountCustomerManager;
+  let geodbManager: GeodbManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
-      providers: [CartService, CartManager, AccountCustomerManager],
+      providers: [
+        CartService,
+        CartManager,
+        AccountCustomerManager,
+        GeodbManager,
+        GeodbManagerConfig,
+        { provide: GeodbProvider, useValue: {} },
+      ],
     })
       .overrideProvider(CartManager)
       .useValue({
@@ -33,11 +48,18 @@ describe('#payments-cart - service', () => {
       .useValue({
         getStripeCustomerIdByUid: jest.fn(),
       })
+      .overrideProvider(GeodbManager)
+      .useValue({
+        getTaxAddress: jest.fn(),
+      })
+      .overrideProvider(GeodbManagerConfig)
+      .useValue(GeodbManagerConfigFactory())
       .compile();
 
     cartService = moduleRef.get(CartService);
     cartManager = moduleRef.get(CartManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    geodbManager = moduleRef.get(GeodbManager);
   });
 
   describe('setupCart', () => {
@@ -48,10 +70,13 @@ describe('#payments-cart - service', () => {
         experiment: faker.string.uuid(),
         promoCode: faker.word.noun(),
         uid: faker.string.uuid(),
+        ip: faker.internet.ipv4(),
       };
+      const taxAddress = TaxAddressFactory();
       jest
         .spyOn(accountCustomerManager, 'getStripeCustomerIdByUid')
         .mockResolvedValue('cus_id');
+      jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
 
       await cartService.setupCart(args);
 
@@ -62,6 +87,7 @@ describe('#payments-cart - service', () => {
         uid: args.uid,
         stripeCustomerId: 'cus_id',
         experiment: args.experiment,
+        taxAddress,
       });
     });
   });

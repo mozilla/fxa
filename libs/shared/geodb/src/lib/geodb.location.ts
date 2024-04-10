@@ -1,5 +1,12 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CityResponse } from 'maxmind';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
+
+/**
+ * @@todo This implementation is to be completed or removed as part of FXA-9431
+ */
 
 export class Location {
   accuracy?: number;

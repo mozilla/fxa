@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { CityResponse, CountryResponse } from 'maxmind';
 
 type GetElementType<T extends any[]> = T extends (infer U)[] ? U : never;

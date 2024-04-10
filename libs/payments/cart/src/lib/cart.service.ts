@@ -43,7 +43,6 @@ export class CartService {
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
 
-    console.log('tax address', taxAddress);
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,

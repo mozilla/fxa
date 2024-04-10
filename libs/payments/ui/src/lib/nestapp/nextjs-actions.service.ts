@@ -8,6 +8,7 @@ import { GetCartActionArgs } from './validators/GetCartActionArgs';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { Validator } from 'class-validator';
+import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -40,6 +41,16 @@ export class NextJSActionsService {
     new Validator().validateOrReject(args);
 
     const cart = await this.cartService.restartCart(args.cartId);
+
+    return cart;
+  }
+
+  async setupCart(args: SetupCartActionArgs) {
+    new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.setupCart({
+      ...args,
+    });
 
     return cart;
   }

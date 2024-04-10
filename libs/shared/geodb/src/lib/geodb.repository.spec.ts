@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { GeodbFetchDataFailed, GeodbInvalidIp } from './geodb.error';
 import { GeodbCityReader } from './geodb.provider';
 import { getLocationData } from './geodb.repository';
@@ -15,10 +18,10 @@ jest.mock('maxmind', function () {
 
 describe('GeodbRepository', () => {
   const ip = '127.0.0.1';
-  let mockReader = {
+  const mockReader = {
     get: jest.fn(),
   };
-  let mockGeodbCityReader = mockReader as unknown as GeodbCityReader;
+  const mockGeodbCityReader = mockReader as unknown as GeodbCityReader;
 
   beforeEach(() => {
     mockValidate.mockReturnValue(true);
