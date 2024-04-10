@@ -4,12 +4,12 @@
 
 import 'server-only';
 
-import { CartService } from '@fxa/payments/cart';
 import { NestFactory } from '@nestjs/core';
 
 import { AppModule } from './app.module';
 import { LocalizerRscFactory } from '@fxa/shared/l10n/server';
 import { singleton } from '../utils/singleton';
+import { NextJSActionsService } from './nextjs-actions.service';
 
 class AppSingleton {
   private app!: Awaited<
@@ -29,10 +29,14 @@ class AppSingleton {
     return localizerRscFactory.createLocalizerRsc(acceptLanguage);
   }
 
-  async getCartService() {
+  /**
+   * This method should be used in any server action wishing to call a server-side module.
+   * Do not add individual services/managers/clients to this singleton, rather to NextJSActionsService.
+   */
+  async getActionsService() {
     // Temporary until Next.js canary lands
     await this.initialize();
-    return this.app.get(CartService);
+    return this.app.get(NextJSActionsService);
   }
 }
 

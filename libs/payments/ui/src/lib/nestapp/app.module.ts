@@ -11,6 +11,7 @@ import { Module } from '@nestjs/common';
 import { RootConfig } from './config';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
+import { NextJSActionsService } from './nextjs-actions.service';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { AccountCustomerManager } from '@fxa/payments/stripe';
   controllers: [],
   providers: [
     AccountDatabaseNestFactory,
+    NextJSActionsService,
     AccountCustomerManager,
     CartService,
     CartManager,
