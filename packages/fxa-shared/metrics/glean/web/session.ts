@@ -14,8 +14,8 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const deviceType = new StringMetricType({
   category: 'session',
   name: 'device_type',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -27,8 +27,8 @@ export const deviceType = new StringMetricType({
 export const entrypoint = new StringMetricType({
   category: 'session',
   name: 'entrypoint',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -40,7 +40,7 @@ export const entrypoint = new StringMetricType({
 export const flowId = new StringMetricType({
   category: 'session',
   name: 'flow_id',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });

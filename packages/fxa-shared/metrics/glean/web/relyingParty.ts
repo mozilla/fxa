@@ -14,8 +14,8 @@ import StringMetricType from '@mozilla/glean/private/metrics/string';
 export const oauthClientId = new StringMetricType({
   category: 'relying_party',
   name: 'oauth_client_id',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
 
@@ -27,7 +27,7 @@ export const oauthClientId = new StringMetricType({
 export const service = new StringMetricType({
   category: 'relying_party',
   name: 'service',
-  sendInPings: ['accounts-events'],
-  lifetime: 'ping',
+  sendInPings: ['accounts-events', 'events'],
+  lifetime: 'application',
   disabled: false,
 });
