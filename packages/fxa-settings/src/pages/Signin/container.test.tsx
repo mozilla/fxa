@@ -267,7 +267,6 @@ describe('signin container', () => {
       it('can be set from query param', async () => {
         mockUseValidateModule();
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).not.toBeCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
         });
@@ -277,7 +276,6 @@ describe('signin container', () => {
         mockUseValidateModule();
         mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).not.toBeCalled();
         await waitFor(() => {
           expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
         });
@@ -287,12 +285,30 @@ describe('signin container', () => {
         mockLocationState = MOCK_LOCATION_STATE_COMPLETE;
         render([mockGqlAvatarUseQuery()]);
         await waitFor(() => {
-          expect(CacheModule.currentAccount).not.toBeCalled();
+          expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
         });
-        expect(currentSigninProps?.email).toBe(MOCK_ROUTER_STATE_EMAIL);
         expect(SigninModule.default).toBeCalled();
       });
-      it('is read from localStorage if email is not provided via query param or router state', async () => {
+      it('if it matches email in local storage, session token in local storage is used', async () => {
+        const storedAccount = {
+          ...MOCK_STORED_ACCOUNT,
+          email: MOCK_QUERY_PARAM_EMAIL,
+          sessionToken: 'blabadee',
+        };
+        mockCurrentAccount(storedAccount);
+        mockUseValidateModule();
+        render([mockGqlAvatarUseQuery()]);
+        await waitFor(() => {
+          expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
+        });
+        await waitFor(() => {
+          expect(currentSigninProps?.sessionToken).toBe(
+            storedAccount.sessionToken
+          );
+        });
+        expect(SigninModule.default).toBeCalled();
+      });
+      it('uses local storage value if email is not provided via query param or router state', async () => {
         mockCurrentAccount(MOCK_STORED_ACCOUNT);
         render([mockGqlAvatarUseQuery()]);
         expect(CacheModule.currentAccount).toBeCalled();
