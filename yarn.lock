@@ -37943,7 +37943,7 @@ fsevents@~2.1.1:
     hapi-swagger: ^17.2.1
     hkdf: 0.0.2
     hot-shots: ^10.0.0
-    i18n-iso-countries: ^7.6.0
+    i18n-iso-countries: ^7.11.0
     ioredis: ^4.28.2
     joi: ^17.8.3
     jose: ^5.0.1
@@ -41896,12 +41896,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"i18n-iso-countries@npm:^7.6.0":
-  version: 7.6.0
-  resolution: "i18n-iso-countries@npm:7.6.0"
+"i18n-iso-countries@npm:^7.11.0":
+  version: 7.11.0
+  resolution: "i18n-iso-countries@npm:7.11.0"
   dependencies:
     diacritics: 1.3.0
-  checksum: 28adcc64690096f4aab6bd382404940d85392b68a56cb8229b9c4528f977fd813ffe400497f0715f2455713714f89bc4e070b18aee8011f0c040715122bf2ffc
+  checksum: ec598e77af8e8e64b9a1ce5981de8432ad174de24f421ac374a8b9a373ecdfc080de34ef5dbd8d86774792734a6dd2db3a151eba1bc6401cbaa8f4452078dd69
   languageName: node
   linkType: hard
 
