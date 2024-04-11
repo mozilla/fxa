@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth `login_hint` and `email` param', () => {
@@ -20,8 +25,9 @@ test.describe('severity-2 #smoke', () => {
       page,
       pages: { login, relier },
       target,
+      emails,
     }) => {
-      const email = login.createEmail();
+      const [email] = emails;
       await relier.goto(`login_hint=${email}`);
       await relier.clickEmailFirst();
 
@@ -68,15 +74,22 @@ test.describe('severity-2 #smoke', () => {
       // Email first page has email input prefilled
       await expect(await login.getEmailInput()).toEqual(credentials.email);
     });
+  });
 
+  test.describe('OAuth `login_hint` and `email` param', () => {
+    test.use({
+      emailOptions: [
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+      ],
+    });
     test('cached credentials, login_hint specified by relier', async ({
       target,
       pages: { login, relier },
+      emails,
     }) => {
-      const email = login.createEmail();
+      const [email, loginHintEmail] = emails;
       await target.createAccount(email, PASSWORD);
-
-      const loginHintEmail = login.createEmail();
       await target.createAccount(loginHintEmail, PASSWORD);
 
       // Create a cached login

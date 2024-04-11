@@ -1,3 +1,4 @@
+import { expect } from '@playwright/test';
 import { SettingsLayout } from './layout';
 
 export class DeleteAccountPage extends SettingsLayout {
@@ -42,19 +43,16 @@ export class DeleteAccountPage extends SettingsLayout {
     }
   }
 
-  clickContinue() {
-    return this.page.click('button[data-testid=continue-button]');
-  }
+  async deleteAccount(password: string) {
+    await expect(this.deleteAccountHeading).toBeVisible();
+    await expect(this.step1Heading).toBeVisible();
 
-  setPassword(password: string) {
-    return this.page.fill('input[type=password]', password);
-  }
+    await this.checkAllBoxes();
+    await this.continueButton.click();
 
-  submit() {
-    return this.page.click('[data-testid="delete-account-button"]');
-  }
+    await expect(this.step2Heading).toBeVisible();
 
-  success() {
-    return this.page.locator('.success');
+    await this.passwordTextbox.fill(password);
+    await this.deleteButton.click();
   }
 }

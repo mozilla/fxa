@@ -2,18 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 const CODE_CHALLENGE = 'E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM';
 const CODE_CHALLENGE_METHOD = 'S256';
 
 test.describe('OAuth scopeKeys', () => {
+  test.use({
+    emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
+  });
   test('signin in Chrome for Android, verify same browser', async ({
     target,
     page,
     pages: { login },
+    emails,
   }) => {
-    const email = login.createEmail('sync{id}');
+    const [email] = emails;
     await target.createAccount(email, PASSWORD);
 
     const query = new URLSearchParams({

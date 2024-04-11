@@ -492,13 +492,6 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.ERROR).innerText();
   }
 
-  createEmail(template?: string) {
-    if (!template) {
-      template = 'signin{id}';
-    }
-    return template.replace('{id}', Math.random() + '') + '@restmail.net';
-  }
-
   async getStorage() {
     await this.goto();
     return this.page.evaluate(() => {

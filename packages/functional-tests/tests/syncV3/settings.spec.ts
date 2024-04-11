@@ -8,15 +8,16 @@ import {
   test,
   PASSWORD,
   NEW_PASSWORD,
+  SYNC_EMAIL_PREFIX,
 } from '../../lib/fixtures/standard';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
+  test.use({
+    emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: NEW_PASSWORD }],
+  });
   test.describe('Firefox Desktop Sync v3 settings', () => {
-    test.use({
-      emailOptions: [{ prefix: 'sync{id}', PASSWORD, NEW_PASSWORD }],
-    });
     test.beforeEach(
       async ({
         emails,
@@ -83,10 +84,6 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test.describe('Firefox Desktop Sync v3 settings - delete account', () => {
-    test.use({
-      emailOptions: [{ prefix: 'sync{id}', PASSWORD }],
-    });
-
     test('sign in, delete the account', async ({
       emails,
       target,
@@ -110,14 +107,11 @@ test.describe('severity-2 #smoke', () => {
       );
       //Click Delete account
       await settings.deleteAccountButton.click();
-      await deleteAccount.checkAllBoxes();
-      await deleteAccount.clickContinue();
+      await deleteAccount.deleteAccount(PASSWORD);
 
-      //Enter password
-      await deleteAccount.setPassword(PASSWORD);
-      await deleteAccount.submit();
-
-      await expect(deleteAccount.success()).toBeVisible();
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 });

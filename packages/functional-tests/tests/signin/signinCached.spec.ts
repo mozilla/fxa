@@ -2,24 +2,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
+  test.beforeEach(async () => {
+    test.slow(); //This test has steps for email rendering that runs slow on stage
+  });
+
   test.describe('signin cached', () => {
     test.use({
-      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
-    });
-    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
-      test.slow(); //This test has steps for email rendering that runs slow on stage
-      const [email, syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await target.auth.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
 
     test('sign in twice, on second attempt email will be cached', async ({
@@ -28,6 +26,10 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: true,
+      });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -53,6 +55,10 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login, settings },
     }) => {
       const [syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: true,
+      });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -78,44 +84,16 @@ test.describe('severity-2 #smoke', () => {
       await expect(settings.primaryEmail.status).toHaveText(syncEmail);
     });
 
-    test('sign in once, use a different account', async ({
-      emails,
-      target,
-      syncBrowserPages: { page, login },
-    }) => {
-      const [email, syncEmail] = emails;
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
-      //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
-      await login.useDifferentAccountLink();
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
-
-      // testing to make sure cached signin comes back after a refresh
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
-      //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
-    });
-
     test('expired cached credentials', async ({
       emails,
       target,
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: true,
+      });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -144,6 +122,10 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
+      await target.auth.signUp(syncEmail, PASSWORD, {
+        lang: 'en',
+        preVerified: true,
+      });
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -176,9 +158,10 @@ test.describe('severity-2 #smoke', () => {
     test('unverified cached signin redirects to confirm email', async ({
       target,
       syncBrowserPages: { page, login },
+      emails,
     }) => {
       test.fixme(true, 'test to be fixed, see FXA-9194');
-      const email_unverified = login.createEmail();
+      const [email_unverified] = emails;
       await target.auth.signUp(email_unverified, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
@@ -205,6 +188,54 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
+    });
+
+    test.describe('signin cached', () => {
+      test.use({
+        emailOptions: [
+          { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+          { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
+        ],
+      });
+      test('sign in once, use a different account', async ({
+        emails,
+        target,
+        syncBrowserPages: { page, login },
+      }) => {
+        await Promise.all(
+          emails.map(async (email) => {
+            await target.auth.signUp(email, PASSWORD, {
+              lang: 'en',
+              preVerified: 'true',
+            });
+          })
+        );
+        const [email, syncEmail] = emails;
+        await page.goto(target.contentServerUrl, {
+          waitUntil: 'load',
+        });
+        await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+
+        //Verify logged in on Settings page
+        expect(await login.isUserLoggedIn()).toBe(true);
+        await page.goto(target.contentServerUrl, {
+          waitUntil: 'load',
+        });
+        //Check prefilled email
+        expect(await login.getPrefilledEmail()).toContain(syncEmail);
+        await login.useDifferentAccountLink();
+        await login.fillOutEmailFirstSignIn(email, PASSWORD);
+
+        //Verify logged in on Settings page
+        expect(await login.isUserLoggedIn()).toBe(true);
+
+        // testing to make sure cached signin comes back after a refresh
+        await page.goto(target.contentServerUrl, {
+          waitUntil: 'load',
+        });
+        //Check prefilled email
+        expect(await login.getPrefilledEmail()).toContain(email);
+      });
     });
   });
 });

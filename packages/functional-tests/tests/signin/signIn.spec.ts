@@ -2,10 +2,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin here', () => {
+    test.use({
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
+    });
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,
@@ -106,13 +114,14 @@ test.describe('severity-2 #smoke', () => {
       target,
       page,
       pages: { configPage, login },
+      emails,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'bounced email functionality does not currently work for react'
       );
-      const email = login.createEmail('sync{id}');
+      const [email] = emails;
       const creds = await target.createAccount(email, PASSWORD);
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`

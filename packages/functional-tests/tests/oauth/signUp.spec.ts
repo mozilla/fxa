@@ -2,27 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  SIGNIN_EMAIL_PREFIX,
+  BOUNCED_EMAIL_PREFIX,
+  PASSWORD,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
-  test.describe('Oauth sign up', () => {
-    test.use({
-      emailOptions: [{ PASSWORD }, { prefix: 'bounced{id}', PASSWORD }],
-    });
-    test.beforeEach(async ({ pages: { configPage, login } }) => {
-      const config = await configPage.getConfig();
-      if (config.showReactApp.signUpRoutes === true) {
-        test.skip(
-          true,
-          'this test is specific to backbone, skip if serving react'
-        );
-      } else {
-        test.slow();
-      }
-    });
+  test.beforeEach(async ({ pages: { configPage } }) => {
+    const config = await configPage.getConfig();
+    test.skip(
+      config.showReactApp.signUpRoutes === true,
+      'this test is specific to backbone, skip if serving react'
+    );
+    test.slow();
+  });
 
+  test.describe('Oauth sign up', () => {
     test('sign up', async ({ emails, pages: { login, relier } }) => {
-      const [email, ,] = emails;
+      const [email] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
@@ -35,7 +35,15 @@ test.describe('severity-1 #smoke', () => {
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
     });
+  });
 
+  test.describe('Oauth sign up', () => {
+    test.use({
+      emailOptions: [
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+        { prefix: BOUNCED_EMAIL_PREFIX, password: PASSWORD },
+      ],
+    });
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
       emails,
       target,

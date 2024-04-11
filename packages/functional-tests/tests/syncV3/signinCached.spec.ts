@@ -2,24 +2,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
     test.use({
-      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
+      emailOptions: [
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+        { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
+      ],
     });
-    test.beforeEach(async ({ emails, target }) => {
+    test.beforeEach(async () => {
       test.slow(); //This test has steps for email rendering that runs slow on stage
-      const [email, syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await target.auth.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
     });
 
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
@@ -27,8 +27,16 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
     }) => {
-      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
+      await Promise.all(
+        emails.map(async (email) => {
+          await target.auth.signUp(email, PASSWORD, {
+            lang: 'en',
+            preVerified: 'true',
+          });
+        })
+      );
+      const [email, syncEmail] = emails;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
@@ -71,8 +79,16 @@ test.describe('severity-2 #smoke', () => {
       target,
       syncBrowserPages: { page, login },
     }) => {
-      const [email, syncEmail] = emails;
       test.fixme(true, 'test to be fixed, see FXA-9194');
+      await Promise.all(
+        emails.map(async (email) => {
+          await target.auth.signUp(email, PASSWORD, {
+            lang: 'en',
+            preVerified: 'true',
+          });
+        })
+      );
+      const [email, syncEmail] = emails;
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );

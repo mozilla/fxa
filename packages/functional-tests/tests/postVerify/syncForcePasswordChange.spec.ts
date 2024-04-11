@@ -7,27 +7,26 @@ import {
   test,
   PASSWORD,
   NEW_PASSWORD,
+  FORCE_PWD_EMAIL_PREFIX,
 } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
     test.use({
-      emailOptions: [{ prefix: 'forcepwdchange{id}', PASSWORD, NEW_PASSWORD }],
+      emailOptions: [
+        { prefix: FORCE_PWD_EMAIL_PREFIX, password: NEW_PASSWORD },
+      ],
     });
-    test.beforeEach(async ({ emails, target, syncBrowserPages: { login } }) => {
-      const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-    });
-
     test('force change password on login - sync', async ({
       emails,
       target,
       syncBrowserPages,
     }) => {
       const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
       const { page, login, postVerify, connectAnotherDevice } =
         syncBrowserPages;
       await page.goto(

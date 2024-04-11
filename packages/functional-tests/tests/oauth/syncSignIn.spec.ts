@@ -2,7 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(() => {
@@ -11,7 +17,10 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('signin with OAuth after Sync', () => {
     test.use({
-      emailOptions: [{ PASSWORD }, { prefix: 'sync{id}', PASSWORD }],
+      emailOptions: [
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+        { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
+      ],
     });
     test('signin to OAuth with Sync creds', async ({
       emails,
@@ -50,7 +59,7 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('signin to Sync after OAuth', () => {
     test.use({
-      emailOptions: [{ prefix: 'sync{id}', PASSWORD }],
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
     test('email-first Sync signin', async ({
       emails,

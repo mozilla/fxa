@@ -13,13 +13,26 @@ const DEBUG = !!process.env.DEBUG;
 export { expect };
 export type POMS = ReturnType<typeof createPages>;
 
+export const BLOCKED_EMAIL_PREFIX = 'blocked{id}';
+export const BOUNCED_EMAIL_PREFIX = 'bounced{id}';
+export const FORCE_PWD_EMAIL_PREFIX = 'forcepwdchange{id}';
+export const SIGNIN_EMAIL_PREFIX = 'signin{id}';
+export const SIGNUP_REACT_EMAIL_PREFIX = 'signup_react{id}';
+export const SYNC_EMAIL_PREFIX = 'sync{id}';
+type EmailPrefix =
+  | typeof BLOCKED_EMAIL_PREFIX
+  | typeof BOUNCED_EMAIL_PREFIX
+  | typeof FORCE_PWD_EMAIL_PREFIX
+  | typeof SIGNIN_EMAIL_PREFIX
+  | typeof SIGNUP_REACT_EMAIL_PREFIX
+  | typeof SYNC_EMAIL_PREFIX;
+
 export const PASSWORD = 'passwordzxcv';
 export const NEW_PASSWORD = 'new_password';
 
 type EmailFixtureOptions = {
-  prefix?: string; // Prefix for the email address
-  PASSWORD: string; // Password for the email address
-  NEW_PASSWORD?: string;
+  prefix: EmailPrefix; // Prefix for the email address
+  password: string; // Password for the email address
 };
 
 export type TestOptions = {
@@ -150,48 +163,43 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     });
   },
 
-  emailOptions: [{ prefix: '', PASSWORD }], // Default options for the fixture
+  emailOptions: [{ prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD }], // Default options for the fixture
 
   emails: async (
     { target, pages: { login }, emailOptions },
     use
   ): Promise<void> => {
-    const emails = await Promise.all(
-      emailOptions.map(async (emailOptions) =>
-        login.createEmail(emailOptions.prefix ?? '')
-      )
-    );
+    const emails = emailOptions.map((emailOptions) => {
+      return (
+        emailOptions.prefix.replace('{id}', Math.random() + '') +
+        '@restmail.net'
+      );
+    });
     await login.clearCache(); // Clear cache for each email
 
     // Pass the generated email to the test along with the password
     await use(emails);
+
     for (const [index, email] of emails.entries()) {
-      const emailExists = await target.auth.accountStatusByEmail(email);
-      if (emailExists.exists) {
-        const x = emailOptions[index];
-        await teardownEmail(target, email, x.NEW_PASSWORD ?? x.PASSWORD);
-      }
+      await teardownEmail(target, email, emailOptions[index]);
     }
   },
 });
 
-export async function teardownEmail(
+async function teardownEmail(
   target: BaseTarget,
   email: string,
-  PASSWORD: string
+  emailOptions: EmailFixtureOptions
 ) {
-  try {
-    const creds = await target.auth.signIn(email, PASSWORD);
-    await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
-  } catch (error) {
-    // If the account is not created during the execution of the test, which
-    // can happen if the test fails prematurly, an exception will be thrown
-    // during email cleanup
-    const ERROR_1 = 'Bad Request';
-    const ERROR_2 = 'Request blocked';
-    if (!(error.error === ERROR_1) && !(error.error === ERROR_2)) {
-      throw error;
-    }
+  const accountStatus = await target.auth.accountStatusByEmail(email);
+  if (accountStatus.exists) {
+    const creds = await target.auth.signIn(email, emailOptions.password);
+    await target.auth.accountDestroy(
+      email,
+      emailOptions.password,
+      {},
+      creds.sessionToken
+    );
   }
 }
 

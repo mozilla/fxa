@@ -11,7 +11,7 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
     });
 
-    test('signup', async ({ pages: { configPage, login, relier } }) => {
+    test('signup', async ({ pages: { configPage, login, relier }, emails }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
@@ -28,7 +28,7 @@ test.describe('severity-1 #smoke', () => {
           signedInUser: null,
         }
       );
-      const email = login.createEmail();
+      const [email] = emails;
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();

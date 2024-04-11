@@ -2,12 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
+  test.use({
+    emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
+  });
   test.beforeEach(async () => {
     test.slow();
   });
@@ -18,12 +25,12 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     target,
     syncBrowserPages: { page, login },
   }) => {
-    const [email] = emails;
     const config = await configPage.getConfig();
     test.fixme(
       config.showReactApp.signUpRoutes === true,
       'Not currently supported in React Signup FXA-8973'
     );
+    const [email] = emails;
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }

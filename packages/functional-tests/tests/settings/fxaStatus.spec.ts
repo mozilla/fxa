@@ -2,13 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 import { oauthWebchannelV1 } from '../../lib/query-params';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('fxa_status web channel message in Settings', () => {
-  test.use({ emailOptions: [{ PASSWORD }, { PASSWORD }] });
+  test.use({
+    emailOptions: [
+      { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+      { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+    ],
+  });
   test.beforeEach(
     async ({
       emails,
@@ -18,9 +28,9 @@ test.describe('fxa_status web channel message in Settings', () => {
     }) => {
       test.slow();
       // Ensure that the feature flag is enabled
-      const [email, otherEmail] = emails;
       const config = await configPage.getConfig();
       test.skip(config.featureFlags.sendFxAStatusOnSettings !== true);
+      const [email, otherEmail] = emails;
       await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
