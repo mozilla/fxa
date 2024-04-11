@@ -10,8 +10,7 @@ import * as Sentry from '@sentry/node';
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { SubscriptionReminders } from '../lib/payments/subscription-reminders';
 
-const pckg = require('../package.json');
-const config = require('../config').default.getProperties();
+import pckg from '../package.json';
 
 const DEFAULT_PLAN_LENGTH = 180;
 const DEFAULT_REMINDER_LENGTH = 14;
@@ -38,7 +37,6 @@ async function init() {
 
   const subscriptionReminders = new SubscriptionReminders(
     log,
-    config,
     parseInt(program.planLength),
     parseInt(program.reminderLength),
     database,
@@ -60,7 +58,7 @@ if (require.main === module) {
   });
 
   init()
-    .then((result) => {
+    .then(() => {
       Sentry.captureCheckIn({
         checkInId,
         monitorSlug: 'subscription-reminders',

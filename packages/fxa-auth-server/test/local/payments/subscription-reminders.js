@@ -65,7 +65,6 @@ describe('SubscriptionReminders', () => {
     Container.set(StripeHelper, mockStripeHelper);
     reminder = new SubscriptionReminders(
       mockLog,
-      mockConfig,
       planLength,
       reminderLength,
       {},
