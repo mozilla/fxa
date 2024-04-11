@@ -41,7 +41,7 @@ test.describe('severity-2 #smoke', () => {
         );
         await login.respondToWebChannelMessage(customEventDetail);
         await login.fillOutEmailFirstSignIn(email, PASSWORD);
-        await expect(login.signInCodeHeader()).toBeVisible();
+        await expect(login.signInCodeHeader).toBeVisible();
 
         await login.checkWebChannelMessage(FirefoxCommand.LinkAccount);
         await login.fillOutSignInCode(email);

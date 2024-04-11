@@ -129,7 +129,7 @@ test.describe('severity-2 #smoke', () => {
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       // Verify the header after login
-      await expect(login.signInCodeHeader()).toBeVisible();
+      await expect(login.signInCodeHeader).toBeVisible();
       await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
       await page.waitForURL(/signin_bounced/);
 

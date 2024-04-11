@@ -132,6 +132,14 @@ export class LoginPage extends BaseLayout {
     return this.page.locator(selectors.SUBMIT);
   }
 
+  get signUpCodeHeader() {
+    return this.page.locator(selectors.SIGN_UP_CODE_HEADER);
+  }
+
+  get signInCodeHeader() {
+    return this.page.locator(selectors.SIGN_IN_CODE_HEADER);
+  }
+
   async getUnblockEmail() {
     return this.page.locator(selectors.SIGNIN_UNBLOCK_VERIFICATION).innerText();
   }
@@ -230,14 +238,6 @@ export class LoginPage extends BaseLayout {
     const header = this.page.locator(selectors.COPPA_HEADER);
     await header.waitFor({ state: 'visible' });
     return header.isVisible();
-  }
-
-  signUpCodeHeader() {
-    return this.page.locator(selectors.SIGN_UP_CODE_HEADER);
-  }
-
-  signInCodeHeader() {
-    return this.page.locator(selectors.SIGN_IN_CODE_HEADER);
   }
 
   async confirmEmail() {
