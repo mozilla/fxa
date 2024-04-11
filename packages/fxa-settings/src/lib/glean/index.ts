@@ -46,6 +46,7 @@ type GleanMetricsT = {
     context: GleanMetricsContext
   ) => void;
   setEnabled: (enabled: boolean) => void;
+  getEnabled: () => boolean;
   isDone: () => Promise<void>;
 } & {
   [k in EventMapKeys]: { [eventKey in keyof EventsMap[k]]: PingFn };
@@ -165,7 +166,7 @@ const createEventFn =
 
 export const GleanMetrics: Pick<
   GleanMetricsT,
-  'initialize' | 'setEnabled' | 'isDone'
+  'initialize' | 'setEnabled' | 'getEnabled' | 'isDone'
 > = {
   initialize: (config: GleanMetricsConfig, context: GleanMetricsContext) => {
     // https://bugzilla.mozilla.org/show_bug.cgi?id=1859629
@@ -196,6 +197,10 @@ export const GleanMetrics: Pick<
   setEnabled: (enabled: boolean) => {
     gleanEnabled = enabled;
     Glean.setUploadEnabled(gleanEnabled);
+  },
+
+  getEnabled: () => {
+    return gleanEnabled;
   },
 
   /**

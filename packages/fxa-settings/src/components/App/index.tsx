@@ -8,7 +8,14 @@ import {
   useLocation,
   useNavigate,
 } from '@reach/router';
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 
 import { QueryParams } from '../..';
 
@@ -92,16 +99,23 @@ export const App = ({
 
   const isSignedIn = isSignedInData?.isSignedIn;
 
+  const getMetricsEnabled = useCallback(() => {
+    if (metricsLoading || !integration || isSignedIn === undefined) {
+      return;
+    }
+    return data?.account?.metricsEnabled || !isSignedIn;
+  }, [metricsLoading, integration, isSignedIn, data?.account?.metricsEnabled]);
+  const metricsEnabled = getMetricsEnabled();
+
   useMemo(() => {
-    // Don't initialize until integration is ready!
-    if (!integration) {
+    if (!metricsEnabled || !integration || GleanMetrics.getEnabled()) {
       return;
     }
 
     GleanMetrics.initialize(
       {
         ...config.glean,
-        enabled: data?.account?.metricsEnabled || !isSignedIn,
+        enabled: metricsEnabled,
         appDisplayVersion: config.version,
         channel: config.glean.channel,
       },
@@ -120,13 +134,16 @@ export const App = ({
     config.version,
     data?.account?.metricsEnabled,
     data?.account?.uid,
-    isSignedIn,
     flowQueryParams,
     integration,
+    metricsEnabled,
   ]);
 
   useEffect(() => {
-    Metrics.init(data?.account?.metricsEnabled || !isSignedIn, flowQueryParams);
+    if (!metricsEnabled) {
+      return;
+    }
+    Metrics.init(metricsEnabled, flowQueryParams);
     if (data?.account?.metricsEnabled) {
       Metrics.initUserPreferences({
         recoveryKey: data.account.recoveryKey,
@@ -144,23 +161,15 @@ export const App = ({
     isSignedIn,
     flowQueryParams,
     config,
+    metricsLoading,
+    metricsEnabled,
   ]);
 
   useEffect(() => {
-    // Don't initialize until integration is ready!
-    if (!metricsLoading) {
-      // Previously, when Sentry was just loaded in Settings, we only enabled
-      // Sentry once we know the user's metrics preferences (and of course,
-      // only when the user was logged in, since all users in Settings are.)
-      // Now we enable Sentry for logged out users, and for logged in users
-      // who opt to have metrics enabled.
-      // A bit of chicken and egg but it could be possible that we miss some
-      // errors while the page is loading and user is being fetched.
-      if (data?.account?.metricsEnabled || !isSignedIn) {
-        sentryMetrics.enable();
-      } else {
-        sentryMetrics.disable();
-      }
+    if (metricsEnabled) {
+      sentryMetrics.enable();
+    } else {
+      sentryMetrics.disable();
     }
   }, [
     data?.account?.metricsEnabled,
@@ -168,6 +177,7 @@ export const App = ({
     config.version,
     metricsLoading,
     isSignedIn,
+    metricsEnabled,
   ]);
 
   // Wait until metrics is done loading, integration has been created, and isSignedIn has been determined.
