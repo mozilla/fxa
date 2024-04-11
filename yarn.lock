@@ -22360,10 +22360,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/luxon@npm:^1":
-  version: 1.26.5
-  resolution: "@types/luxon@npm:1.26.5"
-  checksum: d6a7eb14e865003384ee8002ac7ee1966afce7d4737d395a9326b8fa632c90d464704ca287e75b483fde53b1ea86c94b7a1224f07d675e940b53408671dd20ce
+"@types/luxon@npm:^3":
+  version: 3.4.2
+  resolution: "@types/luxon@npm:3.4.2"
+  checksum: 6f92d5bd02e89f310395753506bcd9cef3a56f5940f7a50db2a2b9822bce753553ac767d143cb5b4f9ed5ddd4a84e64f89ff538082ceb4d18739af7781b56925
   languageName: node
   linkType: hard
 
@@ -37744,7 +37744,7 @@ fsevents@~2.1.1:
     "@types/jsonwebtoken": ^8.5.1
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
-    "@types/luxon": ^1
+    "@types/luxon": ^3
     "@types/memcached": ^2.2.6
     "@types/mjml": ^4.7.0
     "@types/mocha": ^8.2.2
@@ -37818,7 +37818,7 @@ fsevents@~2.1.1:
     lodash: ^4.17.21
     lodash.chunk: 4.2.0
     lodash.pick: 4.4.0
-    luxon: ^2.5.2
+    luxon: ^3.4.4
     mailparser: 0.6.1
     mjml: ^4.13.0
     mjml-browser: ^4.15.3
@@ -48011,13 +48011,6 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:^2.5.2":
-  version: 2.5.2
-  resolution: "luxon@npm:2.5.2"
-  checksum: d8b671ffd2ff0b438af862ac11082a81b3aedd9f8b6a4ca636f944224f8dd381125cd4d274ca0a8aedcaf2cfca0fc2ca96fe4cc1b16a28b7af701afb95c0bff8
-  languageName: node
-  linkType: hard
-
 "luxon@npm:^3.2.1":
   version: 3.3.0
   resolution: "luxon@npm:3.3.0"
@@ -48025,7 +48018,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"luxon@npm:~3.4.0":
+"luxon@npm:^3.4.4, luxon@npm:~3.4.0":
   version: 3.4.4
   resolution: "luxon@npm:3.4.4"
   checksum: 36c1f99c4796ee4bfddf7dc94fa87815add43ebc44c8934c924946260a58512f0fd2743a629302885df7f35ccbd2d13f178c15df046d0e3b6eb71db178f1c60c

@@ -1,11 +1,11 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+import assert from 'assert';
 import { Logger } from 'mozlog';
 import Stripe from 'stripe';
 import { DateTime, Duration, Interval } from 'luxon';
 
-import { ConfigType } from '../../config';
 import { reportSentryError } from '../sentry';
 import { SentEmailParams, Plan } from 'fxa-shared/subscriptions/types';
 import { StripeHelper } from './stripe';
@@ -30,7 +30,6 @@ export class SubscriptionReminders {
 
   constructor(
     private log: Logger,
-    config: ConfigType,
     planLength: number,
     reminderLength: number,
     db: any,
@@ -64,12 +63,14 @@ export class SubscriptionReminders {
    * Returns a window of time in seconds that is exactly one day, reminderLength
    * days from now in UTC.
    */
-  private getStartAndEndTimes(): Interval {
+  private getStartAndEndTimes() {
     const reminderDate = DateTime.utc()
       .plus(this.reminderDuration)
       .set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
     const duration = Duration.fromObject({ days: 1 });
-    return Interval.after(reminderDate, duration);
+    const interval = Interval.after(reminderDate, duration);
+    assert(interval.isValid, 'Unexpected invalid interval.');
+    return interval;
   }
 
   private async alreadySentEmail(
