@@ -56,6 +56,7 @@
     "signInRoutes": true
   },
   "featureFlags": {
-    "sendFxAStatusOnSettings": true
+    "sendFxAStatusOnSettings": true,
+    "resetPasswordWithCode": false
   }
 }

@@ -226,6 +226,12 @@ const conf = (module.exports = convict({
       format: Boolean,
       env: 'FEATURE_FLAGS_KEY_STRETCH_V2',
     },
+    resetPasswordWithCode: {
+      default: false,
+      doc: 'Enables using confirmation codes instead of links for password reset',
+      format: Boolean,
+      env: 'FEATURE_FLAGS_RESET_PWD_WITH_CODE',
+    },
   },
   showReactApp: {
     simpleRoutes: {

@@ -87,6 +87,7 @@ export interface Config {
   };
   featureFlags?: {
     keyStretchV2?: boolean;
+    resetPasswordWithCode?: boolean;
   };
 }
 
@@ -160,6 +161,9 @@ export function getDefault() {
     showReactApp: {
       signUpRoutes: false,
       signInRoutes: false,
+    },
+    featureFlags: {
+      resetPasswordWithCode: false,
     },
   } as Config;
 }
