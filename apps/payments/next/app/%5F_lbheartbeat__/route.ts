@@ -4,11 +4,8 @@
 
 import { NextResponse } from 'next/server';
 
-import { app } from '@fxa/payments/ui/server';
-
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  await app.initialize();
   return NextResponse.json({});
 }
