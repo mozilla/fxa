@@ -6,7 +6,6 @@ import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sign up with code', () => {
-    test.use({ emailOptions: [{ PASSWORD }] });
     test.beforeEach(async ({ pages: { configPage, login } }) => {
       const config = await configPage.getConfig();
       test.skip(

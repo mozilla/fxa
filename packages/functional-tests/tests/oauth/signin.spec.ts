@@ -2,21 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  BLOCKED_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
-let email = '';
 const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
+  // eslint-disable-next-line no-empty-pattern
+  test.beforeEach(({}, testInfo) => {
+    test.slow(testInfo.project.name !== 'local', 'email delivery can be slow');
+  });
   test.describe('OAuth signin', () => {
-    // eslint-disable-next-line no-empty-pattern
-    test.beforeEach(({}, testInfo) => {
-      test.slow(
-        testInfo.project.name !== 'local',
-        'email delivery can be slow'
-      );
-    });
-
     test('verified', async ({ credentials, pages: { login, relier } }) => {
       await relier.goto();
       await relier.clickEmailFirst();
@@ -82,9 +82,10 @@ test.describe('severity-1 #smoke', () => {
     test('unverified, acts like signup', async ({
       target,
       pages: { login, relier },
+      emails,
     }) => {
       // Create unverified account via backend
-      email = login.createEmail();
+      const [email] = emails;
       await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
@@ -105,6 +106,7 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { configPage, login, signupReact, relier },
       target,
+      emails,
     }) => {
       const config = await configPage.getConfig();
       test.fixme(
@@ -113,7 +115,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Create unverified account
-      email = login.createEmail();
+      const [email] = emails;
 
       await relier.goto();
       await relier.clickEmailFirst();
@@ -143,9 +145,8 @@ test.describe('severity-1 #smoke', () => {
 
     // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
     test('oauth endpoint chooses the right auth flows', async ({
-      page,
       pages: { configPage, login, relier, signupReact },
-      target,
+      emails,
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
       const config = await configPage.getConfig();
@@ -155,7 +156,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Create unverified account
-      email = login.createEmail();
+      const [email] = emails;
 
       await relier.goto();
       await relier.clickChooseFlow();
@@ -176,9 +177,18 @@ test.describe('severity-1 #smoke', () => {
       // User shown signin enter password page
       await expect(login.waitForSigninPasswordHeader()).toBeVisible();
     });
-
-    test('verified, blocked', async ({ target, pages: { login, relier } }) => {
-      const blockedEmail = login.createEmail('blocked{id}');
+  });
+  test.describe('OAuth signin', () => {
+    test.use({
+      emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
+    });
+    test('verified, blocked', async ({
+      target,
+      page,
+      pages: { login, relier, settings, deleteAccount },
+      emails,
+    }) => {
+      const [blockedEmail] = emails;
       await target.createAccount(blockedEmail, PASSWORD);
 
       await relier.goto();
@@ -186,14 +196,26 @@ test.describe('severity-1 #smoke', () => {
       await login.login(blockedEmail, PASSWORD);
 
       await login.unblock(blockedEmail);
+
       expect(await relier.isLoggedIn()).toBe(true);
+
+      //Delete blocked account, the fixture teardown doesn't work in this case
+      await settings.goto();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(PASSWORD);
+
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
 
     test('verified, blocked, incorrect password', async ({
       target,
-      pages: { login, relier },
+      page,
+      pages: { login, relier, settings, deleteAccount },
+      emails,
     }) => {
-      const blockedEmail = login.createEmail('blocked{id}');
+      const [blockedEmail] = emails;
       await target.createAccount(blockedEmail, PASSWORD);
 
       await relier.goto();
@@ -203,7 +225,21 @@ test.describe('severity-1 #smoke', () => {
       await login.unblock(blockedEmail);
 
       // After filling in the unblock code, the user is prompted again to enter password
-      expect(await login.enterPasswordHeader()).toEqual(true);
+      await expect(page.getByText('Incorrect password')).toBeVisible();
+
+      //Delete blocked account, the fixture teardown doesn't work in this case
+      await login.setPassword(PASSWORD);
+      await login.submit();
+
+      await login.unblock(blockedEmail);
+
+      await settings.goto();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(PASSWORD);
+
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 });

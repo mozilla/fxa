@@ -3,14 +3,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sync v3 sign up and CWTS', () => {
-    test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
+    test.use({
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
+    });
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(

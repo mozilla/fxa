@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import { expect, test } from '../../lib/fixtures/standard';
+import {
+  SIGNUP_REACT_EMAIL_PREFIX,
+  expect,
+  test,
+} from '../../lib/fixtures/standard';
 import { PASSWORD } from '../../lib/fixtures/standard';
 
 import {
@@ -22,6 +26,10 @@ const eventDetailLinkAccount = createCustomEventDetail(
 );
 
 test.describe('severity-1 #smoke', () => {
+  test.use({
+    emailOptions: [{ prefix: SIGNUP_REACT_EMAIL_PREFIX, password: PASSWORD }],
+  });
+
   test.beforeEach(async ({ pages: { configPage } }) => {
     test.slow();
     // Ensure that the feature flag is enabled
@@ -32,7 +40,6 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('signup react', () => {
-    test.use({ emailOptions: [{ prefix: 'signup_react{id}', PASSWORD }] });
     test('signup web', async ({
       page,
       pages: { settings, signupReact },
@@ -214,7 +221,6 @@ test.describe('severity-1 #smoke', () => {
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signup react', () => {
-    test.use({ emailOptions: [{ prefix: 'signup_react{id}', PASSWORD }] });
     test('signup invalid email', async ({ page, pages: { signupReact } }) => {
       const invalidEmail = 'invalid';
 

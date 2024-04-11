@@ -5,38 +5,32 @@
 import {
   test,
   expect,
+  FORCE_PWD_EMAIL_PREFIX,
   PASSWORD,
   NEW_PASSWORD,
 } from '../../lib/fixtures/standard';
-
-let emailUserCreds;
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change', () => {
     test.use({
       emailOptions: [
-        {
-          prefix: 'forcepwdchange{id}',
-          PASSWORD,
-          NEW_PASSWORD,
-        },
+        { prefix: FORCE_PWD_EMAIL_PREFIX, password: NEW_PASSWORD },
       ],
     });
     test.beforeEach(async ({ emails, target, pages: { login } }) => {
       test.slow();
+    });
+
+    test('navigate to page directly and can change password', async ({
+      target,
+      emails,
+      pages: { page, login, postVerify },
+    }) => {
       const [email] = emails;
       await target.auth.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
-    });
-
-    test('navigate to page directly and can change password', async ({
-      emails,
-      target,
-      pages: { page, login, postVerify },
-    }) => {
-      const [email] = emails;
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
@@ -55,10 +49,15 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('force change password on login - oauth', async ({
+      target,
       emails,
       pages: { login, postVerify, relier },
     }) => {
       const [email] = emails;
+      await target.auth.signUp(email, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
       await relier.goto();
       await relier.clickEmailFirst();
       await login.fillOutEmailFirstSignIn(email, PASSWORD);

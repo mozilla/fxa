@@ -50,17 +50,7 @@ test.describe('severity-1 #smoke', () => {
     await settings.goto();
 
     await settings.deleteAccountButton.click();
-
-    await expect(deleteAccount.deleteAccountHeading).toBeVisible();
-    await expect(deleteAccount.step1Heading).toBeVisible();
-
-    await deleteAccount.checkAllBoxes();
-    await deleteAccount.continueButton.click();
-
-    await expect(deleteAccount.step2Heading).toBeVisible();
-
-    await deleteAccount.passwordTextbox.fill(credentials.password);
-    await deleteAccount.deleteButton.click();
+    await deleteAccount.deleteAccount(credentials.password);
 
     await expect(page.getByText('Account deleted successfully')).toBeVisible();
   });

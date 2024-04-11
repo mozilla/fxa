@@ -2,11 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  SIGNIN_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth prompt none', () => {
-    test.use({ emailOptions: [{ PASSWORD }] });
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
@@ -155,48 +159,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('oauth prompt none with emails', () => {
-    test.use({
-      emailOptions: [{ PASSWORD }],
-    });
     test.beforeEach(async ({ pages: { login } }, { project }) => {
       test.slow();
 
       test.skip(
         project.name === 'production',
         'test plan not yet available in prod'
-      );
-    });
-
-    test('fails if login_hint is different to logged in user', async ({
-      emails,
-      page,
-      target,
-      pages: { relier, login },
-    }) => {
-      const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
-
-      const query = new URLSearchParams({
-        login_hint: login.createEmail(),
-        return_on_error: 'false',
-      });
-      await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
-      await relier.signInPromptNone();
-
-      //Verify error message
-      expect(await relier.promptNoneError()).toContain(
-        'A different user is signed in'
       );
     });
 
@@ -259,6 +227,47 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify logged in to relier
       expect(await relier.isLoggedIn()).toBe(true);
+    });
+  });
+
+  test.describe('oauth prompt none with emails', () => {
+    test.use({
+      emailOptions: [
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
+      ],
+    });
+    test('fails if login_hint is different to logged in user', async ({
+      emails,
+      page,
+      target,
+      pages: { relier, login },
+    }) => {
+      const [email, loginHintEmail] = emails;
+      await target.auth.signUp(email, PASSWORD, {
+        lang: 'en',
+        preVerified: 'true',
+      });
+      await page.goto(target.contentServerUrl, {
+        waitUntil: 'load',
+      });
+      await login.fillOutEmailFirstSignIn(email, PASSWORD);
+
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
+
+      const query = new URLSearchParams({
+        login_hint: loginHintEmail,
+        return_on_error: 'false',
+      });
+      await page.goto(`${target.relierUrl}/?${query.toString()}`);
+
+      await relier.signInPromptNone();
+
+      //Verify error message
+      expect(await relier.promptNoneError()).toContain(
+        'A different user is signed in'
+      );
     });
   });
 });

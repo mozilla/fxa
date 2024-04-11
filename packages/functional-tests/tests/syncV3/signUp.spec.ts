@@ -2,7 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 const incorrectPassword = 'password123';
 
@@ -10,7 +15,9 @@ test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign up', () => {
-    test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
+    test.use({
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
+    });
 
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();

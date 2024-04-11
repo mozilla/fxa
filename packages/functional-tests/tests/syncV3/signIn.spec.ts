@@ -4,22 +4,25 @@
 
 import { sign } from 'crypto';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { expect, test, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  expect,
+  test,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+  BLOCKED_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 import { getCode } from 'fxa-settings/src/lib/totp';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
+  test.beforeEach(async () => {
+    test.slow();
+  });
+
   test.describe('Firefox Desktop Sync v3 sign in', () => {
     test.use({
-      emailOptions: [
-        { prefix: 'sync{id}', PASSWORD },
-        { prefix: 'blocked{id}', PASSWORD },
-      ],
-    });
-
-    test.beforeEach(async ({ syncBrowserPages: { login } }) => {
-      test.slow();
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
 
     test('verified email, does not need to confirm', async ({
@@ -147,36 +150,6 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verified email, in blocked state', async ({
-      emails,
-      target,
-      syncBrowserPages,
-    }) => {
-      const { page, login, signinUnblock, connectAnotherDevice } =
-        syncBrowserPages;
-      const [, blockedEmail] = emails;
-      await target.auth.signUp(blockedEmail, PASSWORD, {
-        service: 'sync',
-        lang: 'en',
-        preVerified: 'true',
-      });
-
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
-      );
-      await login.login(blockedEmail, PASSWORD);
-
-      const code = await target.email.waitForEmail(
-        blockedEmail,
-        EmailType.unblockCode,
-        EmailHeader.unblockCode
-      );
-      await signinUnblock.input.fill(code);
-      await signinUnblock.submit.click();
-
-      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-    });
-
     test('unverified email', async ({ emails, target, syncBrowserPages }) => {
       const { page, login, connectAnotherDevice, confirmSignupCode } =
         syncBrowserPages;
@@ -237,6 +210,56 @@ test.describe('severity-2 #smoke', () => {
       await signinTotpCode.submit.click();
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+    });
+  });
+
+  test.describe('Firefox Desktop Sync v3 sign in', () => {
+    test.use({
+      emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
+    });
+
+    test('verified email, in blocked state', async ({
+      emails,
+      target,
+      syncBrowserPages: {
+        page,
+        login,
+        signinUnblock,
+        connectAnotherDevice,
+        settings,
+        deleteAccount,
+      },
+    }) => {
+      const [blockedEmail] = emails;
+      await target.auth.signUp(blockedEmail, PASSWORD, {
+        service: 'sync',
+        lang: 'en',
+        preVerified: 'true',
+      });
+
+      await page.goto(
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+      );
+      await login.login(blockedEmail, PASSWORD);
+
+      const code = await target.email.waitForEmail(
+        blockedEmail,
+        EmailType.unblockCode,
+        EmailHeader.unblockCode
+      );
+      await signinUnblock.input.fill(code);
+      await signinUnblock.submit.click();
+
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
+
+      //Delete blocked account, the fixture teardown doesn't work in this case
+      await connectAnotherDevice.notNowButton.click();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(PASSWORD);
+
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 

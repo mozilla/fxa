@@ -3,11 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EmailHeader, EmailType } from '../../lib/email';
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import {
+  test,
+  expect,
+  PASSWORD,
+  SYNC_EMAIL_PREFIX,
+} from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth signin token code', () => {
-    test.use({ emailOptions: [{ prefix: 'sync{id}', PASSWORD }] });
     function toQueryString(obj) {
       return Object.entries(obj)
         .map((x) => `${x[0]}=${x[1]}`)
@@ -29,18 +33,18 @@ test.describe('severity-2 #smoke', () => {
     };
     /* eslint-enable camelcase */
 
-    test.beforeEach(async ({ target, emails }, { project }) => {
-      // The `sync` prefix is needed to force confirmation.
-      const [syncEmail] = emails;
-      await target.createAccount(syncEmail, PASSWORD);
+    test.use({
+      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
-
     test('verified - invalid token', async ({
+      target,
       emails,
       page,
       pages: { login, relier, signinTokenCode },
     }) => {
+      // The `sync` prefix is needed to force confirmation.
       const [syncEmail] = emails;
+      await target.createAccount(syncEmail, PASSWORD);
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page
@@ -61,12 +65,14 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('verified - valid code', async ({
-      emails,
       target,
+      emails,
       page,
       pages: { login, relier, signinTokenCode },
     }) => {
+      // The `sync` prefix is needed to force confirmation.
       const [syncEmail] = emails;
+      await target.createAccount(syncEmail, PASSWORD);
       await relier.goto(toQueryString(queryParameters));
 
       // Click the Email First flow, which should direct to the sign in page
