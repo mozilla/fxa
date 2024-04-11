@@ -77,7 +77,7 @@
     "agentkeepalive": "^4.5.0",
     "ajv": "^8.11.2",
     "app-store-server-api": "^0.7.0",
-    "aws-sdk": "^2.1515.0",
+    "aws-sdk": "^2.1597.0",
     "base64url": "3.0.1",
     "buf": "0.1.1",
     "buffer-equal-constant-time": "1.0.1",
