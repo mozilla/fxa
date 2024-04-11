@@ -2,10 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test, TestingModule } from '@nestjs/testing';
 import { faker } from '@faker-js/faker';
+import { Test, TestingModule } from '@nestjs/testing';
 
-import { StripeApiListFactory } from './factories/api-list.factory';
+import {
+  StripeApiListFactory,
+  StripeResponseFactory,
+} from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
@@ -104,6 +107,35 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('cancelIncompleteSubscriptionsToPrice', () => {
+    it('cancels incomplete subscriptions', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscription = StripeSubscriptionFactory({
+        status: 'incomplete',
+      });
+      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
+      const mockPrice = mockSubscription.items.data[0].price;
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      manager.getSubscriptions = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscriptionList);
+
+      mockClient.subscriptionsCancel = jest
+        .fn()
+        .mockResolvedValueOnce(mockResponse);
+
+      await manager.cancelIncompleteSubscriptionsToPrice(
+        mockCustomer.id,
+        mockPrice.id
+      );
+
+      expect(mockClient.subscriptionsCancel).toBeCalledWith(
+        mockSubscription.id
+      );
+    });
+  });
+
   describe('getSubscriptions', () => {
     it('returns subscriptions', async () => {
       const mockSubscription = StripeSubscriptionFactory();
@@ -162,7 +194,7 @@ describe('StripeManager', () => {
     });
   });
 
-  describe('update customer tax ID', () => {
+  describe('getCustomerTaxId', () => {
     it('returns customer tax id if found', async () => {
       const mockCustomer = StripeCustomerFactory({
         invoice_settings: {
@@ -193,7 +225,9 @@ describe('StripeManager', () => {
 
       expect(result).toBeUndefined();
     });
+  });
 
+  describe('setCustomerTaxId', () => {
     it('updates customer object with incoming tax id when match is not found', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockUpdatedCustomer = StripeCustomerFactory({
