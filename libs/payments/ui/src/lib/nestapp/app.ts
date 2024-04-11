@@ -22,9 +22,7 @@ class AppSingleton {
     }
   }
 
-  async getL10n(acceptLanguage: string) {
-    // Temporary until Next.js canary lands
-    await this.initialize();
+  getL10n(acceptLanguage: string) {
     const localizerRscFactory = this.app.get(LocalizerRscFactory);
     return localizerRscFactory.createLocalizerRsc(acceptLanguage);
   }
@@ -33,9 +31,7 @@ class AppSingleton {
    * This method should be used in any server action wishing to call a server-side module.
    * Do not add individual services/managers/clients to this singleton, rather to NextJSActionsService.
    */
-  async getActionsService() {
-    // Temporary until Next.js canary lands
-    await this.initialize();
+  getActionsService() {
     return this.app.get(NextJSActionsService);
   }
 }

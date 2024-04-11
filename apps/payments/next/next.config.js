@@ -17,6 +17,7 @@ const nextConfig = {
     svgr: false,
   },
   experimental: {
+    instrumentationHook: true,
     serverComponentsExternalPackages: [
       '@nestjs/core',
       '@nestjs/common',
@@ -27,7 +28,6 @@ const nextConfig = {
       'kysely',
       'mysql2',
       'nest-typed-config',
-      'rxjs',
     ],
   },
   images: {
