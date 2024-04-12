@@ -38364,7 +38364,7 @@ fsevents@~2.1.1:
     redux: ^4.2.0
     redux-devtools-extension: ^2.13.9
     redux-promise-middleware: ^6.2.0
-    redux-thunk: ^2.4.1
+    redux-thunk: ^3.1.0
     serve-static: ^1.14.2
     sinon: ^9.0.3
     storybook: ^7.0.23
@@ -57143,12 +57143,12 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"redux-thunk@npm:^2.4.1":
-  version: 2.4.1
-  resolution: "redux-thunk@npm:2.4.1"
+"redux-thunk@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "redux-thunk@npm:3.1.0"
   peerDependencies:
-    redux: ^4
-  checksum: af5abb425fb9dccda02e5f387d6f3003997f62d906542a3d35fc9420088f550dc1a018bdc246c7d23ee852b4d4ab8b5c64c5be426e45a328d791c4586a3c6b6e
+    redux: ^5.0.0
+  checksum: bea96f8233975aad4c9f24ca1ffd08ac7ec91eaefc26e7ba9935544dc55d7f09ba2aa726676dab53dc79d0c91e8071f9729cddfea927f4c41839757d2ade0f50
   languageName: node
   linkType: hard
 
