@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  composeAuthUiErrorTranslationId,
-  AuthUiErrorNos,
-  AuthUiError,
-} from './auth-errors';
+import { OAUTH_ERRORS } from '../oauth';
+import { getErrorFtlId, AuthUiErrorNos, AuthUiError } from './auth-errors';
 import * as Sentry from '@sentry/browser';
 
 const notAnExistingErrorNumber = 100000;
@@ -22,37 +19,40 @@ jest.mock('@sentry/browser', () => ({
   captureMessage: jest.fn(),
 }));
 
-describe('composeAuthUIErrorTranslationId', () => {
+describe('getErrorFtlId', () => {
   it('logs an informative error to sentry if passed an error with no errno', () => {
-    composeAuthUiErrorTranslationId(errorWithNoErrorNumber);
-    const errorMessage = `composeAuthUiErrorTranslationId: No error number given, unable to create a localization ID for AuthUiError string. error: ${JSON.stringify(
+    getErrorFtlId(errorWithNoErrorNumber);
+    const errorMessage = `WARNING: An error occurred that we attempted to localize and render, but 'errno' is missing. error: ${JSON.stringify(
       errorWithNoErrorNumber
     )}`;
     expect(Sentry.captureMessage).toHaveBeenCalledWith(errorMessage);
   });
 
-  it('logs an informative error to sentry if passed an error which does not match an entry in the AuthUiErrors object', () => {
-    composeAuthUiErrorTranslationId(errorWithAnInvalidErrorNumber);
-    const errorMessage = `composeAuthUiErrorTranslationId: There is no matching error in AuthUiErrors. error: ${JSON.stringify(
+  it('logs to sentry if an error does not match an entry in AuthUiErrors object or OAuth errors array', () => {
+    getErrorFtlId(errorWithAnInvalidErrorNumber);
+    const errorMessage = `WARNING: An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it. error: ${JSON.stringify(
       errorWithAnInvalidErrorNumber
     )}`;
     expect(Sentry.captureMessage).toHaveBeenCalledWith(errorMessage);
   });
 
   it('returns an empty string if passed no error number', () => {
-    expect(composeAuthUiErrorTranslationId(errorWithNoErrorNumber)).toEqual('');
+    expect(getErrorFtlId(errorWithNoErrorNumber)).toEqual('');
   });
 
-  it('returns an empty string when given an error number with no corresponding error in the AuthUiError object', () => {
+  it('returns an empty string when given an invalid errno', () => {
     // First we just check that this has not become a valid AuthUiError number, for the sake of future clarity.
     expect(AuthUiErrorNos[notAnExistingErrorNumber]).toBeUndefined();
-    // Then we actually test the behavior.
     expect(
-      composeAuthUiErrorTranslationId(errorWithAnInvalidErrorNumber)
-    ).toEqual('');
+      Object.values(OAUTH_ERRORS).find(
+        (oAuthErr) => notAnExistingErrorNumber === oAuthErr.errno
+      )
+    ).toBeUndefined();
+    // Then we actually test the behavior.
+    expect(getErrorFtlId(errorWithAnInvalidErrorNumber)).toEqual('');
   });
 
-  it('correctly forms and returns a translation id for an auth ui error string which has never been updated (has no version number)', () => {
+  it('correctly returns an FTL ID for an auth error without a version number', () => {
     const validErrorNo = 106;
     // First we just make sure that this is still a valid UI error.
     expect(AuthUiErrorNos[validErrorNo]).toBeDefined();
@@ -60,14 +60,14 @@ describe('composeAuthUIErrorTranslationId', () => {
     expect(AuthUiErrorNos[validErrorNo].version).toBeUndefined();
     // The we actually test the functionality.
     const expectedStringId = 'auth-error-106';
-    const stringId = composeAuthUiErrorTranslationId({
+    const stringId = getErrorFtlId({
       message: 'I am a valid error with a valid error number',
       errno: validErrorNo,
     });
     expect(stringId).toEqual(expectedStringId);
   });
 
-  it('correctly forms and returns a translation id for an auth ui error string which HAS been updated (has a version number', () => {
+  it('correctly returns an FTL ID for an auth error with a version number', () => {
     const errnoWithVersion = 105;
     // First we just make sure that this is still a valid UI error.
     expect(AuthUiErrorNos[errnoWithVersion]).toBeDefined();
@@ -75,9 +75,25 @@ describe('composeAuthUIErrorTranslationId', () => {
     expect(AuthUiErrorNos[errnoWithVersion].version).toBeDefined();
     // The we actually test the functionality.
     const expectedStringId = `auth-error-105-${AuthUiErrorNos[errnoWithVersion].version}`;
-    const stringId = composeAuthUiErrorTranslationId({
+    const stringId = getErrorFtlId({
       message: 'This is a valid error, with a string that has a version number',
       errno: errnoWithVersion,
+    });
+    expect(stringId).toEqual(expectedStringId);
+  });
+
+  it('correctly returns an FTL ID for an OAuth error', () => {
+    const validErrorNo = 1000;
+    // Ensure this errno is still valid before testing
+    expect(
+      Object.values(OAUTH_ERRORS).find(
+        (oAuthErr) => validErrorNo === oAuthErr.errno
+      )
+    ).toBeDefined();
+    const expectedStringId = 'oauth-error-1000';
+    const stringId = getErrorFtlId({
+      message: 'I am valid',
+      errno: validErrorNo,
     });
     expect(stringId).toEqual(expectedStringId);
   });

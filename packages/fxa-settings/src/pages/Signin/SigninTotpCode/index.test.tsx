@@ -21,10 +21,14 @@ import {
   createMockSigninSyncIntegration,
 } from '../mocks';
 import { SigninIntegration } from '../interfaces';
-import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import {
+  FinishOAuthFlowHandler,
+  tryAgainError,
+} from '../../../lib/oauth/hooks';
 import firefox from '../../../lib/channels/firefox';
 import * as utils from 'fxa-react/lib/utils';
 import { navigate } from '@reach/router';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -209,11 +213,11 @@ describe('Sign in with TOTP code page', () => {
     });
 
     describe('with OAuth integration', () => {
+      const integration = createMockSigninOAuthIntegration();
       it('navigates to relying party on success', async () => {
         const finishOAuthFlowHandler = jest
           .fn()
           .mockReturnValueOnce(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);
-        const integration = createMockSigninOAuthIntegration();
         const hardNavigate = jest
           .spyOn(ReactUtils, 'hardNavigate')
           .mockImplementationOnce(() => {});
@@ -233,6 +237,24 @@ describe('Sign in with TOTP code page', () => {
         await waitFor(() =>
           expect(hardNavigate).toHaveBeenCalledWith('someUri')
         );
+      });
+
+      it('shows an error banner for an OAuth error', async () => {
+        const finishOAuthFlowHandler = jest
+          .fn()
+          .mockReturnValueOnce(tryAgainError());
+        await waitFor(() =>
+          renderAndSubmitTotpCode(
+            {
+              status: true,
+            },
+            finishOAuthFlowHandler,
+            integration
+          )
+        );
+        await waitFor(() => {
+          screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
+        });
       });
     });
   });

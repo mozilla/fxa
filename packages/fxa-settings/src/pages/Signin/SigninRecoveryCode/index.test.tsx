@@ -9,12 +9,15 @@ import SigninRecoveryCode from '.';
 import { MozServices } from '../../../lib/types';
 import GleanMetrics from '../../../lib/glean';
 import {
+  createMockSigninOAuthIntegration,
   createMockSigninWebIntegration,
   mockSigninLocationState,
 } from '../mocks';
 import { LocationProvider } from '@reach/router';
 import { MOCK_RECOVERY_CODE } from '../../mocks';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
+import { tryAgainError } from '../../../lib/oauth/hooks';
 
 jest.mock('../../../lib/glean', () => ({
   __esModule: true,
@@ -179,6 +182,35 @@ describe('PageSigninRecoveryCode', () => {
       await waitFor(() => {
         const tooltip = screen.getByTestId('tooltip');
         expect(tooltip).toHaveTextContent('Invalid backup authentication code');
+      });
+    });
+    it('shows an error banner for an OAuth error', async () => {
+      const mockSubmitRecoveryCode = jest
+        .fn()
+        .mockResolvedValue({ data: { consumeRecoveryCode: { remaining: 3 } } });
+      renderWithLocalizationProvider(
+        <LocationProvider>
+          <SigninRecoveryCode
+            finishOAuthFlowHandler={jest
+              .fn()
+              .mockReturnValueOnce(tryAgainError())}
+            integration={createMockSigninOAuthIntegration()}
+            signinState={mockSigninLocationState}
+            submitRecoveryCode={mockSubmitRecoveryCode}
+          />
+        </LocationProvider>
+      );
+
+      const input = screen.getByRole('textbox');
+      const button = screen.getByRole('button', { name: 'Confirm' });
+      fireEvent.change(input, { target: { value: MOCK_RECOVERY_CODE } });
+      // await waitFor(() => {
+      expect(input).toHaveValue(MOCK_RECOVERY_CODE);
+      // });
+      button.click();
+
+      await waitFor(() => {
+        screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
       });
     });
     it('shows an error banner for other errors on submit', async () => {

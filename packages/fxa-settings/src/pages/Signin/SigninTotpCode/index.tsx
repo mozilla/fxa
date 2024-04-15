@@ -57,8 +57,7 @@ export const SigninTotpCode = ({
 }: SigninTotpCodeProps & RouteComponentProps) => {
   const location = useLocation();
 
-  const [success, setSuccess] = useState<boolean>(false);
-  const [generalError, setGeneralError] = useState<string>('');
+  const [bannerError, setBannerError] = useState<string>('');
   const [codeErrorMessage, setCodeErrorMessage] = useState<string>('');
   const ftlMsgResolver = useFtlMsgResolver();
 
@@ -91,20 +90,15 @@ export const SigninTotpCode = ({
   }, []);
 
   const onSubmit = async (code: string) => {
-    setGeneralError('');
+    setBannerError('');
     setCodeErrorMessage('');
 
     const { status, error } = await submitTotpCode(code);
     GleanMetrics.totpForm.submit();
     logViewEvent('flow', `${viewName}.submit`);
-    setSuccess(status);
 
     if (error) {
-      const localizedErrorMessage = getLocalizedErrorMessage(
-        ftlMsgResolver,
-        error
-      );
-      setGeneralError(localizedErrorMessage);
+      setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
     } else if (status === false) {
       const localizedErrorMessage = getLocalizedErrorMessage(
         ftlMsgResolver,
@@ -139,7 +133,10 @@ export const SigninTotpCode = ({
         queryParams: location.search,
       };
 
-      await handleNavigation(navigationOptions, true);
+      const { error } = await handleNavigation(navigationOptions, true);
+      if (error) {
+        setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
+      }
     }
   };
 
@@ -152,49 +149,45 @@ export const SigninTotpCode = ({
         {...{ serviceName }}
       />
 
-      <main>
-        {!success && generalError && (
-          <Banner type={BannerType.error}>{generalError}</Banner>
-        )}
+      {bannerError && <Banner type={BannerType.error}>{bannerError}</Banner>}
 
-        <div className="flex justify-center mx-auto">
-          <TwoFactorAuthImage className="w-3/5" />
-        </div>
+      <div className="flex justify-center mx-auto">
+        <TwoFactorAuthImage className="w-3/5" />
+      </div>
 
-        <FtlMsg id="signin-totp-code-instruction-v2">
-          <p id="totp-code-instruction" className="my-5 text-sm">
-            Open your authentication app and enter the authentication code it
-            provides.
-          </p>
+      <FtlMsg id="signin-totp-code-instruction-v2">
+        <p id="totp-code-instruction" className="my-5 text-sm">
+          Open your authentication app and enter the authentication code it
+          provides.
+        </p>
+      </FtlMsg>
+
+      <FormVerifyCode
+        {...{
+          formAttributes,
+          viewName,
+          verifyCode: onSubmit,
+          localizedCustomCodeRequiredMessage,
+          codeErrorMessage,
+          setCodeErrorMessage,
+        }}
+      />
+      <div className="mt-5 link-blue text-sm flex justify-between">
+        <FtlMsg id="signin-totp-code-other-account-link">
+          <Link to={`/signin${location.search}`} className="text-start">
+            Use a different account
+          </Link>
         </FtlMsg>
-
-        <FormVerifyCode
-          {...{
-            formAttributes,
-            viewName,
-            verifyCode: onSubmit,
-            localizedCustomCodeRequiredMessage,
-            codeErrorMessage,
-            setCodeErrorMessage,
-          }}
-        />
-        <div className="mt-5 link-blue text-sm flex justify-between">
-          <FtlMsg id="signin-totp-code-other-account-link">
-            <Link to={`/signin${location.search}`} className="text-start">
-              Use a different account
-            </Link>
-          </FtlMsg>
-          <FtlMsg id="signin-totp-code-recovery-code-link">
-            <Link
-              to={`/signin_recovery_code${location.search}`}
-              state={signinState}
-              className="text-end"
-            >
-              Trouble entering code?
-            </Link>
-          </FtlMsg>
-        </div>
-      </main>
+        <FtlMsg id="signin-totp-code-recovery-code-link">
+          <Link
+            to={`/signin_recovery_code${location.search}`}
+            state={signinState}
+            className="text-end"
+          >
+            Trouble entering code?
+          </Link>
+        </FtlMsg>
+      </div>
     </AppLayout>
   );
 };

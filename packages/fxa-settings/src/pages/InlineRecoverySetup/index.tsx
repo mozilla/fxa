@@ -15,11 +15,13 @@ import { copyRecoveryCodes } from '../../lib/totp';
 import FormVerifyCode from '../../components/FormVerifyCode';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
+  getLocalizedErrorMessage,
 } from '../../lib/auth-errors/auth-errors';
 import { InlineRecoverySetupProps } from './interfaces';
 
 const InlineRecoverySetup = ({
+  oAuthError,
   recoveryCodes,
   serviceName,
   cancelSetupHandler,
@@ -44,7 +46,7 @@ const InlineRecoverySetup = ({
 
   const showBannerSuccess = useCallback(
     () =>
-      successfulTotpSetup ? (
+      successfulTotpSetup && (
         <Banner type={BannerType.success}>
           <p>
             {ftlMsgResolver.getMsg(
@@ -53,8 +55,17 @@ const InlineRecoverySetup = ({
             )}
           </p>
         </Banner>
-      ) : null,
+      ),
     [ftlMsgResolver, successfulTotpSetup]
+  );
+  const showBannerError = useCallback(
+    () =>
+      oAuthError && (
+        <Banner type={BannerType.error}>
+          <p>{getLocalizedErrorMessage(ftlMsgResolver, oAuthError)}</p>
+        </Banner>
+      ),
+    [ftlMsgResolver, oAuthError]
   );
 
   const continueSetup = useCallback(() => {
@@ -88,7 +99,7 @@ const InlineRecoverySetup = ({
         if (error.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(error),
+              getErrorFtlId(error),
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )
           );
@@ -122,6 +133,7 @@ const InlineRecoverySetup = ({
             {...{ serviceName }}
           />
           {showBannerSuccess()}
+          {showBannerError()}
           <section>
             <div>
               <RecoveryCodesImage className="mx-auto" />

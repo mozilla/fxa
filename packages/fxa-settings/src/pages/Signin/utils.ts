@@ -19,11 +19,20 @@ import { navigate } from '@reach/router';
 import { hardNavigate } from 'fxa-react/lib/utils';
 import { currentAccount } from '../../lib/cache';
 import firefox from '../../lib/channels/firefox';
+import { AuthError } from '../../lib/oauth';
+import GleanMetrics from '../../lib/glean';
 
 interface NavigationTarget {
   to: string;
   state?: SigninLocationState;
   shouldHardNavigate?: boolean;
+  error?: undefined;
+}
+interface NavigationTargetError {
+  to?: undefined;
+  state?: undefined;
+  shouldHardNavigate?: undefined;
+  error: AuthError;
 }
 
 // TODO: don't hard navigate once ConnectAnotherDevice is converted to React
@@ -50,9 +59,13 @@ export async function handleNavigation(
   navigationOptions: NavigationOptions,
   tempHandleSyncLogin = false
 ) {
-  const { to, state, shouldHardNavigate } = await getNavigationTarget(
+  const { to, state, shouldHardNavigate, error } = await getNavigationTarget(
     navigationOptions
   );
+  if (error) {
+    return { error };
+  }
+
   if (shouldHardNavigate) {
     if (tempHandleSyncLogin && navigationOptions.integration.isSync()) {
       firefox.fxaLogin({
@@ -68,13 +81,13 @@ export async function handleNavigation(
 
     // Hard navigate to RP, or (temp until CAD is Reactified) CAD
     hardNavigate(to);
-    return;
   }
   if (state) {
     navigate(to, { state });
   } else {
     navigate(to);
   }
+  return { error: undefined };
 }
 
 const getNavigationTarget = async ({
@@ -85,7 +98,7 @@ const getNavigationTarget = async ({
   finishOAuthFlowHandler,
   redirectTo,
   queryParams = '',
-}: NavigationOptions): Promise<NavigationTarget> => {
+}: NavigationOptions): Promise<NavigationTarget | NavigationTargetError> => {
   const isOAuth = isOAuthIntegration(integration);
   const {
     verified,
@@ -143,38 +156,36 @@ const getNavigationTarget = async ({
   // OAuth redirect can only be obtained when the session is verified
   // otherwise oauth/authorization endpoint throws an "unconfirmed session" error
   if (isOAuth) {
-    try {
-      const { redirect, code, state } = await finishOAuthFlowHandler(
-        uid,
-        sessionToken,
-        keyFetchToken,
-        unwrapBKey
-      );
-
-      if (integration.isSync()) {
-        firefox.fxaOAuthLogin({
-          action: 'signin',
-          code,
-          redirect,
-          state,
-        });
-        return getSyncNavigate(queryParams);
-      }
-      return { to: redirect, shouldHardNavigate: true };
-    } catch (error) {
+    const { error, redirect, code, state } = await finishOAuthFlowHandler(
+      uid,
+      sessionToken,
+      keyFetchToken,
+      unwrapBKey
+    );
+    if (error) {
       if (
         error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
         error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
       ) {
+        GleanMetrics.login.error({ event: { reason: error.message } });
         return {
           to: `/inline_totp_setup${queryParams}`,
           state: createSigninLocationState(),
         };
       }
-      // TODO: whatdo otherwise, show error in UI? We should add a try/catch
-      // whenever we call this and need to handle these cases. FXA-9235
-      // We are not checking `integration.returnOnError` when prompt=none.
+      return { error };
     }
+
+    if (integration.isSync()) {
+      firefox.fxaOAuthLogin({
+        action: 'signin',
+        code,
+        redirect,
+        state,
+      });
+      return getSyncNavigate(queryParams);
+    }
+    return { to: redirect, shouldHardNavigate: true };
   }
 
   if (integration.isSync()) {
@@ -188,9 +199,31 @@ const getNavigationTarget = async ({
   return { to: '/settings' };
 };
 
-export const handleGQLError = (error: any) => {
-  const graphQLError: GraphQLError = error.graphQLErrors?.[0];
-  const errno = graphQLError?.extensions?.errno as number;
+const handleAuthUiError = (error: {
+  errno: number;
+  message: string;
+}): { error: BeginSigninError } => {
+  const { errno } = error as BeginSigninError;
+  if (errno && AuthUiErrorNos[errno]) {
+    return { error };
+  }
+  return { error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError };
+};
+
+export const getHandledError = (error: {
+  errno: number;
+  message: string;
+  graphQLErrors?: GraphQLError[];
+}) => {
+  const graphQLError: GraphQLError | undefined = error.graphQLErrors?.[0];
+  if (graphQLError) {
+    return handleGQLError(graphQLError);
+  }
+  return handleAuthUiError(error);
+};
+
+const handleGQLError = (graphQLError: GraphQLError) => {
+  const errno = graphQLError.extensions.errno as number;
 
   if (errno && AuthUiErrorNos[errno]) {
     const uiError = {
@@ -202,14 +235,14 @@ export const handleGQLError = (error: any) => {
       verificationReason:
         (graphQLError.extensions.verificationReason as VerificationReasons) ||
         undefined,
-      retryAfter: (graphQLError?.extensions?.retryAfter as number) || undefined,
+      retryAfter: (graphQLError.extensions.retryAfter as number) || undefined,
       retryAfterLocalized:
-        (graphQLError?.extensions?.retryAfterLocalized as string) || undefined,
+        (graphQLError?.extensions.retryAfterLocalized as string) || undefined,
     };
     return { error: uiError as BeginSigninError };
-    // if not a graphQLError or if no localizable message available for error
   }
 
+  // if not a graphQLError or if no localizable message available for error
   return { error: AuthUiErrors.UNEXPECTED_ERROR as BeginSigninError };
 };
 

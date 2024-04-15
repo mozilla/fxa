@@ -9,17 +9,14 @@ import {
   useFtlMsgResolver,
 } from '../../../models';
 import { useLocation } from '@reach/router';
-import {
-  AuthUiErrors,
-  composeAuthUiErrorTranslationId,
-} from '../../auth-errors/auth-errors';
+import { AuthUiErrors, getErrorFtlId } from '../../auth-errors/auth-errors';
 
 /*
  * Check if the integration contains a valid `redirectTo` based on
  * a whitelist maintained in the config.
  *
  * At the time of writing, this is only valid for web integrations.
- * OAuth integrations must derive keys before redirecting.
+ * OAuth integrations should check against clientInfo.redirectUri.
  */
 export function useWebRedirect(redirectTo: BaseIntegrationData['redirectTo']) {
   const config = useConfig();
@@ -33,7 +30,7 @@ export function useWebRedirect(redirectTo: BaseIntegrationData['redirectTo']) {
 
   const getLocalizedErrorMessage = () =>
     ftlMsgResolver.getMsg(
-      composeAuthUiErrorTranslationId(AuthUiErrors.INVALID_REDIRECT_TO),
+      getErrorFtlId(AuthUiErrors.INVALID_REDIRECT_TO),
       AuthUiErrors.INVALID_REDIRECT_TO.message
     );
 

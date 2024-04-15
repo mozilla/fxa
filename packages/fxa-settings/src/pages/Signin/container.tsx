@@ -60,14 +60,13 @@ import AuthenticationMethods from '../../constants/authentication-methods';
 import { KeyStretchExperiment } from '../../models/experiments';
 import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import * as Sentry from '@sentry/browser';
-import { handleGQLError } from './utils';
+import { getHandledError } from './utils';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
 import { setCurrentAccount } from '../../lib/storage-utils';
 import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
+import OAuthDataError from '../../components/OAuthDataError';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -253,7 +252,7 @@ const SigninContainer = ({
           Sentry.captureMessage(
             'Failure to finish v2 upgrade. Could not fetch credential status.'
           );
-          return handleGQLError(error);
+          return getHandledError(error);
         }
 
         // We might have to upgrade the credentials in place.
@@ -280,7 +279,7 @@ const SigninContainer = ({
             Sentry.captureMessage(
               'Failure to finish v2 upgrade. Could not start password change.'
             );
-            return handleGQLError(error);
+            return getHandledError(error);
           }
 
           // Determine wrapKb.
@@ -294,7 +293,7 @@ const SigninContainer = ({
               });
               wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
             } catch (error) {
-              const uiError = handleGQLError(error);
+              const uiError = getHandledError(error);
               if (uiError.error.errno === 104) {
                 // NOOP - If the account is simply 'unverified', then go through normal flow.
                 // The password upgrade can occur later.
@@ -303,7 +302,7 @@ const SigninContainer = ({
                 Sentry.captureMessage(
                   'Failure to finish v2 upgrade. Could not get wrapped keys.'
                 );
-                return handleGQLError(error);
+                return getHandledError(error);
               }
             }
           }
@@ -342,7 +341,7 @@ const SigninContainer = ({
               Sentry.captureMessage(
                 'Failure to finish v2 upgrade. Could not finish password change.'
               );
-              return handleGQLError(error);
+              return getHandledError(error);
             }
           }
         } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
@@ -378,7 +377,7 @@ const SigninContainer = ({
             }
             return { data: undefined };
           } catch (error) {
-            return handleGQLError(error);
+            return getHandledError(error);
           }
         } else if (unverifiedAccount === false) {
           // Something went wrong, don't fail, so user can still log in, but DO report it to sentry;
@@ -412,8 +411,7 @@ const SigninContainer = ({
         }
         return { data: undefined };
       } catch (error) {
-        // TODO consider additional error handling - any non-gql errors will return an unexpected error
-        return handleGQLError(error);
+        return getHandledError(error);
       }
     },
     [
@@ -516,16 +514,9 @@ const SigninContainer = ({
     },
     [authClient, flowQueryParams, ftlMsgResolver]
   );
-  // TODO: UX for this, FXA-8106
+
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"

@@ -12,7 +12,7 @@ import {
 } from './base-integration';
 import { ModelDataStore, bind, KeyTransforms as T } from '../../lib/model-data';
 import { Constants } from '../../lib/constants';
-import { ERRORS, OAuthError } from '../../lib/oauth';
+import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 import { IntegrationFlags } from '../../lib/integrations';
 import { BaseIntegrationData } from './web-integration';
 import {
@@ -195,7 +195,9 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
   }
 
   getRedirectUri() {
-    return this.data.redirectUri;
+    // clientInfo.redirectUri holds the validated redirect URI. We check that this
+    // value exists and throw an error before a call to this function can be made.
+    return this.clientInfo?.redirectUri || '';
   }
 
   getRedirectToRPUrl(
@@ -378,7 +380,9 @@ export class OAuthIntegration extends BaseIntegration<OAuthIntegrationFeatures> 
     }
 
     if (!permissions.length) {
-      throw new OAuthError(ERRORS.INVALID_PARAMETER.errno, { params: 'scope' });
+      throw new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
+        params: 'scope',
+      });
     }
 
     return permissions;

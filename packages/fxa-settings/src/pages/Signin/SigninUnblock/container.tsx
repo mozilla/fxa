@@ -27,14 +27,13 @@ import {
   ResendUnblockCodeHandler,
   SigninUnblockLocationState,
 } from './interfaces';
-import { handleGQLError } from '../utils';
+import { getHandledError } from '../utils';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 import { MozServices } from '../../../lib/types';
 import { QueryParams } from '../../..';
 import { queryParamsToMetricsContext } from '../../../lib/metrics';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 const SigninUnblockContainer = ({
   integration,
@@ -88,8 +87,7 @@ const SigninUnblockContainer = ({
       });
       return { data };
     } catch (error) {
-      // TODO consider additional error handling - any non-gql errors will return an unexpected error
-      return handleGQLError(error);
+      return getHandledError(error);
     }
   };
 
@@ -110,16 +108,8 @@ const SigninUnblockContainer = ({
     }
   };
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   if (!email || !password) {

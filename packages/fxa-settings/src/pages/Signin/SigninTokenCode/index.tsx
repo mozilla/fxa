@@ -166,7 +166,18 @@ const SigninTokenCode = ({
         };
 
         await GleanMetrics.isDone();
-        await handleNavigation(navigationOptions);
+
+        const { error: navError } = await handleNavigation(navigationOptions);
+        if (navError) {
+          const localizedError = getLocalizedErrorMessage(
+            ftlMsgResolver,
+            navError
+          );
+          setBanner({
+            type: BannerType.error,
+            children: <p>{localizedError}</p>,
+          });
+        }
       } catch (error) {
         const localizedErrorMessage = getLocalizedErrorMessage(
           ftlMsgResolver,
