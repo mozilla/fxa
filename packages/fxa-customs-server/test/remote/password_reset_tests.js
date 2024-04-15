@@ -4,7 +4,7 @@
 var test = require('tap').test;
 var restifyClients = require('restify-clients');
 var TestServer = require('../test_server');
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 const { randomEmail } = require('../utils');
 
 var TEST_EMAIL = randomEmail();

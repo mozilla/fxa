@@ -5,7 +5,7 @@ var test = require('tap').test;
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var restifyClients = require('restify-clients');
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 const testUtils = require('../utils');
 
 var TEST_EMAIL = 'test@example.com';

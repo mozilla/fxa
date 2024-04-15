@@ -3,7 +3,7 @@
 
 'use strict';
 
-const mcHelper = require('../memcache-helper');
+const mcHelper = require('../cache-helper');
 const Promise = require('bluebird');
 const restifyClients = require('restify-clients');
 const test = require('tap').test;
@@ -60,17 +60,16 @@ Promise.promisifyAll(client, { multiArgs: true });
 });
 
 test('missing action', function (t) {
-  client.post('/check', { email: TEST_EMAIL, ip: TEST_IP }, function (
-    err,
-    req,
-    res,
-    obj
-  ) {
-    t.equal(res.statusCode, 400, 'bad request returns a 400');
-    t.type(obj.code, 'string', 'bad request returns an error code');
-    t.type(obj.message, 'string', 'bad request returns an error message');
-    t.end();
-  });
+  client.post(
+    '/check',
+    { email: TEST_EMAIL, ip: TEST_IP },
+    function (err, req, res, obj) {
+      t.equal(res.statusCode, 400, 'bad request returns a 400');
+      t.type(obj.code, 'string', 'bad request returns an error code');
+      t.type(obj.message, 'string', 'bad request returns an error message');
+      t.end();
+    }
+  );
 });
 
 test('missing email, ip and action', function (t) {

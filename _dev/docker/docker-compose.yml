@@ -31,7 +31,6 @@ services:
       - DB=mysql
       - CONFIG_FILES=config/secrets.json
       - MYSQL_HOST=mysql
-      - MEMCACHE_METRICS_CONTEXT_ADDRESS=memcached:11211
       - HTTPDB_URL=http://authdb:8000
       - EMAIL_SERVICE_HOST=email
       - REDIS_HOST=redis
@@ -80,7 +79,6 @@ services:
       - "1111:1111"
     depends_on:
       - mysql
-      - memcached
   profile-worker:
     image: fxa-profile-server:build
     entrypoint: /bin/bash -c
@@ -99,7 +97,6 @@ services:
       - "1113:1113"
     depends_on:
       - mysql
-      - memcached
   profile-static:
     image: fxa-profile-server:build
     entrypoint: /bin/bash -c
@@ -116,7 +113,6 @@ services:
       - "1112:1112"
     depends_on:
       - mysql
-      - memcached
   redis:
     image: redis
   mysql:
@@ -125,8 +121,6 @@ services:
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
       - MYSQL_ROOT_HOST=%
       - MYSQL_DATABASE=fxa
-  memcached:
-    image: memcached
   maildev:
     image: djfarrelly/maildev
     ports:

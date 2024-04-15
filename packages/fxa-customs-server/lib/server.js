@@ -74,7 +74,7 @@ module.exports = async function createServer(config, log) {
       mc,
       reputationService,
       limits,
-      config.memcache.recordLifetimeSeconds,
+      config.cache.recordLifetimeSeconds,
       statsd
     );
 
@@ -123,7 +123,7 @@ module.exports = async function createServer(config, log) {
   await configureSentry(api, config, log);
 
   function logError(err) {
-    log.error({ op: 'memcachedError', err: err });
+    log.error({ op: 'cacheError', err: err });
     throw err;
   }
   function normalizePath(path) {

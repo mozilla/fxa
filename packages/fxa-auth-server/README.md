@@ -70,7 +70,7 @@ We also use [Chai](https://www.chaijs.com/) for making assertions in tests. As o
 
 ### Testing with non-local databases
 
-Executing tests using remote databases (MySQL, Redis, Memcached) is possible by specifying (and exporting) the following environment variables:
+Executing tests using remote databases (MySQL, Redis) is possible by specifying (and exporting) the following environment variables:
 
 - MySQL:
   - MYSQL_HOST
@@ -80,8 +80,7 @@ Executing tests using remote databases (MySQL, Redis, Memcached) is possible by 
   - REDIS_HOST
   - ACCESS_TOKEN_REDIS_HOST
   - REFRESH_TOKEN_REDIS_HOST
-- Memcached:
-  - MEMCACHE_METRICS_CONTEXT_ADDRESS
+  - METRICS_REDIS_HOST
 
 This also allows to use temporary throw-away Docker containers to provide these.
 

@@ -30246,13 +30246,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"connection-parse@npm:0.0.x":
-  version: 0.0.7
-  resolution: "connection-parse@npm:0.0.7"
-  checksum: 82c242157205babf80bd6467a65b4f05c21eed91cc46f76ca26398ef10b031a7a0bb63efbda3386e6d24dbfaf74a9d786b0e2fb6425b3a159c762b18052a5070
-  languageName: node
-  linkType: hard
-
 "consola@npm:^2.15.0":
   version: 2.15.0
   resolution: "consola@npm:2.15.0"
@@ -37524,7 +37517,6 @@ fsevents@~2.1.1:
     "@types/jws": ^3.2.3
     "@types/lodash": ^4
     "@types/luxon": ^3
-    "@types/memcached": ^2.2.6
     "@types/mjml": ^4.7.4
     "@types/mocha": ^10.0.6
     "@types/nock": ^11.1.0
@@ -37855,7 +37847,6 @@ fsevents@~2.1.1:
     load-grunt-tasks: ^5.1.0
     lodash.isequal: 4.5.0
     lodash.merge: 4.6.2
-    memcached: ^2.2.2
     pm2: ^5.3.0
     prettier: ^2.3.1
     proxyquire: ^2.1.3
@@ -40641,16 +40632,6 @@ fsevents@~2.1.1:
     is-stream: ^2.0.0
     type-fest: ^0.8.0
   checksum: 8b3adbdac6df8132a4337454cb2050dde932d2313fbb50ebbe2cd4ac4cb1e9480d80906c2134ecd7ccd343c33add37da9f3ac5828c025513b4c764cd4d22dd79
-  languageName: node
-  linkType: hard
-
-"hashring@npm:3.2.x":
-  version: 3.2.0
-  resolution: "hashring@npm:3.2.0"
-  dependencies:
-    connection-parse: 0.0.x
-    simple-lru-cache: 0.0.x
-  checksum: d46733d341227a48df48c9c4d31f36a174e8c773df2f9013baed42357f93e07cd99e60dcb40c986b813654d505e5938f0a677bf33935e7be8ee20a0a1fbeb1db
   languageName: node
   linkType: hard
 
@@ -43554,15 +43535,6 @@ fsevents@~2.1.1:
     reflect.getprototypeof: ^1.0.4
     set-function-name: ^2.0.1
   checksum: d8a507e2ccdc2ce762e8a1d3f4438c5669160ac72b88b648e59a688eec6bc4e64b22338e74000518418d9e693faf2a092d2af21b9ec7dbf7763b037a54701168
-  languageName: node
-  linkType: hard
-
-"jackpot@npm:>=0.0.6":
-  version: 0.0.6
-  resolution: "jackpot@npm:0.0.6"
-  dependencies:
-    retry: 0.6.0
-  checksum: 57af0f39f8ffbf12825aaabe60295d2bb9c0e56ef6123168a542f73ce56935498ef35350b53171111214f3bcfe1ac4ff75cf2b64662e714adb1218b5e92ad6b9
   languageName: node
   linkType: hard
 
@@ -48251,16 +48223,6 @@ fsevents@~2.1.1:
   version: 0.3.0
   resolution: "media-typer@npm:0.3.0"
   checksum: af1b38516c28ec95d6b0826f6c8f276c58aec391f76be42aa07646b4e39d317723e869700933ca6995b056db4b09a78c92d5440dc23657e6764be5d28874bba1
-  languageName: node
-  linkType: hard
-
-"memcached@npm:^2.2.2":
-  version: 2.2.2
-  resolution: "memcached@npm:2.2.2"
-  dependencies:
-    hashring: 3.2.x
-    jackpot: ">=0.0.6"
-  checksum: bb87f0c9422e5a4dc1ca2235115b88ac1b4f3cf0d10435bb1296f54e3c14971ad764b1c26a071c0e24baa6e3095eef8e18ccfe82d70ca8272334ccd4340db1a5
   languageName: node
   linkType: hard
 
@@ -58055,13 +58017,6 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"retry@npm:0.6.0":
-  version: 0.6.0
-  resolution: "retry@npm:0.6.0"
-  checksum: 44c7b1179ef9627d3ff11b9948e49094226c28f8838c43e39e3cd6a15689daacd59e82db53c5177793717768a6a15e16db6606b5b51cce7622751349c6a1ccfa
-  languageName: node
-  linkType: hard
-
 "reusify@npm:^1.0.4":
   version: 1.0.4
   resolution: "reusify@npm:1.0.4"
@@ -59520,13 +59475,6 @@ resolve@1.1.7:
     once: ^1.3.1
     simple-concat: ^1.0.0
   checksum: e4132fd27cf7af230d853fa45c1b8ce900cb430dd0a3c6d3829649fe4f2b26574c803698076c4006450efb0fad2ba8c5455fbb5755d4b0a5ec42d4f12b31d27e
-  languageName: node
-  linkType: hard
-
-"simple-lru-cache@npm:0.0.x":
-  version: 0.0.2
-  resolution: "simple-lru-cache@npm:0.0.2"
-  checksum: 75bc9b788be4dad48b96ff2225604fe9c62d2e69327491ecb4d034b482cb88e5cd810e7b84f6ded3c4a87f1ecd407f1f2fafd5da09cf07dec3b9ce100cc13a44
   languageName: node
   linkType: hard
 

@@ -21,11 +21,6 @@ function makeRoutes(options = {}, requireMocks) {
   const config = options.config || {};
   config.oauth = config.oauth || {};
   config.smtp = config.smtp || {};
-  config.memcached = config.memcached || {
-    address: 'localhost:1121',
-    idle: 500,
-    lifetime: 30,
-  };
   config.i18n = {
     supportedLanguages: ['en', 'fr'],
     defaultLanguage: 'en',

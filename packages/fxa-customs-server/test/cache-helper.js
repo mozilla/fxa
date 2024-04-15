@@ -8,12 +8,9 @@ var P = require('bluebird');
 const Cache = require('../lib/cache');
 
 var config = {
-  memcache: {
-    address: process.env.MEMCACHE_ADDRESS || 'localhost:11211',
-  },
   redis: {
     customs: {
-      enabled: process.env.CUSTOMS_REDIS_ENABLED === 'true',
+      enabled: 'true',
       host: 'localhost',
       password: '',
       port: 6379,
@@ -87,44 +84,21 @@ var IpRecord = require('../lib/ip_record')(limits);
 module.exports.limits = limits;
 
 async function blockedEmailCheck(email, cb) {
-  if (config.redis.customs.enabled) {
-    return P.resolve(true).then(async () => {
-      const result = await mc.getAsync(email);
-      var er = EmailRecord.parse(result);
-      cb(er.shouldBlock());
-    });
-  }
-  // give memcache time to flush the writes
-  setTimeout(function () {
-    mc.client.get(email, function (err, data) {
-      var er = EmailRecord.parse(data);
-      mc.client.end();
-      cb(er.shouldBlock());
-    });
+  return P.resolve(true).then(async () => {
+    const result = await mc.getAsync(email);
+    var er = EmailRecord.parse(result);
+    cb(er.shouldBlock());
   });
 }
 
 module.exports.blockedEmailCheck = blockedEmailCheck;
 
 function blockedIpCheck(cb) {
-  if (config.redis.customs.enabled) {
-    return Promise.resolve(true).then(async () => {
-      const result = await mc.getAsync(TEST_IP);
-      var er = IpRecord.parse(result);
-      cb(er.shouldBlock());
-    });
-  }
-
-  setTimeout(
-    // give memcache time to flush the writes
-    function () {
-      mc.get(TEST_IP, function (err, data) {
-        var ir = IpRecord.parse(data);
-        mc.end();
-        cb(ir.shouldBlock());
-      });
-    }
-  );
+  return Promise.resolve(true).then(async () => {
+    const result = await mc.getAsync(TEST_IP);
+    var er = IpRecord.parse(result);
+    cb(er.shouldBlock());
+  });
 }
 
 module.exports.blockedIpCheck = blockedIpCheck;
@@ -150,60 +124,12 @@ function badLoginCheck() {
 module.exports.badLoginCheck = badLoginCheck;
 
 function clearEverything(cb) {
-  if (config.redis.customs.enabled) {
-    return mc.client.redis.flushall(function (err) {
-      if (err) {
-        return cb(err);
-      }
-      cb();
-    });
-  }
-
-  mc.client
-    .itemsAsync()
-    .then(function (result) {
-      var firstServer = result[0];
-
-      // we don't need the "server" key, but the other indicate the slab id's
-      var keys = Object.keys(firstServer)
-        .filter((k) => /[0-9]+/i.test(k))
-        .map(Number);
-
-      // get a cachedump for each slabid and slab.number
-      var cachedumps = keys
-        .map(function (stats) {
-          return mc.client.cachedumpAsync(
-            firstServer.server,
-            stats,
-            firstServer[stats].number
-          );
-        })
-        .map(function (dumpPromise) {
-          return dumpPromise.then(function (dump) {
-            if (!dump) {
-              return;
-            }
-            // when one key is return as an object pretend it's an array
-            if (dump.key && !dump.length) {
-              dump = [dump];
-            }
-            return P.all(
-              dump
-                .filter((item) => /^fxa~/.test(item.key))
-                .map(function (item) {
-                  return mc.client.delAsync(item.key.replace(/^fxa~/, ''));
-                })
-            );
-          });
-        });
-
-      return P.all(cachedumps);
-    })
-    .then(function () {
-      mc.client.end();
-      cb();
-    })
-    .catch(cb);
+  return mc.client.redis.flushall(function (err) {
+    if (err) {
+      return cb(err);
+    }
+    cb();
+  });
 }
 
 module.exports.clearEverything = clearEverything;
@@ -268,6 +194,4 @@ function setRequestChecks(settings) {
 
 module.exports.setAllowedEmailDomains = setAllowedEmailDomains;
 
-if (config.redis.customs.enabled) {
-  mc.client.end = function () {};
-}
+mc.client.end = function () {};

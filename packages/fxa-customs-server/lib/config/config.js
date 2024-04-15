@@ -174,14 +174,9 @@ module.exports = function (fs, path, url, convict) {
         env: 'MAX_ACCOUNT_ACCESS',
       },
     },
-    memcache: {
-      address: {
-        doc: 'Hostname/IP:Port of the memcache server',
-        default: 'localhost:11211',
-        env: 'MEMCACHE_ADDRESS',
-      },
+    cache: {
       recordLifetimeSeconds: {
-        doc: 'Memcache record expiry',
+        doc: 'Record expiry',
         default: 900,
         format: 'nat',
         env: 'RECORD_LIFETIME_SECONDS',

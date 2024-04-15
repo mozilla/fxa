@@ -21,8 +21,8 @@ module.exports = (config, Settings, log) => {
       if (!this.flowIdExemptUserAgentREs) {
         this.flowIdExemptUserAgentCompiledREs = [];
       } else {
-        this.flowIdExemptUserAgentCompiledREs = this.flowIdExemptUserAgentREs.map(
-          function (re) {
+        this.flowIdExemptUserAgentCompiledREs =
+          this.flowIdExemptUserAgentREs.map(function (re) {
             // Log the regex at startup to check that we have correct values.
             const regex = new RegExp(re);
             log.info({
@@ -30,8 +30,7 @@ module.exports = (config, Settings, log) => {
               regex: String(regex),
             });
             return regex;
-          }
-        );
+          });
       }
       return this;
     }
@@ -41,7 +40,7 @@ module.exports = (config, Settings, log) => {
     validate(settings) {
       if (typeof settings !== 'object') {
         log.error({ op: 'requestChecks.validate.invalid', data: settings });
-        throw new Settings.Missing('invalid requestChecks from memcache');
+        throw new Settings.Missing('invalid requestChecks from cache');
       }
       const keys = Object.keys(config.requestChecks);
       for (let i = 0; i < keys.length; i++) {

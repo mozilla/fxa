@@ -9,14 +9,14 @@ class Record {
     this.hits = object.hits || []; // timestamps when last hit occurred
 
     Object.defineProperty(this, 'limits', {
-      // limits is not saved to memcached
+      // limits is not saved to cache
       enumerable: false,
       get() {
         return config.limits;
       },
     });
     Object.defineProperty(this, 'actions', {
-      // actions is not saved to memcached
+      // actions is not saved to cache
       enumerable: false,
       get() {
         return config.actions;

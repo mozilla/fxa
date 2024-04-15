@@ -74,7 +74,7 @@ test('refresh pushOnMissing works on Missing error', (t) => {
 });
 
 test('refresh pushOnMissing returns other Errors', (t) => {
-  const mcError = new Error('memcached error');
+  const mcError = new Error('cache error');
   mc.getAsync = () => P.reject(mcError);
   mc.setAsync = (key, val) => {
     return P.reject(new Error('setAsync should not have been called'));

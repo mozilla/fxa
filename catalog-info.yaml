@@ -10,7 +10,6 @@ spec:
     - ./backstage/mozilla-accounts.system.yaml
     - ./backstage/mysql.resources.yaml
     - ./backstage/redis.resources.yaml
-    - ./backstage/memcached.resources.yaml
     - ./packages/123done/backstage.yaml
     - ./packages/browserid-verifier/backstage.yaml
     - ./packages/fxa-admin-panel/backstage.yaml

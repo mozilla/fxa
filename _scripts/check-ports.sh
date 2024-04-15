@@ -3,7 +3,6 @@
 PORTS=(
   3306 # MySQL server
   6379 # redis
-  11211 # memcached
   4100 # Fake SQS/SNS
   8085 # google-pubsub-emulator
   9090 # google-firestore-emulator

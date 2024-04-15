@@ -53,7 +53,7 @@ module.exports = (config, Settings, log) => {
     validate(settings) {
       if (typeof settings !== 'object') {
         log.error({ op: 'limits.validate.invalid', data: settings });
-        throw new Settings.Missing('invalid limits from memcache');
+        throw new Settings.Missing('invalid limits from cache');
       }
       var keys = Object.keys(config.limits);
       for (var i = 0; i < keys.length; i++) {

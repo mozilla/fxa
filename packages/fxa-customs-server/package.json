@@ -22,8 +22,7 @@
     "lint": "eslint .",
     "test": "scripts/test-local.sh",
     "test-unit": "yarn make-artifacts-dir && tap test/local --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-unit.xml",
-    "test-integration": "yarn make-artifacts-dir && tap test/remote test/scripts --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration.xml",
-    "test-integration-redis": "CUSTOMS_REDIS_ENABLED=true yarn make-artifacts-dir && tap test/remote test/scripts --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration-redis.xml",
+    "test-integration": "yarn make-artifacts-dir && tap test/remote --jobs=1 | tap-xunit > ../../artifacts/tests/$npm_package_name/tap-integration.xml",
     "format": "prettier --write --config ../../_dev/.prettierrc '**'",
     "make-artifacts-dir": "mkdir -p ../../artifacts/tests/$npm_package_name"
   },
@@ -44,8 +43,7 @@
     "ip": "^2.0.1",
     "ip-reputation-js-client": "^6.0.4",
     "lodash.isequal": "4.5.0",
-    "lodash.merge": "4.6.2",
-    "memcached": "^2.2.2"
+    "lodash.merge": "4.6.2"
   },
   "devDependencies": {
     "@types/dedent": "^0",

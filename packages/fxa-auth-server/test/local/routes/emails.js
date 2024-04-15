@@ -153,11 +153,6 @@ const makeRoutes = function (options = {}, requireMocks) {
   const config = options.config || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp || {};
-  config.memcached = config.memcached || {
-    address: 'none',
-    idle: 500,
-    lifetime: 30,
-  };
   config.i18n = {
     supportedLanguages: ['en'],
     defaultLanguage: 'en',

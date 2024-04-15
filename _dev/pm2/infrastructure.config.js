@@ -18,13 +18,6 @@ module.exports = {
       kill_timeout: 20000,
     },
     {
-      name: 'memcache',
-      script: '_scripts/memcached.sh',
-      max_restarts: '1',
-      min_uptime: '2m',
-      kill_timeout: 20000,
-    },
-    {
       name: 'sns',
       script: '_scripts/goaws.sh',
       max_restarts: '1',
