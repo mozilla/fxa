@@ -49,7 +49,7 @@ jest.mock('../Settings/ScrollToTop', () => ({
 
 jest.mock('../../lib/glean', () => ({
   __esModule: true,
-  default: { initialize: jest.fn() },
+  default: { initialize: jest.fn(), getEnabled: jest.fn() },
 }));
 
 const mockMetricsQueryAccountAmplitude = {
@@ -110,10 +110,17 @@ describe('metrics', () => {
   });
 
   it('Initializes metrics flow data when present', async () => {
-    (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
+    (useInitialMetricsQueryState as jest.Mock).mockReturnValue({
       data: mockMetricsQueryAccountResult,
+      loading: false,
     });
-    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValue({
+      data: { isSignedIn: true },
+    });
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: jest.fn(),
+      getServiceName: jest.fn(),
+    });
     const flowInit = jest.spyOn(Metrics, 'init');
     const userPreferencesInit = jest.spyOn(Metrics, 'initUserPreferences');
 
@@ -144,8 +151,14 @@ describe('glean', () => {
     (useInitialMetricsQueryState as jest.Mock).mockReturnValueOnce({
       data: mockMetricsQueryAccountResult,
     });
-    (useIntegration as jest.Mock).mockReturnValue({});
-    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({});
+    const mockIntegration = {
+      isSync: jest.fn(),
+      getServiceName: jest.fn(),
+    };
+    (useIntegration as jest.Mock).mockReturnValue(mockIntegration);
+    (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
+      data: { isSignedIn: true },
+    });
 
     await act(async () => {
       renderWithLocalizationProvider(
@@ -168,7 +181,7 @@ describe('glean', () => {
         flowQueryParams: updatedFlowQueryParams,
         account: mockMetricsQueryAccountGlean,
         userAgent: navigator.userAgent,
-        integration: {},
+        integration: mockIntegration,
       }
     );
   });
@@ -246,6 +259,10 @@ describe('SettingsRoutes', () => {
   it('redirects to /signin if isSignedIn is false', async () => {
     (useLocalSignedInQueryState as jest.Mock).mockReturnValueOnce({
       data: { isSignedIn: false },
+    });
+    (useIntegration as jest.Mock).mockReturnValue({
+      isSync: jest.fn(),
+      getServiceName: jest.fn(),
     });
 
     let navigateResult: Promise<void>;
