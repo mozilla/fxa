@@ -2761,6 +2761,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/helper-plugin-utils@npm:^7.24.0":
+  version: 7.24.0
+  resolution: "@babel/helper-plugin-utils@npm:7.24.0"
+  checksum: e2baa0eede34d2fa2265947042aa84d444aa48dc51e9feedea55b67fc1bc3ab051387e18b33ca7748285a6061390831ab82f8a2c767d08470b93500ec727e9b9
+  languageName: node
+  linkType: hard
+
 "@babel/helper-remap-async-to-generator@npm:^7.16.5":
   version: 7.16.5
   resolution: "@babel/helper-remap-async-to-generator@npm:7.16.5"
@@ -5810,6 +5817,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/plugin-transform-react-display-name@npm:^7.24.1":
+  version: 7.24.1
+  resolution: "@babel/plugin-transform-react-display-name@npm:7.24.1"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.24.0
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: d87ac36073f923a25de0ed3cffac067ec5abc4cde63f7f4366881388fbea6dcbced0e4fefd3b7e99edfe58a4ce32ea4d4c523a577d2b9f0515b872ed02b3d8c3
+  languageName: node
+  linkType: hard
+
 "@babel/plugin-transform-react-jsx-development@npm:^7.16.5":
   version: 7.16.5
   resolution: "@babel/plugin-transform-react-jsx-development@npm:7.16.5"
@@ -5888,7 +5906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-react-jsx@npm:^7.22.15":
+"@babel/plugin-transform-react-jsx@npm:^7.22.15, @babel/plugin-transform-react-jsx@npm:^7.23.4":
   version: 7.23.4
   resolution: "@babel/plugin-transform-react-jsx@npm:7.23.4"
   dependencies:
@@ -5948,6 +5966,18 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: 9ea3698b1d422561d93c0187ac1ed8f2367e4250b10e259785ead5aa643c265830fd0f4cf5087a5bedbc4007444c06da2f2006686613220acf0949895f453666
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-transform-react-pure-annotations@npm:^7.24.1":
+  version: 7.24.1
+  resolution: "@babel/plugin-transform-react-pure-annotations@npm:7.24.1"
+  dependencies:
+    "@babel/helper-annotate-as-pure": ^7.22.5
+    "@babel/helper-plugin-utils": ^7.24.0
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 06a6bfe80f1f36408d07dd80c48cf9f61177c8e5d814e80ddbe88cfad81a8b86b3110e1fe9d1ac943db77e74497daa7f874b5490c788707106ad26ecfbe44813
   languageName: node
   linkType: hard
 
@@ -7032,7 +7062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/preset-react@npm:^7.22.15, @babel/preset-react@npm:^7.23.3":
+"@babel/preset-react@npm:^7.22.15":
   version: 7.23.3
   resolution: "@babel/preset-react@npm:7.23.3"
   dependencies:
@@ -7061,6 +7091,22 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: b977c7ee83e93f62d77e61929ca3d97e5291e026e2f025a1b8b7ac9186486ed56c7d5bc36f0becabe0c24e8c42a4e4f2243a3cf841384cfafc3204c5d3e6c619
+  languageName: node
+  linkType: hard
+
+"@babel/preset-react@npm:^7.24.1":
+  version: 7.24.1
+  resolution: "@babel/preset-react@npm:7.24.1"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.24.0
+    "@babel/helper-validator-option": ^7.23.5
+    "@babel/plugin-transform-react-display-name": ^7.24.1
+    "@babel/plugin-transform-react-jsx": ^7.23.4
+    "@babel/plugin-transform-react-jsx-development": ^7.22.5
+    "@babel/plugin-transform-react-pure-annotations": ^7.24.1
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: 70e146a6de480cb4b6c5eb197003960a2d148d513e1f5b5d04ee954f255d68c935c2800da13e550267f47b894bd0214b2548181467b52a4bdc0a85020061b68c
   languageName: node
   linkType: hard
 
@@ -37716,7 +37762,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@babel/preset-env": ^7.22.9
-    "@babel/preset-react": ^7.23.3
+    "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.23.2
     "@fluent/bundle": ^0.18.0
     "@fluent/dom": ^0.9.0
@@ -37893,7 +37939,7 @@ fsevents@~2.1.1:
     "@babel/plugin-proposal-class-properties": ^7.18.6
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
     "@babel/preset-env": ^7.22.9
-    "@babel/preset-react": ^7.23.3
+    "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.23.2
     "@mozilla/glean": ^4.0.0
     "@types/backbone": ^1.4.10
@@ -38277,7 +38323,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.22.5
     "@babel/preset-env": ^7.22.9
-    "@babel/preset-react": ^7.23.3
+    "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.23.2
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.7.0
@@ -38429,7 +38475,7 @@ fsevents@~2.1.1:
     "@babel/core": ^7.15.0
     "@babel/plugin-transform-typescript": ^7.23.6
     "@babel/preset-env": ^7.22.9
-    "@babel/preset-react": ^7.23.3
+    "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.23.2
     "@fluent/bundle": ^0.18.0
     "@fluent/langneg": ^0.7.0
@@ -38711,7 +38757,7 @@ fsevents@~2.1.1:
     "@apollo/client": ^3.9.4
     "@apollo/server": ^4.10.0
     "@babel/core": ^7.22.20
-    "@babel/preset-react": ^7.23.3
+    "@babel/preset-react": ^7.24.1
     "@faker-js/faker": ^8.4.1
     "@fluent/bundle": ^0.18.0
     "@fluent/react": ^0.15.2
