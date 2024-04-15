@@ -21792,15 +21792,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/express@npm:^4.17.14":
-  version: 4.17.14
-  resolution: "@types/express@npm:4.17.14"
+"@types/express@npm:^4.17.17":
+  version: 4.17.21
+  resolution: "@types/express@npm:4.17.21"
   dependencies:
     "@types/body-parser": "*"
-    "@types/express-serve-static-core": ^4.17.18
+    "@types/express-serve-static-core": ^4.17.33
     "@types/qs": "*"
     "@types/serve-static": "*"
-  checksum: 15c1af46d02de834e4a225eccaa9d85c0370fdbb3ed4e1bc2d323d24872309961542b993ae236335aeb3e278630224a6ea002078d39e651d78a3b0356b1eaa79
+  checksum: fb238298630370a7392c7abdc80f495ae6c716723e114705d7e3fb67e3850b3859bbfd29391463a3fb8c0b32051847935933d99e719c0478710f8098ee7091c5
   languageName: node
   linkType: hard
 
@@ -22267,12 +22267,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jsonwebtoken@npm:^8.5.9":
-  version: 8.5.9
-  resolution: "@types/jsonwebtoken@npm:8.5.9"
+"@types/jsonwebtoken@npm:^9.0.2":
+  version: 9.0.6
+  resolution: "@types/jsonwebtoken@npm:9.0.6"
   dependencies:
     "@types/node": "*"
-  checksum: 33815ab02d1371b423118316b7706d2f2ec03eeee5e1494be72da50425d2384e5e0a09ea193f7a5ab4b4f6a9c5847147305f50e965f3d927a95bdf8adb471b2a
+  checksum: a568e7cb1c703bcb015eff8bf5996e276e748d2b39ddc47edf5ddccd1378f5792179c43302a1c803e47a54b0220f9ecaae445ec444d28bf81b88856f899e85b9
   languageName: node
   linkType: hard
 
@@ -37856,7 +37856,7 @@ fsevents@~2.1.1:
     jsdom: ^24.0.0
     jsonwebtoken: ^9.0.0
     jsxgettext-recursive-next: 1.1.0
-    jwks-rsa: ^3.0.0
+    jwks-rsa: ^3.1.0
     jws: 4.0.0
     keypair: 1.0.4
     keyv: 4.5.0
@@ -38190,7 +38190,7 @@ fsevents@~2.1.1:
     hot-shots: ^10.0.0
     jest: 27.5.1
     joi: ^17.8.3
-    jwks-rsa: ^3.0.0
+    jwks-rsa: ^3.1.0
     mozlog: ^3.0.2
     nock: ^13.5.1
     p-event: ^6.0.0
@@ -45925,10 +45925,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jose@npm:^4.10.3, jose@npm:^4.11.4, jose@npm:^4.8.1":
+"jose@npm:^4.11.4, jose@npm:^4.8.1":
   version: 4.14.4
   resolution: "jose@npm:4.14.4"
   checksum: 2d820a91a8fd97c05d8bc8eedc373b944a0cd7f5fe41063086da233d0473c73fb523912a9f026ea870782bd221f4a515f441a2d3af4de48c6f2c76dac5082377
+  languageName: node
+  linkType: hard
+
+"jose@npm:^4.14.6":
+  version: 4.15.5
+  resolution: "jose@npm:4.15.5"
+  checksum: 7dde76447c7707bd4b448f914b216f3858e701aa83f00447434252461af5b9e159dcbffb88badea3f9616739526763581267c9560622f0a058df8d68c86d7f79
   languageName: node
   linkType: hard
 
@@ -46808,17 +46815,17 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jwks-rsa@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "jwks-rsa@npm:3.0.0"
+"jwks-rsa@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "jwks-rsa@npm:3.1.0"
   dependencies:
-    "@types/express": ^4.17.14
-    "@types/jsonwebtoken": ^8.5.9
+    "@types/express": ^4.17.17
+    "@types/jsonwebtoken": ^9.0.2
     debug: ^4.3.4
-    jose: ^4.10.3
+    jose: ^4.14.6
     limiter: ^1.1.5
-    lru-memoizer: ^2.1.4
-  checksum: 1697f9599b723be8853041c643af6ec6457e8ab65ca0c086b80fdb642396d37ad9d4c69984b619bd8e5cf668bbe073f3a4b5d2335306615951afb7e54dc2721a
+    lru-memoizer: ^2.2.0
+  checksum: eef0c174b0dc7015585982de3aa6644bb8d5b355ebcfc3a40e52ab66cbb9b7c0b699089fd68b7f5d68ae01735a45251f1c1ebc35e9d749e5b84693cc871b0f93
   languageName: node
   linkType: hard
 
@@ -48048,13 +48055,13 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"lru-memoizer@npm:^2.1.4":
-  version: 2.1.4
-  resolution: "lru-memoizer@npm:2.1.4"
+"lru-memoizer@npm:^2.2.0":
+  version: 2.2.0
+  resolution: "lru-memoizer@npm:2.2.0"
   dependencies:
     lodash.clonedeep: ^4.5.0
     lru-cache: ~4.0.0
-  checksum: 8dd076e39afeb2e079287758344ba87cde278f630447e823650320e41a9e3dd8bd91ed375fa7585af95c4ae0473ba18e2fe6f12cbde7f69fc109f2ddd60423b3
+  checksum: 555f672b3ff6b4fec63792ca1cda7b585fc54f5e8f0b73166e6d513cc4103032cd69f5d40b32700807c9ca94671728e9108a3fe0803fc3f1b08716946c5a6098
   languageName: node
   linkType: hard
 
