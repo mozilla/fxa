@@ -12,12 +12,12 @@ class LocationOverride {
   public readonly postalCode?: string;
 }
 
-export class GeodbConfig {
+export class GeoDBConfig {
   @IsString()
   public readonly dbPath!: string;
 }
 
-export class GeodbManagerConfig {
+export class GeoDBManagerConfig {
   @Type(() => LocationOverride)
   @ValidateNested()
   @IsDefined()

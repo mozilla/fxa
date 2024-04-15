@@ -3,19 +3,19 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { BaseError } from '@fxa/shared/error';
 
-export class GeodbError extends BaseError {
+export class GeoDBError extends BaseError {
   constructor(message: string) {
     super(message);
   }
 }
 
-export class GeodbInvalidIp extends GeodbError {
+export class GeoDBInvalidIp extends GeoDBError {
   constructor() {
     super('IP is invalid');
   }
 }
 
-export class GeodbFetchDataFailed extends GeodbError {
+export class GeoDBFetchDataFailed extends GeoDBError {
   constructor() {
     super('Unable to fetch data');
   }

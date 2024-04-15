@@ -6,7 +6,7 @@ import { Type } from 'class-transformer';
 import { IsDefined, ValidateNested } from 'class-validator';
 
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
-import { GeodbConfig, GeodbManagerConfig } from '@fxa/shared/geodb';
+import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -14,13 +14,13 @@ export class RootConfig {
   @IsDefined()
   public readonly mysqlConfig!: Partial<MySQLConfig>;
 
-  @Type(() => GeodbConfig)
+  @Type(() => GeoDBConfig)
   @ValidateNested()
   @IsDefined()
-  public readonly geodbConfig!: Partial<GeodbConfig>;
+  public readonly geodbConfig!: Partial<GeoDBConfig>;
 
-  @Type(() => GeodbManagerConfig)
+  @Type(() => GeoDBManagerConfig)
   @ValidateNested()
   @IsDefined()
-  public readonly geodbManagerConfig!: Partial<GeodbManagerConfig>;
+  public readonly geodbManagerConfig!: Partial<GeoDBManagerConfig>;
 }

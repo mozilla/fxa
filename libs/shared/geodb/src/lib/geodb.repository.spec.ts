@@ -1,8 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { GeodbFetchDataFailed, GeodbInvalidIp } from './geodb.error';
-import { GeodbCityReader } from './geodb.provider';
+import { GeoDBFetchDataFailed, GeoDBInvalidIp } from './geodb.error';
+import { GeoDBCityReader } from './geodb.provider';
 import { getLocationData } from './geodb.repository';
 import { CityResponseFactory, CountryRecordFactory } from './maxmind.factories';
 
@@ -16,12 +16,12 @@ jest.mock('maxmind', function () {
   };
 });
 
-describe('GeodbRepository', () => {
+describe('GeoDBRepository', () => {
   const ip = '127.0.0.1';
   const mockReader = {
     get: jest.fn(),
   };
-  const mockGeodbCityReader = mockReader as unknown as GeodbCityReader;
+  const mockGeoDBCityReader = mockReader as unknown as GeoDBCityReader;
 
   beforeEach(() => {
     mockValidate.mockReturnValue(true);
@@ -34,20 +34,20 @@ describe('GeodbRepository', () => {
   it('errors on ip', () => {
     mockValidate.mockReturnValue(false);
     try {
-      getLocationData(mockGeodbCityReader, ip);
+      getLocationData(mockGeoDBCityReader, ip);
       fail('it should have thrown an error...');
     } catch (error) {
-      expect(error).toEqual(new GeodbInvalidIp());
+      expect(error).toEqual(new GeoDBInvalidIp());
     }
   });
 
   it('errors on no data', () => {
     mockReader.get.mockReturnValue(null);
     try {
-      getLocationData(mockGeodbCityReader, ip);
+      getLocationData(mockGeoDBCityReader, ip);
       fail('it should have thrown an error...');
     } catch (error) {
-      expect(error).toEqual(new GeodbFetchDataFailed());
+      expect(error).toEqual(new GeoDBFetchDataFailed());
     }
   });
 
@@ -57,7 +57,7 @@ describe('GeodbRepository', () => {
     });
     mockReader.get.mockReturnValue(cityResponse);
     const result = getLocationData(
-      mockReader as unknown as GeodbCityReader,
+      mockReader as unknown as GeoDBCityReader,
       ''
     );
     expect(result).toEqual(cityResponse);

@@ -4,30 +4,30 @@
 import fs from 'fs';
 import { Provider } from '@nestjs/common';
 import maxmind, { CityResponse, Reader } from 'maxmind';
-import { GeodbConfig } from './geodb.config';
+import { GeoDBConfig } from './geodb.config';
 import path from 'path';
 
-export type GeodbCityReader = Reader<CityResponse>;
-export const GeodbProvider = Symbol('GeodbProvider');
+export type GeoDBCityReader = Reader<CityResponse>;
+export const GeoDBProvider = Symbol('GeoDBProvider');
 
-function getGeodbPath(geodbConfig: GeodbConfig) {
+function getGeoDBPath(geodbConfig: GeoDBConfig) {
   return path.resolve(geodbConfig.dbPath);
 }
 
-export async function setupGeodb(geodbPath: string) {
+export async function setupGeoDB(geodbPath: string) {
   return maxmind.open<CityResponse>(geodbPath);
 }
 
-export function setupGeodbSync(geodbPath: string) {
+export function setupGeoDBSync(geodbPath: string) {
   const buffer = fs.readFileSync(geodbPath);
   return new Reader<CityResponse>(buffer);
 }
 
-export const GeodbNestFactory: Provider<GeodbCityReader> = {
-  provide: GeodbProvider,
-  useFactory: async (geodbConfig: GeodbConfig) => {
-    const geodbPath = getGeodbPath(geodbConfig);
-    return setupGeodb(geodbPath);
+export const GeoDBNestFactory: Provider<GeoDBCityReader> = {
+  provide: GeoDBProvider,
+  useFactory: async (geodbConfig: GeoDBConfig) => {
+    const geodbPath = getGeoDBPath(geodbConfig);
+    return setupGeoDB(geodbPath);
   },
-  inject: [GeodbConfig],
+  inject: [GeoDBConfig],
 };

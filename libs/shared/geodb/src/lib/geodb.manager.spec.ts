@@ -2,16 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test, TestingModule } from '@nestjs/testing';
-import { GeodbManager } from './geodb.manager';
-import { GeodbManagerConfig } from './geodb.config';
-import { GeodbProvider } from './geodb.provider';
+import { GeoDBManager } from './geodb.manager';
+import { GeoDBManagerConfig } from './geodb.config';
+import { GeoDBProvider } from './geodb.provider';
 import {
   CityResponseFactory,
   CountryRecordFactory,
   PostalRecordFactory,
 } from './maxmind.factories';
 import {
-  GeodbManagerConfigFactory,
+  GeoDBManagerConfigFactory,
   TaxAddressFactory,
 } from './geodb.factories';
 
@@ -25,14 +25,14 @@ jest.mock('./geodb.repository', () => {
   };
 });
 
-describe('GeodbManager', () => {
-  let manager: GeodbManager;
+describe('GeoDBManager', () => {
+  let manager: GeoDBManager;
   let mockConfig = {
-    ...GeodbManagerConfigFactory(),
+    ...GeoDBManagerConfigFactory(),
   };
 
   beforeEach(async () => {
-    mockConfig = GeodbManagerConfigFactory({
+    mockConfig = GeoDBManagerConfigFactory({
       locationOverride: TaxAddressFactory({
         countryCode: '',
         postalCode: '',
@@ -40,16 +40,16 @@ describe('GeodbManager', () => {
     });
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        { provide: GeodbProvider, useValue: {} },
-        GeodbManagerConfig,
-        GeodbManager,
+        { provide: GeoDBProvider, useValue: {} },
+        GeoDBManagerConfig,
+        GeoDBManager,
       ],
     })
-      .overrideProvider(GeodbManagerConfig)
+      .overrideProvider(GeoDBManagerConfig)
       .useValue(mockConfig)
       .compile();
 
-    manager = module.get<GeodbManager>(GeodbManager);
+    manager = module.get<GeoDBManager>(GeoDBManager);
   });
 
   afterEach(() => {
@@ -58,7 +58,7 @@ describe('GeodbManager', () => {
 
   it('should be defined', async () => {
     expect(manager).toBeDefined();
-    expect(manager).toBeInstanceOf(GeodbManager);
+    expect(manager).toBeInstanceOf(GeoDBManager);
   });
 
   describe('getTaxAddress', () => {

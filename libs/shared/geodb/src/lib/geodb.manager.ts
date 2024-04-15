@@ -2,17 +2,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, Injectable } from '@nestjs/common';
-import { GeodbProvider } from './geodb.provider';
-import type { GeodbCityReader } from './geodb.provider';
+import { GeoDBProvider } from './geodb.provider';
+import type { GeoDBCityReader } from './geodb.provider';
 import { getLocationData } from './geodb.repository';
-import { GeodbManagerConfig } from './geodb.config';
+import { GeoDBManagerConfig } from './geodb.config';
 import { TaxAddress } from './geodb.types';
 
 Injectable();
-export class GeodbManager {
+export class GeoDBManager {
   constructor(
-    @Inject(GeodbProvider) private reader: GeodbCityReader,
-    private config: GeodbManagerConfig
+    @Inject(GeoDBProvider) private reader: GeoDBCityReader,
+    private config: GeoDBManagerConfig
   ) {}
 
   getTaxAddress(ip: string): TaxAddress | undefined {

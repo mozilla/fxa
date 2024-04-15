@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 import { TaxAddress } from './geodb.types';
-import { GeodbManagerConfig } from './geodb.config';
+import { GeoDBManagerConfig } from './geodb.config';
 
 export const TaxAddressFactory = (
   override?: Partial<TaxAddress>
@@ -15,9 +15,9 @@ export const TaxAddressFactory = (
 
 export const LocationOverrideFactory = TaxAddressFactory;
 
-export const GeodbManagerConfigFactory = (
-  override?: Partial<GeodbManagerConfig>
-): GeodbManagerConfig => ({
+export const GeoDBManagerConfigFactory = (
+  override?: Partial<GeoDBManagerConfig>
+): GeoDBManagerConfig => ({
   locationOverride: LocationOverrideFactory(),
   ...override,
 });

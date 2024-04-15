@@ -7,14 +7,14 @@ import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
-import { GeodbManager } from '@fxa/shared/geodb';
+import { GeoDBManager } from '@fxa/shared/geodb';
 
 @Injectable()
 export class CartService {
   constructor(
     private cartManager: CartManager,
     private accountCustomerManager: AccountCustomerManager,
-    private geodbManager: GeodbManager
+    private geodbManager: GeoDBManager
   ) {}
 
   /**

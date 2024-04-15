@@ -10,10 +10,10 @@ import { ResultCartFactory, UpdateCartFactory } from './cart.factories';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
-  GeodbManager,
-  GeodbManagerConfig,
-  GeodbManagerConfigFactory,
-  GeodbProvider,
+  GeoDBManager,
+  GeoDBManagerConfig,
+  GeoDBManagerConfigFactory,
+  GeoDBProvider,
   TaxAddressFactory,
 } from '@fxa/shared/geodb';
 
@@ -21,7 +21,7 @@ describe('#payments-cart - service', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let accountCustomerManager: AccountCustomerManager;
-  let geodbManager: GeodbManager;
+  let geodbManager: GeoDBManager;
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -29,9 +29,9 @@ describe('#payments-cart - service', () => {
         CartService,
         CartManager,
         AccountCustomerManager,
-        GeodbManager,
-        GeodbManagerConfig,
-        { provide: GeodbProvider, useValue: {} },
+        GeoDBManager,
+        GeoDBManagerConfig,
+        { provide: GeoDBProvider, useValue: {} },
       ],
     })
       .overrideProvider(CartManager)
@@ -48,18 +48,18 @@ describe('#payments-cart - service', () => {
       .useValue({
         getStripeCustomerIdByUid: jest.fn(),
       })
-      .overrideProvider(GeodbManager)
+      .overrideProvider(GeoDBManager)
       .useValue({
         getTaxAddress: jest.fn(),
       })
-      .overrideProvider(GeodbManagerConfig)
-      .useValue(GeodbManagerConfigFactory())
+      .overrideProvider(GeoDBManagerConfig)
+      .useValue(GeoDBManagerConfigFactory())
       .compile();
 
     cartService = moduleRef.get(CartService);
     cartManager = moduleRef.get(CartManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
-    geodbManager = moduleRef.get(GeodbManager);
+    geodbManager = moduleRef.get(GeoDBManager);
   });
 
   describe('setupCart', () => {
