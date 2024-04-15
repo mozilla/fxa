@@ -225,6 +225,17 @@ describe('PaypalManager', () => {
       );
       expect(result).toEqual(expected);
     });
+
+    it('returns empty array when no subscriptions', async () => {
+      const mockCustomer = StripeCustomerFactory();
+
+      stripeManager.getSubscriptions = jest.fn().mockResolvedValueOnce([]);
+
+      const result = await paypalManager.getCustomerPayPalSubscriptions(
+        mockCustomer.id
+      );
+      expect(result).toEqual([]);
+    });
   });
 
   describe('getCheckoutToken', () => {

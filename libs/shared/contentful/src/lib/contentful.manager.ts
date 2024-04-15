@@ -9,6 +9,7 @@ import {
   PurchaseWithDetailsOfferingContentQuery,
   ServicesWithCapabilitiesQuery,
   CapabilityServiceByPlanIdsQuery,
+  EligibilityContentByOfferingQuery,
 } from '../__generated__/graphql';
 import { DEFAULT_LOCALE } from './constants';
 import { ContentfulClient } from './contentful.client';
@@ -32,6 +33,10 @@ import {
 import { DeepNonNullable } from './types';
 import { StatsD } from 'hot-shots';
 import { getOperationName } from '@apollo/client/utilities';
+import {
+  eligibilityContentByOfferingQuery,
+  EligibilityContentByOfferingResultUtil,
+} from './queries/eligibility-content-by-offering';
 
 @Injectable()
 export class ContentfulManager {
@@ -53,6 +58,23 @@ export class ContentfulManager {
         tags
       );
     });
+  }
+
+  async getEligibilityContentByOffering(
+    offering: string
+  ): Promise<EligibilityContentByOfferingResultUtil> {
+    const queryResult = await this.client.query(
+      eligibilityContentByOfferingQuery,
+      {
+        skip: 0,
+        limit: 100,
+        offering,
+      }
+    );
+
+    return new EligibilityContentByOfferingResultUtil(
+      queryResult as DeepNonNullable<EligibilityContentByOfferingQuery>
+    );
   }
 
   async getPurchaseDetailsForCapabilityServiceByPlanIds(

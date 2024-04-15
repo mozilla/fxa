@@ -2,21 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test } from '@nestjs/testing';
-import { CartManager } from './cart.manager';
-import { CartService } from './cart.service';
 import { faker } from '@faker-js/faker';
-import {
-  FinishErrorCartFactory,
-  ResultCartFactory,
-  UpdateCartFactory,
-} from './cart.factories';
+import { Test } from '@nestjs/testing';
+
+import { EligibilityService } from '@fxa/payments/eligibility';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
   CartState,
 } from '@fxa/shared/db/mysql/account';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   GeoDBManager,
   GeoDBManagerConfig,
@@ -25,10 +20,19 @@ import {
   TaxAddressFactory,
 } from '@fxa/shared/geodb';
 
+import {
+  FinishErrorCartFactory,
+  ResultCartFactory,
+  UpdateCartFactory,
+} from './cart.factories';
+import { CartManager } from './cart.manager';
+import { CartService } from './cart.service';
+
 describe('#payments-cart - service', () => {
   let cartService: CartService;
   let cartManager: CartManager;
   let accountCustomerManager: AccountCustomerManager;
+  let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
 
   beforeEach(async () => {
@@ -37,6 +41,7 @@ describe('#payments-cart - service', () => {
         CartService,
         CartManager,
         AccountCustomerManager,
+        EligibilityService,
         GeoDBManager,
         GeoDBManagerConfig,
         { provide: GeoDBProvider, useValue: {} },
@@ -56,6 +61,10 @@ describe('#payments-cart - service', () => {
       .useValue({
         getStripeCustomerIdByUid: jest.fn(),
       })
+      .overrideProvider(EligibilityService)
+      .useValue({
+        checkEligibility: jest.fn(),
+      })
       .overrideProvider(GeoDBManager)
       .useValue({
         getTaxAddress: jest.fn(),
@@ -67,6 +76,7 @@ describe('#payments-cart - service', () => {
     cartService = moduleRef.get(CartService);
     cartManager = moduleRef.get(CartManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
+    eligibilityService = moduleRef.get(EligibilityService);
     geodbManager = moduleRef.get(GeoDBManager);
   });
 
@@ -84,6 +94,10 @@ describe('#payments-cart - service', () => {
       jest
         .spyOn(accountCustomerManager, 'getStripeCustomerIdByUid')
         .mockResolvedValue('cus_id');
+      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
+        eligibilityStatus: CartEligibilityStatus.CREATE,
+        state: CartState.START,
+      });
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
 
       await cartService.setupCart(args);
@@ -97,6 +111,7 @@ describe('#payments-cart - service', () => {
         experiment: args.experiment,
         taxAddress,
         eligibilityStatus: CartEligibilityStatus.CREATE,
+        state: CartState.START,
       });
     });
   });
@@ -121,6 +136,7 @@ describe('#payments-cart - service', () => {
         email: mockOldCart.email,
         amount: mockOldCart.amount,
         eligibilityStatus: mockOldCart.eligibilityStatus,
+        state: mockOldCart.state,
       });
       expect(result).toEqual(mockNewCart);
     });

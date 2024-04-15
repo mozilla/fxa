@@ -10,6 +10,7 @@ import {
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
+  EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
   EligibilityPurchaseResult,
@@ -17,6 +18,10 @@ import {
   ServicesWithCapabilitiesQueryFactory,
   ServicesWithCapabilitiesResultUtil,
 } from '../../src';
+import {
+  EligibilityContentByOfferingQueryFactory,
+  EligibilityContentOfferingResultFactory,
+} from './queries/eligibility-content-by-offering';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StatsD } from 'hot-shots';
@@ -75,6 +80,35 @@ describe('ContentfulManager', () => {
         operationName: 'EligibilityContentByPlanIds',
       }
     );
+  });
+
+  describe('getEligibilityContentByOffering', () => {
+    it('should return empty result', async () => {
+      const queryData = EligibilityContentByOfferingQueryFactory({
+        offeringCollection: { items: [] },
+      });
+      mockClient.query = jest.fn().mockReturnValue(queryData);
+      const result = await manager.getEligibilityContentByOffering('test');
+      expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
+    });
+
+    it('should return successfully with results', async () => {
+      const apiIdentifier = 'test';
+      const offeringResult = [
+        EligibilityContentOfferingResultFactory({ apiIdentifier }),
+      ];
+      const queryData = EligibilityContentByOfferingQueryFactory({
+        offeringCollection: {
+          items: offeringResult,
+        },
+      });
+      mockClient.query = jest.fn().mockResolvedValue(queryData);
+      const result = await manager.getEligibilityContentByOffering(
+        apiIdentifier
+      );
+      expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
+      expect(result.getOffering()).toBeDefined();
+    });
   });
 
   describe('getPurchaseDetailsForEligibility', () => {

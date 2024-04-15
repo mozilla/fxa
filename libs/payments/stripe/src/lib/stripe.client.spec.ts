@@ -11,8 +11,9 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
-import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
+import { StripePlanFactory } from './factories/plan.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
@@ -30,6 +31,8 @@ const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
+const mockStripePlansRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.plans.retrieve>();
 const mockStripeSubscriptionsList =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
 const mockStripeSubscriptionsCreate =
@@ -41,19 +44,22 @@ jest.mock('stripe', () => ({
   Stripe: function () {
     return {
       customers: {
-        retrieve: mockStripeCustomersRetrieve,
         create: mockStripeCustomersCreate,
+        retrieve: mockStripeCustomersRetrieve,
         update: mockStripeCustomersUpdate,
       },
       invoices: {
+        finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
         retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
-        finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
+      },
+      plans: {
+        retrieve: mockStripePlansRetrieve,
       },
       subscriptions: {
-        list: mockStripeSubscriptionsList,
         create: mockStripeSubscriptionsCreate,
         cancel: mockStripeSubscriptionsCancel,
+        list: mockStripeSubscriptionsList,
       },
     };
   },
@@ -199,6 +205,18 @@ describe('StripeClient', () => {
         auto_advance: false,
       });
 
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('plansRetrieve', () => {
+    it('retrieves plan successfully', async () => {
+      const mockPlan = StripePlanFactory();
+      const mockResponse = StripeResponseFactory(mockPlan);
+
+      mockStripePlansRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.plansRetrieve(mockPlan.id);
       expect(result).toEqual(mockResponse);
     });
   });

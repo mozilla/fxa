@@ -1,3 +1,4 @@
+export * from './lib/accountCustomer/accountCustomer.manager';
 export {
   StripeApiListFactory,
   StripeResponseFactory,
@@ -19,4 +20,4 @@ export * from './lib/stripe.config';
 export * from './lib/stripe.constants';
 export * from './lib/stripe.error';
 export * from './lib/stripe.manager';
-export * from './lib/accountCustomer/accountCustomer.manager';
+export * from './lib/stripe.utils';

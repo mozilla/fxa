@@ -14,6 +14,7 @@ import {
 import {
   CustomerDeletedError,
   CustomerNotFoundError,
+  PlanNotFoundError,
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
 
@@ -145,5 +146,23 @@ export class StripeManager {
     });
 
     return taxIdFields.at(0)?.value;
+  }
+
+  async getPlan(planId: string) {
+    const plan = await this.client.plansRetrieve(planId);
+    if (!plan) throw new PlanNotFoundError();
+    return plan;
+  }
+
+  async getPlanByInterval(planIds: string[], interval: string) {
+    const plans = [];
+    for (const planId of planIds) {
+      const plan = await this.getPlan(planId);
+      if (plan.interval === interval) {
+        plans.push(plan);
+      }
+    }
+
+    return plans[0];
   }
 }

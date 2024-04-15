@@ -11,9 +11,11 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
+import { StripePlanFactory } from './factories/plan.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 import { StripeConfig } from './stripe.config';
+import { PlanNotFoundError } from './stripe.error';
 import { StripeManager } from './stripe.manager';
 
 describe('StripeManager', () => {
@@ -140,7 +142,6 @@ describe('StripeManager', () => {
     it('returns subscriptions', async () => {
       const mockSubscription = StripeSubscriptionFactory();
       const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
-
       const mockCustomer = StripeCustomerFactory();
 
       const expected = mockSubscriptionList;
@@ -151,6 +152,15 @@ describe('StripeManager', () => {
 
       const result = await manager.getSubscriptions(mockCustomer.id);
       expect(result).toEqual(expected);
+    });
+
+    it('returns empty array if no subscriptions exist', async () => {
+      const mockCustomer = StripeCustomerFactory();
+
+      mockClient.subscriptionsList = jest.fn().mockResolvedValueOnce([]);
+
+      const result = await manager.getSubscriptions(mockCustomer.id);
+      expect(result).toEqual([]);
     });
   });
 
@@ -272,6 +282,41 @@ describe('StripeManager', () => {
       );
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('getPlan', () => {
+    it('returns plan', async () => {
+      const mockPlan = StripePlanFactory();
+
+      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce([mockPlan]);
+
+      const result = await manager.getPlan(mockPlan.id);
+      expect(result).toEqual([mockPlan]);
+    });
+
+    it('should throw error if no plan exists', async () => {
+      const mockPlan = StripePlanFactory();
+      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce(undefined);
+
+      expect(manager.getPlan(mockPlan.id)).rejects.toBeInstanceOf(
+        PlanNotFoundError
+      );
+    });
+  });
+
+  describe('getPlanByInterval', () => {
+    it('returns plan that matches interval', async () => {
+      const mockPlan = StripePlanFactory();
+      const mockInterval = mockPlan.interval;
+
+      manager.getPlan = jest.fn().mockResolvedValueOnce(mockPlan);
+
+      const result = await manager.getPlanByInterval(
+        [mockPlan.id],
+        mockInterval
+      );
+      expect(result).toEqual(mockPlan);
     });
   });
 });

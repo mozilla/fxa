@@ -11,6 +11,7 @@ import {
   StripeDeletedCustomer,
   StripeInvoice,
   StripePaymentMethod,
+  StripePlan,
   StripeResponse,
   StripeSubscription,
   StripeUpcomingInvoice,
@@ -141,5 +142,13 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeResponse<StripePaymentMethod>;
+  }
+
+  async plansRetrieve(id: string, params?: Stripe.PlanRetrieveParams) {
+    const result = await this.stripe.plans.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePlan>;
   }
 }

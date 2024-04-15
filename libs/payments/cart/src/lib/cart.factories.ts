@@ -34,6 +34,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   interval: faker.helpers.arrayElement(INTERVALS),
   amount: faker.number.int(10000),
   eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
+  state: faker.helpers.enumValue(CartState),
   ...override,
 });
 
