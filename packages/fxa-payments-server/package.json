@@ -17,6 +17,7 @@
     "l10n-prime": "yarn l10n:prime packages/fxa-payments-server",
     "l10n-bundle": "yarn l10n:bundle packages/fxa-payments-server branding,react,payments",
     "l10n-watch": "yarn grunt watch-ftl",
+    "lint": "eslint . .storybook",
     "audit": "npm audit --json | audit-filter --nsp-config=.nsprc --audit=-",
     "start": "pm2 start pm2.config.js && yarn check:url localhost:3031/__lbheartbeat__",
     "stop": "pm2 stop pm2.config.js",
