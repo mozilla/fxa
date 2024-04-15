@@ -403,7 +403,7 @@ describe('PaymentConfirmation', () => {
     };
 
     describe('Localized Plan Billing Description Component', () => {
-      function runTests(
+      async function runTests(
         plan: Plan,
         expectedMsgId: string,
         expectedMsg: string
@@ -422,7 +422,7 @@ describe('PaymentConfirmation', () => {
         );
         const testInstance = testRenderer.root;
 
-        const planPriceComponent = testInstance.findByProps({
+        const planPriceComponent = await testInstance.findByProps({
           id: expectedMsgId,
         });
         const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);

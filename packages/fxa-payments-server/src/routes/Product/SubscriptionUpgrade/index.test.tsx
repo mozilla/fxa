@@ -337,14 +337,18 @@ describe('PlanDetailsCard', () => {
   };
 
   describe('Localized Plan Billing Description Component', () => {
-    function runTests(plan: Plan, expectedMsgId: string, expectedMsg: string) {
+    async function runTests(
+      plan: Plan,
+      expectedMsgId: string,
+      expectedMsg: string
+    ) {
       const props = { plan: plan };
 
       const testRenderer = TestRenderer.create(
         withLocalizationProvider(<PlanDetailsCard {...props} />)
       );
       const testInstance = testRenderer.root;
-      const planPriceComponent = testInstance.findByProps({
+      const planPriceComponent = await testInstance.findByProps({
         id: expectedMsgId,
       });
       const expectedAmount = getLocalizedCurrency(plan.amount, plan.currency);
@@ -357,7 +361,7 @@ describe('PlanDetailsCard', () => {
       );
     }
 
-    it('displays product:name when present instead of product_name', () => {
+    it('displays product:name when present instead of product_name', async () => {
       const plan_id = 'plan_withname';
       const plan = findMockPlan(plan_id);
 
@@ -367,7 +371,7 @@ describe('PlanDetailsCard', () => {
         withLocalizationProvider(<PlanDetailsCard {...props} />)
       );
       const testInstance = testRenderer.root;
-      const planPriceComponent = testInstance.findByProps({
+      const planPriceComponent = await testInstance.findByProps({
         id: 'plan-details-product',
       });
 
@@ -376,7 +380,7 @@ describe('PlanDetailsCard', () => {
       );
     });
 
-    it('displays product_name when plan_metadata name is not present', () => {
+    it('displays product_name when plan_metadata name is not present', async () => {
       const plan_id = 'plan_daily';
       const plan = findMockPlan(plan_id);
 
@@ -386,7 +390,7 @@ describe('PlanDetailsCard', () => {
         withLocalizationProvider(<PlanDetailsCard {...props} />)
       );
       const testInstance = testRenderer.root;
-      const planPriceComponent = testInstance.findByProps({
+      const planPriceComponent = await testInstance.findByProps({
         id: 'plan-details-product',
       });
 
