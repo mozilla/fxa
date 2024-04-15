@@ -7,3 +7,6 @@ export * from './lib/nestapp/app';
 export * from './lib/server/purchase-details';
 export * from './lib/server/subscription-title';
 export * from './lib/server/terms-and-privacy';
+export { handleStripeErrorAction } from './lib/actions/handleStripeError';
+export { getCartAction } from './lib/actions/getCart';
+export { setupCartAction } from './lib/actions/setupCart';

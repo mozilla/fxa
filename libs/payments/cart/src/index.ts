@@ -5,3 +5,4 @@ export * from './lib/cart.types';
 export * from './lib/cart.factories';
 export * from './lib/cart.manager';
 export * from './lib/cart.service';
+export * from './lib/cart.utils';

@@ -18,7 +18,7 @@ export const metadata = {
   description: 'Mozilla accounts',
 };
 
-interface CheckoutParams {
+export interface CheckoutParams {
   cartId: string;
   locale: string;
   interval: string;

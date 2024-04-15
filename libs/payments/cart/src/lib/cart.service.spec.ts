@@ -6,8 +6,12 @@ import { Test } from '@nestjs/testing';
 import { CartManager } from './cart.manager';
 import { CartService } from './cart.service';
 import { faker } from '@faker-js/faker';
-import { ResultCartFactory, UpdateCartFactory } from './cart.factories';
-import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import {
+  FinishErrorCartFactory,
+  ResultCartFactory,
+  UpdateCartFactory,
+} from './cart.factories';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   GeoDBManager,
@@ -143,6 +147,83 @@ describe('#payments-cart - service', () => {
           errorReasonId: CartErrorReasonId.Unknown,
         }
       );
+    });
+  });
+
+  describe('finalizeCartWithError', () => {
+    it('calls cartManager.finishErrorCart', async () => {
+      const mockCart = ResultCartFactory();
+      const mockErrorCart = FinishErrorCartFactory();
+
+      await cartService.finalizeCartWithError(
+        mockCart.id,
+        mockCart.version,
+        mockErrorCart.errorReasonId
+      );
+
+      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
+        mockCart.id,
+        mockCart.version,
+        { errorReasonId: mockErrorCart.errorReasonId }
+      );
+    });
+
+    it('should swallow error if cart already in fail state', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.FAIL,
+      });
+      const mockErrorCart = FinishErrorCartFactory();
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockRejectedValue(undefined);
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      await cartService.finalizeCartWithError(
+        mockCart.id,
+        mockCart.version,
+        mockErrorCart.errorReasonId
+      );
+
+      expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+    });
+
+    it('should throw error if cart is not in fail state and finishErrorCart failed', async () => {
+      const mockCart = ResultCartFactory({
+        state: CartState.SUCCESS,
+      });
+      const mockErrorCart = FinishErrorCartFactory();
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockRejectedValue(new Error());
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      try {
+        await cartService.finalizeCartWithError(
+          mockCart.id,
+          mockCart.version,
+          mockErrorCart.errorReasonId
+        );
+      } catch (error) {
+        expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+        expect(error).toBeInstanceOf(Error);
+      }
+    });
+
+    it('should throw error if fetchCart fails and finishErrorCart failed', async () => {
+      const mockCart = ResultCartFactory();
+      const mockErrorCart = FinishErrorCartFactory();
+
+      jest.spyOn(cartManager, 'finishErrorCart').mockRejectedValue(undefined);
+      jest.spyOn(cartManager, 'fetchCartById').mockRejectedValue(new Error());
+
+      try {
+        await cartService.finalizeCartWithError(
+          mockCart.id,
+          mockCart.version,
+          mockErrorCart.errorReasonId
+        );
+      } catch (error) {
+        expect(cartManager.fetchCartById).toHaveBeenCalledWith(mockCart.id);
+        expect(error).toBeInstanceOf(Error);
+      }
     });
   });
 

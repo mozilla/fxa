@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
-import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -93,6 +93,30 @@ export class CartService {
       await this.cartManager.finishErrorCart(cartId, version, {
         errorReasonId: CartErrorReasonId.Unknown,
       });
+    }
+  }
+
+  /**
+   * Update a cart in the database by ID or with an existing cart reference
+   * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
+   */
+  async finalizeCartWithError(
+    cartId: string,
+    version: number,
+    errorReasonId: CartErrorReasonId
+  ): Promise<void> {
+    try {
+      await this.cartManager.finishErrorCart(cartId, version, {
+        errorReasonId,
+      });
+    } catch (e) {
+      // TODO: Handle errors and provide an associated reason for failure
+      // Check if cart is already in fail state. If so, log the error but
+      // continue as normal.
+      const cart = await this.cartManager.fetchCartById(cartId);
+      if (cart.state !== CartState.FAIL) {
+        throw e;
+      }
     }
   }
 
