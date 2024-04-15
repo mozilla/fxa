@@ -7,12 +7,14 @@ import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
+import { GeoDBManager } from '@fxa/shared/geodb';
 
 @Injectable()
 export class CartService {
   constructor(
     private cartManager: CartManager,
-    private accountCustomerManager: AccountCustomerManager
+    private accountCustomerManager: AccountCustomerManager,
+    private geodbManager: GeoDBManager
   ) {}
 
   /**
@@ -25,6 +27,7 @@ export class CartService {
     experiment?: string;
     promoCode?: string;
     uid?: string;
+    ip?: string;
   }): Promise<ResultCart> {
     // TODO:
     // - Fetch information about interval, offering, experiments from Contentful
@@ -36,6 +39,10 @@ export class CartService {
       ? await this.accountCustomerManager.getStripeCustomerIdByUid(args.uid)
       : undefined;
 
+    const taxAddress = args.ip
+      ? this.geodbManager.getTaxAddress(args.ip)
+      : undefined;
+
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
@@ -43,6 +50,7 @@ export class CartService {
       uid: args.uid,
       stripeCustomerId: stripeCustomerId || undefined,
       experiment: args.experiment,
+      taxAddress,
     });
 
     return cart;
