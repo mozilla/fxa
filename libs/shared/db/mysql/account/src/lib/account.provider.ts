@@ -18,3 +18,15 @@ export const AccountDatabaseNestFactory: Provider<AccountDatabase> = {
   },
   inject: [MySQLConfig],
 };
+
+/**
+ * Can be used to satisfy DI when unit testing things that should not need
+ * account DB access.
+ * Note: this will cause errors to be thrown if the account DB is used
+ */
+export const MockAccountDatabaseNestFactory: Provider<AccountDatabase> = {
+  provide: AccountDbProvider,
+  useFactory: () => {
+    return undefined as unknown as AccountDatabase;
+  },
+};
