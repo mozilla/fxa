@@ -15,6 +15,9 @@ import {
   CouponErrorMessageType,
 } from '../../lib/errors';
 
+import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
+import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
+
 import {
   coupon_REJECTED,
   coupon_FULFILLED,
@@ -30,10 +33,6 @@ jest.mock('../../lib/apiClient', () => {
     apiRetrieveCouponDetails: jest.fn(),
   };
 });
-
-// eslint-disable-next-line import/first
-import { APIError, apiRetrieveCouponDetails } from '../../lib/apiClient';
-import { renderWithLocalizationProvider } from 'fxa-react/lib/test-utils/localizationProvider';
 
 beforeEach(() => {
   (apiRetrieveCouponDetails as jest.Mock)

@@ -30,12 +30,6 @@ module.exports = () => {
   const { cors, routing } = require('fxa-shared/express').express();
   const { v4: uuid } = require('uuid');
 
-  const {
-    tagCriticalEvent,
-    buildSentryConfig,
-    tagFxaName,
-  } = require('fxa-shared/sentry');
-
   const NOOP = () => {};
   const StatsD = require('hot-shots');
   const statsdConfig = config.get('statsd');
