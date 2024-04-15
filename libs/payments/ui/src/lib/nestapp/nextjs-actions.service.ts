@@ -5,8 +5,9 @@
 import { CartService } from '@fxa/payments/cart';
 import { Injectable } from '@nestjs/common';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
-import { Validator } from 'class-validator';
+import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
+import { Validator } from 'class-validator';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -33,5 +34,13 @@ export class NextJSActionsService {
       args.version,
       args.cartDetails
     );
+  }
+
+  async restartCart(args: RestartCartActionArgs) {
+    new Validator().validateOrReject(args);
+
+    const cart = await this.cartService.restartCart(args.cartId);
+
+    return cart;
   }
 }
