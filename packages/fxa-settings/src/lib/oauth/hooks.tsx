@@ -23,7 +23,9 @@ type OAuthCode = {
 const checkOAuthData = (integration: OAuthIntegration): Error | null => {
   // Ensure a redirect was provided or matched. Without this info, we can't relay the
   // oauth code and state on a redirect!
-  if (!integration.data.redirectUri && !integration.clientInfo?.redirectUri) {
+
+  // clientInfo?.redirectUri has already validated the redirect_uri query param
+  if (!integration.clientInfo?.redirectUri) {
     return new OAuthErrorInvalidRedirectUri();
   }
   if (!integration.data.clientId) {
@@ -193,9 +195,8 @@ export function useFinishOAuthFlowHandler(
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
         : constructOAuthRedirectUrl(
             oAuthCode,
-            // If the RP did not pass `redirect_uri` via query param, use clientInfo's
-            oAuthIntegration.data.redirectUri ||
-              oAuthIntegration.clientInfo?.redirectUri
+            // We know this is not falsey because this value will have already been checked
+            oAuthIntegration.clientInfo?.redirectUri!
           ).href;
 
       // Always use the state the RP passed in for OAuth Webchannel.
