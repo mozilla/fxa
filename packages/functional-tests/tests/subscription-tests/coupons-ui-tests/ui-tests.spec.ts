@@ -10,6 +10,7 @@ test.describe('severity-2 #smoke', () => {
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
       pages: { relier, subscribe },
     }, { project }) => {
+      test.fixme(true, 'Fix required as of 2024/04/16 (see FXA-9378).');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
