@@ -25,6 +25,12 @@ import { IntegrationFlags } from './interfaces';
 import { DefaultIntegrationFlags } from '.';
 import config from '../config';
 
+/**
+ * We store a whitelist of allowed `redirectUri`s in `clientInfo.redirectUri` which
+ * can be a single value or comma-separated values for multiple allowed URIs.
+ * If the query param `redirect_uri` is provided, we must check against the whitelist
+ * to ensure a match.
+ */
 function getClientRedirect(
   clientRedirectUris: string[] | undefined,
   queryRedirectUri: string | undefined
