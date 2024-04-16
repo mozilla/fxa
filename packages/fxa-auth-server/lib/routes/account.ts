@@ -1848,14 +1848,12 @@ export class AccountHandler {
       ReasonForDeletion.UserRequested
     );
 
-    if (this.accountTasks.queueEnabled) {
-      const result = await getAccountCustomerByUid(accountRecord.uid);
-      await this.accountTasks.deleteAccount({
-        uid: accountRecord.uid,
-        customerId: result?.stripeCustomerId,
-        reason: ReasonForDeletion.UserRequested,
-      });
-    }
+    const result = await getAccountCustomerByUid(accountRecord.uid);
+    await this.accountTasks.deleteAccount({
+      uid: accountRecord.uid,
+      customerId: result?.stripeCustomerId,
+      reason: ReasonForDeletion.UserRequested,
+    });
 
     return {};
   }

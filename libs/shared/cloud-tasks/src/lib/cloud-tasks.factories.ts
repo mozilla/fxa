@@ -86,6 +86,7 @@ export function CloudTaskClientFactory(config: CloudTasksConfig) {
   const cloudTasksClient = new CloudTasksClient({
     projectId: config.cloudTasks.projectId,
     keyFilename: config.cloudTasks.credentials.keyFilename ?? undefined,
+    fallback: true,
   });
 
   return cloudTasksClient;

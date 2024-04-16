@@ -123,7 +123,6 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   mockAccountTasksDeleteAccount = sinon.fake.resolves();
   const accountTasks = {
     deleteAccount: mockAccountTasksDeleteAccount,
-    queueEnabled: true,
   };
   Container.set(AccountTasks, accountTasks);
 
