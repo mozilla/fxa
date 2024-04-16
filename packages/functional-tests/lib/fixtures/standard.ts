@@ -1,9 +1,7 @@
 import { Browser, expect, firefox, test as base } from '@playwright/test';
 import { create, Credentials, ServerTarget, TargetName } from '../targets';
-import { EmailClient } from '../email';
 import { create as createPages } from '../../pages';
 import { BaseTarget } from '../targets/base';
-import { getCode } from 'fxa-settings/src/lib/totp';
 import { getFirefoxUserPrefs } from '../../lib/targets/firefoxUserPrefs';
 
 // The DEBUG env is used to debug without the playwright inspector, like in vscode
@@ -55,68 +53,15 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     { scope: 'worker', auto: true },
   ],
 
-  credentials: async ({ target }, use, testInfo) => {
-    const email = EmailClient.emailFromTestTitle(testInfo.title);
-    const password = 'passwordzxcv';
-    await target.email.clear(email);
-    let credentials: Credentials;
+  credentials: async ({ target, emails }, use) => {
+    const [email] = emails;
 
-    try {
-      credentials = await target.createAccount(email, password);
-    } catch (e) {
-      const newCreds = await target.auth.signIn(email, password);
-      await target.auth.accountDestroy(
-        email,
-        password,
-        {},
-        newCreds.sessionToken
-      );
-      credentials = await target.createAccount(email, password);
-    }
+    const credentials: Credentials = await target.createAccount(
+      email,
+      PASSWORD
+    );
 
     await use(credentials);
-
-    //teardown
-    await target.email.clear(email);
-
-    try {
-      // we don't know if the original session still exists
-      // the test may have called signOut()
-      const { sessionToken } = await target.auth.signIn(
-        email,
-        credentials.password
-      );
-
-      if (credentials.secret) {
-        credentials.sessionToken = sessionToken;
-        await target.auth.verifyTotpCode(
-          sessionToken,
-          await getCode(credentials.secret)
-        );
-      }
-
-      await target.auth.accountDestroy(
-        email,
-        credentials.password,
-        {},
-        sessionToken
-      );
-    } catch (err) {
-      if (
-        err.message ===
-        'Sign in with this email type is not currently supported'
-      ) {
-        // The user changed their primary email, the test case must manually destroy the account
-      } else if (
-        err.message === 'The request was blocked for security reasons'
-      ) {
-        // Some accounts are always prompted to unblock their account, ie emails starting
-        // `blocked.`. These accounts need to be destroyed in the test case
-      } else if (err.message !== 'Unknown account') {
-        throw err;
-      }
-      //s'ok
-    }
   },
 
   pages: async ({ target, page }, use) => {
@@ -193,7 +138,21 @@ async function teardownEmail(
 ) {
   const accountStatus = await target.auth.accountStatusByEmail(email);
   if (accountStatus.exists) {
+    await target.email.clear(email);
     const creds = await target.auth.signIn(email, emailOptions.password);
+    /**
+     * Troubleshooting if emails fail to destroy:
+     *
+     * Error Message: 'Sign in with this email type is not currently supported'
+     * The primary email was most likely changed, the test case must accomodate
+     * the change by having the secondary email appear first in the emailOptions
+     * array.
+     *
+     * Error Message: 'The request was blocked for security reasons'
+     * Some accounts are always prompted to unblock their account, ie emails
+     * starting with `blocked.`. These accounts need to be destroyed in the
+     * test case
+     */
     await target.auth.accountDestroy(
       email,
       emailOptions.password,
