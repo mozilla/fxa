@@ -106,7 +106,7 @@ export class SigninReactPage extends BaseLayout {
   }
 
   async fillOutCodeForm(email: string) {
-    const code = await this.target.email.waitForEmail(
+    const code = await this.target.emailClient.waitForEmail(
       email,
       EmailType.verifyShortCode || EmailType.verifyLoginCode,
       EmailHeader.shortCode || EmailHeader.signinCode

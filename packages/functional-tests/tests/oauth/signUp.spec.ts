@@ -50,7 +50,6 @@ test.describe('severity-1 #smoke', () => {
       pages: { login, relier, page },
     }) => {
       const [email, bouncedEmail] = emails;
-      const client = await login.getFxaClient(target);
 
       await relier.goto();
       await relier.clickEmailFirst();
@@ -72,7 +71,7 @@ test.describe('severity-1 #smoke', () => {
             account = foundAccount;
           }
         });
-        await client.accountDestroy(
+        await target.authClient.accountDestroy(
           bouncedEmail,
           PASSWORD,
           {},

@@ -86,7 +86,7 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       // Create unverified account via backend
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });

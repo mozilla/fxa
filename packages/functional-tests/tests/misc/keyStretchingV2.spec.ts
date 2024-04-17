@@ -2,11 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
-import AuthClient from 'fxa-auth-client/browser';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
-import crypto from 'crypto';
-import { SaltVersion } from 'fxa-auth-client/lib/salt';
 import { BaseTarget } from '../../lib/targets/base';
 import { Page } from '@playwright/test';
 import { SignupReactPage } from '../../pages/signupReact';
@@ -20,28 +17,13 @@ import { ChangePasswordPage } from '../../pages/settings/changePassword';
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
 /* eslint-disable playwright/expect-expect */
+const AGE_21 = '21';
 
 /**
  * These tests represent various permutations between interacting with V1 and V2
  * key stretched passwords. We need to ensure that operations are interchangeable!
  */
 test.describe('key-stretching-v2', () => {
-  const AGE_21 = '21';
-  let email = '';
-  let password = '';
-
-  function getClient(url: string, version: SaltVersion) {
-    return new AuthClient(url, {
-      keyStretchVersion: version,
-    });
-  }
-
-  test.beforeEach(() => {
-    test.slow();
-    email = `signin${crypto.randomBytes(8).toString('hex')}@restmail.net`;
-    password = `${crypto.randomBytes(10).toString('hex')}`;
-  });
-
   /**
    * For full coverage, we have to run many flows on both react, and backbone version.
    * There are differences between how react and backbone use authClient and gql-api
@@ -64,9 +46,13 @@ test.describe('key-stretching-v2', () => {
     };
 
     // Helpers
-    async function _checkCredentials(version, opts: Pick<Opts, 'target'>) {
+    async function _checkCredentials(
+      version,
+      opts: Pick<Opts, 'target'>,
+      email: string
+    ) {
       const { target } = opts;
-      const client = getClient(target.authServerUrl, 2);
+      const client = target.createAuthClient(2);
       if (version === 1) {
         const status = await client.getCredentialStatusV2(email);
         expect(status.clientSalt).toBeUndefined();
@@ -80,8 +66,13 @@ test.describe('key-stretching-v2', () => {
       }
     }
 
-    async function _getKeys(version, opts: Pick<Opts, 'target'>) {
-      const client = getClient(opts.target.authServerUrl, version);
+    async function _getKeys(
+      version,
+      opts: Pick<Opts, 'target'>,
+      email: string,
+      password: string
+    ) {
+      const client = opts.target.createAuthClient(version);
       const response = await client.signIn(email, password, { keys: true });
       const keys = client.accountKeys(
         response.keyFetchToken,
@@ -96,9 +87,11 @@ test.describe('key-stretching-v2', () => {
         Opts,
         'page' | 'target' | 'signupReact' | 'login' | 'settings'
       >,
-      signOut: boolean
+      signOut: boolean,
+      email: string,
+      password: string
     ) {
-      const { page, target, signupReact, login, settings } = opts;
+      const { page, target, signupReact, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
 
       if (mode === 'react' || mode === 'backbone') {
@@ -125,7 +118,9 @@ test.describe('key-stretching-v2', () => {
         Opts,
         'page' | 'target' | 'signupReact' | 'login' | 'settings'
       >,
-      signOut: boolean
+      signOut: boolean,
+      email: string,
+      password: string
     ) {
       const { page, target, signupReact, login, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
@@ -153,7 +148,8 @@ test.describe('key-stretching-v2', () => {
 
     async function _createRecoveryKey(
       version: 1 | 2,
-      opts: Pick<Opts, 'settings' | 'recoveryKey'>
+      opts: Pick<Opts, 'settings' | 'recoveryKey'>,
+      password: string
     ) {
       const hint = 'secret key location';
       const { settings, recoveryKey } = opts;
@@ -165,10 +161,11 @@ test.describe('key-stretching-v2', () => {
 
     async function _changePassword(
       version: 1 | 2,
-      opts: Pick<Opts, 'settings' | 'changePassword'>
+      opts: Pick<Opts, 'settings' | 'changePassword'>,
+      password: string
     ) {
       const { settings, changePassword } = opts;
-      const newPassword = 'new' + password;
+      const newPassword = 'new' + password; //TODO maybe fix fixture to use new password
       await settings.goto(version === 2 ? 'stretch=2' : '');
       await settings.clickChangePassword();
 
@@ -182,7 +179,9 @@ test.describe('key-stretching-v2', () => {
     async function _resetPassword(
       version: 1 | 2,
       key: string | undefined,
-      opts: Pick<Opts, 'page' | 'target' | 'settings' | 'resetPasswordReact'>
+      opts: Pick<Opts, 'page' | 'target' | 'settings' | 'resetPasswordReact'>,
+      email: string,
+      password: string
     ) {
       const { page, target, settings, resetPasswordReact } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
@@ -195,7 +194,7 @@ test.describe('key-stretching-v2', () => {
         await page.waitForSelector('#root');
         await resetPasswordReact.fillOutEmailForm(email);
         const link =
-          (await target.email.waitForEmail(
+          (await target.emailClient.waitForEmail(
             email,
             EmailType.recovery,
             EmailHeader.link
@@ -231,64 +230,105 @@ test.describe('key-stretching-v2', () => {
       p1: 1 | 2,
       p2: 1 | 2,
       credentials: 1 | 2,
-      opts: Pick<Opts, 'page' | 'target' | 'signupReact' | 'login' | 'settings'>
+      opts: Pick<
+        Opts,
+        'page' | 'target' | 'signupReact' | 'login' | 'settings'
+      >,
+      email,
+      password
     ) {
-      await _signUp(p1, opts, true);
-      await _checkCredentials(p1, opts);
-      await _login(p2, opts, false);
-      await _checkCredentials(credentials, opts);
+      await _signUp(p1, opts, true, email, password);
+      await _checkCredentials(p1, opts, email);
+      await _login(p2, opts, false, email, password);
+      await _checkCredentials(credentials, opts, email);
     }
     test(`signs up as v1 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login },
+      emails,
     }) => {
-      await testSignUpAndLogin(1, 1, 1, {
-        page,
-        target,
-        signupReact,
-        login,
-        settings,
-      });
+      const [email] = emails;
+      await testSignUpAndLogin(
+        1,
+        1,
+        1,
+        {
+          page,
+          target,
+          signupReact,
+          login,
+          settings,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login },
+      emails,
     }) => {
-      await testSignUpAndLogin(1, 2, 2, {
-        page,
-        target,
-        signupReact,
-        login,
-        settings,
-      });
+      const [email] = emails;
+      await testSignUpAndLogin(
+        1,
+        2,
+        2,
+        {
+          page,
+          target,
+          signupReact,
+          login,
+          settings,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login },
+      emails,
     }) => {
-      await testSignUpAndLogin(2, 1, 2, {
-        page,
-        target,
-        signupReact,
-        login,
-        settings,
-      });
+      const [email] = emails;
+      await testSignUpAndLogin(
+        2,
+        1,
+        2,
+        {
+          page,
+          target,
+          signupReact,
+          login,
+          settings,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login },
+      emails,
     }) => {
-      await testSignUpAndLogin(2, 2, 2, {
-        settings,
-        page,
-        target,
-        signupReact,
-        login,
-      });
+      const [email] = emails;
+      await testSignUpAndLogin(
+        2,
+        2,
+        2,
+        {
+          settings,
+          page,
+          target,
+          signupReact,
+          login,
+        },
+        email,
+        PASSWORD
+      );
     });
 
     /**
@@ -308,25 +348,33 @@ test.describe('key-stretching-v2', () => {
         | 'login'
         | 'signupReact'
         | 'resetPasswordReact'
-      >
+      >,
+      email: string,
+      password: string
     ) {
       // We are on 100% react now for password reset. No need to test.
       if (mode === 'backbone') {
         return;
       }
 
-      await _signUp(p1, opts, true);
-      const keys = await _getKeys(p1, opts);
-      await _login(p1, opts, false);
+      await _signUp(p1, opts, true, email, password);
+      const keys = await _getKeys(p1, opts, email, password);
+      await _login(p1, opts, false, email, password);
 
       if (useRecoveryKey) {
-        await _resetPassword(p2, await _createRecoveryKey(p2, opts), opts);
+        await _resetPassword(
+          p2,
+          await _createRecoveryKey(p2, opts, password),
+          opts,
+          email,
+          password
+        );
       } else {
-        await _resetPassword(p2, undefined, opts);
+        await _resetPassword(p2, undefined, opts, email, password);
       }
 
-      await _login(p3, opts, false);
-      const keys2 = await _getKeys(p3, opts);
+      await _login(p3, opts, false, email, password);
+      const keys2 = await _getKeys(p3, opts, email, password);
 
       if (useRecoveryKey) {
         expect(keys2.kB).toEqual(keys.kB);
@@ -338,241 +386,401 @@ test.describe('key-stretching-v2', () => {
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 1, 1, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        1,
+        1,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password with recovery key as v1 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 1, 2, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        1,
+        2,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password with recovery key as v2 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 2, 1, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        2,
+        1,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password with recovery key as v2 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 2, 2, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        2,
+        2,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password with recovery key as v1 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 1, 1, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        1,
+        1,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password with recovery key as v1 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 1, 2, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        1,
+        2,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password with recovery key as v2 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 2, 1, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        2,
+        1,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password with recovery key as v2 and logins as v2 ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 2, 2, true, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        2,
+        2,
+        true,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password without recovery key as v1 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 1, 1, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        1,
+        1,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password without recovery key as v1 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 1, 2, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        1,
+        2,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password without recovery key as v2 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 2, 1, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        2,
+        1,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 resets password without recovery key as v2 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(1, 2, 2, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        1,
+        2,
+        2,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password without recovery key as v1 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 1, 1, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        1,
+        1,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password without recovery key as v1 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 1, 2, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        1,
+        2,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password without recovery key as v2 and logins as v1 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 2, 1, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        2,
+        1,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 resets password without recovery key as v2 and logins as v2 for ${mode}`, async ({
       page,
       target,
       pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      emails,
     }) => {
-      await testPasswordReset(2, 2, 2, false, {
-        page,
-        target,
-        settings,
-        recoveryKey,
-        login,
-        signupReact,
-        resetPasswordReact,
-      });
+      const [email] = emails;
+      await testPasswordReset(
+        2,
+        2,
+        2,
+        false,
+        {
+          page,
+          target,
+          settings,
+          recoveryKey,
+          login,
+          signupReact,
+          resetPasswordReact,
+        },
+        email,
+        PASSWORD
+      );
     });
 
     /**
@@ -589,70 +797,104 @@ test.describe('key-stretching-v2', () => {
         | 'changePassword'
         | 'login'
         | 'signupReact'
-      >
+      >,
+      email,
+      password
     ) {
-      await _signUp(p1, opts, true);
-      await _login(p1, opts, false);
-      const keys = await _getKeys(p1, opts);
-      await _changePassword(p2, opts);
-      const keys2 = await _getKeys(p1, opts);
+      await _signUp(p1, opts, true, email, password);
+      await _login(p1, opts, false, email, password);
+      const keys = await _getKeys(p1, opts, email, password);
+      await _changePassword(p2, opts, password);
+      const keys2 = await _getKeys(p1, opts, email, password);
       expect(keys2.kB).toEqual(keys.kB);
     }
     test(`signs up as v1 changes password from settings as v1 for ${mode}`, async ({
       page,
       target,
       pages: { settings, changePassword, signupReact, login },
+      emails,
     }) => {
-      await testChangePasswordFromSettings(1, 1, {
-        page,
-        target,
-        login,
-        signupReact,
-        settings,
-        changePassword,
-      });
+      const [email] = emails;
+      await testChangePasswordFromSettings(
+        1,
+        1,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          changePassword,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v1 changes password from settings as v2 for ${mode}`, async ({
       page,
       target,
       pages: { settings, changePassword, signupReact, login },
+      emails,
     }) => {
-      await testChangePasswordFromSettings(1, 2, {
-        page,
-        target,
-        login,
-        signupReact,
-        settings,
-        changePassword,
-      });
+      const [email] = emails;
+      await testChangePasswordFromSettings(
+        1,
+        2,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          changePassword,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 changes password from settings as v1 for ${mode}`, async ({
       page,
       target,
       pages: { settings, changePassword, signupReact, login },
+      emails,
     }) => {
-      await testChangePasswordFromSettings(2, 1, {
-        page,
-        target,
-        login,
-        signupReact,
-        settings,
-        changePassword,
-      });
+      const [email] = emails;
+      await testChangePasswordFromSettings(
+        2,
+        1,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          changePassword,
+        },
+        email,
+        PASSWORD
+      );
     });
     test(`signs up as v2 changes password from settings as v2 for ${mode}`, async ({
       page,
       target,
       pages: { settings, changePassword, signupReact, login },
+      emails,
     }) => {
-      await testChangePasswordFromSettings(2, 2, {
-        page,
-        target,
-        login,
-        signupReact,
-        settings,
-        changePassword,
-      });
+      const [email] = emails;
+      await testChangePasswordFromSettings(
+        2,
+        2,
+        {
+          page,
+          target,
+          login,
+          signupReact,
+          settings,
+          changePassword,
+        },
+        email,
+        PASSWORD
+      );
     });
   });
 });

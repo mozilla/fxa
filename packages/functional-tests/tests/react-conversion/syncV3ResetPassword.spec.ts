@@ -36,7 +36,7 @@ test.describe('severity-1 #smoke', () => {
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
 
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link

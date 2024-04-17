@@ -23,7 +23,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages,
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

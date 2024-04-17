@@ -26,7 +26,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -55,7 +55,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login, settings },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -90,7 +90,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -122,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { page, login },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -161,7 +161,7 @@ test.describe('severity-2 #smoke', () => {
       emails,
     }) => {
       const [email_unverified] = emails;
-      await target.auth.signUp(email_unverified, PASSWORD, {
+      await target.authClient.signUp(email_unverified, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
@@ -203,7 +203,7 @@ test.describe('severity-2 #smoke', () => {
       }) => {
         await Promise.all(
           emails.map(async (email) => {
-            await target.auth.signUp(email, PASSWORD, {
+            await target.authClient.signUp(email, PASSWORD, {
               lang: 'en',
               preVerified: 'true',
             });

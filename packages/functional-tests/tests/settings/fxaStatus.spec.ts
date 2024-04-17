@@ -31,11 +31,11 @@ test.describe('fxa_status web channel message in Settings', () => {
       const config = await configPage.getConfig();
       test.skip(config.featureFlags.sendFxAStatusOnSettings !== true);
       const [email, otherEmail] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
-      await target.auth.signUp(otherEmail, PASSWORD, {
+      await target.authClient.signUp(otherEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

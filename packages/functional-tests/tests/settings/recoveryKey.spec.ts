@@ -139,7 +139,7 @@ test.describe('severity-1 #smoke', () => {
       await page.goto(target.contentServerUrl + '/reset_password');
       await login.setEmail(credentials.email);
       await login.clickSubmit();
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link

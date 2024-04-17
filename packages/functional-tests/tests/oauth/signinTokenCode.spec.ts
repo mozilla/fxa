@@ -97,7 +97,7 @@ test.describe('severity-2 #smoke', () => {
       // Correctly submits the token code and navigates to oauth page
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         syncEmail,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode

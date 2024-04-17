@@ -99,7 +99,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { relier, login },
     }) => {
       const [email] = emails;
-      const creds = await target.auth.signUp(email, PASSWORD, {
+      const creds = await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -110,7 +110,12 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
-      await target.auth.accountDestroy(email, PASSWORD, {}, creds.sessionToken);
+      await target.authClient.accountDestroy(
+        email,
+        PASSWORD,
+        {},
+        creds.sessionToken
+      );
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -130,7 +135,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { relier, login },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
@@ -174,7 +179,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { relier, login },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -205,7 +210,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { relier, login },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -243,7 +248,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { relier, login },
     }) => {
       const [email, loginHintEmail] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

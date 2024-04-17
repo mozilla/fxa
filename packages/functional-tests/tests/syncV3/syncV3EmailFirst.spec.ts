@@ -54,7 +54,7 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
     syncBrowserPages: { page, login },
   }) => {
     const [email] = emails;
-    await target.auth.signUp(email, PASSWORD, {
+    await target.authClient.signUp(email, PASSWORD, {
       lang: 'en',
       preVerified: 'true',
     });

@@ -14,8 +14,8 @@ interface SubConfig {
 }
 
 export abstract class BaseTarget {
-  readonly auth: AuthClient;
-  readonly email: EmailClient;
+  readonly authClient: AuthClient;
+  readonly emailClient: EmailClient;
   abstract readonly contentServerUrl: string;
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
@@ -26,15 +26,23 @@ export abstract class BaseTarget {
     const keyStretchVersion = parseInt(
       process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
     );
-    if (!(keyStretchVersion === 1 || keyStretchVersion === 2)) {
-      throw new Error('Invalid env, AUTH_CLIENT_KEY_STRETCH_VERSION');
-    }
-    this.auth = new AuthClient(authServerUrl, { keyStretchVersion });
-    this.email = new EmailClient(emailUrl);
+    this.authClient = this.createAuthClient(keyStretchVersion);
+    this.emailClient = new EmailClient(emailUrl);
   }
 
   get baseUrl() {
     return this.contentServerUrl;
+  }
+
+  createAuthClient(keyStretchVersion = 1): AuthClient {
+    if (![1, 2].includes(keyStretchVersion)) {
+      throw new Error(
+        `Invalid keyStretchVersion =${keyStretchVersion}. The` +
+          `process.env.AUTH_CLIENT_KEY_STRETCH_VERSION= ` +
+          `${process.env.AUTH_CLIENT_KEY_STRETCH_VERSION}, is it set correctly?`
+      );
+    }
+    return new AuthClient(this.authServerUrl, { keyStretchVersion });
   }
 
   abstract createAccount(
