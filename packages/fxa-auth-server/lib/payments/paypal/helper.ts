@@ -627,45 +627,14 @@ export class PayPalHelper {
     this.log.debug('PayPalHelper.refundInvoices', {
       numberOfInvoices: invoices.length,
     });
-    const minCreated = Math.floor(
-      new Date().setDate(new Date().getDate() - MAX_REFUND_DAYS) / 1000
-    );
     const payPalInvoices = invoices.filter(
       (invoice) => invoice.collection_method === 'send_invoice'
     );
 
     for (const invoice of payPalInvoices) {
-      this.log.debug('PayPalHelper.refundInvoices', { invoiceId: invoice.id });
       try {
-        if (invoice.created < minCreated) {
-          throw new RefundError(
-            'Invoice created outside of maximum refund period'
-          );
-        }
-        const transactionId =
-          this.stripeHelper.getInvoicePaypalTransactionId(invoice);
-        if (!transactionId) {
-          throw new RefundError('Missing transactionId');
-        }
-        const refundTransactionId =
-          this.stripeHelper.getInvoicePaypalRefundTransactionId(invoice);
-        if (refundTransactionId) {
-          throw new RefundError('Invoice already refunded with PayPal');
-        }
-
-        await this.issueRefund(invoice, transactionId, RefundType.Full);
-
-        this.log.info('refundInvoices', {
-          invoiceId: invoice.id,
-          priceId: this.stripeHelper.getPriceIdFromInvoice(invoice),
-          total: invoice.total,
-          currency: invoice.currency,
-        });
+        await this.refundInvoice(invoice);
       } catch (error) {
-        this.log.error('PayPalHelper.refundInvoices', {
-          error,
-          invoiceId: invoice.id,
-        });
         if (
           !(error instanceof RefusedError) &&
           !(error instanceof RefundError)
@@ -673,6 +642,56 @@ export class PayPalHelper {
           throw error;
         }
       }
+    }
+
+    return;
+  }
+
+  /**
+   * Refunds the invoice passed, throwing an error on any issue encountered.
+   */
+  public async refundInvoice(invoice: Stripe.Invoice) {
+    this.log.debug('PayPalHelper.refundInvoice', {
+      invoiceId: invoice.id,
+    });
+    const minCreated = Math.floor(
+      new Date().setDate(new Date().getDate() - MAX_REFUND_DAYS) / 1000
+    );
+    if (invoice.collection_method !== 'send_invoice') {
+      throw new Error('Invoice is not a Paypal invoice');
+    }
+
+    try {
+      if (invoice.created < minCreated) {
+        throw new RefundError(
+          'Invoice created outside of maximum refund period'
+        );
+      }
+      const transactionId =
+        this.stripeHelper.getInvoicePaypalTransactionId(invoice);
+      if (!transactionId) {
+        throw new RefundError('Missing transactionId');
+      }
+      const refundTransactionId =
+        this.stripeHelper.getInvoicePaypalRefundTransactionId(invoice);
+      if (refundTransactionId) {
+        throw new RefundError('Invoice already refunded with PayPal');
+      }
+
+      await this.issueRefund(invoice, transactionId, RefundType.Full);
+
+      this.log.info('refundInvoice', {
+        invoiceId: invoice.id,
+        priceId: this.stripeHelper.getPriceIdFromInvoice(invoice),
+        total: invoice.total,
+        currency: invoice.currency,
+      });
+    } catch (error) {
+      this.log.error('PayPalHelper.refundInvoice', {
+        error,
+        invoiceId: invoice.id,
+      });
+      throw error;
     }
 
     return;

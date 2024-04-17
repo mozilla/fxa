@@ -5,6 +5,7 @@ import program from 'commander';
 
 import { setupProcessingTaskObjects } from '../lib/payments/processing-tasks-setup';
 import { PlanCanceller } from './cancel-subscriptions-to-plan/cancel-subscriptions-to-plan';
+import { PayPalHelper } from '../lib/payments/paypal';
 
 const pckg = require('../package.json');
 
@@ -61,9 +62,13 @@ async function init() {
     )
     .parse(process.argv);
 
-  const { stripeHelper, database } = await setupProcessingTaskObjects(
+  const { stripeHelper, database, log } = await setupProcessingTaskObjects(
     'cancel-subscriptions-to-plan'
   );
+
+  const paypalHelper = new PayPalHelper({
+    log,
+  });
 
   const batchSize = parseBatchSize(program.batchSize);
   const rateLimit = parseRateLimit(program.rateLimit);
@@ -82,6 +87,7 @@ async function init() {
     batchSize,
     program.outputFile,
     stripeHelper,
+    paypalHelper,
     database,
     dryRun,
     rateLimit
