@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { faker } from '@faker-js/faker';
 
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import {
   FinishCart,
   FinishErrorCart,
@@ -29,6 +33,7 @@ export const SetupCartFactory = (override?: Partial<SetupCart>): SetupCart => ({
   offeringConfigId: faker.helpers.arrayElement(OFFERING_CONFIG_IDS),
   interval: faker.helpers.arrayElement(INTERVALS),
   amount: faker.number.int(10000),
+  eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
   ...override,
 });
 
@@ -84,5 +89,6 @@ export const ResultCartFactory = (
   email: faker.internet.email(),
   amount: faker.number.int(),
   version: faker.number.int(),
+  eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
   ...override,
 });

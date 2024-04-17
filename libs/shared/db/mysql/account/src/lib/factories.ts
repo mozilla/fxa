@@ -5,7 +5,7 @@
 import { faker } from '@faker-js/faker';
 
 import { AccountCustomer, NewCart, PaypalCustomer } from './associated-types';
-import { CartState } from './kysely-types';
+import { CartEligibilityStatus, CartState } from './kysely-types';
 
 export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   id: Buffer.from(
@@ -34,6 +34,7 @@ export const CartFactory = (override?: Partial<NewCart>): NewCart => ({
   updatedAt: faker.date.recent().getTime(),
   amount: faker.number.int(10000),
   version: 0,
+  eligibilityStatus: faker.helpers.enumValue(CartEligibilityStatus),
   ...override,
 });
 

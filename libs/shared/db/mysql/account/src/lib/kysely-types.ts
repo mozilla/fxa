@@ -35,6 +35,14 @@ export enum CartErrorReasonId {
   Unknown = 'unknown',
 }
 
+export enum CartEligibilityStatus {
+  CREATE = 'create',
+  UPGRADE = 'upgrade',
+  DOWNGRADE = 'downgrade',
+  BLOCKED_IAP = 'blocked_iap',
+  INVALID = 'invalid',
+}
+
 export interface AccountCustomers {
   uid: Buffer;
   stripeCustomerId: string | null;
@@ -91,6 +99,7 @@ export interface Carts {
   email: string | null;
   amount: number;
   version: number;
+  eligibilityStatus: CartEligibilityStatus;
 }
 
 export interface DeviceCommandIdentifiers {

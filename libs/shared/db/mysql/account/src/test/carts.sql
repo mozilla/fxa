@@ -14,6 +14,7 @@ CREATE TABLE `carts` (
   `email` varchar(255) COLLATE utf8mb4_bin DEFAULT NULL,
   `amount` int unsigned NOT NULL,
   `version` smallint unsigned DEFAULT 0 NOT NULL,
+  `eligibilityStatus` enum('create', 'upgrade', 'downgrade', 'blocked_iap', 'invalid') COLLATE utf8mb4_bin NOT NULL,
   PRIMARY KEY (`id`),
   KEY `uid` (`uid`),
   CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`uid`) REFERENCES `accounts` (`uid`) ON DELETE CASCADE
