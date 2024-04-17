@@ -514,6 +514,15 @@ AppError.gone = function () {
   });
 };
 
+AppError.goneFourOhFour = function () {
+  return new AppError({
+    code: 404,
+    error: 'Gone',
+    errno: ERRNO.ENDPOINT_NOT_SUPPORTED,
+    message: 'This endpoint is no longer supported',
+  });
+};
+
 AppError.mustResetAccount = function (email) {
   return new AppError(
     {

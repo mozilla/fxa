@@ -143,7 +143,14 @@ module.exports = function (
     customs,
     glean
   );
-  const sign = require('./sign')(log, signer, db, config.domain, devicesImpl);
+  const sign = require('./sign')(
+    log,
+    signer,
+    db,
+    config.domain,
+    devicesImpl,
+    config
+  );
   const unblockCodes = require('./unblock-codes')(
     log,
     db,
