@@ -195,7 +195,7 @@ module.exports = (log, config, glean) => {
   };
 
   function emitActivityEvent(event, request, data) {
-    const { location } = request.app.geo;
+    const location = request.app.geo?.location;
     data = Object.assign(
       {
         country: location && location.country,
@@ -217,7 +217,7 @@ module.exports = (log, config, glean) => {
       return Promise.resolve();
     }
 
-    const { location } = request.app.geo;
+    const location = request.app.geo?.location;
     return request
       .gatherMetricsContext({
         country: location && location.country,
