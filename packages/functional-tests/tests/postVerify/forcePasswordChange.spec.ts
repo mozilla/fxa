@@ -27,7 +27,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { page, login, postVerify },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -54,7 +54,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, postVerify, relier },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

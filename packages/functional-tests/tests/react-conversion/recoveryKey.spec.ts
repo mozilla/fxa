@@ -39,7 +39,7 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
 
       // Stash original encryption keys to be verified later
-      const accountData = await target.auth.sessionReauth(
+      const accountData = await target.authClient.sessionReauth(
         credentials.sessionToken,
         credentials.email,
         credentials.password,
@@ -48,7 +48,7 @@ test.describe('severity-1 #smoke', () => {
           reason: 'recovery_key',
         }
       );
-      const originalEncryptionKeys = await target.auth.accountKeys(
+      const originalEncryptionKeys = await target.authClient.accountKeys(
         accountData.keyFetchToken,
         accountData.unwrapBKey
       );
@@ -58,7 +58,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.fillOutEmailForm(credentials.email);
       await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
@@ -71,12 +71,12 @@ test.describe('severity-1 #smoke', () => {
       await page.waitForURL(/settings\/account_recovery/);
 
       // Attempt to login with new password
-      const { sessionToken } = await target.auth.signIn(
+      const { sessionToken } = await target.authClient.signIn(
         credentials.email,
         NEW_PASSWORD
       );
 
-      const newAccountData = await target.auth.sessionReauth(
+      const newAccountData = await target.authClient.sessionReauth(
         sessionToken,
         credentials.email,
         NEW_PASSWORD,
@@ -85,7 +85,7 @@ test.describe('severity-1 #smoke', () => {
           reason: 'recovery_key',
         }
       );
-      const newEncryptionKeys = await target.auth.accountKeys(
+      const newEncryptionKeys = await target.authClient.accountKeys(
         newAccountData.keyFetchToken,
         newAccountData.unwrapBKey
       );
@@ -115,7 +115,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link

@@ -29,7 +29,7 @@ test.describe('severity-1 #smoke', () => {
       // Verify confirm password reset page rendered
       await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
@@ -93,7 +93,7 @@ test.describe('severity-1 #smoke', () => {
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
@@ -136,7 +136,7 @@ test.describe('severity-1 #smoke', () => {
         // Verify confirm password reset page rendered
         await expect(resetPasswordReact.resetEmailSentHeading).toBeVisible();
 
-        const link = await target.email.waitForEmail(
+        const link = await target.emailClient.waitForEmail(
           credentials.email,
           EmailType.recovery,
           EmailHeader.link

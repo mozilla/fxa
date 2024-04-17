@@ -20,12 +20,16 @@ export class LocalTarget extends BaseTarget {
   }
 
   async createAccount(email: string, password: string, options?: any) {
-    const result = await this.auth.signUp(email, password, {
+    const result = await this.authClient.signUp(email, password, {
       lang: 'en',
       preVerified: 'true',
       ...(options || {}),
     });
-    await this.auth.deviceRegister(result.sessionToken, 'playwright', 'tester');
+    await this.authClient.deviceRegister(
+      result.sessionToken,
+      'playwright',
+      'tester'
+    );
     return {
       email,
       password,

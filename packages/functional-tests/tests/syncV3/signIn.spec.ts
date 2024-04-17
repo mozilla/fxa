@@ -52,7 +52,7 @@ test.describe('severity-2 #smoke', () => {
       const [email] = emails;
 
       // Simulate a new sign up that requires a signin verification code.
-      target.auth.signUp(email, PASSWORD, {
+      target.authClient.signUp(email, PASSWORD, {
         service: 'sync',
         preVerified: 'true',
       });
@@ -68,7 +68,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.successMessage).toContainText(
         /Email re-?sent/
       );
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
@@ -90,7 +90,7 @@ test.describe('severity-2 #smoke', () => {
       const [email] = emails;
 
       // Simulate a new sign up that requires a signin verification code.
-      target.auth.signUp(email, PASSWORD, {
+      target.authClient.signUp(email, PASSWORD, {
         service: 'sync',
         preVerified: 'true',
       });
@@ -100,7 +100,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(email, PASSWORD);
 
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
@@ -122,7 +122,7 @@ test.describe('severity-2 #smoke', () => {
       const [email] = emails;
 
       // Simulate a new sign up that requires a signin verification code.
-      target.auth.signUp(email, PASSWORD, {
+      target.authClient.signUp(email, PASSWORD, {
         service: 'sync',
         preVerified: 'true',
       });
@@ -139,7 +139,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tooltip).toBeVisible();
       await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
 
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
@@ -155,7 +155,7 @@ test.describe('severity-2 #smoke', () => {
         syncBrowserPages;
       const [email] = emails;
 
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         service: 'sync',
         lang: 'en',
         preVerified: 'false',
@@ -167,7 +167,7 @@ test.describe('severity-2 #smoke', () => {
       await login.login(email, PASSWORD);
 
       // Since the account is not verified yet, we'd expect to see the signup code confirmation
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
@@ -231,7 +231,7 @@ test.describe('severity-2 #smoke', () => {
       },
     }) => {
       const [blockedEmail] = emails;
-      await target.auth.signUp(blockedEmail, PASSWORD, {
+      await target.authClient.signUp(blockedEmail, PASSWORD, {
         service: 'sync',
         lang: 'en',
         preVerified: 'true',
@@ -242,7 +242,7 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.login(blockedEmail, PASSWORD);
 
-      const code = await target.email.waitForEmail(
+      const code = await target.emailClient.waitForEmail(
         blockedEmail,
         EmailType.unblockCode,
         EmailHeader.unblockCode

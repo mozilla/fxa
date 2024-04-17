@@ -149,7 +149,7 @@ test.describe('severity-1 #smoke', () => {
         recoveryCodes[recoveryCodes.length - 1]
       );
       await login.page.waitForURL(/settings/);
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.lowRecoveryCodes,
         EmailHeader.link

@@ -34,7 +34,7 @@ test.describe('severity-2 #smoke', () => {
       // Verify confirm password reset page has rendered
       await resetPassword.confirmResetPasswordHeader();
 
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link
@@ -78,7 +78,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl + '/reset_password');
       await login.setEmail(credentials.email);
       await login.clickSubmit();
-      const link = await target.email.waitForEmail(
+      const link = await target.emailClient.waitForEmail(
         credentials.email,
         EmailType.recovery,
         EmailHeader.link

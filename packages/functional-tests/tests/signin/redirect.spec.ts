@@ -33,7 +33,7 @@ test.describe('severity-2 #smoke', () => {
         const emailNewCodeText = 'text=/Email new code/';
         await page.waitForSelector(emailNewCodeText);
         page.click(emailNewCodeText);
-        const code = await target.email.waitForEmail(
+        const code = await target.emailClient.waitForEmail(
           email,
           EmailType.verifyLoginCode,
           EmailHeader.signinCode
@@ -78,7 +78,7 @@ test.describe('severity-2 #smoke', () => {
         const emailNewCodeText = 'text=/Email new code/';
         await page.waitForSelector(emailNewCodeText);
         page.click(emailNewCodeText);
-        const code = await target.email.waitForEmail(
+        const code = await target.emailClient.waitForEmail(
           credentials.email,
           EmailType.verifyLoginCode,
           EmailHeader.signinCode

@@ -2,29 +2,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
 import AuthClient, {
   getCredentialsV2,
   getCredentials,
 } from 'fxa-auth-client/browser';
-import crypto from 'crypto';
-import { SaltVersion } from 'fxa-auth-client/lib/salt';
-
-let curClient: AuthClient | undefined;
-function getClient(url: string, version: SaltVersion) {
-  curClient = new AuthClient(url, {
-    keyStretchVersion: version,
-  });
-  return curClient;
-}
 
 test.describe('auth-client-tests', () => {
-  let email = '';
-  let password = '';
-  let credentials: any;
-
-  async function signUp(client: AuthClient) {
-    credentials = await client.signUp(email, password, {
+  async function signUp(client: AuthClient, email: string, password: string) {
+    const credentials = await client.signUp(email, password, {
       keys: true,
       preVerified: 'true',
     });
@@ -44,20 +30,13 @@ test.describe('auth-client-tests', () => {
 
   test.beforeEach(({}, { project }) => {
     test.skip(project.name === 'production');
-
-    email = `signin${crypto.randomBytes(8).toString('hex')}@restmail.net`;
-    password = `${crypto.randomBytes(10).toString('hex')}`;
   });
 
-  test.afterEach(async ({ target }) => {
-    const newCreds = await curClient?.signIn(email, password, { keys: true });
-    await curClient?.accountDestroy(email, password, {}, newCreds.sessionToken);
-  });
+  test('it creates with v1 and signs in', async ({ target, emails }) => {
+    const client = target.authClient;
+    const [email] = emails;
 
-  test('it creates with v1 and signs in', async ({ target }) => {
-    const client = getClient(target.authServerUrl, 1);
-
-    await signUp(client);
+    await signUp(client, email, PASSWORD);
 
     // Check the salt is V1
     const status = await client.getCredentialStatusV2(email);
@@ -66,12 +45,12 @@ test.describe('auth-client-tests', () => {
     expect(status.clientSalt).toBeUndefined();
 
     // Login IN
-    const signInResult = await client.signIn(email, password, { keys: true });
+    const signInResult = await client.signIn(email, PASSWORD, { keys: true });
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
 
     // Check unwrapKB. It should match our V1 credential unwrapBKey.
-    expect((await getCredentials(email, password)).unwrapBKey).toEqual(
+    expect((await getCredentials(email, PASSWORD)).unwrapBKey).toEqual(
       signInResult.unwrapBKey
     );
 
@@ -83,9 +62,11 @@ test.describe('auth-client-tests', () => {
     expect(status2.clientSalt).toBeUndefined();
   });
 
-  test('it creates with v2 and signs in', async ({ target }) => {
-    const client = getClient(target.authServerUrl, 2);
-    await signUp(client);
+  test('it creates with v2 and signs in', async ({ target, emails }) => {
+    const client = target.createAuthClient(2);
+    const [email] = emails;
+
+    await signUp(client, email, PASSWORD);
 
     // Check the salt is V1
     const status = await client.getCredentialStatusV2(email);
@@ -94,7 +75,7 @@ test.describe('auth-client-tests', () => {
     expect(status.upgradeNeeded).toBeFalsy();
 
     // Login IN
-    const signInResult = await client.signIn(email, password, { keys: true });
+    const signInResult = await client.signIn(email, PASSWORD, { keys: true });
     expect(signInResult).toBeDefined();
     expect(signInResult.keyFetchToken).toBeDefined();
     expect(signInResult.unwrapBKey).toBeDefined();
@@ -102,18 +83,24 @@ test.describe('auth-client-tests', () => {
     // Check unwrapKB. It should match our V2 credential unwrapBKey.
     const clientSalt =
       (await client.getCredentialStatusV2(email))?.clientSalt || '';
-    const credentialsV2 = await getCredentialsV2({ password, clientSalt });
+    const credentialsV2 = await getCredentialsV2({
+      password: PASSWORD,
+      clientSalt,
+    });
     expect(credentialsV2.unwrapBKey).toEqual(signInResult.unwrapBKey);
-    const credentialsV1 = await getCredentials(email, password);
+    const credentialsV1 = await getCredentials(email, PASSWORD);
     expect(credentialsV1.unwrapBKey).not.toEqual(signInResult.unwrapBKey);
   });
 
   test('it creates with v1 and upgrades to v2 on signin', async ({
     target,
+    emails,
   }) => {
-    const client = getClient(target.authServerUrl, 1);
-    await signUp(client);
-    const singInResult = await client.signIn(email, password, { keys: true });
+    const client = target.authClient;
+    const [email] = emails;
+
+    await signUp(client, email, PASSWORD);
+    const singInResult = await client.signIn(email, PASSWORD, { keys: true });
     expect(singInResult.keyFetchToken).toBeDefined();
     expect(singInResult.unwrapBKey).toBeDefined();
 
@@ -127,7 +114,7 @@ test.describe('auth-client-tests', () => {
     expect(keys1.kB).toBeDefined();
 
     // Create v2 client
-    const client2 = getClient(target.authServerUrl, 2);
+    const client2 = target.createAuthClient(2);
 
     // Check that status is still v1 for the current credentials
     const statusBefore = await client2.getCredentialStatusV2(email);
@@ -137,7 +124,7 @@ test.describe('auth-client-tests', () => {
     expect(statusBefore.currentVersion).toBe('v1');
 
     // The sign in should automatically reset the password
-    const signInResult2 = await client2.signIn(email, password, {
+    const signInResult2 = await client2.signIn(email, PASSWORD, {
       keys: true,
     });
     expect(signInResult2).toBeDefined();
@@ -155,10 +142,13 @@ test.describe('auth-client-tests', () => {
     // Check unwrapKB. It should match our V2 credential unwrapBKey.
     const clientSalt =
       (await client.getCredentialStatusV2(email))?.clientSalt || '';
-    const credentialsV2 = await getCredentialsV2({ password, clientSalt });
+    const credentialsV2 = await getCredentialsV2({
+      password: PASSWORD,
+      clientSalt,
+    });
     expect(credentialsV2.unwrapBKey).toEqual(signInResult2.unwrapBKey);
 
-    const credentialsV1 = await getCredentials(email, password);
+    const credentialsV1 = await getCredentials(email, PASSWORD);
     expect(credentialsV1.unwrapBKey).not.toEqual(signInResult2.unwrapBKey);
 
     // Check that keys didn't drift

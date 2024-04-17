@@ -131,7 +131,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         preVerified: 'false',
       });
 

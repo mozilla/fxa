@@ -63,7 +63,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { login, page },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -93,7 +93,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { login, page },
     }) => {
       const [email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -134,7 +134,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       await Promise.all(
         emails.map(async (email) => {
-          await target.auth.signUp(email, PASSWORD, {
+          await target.authClient.signUp(email, PASSWORD, {
             lang: 'en',
             preVerified: 'true',
           });
@@ -184,7 +184,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       await Promise.all(
         emails.map(async (email) => {
-          await target.auth.signUp(email, PASSWORD, {
+          await target.authClient.signUp(email, PASSWORD, {
             lang: 'en',
             preVerified: 'true',
           });
@@ -218,7 +218,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       await Promise.all(
         emails.map(async (email) => {
-          await target.auth.signUp(email, PASSWORD, {
+          await target.authClient.signUp(email, PASSWORD, {
             lang: 'en',
             preVerified: 'true',
           });
@@ -256,7 +256,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { login, page },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: true,
       });
@@ -282,7 +282,7 @@ test.describe('severity-2 #smoke', () => {
       syncBrowserPages: { login, page, settings },
     }) => {
       const [syncEmail] = emails;
-      await target.auth.signUp(syncEmail, PASSWORD, {
+      await target.authClient.signUp(syncEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

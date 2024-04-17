@@ -27,7 +27,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, settings, deleteAccount },
     }) => {
       const [blockedEmail] = emails;
-      await target.auth.signUp(blockedEmail, PASSWORD, {
+      await target.authClient.signUp(blockedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -62,7 +62,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, settings, deleteAccount },
     }) => {
       const [blockedEmail] = emails;
-      await target.auth.signUp(blockedEmail, PASSWORD, {
+      await target.authClient.signUp(blockedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -103,7 +103,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, resetPassword, settings, deleteAccount },
     }) => {
       const [blockedEmail] = emails;
-      await target.auth.signUp(blockedEmail, PASSWORD, {
+      await target.authClient.signUp(blockedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });
@@ -147,7 +147,7 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       test.fixme(true, 'FXA-9226');
       const [unverifiedEmail] = emails;
-      await target.auth.signUp(unverifiedEmail, PASSWORD, {
+      await target.authClient.signUp(unverifiedEmail, PASSWORD, {
         lang: 'en',
         preVerified: 'false',
       });
@@ -195,7 +195,7 @@ test.describe('severity-2 #smoke', () => {
       pages: { login, settings, deleteAccount, secondaryEmail },
     }) => {
       const [blockedEmail, email] = emails;
-      await target.auth.signUp(email, PASSWORD, {
+      await target.authClient.signUp(email, PASSWORD, {
         lang: 'en',
         preVerified: 'true',
       });

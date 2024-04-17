@@ -1,4 +1,5 @@
 import { Browser, expect, firefox, test as base } from '@playwright/test';
+import crypto from 'crypto';
 import { create, Credentials, ServerTarget, TargetName } from '../targets';
 import { EmailClient } from '../email';
 import { create as createPages } from '../../pages';
@@ -58,14 +59,14 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   credentials: async ({ target }, use, testInfo) => {
     const email = EmailClient.emailFromTestTitle(testInfo.title);
     const password = 'passwordzxcv';
-    await target.email.clear(email);
+    await target.emailClient.clear(email);
     let credentials: Credentials;
 
     try {
       credentials = await target.createAccount(email, password);
     } catch (e) {
-      const newCreds = await target.auth.signIn(email, password);
-      await target.auth.accountDestroy(
+      const newCreds = await target.authClient.signIn(email, password);
+      await target.authClient.accountDestroy(
         email,
         password,
         {},
@@ -77,25 +78,25 @@ export const test = base.extend<TestOptions, WorkerOptions>({
     await use(credentials);
 
     //teardown
-    await target.email.clear(email);
+    await target.emailClient.clear(email);
 
     try {
       // we don't know if the original session still exists
       // the test may have called signOut()
-      const { sessionToken } = await target.auth.signIn(
+      const { sessionToken } = await target.authClient.signIn(
         email,
         credentials.password
       );
 
       if (credentials.secret) {
         credentials.sessionToken = sessionToken;
-        await target.auth.verifyTotpCode(
+        await target.authClient.verifyTotpCode(
           sessionToken,
           await getCode(credentials.secret)
         );
       }
 
-      await target.auth.accountDestroy(
+      await target.authClient.accountDestroy(
         email,
         credentials.password,
         {},
@@ -171,8 +172,10 @@ export const test = base.extend<TestOptions, WorkerOptions>({
   ): Promise<void> => {
     const emails = emailOptions.map((emailOptions) => {
       return (
-        emailOptions.prefix.replace('{id}', Math.random() + '') +
-        '@restmail.net'
+        emailOptions.prefix.replace(
+          '{id}',
+          crypto.randomBytes(8).toString('hex') + ''
+        ) + '@restmail.net'
       );
     });
     await login.clearCache(); // Clear cache for each email
@@ -191,10 +194,10 @@ async function teardownEmail(
   email: string,
   emailOptions: EmailFixtureOptions
 ) {
-  const accountStatus = await target.auth.accountStatusByEmail(email);
+  const accountStatus = await target.authClient.accountStatusByEmail(email);
   if (accountStatus.exists) {
-    const creds = await target.auth.signIn(email, emailOptions.password);
-    await target.auth.accountDestroy(
+    const creds = await target.authClient.signIn(email, emailOptions.password);
+    await target.authClient.accountDestroy(
       email,
       emailOptions.password,
       {},

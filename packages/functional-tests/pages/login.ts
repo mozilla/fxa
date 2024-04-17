@@ -5,7 +5,6 @@
 import { EmailHeader, EmailType } from '../lib/email';
 import { BaseLayout } from './layout';
 import { getCode } from 'fxa-settings/src/lib/totp';
-import AuthClient from 'fxa-auth-client';
 
 export const selectors = {
   AGE: '#age',
@@ -109,17 +108,6 @@ export class LoginPage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Set your password' });
   }
 
-  async getFxaClient(target) {
-    const AUTH_SERVER_ROOT = target.authServerUrl;
-    const keyStretchVersion = parseInt(
-      process.env.AUTH_CLIENT_KEY_STRETCH_VERSION || '1'
-    );
-    if (!(keyStretchVersion === 1 || keyStretchVersion === 2)) {
-      throw new Error('Invalid env, AUTH_CLIENT_KEY_STRETCH_VERSION');
-    }
-    return new AuthClient(AUTH_SERVER_ROOT, { keyStretchVersion });
-  }
-
   get passwordHeader() {
     return this.page.locator(selectors.PASSWORD_HEADER);
   }
@@ -209,7 +197,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async fillOutSignUpCode(email: string, waitForNavOnSubmit = true) {
-    const code = await this.target.email.waitForEmail(
+    const code = await this.target.emailClient.waitForEmail(
       email,
       EmailType.verifyShortCode,
       EmailHeader.shortCode
@@ -219,7 +207,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async fillOutSignInCode(email: string) {
-    const code = await this.target.email.waitForEmail(
+    const code = await this.target.emailClient.waitForEmail(
       email,
       EmailType.verifyLoginCode,
       EmailHeader.signinCode
@@ -340,7 +328,7 @@ export class LoginPage extends BaseLayout {
   }
 
   async unblock(email: string) {
-    const code = await this.target.email.waitForEmail(
+    const code = await this.target.emailClient.waitForEmail(
       email,
       EmailType.unblockCode,
       EmailHeader.unblockCode
@@ -532,7 +520,7 @@ export class LoginPage extends BaseLayout {
   async destroySession(email: string) {
     const account = await this.getAccountFromFromLocalStorage(email);
     if (account?.sessionToken) {
-      return await this.target.auth.sessionDestroy(account.sessionToken);
+      return await this.target.authClient.sessionDestroy(account.sessionToken);
     }
   }
 

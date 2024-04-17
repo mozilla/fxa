@@ -40,14 +40,14 @@ export class SecondaryEmailPage extends SettingsLayout {
   }
 
   async addSecondaryEmail(email: string): Promise<void> {
-    await this.target.email.clear(email);
+    await this.target.emailClient.clear(email);
 
     await expect(this.secondaryEmailHeading).toBeVisible();
     await expect(this.step1Heading).toBeVisible();
 
     await this.emailTextbox.fill(email);
     await this.saveButton.click();
-    const code: string = await this.target.email.waitForEmail(
+    const code: string = await this.target.emailClient.waitForEmail(
       email,
       EmailType.verifySecondaryCode,
       EmailHeader.verifyCode

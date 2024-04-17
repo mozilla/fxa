@@ -23,11 +23,10 @@ test.describe('severity-1 #smoke', () => {
       pages: { login },
     }) => {
       const [email] = emails;
-      const client = await login.getFxaClient(target);
       await page.goto(target.contentServerUrl);
       await login.fillOutFirstSignUp(email, PASSWORD);
 
-      await target.auth.accountDestroy(
+      await target.authClient.accountDestroy(
         email,
         PASSWORD,
         {},
