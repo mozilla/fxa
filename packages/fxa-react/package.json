@@ -48,7 +48,7 @@
     "tailwindcss-dir": "^4.0.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.0",
+    "@babel/core": "^7.24.4",
     "@babel/plugin-transform-typescript": "^7.23.6",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.24.1",

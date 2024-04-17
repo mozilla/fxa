@@ -144,7 +144,7 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.22.20",
+    "@babel/core": "^7.24.4",
     "@babel/preset-react": "^7.24.1",
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/client-preset": "^4.2.4",
