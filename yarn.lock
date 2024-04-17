@@ -32,10 +32,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@adobe/css-tools@npm:^4.0.1, @adobe/css-tools@npm:^4.3.0":
+"@adobe/css-tools@npm:^4.0.1":
   version: 4.3.2
   resolution: "@adobe/css-tools@npm:4.3.2"
   checksum: 9667d61d55dc3b0a315c530ae84e016ce5267c4dd8ac00abb40108dc98e07b98e3090ce8b87acd51a41a68d9e84dcccb08cdf21c902572a9cf9dcaf830da4ae3
+  languageName: node
+  linkType: hard
+
+"@adobe/css-tools@npm:^4.3.2":
+  version: 4.3.3
+  resolution: "@adobe/css-tools@npm:4.3.3"
+  checksum: d21f3786b84911fee59c995a146644a85c98692979097b26484ffa9e442fb1a92ccd68ce984e3e7cf8d5933c3560fbc0ad3e3cd1de50b9a723d1c012e793bbcb
   languageName: node
   linkType: hard
 
@@ -20921,42 +20928,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/jest-dom@npm:^5.16.5":
-  version: 5.16.5
-  resolution: "@testing-library/jest-dom@npm:5.16.5"
+"@testing-library/jest-dom@npm:^6.4.2":
+  version: 6.4.2
+  resolution: "@testing-library/jest-dom@npm:6.4.2"
   dependencies:
-    "@adobe/css-tools": ^4.0.1
-    "@babel/runtime": ^7.9.2
-    "@types/testing-library__jest-dom": ^5.9.1
-    aria-query: ^5.0.0
-    chalk: ^3.0.0
-    css.escape: ^1.5.1
-    dom-accessibility-api: ^0.5.6
-    lodash: ^4.17.15
-    redent: ^3.0.0
-  checksum: 94911f901a8031f3e489d04ac057cb5373621230f5d92bed80e514e24b069fb58a3166d1dd86963e55f078a1bd999da595e2ab96ed95f452d477e272937d792a
-  languageName: node
-  linkType: hard
-
-"@testing-library/jest-dom@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "@testing-library/jest-dom@npm:6.1.3"
-  dependencies:
-    "@adobe/css-tools": ^4.3.0
+    "@adobe/css-tools": ^4.3.2
     "@babel/runtime": ^7.9.2
     aria-query: ^5.0.0
     chalk: ^3.0.0
     css.escape: ^1.5.1
-    dom-accessibility-api: ^0.5.6
+    dom-accessibility-api: ^0.6.3
     lodash: ^4.17.15
     redent: ^3.0.0
   peerDependencies:
     "@jest/globals": ">= 28"
+    "@types/bun": "*"
     "@types/jest": ">= 28"
     jest: ">= 28"
     vitest: ">= 0.32"
   peerDependenciesMeta:
     "@jest/globals":
+      optional: true
+    "@types/bun":
       optional: true
     "@types/jest":
       optional: true
@@ -20964,7 +20957,7 @@ __metadata:
       optional: true
     vitest:
       optional: true
-  checksum: 5bd14ba31fd3d64cff8ca55cccd335bedadf1db1119643954ca8cd30af835defe6f3a21e7d7617d20205b07abba1b2e668be1b9d6743504800f17fdc4344db75
+  checksum: 631aeadbf4e738080ae095242cf1a29a0b4ee2f09c8bdd0d3f00a923707da64c1617e088ba9a961d098481afabdc1d19149fb7ef98edf15132348eb222f345ae
   languageName: node
   linkType: hard
 
@@ -22148,7 +22141,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/jest@npm:*, @types/jest@npm:^26.0.23":
+"@types/jest@npm:^26.0.23":
   version: 26.0.23
   resolution: "@types/jest@npm:26.0.23"
   dependencies:
@@ -23270,15 +23263,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 88505dda8b8e57e1da58ce74fb29bc2b4d64d90e9c34dc1d4b4010116b9785e23ce43f1e8016901bd27037e17d9d148e34d4ebd5f57d060212847e0df91cf024
-  languageName: node
-  linkType: hard
-
-"@types/testing-library__jest-dom@npm:^5.9.1":
-  version: 5.9.1
-  resolution: "@types/testing-library__jest-dom@npm:5.9.1"
-  dependencies:
-    "@types/jest": "*"
-  checksum: 223edc133a7e6c62f00f9f05ae915553d714baf58d0bbc107f9f75fa579ec232d44a44bb192cdf7f10887cb31eae00f1f93904fdc6ac76998e4b8c7d2f82e9f1
   languageName: node
   linkType: hard
 
@@ -33035,10 +33019,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dom-accessibility-api@npm:^0.5.6, dom-accessibility-api@npm:^0.5.9":
+"dom-accessibility-api@npm:^0.5.9":
   version: 0.5.10
   resolution: "dom-accessibility-api@npm:0.5.10"
   checksum: c05949889b02f5313d100778e9f736f9bddfb1da47387d351833f0b5d60d6230d4fcb849e124a8a1591706b6200337fa40f0f4f3817dce1459309e075f48371c
+  languageName: node
+  linkType: hard
+
+"dom-accessibility-api@npm:^0.6.3":
+  version: 0.6.3
+  resolution: "dom-accessibility-api@npm:0.6.3"
+  checksum: c325b5144bb406df23f4affecffc117dbaec9af03daad9ee6b510c5be647b14d28ef0a4ea5ca06d696d8ab40bb777e5fed98b985976fdef9d8790178fa1d573f
   languageName: node
   linkType: hard
 
@@ -37639,7 +37630,7 @@ fsevents@~2.1.1:
   dependencies:
     "@babel/core": ^7.15.0
     "@rescripts/cli": 0.0.16
-    "@testing-library/jest-dom": ^5.16.5
+    "@testing-library/jest-dom": ^6.4.2
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
     "@types/dateformat": ^3.0.1
@@ -38337,7 +38328,7 @@ fsevents@~2.1.1:
     "@storybook/react-webpack5": ^7.0.23
     "@stripe/react-stripe-js": ^2.5.0
     "@stripe/stripe-js": ^3.0.7
-    "@testing-library/jest-dom": ^5.16.5
+    "@testing-library/jest-dom": ^6.4.2
     "@types/accept-language-parser": ^1.5.1
     "@types/babel__preset-env": ^7
     "@types/classnames": ^2.3.1
@@ -38486,7 +38477,7 @@ fsevents@~2.1.1:
     "@storybook/react": ^7.1.1
     "@storybook/react-webpack5": ^7.0.23
     "@testing-library/dom": ^9.3.4
-    "@testing-library/jest-dom": ^5.16.5
+    "@testing-library/jest-dom": ^6.4.2
     "@testing-library/user-event": ^14.5.1
     "@types/babel__preset-env": ^7
     "@types/camelcase": 5.2.0
@@ -38562,7 +38553,7 @@ fsevents@~2.1.1:
     "@storybook/testing-library": ^0.2.0
     "@svgr/webpack": ^8.1.0
     "@testing-library/dom": ^9.3.4
-    "@testing-library/jest-dom": ^6.1.3
+    "@testing-library/jest-dom": ^6.4.2
     "@testing-library/react-hooks": ^8.0.0
     "@testing-library/user-event": ^14.5.1
     "@types/babel__core": 7.1.14
