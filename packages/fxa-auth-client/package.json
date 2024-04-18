@@ -51,7 +51,7 @@
   "devDependencies": {
     "@types/assert": "^1.5.4",
     "@types/fast-text-encoding": "^1",
-    "@types/mocha": "^8",
+    "@types/mocha": "^10",
     "@types/node": "^20.11.1",
     "@types/node-fetch": "^2.5.7",
     "@types/prettier": "^2",
@@ -61,7 +61,7 @@
     "eslint": "^8.38.0",
     "eslint-config-react-app": "^7.0.1",
     "fast-text-encoding": "^1.0.4",
-    "mocha": "^10.0.0",
+    "mocha": "^10.4.0",
     "prettier": "^2.8.7",
     "typescript": "^5.4.2",
     "webcrypto-liner": "^1.4.0"
