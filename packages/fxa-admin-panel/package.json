@@ -53,7 +53,7 @@
     "serve-static": "^1.14.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.15.0",
+    "@babel/core": "^7.24.4",
     "@rescripts/cli": "0.0.16",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/chance": "^1.1.2",
