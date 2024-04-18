@@ -23,7 +23,8 @@ module.exports = function (
   redis,
   glean,
   push,
-  pushbox
+  pushbox,
+  authServerCacheRedis
 ) {
   // Various extra helpers.
   const devicesImpl = require('../devices')(log, db, push, pushbox);
@@ -128,7 +129,9 @@ module.exports = function (
     push,
     config,
     oauthRawDB,
-    glean
+    glean,
+    authServerCacheRedis,
+    statsd
   );
   const securityEvents = require('./security-events')(log, db, config);
   const session = require('./session')(

@@ -1920,6 +1920,26 @@ const convictConf = convict({
       env: 'OTP_SIGNUP_DIGIT',
     },
   },
+  passwordForgotOtp: {
+    enabled: {
+      doc: 'Feature flag for init password reset with emailed OTP',
+      format: Boolean,
+      default: false,
+      env: 'OTP_PASSWORD_FORGOT_ENABLED',
+    },
+    digits: {
+      doc: 'Number of digits in token',
+      default: 8,
+      format: 'nat',
+      env: 'OTP_PASSWORD_FORGOT_DIGITS',
+    },
+    ttl: {
+      doc: 'Duration in seconds when the OTP is valid',
+      default: 10 * 60,
+      format: 'nat',
+      env: 'OTP_PASSWORD_FORGOT_TTL',
+    },
+  },
   syncTokenserverUrl: {
     default: 'http://localhost:5000/token',
     doc: 'The url of the Firefox Sync tokenserver',

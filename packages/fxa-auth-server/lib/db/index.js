@@ -166,10 +166,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     const result = await Account.checkPassword(uid, verifyHash);
 
     if (result.v1) {
-      resolveMetrics()?.increment('check.password.v1.success')
+      resolveMetrics()?.increment('check.password.v1.success');
     }
     if (result.v2) {
-      resolveMetrics()?.increment('check.password.v2.success')
+      resolveMetrics()?.increment('check.password.v2.success');
     }
 
     return result;
@@ -734,12 +734,10 @@ module.exports = (config, log, Token, UnblockCode = null) => {
     }
     data.verifierSetAt = Date.now();
 
-
     if (data.verifyHashVersion2 != null) {
-      resolveMetrics()?.increment('reset.account.v2')
-    }
-    else {
-      resolveMetrics()?.increment('reset.account.v1')
+      resolveMetrics()?.increment('reset.account.v2');
+    } else {
+      resolveMetrics()?.increment('reset.account.v1');
     }
 
     return Account.reset({ uid, ...data });
@@ -794,7 +792,7 @@ module.exports = (config, log, Token, UnblockCode = null) => {
   ) {
     log.trace('DB.createPassword', { uid });
     if (clientSalt && verifyHashVersion2 && wrapWrapKbVersion2) {
-      resolveMetrics()?.increment('create.password.v2')
+      resolveMetrics()?.increment('create.password.v2');
     }
     return Account.createPassword(
       uid,

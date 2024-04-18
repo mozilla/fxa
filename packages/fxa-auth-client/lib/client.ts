@@ -587,6 +587,26 @@ export default class AuthClient {
     );
   }
 
+  async passwordForgotSendOtp(
+    email: string,
+    options: {
+      service?: string;
+      metricsContext?: MetricsContext;
+    } = {},
+    headers: Headers = new Headers()
+  ) {
+    const payload = {
+      email,
+      ...options,
+    };
+    return this.request(
+      'POST',
+      '/password/forgot/send_otp',
+      payload,
+      createHeaders(headers, options)
+    );
+  }
+
   async passwordForgotSendCode(
     email: string,
     options: {
