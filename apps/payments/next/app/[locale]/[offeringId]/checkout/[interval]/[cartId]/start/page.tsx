@@ -1,15 +1,20 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-
-import { app } from '@fxa/payments/ui/server';
+import Stripe from 'stripe';
+import {
+  app,
+  handleStripeErrorAction,
+  getCartAction,
+} from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
+import { CheckoutParams } from '../../../layout';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Checkout() {
+export default async function Checkout({ params }: { params: CheckoutParams }) {
   // Temporarily defaulting to `accept-language`
   // This to be updated in FXA-9404
   //const locale = getLocaleFromRequest(
@@ -19,12 +24,28 @@ export default async function Checkout() {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const sessionPromise = auth();
   const l10nPromise = app.getL10n(locale);
-  const [session, l10n] = await Promise.all([sessionPromise, l10nPromise]);
+  const cartPromise = getCartAction(params.cartId);
+  const [session, l10n, cart] = await Promise.all([
+    sessionPromise,
+    l10nPromise,
+    cartPromise,
+  ]);
+
+  // Temporary function used to test handleStripeErrorAction
+  // This is to be deleted as part of FXA-8850
+  async function onSubmit() {
+    'use server';
+    const error: Stripe.StripeRawError = new Error(
+      'Simulated Stripe Error'
+    ) as unknown as Stripe.StripeRawError;
+    error.type = 'card_error';
+    await handleStripeErrorAction(cart.id, cart.version, error);
+  }
 
   return (
     <>
       <section
-        className="h-[640px] flex flex-col items-center justify-center"
+        className="h-min-[640px] flex flex-col items-center justify-center"
         aria-label="Section under construction"
       >
         <section className="flex flex-col gap-2 mb-8">
@@ -133,6 +154,21 @@ export default async function Checkout() {
             </p>
           </div>
         </section>
+        {/*
+          Temporary function used to test handleStripeErrorAction
+          This is to be deleted as part of FXA-8850
+        */}
+        <div>
+          <form action={onSubmit} className="mb-8">
+            <input type="text" name="name" />
+            <button
+              type="submit"
+              className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4"
+            >
+              <div>Test handle error</div>
+            </button>
+          </form>
+        </div>
         {/*
             Temporary section to test NextAuth prompt/no prompt signin
             To be deleted as part of FXA-7521/FXA-7523 if not sooner where necessary

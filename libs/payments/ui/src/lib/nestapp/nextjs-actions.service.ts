@@ -9,6 +9,7 @@ import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { Validator } from 'class-validator';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
+import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -53,5 +54,15 @@ export class NextJSActionsService {
     });
 
     return cart;
+  }
+
+  async finalizeCartWithError(args: FinalizeCartWithErrorArgs) {
+    new Validator().validateOrReject(args);
+
+    await this.cartService.finalizeCartWithError(
+      args.cartId,
+      args.version,
+      args.errorReasonId
+    );
   }
 }

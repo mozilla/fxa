@@ -15,9 +15,7 @@ export const setupCartAction = async (
   uid?: string,
   ip?: string
 ) => {
-  const actionsService = await app.getActionsService();
-
-  await actionsService.setupCart(
+  return app.getActionsService().setupCart(
     plainToClass(SetupCartActionArgs, {
       interval,
       offeringConfigId,

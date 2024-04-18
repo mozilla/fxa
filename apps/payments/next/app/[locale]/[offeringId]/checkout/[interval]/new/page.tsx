@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { app } from '@fxa/payments/ui/server';
+import { setupCartAction } from '@fxa/payments/ui/server';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -19,12 +19,14 @@ export default async function CheckoutNew({
 }) {
   const { offeringId, interval } = params;
   const ip = (headers().get('x-forwarded-for') ?? '127.0.0.1').split(',')[0];
-  const actionsService = await app.getActionsService();
-  const { id: cartId } = await actionsService.setupCart({
+  const { id: cartId } = await setupCartAction(
     interval,
-    offeringConfigId: offeringId,
-    ip,
-  });
+    offeringId,
+    undefined,
+    undefined,
+    undefined,
+    ip
+  );
 
-  redirect(`${cartId}`);
+  redirect(`${cartId}/start`);
 }
