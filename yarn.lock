@@ -22521,10 +22521,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/mocha@npm:^8, @types/mocha@npm:^8.2.2":
-  version: 8.2.2
-  resolution: "@types/mocha@npm:8.2.2"
-  checksum: 8e1fbc3e98d6bd93fe5b7454c34d53241b9f1947b28c10b8bb340585a9ed303be649b45c36b19236000f82f74e8d3df67ed617ae7baae80ea09d5317dbe080ba
+"@types/mocha@npm:^10, @types/mocha@npm:^10.0.6":
+  version: 10.0.6
+  resolution: "@types/mocha@npm:10.0.6"
+  checksum: f7c836cf6cf27dc0f5970d262591b56f2a3caeaec8cfdc612c12e1cfbb207f601f710ece207e935164d4e3343b93be5054d0db5544f31f453b3923775d82099f
   languageName: node
   linkType: hard
 
@@ -24012,13 +24012,6 @@ __metadata:
     "@typescript-eslint/types": 7.4.0
     eslint-visitor-keys: ^3.4.1
   checksum: 9baa497eefbe40a4f7415be26092c318415fd8ccc1910a0cd79234561107b625b63f3ca250eda9f0060e1181fd8155337ec0caee811b301e774e468f5279d0ad
-  languageName: node
-  linkType: hard
-
-"@ungap/promise-all-settled@npm:1.1.2":
-  version: 1.1.2
-  resolution: "@ungap/promise-all-settled@npm:1.1.2"
-  checksum: 08d37fdfa23a6fe8139f1305313562ebad973f3fac01bcce2773b2bda5bcb0146dfdcf3cb6a722cf0a5f2ca0bc56a827eac8f1e7b3beddc548f654addf1fc34c
   languageName: node
   linkType: hard
 
@@ -28335,7 +28328,7 @@ __metadata:
     express: ^4.19.2
     fxa-shared: "workspace:*"
     intel: 1.2.0
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     optimist: 0.6.1
@@ -34584,7 +34577,7 @@ __metadata:
   dependencies:
     eslint: 6.6.0
     eslint-config-prettier: 9.1.0
-    mocha: ^10.2.0
+    mocha: ^10.4.0
     ramda: ^0.29.1
   peerDependencies:
     eslint: ">=6.6.0"
@@ -37738,7 +37731,7 @@ fsevents@~2.1.1:
   dependencies:
     "@types/assert": ^1.5.4
     "@types/fast-text-encoding": ^1
-    "@types/mocha": ^8
+    "@types/mocha": ^10
     "@types/node": ^20.11.1
     "@types/node-fetch": ^2.5.7
     "@types/prettier": ^2
@@ -37748,7 +37741,7 @@ fsevents@~2.1.1:
     eslint: ^8.38.0
     eslint-config-react-app: ^7.0.1
     fast-text-encoding: ^1.0.4
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     node-fetch: ^2.6.7
     prettier: ^2.8.7
     typescript: ^5.4.2
@@ -37794,7 +37787,7 @@ fsevents@~2.1.1:
     "@types/luxon": ^3
     "@types/memcached": ^2.2.6
     "@types/mjml": ^4.7.0
-    "@types/mocha": ^8.2.2
+    "@types/mocha": ^10.0.6
     "@types/nock": ^11.1.0
     "@types/node": ^20.11.1
     "@types/node-zendesk": ^2.0.2
@@ -37869,7 +37862,7 @@ fsevents@~2.1.1:
     mailparser: 0.6.1
     mjml: ^4.13.0
     mjml-browser: ^4.15.3
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     moment: ^2.30.1
     moment-timezone: ^0.5.35
     mozlog: ^3.0.2
@@ -38035,7 +38028,7 @@ fsevents@~2.1.1:
     load-grunt-tasks: ^5.1.0
     lodash: ^4.17.21
     mkdirp: 3.0.1
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     morgan: ^1.10.0
     mozlog: ^3.0.2
     mustache: 4.2.0
@@ -38219,7 +38212,7 @@ fsevents@~2.1.1:
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
     maxmind: ^4.3.6
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     mozlog: ^3.0.2
     nyc: ^15.1.0
     prettier: ^2.3.1
@@ -38449,7 +38442,7 @@ fsevents@~2.1.1:
     insist: 1.0.1
     joi: ^17.8.3
     lodash: ^4.17.21
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     mocha-text-cov: 0.1.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -38688,7 +38681,7 @@ fsevents@~2.1.1:
     "@types/lodash.clonedeep": ^4
     "@types/lodash.omitby": ^4
     "@types/lodash.pick": ^4
-    "@types/mocha": ^8.2.2
+    "@types/mocha": ^10.0.6
     "@types/mysql": ^2
     "@types/node": ^20.11.1
     "@types/proxyquire": ^1.3.28
@@ -38726,7 +38719,7 @@ fsevents@~2.1.1:
     lodash.clonedeep: ^4.5.0
     lodash.omitby: ^4.6.0
     lodash.pick: ^4.4.0
-    mocha: ^10.0.0
+    mocha: ^10.4.0
     moment: ^2.30.1
     mozlog: ^3.0.2
     mysql: ^2.18.1
@@ -39476,17 +39469,16 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"glob@npm:7.2.0, glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0":
-  version: 7.2.0
-  resolution: "glob@npm:7.2.0"
+"glob@npm:8.1.0, glob@npm:^8.1.0":
+  version: 8.1.0
+  resolution: "glob@npm:8.1.0"
   dependencies:
     fs.realpath: ^1.0.0
     inflight: ^1.0.4
     inherits: 2
-    minimatch: ^3.0.4
+    minimatch: ^5.0.1
     once: ^1.3.0
-    path-is-absolute: ^1.0.0
-  checksum: 78a8ea942331f08ed2e055cb5b9e40fe6f46f579d7fd3d694f3412fe5db23223d29b7fee1575440202e9a7ff9a72ab106a39fee39934c7bedafe5e5f8ae20134
+  checksum: 92fbea3221a7d12075f26f0227abac435de868dd0736a17170663783296d0dd8d3d532a5672b4488a439bf5d7fb85cdd07c11185d6cd39184f0385cbdfb86a47
   languageName: node
   linkType: hard
 
@@ -39531,6 +39523,20 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"glob@npm:^7.0.0, glob@npm:^7.0.3, glob@npm:^7.0.5, glob@npm:^7.1.1, glob@npm:^7.1.2, glob@npm:^7.1.3, glob@npm:^7.1.4, glob@npm:^7.1.6, glob@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "glob@npm:7.2.0"
+  dependencies:
+    fs.realpath: ^1.0.0
+    inflight: ^1.0.4
+    inherits: 2
+    minimatch: ^3.0.4
+    once: ^1.3.0
+    path-is-absolute: ^1.0.0
+  checksum: 78a8ea942331f08ed2e055cb5b9e40fe6f46f579d7fd3d694f3412fe5db23223d29b7fee1575440202e9a7ff9a72ab106a39fee39934c7bedafe5e5f8ae20134
+  languageName: node
+  linkType: hard
+
 "glob@npm:^7.0.6":
   version: 7.2.3
   resolution: "glob@npm:7.2.3"
@@ -39555,19 +39561,6 @@ fsevents@~2.1.1:
     minimatch: ^5.0.1
     once: ^1.3.0
   checksum: 50bcdea19d8e79d8de5f460b1939ffc2b3299eac28deb502093fdca22a78efebc03e66bf54f0abc3d3d07d8134d19a32850288b7440d77e072aa55f9d33b18c5
-  languageName: node
-  linkType: hard
-
-"glob@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "glob@npm:8.1.0"
-  dependencies:
-    fs.realpath: ^1.0.0
-    inflight: ^1.0.4
-    inherits: 2
-    minimatch: ^5.0.1
-    once: ^1.3.0
-  checksum: 92fbea3221a7d12075f26f0227abac435de868dd0736a17170663783296d0dd8d3d532a5672b4488a439bf5d7fb85cdd07c11185d6cd39184f0385cbdfb86a47
   languageName: node
   linkType: hard
 
@@ -49894,11 +49887,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mocha@npm:^10.0.0":
-  version: 10.0.0
-  resolution: "mocha@npm:10.0.0"
+"mocha@npm:^10.4.0":
+  version: 10.4.0
+  resolution: "mocha@npm:10.4.0"
   dependencies:
-    "@ungap/promise-all-settled": 1.1.2
     ansi-colors: 4.1.1
     browser-stdout: 1.3.1
     chokidar: 3.5.3
@@ -49906,13 +49898,12 @@ fsevents@~2.1.1:
     diff: 5.0.0
     escape-string-regexp: 4.0.0
     find-up: 5.0.0
-    glob: 7.2.0
+    glob: 8.1.0
     he: 1.2.0
     js-yaml: 4.1.0
     log-symbols: 4.1.0
     minimatch: 5.0.1
     ms: 2.1.3
-    nanoid: 3.3.3
     serialize-javascript: 6.0.0
     strip-json-comments: 3.1.1
     supports-color: 8.1.1
@@ -49923,39 +49914,7 @@ fsevents@~2.1.1:
   bin:
     _mocha: bin/_mocha
     mocha: bin/mocha.js
-  checksum: ba49ddcf8015a467e744b06c396aab361b1281302e38e7c1269af25ba51ff9ab681a9c36e9046bb7491e751cd7d5ce85e276a00ce7e204f96b2c418e4595edfe
-  languageName: node
-  linkType: hard
-
-"mocha@npm:^10.2.0":
-  version: 10.2.0
-  resolution: "mocha@npm:10.2.0"
-  dependencies:
-    ansi-colors: 4.1.1
-    browser-stdout: 1.3.1
-    chokidar: 3.5.3
-    debug: 4.3.4
-    diff: 5.0.0
-    escape-string-regexp: 4.0.0
-    find-up: 5.0.0
-    glob: 7.2.0
-    he: 1.2.0
-    js-yaml: 4.1.0
-    log-symbols: 4.1.0
-    minimatch: 5.0.1
-    ms: 2.1.3
-    nanoid: 3.3.3
-    serialize-javascript: 6.0.0
-    strip-json-comments: 3.1.1
-    supports-color: 8.1.1
-    workerpool: 6.2.1
-    yargs: 16.2.0
-    yargs-parser: 20.2.4
-    yargs-unparser: 2.0.0
-  bin:
-    _mocha: bin/_mocha
-    mocha: bin/mocha.js
-  checksum: 406c45eab122ffd6ea2003c2f108b2bc35ba036225eee78e0c784b6fa2c7f34e2b13f1dbacef55a4fdf523255d76e4f22d1b5aacda2394bd11666febec17c719
+  checksum: 090771d6d42a65a934c7ed448d524bcc663836351af9f0678578caa69943b01a9535a73192d24fd625b3fdb5979cce5834dfe65e3e1ee982444d65e19975b81c
   languageName: node
   linkType: hard
 
@@ -50315,15 +50274,6 @@ fsevents@~2.1.1:
   dependencies:
     node-gyp: latest
   checksum: ec609aeaf7e68b76592a3ba96b372aa7f5df5b056c1e37410b0f1deefbab5a57a922061e2c5b369bae9c7c6b5e6eecf4ad2dac8833a1a7d3a751e0a7c7f849ed
-  languageName: node
-  linkType: hard
-
-"nanoid@npm:3.3.3":
-  version: 3.3.3
-  resolution: "nanoid@npm:3.3.3"
-  bin:
-    nanoid: bin/nanoid.cjs
-  checksum: ada019402a07464a694553c61d2dca8a4353645a7d92f2830f0d487fedff403678a0bee5323a46522752b2eab95a0bc3da98b6cccaa7c0c55cd9975130e6d6f0
   languageName: node
   linkType: hard
 
