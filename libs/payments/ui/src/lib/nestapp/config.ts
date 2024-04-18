@@ -21,6 +21,5 @@ export class RootConfig {
 
   @Type(() => GeoDBManagerConfig)
   @ValidateNested()
-  @IsDefined()
   public readonly geodbManagerConfig!: Partial<GeoDBManagerConfig>;
 }

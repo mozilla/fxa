@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Type } from 'class-transformer';
-import { IsString, ValidateNested, IsDefined } from 'class-validator';
+import { IsString, ValidateNested } from 'class-validator';
 
 class LocationOverride {
   @IsString()
@@ -20,6 +20,5 @@ export class GeoDBConfig {
 export class GeoDBManagerConfig {
   @Type(() => LocationOverride)
   @ValidateNested()
-  @IsDefined()
   public readonly locationOverride!: Partial<LocationOverride>;
 }

@@ -4,6 +4,7 @@
 
 import NextAuth from 'next-auth';
 import { authConfig } from './auth.config';
+import { config } from './config';
 
 export const {
   handlers: { GET, POST },
@@ -17,14 +18,14 @@ export const {
       id: 'fxa',
       name: 'Firefox Accounts',
       type: 'oidc',
-      issuer: process.env.AUTH_ISSUER_URL,
-      wellKnown: process.env.AUTH_WELL_KNOWN_URL,
+      issuer: config.auth.issuerUrl,
+      wellKnown: config.auth.wellKnownUrl,
       checks: ['pkce', 'state'],
       client: {
         token_endpoint_auth_method: 'none',
       },
       authorization: { params: { scope: 'openid email profile' } },
-      clientId: process.env.AUTH_CLIENT_ID,
+      clientId: config.auth.clientId,
     },
   ],
   callbacks: {

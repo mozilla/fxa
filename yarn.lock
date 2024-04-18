@@ -22648,6 +22648,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/set-value@npm:^4":
+  version: 4.0.3
+  resolution: "@types/set-value@npm:4.0.3"
+  checksum: e7e45af27403d710d460ba7a1c4ba75fdeaa783ac7f8e1483f43273fd6feb27354d3dba92982a7f66021037e2f5383db6b799afb85b1cfc17c769648648843b5
+  languageName: node
+  linkType: hard
+
 "@types/sharp@npm:^0":
   version: 0.26.0
   resolution: "@types/sharp@npm:0.26.0"
@@ -38415,6 +38422,7 @@ fsevents@~2.1.1:
     "@types/react": ^18
     "@types/react-dom": ^18
     "@types/react-test-renderer": ^18
+    "@types/set-value": ^4
     "@types/uuid": ^8.3.0
     "@typescript-eslint/eslint-plugin": ^5.59.1
     "@typescript-eslint/parser": ^7.1.1
@@ -38423,6 +38431,7 @@ fsevents@~2.1.1:
     class-transformer: ^0.5.1
     class-validator: ^0.14.1
     diffparser: ^2.0.1
+    dotenv: ^16.4.5
     esbuild: ^0.17.15
     esbuild-register: ^3.5.0
     eslint: ^7.32.0
@@ -38478,6 +38487,7 @@ fsevents@~2.1.1:
     rxjs: ^7.8.1
     semver: ^7.6.0
     server-only: ^0.0.1
+    set-value: ^4.1.0
     stylelint: ^16.2.1
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
