@@ -18,6 +18,7 @@ test.describe('severity-1 #smoke', () => {
         'this test is specific to backbone, skip if seeing React version'
       );
 
+      const [email] = emails;
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -28,13 +29,10 @@ test.describe('severity-1 #smoke', () => {
           signedInUser: null,
         }
       );
-      const [email] = emails;
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
-
       await login.respondToWebChannelMessage(customEventDetail);
-
       await login.setEmail(email);
       await login.submit();
 
@@ -47,6 +45,7 @@ test.describe('severity-1 #smoke', () => {
         enterEmail: false,
         waitForNavOnSubmit: false,
       });
+
       await login.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
@@ -63,7 +62,6 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto('context=oauth_webchannel_v1&automatedBrowser=true');
       await relier.clickEmailFirst();
-
       await login.respondToWebChannelMessage(customEventDetail);
 
       const { searchParams } = new URL(page.url());

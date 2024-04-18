@@ -44,12 +44,11 @@ test.describe('severity-2 #smoke', () => {
     }) => {
       // The `sync` prefix is needed to force confirmation.
       const [syncEmail] = emails;
+
       await target.createAccount(syncEmail, PASSWORD);
       await relier.goto(toQueryString(queryParameters));
-
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
-
       // Enter email, then enter password
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
@@ -59,41 +58,38 @@ test.describe('severity-2 #smoke', () => {
       // This will cause the token become 'invalid' and ultimately cause an
       // INVALID_TOKEN error to be thrown.
       await login.destroySession(syncEmail);
-      await page.waitForURL(/oauth\/signin/);
+
       // Destroying the session should direct user back to sign in page
-      await login.passwordHeader.waitFor({ state: 'visible' });
+      await expect(page).toHaveURL(/oauth\/signin/);
+      await expect(login.passwordHeader).toBeVisible();
     });
 
     test('verified - valid code', async ({
       target,
       emails,
-      page,
       pages: { login, relier, signinTokenCode },
     }) => {
       // The `sync` prefix is needed to force confirmation.
       const [syncEmail] = emails;
       await target.createAccount(syncEmail, PASSWORD);
       await relier.goto(toQueryString(queryParameters));
-
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
-
       // Enter email, then enter password
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
       // Enter invalid code, ensure it doesn't work
       await signinTokenCode.input.fill('000000');
       await signinTokenCode.submit.click();
+
       await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
 
       // Resend the code
       await signinTokenCode.resendLink.click();
-      await signinTokenCode.successMessage.waitFor({ state: 'visible' });
+
       await expect(signinTokenCode.successMessage).toBeVisible();
       await expect(signinTokenCode.successMessage).toContainText(
         /Email re-?sent/
       );
-
       // Correctly submits the token code and navigates to oauth page
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
@@ -104,13 +100,8 @@ test.describe('severity-2 #smoke', () => {
       );
       await signinTokenCode.input.fill(code);
       await signinTokenCode.submit.click();
-      await page.waitForLoadState();
 
-      const NOTES_REDIRECT_PAGE_SELECTOR = '#notes-by-firefox';
-      await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toBeVisible();
-      await expect(page.locator(NOTES_REDIRECT_PAGE_SELECTOR)).toContainText(
-        'Notes by Firefox'
-      );
+      await expect(login.notesHeader).toContainText('Notes by Firefox');
     });
   });
 });

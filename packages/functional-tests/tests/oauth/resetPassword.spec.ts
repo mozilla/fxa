@@ -8,14 +8,13 @@ import { EmailHeader, EmailType } from '../../lib/email';
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
-      test.slow();
-
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.resetPasswordRoutes === true,
         'Scheduled for removal as part of React conversion (see FXA-8267).'
       );
       test.skip(config.showReactApp.oauthRoutes === true);
+      test.slow();
     });
 
     test('reset password happy path', async ({

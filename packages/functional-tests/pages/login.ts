@@ -108,6 +108,14 @@ export class LoginPage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Set your password' });
   }
 
+  get signinPasswordHeader() {
+    return this.page.locator(selectors.SIGNIN_PASSWORD_HEADER);
+  }
+
+  get notesHeader() {
+    return this.page.locator(selectors.NOTES_HEADER);
+  }
+
   get passwordHeader() {
     return this.page.locator(selectors.PASSWORD_HEADER);
   }
@@ -377,10 +385,6 @@ export class LoginPage extends BaseLayout {
     return header;
   }
 
-  waitForSigninPasswordHeader() {
-    return this.page.locator(selectors.SIGNIN_PASSWORD_HEADER);
-  }
-
   async clickSignIn() {
     return this.page.locator(selectors.SUBMIT_USER_SIGNED_IN).click();
   }
@@ -410,12 +414,6 @@ export class LoginPage extends BaseLayout {
     const resetPass = this.page.locator(selectors.PERMISSIONS_HEADER);
     await resetPass.waitFor();
     return resetPass.isVisible();
-  }
-
-  async notesHeader() {
-    const header = this.page.locator(selectors.NOTES_HEADER);
-    await header.waitFor();
-    return header.isVisible();
   }
 
   async clickDontHaveRecoveryKey() {

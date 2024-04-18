@@ -9,18 +9,17 @@ import {
   BLOCKED_EMAIL_PREFIX,
 } from '../../lib/fixtures/standard';
 
-const AGE_21 = '21';
-
 test.describe('severity-1 #smoke', () => {
-  // eslint-disable-next-line no-empty-pattern
-  test.beforeEach(({}, testInfo) => {
-    test.slow(testInfo.project.name !== 'local', 'email delivery can be slow');
+  test.beforeEach(({}, { project }) => {
+    test.slow(project.name !== 'local', 'email delivery can be slow');
   });
+
   test.describe('OAuth signin', () => {
     test('verified', async ({ credentials, pages: { login, relier } }) => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
@@ -31,18 +30,17 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
-
       // Attempt to sign back in
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      await expect(await login.getPrefilledEmail()).toContain(
-        credentials.email
-      );
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
       expect(await login.isCachedLogin()).toBe(true);
+
       await login.submit();
 
       expect(await relier.isLoggedIn()).toBe(true);
@@ -55,17 +53,16 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
+
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
-
       // Attempt to sign back in with cached user
       await relier.clickEmailFirst();
 
-      await expect(await login.getPrefilledEmail()).toContain(
-        credentials.email
-      );
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
       expect(await login.isCachedLogin()).toBe(true);
+
       await login.submit();
       await relier.signOut();
 
@@ -90,98 +87,74 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'false',
       });
-
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(email, PASSWORD);
-
       // User is shown confirm email page
       await login.fillOutSignInCode(email);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
     test('unverified with a cached login', async ({
       page,
-      pages: { configPage, login, signupReact, relier },
+      pages: { configPage, login, relier },
       target,
       emails,
     }) => {
       const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.signUpRoutes === true,
-        'email is not retrieved from cache as expected when signup with react'
-      );
-
+      test.skip(config.showReactApp.signUpRoutes === true);
       // Create unverified account
       const [email] = emails;
 
       await relier.goto();
       await relier.clickEmailFirst();
-
-      if (config.showReactApp.signUpRoutes !== true) {
-        // Dont register account and attempt to login via relier
-        await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
-      } else {
-        await signupReact.fillOutEmailForm(email);
-        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
-      }
-
+      // Dont register account and attempt to login via relier
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
       await relier.goto();
       await relier.clickEmailFirst();
       await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
 
       // Cached user detected
-      await expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(email);
       expect(await login.isCachedLogin()).toBe(true);
-      await login.submit();
 
+      await login.submit();
       // Verify email and ensure user is redirected to relier
       await login.fillOutSignUpCode(email);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    // TODO in FXA-8974 - fix test to correctly retrieve email from cache after signing up from react
     test('oauth endpoint chooses the right auth flows', async ({
-      pages: { configPage, login, relier, signupReact },
+      pages: { configPage, login, relier },
       emails,
-    }, { project }) => {
-      test.slow(project.name !== 'local', 'email delivery can be slow');
+    }) => {
       const config = await configPage.getConfig();
-      test.fixme(
-        config.showReactApp.signUpRoutes === true,
-        'email is not retrieved from cache as expected when signup with react'
-      );
+      test.skip(config.showReactApp.signUpRoutes === true);
 
       // Create unverified account
       const [email] = emails;
 
       await relier.goto();
       await relier.clickChooseFlow();
-
-      if (config.showReactApp.signUpRoutes !== true) {
-        // Dont register account and attempt to login via relier
-        await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
-      } else {
-        await signupReact.fillOutEmailForm(email);
-        await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
-      }
-
+      // Dont register account and attempt to login via relier
+      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
       await relier.goto();
       await relier.clickChooseFlow();
 
       // User shown signin enter password page
-      await expect(login.waitForSigninPasswordHeader()).toBeVisible();
+      await expect(login.signinPasswordHeader).toBeVisible();
     });
   });
+
   test.describe('OAuth signin', () => {
     test.use({
       emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
     });
+
     test('verified, blocked', async ({
       target,
       page,
@@ -189,12 +162,11 @@ test.describe('severity-1 #smoke', () => {
       emails,
     }) => {
       const [blockedEmail] = emails;
-      await target.createAccount(blockedEmail, PASSWORD);
 
+      await target.createAccount(blockedEmail, PASSWORD);
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(blockedEmail, PASSWORD);
-
       await login.unblock(blockedEmail);
 
       expect(await relier.isLoggedIn()).toBe(true);
@@ -216,12 +188,11 @@ test.describe('severity-1 #smoke', () => {
       emails,
     }) => {
       const [blockedEmail] = emails;
-      await target.createAccount(blockedEmail, PASSWORD);
 
+      await target.createAccount(blockedEmail, PASSWORD);
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(blockedEmail, 'wrong password');
-
       await login.unblock(blockedEmail);
 
       // After filling in the unblock code, the user is prompted again to enter password
@@ -230,9 +201,7 @@ test.describe('severity-1 #smoke', () => {
       //Delete blocked account, the fixture teardown doesn't work in this case
       await login.setPassword(PASSWORD);
       await login.submit();
-
       await login.unblock(blockedEmail);
-
       await settings.goto();
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(PASSWORD);

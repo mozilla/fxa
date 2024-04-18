@@ -10,16 +10,15 @@ import {
 } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
+  test.beforeEach(async ({}, { project }) => {
+    test.skip(
+      project.name === 'production',
+      'test plan not yet available in prod'
+    );
+    test.slow();
+  });
+
   test.describe('oauth prompt none', () => {
-    test.beforeEach(async ({ pages: { login } }, { project }) => {
-      test.slow();
-
-      test.skip(
-        project.name === 'production',
-        'test plan not yet available in prod'
-      );
-    });
-
     test('fails if no user logged in', async ({
       emails,
       page,
@@ -103,9 +102,7 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
@@ -116,7 +113,6 @@ test.describe('severity-1 #smoke', () => {
         {},
         creds.sessionToken
       );
-
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
@@ -139,9 +135,7 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'false',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify sign up code header
@@ -152,7 +146,6 @@ test.describe('severity-1 #smoke', () => {
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
       await relier.signInPromptNone();
 
       //Verify error message
@@ -163,15 +156,6 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('oauth prompt none with emails', () => {
-    test.beforeEach(async ({ pages: { login } }, { project }) => {
-      test.slow();
-
-      test.skip(
-        project.name === 'production',
-        'test plan not yet available in prod'
-      );
-    });
-
     test('succeeds if login_hint same as logged in user', async ({
       emails,
       page,
@@ -183,9 +167,7 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
@@ -196,7 +178,6 @@ test.describe('severity-1 #smoke', () => {
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
       await relier.signInPromptNone();
 
       //Verify logged in to relier
@@ -214,9 +195,7 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
@@ -226,7 +205,6 @@ test.describe('severity-1 #smoke', () => {
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
       await relier.signInPromptNone();
 
       //Verify logged in to relier
@@ -241,6 +219,7 @@ test.describe('severity-1 #smoke', () => {
         { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
       ],
     });
+
     test('fails if login_hint is different to logged in user', async ({
       emails,
       page,
@@ -252,9 +231,7 @@ test.describe('severity-1 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
@@ -265,7 +242,6 @@ test.describe('severity-1 #smoke', () => {
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
-
       await relier.signInPromptNone();
 
       //Verify error message

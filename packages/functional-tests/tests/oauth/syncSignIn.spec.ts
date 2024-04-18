@@ -22,6 +22,7 @@ test.describe('severity-1 #smoke', () => {
         { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
       ],
     });
+
     test('signin to OAuth with Sync creds', async ({
       emails,
       target,
@@ -34,25 +35,26 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.login(syncEmail, PASSWORD);
       await login.fillOutSignInCode(syncEmail);
-      // eslint-disable-next-line playwright/prefer-web-first-assertions
-      expect(await connectAnotherDevice.fxaConnected.isVisible()).toBeTruthy();
+
+      await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
       // Sign up for a new account via OAuth
       await relier.goto();
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
-
       await login.fillOutFirstSignUp(email, PASSWORD);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
-      await relier.signOut();
 
+      await relier.signOut();
       await relier.clickSignIn();
 
       // By default, we should see the email we signed up for Sync with
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
       await login.clickSignIn();
+
       expect(await relier.isLoggedIn()).toBe(true);
     });
   });
@@ -61,6 +63,7 @@ test.describe('severity-1 #smoke', () => {
     test.use({
       emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
+
     test('email-first Sync signin', async ({
       emails,
       target,
@@ -69,17 +72,20 @@ test.describe('severity-1 #smoke', () => {
       const [syncEmail] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-
       await login.fillOutFirstSignUp(syncEmail, PASSWORD);
 
       expect(await relier.isLoggedIn()).toBe(true);
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
+
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
       await login.setPassword(PASSWORD);
       await login.submit();
       await login.fillOutSignInCode(syncEmail);
+
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
   });

@@ -8,6 +8,7 @@ const PAYMENTS_DOMAIN =
   process.env.PAYMENTS_DOMAIN || 'subscriptions.firefox.com';
 const RELIER_DOMAIN =
   process.env.RELIER_DOMAIN || 'production-123done.herokuapp.com';
+const RELIER_CLIENT_ID = '3c32bf6654542211';
 
 export class ProductionTarget extends RemoteTarget {
   static readonly target = 'production';
@@ -16,6 +17,11 @@ export class ProductionTarget extends RemoteTarget {
   readonly contentServerUrl = `https://${ACCOUNTS_DOMAIN}`;
   readonly paymentsServerUrl = `https://${PAYMENTS_DOMAIN}`;
   readonly relierUrl = `https://${RELIER_DOMAIN}`;
+  readonly relierClientID = RELIER_CLIENT_ID;
+  readonly subscriptionConfig = {
+    product: '',
+    plan: '',
+  };
 
   constructor() {
     super(`https://${ACCOUNTS_API_DOMAIN}`);

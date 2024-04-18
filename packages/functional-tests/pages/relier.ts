@@ -6,11 +6,15 @@ import { BaseLayout } from './layout';
 import { expect } from '../lib/fixtures/standard';
 
 export class RelierPage extends BaseLayout {
+  get relierHeading() {
+    return this.page.getByRole('heading', { name: '123done' });
+  }
+
   goto(query?: string) {
     const url = query
       ? `${this.target.relierUrl}?${query}`
       : this.target.relierUrl;
-    return this.page.goto(url, { waitUntil: 'load' });
+    return this.page.goto(url);
   }
 
   async isLoggedIn() {
@@ -39,13 +43,12 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickEmailFirst() {
-    await this.page.waitForTimeout(1000); //necessary for production environment otherwise waitForURL times out
-    await this.page.locator('button.email-first-button').click();
+    await expect(this.relierHeading).toBeVisible();
+
+    await this.page.getByRole('button', { name: 'Email first' }).click();
     // We need to add a `waitUntil` option here because the page gets redirected from
     // /authorization to /oauth before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.contentServerUrl}/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.contentServerUrl}/**`);
   }
 
   async clickSignIn() {
@@ -67,13 +70,14 @@ export class RelierPage extends BaseLayout {
   }
 
   async clickChooseFlow() {
-    await this.page.waitForTimeout(1000); //necessary for production environment otherwise waitForURL times out
-    await this.page.locator('button.sign-choose').click();
+    await expect(this.relierHeading).toBeVisible();
+
+    await this.page
+      .getByRole('button', { name: 'Choose my sign-in flow for me' })
+      .click();
     // We need to add a `waitUntil` option here because the page gets redirected from
     // /authorization to /oauth before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.contentServerUrl}/oauth/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.contentServerUrl}/oauth/**`);
   }
 
   async signInPromptNone() {
@@ -91,36 +95,28 @@ export class RelierPage extends BaseLayout {
       .click();
     // We need to add a `waitUntil` option here because the page gets redirected from
     // content-server to payments-server, and the URL changes before the page is fully loaded.
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
   }
 
   async clickSubscribe6Month() {
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 6m (USD)' })
       .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
   }
 
   async clickSubscribe12Month() {
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro 12m (USD)' })
       .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
   }
 
   async clickSubscribeRPFlowMetrics() {
     await this.page
       .getByRole('link', { name: 'Subscribe to Pro (RP flow metrics)' })
       .click();
-    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`, {
-      waitUntil: 'load',
-    });
+    return this.page.waitForURL(`${this.target.paymentsServerUrl}/**`);
   }
 
   async getUrl() {
