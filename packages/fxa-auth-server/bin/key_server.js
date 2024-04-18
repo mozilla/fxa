@@ -71,8 +71,12 @@ async function run(config) {
     Container.set(AuthFirestore, authFirestore);
   }
 
-  const redis = require('../lib/redis')(
+  const sessionTokensRedis = require('../lib/redis')(
     { ...config.redis, ...config.redis.sessionTokens },
+    log
+  );
+  const authServerCacheRedis = require('../lib/redis')(
+    { ...config.redis, ...config.redis.authServerCache },
     log
   );
 
@@ -84,7 +88,7 @@ async function run(config) {
   );
   let database = null;
   try {
-    database = await DB.connect(config, redis);
+    database = await DB.connect(config, sessionTokensRedis);
   } catch (err) {
     log.error('DB.connect', { err: { message: err.message } });
     process.exit(1);
@@ -232,10 +236,11 @@ async function run(config) {
     statsd,
     profile,
     stripeHelper,
-    redis,
+    sessionTokensRedis,
     glean,
     push,
-    pushbox
+    pushbox,
+    authServerCacheRedis
   );
 
   const Server = require('../lib/server');
