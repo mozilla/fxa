@@ -354,6 +354,56 @@ describe('/certificate/sign', () => {
     );
   });
 
+  describe('disable certification sign endpoint', () => {
+    it('with rollout 0 (0%)', async () => {
+      return runTest(
+        {
+          devices: mockDevices,
+          log: mockLog,
+          config: {
+            certificateSignDisableRolloutRate: 0,
+          },
+        },
+        mockRequest,
+        (res) => {
+          assert.equal(
+            mockDevices.upsert.callCount,
+            1,
+            'devices.upsert was called once'
+          );
+          assert.equal(
+            mockLog.activityEvent.callCount,
+            1,
+            'log.activityEvent was called once'
+          );
+        },
+        (e) => {
+          assert.fail('should have succeeded');
+        }
+      );
+    });
+
+    it('with rollout 1 (100%)', async () => {
+      return runTest(
+        {
+          devices: mockDevices,
+          log: mockLog,
+          config: {
+            certificateSignDisableRolloutRate: 1,
+          },
+        },
+        mockRequest,
+        (res) => {
+          assert.fail('should have failed succeeded');
+        },
+        (err) => {
+          assert.equal(err.output.statusCode, 404);
+          assert.equal(err.errno, 116);
+        }
+      );
+    });
+  });
+
   function runTest(options, request, onSuccess, onError) {
     return new Promise((resolve, reject) => {
       try {
@@ -389,7 +439,8 @@ describe('/certificate/sign', () => {
         updateLocale: function () {},
       },
       options.domain || 'wibble',
-      options.devices
+      options.devices,
+      options.config || {}
     );
   }
 });

@@ -9,9 +9,25 @@ const isA = require('joi');
 const validators = require('./validators');
 const SIGN_DOCS = require('../../docs/swagger/sign-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
+const crypto = require('crypto');
 
-module.exports = (log, signer, db, domain, devices) => {
+module.exports = (log, signer, db, domain, devices, config) => {
   const HOUR = 1000 * 60 * 60;
+
+  const rolloutRate = config.certificateSignDisableRolloutRate || 0;
+  // This determines if the certificate signing endpoint is disabled for a user.
+  // It is based on `BaseGroupingRule` from `fxa-content-server/app/scripts/lib/experiments/grouping-rules/base.js`
+  function isDisabledForUser(value) {
+    // Generate hash of a constant value of the user (email, uid, etc)
+    const hash = crypto.createHash('sha256').update(value).digest('hex');
+
+    // Convert the hash to a number between 0 and 1
+    const maxHash = parseInt('f'.repeat(hash.length), 16);
+    const hashNum = parseInt(hash, 16);
+    const luckyNumber = hashNum / maxHash;
+
+    return luckyNumber < rolloutRate;
+  }
 
   const routes = [
     {
@@ -54,6 +70,11 @@ module.exports = (log, signer, db, domain, devices) => {
       handler: async function certificateSign(request) {
         log.begin('Sign.cert', request);
         const sessionToken = request.auth.credentials;
+
+        if (isDisabledForUser(sessionToken.email)) {
+          throw error.goneFourOhFour();
+        }
+
         const publicKey = request.payload.publicKey;
         const duration = request.payload.duration;
         // This is a legacy endpoint that's typically only used by
