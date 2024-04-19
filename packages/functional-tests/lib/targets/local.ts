@@ -1,6 +1,7 @@
 import { TargetName } from '.';
 import { BaseTarget, Credentials } from './base';
 
+const RELIER_CLIENT_ID = 'dcdb5ae7add825d2';
 const SUB_PRODUCT = 'prod_GqM9ToKK62qjkK';
 const SUB_PLAN = 'plan_GqM9N6qyhvxaVk';
 
@@ -10,6 +11,7 @@ export class LocalTarget extends BaseTarget {
   readonly contentServerUrl = 'http://localhost:3030';
   readonly paymentsServerUrl = 'http://localhost:3031';
   readonly relierUrl = 'http://localhost:8080';
+  readonly relierClientID = RELIER_CLIENT_ID;
   readonly subscriptionConfig = {
     product: SUB_PRODUCT,
     plan: SUB_PLAN,

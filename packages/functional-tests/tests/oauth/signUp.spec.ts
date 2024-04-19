@@ -87,7 +87,6 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await login.setEmail('');
-
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify sign up code header
@@ -100,20 +99,15 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('Oauth sign up success', () => {
-    test.beforeEach(async ({ pages: { login } }) => {
-      test.slow();
-      await login.clearCache();
-    });
-
     test('a success screen is available', async ({
       target,
       page,
-      pages: { relier },
-    }, { project }) => {
-      // Our production clientId for 123Done is different from localhost and stage
-      const clientId =
-        project.name === 'production' ? '3c32bf6654542211' : 'dcdb5ae7add825d2';
-      await page.goto(`${target.contentServerUrl}/oauth/success/${clientId}`);
+      pages: { relier, login },
+    }) => {
+      await login.clearCache();
+      await page.goto(
+        `${target.contentServerUrl}/oauth/success/${target.relierClientID}`
+      );
 
       //Verify oauth success header
       expect(await relier.isOauthSuccessHeader()).toBe(true);

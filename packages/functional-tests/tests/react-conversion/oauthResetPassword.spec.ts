@@ -197,10 +197,14 @@ test.describe('severity-1 #smoke', () => {
       // PKCE button doesn't appear to work at the moment locally. Some sort of cors error
       // keeps getting in the way. Just go to link directly for now.
       await page.goto(
-        'http://localhost:3030/authorization?showReactApp=true&access_type=offline&client_id=dcdb5ae7add825d2&pkce_client_id=38a6b9b3a65a1871&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth&scope=profile%20openid&action=signin&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba',
-        {
-          waitUntil: 'load',
-        }
+        `http://localhost:3030/authorization?showReactApp=true` +
+          `&access_type=offline` +
+          `&client_id=${target.relierClientID}` +
+          `&pkce_client_id=38a6b9b3a65a1871` +
+          `&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Foauth` +
+          `&scope=profile%20openid` +
+          `&action=signin` +
+          `&state=12eeaba43cc7548bf1f6b478b9de95328855b46df1e754fe94b21036c41c9cba`
       );
 
       await beginPasswordReset(

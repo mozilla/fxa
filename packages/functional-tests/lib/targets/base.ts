@@ -19,6 +19,7 @@ export abstract class BaseTarget {
   abstract readonly contentServerUrl: string;
   abstract readonly paymentsServerUrl: string;
   abstract readonly relierUrl: string;
+  abstract readonly relierClientID: string;
   abstract readonly name: TargetName;
   abstract readonly subscriptionConfig: SubConfig;
 

@@ -20,6 +20,7 @@ test.describe('severity-1 #smoke', () => {
       pages: { login, relier },
     }) => {
       const [email] = emails;
+
       await relier.goto();
       await relier.clickEmailFirst();
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
@@ -37,14 +38,14 @@ test.describe('severity-1 #smoke', () => {
       const [email] = emails;
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
-      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-        waitUntil: 'load',
-      });
+
+      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`);
       await relier.clickEmailFirst();
       await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);
+
       await login.acceptOauthPermissions();
 
       //Verify sign up code header
@@ -81,9 +82,8 @@ test.describe('severity-1 #smoke', () => {
     }) => {
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
-      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-        waitUntil: 'load',
-      });
+
+      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`);
       await relier.clickEmailFirst();
       await login.fillOutEmailFirstSignIn(
         credentials.email,
@@ -92,6 +92,7 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);
+
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier
@@ -113,17 +114,17 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify logged in to relier
       expect(await relier.isLoggedIn()).toBe(true);
+
       await relier.signOut();
       const query = { prompt: 'consent' };
       const queryParam = new URLSearchParams(query);
-      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`, {
-        waitUntil: 'load',
-      });
+      await page.goto(`${target.relierUrl}/?${queryParam.toString()}`);
       await relier.clickEmailFirst();
       await login.clickSignIn();
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);
+
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier
@@ -160,6 +161,7 @@ test.describe('severity-1 #smoke', () => {
 
       //Verify permissions header
       expect(await login.permissionsHeader()).toBe(true);
+
       await login.acceptOauthPermissions();
 
       //Verify logged in to relier

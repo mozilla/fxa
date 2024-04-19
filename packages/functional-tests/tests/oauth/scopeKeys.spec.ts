@@ -16,6 +16,7 @@ test.describe('OAuth scopeKeys', () => {
   test.use({
     emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
   });
+
   test('signin in Chrome for Android, verify same browser', async ({
     target,
     page,
@@ -23,8 +24,6 @@ test.describe('OAuth scopeKeys', () => {
     emails,
   }) => {
     const [email] = emails;
-    await target.createAccount(email, PASSWORD);
-
     const query = new URLSearchParams({
       client_id: '7f368c6886429f19', // eslint-disable-line camelcase
       code_challenge: CODE_CHALLENGE,
@@ -41,11 +40,11 @@ test.describe('OAuth scopeKeys', () => {
       state: 'fakestate',
     });
 
+    await target.createAccount(email, PASSWORD);
     await page.goto(target.contentServerUrl + `/?${query.toString()}`);
-
     await login.login(email, PASSWORD);
     await login.fillOutSignInCode(email);
 
-    expect(await login.notesHeader()).toBe(true);
+    await expect(login.notesHeader).toBeVisible();
   });
 });
