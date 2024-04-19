@@ -123,7 +123,7 @@
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^2.5.0",
-    "@stripe/stripe-js": "^3.0.7",
+    "@stripe/stripe-js": "^3.3.0",
     "accept-language-parser": "^1.5.0",
     "classnames": "^2.5.1",
     "convict": "^6.2.4",
