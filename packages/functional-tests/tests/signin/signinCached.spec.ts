@@ -30,19 +30,17 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: true,
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await login.clearSessionStorage();
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
+
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -59,22 +57,19 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: true,
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await login.clearSessionStorage();
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.denormalizeStoredEmail(syncEmail);
       await page.reload();
 
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
       await login.clickSignIn();
 
       //Verify logged in on Settings page
@@ -94,21 +89,18 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: true,
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await login.destroySession(syncEmail);
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
 
       //Check prefilled email
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
       await login.setPassword(PASSWORD);
       await login.clickSubmit();
 
@@ -126,17 +118,13 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: true,
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
 
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
 
       //Check prefilled email
       expect(await login.getPrefilledEmail()).toContain(syncEmail);
@@ -148,6 +136,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.signInError()).toContain(
         'Session expired. Sign in to continue.'
       );
+
       await login.setPassword(PASSWORD);
       await login.clickSubmit();
 
@@ -165,18 +154,17 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'false',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email_unverified, PASSWORD);
 
       //Verify sign up code header is visible
       await expect(login.signUpCodeHeader).toBeVisible();
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+
+      await page.goto(target.contentServerUrl);
+
       //Check prefilled email
       expect(await login.getPrefilledEmail()).toContain(email_unverified);
+
       await login.clickSignIn();
 
       //Cached login should still go to email confirmation screen for unverified accounts
@@ -201,6 +189,7 @@ test.describe('severity-2 #smoke', () => {
         target,
         syncBrowserPages: { page, login },
       }) => {
+        const [email, syncEmail] = emails;
         await Promise.all(
           emails.map(async (email) => {
             await target.authClient.signUp(email, PASSWORD, {
@@ -209,19 +198,17 @@ test.describe('severity-2 #smoke', () => {
             });
           })
         );
-        const [email, syncEmail] = emails;
-        await page.goto(target.contentServerUrl, {
-          waitUntil: 'load',
-        });
+        await page.goto(target.contentServerUrl);
         await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
 
         //Verify logged in on Settings page
         expect(await login.isUserLoggedIn()).toBe(true);
-        await page.goto(target.contentServerUrl, {
-          waitUntil: 'load',
-        });
+
+        await page.goto(target.contentServerUrl);
+
         //Check prefilled email
         expect(await login.getPrefilledEmail()).toContain(syncEmail);
+
         await login.useDifferentAccountLink();
         await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
@@ -229,9 +216,8 @@ test.describe('severity-2 #smoke', () => {
         expect(await login.isUserLoggedIn()).toBe(true);
 
         // testing to make sure cached signin comes back after a refresh
-        await page.goto(target.contentServerUrl, {
-          waitUntil: 'load',
-        });
+        await page.goto(target.contentServerUrl);
+
         //Check prefilled email
         expect(await login.getPrefilledEmail()).toContain(email);
       });

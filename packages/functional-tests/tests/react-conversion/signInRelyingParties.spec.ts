@@ -8,8 +8,7 @@ test.describe('severity-1 #smoke', () => {
   // Slowing down test, was timing out on credentials teardown
   test.slow();
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293471
-  test('react signin to sync and disconnect #1293471', async ({
+  test('react signin to sync and disconnect', async ({
     target,
     credentials,
     syncBrowserPages: {
@@ -21,6 +20,7 @@ test.describe('severity-1 #smoke', () => {
     },
   }) => {
     const config = await configPage.getConfig();
+    test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
     test.skip(
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'

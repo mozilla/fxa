@@ -2,10 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
-import { test, expect } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
-let signUpReactEnabled = false;
 test.describe('severity-2 #smoke', () => {
   test.describe('redirect_to', () => {
     test.beforeEach(
@@ -17,76 +15,44 @@ test.describe('severity-2 #smoke', () => {
         // skip these tests if the flag is on.
         test.skip(config.showReactApp.signUpRoutes === true);
 
-        signUpReactEnabled = config.showReactApp.signUpRoutes === true;
         await settings.goto();
         await settings.signOut();
         await login.login(credentials.email, credentials.password);
       }
     );
 
-    async function engageRedirect(page, target, redirectTo, email: string) {
-      await page.goto(
-        `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
-      );
-      // In React, we show the message after the user submits
-      if (signUpReactEnabled) {
-        const emailNewCodeText = 'text=/Email new code/';
-        await page.waitForSelector(emailNewCodeText);
-        page.click(emailNewCodeText);
-        const code = await target.emailClient.waitForEmail(
-          email,
-          EmailType.verifyLoginCode,
-          EmailHeader.signinCode
+    const testCases = [
+      { name: 'invalid', redirectTo: 'https://evil.com/' },
+      { name: 'xss', redirectTo: 'javascript:alert(1)' },
+    ];
+    for (const { name, redirectTo } of testCases) {
+      test(`prevent ${name} redirect_to parameter`, async ({
+        target,
+        page,
+        pages: { login },
+      }) => {
+        await page.goto(
+          `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
         );
-        page.getByLabel('Enter 6-digit code').fill(code);
-      }
-      await page.click('button[type=submit]');
+        await login.submitButton.click();
+
+        await expect(page.getByText('Invalid redirect!')).toBeVisible();
+        expect(page.url()).toContain(redirectTo);
+      });
     }
 
-    test('prevent invalid redirect_to parameter', async ({
-      credentials,
-      target,
-      pages: { page },
-    }) => {
-      const redirectTo = 'https://evil.com/';
-      await engageRedirect(page, target, redirectTo, credentials.email);
-      await page.waitForSelector('text=/Invalid redirect/');
-      expect(page.url).not.toEqual(redirectTo);
-    });
-
-    test('prevent xss in redirect_to parameter', async ({
-      credentials,
-      target,
-      pages: { page },
-    }) => {
-      const redirectTo = 'javascript:alert(1)';
-      await engageRedirect(page, target, redirectTo, credentials.email);
-      await page.waitForSelector('text=/Invalid redirect/');
-    });
-
     test('allows valid redirect_to parameter', async ({
-      credentials,
       target,
-      pages: { page },
+      page,
+      pages: { login },
     }) => {
       const redirectTo = `${target.contentServerUrl}/settings`;
       await page.goto(
         `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
       );
-      // In React, we show the message after the user submits
-      if (signUpReactEnabled) {
-        const emailNewCodeText = 'text=/Email new code/';
-        await page.waitForSelector(emailNewCodeText);
-        page.click(emailNewCodeText);
-        const code = await target.emailClient.waitForEmail(
-          credentials.email,
-          EmailType.verifyLoginCode,
-          EmailHeader.signinCode
-        );
-        page.getByLabel('Enter 6-digit code').fill(code);
-      }
-      await page.click('button[type=submit]');
-      await page.waitForURL(redirectTo);
+      await login.submitButton.click();
+
+      await expect(page).toHaveURL(redirectTo);
     });
   });
 });
