@@ -11,7 +11,11 @@ import {
   ResultCartFactory,
   UpdateCartFactory,
 } from './cart.factories';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   GeoDBManager,
@@ -92,6 +96,7 @@ describe('#payments-cart - service', () => {
         stripeCustomerId: 'cus_id',
         experiment: args.experiment,
         taxAddress,
+        eligibilityStatus: CartEligibilityStatus.CREATE,
       });
     });
   });
@@ -115,6 +120,7 @@ describe('#payments-cart - service', () => {
         stripeCustomerId: mockOldCart.stripeCustomerId,
         email: mockOldCart.email,
         amount: mockOldCart.amount,
+        eligibilityStatus: mockOldCart.eligibilityStatus,
       });
       expect(result).toEqual(mockNewCart);
     });

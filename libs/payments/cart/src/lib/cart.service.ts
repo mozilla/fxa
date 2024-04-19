@@ -5,7 +5,11 @@
 import { Injectable } from '@nestjs/common';
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import {
+  CartEligibilityStatus,
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import { GeoDBManager } from '@fxa/shared/geodb';
 
@@ -51,6 +55,7 @@ export class CartService {
       stripeCustomerId: stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
+      eligibilityStatus: CartEligibilityStatus.CREATE, //Placeholder to be replaced by FXA-8893
     });
 
     return cart;
@@ -72,6 +77,7 @@ export class CartService {
       stripeCustomerId: oldCart.stripeCustomerId || undefined,
       email: oldCart.email || undefined,
       amount: oldCart.amount,
+      eligibilityStatus: oldCart.eligibilityStatus,
     });
 
     return newCart;
