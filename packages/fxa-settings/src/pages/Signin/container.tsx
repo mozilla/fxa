@@ -89,11 +89,13 @@ function getAccountInfo(nonCachedEmail?: string) {
   let email = nonCachedEmail;
   let sessionToken: hexstring | undefined;
   let uid: hexstring | undefined;
-  // only read from local storage if email isn't provided via query param or router state
-  if (!nonCachedEmail) {
-    const storedLocalAccount = currentAccount();
-    email = storedLocalAccount?.email;
+
+  const storedLocalAccount = currentAccount();
+  // Try to use local storage values if email is not provided or if email
+  // is provided and matches the email in local storage
+  if (!nonCachedEmail || storedLocalAccount?.email === nonCachedEmail) {
     sessionToken = storedLocalAccount?.sessionToken;
+    email = storedLocalAccount?.email;
     uid = storedLocalAccount?.uid;
   }
 
