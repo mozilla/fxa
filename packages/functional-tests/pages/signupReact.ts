@@ -25,15 +25,21 @@ export class SignupReactPage extends BaseLayout {
   }
 
   get passwordTextbox() {
-    return this.page.getByTestId('new-password-input-field');
+    return this.page
+      .getByLabel('Password', { exact: true }) // React
+      .or(this.page.getByPlaceholder('Password', { exact: true })); // Backbone
   }
 
   get verifyPasswordTextbox() {
-    return this.page.getByTestId('verify-password-input-field');
+    return this.page
+      .getByLabel('Repeat password', { exact: true }) // React
+      .or(this.page.getByPlaceholder('Repeat password', { exact: true })); // Backbone
   }
 
   get ageTextbox() {
-    return this.page.getByTestId('age-input-field');
+    return this.page
+      .getByLabel('How old are you?') // React
+      .or(this.page.getByPlaceholder('How old are you?')); // Backbone
   }
 
   get createAccountButton() {
@@ -45,7 +51,9 @@ export class SignupReactPage extends BaseLayout {
   }
 
   get codeTextbox() {
-    return this.page.getByTestId('confirm-signup-code-input-field');
+    return this.page
+      .getByLabel('Enter 6-digit code') // React
+      .or(this.page.getByPlaceholder('Enter 6-digit code')); // Backbone
   }
 
   get confirmButton() {
@@ -82,6 +90,12 @@ export class SignupReactPage extends BaseLayout {
     await this.verifyPasswordTextbox.fill(password);
     await this.ageTextbox.fill(age);
     await this.createAccountButton.click();
+  }
+
+  async fillOutFirstSignUp(email: string, password: string, age: string) {
+    await this.fillOutEmailForm(email);
+    await this.fillOutSignupForm(password, age);
+    await this.fillOutCodeForm(email);
   }
 
   async fillOutCodeForm(email: string) {

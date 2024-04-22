@@ -10,6 +10,8 @@ import {
   SYNC_EMAIL_PREFIX,
 } from '../../lib/fixtures/standard';
 
+const AGE_21 = '21';
+
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(() => {
     test.slow();
@@ -26,7 +28,13 @@ test.describe('severity-1 #smoke', () => {
     test('signin to OAuth with Sync creds', async ({
       emails,
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice, relier },
+      syncBrowserPages: {
+        page,
+        login,
+        connectAnotherDevice,
+        relier,
+        signupReact,
+      },
     }) => {
       const [email, syncEmail] = emails;
       await target.createAccount(syncEmail, PASSWORD);
@@ -42,7 +50,8 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
-      await login.fillOutFirstSignUp(email, PASSWORD);
+
+      await signupReact.fillOutFirstSignUp(email, PASSWORD, AGE_21);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
@@ -67,12 +76,19 @@ test.describe('severity-1 #smoke', () => {
     test('email-first Sync signin', async ({
       emails,
       target,
-      syncBrowserPages: { page, login, connectAnotherDevice, relier },
+      syncBrowserPages: {
+        page,
+        login,
+        connectAnotherDevice,
+        relier,
+        signupReact,
+      },
     }) => {
       const [syncEmail] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(syncEmail, PASSWORD);
+
+      await signupReact.fillOutFirstSignUp(syncEmail, PASSWORD, AGE_21);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
