@@ -5,7 +5,12 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
-import { StripeCustomer } from './stripe.client.types';
+import {
+  StripeApiList,
+  StripeCustomer,
+  StripePlan,
+  StripeSubscription,
+} from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import {
   MOZILLA_TAX_ID,
@@ -14,6 +19,7 @@ import {
 import {
   CustomerDeletedError,
   CustomerNotFoundError,
+  PlanIntervalMultiplePlansError,
   PlanNotFoundError,
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
@@ -162,7 +168,27 @@ export class StripeManager {
         plans.push(plan);
       }
     }
+    if (plans.length > 1) throw new PlanIntervalMultiplePlansError();
+    return plans.at(0);
+  }
 
-    return plans[0];
+  /**
+   * Returns array of customer subscription plans
+   */
+  getSubscribedPlans(subscriptionList: StripeApiList<StripeSubscription>) {
+    const subscriptions = subscriptionList.data;
+    if (!subscriptions) return [];
+    return subscriptions
+      .flatMap((sub) => sub.items.data)
+      .map((item) => item.plan as StripePlan);
+  }
+
+  /**
+   * Returns array of subscribed product IDs
+   */
+  getSubscribedProductIds(subscribedPlans: StripePlan[]) {
+    return subscribedPlans.length > 0
+      ? subscribedPlans.map(({ product: productId }) => productId as string)
+      : [];
   }
 }

@@ -15,25 +15,14 @@ import {
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
 } from '@fxa/shared/contentful';
-import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityService } from './eligibility.service';
-import { OfferingComparison, OfferingOverlapResult } from './eligibility.types';
-
-const mockSubscribedPlans = jest.fn();
-const mockSubscribedProductIds = jest.fn();
-
-jest.mock('../../../stripe/src/lib/stripe.utils.ts', () => {
-  return {
-    getSubscribedPlans: function () {
-      return mockSubscribedPlans();
-    },
-    getSubscribedProductIds: function () {
-      return mockSubscribedProductIds();
-    },
-  };
-});
+import {
+  EligibilityStatus,
+  OfferingComparison,
+  OfferingOverlapProductResult,
+} from './eligibility.types';
 
 describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;
@@ -67,6 +56,8 @@ describe('EligibilityService', () => {
       })
       .overrideProvider(StripeManager)
       .useValue({
+        getSubscribedPlans: jest.fn(),
+        getSubscribedProductIds: jest.fn(),
         getSubscriptions: jest.fn(),
       })
       .compile();
@@ -87,31 +78,29 @@ describe('EligibilityService', () => {
         mockOffering.apiIdentifier,
         null
       );
-      expect(result).toEqual({
-        eligibilityStatus: CartEligibilityStatus.CREATE,
-        state: CartState.START,
-      });
+      expect(result).toEqual(EligibilityStatus.CREATE);
     });
 
     it('throws an error for no offering for offeringConfigId', async () => {
+      const expectedError = new Error('No offering available');
       const mockCustomer = StripeCustomerFactory();
       const mockInterval = 'month';
 
       jest
         .spyOn(contentfulManager, 'getEligibilityContentByOffering')
-        .mockResolvedValueOnce(mockOfferingResult);
+        .mockResolvedValueOnce({
+          getOffering: jest.fn().mockImplementation(() => {
+            throw expectedError;
+          }),
+        } as unknown as EligibilityContentByOfferingResultUtil);
 
-      mockOfferingResult.getOffering = jest.fn().mockReturnValue(undefined);
-
-      const result = await eligibilityService.checkEligibility(
-        mockInterval,
-        'prod_test1',
-        mockCustomer.id
-      );
-      expect(result).toEqual({
-        eligibilityStatus: CartEligibilityStatus.INVALID,
-        state: CartState.FAIL,
-      });
+      await expect(
+        eligibilityService.checkEligibility(
+          mockInterval,
+          'prod_test1',
+          mockCustomer.id
+        )
+      ).rejects.toEqual(expectedError);
     });
 
     it('returns eligibility status successfully', async () => {
@@ -124,10 +113,9 @@ describe('EligibilityService', () => {
           offeringProductId: 'prod_test',
           type: 'offering',
         },
-      ] as OfferingOverlapResult[];
+      ] as OfferingOverlapProductResult[];
       const mockSubscription = StripeSubscriptionFactory();
       const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
-      const mockTargetPlanIds = mockOffering.defaultPurchase.stripePlanChoices;
 
       jest
         .spyOn(contentfulManager, 'getEligibilityContentByOffering')
@@ -139,17 +127,16 @@ describe('EligibilityService', () => {
         .spyOn(stripeManager, 'getSubscriptions')
         .mockResolvedValue(mockSubscriptionList);
 
-      mockSubscribedPlans.mockReturnValue([]);
-      mockSubscribedProductIds.mockReturnValue([]);
+      jest.spyOn(stripeManager, 'getSubscribedPlans').mockReturnValue([]);
+      jest.spyOn(stripeManager, 'getSubscribedProductIds').mockReturnValue([]);
 
       jest
         .spyOn(eligibilityManager, 'getProductIdOverlap')
-        .mockResolvedValue(mockOverlapResult);
+        .mockReturnValue(mockOverlapResult);
 
-      jest.spyOn(eligibilityManager, 'compareOverlap').mockResolvedValue({
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-        state: CartState.START,
-      });
+      jest
+        .spyOn(eligibilityManager, 'compareOverlap')
+        .mockResolvedValue(EligibilityStatus.UPGRADE);
 
       await eligibilityService.checkEligibility(
         mockInterval,
@@ -169,7 +156,7 @@ describe('EligibilityService', () => {
       );
       expect(eligibilityManager.compareOverlap).toHaveBeenCalledWith(
         mockOverlapResult,
-        mockTargetPlanIds,
+        mockOffering,
         mockInterval,
         []
       );

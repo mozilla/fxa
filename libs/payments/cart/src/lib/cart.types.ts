@@ -5,7 +5,6 @@ import {
   Cart,
   CartEligibilityStatus,
   CartErrorReasonId,
-  CartState,
 } from '@fxa/shared/db/mysql/account';
 
 export interface TaxAddress {
@@ -50,7 +49,6 @@ export type SetupCart = {
   email?: string;
   amount: number;
   eligibilityStatus: CartEligibilityStatus;
-  state: CartState;
 };
 
 export interface TaxAmount {

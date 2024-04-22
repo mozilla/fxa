@@ -197,14 +197,24 @@ export type StripeUpcomingInvoice = NegotiateExpanded<
   | 'test_clock'
 >;
 
-export type StripeSubscriptionItem = Stripe.SubscriptionItem;
+export type StripeSubscriptionItem = NegotiateExpanded<
+  never,
+  DeepOverride<
+    Stripe.SubscriptionItem,
+    { plan: StripePlan; price: StripePrice }
+  >,
+  never
+>;
 
 /**
  * Stripe.Subscription with expanded fields removed
  */
 export type StripeSubscription = NegotiateExpanded<
   never,
-  Stripe.Subscription,
+  DeepOverride<
+    Stripe.Subscription,
+    { items: StripeApiList<StripeSubscriptionItem> }
+  >,
   | 'customer'
   | 'default_payment_method'
   | 'latest_invoice'

@@ -66,8 +66,6 @@ export class ContentfulManager {
     const queryResult = await this.client.query(
       eligibilityContentByOfferingQuery,
       {
-        skip: 0,
-        limit: 100,
         offering,
       }
     );

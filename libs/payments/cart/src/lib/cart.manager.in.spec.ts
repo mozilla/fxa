@@ -78,7 +78,6 @@ describe('#payments-cart - manager', () => {
     it('succeeds', async () => {
       const setupCart = SetupCartFactory({
         interval: 'annually',
-        state: CartState.START,
       });
       const cart = await cartManager.createCart(setupCart);
       expect(cart).toEqual(expect.objectContaining(setupCart));

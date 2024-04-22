@@ -3,14 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import {
-  getSubscribedPlans,
-  getSubscribedProductIds,
-  StripeManager,
-} from '@fxa/payments/stripe';
+import { StripeManager } from '@fxa/payments/stripe';
 import { ContentfulManager } from '@fxa/shared/contentful';
-import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 import { EligibilityManager } from './eligibility.manager';
+import { EligibilityStatus } from './eligibility.types';
 
 @Injectable()
 export class EligibilityService {
@@ -29,10 +25,7 @@ export class EligibilityService {
     stripeCustomerId?: string | null
   ) {
     if (!stripeCustomerId) {
-      return {
-        eligibilityStatus: CartEligibilityStatus.CREATE,
-        state: CartState.START,
-      };
+      return EligibilityStatus.CREATE;
     }
 
     const targetOfferingResult =
@@ -41,30 +34,25 @@ export class EligibilityService {
       );
 
     const targetOffering = targetOfferingResult.getOffering();
-    if (!targetOffering)
-      return {
-        eligibilityStatus: CartEligibilityStatus.INVALID,
-        state: CartState.FAIL,
-      };
-
-    const targetPlanIds = targetOffering.defaultPurchase.stripePlanChoices;
 
     const subscriptions = await this.stripeManager.getSubscriptions(
       stripeCustomerId
     );
 
-    const subscribedPlans = await getSubscribedPlans(subscriptions);
+    const subscribedPlans =
+      this.stripeManager.getSubscribedPlans(subscriptions);
 
-    const productIds = await getSubscribedProductIds(subscribedPlans);
+    const productIds =
+      this.stripeManager.getSubscribedProductIds(subscribedPlans);
 
-    const overlaps = await this.eligibilityManager.getProductIdOverlap(
+    const overlaps = this.eligibilityManager.getProductIdOverlap(
       productIds,
       targetOffering
     );
 
     const eligibility = await this.eligibilityManager.compareOverlap(
       overlaps,
-      targetPlanIds,
+      targetOffering,
       interval,
       subscribedPlans
     );

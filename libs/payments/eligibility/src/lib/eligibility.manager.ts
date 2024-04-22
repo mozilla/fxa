@@ -3,18 +3,18 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import assert from 'assert';
 
 import { StripeManager, StripePlan } from '@fxa/payments/stripe';
 import {
   ContentfulManager,
   EligibilityContentOfferingResult,
 } from '@fxa/shared/contentful';
-import { CartEligibilityStatus, CartState } from '@fxa/shared/db/mysql/account';
 
 import {
+  EligibilityStatus,
   IntervalComparison,
   OfferingComparison,
+  OfferingOverlapProductResult,
   OfferingOverlapResult,
 } from './eligibility.types';
 import { intervalComparison, offeringComparison } from './utils';
@@ -76,13 +76,13 @@ export class EligibilityManager {
    * @returns Array of overlapping offeringProductIds and their comparison
    *          to the target plan.
    */
-  async getProductIdOverlap(
+  getProductIdOverlap(
     offeringStripeProductIds: string[],
     targetOffering: EligibilityContentOfferingResult
-  ): Promise<OfferingOverlapResult[]> {
-    if (!offeringStripeProductIds.length) return [];
+  ): OfferingOverlapProductResult[] {
+    if (!offeringStripeProductIds.length || !targetOffering) return [];
 
-    const result: OfferingOverlapResult[] = [];
+    const result: OfferingOverlapProductResult[] = [];
 
     for (const offeringProductId of offeringStripeProductIds) {
       const comparison = offeringComparison(offeringProductId, targetOffering);
@@ -93,89 +93,60 @@ export class EligibilityManager {
   }
 
   async compareOverlap(
-    overlaps: OfferingOverlapResult[],
-    targetPlanIds: string[],
+    overlaps: OfferingOverlapProductResult[],
+    targetOffering: EligibilityContentOfferingResult,
     interval: string,
     subscribedPlans: StripePlan[]
   ) {
     if (!overlaps.length) {
-      return {
-        eligibilityStatus: CartEligibilityStatus.CREATE,
-        state: CartState.START,
-      };
+      return EligibilityStatus.CREATE;
     }
 
     // Multiple existing overlapping plans, we can't merge them
     if (overlaps.length > 1) {
-      return {
-        eligibilityStatus: CartEligibilityStatus.INVALID,
-        state: CartState.FAIL,
-      };
+      return EligibilityStatus.INVALID;
     }
 
     const overlap = overlaps[0];
-    assert(
-      overlap.type === 'offering',
-      'Unexpected overlap type, only products are compared.'
-    );
+    if (overlap.comparison === OfferingComparison.DOWNGRADE)
+      return EligibilityStatus.DOWNGRADE;
 
+    const targetPlanIds = targetOffering.defaultPurchase.stripePlanChoices;
     const targetPlan = await this.stripeManager.getPlanByInterval(
       targetPlanIds,
       interval
     );
-    const subscribedPlanWithSameProductIdAsTarget = subscribedPlans.find(
-      (plan) => plan.product === overlap.offeringProductId
-    );
 
-    if (overlap.comparison === OfferingComparison.DOWNGRADE)
-      return {
-        eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
-        state: CartState.FAIL,
-      };
+    if (targetPlan) {
+      const subscribedPlanWithSameProductIdAsTarget = subscribedPlans.find(
+        (plan) => plan.product === overlap.offeringProductId
+      );
 
-    if (
-      !subscribedPlanWithSameProductIdAsTarget ||
-      subscribedPlanWithSameProductIdAsTarget.id === targetPlan.id
-    )
-      return {
-        eligibilityStatus: CartEligibilityStatus.INVALID,
-        state: CartState.FAIL,
-      };
+      if (
+        !subscribedPlanWithSameProductIdAsTarget ||
+        subscribedPlanWithSameProductIdAsTarget.id === targetPlan.id
+      )
+        return EligibilityStatus.INVALID;
 
-    // Any interval change that is lower than the existing plans interval is
-    // a downgrade. Otherwise its considered an upgrade.
-    if (
-      intervalComparison(
+      const intervalComparisonResult = intervalComparison(
         {
           unit: subscribedPlanWithSameProductIdAsTarget.interval,
           count: subscribedPlanWithSameProductIdAsTarget.interval_count,
         },
         { unit: targetPlan.interval, count: targetPlan.interval_count }
-      ) === IntervalComparison.SHORTER
-    )
-      return {
-        eligibilityStatus: CartEligibilityStatus.DOWNGRADE,
-        state: CartState.FAIL,
-      };
+      );
+      // Any interval change that is lower than the existing plans interval is
+      // a downgrade. Otherwise its considered an upgrade.
+      if (intervalComparisonResult === IntervalComparison.SHORTER)
+        return EligibilityStatus.DOWNGRADE;
 
-    if (
-      overlap.comparison === OfferingComparison.UPGRADE ||
-      intervalComparison(
-        {
-          unit: subscribedPlanWithSameProductIdAsTarget.interval,
-          count: subscribedPlanWithSameProductIdAsTarget.interval_count,
-        },
-        { unit: targetPlan.interval, count: targetPlan.interval_count }
-      ) === IntervalComparison.LONGER
-    )
-      return {
-        eligibilityStatus: CartEligibilityStatus.UPGRADE,
-        state: CartState.START,
-      };
+      if (
+        overlap.comparison === OfferingComparison.UPGRADE ||
+        intervalComparisonResult === IntervalComparison.LONGER
+      )
+        return EligibilityStatus.UPGRADE;
+    }
 
-    return {
-      eligibilityStatus: CartEligibilityStatus.INVALID,
-      state: CartState.FAIL,
-    };
+    return EligibilityStatus.INVALID;
   }
 }

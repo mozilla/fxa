@@ -10,12 +10,12 @@ import {
 export class EligibilityContentByOfferingResultUtil {
   constructor(private rawResult: EligibilityContentByOfferingResult) {}
 
-  getOffering(): EligibilityContentOfferingResult | undefined {
-    if (!this.offeringCollection.items.length)
-      throw Error('getOffering - No offering exists');
+  getOffering(): EligibilityContentOfferingResult {
+    const offering = this.offeringCollection.items.at(0);
+    if (!offering) throw Error('getOffering - No offering exists');
     if (this.offeringCollection.items.length > 1)
       throw Error('getOffering - More than one offering');
-    return this.offeringCollection.items[0];
+    return offering;
   }
 
   get offeringCollection(): EligibilityContentByOfferingResult['offeringCollection'] {
