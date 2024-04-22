@@ -8814,9 +8814,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@google-cloud/bigquery@npm:^7.5.0":
-  version: 7.5.0
-  resolution: "@google-cloud/bigquery@npm:7.5.0"
+"@google-cloud/bigquery@npm:^7.6.0":
+  version: 7.6.0
+  resolution: "@google-cloud/bigquery@npm:7.6.0"
   dependencies:
     "@google-cloud/common": ^5.0.0
     "@google-cloud/paginator": ^5.0.0
@@ -8829,7 +8829,7 @@ __metadata:
     is: ^3.3.0
     stream-events: ^1.0.5
     uuid: ^9.0.0
-  checksum: 7cea149a45a829a4d0beb260be4f8b621c788e80cb1b44cfd6d052e639cd3426ac1a42a7560b07e9b55bc3e711080ea5fa75a35c0335a2acc29520f20ce4a497
+  checksum: 09d1044b7553b3ca4803c9ee176119a1d485ada4941942009a5108749bbbcc16f5a8aa2c804f2bcaa8291382e0fec67a8fd79877bdc3a661755044a8527b5b95
   languageName: node
   linkType: hard
 
@@ -38345,7 +38345,7 @@ fsevents@~2.1.1:
     "@faker-js/faker": ^8.4.1
     "@fluent/bundle": ^0.18.0
     "@fluent/react": ^0.15.2
-    "@google-cloud/bigquery": ^7.5.0
+    "@google-cloud/bigquery": ^7.6.0
     "@google-cloud/firestore": ^7.3.0
     "@google-cloud/opentelemetry-cloud-trace-exporter": ^2.1.0
     "@google-cloud/pubsub": ^4.3.1
