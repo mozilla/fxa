@@ -138,7 +138,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "classnames": "^2.5.1",
     "css-loader": "^6.8.1",
-    "css-minimizer-webpack-plugin": "^5.0.1",
+    "css-minimizer-webpack-plugin": "^6.0.0",
     "dotenv": "^16.4.5",
     "dotenv-expand": "^11.0.6",
     "eslint": "^8.3.0",
