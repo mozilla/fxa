@@ -3,21 +3,22 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+
+import { EligibilityService } from '@fxa/payments/eligibility';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
+import { GeoDBManager } from '@fxa/shared/geodb';
+
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
-import {
-  CartEligibilityStatus,
-  CartErrorReasonId,
-  CartState,
-} from '@fxa/shared/db/mysql/account';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
-import { GeoDBManager } from '@fxa/shared/geodb';
+import { handleEligibilityStatusMap } from './cart.utils';
 
 @Injectable()
 export class CartService {
   constructor(
     private cartManager: CartManager,
     private accountCustomerManager: AccountCustomerManager,
+    private eligibilityService: EligibilityService,
     private geodbManager: GeoDBManager
   ) {}
 
@@ -47,6 +48,14 @@ export class CartService {
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
 
+    const eligibility = await this.eligibilityService.checkEligibility(
+      args.interval,
+      args.offeringConfigId,
+      stripeCustomerId
+    );
+
+    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
+
     const cart = await this.cartManager.createCart({
       interval: args.interval,
       offeringConfigId: args.offeringConfigId,
@@ -55,7 +64,7 @@ export class CartService {
       stripeCustomerId: stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
-      eligibilityStatus: CartEligibilityStatus.CREATE, //Placeholder to be replaced by FXA-8893
+      eligibilityStatus: cartEligibilityStatus,
     });
 
     return cart;

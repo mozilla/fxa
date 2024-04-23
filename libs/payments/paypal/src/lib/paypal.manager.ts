@@ -83,6 +83,7 @@ export class PayPalManager {
    */
   async getCustomerPayPalSubscriptions(customerId: string) {
     const subscriptions = await this.stripeManager.getSubscriptions(customerId);
+    if (!subscriptions.data) return [];
     return subscriptions.data.filter(
       (sub) =>
         ACTIVE_SUBSCRIPTION_STATUSES.includes(sub.status) &&

@@ -11,6 +11,7 @@ import {
   StripeCustomerFactory,
   StripeInvoiceFactory,
   StripeManager,
+  StripeSubscription,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import { DB, testAccountDatabaseSetup } from '@fxa/shared/db/mysql/account';
@@ -224,6 +225,23 @@ describe('PaypalManager', () => {
         mockCustomer.id
       );
       expect(result).toEqual(expected);
+    });
+
+    it('returns empty array when no subscriptions', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockPayPalSubscription = [] as StripeSubscription[];
+      const mockSubscriptionList = StripeApiListFactory([
+        mockPayPalSubscription,
+      ]);
+
+      stripeManager.getSubscriptions = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscriptionList);
+
+      const result = await paypalManager.getCustomerPayPalSubscriptions(
+        mockCustomer.id
+      );
+      expect(result).toEqual([]);
     });
   });
 
