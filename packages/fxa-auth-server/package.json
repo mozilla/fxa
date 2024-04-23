@@ -116,7 +116,7 @@
     "mozlog": "^3.0.2",
     "mysql": "^2.18.1",
     "node-uap": "https://github.com/mozilla-fxa/node-uap.git#494714db3e65a4dbfae772f536c8697269174574",
-    "node-zendesk": "^2.2.0",
+    "node-zendesk": "^5.0.12",
     "nodemailer": "^6.9.9",
     "otplib": "^11.0.1",
     "p-queue": "^8.0.1",
