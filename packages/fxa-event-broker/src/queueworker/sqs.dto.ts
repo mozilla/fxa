@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import joi from 'joi';
+import { METRICS_CHANGE_EVENT_ID } from '../jwtset/set.interface';
 
 // Event strings
 export const DELETE_EVENT = 'delete';
@@ -12,6 +13,7 @@ export const PRIMARY_EMAIL_EVENT = 'primaryEmailChanged';
 export const PROFILE_CHANGE_EVENT = 'profileDataChange';
 export const SUBSCRIPTION_UPDATE_EVENT = 'subscription:update';
 export const APPLE_USER_MIGRATION_EVENT = 'appleUserMigration';
+export const METRICS_CHANGE_EVENT = 'metricsChange';
 
 // Message schemas
 export const CLIENT_ID = joi.string().regex(/[a-z0-9]{16}/);
@@ -93,16 +95,27 @@ export const PROFILE_CHANGE_SCHEMA = joi
   .required();
 
 export const APPLE_USER_MIGRATION_SCHEMA = joi
- .object()
- .keys({
-  event: joi.string().valid(APPLE_USER_MIGRATION_EVENT),
-  timestamp: joi.number().optional(),
-  ts: joi.number().required(),
-  uid: joi.string().required(),
- })
- .unknown(true)
- .required();
+  .object()
+  .keys({
+    event: joi.string().valid(APPLE_USER_MIGRATION_EVENT),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
+    uid: joi.string().required(),
+  })
+  .unknown(true)
+  .required();
 
+export const METRICS_CHANGE_SCHEMA = joi
+  .object()
+  .keys({
+    event: joi.string().valid(METRICS_CHANGE_EVENT),
+    timestamp: joi.number().optional(),
+    ts: joi.number().required(),
+    uid: joi.string().required(),
+    enabled: joi.boolean().required(),
+  })
+  .unknown(true)
+  .required();
 
 export type deleteSchema = {
   event: typeof DELETE_EVENT;
@@ -160,4 +173,12 @@ export type appleUserMigrationSchema = {
   transferSub: string;
   success: boolean;
   err: string;
-}
+};
+
+export type metricsChangeSchema = {
+  event: typeof METRICS_CHANGE_EVENT;
+  timestamp?: number;
+  ts: number;
+  uid: string;
+  enabled: boolean;
+};

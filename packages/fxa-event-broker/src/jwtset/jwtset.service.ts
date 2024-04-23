@@ -116,8 +116,10 @@ export class JwtsetService {
       uid: delEvent.uid,
     });
   }
-  
-  public generateAppleMigrationSET(appleMigrationEvent: set.appleMigrationEvent): Promise<string> {
+
+  public generateAppleMigrationSET(
+    appleMigrationEvent: set.appleMigrationEvent
+  ): Promise<string> {
     return this.generateSET({
       uid: appleMigrationEvent.uid,
       clientId: appleMigrationEvent.clientId,
@@ -129,8 +131,20 @@ export class JwtsetService {
           success: appleMigrationEvent.success,
           err: appleMigrationEvent.err,
           uid: appleMigrationEvent.uid,
-        }
-      }
+        },
+      },
+    });
+  }
+
+  public generateMetricsChangeSET(event: set.metricsChangeEvent) {
+    return this.generateSET({
+      uid: event.uid,
+      clientId: event.clientId,
+      events: {
+        [set.METRICS_CHANGE_EVENT_ID]: {
+          enabled: event.enabled,
+        },
+      },
     });
   }
 }

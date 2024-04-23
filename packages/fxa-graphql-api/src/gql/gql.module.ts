@@ -5,11 +5,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { CustomsModule } from 'fxa-shared/nestjs/customs/customs.module';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import {
-  createContext,
-  SentryPlugin,
-} from 'fxa-shared/nestjs/sentry/sentry.plugin';
+import { createContext, SentryPlugin } from '@fxa/shared/sentry';
 import path, { join } from 'path';
 
 import {
@@ -27,6 +23,10 @@ import { LegalResolver } from './legal.resolver';
 import { SubscriptionResolver } from './subscription.resolver';
 import { ClientInfoResolver } from './clientInfo.resolver';
 import { SessionResolver } from './session.resolver';
+import { NotifierService, NotifierSnsFactory } from '@fxa/shared/notifier';
+import { StatsDFactory } from '@fxa/shared/metrics/statsd';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+
 const config = Config.getProperties();
 
 /**
@@ -36,8 +36,7 @@ const config = Config.getProperties();
  * @param log
  */
 export const GraphQLConfigFactory = async (
-  configService: ConfigService<AppConfig>,
-  log: MozLoggerService
+  configService: ConfigService<AppConfig>
 ) => ({
   allowBatchedHttpRequests: true,
   path: '/graphql',
@@ -53,12 +52,16 @@ export const GraphQLConfigFactory = async (
 @Module({
   imports: [BackendModule, CustomsModule],
   providers: [
+    StatsDFactory,
+    NotifierSnsFactory,
+    NotifierService,
     AccountResolver,
     CustomsService,
     SessionResolver,
     LegalResolver,
     ClientInfoResolver,
     SubscriptionResolver,
+    MozLoggerService,
     SentryPlugin,
   ],
 })

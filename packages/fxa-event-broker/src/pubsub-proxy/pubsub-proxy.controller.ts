@@ -210,6 +210,13 @@ export class PubsubProxyController {
           err: message.error,
         });
       }
+      case dto.METRICS_CHANGE_EVENT: {
+        return await this.jwtset.generateMetricsChangeSET({
+          clientId,
+          uid: message.uid,
+          enabled: message.enabled,
+        });
+      }
       default:
         throw Error(`Invalid event: ${message.event}`);
     }

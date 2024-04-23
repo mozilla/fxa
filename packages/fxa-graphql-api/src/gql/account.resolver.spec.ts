@@ -1,12 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Provider } from '@nestjs/common';
+import { Logger, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Account, SessionToken } from 'fxa-shared/db/models/auth';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Knex } from 'knex';
 
 import {
@@ -18,6 +18,7 @@ import {
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
 import { AccountResolver } from './account.resolver';
+import { NotifierService, NotifierSnsService } from '@fxa/shared/notifier';
 
 let USER_1: any;
 let SESSION_1: any;
@@ -28,6 +29,8 @@ describe('#integration - AccountResolver', () => {
   let knex: Knex;
   let authClient: any;
   let profileClient: any;
+  let notifierSnsService: any;
+  let notifierService: any;
 
   beforeAll(async () => {
     knex = await testDatabaseSetup();
@@ -45,6 +48,9 @@ describe('#integration - AccountResolver', () => {
       info: jest.fn(),
       warn: jest.fn(),
     };
+    notifierService = {
+      send: jest.fn(),
+    };
     const MockMozLogger: Provider = {
       provide: MozLoggerService,
       useValue: logger,
@@ -53,6 +59,18 @@ describe('#integration - AccountResolver', () => {
       provide: 'METRICS',
       useFactory: () => undefined,
     };
+    const MockLogger: Provider = {
+      provide: Logger,
+      useValue: logger,
+    };
+    const MockNotifierSns: Provider = {
+      provide: NotifierSnsService,
+      useValue: notifierSnsService,
+    };
+    const MockNotifierService: Provider = {
+      provide: NotifierService,
+      useValue: notifierService,
+    };
     authClient = {};
     profileClient = {};
     const module: TestingModule = await Test.createTestingModule({
@@ -60,6 +78,9 @@ describe('#integration - AccountResolver', () => {
         AccountResolver,
         MockMozLogger,
         MockMetricsFactory,
+        MockLogger,
+        MockNotifierSns,
+        MockNotifierService,
         { provide: CustomsService, useValue: {} },
         { provide: AuthClientService, useValue: authClient },
         { provide: ProfileClientService, useValue: profileClient },
@@ -458,6 +479,12 @@ describe('#integration - AccountResolver', () => {
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
+        expect(notifierService.send).toBeCalledWith({
+          event: 'metricsOptOut',
+          data: {
+            uid: USER_1.uid,
+          },
+        });
       });
 
       it('opts in', async () => {
@@ -470,6 +497,23 @@ describe('#integration - AccountResolver', () => {
         expect(result).toStrictEqual({
           clientMutationId: 'testid',
         });
+        expect(notifierService.send).toBeCalledWith({
+          event: 'metricsOptIn',
+          data: {
+            uid: USER_1.uid,
+          },
+        });
+      });
+
+      it('fails with bad opt in state', async () => {
+        await expect(
+          resolver.metricsOpt(USER_1.uid, {
+            clientMutationId: 'testid',
+            state: 'In' as 'in',
+          })
+        ).rejects.toThrow(
+          'Invalid metrics opt state! State must be in or out, but recieved In.'
+        );
       });
     });
 

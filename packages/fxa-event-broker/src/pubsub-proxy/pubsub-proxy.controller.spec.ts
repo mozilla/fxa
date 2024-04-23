@@ -71,6 +71,16 @@ const createValidPasswordMessage = (): string => {
   ).toString('base64');
 };
 
+const createValidMetricsChangeMessage = (): string => {
+  return Buffer.from(
+    JSON.stringify({
+      event: dto.METRICS_CHANGE_EVENT,
+      uid: 'uid1234',
+      enabled: false,
+    })
+  ).toString('base64');
+};
+
 describe('PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
@@ -91,6 +101,7 @@ describe('PubsubProxy Controller', () => {
       generatePasswordSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generateProfileSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generateSubscriptionSET: jest.fn().mockResolvedValue(TEST_TOKEN),
+      generateMetricsChangeSET: jest.fn().mockResolvedValue(TEST_TOKEN),
     };
     logger = { debug: jest.fn(), error: jest.fn() };
     const MockMetrics: Provider = {
@@ -179,6 +190,10 @@ describe('PubsubProxy Controller', () => {
       delete: [createValidDeleteMessage, 'generateDeleteSET'],
       password: [createValidPasswordMessage, 'generatePasswordSET'],
       profile: [createValidProfileMessage, 'generateProfileSET'],
+      metricsChange: [
+        createValidMetricsChangeMessage,
+        'generateMetricsChangeSET',
+      ],
     };
 
     async function notifiesSuccessfully(

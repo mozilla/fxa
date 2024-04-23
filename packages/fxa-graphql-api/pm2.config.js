@@ -35,6 +35,9 @@ module.exports = {
         SENTRY_ENV: 'local',
         SENTRY_DSN: process.env.SENTRY_DSN_GRAPHQL_API,
         TRACING_SERVICE_NAME: 'fxa-graphql-api',
+        SNS_TOPIC_ARN:
+          'arn:aws:sns:us-east-1:100010001000:fxa-account-change-dev',
+        SNS_TOPIC_ENDPOINT: 'http://localhost:4100/',
       },
       filter_env: ['npm_'],
       watch: ['src'],

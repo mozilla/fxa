@@ -69,7 +69,7 @@ describe('pii-filter-actions', () => {
       });
     });
 
-    it('truncates object of size greater than maxBreadth', () => {
+    it('truncates object of size greater than max breadth', () => {
       const filter = new BreadthFilter(1);
       expect(filter.execute({ foo: '1', bar: '2', baz: '3' })).to.deep.equal({
         val: {
@@ -96,7 +96,7 @@ describe('pii-filter-actions', () => {
       });
     });
 
-    it('truncates array of size greater than maxBreadth', () => {
+    it('truncates array of size greater than max breadth', () => {
       const filter = new BreadthFilter(1);
       expect(filter.execute(['foo', 'bar', 'baz'])).to.deep.equal({
         val: ['foo', `${TRUNCATED}:2`],
