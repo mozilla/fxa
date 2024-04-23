@@ -11,6 +11,15 @@ import * as Metrics from '../../../lib/metrics';
 jest.spyOn(Metrics, 'setProperties');
 jest.spyOn(Metrics, 'usePageViewEvent');
 
+beforeEach(() => {
+  const mockIntersectionObserver = jest.fn();
+  mockIntersectionObserver.mockReturnValue({
+    observe: () => null,
+    disconnect: () => null,
+  });
+  window.IntersectionObserver = mockIntersectionObserver;
+});
+
 it('renders without imploding', async () => {
   renderWithRouter(<PageSettings />);
   expect(screen.getByTestId('settings-profile')).toBeInTheDocument();

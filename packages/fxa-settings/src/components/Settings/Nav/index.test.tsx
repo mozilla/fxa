@@ -17,6 +17,15 @@ const account = {
   linkedAccounts: [],
 } as unknown as Account;
 
+beforeEach(() => {
+  const mockIntersectionObserver = jest.fn();
+  mockIntersectionObserver.mockReturnValue({
+    observe: () => null,
+    disconnect: () => null,
+  });
+  window.IntersectionObserver = mockIntersectionObserver;
+});
+
 describe('Nav', () => {
   it('renders as expected', () => {
     renderWithLocalizationProvider(

@@ -20,6 +20,7 @@ module.exports = {
       },
       margin: {
         18: '4.5rem',
+        19: '4.75rem',
       },
       flex: {
         2: '2',

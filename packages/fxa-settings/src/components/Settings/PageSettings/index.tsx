@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { Link, RouteComponentProps } from '@reach/router';
 import Nav from '../Nav';
 import Security from '../Security';
@@ -25,17 +25,32 @@ export const PageSettings = (_: RouteComponentProps) => {
   });
   Metrics.usePageViewEvent(Metrics.settingsViewName);
 
+  // Scroll to effect
+  const profileRef = useRef<HTMLDivElement>(null);
+  const securityRef = useRef<HTMLDivElement>(null);
+  const connectedServicesRef = useRef<HTMLDivElement>(null);
+  const linkedAccountsRef = useRef<HTMLDivElement>(null);
+  const dataCollectionRef = useRef<HTMLDivElement>(null);
+
   return (
     <div id="fxa-settings" className="flex">
       <div className="hidden desktop:block desktop:flex-2">
-        <Nav />
+        <Nav
+          {...{
+            profileRef,
+            securityRef,
+            connectedServicesRef,
+            linkedAccountsRef,
+            dataCollectionRef,
+          }}
+        />
       </div>
       <div className="flex-7 max-w-full">
-        <Profile />
-        <Security />
-        <ConnectedServices />
-        <LinkedAccounts />
-        <DataCollection />
+        <Profile ref={profileRef} />
+        <Security ref={securityRef} />
+        <ConnectedServices ref={connectedServicesRef} />
+        <LinkedAccounts ref={linkedAccountsRef} />
+        <DataCollection ref={dataCollectionRef} />
         <div className="flex mx-4 tablet:mx-0" id="delete-account">
           <Localized id="delete-account-link">
             <Link

@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized, useLocalization } from '@fluent/react';
-import React from 'react';
+import React, { forwardRef } from 'react';
 import UnitRowRecoveryKey from '../UnitRowRecoveryKey';
 import UnitRowTwoStepAuth from '../UnitRowTwoStepAuth';
 import { UnitRow } from '../UnitRow';
@@ -36,13 +36,18 @@ const PwdDate = ({ passwordCreated }: { passwordCreated: number }) => {
   );
 };
 
-export const Security = () => {
+export const Security = forwardRef<HTMLDivElement>((_, ref) => {
   const { passwordCreated, hasPassword } = useAccount();
   const { l10n } = useLocalization();
   const localizedNotSet = l10n.getString('security-not-set', null, 'Not Set');
 
   return (
-    <section className="mt-11" data-testid="settings-security">
+    <section
+      className="mt-11"
+      data-testid="settings-security"
+      {...{ ref }}
+      id="security-section"
+    >
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="security" className="nav-anchor"></span>
         <Localized id="security-heading">Security</Localized>
@@ -103,6 +108,6 @@ export const Security = () => {
       </div>
     </section>
   );
-};
+});
 
 export default Security;

@@ -5,12 +5,12 @@
 import { Localized, useLocalization } from '@fluent/react';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import Switch from '../Switch';
-import React, { useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 import { useAlertBar } from '../../../models';
 import { useAccount } from '../../../models';
 import { setEnabled } from '../../../lib/metrics';
 
-export const DataCollection = () => {
+export const DataCollection = forwardRef<HTMLDivElement>((_, ref) => {
   const account = useAccount();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const alertBar = useAlertBar();
@@ -53,7 +53,12 @@ export const DataCollection = () => {
   }, [account, alertBar, l10n, setIsSubmitting]);
 
   return (
-    <section className="mt-11" data-testid="settings-data-collection">
+    <section
+      className="mt-11"
+      data-testid="settings-data-collection"
+      id="data-collection-section"
+      {...{ ref }}
+    >
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="data-collection" className="nav-anchor" />
         {localizedHeader}
@@ -97,6 +102,6 @@ export const DataCollection = () => {
       </div>
     </section>
   );
-};
+});
 
 export default DataCollection;
