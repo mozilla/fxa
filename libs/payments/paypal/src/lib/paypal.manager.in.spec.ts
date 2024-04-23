@@ -23,12 +23,10 @@ import {
 import { PayPalClient } from './paypal.client';
 import { PayPalManager } from './paypal.manager';
 import { BillingAgreementStatus } from './paypal.types';
-import {
-  PaypalCustomerNotFoundError,
-  PaypalCustomerMultipleRecordsError,
-} from './paypalCustomer/paypalCustomer.error';
+import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
+import { PaypalManagerError } from './paypal.error';
 
 describe('PaypalManager', () => {
   let kyselyDb: Kysely<DB>;
@@ -62,7 +60,6 @@ describe('PaypalManager', () => {
     paypalCustomerManager = new PaypalCustomerManager(kyselyDb);
 
     paypalManager = new PayPalManager(
-      kyselyDb,
       paypalClient,
       stripeManager,
       paypalCustomerManager
@@ -73,6 +70,109 @@ describe('PaypalManager', () => {
     if (kyselyDb) {
       await kyselyDb.destroy();
     }
+  });
+
+  describe('createBillingAgreement', () => {
+    it('creates a billing agreement', async () => {
+      const token = faker.string.uuid();
+      const mockBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockBillingAgreement);
+
+      const result = await paypalManager.createBillingAgreement(token);
+      expect(result).toEqual(mockBillingAgreement.BILLINGAGREEMENTID);
+      expect(paypalClient.createBillingAgreement).toBeCalledWith({
+        token,
+      });
+    });
+  });
+
+  describe('getOrCreateBillingAgreementId', () => {
+    it('returns without creating if there is an existing billing agreement', async () => {
+      const uid = faker.string.uuid();
+      const token = faker.string.uuid();
+      const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+      const mockPayPalCustomer = ResultPaypalCustomerFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([mockPayPalCustomer]);
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockNewBillingAgreement);
+
+      const result = await paypalManager.getOrCreateBillingAgreementId(
+        uid,
+        false,
+        token
+      );
+      expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
+      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+    });
+
+    it('returns a new billing agreement when no billing agreement exists and token passed', async () => {
+      const uid = faker.string.uuid();
+      const token = faker.string.uuid();
+      const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([]);
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockNewBillingAgreement);
+
+      const result = await paypalManager.getOrCreateBillingAgreementId(
+        uid,
+        false,
+        token
+      );
+      expect(result).toEqual(mockNewBillingAgreement.BILLINGAGREEMENTID);
+      expect(paypalClient.createBillingAgreement).toBeCalledWith({
+        token
+      });
+    });
+
+    it('throws an error if no billing agreement id is present and user has subscriptions', async () => {
+      const uid = faker.string.uuid();
+      const token = faker.string.uuid();
+      const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([]);
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockNewBillingAgreement);
+
+      expect(
+        paypalManager.getOrCreateBillingAgreementId(uid, true, token)
+      ).rejects.toBeInstanceOf(PaypalManagerError);
+      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+    });
+
+    it('throws an error if no billing agreement id is present and token is not provided', async () => {
+      const uid = faker.string.uuid();
+      const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
+
+      paypalCustomerManager.fetchPaypalCustomersByUid = jest
+        .fn()
+        .mockResolvedValueOnce([]);
+
+      paypalClient.createBillingAgreement = jest
+        .fn()
+        .mockResolvedValueOnce(mockNewBillingAgreement);
+
+      expect(
+        paypalManager.getOrCreateBillingAgreementId(uid, false)
+      ).rejects.toBeInstanceOf(PaypalManagerError);
+      expect(paypalClient.createBillingAgreement).not.toBeCalled();
+    });
   });
 
   describe('cancelBillingAgreement', () => {
@@ -170,21 +270,22 @@ describe('PaypalManager', () => {
         .mockResolvedValueOnce([mockPayPalCustomer]);
 
       const result = await paypalManager.getCustomerBillingAgreementId(
-        mockStripeCustomer
+        mockStripeCustomer.id
       );
       expect(result).toEqual(mockPayPalCustomer.billingAgreementId);
     });
 
-    it('throws PaypalCustomerNotFoundError if no PayPal customer record', async () => {
+    it('returns undefined if no PayPal customer record', async () => {
       const mockStripeCustomer = StripeCustomerFactory();
 
       paypalCustomerManager.fetchPaypalCustomersByUid = jest
         .fn()
         .mockResolvedValueOnce([]);
 
-      expect(
-        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer)
-      ).rejects.toBeInstanceOf(PaypalCustomerNotFoundError);
+      const result = await paypalManager.getCustomerBillingAgreementId(
+        mockStripeCustomer.id
+      );
+      expect(result).toEqual(undefined);
     });
 
     it('throws PaypalCustomerMultipleRecordsError if more than one PayPal customer found', async () => {
@@ -197,7 +298,7 @@ describe('PaypalManager', () => {
         .mockResolvedValueOnce([mockPayPalCustomer1, mockPayPalCustomer2]);
 
       expect(
-        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer)
+        paypalManager.getCustomerBillingAgreementId(mockStripeCustomer.id)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
   });

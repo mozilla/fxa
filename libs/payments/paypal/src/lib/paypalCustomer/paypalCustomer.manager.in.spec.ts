@@ -203,4 +203,22 @@ describe('PaypalCustomerManager', () => {
       ).rejects.toBeInstanceOf(PaypalCustomerNotDeletedError);
     });
   });
+
+  describe('deletePaypalCustomersByUid', () => {
+    it('deletes existing paypalCustomers successfully', async () => {
+      const paypalCustomer1 = CreatePaypalCustomerFactory();
+      const paypalCustomer2 = CreatePaypalCustomerFactory({
+        uid: paypalCustomer1.uid,
+      });
+
+      await paypalCustomerManager.createPaypalCustomer(paypalCustomer1);
+      await paypalCustomerManager.createPaypalCustomer(paypalCustomer2);
+
+      const result = await paypalCustomerManager.deletePaypalCustomersByUid(
+        paypalCustomer1.uid
+      );
+
+      expect(result).toEqual(BigInt(2));
+    });
+  });
 });

@@ -4,6 +4,7 @@
 import {
   createPaypalCustomer,
   deletePaypalCustomer,
+  deletePaypalCustomersByUid,
   fetchPaypalCustomer,
   fetchPaypalCustomersByBillingAgreementId,
   fetchPaypalCustomersByUid,
@@ -188,6 +189,42 @@ describe('PaypalCustomer Repository', () => {
       );
 
       expect(result).toEqual(false);
+    });
+  });
+
+  describe('deletePaypalCustomersByUid', () => {
+    it('deletes a paypalCustomer in the DB', async () => {
+      const paypalCustomer = PaypalCustomerFactory();
+      const dbPaypalCustomer = await createPaypalCustomer(
+        kyselyDb,
+        paypalCustomer
+      );
+      const result = await deletePaypalCustomersByUid(
+        kyselyDb,
+        dbPaypalCustomer.uid
+      );
+
+      expect(Number(result)).toEqual(1);
+
+      // paypalCustomer has already been deleted, fetching should throw
+      expect(
+        fetchPaypalCustomer(
+          kyselyDb,
+          paypalCustomer.uid,
+          paypalCustomer.billingAgreementId
+        )
+      ).rejects.toThrow();
+    });
+
+    it('returns 0 if no records have been deleted', async () => {
+      const paypalCustomer = PaypalCustomerFactory();
+      const result = await deletePaypalCustomer(
+        kyselyDb,
+        paypalCustomer.uid,
+        paypalCustomer.billingAgreementId
+      );
+
+      expect(Number(result)).toEqual(0);
     });
   });
 });

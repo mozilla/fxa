@@ -65,15 +65,6 @@ export class AccountCustomerManager {
     }
   }
 
-  public async getStripeCustomerIdByUid(uid: string) {
-    try {
-      const { stripeCustomerId } = await this.getAccountCustomerByUid(uid);
-      return stripeCustomerId;
-    } catch (error) {
-      return null;
-    }
-  }
-
   public async updateAccountCustomer(uid: string, data: UpdateAccountCustomer) {
     const accountCustomer = await this.getAccountCustomerByUid(uid);
 
