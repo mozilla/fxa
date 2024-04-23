@@ -11,6 +11,7 @@ import PQueue from 'p-queue';
 import { AppConfig, AuthFirestore } from '../../lib/types';
 import { ConfigType } from '../../config';
 import { StripeHelper } from '../../lib/payments/stripe';
+import { PayPalHelper } from 'packages/fxa-auth-server/lib/payments/paypal';
 
 /**
  * Firestore subscriptions contain additional expanded information
@@ -48,6 +49,7 @@ export class PlanCanceller {
     private batchSize: number,
     private outputFile: string,
     private stripeHelper: StripeHelper,
+    private paypalHelper: PayPalHelper,
     private database: any,
     public dryRun: boolean,
     rateLimit: number
@@ -193,19 +195,26 @@ export class PlanCanceller {
       this.stripe.invoices.retrieve(latestInvoiceId)
     );
 
-    const chargeId =
-      typeof invoice.charge === 'string' ? invoice.charge : invoice.charge?.id;
-    if (!chargeId) {
-      console.log(`No charge for ${invoice.id}`);
-      return;
-    }
+    if (invoice.collection_method === 'send_invoice') {
+      console.log(`Issuing Paypal refund for ${invoice.id}`);
+      await this.paypalHelper.refundInvoice(invoice);
+    } else {
+      const chargeId =
+        typeof invoice.charge === 'string'
+          ? invoice.charge
+          : invoice.charge?.id;
+      if (!chargeId) {
+        console.log(`No charge for ${invoice.id}`);
+        return;
+      }
 
-    console.log(`Refunding ${chargeId}`);
-    await this.enqueueRequest(() =>
-      this.stripe.refunds.create({
-        charge: chargeId,
-      })
-    );
+      console.log(`Issuing Stripe refund for ${chargeId}`);
+      await this.enqueueRequest(() =>
+        this.stripe.refunds.create({
+          charge: chargeId,
+        })
+      );
+    }
   }
 
   /**

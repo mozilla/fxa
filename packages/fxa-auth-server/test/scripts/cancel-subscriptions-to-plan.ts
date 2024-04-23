@@ -21,6 +21,7 @@ import { StripeHelper } from '../../lib/payments/stripe';
 import product1 from '../local/payments/fixtures/stripe/product1.json';
 import customer1 from '../local/payments/fixtures/stripe/customer1.json';
 import subscription1 from '../local/payments/fixtures/stripe/subscription1.json';
+import { PayPalHelper } from '../../lib/payments/paypal/helper';
 
 const mockProduct = product1 as unknown as Stripe.Product;
 const mockCustomer = customer1 as unknown as Stripe.Customer;
@@ -53,6 +54,7 @@ describe('PlanCanceller', () => {
   let planCanceller: PlanCanceller;
   let stripeStub: Stripe;
   let stripeHelperStub: StripeHelper;
+  let paypalHelperStub: PayPalHelper;
   let dbStub: any;
   let firestoreGetStub: sinon.SinonStub;
 
@@ -86,6 +88,10 @@ describe('PlanCanceller', () => {
       },
     } as unknown as StripeHelper;
 
+    paypalHelperStub = {
+      refundInvoice: sinon.stub(),
+    } as unknown as PayPalHelper;
+
     dbStub = {
       account: sinon.stub(),
     };
@@ -98,6 +104,7 @@ describe('PlanCanceller', () => {
       100,
       './cancel-subscriptions-to-plan.tmp.csv',
       stripeHelperStub,
+      paypalHelperStub,
       dbStub,
       false,
       20
@@ -327,6 +334,7 @@ describe('PlanCanceller', () => {
     let cancelStub: sinon.SinonStub;
     let invoiceStub: sinon.SinonStub;
     let refundStub: sinon.SinonStub;
+    let refundInvoiceStub: sinon.SinonStub;
     const mockInvoice = {
       charge: 'abc',
     };
@@ -340,9 +348,12 @@ describe('PlanCanceller', () => {
 
       refundStub = sinon.stub().resolves();
       stripeStub.refunds.create = refundStub;
+
+      refundInvoiceStub = sinon.stub().resolves();
+      paypalHelperStub.refundInvoice = refundInvoiceStub;
     });
 
-    describe('with refund', () => {
+    describe('with Stripe refund', () => {
       beforeEach(async () => {
         await planCanceller.cancelSubscription(mockSubscription);
       });
@@ -368,6 +379,36 @@ describe('PlanCanceller', () => {
       });
     });
 
+    describe('with Paypal refund', () => {
+      const mockPaypalInvoice = {
+        ...mockInvoice,
+        collection_method: 'send_invoice',
+      };
+
+      beforeEach(async () => {
+        invoiceStub = sinon.stub().resolves(mockPaypalInvoice);
+        stripeStub.invoices.retrieve = invoiceStub;
+
+        await planCanceller.cancelSubscription(mockSubscription);
+      });
+
+      it('cancels subscription', () => {
+        expect(
+          cancelStub.calledWith(mockSubscription.id, {
+            prorate: false,
+          })
+        ).true;
+      });
+
+      it('fetches invoice', () => {
+        expect(invoiceStub.calledWith(mockSubscription.latest_invoice)).true;
+      });
+
+      it('creates refund', () => {
+        expect(refundInvoiceStub.calledWith(mockPaypalInvoice)).true;
+      });
+    });
+
     describe('with proration', () => {
       beforeEach(async () => {
         planCanceller = new PlanCanceller(
@@ -378,6 +419,7 @@ describe('PlanCanceller', () => {
           100,
           './cancel-subscriptions-to-plan.tmp.csv',
           stripeHelperStub,
+          paypalHelperStub,
           dbStub,
           false,
           20
