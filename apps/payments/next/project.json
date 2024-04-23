@@ -15,15 +15,6 @@
       "configurations": {
         "development": {
           "outputPath": "apps/payments/next"
-        },
-        "production": {
-          "assets": [
-            {
-              "input": "apps/payments/next",
-              "glob": ".env.production.json",
-              "output": "./../"
-            }
-          ]
         }
       },
       "dependsOn": ["l10n-bundle"]
@@ -97,6 +88,9 @@
     "l10n-convert": {
       "dependsOn": ["l10n-prime"],
       "command": "node -r esbuild-register apps/payments/next/app/_lib/scripts/convert.ts"
+    },
+    "ztest": {
+      "command": "node -r esbuild-register apps/payments/next/config/index.ts"
     },
     "storybook": {
       "executor": "@nx/storybook:storybook",

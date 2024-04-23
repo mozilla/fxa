@@ -4,6 +4,8 @@
 
 // Use this file to export React server components
 export * from './lib/nestapp/app';
+export * from './lib/nestapp/config';
+export * from './lib/config.utils';
 export * from './lib/server/purchase-details';
 export * from './lib/server/subscription-title';
 export * from './lib/server/terms-and-privacy';
