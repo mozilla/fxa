@@ -5,7 +5,10 @@
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
-import { EligibilityService } from '@fxa/payments/eligibility';
+import {
+  EligibilityService,
+  EligibilityStatus,
+} from '@fxa/payments/eligibility';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   CartEligibilityStatus,
@@ -94,10 +97,9 @@ describe('#payments-cart - service', () => {
       jest
         .spyOn(accountCustomerManager, 'getStripeCustomerIdByUid')
         .mockResolvedValue('cus_id');
-      jest.spyOn(eligibilityService, 'checkEligibility').mockResolvedValue({
-        eligibilityStatus: CartEligibilityStatus.CREATE,
-        state: CartState.START,
-      });
+      jest
+        .spyOn(eligibilityService, 'checkEligibility')
+        .mockResolvedValue(EligibilityStatus.CREATE);
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
 
       await cartService.setupCart(args);
@@ -111,7 +113,6 @@ describe('#payments-cart - service', () => {
         experiment: args.experiment,
         taxAddress,
         eligibilityStatus: CartEligibilityStatus.CREATE,
-        state: CartState.START,
       });
     });
   });
@@ -136,7 +137,6 @@ describe('#payments-cart - service', () => {
         email: mockOldCart.email,
         amount: mockOldCart.amount,
         eligibilityStatus: mockOldCart.eligibilityStatus,
-        state: mockOldCart.state,
       });
       expect(result).toEqual(mockNewCart);
     });

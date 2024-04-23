@@ -3,7 +3,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
-import { StripeManager } from '@fxa/payments/stripe';
+import {
+  getSubscribedPlans,
+  getSubscribedProductIds,
+  StripeManager,
+} from '@fxa/payments/stripe';
 import { ContentfulManager } from '@fxa/shared/contentful';
 import { EligibilityManager } from './eligibility.manager';
 import { EligibilityStatus } from './eligibility.types';
@@ -22,7 +26,7 @@ export class EligibilityService {
   async checkEligibility(
     interval: string,
     offeringConfigId: string,
-    stripeCustomerId?: string | null
+    stripeCustomerId?: string | null | undefined
   ) {
     if (!stripeCustomerId) {
       return EligibilityStatus.CREATE;
@@ -39,11 +43,9 @@ export class EligibilityService {
       stripeCustomerId
     );
 
-    const subscribedPlans =
-      this.stripeManager.getSubscribedPlans(subscriptions);
+    const subscribedPlans = getSubscribedPlans(subscriptions);
 
-    const productIds =
-      this.stripeManager.getSubscribedProductIds(subscribedPlans);
+    const productIds = getSubscribedProductIds(subscribedPlans);
 
     const overlaps = this.eligibilityManager.getProductIdOverlap(
       productIds,

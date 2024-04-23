@@ -24,6 +24,20 @@ import {
   OfferingOverlapProductResult,
 } from './eligibility.types';
 
+const mockSubscribedPlans = jest.fn();
+const mockSubscribedProductIds = jest.fn();
+
+jest.mock('../../../stripe/src/lib/stripe.util.ts', () => {
+  return {
+    getSubscribedPlans: function () {
+      return mockSubscribedPlans();
+    },
+    getSubscribedProductIds: function () {
+      return mockSubscribedProductIds();
+    },
+  };
+});
+
 describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;
   let eligibilityManager: EligibilityManager;
@@ -76,7 +90,7 @@ describe('EligibilityService', () => {
       const result = await eligibilityService.checkEligibility(
         mockInterval,
         mockOffering.apiIdentifier,
-        null
+        undefined
       );
       expect(result).toEqual(EligibilityStatus.CREATE);
     });
@@ -127,8 +141,8 @@ describe('EligibilityService', () => {
         .spyOn(stripeManager, 'getSubscriptions')
         .mockResolvedValue(mockSubscriptionList);
 
-      jest.spyOn(stripeManager, 'getSubscribedPlans').mockReturnValue([]);
-      jest.spyOn(stripeManager, 'getSubscribedProductIds').mockReturnValue([]);
+      mockSubscribedPlans.mockReturnValue([]);
+      mockSubscribedProductIds.mockReturnValue([]);
 
       jest
         .spyOn(eligibilityManager, 'getProductIdOverlap')

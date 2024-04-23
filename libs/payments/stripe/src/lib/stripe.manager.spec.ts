@@ -12,10 +12,7 @@ import {
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripePlanFactory } from './factories/plan.factory';
-import {
-  StripeSubscriptionFactory,
-  StripeSubscriptionItemFactory,
-} from './factories/subscription.factory';
+import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 import { StripeConfig } from './stripe.config';
 import {
@@ -336,55 +333,6 @@ describe('StripeManager', () => {
       expect(
         manager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
-    });
-  });
-
-  describe('getSubscribedPlans', () => {
-    it('returns plans successfully', async () => {
-      const mockPlan = StripePlanFactory();
-      const mockSubItem = StripeSubscriptionItemFactory({
-        plan: mockPlan,
-      });
-      const mockSubscription = StripeSubscriptionFactory({
-        items: {
-          object: 'list',
-          data: [mockSubItem],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            {
-              length: 24,
-            }
-          )}`,
-        },
-      });
-      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
-
-      const result = manager.getSubscribedPlans(mockSubscriptionList);
-      expect(result).toEqual([mockPlan]);
-    });
-
-    it('returns empty array if no subscriptions exist', async () => {
-      const mockSubscriptionList = StripeApiListFactory([]);
-
-      const result = manager.getSubscribedPlans(mockSubscriptionList);
-      expect(result).toEqual([]);
-    });
-  });
-
-  describe('getSubscribedProductIds', () => {
-    it('returns product IDs successfully', async () => {
-      const mockProductId = 'prod_test1';
-      const mockPlan = StripePlanFactory({
-        product: mockProductId,
-      });
-
-      const result = manager.getSubscribedProductIds([mockPlan]);
-      expect(result).toEqual([mockProductId]);
-    });
-
-    it('returns empty array if no subscriptions exist', async () => {
-      const result = manager.getSubscribedProductIds([]);
-      expect(result).toEqual([]);
     });
   });
 });

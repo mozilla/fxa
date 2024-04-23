@@ -11,6 +11,7 @@ import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
+import { handleEligibilityStatusMap } from './cart.utils';
 
 @Injectable()
 export class CartService {
@@ -47,12 +48,13 @@ export class CartService {
       ? this.geodbManager.getTaxAddress(args.ip)
       : undefined;
 
-    const { eligibilityStatus, state } =
-      await this.eligibilityService.checkEligibility(
-        args.interval,
-        args.offeringConfigId,
-        stripeCustomerId
-      );
+    const eligibility = await this.eligibilityService.checkEligibility(
+      args.interval,
+      args.offeringConfigId,
+      stripeCustomerId
+    );
+
+    const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
 
     const cart = await this.cartManager.createCart({
       interval: args.interval,
@@ -62,8 +64,7 @@ export class CartService {
       stripeCustomerId: stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
-      eligibilityStatus: eligibilityStatus,
-      state,
+      eligibilityStatus: cartEligibilityStatus,
     });
 
     return cart;
@@ -86,7 +87,6 @@ export class CartService {
       email: oldCart.email || undefined,
       amount: oldCart.amount,
       eligibilityStatus: oldCart.eligibilityStatus,
-      state: oldCart.state,
     });
 
     return newCart;

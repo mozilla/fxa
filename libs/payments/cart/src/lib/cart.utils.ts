@@ -9,25 +9,13 @@ import {
   CartErrorReasonId,
 } from '@fxa/shared/db/mysql/account';
 
-export function handleEligibilityStatus(
-  eligibilityStatus: EligibilityStatus
-): CartEligibilityStatus {
-  switch (eligibilityStatus) {
-    case EligibilityStatus.BLOCKED_IAP:
-      return CartEligibilityStatus.BLOCKED_IAP;
-    case EligibilityStatus.CREATE:
-      return CartEligibilityStatus.CREATE;
-    case EligibilityStatus.DOWNGRADE:
-      return CartEligibilityStatus.DOWNGRADE;
-    case EligibilityStatus.UPGRADE:
-      return CartEligibilityStatus.UPGRADE;
-    case EligibilityStatus.INVALID:
-      return CartEligibilityStatus.INVALID;
-    default:
-      console.error(eligibilityStatus);
-      return CartEligibilityStatus.INVALID;
-  }
-}
+export const handleEligibilityStatusMap = {
+  [EligibilityStatus.BLOCKED_IAP]: CartEligibilityStatus.BLOCKED_IAP,
+  [EligibilityStatus.CREATE]: CartEligibilityStatus.CREATE,
+  [EligibilityStatus.DOWNGRADE]: CartEligibilityStatus.DOWNGRADE,
+  [EligibilityStatus.UPGRADE]: CartEligibilityStatus.UPGRADE,
+  [EligibilityStatus.INVALID]: CartEligibilityStatus.INVALID,
+};
 
 export function stripeErrorToErrorReasonId(
   stripeError: Stripe.StripeRawError
