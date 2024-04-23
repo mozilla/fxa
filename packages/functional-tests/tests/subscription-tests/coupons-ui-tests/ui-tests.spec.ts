@@ -10,7 +10,6 @@ test.describe('severity-2 #smoke', () => {
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
       pages: { relier, subscribe },
     }, { project }) => {
-      test.fixme(true, 'Fix required as of 2024/04/16 (see FXA-9378).');
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
@@ -65,10 +64,19 @@ test.describe('severity-2 #smoke', () => {
         'amplitude.subPaySubChange.submit',
         'amplitude.subPaySubChange.success',
       ];
+
       const actualEventTypes = metricsObserver.rawEvents.map((event) => {
         return event.type;
       });
-      expect(actualEventTypes).toMatchObject(expectedEventTypes);
+
+      // Added as part of FXA-9467 to resolve flaky bug
+      // See also FXA-9322 (https://github.com/mozilla/fxa/pull/16689)
+      // Compares the tail of both arrays in the event of duplicate initial view events
+      expect(
+        actualEventTypes.slice(
+          actualEventTypes.length - expectedEventTypes.length
+        )
+      ).toMatchObject(expectedEventTypes);
     });
   });
 });
