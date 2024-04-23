@@ -11,10 +11,9 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 import { SigninLocationState } from '../interfaces';
 import { getSigninState } from '../utils';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 // The email with token code (verifyLoginCodeEmail) is sent on `/signin`
 // submission if conditions are met.
@@ -57,16 +56,8 @@ const SigninTokenCodeContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   return (

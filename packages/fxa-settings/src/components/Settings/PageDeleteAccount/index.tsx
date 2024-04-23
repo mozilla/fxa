@@ -27,7 +27,7 @@ import { useLocalization } from '@fluent/react';
 import { Localized } from '@fluent/react';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
@@ -149,7 +149,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
         hardNavigateToContentServer(`${ROOTPATH}?delete_account_success=true`);
       } catch (e) {
         const localizedError = l10n.getString(
-          composeAuthUiErrorTranslationId(AuthUiErrors.INCORRECT_PASSWORD),
+          getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),
           null,
           AuthUiErrors.INCORRECT_PASSWORD.message
         );

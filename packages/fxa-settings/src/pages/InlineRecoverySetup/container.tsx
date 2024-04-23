@@ -6,10 +6,11 @@ import { useMutation, useQuery } from '@apollo/client';
 import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState } from 'react';
-import AppLayout from '../../components/AppLayout';
-import CardHeader from '../../components/CardHeader';
 import { AuthUiErrors } from '../../lib/auth-errors/auth-errors';
-import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
+import {
+  FinishOAuthFlowHandlerResult,
+  useFinishOAuthFlowHandler,
+} from '../../lib/oauth/hooks';
 import { getCode } from '../../lib/totp';
 import { MozServices } from '../../lib/types';
 import { OAuthIntegration, useAuthClient } from '../../models';
@@ -19,6 +20,7 @@ import { hardNavigate } from 'fxa-react/lib/utils';
 import { SigninRecoveryLocationState } from './interfaces';
 import { TotpStatusResponse } from '../Signin/SigninTokenCode/interfaces';
 import { GET_TOTP_STATUS } from '../../components/App/gql';
+import OAuthDataError from '../../components/OAuthDataError';
 
 export const InlineRecoverySetupContainer = ({
   isSignedIn,
@@ -47,6 +49,8 @@ export const InlineRecoverySetupContainer = ({
   const [verifyTotp] = useMutation<{ verifyTotp: { success: boolean } }>(
     VERIFY_TOTP_MUTATION
   );
+  const [oAuthError, setOAuthError] =
+    useState<FinishOAuthFlowHandlerResult['error']>();
 
   const { data: totpStatus, loading: totpStatusLoading } =
     useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
@@ -61,12 +65,16 @@ export const InlineRecoverySetupContainer = ({
 
   const successfulSetupHandler = useCallback(async () => {
     // When this is called, we know signinRecoveryLocationState exists.
-    const { redirect } = await finishOAuthFlowHandler(
+    const { redirect, error } = await finishOAuthFlowHandler(
       signinRecoveryLocationState!.uid,
       signinRecoveryLocationState!.sessionToken,
       signinRecoveryLocationState!.keyFetchToken,
       signinRecoveryLocationState!.unwrapBKey
     );
+    if (error) {
+      setOAuthError(error);
+      return;
+    }
     hardNavigate(redirect);
   }, [signinRecoveryLocationState, finishOAuthFlowHandler]);
 
@@ -104,21 +112,14 @@ export const InlineRecoverySetupContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   return (
     <InlineRecoverySetup
       {...{
+        oAuthError,
         recoveryCodes,
         serviceName,
         cancelSetupHandler,

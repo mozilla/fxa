@@ -249,7 +249,8 @@ const SignupContainer = ({
           };
         } else return { data: undefined };
       } catch (error) {
-        // TODO consider additional error handling - any non-gql errors will return an unexpected error
+        // TODO tweak this if we ever use auth-client here, any
+        // non-gql errors will return an unexpected error
         return handleGQLError(error);
       }
     },

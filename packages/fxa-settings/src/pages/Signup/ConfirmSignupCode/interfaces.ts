@@ -66,6 +66,7 @@ export interface ConfirmSignupCodeOAuthIntegration {
     OAuthIntegration['wantsTwoStepAuthentication']
   >;
   isSync: () => ReturnType<OAuthIntegration['isSync']>;
+  getPermissions: () => ReturnType<OAuthIntegration['getPermissions']>;
 }
 
 export type ConfirmSignupCodeIntegration =

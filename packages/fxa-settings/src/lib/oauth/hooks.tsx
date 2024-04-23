@@ -12,6 +12,8 @@ import {
 } from '../../models';
 import { createEncryptedBundle } from '../crypto/scoped-keys';
 import { Constants } from '../constants';
+import { AuthError, OAUTH_ERRORS, OAuthError } from './oauth-errors';
+import { AuthUiErrors } from '../auth-errors/auth-errors';
 
 type OAuthCode = {
   code: string;
@@ -19,20 +21,40 @@ type OAuthCode = {
   redirect: string; // you probably don't want this, see comment below
 };
 
-// TODO: Do we need this or can we rely on `@bind` methods? FXA-8106
-const checkOAuthData = (integration: OAuthIntegration): Error | null => {
+interface FinishOAuthFlowHandlerError {
+  redirect: undefined;
+  code: undefined;
+  state: undefined;
+  error: AuthError;
+}
+interface FinishOAuthFlowHandlerSuccess {
+  redirect: string;
+  code: string;
+  state: string;
+  error: undefined;
+}
+
+export type FinishOAuthFlowHandlerResult =
+  | FinishOAuthFlowHandlerSuccess
+  | FinishOAuthFlowHandlerError;
+
+const checkOAuthData = (integration: OAuthIntegration): AuthError | null => {
   // Ensure a redirect was provided or matched. Without this info, we can't relay the
   // oauth code and state on a redirect!
-
   // clientInfo?.redirectUri has already validated the redirect_uri query param
   if (!integration.clientInfo?.redirectUri) {
-    return new OAuthErrorInvalidRedirectUri();
+    return OAUTH_ERRORS.INCORRECT_REDIRECT;
   }
   if (!integration.data.clientId) {
-    return new OAuthErrorInvalidRelierClientId();
+    return OAUTH_ERRORS.UNKNOWN_CLIENT;
   }
   if (!integration.data.state) {
-    return new OAuthErrorInvalidRelierState();
+    return {
+      errno: OAUTH_ERRORS.INVALID_PARAMETER.errno,
+      message: new OAuthError(OAUTH_ERRORS.INVALID_PARAMETER.errno, {
+        param: 'state',
+      }).error as string,
+    };
   }
   return null;
 };
@@ -104,16 +126,12 @@ async function constructOAuthCode(
     opts.access_type = integration.data.accessType;
   }
 
-  const result: OAuthCode = await authClient.createOAuthCode(
+  const result: OAuthCode | null = await authClient.createOAuthCode(
     sessionToken,
     integration.data.clientId,
     integration.data.state,
     opts
   );
-
-  if (!result) {
-    throw new OAuthErrorInvalidOAuthCodeResult();
-  }
 
   return result;
 }
@@ -140,12 +158,16 @@ export type FinishOAuthFlowHandler = (
   sessionToken: string,
   keyFetchToken?: string,
   unwrapKB?: string
-) => Promise<{ redirect: string; code: string; state: string }>;
+) => Promise<FinishOAuthFlowHandlerResult>;
 
-type FinishOAuthFlowHandlerResult = {
+type UseFinishOAuthFlowHandlerResult = {
   finishOAuthFlowHandler: FinishOAuthFlowHandler;
-  oAuthDataError: null | Error;
+  oAuthDataError: null | AuthError;
 };
+
+export function tryAgainError() {
+  return { error: new OAuthError('TRY_AGAIN') };
+}
 
 /**
  * Generates a redirect link which relays the new oauth token to the relying party.
@@ -158,7 +180,7 @@ type FinishOAuthFlowHandlerResult = {
 export function useFinishOAuthFlowHandler(
   authClient: AuthClient,
   integration: Integration
-): FinishOAuthFlowHandlerResult {
+): UseFinishOAuthFlowHandlerResult {
   const isSyncOAuth = isSyncOAuthIntegration(integration);
 
   const finishOAuthFlowHandler: FinishOAuthFlowHandler = useCallback(
@@ -167,29 +189,49 @@ export function useFinishOAuthFlowHandler(
 
       let keys;
       if (integration.wantsKeys() && keyFetchToken && unwrapBKey) {
-        const { kB } = await authClient.accountKeys(keyFetchToken, unwrapBKey);
-        keys = await constructKeysJwe(
-          authClient,
-          oAuthIntegration,
-          accountUid,
-          sessionToken,
-          keyFetchToken,
-          kB
-        );
+        try {
+          const { kB } = await authClient.accountKeys(
+            keyFetchToken,
+            unwrapBKey
+          );
+          keys = await constructKeysJwe(
+            authClient,
+            oAuthIntegration,
+            accountUid,
+            sessionToken,
+            keyFetchToken,
+            kB
+          );
+        } catch (e) {
+          return tryAgainError();
+        }
       }
 
       // oAuthCode is an object that contains 'code', 'state' and 'redirect'
       // The oauth-server would previously construct and return the full redirect URI (as redirect)
       // but we now expect to receive `code` and `state` and build it ourselves
-      // using the relier's locally-validated redirectUri.
+      // using the relier's locally-validated redirectUri (clientInfo.redirectUri).
       // The previous 'redirect' is still included in the oAuthCode object, but is rejected by the relier
       // as having incorrect state if used directly unless the redirect URI is not provided by the relier
-      const oAuthCode = await constructOAuthCode(
-        authClient,
-        oAuthIntegration,
-        sessionToken,
-        keys
-      );
+      let oAuthCode;
+      try {
+        oAuthCode = await constructOAuthCode(
+          authClient,
+          oAuthIntegration,
+          sessionToken,
+          keys
+        );
+        if (!oAuthCode) throw new OAuthError('INVALID_RESULT');
+      } catch (error) {
+        // We only care about these errors, else just tell the user to try again.
+        if (
+          error.errno === AuthUiErrors.TOTP_REQUIRED.errno ||
+          error.errno === AuthUiErrors.INSUFFICIENT_ACR_VALUES.errno
+        ) {
+          return { error };
+        }
+        return tryAgainError();
+      }
 
       const redirect = isSyncOAuth
         ? Constants.OAUTH_WEBCHANNEL_REDIRECT
@@ -199,7 +241,7 @@ export function useFinishOAuthFlowHandler(
             oAuthIntegration.clientInfo?.redirectUri!
           ).href;
 
-      // Always use the state the RP passed in for OAuth Webchannel.
+      // Always use the state the RP passed in for Sync OAuth.
       // This is necessary to complete the prompt=none
       // flow error cases where no interaction with
       // the server occurs to get the state from
@@ -240,37 +282,4 @@ export function useFinishOAuthFlowHandler(
     return { oAuthDataError, finishOAuthFlowHandler };
   }
   return { oAuthDataError: null, finishOAuthFlowHandler };
-}
-
-// TODO: FXA-8106
-// 1. Is there a better way to handle these errors. I (Dan) prefer having error types that
-// specific even if the error object's state is general.
-// 2. Do we want to surface these errors to users or what's the expected behavior? In
-// content-server we just show the user a banner with "invalid client ID" etc.
-export class OAuthErrorInvalidRelierClientId extends Error {
-  public readonly errno = 1001;
-  constructor() {
-    super('UNEXPECTED_ERROR');
-  }
-}
-
-export class OAuthErrorInvalidOAuthCodeResult extends Error {
-  public readonly errno = 1001;
-  constructor() {
-    super('UNEXPECTED_ERROR');
-  }
-}
-
-export class OAuthErrorInvalidRelierState extends Error {
-  public readonly errno = 1001;
-  constructor() {
-    super('UNEXPECTED_ERROR');
-  }
-}
-
-export class OAuthErrorInvalidRedirectUri extends Error {
-  public readonly errno = 1001;
-  constructor() {
-    super('UNEXPECTED_ERROR');
-  }
 }

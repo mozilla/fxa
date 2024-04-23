@@ -10,14 +10,13 @@ import { useMutation } from '@apollo/client';
 import { MozServices } from '../../../lib/types';
 import VerificationMethods from '../../../constants/verification-methods';
 import { VERIFY_TOTP_CODE_MUTATION } from './gql';
-import { getSigninState, handleGQLError } from '../utils';
+import { getSigninState, getHandledError } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 export type SigninTotpCodeContainerProps = {
   integration: Integration;
@@ -63,21 +62,12 @@ export const SigninTotpCodeContainer = ({
 
       return { status: false };
     } catch (error) {
-      const gqlError = handleGQLError(error);
-      return { error: gqlError.error, status: false };
+      return { error: getHandledError(error).error, status: false };
     }
   };
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   if (

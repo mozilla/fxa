@@ -9,6 +9,7 @@ import { MozServices } from '../../lib/types';
 import { renderWithRouter } from '../../models/mocks';
 import { MOCK_RECOVERY_CODES, MOCK_SERVICE_NAME } from './mocks';
 import { MOCK_EMAIL } from '../mocks';
+import { OAUTH_ERRORS, OAuthError } from '../../lib/oauth';
 
 jest.mock('../../lib/metrics', () => ({
   logViewEvent: jest.fn(),
@@ -18,6 +19,7 @@ const cancelSetupHandler = jest.fn();
 const verifyTotpHandler = jest.fn();
 const successSetupHandler = jest.fn();
 const props = {
+  oAuthError: undefined,
   recoveryCodes: MOCK_RECOVERY_CODES,
   cancelSetupHandler: cancelSetupHandler,
   verifyTotpHandler: verifyTotpHandler,
@@ -125,6 +127,23 @@ describe('InlineRecoverySetup', () => {
         await user.click(screen.getByRole('button', { name: 'Confirm' }))
     );
     await screen.findByText('Incorrect backup authentication code');
+  });
+
+  it('shows an error when oAuthError is passed', async () => {
+    renderWithRouter(
+      <InlineRecoverySetup
+        {...props}
+        email={MOCK_EMAIL}
+        oAuthError={new OAuthError('TRY_AGAIN')}
+      />
+    );
+    await act(
+      async () =>
+        await user.click(screen.getByRole('button', { name: 'Continue' }))
+    );
+    await waitFor(() => {
+      screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
+    });
   });
 
   it('calls the successful setup callback on correct recovery code', async () => {

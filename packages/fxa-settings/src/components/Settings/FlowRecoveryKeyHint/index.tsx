@@ -16,7 +16,7 @@ import Banner, { BannerType } from '../../Banner';
 import {
   AuthUiErrorNos,
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
 import classNames from 'classnames';
 
@@ -105,15 +105,12 @@ export const FlowRecoveryKeyHint = ({
         } catch (e) {
           let localizedError: string;
           if (e.errno && AuthUiErrorNos[e.errno]) {
-            localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(e),
-              e.message
-            );
+            localizedError = ftlMsgResolver.getMsg(getErrorFtlId(e), e.message);
           } else {
             // Any errors that aren't matched to a known error are reported to the user as an unexpected error
             const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
             localizedError = ftlMsgResolver.getMsg(
-              composeAuthUiErrorTranslationId(unexpectedError),
+              getErrorFtlId(unexpectedError),
               unexpectedError.message
             );
           }

@@ -7,11 +7,12 @@ export type AuthError = {
   message: string;
   response_error_code?: string;
   interpolate?: boolean;
+  version?: number;
 };
 
 export const UNEXPECTED_ERROR = 'Unexpected error';
 
-export const ERRORS: Record<string, AuthError> = {
+export const OAUTH_ERRORS: Record<string, AuthError> = {
   UNKNOWN_CLIENT: {
     errno: 101,
     message: 'Unknown client',
@@ -43,6 +44,7 @@ export const ERRORS: Record<string, AuthError> = {
   INVALID_PARAMETER: {
     errno: 109,
     message: 'Invalid OAuth parameter: %(param)s',
+    interpolate: true,
   },
   INVALID_RESPONSE_TYPE: {
     errno: 110,
@@ -179,15 +181,16 @@ export const ERRORS: Record<string, AuthError> = {
 };
 
 export class OAuthError extends Error {
+  public errno: number;
   constructor(
     public readonly error: string | number,
     public readonly params?: Record<string, string>
   ) {
     const err =
       typeof error === 'string'
-        ? ERRORS[error]
+        ? OAUTH_ERRORS[error]
         : typeof error === 'number'
-        ? Object.values(ERRORS).find((x) => x.errno === error)
+        ? Object.values(OAUTH_ERRORS).find((x) => x.errno === error)
         : null;
     let msg = err != null ? err.message : UNEXPECTED_ERROR;
     if (err?.interpolate) {
@@ -195,6 +198,8 @@ export class OAuthError extends Error {
     }
 
     super(msg);
+    this.name = 'OAuthError';
+    this.errno = err?.errno || OAUTH_ERRORS.UNEXPECTED_ERROR.errno;
   }
 }
 

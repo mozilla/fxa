@@ -15,6 +15,7 @@ import {
   MOCK_AUTH_ERROR,
   MOCK_SIGNUP_CODE,
   Subject,
+  createMockOAuthIntegration,
   createMockWebIntegration,
 } from './mocks';
 import { MOCK_STORED_ACCOUNT } from '../../mocks';
@@ -22,6 +23,11 @@ import GleanMetrics from '../../../lib/glean';
 import { useWebRedirect } from '../../../lib/hooks/useWebRedirect';
 import { ConfirmSignupCodeIntegration } from './interfaces';
 import * as utils from 'fxa-react/lib/utils';
+import {
+  FinishOAuthFlowHandler,
+  tryAgainError,
+} from '../../../lib/oauth/hooks';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -72,14 +78,16 @@ function renderWithSession({
   session,
   newsletterSlugs,
   integration,
+  finishOAuthFlowHandler,
 }: {
   session?: Session;
   newsletterSlugs?: string[];
   integration?: ConfirmSignupCodeIntegration;
+  finishOAuthFlowHandler?: FinishOAuthFlowHandler;
 }) {
   renderWithLocalizationProvider(
     <AppContext.Provider value={mockAppContext({ session })}>
-      <Subject {...{ newsletterSlugs, integration }} />
+      <Subject {...{ newsletterSlugs, integration, finishOAuthFlowHandler }} />
     </AppContext.Provider>
   );
 }
@@ -193,6 +201,23 @@ describe('ConfirmSignupCode page', () => {
       );
       expect(GleanMetrics.signupConfirmation.submit).toHaveBeenCalledTimes(1);
       expect(mockNavigate).toHaveBeenCalledWith('/settings', { replace: true });
+    });
+  });
+
+  describe('OAuth integration', () => {
+    const integration = createMockOAuthIntegration();
+
+    it('shows an error banner for an OAuth error', async () => {
+      renderWithSession({
+        session,
+        integration,
+        finishOAuthFlowHandler: jest.fn().mockReturnValueOnce(tryAgainError()),
+      });
+      submit();
+
+      await waitFor(() => {
+        screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
+      });
     });
   });
 

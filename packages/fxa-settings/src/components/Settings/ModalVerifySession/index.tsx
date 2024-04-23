@@ -11,7 +11,7 @@ import { useAccount, useSession } from '../../../models';
 import { Localized, useLocalization } from '@fluent/react';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type ModalProps = {
@@ -49,7 +49,7 @@ export const ModalVerifySession = ({
       } catch (e) {
         if (e.errno === AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.errno) {
           const errorText = l10n.getString(
-            composeAuthUiErrorTranslationId(e),
+            getErrorFtlId(e),
             null,
             AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
           );

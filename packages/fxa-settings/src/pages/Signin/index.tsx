@@ -63,7 +63,7 @@ const Signin = ({
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
 
-  const [localizedBannerMessage, setLocalizedBannerMessage] = useState(
+  const [bannerError, setBannerError] = useState(
     localizedErrorFromLocationState || ''
   );
   const [passwordTooltipErrorText, setPasswordTooltipErrorText] =
@@ -133,17 +133,16 @@ const Signin = ({
           queryParams: location.search,
         };
 
-        await handleNavigation(navigationOptions);
+        const { error: navError } = await handleNavigation(navigationOptions);
+        if (navError) {
+          setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
+        }
       }
       if (error) {
-        const localizedErrorMessage = getLocalizedErrorMessage(
-          ftlMsgResolver,
-          error
-        );
+        setBannerError(getLocalizedErrorMessage(ftlMsgResolver, error));
         if (error.errno === AuthUiErrors.SESSION_EXPIRED.errno) {
           isPasswordNeededRef.current = true;
         }
-        setLocalizedBannerMessage(localizedErrorMessage);
         setSigninLoading(false);
       }
     },
@@ -151,7 +150,7 @@ const Signin = ({
       cachedSigninHandler,
       email,
       ftlMsgResolver,
-      setLocalizedBannerMessage,
+      setBannerError,
       integration,
       finishOAuthFlowHandler,
       location.search,
@@ -189,7 +188,13 @@ const Signin = ({
           queryParams: location.search,
         };
 
-        await handleNavigation(navigationOptions, true);
+        const { error: navError } = await handleNavigation(
+          navigationOptions,
+          true
+        );
+        if (navError) {
+          setBannerError(getLocalizedErrorMessage(ftlMsgResolver, navError));
+        }
       }
       if (error) {
         GleanMetrics.login.error({ event: { reason: error.message } });
@@ -204,7 +209,7 @@ const Signin = ({
           errno === AuthUiErrors.PASSWORD_REQUIRED.errno ||
           errno === AuthUiErrors.INCORRECT_PASSWORD.errno
         ) {
-          setLocalizedBannerMessage('');
+          setBannerError('');
           setPasswordTooltipErrorText(localizedErrorMessage);
         } else {
           switch (errno) {
@@ -216,7 +221,7 @@ const Signin = ({
                 // Sending the unblock email could itself be rate limited.
                 // If it is, the error should be displayed on this screen
                 // and the user shouldn't even have the chance to continue.
-                setLocalizedBannerMessage(unblockErrorMessage);
+                setBannerError(unblockErrorMessage);
                 setSigninLoading(false);
                 break;
               }
@@ -237,7 +242,7 @@ const Signin = ({
               navigate('/signin_bounced');
               break;
             default:
-              setLocalizedBannerMessage(localizedErrorMessage);
+              setBannerError(localizedErrorMessage);
               setSigninLoading(false);
               break;
           }
@@ -252,7 +257,7 @@ const Signin = ({
       hasPassword,
       navigate,
       sendUnblockEmailHandler,
-      setLocalizedBannerMessage,
+      setBannerError,
       finishOAuthFlowHandler,
       integration,
       location.search,
@@ -298,9 +303,9 @@ const Signin = ({
           {...{ clientId, serviceName }}
         />
       )}
-      {localizedBannerMessage && (
+      {bannerError && (
         <Banner type={BannerType.error}>
-          <p>{localizedBannerMessage}</p>
+          <p>{bannerError}</p>
         </Banner>
       )}
       <div className="mt-9">

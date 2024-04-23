@@ -7,14 +7,13 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { currentAccount } from '../../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, useAuthClient } from '../../../models';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
 import ConfirmSignupCode from '.';
 import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
 import { EMAIL_BOUNCE_STATUS_QUERY } from './gql';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 export const POLL_INTERVAL = 5000;
 
@@ -131,16 +130,8 @@ const SignupConfirmCodeContainer = ({
     return <LoadingSpinner fullScreen />;
   }
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   return (
