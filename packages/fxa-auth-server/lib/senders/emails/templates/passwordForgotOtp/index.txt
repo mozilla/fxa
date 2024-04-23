@@ -1,0 +1,12 @@
+password-forgot-otp-title = "Your confirmation code"
+
+password-forgot-otp-request = "We received a request to reset your password. Enter this code to confirm it’s really you."
+
+<%- code %>
+
+password-forgot-otp-expiry-notice = "This code expires in 5 minutes."
+
+<%- include('/partials/requestDevice/index.txt') %>
+
+<%- include('/partials/automatedEmailNoAction/index.txt') %>
+<%- include('/partials/support/index.txt') %>

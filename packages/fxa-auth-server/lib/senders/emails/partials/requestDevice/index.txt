@@ -1,0 +1,6 @@
+<%# Request origin will only be shown if device info is available - otherwise it will be omitted %>
+
+<% if (locals.device) { %>
+    account-request-origin-plaintext = "This request came from:"
+    <% const device = include('/partials/userDevice/index.txt') %><%- device.trim() %>
+<% } %>

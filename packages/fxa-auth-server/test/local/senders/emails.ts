@@ -895,6 +895,26 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['passwordForgotOtpEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Your confirmation code' }],
+    ['headers', new Map([
+      ['X-Password-Forgot-OTP', { test: 'equal', expected: MESSAGE.code}],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordForgotOtp') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordForgotOtp' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordForgotOtp }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Your confirmation code' },
+      { test: 'include', expected: 'We received a request to reset your password. Enter this code to confirm it’s really you.' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Your confirmation code' },
+      { test: 'include', expected: 'We received a request to reset your password. Enter this code to confirm it’s really you.' },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+    ]],
+  ])],
+
   ['passwordResetAccountRecoveryEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Your password has been reset' }],
     ['headers', new Map([

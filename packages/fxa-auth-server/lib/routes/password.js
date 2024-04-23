@@ -550,10 +550,7 @@ module.exports = function (
           deviceType: uaDeviceType,
         } = request.app.ua;
 
-        // TODO FXA-7852
-        // await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
-        const noopSendMail = () => {};
-        noopSendMail(account.emails, account, {
+        await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
           code,
           service,
           acceptLanguage: request.app.acceptLanguage,

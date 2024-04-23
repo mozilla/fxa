@@ -1,0 +1,6 @@
+{
+  "subject": {
+    "id": "password-forgot-otp-subject",
+    "message": "Your confirmation code"
+  }
+}

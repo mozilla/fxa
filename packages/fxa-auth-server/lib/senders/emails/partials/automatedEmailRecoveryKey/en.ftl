@@ -1,32 +1,3 @@
-# "This request" refers to a modification (addition, change or removal) to the account recovery key.
-# Variables:
-# - $uaBrowser: the user agent's browser (e.g., Firefox Nightly)
-# - $uaOS: the user agent's operating system (e.g, MacOS)
-# - $uaOSVersion - the user agent's operating system version
-automatedEmailRecoveryKey-origin-device-all = This request came from { $uaBrowser } on { $uaOS } { $uaOSVersion }.
-
-# "This request" refers to a modification (addition, change or removal) to the account recovery key.
-# Variables:
-# - $uaBrowser: the user agent's browser (e.g., Firefox Nightly)
-# - $uaOS: the user agent's operating system (e.g, MacOS)
-automatedEmailRecoveryKey-origin-device-browser-os = This request came from { $uaBrowser } on { $uaOS }.
-
-# "This request" refers to a modification (addition, change or removal) to the account recovery key.
-# Variables:
-# - $uaBrowser: the user agent's browser (e.g., Firefox Nightly)
-automatedEmailRecoveryKey-origin-device-browser-only = This request came from { $uaBrowser }.
-
-# "This request" refers to a modification (addition, change or removal) to the account recovery key.
-# Variables:
-# - $uaOS: the user agent's operating system (e.g, MacOS)
-# - $uaOSVersion - the user agent's operating system version
-automatedEmailRecoveryKey-origin-device-OS-version-only = This request came from { $uaOS } { $uaOSVersion }.
-
-# "This request" refers to a modification (addition, change or removal) to the account recovery key.
-# Variables:
-# - $uaOS: the user agent's operating system (e.g, MacOS)
-automatedEmailRecoveryKey-origin-device-OS-only = This request came from { $uaOS }.
-
 automatedEmailRecoveryKey-delete-key-change-pwd = If this wasn’t you, <a data-l10n-name="revokeAccountRecoveryLink">delete the new key</a> and <a data-l10n-name="passwordChangeLink">change your password</a>.
 automatedEmailRecoveryKey-change-pwd-only = If this wasn’t you, <a data-l10n-name="passwordChangeLink">change your password</a>.
 automatedEmailRecoveryKey-more-info = For more info, visit <a data-l10n-name="supportLink">{ -brand-mozilla } Support</a>.

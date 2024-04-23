@@ -6,25 +6,7 @@
   <mj-column>
     <mj-text css-class="text-body-subtext">
       <% if (locals.device) { %>
-        <%# Request origin will only be shown if device info is available - otherwise it will be omitted %>
-        <% const { uaBrowser, uaOS, uaOSVersion } = device; %>
-        <% if (uaBrowser) { %>
-          <% if (uaOS) { %>
-            <% if (uaOSVersion) { %>
-              <span data-l10n-id="automatedEmailRecoveryKey-origin-device-all" data-l10n-args="<%= JSON.stringify({uaBrowser, uaOS, uaOSVersion}) %>"><%- `This request came from ${uaBrowser} on ${uaOS} ${uaOSVersion}.` %></span>
-            <% } else { %>
-              <span data-l10n-id="automatedEmailRecoveryKey-origin-device-browser-os" data-l10n-args="<%= JSON.stringify({uaBrowser, uaOS})%>"><%- `This request came from ${uaBrowser} on ${uaOS}.` %></span>
-            <% } %>
-          <% } else { %>
-            <span data-l10n-id="automatedEmailRecoveryKey-origin-device-browser-only" data-l10n-args="<%= JSON.stringify({uaBrowser})%>"><%- `This request came from ${uaBrowser}.` %></span>
-          <% } %>
-        <% } else if (uaOS)  { %>
-          <% if (uaOSVersion) { %>
-            <span data-l10n-id="automatedEmailRecoveryKey-origin-device-OS-version-only" data-l10n-args="<%= JSON.stringify({uaOS, uaOSVersion})%>"><%- `This request came from ${uaOS} ${uaOSVersion}.` %></span>
-          <% } else { %>
-            <span data-l10n-id="automatedEmailRecoveryKey-origin-device-OS-only" data-l10n-args="<%= JSON.stringify({uaOS})%>"><%- `This request came from ${uaOS}.` %></span>
-          <% } %>
-        <% } %>
+        <%- include('/partials/requestDevice/index.mjml') %>
       <% } %>
 
       <% if (locals.keyExists === true ) { %>

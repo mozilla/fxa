@@ -1,0 +1,23 @@
+<%# This Source Code Form is subject to the terms of the Mozilla Public
+  # License, v. 2.0. If a copy of the MPL was not distributed with this
+  # file, You can obtain one at http://mozilla.org/MPL/2.0/. %>
+
+<%# Request origin will only be shown if device info is available - otherwise it will be omitted %>
+<% const { uaBrowser, uaOS, uaOSVersion } = device; %>
+<% if (uaBrowser) { %>
+  <% if (uaOS) { %>
+    <% if (uaOSVersion) { %>
+      <span data-l10n-id="account-request-origin-device-all" data-l10n-args="<%= JSON.stringify({uaBrowser, uaOS, uaOSVersion}) %>"><%- `This request came from ${uaBrowser} on ${uaOS} ${uaOSVersion}.` %></span>
+    <% } else { %>
+      <span data-l10n-id="account-request-origin-device-browser-os" data-l10n-args="<%= JSON.stringify({uaBrowser, uaOS})%>"><%- `This request came from ${uaBrowser} on ${uaOS}.` %></span>
+    <% } %>
+  <% } else { %>
+    <span data-l10n-id="account-request-origin-device-browser-only" data-l10n-args="<%= JSON.stringify({uaBrowser})%>"><%- `This request came from ${uaBrowser}.` %></span>
+  <% } %>
+<% } else if (uaOS)  { %>
+  <% if (uaOSVersion) { %>
+    <span data-l10n-id="account-request-origin-device-OS-version-only" data-l10n-args="<%= JSON.stringify({uaOS, uaOSVersion})%>"><%- `This request came from ${uaOS} ${uaOSVersion}.` %></span>
+  <% } else { %>
+    <span data-l10n-id="account-request-origin-device-OS-only" data-l10n-args="<%= JSON.stringify({uaOS})%>"><%- `This request came from ${uaOS}.` %></span>
+  <% } %>
+<% } %>
