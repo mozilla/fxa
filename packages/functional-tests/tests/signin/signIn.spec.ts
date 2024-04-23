@@ -14,6 +14,7 @@ test.describe('severity-2 #smoke', () => {
     test.use({
       emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
     });
+
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,
@@ -33,7 +34,7 @@ test.describe('severity-2 #smoke', () => {
       await login.clickForgotPassword();
 
       //Verify reset password header
-      await resetPassword.resetPasswordHeader();
+      expect(await resetPassword.resetPasswordHeader()).toBe(true);
     });
 
     test('signin with email with leading/trailing whitespace on the email', async ({
@@ -99,7 +100,6 @@ test.describe('severity-2 #smoke', () => {
 
       // Sign out
       await settings.signOut();
-
       // Login as existing user
       await login.setEmail(credentials.email);
       await login.clickSubmit();
@@ -140,6 +140,7 @@ test.describe('severity-2 #smoke', () => {
 
       //Verify sign in bounced header
       expect(await login.isSigninBouncedHeader()).toBe(true);
+
       await login.clickBouncedCreateAccount();
 
       //Verify user redirected to login page

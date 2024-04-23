@@ -218,7 +218,7 @@ export async function newPages(browser: Browser, target: BaseTarget) {
 // `identity.fxaccounts.lastSignedInUserHash` to the last
 // user signed in. On subsequent login to Sync, a dialog is prompted for the user
 // to confirm. Playwright does not have functionality to click browser ui.
-export async function newPagesForSync(target: BaseTarget) {
+async function newPagesForSync(target: BaseTarget) {
   const browser = await firefox.launch({
     args: DEBUG ? ['-start-debugger-server'] : undefined,
     firefoxUserPrefs: getFirefoxUserPrefs(target.name, DEBUG),
