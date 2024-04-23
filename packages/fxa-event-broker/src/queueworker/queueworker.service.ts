@@ -18,6 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
+import Sentry from '@sentry/node';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
@@ -80,12 +81,15 @@ export class QueueworkerService
       queueUrl: this.queueName,
       sqs: this.sqs,
     });
+
     this.app.on('error', (err) => {
       this.log.error('consumerError', { err });
+      Sentry.captureException(err);
     });
 
     this.app.on('processing_error', (err) => {
       this.log.error('processingError', { err });
+      Sentry.captureException(err);
     });
   }
 
@@ -107,6 +111,7 @@ export class QueueworkerService
       // Production queue names must have the region in them.
       const region = extractRegionFromUrl(this.queueName);
       if (!region) {
+        Sentry.captureMessage('Cant find region in service url');
         this.log.error('invalidServiceUrl', {
           message: 'Cant find region in service url',
           serviceNotificationQueueUrl: this.queueName,

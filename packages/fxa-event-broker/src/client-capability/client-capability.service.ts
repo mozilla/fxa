@@ -8,6 +8,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import Sentry from '@sentry/node';
+
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
@@ -58,6 +60,7 @@ export class ClientCapabilityService
           : undefined,
         message: 'Error fetching client capabilities.',
       });
+      Sentry.captureException(err);
       return;
     }
     this.log.debug('updateCapabilities', { clientCapabilities: result.data });
