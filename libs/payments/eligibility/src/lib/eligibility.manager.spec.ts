@@ -291,7 +291,6 @@ describe('EligibilityManager', () => {
   describe('getProductIdOverlap', () => {
     it('should return empty result', async () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
-      mockOfferingResult.getOffering = jest.fn().mockReturnValueOnce(undefined);
 
       const result = manager.getProductIdOverlap([], mockTargetOffering);
       expect(result.length).toBe(0);
@@ -305,10 +304,6 @@ describe('EligibilityManager', () => {
       const mockTargetOfferingResult = EligibilityContentOfferingResultFactory({
         stripeProductId: mockProductId,
       });
-
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult);
 
       const result = manager.getProductIdOverlap(
         [mockProductId],
@@ -344,9 +339,6 @@ describe('EligibilityManager', () => {
         },
       });
 
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult);
       const result = manager.getProductIdOverlap(
         ['prod_test'],
         mockTargetOfferingResult
@@ -377,9 +369,7 @@ describe('EligibilityManager', () => {
           },
         },
       });
-      mockOfferingResult.getOffering = jest
-        .fn()
-        .mockReturnValueOnce(mockTargetOfferingResult);
+
       const result = manager.getProductIdOverlap(
         ['prod_test2'],
         mockTargetOfferingResult
