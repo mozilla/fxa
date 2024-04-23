@@ -25,15 +25,21 @@ export class SignupReactPage extends BaseLayout {
   }
 
   get passwordTextbox() {
-    return this.page.getByTestId('new-password-input-field');
+    return this.page
+      .getByTestId('new-password-input-field') // React
+      .or(this.page.getByPlaceholder('Password', { exact: true })); // Backbone
   }
 
   get verifyPasswordTextbox() {
-    return this.page.getByTestId('verify-password-input-field');
+    return this.page
+      .getByTestId('verify-password-input-field') // React
+      .or(this.page.getByPlaceholder('Repeat password', { exact: true })); // Backbone
   }
 
   get ageTextbox() {
-    return this.page.getByTestId('age-input-field');
+    return this.page
+      .getByTestId('age-input-field') // React
+      .or(this.page.getByPlaceholder('How old are you?')); // Backbone
   }
 
   get createAccountButton() {
@@ -45,7 +51,9 @@ export class SignupReactPage extends BaseLayout {
   }
 
   get codeTextbox() {
-    return this.page.getByTestId('confirm-signup-code-input-field');
+    return this.page
+      .getByTestId('confirm-signup-code-input-field') // React
+      .or(this.page.getByPlaceholder('Enter 6-digit code')); // Backbone
   }
 
   get confirmButton() {

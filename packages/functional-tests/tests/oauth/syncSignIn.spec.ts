@@ -10,6 +10,8 @@ import {
   SYNC_EMAIL_PREFIX,
 } from '../../lib/fixtures/standard';
 
+const AGE_21 = '21';
+
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(() => {
     test.slow();
@@ -32,10 +34,8 @@ test.describe('severity-1 #smoke', () => {
         connectAnotherDevice,
         relier,
         signupReact,
-        configPage,
       },
     }) => {
-      const config = await configPage.getConfig();
       const [email, syncEmail] = emails;
       await target.createAccount(syncEmail, PASSWORD);
       await page.goto(
@@ -50,18 +50,9 @@ test.describe('severity-1 #smoke', () => {
       await relier.goto();
       await relier.clickEmailFirst();
       await login.useDifferentAccountLink();
-
-      // This conditional is temporary until we have a test explicitely for this in React.
-      // When that happens, we can skip this entire test if the flag is on instead. For
-      // now, it's compatible with `fullProdRollout: true` _and_ `fullProdRollout: false`.
-      // eslint-disable-next-line playwright/no-conditional-in-test
-      if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(email, PASSWORD);
-      } else {
-        await signupReact.fillOutEmailForm(email);
-        await signupReact.fillOutSignupForm(PASSWORD, '21');
-        await signupReact.fillOutCodeForm(email);
-      }
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutCodeForm(email);
 
       // RP is logged in, logout then back in again
       expect(await relier.isLoggedIn()).toBe(true);
@@ -91,25 +82,15 @@ test.describe('severity-1 #smoke', () => {
         login,
         connectAnotherDevice,
         relier,
-        configPage,
         signupReact,
       },
     }) => {
-      const config = await configPage.getConfig();
       const [syncEmail] = emails;
       await relier.goto();
       await relier.clickEmailFirst();
-      // This conditional is temporary until we have a test explicitely for this in React.
-      // When that happens, we can skip this entire test if the flag is on instead. For
-      // now, it's compatible with `fullProdRollout: true` _and_ `fullProdRollout: false`.
-      // eslint-disable-next-line playwright/no-conditional-in-test
-      if (config.showReactApp.signUpRoutes !== true) {
-        await login.fillOutFirstSignUp(syncEmail, PASSWORD);
-      } else {
-        await signupReact.fillOutEmailForm(syncEmail);
-        await signupReact.fillOutSignupForm(PASSWORD, '21');
-        await signupReact.fillOutCodeForm(syncEmail);
-      }
+      await signupReact.fillOutEmailForm(syncEmail);
+      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutCodeForm(syncEmail);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
