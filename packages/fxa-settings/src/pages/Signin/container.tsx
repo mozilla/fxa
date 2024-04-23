@@ -21,7 +21,12 @@ import {
   discardSessionToken,
   lastStoredAccount,
 } from '../../lib/cache';
-import { FetchResult, useMutation, useQuery } from '@apollo/client';
+import {
+  FetchResult,
+  MutationFunction,
+  useMutation,
+  useQuery,
+} from '@apollo/client';
 import {
   AVATAR_QUERY,
   BEGIN_SIGNIN_MUTATION,
@@ -67,6 +72,7 @@ import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
 import OAuthDataError from '../../components/OAuthDataError';
+import { MetricsContext } from 'fxa-auth-client/browser';
 
 /*
  * In content-server, the `email` param is optional. If it's provided, we
@@ -227,192 +233,38 @@ const SigninContainer = ({
   const beginSigninHandler: BeginSigninHandler = useCallback(
     async (email: string, password: string) => {
       const service = integration.getService();
+
+      const { error, unverifiedAccount, v1Credentials, v2Credentials } =
+        await tryKeyStretchingUpgrade(
+          email,
+          password,
+          keyStretchExp.queryParamModel.isV2(config),
+          credentialStatus,
+          passwordChangeStart,
+          getWrappedKeys,
+          passwordChangeFinish
+        );
+
+      if (error) {
+        return { error };
+      }
+
       const options = {
         verificationMethod: VerificationMethods.EMAIL_OTP,
         keys: wantsKeys,
         ...(service !== MozServices.Default && { service }),
         metricsContext: queryParamsToMetricsContext(
-          flowQueryParams as unknown as ReturnType<typeof searchParams>
+          flowQueryParams as ReturnType<typeof searchParams>
         ),
       };
-
-      const v1Credentials = await getCredentials(email, password);
-      let v2Credentials = null;
-      let unverifiedAccount = false;
-
-      if (keyStretchExp.queryParamModel.isV2(config)) {
-        let credentialStatusData: FetchResult<CredentialStatusResponse>;
-        try {
-          credentialStatusData = await credentialStatus({
-            variables: {
-              input: email,
-            },
-          });
-        } catch (error) {
-          Sentry.captureMessage(
-            'Failure to finish v2 upgrade. Could not fetch credential status.'
-          );
-          return getHandledError(error);
-        }
-
-        // We might have to upgrade the credentials in place.
-        if (credentialStatusData.data?.credentialStatus.upgradeNeeded) {
-          // Start password change.
-          let keyFetchToken = '';
-          let passwordChangeToken = '';
-          try {
-            const passwordChangeStartResponse = await passwordChangeStart({
-              variables: {
-                input: {
-                  email,
-                  oldAuthPW: v1Credentials.authPW,
-                },
-              },
-            });
-
-            const data = passwordChangeStartResponse.data?.passwordChangeStart;
-            keyFetchToken = data?.keyFetchToken || '';
-            passwordChangeToken = data?.passwordChangeToken || '';
-          } catch (error) {
-            // If the user enters the wrong password, they will see an invalid password error.
-            // Other wise something has going wrong and we should show an general error.
-            Sentry.captureMessage(
-              'Failure to finish v2 upgrade. Could not start password change.'
-            );
-            return getHandledError(error);
-          }
-
-          // Determine wrapKb.
-          let wrapKb = '';
-          if (keyFetchToken) {
-            try {
-              const keysResponse = await getWrappedKeys({
-                variables: {
-                  input: keyFetchToken,
-                },
-              });
-              wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
-            } catch (error) {
-              const uiError = getHandledError(error);
-              if (uiError.error.errno === 104) {
-                // NOOP - If the account is simply 'unverified', then go through normal flow.
-                // The password upgrade can occur later.
-                unverifiedAccount = true;
-              } else {
-                Sentry.captureMessage(
-                  'Failure to finish v2 upgrade. Could not get wrapped keys.'
-                );
-                return getHandledError(error);
-              }
-            }
-          }
-
-          // Derive V2 wrapKb and authPW and finalize password reset
-          if (wrapKb && passwordChangeToken) {
-            try {
-              v2Credentials = await getCredentialsV2({
-                password,
-                clientSalt:
-                  credentialStatusData.data?.credentialStatus.clientSalt ||
-                  createSaltV2(),
-              });
-
-              const kB = unwrapKB(wrapKb, v1Credentials.unwrapBKey);
-              const keys = await getKeysV2({
-                kB,
-                v1: v1Credentials,
-                v2: v2Credentials,
-              });
-
-              // Will always return an empty payload on success, because no session token is provided.
-              await passwordChangeFinish({
-                variables: {
-                  input: {
-                    passwordChangeToken: passwordChangeToken,
-                    authPW: v1Credentials.authPW,
-                    wrapKb: keys.wrapKb,
-                    authPWVersion2: v2Credentials.authPW,
-                    wrapKbVersion2: keys.wrapKbVersion2,
-                    clientSalt: v2Credentials.clientSalt,
-                  },
-                },
-              });
-            } catch (error) {
-              Sentry.captureMessage(
-                'Failure to finish v2 upgrade. Could not finish password change.'
-              );
-              return getHandledError(error);
-            }
-          }
-        } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
-          v2Credentials = await getCredentialsV2({
-            password,
-            clientSalt: credentialStatusData.data?.credentialStatus.clientSalt,
-          });
-        }
-
-        // If we successfully created V2 credentials, finish by signing in with these.
-        // Otherwise, fallback to v1 and log an error about it.
-        if (v2Credentials) {
-          try {
-            const { data } = await beginSignin({
-              variables: {
-                input: {
-                  email,
-                  authPW: v2Credentials.authPW,
-                  options,
-                },
-              },
-            });
-
-            if (data) {
-              return {
-                data: {
-                  ...data,
-                  ...(wantsKeys && {
-                    unwrapBKey: v2Credentials.unwrapBKey,
-                  }),
-                },
-              };
-            }
-            return { data: undefined };
-          } catch (error) {
-            return getHandledError(error);
-          }
-        } else if (unverifiedAccount === false) {
-          // Something went wrong, don't fail, so user can still log in, but DO report it to sentry;
-          Sentry.captureMessage(
-            'Failure to finish v2 upgrade. V2 credentials are null.'
-          );
-        }
-      }
-
-      try {
-        const { authPW } = await getCredentials(email, password);
-        const { data } = await beginSignin({
-          variables: {
-            input: {
-              email,
-              authPW,
-              options,
-            },
-          },
-        });
-
-        if (data) {
-          return {
-            data: {
-              ...data,
-              ...(wantsKeys && {
-                unwrapBKey: v1Credentials.unwrapBKey,
-              }),
-            },
-          };
-        }
-        return { data: undefined };
-      } catch (error) {
-        return getHandledError(error);
-      }
+      return await trySignIn(
+        email,
+        v1Credentials,
+        v2Credentials,
+        unverifiedAccount,
+        beginSignin,
+        options
+      );
     },
     [
       beginSignin,
@@ -551,5 +403,227 @@ const SigninContainer = ({
     />
   );
 };
+
+/**
+ * Attempts to automatically upgrade user keys to v2 keys on sign in.
+ */
+export async function tryKeyStretchingUpgrade(
+  email: string,
+  password: string,
+  v2Enabled: boolean,
+  credentialStatus: MutationFunction<CredentialStatusResponse>,
+  passwordChangeStart: MutationFunction<PasswordChangeStartResponse>,
+  getWrappedKeys: MutationFunction<GetAccountKeysResponse>,
+  passwordChangeFinish: MutationFunction<PasswordChangeFinishResponse>
+): Promise<{
+  error: any | undefined;
+  unverifiedAccount: boolean;
+  v1Credentials: {
+    authPW: string;
+    unwrapBKey: string;
+  };
+  v2Credentials:
+    | {
+        authPW: string;
+        unwrapBKey: string;
+      }
+    | undefined;
+}> {
+  const v1Credentials = await getCredentials(email, password);
+  let v2Credentials = undefined;
+  let unverifiedAccount = false;
+
+  if (v2Enabled) {
+    let credentialStatusData: FetchResult<CredentialStatusResponse>;
+    try {
+      credentialStatusData = await credentialStatus({
+        variables: {
+          input: email,
+        },
+      });
+    } catch (error) {
+      Sentry.captureMessage(
+        'Failure to finish v2 upgrade. Could not fetch credential status.'
+      );
+      return {
+        ...getHandledError(error),
+        unverifiedAccount,
+        v1Credentials,
+        v2Credentials,
+      };
+    }
+
+    // We might have to upgrade the credentials in place.
+    if (credentialStatusData.data?.credentialStatus.upgradeNeeded) {
+      // Start password change.
+      let keyFetchToken = '';
+      let passwordChangeToken = '';
+      try {
+        const passwordChangeStartResponse = await passwordChangeStart({
+          variables: {
+            input: {
+              email,
+              oldAuthPW: v1Credentials.authPW,
+            },
+          },
+        });
+
+        const data = passwordChangeStartResponse.data?.passwordChangeStart;
+        keyFetchToken = data?.keyFetchToken || '';
+        passwordChangeToken = data?.passwordChangeToken || '';
+      } catch (error) {
+        // If the user enters the wrong password, they will see an invalid password error.
+        // Otherwise something has going wrong and we should show a general error.
+        Sentry.captureMessage(
+          'Failure to finish v2 upgrade. Could not start password change.'
+        );
+        return {
+          ...getHandledError(error),
+          unverifiedAccount,
+          v1Credentials,
+          v2Credentials,
+        };
+      }
+
+      // Determine wrapKb.
+      let wrapKb = '';
+      if (keyFetchToken) {
+        try {
+          const keysResponse = await getWrappedKeys({
+            variables: {
+              input: keyFetchToken,
+            },
+          });
+          wrapKb = keysResponse.data?.wrappedAccountKeys.wrapKB || '';
+        } catch (error) {
+          const uiError = getHandledError(error);
+          if (uiError.error.errno === 104) {
+            // NOOP - If the account is simply 'unverified', then go through normal flow.
+            // The password upgrade can occur later.
+            unverifiedAccount = true;
+          } else {
+            Sentry.captureMessage(
+              'Failure to finish v2 upgrade. Could not get wrapped keys.'
+            );
+            return {
+              ...getHandledError(error),
+              unverifiedAccount,
+              v1Credentials,
+              v2Credentials,
+            };
+          }
+        }
+      }
+
+      // Derive V2 wrapKb and authPW and finalize password reset
+      if (wrapKb && passwordChangeToken) {
+        try {
+          v2Credentials = await getCredentialsV2({
+            password,
+            clientSalt:
+              credentialStatusData.data?.credentialStatus.clientSalt ||
+              createSaltV2(),
+          });
+
+          const kB = unwrapKB(wrapKb, v1Credentials.unwrapBKey);
+          const keys = await getKeysV2({
+            kB,
+            v1: v1Credentials,
+            v2: v2Credentials,
+          });
+
+          // Will always return an empty payload on success, because no session token is provided.
+          await passwordChangeFinish({
+            variables: {
+              input: {
+                passwordChangeToken: passwordChangeToken,
+                authPW: v1Credentials.authPW,
+                wrapKb: keys.wrapKb,
+                authPWVersion2: v2Credentials.authPW,
+                wrapKbVersion2: keys.wrapKbVersion2,
+                clientSalt: v2Credentials.clientSalt,
+              },
+            },
+          });
+        } catch (error) {
+          Sentry.captureMessage(
+            'Failure to finish v2 upgrade. Could not finish password change.'
+          );
+          return {
+            ...getHandledError(error),
+            unverifiedAccount,
+            v1Credentials,
+            v2Credentials,
+          };
+        }
+      }
+    } else if (credentialStatusData.data?.credentialStatus.clientSalt) {
+      v2Credentials = await getCredentialsV2({
+        password,
+        clientSalt: credentialStatusData.data?.credentialStatus.clientSalt,
+      });
+    }
+  }
+
+  return {
+    unverifiedAccount,
+    v1Credentials,
+    v2Credentials,
+    error: undefined,
+  };
+}
+
+/**
+ * Attempts to sign in with v2Credentials if available else fallback to v1credentials for sign in.
+ **/
+export async function trySignIn(
+  email: string,
+  v1Credentials: { authPW: string; unwrapBKey: string },
+  v2Credentials: { authPW: string; unwrapBKey: string } | undefined,
+  unverifiedAccount: boolean,
+  beginSignin: MutationFunction<BeginSigninResponse>,
+  options: {
+    verificationMethod: VerificationMethods;
+    keys: boolean;
+    metricsContext: MetricsContext;
+    service?: any;
+    unblockCode?: string;
+  }
+) {
+  try {
+    const authPW =
+      v2Credentials && !unverifiedAccount
+        ? v2Credentials.authPW
+        : v1Credentials.authPW;
+    const { data } = await beginSignin({
+      variables: {
+        input: {
+          email,
+          authPW,
+          options,
+        },
+      },
+    });
+
+    if (data) {
+      const unwrapBKey =
+        v2Credentials && !unverifiedAccount
+          ? v2Credentials.unwrapBKey
+          : v1Credentials.unwrapBKey;
+
+      return {
+        data: {
+          ...data,
+          ...(options.keys && {
+            unwrapBKey,
+          }),
+        },
+      };
+    }
+    return { data: undefined };
+  } catch (error) {
+    return getHandledError(error);
+  }
+}
 
 export default SigninContainer;
