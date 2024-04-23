@@ -160,10 +160,10 @@ const SigninContainer = ({
   );
 
   const wantsKeys = integration.wantsKeys();
+  const queryParams = new URLSearchParams(location.search);
 
   useEffect(() => {
     (async () => {
-      const queryParams = new URLSearchParams(location.search);
       // Tweak this once index page is converted to React
       if (!validationError && email) {
         // if you directly hit /signin with email param or we read from localstorage
@@ -196,7 +196,11 @@ const SigninContainer = ({
           }
         }
       } else {
-        hardNavigateToContentServer(`/?${queryParams}`);
+        if (queryParams.size > 0) {
+          hardNavigateToContentServer(`/${queryParams}`);
+        } else {
+          hardNavigateToContentServer('/');
+        }
       }
     })();
     // Only run this on initial render

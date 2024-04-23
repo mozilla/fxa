@@ -7,12 +7,12 @@ import { EmailHeader, EmailType } from '../../lib/email';
 import { BaseTarget } from '../../lib/targets/base';
 import { Page } from '@playwright/test';
 import { SignupReactPage } from '../../pages/signupReact';
-import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { ResetPasswordPage } from '../../pages/resetPassword';
 import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 import { RecoveryKeyPage } from '../../pages/settings/recoveryKey';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
+import { SigninReactPage } from '../../pages/signinReact';
 
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
@@ -36,8 +36,8 @@ test.describe('key-stretching-v2', () => {
     type Opts = {
       page: Page;
       target: BaseTarget;
+      signinReact: SigninReactPage;
       signupReact: SignupReactPage;
-      login: LoginPage;
       settings: SettingsPage;
       resetPassword: ResetPasswordPage;
       resetPasswordReact: ResetPasswordReactPage;
@@ -85,7 +85,7 @@ test.describe('key-stretching-v2', () => {
       version: 1 | 2,
       opts: Pick<
         Opts,
-        'page' | 'target' | 'signupReact' | 'login' | 'settings'
+        'page' | 'target' | 'signupReact' | 'signinReact' | 'settings'
       >,
       signOut: boolean,
       email: string,
@@ -94,52 +94,41 @@ test.describe('key-stretching-v2', () => {
       const { page, target, signupReact, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
 
-      if (mode === 'react' || mode === 'backbone') {
-        // singup is at 100% now
-        await page.goto(
-          `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
-        );
+      // signup is at 100% now
+      await page.goto(`${target.contentServerUrl}/?${stretch}`);
 
-        await signupReact.fillOutEmailForm(email);
-        await page.waitForSelector('#root');
-        await signupReact.fillOutSignupForm(password, AGE_21);
-        await signupReact.fillOutCodeForm(email);
-        await page.waitForURL(/settings/);
-      }
+      await signupReact.fillOutEmailForm(email);
+      await signupReact.fillOutSignupForm(password, AGE_21);
+      await signupReact.fillOutCodeForm(email);
+      await page.waitForURL(/settings/);
 
       if (signOut) {
         await settings.signOut();
       }
     }
 
-    async function _login(
+    async function _signin(
       version: 1 | 2,
       opts: Pick<
         Opts,
-        'page' | 'target' | 'signupReact' | 'login' | 'settings'
+        'page' | 'target' | 'signinReact' | 'signupReact' | 'settings'
       >,
       signOut: boolean,
       email: string,
       password: string
     ) {
-      const { page, target, signupReact, login, settings } = opts;
+      const { page, target, signinReact, signupReact, settings } = opts;
       const stretch = version === 2 ? 'stretch=2' : '';
       if (mode === 'react') {
         await page.goto(
           `${target.contentServerUrl}/?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
         );
-        await signupReact.fillOutEmailForm(email);
-        await page.fill('[name="password"]', password);
-        await page.click('[type="submit"]');
-        await page.waitForURL(/settings/);
       } else {
-        await page.goto(`${target.contentServerUrl}?${stretch}`);
-        await login.setEmail(email);
-        await login.clickSubmit();
-        await login.setPassword(password);
-        await login.clickSubmit();
-        expect(await login.isUserLoggedIn()).toBe(true);
+        await page.goto(`${target.contentServerUrl}/?${stretch}`);
       }
+      await signupReact.fillOutEmailForm(email);
+      await signinReact.fillOutPasswordForm(password);
+      await page.waitForURL(/settings/);
 
       if (signOut) {
         await settings.signOut();
@@ -188,10 +177,7 @@ test.describe('key-stretching-v2', () => {
 
       if (mode === 'react') {
         await settings.signOut();
-        await page.goto(
-          `${target.contentServerUrl}/reset_password?showReactApp=true&forceExperiment=generalizedReactApp&forceExperimentGroup=react&${stretch}`
-        );
-        await page.waitForSelector('#root');
+        await page.goto(`${target.contentServerUrl}/reset_password?${stretch}`);
         await resetPasswordReact.fillOutEmailForm(email);
         const link =
           (await target.emailClient.waitForEmail(
@@ -200,7 +186,6 @@ test.describe('key-stretching-v2', () => {
             EmailHeader.link
           )) + `&showReactApp=true&${stretch}`;
         await page.goto(link);
-        await page.waitForSelector('#root');
 
         if (key) {
           await resetPasswordReact.fillOutRecoveryKeyForm(key);
@@ -224,7 +209,7 @@ test.describe('key-stretching-v2', () => {
     }
 
     /**
-     * Checks singup & login
+     * Checks signup & signin
      */
     async function testSignUpAndLogin(
       p1: 1 | 2,
@@ -232,20 +217,20 @@ test.describe('key-stretching-v2', () => {
       credentials: 1 | 2,
       opts: Pick<
         Opts,
-        'page' | 'target' | 'signupReact' | 'login' | 'settings'
+        'page' | 'target' | 'signupReact' | 'signinReact' | 'settings'
       >,
       email,
       password
     ) {
       await _signUp(p1, opts, true, email, password);
       await _checkCredentials(p1, opts, email);
-      await _login(p2, opts, false, email, password);
+      await _signin(p2, opts, false, email, password);
       await _checkCredentials(credentials, opts, email);
     }
-    test(`signs up as v1 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v1 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login },
+      pages: { signupReact, settings, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -257,17 +242,17 @@ test.describe('key-stretching-v2', () => {
           page,
           target,
           signupReact,
-          login,
+          signinReact,
           settings,
         },
         email,
         PASSWORD
       );
     });
-    test(`signs up as v1 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v1 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login },
+      pages: { signupReact, settings, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -279,17 +264,17 @@ test.describe('key-stretching-v2', () => {
           page,
           target,
           signupReact,
-          login,
+          signinReact,
           settings,
         },
         email,
         PASSWORD
       );
     });
-    test(`signs up as v2 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v2 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login },
+      pages: { signupReact, settings, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -301,17 +286,17 @@ test.describe('key-stretching-v2', () => {
           page,
           target,
           signupReact,
-          login,
+          signinReact,
           settings,
         },
         email,
         PASSWORD
       );
     });
-    test(`signs up as v2 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v2 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login },
+      pages: { signupReact, settings, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -324,7 +309,7 @@ test.describe('key-stretching-v2', () => {
           page,
           target,
           signupReact,
-          login,
+          signinReact,
         },
         email,
         PASSWORD
@@ -332,7 +317,7 @@ test.describe('key-stretching-v2', () => {
     });
 
     /**
-     * Checks password reset from 'forgot password' link on login
+     * Checks password reset from 'forgot password' link on signin
      */
     async function testPasswordReset(
       p1: 1 | 2,
@@ -345,7 +330,7 @@ test.describe('key-stretching-v2', () => {
         | 'target'
         | 'settings'
         | 'recoveryKey'
-        | 'login'
+        | 'signinReact'
         | 'signupReact'
         | 'resetPasswordReact'
       >,
@@ -354,12 +339,12 @@ test.describe('key-stretching-v2', () => {
     ) {
       // We are on 100% react now for password reset. No need to test.
       if (mode === 'backbone') {
-        return;
+        test.skip(true);
       }
 
       await _signUp(p1, opts, true, email, password);
       const keys = await _getKeys(p1, opts, email, password);
-      await _login(p1, opts, false, email, password);
+      await _signin(p1, opts, false, email, password);
 
       if (useRecoveryKey) {
         await _resetPassword(
@@ -373,7 +358,7 @@ test.describe('key-stretching-v2', () => {
         await _resetPassword(p2, undefined, opts, email, password);
       }
 
-      await _login(p3, opts, false, email, password);
+      await _signin(p3, opts, false, email, password);
       const keys2 = await _getKeys(p3, opts, email, password);
 
       if (useRecoveryKey) {
@@ -382,10 +367,16 @@ test.describe('key-stretching-v2', () => {
         expect(keys2.kB).not.toEqual(keys.kB);
       }
     }
-    test(`signs up as v1 resets password with recovery key as v1 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v1 resets password with recovery key as v1 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -399,7 +390,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -407,10 +398,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password with recovery key as v1 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v1 resets password with recovery key as v1 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -424,7 +421,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -432,10 +429,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password with recovery key as v2 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v1 resets password with recovery key as v2 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -449,7 +452,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -457,10 +460,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password with recovery key as v2 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v1 resets password with recovery key as v2 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -474,7 +483,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -482,10 +491,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password with recovery key as v1 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v2 resets password with recovery key as v1 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -499,7 +514,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -507,10 +522,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password with recovery key as v1 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v2 resets password with recovery key as v1 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -524,7 +545,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -532,10 +553,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password with recovery key as v2 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v2 resets password with recovery key as v2 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -549,7 +576,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -557,10 +584,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password with recovery key as v2 and logins as v2 ${mode}`, async ({
+    test(`signs up as v2 resets password with recovery key as v2 and signs in as v2 ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -574,7 +607,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -582,10 +615,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password without recovery key as v1 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v1 resets password without recovery key as v1 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -599,7 +638,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -607,10 +646,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password without recovery key as v1 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v1 resets password without recovery key as v1 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -624,7 +669,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -632,10 +677,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password without recovery key as v2 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v1 resets password without recovery key as v2 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -649,7 +700,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -657,10 +708,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v1 resets password without recovery key as v2 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v1 resets password without recovery key as v2 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -674,7 +731,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -682,10 +739,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password without recovery key as v1 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v2 resets password without recovery key as v1 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -699,7 +762,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -707,10 +770,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password without recovery key as v1 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v2 resets password without recovery key as v1 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -724,7 +793,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -732,10 +801,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password without recovery key as v2 and logins as v1 for ${mode}`, async ({
+    test(`signs up as v2 resets password without recovery key as v2 and signs in as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -749,7 +824,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -757,10 +832,16 @@ test.describe('key-stretching-v2', () => {
         PASSWORD
       );
     });
-    test(`signs up as v2 resets password without recovery key as v2 and logins as v2 for ${mode}`, async ({
+    test(`signs up as v2 resets password without recovery key as v2 and signs in as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { signupReact, settings, login, recoveryKey, resetPasswordReact },
+      pages: {
+        signupReact,
+        settings,
+        signinReact,
+        recoveryKey,
+        resetPasswordReact,
+      },
       emails,
     }) => {
       const [email] = emails;
@@ -774,7 +855,7 @@ test.describe('key-stretching-v2', () => {
           target,
           settings,
           recoveryKey,
-          login,
+          signinReact,
           signupReact,
           resetPasswordReact,
         },
@@ -795,14 +876,14 @@ test.describe('key-stretching-v2', () => {
         | 'page'
         | 'settings'
         | 'changePassword'
-        | 'login'
+        | 'signinReact'
         | 'signupReact'
       >,
       email,
       password
     ) {
       await _signUp(p1, opts, true, email, password);
-      await _login(p1, opts, false, email, password);
+      await _signin(p1, opts, false, email, password);
       const keys = await _getKeys(p1, opts, email, password);
       await _changePassword(p2, opts, password);
       const keys2 = await _getKeys(p1, opts, email, password);
@@ -811,7 +892,7 @@ test.describe('key-stretching-v2', () => {
     test(`signs up as v1 changes password from settings as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { settings, changePassword, signupReact, login },
+      pages: { settings, changePassword, signupReact, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -821,7 +902,7 @@ test.describe('key-stretching-v2', () => {
         {
           page,
           target,
-          login,
+          signinReact,
           signupReact,
           settings,
           changePassword,
@@ -833,7 +914,7 @@ test.describe('key-stretching-v2', () => {
     test(`signs up as v1 changes password from settings as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { settings, changePassword, signupReact, login },
+      pages: { settings, changePassword, signupReact, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -843,7 +924,7 @@ test.describe('key-stretching-v2', () => {
         {
           page,
           target,
-          login,
+          signinReact,
           signupReact,
           settings,
           changePassword,
@@ -855,7 +936,7 @@ test.describe('key-stretching-v2', () => {
     test(`signs up as v2 changes password from settings as v1 for ${mode}`, async ({
       page,
       target,
-      pages: { settings, changePassword, signupReact, login },
+      pages: { settings, changePassword, signupReact, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -865,7 +946,7 @@ test.describe('key-stretching-v2', () => {
         {
           page,
           target,
-          login,
+          signinReact,
           signupReact,
           settings,
           changePassword,
@@ -877,7 +958,7 @@ test.describe('key-stretching-v2', () => {
     test(`signs up as v2 changes password from settings as v2 for ${mode}`, async ({
       page,
       target,
-      pages: { settings, changePassword, signupReact, login },
+      pages: { settings, changePassword, signupReact, signinReact },
       emails,
     }) => {
       const [email] = emails;
@@ -887,7 +968,7 @@ test.describe('key-stretching-v2', () => {
         {
           page,
           target,
-          login,
+          signinReact,
           signupReact,
           settings,
           changePassword,
