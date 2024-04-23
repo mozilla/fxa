@@ -4,7 +4,7 @@
 
 import { fetchCartData, fetchFromContentful } from './stubs';
 
-export async function getCartData(cartId: string) {
+export async function getFakeCartData(cartId: string) {
   return fetchCartData(cartId);
 }
 

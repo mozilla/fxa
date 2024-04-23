@@ -5,12 +5,13 @@ import Stripe from 'stripe';
 import {
   app,
   handleStripeErrorAction,
-  getCartAction,
+  getCartOrRedirectAction,
+  SupportedPages,
 } from '@fxa/payments/ui/server';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
-import { CheckoutParams } from '../../../layout';
+import { CheckoutParams } from '../layout';
 
 export const dynamic = 'force-dynamic';
 
@@ -24,7 +25,10 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
   const sessionPromise = auth();
   const l10nPromise = app.getL10n(locale);
-  const cartPromise = getCartAction(params.cartId);
+  const cartPromise = getCartOrRedirectAction(
+    params.cartId,
+    SupportedPages.START
+  );
   const [session, l10n, cart] = await Promise.all([
     sessionPromise,
     l10nPromise,

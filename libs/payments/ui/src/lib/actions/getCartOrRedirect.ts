@@ -5,15 +5,30 @@
 'use server';
 
 import { plainToClass } from 'class-transformer';
+import { redirect } from 'next/navigation';
 import { app } from '../nestapp/app';
 import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
+import { getRedirect, validateCartState } from '../utils/get-cart';
+import { SupportedPages } from '../utils/types';
 
-export const getCartAction = async (cartId: string) => {
+/**
+ * Get Cart or Redirect if cart state does not match supported page
+ * @@param cartId - Cart ID
+ * @@param page - Page that action is being called from
+ */
+export const getCartOrRedirectAction = async (
+  cartId: string,
+  page: SupportedPages
+) => {
   const cart = await app.getActionsService().getCart(
     plainToClass(GetCartActionArgs, {
       cartId,
     })
   );
+
+  if (!validateCartState(cart.state, page)) {
+    redirect(getRedirect(cart.state));
+  }
 
   return cart;
 };

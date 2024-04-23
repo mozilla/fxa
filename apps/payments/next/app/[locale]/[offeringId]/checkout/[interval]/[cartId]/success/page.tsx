@@ -9,11 +9,15 @@ import { formatPlanPricing } from '@fxa/payments/ui';
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
 import {
-  getCartData,
+  getFakeCartData,
   getContentfulContent,
 } from '../../../../../../_lib/apiClient';
 import circledConfirm from '../../../../../../../images/circled-confirm.svg';
-import { app } from '@fxa/payments/ui/server';
+import {
+  SupportedPages,
+  app,
+  getCartOrRedirectAction,
+} from '@fxa/payments/ui/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,12 +64,17 @@ export default async function CheckoutSuccess({
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
   const contentfulDataPromise = getContentfulContent(params.offeringId, locale);
-  const cartDataPromise = getCartData(params.cartId);
+  const cartDataPromise = getCartOrRedirectAction(
+    params.cartId,
+    SupportedPages.SUCCESS
+  );
   const l10nPromise = app.getL10n(locale);
-  const [contentful, cart, l10n] = await Promise.all([
+  const fakeCartDataPromise = getFakeCartData(params.cartId);
+  const [contentful, cart, l10n, fakeCart] = await Promise.all([
     contentfulDataPromise,
     cartDataPromise,
     l10nPromise,
+    fakeCartDataPromise,
   ]);
 
   return (
@@ -85,7 +94,7 @@ export default async function CheckoutSuccess({
             {l10n.getString(
               'next-payment-confirmation-thanks-subheading',
               {
-                email: cart.email,
+                email: cart.email || '',
                 product_name: contentful.purchaseDetails.productName,
               },
               `A confirmation email has been sent to ${cart.email} with details on how to get started with ${contentful.purchaseDetails.productName}.`
@@ -101,9 +110,9 @@ export default async function CheckoutSuccess({
           detail1={l10n.getString(
             'next-payment-confirmation-invoice-number',
             {
-              invoiceNumber: cart.invoiceNumber,
+              invoiceNumber: fakeCart.invoiceNumber,
             },
-            `Invoice #${cart.invoiceNumber}`
+            `Invoice #${fakeCart.invoiceNumber}`
           )}
           detail2={l10n.getString(
             'next-payment-confirmation-invoice-date',
@@ -123,23 +132,23 @@ export default async function CheckoutSuccess({
             'next-payment-confirmation-amount',
             {
               amount: l10n.getLocalizedCurrency(
-                cart.nextInvoice.totalAmount,
-                cart.nextInvoice.currency
+                fakeCart.nextInvoice.totalAmount,
+                fakeCart.nextInvoice.currency
               ),
               interval: cart.interval,
             },
             formatPlanPricing(
-              cart.nextInvoice.totalAmount,
-              cart.nextInvoice.currency,
+              fakeCart.nextInvoice.totalAmount,
+              fakeCart.nextInvoice.currency,
               cart.interval
             )
           )}
           detail2={l10n.getString(
             'next-payment-confirmation-cc-card-ending-in',
             {
-              last4: cart.last4,
+              last4: fakeCart.last4,
             },
-            `Card ending in ${cart.last4}`
+            `Card ending in ${fakeCart.last4}`
           )}
         />
 
