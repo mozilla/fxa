@@ -79,7 +79,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'inline_totp_setup',
         'inline_recovery_setup',
       ]),
-      fullProdRollout: false,
+      fullProdRollout: true,
     },
 
     signUpRoutes: {

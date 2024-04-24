@@ -12,15 +12,16 @@ const DEBUG = !!process.env.DEBUG;
 const SLOWMO = parseInt(process.env.PLAYWRIGHT_SLOWMO || '0');
 const NUM_WORKERS = parseInt(process.env.PLAYWRIGHT_WORKERS || '16');
 
-let retries = 0,
+const retries = 0,
   workers = NUM_WORKERS || 2,
   maxFailures = 0;
-if (CI) {
-  // Overall maxFailures is now dependent on the number of retries, workers
-  retries = 3;
-  workers = 2;
-  maxFailures = retries * workers * 2;
-}
+// temporarily turn off maxFailures in CI
+// if (CI) {
+//   // Overall maxFailures is now dependent on the number of retries, workers
+//   retries = 3;
+//   workers = 2;
+//   maxFailures = retries * workers * 2;
+// }
 
 const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
   outputDir: path.resolve(__dirname, '../../artifacts/functional'),
