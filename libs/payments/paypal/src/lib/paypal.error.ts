@@ -49,3 +49,9 @@ export class PayPalNVPError extends BaseError {
     this.errorCode = errorCode;
   }
 }
+
+export class PaypalManagerError extends BaseError {
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
+  }
+}

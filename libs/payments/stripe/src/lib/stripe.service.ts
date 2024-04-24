@@ -8,6 +8,7 @@ import { Injectable } from '@nestjs/common';
 export class StripeService {
   constructor() {}
 
+  // TODO: this method should be moved down to the manager layer
   async customerChanged(uid: string, email: string) {
     // @todo - Unblocked by FXA-9274
     //const devices = await this.db.devices(uid);

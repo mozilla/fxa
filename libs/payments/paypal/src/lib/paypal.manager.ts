@@ -10,23 +10,57 @@ import {
   StripeInvoice,
   StripeManager,
 } from '@fxa/payments/stripe';
-import { AccountDatabase } from '@fxa/shared/db/mysql/account';
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
-import {
-  PaypalCustomerNotFoundError,
-  PaypalCustomerMultipleRecordsError,
-} from './paypalCustomer/paypalCustomer.error';
+import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
+import { PaypalManagerError } from './paypal.error';
 
 @Injectable()
 export class PayPalManager {
   constructor(
-    private db: AccountDatabase,
     private client: PayPalClient,
     private stripeManager: StripeManager,
     private paypalCustomerManager: PaypalCustomerManager
   ) {}
+
+  /**
+   * Create billing agreement using the ExpressCheckout token.
+   *
+   * If the call to PayPal fails, a PayPalClientError will be thrown.
+   */
+  public async createBillingAgreement(token: string): Promise<string> {
+    const response = await this.client.createBillingAgreement({
+      token,
+    });
+    return response.BILLINGAGREEMENTID;
+  }
+
+  public async getOrCreateBillingAgreementId(
+    uid: string,
+    hasSubscriptions: boolean,
+    token?: string
+  ) {
+    const existingBillingAgreementId = await this.getCustomerBillingAgreementId(
+      uid
+    );
+    if (existingBillingAgreementId) return existingBillingAgreementId;
+
+    if (hasSubscriptions) {
+      throw new PaypalManagerError(
+        'Customer missing billing agreement ID with active subscriptions'
+      );
+    }
+    if (!token) {
+      throw new PaypalManagerError(
+        'Must pay using PayPal token if customer has no existing billing agreement'
+      );
+    }
+
+    const newBillingAgreementId = await this.createBillingAgreement(token);
+
+    return newBillingAgreementId;
+  }
 
   /**
    * Cancels a billing agreement.
@@ -63,17 +97,16 @@ export class PayPalManager {
    * Retrieves the customer’s current paypal billing agreement ID from the
    * auth database via the Paypal repository
    */
-  async getCustomerBillingAgreementId(customer: StripeCustomer) {
+  async getCustomerBillingAgreementId(
+    uid: string
+  ): Promise<string | undefined> {
     const paypalCustomer =
-      await this.paypalCustomerManager.fetchPaypalCustomersByUid(
-        customer.metadata.userid
-      );
+      await this.paypalCustomerManager.fetchPaypalCustomersByUid(uid);
     const firstRecord = paypalCustomer.at(0);
 
-    if (!firstRecord)
-      throw new PaypalCustomerNotFoundError(customer.metadata.uid);
+    if (!firstRecord) return;
     if (paypalCustomer.length > 1)
-      throw new PaypalCustomerMultipleRecordsError(customer.metadata.uid);
+      throw new PaypalCustomerMultipleRecordsError(uid);
 
     return firstRecord.billingAgreementId;
   }

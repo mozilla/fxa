@@ -152,3 +152,20 @@ export async function deletePaypalCustomer(
     ).numDeletedRows === BigInt(1)
   );
 }
+
+/**
+ * Delete paypalCustomers from the database by uid.
+ *
+ * @returns Number of deleted paypalCustomers
+ */
+export async function deletePaypalCustomersByUid(
+  db: AccountDatabase,
+  uid: Buffer
+): Promise<bigint> {
+  return (
+    await db
+      .deleteFrom('paypalCustomers')
+      .where('uid', '=', uid)
+      .executeTakeFirstOrThrow()
+  ).numDeletedRows;
+}

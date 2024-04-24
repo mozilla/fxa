@@ -28,6 +28,7 @@ const nextConfig = {
       'kysely',
       'mysql2',
       'nest-typed-config',
+      'superagent',
     ],
   },
   images: {

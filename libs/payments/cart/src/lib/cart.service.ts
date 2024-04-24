@@ -5,13 +5,17 @@
 import { Injectable } from '@nestjs/common';
 
 import { EligibilityService } from '@fxa/payments/eligibility';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
-import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
-import { GeoDBManager } from '@fxa/shared/geodb';
 
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
+import {
+  CartErrorReasonId,
+  CartState,
+} from '@fxa/shared/db/mysql/account';
+import { AccountCustomerManager } from '@fxa/payments/stripe';
+import { GeoDBManager } from '@fxa/shared/geodb';
+import { CheckoutService } from './checkout.service';
 
 @Injectable()
 export class CartService {
@@ -19,7 +23,8 @@ export class CartService {
     private cartManager: CartManager,
     private accountCustomerManager: AccountCustomerManager,
     private eligibilityService: EligibilityService,
-    private geodbManager: GeoDBManager
+    private geodbManager: GeoDBManager,
+    private checkoutService: CheckoutService
   ) {}
 
   /**
@@ -40,8 +45,8 @@ export class CartService {
     // - Check if user is eligible to subscribe to plan, else throw error
     // - Fetch invoice preview total from Stripe for `amount`
     // - Fetch stripeCustomerId if uid is passed and has a customer id
-    const stripeCustomerId = args.uid
-      ? await this.accountCustomerManager.getStripeCustomerIdByUid(args.uid)
+    const accountCustomer = args.uid
+      ? await this.accountCustomerManager.getAccountCustomerByUid(args.uid)
       : undefined;
 
     const taxAddress = args.ip
@@ -51,7 +56,7 @@ export class CartService {
     const eligibility = await this.eligibilityService.checkEligibility(
       args.interval,
       args.offeringConfigId,
-      stripeCustomerId
+      accountCustomer?.stripeCustomerId
     );
 
     const cartEligibilityStatus = handleEligibilityStatusMap[eligibility];
@@ -61,7 +66,7 @@ export class CartService {
       offeringConfigId: args.offeringConfigId,
       amount: 0,
       uid: args.uid,
-      stripeCustomerId: stripeCustomerId || undefined,
+      stripeCustomerId: accountCustomer?.stripeCustomerId || undefined,
       experiment: args.experiment,
       taxAddress,
       eligibilityStatus: cartEligibilityStatus,
@@ -92,16 +97,35 @@ export class CartService {
     return newCart;
   }
 
-  /**
-   * Update a cart in the database by ID or with an existing cart reference
-   * **Note**: This method is currently a placeholder. The arguments will likely change, and the internal implementation is far from complete.
-   */
-  async checkoutCart(cartId: string, version: number): Promise<void> {
+  async checkoutCartWithStripe(
+    cartId: string,
+    version: number,
+    paymentMethodId: string
+  ) {
     try {
-      // TODO:
-      // - Check if customer exists, create via stripe manager if not
-      // - Check if customer is eligible for product in cart
-      // - Check if amount to be charged matches amount in cart
+      const cart = await this.cartManager.fetchCartById(cartId);
+
+      this.checkoutService.payWithStripe(cart, paymentMethodId);
+
+      await this.cartManager.finishCart(cartId, version, {});
+    } catch (e) {
+      // TODO: Handle errors and provide an associated reason for failure
+      await this.cartManager.finishErrorCart(cartId, version, {
+        errorReasonId: CartErrorReasonId.Unknown,
+      });
+    }
+  }
+
+  async checkoutCartWithPaypal(
+    cartId: string,
+    version: number,
+    token?: string
+  ) {
+    try {
+      const cart = await this.cartManager.fetchCartById(cartId);
+
+      this.checkoutService.payWithPaypal(cart, token);
+
       await this.cartManager.finishCart(cartId, version, {});
     } catch (e) {
       // TODO: Handle errors and provide an associated reason for failure

@@ -5,7 +5,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { StripeClient } from './stripe.client';
-import { StripeCustomer } from './stripe.client.types';
+import { StripeCustomer, StripeSubscription } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import {
   MOZILLA_TAX_ID,
@@ -100,11 +100,20 @@ export class StripeManager {
    * Creating a subscription with automatic_tax enabled requires a customer with an address
    * that is in a recognized location with an active tax registration.
    */
-  async isCustomerStripeTaxEligible(customer: StripeCustomer) {
+  isCustomerStripeTaxEligible(customer: StripeCustomer) {
     return (
       customer.tax.automatic_tax === 'supported' ||
       customer.tax.automatic_tax === 'not_collecting'
     );
+  }
+
+  async getPromotionCodeByName(code: string, active?: boolean) {
+    const promotionCodes = await this.client.promotionCodeList({
+      active,
+      code,
+    });
+
+    return promotionCodes.data.at(0);
   }
 
   /**
@@ -165,5 +174,24 @@ export class StripeManager {
     }
     if (plans.length > 1) throw new PlanIntervalMultiplePlansError();
     return plans.at(0);
+  }
+
+  async getLatestPaymentIntent(subscription: StripeSubscription) {
+    if (!subscription.latest_invoice) {
+      return;
+    }
+    const latestInvoice = await this.client.invoicesRetrieve(
+      subscription.latest_invoice
+    );
+
+    if (!latestInvoice.payment_intent) {
+      return;
+    }
+
+    const paymentIntent = await this.client.paymentIntentRetrieve(
+      latestInvoice.payment_intent
+    );
+
+    return paymentIntent;
   }
 }

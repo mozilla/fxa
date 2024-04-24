@@ -3,13 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  AccountDatabase,
-  AccountDbProvider,
-} from '@fxa/shared/db/mysql/account';
+import type { AccountDatabase } from '@fxa/shared/db/mysql/account';
+import { AccountDbProvider } from '@fxa/shared/db/mysql/account';
 import {
   createPaypalCustomer,
   deletePaypalCustomer,
+  deletePaypalCustomersByUid,
   fetchPaypalCustomer,
   fetchPaypalCustomersByBillingAgreementId,
   fetchPaypalCustomersByUid,
@@ -155,6 +154,18 @@ export class PaypalCustomerManager {
         paypalCustomer.billingAgreementId,
         cause
       );
+    }
+  }
+
+  public async deletePaypalCustomersByUid(uid: string) {
+    try {
+      const result = await deletePaypalCustomersByUid(
+        this.db,
+        Buffer.from(uid, 'hex')
+      );
+      return result;
+    } catch (error) {
+      throw new PaypalCustomerNotDeletedError(uid, '', error);
     }
   }
 }

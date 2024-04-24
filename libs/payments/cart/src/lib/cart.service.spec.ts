@@ -9,7 +9,6 @@ import {
   EligibilityService,
   EligibilityStatus,
 } from '@fxa/payments/eligibility';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
 import {
   CartEligibilityStatus,
   CartErrorReasonId,
@@ -22,6 +21,11 @@ import {
   GeoDBProvider,
   TaxAddressFactory,
 } from '@fxa/shared/geodb';
+import {
+  AccountCustomerManager,
+  ResultAccountCustomerFactory,
+} from '@fxa/payments/stripe';
+import { CheckoutService } from './checkout.service';
 
 import {
   FinishErrorCartFactory,
@@ -34,6 +38,7 @@ import { CartService } from './cart.service';
 describe('#payments-cart - service', () => {
   let cartService: CartService;
   let cartManager: CartManager;
+  let checkoutService: CheckoutService;
   let accountCustomerManager: AccountCustomerManager;
   let eligibilityService: EligibilityService;
   let geodbManager: GeoDBManager;
@@ -45,6 +50,7 @@ describe('#payments-cart - service', () => {
         CartManager,
         AccountCustomerManager,
         EligibilityService,
+        CheckoutService,
         GeoDBManager,
         GeoDBManagerConfig,
         { provide: GeoDBProvider, useValue: {} },
@@ -62,7 +68,12 @@ describe('#payments-cart - service', () => {
       })
       .overrideProvider(AccountCustomerManager)
       .useValue({
-        getStripeCustomerIdByUid: jest.fn(),
+        getAccountCustomerByUid: jest.fn(),
+      })
+      .overrideProvider(CheckoutService)
+      .useValue({
+        payWithStripe: jest.fn(),
+        payWithPaypal: jest.fn(),
       })
       .overrideProvider(EligibilityService)
       .useValue({
@@ -77,6 +88,7 @@ describe('#payments-cart - service', () => {
       .compile();
 
     cartService = moduleRef.get(CartService);
+    checkoutService = moduleRef.get(CheckoutService);
     cartManager = moduleRef.get(CartManager);
     accountCustomerManager = moduleRef.get(AccountCustomerManager);
     eligibilityService = moduleRef.get(EligibilityService);
@@ -85,6 +97,7 @@ describe('#payments-cart - service', () => {
 
   describe('setupCart', () => {
     it('calls createCart with expected parameters', async () => {
+      const mockAccountCustomer = ResultAccountCustomerFactory();
       const args = {
         interval: faker.string.uuid(),
         offeringConfigId: faker.string.uuid(),
@@ -95,12 +108,12 @@ describe('#payments-cart - service', () => {
       };
       const taxAddress = TaxAddressFactory();
       jest
-        .spyOn(accountCustomerManager, 'getStripeCustomerIdByUid')
-        .mockResolvedValue('cus_id');
-      jest
         .spyOn(eligibilityService, 'checkEligibility')
         .mockResolvedValue(EligibilityStatus.CREATE);
       jest.spyOn(geodbManager, 'getTaxAddress').mockReturnValue(taxAddress);
+      jest
+        .spyOn(accountCustomerManager, 'getAccountCustomerByUid')
+        .mockResolvedValue(mockAccountCustomer);
 
       await cartService.setupCart(args);
 
@@ -109,7 +122,7 @@ describe('#payments-cart - service', () => {
         offeringConfigId: args.offeringConfigId,
         amount: 0,
         uid: args.uid,
-        stripeCustomerId: 'cus_id',
+        stripeCustomerId: mockAccountCustomer.stripeCustomerId,
         experiment: args.experiment,
         taxAddress,
         eligibilityStatus: CartEligibilityStatus.CREATE,
@@ -142,11 +155,34 @@ describe('#payments-cart - service', () => {
     });
   });
 
-  describe('checkoutCart', () => {
+  describe('checkoutCartWithStripe', () => {
+    it('calls checkoutService.payWithStripe', async () => {
+      const mockCart = ResultCartFactory();
+      const mockPaymentMethodId = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      await cartService.checkoutCartWithStripe(
+        mockCart.id,
+        mockCart.version,
+        mockPaymentMethodId
+      );
+
+      expect(checkoutService.payWithStripe).toHaveBeenCalledWith(
+        mockCart,
+        mockPaymentMethodId
+      );
+    });
+
     it('calls cartManager.finishCart', async () => {
       const mockCart = ResultCartFactory();
+      const mockPaymentMethodId = faker.string.uuid();
 
-      await cartService.checkoutCart(mockCart.id, mockCart.version);
+      await cartService.checkoutCartWithStripe(
+        mockCart.id,
+        mockCart.version,
+        mockPaymentMethodId
+      );
 
       expect(cartManager.finishCart).toHaveBeenCalledWith(
         mockCart.id,
@@ -157,10 +193,73 @@ describe('#payments-cart - service', () => {
 
     it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
       const mockCart = ResultCartFactory();
+      const mockPaymentMethodId = faker.string.uuid();
 
       jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
 
-      await cartService.checkoutCart(mockCart.id, mockCart.version);
+      await cartService.checkoutCartWithStripe(
+        mockCart.id,
+        mockCart.version,
+        mockPaymentMethodId
+      );
+
+      expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
+        mockCart.id,
+        mockCart.version,
+        {
+          errorReasonId: CartErrorReasonId.Unknown,
+        }
+      );
+    });
+  });
+
+  describe('checkoutCartWithPaypal', () => {
+    it('calls checkoutService.payWithPaypal', async () => {
+      const mockCart = ResultCartFactory();
+      const mockToken = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'fetchCartById').mockResolvedValue(mockCart);
+
+      await cartService.checkoutCartWithPaypal(
+        mockCart.id,
+        mockCart.version,
+        mockToken
+      );
+
+      expect(checkoutService.payWithPaypal).toHaveBeenCalledWith(
+        mockCart,
+        mockToken
+      );
+    });
+
+    it('calls cartManager.finishCart', async () => {
+      const mockCart = ResultCartFactory();
+      const mockToken = faker.string.uuid();
+
+      await cartService.checkoutCartWithPaypal(
+        mockCart.id,
+        mockCart.version,
+        mockToken
+      );
+
+      expect(cartManager.finishCart).toHaveBeenCalledWith(
+        mockCart.id,
+        mockCart.version,
+        {}
+      );
+    });
+
+    it('calls cartManager.finishErrorCart when error occurs during checkout', async () => {
+      const mockCart = ResultCartFactory();
+      const mockToken = faker.string.uuid();
+
+      jest.spyOn(cartManager, 'finishCart').mockRejectedValue(undefined);
+
+      await cartService.checkoutCartWithPaypal(
+        mockCart.id,
+        mockCart.version,
+        mockToken
+      );
 
       expect(cartManager.finishErrorCart).toHaveBeenCalledWith(
         mockCart.id,
