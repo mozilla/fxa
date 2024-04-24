@@ -13,6 +13,8 @@ const errors = require('../error');
 const { recordSecurityEvent } = require('./utils/security-event');
 const validators = require('./validators');
 const isA = require('joi');
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
+const { list } = require('../oauth/authorized_clients');
 
 module.exports = (
   log,
@@ -305,6 +307,7 @@ module.exports = (
         response: {
           schema: isA.object({
             exists: isA.boolean().required(),
+            estimatedSyncDeviceCount: isA.number().optional(),
           }),
         },
       },
@@ -330,10 +333,23 @@ module.exports = (
           await customs.check(request, email, 'recoveryKeyExists');
           ({ uid } = await db.accountRecord(email));
         }
+        const exists = await db.recoveryKeyExists(uid);
 
-        // When checking from `/settings` a sessionToken is required and the
-        // request is not rate limited.
-        return db.recoveryKeyExists(uid);
+        // We try our best to estimate the number of Sync devices that could be impacted by using a recovery key.
+        // It is an estimate because we currently can't query the Sync service to get the actual number of items
+        // until https://mozilla-hub.atlassian.net/browse/SYNC-4240 is implemented.
+        const services = await list(uid);
+        const estimatedSyncDeviceCount = Math.max(
+          (await db.devices(uid)).length,
+          services.filter((service) =>
+            service.scope.includes(OAUTH_SCOPE_OLD_SYNC)
+          ).length
+        );
+
+        return {
+          exists: exists.exists,
+          estimatedSyncDeviceCount,
+        };
       },
     },
     // This method is not yet in use
