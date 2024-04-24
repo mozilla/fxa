@@ -178,6 +178,10 @@ describe('StripeManager', () => {
         .mockResolvedValueOnce(undefined);
 
       await manager.cancelSubscription(mockSubscription.id);
+
+      expect(mockClient.subscriptionsCancel).toBeCalledWith(
+        mockSubscription.id
+      );
     });
   });
 
@@ -322,8 +326,10 @@ describe('StripeManager', () => {
 
     it('should throw error if no plan exists', async () => {
       const mockPlan = StripePlanFactory();
+
       mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce(undefined);
 
+      expect.assertions(1);
       expect(manager.getPlan(mockPlan.id)).rejects.toBeInstanceOf(
         PlanNotFoundError
       );
@@ -352,7 +358,11 @@ describe('StripeManager', () => {
         interval: 'month',
       });
 
-      expect(
+      manager.getPlan = jest.fn().mockResolvedValue(mockPlan1);
+      manager.getPlan = jest.fn().mockResolvedValue(mockPlan2);
+
+      expect.assertions(1);
+      await expect(
         manager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
     });
