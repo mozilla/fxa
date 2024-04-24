@@ -10,6 +10,8 @@ const { assert } = require('chai');
 const getRoute = require('../../routes_helpers').getRoute;
 const mocks = require('../../mocks');
 const errors = require('../../../lib/error');
+const proxyquire = require('proxyquire');
+const { OAUTH_SCOPE_OLD_SYNC } = require('fxa-shared/oauth/constants');
 
 let log, db, customs, mailer, glean, routes, route, request, response;
 const email = 'test@email.com';
@@ -594,6 +596,7 @@ describe('POST /recoveryKey/exists', () => {
 
     it('returned the correct response', () => {
       assert.equal(response.exists, true, 'exists ');
+      assert.equal(response.estimatedSyncDeviceCount, 0);
     });
 
     it('called log.begin correctly', () => {
@@ -609,6 +612,99 @@ describe('POST /recoveryKey/exists', () => {
       const args = db.recoveryKeyExists.args[0];
       assert.equal(args.length, 1);
       assert.equal(args[0], uid);
+    });
+  });
+
+  describe('should return estimatedSyncDeviceCount=0 with no sync devices', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: { uid },
+        log,
+      };
+      return setup(
+        {
+          db: {
+            recoveryData,
+            devices: [],
+          },
+        },
+        {},
+        '/recoveryKey/exists',
+        requestOptions
+      ).then((r) => (response = r));
+    });
+
+    it('returned the correct response', () => {
+      assert.equal(response.exists, true, 'exists ');
+      assert.equal(response.estimatedSyncDeviceCount, 0);
+    });
+  });
+
+  describe('should return estimatedSyncDeviceCount=1 with sync devices', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: { uid },
+        log,
+      };
+      return setup(
+        {
+          db: {
+            recoveryData,
+            devices: [
+              {
+                type: 'desktop',
+                id: 'desktop1',
+                lastAccess: new Date(),
+                lastAccessVersion: '1.0',
+              },
+            ],
+          },
+        },
+        {},
+        '/recoveryKey/exists',
+        requestOptions
+      ).then((r) => (response = r));
+    });
+
+    it('returned the correct response', () => {
+      assert.equal(response.exists, true, 'exists ');
+      assert.equal(response.estimatedSyncDeviceCount, 1);
+    });
+  });
+
+  describe('should return estimatedSyncDeviceCount=1 with sync oauth clients', () => {
+    beforeEach(() => {
+      const requestOptions = {
+        credentials: { uid },
+        log,
+      };
+      return setup(
+        {
+          mockAuthorizedClients: {
+            list: sinon.stub().resolves([
+              {
+                client_id: 'desktop1',
+                client_name: 'Desktop',
+                created_time: new Date(),
+                last_access_time: new Date(),
+                scope: ['profile', OAUTH_SCOPE_OLD_SYNC],
+              },
+            ]),
+          },
+          db: {
+            recoveryData,
+            devices: [],
+          },
+        },
+        {},
+        '/recoveryKey/exists',
+        requestOptions
+      ).then((r) => (response = r));
+    });
+
+    it('returned the correct response', () => {
+      assert.equal(response.exists, true, 'exists ');
+      assert.equal(response.estimatedSyncDeviceCount, 1);
     });
   });
 
@@ -1042,7 +1138,17 @@ function setup(results, errors, path, requestOptions) {
   customs = mocks.mockCustoms(errors.customs);
   mailer = mocks.mockMailer();
   glean = mocks.mockGlean();
-  routes = makeRoutes({ log, db, customs, mailer, glean });
+  const mockAuthorizedClients = results.mockAuthorizedClients || {
+    list: sinon.stub().resolves([]),
+  };
+  routes = makeRoutes({
+    log,
+    db,
+    customs,
+    mailer,
+    glean,
+    mockAuthorizedClients,
+  });
   route = getRoute(routes, path, requestOptions.method);
   request = mocks.mockRequest(requestOptions);
   request.emitMetricsEvent = sinon.spy(() => Promise.resolve({}));
@@ -1056,15 +1162,9 @@ function makeRoutes(options = {}) {
   const config = options.config || { signinConfirmation: {} };
   const Password = require('../../../lib/crypto/password')(log, config);
   const mailer = options.mailer || mocks.mockMailer();
-  return require('../../../lib/routes/recovery-key')(
-    log,
-    db,
-    Password,
-    config.verifierVersion,
-    customs,
-    mailer,
-    glean
-  );
+  return proxyquire('../../../lib/routes/recovery-key', {
+    '../oauth/authorized_clients': options.mockAuthorizedClients,
+  })(log, db, Password, config.verifierVersion, customs, mailer, glean);
 }
 
 function runTest(route, request) {
