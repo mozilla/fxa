@@ -5,6 +5,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
+import Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { ClientCapabilityService } from './client-capability.service';
@@ -16,6 +17,10 @@ const baseClients = [
     capabilities: ['testCapability2', 'testCapability3'],
   },
 ];
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('ClientCapabilityService', () => {
   let service: ClientCapabilityService;
@@ -106,6 +111,7 @@ describe('ClientCapabilityService', () => {
       (service as any).axiosInstance = { get: mockUpdate };
       await service.updateCapabilities();
       expect((service as any).log.error).toBeCalledTimes(1);
+      expect(Sentry.captureException).toBeCalledTimes(1);
     });
   });
 });

@@ -5,11 +5,17 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import Sentry from '@sentry/node';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { FirestoreService } from '../firestore/firestore.service';
 import { QueueworkerService } from './queueworker.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+  captureMessage: jest.fn(),
+}));
 
 const now = Date.now();
 
@@ -103,6 +109,8 @@ describe('QueueworkerService', () => {
   };
 
   beforeEach(async () => {
+    jest.resetAllMocks();
+
     firestore = {
       storeLogin: jest.fn().mockResolvedValue({}),
       deleteUser: jest.fn().mockResolvedValue({}),
@@ -321,6 +329,7 @@ describe('QueueworkerService', () => {
       await (service as any).handleMessage(msg);
       expect(logger.error).toBeCalledTimes(1);
       expect(logger.error.mock.calls[0][0]).toBe('from.sqsMessage');
+      expect(Sentry.captureException).toBeCalledTimes(1);
     }
 
     for (const [key, value] of Object.entries(invalidMessages)) {

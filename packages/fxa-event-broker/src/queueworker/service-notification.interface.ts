@@ -66,11 +66,11 @@ export const ServiceNotification = {
         return validMessage;
       }
     } catch (err) {
-      Sentry.captureException(err);
       logger.error('from.sqsMessage', {
         message: 'Invalid message',
         err,
       });
+      Sentry.captureException(err);
     }
     return;
   },
