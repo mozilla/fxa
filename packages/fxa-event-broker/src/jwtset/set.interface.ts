@@ -1,6 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
 // SET Event identifiers
 export const DELETE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/delete-user';
@@ -10,10 +11,10 @@ export const PROFILE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/profile-change';
 export const SUBSCRIPTION_STATE_EVENT_ID =
   'https://schemas.accounts.firefox.com/event/subscription-state-change';
-
 export const APPLE_USER_MIGRATION_ID =
- 'https://schemas.accounts.firefox.com/event/apple-user-migration';
-
+  'https://schemas.accounts.firefox.com/event/apple-user-migration';
+export const METRICS_CHANGE_EVENT_ID =
+  'https://schemas.accounts.firefox.com/event/metrics-change';
 
 export type deleteEvent = {
   clientId: string;
@@ -58,4 +59,10 @@ export type appleMigrationEvent = {
   transferSub: string;
   success: boolean;
   err: string;
+};
+
+export type metricsChangeEvent = {
+  uid: string;
+  clientId: string;
+  enabled: boolean;
 };

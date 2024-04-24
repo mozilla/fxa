@@ -176,7 +176,8 @@ export class QueueworkerService
       | dto.deleteSchema
       | dto.profileSchema
       | dto.passwordSchema
-      | dto.appleUserMigrationSchema,
+      | dto.appleUserMigrationSchema
+      | dto.metricsChangeSchema,
     eventType: string
   ) {
     this.metrics.increment('message.type', { eventType });
@@ -352,6 +353,10 @@ export class QueueworkerService
       }
       case dto.APPLE_USER_MIGRATION_EVENT: {
         await this.handleAppleUserMigrationEvent(message);
+        break;
+      }
+      case dto.METRICS_CHANGE_EVENT: {
+        await this.handleMessageFanout(message, 'metricsOptIn');
         break;
       }
       default:

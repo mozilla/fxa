@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
 import { DatabaseService } from './database.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { StatsDFactory } from '@fxa/shared/metrics/statsd';
 
 @Module({
-  providers: [DatabaseService, MetricsFactory],
+  providers: [DatabaseService, MozLoggerService, StatsDFactory],
   exports: [DatabaseService],
 })
 export class DatabaseModule {}

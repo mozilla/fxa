@@ -1,0 +1,36 @@
+{
+  "name": "shared-mozlog",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/mozlog/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/mozlog",
+        "main": "libs/shared/mozlog/src/index.ts",
+        "tsConfig": "libs/shared/mozlog/tsconfig.lib.json",
+        "assets": ["libs/shared/mozlog/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/mozlog/**/*.ts",
+          "libs/shared/mozlog/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/mozlog/jest.config.ts"
+      }
+    }
+  }
+}

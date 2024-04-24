@@ -4,7 +4,7 @@
 import { Provider } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { CustomsService } from 'fxa-shared/nestjs/customs/customs.service';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { AuthClientService } from '../backend/auth-client.service';
 import { SessionResolver } from './session.resolver';

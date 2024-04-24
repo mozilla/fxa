@@ -278,6 +278,22 @@ const conf = convict({
     // Note: This format is a number because the value needs to be in seconds
     format: Number,
   },
+  notifier: {
+    sns: {
+      snsTopicArn: {
+        doc: 'Amazon SNS topic on which to send account event notifications. Set to "disabled" to turn off the notifier',
+        format: String,
+        env: 'SNS_TOPIC_ARN',
+        default: '',
+      },
+      snsTopicEndpoint: {
+        doc: 'Amazon SNS topic endpoint',
+        format: String,
+        env: 'SNS_TOPIC_ENDPOINT',
+        default: undefined,
+      },
+    },
+  },
 });
 
 // handle configuration files.  you can specify a CSV list of configuration

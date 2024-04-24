@@ -51,6 +51,12 @@ const baseSubscriptionUpdateMessage = {
   productName: undefined,
 };
 
+const baseMetricsChangeMessage = {
+  ...baseMessage,
+  event: 'metricsChange',
+  enabled: true,
+};
+
 const baseDeleteMessage = {
   ...baseMessage,
   event: 'delete',
@@ -300,6 +306,7 @@ describe('QueueworkerService', () => {
       'primary email message': basePrimaryEmailMessage,
       'profile change message': baseProfileMessage,
       'subscription message': baseSubscriptionUpdateMessage,
+      'metrics change message': baseMetricsChangeMessage,
     };
 
     // Ensure that all our message types can be handled without error.

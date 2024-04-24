@@ -11,8 +11,9 @@ import {
   PROFILE_CHANGE_EVENT,
   SUBSCRIPTION_UPDATE_EVENT,
   DELETE_EVENT,
+  METRICS_CHANGE_EVENT,
 } from '../queueworker/sqs.dto';
-import { PROFILE_EVENT_ID } from './set.interface';
+import { METRICS_CHANGE_EVENT_ID, PROFILE_EVENT_ID } from './set.interface';
 
 const TEST_KEY = {
   d: 'nvfTzcMqVr8fa-b3IIFBk0J69sZQsyhKc3jYN5pPG7FdJyA-D5aPNv5zsF64JxNJetAS44cAsGAKN3Kh7LfjvLCtV56Ckg2tkBMn3GrbhE1BX6ObYvMuOBz5FJ9GmTOqSCxotAFRbR6AOBd5PCw--Rls4MylX393TFg6jJTGLkuYGuGHf8ILWyb17hbN0iyT9hME-cgLW1uc_u7oZ0vK9IxGPTblQhr82RBPQDTvZTM4s1wYiXzbJNrI_RGTAhdbwXuoXKiBN4XL0YRDKT0ENVqQLMiBwfdT3sW-M0L6kIv-L8qX3RIhbM3WA_a_LjTOM3WwRcNanSGiAeJLHwE5cQ',
@@ -62,6 +63,7 @@ describe('JwtsetService', () => {
       password: [PASSWORD_CHANGE_EVENT, 'generatePasswordSET'],
       profile: [PROFILE_CHANGE_EVENT, 'generateProfileSET'],
       delete: [DELETE_EVENT, 'generateDeleteSET'],
+      metrics: [METRICS_CHANGE_EVENT, 'generateMetricsChangeSET'],
     };
 
     async function checkSet(event: string, method: string) {
@@ -103,6 +105,21 @@ describe('JwtsetService', () => {
       expect(payload.aud).toBe(TEST_CLIENT_ID);
       expect(payload.sub).toBe('uid1234');
       expect(payload.iss).toBe('test');
+    });
+
+    it('metrics change SET', async () => {
+      const event = {
+        clientId: TEST_CLIENT_ID,
+        event: METRICS_CHANGE_EVENT,
+        uid: 'uid1234',
+        enabled: false,
+      };
+      const token = await service.generateMetricsChangeSET(event);
+      const payload = await PUBLIC_JWT.verify(token);
+      expect(payload.aud).toBe(TEST_CLIENT_ID);
+      expect(payload.sub).toBe('uid1234');
+      expect(payload.iss).toBe('test');
+      expect(payload.events[METRICS_CHANGE_EVENT_ID].enabled).toBe(false);
     });
   });
 });

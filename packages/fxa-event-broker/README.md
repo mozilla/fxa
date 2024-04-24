@@ -135,6 +135,29 @@ records for the given user when receiving this event.
        "https://schemas.accounts.firefox.com/event/delete-user": {}
      }
 
+### Metrics Opt Out
+
+Sent when a user opts out of metrics / data collection from their Mozilla Accounts settings page.
+RPs should stop reporting metrics for this user. Note, that when a user creates an account, metrics
+collection is enabled by default.
+
+- Event Identifier
+  - `https://schemas.accounts.firefox.com/event/metrics-opt-out`
+- Event Payload
+  - [Metrics Opt Out Event Identifier]
+    - `{}`
+
+### Metrics Opt In
+
+Sent when a user opts back into metrics / data collection from Firefox Accounts their Mozilla Accounts settings page.
+RPs can start reporting metrics for this user again.
+
+- Event Identifier
+  - `https://schemas.accounts.firefox.com/event/metrics-opt-in`
+- Event Payload
+  - [Metrics Opt In Event Identifier]
+    - `{}`
+
 ## Deployment
 
 ### Metrics

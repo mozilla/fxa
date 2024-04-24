@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 import { Cart as CartType } from './model/cart.model';
 import { SetupCartInput } from './dto/input/setup-cart.input';
 import { CartIdInput } from './dto/input/cart-id.input';

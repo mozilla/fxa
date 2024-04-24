@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Inject, UseGuards } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import {
   Args,
-  Field,
   Info,
   Mutation,
-  ObjectType,
   Parent,
   Query,
   ResolveField,
@@ -19,11 +16,9 @@ import {
   Account,
   AccountOptions,
   EmailBounce,
-  KeyFetchToken,
   SessionToken,
 } from 'fxa-shared/db/models/auth';
 import { profileByUid, selectedAvatar } from 'fxa-shared/db/models/profile';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import {
   ExtraContext,
   reportRequestException,
@@ -40,7 +35,6 @@ import { UnverifiedSessionGuard } from '../auth/unverified-session-guard';
 import { GqlCustomsGuard } from '../auth/gql-customs.guard';
 import { AuthClientService } from '../backend/auth-client.service';
 import { ProfileClientService } from '../backend/profile-client.service';
-import { AppConfig } from '../config';
 import { GqlSessionToken, GqlUserId, GqlXHeaders } from '../decorators';
 import {
   AttachedClientDisconnectInput,
@@ -94,6 +88,8 @@ import { uuidTransformer } from 'fxa-shared/db/transformers';
 import { FinishedSetupAccountPayload } from './dto/payload/finished-setup-account';
 import { FinishSetupInput } from './dto/input/finish-setup';
 import { EmailBounceStatusPayload } from './dto/payload/email-bounce';
+import { NotifierService } from '@fxa/shared/notifier';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 function snakeToCamel(str: string) {
   return str.replace(/(_\w)/g, (m: string) => m[1].toUpperCase());
@@ -113,18 +109,12 @@ export function snakeToCamelObject(obj: { [key: string]: any }) {
 
 @Resolver((of: any) => AccountType)
 export class AccountResolver {
-  private profileServerUrl: string;
-
   constructor(
     @Inject(AuthClientService) private authAPI: AuthClient,
+    private notifier: NotifierService,
     private profileAPI: ProfileClientService,
-    private log: MozLoggerService,
-    private configService: ConfigService<AppConfig>
-  ) {
-    this.profileServerUrl = (
-      configService.get('profileServer') as AppConfig['profileServer']
-    ).url;
-  }
+    private log: MozLoggerService
+  ) {}
 
   private shouldIncludeEmails(info: GraphQLResolveInfo): boolean {
     // Introspect the query to determine if we should load the emails
@@ -420,7 +410,8 @@ export class AccountResolver {
   }
 
   @Mutation((returns) => BasicPayload, {
-    description: 'Set the metrics opt in or out state',
+    description:
+      'Set the metrics opt in or out state, and notify RPs of the change',
   })
   @UseGuards(GqlAuthGuard, GqlCustomsGuard)
   @CatchGatewayError
@@ -430,6 +421,21 @@ export class AccountResolver {
     input: MetricsOptInput
   ): Promise<BasicPayload> {
     await Account.setMetricsOpt(uid, input.state);
+
+    if (!['in', 'out'].includes(input.state)) {
+      throw new Error(
+        `Invalid state. Expected 'in' or 'out'. But recieved: ${input.state}`
+      );
+    }
+
+    await this.notifier.send({
+      event: 'metricsChange',
+      data: {
+        uid,
+        enabled: input.state === 'in',
+      },
+    });
+
     return { clientMutationId: input.clientMutationId };
   }
 

@@ -10,7 +10,7 @@ describe('#payments-cart - resolvers', () => {
 
 // import { Provider } from '@nestjs/common';
 // import { Test, TestingModule } from '@nestjs/testing';
-// import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+// import { MozLoggerService } from '@fxa/shared/mozlog';
 // import { Logger } from '@fxa/shared/log';
 // import {
 //   CartIdInputFactory,

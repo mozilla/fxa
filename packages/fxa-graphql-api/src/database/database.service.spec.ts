@@ -7,7 +7,7 @@ import { DatabaseService } from './database.service';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Account } from 'fxa-shared/db/models/auth';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 describe('#integration - DatabaseService', () => {
   let service: DatabaseService;

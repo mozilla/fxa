@@ -7,7 +7,7 @@ import { getComplexity, simpleEstimator } from 'graphql-query-complexity';
 import { GraphQLError } from 'graphql';
 import { GraphQLSchemaHost } from '@nestjs/graphql';
 import { Inject } from '@nestjs/common';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 const maxComplexity = 1000;
 

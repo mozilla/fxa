@@ -5,7 +5,7 @@ import { Inject, UseGuards } from '@nestjs/common';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import AuthClient from 'fxa-auth-client';
 import { SessionVerifiedState } from 'fxa-shared/db/models/auth/session-token';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
+import { MozLoggerService } from '@fxa/shared/mozlog';
 
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { GqlCustomsGuard } from '../auth/gql-customs.guard';
