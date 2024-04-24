@@ -38572,7 +38572,7 @@ fsevents@~2.1.1:
     mocha-junit-reporter: ^2.2.0
     mocha-multi: ^1.1.7
     mysql: ^2.18.1
-    mysql2: ^3.9.4
+    mysql2: ^3.9.7
     nest-typed-config: ^2.9.2
     nest-winston: ^1.9.4
     next: 14.2.0
@@ -49953,9 +49953,9 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"mysql2@npm:^3.9.4":
-  version: 3.9.4
-  resolution: "mysql2@npm:3.9.4"
+"mysql2@npm:^3.9.7":
+  version: 3.9.7
+  resolution: "mysql2@npm:3.9.7"
   dependencies:
     denque: ^2.1.0
     generate-function: ^2.3.1
@@ -49965,7 +49965,7 @@ fsevents@~2.1.1:
     named-placeholders: ^1.1.3
     seq-queue: ^0.0.5
     sqlstring: ^2.3.2
-  checksum: 2829f329cda58bfb97d24826242d9e05222a9ab2397b9746afe0c01a4801b18c685f75d268aa15f8b47988ed1ef50b28358ce6f9a69e18cb50d2c965d68b1a75
+  checksum: 535261d076f840f0966788b3f33a5ff7872e5da321240c2359be5c9e7ec19197ed5f6e01f0bc7beae06dd291d03eb2bde00f474461a578debcb85fcd98e347d3
   languageName: node
   linkType: hard
 
