@@ -185,6 +185,26 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('updateSubscription', () => {
+    it('calls stripeclient', async () => {
+      const mockParams = {
+        description: 'This is an updated subscription',
+      };
+      const mockSubscription = StripeSubscriptionFactory(mockParams);
+
+      mockClient.subscriptionsUpdate = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscription);
+
+      await manager.updateSubscription(mockSubscription.id, mockParams);
+
+      expect(mockClient.subscriptionsUpdate).toBeCalledWith(
+        mockSubscription.id,
+        mockParams
+      );
+    });
+  });
+
   describe('isCustomerStripeTaxEligible', () => {
     it('should return true for a taxable customer', async () => {
       const mockCustomer = StripeCustomerFactory({
