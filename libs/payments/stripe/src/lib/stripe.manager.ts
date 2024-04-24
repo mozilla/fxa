@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
 import { StripeCustomer, StripeSubscription } from './stripe.client.types';
@@ -93,6 +94,13 @@ export class StripeManager {
 
   async cancelSubscription(subscriptionId: string) {
     return this.client.subscriptionsCancel(subscriptionId);
+  }
+
+  async updateSubscription(
+    subscriptionId: string,
+    params?: Stripe.SubscriptionUpdateParams
+  ) {
+    return this.client.subscriptionsUpdate(subscriptionId, params);
   }
 
   /**
