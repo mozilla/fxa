@@ -483,9 +483,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@auth/core@npm:0.27.0":
-  version: 0.27.0
-  resolution: "@auth/core@npm:0.27.0"
+"@auth/core@npm:0.28.1":
+  version: 0.28.1
+  resolution: "@auth/core@npm:0.28.1"
   dependencies:
     "@panva/hkdf": ^1.1.1
     "@types/cookie": 0.6.0
@@ -505,7 +505,7 @@ __metadata:
       optional: true
     nodemailer:
       optional: true
-  checksum: e3703a5886b063f5b502bf6d74d7ffecc25996ae682bd73c6d9322c8a53538e4da74257154e05c760efffb267c07f65912b87ad980f28ca564aa8bef415538f9
+  checksum: f492173eb76464b392ee460a9f4ca0fa1e09b8a6c12a3c6c2135c3b87b96477ebe2fecb12ad0f0f74565d908bbc487c4b43ec5023748bdc755c036fb53d6dc6b
   languageName: node
   linkType: hard
 
@@ -50214,10 +50214,10 @@ fsevents@~2.1.1:
   linkType: hard
 
 "next-auth@npm:beta":
-  version: 5.0.0-beta.11
-  resolution: "next-auth@npm:5.0.0-beta.11"
+  version: 5.0.0-beta.16
+  resolution: "next-auth@npm:5.0.0-beta.16"
   dependencies:
-    "@auth/core": 0.27.0
+    "@auth/core": 0.28.1
   peerDependencies:
     "@simplewebauthn/browser": ^9.0.1
     "@simplewebauthn/server": ^9.0.2
@@ -50231,7 +50231,7 @@ fsevents@~2.1.1:
       optional: true
     nodemailer:
       optional: true
-  checksum: ae893112cbf8ea3966462021d7a1b654d5a34e8e85967f6a8626c804e9eefa26469021eb8e9199d9581dff891d927bea340c68e304fb98eec06ffad57aef183f
+  checksum: 05b9b10b0912296b2589f75b7bc2134e0852e4241d2704b0b4543c1bf477acaec7b881bb7f376f593a42ec8e823a68e50cda6a7a03fd67875a0648964b7c0480
   languageName: node
   linkType: hard
 
