@@ -23,6 +23,9 @@ function makeRoutes(options = {}) {
   const config = options.config || {
     verifierVersion: 0,
     smtp: {},
+    passwordForgotOtp: {
+      enabled: false,
+    },
   };
   const log = options.log || mocks.mockLog();
   const db = options.db || {};
@@ -41,7 +44,7 @@ function makeRoutes(options = {}) {
     log,
     db,
     Password,
-    config.smtp.redirectDomain || '',
+    config.smtp?.redirectDomain || '',
     mailer,
     config.verifierVersion,
     options.customs || {},
@@ -51,7 +54,9 @@ function makeRoutes(options = {}) {
     {
       removePublicAndCanGrantTokens: () => {},
     },
-    glean
+    glean,
+    options.authServerCacheRedis || {},
+    options.statsd || {}
   );
 }
 
@@ -69,6 +74,153 @@ describe('/password', () => {
 
   afterEach(() => {
     mocks.unMockAccountEventsManager();
+  });
+
+  describe('/forgot/send_otp', () => {
+    const mockConfig = {
+      passwordForgotOtp: {
+        enabled: true,
+        digits: 8,
+        ttl: 300,
+      },
+    };
+    const mockCustoms = mocks.mockCustoms();
+    const uid = uuid.v4({}, Buffer.alloc(16)).toString('hex');
+    const mockDB = mocks.mockDB({
+      email: TEST_EMAIL,
+      uid,
+    });
+    const mockMailer = mocks.mockMailer();
+    const mockMetricsContext = mocks.mockMetricsContext();
+    const mockLog = mocks.mockLog('ERROR', 'test', {
+      stdout: {
+        on: sinon.spy(),
+        write: sinon.spy(),
+      },
+      stderr: {
+        on: sinon.spy(),
+        write: sinon.spy(),
+      },
+    });
+    mockLog.flowEvent = sinon.spy(() => {
+      return Promise.resolve();
+    });
+    const mockRedis = {
+      set: sinon.stub(),
+      get: sinon.stub(),
+      del: sinon.stub(),
+    };
+    const mockStatsd = { increment: sinon.stub() };
+
+    it('sends an OTP when enabled', () => {
+      const passwordRoutes = makeRoutes({
+        config: mockConfig,
+        customs: mockCustoms,
+        db: mockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+        log: mockLog,
+        authServerCacheRedis: mockRedis,
+        statsd: mockStatsd,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          email: TEST_EMAIL,
+          metricsContext: {
+            deviceId: 'wibble',
+            flowId:
+              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+        query: {},
+        metricsContext: mockMetricsContext,
+      });
+      return runRoute(
+        passwordRoutes,
+        '/password/forgot/send_otp',
+        mockRequest
+      ).then((response) => {
+        assert.equal(
+          mockDB.accountRecord.callCount,
+          1,
+          'db.accountRecord was called once'
+        );
+        sinon.assert.calledOnce(mockRedis.set);
+
+        // an eight digit code was set
+        // TODO FXA-7852 check that the same code was pass to the email
+        assert.match(mockRedis.set.args[0][1], /^\d{8}$/);
+
+        assert.equal(
+          mockRequest.validateMetricsContext.callCount,
+          1,
+          'validateMetricsContext was called'
+        );
+
+        assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1);
+        const args = mockMetricsContext.setFlowCompleteSignal.args[0];
+        assert.lengthOf(args, 1);
+        assert.equal(args[0], 'account.reset');
+
+        assert.equal(
+          mockLog.flowEvent.callCount,
+          2,
+          'log.flowEvent was called twice'
+        );
+        assert.equal(
+          mockLog.flowEvent.args[0][0].event,
+          'password.forgot.send_otp.start',
+          'password.forgot.send_otp.start event was logged'
+        );
+        assert.equal(
+          mockLog.flowEvent.args[1][0].event,
+          'password.forgot.send_otp.completed',
+          'password.forgot.send_otp.completed event was logged'
+        );
+      });
+    });
+
+    it('returns an error when not enabled', () => {
+      const configDisabled = {
+        ...mockConfig,
+        passwordForgotOtp: { enabled: false },
+      };
+      const passwordRoutes = makeRoutes({
+        config: configDisabled,
+        customs: mockCustoms,
+        db: mockDB,
+        mailer: mockMailer,
+        metricsContext: mockMetricsContext,
+        log: mockLog,
+        authServerCacheRedis: mockRedis,
+        statsd: mockStatsd,
+      });
+
+      const mockRequest = mocks.mockRequest({
+        log: mockLog,
+        payload: {
+          email: TEST_EMAIL,
+          metricsContext: {
+            deviceId: 'wibble',
+            flowId:
+              'F1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF1031DF103',
+            flowBeginTime: Date.now() - 1,
+          },
+        },
+        query: {},
+        metricsContext: mockMetricsContext,
+      });
+      return runRoute(
+        passwordRoutes,
+        '/password/forgot/send_otp',
+        mockRequest
+      ).catch((response) => {
+        assert.equal(response.errno, error.featureNotEnabled().errno);
+      });
+    });
   });
 
   it('/forgot/send_code', () => {
@@ -626,6 +778,7 @@ describe('/password', () => {
         config: {
           domain: 'wibble',
           smtp: {},
+          passwordForgotOtp: { enabled: false },
         },
         db: mockDB,
         push: mockPush,

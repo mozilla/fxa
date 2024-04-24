@@ -55,6 +55,7 @@
       "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
+      "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
       "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"]
     },
     "typeRoots": [
