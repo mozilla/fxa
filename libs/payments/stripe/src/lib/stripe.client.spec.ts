@@ -39,6 +39,8 @@ const mockStripeSubscriptionsCreate =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.create>();
 const mockStripeSubscriptionsCancel =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.cancel>();
+const mockStripeSubscriptionsUpdate =
+  mockJestFnGenerator<typeof Stripe.prototype.subscriptions.update>();
 
 jest.mock('stripe', () => ({
   Stripe: function () {
@@ -60,6 +62,7 @@ jest.mock('stripe', () => ({
         create: mockStripeSubscriptionsCreate,
         cancel: mockStripeSubscriptionsCancel,
         list: mockStripeSubscriptionsList,
+        update: mockStripeSubscriptionsUpdate,
       },
     };
   },
@@ -160,6 +163,21 @@ describe('StripeClient', () => {
       const result = await mockClient.subscriptionsCancel(mockSubscription.id);
 
       expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('subscriptionsUpdate', () => {
+    it('updates a subscription within Stripe', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockUpdatedSubscription = StripeSubscriptionFactory({
+        description: 'This is an updated description.',
+      });
+      const mockResponse = StripeResponseFactory(mockUpdatedSubscription);
+
+      mockStripeSubscriptionsUpdate.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.subscriptionsUpdate(mockSubscription.id);
+      expect(result.description).toEqual(mockUpdatedSubscription.description);
     });
   });
 
