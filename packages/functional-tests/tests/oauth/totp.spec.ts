@@ -27,9 +27,9 @@ test.describe('severity-1 #smoke', () => {
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
-    test('can remove TOTP from account and skip confirmation', async ({
+    test.only('can remove TOTP from account and skip confirmation', async ({
       credentials,
-      pages: { login, relier, settings, totp, page },
+      pages: { signinReact, relier, settings, totp, page },
     }) => {
       await settings.goto();
       await settings.totp.addButton.click();
@@ -47,7 +47,8 @@ test.describe('severity-1 #smoke', () => {
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(credentials.email, credentials.password);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
