@@ -13,4 +13,7 @@ export { setupAccountDatabase, AccountDbProvider } from './lib/setup';
 export { testAccountDatabaseSetup } from './lib/tests';
 export type { ACCOUNT_TABLES } from './lib/tests';
 export type { AccountDatabase } from './lib/setup';
-export { AccountDatabaseNestFactory } from './lib/account.provider';
+export {
+  AccountDatabaseNestFactory,
+  MockAccountDatabaseNestFactory,
+} from './lib/account.provider';

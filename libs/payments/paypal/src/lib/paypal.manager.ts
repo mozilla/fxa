@@ -13,6 +13,7 @@ import {
 import { PayPalClient } from './paypal.client';
 import { BillingAgreement, BillingAgreementStatus } from './paypal.types';
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
+import { AmountExceedsPayPalCharLimitError } from './paypal.error';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
 import { PaypalManagerError } from './paypal.error';
 
@@ -23,18 +24,6 @@ export class PayPalManager {
     private stripeManager: StripeManager,
     private paypalCustomerManager: PaypalCustomerManager
   ) {}
-
-  /**
-   * Create billing agreement using the ExpressCheckout token.
-   *
-   * If the call to PayPal fails, a PayPalClientError will be thrown.
-   */
-  public async createBillingAgreement(token: string): Promise<string> {
-    const response = await this.client.createBillingAgreement({
-      token,
-    });
-    return response.BILLINGAGREEMENTID;
-  }
 
   public async getOrCreateBillingAgreementId(
     uid: string,
@@ -57,7 +46,7 @@ export class PayPalManager {
       );
     }
 
-    const newBillingAgreementId = await this.createBillingAgreement(token);
+    const newBillingAgreementId = await this.createBillingAgreement(uid, token);
 
     return newBillingAgreementId;
   }
@@ -67,6 +56,28 @@ export class PayPalManager {
    */
   async cancelBillingAgreement(billingAgreementId: string): Promise<void> {
     await this.client.baUpdate({ billingAgreementId, cancel: true });
+  }
+
+  /**
+   * Create and verify a billing agreement is funded from the appropriate
+   * country given the currency of the billing agreement.
+   */
+  async createBillingAgreement(uid: string, token: string) {
+    const billingAgreement = await this.client.createBillingAgreement({
+      token,
+    });
+
+    const billingAgreementId = billingAgreement.BILLINGAGREEMENTID;
+
+    const paypalCustomer =
+      await this.paypalCustomerManager.createPaypalCustomer({
+        uid: uid,
+        billingAgreementId: billingAgreementId,
+        status: 'active',
+        endedAt: null,
+      });
+
+    return paypalCustomer.billingAgreementId;
   }
 
   /**
@@ -166,12 +177,31 @@ export class PayPalManager {
     const amountInCents = invoice.amount_due;
 
     if (amountInCents < this.stripeManager.getMinimumAmount(invoice.currency)) {
-      return await this.processZeroInvoice(invoice.id);
-    } else {
-      const customer = await this.stripeManager.fetchActiveCustomer(
-        invoice.customer
-      );
-      return await this.processNonZeroInvoice(customer, invoice);
+      await this.processZeroInvoice(invoice.id);
+      return;
     }
+
+    const customer = await this.stripeManager.fetchActiveCustomer(
+      invoice.customer
+    );
+    await this.processNonZeroInvoice(customer, invoice);
+  }
+
+  /*
+   * Convert amount in cents to paypal AMT string.
+   * We use Stripe to manage everything and plans are recorded in an AmountInCents.
+   * PayPal AMT field requires a string of 10 characters or less, as documented here:
+   * https://developer.paypal.com/docs/nvp-soap-api/do-reference-transaction-nvp/#payment-details-fields
+   * https://developer.paypal.com/docs/api/payments/v1/#definition-amount
+   */
+  getPayPalAmountStringFromAmountInCents(amountInCents: number): string {
+    if (amountInCents.toString().length > 10) {
+      throw new AmountExceedsPayPalCharLimitError(amountInCents);
+    }
+    // Left pad with zeros if necessary, so we always get a minimum of 0.01.
+    const amountAsString = String(amountInCents).padStart(3, '0');
+    const dollars = amountAsString.slice(0, -2);
+    const cents = amountAsString.slice(-2);
+    return `${dollars}.${cents}`;
   }
 }

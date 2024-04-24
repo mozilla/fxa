@@ -55,3 +55,13 @@ export class PaypalManagerError extends BaseError {
     super(...args);
   }
 }
+
+export class AmountExceedsPayPalCharLimitError extends PaypalManagerError {
+  constructor(amountInCents: number) {
+    super('Amount must be less than 10 characters', {
+      info: {
+        amountInCents
+      }
+    });
+  }
+}
