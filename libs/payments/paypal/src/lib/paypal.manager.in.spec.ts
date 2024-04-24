@@ -133,7 +133,7 @@ describe('PaypalManager', () => {
       );
       expect(result).toEqual(mockNewBillingAgreement.BILLINGAGREEMENTID);
       expect(paypalClient.createBillingAgreement).toBeCalledWith({
-        token
+        token,
       });
     });
 
@@ -297,6 +297,7 @@ describe('PaypalManager', () => {
         .fn()
         .mockResolvedValueOnce([mockPayPalCustomer1, mockPayPalCustomer2]);
 
+      expect.assertions(1);
       expect(
         paypalManager.getCustomerBillingAgreementId(mockStripeCustomer.id)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
