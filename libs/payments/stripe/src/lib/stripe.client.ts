@@ -103,6 +103,18 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  async subscriptionsUpdate(
+    id: string,
+    params?: Stripe.SubscriptionUpdateParams
+  ) {
+    const result = await this.stripe.subscriptions.update(id, {
+      ...params,
+      expand: undefined,
+    });
+
+    return result as StripeResponse<StripeSubscription>;
+  }
+
   async invoicesRetrieve(
     id: string,
     params?: Stripe.PaymentMethodAttachParams
