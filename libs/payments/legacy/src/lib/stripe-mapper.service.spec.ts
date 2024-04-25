@@ -170,7 +170,7 @@ describe('StripeMapperService', () => {
       expect(actualProduct.metadata?.['productOrder']).toBe(
         productMetadata.productOrder
       );
-      expect(nonMatchingPlans.length).toBe(0);
+      expect(nonMatchingPlans).toHaveLength(0);
     });
 
     it('should return data from Contentful and not error on locale plan', async () => {
@@ -209,7 +209,7 @@ describe('StripeMapperService', () => {
           false
         );
 
-      expect(nonMatchingPlans.length).toBe(0);
+      expect(nonMatchingPlans).toHaveLength(0);
       const actualProduct1 = mappedPlans[0].product as Stripe.Product;
       const actualProduct2 = mappedPlans[1].product as Stripe.Product;
       expect(mappedPlans[0].metadata?.['product:details:1']).toBe(

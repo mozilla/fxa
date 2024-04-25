@@ -17,16 +17,16 @@ import { CapabilityManager } from './capability.manager';
 
 describe('CapabilityManager', () => {
   describe('getClients', () => {
-    let manager: CapabilityManager;
+    let capabilityManager: CapabilityManager;
     let mockContentfulManager: ContentfulManager;
-    let mockResult: ServicesWithCapabilitiesResultUtil;
+    let mockServicesResult: ServicesWithCapabilitiesResultUtil;
 
     beforeEach(async () => {
-      mockResult = {} as ServicesWithCapabilitiesResultUtil;
+      mockServicesResult = {} as ServicesWithCapabilitiesResultUtil;
       mockContentfulManager = {
         getServicesWithCapabilities: jest
           .fn()
-          .mockResolvedValueOnce(mockResult),
+          .mockResolvedValueOnce(mockServicesResult),
       } as any;
 
       const module: TestingModule = await Test.createTestingModule({
@@ -36,18 +36,18 @@ describe('CapabilityManager', () => {
         ],
       }).compile();
 
-      manager = module.get<CapabilityManager>(CapabilityManager);
+      capabilityManager = module.get<CapabilityManager>(CapabilityManager);
     });
 
     it('should be defined', async () => {
-      expect(manager).toBeDefined();
-      expect(manager).toBeInstanceOf(CapabilityManager);
+      expect(capabilityManager).toBeDefined();
+      expect(capabilityManager).toBeInstanceOf(CapabilityManager);
     });
 
     it('should return empty results', async () => {
-      mockResult.getServices = jest.fn().mockReturnValueOnce(undefined);
-      const result = await manager.getClients();
-      expect(result.length).toBe(0);
+      mockServicesResult.getServices = jest.fn().mockReturnValueOnce(undefined);
+      const result = await capabilityManager.getClients();
+      expect(result).toHaveLength(0);
     });
 
     it('should return services with capabilities', async () => {
@@ -66,8 +66,8 @@ describe('CapabilityManager', () => {
           },
         }),
       ];
-      mockResult.getServices = jest.fn().mockReturnValue(clientResults);
-      const result = await manager.getClients();
+      mockServicesResult.getServices = jest.fn().mockReturnValue(clientResults);
+      const result = await capabilityManager.getClients();
       expect(result.length).toBe(1);
       expect(result[0].clientId).toBe('client1');
 
@@ -81,16 +81,16 @@ describe('CapabilityManager', () => {
   });
 
   describe('planIdsToClientCapabilities', () => {
-    let manager: CapabilityManager;
+    let capabilityManager: CapabilityManager;
     let mockContentfulManager: ContentfulManager;
-    let mockResult: CapabilityServiceByPlanIdsResultUtil;
+    let mockServicesResult: CapabilityServiceByPlanIdsResultUtil;
 
     beforeEach(async () => {
-      mockResult = {} as CapabilityServiceByPlanIdsResultUtil;
+      mockServicesResult = {} as CapabilityServiceByPlanIdsResultUtil;
       mockContentfulManager = {
         getPurchaseDetailsForCapabilityServiceByPlanIds: jest
           .fn()
-          .mockResolvedValueOnce(mockResult),
+          .mockResolvedValueOnce(mockServicesResult),
       } as any;
 
       const module: TestingModule = await Test.createTestingModule({
@@ -100,20 +100,22 @@ describe('CapabilityManager', () => {
         ],
       }).compile();
 
-      manager = module.get<CapabilityManager>(CapabilityManager);
+      capabilityManager = module.get<CapabilityManager>(CapabilityManager);
     });
 
     it('should be defined', async () => {
-      expect(manager).toBeDefined();
-      expect(manager).toBeInstanceOf(CapabilityManager);
+      expect(capabilityManager).toBeDefined();
+      expect(capabilityManager).toBeInstanceOf(CapabilityManager);
     });
 
     it('should return empty results', async () => {
-      mockResult.capabilityOfferingForPlanId = jest
+      mockServicesResult.capabilityOfferingForPlanId = jest
         .fn()
         .mockReturnValueOnce(undefined);
-      const result = await manager.planIdsToClientCapabilities(['planId1']);
-      expect(Object.keys(result).length).toBe(0);
+      const result = await capabilityManager.planIdsToClientCapabilities([
+        'planId1',
+      ]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
 
     it('should return empty results when there are no capability collection items', async () => {
@@ -122,11 +124,13 @@ describe('CapabilityManager', () => {
           items: [],
         },
       });
-      mockResult.capabilityOfferingForPlanId = jest
+      mockServicesResult.capabilityOfferingForPlanId = jest
         .fn()
         .mockReturnValueOnce(offeringResult);
-      const result = await manager.planIdsToClientCapabilities(['planId1']);
-      expect(Object.keys(result).length).toBe(0);
+      const result = await capabilityManager.planIdsToClientCapabilities([
+        'planId1',
+      ]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
 
     it('should return empty results when there are no service collection items', async () => {
@@ -142,11 +146,13 @@ describe('CapabilityManager', () => {
           ],
         },
       });
-      mockResult.capabilityOfferingForPlanId = jest
+      mockServicesResult.capabilityOfferingForPlanId = jest
         .fn()
         .mockReturnValueOnce(offeringResult);
-      const result = await manager.planIdsToClientCapabilities(['planId1']);
-      expect(Object.keys(result).length).toBe(0);
+      const result = await capabilityManager.planIdsToClientCapabilities([
+        'planId1',
+      ]);
+      expect(Object.keys(result)).toHaveLength(0);
     });
 
     it('should return planIds to client capabilities', async () => {
@@ -186,10 +192,12 @@ describe('CapabilityManager', () => {
           ],
         },
       });
-      mockResult.capabilityOfferingForPlanId = jest
+      mockServicesResult.capabilityOfferingForPlanId = jest
         .fn()
         .mockReturnValueOnce(offeringResult);
-      const result = await manager.planIdsToClientCapabilities(['planId1']);
+      const result = await capabilityManager.planIdsToClientCapabilities([
+        'planId1',
+      ]);
       expect(Object.keys(result).length).toBe(2);
       expect(result).toStrictEqual({
         clientId1: ['slug1'],

@@ -37,7 +37,7 @@ describe('PlanMapperUtil', () => {
         null
       );
       expect(actual).toBe(expected);
-      expect(defaultMapper.errorFields.length).toBe(0);
+      expect(defaultMapper.errorFields).toHaveLength(0);
     });
 
     it('should return stripeValue and log error fieldname', () => {
@@ -62,7 +62,7 @@ describe('PlanMapperUtil', () => {
         defaultCommonContent.termsOfServiceUrl
       );
       expect(actual).toBe(expected);
-      expect(defaultMapper.errorFields.length).toBe(0);
+      expect(defaultMapper.errorFields).toHaveLength(0);
     });
 
     it('should return stripeValue as default', () => {
@@ -74,7 +74,7 @@ describe('PlanMapperUtil', () => {
         defaultPurchaseDetails.webIcon
       );
       expect(actual).toBe(expected);
-      expect(defaultMapper.errorFields.length).toBe(0);
+      expect(defaultMapper.errorFields).toHaveLength(0);
     });
   });
 

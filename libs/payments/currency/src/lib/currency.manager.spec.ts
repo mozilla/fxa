@@ -13,14 +13,14 @@ import {
 import { CURRENCIES_TO_COUNTRIES } from './currency.constants';
 
 describe('CurrencyManager', () => {
-  let mockCurrencyManager: CurrencyManager;
+  let currencyManager: CurrencyManager;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [CurrencyManager],
     }).compile();
 
-    mockCurrencyManager = module.get<CurrencyManager>(CurrencyManager);
+    currencyManager = module.get<CurrencyManager>(CurrencyManager);
   });
 
   describe('assertCurrencyCompatibleWithCountry', () => {
@@ -30,7 +30,7 @@ describe('CurrencyManager', () => {
     const validCurrency = 'USD';
 
     it('asserts when currency to country is valid', () => {
-      mockCurrencyManager.assertCurrencyCompatibleWithCountry(
+      currencyManager.assertCurrencyCompatibleWithCountry(
         validCurrency,
         validCountry
       );
@@ -38,10 +38,7 @@ describe('CurrencyManager', () => {
 
     it('throws an error when currency is invalid', () => {
       expect(() =>
-        mockCurrencyManager.assertCurrencyCompatibleWithCountry(
-          '',
-          validCountry
-        )
+        currencyManager.assertCurrencyCompatibleWithCountry('', validCountry)
       ).toThrow(CurrencyCodeInvalidError);
     });
 
@@ -49,7 +46,7 @@ describe('CurrencyManager', () => {
       const countryCode = faker.location.countryCode('alpha-3');
 
       expect(() =>
-        mockCurrencyManager.assertCurrencyCompatibleWithCountry(
+        currencyManager.assertCurrencyCompatibleWithCountry(
           validCurrency,
           countryCode
         )
@@ -60,7 +57,7 @@ describe('CurrencyManager', () => {
       const currencyCode = 'EUR';
 
       expect(() =>
-        mockCurrencyManager.assertCurrencyCompatibleWithCountry(
+        currencyManager.assertCurrencyCompatibleWithCountry(
           currencyCode,
           validCountry
         )
