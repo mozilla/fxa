@@ -186,7 +186,11 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { login, relier, settings, deleteAccount },
       emails,
-    }) => {
+    }, { project }) => {
+      test.fixme(
+        project.name !== 'local',
+        'FXA-9518 - Timing issue? Fails on stage with `Bad request - unknown state` on L209, unless breakpoint added on L208. Passes when restarting from breakpoint. '
+      );
       const [blockedEmail] = emails;
 
       await target.createAccount(blockedEmail, PASSWORD);
@@ -202,6 +206,7 @@ test.describe('severity-1 #smoke', () => {
       await login.setPassword(PASSWORD);
       await login.submit();
       await login.unblock(blockedEmail);
+      await relier.isLoggedIn();
       await settings.goto();
       await settings.deleteAccountButton.click();
       await deleteAccount.deleteAccount(PASSWORD);
