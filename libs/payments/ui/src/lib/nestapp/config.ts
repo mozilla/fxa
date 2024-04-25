@@ -7,6 +7,9 @@ import { IsDefined, ValidateNested } from 'class-validator';
 
 import { MySQLConfig } from '@fxa/shared/db/mysql/core';
 import { GeoDBConfig, GeoDBManagerConfig } from '@fxa/shared/geodb';
+import { PaypalClientConfig } from 'libs/payments/paypal/src/lib/paypal.client.config';
+import { StripeConfig } from '@fxa/payments/stripe';
+import { ContentfulClientConfig } from '@fxa/shared/contentful';
 
 export class RootConfig {
   @Type(() => MySQLConfig)
@@ -22,4 +25,19 @@ export class RootConfig {
   @Type(() => GeoDBManagerConfig)
   @ValidateNested()
   public readonly geodbManagerConfig!: Partial<GeoDBManagerConfig>;
+
+  @Type(() => StripeConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly stripeConfig!: Partial<StripeConfig>;
+
+  @Type(() => PaypalClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly paypalClientConfig!: Partial<PaypalClientConfig>;
+
+  @Type(() => ContentfulClientConfig)
+  @ValidateNested()
+  @IsDefined()
+  public readonly contentfulClientConfig!: Partial<ContentfulClientConfig>;
 }

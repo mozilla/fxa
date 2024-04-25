@@ -8,7 +8,7 @@ import { getLocationData } from './geodb.repository';
 import { GeoDBManagerConfig } from './geodb.config';
 import { TaxAddress } from './geodb.types';
 
-Injectable();
+@Injectable()
 export class GeoDBManager {
   constructor(
     @Inject(GeoDBProvider) private reader: GeoDBCityReader,

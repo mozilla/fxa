@@ -10,10 +10,27 @@ import { Module } from '@nestjs/common';
 
 import { RootConfig } from './config';
 import { LocalizerRscFactoryProvider } from '@fxa/shared/l10n/server';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
+import {
+  AccountCustomerManager,
+  StripeClient,
+  StripeManager,
+} from '@fxa/payments/stripe';
 import { NextJSActionsService } from './nextjs-actions.service';
 import { GeoDBManager, GeoDBNestFactory } from '@fxa/shared/geodb';
 import { validate } from '../config.utils';
+import {
+  EligibilityManager,
+  EligibilityService,
+} from '@fxa/payments/eligibility';
+import { CheckoutService } from 'libs/payments/cart/src/lib/checkout.service';
+import { ContentfulClient, ContentfulManager } from '@fxa/shared/contentful';
+import {
+  PayPalClient,
+  PayPalManager,
+  PaypalCustomerManager,
+} from '@fxa/payments/paypal';
+import { FirestoreService } from '@fxa/shared/db/firestore';
+import { StatsD } from 'hot-shots';
 
 @Module({
   imports: [
@@ -27,14 +44,32 @@ import { validate } from '../config.utils';
   ],
   controllers: [],
   providers: [
-    AccountDatabaseNestFactory,
+    {
+      provide: FirestoreService,
+      useValue: {}, //Temporary value to resolve Payments Next startup issues
+    },
+    {
+      provide: StatsD,
+      useValue: {}, //Temporary value to resolve Payments Next startup issues
+    },
+    LocalizerRscFactoryProvider,
     NextJSActionsService,
+    AccountDatabaseNestFactory,
     AccountCustomerManager,
     CartService,
     CartManager,
-    LocalizerRscFactoryProvider,
     GeoDBNestFactory,
     GeoDBManager,
+    EligibilityService,
+    EligibilityManager,
+    CheckoutService,
+    ContentfulClient,
+    ContentfulManager,
+    StripeManager,
+    StripeClient,
+    PayPalClient,
+    PaypalCustomerManager,
+    PayPalManager,
   ],
 })
 export class AppModule {}
