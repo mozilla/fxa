@@ -218,28 +218,26 @@ module.exports = function (
         };
         const wantsKeys = requestHelper.wantsKeys(request);
         const ip = request.app.clientAddress;
-        let account: any,
-          sessionToken: any,
-          previousSessionToken: any,
-          keyFetchToken: any,
-          keyFetchToken2: any,
-          verifiedStatus: any,
-          devicesToNotify: any,
-          originatingDeviceId: any,
-          hasTotp = false;
 
-        return checkTotpToken()
-          .then(getSessionVerificationStatus)
-          .then(fetchDevicesToNotify)
-          .then(changePassword)
-          .then(notifyAccount)
-          .then(createSessionToken)
-          .then(verifySessionToken)
-          .then(createKeyFetchToken)
-          .then(createResponse);
+        const hasTotp = await checkTotpToken();
+
+        const { verifiedStatus, previousSessionToken, originatingDeviceId } =
+          await getSessionVerificationStatus();
+
+        const devicesToNotify = await fetchDevicesToNotify();
+
+        await changePassword();
+
+        const account = await notifyAccount();
+        const sessionToken = await createSessionToken();
+
+        await verifySessionToken();
+
+        const { keyFetchToken, keyFetchToken2 } = await createKeyFetchToken();
+        return createResponse();
 
         async function checkTotpToken() {
-          hasTotp = await otpUtils.hasTotpToken(passwordChangeToken);
+          const hasTotp = await otpUtils.hasTotpToken(passwordChangeToken);
 
           // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
           // password change process. While the `sessionTokenId` is optional, we require it
@@ -247,40 +245,47 @@ module.exports = function (
           if (hasTotp && !sessionTokenId) {
             throw error.unverifiedSession();
           }
+          return hasTotp;
         }
 
         async function getSessionVerificationStatus() {
-          if (sessionTokenId) {
-            const tokenData = await db.sessionToken(sessionTokenId);
-            previousSessionToken = tokenData;
-            verifiedStatus = tokenData.tokenVerified;
-            if (tokenData.deviceId) {
-              originatingDeviceId = tokenData.deviceId;
-            }
+          const result: {
+            verifiedStatus: boolean;
+            previousSessionToken?: any;
+            originatingDeviceId?: any;
+          } = { verifiedStatus: false };
 
-            if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
-              throw error.unverifiedSession();
-            }
-          } else {
+          if (!sessionTokenId) {
             // Don't create a verified session unless they already had one.
-            verifiedStatus = false;
+            result.verifiedStatus = false;
+            return result;
           }
+
+          const tokenData = await db.sessionToken(sessionTokenId);
+          result.previousSessionToken = tokenData;
+          result.verifiedStatus = tokenData.tokenVerified;
+          if (tokenData.deviceId) {
+            result.originatingDeviceId = tokenData.deviceId;
+          }
+
+          if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
+            throw error.unverifiedSession();
+          }
+          return result;
         }
 
         async function fetchDevicesToNotify() {
           // We fetch the devices to notify before changePassword() because
           // db.resetAccount() deletes all the devices saved in the account.
           const devices = await request.app.devices;
-          devicesToNotify = devices;
 
           // If the originating sessionToken belongs to a device,
           // do not send the notification to that device. It will
           // get informed about the change via WebChannel message.
           if (originatingDeviceId) {
-            devicesToNotify = devicesToNotify.filter(
-              (d: any) => d.id !== originatingDeviceId
-            );
+            return devices.filter((d: any) => d.id !== originatingDeviceId);
           }
+          return devices;
         }
 
         async function changePassword() {
@@ -346,7 +351,7 @@ module.exports = function (
             );
           }
 
-          account = await db.account(passwordChangeToken.uid);
+          const account = await db.account(passwordChangeToken.uid);
 
           log.notifyAttachedServices('passwordChange', request, {
             uid: passwordChangeToken.uid,
@@ -386,6 +391,7 @@ module.exports = function (
               }
             );
           }
+          return account;
         }
 
         async function createSessionToken() {
@@ -416,7 +422,7 @@ module.exports = function (
             uaFormFactor,
           };
 
-          sessionToken = await db.createSessionToken(sessionTokenOptions);
+          return db.createSessionToken(sessionTokenOptions);
         }
 
         function verifySessionToken() {
@@ -433,11 +439,15 @@ module.exports = function (
         }
 
         async function createKeyFetchToken() {
+          const result: {
+            keyFetchToken?: any;
+            keyFetchToken2?: any;
+          } = {};
           if (wantsKeys) {
             // Create a verified keyFetchToken. This is deliberately verified because we don't
             // want to perform an email confirmation loop.
             if (authPW) {
-              keyFetchToken = await db.createKeyFetchToken({
+              result.keyFetchToken = await db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,
                 wrapKb: wrapKb,
@@ -446,7 +456,7 @@ module.exports = function (
             }
 
             if (authPWVersion2) {
-              keyFetchToken2 = await db.createKeyFetchToken({
+              result.keyFetchToken2 = await db.createKeyFetchToken({
                 uid: account.uid,
                 kA: account.kA,
                 wrapKb: wrapKbVersion2,
@@ -454,6 +464,7 @@ module.exports = function (
               });
             }
           }
+          return result;
         }
 
         function createResponse() {
