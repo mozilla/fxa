@@ -1708,22 +1708,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/helper-create-class-features-plugin@npm:^7.23.6":
-  version: 7.24.0
-  resolution: "@babel/helper-create-class-features-plugin@npm:7.24.0"
+"@babel/helper-create-class-features-plugin@npm:^7.24.4":
+  version: 7.24.4
+  resolution: "@babel/helper-create-class-features-plugin@npm:7.24.4"
   dependencies:
     "@babel/helper-annotate-as-pure": ^7.22.5
     "@babel/helper-environment-visitor": ^7.22.20
     "@babel/helper-function-name": ^7.23.0
     "@babel/helper-member-expression-to-functions": ^7.23.0
     "@babel/helper-optimise-call-expression": ^7.22.5
-    "@babel/helper-replace-supers": ^7.22.20
+    "@babel/helper-replace-supers": ^7.24.1
     "@babel/helper-skip-transparent-expression-wrappers": ^7.22.5
     "@babel/helper-split-export-declaration": ^7.22.6
     semver: ^6.3.1
   peerDependencies:
     "@babel/core": ^7.0.0
-  checksum: 407ad4a9bf982a40a2c34c65bfc5d1349bb100076b2310f11889d803b354609f27f5397705aca0c047dfecb145321ec18ec1e27be7bc642cb69a32204781400d
+  checksum: 75b0a51ae1f7232932559779b78711c271404d02d069156d1bd9a7982c165c5134058d2ec2d8b5f2e42026ee4f52ba2a30c86a7aa3bce6b5fd0991eb721abc8c
   languageName: node
   linkType: hard
 
@@ -2383,6 +2383,19 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0
   checksum: d41471f56ff2616459d35a5df1900d5f0756ae78b1027040365325ef332d66e08e3be02a9489756d870887585ff222403a228546e93dd7019e19e59c0c0fe586
+  languageName: node
+  linkType: hard
+
+"@babel/helper-replace-supers@npm:^7.24.1":
+  version: 7.24.1
+  resolution: "@babel/helper-replace-supers@npm:7.24.1"
+  dependencies:
+    "@babel/helper-environment-visitor": ^7.22.20
+    "@babel/helper-member-expression-to-functions": ^7.23.0
+    "@babel/helper-optimise-call-expression": ^7.22.5
+  peerDependencies:
+    "@babel/core": ^7.0.0
+  checksum: c04182c34a3195c6396de2f2945f86cb60daa94ca7392db09bd8b0d4e7a15b02fbe1947c70f6062c87eadaea6d7135207129efa35cf458ea0987bab8c0f02d5a
   languageName: node
   linkType: hard
 
@@ -3715,6 +3728,17 @@ __metadata:
   peerDependencies:
     "@babel/core": ^7.0.0-0
   checksum: abfad3a19290d258b028e285a1f34c9b8a0cbe46ef79eafed4ed7ffce11b5d0720b5e536c82f91cbd8442cde35a3dd8e861fa70366d87ff06fdc0d4756e30876
+  languageName: node
+  linkType: hard
+
+"@babel/plugin-syntax-typescript@npm:^7.24.1":
+  version: 7.24.1
+  resolution: "@babel/plugin-syntax-typescript@npm:7.24.1"
+  dependencies:
+    "@babel/helper-plugin-utils": ^7.24.0
+  peerDependencies:
+    "@babel/core": ^7.0.0-0
+  checksum: bf4bd70788d5456b5f75572e47a2e31435c7c4e43609bd4dffd2cc0c7a6cf90aabcf6cd389e351854de9a64412a07d30effef5373251fe8f6a4c9db0c0163bda
   languageName: node
   linkType: hard
 
@@ -5855,17 +5879,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@babel/plugin-transform-typescript@npm:^7.23.6":
-  version: 7.23.6
-  resolution: "@babel/plugin-transform-typescript@npm:7.23.6"
+"@babel/plugin-transform-typescript@npm:^7.24.4":
+  version: 7.24.4
+  resolution: "@babel/plugin-transform-typescript@npm:7.24.4"
   dependencies:
     "@babel/helper-annotate-as-pure": ^7.22.5
-    "@babel/helper-create-class-features-plugin": ^7.23.6
-    "@babel/helper-plugin-utils": ^7.22.5
-    "@babel/plugin-syntax-typescript": ^7.23.3
+    "@babel/helper-create-class-features-plugin": ^7.24.4
+    "@babel/helper-plugin-utils": ^7.24.0
+    "@babel/plugin-syntax-typescript": ^7.24.1
   peerDependencies:
     "@babel/core": ^7.0.0-0
-  checksum: 0462241843d14dff9f1a4c49ab182a6f01a5f7679957c786b08165dac3e8d49184011f05ca204183d164c54b9d3496d1b3005f904fa8708e394e6f15bf5548e6
+  checksum: 57a9a776b1910c706d28972e4b056ced3af8fc59c29b2a6205c2bb2a408141ddb59a8f2f6041f8467a7b260942818767f4ecabb9f63adf7fddf2afa25e774dfc
   languageName: node
   linkType: hard
 
@@ -38175,7 +38199,7 @@ fsevents@~2.1.1:
   resolution: "fxa-react@workspace:packages/fxa-react"
   dependencies:
     "@babel/core": ^7.24.4
-    "@babel/plugin-transform-typescript": ^7.23.6
+    "@babel/plugin-transform-typescript": ^7.24.4
     "@babel/preset-env": ^7.22.9
     "@babel/preset-react": ^7.24.1
     "@babel/preset-typescript": ^7.23.2
@@ -38241,7 +38265,7 @@ fsevents@~2.1.1:
   resolution: "fxa-settings@workspace:packages/fxa-settings"
   dependencies:
     "@babel/core": ^7.24.4
-    "@babel/plugin-transform-typescript": ^7.23.6
+    "@babel/plugin-transform-typescript": ^7.24.4
     "@babel/preset-typescript": ^7.23.0
     "@babel/types": ^7.24.0
     "@emotion/react": ^11.11.1

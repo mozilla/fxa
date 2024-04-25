@@ -192,7 +192,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.4",
-    "@babel/plugin-transform-typescript": "^7.23.6",
+    "@babel/plugin-transform-typescript": "^7.24.4",
     "@babel/preset-typescript": "^7.23.0",
     "@babel/types": "^7.24.0",
     "@storybook/addon-actions": "^8.0.0",
