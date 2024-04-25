@@ -2,65 +2,72 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-'use strict';
+import { emailsMatch } from 'fxa-shared/email/helpers';
+import { StatsD } from 'hot-shots';
+import { Redis } from 'ioredis';
+import * as isA from 'joi';
 
-const validators = require('./validators');
+import { OtpManager, OtpStorage } from '@fxa/shared/otp';
+
+import { ConfigType } from '../../config';
+import PASSWORD_DOCS from '../../docs/swagger/password-api';
+import DESCRIPTION from '../../docs/swagger/shared/descriptions';
+import * as butil from '../crypto/butil';
+import * as random from '../crypto/random';
+import * as error from '../error';
+import { schema as METRICS_CONTEXT_SCHEMA } from '../metrics/context';
+import { gleanMetrics } from '../metrics/glean';
+import * as requestHelper from '../routes/utils/request_helper';
+import { AuthLogger, AuthRequest } from '../types';
+import { recordSecurityEvent } from './utils/security-event';
+import * as validators from './validators';
+
 const HEX_STRING = validators.HEX_STRING;
 
-const butil = require('../crypto/butil');
-const error = require('../error');
-const isA = require('joi');
-const random = require('../crypto/random');
-const requestHelper = require('../routes/utils/request_helper');
-const { recordSecurityEvent } = require('./utils/security-event');
-const { emailsMatch } = require('fxa-shared').email.helpers;
-const { OtpManager } = require('@fxa/shared/otp');
+class OtpRedisAdapter implements OtpStorage {
+  constructor(private redis: Redis, private ttl: number) {}
 
-const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
-const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
-const METRICS_CONTEXT_SCHEMA = require('../metrics/context').schema;
+  async set(key: string, value: string) {
+    await this.redis.set(key, value, 'EX', this.ttl);
+    return null;
+  }
+
+  async get(key: string) {
+    return this.redis.get(key);
+  }
+
+  async del(key: string) {
+    await this.redis.del(key);
+    return null;
+  }
+}
 
 module.exports = function (
-  log,
-  db,
-  Password,
-  redirectDomain,
-  mailer,
-  verifierVersion,
-  customs,
-  signinUtils,
-  push,
-  config,
-  oauth,
-  glean,
-  authServerCacheRedis,
-  statsd
+  log: AuthLogger,
+  db: any,
+  Password: any,
+  redirectDomain: any,
+  mailer: any,
+  verifierVersion: any,
+  customs: any,
+  signinUtils: any,
+  push: any,
+  config: ConfigType,
+  oauth: any,
+  glean: ReturnType<typeof gleanMetrics>,
+  authServerCacheRedis: Redis,
+  statsd: StatsD
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
   const otpRedisAdapter = config.passwordForgotOtp.enabled
-    ? {
-        set: async (key, val) => {
-          return authServerCacheRedis.set(
-            key,
-            val,
-            'EX',
-            config.passwordForgotOtp.ttl
-          );
-        },
-        get: async (key) => {
-          return authServerCacheRedis.get(key);
-        },
-        del: async (key) => {
-          return authServerCacheRedis.del(key);
-        },
-      }
-    : { set: () => {}, get: () => {}, del: () => {} };
+    ? new OtpRedisAdapter(authServerCacheRedis, config.passwordForgotOtp.ttl)
+    : { set: async () => null, get: async () => null, del: async () => null };
   const otpManager = new OtpManager(
     { kind: 'passwordForgot', digits: config.passwordForgotOtp.digits },
     otpRedisAdapter
   );
 
-  function failVerifyAttempt(passwordForgotToken) {
+  function failVerifyAttempt(passwordForgotToken: any) {
     return passwordForgotToken.failAttempt()
       ? db.deletePasswordForgotToken(passwordForgotToken)
       : db.updatePasswordForgotToken(passwordForgotToken);
@@ -79,9 +86,9 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.changeStart', request);
-        const form = request.payload;
+        const form = request.payload as { email: string; oldAuthPW: string };
         const { oldAuthPW, email } = form;
 
         await customs.check(request, email, 'passwordChange');
@@ -191,22 +198,34 @@ module.exports = function (
             .and('authPWVersion2', 'wrapKbVersion2', 'clientSalt'),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.changeFinish', request);
         const passwordChangeToken = request.auth.credentials;
-        const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt } =
-          request.payload;
-        const sessionTokenId = request.payload.sessionToken;
+        const {
+          authPW,
+          authPWVersion2,
+          wrapKb,
+          wrapKbVersion2,
+          clientSalt,
+          sessionToken: sessionTokenId,
+        } = request.payload as {
+          authPW: string;
+          authPWVersion2?: string;
+          wrapKb?: string;
+          wrapKbVersion2?: string;
+          clientSalt?: string;
+          sessionToken?: string;
+        };
         const wantsKeys = requestHelper.wantsKeys(request);
         const ip = request.app.clientAddress;
-        let account,
-          sessionToken,
-          previousSessionToken,
-          keyFetchToken,
-          keyFetchToken2,
-          verifiedStatus,
-          devicesToNotify,
-          originatingDeviceId,
+        let account: any,
+          sessionToken: any,
+          previousSessionToken: any,
+          keyFetchToken: any,
+          keyFetchToken2: any,
+          verifiedStatus: any,
+          devicesToNotify: any,
+          originatingDeviceId: any,
           hasTotp = false;
 
         return checkTotpToken()
@@ -219,54 +238,49 @@ module.exports = function (
           .then(createKeyFetchToken)
           .then(createResponse);
 
-        function checkTotpToken() {
-          return otpUtils.hasTotpToken(passwordChangeToken).then((result) => {
-            hasTotp = result;
+        async function checkTotpToken() {
+          hasTotp = await otpUtils.hasTotpToken(passwordChangeToken);
 
-            // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
-            // password change process. While the `sessionTokenId` is optional, we require it
-            // in the case of TOTP because we want to check that session has been verified
-            // by TOTP.
-            if (result && !sessionTokenId) {
-              throw error.unverifiedSession();
-            }
-          });
-        }
-
-        function getSessionVerificationStatus() {
-          if (sessionTokenId) {
-            return db.sessionToken(sessionTokenId).then((tokenData) => {
-              previousSessionToken = tokenData;
-              verifiedStatus = tokenData.tokenVerified;
-              if (tokenData.deviceId) {
-                originatingDeviceId = tokenData.deviceId;
-              }
-
-              if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
-                throw error.unverifiedSession();
-              }
-            });
-          } else {
-            // Don't create a verified session unless they already had one.
-            verifiedStatus = false;
-            return Promise.resolve();
+          // Currently, users that have a TOTP token must specify a sessionTokenId to complete the
+          // password change process. While the `sessionTokenId` is optional, we require it
+          // by TOTP.
+          if (hasTotp && !sessionTokenId) {
+            throw error.unverifiedSession();
           }
         }
 
-        function fetchDevicesToNotify() {
+        async function getSessionVerificationStatus() {
+          if (sessionTokenId) {
+            const tokenData = await db.sessionToken(sessionTokenId);
+            previousSessionToken = tokenData;
+            verifiedStatus = tokenData.tokenVerified;
+            if (tokenData.deviceId) {
+              originatingDeviceId = tokenData.deviceId;
+            }
+
+            if (hasTotp && tokenData.authenticatorAssuranceLevel <= 1) {
+              throw error.unverifiedSession();
+            }
+          } else {
+            // Don't create a verified session unless they already had one.
+            verifiedStatus = false;
+          }
+        }
+
+        async function fetchDevicesToNotify() {
           // We fetch the devices to notify before changePassword() because
           // db.resetAccount() deletes all the devices saved in the account.
-          return request.app.devices.then((devices) => {
-            devicesToNotify = devices;
-            // If the originating sessionToken belongs to a device,
-            // do not send the notification to that device. It will
-            // get informed about the change via WebChannel message.
-            if (originatingDeviceId) {
-              devicesToNotify = devicesToNotify.filter(
-                (d) => d.id !== originatingDeviceId
-              );
-            }
-          });
+          const devices = await request.app.devices;
+          devicesToNotify = devices;
+
+          // If the originating sessionToken belongs to a device,
+          // do not send the notification to that device. It will
+          // get informed about the change via WebChannel message.
+          if (originatingDeviceId) {
+            devicesToNotify = devicesToNotify.filter(
+              (d: any) => d.id !== originatingDeviceId
+            );
+          }
         }
 
         async function changePassword() {
@@ -323,7 +337,7 @@ module.exports = function (
           return result;
         }
 
-        function notifyAccount() {
+        async function notifyAccount() {
           if (devicesToNotify) {
             // Notify the devices that the account has changed.
             push.notifyPasswordChanged(
@@ -332,97 +346,77 @@ module.exports = function (
             );
           }
 
-          return db
-            .account(passwordChangeToken.uid)
-            .then((accountData) => {
-              account = accountData;
+          account = await db.account(passwordChangeToken.uid);
 
-              log.notifyAttachedServices('passwordChange', request, {
-                uid: passwordChangeToken.uid,
-                generation: account.verifierSetAt,
-              });
-              return oauth.removePublicAndCanGrantTokens(
-                passwordChangeToken.uid
-              );
-            })
-            .then(() => {
-              return db.accountEmails(passwordChangeToken.uid);
-            })
-            .then((emails) => {
-              const geoData = request.app.geo;
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType,
-              } = request.app.ua;
+          log.notifyAttachedServices('passwordChange', request, {
+            uid: passwordChangeToken.uid,
+            generation: account.verifierSetAt,
+          });
+          await oauth.removePublicAndCanGrantTokens(passwordChangeToken.uid);
+          const emails = await db.accountEmails(passwordChangeToken.uid);
+          const geoData = request.app.geo;
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+          } = request.app.ua;
 
-              return mailer
-                .sendPasswordChangedEmail(emails, account, {
-                  acceptLanguage: request.app.acceptLanguage,
-                  ip,
-                  location: geoData.location,
-                  timeZone: geoData.timeZone,
-                  uaBrowser,
-                  uaBrowserVersion,
-                  uaOS,
-                  uaOSVersion,
-                  uaDeviceType,
-                  uid: passwordChangeToken.uid,
-                })
-                .catch((e) => {
-                  // If we couldn't email them, no big deal. Log
-                  // and pretend everything worked.
-                  log.trace(
-                    'Password.changeFinish.sendPasswordChangedNotification.error',
-                    {
-                      error: e,
-                    }
-                  );
-                });
+          try {
+            await mailer.sendPasswordChangedEmail(emails, account, {
+              acceptLanguage: request.app.acceptLanguage,
+              ip,
+              location: geoData.location,
+              timeZone: geoData.timeZone,
+              uaBrowser,
+              uaBrowserVersion,
+              uaOS,
+              uaOSVersion,
+              uaDeviceType,
+              uid: passwordChangeToken.uid,
             });
+          } catch (error) {
+            // If we couldn't email them, no big deal. Log
+            // and pretend everything worked.
+            log.trace(
+              'Password.changeFinish.sendPasswordChangedNotification.error',
+              {
+                error,
+              }
+            );
+          }
         }
 
-        function createSessionToken() {
-          return Promise.resolve()
-            .then(() => {
-              if (!verifiedStatus) {
-                return random.hex(16);
-              }
-            })
-            .then((maybeToken) => {
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType,
-                formFactor: uaFormFactor,
-              } = request.app.ua;
+        async function createSessionToken() {
+          const maybeToken = !verifiedStatus ? await random.hex(16) : undefined;
+          const {
+            browser: uaBrowser,
+            browserVersion: uaBrowserVersion,
+            os: uaOS,
+            osVersion: uaOSVersion,
+            deviceType: uaDeviceType,
+            formFactor: uaFormFactor,
+          } = request.app.ua;
 
-              // Create a sessionToken with the verification status of the current session
-              const sessionTokenOptions = {
-                uid: account.uid,
-                email: account.email,
-                emailCode: account.emailCode,
-                emailVerified: account.emailVerified,
-                verifierSetAt: account.verifierSetAt,
-                mustVerify: wantsKeys,
-                tokenVerificationId: maybeToken,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uaFormFactor,
-              };
+          // Create a sessionToken with the verification status of the current session
+          const sessionTokenOptions = {
+            uid: account.uid,
+            email: account.email,
+            emailCode: account.emailCode,
+            emailVerified: account.emailVerified,
+            verifierSetAt: account.verifierSetAt,
+            mustVerify: wantsKeys,
+            tokenVerificationId: maybeToken,
+            uaBrowser,
+            uaBrowserVersion,
+            uaOS,
+            uaOSVersion,
+            uaDeviceType,
+            uaFormFactor,
+          };
 
-              return db.createSessionToken(sessionTokenOptions);
-            })
-            .then((result) => {
-              sessionToken = result;
-            });
+          sessionToken = await db.createSessionToken(sessionTokenOptions);
         }
 
         function verifySessionToken() {
@@ -469,7 +463,7 @@ module.exports = function (
             return {};
           }
 
-          const response = {
+          const response: any = {
             uid: sessionToken.uid,
             sessionToken: sessionToken.data,
             verified: sessionToken.emailVerified && sessionToken.tokenVerified,
@@ -512,14 +506,19 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         if (!config.passwordForgotOtp.enabled) {
           throw error.featureNotEnabled();
         }
 
         log.begin('Password.forgotOtp', request);
         await request.emitMetricsEvent('password.forgot.send_otp.start');
-        const email = request.payload.email;
+        const payload = request.payload as {
+          email: string;
+          service: string;
+          metricsContext: any;
+        };
+        const email = payload.email;
 
         // TODO FXA-9485
         // await customs.check(request, email, 'passwordForgotSendOtp');
@@ -541,7 +540,7 @@ module.exports = function (
 
         const code = await otpManager.create(account.uid);
         const ip = request.app.clientAddress;
-        const service = request.payload.service || request.query.service;
+        const service = payload.service || request.query.service;
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
         const geoData = request.app.geo;
@@ -555,7 +554,7 @@ module.exports = function (
 
         // TODO FXA-7852
         // await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
-        const noopSendMail = () => {};
+        const noopSendMail = (...args: any) => {};
         noopSendMail(account.emails, account, {
           code,
           service,
@@ -625,10 +624,17 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.forgotSend', request);
-        const email = request.payload.email;
-        const service = request.payload.service || request.query.service;
+        const payload = request.payload as {
+          email: string;
+          service: string;
+          redirectTo?: string;
+          resume?: string;
+        };
+
+        const email = payload.email;
+        const service = payload.service || request.query.service;
         const ip = request.app.clientAddress;
 
         request.validateMetricsContext();
@@ -644,74 +650,65 @@ module.exports = function (
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
 
-        let passwordForgotToken;
-
-        return Promise.all([
+        await Promise.all([
           request.emitMetricsEvent('password.forgot.send_code.start'),
           customs.check(request, email, 'passwordForgotSendCode'),
-        ])
+        ]);
+        const accountRecord = await db.accountRecord(email);
 
-          .then(db.accountRecord.bind(db, email))
-          .then((accountRecord) => {
-            if (
-              !emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)
-            ) {
-              throw error.cannotResetPasswordWithSecondaryEmail();
-            }
-            // The token constructor sets createdAt from its argument.
-            // Clobber the timestamp to prevent prematurely expired tokens.
-            accountRecord.createdAt = undefined;
-            return db.createPasswordForgotToken(accountRecord);
-          })
-          .then((result) => {
-            passwordForgotToken = result;
-            return Promise.all([
-              request.stashMetricsContext(passwordForgotToken),
-              db.accountEmails(passwordForgotToken.uid),
-            ]);
-          })
-          .then(([_, emails]) => {
-            const geoData = request.app.geo;
-            const {
-              browser: uaBrowser,
-              browserVersion: uaBrowserVersion,
-              os: uaOS,
-              osVersion: uaOSVersion,
-              deviceType: uaDeviceType,
-            } = request.app.ua;
+        if (!emailsMatch(accountRecord.primaryEmail.normalizedEmail, email)) {
+          throw error.cannotResetPasswordWithSecondaryEmail();
+        }
+        // The token constructor sets createdAt from its argument.
+        // Clobber the timestamp to prevent prematurely expired tokens.
+        accountRecord.createdAt = undefined;
+        const passwordForgotToken = await db.createPasswordForgotToken(
+          accountRecord
+        );
+        const [, emails] = await Promise.all([
+          request.stashMetricsContext(passwordForgotToken),
+          db.accountEmails(passwordForgotToken.uid),
+        ]);
+        const geoData = request.app.geo;
+        const {
+          browser: uaBrowser,
+          browserVersion: uaBrowserVersion,
+          os: uaOS,
+          osVersion: uaOSVersion,
+          deviceType: uaDeviceType,
+        } = request.app.ua;
 
-            return mailer.sendRecoveryEmail(emails, passwordForgotToken, {
-              emailToHashWith: passwordForgotToken.email,
-              token: passwordForgotToken.data,
-              code: passwordForgotToken.passCode,
-              service: service,
-              redirectTo: request.payload.redirectTo,
-              resume: request.payload.resume,
-              acceptLanguage: request.app.acceptLanguage,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              ip,
-              location: geoData.location,
-              timeZone: geoData.timeZone,
-              uaBrowser,
-              uaBrowserVersion,
-              uaOS,
-              uaOSVersion,
-              uaDeviceType,
-              uid: passwordForgotToken.uid,
-            });
-          })
-          .then(() =>
-            request.emitMetricsEvent('password.forgot.send_code.completed')
-          )
-          .then(() => glean.resetPassword.emailSent(request))
-          .then(() => ({
-            passwordForgotToken: passwordForgotToken.data,
-            ttl: passwordForgotToken.ttl(),
-            codeLength: passwordForgotToken.passCode.length,
-            tries: passwordForgotToken.tries,
-          }));
+        await mailer.sendRecoveryEmail(emails, passwordForgotToken, {
+          emailToHashWith: passwordForgotToken.email,
+          token: passwordForgotToken.data,
+          code: passwordForgotToken.passCode,
+          service: service,
+          redirectTo: payload.redirectTo,
+          resume: payload.resume,
+          acceptLanguage: request.app.acceptLanguage,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid: passwordForgotToken.uid,
+        });
+        await Promise.all([
+          request.emitMetricsEvent('password.forgot.send_code.completed'),
+          glean.resetPassword.emailSent(request),
+        ]);
+        return {
+          passwordForgotToken: passwordForgotToken.data,
+          ttl: passwordForgotToken.ttl(),
+          codeLength: passwordForgotToken.passCode.length,
+          tries: passwordForgotToken.tries,
+        };
       },
     },
     {
@@ -753,76 +750,75 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.forgotResend', request);
-        const passwordForgotToken = request.auth.credentials;
-        const service = request.payload.service || request.query.service;
+        const passwordForgotToken = request.auth.credentials as any;
+        const payload = request.payload as {
+          email: string;
+          service: string;
+          redirectTo?: string;
+          resume?: string;
+        };
+        const service = payload.service || request.query.service;
         const ip = request.app.clientAddress;
 
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
 
-        return Promise.all([
+        await Promise.all([
           request.emitMetricsEvent('password.forgot.resend_code.start'),
           customs.check(
             request,
             passwordForgotToken.email,
             'passwordForgotResendCode'
           ),
-        ])
-          .then(() => {
-            return db.accountEmails(passwordForgotToken.uid).then((emails) => {
-              const geoData = request.app.geo;
-              const {
-                browser: uaBrowser,
-                browserVersion: uaBrowserVersion,
-                os: uaOS,
-                osVersion: uaOSVersion,
-                deviceType: uaDeviceType,
-              } = request.app.ua;
+        ]);
 
-              return mailer.sendRecoveryEmail(emails, passwordForgotToken, {
-                code: passwordForgotToken.passCode,
-                emailToHashWith: passwordForgotToken.email,
-                token: passwordForgotToken.data,
-                service,
-                redirectTo: request.payload.redirectTo,
-                resume: request.payload.resume,
-                acceptLanguage: request.app.acceptLanguage,
-                deviceId,
-                flowId,
-                flowBeginTime,
-                ip,
-                location: geoData.location,
-                timeZone: geoData.timeZone,
-                uaBrowser,
-                uaBrowserVersion,
-                uaOS,
-                uaOSVersion,
-                uaDeviceType,
-                uid: passwordForgotToken.uid,
-              });
-            });
-          })
-          .then(() => {
-            return request.emitMetricsEvent(
-              'password.forgot.resend_code.completed'
-            );
-          })
-          .then(() => {
-            recordSecurityEvent('account.password_reset_requested', {
-              db,
-              request,
-            });
-          })
-          .then(() => {
-            return {
-              passwordForgotToken: passwordForgotToken.data,
-              ttl: passwordForgotToken.ttl(),
-              codeLength: passwordForgotToken.passCode.length,
-              tries: passwordForgotToken.tries,
-            };
-          });
+        const emails = await db.accountEmails(passwordForgotToken.uid);
+
+        const geoData = request.app.geo;
+        const {
+          browser: uaBrowser,
+          browserVersion: uaBrowserVersion,
+          os: uaOS,
+          osVersion: uaOSVersion,
+          deviceType: uaDeviceType,
+        } = request.app.ua;
+
+        await mailer.sendRecoveryEmail(emails, passwordForgotToken, {
+          code: passwordForgotToken.passCode,
+          emailToHashWith: passwordForgotToken.email,
+          token: passwordForgotToken.data,
+          service,
+          redirectTo: payload.redirectTo,
+          resume: payload.resume,
+          acceptLanguage: request.app.acceptLanguage,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid: passwordForgotToken.uid,
+        });
+        await Promise.all([
+          request.emitMetricsEvent('password.forgot.resend_code.completed'),
+          recordSecurityEvent('account.password_reset_requested', {
+            db,
+            request,
+          }),
+        ]);
+        return {
+          passwordForgotToken: passwordForgotToken.data,
+          ttl: passwordForgotToken.ttl(),
+          codeLength: passwordForgotToken.passCode.length,
+          tries: passwordForgotToken.tries,
+        };
       },
     },
     {
@@ -852,74 +848,69 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.forgotVerify', request);
-        const passwordForgotToken = request.auth.credentials;
-        const code = request.payload.code;
-        const accountResetWithRecoveryKey =
-          request.payload.accountResetWithRecoveryKey;
+        const passwordForgotToken = request.auth.credentials as any;
+        const { code, accountResetWithRecoveryKey } = request.payload as {
+          code: string;
+          accountResetWithRecoveryKey?: boolean;
+        };
 
         const { deviceId, flowId, flowBeginTime } = await request.app
           .metricsContext;
 
-        let accountResetToken;
-
-        return Promise.all([
+        await Promise.all([
           request.emitMetricsEvent('password.forgot.verify_code.start'),
           customs.check(
             request,
             passwordForgotToken.email,
             'passwordForgotVerifyCode'
           ),
-        ])
-          .then(() => {
-            if (
-              butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
-              passwordForgotToken.ttl() > 0
-            ) {
-              return db.forgotPasswordVerified(passwordForgotToken);
-            }
+        ]);
 
-            return failVerifyAttempt(passwordForgotToken).then(() => {
-              throw error.invalidVerificationCode({
-                tries: passwordForgotToken.tries,
-                ttl: passwordForgotToken.ttl(),
-              });
-            });
-          })
-          .then((result) => {
-            accountResetToken = result;
-            return Promise.all([
-              request.propagateMetricsContext(
-                passwordForgotToken,
-                accountResetToken
-              ),
-              db.accountEmails(passwordForgotToken.uid),
-            ]);
-          })
-          .then(([_, emails]) => {
-            if (accountResetWithRecoveryKey) {
-              // To prevent multiple password change emails being sent to a user,
-              // we check for a flag to see if this is a reset using an account recovery key.
-              // If it is, then the notification email will be sent in `/account/reset`
-              return Promise.resolve();
-            }
+        let accountResetToken;
+        if (
+          butil.buffersAreEqual(passwordForgotToken.passCode, code) &&
+          passwordForgotToken.ttl() > 0
+        ) {
+          accountResetToken = await db.forgotPasswordVerified(
+            passwordForgotToken
+          );
+        } else {
+          await failVerifyAttempt(passwordForgotToken);
+          throw error.invalidVerificationCode({
+            tries: passwordForgotToken.tries,
+            ttl: passwordForgotToken.ttl(),
+          });
+        }
 
-            return mailer.sendPasswordResetEmail(emails, passwordForgotToken, {
-              code,
-              acceptLanguage: request.app.acceptLanguage,
-              deviceId,
-              flowId,
-              flowBeginTime,
-              uid: passwordForgotToken.uid,
-            });
-          })
-          .then(() =>
-            request.emitMetricsEvent('password.forgot.verify_code.completed')
-          )
-          .then(() => ({
-            accountResetToken: accountResetToken.data,
-          }));
+        const [, emails] = await Promise.all([
+          request.propagateMetricsContext(
+            passwordForgotToken,
+            accountResetToken
+          ),
+          db.accountEmails(passwordForgotToken.uid),
+        ]);
+
+        // To prevent multiple password change emails being sent to a user,
+        // we check for a flag to see if this is a reset using an account recovery key.
+        // If it is, then the notification email will be sent in `/account/reset`
+        if (!accountResetWithRecoveryKey) {
+          await mailer.sendPasswordResetEmail(emails, passwordForgotToken, {
+            code,
+            acceptLanguage: request.app.acceptLanguage,
+            deviceId,
+            flowId,
+            flowBeginTime,
+            uid: passwordForgotToken.uid,
+          });
+        }
+
+        await request.emitMetricsEvent('password.forgot.verify_code.completed');
+
+        return {
+          accountResetToken: accountResetToken.data,
+        };
       },
     },
     {
@@ -950,13 +941,19 @@ module.exports = function (
             .and('authPWVersion2', 'wrapKb', 'wrapKbVersion2', 'clientSalt'),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.create', request);
-        const sessionToken = request.auth.credentials;
+        const sessionToken = request.auth.credentials as any;
         const { uid } = sessionToken;
 
         const { authPW, authPWVersion2, wrapKb, wrapKbVersion2, clientSalt } =
-          request.payload;
+          request.payload as {
+            authPW: string;
+            authPWVersion2?: string;
+            wrapKb?: string;
+            wrapKbVersion2?: string;
+            clientSalt?: string;
+          };
 
         const account = await db.account(uid);
         // We don't allow users that have a password set already to create a new password
@@ -1038,9 +1035,9 @@ module.exports = function (
           }),
         },
       },
-      handler: async function (request) {
+      handler: async function (request: AuthRequest) {
         log.begin('Password.forgotStatus', request);
-        const passwordForgotToken = request.auth.credentials;
+        const passwordForgotToken = request.auth.credentials as any;
         return {
           tries: passwordForgotToken.tries,
           ttl: passwordForgotToken.ttl(),

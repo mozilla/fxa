@@ -5,9 +5,9 @@
 import { timingSafeEqual, randomInt } from 'crypto';
 
 export interface OtpStorage {
-  del: (key: string) => unknown;
-  get: (key: string) => unknown;
-  set: (key: string, value: string) => unknown;
+  del: (key: string) => Promise<null>;
+  get: (key: string) => Promise<string | null>;
+  set: (key: string, value: string) => Promise<null>;
 }
 
 type OtpManagerOptions = {
