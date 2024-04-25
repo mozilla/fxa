@@ -12,6 +12,8 @@ import {
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
 import { StripePlanFactory } from './factories/plan.factory';
+import { StripeProductFactory } from './factories/product.factory';
+import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
@@ -33,12 +35,20 @@ const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
 const mockStripePlansRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.plans.retrieve>();
+const mockStripeProductsRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.products.retrieve>();
+const mockStripePromotionCodesList =
+  mockJestFnGenerator<typeof Stripe.prototype.promotionCodes.list>();
+const mockStripePromotionCodesRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.promotionCodes.retrieve>();
 const mockStripeSubscriptionsList =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
 const mockStripeSubscriptionsCreate =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.create>();
 const mockStripeSubscriptionsCancel =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.cancel>();
+const mockStripeSubscriptionsRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.subscriptions.retrieve>();
 const mockStripeSubscriptionsUpdate =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.update>();
 
@@ -58,10 +68,18 @@ jest.mock('stripe', () => ({
       plans: {
         retrieve: mockStripePlansRetrieve,
       },
+      products: {
+        retrieve: mockStripeProductsRetrieve,
+      },
+      promotionCodes: {
+        list: mockStripePromotionCodesList,
+        retrieve: mockStripePromotionCodesRetrieve,
+      },
       subscriptions: {
         create: mockStripeSubscriptionsCreate,
         cancel: mockStripeSubscriptionsCancel,
         list: mockStripeSubscriptionsList,
+        retrieve: mockStripeSubscriptionsRetrieve,
         update: mockStripeSubscriptionsUpdate,
       },
     };
@@ -166,6 +184,20 @@ describe('StripeClient', () => {
     });
   });
 
+  describe('subscriptionsRetrieve', () => {
+    it('retrieves a subscription within Stripe', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      mockStripeSubscriptionsRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.subscriptionsRetrieve(
+        mockSubscription.id
+      );
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
   describe('subscriptionsUpdate', () => {
     it('updates a subscription within Stripe', async () => {
       const mockSubscription = StripeSubscriptionFactory();
@@ -235,6 +267,45 @@ describe('StripeClient', () => {
       mockStripePlansRetrieve.mockResolvedValue(mockResponse);
 
       const result = await mockClient.plansRetrieve(mockPlan.id);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('productsRetrieve', () => {
+    it('retrieves product successfully', async () => {
+      const mockProduct = StripeProductFactory();
+      const mockResponse = StripeResponseFactory(mockProduct);
+
+      mockStripeProductsRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.productsRetrieve(mockProduct.id);
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('promotionCodesList', () => {
+    it('returns promotion codes from Stripe', async () => {
+      const mockPromoCode = StripePromotionCodeFactory();
+      const mockPromoCodeList = StripeApiListFactory([mockPromoCode]);
+      const mockResponse = StripeResponseFactory(mockPromoCodeList);
+
+      mockStripePromotionCodesList.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.promotionCodesList({
+        code: mockPromoCode.code,
+      });
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('promotionCodesRetrieve', () => {
+    it('retrieves promotion code successfully', async () => {
+      const mockPromoCode = StripePromotionCodeFactory();
+      const mockResponse = StripeResponseFactory(mockPromoCode);
+
+      mockStripePromotionCodesRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.promotionCodesRetrieve(mockPromoCode.id);
       expect(result).toEqual(mockResponse);
     });
   });

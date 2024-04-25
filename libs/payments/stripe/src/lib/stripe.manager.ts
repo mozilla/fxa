@@ -17,6 +17,7 @@ import {
   CustomerNotFoundError,
   PlanIntervalMultiplePlansError,
   PlanNotFoundError,
+  ProductNotFoundError,
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
 
@@ -96,6 +97,10 @@ export class StripeManager {
     return this.client.subscriptionsCancel(subscriptionId);
   }
 
+  async retrieveSubscription(subscriptionId: string) {
+    return this.client.subscriptionsRetrieve(subscriptionId);
+  }
+
   async updateSubscription(
     subscriptionId: string,
     params?: Stripe.SubscriptionUpdateParams
@@ -116,12 +121,16 @@ export class StripeManager {
   }
 
   async getPromotionCodeByName(code: string, active?: boolean) {
-    const promotionCodes = await this.client.promotionCodeList({
+    const promotionCodes = await this.client.promotionCodesList({
       active,
       code,
     });
 
     return promotionCodes.data.at(0);
+  }
+
+  async retrievePromotionCode(id: string) {
+    return this.client.promotionCodesRetrieve(id);
   }
 
   /**
@@ -182,6 +191,12 @@ export class StripeManager {
     }
     if (plans.length > 1) throw new PlanIntervalMultiplePlansError();
     return plans.at(0);
+  }
+
+  async retrieveProduct(productId: string) {
+    const product = await this.client.productsRetrieve(productId);
+    if (!product) throw new ProductNotFoundError();
+    return product;
   }
 
   async getLatestPaymentIntent(subscription: StripeSubscription) {

@@ -13,6 +13,7 @@ import {
   StripePaymentIntent,
   StripePaymentMethod,
   StripePlan,
+  StripeProduct,
   StripePromotionCode,
   StripeResponse,
   StripeSubscription,
@@ -103,6 +104,18 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  async subscriptionsRetrieve(
+    id: string,
+    params?: Stripe.SubscriptionRetrieveParams
+  ) {
+    const result = await this.stripe.subscriptions.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+
+    return result as StripeResponse<StripeSubscription>;
+  }
+
   async subscriptionsUpdate(
     id: string,
     params?: Stripe.SubscriptionUpdateParams
@@ -177,11 +190,30 @@ export class StripeClient {
     return result as StripeResponse<StripePlan>;
   }
 
-  async promotionCodeList(params: Stripe.PromotionCodeListParams) {
+  async productsRetrieve(id: string, params?: Stripe.ProductRetrieveParams) {
+    const result = await this.stripe.products.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripeProduct>;
+  }
+
+  async promotionCodesList(params: Stripe.PromotionCodeListParams) {
     const result = await this.stripe.promotionCodes.list({
       ...params,
       expand: undefined,
     });
-    return result as StripeApiList<StripePromotionCode>;
+    return result as StripeResponse<StripeApiList<StripePromotionCode>>;
+  }
+
+  async promotionCodesRetrieve(
+    id: string,
+    params?: Stripe.PromotionCodeRetrieveParams
+  ) {
+    const result = await this.stripe.promotionCodes.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePromotionCode>;
   }
 }
