@@ -13,7 +13,7 @@
     "lint": "eslint ."
   },
   "devDependencies": {
-    "@playwright/test": "1.43.1",
+    "@playwright/test": "1.38.1",
     "@types/eslint": "^8",
     "@types/upng-js": "^2",
     "eslint": "^8.56.0",
