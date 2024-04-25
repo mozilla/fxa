@@ -303,23 +303,10 @@ commands:
       project:
         type: string
     steps:
-      #
-      # TEMPORARY STEP!
-      #
-      # We are checking out a new playwright version with breaking changes. This is a temporary step to upgrade playwright
-      # on the fly.
-      #
-      # Eventually we want to make sure the container image already has done this, so we don't have install overhead
-      # everytime we run playwright tests.
-      #
-      # Also note that --with-deps installs firefox and chrome. We probably just need firefox. So also try this with
-      # npx playwright install firefox, and see if this works. If it does, let's just use that, and update the container
-      # image once we fix anything impacted by the new playwright version.
-      #
       - run:
-        name: Test playwright upgrade
-        command: |
-          npx playwright install --with-deps
+          name: Test playwright upgrade
+          command: |
+            npx playwright install --with-deps
       - run:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
