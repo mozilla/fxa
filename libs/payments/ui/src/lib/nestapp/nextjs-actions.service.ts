@@ -3,8 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { CartService } from '@fxa/payments/cart';
+import { PayPalManager } from '@fxa/payments/paypal';
 import { Injectable } from '@nestjs/common';
 import { GetCartActionArgs } from './validators/GetCartActionArgs';
+import { GetPayPalCheckoutTokenArgs } from './validators/GetPayPalCheckoutTokenArgs';
 import { RestartCartActionArgs } from './validators/RestartCartActionArgs';
 import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { Validator } from 'class-validator';
@@ -18,7 +20,10 @@ import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArg
 
 @Injectable()
 export class NextJSActionsService {
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private paypalManager: PayPalManager
+  ) {}
 
   async getCart(args: GetCartActionArgs) {
     new Validator().validateOrReject(args);
@@ -64,5 +69,13 @@ export class NextJSActionsService {
       args.version,
       args.errorReasonId
     );
+  }
+
+  async getPayPalCheckoutToken(args: GetPayPalCheckoutTokenArgs) {
+    new Validator().validateOrReject(args);
+
+    const token = await this.paypalManager.getCheckoutToken(args.currencyCode);
+
+    return token;
   }
 }
