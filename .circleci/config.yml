@@ -317,9 +317,9 @@ commands:
       # image once we fix anything impacted by the new playwright version.
       #
       - run:
-        name: Test playwright upgrade
-        command: |
-          npx playwright install --with-deps
+          name: Test playwright upgrade
+          command: |
+            npx playwright install --with-deps
       - run:
           name: Running Playwright tests
           # Supports 'Re-run failed tests only'. See this for more info: https://circleci.com/docs/rerun-failed-tests-only/
