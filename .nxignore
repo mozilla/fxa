@@ -3,3 +3,8 @@
 **/browser_modules
 **/.vscode
 **/version.json
+**/.next
+**/storybook-static
+dist
+external/l10n
+packages/*/dist
