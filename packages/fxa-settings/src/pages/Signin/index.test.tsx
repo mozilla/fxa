@@ -684,33 +684,33 @@ describe('with sessionToken', () => {
         const beginSigninHandler = jest
           .fn()
           .mockReturnValueOnce(signinResponse);
-        const finishOAuthFlowHandler = jest.fn().mockImplementationOnce(() => {
-          throw AuthUiErrors.TOTP_REQUIRED;
-        });
+        const finishOAuthFlowHandler = jest.fn().mockImplementationOnce(() => ({
+          error: AuthUiErrors.TOTP_REQUIRED,
+        }));
         const integration = createMockSigninOAuthIntegration();
         render({ finishOAuthFlowHandler, integration, beginSigninHandler });
 
         enterPasswordAndSubmit();
         await waitFor(() => {
-          expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
-            state: {
-              email: MOCK_EMAIL,
-              keyFetchToken: signinResponse.data.signIn.keyFetchToken,
-              sessionToken: signinResponse.data.signIn.sessionToken,
-              uid: signinResponse.data.signIn.uid,
-              unwrapBKey: signinResponse.data.unwrapBKey,
-              verificationMethod: signinResponse.data.signIn.verificationMethod,
-              verificationReason: signinResponse.data.signIn.verificationReason,
-              verified: signinResponse.data.signIn.verified,
-            },
-          });
+          expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
         });
-        // TODO, follow up needed for better handling...
-        // expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
-        // expect(GleanMetrics.login.error).toHaveBeenCalledWith({
-        //   reason: AuthUiErrors.TOTP_REQUIRED.message,
-        // });
-        // expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
+        expect(GleanMetrics.login.error).toHaveBeenCalledWith({
+          event: { reason: AuthUiErrors.TOTP_REQUIRED.message },
+        });
+        expect(GleanMetrics.login.error).toHaveBeenCalledTimes(1);
+
+        expect(navigate).toHaveBeenCalledWith('/inline_totp_setup', {
+          state: {
+            email: MOCK_EMAIL,
+            keyFetchToken: signinResponse.data.signIn.keyFetchToken,
+            sessionToken: signinResponse.data.signIn.sessionToken,
+            uid: signinResponse.data.signIn.uid,
+            unwrapBKey: signinResponse.data.unwrapBKey,
+            verificationMethod: signinResponse.data.signIn.verificationMethod,
+            verificationReason: signinResponse.data.signIn.verificationReason,
+            verified: signinResponse.data.signIn.verified,
+          },
+        });
       });
     });
   });

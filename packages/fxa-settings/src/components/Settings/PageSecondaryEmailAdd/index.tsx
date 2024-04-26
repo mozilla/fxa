@@ -10,7 +10,7 @@ import { isEmailMask, isEmailValid } from 'fxa-shared/email/helpers';
 import { useAccount, useAlertBar } from 'fxa-settings/src/models';
 import {
   AuthUiErrorNos,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
@@ -40,7 +40,7 @@ export const PageSecondaryEmailAdd = (_: RouteComponentProps) => {
       } catch (e) {
         if (e.errno) {
           const errorText = l10n.getString(
-            composeAuthUiErrorTranslationId(e),
+            getErrorFtlId(e),
             { retryAfter: e.retryAfterLocalized },
             AuthUiErrorNos[e.errno].message
           );

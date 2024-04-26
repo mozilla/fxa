@@ -133,7 +133,15 @@ const SigninUnblock = ({
         queryParams: location.search,
       };
 
-      await handleNavigation(navigationOptions, true);
+      const { error: navError } = await handleNavigation(
+        navigationOptions,
+        true
+      );
+      if (navError) {
+        setBannerErrorMessage(
+          getLocalizedErrorMessage(ftlMsgResolver, navError)
+        );
+      }
     }
     if (error) {
       const localizedErrorMessage = getLocalizedErrorMessage(

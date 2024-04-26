@@ -7,6 +7,11 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
 import { ClientWebhooksService } from './client-webhooks.service';
+import Sentry from '@sentry/node';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('ClientWebhooksService', () => {
   let service: ClientWebhooksService;
@@ -116,6 +121,7 @@ describe('ClientWebhooksService', () => {
       triggerError(new Error('oops'));
       expect(mockExit).toBeCalledTimes(1);
       expect(log.error).toBeCalledTimes(1);
+      expect(Sentry.captureException).toBeCalledTimes(1);
     });
   });
 });

@@ -7,7 +7,7 @@ import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
@@ -176,7 +176,7 @@ const ConfirmSignupCode = ({
           hardNavigateToContentServer(`oauth/signin${location.search}`);
           return;
         } else {
-          const { redirect, code, state } = await finishOAuthFlowHandler(
+          const { redirect, code, state, error } = await finishOAuthFlowHandler(
             uid,
             sessionToken,
             // yes, non-null operator is gross, but it's temporary.
@@ -185,6 +185,15 @@ const ConfirmSignupCode = ({
             keyFetchToken!,
             unwrapBKey!
           );
+          if (error) {
+            setBanner({
+              type: BannerType.error,
+              children: (
+                <p>{getLocalizedErrorMessage(ftlMsgResolver, error)}</p>
+              ),
+            });
+            return;
+          }
 
           if (integration.isSync()) {
             firefox.fxaOAuthLogin({
@@ -236,9 +245,7 @@ const ConfirmSignupCode = ({
       // e.g., if the submitted code contains spaces or characters other than numbers
       if (error.errno === 107) {
         localizedErrorMessage = ftlMsgResolver.getMsg(
-          composeAuthUiErrorTranslationId(
-            AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE
-          ),
+          getErrorFtlId(AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE),
           AuthUiErrors.INVALID_EXPIRED_SIGNUP_CODE.message
         );
       } else {

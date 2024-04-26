@@ -17,7 +17,7 @@ import { logViewEvent, useMetrics } from '../../../lib/metrics';
 import { Localized, useLocalization } from '@fluent/react';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
 import { useAsync } from 'react-async-hook';
 
@@ -95,7 +95,7 @@ export const PageTwoStepAuthentication = (_: RouteComponentProps) => {
         if (e.errno === AuthUiErrors.TOTP_TOKEN_NOT_FOUND.errno) {
           setRecoveryCodeError(
             l10n.getString(
-              composeAuthUiErrorTranslationId(e),
+              getErrorFtlId(e),
               null,
               AuthUiErrors.TOTP_TOKEN_NOT_FOUND.message
             )

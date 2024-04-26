@@ -9,7 +9,7 @@ import './monitoring';
 import bodyParser from 'body-parser';
 import { Request, Response } from 'express';
 import { allowlistGqlQueries } from 'fxa-shared/nestjs/gql/gql-allowlist';
-import { SentryInterceptor } from 'fxa-shared/nestjs/sentry/sentry.interceptor';
+import { SentryInterceptor } from '@fxa/shared/sentry';
 import helmet from 'helmet';
 
 import { NestApplicationOptions } from '@nestjs/common';

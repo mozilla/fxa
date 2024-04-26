@@ -8,15 +8,19 @@ import Link from 'next/link';
 
 import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 
-import { getCartData } from '../../../../../../_lib/apiClient';
 import errorIcon from '../../../../../../../images/error.svg';
-import { app } from '@fxa/payments/ui/server';
+import {
+  SupportedPages,
+  app,
+  getCartOrRedirectAction,
+} from '@fxa/payments/ui/server';
+import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 
 // forces dynamic rendering
 // https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config
 export const dynamic = 'force-dynamic';
 
-const getErrorReason = (reason: string) => {
+const getErrorReason = (reason: CartErrorReasonId | null) => {
   switch (reason) {
     case 'iap_upgrade_contact_support':
       return {
@@ -56,9 +60,12 @@ export default async function CheckoutError({
   //);
   const locale = headers().get('accept-language') || DEFAULT_LOCALE;
 
-  const cartDataPromise = getCartData(params.cartId);
+  const cartPromise = getCartOrRedirectAction(
+    params.cartId,
+    SupportedPages.ERROR
+  );
   const l10nPromise = app.getL10n(locale);
-  const [cart, l10n] = await Promise.all([cartDataPromise, l10nPromise]);
+  const [cart, l10n] = await Promise.all([cartPromise, l10nPromise]);
 
   const errorReason = getErrorReason(cart.errorReasonId);
 

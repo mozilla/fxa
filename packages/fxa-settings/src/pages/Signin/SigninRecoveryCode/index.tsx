@@ -65,7 +65,7 @@ const SigninRecoveryCode = ({
     unwrapBKey,
   } = signinState;
 
-  const onSuccessNavigate = useCallback(() => {
+  const onSuccessNavigate = useCallback(async () => {
     const navigationOptions = {
       email,
       signinData: {
@@ -83,7 +83,10 @@ const SigninRecoveryCode = ({
       queryParams: location.search,
     };
 
-    handleNavigation(navigationOptions);
+    const { error } = await handleNavigation(navigationOptions);
+    if (error) {
+      setBannerErrorMessage(getLocalizedErrorMessage(ftlMsgResolver, error));
+    }
   }, [
     email,
     integration,
@@ -96,6 +99,7 @@ const SigninRecoveryCode = ({
     verificationReason,
     uid,
     unwrapBKey,
+    ftlMsgResolver,
   ]);
 
   const onSubmit = async (code: string) => {

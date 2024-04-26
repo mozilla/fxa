@@ -13,11 +13,14 @@ import { MOCK_EMAIL, mockFinishOAuthFlowHandler } from '../../mocks';
 import {
   createBeginSigninResponse,
   createBeginSigninResponseError,
+  createMockSigninOAuthIntegration,
   createMockSigninWebIntegration,
 } from '../mocks';
 import GleanMetrics from '../../../lib/glean';
 import { AuthUiErrors } from '../../../lib/auth-errors/auth-errors';
-import { handleNavigation } from '../utils';
+import { navigate } from '@reach/router';
+import { tryAgainError } from '../../../lib/oauth/hooks';
+import { OAUTH_ERRORS } from '../../../lib/oauth';
 
 jest.mock('../../../lib/metrics', () => ({
   usePageViewEvent: jest.fn(),
@@ -34,14 +37,11 @@ jest.mock('../../../lib/glean', () => ({
   },
 }));
 
-const mockNavigate = jest.fn();
+const mockUseNavigate = jest.fn();
 jest.mock('@reach/router', () => ({
   ...jest.requireActual('@reach/router'),
-  useNavigate: () => mockNavigate,
-}));
-
-jest.mock('../utils', () => ({
-  handleNavigation: jest.fn(),
+  useNavigate: () => mockUseNavigate,
+  navigate: jest.fn(),
 }));
 
 const email = MOCK_EMAIL;
@@ -50,15 +50,16 @@ const hasPassword = true;
 let signinWithUnblockCode = jest.fn();
 let resendUnblockCodeHandler = jest.fn();
 
-const renderWithSuccess = () => {
+const renderWithSuccess = (
+  finishOAuthFlowHandler = jest
+    .fn()
+    .mockReturnValueOnce(mockFinishOAuthFlowHandler),
+  integration = createMockSigninWebIntegration()
+) => {
   signinWithUnblockCode = jest
     .fn()
     .mockReturnValue(createBeginSigninResponse());
   resendUnblockCodeHandler = jest.fn().mockReturnValue({ success: true });
-  const finishOAuthFlowHandler = jest
-    .fn()
-    .mockReturnValueOnce(mockFinishOAuthFlowHandler);
-  const integration = createMockSigninWebIntegration();
 
   renderWithLocalizationProvider(
     <LocationProvider>
@@ -185,7 +186,7 @@ describe('SigninUnblock', () => {
       });
       expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.login.success).not.toHaveBeenCalled();
-      expect(mockNavigate).toHaveBeenCalledWith('/signin', {
+      expect(mockUseNavigate).toHaveBeenCalledWith('/signin', {
         state: {
           email: MOCK_EMAIL,
           hasLinkedAccount: false,
@@ -207,7 +208,7 @@ describe('SigninUnblock', () => {
       });
       expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
       expect(GleanMetrics.login.success).not.toHaveBeenCalled();
-      expect(mockNavigate).not.toHaveBeenCalled();
+      expect(mockUseNavigate).not.toHaveBeenCalled();
       expect(screen.getByTestId('tooltip')).toHaveTextContent(
         'Invalid authorization code'
       );
@@ -225,7 +226,7 @@ describe('SigninUnblock', () => {
       await waitFor(() => {
         expect(signinWithUnblockCode).toHaveBeenCalledTimes(1);
       });
-      expect(handleNavigation).toHaveBeenCalled();
+      expect(navigate).toHaveBeenCalledWith('/settings');
     });
 
     it('emits expected metrics events', async () => {
@@ -238,6 +239,25 @@ describe('SigninUnblock', () => {
       await waitFor(() => {
         expect(GleanMetrics.login.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.login.success).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('shows an error banner for an OAuth error', async () => {
+      const finishOAuthFlowHandler = jest
+        .fn()
+        .mockReturnValueOnce(tryAgainError());
+      renderWithSuccess(
+        finishOAuthFlowHandler,
+        createMockSigninOAuthIntegration()
+      );
+      const input = screen.getByRole('textbox');
+      const submitButton = screen.getByRole('button', { name: 'Continue' });
+
+      fireEvent.change(input, { target: { value: 'A1B2C3D4' } });
+      submitButton.click();
+
+      await waitFor(() => {
+        screen.getByText(OAUTH_ERRORS.TRY_AGAIN.message);
       });
     });
   });

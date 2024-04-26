@@ -10,7 +10,7 @@ import VerifiedSessionGuard from '../VerifiedSessionGuard';
 import { useForm } from 'react-hook-form';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 type FormData = {
@@ -63,7 +63,7 @@ export const PageSecondaryEmailVerify = ({ location }: RouteComponentProps) => {
       } catch (e) {
         if (e.errno) {
           const errorText = l10n.getString(
-            composeAuthUiErrorTranslationId(e),
+            getErrorFtlId(e),
             null,
             AuthUiErrors.INVALID_VERIFICATION_CODE.message
           );

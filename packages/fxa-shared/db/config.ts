@@ -345,5 +345,37 @@ export function makeRedisConfig() {
         doc: 'Default time that a metric record will be stored in Redis',
       },
     },
+
+    authServerCache: {
+      enabled: {
+        default: true,
+        doc: 'Enable Redis for storing metrics data (metricsContext)',
+        format: Boolean,
+        env: 'AUTH_CACHE_REDIS_ENABLED',
+      },
+      host: {
+        default: 'localhost',
+        env: 'AUTH_CACHE_REDIS_HOST',
+        format: String,
+      },
+      port: {
+        default: 6379,
+        env: 'AUTH_CACHE_REDIS_PORT',
+        format: 'port',
+      },
+      password: {
+        default: '',
+        env: 'AUTH_CACHE_REDIS_PASSWORD',
+        format: String,
+        sensitive: true,
+        doc: `Password for connecting to Redis`,
+      },
+      prefix: {
+        default: 'auth:cache:',
+        env: 'AUTH_CACHE_REDIS_KEY_PREFIX',
+        format: String,
+        doc: 'Key prefix for Redis',
+      },
+    },
   };
 }

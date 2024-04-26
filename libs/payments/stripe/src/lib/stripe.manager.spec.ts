@@ -11,9 +11,16 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
+import { StripePlanFactory } from './factories/plan.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
+import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
 import { StripeClient } from './stripe.client';
 import { StripeConfig } from './stripe.config';
+import {
+  PlanIntervalMultiplePlansError,
+  PlanNotFoundError,
+} from './stripe.error';
 import { StripeManager } from './stripe.manager';
 
 describe('StripeManager', () => {
@@ -140,7 +147,6 @@ describe('StripeManager', () => {
     it('returns subscriptions', async () => {
       const mockSubscription = StripeSubscriptionFactory();
       const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
-
       const mockCustomer = StripeCustomerFactory();
 
       const expected = mockSubscriptionList;
@@ -151,6 +157,15 @@ describe('StripeManager', () => {
 
       const result = await manager.getSubscriptions(mockCustomer.id);
       expect(result).toEqual(expected);
+    });
+
+    it('returns empty array if no subscriptions exist', async () => {
+      const mockCustomer = StripeCustomerFactory();
+
+      mockClient.subscriptionsList = jest.fn().mockResolvedValueOnce([]);
+
+      const result = await manager.getSubscriptions(mockCustomer.id);
+      expect(result).toEqual([]);
     });
   });
 
@@ -163,6 +178,30 @@ describe('StripeManager', () => {
         .mockResolvedValueOnce(undefined);
 
       await manager.cancelSubscription(mockSubscription.id);
+
+      expect(mockClient.subscriptionsCancel).toBeCalledWith(
+        mockSubscription.id
+      );
+    });
+  });
+
+  describe('updateSubscription', () => {
+    it('calls stripeclient', async () => {
+      const mockParams = {
+        description: 'This is an updated subscription',
+      };
+      const mockSubscription = StripeSubscriptionFactory(mockParams);
+
+      mockClient.subscriptionsUpdate = jest
+        .fn()
+        .mockResolvedValueOnce(mockSubscription);
+
+      await manager.updateSubscription(mockSubscription.id, mockParams);
+
+      expect(mockClient.subscriptionsUpdate).toBeCalledWith(
+        mockSubscription.id,
+        mockParams
+      );
     });
   });
 
@@ -176,7 +215,7 @@ describe('StripeManager', () => {
         },
       });
 
-      const result = await manager.isCustomerStripeTaxEligible(mockCustomer);
+      const result = manager.isCustomerStripeTaxEligible(mockCustomer);
       expect(result).toEqual(true);
     });
 
@@ -189,8 +228,28 @@ describe('StripeManager', () => {
         },
       });
 
-      const result = await manager.isCustomerStripeTaxEligible(mockCustomer);
+      const result = manager.isCustomerStripeTaxEligible(mockCustomer);
       expect(result).toEqual(true);
+    });
+  });
+
+  describe('getPromotionCodeByName', () => {
+    it('queries for promotionCodes from stripe and returns first', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockPromotionCode2 = StripePromotionCodeFactory();
+      const mockPromotionCodesResponse = StripeApiListFactory([
+        mockPromotionCode,
+        mockPromotionCode2,
+      ]);
+
+      mockClient.promotionCodeList = jest
+        .fn()
+        .mockResolvedValue(mockPromotionCodesResponse);
+
+      const result = await manager.getPromotionCodeByName(
+        mockPromotionCode.code
+      );
+      expect(result).toEqual(mockPromotionCode);
     });
   });
 
@@ -272,6 +331,105 @@ describe('StripeManager', () => {
       );
 
       expect(result).toBeUndefined();
+    });
+  });
+
+  describe('getPlan', () => {
+    it('returns plan', async () => {
+      const mockPlan = StripePlanFactory();
+
+      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce([mockPlan]);
+
+      const result = await manager.getPlan(mockPlan.id);
+      expect(result).toEqual([mockPlan]);
+    });
+
+    it('should throw error if no plan exists', async () => {
+      const mockPlan = StripePlanFactory();
+
+      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce(undefined);
+
+      expect.assertions(1);
+      expect(manager.getPlan(mockPlan.id)).rejects.toBeInstanceOf(
+        PlanNotFoundError
+      );
+    });
+  });
+
+  describe('getPlanByInterval', () => {
+    it('returns plan that matches interval', async () => {
+      const mockPlan = StripePlanFactory();
+      const mockInterval = mockPlan.interval;
+
+      manager.getPlan = jest.fn().mockResolvedValueOnce(mockPlan);
+
+      const result = await manager.getPlanByInterval(
+        [mockPlan.id],
+        mockInterval
+      );
+      expect(result).toEqual(mockPlan);
+    });
+
+    it('throw error if interval returns multiple plans', async () => {
+      const mockPlan1 = StripePlanFactory({
+        interval: 'month',
+      });
+      const mockPlan2 = StripePlanFactory({
+        interval: 'month',
+      });
+
+      manager.getPlan = jest.fn().mockResolvedValue(mockPlan1);
+      manager.getPlan = jest.fn().mockResolvedValue(mockPlan2);
+
+      expect.assertions(1);
+      await expect(
+        manager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
+      ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
+    });
+  });
+
+  describe('getLatestPaymentIntent', () => {
+    it('fetches the latest payment intent for the subscription', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockInvoice = StripeInvoiceFactory();
+      const mockPaymentIntent = StripePaymentIntentFactory();
+
+      mockClient.invoicesRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockInvoice);
+
+      mockClient.paymentIntentRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockPaymentIntent);
+
+      const result = await manager.getLatestPaymentIntent(mockSubscription);
+
+      expect(result).toEqual(mockPaymentIntent);
+    });
+
+    it('returns undefined if no invoice on subscription', async () => {
+      const mockSubscription = StripeSubscriptionFactory({
+        latest_invoice: null,
+      });
+
+      const result = await manager.getLatestPaymentIntent(mockSubscription);
+
+      expect(result).toEqual(undefined);
+    });
+
+    it('returns undefined if the invoice has no payment intent', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockInvoice = StripeInvoiceFactory({
+        payment_intent: null,
+      });
+
+      mockClient.invoicesRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockInvoice);
+
+      const result = await manager.getLatestPaymentIntent(mockSubscription);
+
+      expect(result).toEqual(undefined);
     });
   });
 });

@@ -3,9 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Injectable } from '@nestjs/common';
+import { Stripe } from 'stripe';
 
 import { StripeClient } from './stripe.client';
-import { StripeCustomer } from './stripe.client.types';
+import { StripeCustomer, StripeSubscription } from './stripe.client.types';
 import { StripeConfig } from './stripe.config';
 import {
   MOZILLA_TAX_ID,
@@ -14,6 +15,8 @@ import {
 import {
   CustomerDeletedError,
   CustomerNotFoundError,
+  PlanIntervalMultiplePlansError,
+  PlanNotFoundError,
   StripeNoMinimumChargeAmountAvailableError,
 } from './stripe.error';
 
@@ -93,16 +96,32 @@ export class StripeManager {
     return this.client.subscriptionsCancel(subscriptionId);
   }
 
+  async updateSubscription(
+    subscriptionId: string,
+    params?: Stripe.SubscriptionUpdateParams
+  ) {
+    return this.client.subscriptionsUpdate(subscriptionId, params);
+  }
+
   /**
    * Check if customer's automatic tax status indicates that they're eligible for automatic tax.
    * Creating a subscription with automatic_tax enabled requires a customer with an address
    * that is in a recognized location with an active tax registration.
    */
-  async isCustomerStripeTaxEligible(customer: StripeCustomer) {
+  isCustomerStripeTaxEligible(customer: StripeCustomer) {
     return (
       customer.tax.automatic_tax === 'supported' ||
       customer.tax.automatic_tax === 'not_collecting'
     );
+  }
+
+  async getPromotionCodeByName(code: string, active?: boolean) {
+    const promotionCodes = await this.client.promotionCodeList({
+      active,
+      code,
+    });
+
+    return promotionCodes.data.at(0);
   }
 
   /**
@@ -145,5 +164,42 @@ export class StripeManager {
     });
 
     return taxIdFields.at(0)?.value;
+  }
+
+  async getPlan(planId: string) {
+    const plan = await this.client.plansRetrieve(planId);
+    if (!plan) throw new PlanNotFoundError();
+    return plan;
+  }
+
+  async getPlanByInterval(planIds: string[], interval: string) {
+    const plans = [];
+    for (const planId of planIds) {
+      const plan = await this.getPlan(planId);
+      if (plan.interval === interval) {
+        plans.push(plan);
+      }
+    }
+    if (plans.length > 1) throw new PlanIntervalMultiplePlansError();
+    return plans.at(0);
+  }
+
+  async getLatestPaymentIntent(subscription: StripeSubscription) {
+    if (!subscription.latest_invoice) {
+      return;
+    }
+    const latestInvoice = await this.client.invoicesRetrieve(
+      subscription.latest_invoice
+    );
+
+    if (!latestInvoice.payment_intent) {
+      return;
+    }
+
+    const paymentIntent = await this.client.paymentIntentRetrieve(
+      latestInvoice.payment_intent
+    );
+
+    return paymentIntent;
   }
 }

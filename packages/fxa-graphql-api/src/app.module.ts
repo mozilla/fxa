@@ -3,10 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
-import { LoggerModule } from 'fxa-shared/nestjs/logger/logger.module';
-import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import { MetricsFactory } from 'fxa-shared/nestjs/metrics.service';
-import { SentryModule } from 'fxa-shared/nestjs/sentry/sentry.module';
+import { MozLoggerService } from '@fxa/shared/mozlog';
+import { StatsDFactory } from '@fxa/shared/metrics/statsd';
+import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
+
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
 
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
@@ -36,8 +36,8 @@ const version = getVersionInfo(__dirname);
     GqlModule,
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       driver: ApolloDriver,
-      imports: [ConfigModule, LoggerModule, SentryModule],
-      inject: [ConfigService, MozLoggerService],
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: GraphQLConfigFactory,
     }),
     HealthModule.forRootAsync({
@@ -48,19 +48,14 @@ const version = getVersionInfo(__dirname);
         extraHealthData: () => db.dbHealthCheck(),
       }),
     }),
-    LoggerModule,
-    SentryModule.forRootAsync({
-      imports: [ConfigModule, LoggerModule],
-      inject: [ConfigService, MozLoggerService],
-      useFactory: (configService: ConfigService<AppConfig>) => ({
-        sentryConfig: {
-          sentry: configService.get('sentry'),
-          version: version.version,
-        },
-      }),
-    }),
   ],
   controllers: [],
-  providers: [MetricsFactory, ComplexityPlugin],
+  providers: [
+    StatsDFactory,
+    NotifierSnsFactory,
+    NotifierService,
+    MozLoggerService,
+    ComplexityPlugin,
+  ],
 })
 export class AppModule {}

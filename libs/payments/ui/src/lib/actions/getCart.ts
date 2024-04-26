@@ -9,9 +9,7 @@ import { app } from '../nestapp/app';
 import { GetCartActionArgs } from '../nestapp/validators/GetCartActionArgs';
 
 export const getCartAction = async (cartId: string) => {
-  const actionsService = await app.getActionsService();
-
-  const cart = await actionsService.getCart(
+  const cart = await app.getActionsService().getCart(
     plainToClass(GetCartActionArgs, {
       cartId,
     })

@@ -3,5 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 export * from './lib/eligibility.manager';
+export * from './lib/eligibility.service';
 export * from './lib/eligibility.types';
 export { intervalComparison } from './lib/utils';

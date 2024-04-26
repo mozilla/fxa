@@ -272,13 +272,14 @@ describe('confirm-signup-container', () => {
                   };
                 }
               ),
-            oAuthDataError: new Error('BOOM'),
+            oAuthDataError: { message: 'BOOM', errno: 1 },
           };
         });
       render();
       await waitFor(() =>
-        expect(screen.getByText('Unexpected error')).toBeInTheDocument()
+        expect(screen.getByText('Bad Request')).toBeInTheDocument()
       );
+      expect(screen.getByText('BOOM')).toBeInTheDocument();
     });
   });
 });

@@ -2,131 +2,118 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, newPagesForSync } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   // Slowing down test, was timing out on credentials teardown
   test.slow();
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293471
-  test('signin to sync and disconnect #1293471', async ({
+  test('signin to sync and disconnect', async ({
     target,
     credentials,
+    syncBrowserPages: { page, login, settings },
   }) => {
-    const { browser, page, login, settings } = await newPagesForSync(target);
-
+    test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
     await page.goto(
       target.contentServerUrl +
-        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email',
-      { waitUntil: 'load' }
+        '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
     );
-
     await login.login(credentials.email, credentials.password);
 
     expect(await login.isSyncConnectedHeader()).toBe(true);
 
     // Normally we wouldn't need this delay, but because we will be
     // disconnecting the sync service, we need to ensure that the device
-    // record and web channels have been sent and created.
+    // record and web channels have been sent and created (FXA-9490).
     await page.waitForTimeout(1000);
-
     await settings.disconnectSync(credentials);
-
-    // See above, we need to wait for disconnect to complete
+    // See above, we need to wait for disconnect to complete (FXA-9490).
     await page.waitForTimeout(1000);
 
     // confirm left settings and back at sign in
     expect(page.url()).toBe(login.url);
-
-    await browser.close();
   });
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
-  test('disconnect RP #1293475', async ({
+  test('disconnect RP', async ({
     credentials,
     pages: { relier, login, settings },
   }) => {
     await relier.goto();
     await relier.clickEmailFirst();
-
     await login.login(credentials.email, credentials.password);
+
     expect(await relier.isLoggedIn()).toBe(true);
 
     // Login to settings with cached creds
     await settings.goto();
-
     let services = await settings.connectedServices.services();
+
     expect(services.length).toEqual(3);
 
     // Sign out of 123Done
     const rp = services.find((service) => service.name.includes('123'));
-    if (rp) {
-      await rp.signout();
-    }
+    await rp?.signout();
 
     await expect(settings.alertBar).toBeVisible();
+
     services = await settings.connectedServices.services();
+
     expect(services.length).toEqual(2);
   });
 
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293362
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293469
-  test.fixme(
-    'can login to addons #1293362 #1293469',
-    async ({ credentials, pages: { page, login, settings } }, { project }) => {
-      test.skip(project.name !== 'production', 'uses prod addons site');
-
-      await page.goto('https://addons.mozilla.org/en-US/firefox/');
-      await page.getByRole('link', { name: 'Log in' }).click();
-      await page.waitForURL(/accounts\.firefox\.com/);
-      await login.login(credentials.email, credentials.password);
-      await page.waitForURL(
-        /addons\.mozilla\.org\/en-US\/firefox\/users\/edit/
-      );
-
-      // Can create AMO profile
-      await page
-        .getByRole('textbox', { name: /Display Name/ })
-        .fill('Example Name');
-      await page.getByRole('button', { name: 'Create my profile' }).click();
-
-      // User menu shows selected display name and user can log out of AMO
-      await page.waitForURL('https://addons.mozilla.org/en-US/firefox/');
-      await page.getByRole('button', { name: 'Example Name' }).hover();
-      await page.getByRole('button', { name: 'Log out' }).click();
-      await expect(page.getByText('You have been logged out.')).toBeVisible();
-
-      // Expect Mozilla Accounts to be signed in and AMO to be in Connected Services
-      await settings.goto();
-      await expect(page.getByRole('link', { name: 'Add-ons' })).toBeVisible();
-      await settings.avatarDropDownMenuToggle.click();
-      await settings.avatarMenuSignOut.click();
-    }
-  );
-
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293364
-  test.fixme(
-    'can login to monitor #1293364',
-    async ({ credentials, page, pages: { login } }, { project }) => {
-      test.skip(project.name !== 'production', 'uses prod monitor');
-      await page.goto('https://monitor.mozilla.org/');
-      await page.getByRole('button', { name: 'Sign In' }).click();
-      await page.waitForURL(/accounts\.firefox\.com/);
-      await login.login(credentials.email, credentials.password);
-      await page.waitForURL(/monitor\.mozilla\.org\/user\/breaches/);
-      await page.getByRole('img', { name: 'User menu' }).click();
-      await page.getByRole('button', { name: 'Sign out' }).click();
-      await page.waitForURL('https://monitor.mozilla.org/');
-      await expect(page.getByRole('button', { name: 'Sign In' })).toBeVisible();
-    }
-  );
-
-  // https://testrail.stage.mozaws.net/index.php?/cases/view/1293360
-  test('can login to SUMO #1293360', async ({
+  test('can login to addons', async ({
     credentials,
-    page,
-    pages: { login },
+    pages: { page, login, settings },
   }, { project }) => {
+    test.skip(project.name !== 'production', 'uses prod addons site');
+
+    await page.goto('https://addons.mozilla.org/en-US/firefox/');
+    await page.getByRole('link', { name: 'Log in' }).click();
+    await page.waitForURL(/accounts\.firefox\.com/);
+    await login.login(credentials.email, credentials.password);
+    await page.waitForURL(/addons\.mozilla\.org\/en-US\/firefox\/users\/edit/);
+
+    // Can create AMO profile
+    await page
+      .getByRole('textbox', { name: /Display Name/ })
+      .fill('Example Name');
+    await page.getByRole('button', { name: 'Create my profile' }).click();
+
+    // User menu shows selected display name and user can log out of AMO
+    await page.waitForURL('https://addons.mozilla.org/en-US/firefox/');
+    await page.getByRole('button', { name: 'Example Name' }).hover();
+    await page.getByRole('button', { name: 'Log out' }).click();
+    await expect(page.getByText('You have been logged out.')).toBeVisible();
+
+    // Expect Mozilla Accounts to be signed in and AMO to be in Connected Services
+    await settings.goto();
+    await expect(page.getByRole('link', { name: 'Add-ons' })).toBeVisible();
+    await settings.avatarDropDownMenuToggle.click();
+    await settings.avatarMenuSignOut.click();
+  });
+
+  test('can login to monitor', async ({ credentials, page, pages: { login } }, {
+    project,
+  }) => {
+    // This test has a history of breaking (see FXA-9140).
+    test.skip(project.name !== 'production', 'uses prod monitor');
+
+    await page.goto('https://monitor.mozilla.org/');
+    await page.getByRole('button', { name: 'Sign In' }).click();
+    await page.waitForURL(/accounts\.firefox\.com/);
+    await login.login(credentials.email, credentials.password);
+
+    await expect(page).toHaveURL('https://monitor.mozilla.org/user/dashboard');
+
+    await page.getByRole('button', { name: 'Open user menu' }).first().click();
+    await page.getByRole('button', { name: 'Sign out' }).click();
+
+    await expect(page).toHaveURL('https://monitor.mozilla.org/');
+  });
+
+  test('can login to SUMO', async ({ credentials, page, pages: { login } }, {
+    project,
+  }) => {
     test.skip(project.name !== 'production', 'uses prod monitor');
 
     await page.goto('https://support.mozilla.org/');
@@ -148,6 +135,7 @@ test.describe('severity-1 #smoke', () => {
     await page.waitForURL(/support\.mozilla\.org/);
     await page.getByRole('img', { name: 'Avatar for Username' }).hover();
     await page.getByRole('link', { name: 'Sign Out' }).click();
+
     await expect(
       page.getByRole('link', { name: /Sign In\/Up/ }).first()
     ).toBeVisible();

@@ -6,6 +6,7 @@ import { AuthServerError } from 'fxa-auth-client/browser';
 import * as Sentry from '@sentry/browser';
 import { FtlMsgResolver } from 'fxa-react/lib/utils';
 import { HandledError } from '../interfaces';
+import { OAUTH_ERRORS } from './../oauth/oauth-errors';
 
 export type AuthUiError = AuthServerError & { version?: number };
 
@@ -645,64 +646,78 @@ export const getLocalizedErrorMessage = (
   ftlMsgResolver: FtlMsgResolver,
   error: AuthUiError | HandledError
 ) => {
-  let localizedError: string;
-
-  if (error.errno && AuthUiErrorNos[error.errno]) {
-    if (
-      error.retryAfterLocalized &&
-      error.errno === AuthUiErrors.THROTTLED.errno
-    ) {
-      // For throttling errors where a localized retry after value is provided
-      localizedError = ftlMsgResolver.getMsg(
-        composeAuthUiErrorTranslationId(error),
-        AuthUiErrorNos[error.errno].message,
-        { retryAfter: error.retryAfterLocalized }
-      );
-    } else if (error.errno === AuthUiErrors.THROTTLED.errno) {
-      // For throttling errors where a localized retry after value is not available
-      localizedError = ftlMsgResolver.getMsg(
-        'auth-error-114-generic',
-        AuthUiErrorNos[114].message
-      );
-    } else {
-      // for all other recognized auth UI errors
-      localizedError = ftlMsgResolver.getMsg(
-        composeAuthUiErrorTranslationId(error),
-        AuthUiErrorNos[error.errno].message
+  if (error.errno) {
+    if (AuthUiErrorNos[error.errno]) {
+      if (
+        error.retryAfterLocalized &&
+        error.errno === AuthUiErrors.THROTTLED.errno
+      ) {
+        // For throttling errors where a localized retry after value is provided
+        return ftlMsgResolver.getMsg(
+          getErrorFtlId(error),
+          AuthUiErrorNos[error.errno].message,
+          { retryAfter: error.retryAfterLocalized }
+        );
+      } else if (error.errno === AuthUiErrors.THROTTLED.errno) {
+        // For throttling errors where a localized retry after value is not available
+        return ftlMsgResolver.getMsg(
+          'auth-error-114-generic',
+          AuthUiErrorNos[114].message
+        );
+      } else {
+        // for all other recognized auth UI errors
+        return ftlMsgResolver.getMsg(
+          getErrorFtlId(error),
+          AuthUiErrorNos[error.errno].message
+        );
+      }
+    }
+    const oAuthError = Object.values(OAUTH_ERRORS).find(
+      (oAuthErr) => error.errno === oAuthErr.errno
+    );
+    if (oAuthError) {
+      return ftlMsgResolver.getMsg(
+        getErrorFtlId(oAuthError),
+        oAuthError.message
       );
     }
-  } else {
-    const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
-    localizedError = ftlMsgResolver.getMsg(
-      composeAuthUiErrorTranslationId(unexpectedError),
-      unexpectedError.message
-    );
   }
-  return localizedError;
+
+  const unexpectedError = AuthUiErrors.UNEXPECTED_ERROR;
+  return ftlMsgResolver.getMsg(
+    getErrorFtlId(unexpectedError),
+    unexpectedError.message
+  );
 };
 
-export const composeAuthUiErrorTranslationId = (err: {
-  errno?: number;
-  message?: string;
-}) => {
-  /* all of these checks for fields/values being present look a little wonky, but allow us to work with
-   * the AuthUiError type, which has all optional fields. Previously this wasn't an issue bc we didn't use
-   * a utility.
-   */
+/*
+  TODO in FXA-9502: account for potential errno overlap between auth-errors
+  and oauth errors. Checking the auth-error array currently happens first.
+**/
+export const getErrorFtlId = (err: { errno?: number; message?: string }) => {
+  if (err.errno) {
+    if (err.errno in AuthUiErrorNos) {
+      const error = AuthUiErrorNos[err.errno];
+      return `auth-error-${err.errno}${
+        error.version ? '-' + error.version : ''
+      }`;
+    }
 
-  if (err.errno && err.errno in AuthUiErrorNos) {
-    const error = AuthUiErrorNos[err.errno];
-    return `auth-error-${err.errno}${error.version ? '-' + error.version : ''}`;
+    const oAuthError = Object.values(OAUTH_ERRORS).find(
+      (oAuthErr) => err.errno === oAuthErr.errno
+    );
+    if (oAuthError) {
+      return `oauth-error-${err.errno}${
+        oAuthError.version ? '-' + oAuthError.version : ''
+      }`;
+    }
   }
-  /*
-   * We opt to return an empty string instead of throwing an error so that this can't break in prod.
-   * Instead, we log to sentry.
-   */
+  // If the error isn't found, return an empty string FTL ID and log to Sentry.
   const logMessage = err.errno
-    ? `composeAuthUiErrorTranslationId: There is no matching error in AuthUiErrors. error: ${JSON.stringify(
+    ? `WARNING: An error occurred that we attempted to localize and render, but this error was not found in auth-errors or oauth-errors. We should either add this error to our list or not display it. error: ${JSON.stringify(
         err
       )}`
-    : `composeAuthUiErrorTranslationId: No error number given, unable to create a localization ID for AuthUiError string. error: ${JSON.stringify(
+    : `WARNING: An error occurred that we attempted to localize and render, but 'errno' is missing. error: ${JSON.stringify(
         err
       )}`;
   Sentry.captureMessage(logMessage);

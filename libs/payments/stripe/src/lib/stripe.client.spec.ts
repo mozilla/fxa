@@ -11,8 +11,9 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
-import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
+import { StripePlanFactory } from './factories/plan.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
+import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
@@ -30,30 +31,38 @@ const mockStripeInvoicesFinalizeInvoice =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.finalizeInvoice>();
 const mockStripeInvoicesRetrieve =
   mockJestFnGenerator<typeof Stripe.prototype.invoices.retrieve>();
+const mockStripePlansRetrieve =
+  mockJestFnGenerator<typeof Stripe.prototype.plans.retrieve>();
 const mockStripeSubscriptionsList =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.list>();
 const mockStripeSubscriptionsCreate =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.create>();
 const mockStripeSubscriptionsCancel =
   mockJestFnGenerator<typeof Stripe.prototype.subscriptions.cancel>();
+const mockStripeSubscriptionsUpdate =
+  mockJestFnGenerator<typeof Stripe.prototype.subscriptions.update>();
 
 jest.mock('stripe', () => ({
   Stripe: function () {
     return {
       customers: {
-        retrieve: mockStripeCustomersRetrieve,
         create: mockStripeCustomersCreate,
+        retrieve: mockStripeCustomersRetrieve,
         update: mockStripeCustomersUpdate,
       },
       invoices: {
+        finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
         retrieve: mockStripeInvoicesRetrieve,
         retrieveUpcoming: mockStripeRetrieveUpcomingInvoice,
-        finalizeInvoice: mockStripeInvoicesFinalizeInvoice,
+      },
+      plans: {
+        retrieve: mockStripePlansRetrieve,
       },
       subscriptions: {
-        list: mockStripeSubscriptionsList,
         create: mockStripeSubscriptionsCreate,
         cancel: mockStripeSubscriptionsCancel,
+        list: mockStripeSubscriptionsList,
+        update: mockStripeSubscriptionsUpdate,
       },
     };
   },
@@ -157,6 +166,21 @@ describe('StripeClient', () => {
     });
   });
 
+  describe('subscriptionsUpdate', () => {
+    it('updates a subscription within Stripe', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockUpdatedSubscription = StripeSubscriptionFactory({
+        description: 'This is an updated description.',
+      });
+      const mockResponse = StripeResponseFactory(mockUpdatedSubscription);
+
+      mockStripeSubscriptionsUpdate.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.subscriptionsUpdate(mockSubscription.id);
+      expect(result.description).toEqual(mockUpdatedSubscription.description);
+    });
+  });
+
   describe('invoicesRetrieve', () => {
     it('works successfully', async () => {
       const mockInvoice = StripeInvoiceFactory();
@@ -199,6 +223,18 @@ describe('StripeClient', () => {
         auto_advance: false,
       });
 
+      expect(result).toEqual(mockResponse);
+    });
+  });
+
+  describe('plansRetrieve', () => {
+    it('retrieves plan successfully', async () => {
+      const mockPlan = StripePlanFactory();
+      const mockResponse = StripeResponseFactory(mockPlan);
+
+      mockStripePlansRetrieve.mockResolvedValue(mockResponse);
+
+      const result = await mockClient.plansRetrieve(mockPlan.id);
       expect(result).toEqual(mockResponse);
     });
   });

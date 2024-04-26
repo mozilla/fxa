@@ -49,6 +49,7 @@ describe('PaypalCustomerManager', () => {
         billingAgreementId: 'NOT VALID LONG STRING TO CAUSE ERROR',
       });
 
+      expect.assertions(0);
       expect(
         paypalCustomerManager.createPaypalCustomer(paypalCustomer)
       ).rejects.toBeInstanceOf(PaypalCustomerNotCreatedError);
@@ -74,6 +75,7 @@ describe('PaypalCustomerManager', () => {
     it('throws a PaypalCustomerNotFoundError when paypalCustomer does not exist', async () => {
       const paypalCustomer = CreatePaypalCustomerFactory();
 
+      expect.assertions(0);
       expect(
         paypalCustomerManager.fetchPaypalCustomer(
           paypalCustomer.uid,
@@ -161,10 +163,13 @@ describe('PaypalCustomerManager', () => {
       const paypalCustomer = CreatePaypalCustomerFactory();
 
       await paypalCustomerManager.createPaypalCustomer(paypalCustomer);
+
       const updatedPaypalCustomer = {
         ...paypalCustomer,
         billingAgreementId: 'NOT VALID LONG STRING TO CAUSE ERROR',
       };
+
+      expect.assertions(0);
       expect(
         paypalCustomerManager.updatePaypalCustomer(
           paypalCustomer.uid,
@@ -197,10 +202,29 @@ describe('PaypalCustomerManager', () => {
 
       await paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer);
 
+      expect.assertions(0);
       // Customer is already deleted, this should now throw
       expect(
         paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer)
       ).rejects.toBeInstanceOf(PaypalCustomerNotDeletedError);
+    });
+  });
+
+  describe('deletePaypalCustomersByUid', () => {
+    it('deletes existing paypalCustomers successfully', async () => {
+      const paypalCustomer1 = CreatePaypalCustomerFactory();
+      const paypalCustomer2 = CreatePaypalCustomerFactory({
+        uid: paypalCustomer1.uid,
+      });
+
+      await paypalCustomerManager.createPaypalCustomer(paypalCustomer1);
+      await paypalCustomerManager.createPaypalCustomer(paypalCustomer2);
+
+      const result = await paypalCustomerManager.deletePaypalCustomersByUid(
+        paypalCustomer1.uid
+      );
+
+      expect(result).toEqual(BigInt(2));
     });
   });
 });

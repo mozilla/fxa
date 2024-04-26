@@ -24,6 +24,18 @@ export class CustomerNotFoundError extends StripeError {
   }
 }
 
+export class PlanIntervalMultiplePlansError extends StripeError {
+  constructor() {
+    super('Interval has mulitple plans');
+  }
+}
+
+export class PlanNotFoundError extends StripeError {
+  constructor() {
+    super('Plan not found');
+  }
+}
+
 export class StripeNoMinimumChargeAmountAvailableError extends StripeError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');

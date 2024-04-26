@@ -50,7 +50,10 @@ describe('accountManager', () => {
 
     it('should throw an error if the email already exists', async () => {
       const email = faker.internet.email();
+
       await accountManager.createAccountStub(email, 1, 'en-US');
+
+      expect.assertions(1);
       await expect(
         accountManager.createAccountStub(email, 1, 'en-US')
       ).rejects.toBeInstanceOf(AccountAlreadyExistsError);

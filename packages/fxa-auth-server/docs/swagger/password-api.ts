@@ -53,6 +53,16 @@ const PASSWORD_CHANGE_FINISH_POST = {
   },
 };
 
+const PASSWORD_FORGOT_SEND_OTP_POST = {
+  ...TAGS_PASSWORD,
+  description: '/password/forgot/send_otp',
+  notes: [
+    dedent`
+      Requests a One-time Password to be sent to the account's email address(es).  The OTP will need to be POSTed to \`/password/forgot/verify_otp\` to continue the reset password process.
+    `,
+  ],
+};
+
 const PASSWORD_FORGOT_SEND_CODE_POST = {
   ...TAGS_PASSWORD,
   description: '/password/forgot/send_code',
@@ -76,7 +86,7 @@ const PASSWORD_FORGOT_SEND_CODE_POST = {
           description: dedent`
             Failing requests may be caused by the following errors (this is not an exhaustive list):
             - \`errno: 145\` - Reset password with this email type is not currently supported
-          `
+          `,
         },
       },
     },
@@ -150,6 +160,7 @@ const API_DOCS = {
   PASSWORD_CHANGE_START_POST,
   PASSWORD_FORGOT_RESEND_CODE_POST,
   PASSWORD_FORGOT_SEND_CODE_POST,
+  PASSWORD_FORGOT_SEND_OTP_POST,
   PASSWORD_FORGOT_STATUS_GET,
   PASSWORD_FORGOT_VERIFY_CODE_POST,
   PASSWORD_CREATE_POST,

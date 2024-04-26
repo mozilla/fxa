@@ -14,6 +14,7 @@ const random = require('../crypto/random');
 const requestHelper = require('../routes/utils/request_helper');
 const { recordSecurityEvent } = require('./utils/security-event');
 const { emailsMatch } = require('fxa-shared').email.helpers;
+const { OtpManager } = require('@fxa/shared/otp');
 
 const PASSWORD_DOCS = require('../../docs/swagger/password-api').default;
 const DESCRIPTION = require('../../docs/swagger/shared/descriptions').default;
@@ -31,9 +32,33 @@ module.exports = function (
   push,
   config,
   oauth,
-  glean
+  glean,
+  authServerCacheRedis,
+  statsd
 ) {
   const otpUtils = require('../../lib/routes/utils/otp')(log, config, db);
+  const otpRedisAdapter = config.passwordForgotOtp.enabled
+    ? {
+        set: async (key, val) => {
+          return authServerCacheRedis.set(
+            key,
+            val,
+            'EX',
+            config.passwordForgotOtp.ttl
+          );
+        },
+        get: async (key) => {
+          return authServerCacheRedis.get(key);
+        },
+        del: async (key) => {
+          return authServerCacheRedis.del(key);
+        },
+      }
+    : { set: () => {}, get: () => {}, del: () => {} };
+  const otpManager = new OtpManager(
+    { kind: 'passwordForgot', digits: config.passwordForgotOtp.digits },
+    otpRedisAdapter
+  );
 
   function failVerifyAttempt(passwordForgotToken) {
     return passwordForgotToken.failAttempt()
@@ -94,7 +119,9 @@ module.exports = function (
           }
 
           if (password.clientVersion === 2) {
-            const unwrappedKb = await password.unwrap(emailRecord.wrapWrapKbVersion2);
+            const unwrappedKb = await password.unwrap(
+              emailRecord.wrapWrapKbVersion2
+            );
             keyFetchToken2 = await db.createKeyFetchToken({
               uid: emailRecord.uid,
               kA: emailRecord.kA,
@@ -254,7 +281,12 @@ module.exports = function (
           let verifyHashVersion2 = undefined;
           let wrapWrapKbVersion2 = undefined;
           if (authPWVersion2) {
-            password2 = new Password(authPWVersion2, authSalt, verifierVersion, 2);
+            password2 = new Password(
+              authPWVersion2,
+              authSalt,
+              verifierVersion,
+              2
+            );
             verifyHashVersion2 = await password2.verifyHash();
             wrapWrapKbVersion2 = await password2.wrap(wrapKbVersion2);
           }
@@ -434,7 +466,7 @@ module.exports = function (
           // If no sessionToken, this could be a legacy client
           // attempting to change password, return legacy response.
           if (!sessionTokenId) {
-            return {}
+            return {};
           }
 
           const response = {
@@ -456,6 +488,104 @@ module.exports = function (
 
           return response;
         }
+      },
+    },
+    {
+      // This endpoint will eventually replace '/password/forgot/send_code'
+      // below.  That is also the reason for the similarity between them.
+      method: 'POST',
+      path: '/password/forgot/send_otp',
+      options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_SEND_OTP_POST,
+        validate: {
+          query: isA.object({
+            service: validators.service.description(DESCRIPTION.serviceRP),
+            keys: isA.boolean().optional(),
+          }),
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailRecovery),
+            service: validators.service.description(DESCRIPTION.serviceRP),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+      },
+      handler: async function (request) {
+        if (!config.passwordForgotOtp.enabled) {
+          throw error.featureNotEnabled();
+        }
+
+        log.begin('Password.forgotOtp', request);
+        await request.emitMetricsEvent('password.forgot.send_otp.start');
+        const email = request.payload.email;
+
+        // TODO FXA-9485
+        // await customs.check(request, email, 'passwordForgotSendOtp');
+
+        request.validateMetricsContext();
+
+        const account = await db.accountRecord(email);
+        if (!emailsMatch(account.primaryEmail.normalizedEmail, email)) {
+          throw error.cannotResetPasswordWithSecondaryEmail();
+        }
+
+        let flowCompleteSignal;
+        if (requestHelper.wantsKeys(request)) {
+          flowCompleteSignal = 'account.signed';
+        } else {
+          flowCompleteSignal = 'account.reset';
+        }
+        request.setMetricsFlowCompleteSignal(flowCompleteSignal);
+
+        const code = await otpManager.create(account.uid);
+        const ip = request.app.clientAddress;
+        const service = request.payload.service || request.query.service;
+        const { deviceId, flowId, flowBeginTime } = await request.app
+          .metricsContext;
+        const geoData = request.app.geo;
+        const {
+          browser: uaBrowser,
+          browserVersion: uaBrowserVersion,
+          os: uaOS,
+          osVersion: uaOSVersion,
+          deviceType: uaDeviceType,
+        } = request.app.ua;
+
+        // TODO FXA-7852
+        // await mailer.sendPasswordForgotOtpEmail(account.emails, account, {
+        const noopSendMail = () => {};
+        noopSendMail(account.emails, account, {
+          code,
+          service,
+          acceptLanguage: request.app.acceptLanguage,
+          deviceId,
+          flowId,
+          flowBeginTime,
+          ip,
+          location: geoData.location,
+          timeZone: geoData.timeZone,
+          uaBrowser,
+          uaBrowserVersion,
+          uaOS,
+          uaOSVersion,
+          uaDeviceType,
+          uid: account.uid,
+        });
+
+        // TODO FXA-9486
+        // glean.resetPassword.otpEmailSent(request);
+
+        await request.emitMetricsEvent('password.forgot.send_otp.completed');
+        recordSecurityEvent('account.password_reset_otp_sent', {
+          db,
+          request,
+          account: { uid: account.uid },
+        });
+        statsd.increment('otp.passwordForgot.sent');
+
+        return {};
       },
     },
     {

@@ -15,7 +15,7 @@ import { useAccount, useAlertBar } from '../../../models';
 import FlowContainer from '../FlowContainer';
 import {
   AuthUiErrors,
-  composeAuthUiErrorTranslationId,
+  getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
 import { useLocalization, Localized } from '@fluent/react';
 import FormPassword from '../../FormPassword';
@@ -65,9 +65,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
     async ({ oldPassword, newPassword }: FormData) => {
       if (oldPassword === newPassword) {
         const localizedError = l10n.getString(
-          composeAuthUiErrorTranslationId(
-            AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT
-          ),
+          getErrorFtlId(AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT),
           null,
           AuthUiErrors.PASSWORDS_MUST_BE_DIFFERENT.message
         );
@@ -80,7 +78,7 @@ export const PageChangePassword = ({}: RouteComponentProps) => {
         alertSuccessAndGoHome();
       } catch (e) {
         const localizedError = l10n.getString(
-          composeAuthUiErrorTranslationId(AuthUiErrors.INCORRECT_PASSWORD),
+          getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),
           null,
           AuthUiErrors.INCORRECT_PASSWORD.message
         );

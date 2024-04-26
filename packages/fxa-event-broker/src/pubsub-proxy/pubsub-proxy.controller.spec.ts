@@ -4,6 +4,7 @@
 import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import nock from 'nock';
 
@@ -11,6 +12,10 @@ import { ClientWebhooksService } from '../client-webhooks/client-webhooks.servic
 import { JwtsetService } from '../jwtset/jwtset.service';
 import * as dto from '../queueworker/sqs.dto';
 import { PubsubProxyController } from './pubsub-proxy.controller';
+
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 const TEST_TOKEN =
   'eyJhbGciOiJSUzI1NiIsImtpZCI6IjdkNjgwZDhjNzBkNDRlOTQ3MTMzY2JkNDk5ZWJjMWE2MWMzZDVhYmMiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tIiwiYXpwIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0IiwiZW1haWwiOiJnYWUtZ2NwQGFwcHNwb3QuZ3NlcnZpY2VhY2NvdW50LmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJleHAiOjE1NTAxODU5MzUsImlhdCI6MTU1MDE4MjMzNSwiaXNzIjoiaHR0cHM6Ly9hY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTEzNzc0MjY0NDYzMDM4MzIxOTY0In0.QVjyqpmadTyDZmlX2u3jWd1kJ68YkdwsRZDo-QxSPbxjug4ucLBwAs2QePrcgZ6hhkvdc4UHY4YF3fz9g7XHULNVIzX5xh02qXEH8dK6PgGndIWcZQzjSYfgO-q-R2oo2hNM5HBBsQN4ARtGK_acG-NGGWM3CQfahbEjZPAJe_B8M7HfIu_G5jOLZCw2EUcGo8BvEwGcLWB2WqEgRM0-xt5-UPzoa3-FpSPG7DHk7z9zRUeq6eB__ldb-2o4RciJmjVwHgnYqn3VvlX9oVKEgXpNFhKuYA-mWh5o7BCwhujSMmFoBOh6mbIXFcyf5UiVqKjpqEbqPGo_AvKvIQ9VTQ';
@@ -66,6 +71,16 @@ const createValidPasswordMessage = (): string => {
   ).toString('base64');
 };
 
+const createValidMetricsChangeMessage = (): string => {
+  return Buffer.from(
+    JSON.stringify({
+      event: dto.METRICS_CHANGE_EVENT,
+      uid: 'uid1234',
+      enabled: false,
+    })
+  ).toString('base64');
+};
+
 describe('PubsubProxy Controller', () => {
   let controller: PubsubProxyController;
   let jwtset: any;
@@ -86,6 +101,7 @@ describe('PubsubProxy Controller', () => {
       generatePasswordSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generateProfileSET: jest.fn().mockResolvedValue(TEST_TOKEN),
       generateSubscriptionSET: jest.fn().mockResolvedValue(TEST_TOKEN),
+      generateMetricsChangeSET: jest.fn().mockResolvedValue(TEST_TOKEN),
     };
     logger = { debug: jest.fn(), error: jest.fn() };
     const MockMetrics: Provider = {
@@ -174,6 +190,10 @@ describe('PubsubProxy Controller', () => {
       delete: [createValidDeleteMessage, 'generateDeleteSET'],
       password: [createValidPasswordMessage, 'generatePasswordSET'],
       profile: [createValidProfileMessage, 'generateProfileSET'],
+      metricsChange: [
+        createValidMetricsChangeMessage,
+        'generateMetricsChangeSET',
+      ],
     };
 
     async function notifiesSuccessfully(
@@ -222,7 +242,7 @@ describe('PubsubProxy Controller', () => {
 
   it('logs an error on invalid message payloads', async () => {
     const message = Buffer.from('invalid payload').toString('base64');
-    expect.assertions(2);
+    expect.assertions(3);
     let err: { getStatus: () => number } | undefined = undefined;
     try {
       await controller.proxy(
@@ -238,6 +258,7 @@ describe('PubsubProxy Controller', () => {
 
     expect(err?.getStatus()).toBe(400);
     expect(logger.error).toBeCalledTimes(1);
+    expect(Sentry.captureException).toBeCalledTimes(1);
   });
 
   it('proxies an error code back', async () => {

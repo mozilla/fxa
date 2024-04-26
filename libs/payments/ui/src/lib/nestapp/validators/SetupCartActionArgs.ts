@@ -1,8 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Optional } from '@nestjs/common';
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 export class SetupCartActionArgs {
   @IsString()
@@ -12,18 +11,18 @@ export class SetupCartActionArgs {
   offeringConfigId!: string;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   experiment?: string;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   promoCode?: string;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   uid?: string;
 
   @IsString()
-  @Optional()
+  @IsOptional()
   ip?: string;
 }

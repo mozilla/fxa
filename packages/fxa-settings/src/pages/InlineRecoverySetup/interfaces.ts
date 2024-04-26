@@ -2,6 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { FinishOAuthFlowHandlerResult } from '../../lib/oauth/hooks';
 import { MozServices } from '../../lib/types';
 import { SigninLocationState, TotpToken } from './../Signin/interfaces';
 
@@ -10,6 +11,7 @@ export type SigninRecoveryLocationState = SigninLocationState & {
 };
 
 export interface InlineRecoverySetupProps {
+  oAuthError?: FinishOAuthFlowHandlerResult['error'];
   recoveryCodes: Array<string>;
   serviceName?: MozServices;
   cancelSetupHandler: () => void;

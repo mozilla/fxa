@@ -2,13 +2,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+import { Page } from '@playwright/test';
 import {
-  test,
-  expect,
+  BLOCKED_EMAIL_PREFIX,
   PASSWORD,
   SIGNIN_EMAIL_PREFIX,
-  BLOCKED_EMAIL_PREFIX,
+  expect,
+  test,
 } from '../../lib/fixtures/standard';
+import { SettingsPage } from '../../pages/settings';
+import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 
 test.describe('severity-2 #smoke', () => {
   test.beforeEach(async () => {
@@ -31,9 +34,7 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
@@ -47,12 +48,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Delete blocked account, the fixture teardown doesn't work in this case
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page);
     });
 
     test('incorrect code entered', async ({
@@ -66,14 +62,13 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
       await expect(login.signInUnblockHeader()).toBeVisible();
       expect(await login.getUnblockEmail()).toContain(blockedEmail);
+
       await login.enterUnblockCode('incorrect');
 
       //Verify tooltip error
@@ -88,12 +83,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Delete blocked account, the fixture teardown doesn't work in this case
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page);
     });
 
     test('resend', async ({
@@ -107,9 +97,7 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
@@ -131,12 +119,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Delete blocked account, the fixture teardown doesn't work in this case
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page);
     });
 
     test('unverified', async ({
@@ -151,9 +134,7 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'false',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(unverifiedEmail, PASSWORD);
 
       //Verify sign in block header
@@ -172,12 +153,7 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Delete blocked account, the fixture teardown doesn't work in this case
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page);
     });
   });
 
@@ -199,9 +175,7 @@ test.describe('severity-2 #smoke', () => {
         lang: 'en',
         preVerified: 'true',
       });
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(email, PASSWORD);
 
       //Verify logged in on Settings page
@@ -213,9 +187,7 @@ test.describe('severity-2 #smoke', () => {
       await settings.secondaryEmail.makePrimaryButton.click();
       await settings.signOut();
 
-      await page.goto(target.contentServerUrl, {
-        waitUntil: 'load',
-      });
+      await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(blockedEmail, PASSWORD);
 
       //Verify sign in block header
@@ -229,12 +201,18 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Delete blocked account, the fixture teardown doesn't work in this case
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page);
     });
   });
 });
+
+async function removeAccount(
+  settings: SettingsPage,
+  deleteAccount: DeleteAccountPage,
+  page: Page
+) {
+  await settings.deleteAccountButton.click();
+  await deleteAccount.deleteAccount(PASSWORD);
+
+  await expect(page.getByText('Account deleted successfully')).toBeVisible();
+}

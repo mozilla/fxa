@@ -25,6 +25,7 @@
     "baseUrl": ".",
     "paths": {
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
+      "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
@@ -49,10 +50,14 @@
       "@fxa/shared/error": ["libs/shared/error/src/index.ts"],
       "@fxa/shared/geodb": ["libs/shared/geodb/src/index.ts"],
       "@fxa/shared/l10n": ["libs/shared/l10n/src/index.ts"],
-      "@fxa/shared/l10n/server": ["libs/shared/l10n/src/server.ts"],
       "@fxa/shared/l10n/client": ["libs/shared/l10n/src/client.ts"],
+      "@fxa/shared/l10n/server": ["libs/shared/l10n/src/server.ts"],
       "@fxa/shared/log": ["libs/shared/log/src/index.ts"],
-      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"]
+      "@fxa/shared/metrics/statsd": ["libs/shared/metrics/statsd/src/index.ts"],
+      "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
+      "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
+      "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
+      "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"]
     },
     "typeRoots": [
       "./types",

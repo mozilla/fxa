@@ -1,0 +1,36 @@
+{
+  "name": "shared-notifier",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/notifier/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/notifier",
+        "main": "libs/shared/notifier/src/index.ts",
+        "tsConfig": "libs/shared/notifier/tsconfig.lib.json",
+        "assets": ["libs/shared/notifier/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/notifier/**/*.ts",
+          "libs/shared/notifier/package.json"
+        ]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/notifier/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}

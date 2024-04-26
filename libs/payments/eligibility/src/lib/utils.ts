@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EligibilityOfferingResult } from '@fxa/shared/contentful';
+import {
+  EligibilityContentOfferingResult,
+  EligibilityOfferingResult,
+} from '@fxa/shared/contentful';
 
 import {
   Interval,
@@ -17,7 +20,7 @@ import {
  */
 export const offeringComparison = (
   fromOfferingProductId: string,
-  targetOffering: EligibilityOfferingResult
+  targetOffering: EligibilityContentOfferingResult | EligibilityOfferingResult
 ) => {
   if (targetOffering.stripeProductId === fromOfferingProductId)
     return OfferingComparison.SAME;

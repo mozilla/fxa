@@ -11,14 +11,13 @@ import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useMutation } from '@apollo/client';
 import { CONSUME_RECOVERY_CODE_MUTATION } from './gql';
 import { useCallback } from 'react';
-import { getSigninState, handleGQLError } from '../utils';
+import { getSigninState, getHandledError } from '../utils';
 import { SigninLocationState } from '../interfaces';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../../models/pages/signin';
 import { ConsumeRecoveryCodeResponse, SubmitRecoveryCode } from './interfaces';
-import AppLayout from '../../../components/AppLayout';
-import CardHeader from '../../../components/CardHeader';
+import OAuthDataError from '../../../components/OAuthDataError';
 
 export type SigninRecoveryCodeContainerProps = {
   integration: Integration;
@@ -59,22 +58,14 @@ export const SigninRecoveryCodeContainer = ({
 
         return { data };
       } catch (error) {
-        return handleGQLError(error);
+        return getHandledError(error);
       }
     },
     [consumeRecoveryCode]
   );
 
-  // TODO: UX for this, FXA-8106
   if (oAuthDataError) {
-    return (
-      <AppLayout>
-        <CardHeader
-          headingText="Unexpected error"
-          headingTextFtlId="auth-error-999"
-        />
-      </AppLayout>
-    );
+    return <OAuthDataError error={oAuthDataError} />;
   }
 
   if (!signinState) {

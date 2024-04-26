@@ -16,6 +16,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
+import Sentry from '@sentry/node';
 import { ExtendedError } from 'fxa-shared/nestjs/error';
 
 import { GoogleJwtAuthGuard } from '../auth/google-jwt-auth.guard';
@@ -98,6 +99,7 @@ export class PubsubProxyController {
         message: 'Failure to load message payload',
         err,
       });
+      Sentry.captureException(err);
       throw new BadRequestException('Invalid message');
     }
   }
@@ -147,6 +149,7 @@ export class PubsubProxyController {
         return err.response;
       } else {
         this.log.error('proxyDeliverError', { err });
+        Sentry.captureException(err);
         throw ExtendedError.withCause('Proxy delivery error', err);
       }
     }
@@ -204,7 +207,14 @@ export class PubsubProxyController {
           appleEmail: message.appleEmail,
           transferSub: message.transferSub,
           success: message.success,
-          err: message.error
+          err: message.error,
+        });
+      }
+      case dto.METRICS_CHANGE_EVENT: {
+        return await this.jwtset.generateMetricsChangeSET({
+          clientId,
+          uid: message.uid,
+          enabled: message.enabled,
         });
       }
       default:

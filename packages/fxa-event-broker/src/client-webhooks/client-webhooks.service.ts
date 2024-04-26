@@ -6,6 +6,7 @@ import {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
+import Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
@@ -55,6 +56,7 @@ export class ClientWebhooksService
       },
       (err) => {
         this.log.error('listenForClientIdWebhooks', { err });
+        Sentry.captureException(err);
         process.exit(1);
       }
     );

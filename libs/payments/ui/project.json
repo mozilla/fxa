@@ -11,6 +11,13 @@
       "options": {
         "lintFilePatterns": ["libs/payments/ui/**/*.{ts,tsx,js,jsx}"]
       }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/payments/ui/jest.config.ts"
+      }
     }
   }
 }

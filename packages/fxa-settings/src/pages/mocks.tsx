@@ -41,6 +41,7 @@ export const MOCK_OAUTH_FLOW_HANDLER_RESPONSE = {
   redirect: 'someUri',
   code: 'someCode',
   state: 'someState',
+  error: undefined,
 };
 export const mockFinishOAuthFlowHandler = () =>
   Promise.resolve(MOCK_OAUTH_FLOW_HANDLER_RESPONSE);

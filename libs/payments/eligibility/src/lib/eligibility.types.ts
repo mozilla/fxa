@@ -2,6 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+export enum EligibilityStatus {
+  CREATE = 'create',
+  UPGRADE = 'upgrade',
+  DOWNGRADE = 'downgrade',
+  BLOCKED_IAP = 'blocked_iap',
+  INVALID = 'invalid',
+}
+
 // Used to represent offering comparison to target plan
 export enum OfferingComparison {
   SAME = 'same',

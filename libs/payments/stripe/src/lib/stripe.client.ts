@@ -10,7 +10,10 @@ import {
   StripeCustomer,
   StripeDeletedCustomer,
   StripeInvoice,
+  StripePaymentIntent,
   StripePaymentMethod,
+  StripePlan,
+  StripePromotionCode,
   StripeResponse,
   StripeSubscription,
   StripeUpcomingInvoice,
@@ -100,6 +103,18 @@ export class StripeClient {
     return result as StripeResponse<StripeSubscription>;
   }
 
+  async subscriptionsUpdate(
+    id: string,
+    params?: Stripe.SubscriptionUpdateParams
+  ) {
+    const result = await this.stripe.subscriptions.update(id, {
+      ...params,
+      expand: undefined,
+    });
+
+    return result as StripeResponse<StripeSubscription>;
+  }
+
   async invoicesRetrieve(
     id: string,
     params?: Stripe.PaymentMethodAttachParams
@@ -132,6 +147,17 @@ export class StripeClient {
     return result as StripeResponse<StripeInvoice>;
   }
 
+  async paymentIntentRetrieve(
+    paymentIntentId: string,
+    params?: Stripe.PaymentIntentRetrieveParams
+  ) {
+    const result = await this.stripe.paymentIntents.retrieve(paymentIntentId, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePaymentIntent>;
+  }
+
   async paymentMethodsAttach(
     id: string,
     params: Stripe.PaymentMethodAttachParams
@@ -141,5 +167,21 @@ export class StripeClient {
       expand: undefined,
     });
     return result as StripeResponse<StripePaymentMethod>;
+  }
+
+  async plansRetrieve(id: string, params?: Stripe.PlanRetrieveParams) {
+    const result = await this.stripe.plans.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeResponse<StripePlan>;
+  }
+
+  async promotionCodeList(params: Stripe.PromotionCodeListParams) {
+    const result = await this.stripe.promotionCodes.list({
+      ...params,
+      expand: undefined,
+    });
+    return result as StripeApiList<StripePromotionCode>;
   }
 }
