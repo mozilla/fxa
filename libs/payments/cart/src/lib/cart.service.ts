@@ -10,7 +10,10 @@ import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
 import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
-import { AccountCustomerManager } from '@fxa/payments/stripe';
+import {
+  AccountCustomerManager,
+  AccountCustomerNotFoundError,
+} from '@fxa/payments/stripe';
 import { GeoDBManager } from '@fxa/shared/geodb';
 import { CheckoutService } from './checkout.service';
 
@@ -42,9 +45,17 @@ export class CartService {
     // - Check if user is eligible to subscribe to plan, else throw error
     // - Fetch invoice preview total from Stripe for `amount`
     // - Fetch stripeCustomerId if uid is passed and has a customer id
-    const accountCustomer = args.uid
-      ? await this.accountCustomerManager.getAccountCustomerByUid(args.uid)
-      : undefined;
+    let accountCustomer;
+    if (args.uid) {
+      try {
+        accountCustomer =
+          await this.accountCustomerManager.getAccountCustomerByUid(args.uid);
+      } catch (error) {
+        if (!(error instanceof AccountCustomerNotFoundError)) {
+          throw error;
+        }
+      }
+    }
 
     const taxAddress = args.ip
       ? this.geodbManager.getTaxAddress(args.ip)
