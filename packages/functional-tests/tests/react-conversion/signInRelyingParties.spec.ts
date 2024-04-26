@@ -59,11 +59,15 @@ test.describe('severity-1 #smoke', () => {
   test('react disconnect RP #1293475', async ({
     credentials,
     pages: { configPage, page, relier, signinReact, settings },
-  }) => {
+  }, { project }) => {
     const config = await configPage.getConfig();
     test.skip(
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'
+    );
+    test.fixme(
+      project.name !== 'local',
+      'FXA-9518 - Timing issue? Fails on stage with `Bad request - unknown state` on L86, unless breakpoint added on L85. Passes when restarting from breakpoint. '
     );
 
     await relier.goto();
