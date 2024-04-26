@@ -14290,7 +14290,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@playwright/test@npm:^1.38.1":
+"@playwright/test@npm:^1.43.1":
   version: 1.43.1
   resolution: "@playwright/test@npm:1.43.1"
   dependencies:
@@ -37308,7 +37308,7 @@ fsevents@~2.1.1:
   version: 0.0.0-use.local
   resolution: "functional-tests@workspace:packages/functional-tests"
   dependencies:
-    "@playwright/test": ^1.38.1
+    "@playwright/test": ^1.43.1
     "@types/eslint": ^8
     "@types/upng-js": ^2
     eslint: ^8.56.0
