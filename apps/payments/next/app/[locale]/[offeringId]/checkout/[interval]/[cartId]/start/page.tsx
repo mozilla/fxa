@@ -12,6 +12,7 @@ import { DEFAULT_LOCALE } from '@fxa/shared/l10n';
 import { auth, signIn, signOut } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
 import { CheckoutParams } from '../layout';
+import { StripeWrapper } from '@fxa/payments/ui';
 
 export const dynamic = 'force-dynamic';
 
@@ -158,6 +159,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
             </p>
           </div>
         </section>
+        <StripeWrapper amount={1099} currency="usd" />
         {/*
           Temporary function used to test handleStripeErrorAction
           This is to be deleted as part of FXA-8850

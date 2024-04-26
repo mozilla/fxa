@@ -9,10 +9,7 @@ import { EligibilityService } from '@fxa/payments/eligibility';
 import { CartManager } from './cart.manager';
 import { ResultCart, TaxAddress, UpdateCart } from './cart.types';
 import { handleEligibilityStatusMap } from './cart.utils';
-import {
-  CartErrorReasonId,
-  CartState,
-} from '@fxa/shared/db/mysql/account';
+import { CartErrorReasonId, CartState } from '@fxa/shared/db/mysql/account';
 import { AccountCustomerManager } from '@fxa/payments/stripe';
 import { GeoDBManager } from '@fxa/shared/geodb';
 import { CheckoutService } from './checkout.service';
