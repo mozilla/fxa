@@ -13,6 +13,7 @@ import { Validator } from 'class-validator';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
 import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
+import { CheckoutCartWithStripeActionArgs } from './validators/CheckoutCartWithStripeActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -87,6 +88,16 @@ export class NextJSActionsService {
       args.cartId,
       args.version,
       args.token
+    );
+  }
+
+  async checkoutCartWithStripe(args: CheckoutCartWithStripeActionArgs) {
+    new Validator().validateOrReject(args);
+
+    await this.cartService.checkoutCartWithStripe(
+      args.cartId,
+      args.version,
+      args.paymentMethodId
     );
   }
 }
