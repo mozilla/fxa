@@ -11730,6 +11730,40 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@jsonjoy.com/base64@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@jsonjoy.com/base64@npm:1.1.1"
+  peerDependencies:
+    tslib: 2
+  checksum: 1988f16927f110a0cd60c12dc94fd10a6e803c8918767b87c252ad5337a2671b745e23aa7b37519481735740b88c1b8ac44ef1330163d96567e379115cd9442c
+  languageName: node
+  linkType: hard
+
+"@jsonjoy.com/json-pack@npm:^1.0.2":
+  version: 1.0.2
+  resolution: "@jsonjoy.com/json-pack@npm:1.0.2"
+  dependencies:
+    "@jsonjoy.com/base64": ^1.1.1
+    "@jsonjoy.com/util": ^1.0.0
+    hyperdyperid: ^1.2.0
+    thingies: ^1.20.0
+  peerDependencies:
+    tslib: 2
+  checksum: 0a85ce6547e7b8bb1a35e1b76a500b464486fbebf02e3864d05d734c8aef844fc9e918b401ca8e35043c4e3d1a234fc891089b6964ffd482a277f4f0c618c553
+  languageName: node
+  linkType: hard
+
+"@jsonjoy.com/util@npm:^1.0.0, @jsonjoy.com/util@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "@jsonjoy.com/util@npm:1.1.0"
+  dependencies:
+    hyperdyperid: ^1.2.0
+  peerDependencies:
+    tslib: 2
+  checksum: b5c8ef3856c6c323ef1a3e842043c059edd0d0f4221f7ab545e47f594dc34139e5f9e80cd3f639da922a043d3f83cf2d25fa9daf58f6f1b6b0cb58555eb2846e
+  languageName: node
+  linkType: hard
+
 "@juggle/resize-observer@npm:^3.3.1":
   version: 3.4.0
   resolution: "@juggle/resize-observer@npm:3.4.0"
@@ -37769,7 +37803,7 @@ fsevents@~2.1.1:
     webcrypto-liner: 1.4.0
     webpack: ^5.78.0
     webpack-cli: ^5.1.4
-    webpack-dev-middleware: ^6.1.3
+    webpack-dev-middleware: ^7.1.0
     xmlhttprequest: ^1.8.0
     yargs: ^17.0.1
   languageName: unknown
@@ -41531,6 +41565,13 @@ fsevents@~2.1.1:
     husky-run: bin/run.js
     husky-upgrade: lib/upgrader/bin.js
   checksum: 7453421143697e77c9508289224f043931234438c10aa601edcb507d1aab295762ccd97b3c0537dd931c48186bdeb0cdf2e388c90493fd4b41b90ec08080cfb5
+  languageName: node
+  linkType: hard
+
+"hyperdyperid@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "hyperdyperid@npm:1.2.0"
+  checksum: 210029d1c86926f09109f6317d143f8b056fc38e8dd11b0c3e3205fc6c6ff8429fb55b4b9c2bce065462719ed9d34366eced387aaa0035d93eb76b306a8547ef
   languageName: node
   linkType: hard
 
@@ -48253,6 +48294,18 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"memfs@npm:^4.6.0":
+  version: 4.9.1
+  resolution: "memfs@npm:4.9.1"
+  dependencies:
+    "@jsonjoy.com/json-pack": ^1.0.2
+    "@jsonjoy.com/util": ^1.1.0
+    sonic-forest: ^1.0.0
+    tslib: ^2.0.0
+  checksum: 94946f40f62611fd15a268f46f317e4f556d9507d38062e6fdca9b4147964e5e1e7cc471936f8aaca1c3bee6368f1c4e2492c88ac08df099e634df5eaef0e8c1
+  languageName: node
+  linkType: hard
+
 "memoizerific@npm:^1.11.3":
   version: 1.11.3
   resolution: "memoizerific@npm:1.11.3"
@@ -51566,7 +51619,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"on-finished@npm:2.4.1":
+"on-finished@npm:2.4.1, on-finished@npm:^2.4.1":
   version: 2.4.1
   resolution: "on-finished@npm:2.4.1"
   dependencies:
@@ -59824,6 +59877,15 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
+"sonic-forest@npm:^1.0.0":
+  version: 1.0.0
+  resolution: "sonic-forest@npm:1.0.0"
+  peerDependencies:
+    tslib: 2
+  checksum: 4d027f7fdf7c09ee2065cd3ace74f57696545e97f9b518bc0f721728622c3949d45468b3c0a8f736af657fa69bee60a82534eb1079e97832fd50205783fa36b4
+  languageName: node
+  linkType: hard
+
 "sort-keys-length@npm:^1.0.0":
   version: 1.0.1
   resolution: "sort-keys-length@npm:1.0.1"
@@ -62339,6 +62401,15 @@ resolve@1.1.7:
   dependencies:
     any-promise: ^1.0.0
   checksum: 84e1b804bfec49f3531215f17b4a6e50fd4397b5f7c1bccc427b9c656e1ecfb13ea79d899930184f78bc2f57285c54d9a50a590c8868f4f0cef5c1d9f898b05e
+  languageName: node
+  linkType: hard
+
+"thingies@npm:^1.20.0":
+  version: 1.21.0
+  resolution: "thingies@npm:1.21.0"
+  peerDependencies:
+    tslib: ^2
+  checksum: 283a2785e513dc892822dd0bbadaa79e873a7fc90b84798164717bf7cf837553e0b4518d8027b2307d8f6fc6caab088fa717112cd9196c6222763cc3cc1b7e79
   languageName: node
   linkType: hard
 
@@ -64998,13 +65069,14 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"webpack-dev-middleware@npm:^6.1.3":
-  version: 6.1.3
-  resolution: "webpack-dev-middleware@npm:6.1.3"
+"webpack-dev-middleware@npm:^7.1.0":
+  version: 7.2.1
+  resolution: "webpack-dev-middleware@npm:7.2.1"
   dependencies:
     colorette: ^2.0.10
-    memfs: ^3.4.12
+    memfs: ^4.6.0
     mime-types: ^2.1.31
+    on-finished: ^2.4.1
     range-parser: ^1.2.1
     schema-utils: ^4.0.0
   peerDependencies:
@@ -65012,7 +65084,7 @@ resolve@1.1.7:
   peerDependenciesMeta:
     webpack:
       optional: true
-  checksum: ddedaa913cc39d7ac7f971d902f181ecc5c4ab0b91f9eda5923f0ea513ecf458f71046f2ed423cb4fc657c2177fe279186453e395bd1051f0949e265c3124665
+  checksum: bb8c75f7ceabc13ee2c3bc9648190e05a0a8c6d40b940ef72b09ea858a63d16bcb434b49995f1025125a1c3a1c8d40274beb5d26ef2fb1458b19e7f6fe3a91fe
   languageName: node
   linkType: hard
 
