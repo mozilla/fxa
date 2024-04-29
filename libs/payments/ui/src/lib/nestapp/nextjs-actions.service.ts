@@ -12,6 +12,7 @@ import { UpdateCartActionArgs } from './validators/UpdateCartActionArgs';
 import { Validator } from 'class-validator';
 import { SetupCartActionArgs } from './validators/SetupCartActionArgs';
 import { FinalizeCartWithErrorArgs } from './validators/FinalizeCartWithErrorArgs';
+import { CheckoutCartWithPaypalActionArgs } from './validators/CheckoutCartWithPaypalActionArgs';
 
 /**
  * ANY AND ALL methods exposed via this service should be considered publicly accessible and callable with any arguments.
@@ -77,5 +78,15 @@ export class NextJSActionsService {
     const token = await this.paypalManager.getCheckoutToken(args.currencyCode);
 
     return token;
+  }
+
+  async checkoutCartWithPaypal(args: CheckoutCartWithPaypalActionArgs) {
+    new Validator().validateOrReject(args);
+
+    await this.cartService.checkoutCartWithPaypal(
+      args.cartId,
+      args.version,
+      args.token
+    );
   }
 }
