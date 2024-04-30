@@ -49,6 +49,7 @@ const EMAIL_TYPES = {
   newDeviceLogin: 'login',
   passwordChanged: 'change_password',
   passwordChangeRequired: 'change_password',
+  passwordForgotOtp: 'reset_password',
   passwordReset: 'reset_password',
   passwordResetAccountRecovery: 'account_recovery',
   postAddLinkedAccount: 'login',

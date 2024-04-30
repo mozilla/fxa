@@ -68,6 +68,7 @@ module.exports = function (log, config, bounces) {
     newDeviceLogin: 'new-device-signin',
     passwordChangeRequired: 'password-change-required',
     passwordChanged: 'password-changed-success',
+    passwordForgotOtp: 'password-forgot-otp',
     passwordReset: 'password-reset-success',
     passwordResetAccountRecovery: 'password-reset-account-recovery-success',
     postAddLinkedAccount: 'account-linked',
@@ -118,6 +119,7 @@ module.exports = function (log, config, bounces) {
     newDeviceLogin: 'manage-account',
     passwordChanged: 'password-change',
     passwordChangeRequired: 'password-change',
+    passwordForgotOtp: 'password-reset',
     passwordReset: 'password-reset',
     passwordResetAccountRecovery: 'create-recovery-key',
     postAddLinkedAccount: 'manage-account',
@@ -1115,6 +1117,49 @@ module.exports = function (log, config, bounces) {
         privacyUrl: links.privacyUrl,
         resetLink: links.resetLink,
         supportUrl: links.supportUrl,
+      },
+    });
+  };
+
+  Mailer.prototype.passwordForgotOtpEmail = async function (message) {
+    log.trace('mailer.passwordForgotOtpEmail', {
+      email: message.email,
+      uid: message.uid,
+    });
+
+    const templateName = 'passwordForgotOtp';
+    const code = message.code;
+    const links = this._generateLinks(
+      this.initiatePasswordChangeUrl,
+      message,
+      {},
+      templateName
+    );
+    const [time, date] = this._constructLocalTimeString(
+      message.timeZone,
+      message.acceptLanguage
+    );
+
+    const headers = {
+      'X-Password-Forgot-OTP': code,
+      'X-Link': links.passwordChangeLink,
+    };
+
+    return this.send({
+      ...message,
+      headers,
+      template: templateName,
+      templateValues: {
+        code,
+        date,
+        device: this._formatUserAgentInfo(message),
+        email: message.email,
+        passwordChangeLink: links.passwordChangeLink,
+        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
+        privacyUrl: links.privacyUrl,
+        supportLinkAttributes: links.supportLinkAttributes,
+        supportUrl: links.supportUrl,
+        time,
       },
     });
   };

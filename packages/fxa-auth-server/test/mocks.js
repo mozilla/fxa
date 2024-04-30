@@ -147,6 +147,7 @@ const MAILER_METHOD_NAMES = [
   'sendLowRecoveryCodesEmail',
   'sendNewDeviceLoginEmail',
   'sendPasswordChangedEmail',
+  'sendPasswordForgotOtpEmail',
   'sendPasswordResetAccountRecoveryEmail',
   'sendPasswordResetEmail',
   'sendPostAddAccountRecoveryEmail',

@@ -895,6 +895,30 @@ const TESTS: [string, any, Record<string, any>?][] = [
     ]],
   ])],
 
+  ['passwordForgotOtpEmail', new Map<string, Test | any>([
+    ['subject', { test: 'equal', expected: 'Forgot your password?' }],
+    ['headers', new Map([
+      ['X-Password-Forgot-OTP', { test: 'equal', expected: MESSAGE.code}],
+      ['X-SES-MESSAGE-TAGS', { test: 'equal', expected: sesMessageTagsHeaderValue('passwordForgotOtp') }],
+      ['X-Template-Name', { test: 'equal', expected: 'passwordForgotOtp' }],
+      ['X-Template-Version', { test: 'equal', expected: TEMPLATE_VERSIONS.passwordForgotOtp }],
+    ])],
+    ['html', [
+      { test: 'include', expected: 'Forgot your password?' },
+      { test: 'include', expected: 'We received a request for a password change on your Mozilla account from:' },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: 'change your password' },
+    ]],
+    ['text', [
+      { test: 'include', expected: 'Forgot your password?' },
+      { test: 'include', expected: 'We received a request for a password change on your Mozilla account from:' },
+      { test: 'include', expected: MESSAGE.code },
+      { test: 'include', expected: `${MESSAGE.device.uaBrowser} on ${MESSAGE.device.uaOS} ${MESSAGE.device.uaOSVersion}` },
+      { test: 'include', expected: 'change your password' },
+    ]],
+  ])],
+
   ['passwordResetAccountRecoveryEmail', new Map<string, Test | any>([
     ['subject', { test: 'equal', expected: 'Your password has been reset' }],
     ['headers', new Map([
