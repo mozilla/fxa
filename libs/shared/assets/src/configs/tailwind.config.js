@@ -84,10 +84,15 @@ module.exports = {
           '0%': { transform: 'rotate(0)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        'slide-up': {
+          '0%': { opacity: 0, transform: 'translateY(10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       animation: {
         'delayed-fade-in': 'fade-in 1s linear 5s forwards',
         spin: 'rotate 0.8s linear infinite',
+        'slide-up': 'slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       listStyleType: {
         circle: 'circle',
@@ -270,7 +275,7 @@ module.exports = {
     },
   },
   plugins: [
-    plugin(function ({ addUtilities }) {
+    plugin(function({ addUtilities }) {
       const customUtilities = {
         '.clip-auto': {
           clip: 'auto',
@@ -279,7 +284,7 @@ module.exports = {
 
       addUtilities(customUtilities, ['responsive', 'hover', 'focus']);
     }),
-    plugin(function ({ addComponents }) {
+    plugin(function({ addComponents }) {
       const carets = {
         '.caret-top': {
           borderLeft: '0.75rem solid transparent',
