@@ -26,8 +26,8 @@ export const newsletters: Newsletter[] = [
     ftlId: 'choose-newsletters-option-test-pilot',
   },
   {
-    label: 'Help keep the internet healthy',
-    slug: ['take-action-for-the-internet'],
-    ftlId: 'choose-newsletters-option-take-action-for-the-internet-2',
+    label: 'Action alerts to reclaim the internet',
+    slug: ['mozilla-foundation'],
+    ftlId: 'choose-newsletters-option-reclaim-the-internet',
   },
 ];
