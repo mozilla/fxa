@@ -29,7 +29,7 @@ body {
 }
 
 .page-title-container {
-  @apply bg-white shadow-sm shadow-grey-300 text-center mt-0 mb-auto pt-5 px-4 pb-px tablet:mx-0;
+  @apply bg-white shadow-sm shadow-grey-300 text-center my-0 pt-5 px-4 pb-px tablet:mx-0;
 }
 
 /* error, success pages */
