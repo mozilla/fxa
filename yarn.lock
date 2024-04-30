@@ -21115,10 +21115,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/dateformat@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "@types/dateformat@npm:3.0.1"
-  checksum: 7628cb5f3987c7ea34a60ca18310987560e2ca5e4bcb05d16953fbb79d90415e1356d65b132450bfe29e2b9b720a67b8586454fcd9f8cf414d0b5e1a315b30e4
+"@types/dateformat@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@types/dateformat@npm:5.0.2"
+  checksum: a5b67411553ae636a04cf0f2dc15ced7730e3ad6280a3b71bd767493700b166a2f730868868b1c783886d31e325fcb6ae28c166e6018e6810538a1c3a7ec53ff
   languageName: node
   linkType: hard
 
@@ -31645,7 +31645,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dateformat@npm:^4.6.3, dateformat@npm:~4.6.2":
+"dateformat@npm:^5.0.3":
+  version: 5.0.3
+  resolution: "dateformat@npm:5.0.3"
+  checksum: 4d2f5b0b04c32c234af93bbf5fe9b41b5b1a9b4d5962cfb0ebb2e28e8425a912674512f61be5270a870604c5d5a4d6f0b57f1fa98fd29089723dc8a96fc13cd9
+  languageName: node
+  linkType: hard
+
+"dateformat@npm:~4.6.2":
   version: 4.6.3
   resolution: "dateformat@npm:4.6.3"
   checksum: c3aa0617c0a5b30595122bc8d1bee6276a9221e4d392087b41cbbdf175d9662ae0e50d0d6dcdf45caeac5153c4b5b0844265f8cd2b2245451e3da19e39e3b65d
@@ -37370,7 +37377,7 @@ fsevents@~2.1.1:
     "@testing-library/jest-dom": ^5.16.5
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
-    "@types/dateformat": ^3.0.1
+    "@types/dateformat": ^5.0.2
     "@types/express": ^4.17.12
     "@types/helmet": 4.0.0
     "@types/jsdom": ^16.2.11
@@ -37385,7 +37392,7 @@ fsevents@~2.1.1:
     convict: ^6.2.4
     convict-format-with-moment: ^6.2.0
     convict-format-with-validator: ^6.2.0
-    dateformat: ^4.6.3
+    dateformat: ^5.0.3
     eslint: ^7.32.0
     eslint-config-react-app: ^6.0.0
     eslint-plugin-import: ^2.29.1
