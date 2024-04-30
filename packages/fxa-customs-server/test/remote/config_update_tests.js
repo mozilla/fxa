@@ -5,7 +5,7 @@ var test = require('tap').test;
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 const {
   randomIp,
   randomEmail,
@@ -53,7 +53,7 @@ test('change limits', function (t) {
     })
     .then(function (settings) {
       t.equal(x + 1, settings.blockIntervalSeconds, 'helper sees the change');
-      // Wait for background polling to detect the new value in memcache
+      // Wait for background polling to detect the new value in cache
       return Promise.delay(1010);
     })
     .then(function () {
@@ -83,7 +83,7 @@ test('change nested limits', function (t) {
     })
     .then(function (settings) {
       t.equal(x + 1, settings.maxChecksPerUid, 'helper sees the change');
-      // Wait for background polling to detect the new value in memcache
+      // Wait for background polling to detect the new value in cache
       return Promise.delay(1010);
     })
     .then(function () {
@@ -110,7 +110,7 @@ test('change allowedIPs', function (t) {
     })
     .then(function (ips) {
       t.deepEqual(x, ips, 'helper sees the change');
-      // Wait for background polling to detect the new value in memcache
+      // Wait for background polling to detect the new value in cache
       return Promise.delay(1010);
     })
     .then(function () {
@@ -137,7 +137,7 @@ test('change allowedEmailDomains', function (t) {
     })
     .then(function (ips) {
       t.deepEqual(x, ips, 'helper sees the change');
-      // Wait for background polling to detect the new value in memcache
+      // Wait for background polling to detect the new value in cache
       return Promise.delay(1010);
     })
     .then(function () {
@@ -168,7 +168,7 @@ test('change allowedPhoneNumbers', function (t) {
     })
     .then(function (phoneNumbers) {
       t.deepEqual(allowedPhoneNumbers, phoneNumbers, 'helper sees the change');
-      // Wait for background polling to detect the new value in memcache
+      // Wait for background polling to detect the new value in cache
       return Promise.delay(1010);
     })
     .then(function () {

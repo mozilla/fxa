@@ -28,7 +28,7 @@ module.exports = (config, Settings, log) => {
     validate(ips) {
       if (!Array.isArray(ips)) {
         log.error({ op: 'allowedIPs.validate.invalid', data: ips });
-        throw new Settings.Missing('invalid allowedIPs from memcache');
+        throw new Settings.Missing('invalid allowedIPs from cache');
       }
       return ips.filter(function (ip) {
         var is = net.isIPv4(ip);

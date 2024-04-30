@@ -30,7 +30,7 @@ module.exports = (config, Settings, log) => {
           op: 'allowedEmailDomains.validate.invalid',
           data: domains,
         });
-        throw new Settings.Missing('invalid allowedEmailDomains from memcache');
+        throw new Settings.Missing('invalid allowedEmailDomains from cache');
       }
       return domains;
     }

@@ -54,11 +54,6 @@ const makeRoutes = function (options = {}, requireMocks = {}) {
   config.oauth = config.oauth || {};
   config.verifierVersion = config.verifierVersion || 0;
   config.smtp = config.smtp || {};
-  config.memcached = config.memcached || {
-    address: 'none',
-    idle: 500,
-    lifetime: 30,
-  };
   config.lastAccessTimeUpdates = {};
   config.signinConfirmation = config.signinConfirmation || {};
   config.signinUnblock = config.signinUnblock || {};

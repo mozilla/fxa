@@ -658,7 +658,7 @@ describe('metricsContext', () => {
       .catch((err) => assert.fail(err));
   });
 
-  it('metricsContext.clear with memcached error', () => {
+  it('metricsContext.clear with cache error', () => {
     const token = {
       uid: Array(64).fill('7').join(''),
       id: 'wibble',
@@ -677,7 +677,7 @@ describe('metricsContext', () => {
         assert.equal(
           err.message,
           'blee',
-          'metricsContext.clear should have rejected with memcached error'
+          'metricsContext.clear should have rejected with cache error'
         );
         assert.equal(cache.del.callCount, 1, 'cache.del was called once');
       });

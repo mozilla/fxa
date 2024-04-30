@@ -23,11 +23,6 @@ const mockAuthorizedClients = {
 function makeRoutes(options = {}) {
   const config = options.config || {};
   config.smtp = config.smtp || {};
-  config.memcached = config.memcached || {
-    address: 'localhost:1121',
-    idle: 500,
-    lifetime: 30,
-  };
   config.i18n = {
     supportedLanguages: ['en', 'fr'],
     defaultLanguage: 'en',
@@ -378,9 +373,9 @@ describe('/account/attached_clients', () => {
 
   it('filters out idle devices', async () => {
     const now = Date.now();
-    const FIVE_DAYS_AGO = now - (1000 * 60 * 60 * 24 * 5);
-    const ONE_DAY_AGO = now - (1000 * 60 * 60 * 24);
-    
+    const FIVE_DAYS_AGO = now - 1000 * 60 * 60 * 24 * 5;
+    const ONE_DAY_AGO = now - 1000 * 60 * 60 * 24;
+
     request.query.filterIdleDevicesTimestamp = ONE_DAY_AGO; // Filter for devices active in the last day
     const DEVICES = [
       {
@@ -402,7 +397,7 @@ describe('/account/attached_clients', () => {
         createdAt: now,
         lastAccessTime: now,
         location: { country: 'Germany' },
-      }
+      },
     ];
     const OAUTH_CLIENTS = [];
 

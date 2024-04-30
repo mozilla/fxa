@@ -5,7 +5,7 @@ const test = require('tap').test;
 const TestServer = require('../test_server');
 const Promise = require('bluebird');
 const restifyClients = Promise.promisifyAll(require('restify-clients'));
-const mcHelper = require('../memcache-helper');
+const mcHelper = require('../cache-helper');
 
 function randomEmail() {
   return Math.floor(Math.random() * 10000) + '@email.com';

@@ -26,7 +26,7 @@ module.exports = (config, Settings, log) => {
           op: 'allowedPhoneNumbers.validate.invalid',
           data: phoneNumbers,
         });
-        throw new Settings.Missing('invalid allowedPhoneNumbers from memcache');
+        throw new Settings.Missing('invalid allowedPhoneNumbers from cache');
       }
       return phoneNumbers;
     }

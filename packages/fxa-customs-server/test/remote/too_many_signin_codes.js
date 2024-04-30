@@ -3,7 +3,7 @@
 
 'use strict';
 
-const memcached = require('../memcache-helper');
+const cached = require('../cache-helper');
 const Promise = require('bluebird');
 const restifyClients = Promise.promisifyAll(require('restify-clients'));
 const test = require('tap').test;
@@ -32,8 +32,8 @@ test('startup', async function (t) {
 });
 
 test('clear everything', (t) => {
-  memcached.clearEverything((err) => {
-    t.notOk(err, 'memcached.clearEverything should not return an error');
+  cached.clearEverything((err) => {
+    t.notOk(err, 'cache.clearEverything should not return an error');
     t.end();
   });
 });

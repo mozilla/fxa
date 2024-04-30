@@ -160,7 +160,6 @@
     "@types/jws": "^3.2.3",
     "@types/lodash": "^4",
     "@types/luxon": "^3",
-    "@types/memcached": "^2.2.6",
     "@types/mocha": "^10.0.6",
     "@types/nock": "^11.1.0",
     "@types/node": "^20.11.1",

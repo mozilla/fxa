@@ -10,7 +10,7 @@ var test = require('tap').test;
 var TestServer = require('../test_server');
 var Promise = require('bluebird');
 var restifyClients = Promise.promisifyAll(require('restify-clients'));
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 
 var TEST_IP = '192.0.2.1';
 var ACCOUNT_LOGIN = 'accountLogin';

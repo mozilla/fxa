@@ -63,7 +63,7 @@ We currently have the following policies in place:
 - manual blocking of an account (see `/blockEmail` API call)
 - manual blocking of an IP address (see `/blockIp` API call)
 
-The data that these policies are based on is stored in a memcache instance (keyed by `email`, `ip` or `ip + email` depending on the policy) and the code that implements them is split across these three files:
+The data that these policies are based on is stored in a redis cache instance (keyed by `email`, `ip` or `ip + email` depending on the policy) and the code that implements them is split across these three files:
 
 - `email_record.js` handles blocking and rate-limiting based only on the email address
 - `ip_email_record.js` handles rate-limiting based on both the email and IP address of the request

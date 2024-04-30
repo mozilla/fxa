@@ -119,7 +119,6 @@ executors:
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password
       - image: jdlk7/firestore-emulator
-      - image: memcached
       - image: redis
       - image: ghcr.io/aertje/cloud-tasks-emulator:1.2.0
         command: -queue "projects/test/locations/test/queues/delete-accounts-queue"
@@ -141,7 +140,6 @@ executors:
     docker:
       - image: mozilla/fxa-circleci:ci-functional-test-runner-v3
       - image: redis
-      - image: memcached
       - image: pafortin/goaws
       - image: cimg/mysql:8.0
         command: --default-authentication-plugin=mysql_native_password

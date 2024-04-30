@@ -25,7 +25,7 @@ config.limits.ipRateLimitBanDurationSeconds = 1;
 config.limits.rateLimitIntervalSeconds = 1;
 config.allowedPhoneNumbers = [ALLOWED_PHONE_NUMBER];
 
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 
 var testServer = new TestServer(config);
 

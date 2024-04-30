@@ -6,7 +6,7 @@ var TestServer = require('../test_server');
 var ReputationServer = require('../test_reputation_server');
 var Promise = require('bluebird');
 var restifyClients = require('restify-clients');
-var mcHelper = require('../memcache-helper');
+var mcHelper = require('../cache-helper');
 
 var TEST_EMAIL = 'test@example.com';
 var TEST_IP = '192.0.2.1';

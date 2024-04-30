@@ -11,12 +11,12 @@ const POLL_INTERVAL = Symbol();
 
 module.exports = (config, mc, log) => {
   // A sentinel error for signaling that the result was invalid/missing,
-  // and we should try to push our own representation to memcached.
+  // and we should try to push our own representation to cache.
   class Missing extends Error {}
 
-  // An abstract class that stores options in memcached.
+  // An abstract class that stores options in cache.
   //
-  // Others extend this class to hotload options from memcached.
+  // Others extend this class to hotload options from cache.
   class Settings {
     constructor(key) {
       assert(typeof key === 'string');
@@ -61,7 +61,7 @@ module.exports = (config, mc, log) => {
       return result.then(
         (value) => this.setAll(value),
         (err) => {
-          log.error({ op: this[KEY] + '.refresh', err: err.message});
+          log.error({ op: this[KEY] + '.refresh', err: err.message });
           throw err;
         }
       );

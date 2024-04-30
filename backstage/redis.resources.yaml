@@ -22,3 +22,15 @@ spec:
   type: cache
   owner: fxa-devs
   system: mozilla-accounts
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: fxa-customs-cache
+  description: Caches rate limits and IP reputation scores.
+  tags:
+    - redis
+spec:
+  type: cache
+  owner: fxa-devs
+  system: mozilla-accounts
