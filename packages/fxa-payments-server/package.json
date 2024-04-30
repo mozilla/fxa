@@ -88,7 +88,7 @@
     "@types/superagent": "^4.1.11",
     "@types/uuid": "^7.0.2",
     "@types/webpack": "5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/eslint-plugin": "^7.8.0",
     "@typescript-eslint/parser": "^7.1.1",
     "audit-filter": "^0.5.0",
     "babel-eslint": "^10.1.0",
