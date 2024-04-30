@@ -736,6 +736,7 @@ const conf = (module.exports = convict({
             'https://accounts.firefox.com/oauth/success/1b1a3e44c54fbb58', // Firefox for iOS
             'urn:ietf:wg:oauth:2.0:oob:pair-auth-webchannel',
             'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel', // Firefox for iOS Rust client
+            'urn:ietf:wg:oauth:2.0:oob',
           ],
         },
         'https://identity.mozilla.com/apps/send': {
@@ -749,6 +750,12 @@ const conf = (module.exports = convict({
           redirectUris: [
             'http://localhost:8080/api/oauth',
             'https://stage-123done.herokuapp.com/api/oauth',
+          ],
+        },
+        'https://identity.thunderbird.net/apps/sync': {
+          redirectUris: [
+            'urn:ietf:wg:oauth:2.0:oob:oauth-redirect-webchannel',
+            'urn:ietf:wg:oauth:2.0:oob',
           ],
         },
       },
