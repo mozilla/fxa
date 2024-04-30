@@ -21952,7 +21952,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/luxon@npm:^3":
+"@types/luxon@npm:^3, @types/luxon@npm:~3.4.0":
   version: 3.4.2
   resolution: "@types/luxon@npm:3.4.2"
   checksum: 6f92d5bd02e89f310395753506bcd9cef3a56f5940f7a50db2a2b9822bce753553ac767d143cb5b4f9ed5ddd4a84e64f89ff538082ceb4d18739af7781b56925
@@ -30943,15 +30943,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cron@npm:2.3.0":
-  version: 2.3.0
-  resolution: "cron@npm:2.3.0"
-  dependencies:
-    luxon: ^3.2.1
-  checksum: 70b220f3fc4b6bcd594f7f2c690bbf7a3a03b0e081eb0119f8e3ca21635f2da07d89e038d561d4c0742c8b0dd04977f25e307d0608455ef9f527a556b2da92fc
-  languageName: node
-  linkType: hard
-
 "cron@npm:3.1.6":
   version: 3.1.6
   resolution: "cron@npm:3.1.6"
@@ -30959,6 +30950,16 @@ __metadata:
     "@types/luxon": ~3.3.0
     luxon: ~3.4.0
   checksum: e97bb6f85acf3195577c609f28bbac2e22812d8632802752a13591882deceeeeefd2c91c1293fb5102ef442f96ae17ca687854fd0b005149aae9a25834363e1d
+  languageName: node
+  linkType: hard
+
+"cron@npm:3.1.7":
+  version: 3.1.7
+  resolution: "cron@npm:3.1.7"
+  dependencies:
+    "@types/luxon": ~3.4.0
+    luxon: ~3.4.0
+  checksum: d98ee5297543c138221d96dd49270bf6576db80134e6041f4ce4a3c0cb6060863d76910209b34fee66fbf134461449ec3bd283d6a76d1c50da220cde7fc10c65
   languageName: node
   linkType: hard
 
@@ -37943,7 +37944,7 @@ fsevents@~2.1.1:
     audit-filter: ^0.5.0
     bluebird: ^3.7.2
     chai: ^4.3.6
-    cron: 2.3.0
+    cron: 3.1.7
     eslint: ^8.19.0
     fxa-shared: "workspace:*"
     maxmind: ^4.3.6
@@ -47855,13 +47856,6 @@ fsevents@~2.1.1:
     lodash.clonedeep: ^4.5.0
     lru-cache: ~4.0.0
   checksum: 555f672b3ff6b4fec63792ca1cda7b585fc54f5e8f0b73166e6d513cc4103032cd69f5d40b32700807c9ca94671728e9108a3fe0803fc3f1b08716946c5a6098
-  languageName: node
-  linkType: hard
-
-"luxon@npm:^3.2.1":
-  version: 3.3.0
-  resolution: "luxon@npm:3.3.0"
-  checksum: 50cf17a0dc155c3dcacbeae8c0b7e80db425e0ba97b9cbdf12a7fc142d841ff1ab1560919f033af46240ed44e2f70c49f76e3422524c7fc8bb8d81ca47c66187
   languageName: node
   linkType: hard
 
