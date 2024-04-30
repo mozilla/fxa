@@ -32,7 +32,7 @@ import FormVerifyCode, {
   FormAttributes,
 } from '../../../components/FormVerifyCode';
 import { MailImage } from '../../../components/images';
-import { ResendStatus } from 'fxa-settings/src/lib/types';
+import { MozServices, ResendStatus } from 'fxa-settings/src/lib/types';
 import {
   isOAuthIntegration,
   isSyncDesktopV3Integration,
@@ -125,13 +125,14 @@ const ConfirmSignupCode = ({
     GleanMetrics.signupConfirmation.submit();
     try {
       const hasSelectedNewsletters = newsletters && newsletters.length > 0;
+      const service = integration.getService();
 
       const options = {
         ...(hasSelectedNewsletters && { ...{ newsletters } }),
         ...(isOAuthIntegration(integration) && {
           scopes: integration.getPermissions(),
-          service: integration.getService(),
         }),
+        ...(service !== MozServices.Default && { service }),
       };
 
       await session.verifySession(code, options);

@@ -22,6 +22,7 @@ import {
   ConfirmSignupCodeOAuthIntegration,
 } from './interfaces';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
+import { MozServices } from '../../../lib/types';
 
 export const MOCK_AUTH_ERROR = {
   errno: 999,
@@ -36,6 +37,7 @@ export function createMockWebIntegration({
   return {
     type: IntegrationType.Web,
     data: { uid: MOCK_UID, redirectTo },
+    getService: () => MozServices.Default,
   };
 }
 
