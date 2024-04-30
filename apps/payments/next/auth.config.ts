@@ -6,4 +6,7 @@ import type { NextAuthConfig } from 'next-auth';
 
 export const authConfig = {
   providers: [], // Add providers with an empty array for now
+  pages: {
+    signIn: '/en-US/error/auth/signin',
+  },
 } satisfies NextAuthConfig;

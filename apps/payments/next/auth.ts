@@ -30,8 +30,15 @@ export const {
   ],
   callbacks: {
     async session(params: any) {
-      params.session.user.id = params.token.sub;
+      params.session.user.id = params.token.fxaUid;
       return params.session;
+    },
+    async jwt({ token, account }) {
+      const fxaUid = token.fxaUid || account?.providerAccountId;
+      return {
+        ...token,
+        fxaUid,
+      };
     },
   },
 });
