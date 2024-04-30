@@ -35,6 +35,7 @@ import {
 } from '../../models/integrations/client-matching';
 import { SigninFormData, SigninProps } from './interfaces';
 import { handleNavigation } from './utils';
+import { useWebRedirect } from '../../lib/hooks/useWebRedirect';
 
 export const viewName = 'signin';
 
@@ -62,6 +63,7 @@ const Signin = ({
   const location = useLocation();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
+  const webRedirectCheck = useWebRedirect(integration.data.redirectTo);
 
   const [bannerError, setBannerError] = useState(
     localizedErrorFromLocationState || ''
@@ -129,6 +131,9 @@ const Signin = ({
             sessionToken,
           },
           integration,
+          redirectTo: webRedirectCheck.isValid()
+            ? integration.data.redirectTo
+            : '',
           finishOAuthFlowHandler,
           queryParams: location.search,
         };
@@ -154,6 +159,7 @@ const Signin = ({
       integration,
       finishOAuthFlowHandler,
       location.search,
+      webRedirectCheck,
     ]
   );
 
@@ -185,6 +191,9 @@ const Signin = ({
           verified: data.signIn.verified,
           integration,
           finishOAuthFlowHandler,
+          redirectTo: webRedirectCheck.isValid()
+            ? integration.data.redirectTo
+            : '',
           queryParams: location.search,
         };
 
@@ -261,6 +270,7 @@ const Signin = ({
       finishOAuthFlowHandler,
       integration,
       location.search,
+      webRedirectCheck,
     ]
   );
 

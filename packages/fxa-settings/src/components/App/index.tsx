@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  RouteComponentProps,
-  Router,
-  useLocation,
-  useNavigate,
-} from '@reach/router';
+import { RouteComponentProps, Router, useLocation } from '@reach/router';
 import {
   lazy,
   Suspense,
@@ -200,7 +195,6 @@ const SettingsRoutes = ({
   isSignedIn,
   integration,
 }: { isSignedIn: boolean; integration: Integration } & RouteComponentProps) => {
-  const navigate = useNavigate();
   const location = useLocation();
   // TODO: Remove this + config.sendFxAStatusOnSettings check once we confirm this works
   const config = useConfig();
@@ -226,12 +220,10 @@ const SettingsRoutes = ({
   });
 
   if (!isSignedIn && !shouldCheckFxaStatus) {
-    const path = `/signin?redirect_to=${encodeURIComponent(location.pathname)}`;
-    if (config.showReactApp.signInRoutes) {
-      navigate(path);
-    } else {
-      hardNavigateToContentServer(path);
-    }
+    const params = new URLSearchParams(location.search);
+    params.set('redirect_to', location.pathname);
+    const path = `/?${params.toString()}`;
+    hardNavigateToContentServer(path);
     return <LoadingSpinner fullScreen />;
   }
 
