@@ -5,6 +5,7 @@
 import { RouteComponentProps } from '@reach/router';
 import { FinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import {
+  BaseIntegration,
   BaseIntegrationData,
   Integration,
   IntegrationType,
@@ -52,6 +53,7 @@ export interface ConfirmSignupCodeBaseIntegration {
     uid: BaseIntegrationData['uid'];
     redirectTo: BaseIntegrationData['redirectTo'];
   };
+  getService: BaseIntegration['getService'];
 }
 
 export interface ConfirmSignupCodeOAuthIntegration {
