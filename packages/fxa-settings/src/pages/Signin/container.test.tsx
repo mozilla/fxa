@@ -121,14 +121,6 @@ function mockCurrentAccount(storedAccount = { uid: '123' }) {
   jest.spyOn(CacheModule, 'discardSessionToken');
 }
 
-function mockLastStoredAccount(storedAccount: {
-  uid: string;
-  email: string;
-  sessionToken: string;
-}) {
-  jest.spyOn(CacheModule, 'lastStoredAccount').mockReturnValue(storedAccount);
-}
-
 const MOCK_QUERY_PARAM_EMAIL = 'from@queryparams.com';
 let MOCK_QUERY_PARAM_MODEL = {
   email: MOCK_QUERY_PARAM_EMAIL,
@@ -308,34 +300,10 @@ describe('signin container', () => {
         });
         expect(SigninModule.default).toBeCalled();
       });
-      it('uses local storage value if email is not provided via query param or router state', async () => {
-        mockCurrentAccount(MOCK_STORED_ACCOUNT);
+      it('is handled if not provided in query params or location state', async () => {
         render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        await waitFor(() => {
-          expect(currentSigninProps?.email).toBe(MOCK_STORED_ACCOUNT.email);
-        });
-        expect(SigninModule.default).toBeCalled();
-      });
-      it('falls back to last logged in account in local storage if current local storage account does not exist', async () => {
-        const LAST_STORED_ACCOUNT = {
-          ...MOCK_STORED_ACCOUNT,
-          email: 'foo@bar.com',
-        };
-        mockCurrentAccount(undefined);
-        mockLastStoredAccount(LAST_STORED_ACCOUNT);
-        render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(CacheModule.lastStoredAccount).toBeCalled();
-        await waitFor(() => {
-          expect(currentSigninProps?.email).toBe(LAST_STORED_ACCOUNT.email);
-        });
-        expect(SigninModule.default).toBeCalled();
-      });
-      it('is handled if not provided in query params, location state, or local storage', async () => {
-        render([mockGqlAvatarUseQuery()]);
-        expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/?');
+        expect(CacheModule.currentAccount).not.toBeCalled();
+        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
         expect(SigninModule.default).not.toBeCalled();
       });
     });
@@ -383,16 +351,6 @@ describe('signin container', () => {
       await waitFor(() => {
         expect(mockAuthClient.accountStatusByEmail).toBeCalledWith(
           MOCK_QUERY_PARAM_EMAIL,
-          { thirdPartyAuthStatus: true }
-        );
-      });
-    });
-    it('accountStatusByEmail is called, email provided by local storage', async () => {
-      mockCurrentAccount(MOCK_STORED_ACCOUNT);
-      render([mockGqlAvatarUseQuery()]);
-      await waitFor(() => {
-        expect(mockAuthClient.accountStatusByEmail).toBeCalledWith(
-          MOCK_STORED_ACCOUNT.email,
           { thirdPartyAuthStatus: true }
         );
       });
@@ -710,10 +668,11 @@ describe('signin container', () => {
     });
 
     it('runs handler, calls accountProfile and recoveryEmailStatus', async () => {
+      mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
-      await waitFor(async () => {
-        expect(currentSigninProps).toBeDefined();
+      await waitFor(() => {
+        expect(currentSigninProps?.email).toBe(MOCK_QUERY_PARAM_EMAIL);
       });
 
       await waitFor(async () => {
@@ -749,6 +708,7 @@ describe('signin container', () => {
         emailVerified: false,
       });
 
+      mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {
@@ -770,6 +730,8 @@ describe('signin container', () => {
       mockAuthClient.accountProfile = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.INVALID_TOKEN);
+
+      mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {
@@ -791,6 +753,7 @@ describe('signin container', () => {
       mockAuthClient.recoveryEmailStatus = jest
         .fn()
         .mockRejectedValue(AuthUiErrors.UNEXPECTED_ERROR);
+      mockUseValidateModule();
       render([mockGqlAvatarUseQuery()]);
 
       await waitFor(async () => {

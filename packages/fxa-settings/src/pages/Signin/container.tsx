@@ -15,12 +15,7 @@ import { useValidatedQueryParams } from '../../lib/hooks/useValidate';
 import { SigninQueryParams } from '../../models/pages/signin';
 import { useCallback, useEffect, useState } from 'react';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import {
-  cache,
-  currentAccount,
-  discardSessionToken,
-  lastStoredAccount,
-} from '../../lib/cache';
+import { cache, currentAccount, discardSessionToken } from '../../lib/cache';
 import {
   FetchResult,
   MutationFunction,
@@ -67,7 +62,6 @@ import { createSaltV2 } from 'fxa-auth-client/lib/salt';
 import * as Sentry from '@sentry/browser';
 import { getHandledError } from './utils';
 import { useFinishOAuthFlowHandler } from '../../lib/oauth/hooks';
-import { setCurrentAccount } from '../../lib/storage-utils';
 import { searchParams } from '../../lib/utilities';
 import { QueryParams } from '../..';
 import { queryParamsToMetricsContext } from '../../lib/metrics';
@@ -90,32 +84,19 @@ import { MetricsContext } from 'fxa-auth-client/browser';
  * `/signup` to match content-server functionality.
  */
 
-function getAccountInfo(nonCachedEmail?: string) {
-  let email = nonCachedEmail;
+function getAccountInfo(email?: string) {
   let sessionToken: hexstring | undefined;
   let uid: hexstring | undefined;
 
-  const storedLocalAccount = currentAccount();
-  // Try to use local storage values if email is not provided or if email
-  // is provided and matches the email in local storage
-  if (!nonCachedEmail || storedLocalAccount?.email === nonCachedEmail) {
-    sessionToken = storedLocalAccount?.sessionToken;
-    email = storedLocalAccount?.email;
-    uid = storedLocalAccount?.uid;
-  }
-
-  // If there is still not an email, try locating the last logged in account.
-  if (!email) {
-    const lastStoredLocalAccount = lastStoredAccount();
-    if (lastStoredLocalAccount) {
-      email = lastStoredLocalAccount.email;
-      sessionToken = lastStoredLocalAccount.sessionToken;
-      uid = lastStoredLocalAccount.uid;
-      setCurrentAccount(lastStoredLocalAccount.uid);
+  if (email) {
+    const storedLocalAccount = currentAccount();
+    // Try to use local storage values if email matches the email in local storage
+    if (storedLocalAccount?.email && storedLocalAccount.email === email) {
+      sessionToken = storedLocalAccount?.sessionToken;
+      uid = storedLocalAccount?.uid;
     }
   }
-
-  return { email, sessionToken, uid };
+  return { sessionToken, uid };
 }
 
 const SigninContainer = ({
@@ -134,8 +115,10 @@ const SigninContainer = ({
   const location = useLocation() as ReturnType<typeof useLocation> & {
     state?: LocationState;
   };
+
   const { queryParamModel, validationError } =
     useValidatedQueryParams(SigninQueryParams);
+
   const keyStretchExp = useValidatedQueryParams(KeyStretchExperiment);
 
   const { finishOAuthFlowHandler, oAuthDataError } = useFinishOAuthFlowHandler(
@@ -143,8 +126,7 @@ const SigninContainer = ({
     integration
   );
 
-  // email with either come from React signup (router state),
-  // Backbone index (query param), or will be cached (local storage)
+  // email will either come from React (location state) or Backbone (query param)
   const {
     email: emailFromLocationState,
     // TODO: in FXA-9177, remove hasLinkedAccount and hasPassword, will be retrieved from Apollo cache
@@ -161,9 +143,9 @@ const SigninContainer = ({
   });
   const { hasLinkedAccount, hasPassword } = accountStatus;
 
-  const { email, sessionToken, uid } = getAccountInfo(
-    queryParamModel.email || emailFromLocationState
-  );
+  const email = queryParamModel.email || emailFromLocationState;
+
+  const { sessionToken, uid } = getAccountInfo(email);
 
   const wantsKeys = integration.wantsKeys();
 
@@ -202,7 +184,8 @@ const SigninContainer = ({
           }
         }
       } else {
-        hardNavigateToContentServer(`/?${queryParams}`);
+        const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
+        hardNavigateToContentServer(`/${optionalParams}`);
       }
     })();
     // Only run this on initial render
