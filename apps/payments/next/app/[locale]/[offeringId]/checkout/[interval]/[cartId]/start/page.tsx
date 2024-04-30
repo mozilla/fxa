@@ -50,9 +50,47 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   return (
     <>
       <section
-        className="h-min-[640px] flex flex-col items-center justify-center"
+        className="h-min-[640px]"
         aria-label="Section under construction"
       >
+        {!session && (
+          <>
+            <h4 className="font-semibold text-grey-600 text-lg">
+              {l10n.getString(
+                'next-new-user-step-1-2',
+                '1. Create a Mozilla account'
+              )}
+            </h4>
+
+            <form
+              action={async () => {
+                'use server';
+                await signIn('fxa');
+              }}
+            >
+              <div className="text-grey-400 text-sm">
+                {l10n.getFragmentWithSource(
+                  'next-new-user-sign-in-link-2',
+                  {
+                    elems: {
+                      a: (
+                        <button className="underline text-grey-400 hover:text-grey-400">
+                          Sign in
+                        </button>
+                      ),
+                    },
+                  },
+                  <button className="underline text-grey-400 hover:text-grey-400">
+                    Sign in
+                  </button>
+                )}
+              </div>
+            </form>
+
+            <hr className="mx-auto my-4 w-full border-grey-200" />
+          </>
+        )}
+
         <section className="flex flex-col gap-2 mb-8">
           <div>
             <h3 className="text-xl">Temporary L10n Section</h3>
