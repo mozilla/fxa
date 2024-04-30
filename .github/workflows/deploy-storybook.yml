@@ -1,0 +1,95 @@
+name: "Build & Deploy Storybook"
+on: [push]
+permissions:
+  contents: read
+  pages: write
+  statuses: write
+jobs:
+  storybook:
+    concurrency: ci-${{ github.ref }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+
+      - name: Install and Build 🔧
+        run: yarn install
+        run: npx nx run-many -t build-storybook
+
+      - name: Deploy fxa-auth-server storybook... 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: packages/fxa-auth-server/storybook-static
+          target-folder: storybooks/${{ github.head_ref || github.ref_name }}/fxa-auth-server
+
+      - name: Deploy fxa-react storybook... 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: packages/fxa-react/storybook-static
+          target-folder: storybooks/${{ github.head_ref || github.ref_name }}/fxa-react
+
+      - name: Deploy fxa-settings storybook... 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: packages/fxa-settings/storybook-static
+          target-folder: storybooks/${{ github.head_ref || github.ref_name }}/fxa-settings
+
+      - name: Deploy fxa-payments-server storybook... 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: packages/fxa-payments-server/storybook-static
+          target-folder: storybooks/${{ github.head_ref || github.ref_name }}/fxa-payments-server
+
+      - name: Get Github Pages Base URL
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          githubPagesUrl="$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq '.html_url')"
+          echo 'GITHUB_PAGES_URL='$githubPagesUrl >> $GITHUB_ENV
+
+      - name: Create fxa-auth-server Status Check
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          state: 'success'
+          context: 'Storybook Deployment - fxa-auth-server'
+          description: 'Storybook Deployment for ${{ github.head_ref || github.ref_name }}'
+          target_url: '${{ env.GITHUB_PAGES_URL }}storybooks/${{ github.head_ref || github.ref_name }}/fxa-auth-server/index.html'
+
+      - name: Create fxa-react Status Check
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          state: 'success'
+          context: 'Storybook Deployment - fxa-react'
+          description: 'Storybook Deployment for ${{ github.head_ref || github.ref_name }}'
+          target_url: '${{ env.GITHUB_PAGES_URL }}storybooks/${{ github.head_ref || github.ref_name }}/fxa-react/index.html'
+
+      - name: Create fxa-settings Status Check
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          state: 'success'
+          context: 'Storybook Deployment - fxa-settings'
+          description: 'Storybook Deployment for ${{ github.head_ref || github.ref_name }}'
+          target_url: '${{ env.GITHUB_PAGES_URL }}storybooks/${{ github.head_ref || github.ref_name }}/fxa-settings/index.html'
+
+      - name: Create fxa-payments-server Status Check
+        uses: Sibz/github-status-action@v1
+        with:
+          authToken: ${{ secrets.GITHUB_TOKEN }}
+          sha: ${{ github.event.pull_request.head.sha || github.sha }}
+          state: 'success'
+          context: 'Storybook Deployment - fxa-payments-server'
+          description: 'Storybook Deployment for ${{ github.head_ref || github.ref_name }}'
+          target_url: '${{ env.GITHUB_PAGES_URL }}storybooks/${{ github.head_ref || github.ref_name }}/fxa-payments-server/index.html'
