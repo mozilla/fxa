@@ -11,15 +11,17 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripeInvoiceFactory } from './factories/invoice.factory';
-import { StripePlanFactory } from './factories/plan.factory';
-import { StripeSubscriptionFactory } from './factories/subscription.factory';
-import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripePaymentIntentFactory } from './factories/payment-intent.factory';
+import { StripePlanFactory } from './factories/plan.factory';
+import { StripeProductFactory } from './factories/product.factory';
+import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
+import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
 import { StripeConfig } from './stripe.config';
 import {
   PlanIntervalMultiplePlansError,
   PlanNotFoundError,
+  ProductNotFoundError,
 } from './stripe.error';
 import { StripeManager } from './stripe.manager';
 
@@ -185,16 +187,34 @@ describe('StripeManager', () => {
     });
   });
 
+  describe('retrieveSubscription', () => {
+    it('calls stripeclient', async () => {
+      const mockSubscription = StripeSubscriptionFactory();
+      const mockResponse = StripeResponseFactory(mockSubscription);
+
+      mockClient.subscriptionsRetrieve = jest
+        .fn()
+        .mockResolvedValueOnce(mockResponse);
+
+      await manager.retrieveSubscription(mockSubscription.id);
+
+      expect(mockClient.subscriptionsRetrieve).toBeCalledWith(
+        mockSubscription.id
+      );
+    });
+  });
+
   describe('updateSubscription', () => {
     it('calls stripeclient', async () => {
       const mockParams = {
         description: 'This is an updated subscription',
       };
       const mockSubscription = StripeSubscriptionFactory(mockParams);
+      const mockResponse = StripeResponseFactory(mockSubscription);
 
       mockClient.subscriptionsUpdate = jest
         .fn()
-        .mockResolvedValueOnce(mockSubscription);
+        .mockResolvedValueOnce(mockResponse);
 
       await manager.updateSubscription(mockSubscription.id, mockParams);
 
@@ -242,7 +262,7 @@ describe('StripeManager', () => {
         mockPromotionCode2,
       ]);
 
-      mockClient.promotionCodeList = jest
+      mockClient.promotionCodesList = jest
         .fn()
         .mockResolvedValue(mockPromotionCodesResponse);
 
@@ -250,6 +270,20 @@ describe('StripeManager', () => {
         mockPromotionCode.code
       );
       expect(result).toEqual(mockPromotionCode);
+    });
+  });
+
+  describe('retrievePromotionCode', () => {
+    it('retrieves promotion code', async () => {
+      const mockPromotionCode = StripePromotionCodeFactory();
+      const mockResponse = StripeResponseFactory([mockPromotionCode]);
+
+      mockClient.promotionCodesRetrieve = jest
+        .fn()
+        .mockResolvedValue(mockResponse);
+
+      const result = await manager.retrievePromotionCode(mockPromotionCode.id);
+      expect(result).toEqual(mockResponse);
     });
   });
 
@@ -385,6 +419,28 @@ describe('StripeManager', () => {
       await expect(
         manager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
+    });
+  });
+
+  describe('retrieveProduct', () => {
+    it('returns product', async () => {
+      const mockProduct = StripeProductFactory();
+
+      mockClient.productsRetrieve = jest.fn().mockResolvedValue(mockProduct);
+
+      const result = await manager.retrieveProduct(mockProduct.id);
+      expect(result).toEqual(mockProduct);
+    });
+
+    it('should throw error if no product exists', async () => {
+      const mockProduct = StripeProductFactory();
+
+      mockClient.productsRetrieve = jest.fn().mockResolvedValue(undefined);
+
+      expect.assertions(1);
+      expect(manager.retrieveProduct(mockProduct.id)).rejects.toBeInstanceOf(
+        ProductNotFoundError
+      );
     });
   });
 

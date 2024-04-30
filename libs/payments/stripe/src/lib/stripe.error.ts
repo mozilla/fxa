@@ -36,6 +36,50 @@ export class PlanNotFoundError extends StripeError {
   }
 }
 
+export class ProductNotFoundError extends StripeError {
+  constructor() {
+    super('Product not found');
+  }
+}
+
+export class PromotionCodeCouldNotBeAttachedError extends StripeError {
+  constructor(cause: Error) {
+    super('Promotion code could not be attached to subscription', cause);
+  }
+}
+
+export class PromotionCodeInvalidError extends StripeError {
+  constructor() {
+    super('Invalid promotion code');
+  }
+}
+
+export class PromotionCodeNotForSubscriptionError extends StripeError {
+  constructor() {
+    super(
+      "Promotion code restricted to a product that doesn't match the product on this subscription"
+    );
+  }
+}
+
+export class SubscriptionCustomerIdDoesNotMatchCustomerIdError extends StripeError {
+  constructor() {
+    super('subscription.customerId does not match passed in customerId');
+  }
+}
+
+export class SubscriptionNotActiveError extends StripeError {
+  constructor() {
+    super('Subscription is not active');
+  }
+}
+
+export class SubscriptionPriceUnknownError extends StripeError {
+  constructor() {
+    super('Unknown subscription price');
+  }
+}
+
 export class StripeNoMinimumChargeAmountAvailableError extends StripeError {
   constructor() {
     super('Currency does not have a minimum charge amount available.');
