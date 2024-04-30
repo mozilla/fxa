@@ -10,11 +10,14 @@ import {
 } from '@playwright/test/reporter';
 
 class CIReporter implements Reporter {
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  onBegin(config: FullConfig<{}, {}>, suite: Suite) {
-    console.log(
-      `Running ${suite.allTests().length} tests using ${config.workers} workers`
-    );
+  private fixmeCount = 0;
+  private passCount = 0;
+  private skipCount = 0;
+  private total = 0;
+
+  onBegin(config: FullConfig, suite: Suite) {
+    this.total = suite.allTests().length;
+    console.log(`Running ${this.total} tests using ${config.workers} workers`);
   }
 
   onTestEnd(test: TestCase, result: TestResult) {
@@ -22,9 +25,14 @@ class CIReporter implements Reporter {
     switch (result.status) {
       case 'passed':
         status = '✅';
+        this.passCount++;
         break;
       case 'skipped':
         status = '↩️';
+        this.skipCount++;
+        if (test.annotations.some((a) => a.type === 'fixme')) {
+          this.fixmeCount++;
+        }
         break;
       case 'timedOut':
         status = '⌛️';
@@ -32,6 +40,7 @@ class CIReporter implements Reporter {
       default:
         break;
     }
+
     console.log(
       `${status} ${path.relative(process.cwd(), test.location.file)}: ${
         test.title
@@ -44,7 +53,14 @@ class CIReporter implements Reporter {
   }
 
   onEnd(result: FullResult) {
-    console.log(`Test suite: ${result.status}`);
+    const failCount = this.total - (this.passCount + this.skipCount);
+
+    console.log(
+      `Test suite: ${result.status} (` +
+        `Passed: ${this.passCount} ` +
+        `Failed: ${failCount} ` +
+        `Skipped: ${this.skipCount} (Fixme: ${this.fixmeCount}))`
+    );
   }
 
   onError(error: TestError) {
