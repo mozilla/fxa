@@ -284,7 +284,7 @@ describe('SettingsRoutes', () => {
 
     await waitFor(() => {
       expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
-        `/signin?redirect_to=${encodeURIComponent(settingsPath)}`
+        `/?redirect_to=${encodeURIComponent(settingsPath)}`
       );
     });
   });

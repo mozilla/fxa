@@ -17,7 +17,7 @@ export interface AvatarResponse {
 }
 
 export type SigninIntegration =
-  | Pick<Integration, 'type' | 'isSync' | 'getService' | 'wantsKeys'>
+  | Pick<Integration, 'type' | 'isSync' | 'getService' | 'wantsKeys' | 'data'>
   | SigninOAuthIntegration;
 
 export type SigninOAuthIntegration = Pick<
@@ -28,6 +28,7 @@ export type SigninOAuthIntegration = Pick<
   | 'wantsTwoStepAuthentication'
   | 'wantsKeys'
   | 'wantsLogin'
+  | 'data'
 >;
 
 export interface LocationState {
