@@ -439,7 +439,7 @@ describe('Signup page', () => {
                 'security-privacy-news',
                 'mozilla-accounts',
                 'test-pilot',
-                'take-action-for-the-internet',
+                'mozilla-foundation',
               ],
               unwrapBKey: MOCK_UNWRAP_BKEY,
             },
