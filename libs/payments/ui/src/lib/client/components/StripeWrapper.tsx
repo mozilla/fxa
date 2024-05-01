@@ -4,7 +4,16 @@
 'use client';
 
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
-import { Elements } from '@stripe/react-stripe-js';
+import {
+  Elements,
+  PaymentElement,
+  useStripe,
+  useElements,
+} from '@stripe/react-stripe-js';
+import { checkoutCartWithStripe } from '../../actions/checkoutCartWithStripe';
+import { useState } from 'react';
+import { handleStripeErrorAction } from '../../actions/handleStripeError';
+import { CheckoutForm } from './CheckoutForm';
 
 interface StripeWrapperProps {
   amount: number;
@@ -26,7 +35,11 @@ export function StripeWrapper({ amount, currency }: StripeWrapperProps) {
 
   return (
     <Elements stripe={stripePromise} options={options}>
-      Hello there from Stripe
+      <CheckoutForm
+        cart={{ id: 'temp', version: 1 }}
+        amount={amount}
+        currency={currency}
+      />
     </Elements>
   );
 }
