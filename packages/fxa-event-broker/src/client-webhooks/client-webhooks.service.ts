@@ -6,7 +6,7 @@ import {
   OnApplicationBootstrap,
   OnApplicationShutdown,
 } from '@nestjs/common';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
