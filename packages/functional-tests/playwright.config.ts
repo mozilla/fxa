@@ -1,4 +1,5 @@
-import { PlaywrightTestConfig, Project } from '@playwright/test';
+import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
+import type { Project } from '@playwright/test';
 import * as path from 'path';
 import { TargetNames } from './lib/targets';
 import { TestOptions, WorkerOptions } from './lib/fixtures/standard';
@@ -22,7 +23,7 @@ if (CI) {
   maxFailures = retries * workers * 2;
 }
 
-const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
+export default defineConfig<PlaywrightTestConfig<TestOptions, WorkerOptions>>({
   outputDir: path.resolve(__dirname, '../../artifacts/functional'),
   forbidOnly: CI,
   retries,
@@ -54,7 +55,7 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
       testMatch: 'stub.spec.ts',
       use: {
         browserName: 'firefox',
-        targetName: 'local',
+        //targetName: 'local',
         launchOptions: {
           args: DEBUG ? ['-start-debugger-server'] : undefined,
           firefoxUserPrefs: getFirefoxUserPrefs('local', DEBUG),
@@ -79,6 +80,4 @@ const config: PlaywrightTestConfig<TestOptions, WorkerOptions> = {
     : 'list',
   workers,
   maxFailures,
-};
-
-export default config;
+});
