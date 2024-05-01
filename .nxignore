@@ -8,3 +8,4 @@
 dist
 external/l10n
 packages/*/dist
+**/build/**
