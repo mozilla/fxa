@@ -5,7 +5,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { FirestoreService } from '../firestore/firestore.service';
