@@ -52,3 +52,13 @@ body {
 .page-subheader-text {
   @apply font-semibold text-sm;
 }
+
+/* disabled styles */
+.payment-button-disabled {
+  @apply relative after:absolute after:content-[''] after:top-0 after:left-0 after:w-full after:h-full;
+}
+
+.payment-form-disabled {
+  @apply payment-button-disabled cursor-not-allowed after:bg-white after:opacity-50 after:z-[5];
+  @apply focus:border-blue-400 focus:outline-none focus:shadow-input-blue-focus;
+}

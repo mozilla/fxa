@@ -1,7 +1,6 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import Stripe from 'stripe';
 import {
   app,
   handleStripeErrorAction,
@@ -13,6 +12,7 @@ import { auth, signIn, signOut } from 'apps/payments/next/auth';
 import { headers } from 'next/headers';
 import { CheckoutParams } from '../layout';
 import { StripeWrapper } from '@fxa/payments/ui';
+import { StripeError } from '@stripe/stripe-js';
 
 export const dynamic = 'force-dynamic';
 
@@ -40,9 +40,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
   // This is to be deleted as part of FXA-8850
   async function onSubmit() {
     'use server';
-    const error: Stripe.StripeRawError = new Error(
-      'Simulated Stripe Error'
-    ) as unknown as Stripe.StripeRawError;
+    const error = new Error('Simulated Stripe Error') as unknown as StripeError;
     error.type = 'card_error';
     await handleStripeErrorAction(cart.id, cart.version, error);
   }

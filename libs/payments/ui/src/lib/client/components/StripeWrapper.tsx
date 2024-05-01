@@ -4,15 +4,7 @@
 'use client';
 
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js';
-import {
-  Elements,
-  PaymentElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
-import { checkoutCartWithStripe } from '../../actions/checkoutCartWithStripe';
-import { useState } from 'react';
-import { handleStripeErrorAction } from '../../actions/handleStripeError';
+import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './CheckoutForm';
 
 interface StripeWrapperProps {
@@ -39,6 +31,7 @@ export function StripeWrapper({ amount, currency }: StripeWrapperProps) {
         cart={{ id: 'temp', version: 1 }}
         amount={amount}
         currency={currency}
+        successRedirectUrl="http://localhost:3035/en/123done/checkout/monthly/temp/success"
       />
     </Elements>
   );

@@ -19,9 +19,10 @@ interface CheckoutFormProps {
   };
   amount: number;
   currency: string;
+  successRedirectUrl: string;
 }
 
-export function CheckoutForm({ cart }: CheckoutFormProps) {
+export function CheckoutForm({ cart, successRedirectUrl }: CheckoutFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,7 @@ export function CheckoutForm({ cart }: CheckoutFormProps) {
       elements,
       clientSecret,
       confirmParams: {
-        return_url: `http://localhost:3035/en/123done/checkout/monthly/${cart.id}/success`,
+        return_url: successRedirectUrl,
       },
     });
 
@@ -70,13 +71,14 @@ export function CheckoutForm({ cart }: CheckoutFormProps) {
     }
   };
 
+  ('payment-button-disabled after:bg-white after:opacity-50 after:z-[100] border-none');
   return (
     <form onSubmit={submitHandler}>
       <PaymentElement />
       <button
-        className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4 mt-6"
+        className="flex items-center justify-center bg-blue-500 font-semibold h-12 rounded-md text-white w-full p-4 mt-6 disabled:relative disabled:after:absolute disabled:after:content-[''] disabled:after:top-0 disabled:after:left-0 disabled:after:w-full disabled:after:h-full disabled:after:bg-white disabled:after:opacity-50 disabled:after:z-[100] disabled:border-none"
         type="submit"
-        disabled={!stripe || loading}
+        disabled={!stripe || loading || true}
       >
         Subscribe Now
       </button>
