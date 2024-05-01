@@ -10,7 +10,6 @@ import { ModalVerifySession } from '.';
 import { AppContext } from 'fxa-settings/src/models';
 import { mockSession, MOCK_ACCOUNT } from 'fxa-settings/src/models/mocks';
 import { LocationProvider } from '@reach/router';
-import { AuthUiErrors } from 'fxa-settings/src/lib/auth-errors/auth-errors';
 
 export default {
   title: 'Components/Settings/ModalVerifySession',
