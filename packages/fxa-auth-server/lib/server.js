@@ -442,6 +442,12 @@ async function create(log, error, config, routes, db, statsd, glean) {
   );
   server.auth.strategy('cloudTasksOIDC', 'cloudTasksOIDC');
 
+  server.auth.scheme(
+    'cloudSchedulerOIDC',
+    googleOIDC.strategy(config.cloudScheduler.oidc)
+  );
+  server.auth.strategy('cloudSchedulerOIDC', 'cloudSchedulerOIDC');
+
   // register all plugins and Swagger configuration
   await server.register([
     {

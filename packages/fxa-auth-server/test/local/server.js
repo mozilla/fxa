@@ -830,5 +830,11 @@ function getConfig() {
         serviceAccountEmail: 'testo@iam.gcp.g.co',
       },
     },
+    cloudScheduler: {
+      oidc: {
+        aud: 'cloud-scheduler',
+        serviceAccountEmail: 'testo@iam.gcp.g.co',
+      },
+    },
   };
 }
