@@ -5,7 +5,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { Test, TestingModule } from '@nestjs/testing';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { ClientCapabilityService } from './client-capability.service';

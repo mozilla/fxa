@@ -7,7 +7,7 @@ import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 
 import { FirestoreService } from '../firestore/firestore.service';
 import { ClientWebhooksService } from './client-webhooks.service';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),

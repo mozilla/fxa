@@ -18,7 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import { StatsD } from 'hot-shots';
 import { Consumer } from 'sqs-consumer';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 import { ClientCapabilityService } from '../client-capability/client-capability.service';
 import { ClientWebhooksService } from '../client-webhooks/client-webhooks.service';

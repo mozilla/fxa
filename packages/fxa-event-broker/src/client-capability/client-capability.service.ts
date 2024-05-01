@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SchedulerRegistry } from '@nestjs/schedule';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { ExtendedError } from 'fxa-shared/nestjs/error';

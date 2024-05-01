@@ -4,7 +4,7 @@
 import { Provider } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import { MozLoggerService } from 'fxa-shared/nestjs/logger/logger.service';
 import nock from 'nock';
 
