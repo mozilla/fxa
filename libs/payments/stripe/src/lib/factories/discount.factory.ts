@@ -35,5 +35,6 @@ export const StripeDiscountFactory = (
   promotion_code: null,
   start: faker.number.int(),
   subscription: null,
+  subscription_item: null,
   ...override,
 });

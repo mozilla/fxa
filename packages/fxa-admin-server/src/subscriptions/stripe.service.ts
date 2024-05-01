@@ -34,7 +34,7 @@ export const StripeFactory: Provider<Stripe> = {
     const stripeConfig = configService.get('subscriptions');
     const env = configService.get<string>('env') || '';
     const stripe = new Stripe(stripeConfig.stripeApiKey, {
-      apiVersion: '2022-11-15',
+      apiVersion: '2024-04-10',
       maxNetworkRetries: 3,
     });
     stripe.customers.list({ limit: 1 }).catch((error) => {

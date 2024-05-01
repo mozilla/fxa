@@ -18,8 +18,10 @@ export const StripeSubscriptionFactory = (
   application_fee_percent: null,
   automatic_tax: {
     enabled: true,
+    liability: null,
   },
   billing_cycle_anchor: 1,
+  billing_cycle_anchor_config: null,
   billing_thresholds: null,
   cancel_at: null,
   cancel_at_period_end: false,
@@ -36,6 +38,7 @@ export const StripeSubscriptionFactory = (
   default_source: faker.string.alphanumeric(10),
   description: null,
   discount: null,
+  discounts: [],
   ended_at: null,
   items: {
     object: 'list',
@@ -73,6 +76,7 @@ export const StripeSubscriptionItemFactory = (
   object: 'subscription_item',
   billing_thresholds: null,
   created: faker.number.int(),
+  discounts: [],
   metadata: {},
   plan: {
     id: `plan_${faker.string.alphanumeric({ length: 14 })}`,
