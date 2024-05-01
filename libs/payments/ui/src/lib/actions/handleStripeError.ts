@@ -4,7 +4,7 @@
 
 'use server';
 
-import Stripe from 'stripe';
+import { StripeError } from '@stripe/stripe-js';
 import { app } from '../nestapp/app';
 import { redirect } from 'next/navigation';
 import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
@@ -12,7 +12,7 @@ import { stripeErrorToErrorReasonId } from '@fxa/payments/cart';
 export const handleStripeErrorAction = async (
   cartId: string,
   version: number,
-  stripeError: Stripe.StripeRawError
+  stripeError: StripeError
 ) => {
   const errorReasonId = stripeErrorToErrorReasonId(stripeError);
 

@@ -7,11 +7,11 @@ export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
   const cspHeader = `
     default-src 'self';
-    connect-src 'self' 'https://api.stripe.com';
-    frame-src 'https://js.stripe.com' 'https://hooks.stripe.com';
+    connect-src 'self' https://api.stripe.com;
+    frame-src https://js.stripe.com https://hooks.stripe.com;
     script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https: http: 'unsafe-inline' ${
     process.env.NODE_ENV === 'production' ? '' : `'unsafe-eval'`
-  } 'https://js.stripe.com';
+  } https://js.stripe.com;
     style-src 'self' 'nonce-${nonce}';
     img-src 'self' blob: data:;
     font-src 'self';

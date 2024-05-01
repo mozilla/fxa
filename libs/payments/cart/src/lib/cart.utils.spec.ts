@@ -1,13 +1,13 @@
-import Stripe from 'stripe';
+import { StripeError } from '@stripe/stripe-js';
 import { stripeErrorToErrorReasonId } from './cart.utils';
 import { CartErrorReasonId } from '@fxa/shared/db/mysql/account';
 
 describe('utils', () => {
   describe('stripeErrorReasonId', () => {
-    let mockStripeError: Stripe.StripeRawError;
+    let mockStripeError: StripeError;
 
     beforeEach(() => {
-      mockStripeError = new Error() as unknown as Stripe.StripeRawError;
+      mockStripeError = new Error() as unknown as StripeError;
     });
 
     it('should return for type card_error', () => {
@@ -17,7 +17,7 @@ describe('utils', () => {
     });
 
     it('should return for default', () => {
-      mockStripeError.type = 'invalid_grant';
+      mockStripeError.type = 'api_error';
       const result = stripeErrorToErrorReasonId(mockStripeError);
       expect(result).toBe(CartErrorReasonId.Unknown);
     });

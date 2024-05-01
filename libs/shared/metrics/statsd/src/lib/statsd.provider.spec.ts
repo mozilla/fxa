@@ -4,7 +4,7 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
-import { StatsDFactory, StatsDService } from './statsd.provider';
+import { LegacyStatsDProvider, StatsDService } from './statsd.provider';
 import { StatsD } from 'hot-shots';
 
 const mockStatsd = jest.fn();
@@ -16,7 +16,7 @@ jest.mock('hot-shots', () => {
   };
 });
 
-describe('StatsDFactory', () => {
+describe('LegacyStatsDProvider', () => {
   let statsd: StatsD;
 
   const mockConfig = {
@@ -35,7 +35,7 @@ describe('StatsDFactory', () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        StatsDFactory,
+        LegacyStatsDProvider,
         {
           provide: ConfigService,
           useValue: mockConfigService,

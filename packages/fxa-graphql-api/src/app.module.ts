@@ -4,7 +4,7 @@
 
 import { HealthModule } from 'fxa-shared/nestjs/health/health.module';
 import { MozLoggerService } from '@fxa/shared/mozlog';
-import { StatsDFactory } from '@fxa/shared/metrics/statsd';
+import { LegacyStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { NotifierSnsFactory, NotifierService } from '@fxa/shared/notifier';
 
 import { getVersionInfo } from 'fxa-shared/nestjs/version';
@@ -51,7 +51,7 @@ const version = getVersionInfo(__dirname);
   ],
   controllers: [],
   providers: [
-    StatsDFactory,
+    LegacyStatsDProvider,
     NotifierSnsFactory,
     NotifierService,
     MozLoggerService,

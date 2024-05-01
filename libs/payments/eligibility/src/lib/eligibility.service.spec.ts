@@ -33,7 +33,7 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
-import { MockStatsDFactory } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 
 describe('EligibilityService', () => {
@@ -52,7 +52,7 @@ describe('EligibilityService', () => {
         MockFirestoreProvider,
         ContentfulClientConfig,
         ContentfulClient,
-        MockStatsDFactory,
+        MockStatsDProvider,
         ContentfulManager,
         EligibilityManager,
         StripeConfig,

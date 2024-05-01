@@ -6,6 +6,7 @@ import { Firestore } from '@google-cloud/firestore';
 import * as grpc from '@grpc/grpc-js';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FirestoreConfig } from './firestore.config';
 
 /**
  * Creates a firestore instance from a settings object.
@@ -41,19 +42,20 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
  * Factory for providing access to firestore
  */
 export const FirestoreService = Symbol('FIRESTORE');
+
 export const FirestoreProvider: Provider<Firestore> = {
   provide: FirestoreService,
-  useFactory: (configService: ConfigService) => {
-    const firestoreConfig = configService.get('authFirestore');
-    if (firestoreConfig == null) {
-      throw new Error(
-        "Could not locate config for firestore missing 'authFirestore';"
-      );
-    }
-    const firestore = setupFirestore(firestoreConfig);
-    return firestore;
+  useFactory: (config: FirestoreConfig) => {
+    const firestoreConfig: FirebaseFirestore.Settings = {
+      ...config,
+      credentials: {
+        client_email: config.credentials?.clientEmail,
+        private_key: config.credentials?.privateKey,
+      },
+    };
+    return setupFirestore(firestoreConfig);
   },
-  inject: [ConfigService],
+  inject: [FirestoreConfig],
 };
 
 /**
@@ -66,4 +68,19 @@ export const MockFirestoreProvider: Provider<Firestore> = {
   useFactory: () => {
     return {} as Firestore;
   },
+};
+
+export const LegacyFirestoreProvider: Provider<Firestore> = {
+  provide: FirestoreService,
+  useFactory: (configService: ConfigService) => {
+    const firestoreConfig = configService.get('authFirestore');
+    if (firestoreConfig == null) {
+      throw new Error(
+        "Could not locate config for firestore missing 'authFirestore';"
+      );
+    }
+    const firestore = setupFirestore(firestoreConfig);
+    return firestore;
+  },
+  inject: [ConfigService],
 };

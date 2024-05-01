@@ -22,7 +22,7 @@ import {
 } from '@fxa/shared/contentful';
 import { CapabilityManager } from './capability.manager';
 import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { MockStatsDFactory } from '@fxa/shared/metrics/statsd';
+import { MockStatsDProvider } from '@fxa/shared/metrics/statsd';
 
 describe('CapabilityManager', () => {
   let capabilityManager: CapabilityManager;
@@ -32,7 +32,7 @@ describe('CapabilityManager', () => {
     const module = await Test.createTestingModule({
       providers: [
         MockFirestoreProvider,
-        MockStatsDFactory,
+        MockStatsDProvider,
         ContentfulClientConfig,
         ContentfulClient,
         ContentfulManager,
