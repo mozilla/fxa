@@ -63,6 +63,16 @@ const PASSWORD_FORGOT_SEND_OTP_POST = {
   ],
 };
 
+const PASSWORD_FORGOT_VERIFY_OTP_POST = {
+  ...TAGS_PASSWORD,
+  description: '/password/forgot/verify_otp',
+  notes: [
+    dedent`
+      Verify the OTP from \`/password/forgot/send_otp\` to receive the PasswordForgotToken and its code to continue the password reset process.
+    `,
+  ],
+};
+
 const PASSWORD_FORGOT_SEND_CODE_POST = {
   ...TAGS_PASSWORD,
   description: '/password/forgot/send_code',
@@ -161,6 +171,7 @@ const API_DOCS = {
   PASSWORD_FORGOT_RESEND_CODE_POST,
   PASSWORD_FORGOT_SEND_CODE_POST,
   PASSWORD_FORGOT_SEND_OTP_POST,
+  PASSWORD_FORGOT_VERIFY_OTP_POST,
   PASSWORD_FORGOT_STATUS_GET,
   PASSWORD_FORGOT_VERIFY_CODE_POST,
   PASSWORD_CREATE_POST,

@@ -600,6 +600,69 @@ module.exports = function (
     },
     {
       method: 'POST',
+      path: '/password/forgot/verify_otp',
+      options: {
+        ...PASSWORD_DOCS.PASSWORD_FORGOT_VERIFY_OTP_POST,
+        validate: {
+          payload: isA.object({
+            email: validators
+              .email()
+              .required()
+              .description(DESCRIPTION.emailRecovery),
+            code: isA
+              .string()
+              .length(config.passwordForgotOtp.digits)
+              .regex(validators.DIGITS),
+            metricsContext: METRICS_CONTEXT_SCHEMA,
+          }),
+        },
+      },
+      handler: async function (request: any) {
+        if (!config.passwordForgotOtp.enabled) {
+          throw error.featureNotEnabled();
+        }
+
+        log.begin('Password.forgotOtpVerify', request);
+        await request.emitMetricsEvent('password.forgot.verify_otp.start');
+        statsd.increment('otp.passwordForgot.attempt');
+
+        // TODO FXA-9487
+        // await customs.check(request, email, 'passwordForgotVerifyOtp');
+
+        request.validateMetricsContext();
+
+        const { email, code } = request.payload;
+        const account = await db.accountRecord(email);
+        const isValidCode = await otpManager.isValid(account.uid, code);
+
+        if (!isValidCode) {
+          // TODO FXA-9487
+          // increment failed attempt
+
+          throw error.invalidVerificationCode();
+        }
+
+        // TODO FXA-9486
+        // glean.resetPassword.otpVerified(request);
+
+        const passwordForgotToken = await db.createPasswordForgotToken(account);
+
+        await request.emitMetricsEvent('password.forgot.verify_otp.completed');
+        recordSecurityEvent('account.password_reset_otp_verified', {
+          db,
+          request,
+          account: { uid: account.uid },
+        });
+        statsd.increment('otp.passwordForgot.verified');
+
+        return {
+          token: passwordForgotToken.data,
+          code: passwordForgotToken.passCode,
+        };
+      },
+    },
+    {
+      method: 'POST',
       path: '/password/forgot/send_code',
       options: {
         ...PASSWORD_DOCS.PASSWORD_FORGOT_SEND_CODE_POST,
