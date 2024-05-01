@@ -38,6 +38,7 @@ export type InputTextProps = {
   inputMode?: 'text' | 'numeric' | 'tel' | 'email';
   required?: boolean;
   tooltipPosition?: 'top' | 'bottom';
+  isPasswordInput?: boolean;
 };
 
 export const InputText = ({
@@ -66,6 +67,7 @@ export const InputText = ({
   inputMode,
   required,
   tooltipPosition,
+  isPasswordInput = false,
 }: InputTextProps) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [hasContent, setHasContent] = useState<boolean>(defaultValue != null);
@@ -132,7 +134,10 @@ export const InputText = ({
         <input
           className={classNames(
             inputOnlyClassName,
-            'pb-1 pt-5 px-3 w-full font-body rounded text-start',
+            'pb-1 pt-5 px-3 font-body rounded text-start',
+            // password specific width is to accomodate password manager icons
+            // that are otherwise hidden and inaccessible under the visibility icon
+            isPasswordInput ? 'w-[90%]' : 'w-full',
             focused ? 'outline-none border-none placeholder-grey-500' : '',
             disabled ? 'bg-grey-10 placeholder-transparent cursor-default' : ''
           )}

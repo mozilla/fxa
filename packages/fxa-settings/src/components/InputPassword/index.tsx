@@ -67,6 +67,7 @@ export const InputPassword = ({
         autoComplete="off"
         spellCheck={false}
         aria-describedby=""
+        isPasswordInput={true}
         {...{
           defaultValue,
           disabled,
