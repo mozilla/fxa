@@ -43,40 +43,23 @@ export class ProductNotFoundError extends StripeError {
 }
 
 export class PromotionCodeCouldNotBeAttachedError extends StripeError {
-  constructor(cause: Error) {
-    super('Promotion code could not be attached to subscription', cause);
-  }
-}
+  customerId?: string;
+  subscriptionId?: string;
+  promotionId?: string;
 
-export class PromotionCodeInvalidError extends StripeError {
-  constructor() {
-    super('Invalid promotion code');
-  }
-}
-
-export class PromotionCodeNotForSubscriptionError extends StripeError {
-  constructor() {
-    super(
-      "Promotion code restricted to a product that doesn't match the product on this subscription"
-    );
-  }
-}
-
-export class SubscriptionCustomerIdDoesNotMatchCustomerIdError extends StripeError {
-  constructor() {
-    super('subscription.customerId does not match passed in customerId');
-  }
-}
-
-export class SubscriptionNotActiveError extends StripeError {
-  constructor() {
-    super('Subscription is not active');
-  }
-}
-
-export class SubscriptionPriceUnknownError extends StripeError {
-  constructor() {
-    super('Unknown subscription price');
+  constructor(
+    message: string,
+    cause?: Error,
+    data?: {
+      customerId?: string;
+      subscriptionId?: string;
+      promotionId?: string;
+    }
+  ) {
+    super(message, cause);
+    this.customerId = data?.customerId;
+    this.subscriptionId = data?.subscriptionId;
+    this.promotionId = data?.promotionId;
   }
 }
 

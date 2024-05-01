@@ -219,6 +219,12 @@ const OAUTH_SUBSCRIPTIONS_COUPON_POST = {
   notes: ['Retrieves coupon details of a valid plan and promotion code.'],
 };
 
+const OAUTH_SUBSCRIPTIONS_COUPON_APPLY_PUT = {
+  ...TAGS_SUBSCRIPTIONS,
+  description: '/oauth/subscriptions/coupon/apply',
+  notes: ['Updates customer subscription with promotion code.'],
+};
+
 const OAUTH_SUBSCRIPTIONS_PAYMENTMETHOD_FAILED_DETACH_POST = {
   ...TAGS_SUBSCRIPTIONS,
   description: '/oauth/subscriptions/paymentmethod/failed/detach',
@@ -320,6 +326,7 @@ const API_DOCS = {
   OAUTH_SUBSCRIPTIONS_ACTIVE_SUBSCRIPTIONID_PUT,
   OAUTH_SUBSCRIPTIONS_CLIENTS_GET,
   OAUTH_SUBSCRIPTIONS_COUPON_POST,
+  OAUTH_SUBSCRIPTIONS_COUPON_APPLY_PUT,
   OAUTH_SUBSCRIPTIONS_IAP_RTDN_POST,
   OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_POST,
   OAUTH_SUBSCRIPTIONS_INVOICE_PREVIEW_SUBSEQUENT_GET,

@@ -11,8 +11,12 @@ const uuid = require('uuid');
 const mocks = require('../../../mocks');
 const error = require('../../../../lib/error');
 const Sentry = require('@sentry/node');
-const { StripeHelper } = require('../../../../lib/payments/stripe');
+const {
+  StripeHelper,
+  STRIPE_PRICE_METADATA,
+} = require('../../../../lib/payments/stripe');
 const { CurrencyHelper } = require('../../../../lib/payments/currencies');
+const { StripeError, StripeService } = require('@fxa/payments/stripe');
 const WError = require('verror').WError;
 const uuidv4 = require('uuid').v4;
 const proxyquire = require('proxyquire').noPreserveCache();
@@ -63,6 +67,7 @@ const currencyHelper = new CurrencyHelper({
   currenciesToCountries: { USD: ['US', 'GB', 'CA'] },
 });
 const mockCapabilityService = {};
+const mockStripeService = {};
 
 let config, log, db, customs, push, mailer, profile;
 
@@ -87,11 +92,9 @@ const ACTIVE_SUBSCRIPTIONS = [
     cancelledAt: null,
   },
 ];
-
 const MOCK_CLIENT_ID = '3c49430b43dfba77';
 const MOCK_TTL = 3600;
 const MOCK_SCOPES = ['profile:email', OAUTH_SCOPE_SUBSCRIPTIONS];
-
 const mockContentfulClients = mocks.mockContentfulClients;
 
 /**
@@ -424,6 +427,11 @@ describe('DirectStripeRoutes', () => {
     mockCapabilityService.getClients = sinon.stub();
     mockCapabilityService.getClients.resolves(mockContentfulClients);
     Container.set(CapabilityService, mockCapabilityService);
+
+    const mockSubscription = deepCopy(subscription2);
+    mockStripeService.applyPromoCodeToSubscription = sinon.stub();
+    mockStripeService.applyPromoCodeToSubscription.resolves(mockSubscription);
+    Container.set(StripeService, mockStripeService);
 
     directStripeRoutesInstance = new DirectStripeRoutes(
       log,
@@ -975,6 +983,145 @@ describe('DirectStripeRoutes', () => {
         'retrieveCouponDetails'
       );
       sinon.assert.notCalled(directStripeRoutesInstance.customs.check);
+    });
+  });
+
+  describe('applyPromotionCodeToSubscription', () => {
+    it('throws error if customer is not found', async () => {
+      const mockSubscription = deepCopy(subscription2);
+
+      VALID_REQUEST.payload = {
+        promotionId: 'promo_code123',
+        subscriptionId: mockSubscription.id,
+      };
+
+      try {
+        await directStripeRoutesInstance.applyPromotionCodeToSubscription(
+          VALID_REQUEST
+        );
+        assert.fail('Unknown customer');
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(err.errno, error.ERRNO.UNKNOWN_SUBSCRIPTION_CUSTOMER);
+      }
+    });
+
+    it('errors with AppError subscriptionPromotionCodeNotApplied if StripeError returned from StripeService', async () => {
+      const sentryScope = { setContext: sandbox.stub() };
+      sandbox.stub(Sentry, 'withScope').callsFake((cb) => cb(sentryScope));
+      sandbox.stub(Sentry, 'captureMessage');
+
+      let mockSubscription = deepCopy(subscription2);
+      const mockCustomer = deepCopy(customerFixture);
+      mockSubscription.customer = mockCustomer.id;
+      const mockPrice = {
+        price: {
+          metadata: {
+            [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo_code1',
+          },
+        },
+      };
+      mockSubscription = {
+        ...mockSubscription,
+        ...mockPrice,
+      };
+
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+        mockCustomer
+      );
+
+      VALID_REQUEST.payload = {
+        promotionId: 'promo_code1',
+        subscriptionId: mockSubscription.id,
+      };
+
+      const stripeError = new StripeError('Oh no.');
+      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
+      mockStripeService.applyPromoCodeToSubscription.rejects(stripeError);
+
+      try {
+        await directStripeRoutesInstance.applyPromotionCodeToSubscription(
+          VALID_REQUEST
+        );
+      } catch (err) {
+        assert.instanceOf(err, WError);
+        assert.equal(
+          err.errno,
+          error.ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED
+        );
+      }
+
+      sinon.assert.notCalled(Sentry.withScope);
+    });
+
+    it('throws error if fails', async () => {
+      const mockSubscription = deepCopy(subscription2);
+      const mockCustomer = mockSubscription.customer;
+
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+        mockCustomer
+      );
+
+      VALID_REQUEST.payload = {
+        promotionId: 'promo_code1',
+        subscriptionId: mockSubscription.id,
+      };
+
+      const testError = new Error('Something went wrong');
+      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
+      mockStripeService.applyPromoCodeToSubscription.rejects(testError);
+
+      try {
+        await directStripeRoutesInstance.applyPromotionCodeToSubscription(
+          VALID_REQUEST
+        );
+      } catch (err) {
+        assert.equal(err.message, 'Something went wrong');
+        assert.notEqual(
+          err.errno,
+          error.ERRNO.SUBSCRIPTION_PROMO_CODE_NOT_APPLIED
+        );
+      }
+    });
+
+    it('returns the updated subscription', async () => {
+      const mockSubscription = deepCopy(subscription2);
+      const mockCustomer = deepCopy(customerFixture);
+      mockSubscription.customer = mockCustomer.id;
+
+      directStripeRoutesInstance.stripeHelper.fetchCustomer.resolves(
+        mockCustomer
+      );
+
+      VALID_REQUEST.payload = {
+        promotionId: 'promo_code1',
+        subscriptionId: mockSubscription.id,
+      };
+
+      mockStripeService.applyPromoCodeToSubscription = sinon.stub();
+      mockStripeService.applyPromoCodeToSubscription.resolves(mockSubscription);
+
+      const actual =
+        await directStripeRoutesInstance.applyPromotionCodeToSubscription(
+          VALID_REQUEST
+        );
+
+      sinon.assert.calledOnceWithExactly(
+        directStripeRoutesInstance.customs.check,
+        VALID_REQUEST,
+        TEST_EMAIL,
+        'applyPromotionCodeToSubscription'
+      );
+
+      assert.isTrue(
+        mockStripeService.applyPromoCodeToSubscription.calledOnceWithExactly(
+          mockCustomer.id,
+          mockSubscription.id,
+          'promo_code1'
+        )
+      );
+
+      assert.deepEqual(actual, mockSubscription);
     });
   });
 

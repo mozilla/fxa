@@ -6,6 +6,7 @@ import { ServerRoute } from '@hapi/hapi';
 import isA from 'joi';
 import * as Sentry from '@sentry/node';
 import { SeverityLevel } from '@sentry/types';
+import { StripeError, StripeService } from '@fxa/payments/stripe';
 import { getAccountCustomerByUid } from 'fxa-shared/db/models/auth';
 import {
   AbbrevPlan,
@@ -30,7 +31,10 @@ import { Stripe } from 'stripe';
 
 import { ConfigType } from '../../../config';
 import error from '../../error';
-import { StripeHelper } from '../../payments/stripe';
+import {
+  COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP,
+  StripeHelper,
+} from '../../payments/stripe';
 import {
   stripeInvoiceToFirstInvoicePreviewDTO,
   stripeInvoicesToSubsequentInvoicePreviewsDTO,
@@ -40,7 +44,6 @@ import { sendFinishSetupEmailForStubAccount } from '../subscriptions/account';
 import validators from '../validators';
 import { handleAuth } from './utils';
 import { generateIdempotencyKey } from '../../payments/utils';
-import { COUNTRIES_LONG_NAME_TO_SHORT_NAME_MAP } from '../../payments/stripe';
 import { deleteAccountIfUnverified } from '../utils/account';
 import SUBSCRIPTIONS_DOCS from '../../../docs/swagger/subscriptions-api';
 import DESCRIPTIONS from '../../../docs/swagger/shared/descriptions';
@@ -80,6 +83,7 @@ export function sanitizePlans(plans: AbbrevPlan[]) {
 export class StripeHandler {
   subscriptionAccountReminders: any;
   capabilityService: CapabilityService;
+  stripeService: StripeService;
 
   constructor(
     // FIXME: For some reason Logger methods were not being detected in
@@ -96,6 +100,7 @@ export class StripeHandler {
     this.subscriptionAccountReminders =
       require('../../subscription-account-reminders')(log, config);
     this.capabilityService = Container.get(CapabilityService);
+    this.stripeService = Container.get(StripeService);
   }
 
   /**
@@ -515,6 +520,51 @@ export class StripeHandler {
     });
 
     return couponDetails;
+  }
+
+  /**
+   * Updates customer subscription with promotion code
+   */
+  async applyPromotionCodeToSubscription(request: AuthRequest) {
+    this.log.begin('subscriptions.applyPromotionCodeToSubscription', request);
+
+    const { uid, email } = await handleAuth(this.db, request.auth, true);
+    await this.customs.check(
+      request,
+      email,
+      'applyPromotionCodeToSubscription'
+    );
+
+    const customer = await this.stripeHelper.fetchCustomer(uid);
+    if (!customer) {
+      throw error.unknownCustomer(uid);
+    }
+
+    const { promotionId, subscriptionId } = request.payload as Record<
+      string,
+      string
+    >;
+
+    try {
+      const updatedSubscription =
+        await this.stripeService.applyPromoCodeToSubscription(
+          customer.id,
+          subscriptionId,
+          promotionId
+        );
+      return updatedSubscription;
+    } catch (err) {
+      this.log.error('subscriptions.applyPromotionCodeToSubscription', {
+        err,
+        uid,
+      });
+
+      if (err instanceof StripeError) {
+        throw error.subscriptionPromotionCodeNotApplied(err, err.message);
+      } else {
+        throw err;
+      }
+    }
   }
 
   /**
@@ -1074,6 +1124,30 @@ export const stripeRoutes = (
       },
       handler: (request: AuthRequest) =>
         stripeHandler.retrieveCouponDetails(request),
+    },
+    {
+      method: 'PUT',
+      path: '/oauth/subscriptions/coupon/apply',
+      options: {
+        ...SUBSCRIPTIONS_DOCS.OAUTH_SUBSCRIPTIONS_COUPON_APPLY_PUT,
+        auth: {
+          payload: false,
+          strategy: 'oauthToken',
+        },
+        validate: {
+          payload: {
+            promotionId: isA
+              .string()
+              .required()
+              .description(DESCRIPTIONS.promotionId),
+            subscriptionId: validators.subscriptionsSubscriptionId
+              .required()
+              .description(DESCRIPTIONS.subscriptionId),
+          },
+        },
+      },
+      handler: (request: AuthRequest) =>
+        stripeHandler.applyPromotionCodeToSubscription(request),
     },
     {
       method: 'POST',

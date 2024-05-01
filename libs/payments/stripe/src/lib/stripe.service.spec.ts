@@ -12,6 +12,7 @@ jest.mock('../lib/stripe.util.ts', () => mockStripeUtil);
 
 import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
+import { Stripe } from 'stripe';
 
 import {
   StripeApiListFactory,
@@ -19,24 +20,19 @@ import {
 } from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripePriceFactory } from './factories/price.factory';
+import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import {
   StripeSubscriptionFactory,
   StripeSubscriptionItemFactory,
 } from './factories/subscription.factory';
 
-import {
-  PromotionCodeCouldNotBeAttachedError,
-  PromotionCodeInvalidError,
-  PromotionCodeNotForSubscriptionError,
-  SubscriptionPriceUnknownError,
-} from './stripe.error';
+import { StripeClient } from './stripe.client';
+import { MockStripeConfigProvider } from './stripe.config';
+import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 import { StripeManager } from './stripe.manager';
 import { StripeService } from './stripe.service';
 import { STRIPE_PRICE_METADATA } from './stripe.types';
-import { StripeClient } from './stripe.client';
-import { MockStripeConfigProvider } from './stripe.config';
-import { StripeProductFactory } from './factories/product.factory';
 
 describe('StripeService', () => {
   let stripeService: StripeService;
@@ -118,7 +114,9 @@ describe('StripeService', () => {
         .mockResolvedValue(mockPromoResponse);
 
       mockStripeUtil.checkValidPromotionCode.mockImplementation(() => {
-        throw new PromotionCodeInvalidError();
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Invalid promotion code'
+        );
       });
 
       await expect(
@@ -150,7 +148,9 @@ describe('StripeService', () => {
 
       mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
       mockStripeUtil.getSubscribedPrice.mockImplementation(() => {
-        throw new SubscriptionPriceUnknownError();
+        throw new PromotionCodeCouldNotBeAttachedError(
+          'Unknown subscription price'
+        );
       });
 
       await expect(
@@ -165,6 +165,7 @@ describe('StripeService', () => {
     it('throws an error if the promotion code is not one from the product', async () => {
       const mockCustomer = StripeCustomerFactory();
       const mockPrice = StripePriceFactory();
+      const mockProduct = StripeProductFactory();
       const mockPromotionCode = StripePromotionCodeFactory({
         active: true,
       });
@@ -185,8 +186,15 @@ describe('StripeService', () => {
 
       mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
       mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
+
+      jest
+        .spyOn(stripeManager, 'retrieveProduct')
+        .mockResolvedValue(StripeResponseFactory(mockProduct));
+
       mockStripeUtil.checkSubscriptionPromotionCodes.mockImplementation(() => {
-        throw new PromotionCodeNotForSubscriptionError();
+        throw new PromotionCodeCouldNotBeAttachedError(
+          "Promotion code restricted to a product that doesn't match the product on this subscription"
+        );
       });
 
       await expect(
@@ -196,6 +204,30 @@ describe('StripeService', () => {
           mockPromotionCode.id
         )
       ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
+    });
+
+    it('throws an error if error is StripeInvalidRequestError', async () => {
+      const mockCustomer = StripeCustomerFactory();
+      const mockSubscriptionId = 'sub_id1';
+      const mockPromotionId = 'promo_id1';
+
+      const stripeError = new Stripe.errors.StripeInvalidRequestError({
+        type: 'invalid_request_error',
+      });
+
+      jest
+        .spyOn(stripeManager, 'retrieveSubscription')
+        .mockImplementation(() => {
+          throw stripeError;
+        });
+
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
+          mockCustomer.id,
+          mockSubscriptionId,
+          mockPromotionId
+        )
+      ).rejects.toThrow(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('returns the updated subscription with the promotion code successfully', async () => {

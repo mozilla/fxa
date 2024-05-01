@@ -23,31 +23,29 @@ import {
   getSubscribedPrice,
   getSubscribedProductIds,
 } from './stripe.util';
-import {
-  PromotionCodeInvalidError,
-  PromotionCodeNotForSubscriptionError,
-  SubscriptionPriceUnknownError,
-} from './stripe.error';
+import { PromotionCodeCouldNotBeAttachedError } from './stripe.error';
 
 describe('util', () => {
   describe('checkSubscriptionPromotionCodes', () => {
     it('throws error if promotion code is not within subscription price', async () => {
       const mockPrice = StripePriceFactory();
-      const mockPromoCode = 'promo_code1';
+      const mockPromoCode = StripePromotionCodeFactory();
 
       expect(() =>
         checkSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined)
-      ).toThrowError(PromotionCodeNotForSubscriptionError);
+      ).toThrowError(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('returns true if only subscription price provided', async () => {
+      const mockPromoCode = StripePromotionCodeFactory({
+        code: 'promo_code1',
+      });
       const mockPrice = StripePriceFactory({
         metadata: {
           [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
             'promo_code1,promo_code2,promo_code3',
         },
       });
-      const mockPromoCode = 'promo_code1';
 
       const result = checkSubscriptionPromotionCodes(
         mockPromoCode,
@@ -70,7 +68,9 @@ describe('util', () => {
             'promo_code1,promo_code2,promo_code3',
         },
       });
-      const mockPromoCode = 'promo_code1';
+      const mockPromoCode = StripePromotionCodeFactory({
+        code: 'promo_code1',
+      });
 
       const result = checkSubscriptionPromotionCodes(
         mockPromoCode,
@@ -86,7 +86,7 @@ describe('util', () => {
       const mockPromotionCode = StripeResponseFactory(undefined);
 
       expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
-        PromotionCodeInvalidError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
 
@@ -96,7 +96,7 @@ describe('util', () => {
       });
 
       expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
-        PromotionCodeInvalidError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
 
@@ -108,7 +108,7 @@ describe('util', () => {
       });
 
       expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
-        PromotionCodeInvalidError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
 
@@ -119,7 +119,7 @@ describe('util', () => {
       });
 
       expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
-        PromotionCodeInvalidError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
 
@@ -153,7 +153,7 @@ describe('util', () => {
       });
 
       expect(() => getSubscribedPrice(mockSubscription)).toThrowError(
-        SubscriptionPriceUnknownError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
 
@@ -165,7 +165,7 @@ describe('util', () => {
       });
 
       expect(() => getSubscribedPrice(mockSubscription)).toThrowError(
-        SubscriptionPriceUnknownError
+        PromotionCodeCouldNotBeAttachedError
       );
     });
   });
