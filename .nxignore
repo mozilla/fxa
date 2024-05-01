@@ -6,3 +6,4 @@
 **/.next
 **/storybook-static
 **/dist/**
+external/l10n
