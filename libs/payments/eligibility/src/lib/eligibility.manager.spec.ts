@@ -65,16 +65,16 @@ describe('EligibilityManager', () => {
     it('should return empty result', async () => {
       mockResult.offeringForPlanId = jest.fn().mockReturnValueOnce(undefined);
       const result = await manager.getOfferingOverlap(['test'], [], 'test');
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
     });
 
     it('should return same offeringStripeProductIds as same comparison', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult);
+        .mockReturnValueOnce(mockOfferingResult);
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test'],
@@ -85,7 +85,7 @@ describe('EligibilityManager', () => {
     });
 
     it('should return subgroup upgrade target offeringStripeProductIds as upgrade comparison', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test3',
         linkedFrom: {
           subGroupCollection: {
@@ -114,7 +114,7 @@ describe('EligibilityManager', () => {
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult);
+        .mockReturnValueOnce(mockOfferingResult);
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test'],
@@ -125,7 +125,7 @@ describe('EligibilityManager', () => {
     });
 
     it('should return subgroup downgrade target offeringStripeProductIds as downgrade comparison', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
         linkedFrom: {
           subGroupCollection: {
@@ -150,7 +150,7 @@ describe('EligibilityManager', () => {
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult);
+        .mockReturnValueOnce(mockOfferingResult);
       const result = await manager.getOfferingOverlap(
         [],
         ['prod_test2'],
@@ -161,7 +161,7 @@ describe('EligibilityManager', () => {
     });
 
     it('should return same comparison for same planId', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test',
       });
       const existingResult = EligibilityOfferingResultFactory({
@@ -169,7 +169,7 @@ describe('EligibilityManager', () => {
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult)
+        .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
@@ -181,7 +181,7 @@ describe('EligibilityManager', () => {
     });
 
     it('should return upgrade comparison for upgrade planId', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
         linkedFrom: {
           subGroupCollection: {
@@ -209,7 +209,7 @@ describe('EligibilityManager', () => {
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult)
+        .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
@@ -221,7 +221,7 @@ describe('EligibilityManager', () => {
     });
 
     it('should return multiple comparisons in multiple subgroups', async () => {
-      const offeringResult = EligibilityOfferingResultFactory({
+      const mockOfferingResult = EligibilityOfferingResultFactory({
         stripeProductId: 'prod_test2',
         linkedFrom: {
           subGroupCollection: {
@@ -267,7 +267,7 @@ describe('EligibilityManager', () => {
       });
       mockResult.offeringForPlanId = jest
         .fn()
-        .mockReturnValueOnce(offeringResult)
+        .mockReturnValueOnce(mockOfferingResult)
         .mockReturnValueOnce(existingResult);
       const result = await manager.getOfferingOverlap(
         ['plan_test'],
@@ -293,10 +293,10 @@ describe('EligibilityManager', () => {
       const mockTargetOffering = EligibilityContentOfferingResultFactory();
 
       const result = manager.getProductIdOverlap([], mockTargetOffering);
-      expect(result.length).toBe(0);
+      expect(result).toHaveLength(0);
 
       const result2 = manager.getProductIdOverlap(['test'], mockTargetOffering);
-      expect(result2.length).toBe(0);
+      expect(result2).toHaveLength(0);
     });
 
     it('should return same offeringStripeProductIds as same comparison', async () => {

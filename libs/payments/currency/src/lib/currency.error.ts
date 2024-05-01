@@ -5,36 +5,41 @@
 import { BaseError } from '@fxa/shared/error';
 
 export class CurrencyError extends BaseError {
-  constructor(message: string, info: Record<string, any>, cause?: Error) {
-    super(message, {
-      name: 'CurrencyError',
-      cause,
-      info,
-    });
+  constructor(...args: ConstructorParameters<typeof BaseError>) {
+    super(...args);
   }
 }
 
 export class CurrencyCodeInvalidError extends CurrencyError {
-  constructor(currency: string | null | undefined) {
+  constructor(currency: string, cause?: Error) {
     super('Invalid currency code', {
-      currency,
+      info: {
+        currency,
+      },
+      cause,
     });
   }
 }
 
 export class CountryCodeInvalidError extends CurrencyError {
-  constructor(country: string | null | undefined) {
+  constructor(country: string, cause?: Error) {
     super('Invalid country code', {
-      country,
+      info: {
+        country,
+      },
+      cause,
     });
   }
 }
 
 export class CurrencyCountryMismatchError extends CurrencyError {
-  constructor(currency: string, country: string) {
+  constructor(currency: string, country: string, cause?: Error) {
     super('Funding source country does not match plan currency', {
-      currency,
-      country,
+      info: {
+        currency,
+        country,
+      },
+      cause,
     });
   }
 }
