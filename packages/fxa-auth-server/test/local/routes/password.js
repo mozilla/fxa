@@ -161,6 +161,8 @@ describe('/password', () => {
           'validateMetricsContext was called'
         );
 
+        sinon.assert.calledOnce(mockMailer.sendPasswordForgotOtpEmail);
+
         assert.equal(mockMetricsContext.setFlowCompleteSignal.callCount, 1);
         const args = mockMetricsContext.setFlowCompleteSignal.args[0];
         assert.lengthOf(args, 1);
