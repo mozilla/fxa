@@ -25,8 +25,8 @@
     "baseUrl": ".",
     "paths": {
       "@fxa/payments/capability": ["libs/payments/capability/src/index.ts"],
-      "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/cart": ["libs/payments/cart/src/index.ts"],
+      "@fxa/payments/currency": ["libs/payments/currency/src/index.ts"],
       "@fxa/payments/eligibility": ["libs/payments/eligibility/src/index.ts"],
       "@fxa/payments/legacy": ["libs/payments/legacy/src/index.ts"],
       "@fxa/payments/paypal": ["libs/payments/paypal/src/index.ts"],
@@ -57,7 +57,13 @@
       "@fxa/shared/mozlog": ["libs/shared/mozlog/src/index.ts"],
       "@fxa/shared/notifier": ["libs/shared/notifier/src/index.ts"],
       "@fxa/shared/otp": ["libs/shared/otp/src/index.ts"],
-      "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"]
+      "@fxa/shared/sentry": ["libs/shared/sentry/src/index.ts"],
+      "@fxa/vendored/common-password-list": [
+        "libs/vendored/common-password-list/src/index.ts"
+      ],
+      "@fxa/vendored/incremental-encoder": [
+        "libs/vendored/incremental-encoder/src/index.ts"
+      ]
     },
     "typeRoots": [
       "./types",
