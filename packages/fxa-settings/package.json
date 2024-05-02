@@ -248,7 +248,7 @@
     "storybook-addon-rtl": "^1.0.0",
     "style-loader": "^3.3.3",
     "ts-jest": "^29.1.2",
-    "type-fest": "^4.12.0",
+    "type-fest": "^4.18.1",
     "typescript": "^5.4.2",
     "webpack": "^5.84.1"
   },
