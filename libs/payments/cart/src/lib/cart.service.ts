@@ -113,14 +113,21 @@ export class CartService {
     try {
       const cart = await this.cartManager.fetchCartById(cartId);
 
-      this.checkoutService.payWithStripe(cart, paymentMethodId);
+      const results = await this.checkoutService.payWithStripe(
+        cart,
+        paymentMethodId
+      );
 
       await this.cartManager.finishCart(cartId, version, {});
+
+      return results;
     } catch (e) {
       // TODO: Handle errors and provide an associated reason for failure
       await this.cartManager.finishErrorCart(cartId, version, {
         errorReasonId: CartErrorReasonId.Unknown,
       });
+
+      return {};
     }
   }
 

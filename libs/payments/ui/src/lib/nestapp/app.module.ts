@@ -29,8 +29,8 @@ import {
   PayPalManager,
   PaypalCustomerManager,
 } from '@fxa/payments/paypal';
-import { FirestoreService } from '@fxa/shared/db/firestore';
-import { StatsD } from 'hot-shots';
+import { FirestoreFactoryDirect } from '@fxa/shared/db/firestore';
+import { StatsDFactoryDirect } from '@fxa/shared/metrics/statsd';
 
 @Module({
   imports: [
@@ -44,14 +44,8 @@ import { StatsD } from 'hot-shots';
   ],
   controllers: [],
   providers: [
-    {
-      provide: FirestoreService,
-      useValue: {}, //Temporary value to resolve Payments Next startup issues
-    },
-    {
-      provide: StatsD,
-      useValue: {}, //Temporary value to resolve Payments Next startup issues
-    },
+    FirestoreFactoryDirect,
+    StatsDFactoryDirect,
     LocalizerRscFactoryProvider,
     NextJSActionsService,
     AccountDatabaseNestFactory,

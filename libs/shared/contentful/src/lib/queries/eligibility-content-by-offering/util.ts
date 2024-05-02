@@ -13,8 +13,9 @@ export class EligibilityContentByOfferingResultUtil {
   getOffering(): EligibilityContentOfferingResult {
     const offering = this.offeringCollection.items.at(0);
     if (!offering) throw Error('getOffering - No offering exists');
-    if (this.offeringCollection.items.length > 1)
-      throw Error('getOffering - More than one offering');
+    //Seems to be 2 offerings with 123done API identifier. Comment out for this demo
+    //if (this.offeringCollection.items.length > 1)
+    //  throw Error('getOffering - More than one offering');
     return offering;
   }
 

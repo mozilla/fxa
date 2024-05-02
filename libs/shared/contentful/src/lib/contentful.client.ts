@@ -71,19 +71,20 @@ export class ContentfulClient {
     return result;
   }
 
-  @Cacheable({
-    cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
-    strategy: new NetworkFirstStrategy(),
-    ttlSeconds: (_, context: ContentfulClient) =>
-      context.contentfulClientConfig.firestoreCacheTTL ||
-      DEFAULT_FIRESTORE_CACHE_TTL,
-    client: (_, context: ContentfulClient) =>
-      new FirestoreAdapter(
-        context.firestore,
-        context.contentfulClientConfig.firestoreCacheCollectionName ||
-          CONTENTFUL_QUERY_CACHE_KEY
-      ),
-  })
+  // Not sure what's happening here. Context is undefined which results in an error.
+  // @Cacheable({
+  //   cacheKey: (args: any) => cacheKeyForQuery(args[0], args[1]),
+  //   strategy: new NetworkFirstStrategy(),
+  //   ttlSeconds: (_, context: ContentfulClient) =>
+  //     context.contentfulClientConfig.firestoreCacheTTL ||
+  //     DEFAULT_FIRESTORE_CACHE_TTL,
+  //   client: (_, context: ContentfulClient) =>
+  //     new FirestoreAdapter(
+  //       context.firestore,
+  //       context.contentfulClientConfig.firestoreCacheCollectionName ||
+  //         CONTENTFUL_QUERY_CACHE_KEY
+  //     ),
+  // })
   async query<Result, Variables extends OperationVariables>(
     query: TypedDocumentNode<Result, Variables>,
     variables: Variables

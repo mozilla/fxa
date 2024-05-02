@@ -195,7 +195,7 @@ export default async function Checkout({ params }: { params: CheckoutParams }) {
             </p>
           </div>
         </section>
-        <StripeWrapper amount={1099} currency="usd" />
+        <StripeWrapper amount={1099} currency="usd" cart={cart} />
         {/*
           Temporary function used to test handleStripeErrorAction
           This is to be deleted as part of FXA-8850

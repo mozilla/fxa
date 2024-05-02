@@ -5,6 +5,7 @@
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { StatsD } from 'hot-shots';
+import { StatsDConfig } from './statsd.config';
 
 export const StatsDService = Symbol('STATSD');
 export const StatsDFactory: Provider<StatsD> = {
@@ -17,4 +18,15 @@ export const StatsDFactory: Provider<StatsD> = {
     return new StatsD(config);
   },
   inject: [ConfigService],
+};
+
+export const StatsDFactoryDirect: Provider<StatsD> = {
+  provide: StatsD,
+  useFactory: (config: StatsDConfig) => {
+    if (config.host === '') {
+      return new StatsD({ mock: true });
+    }
+    return new StatsD(config);
+  },
+  inject: [StatsDConfig],
 };

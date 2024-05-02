@@ -13,7 +13,7 @@ export const checkoutCartWithStripe = async (
   version: number,
   paymentMethodId: string
 ) => {
-  await app.getActionsService().checkoutCartWithStripe(
+  return await app.getActionsService().checkoutCartWithStripe(
     plainToClass(CheckoutCartWithStripeActionArgs, {
       cartId,
       version,

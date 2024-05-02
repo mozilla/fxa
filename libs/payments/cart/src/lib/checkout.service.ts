@@ -66,15 +66,17 @@ export class CheckoutService {
     const { customer, enableAutomaticTax, promotionCode } =
       await this.prePaySteps(cart);
 
-    await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
-      customer: customer.id,
-    });
+    // Looks like the new approach doesn't require the paymentMethodId from
+    // the frontend anymore.
+    //    await this.stripeClient.paymentMethodsAttach(paymentMethodId, {
+    //      customer: customer.id,
+    //    });
 
-    await this.stripeClient.customersUpdate(customer.id, {
-      invoice_settings: {
-        default_payment_method: paymentMethodId,
-      },
-    });
+    //    await this.stripeClient.customersUpdate(customer.id, {
+    //      invoice_settings: {
+    //        default_payment_method: paymentMethodId,
+    //      },
+    //    });
 
     // TODO: increment statsd for stripe_subscription with payment provider stripe
 
@@ -86,11 +88,21 @@ export class CheckoutService {
       promotion_code: promotionCode?.id,
       items: [
         {
-          price: undefined, // TODO: fetch price from cart after FXA-8893
+          price: 'price_1LwVGQBVqmGyQTMavfvTYMbD', // TODO: fetch price from cart after FXA-8893
         },
       ],
+      payment_behavior: 'default_incomplete',
+      payment_settings: {
+        save_default_payment_method: 'on_subscription',
+      },
       // TODO: Generate and use idempotency key using util
     });
+
+    const pendingSetupIntent = subscription.pending_setup_intent
+      ? await this.stripeClient.setupIntentsRetrieve(
+          subscription.pending_setup_intent
+        )
+      : null;
 
     const paymentIntent = await this.stripeManager.getLatestPaymentIntent(
       subscription
@@ -120,6 +132,20 @@ export class CheckoutService {
     }
 
     await this.postPaySteps(cart, subscription);
+
+    let result;
+    if (pendingSetupIntent !== null) {
+      result = {
+        type: 'setup',
+        clientSecret: pendingSetupIntent.client_secret,
+      };
+    } else {
+      result = {
+        type: 'payment',
+        clientSecret: paymentIntent.client_secret,
+      };
+    }
+    return result;
   }
 
   async payWithPaypal(cart: ResultCart, token?: string) {

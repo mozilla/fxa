@@ -10,9 +10,13 @@ import { CheckoutForm } from './CheckoutForm';
 interface StripeWrapperProps {
   amount: number;
   currency: string;
+  cart: {
+    id: string;
+    version: number;
+  };
 }
 
-export function StripeWrapper({ amount, currency }: StripeWrapperProps) {
+export function StripeWrapper({ amount, currency, cart }: StripeWrapperProps) {
   // TODO - Load from config
   const stripePromise = loadStripe(
     'pk_test_VNpCidC0a2TJJB3wqXq7drhN00sF8r9mhs'
@@ -28,10 +32,10 @@ export function StripeWrapper({ amount, currency }: StripeWrapperProps) {
   return (
     <Elements stripe={stripePromise} options={options}>
       <CheckoutForm
-        cart={{ id: 'temp', version: 1 }}
+        cart={cart}
         amount={amount}
         currency={currency}
-        successRedirectUrl="http://localhost:3035/en/123done/checkout/monthly/temp/success"
+        successRedirectUrl={`http://localhost:3035/en/123done/checkout/monthly/${cart.id}/success`}
       />
     </Elements>
   );

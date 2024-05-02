@@ -94,7 +94,7 @@ export class NextJSActionsService {
   async checkoutCartWithStripe(args: CheckoutCartWithStripeActionArgs) {
     new Validator().validateOrReject(args);
 
-    await this.cartService.checkoutCartWithStripe(
+    return await this.cartService.checkoutCartWithStripe(
       args.cartId,
       args.version,
       args.paymentMethodId

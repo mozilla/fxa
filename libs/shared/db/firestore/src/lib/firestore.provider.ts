@@ -6,6 +6,7 @@ import { Firestore } from '@google-cloud/firestore';
 import * as grpc from '@grpc/grpc-js';
 import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FirestoreConfig } from './firestore.config';
 
 /**
  * Creates a firestore instance from a settings object.
@@ -54,4 +55,19 @@ export const FirestoreFactory: Provider<Firestore> = {
     return firestore;
   },
   inject: [ConfigService],
+};
+
+export const FirestoreFactoryDirect: Provider<Firestore> = {
+  provide: FirestoreService,
+  useFactory: (config: FirestoreConfig) => {
+    const firestoreConfig: FirebaseFirestore.Settings = {
+      ...config,
+      credentials: {
+        client_email: config.credentials?.clientEmail,
+        private_key: config.credentials?.privateKey,
+      },
+    };
+    return setupFirestore(firestoreConfig);
+  },
+  inject: [FirestoreConfig],
 };

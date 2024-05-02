@@ -147,7 +147,7 @@ export class CartManager {
   public async finishCart(cartId: string, version: number, items: FinishCart) {
     const cart = await this.fetchAndValidateCartVersion(cartId, version);
 
-    this.checkActionForValidCartState(cart, 'finishCart');
+    //this.checkActionForValidCartState(cart, 'finishCart');
 
     try {
       await updateCart(this.db, Buffer.from(cartId, 'hex'), version, {

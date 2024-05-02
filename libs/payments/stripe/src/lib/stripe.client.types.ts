@@ -203,6 +203,21 @@ export type StripeUpcomingInvoice = NegotiateExpanded<
   | 'test_clock'
 >;
 
+/**
+ * Stripe.Plan with expanded fields removed
+ */
+export type StripeSetupIntent = NegotiateExpanded<
+  never,
+  Stripe.SetupIntent,
+  | 'customer'
+  | 'payment_method'
+  | 'application'
+  | 'latest_attempt'
+  | 'mandate'
+  | 'on_behalf_of'
+  | 'single_use_mandate'
+>;
+
 export type StripeSubscriptionItem = NegotiateExpanded<
   never,
   DeepOverride<

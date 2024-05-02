@@ -16,6 +16,7 @@ import {
   StripeProduct,
   StripePromotionCode,
   StripeResponse,
+  StripeSetupIntent,
   StripeSubscription,
   StripeUpcomingInvoice,
 } from './stripe.client.types';
@@ -72,6 +73,18 @@ export class StripeClient {
     });
 
     return result as StripeResponse<StripeCustomer>;
+  }
+
+  async setupIntentsRetrieve(
+    id: string,
+    params?: Stripe.SetupIntentRetrieveParams
+  ) {
+    const result = await this.stripe.setupIntents.retrieve(id, {
+      ...params,
+      expand: undefined,
+    });
+
+    return result as StripeResponse<StripeSetupIntent>;
   }
 
   async subscriptionsList(params?: Stripe.SubscriptionListParams) {
