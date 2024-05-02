@@ -52,6 +52,9 @@ module.exports = function (config) {
   const FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS = config.get(
     'featureFlags.sendFxAStatusOnSettings'
   );
+  const FEATURE_FLAGS_RESET_PWD_WITH_CODE = config.get(
+    'featureFlags.resetPasswordWithCode'
+  );
   const GLEAN_ENABLED = config.get('glean.enabled');
   const GLEAN_APPLICATION_ID = config.get('glean.applicationId');
   const GLEAN_UPLOAD_ENABLED = config.get('glean.uploadEnabled');
@@ -110,6 +113,7 @@ module.exports = function (config) {
     brandMessagingMode: BRAND_MESSAGING_MODE,
     featureFlags: {
       sendFxAStatusOnSettings: FEATURE_FLAGS_FXA_STATUS_ON_SETTINGS,
+      resetPasswordWithCode: FEATURE_FLAGS_RESET_PWD_WITH_CODE,
     },
     glean: {
       // feature toggle

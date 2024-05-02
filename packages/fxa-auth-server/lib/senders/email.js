@@ -1129,20 +1129,14 @@ module.exports = function (log, config, bounces) {
 
     const templateName = 'passwordForgotOtp';
     const code = message.code;
-    const links = this._generateLinks(
-      this.initiatePasswordChangeUrl,
-      message,
-      {},
-      templateName
-    );
+    const links = this._generateLinks(undefined, message, {}, templateName);
     const [time, date] = this._constructLocalTimeString(
       message.timeZone,
       message.acceptLanguage
     );
 
     const headers = {
-      'X-Password-Forgot-OTP': code,
-      'X-Link': links.passwordChangeLink,
+      'X-Password-Forgot-Otp': code,
     };
 
     return this.send({
@@ -1154,8 +1148,6 @@ module.exports = function (log, config, bounces) {
         date,
         device: this._formatUserAgentInfo(message),
         email: message.email,
-        passwordChangeLink: links.passwordChangeLink,
-        passwordChangeLinkAttributes: links.passwordChangeLinkAttributes,
         privacyUrl: links.privacyUrl,
         supportLinkAttributes: links.supportLinkAttributes,
         supportUrl: links.supportUrl,

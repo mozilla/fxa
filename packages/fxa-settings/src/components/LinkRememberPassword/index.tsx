@@ -5,31 +5,33 @@
 import React from 'react';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useLocation } from '@reach/router';
+import { isEmailValid } from 'fxa-shared/email/helpers';
 
 export type LinkRememberPasswordProps = {
   email?: string;
   forceAuth?: boolean;
 };
 
-const LinkRememberPassword = ({
-  email,
-  forceAuth = false,
-}: LinkRememberPasswordProps) => {
+const LinkRememberPassword = ({ email }: LinkRememberPasswordProps) => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
-  if (email) {
+  let linkHref: string;
+  if (email && isEmailValid(email)) {
     params.set('email', email);
+    linkHref = `/signin?${params}`;
+  } else {
+    linkHref = params.size > 0 ? `/?${params}` : '/';
   }
-  const linkHref = `${
-    forceAuth ? '/force_auth' : '/signin'
-  }?${params.toString()}`;
 
   return (
-    <div className="text-sm mt-6">
-      <FtlMsg id="remember-pw-link">
-        {/* TODO: use Link component once signin is Reactified */}
-        <a href={linkHref} className="link-blue text-sm" id="remember-password">
-          Remember your password? Sign in
+    <div className="flex flex-wrap gap-2 justify-center text-sm mt-6">
+      <FtlMsg id="remember-password-text">
+        <p>Remember your password?</p>
+      </FtlMsg>
+      <FtlMsg id="remember-password-signin-link">
+        {/* TODO in FXA-8636 replace with Link component */}
+        <a href={linkHref} className="link-blue" id="remember-password">
+          Sign in
         </a>
       </FtlMsg>
     </div>

@@ -237,7 +237,7 @@ const AccountRecoveryConfirmKey = ({
         warningMessageFtlId="account-recovery-confirm-key-warning-message"
         warningType="Note:"
       >
-        If you reset your password and don't have account recovery key saved,
+        If you reset your password and don’t have account recovery key saved,
         some of your data will be erased (including synced server data like
         history and bookmarks).
       </WarningMessage>

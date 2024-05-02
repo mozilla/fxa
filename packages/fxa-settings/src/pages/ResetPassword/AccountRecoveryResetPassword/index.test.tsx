@@ -201,13 +201,13 @@ describe('AccountRecoveryResetPassword page', () => {
       const heading = await screen.findByRole('heading', {
         name: 'Create new password',
       });
-      screen.getByLabelText('New password');
-      screen.getByLabelText('Re-enter password');
-
-      screen.getByRole('button', { name: 'Reset password' });
-      screen.getByRole('link', {
-        name: 'Remember your password? Sign in',
-      });
+      expect(screen.getByLabelText('New password')).toBeVisible();
+      expect(screen.getByLabelText('Re-enter password')).toBeVisible();
+      expect(
+        screen.getByRole('button', { name: 'Reset password' })
+      ).toBeVisible();
+      expect(screen.getByText('Remember your password?')).toBeVisible();
+      expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
 
       expect(heading).toBeDefined();
     });

@@ -700,8 +700,10 @@ module.exports = function (
         statsd.increment('otp.passwordForgot.verified');
 
         return {
-          token: passwordForgotToken.data,
           code: passwordForgotToken.passCode,
+          emailToHashWith: passwordForgotToken.email,
+          token: passwordForgotToken.data,
+          uid: passwordForgotToken.uid,
         };
       },
     },

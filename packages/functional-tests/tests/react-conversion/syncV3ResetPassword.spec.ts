@@ -9,10 +9,13 @@ import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
-      test.slow();
-      // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+      test.fixme(
+        config.featureFlags.resetPasswordWithCode === true,
+        'see FXA-9612'
+      );
+      test.slow();
     });
 
     test('reset pw for sync user', async ({

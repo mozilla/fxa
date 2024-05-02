@@ -31,6 +31,7 @@ export enum EmailType {
   newDeviceLogin,
   passwordChanged,
   passwordChangeRequired,
+  passwordForgotOtp,
   passwordReset,
   passwordResetAccountRecovery,
   passwordResetRequired,
@@ -71,6 +72,7 @@ export enum EmailHeader {
   link = 'x-link',
   templateName = 'x-template-name',
   templateVersion = 'x-template-version',
+  resetPasswordCode = 'x-password-forgot-otp',
 }
 
 export class EmailClient {

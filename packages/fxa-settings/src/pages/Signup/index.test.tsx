@@ -330,7 +330,7 @@ describe('Signup page', () => {
         expect(GleanMetrics.registration.submit).toHaveBeenCalledTimes(1);
         expect(GleanMetrics.registration.success).not.toHaveBeenCalled();
         expect(mockNavigate).toHaveBeenCalledWith(
-          '/cannot_create_account?email=johndope%40example.com'
+          `/cannot_create_account?email=${encodeURIComponent(MOCK_EMAIL)}`
         );
         expect(mockBeginSignupHandler).not.toBeCalled();
       });

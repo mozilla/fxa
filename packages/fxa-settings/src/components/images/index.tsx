@@ -8,6 +8,7 @@ import { ReactComponent as SecurityShield } from './graphic_security_shield.svg'
 import { ReactComponent as Key } from './graphic_key.svg';
 import { ReactComponent as Lock } from './graphic_lock.svg';
 import { ReactComponent as Lightbulb } from './graphic_lightbulb.svg';
+import { ReactComponent as EmailCode } from './graphic_email_code.svg';
 
 import { FtlMsg } from 'fxa-react/lib/utils';
 
@@ -140,6 +141,15 @@ export const LightbulbImage = ({ className, ariaHidden }: ImageProps) => (
     ariaLabel="Illustration to represent creating a storage hint."
     ariaLabelFtlId="lightbulb-aria-label"
     Image={Lightbulb}
+    {...{ className, ariaHidden }}
+  />
+);
+
+export const EmailCodeImage = ({ className, ariaHidden }: ImageProps) => (
+  <PreparedImage
+    ariaLabel="Illustration to represent an email containing a code."
+    ariaLabelFtlId="email-code-image-aria-label"
+    Image={EmailCode}
     {...{ className, ariaHidden }}
   />
 );

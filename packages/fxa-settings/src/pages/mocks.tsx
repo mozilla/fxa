@@ -64,3 +64,4 @@ export function mockLoadingSpinnerModule() {
     return <div>loading spinner mock</div>;
   });
 }
+export const MOCK_RECOVERY_KEY = 'ARJDF300TFEPRJ7SFYB8QVNVYT60WWS2';

@@ -160,9 +160,21 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password via settings works', async ({
       target,
-      pages: { page, login, settings, changePassword, resetPasswordReact },
+      pages: {
+        configPage,
+        page,
+        login,
+        settings,
+        changePassword,
+        resetPasswordReact,
+      },
       testAccountTracker,
     }) => {
+      const config = await configPage.getConfig();
+      test.fixme(
+        config.featureFlags.resetPasswordWithCode === true,
+        'see FXA-9612'
+      );
       test.slow();
 
       await signInAccount(target, page, login, testAccountTracker);

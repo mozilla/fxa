@@ -22,3 +22,5 @@ lock-image-aria-label =
   .aria-label = An illustration of a lock
 lightbulb-aria-label =
   .aria-label = Illustration to represent creating a storage hint.
+email-code-image-aria-label =
+  .aria-label = Illustration to represent an email containing a code.

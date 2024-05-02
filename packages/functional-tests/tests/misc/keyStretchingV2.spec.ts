@@ -15,6 +15,7 @@ import { SignupReactPage } from '../../pages/signupReact';
 import { TotpPage } from '../../pages/settings/totp';
 import { getCode } from 'fxa-settings/src/lib/totp';
 import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
+import { ConfigPage } from '../../pages/config';
 
 // Disable this check for these tests. We are holding assertion in shared functions due
 // to how test permutations work, and these setup falsely trips this rule.
@@ -47,6 +48,7 @@ test.describe('key-stretching-v2', () => {
       recoveryKey: RecoveryKeyPage;
       totp: TotpPage;
       deleteAccount: DeleteAccountPage;
+      configPage: ConfigPage;
     };
 
     // Helpers

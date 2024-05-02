@@ -132,8 +132,7 @@ describe('ConfirmResetPassword page', () => {
 
   it('renders a "Remember your password?" link', () => {
     renderWithHistory(<ConfirmResetPasswordWithWebIntegration />);
-    expect(
-      screen.getByRole('link', { name: 'Remember your password? Sign in' })
-    ).toBeInTheDocument();
+    expect(screen.getByText('Remember your password?')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Sign in' })).toBeVisible();
   });
 });
