@@ -1,0 +1,28 @@
+{
+  "name": "incremental-encoder",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/vendored/incremental-encoder/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/vendored/incremental-encoder",
+        "tsConfig": "libs/vendored/incremental-encoder/tsconfig.lib.json",
+        "packageJson": "libs/vendored/incremental-encoder/package.json",
+        "main": "libs/vendored/incremental-encoder/src/index.ts",
+        "assets": ["libs/vendored/incremental-encoder/*.md"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/vendored/incremental-encoder/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}
