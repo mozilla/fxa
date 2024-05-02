@@ -25,7 +25,7 @@
     "convict-format-with-validator": "^6.2.0",
     "express": "^4.19.2",
     "fxa-jwtool": "^0.7.2",
-    "ioredis": "^5.0.6",
+    "ioredis": "^5.4.1",
     "morgan": "^1.10.0",
     "node-rsa": "1.1.1",
     "request": "^2.88.2"
