@@ -37562,7 +37562,7 @@ fsevents@~2.1.1:
     superagent: ^8.1.2
     through: 2.3.8
     tsc-alias: ^1.8.8
-    type-fest: ^4.12.0
+    type-fest: ^4.18.1
     typedi: ^0.8.0
     typesafe-node-firestore: ^1.4.1
     typescript: ^5.4.2
@@ -38312,7 +38312,7 @@ fsevents@~2.1.1:
     tailwindcss: ^3.4.1
     terser-webpack-plugin: ^5.2.5
     ts-jest: ^29.1.2
-    type-fest: ^4.12.0
+    type-fest: ^4.18.1
     typescript: ^5.4.2
     ua-parser-js: 1.0.35
     uuid: ^9.0.0
@@ -63355,10 +63355,10 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"type-fest@npm:^4.12.0":
-  version: 4.12.0
-  resolution: "type-fest@npm:4.12.0"
-  checksum: 3731d4c7a690462d7f2280b33231d0ee720c7b01d68aff0433ab41ef9cb4fe38717f28c8c59bad7c3514362892f0cf9cdd59609a829f7a8df09db5d1218caac1
+"type-fest@npm:^4.18.1":
+  version: 4.18.1
+  resolution: "type-fest@npm:4.18.1"
+  checksum: 7aec1907b289540093e93fced3a6d7f2ab743c2cdf7e58702e41b3095a06e5aa7abdf48881370053f9aac1b688e6d144bf89a107a3749ea9bb9e14b2af13d1a2
   languageName: node
   linkType: hard
 
