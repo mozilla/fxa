@@ -95,7 +95,7 @@
     "fxa-jwtool": "^0.7.2",
     "fxa-shared": "workspace:*",
     "google-auth-library": "^9.8.0",
-    "googleapis": "^134.0.0",
+    "googleapis": "^135.1.0",
     "hapi-auth-jwt2": "^10.4.0",
     "hapi-error": "^3.0.0",
     "hapi-swagger": "^17.2.1",
