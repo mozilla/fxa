@@ -121,7 +121,6 @@
     "otplib": "^11.0.1",
     "p-queue": "^8.0.1",
     "p-retry": "^4.2.0",
-    "pem-jwk": "^2.0.0",
     "poolee": "^1.0.1",
     "punycode.js": "2.3.0",
     "qrcode": "^1.5.1",

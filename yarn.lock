@@ -22201,13 +22201,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pem-jwk@npm:^2":
-  version: 2.0.0
-  resolution: "@types/pem-jwk@npm:2.0.0"
-  checksum: f5e61eedef37937c55ccd9ec891af041b26c8a9ef6342a0b7fa62a3938aa0dc9f1f62005e4b868189ed1cf572aa2c3279c4af1f224005cb00b7d7b72d20fde56
-  languageName: node
-  linkType: hard
-
 "@types/pg-pool@npm:2.0.4":
   version: 2.0.4
   resolution: "@types/pg-pool@npm:2.0.4"
@@ -25299,7 +25292,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"asn1.js@npm:^5.0.1, asn1.js@npm:^5.3.0":
+"asn1.js@npm:^5.3.0":
   version: 5.4.1
   resolution: "asn1.js@npm:5.4.1"
   dependencies:
@@ -37355,7 +37348,6 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.2
     "@types/convict": ^6.1.1
     "@types/node": ^20.11.1
-    "@types/pem-jwk": ^2
     "@types/supertest": ^2.0.11
     "@types/yargs": ^17.0.0
     audit-filter: ^0.5.0
@@ -37376,7 +37368,6 @@ fsevents@~2.1.1:
     hot-shots: ^10.0.0
     jest: 29.3.1
     knex: ^3.1.0
-    pem-jwk: ^2.0.0
     pm2: ^5.3.0
     rimraf: ^5.0.0
     stripe: ^11.12.0
@@ -37540,7 +37531,6 @@ fsevents@~2.1.1:
     otplib: ^11.0.1
     p-queue: ^8.0.1
     p-retry: ^4.2.0
-    pem-jwk: ^2.0.0
     pm2: ^5.3.0
     poolee: ^1.0.1
     prettier: ^2.3.1
@@ -52732,17 +52722,6 @@ fsevents@~2.1.1:
   bin:
     pem-jwk: ./bin/pem-jwk.js
   checksum: 8a7a0192d5935c56f1a13b7c4c432bef5e9d609b9160a278e25678412ca6649ea8636274ec4d4269717f420b22076a79ce78a8a0d6ab1779b7d28913e2d15b05
-  languageName: node
-  linkType: hard
-
-"pem-jwk@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "pem-jwk@npm:2.0.0"
-  dependencies:
-    asn1.js: ^5.0.1
-  bin:
-    pem-jwk: ./bin/pem-jwk.js
-  checksum: 63516b8ba44989bd68d1c7f8ee97ba1d965d0b63ef560ba784f1a19f88ee1f89b4bf7fcc9e5dc8f44dd0374acf874be0bf44c8cbcfe09dac11fd21137224b16d
   languageName: node
   linkType: hard
 

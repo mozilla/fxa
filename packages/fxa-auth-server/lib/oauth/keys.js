@@ -4,7 +4,7 @@
 
 const assert = require('assert');
 const { config } = require('../../config');
-const { jwk2pem, pem2jwk } = require('pem-jwk');
+const { jwk2pem, pem2jwk } = require('@fxa/shared/pem-jwk');
 const crypto = require('crypto');
 const Joi = require('joi');
 
