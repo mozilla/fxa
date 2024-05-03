@@ -59,7 +59,7 @@
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.22.9",
     "@babel/preset-react": "^7.24.1",
-    "@babel/preset-typescript": "^7.23.2",
+    "@babel/preset-typescript": "^7.24.1",
     "@fluent/bundle": "^0.18.0",
     "@fluent/langneg": "^0.7.0",
     "@rescripts/cli": "~0.0.16",
