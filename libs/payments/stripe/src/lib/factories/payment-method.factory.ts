@@ -31,6 +31,7 @@ export const StripePaymentMethodFactory = (
       cvc_check: 'unchecked',
     },
     country: faker.location.countryCode(),
+    display_brand: 'visa',
     exp_month: faker.date.future().getUTCMonth(),
     exp_year: faker.date.future().getUTCFullYear(),
     fingerprint: faker.string.uuid(),

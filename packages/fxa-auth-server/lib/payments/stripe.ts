@@ -201,7 +201,7 @@ export class StripeHelper extends StripeHelperBase {
       : undefined;
 
     this.stripe = new Stripe(config.subscriptions.stripeApiKey, {
-      apiVersion: '2022-11-15',
+      apiVersion: '2024-04-10',
       maxNetworkRetries: 3,
     });
 
@@ -588,7 +588,7 @@ export class StripeHelper extends StripeHelperBase {
       throw error.subscriptionAlreadyExists();
     } else if (sub && sub.status === 'incomplete') {
       // Sub has never been active or charged, delete it.
-      this.stripe.subscriptions.del(sub.id);
+      this.stripe.subscriptions.cancel(sub.id);
     }
 
     this.statsd.increment('stripe_subscription', {
@@ -1563,7 +1563,7 @@ export class StripeHelper extends StripeHelperBase {
   async cancelSubscription(
     subscriptionId: string
   ): Promise<Stripe.Subscription> {
-    return this.stripe.subscriptions.del(subscriptionId);
+    return this.stripe.subscriptions.cancel(subscriptionId);
   }
 
   /**

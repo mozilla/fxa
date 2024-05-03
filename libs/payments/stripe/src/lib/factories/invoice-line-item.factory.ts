@@ -16,7 +16,8 @@ export const StripeInvoiceLineItemFactory = (
   description: null,
   discount_amounts: null,
   discountable: true,
-  discounts: null,
+  discounts: [],
+  invoice: null,
   livemode: false,
   metadata: {},
   period: {

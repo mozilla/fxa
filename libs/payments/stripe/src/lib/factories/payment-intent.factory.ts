@@ -38,6 +38,7 @@ export const StripePaymentIntentFactory = (
   next_action: null,
   on_behalf_of: null,
   payment_method: null,
+  payment_method_configuration_details: null,
   payment_method_options: {
     card: {
       installments: null,

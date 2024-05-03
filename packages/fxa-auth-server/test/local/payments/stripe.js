@@ -147,7 +147,7 @@ const mockConfig = {
   },
   currenciesToCountries: { ZAR: ['AS', 'CA'] },
   contentful: {
-    enabled: false
+    enabled: false,
   },
 };
 
@@ -1294,7 +1294,7 @@ describe('#integration - StripeHelper', () => {
       sandbox
         .stub(stripeHelper, 'findCustomerSubscriptionByPlanId')
         .returns(collectionSubscription);
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'del').resolves({});
+      sandbox.stub(stripeHelper.stripe.subscriptions, 'cancel').resolves({});
       sandbox
         .stub(stripeHelper.stripe.subscriptions, 'create')
         .resolves(subscription1);
@@ -1309,7 +1309,7 @@ describe('#integration - StripeHelper', () => {
 
       assert.deepEqual(actual, subscription1);
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.del,
+        stripeHelper.stripe.subscriptions.cancel,
         collectionSubscription.id
       );
       sinon.assert.calledWithExactly(
@@ -2974,10 +2974,10 @@ describe('#integration - StripeHelper', () => {
 
   describe('cancelSubscription', () => {
     it('sets subscription to cancelled', async () => {
-      sandbox.stub(stripeHelper.stripe.subscriptions, 'del').resolves({});
+      sandbox.stub(stripeHelper.stripe.subscriptions, 'cancel').resolves({});
       await stripeHelper.cancelSubscription('subscriptionId');
       sinon.assert.calledOnceWithExactly(
-        stripeHelper.stripe.subscriptions.del,
+        stripeHelper.stripe.subscriptions.cancel,
         'subscriptionId'
       );
     });
@@ -3472,8 +3472,8 @@ describe('#integration - StripeHelper', () => {
 
       // set sandbox and spies
       sandbox
-      .stub(stripeHelper.stripe.plans, 'list')
-      .returns(asyncIterable([plan1, plan2, plan3]));
+        .stub(stripeHelper.stripe.plans, 'list')
+        .returns(asyncIterable([plan1, plan2, plan3]));
       sandbox.spy(stripeHelper, 'allPlans');
       sandbox.spy(stripeHelper, 'allConfiguredPlans');
 
