@@ -3,14 +3,81 @@
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "apps/accounts/next",
   "projectType": "application",
-  "tags": [],
   "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/accounts/next",
+        "postcssConfig": "apps/accounts/next/postcss.config.js"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/accounts/next"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "accounts-next:build",
+        "dev": true,
+        "port": 3333,
+        "postcssConfig": "apps/accounts/next/postcss.config.js"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "accounts-next:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "accounts-next:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "accounts-next:build:production"
+      }
+    },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/accounts/next/jest.config.ts"
+        "jestConfig": "apps/accounts/next/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
       }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/accounts/next/**/*.{ts,tsx,js,jsx}"]
+      }
+    },
+    "start": {
+      "command": "pm2 start apps/accounts/next/pm2.config.js"
+    },
+    "stop": {
+      "command": "pm2 stop apps/accounts/next/pm2.config.js"
+    },
+    "restart": {
+      "command": "pm2 restart apps/accounts/next/pm2.config.js"
+    },
+    "delete": {
+      "command": "pm2 delete apps/accounts/next/pm2.config.js"
     }
-  }
+  },
+  "tags": []
 }
