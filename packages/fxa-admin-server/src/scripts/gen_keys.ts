@@ -20,14 +20,16 @@
    keypair.
 */
 
-import fs from 'fs';
-import cp from 'child_process';
 import assert from 'assert';
+import cp from 'child_process';
 import crypto from 'crypto';
-import { Extras, JWK, pem2jwk } from 'pem-jwk';
+import fs from 'fs';
+
+import { pem2jwk } from '@fxa/shared/pem-jwk';
 
 import Config from '../config';
 
+import type { JsonWebKey } from 'crypto';
 const pubKeyFile = Config.get('publicKeyFile');
 const secretKeyFile = Config.get('secretKeyFile');
 
@@ -45,15 +47,15 @@ try {
 //    kid: "2017-03-16-ebe69008de771d62cd1cadf9faa6daae"
 //    "fxa-createdAt": 1489716000,
 //  }
-export type FxaJwkKey = JWK<Extras> & { 'fxa-createdAt'?: number };
+export type FxaJwkKey = JsonWebKey & { 'fxa-createdAt'?: number };
 
 function addKeyProperties(key: FxaJwkKey): FxaJwkKey {
   const now = new Date();
   key.kty = 'RSA';
   key.kid = `${now.toISOString().slice(0, 10)}-${crypto
     .createHash('sha256')
-    .update(key.n)
-    .update(key.e)
+    .update(key.n ?? '')
+    .update(key.e ?? '')
     .digest('hex')
     .slice(0, 32)}`;
   // Timestamp to nearest hour; consumers don't need to know the precise time.

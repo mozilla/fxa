@@ -51,7 +51,6 @@
     "helmet": "^7.1.0",
     "hot-shots": "^10.0.0",
     "knex": "^3.1.0",
-    "pem-jwk": "^2.0.0",
     "rimraf": "^5.0.0",
     "ts-morph": "^22.0.0",
     "tslib": "^2.6.2"
@@ -61,7 +60,6 @@
     "@types/chance": "^1.1.2",
     "@types/convict": "^6.1.1",
     "@types/node": "^20.11.1",
-    "@types/pem-jwk": "^2",
     "@types/supertest": "^2.0.11",
     "@types/yargs": "^17.0.0",
     "audit-filter": "^0.5.0",

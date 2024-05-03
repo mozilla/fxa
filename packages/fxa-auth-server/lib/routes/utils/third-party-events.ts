@@ -2,10 +2,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import jwt from 'jsonwebtoken';
-import { jwk2pem } from 'pem-jwk';
 import axios from 'axios';
 import { Provider, PROVIDER } from 'fxa-shared/db/models/auth/linked-account';
+import jwt from 'jsonwebtoken';
+
+import { jwk2pem } from '@fxa/shared/pem-jwk';
 
 const RISC_CONFIG_URI =
   'https://accounts.google.com/.well-known/risc-configuration';

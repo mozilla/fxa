@@ -1,0 +1,28 @@
+{
+  "name": "pem-jwk",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/shared/pem-jwk/src",
+  "projectType": "library",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/shared/pem-jwk",
+        "tsConfig": "libs/shared/pem-jwk/tsconfig.lib.json",
+        "packageJson": "libs/shared/pem-jwk/package.json",
+        "main": "libs/shared/pem-jwk/src/index.ts",
+        "assets": ["libs/shared/pem-jwk/*.md"]
+      }
+    },
+    "test-unit": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/shared/pem-jwk/jest.config.ts",
+        "testPathPattern": ["^(?!.*\\.in\\.spec\\.ts$).*$"]
+      }
+    }
+  }
+}

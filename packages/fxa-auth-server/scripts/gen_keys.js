@@ -26,7 +26,7 @@ const fs = require('fs');
 const cp = require('child_process');
 const assert = require('assert');
 const crypto = require('crypto');
-const { pem2jwk } = require('pem-jwk');
+const { pem2jwk } = require('@fxa/shared/pem-jwk');
 
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = 'dev';
