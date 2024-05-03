@@ -22460,6 +22460,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-dom@npm:18.2.14":
+  version: 18.2.14
+  resolution: "@types/react-dom@npm:18.2.14"
+  dependencies:
+    "@types/react": "*"
+  checksum: 890289c70d1966c168037637c09cacefe6205bdd27a33252144a6b432595a2943775ac1a1accac0beddaeb67f8fdf721e076acb1adc990b08e51c3d9fd4e780c
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:>=16.9.0":
   version: 17.0.9
   resolution: "@types/react-dom@npm:17.0.9"
@@ -22469,7 +22478,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18, @types/react-dom@npm:^18.0.0":
+"@types/react-dom@npm:^18.0.0":
   version: 18.2.7
   resolution: "@types/react-dom@npm:18.2.7"
   dependencies:
@@ -38590,8 +38599,8 @@ fsevents@~2.1.1:
     "@types/passport": ^1.0.6
     "@types/passport-http-bearer": ^1.0.36
     "@types/passport-jwt": ^4
-    "@types/react": ^18
-    "@types/react-dom": ^18
+    "@types/react": 18.2.33
+    "@types/react-dom": 18.2.14
     "@types/react-test-renderer": ^18
     "@types/set-value": ^4
     "@types/uuid": ^8.3.0
