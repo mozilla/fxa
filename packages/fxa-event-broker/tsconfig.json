@@ -1,13 +1,15 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "allowJs": true,
     "outDir": "./dist",
     "module": "commonjs",
     "declaration": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noEmitHelpers": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "types": ["jest"]
   },
   "include": ["src"]
 }

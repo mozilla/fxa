@@ -1,7 +1,10 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "baseUrl": "."
+    "paths": {
+      "@fxa/shared/pem-jwk": ["libs/shared/pem-jwk/src/index"],
+      "@fxa/vendored/jwtool": ["libs/vendored/jwtool/src/index"]
+    }
   },
   "exclude": ["node_modules", "test", "dist", "**/*spec.ts"]
 }

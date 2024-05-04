@@ -78,6 +78,7 @@
     "@swc/helpers": "~0.5.2",
     "@type-cacheable/core": "^14.0.1",
     "@type-cacheable/ioredis-adapter": "^10.0.4",
+    "bn.js": "^5.2.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "diffparser": "^2.0.1",
@@ -89,6 +90,7 @@
     "knex": "^3.1.0",
     "kysely": "^0.27.2",
     "lint-staged": "^15.2.0",
+    "module-alias": "^2.2.3",
     "mysql": "^2.18.1",
     "mysql2": "^3.9.7",
     "nest-typed-config": "^2.9.2",
@@ -176,7 +178,9 @@
     "@swc/core": "~1.4.6",
     "@testing-library/react": "^15.0.2",
     "@types/babel__core": "^7",
+    "@types/bn.js": "^5",
     "@types/jest": "^29.5.1",
+    "@types/module-alias": "^2",
     "@types/mysql": "^2",
     "@types/node": "^20.11.1",
     "@types/passport": "^1.0.6",
@@ -257,5 +261,9 @@
     "terser:>5 <6": ">=5.14.2",
     "underscore": ">=1.13.2"
   },
-  "packageManager": "yarn@3.3.0"
+  "packageManager": "yarn@3.3.0",
+  "_moduleAliases": {
+    "@fxa/vendored/jwtool": "./dist/libs/vendored/jwtool/src/index.js",
+    "@fxa/shared/pem-jwk": "./dist/libs/shared/pem-jwk/src/index.js"
+  }
 }

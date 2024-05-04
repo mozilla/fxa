@@ -4,11 +4,12 @@
 
 'use strict';
 
-const jwtool = require('fxa-jwtool');
+const BN = require('bn.js');
+
 const MISC_DOCS = require('../../docs/swagger/misc-api').default;
 
 function b64toDec(str) {
-  const n = new jwtool.BN(Buffer.from(str, 'base64'));
+  const n = new BN(Buffer.from(str, 'base64'));
   return n.toString(10);
 }
 
