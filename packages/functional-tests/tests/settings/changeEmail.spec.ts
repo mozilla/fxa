@@ -2,9 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 import { SettingsPage } from '../../pages/settings';
 import { ChangePasswordPage } from '../../pages/settings/changePassword';
+import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 import { SecondaryEmailPage } from '../../pages/settings/secondaryEmail';
 
 test.describe('severity-1 #smoke', () => {
@@ -14,15 +18,22 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('change primary email and login', async ({
-      credentials,
-      page,
-      pages: { login, settings, secondaryEmail },
+      target,
+      pages: { page, login, settings, secondaryEmail },
+      testAccountTracker,
     }) => {
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const newEmail = testAccountTracker.generateEmail();
+
       await settings.goto();
 
-      const oldEmail = credentials.email;
-      const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
       await changePrimaryEmail(settings, secondaryEmail, newEmail);
+      const oldEmail = credentials.email;
       credentials.email = newEmail;
 
       await settings.signOut();
@@ -45,19 +56,31 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('change primary email, password and login', async ({
-      credentials,
-      page,
-      pages: { settings, changePassword, login, secondaryEmail },
+      target,
+      pages: { page, settings, changePassword, login, secondaryEmail },
+      testAccountTracker,
     }) => {
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const newEmail = testAccountTracker.generateEmail();
+      const newPassword = testAccountTracker.generatePassword();
+
       await settings.goto();
 
-      const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
       await changePrimaryEmail(settings, secondaryEmail, newEmail);
       credentials.email = newEmail;
 
+      await setNewPassword(
+        settings,
+        changePassword,
+        credentials.password,
+        newPassword
+      );
       const oldPassword = credentials.password;
-      const newPassword = credentials.password + '@@2';
-      await setNewPassword(settings, changePassword, oldPassword, newPassword);
       credentials.password = newPassword;
 
       await settings.signOut();
@@ -78,19 +101,31 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('change primary email, change password, login, change email and login', async ({
-      credentials,
-      pages: { settings, changePassword, login, secondaryEmail },
+      target,
+      pages: { page, settings, changePassword, login, secondaryEmail },
+      testAccountTracker,
     }) => {
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const newEmail = testAccountTracker.generateEmail();
+      const newPassword = testAccountTracker.generatePassword();
+
       await settings.goto();
 
-      const oldEmail = credentials.email;
-      const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
       await changePrimaryEmail(settings, secondaryEmail, newEmail);
+      const oldEmail = credentials.email;
       credentials.email = newEmail;
 
-      const oldPassword = credentials.password;
-      const newPassword = credentials.password + '@@4';
-      await setNewPassword(settings, changePassword, oldPassword, newPassword);
+      await setNewPassword(
+        settings,
+        changePassword,
+        credentials.password,
+        newPassword
+      );
       credentials.password = newPassword;
 
       await settings.signOut();
@@ -110,8 +145,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('can change primary email, delete account', async ({
-      credentials,
-      pages: { configPage, deleteAccount, login, settings, secondaryEmail },
+      target,
+      pages: {
+        page,
+        configPage,
+        deleteAccount,
+        login,
+        settings,
+        secondaryEmail,
+      },
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       // NOTE: This passes for React when `fullProdRollout` for React Signup is set
@@ -120,9 +163,16 @@ test.describe('severity-1 #smoke', () => {
       // for React, for now, skip these tests if the flag is on.
       test.skip(config.showReactApp.signUpRoutes === true);
 
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const newEmail = testAccountTracker.generateEmail();
+
       await settings.goto();
 
-      const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
       await changePrimaryEmail(settings, secondaryEmail, newEmail);
       credentials.email = newEmail;
 
@@ -145,14 +195,15 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('removing secondary emails', async ({
-      credentials,
-      pages: { settings, secondaryEmail },
-    }, { project }) => {
-      test.slow(project.name !== 'local', 'email delivery can be slow');
+      target,
+      pages: { page, login, settings, secondaryEmail },
+      testAccountTracker,
+    }) => {
+      await signInAccount(target, page, login, testAccountTracker);
+      const newEmail = testAccountTracker.generateEmail();
 
       await settings.goto();
       await settings.secondaryEmail.addButton.click();
-      const newEmail = credentials.email.replace(/(\w+)/, '$1_alt');
       await secondaryEmail.addSecondaryEmail(newEmail);
 
       await expect(settings.alertBar).toHaveText(/successfully added/);
@@ -180,26 +231,28 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('change primary - unblock', () => {
-    test.beforeEach(
-      async ({ credentials, pages: { settings, secondaryEmail } }) => {
-        test.slow();
-        await settings.goto();
-
-        const newEmail = `blocked${Math.floor(
-          Math.random() * 100000
-        )}@restmail.net`;
-        await changePrimaryEmail(settings, secondaryEmail, newEmail);
-        credentials.email = newEmail;
-        await settings.signOut();
-      }
-    );
+    test.beforeEach(async () => {
+      test.slow();
+    });
 
     test('change primary email, get blocked with invalid password, redirect enter password page', async ({
-      credentials,
-      page,
-      pages: { login },
+      target,
+      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      testAccountTracker,
     }) => {
-      const invalidPassword = credentials.password + '@@2';
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const blockedEmail = testAccountTracker.generateBlockedEmail();
+      const invalidPassword = testAccountTracker.generatePassword();
+
+      await settings.goto();
+      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
+      credentials.email = blockedEmail;
+      await settings.signOut();
       await login.login(credentials.email, invalidPassword);
 
       // Fill out unblock
@@ -207,23 +260,61 @@ test.describe('severity-1 #smoke', () => {
 
       // Verify the incorrect password error
       await expect(page.getByText('Incorrect password')).toBeVisible();
+
+      // Delete blocked account, required before teardown
+      await login.setPassword(credentials.password);
+      await login.submit();
+      await login.unblock(credentials.email);
+      await settings.goto();
+      await removeAccount(settings, deleteAccount, page, credentials.password);
     });
 
     test('can change primary email, get blocked with valid password, redirect settings page', async ({
-      credentials,
-      page,
-      pages: { settings, login },
+      target,
+      pages: { page, settings, login, secondaryEmail, deleteAccount },
+      testAccountTracker,
     }) => {
-      await login.login(credentials.email, credentials.password);
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const blockedEmail = testAccountTracker.generateBlockedEmail();
 
+      await settings.goto();
+      await changePrimaryEmail(settings, secondaryEmail, blockedEmail);
+      credentials.email = blockedEmail;
+      await settings.signOut();
+
+      await login.login(credentials.email, credentials.password);
       // Fill out unblock
       await login.unblock(credentials.email);
 
       // Verify settings url redirected
       await expect(page).toHaveURL(settings.url);
+
+      // Delete blocked account, required before teardown
+      await removeAccount(settings, deleteAccount, page, credentials.password);
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}
 
 async function changePrimaryEmail(
   settings: SettingsPage,
@@ -251,4 +342,16 @@ async function setNewPassword(
 
   await expect(settings.settingsHeading).toBeVisible();
   await expect(settings.alertBar).toHaveText('Password updated');
+}
+
+async function removeAccount(
+  settings: SettingsPage,
+  deleteAccount: DeleteAccountPage,
+  page: Page,
+  password: string
+) {
+  await settings.deleteAccountButton.click();
+  await deleteAccount.deleteAccount(password);
+
+  await expect(page.getByText('Account deleted successfully')).toBeVisible();
 }

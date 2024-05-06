@@ -2,13 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { Page, expect, test } from '../../lib/fixtures/standard';
 import { syncMobileOAuthQueryParams } from '../../lib/query-params';
-import { LoginPage } from '../../pages/login';
-import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 import { BaseTarget } from '../../lib/targets/base';
-import { Page } from '@playwright/test';
+import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
+import { LoginPage } from '../../pages/login';
 
 const SERVICE_NAME_123 = '123';
 const SERVICE_NAME_FIREFOX = 'Firefox';
@@ -16,18 +15,20 @@ const SERVICE_NAME_FIREFOX = 'Firefox';
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth reset password react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
-      test.slow();
-
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+      test.slow();
     });
 
     test('reset password', async ({
       target,
       page,
-      credentials,
       pages: { login, relier, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       // Make sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto('showReactApp=true');
 
@@ -47,8 +48,9 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
 
-      await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await page.goto(link);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -57,6 +59,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
+      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
+      page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
@@ -65,9 +69,12 @@ test.describe('severity-1 #smoke', () => {
     test('reset password through Sync mobile', async ({
       target,
       page,
-      credentials,
       pages: { login, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       await page.goto(
         `${
           target.contentServerUrl
@@ -88,8 +95,9 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
 
-      await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await page.goto(link);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -98,6 +106,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
+      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
+      page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_FIREFOX}.*`, 'i'))
       ).toBeVisible();
@@ -106,9 +116,12 @@ test.describe('severity-1 #smoke', () => {
     test('reset password different tab', async ({
       target,
       page,
-      credentials,
       pages: { login, relier, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       // Make sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto('showReactApp=true');
 
@@ -131,8 +144,9 @@ test.describe('severity-1 #smoke', () => {
       // Clearing session state simulates a 'new' tab, and changes the navigation at the end of the flow.
       await page.evaluate(() => window.sessionStorage.clear());
 
-      await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await page.goto(link);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -141,6 +155,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
+      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
+      page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
@@ -149,9 +165,12 @@ test.describe('severity-1 #smoke', () => {
     test('reset password scoped keys', async ({
       target,
       page,
-      credentials,
       pages: { login, relier, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       // Make sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto('showReactApp=true');
 
@@ -171,8 +190,9 @@ test.describe('severity-1 #smoke', () => {
         credentials.email
       );
 
-      await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await page.goto(link);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -181,6 +201,8 @@ test.describe('severity-1 #smoke', () => {
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
+      // TODO FXA-9015 we must 'refresh' the page so that the 'showReactApp' param takes effect
+      page.reload();
       await expect(
         page.getByText(new RegExp(`.*${SERVICE_NAME_123}.*`, 'i'))
       ).toBeVisible();
@@ -189,13 +211,16 @@ test.describe('severity-1 #smoke', () => {
     test('reset password with PKCE different tab', async ({
       target,
       page,
-      credentials,
       pages: { login, resetPasswordReact },
+      testAccountTracker,
     }) => {
       test.fixme(true, 'Fix required as of 2023/07/18 (see FXA-8006).');
       // the PKCE button is broken at the moment, so for now navigate directly to the link.
       // PKCE button doesn't appear to work at the moment locally. Some sort of cors error
       // keeps getting in the way. Just go to link directly for now.
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       await page.goto(
         `http://localhost:3030/authorization?showReactApp=true` +
           `&access_type=offline` +
@@ -225,7 +250,8 @@ test.describe('severity-1 #smoke', () => {
       await page.evaluate(() => window.sessionStorage.clear());
 
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -241,17 +267,31 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password with account recovery key', async ({
       target,
-      credentials,
-      page,
-      pages: { login, resetPasswordReact, relier, settings, recoveryKey },
+      pages: {
+        page,
+        login,
+        signinReact,
+        resetPasswordReact,
+        relier,
+        settings,
+        recoveryKey,
+      },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
+
       // Goes to settings and enables the account recovery key on user's account.
-      await settings.goto();
       await settings.recoveryKey.createButton.click();
       const accountRecoveryKey = await recoveryKey.createRecoveryKey(
         credentials.password,
         'hint'
       );
+      await settings.signOut();
 
       // Make sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto('showReactApp=true');
@@ -273,9 +313,9 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await page.goto(link, { waitUntil: 'load' });
-      await login.setRecoveryKey(accountRecoveryKey);
-      await login.submit();
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await resetPasswordReact.fillOutRecoveryKeyForm(accountRecoveryKey);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now
@@ -292,15 +332,29 @@ test.describe('severity-1 #smoke', () => {
 
     test('reset password with valid totp', async ({
       target,
-      credentials,
-      page,
-      pages: { login, resetPasswordReact, relier, totp, settings },
+      pages: {
+        page,
+        login,
+        signinReact,
+        resetPasswordReact,
+        relier,
+        totp,
+        settings,
+      },
+      testAccountTracker,
     }) => {
+      test.fixme(true, 'Fix required as of 2024/04/25 FXA-9513');
+
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
       // Goes to settings and enables totp on user's account.
-      await settings.goto();
       await settings.totp.addButton.click();
-      const { secret } = await totp.fillOutTotpForms();
-      credentials.secret = secret;
+      await totp.fillOutTotpForms();
+      await settings.signOut();
 
       // Makes sure user is not signed in, and goes to the relier (ie 123done)
       await relier.goto('showReactApp=true');
@@ -321,7 +375,8 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await page.goto(link, { waitUntil: 'load' });
-      await resetPasswordReact.fillOutNewPasswordForm(credentials.password);
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      credentials.password = newPassword;
 
       // Note: We used to redirect the user back to the relier in some cases
       // but we've decided to just show the success message for now

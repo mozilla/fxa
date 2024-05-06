@@ -18,14 +18,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with a registered email, no uid', async ({
-      credentials,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
         connectAnotherDevice,
         signinTokenCode,
       },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUpSync();
+
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid: undefined,
       });
@@ -41,14 +43,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with a registered email, registered uid', async ({
-      credentials,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
         connectAnotherDevice,
         signinTokenCode,
       },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUpSync();
+
       await fxDesktopV3ForceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();
@@ -62,14 +66,15 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with a registered email, unregistered uid', async ({
-      credentials,
       syncBrowserPages: {
         fxDesktopV3ForceAuth,
         login,
         connectAnotherDevice,
         signinTokenCode,
       },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUpSync();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
@@ -87,16 +92,19 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with an unregistered email, no uid', async ({
-      credentials,
       pages: { configPage },
       syncBrowserPages: { fxDesktopV3ForceAuth, login },
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'force_auth is no longer supported for signup with react, FXA-9410'
       );
-      const email = `sync${Math.random()}@restmail.net`;
+
+      const credentials = await testAccountTracker.signUpSync();
+      const email = testAccountTracker.generateSyncEmail();
+
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         email,
         uid: undefined,
@@ -120,16 +128,19 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with an unregistered email, registered uid', async ({
-      credentials,
       pages: { configPage },
       syncBrowserPages: { fxDesktopV3ForceAuth, login },
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'force_auth is no longer supported for signup with react, FXA-9410'
       );
-      const email = `sync${Math.random()}@restmail.net`;
+
+      const credentials = await testAccountTracker.signUpSync();
+      const email = testAccountTracker.generateSyncEmail();
+
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         email,
       });
@@ -145,16 +156,18 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('sync v3 with an unregistered email, unregistered uid', async ({
-      credentials,
       pages: { configPage },
       syncBrowserPages: { fxDesktopV3ForceAuth, login },
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'force_auth is no longer supported for signup with react, FXA-9410'
       );
-      const email = `sync${Math.random()}@restmail.net`;
+
+      const credentials = await testAccountTracker.signUpSync();
+      const email = testAccountTracker.generateSyncEmail();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         email,
@@ -172,12 +185,17 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('blocked with an registered email, unregistered uid', async ({
-      credentials,
-      syncBrowserPages,
+      syncBrowserPages: {
+        page,
+        fxDesktopV3ForceAuth,
+        login,
+        connectAnotherDevice,
+        settings,
+        deleteAccount,
+      },
+      testAccountTracker,
     }) => {
-      const { fxDesktopV3ForceAuth, login, connectAnotherDevice } =
-        syncBrowserPages;
-
+      const credentials = await testAccountTracker.signUpBlocked();
       const uid = makeUid();
       await fxDesktopV3ForceAuth.openWithReplacementParams(credentials, {
         uid,
@@ -191,6 +209,15 @@ test.describe('severity-1 #smoke', () => {
       await login.unblock(credentials.email);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
       await fxDesktopV3ForceAuth.checkWebChannelMessage('fxaccounts:login');
+
+      // Delete account, required before teardown
+      await settings.goto();
+      await settings.deleteAccountButton.click();
+      await deleteAccount.deleteAccount(credentials.password);
+
+      await expect(
+        page.getByText('Account deleted successfully')
+      ).toBeVisible();
     });
   });
 });

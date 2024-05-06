@@ -18,9 +18,11 @@ test.describe('severity-1', () => {
   });
 
   test('prompt=consent', async ({
-    credentials,
-    pages: { page, relier, login },
-  }, { project }) => {
+    pages: { relier, login },
+    testAccountTracker,
+  }) => {
+    const credentials = await testAccountTracker.signUp();
+
     await relier.goto('prompt=consent');
     await relier.clickEmailFirst();
     await login.login(credentials.email, credentials.password);

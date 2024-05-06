@@ -3,23 +3,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import {
-  expect,
-  test,
-  PASSWORD,
-  SIGNIN_EMAIL_PREFIX,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-2 #smoke', () => {
-  test.beforeEach(async () => {
-    test.slow();
-  });
-
   test.describe('Firefox desktop user info handshake', () => {
+    test.beforeEach(async () => {
+      test.slow();
+    });
+
     test('Non-Sync - no user signed into browser, no user signed in locally', async ({
       target,
       syncBrowserPages: { login, page },
@@ -58,23 +52,19 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('Sync - user signed into browser, no user signed in locally', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
+      const credentials = await testAccountTracker.signUp();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: email,
+        email: credentials.email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: email,
+          signedInUser: credentials.email,
         }
       );
       await page.goto(
@@ -84,27 +74,23 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(email);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
     });
 
     test('Non-Sync - user signed into browser, no user signed in locally', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
+      const credentials = await testAccountTracker.signUp();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: email,
+        email: credentials.email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: email,
+          signedInUser: credentials.email,
         }
       );
       await page.goto(
@@ -112,35 +98,19 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(email);
-      await login.setPassword(PASSWORD);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
+      await login.setPassword(credentials.password);
       await login.clickSubmit();
       expect(await login.isUserLoggedIn()).toBe(true);
     });
-  });
-
-  test.describe('Firefox desktop user info handshake', () => {
-    test.use({
-      emailOptions: [
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-        { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
-      ],
-    });
 
     test('Non-Sync - user signed into browser, user signed in locally', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      await Promise.all(
-        emails.map(async (email) => {
-          await target.authClient.signUp(email, PASSWORD, {
-            lang: 'en',
-            preVerified: 'true',
-          });
-        })
-      );
-      const [email, syncEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
@@ -155,7 +125,10 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        syncCredentials.email,
+        syncCredentials.password
+      );
       expect(await login.isUserLoggedIn()).toBe(true);
 
       // Then, sign in the user again, synthesizing the user having signed
@@ -163,7 +136,7 @@ test.describe('severity-2 #smoke', () => {
       const eventDetailStatusSignIn = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: email,
+          signedInUser: credentials.email,
         }
       );
       await page.goto(
@@ -172,33 +145,26 @@ test.describe('severity-2 #smoke', () => {
       await login.respondToWebChannelMessage(eventDetailStatusSignIn);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
 
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
       await login.clickSignIn();
       expect(await login.isUserLoggedIn()).toBe(true);
     });
 
     test('Sync force_auth page - user signed into browser is different to requested user', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      await Promise.all(
-        emails.map(async (email) => {
-          await target.authClient.signUp(email, PASSWORD, {
-            lang: 'en',
-            preVerified: 'true',
-          });
-        })
-      );
-      const [email, syncEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: syncEmail,
+        email: syncCredentials.email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: email,
+          signedInUser: credentials.email,
         }
       );
       await page.goto(
@@ -208,31 +174,24 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
     });
 
     test('Non-Sync force_auth page - user signed into browser is different to requested user', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      await Promise.all(
-        emails.map(async (email) => {
-          await target.authClient.signUp(email, PASSWORD, {
-            lang: 'en',
-            preVerified: 'true',
-          });
-        })
-      );
-      const [email, syncEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
-        email: syncEmail,
+        email: syncCredentials.email,
       });
       const eventDetailStatus = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
-          signedInUser: email,
+          signedInUser: credentials.email,
         }
       );
       await page.goto(
@@ -242,61 +201,56 @@ test.describe('severity-2 #smoke', () => {
       );
       await login.respondToWebChannelMessage(eventDetailStatus);
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
     });
-  });
 
-  test.describe('Firefox desktop user info handshake', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
     test('Sync - no user signed into browser, user signed in locally', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
+      const credentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
       expect(await login.isUserLoggedIn()).toBe(true);
       await page.goto(
         `${
           target.contentServerUrl
         }?context=fx_desktop_v3&service=sync&automatedBrowser=true&${query.toString()}`
       );
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
     });
 
     test('Non-Sync settings page - no user signed into browser, user signed in locally', async ({
-      emails,
       target,
       syncBrowserPages: { login, page, settings },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
+      const syncCredentials = await testAccountTracker.signUpSync();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
       await page.goto(
         `${target.contentServerUrl}?automatedBrowser=true&${query.toString()}`
       );
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        syncCredentials.email,
+        syncCredentials.password
+      );
       expect(await login.isUserLoggedIn()).toBe(true);
 
       await settings.goto();
-      await expect(settings.primaryEmail.status).toHaveText(syncEmail);
+      await expect(settings.primaryEmail.status).toHaveText(
+        syncCredentials.email
+      );
     });
   });
 });

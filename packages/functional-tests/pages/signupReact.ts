@@ -104,6 +104,7 @@ export class SignupReactPage extends BaseLayout {
       EmailType.verifyShortCode,
       EmailHeader.shortCode
     );
+    await this.target.emailClient.clear(email);
 
     await expect(this.codeFormHeading).toBeVisible();
 

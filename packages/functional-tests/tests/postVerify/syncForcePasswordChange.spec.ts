@@ -2,48 +2,34 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  expect,
-  test,
-  PASSWORD,
-  NEW_PASSWORD,
-  FORCE_PWD_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('post verify - force password change sync', () => {
-    test.use({
-      emailOptions: [
-        { prefix: FORCE_PWD_EMAIL_PREFIX, password: NEW_PASSWORD },
-      ],
-    });
     test('force change password on login - sync', async ({
-      emails,
       target,
-      syncBrowserPages,
+      syncBrowserPages: { page, login, postVerify, connectAnotherDevice },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      const { page, login, postVerify, connectAnotherDevice } =
-        syncBrowserPages;
+      const credentials = await testAccountTracker.signUpForced();
+      const newPassword = testAccountTracker.generatePassword();
+
       await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`,
-        {
-          waitUntil: 'load',
-        }
+        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-      await login.fillOutSignInCode(email);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
+      await login.fillOutSignInCode(credentials.email);
 
       //Verify force password change header
       expect(await postVerify.isForcePasswordChangeHeader()).toBe(true);
 
       //Fill out change password
-      await postVerify.fillOutChangePassword(PASSWORD, NEW_PASSWORD);
+      await postVerify.fillOutChangePassword(credentials.password, newPassword);
       await postVerify.submit();
+      credentials.password = newPassword;
 
       //Verify logged in on connect another device page
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();

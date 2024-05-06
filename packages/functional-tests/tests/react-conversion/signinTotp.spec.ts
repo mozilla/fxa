@@ -8,26 +8,29 @@ import { getCode } from 'fxa-settings/src/lib/totp';
 test.describe('severity-1 #smoke', () => {
   test.describe('two step auth', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
-      test.slow();
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signInRoutes !== true,
         'React signInRoutes not enabled'
       );
+      test.slow();
     });
 
     test('add totp', async ({
-      credentials,
       pages: { settings, totp, page, signinReact, signupReact },
+      testAccountTracker,
     }) => {
-      await settings.goto();
+      const credentials = await testAccountTracker.signUp();
+
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Not Set');
 
       await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTotpForms();
-      credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -39,26 +42,31 @@ test.describe('severity-1 #smoke', () => {
       await signinReact.goto();
       await signupReact.fillOutEmailForm(credentials.email);
       await signinReact.fillOutPasswordForm(credentials.password);
-      const code = await getCode(credentials.secret);
+      const code = await getCode(secret);
       await signinReact.fillOutAuthenticationForm(code);
 
       await expect(page).toHaveURL(/settings/);
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Enabled');
+
+      await settings.disconnectTotp(); // Required before teardown
     });
 
     test('error message when totp code is invalid', async ({
-      credentials,
-      pages: { settings, totp, page, signinReact, signupReact },
+      pages: { settings, totp, signinReact, signupReact },
+      testAccountTracker,
     }) => {
-      await settings.goto();
+      const credentials = await testAccountTracker.signUp();
+
+      await signinReact.goto();
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.totp.status).toHaveText('Not Set');
 
       await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTotpForms();
-      credentials.secret = secret;
 
       await expect(settings.settingsHeading).toBeVisible();
       await expect(settings.alertBar).toHaveText(
@@ -75,6 +83,11 @@ test.describe('severity-1 #smoke', () => {
       await expect(signinReact.authenticationCodeTextboxTooltip).toHaveText(
         'Invalid two-step authentication code'
       );
+
+      // Required before teardown
+      const code = await getCode(secret);
+      await signinReact.fillOutAuthenticationForm(code);
+      await settings.disconnectTotp();
     });
   });
 });

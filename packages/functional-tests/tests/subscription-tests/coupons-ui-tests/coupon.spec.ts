@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../../lib/fixtures/standard';
+import { Page, expect, test } from '../../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../../lib/targets/base';
+import { TestAccountTracker } from '../../../lib/testAccountTracker';
+import { LoginPage } from '../../../pages/login';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -59,16 +62,21 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('autoinvalid');
 
       // Verifying the coupon is valid with a discount line item
-      expect(await subscribe.discountAppliedSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
     });
 
     test('subscribe successfully with an invalid coupon', async ({
+      target,
+      page,
       pages: { relier, subscribe, login },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      await signInAccount(target, page, login, testAccountTracker);
+
       await relier.goto();
       await relier.clickSubscribe6Month();
 
@@ -93,12 +101,17 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('subscribe successfully with a forever discount coupon', async ({
+      target,
+      page,
       pages: { relier, subscribe, login },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      await signInAccount(target, page, login, testAccountTracker);
+
       await relier.goto();
       await relier.clickSubscribe6Month();
 
@@ -106,7 +119,7 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto10pforever');
 
       // Verify the coupon is applied successfully
-      expect(await subscribe.discountAppliedSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
 
       // Verify the line items after applying discount
       expect(await subscribe.discountListPrice()).toBe(true);
@@ -125,12 +138,17 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('subscribe with a one time discount coupon', async ({
+      target,
+      page,
       pages: { relier, subscribe, login },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      await signInAccount(target, page, login, testAccountTracker);
+
       await relier.goto();
       await relier.clickSubscribe12Month();
 
@@ -138,7 +156,7 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto50ponetime');
 
       // Verify the coupon is applied successfully
-      expect(await subscribe.discountAppliedSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
       expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
 
       // Verify the line items is visible after applying discount
@@ -158,12 +176,17 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('subscribe with credit card and use coupon', async ({
+      target,
+      page,
       pages: { relier, login, subscribe },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
+      await signInAccount(target, page, login, testAccountTracker);
+
       await relier.goto();
       await relier.clickSubscribe6Month();
 
@@ -195,7 +218,7 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto50ponetime');
 
       // Verify the coupon is applied successfully
-      expect(await subscribe.discountAppliedSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
       expect(await subscribe.oneTimeDiscountSuccess()).toBe(true);
 
       // Verify the line items is visible after applying discount
@@ -210,3 +233,19 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

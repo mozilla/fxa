@@ -2,12 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  PASSWORD,
-  BLOCKED_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { SettingsPage } from '../../pages/settings';
+import { DeleteAccountPage } from '../../pages/settings/deleteAccount';
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(({}, { project }) => {
@@ -15,7 +12,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('OAuth signin', () => {
-    test('verified', async ({ credentials, pages: { login, relier } }) => {
+    test('verified', async ({
+      pages: { login, relier },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
@@ -24,9 +26,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified using a cached login', async ({
-      credentials,
       pages: { login, relier },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
@@ -47,9 +51,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified using a cached expired login', async ({
-      credentials,
       pages: { login, relier },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await login.login(credentials.email, credentials.password);
@@ -77,21 +83,20 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('unverified, acts like signup', async ({
-      target,
       pages: { login, relier },
-      emails,
+      testAccountTracker,
     }) => {
       // Create unverified account via backend
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUp({
         lang: 'en',
         preVerified: 'false',
       });
+
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
       // User is shown confirm email page
-      await login.fillOutSignInCode(email);
+      await login.fillOutSignInCode(credentials.email);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
@@ -100,17 +105,17 @@ test.describe('severity-1 #smoke', () => {
       page,
       pages: { configPage, login, relier },
       target,
-      emails,
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.signUpRoutes === true);
       // Create unverified account
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
 
       await relier.goto();
       await relier.clickEmailFirst();
       // Dont register account and attempt to login via relier
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(email, password, { verify: false });
       await relier.goto();
       await relier.clickEmailFirst();
       await page.waitForURL(`${target.contentServerUrl}/oauth/**`);
@@ -128,18 +133,18 @@ test.describe('severity-1 #smoke', () => {
 
     test('oauth endpoint chooses the right auth flows', async ({
       pages: { configPage, login, relier },
-      emails,
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.signUpRoutes === true);
 
       // Create unverified account
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
 
       await relier.goto();
       await relier.clickChooseFlow();
       // Dont register account and attempt to login via relier
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(email, password, { verify: false });
       // go back to the OAuth app, the /oauth flow should
       // now suggest a cached login
       await relier.goto();
@@ -148,72 +153,59 @@ test.describe('severity-1 #smoke', () => {
       // User shown signin enter password page
       await expect(login.signinPasswordHeader).toBeVisible();
     });
-  });
-
-  test.describe('OAuth signin', () => {
-    test.use({
-      emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
-    });
 
     test('verified, blocked', async ({
-      target,
       page,
       pages: { login, relier, settings, deleteAccount },
-      emails,
+      testAccountTracker,
     }) => {
-      const [blockedEmail] = emails;
+      const credentials = await testAccountTracker.signUpBlocked();
 
-      await target.createAccount(blockedEmail, PASSWORD);
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(blockedEmail, PASSWORD);
-      await login.unblock(blockedEmail);
+      await login.login(credentials.email, credentials.password);
+      await login.unblock(credentials.email);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
-      //Delete blocked account, the fixture teardown doesn't work in this case
+      // Delete blocked account, required before teardown
       await settings.goto();
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page, credentials.password);
     });
 
     test('verified, blocked, incorrect password', async ({
-      target,
       page,
       pages: { login, relier, settings, deleteAccount },
-      emails,
-    }, { project }) => {
-      test.fixme(
-        project.name !== 'local',
-        'FXA-9518 - Timing issue? Fails on stage with `Bad request - unknown state` on L209, unless breakpoint added on L208. Passes when restarting from breakpoint. '
-      );
-      const [blockedEmail] = emails;
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpBlocked();
 
-      await target.createAccount(blockedEmail, PASSWORD);
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(blockedEmail, 'wrong password');
-      await login.unblock(blockedEmail);
-
+      await login.login(credentials.email, 'wrong password');
+      await login.unblock(credentials.email);
       // After filling in the unblock code, the user is prompted again to enter password
       await expect(page.getByText('Incorrect password')).toBeVisible();
 
-      //Delete blocked account, the fixture teardown doesn't work in this case
-      await login.setPassword(PASSWORD);
+      // Delete blocked account, required before teardown
+      await login.setPassword(credentials.password);
       await login.submit();
-      await login.unblock(blockedEmail);
+      await login.unblock(credentials.email);
       await relier.isLoggedIn();
       await settings.goto();
-      await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
-
-      await expect(
-        page.getByText('Account deleted successfully')
-      ).toBeVisible();
+      await removeAccount(settings, deleteAccount, page, credentials.password);
     });
   });
 });
+
+async function removeAccount(
+  settings: SettingsPage,
+  deleteAccount: DeleteAccountPage,
+  page: Page,
+  password: string
+) {
+  await settings.deleteAccountButton.click();
+  await deleteAccount.deleteAccount(password);
+
+  await expect(page.getByText('Account deleted successfully')).toBeVisible();
+}

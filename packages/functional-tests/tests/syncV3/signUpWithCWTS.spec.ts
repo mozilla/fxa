@@ -3,21 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import {
-  expect,
-  test,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import uaStrings from '../../lib/ua-strings';
+
+const AGE_21 = '21';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sync v3 sign up and CWTS', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(
@@ -28,12 +22,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verify with signup code and CWTS', async ({
-      emails,
       target,
-      syncBrowserPages,
+      syncBrowserPages: { login, page, connectAnotherDevice },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      const { login, page, connectAnotherDevice } = syncBrowserPages;
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_71'],
       });
@@ -64,9 +58,9 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.setEmail(email);
       await login.clickSubmit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
+      await login.setPassword(password);
+      await login.confirmPassword(password);
+      await login.setAge(AGE_21);
 
       // The CWTS form is on the same signup page
       await expect(login.CWTSEngineHeader).toBeVisible();
@@ -86,9 +80,13 @@ test.describe('severity-1 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('verify at CWTS', async ({ emails, target, syncBrowserPages }) => {
-      const { login, page, connectAnotherDevice } = syncBrowserPages;
-      const [email] = emails;
+    test('verify at CWTS', async ({
+      target,
+      syncBrowserPages: { login, page, connectAnotherDevice },
+      testAccountTracker,
+    }) => {
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -113,9 +111,9 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.setEmail(email);
       await login.clickSubmit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
+      await login.setPassword(password);
+      await login.confirmPassword(password);
+      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -132,11 +130,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('engines not supported', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -155,9 +154,9 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.setEmail(email);
       await login.clickSubmit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
+      await login.setPassword(password);
+      await login.confirmPassword(password);
+      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -167,11 +166,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('neither `creditcards` nor `addresses` supported', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -193,9 +193,9 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.setEmail(email);
       await login.clickSubmit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
+      await login.setPassword(password);
+      await login.confirmPassword(password);
+      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes
@@ -205,11 +205,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('`creditcards` and `addresses` supported', async ({
-      emails,
       target,
       syncBrowserPages: { login, page },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = new URLSearchParams({
         forceUA: uaStrings['desktop_firefox_58'],
       });
@@ -231,9 +232,9 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage('fxaccounts:fxa_status');
       await login.setEmail(email);
       await login.clickSubmit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
-      await login.setAge('21');
+      await login.setPassword(password);
+      await login.confirmPassword(password);
+      await login.setAge(AGE_21);
       await login.submit();
 
       // Verify the CWTS page and the checkboxes

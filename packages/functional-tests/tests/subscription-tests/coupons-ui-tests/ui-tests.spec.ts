@@ -2,19 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect, test } from '../../../lib/fixtures/standard';
+import { Page, expect, test } from '../../../lib/fixtures/standard';
 import { MetricsObserver } from '../../../lib/metrics';
+import { BaseTarget, Credentials } from '../../../lib/targets/base';
+import { TestAccountTracker } from '../../../lib/testAccountTracker';
+import { LoginPage } from '../../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('ui functionality', () => {
     test('verify plan change funnel metrics & coupon feature not available when changing plans', async ({
-      pages: { relier, subscribe },
+      target,
+      page,
+      pages: { relier, subscribe, login },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
       test.slow();
+
+      await signInAccount(target, page, login, testAccountTracker);
 
       const metricsObserver = new MetricsObserver(subscribe);
       metricsObserver.startTracking();
@@ -29,7 +37,7 @@ test.describe('severity-2 #smoke', () => {
       await subscribe.addCouponCode('auto10pforever');
 
       // Verify the coupon is applied successfully
-      expect(await subscribe.discountAppliedSuccess()).toBe(true);
+      await expect(subscribe.promoCodeAppliedHeading).toBeVisible();
 
       //Subscribe successfully with Stripe
       await subscribe.setConfirmPaymentCheckbox();
@@ -80,3 +88,19 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

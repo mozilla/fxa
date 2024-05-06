@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 const AGE_21 = '21';
 
@@ -18,9 +18,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified account, no email confirmation required', async ({
-      credentials,
       pages: { page, relier, signinReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
@@ -36,13 +38,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified account with cached login, no email confirmation required', async ({
-      credentials,
       pages: { page, relier, signinReact },
+      testAccountTracker,
     }, { project }) => {
       test.fixme(
         project.name !== 'local',
         'FXA-9518 - Timing issues? Fails on stage with `Bad request - unknown state` on L54 and L74, unless breakpoint added on L53 and L72. Passes when restarting from breakpoint.'
       );
+
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
@@ -78,9 +83,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('verified using a cached expired login', async ({
-      credentials,
       pages: { page, relier, signinReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await relier.goto();
       await relier.clickEmailFirst();
       await expect(page).toHaveURL(/oauth\//);
@@ -124,18 +131,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('unverified account, requires signup confirmation code', async ({
-      emails,
       pages: { configPage, page, relier, signinReact, signupReact },
-      target,
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes !== true,
         'this test requires both react signup and react signin to be enabled'
       );
-
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUp({
+        lang: 'en',
         preVerified: 'false',
       });
 
@@ -148,20 +153,20 @@ test.describe('severity-1 #smoke', () => {
         `${page.url()}&forceExperiment=generalizedReactApp&forceExperimentGroup=react`
       );
 
-      await signinReact.fillOutEmailFirstForm(email);
-      await signinReact.fillOutPasswordForm(PASSWORD);
+      await signinReact.fillOutEmailFirstForm(credentials.email);
+      await signinReact.fillOutPasswordForm(credentials.password);
 
       // User is shown confirm code page
       await expect(page).toHaveURL(/confirm_signup_code/);
       await signupReact.resendCodeButton.click();
-      await signupReact.fillOutCodeForm(email);
+      await signupReact.fillOutCodeForm(credentials.email);
 
       expect(await relier.isLoggedIn()).toBe(true);
     });
 
     test('unverified account with a cached login, requires signup confirmation', async ({
-      emails,
       pages: { configPage, page, relier, signinReact, signupReact },
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
@@ -170,11 +175,11 @@ test.describe('severity-1 #smoke', () => {
       );
 
       // Create unverified account
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
 
       await signupReact.goto();
       await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(PASSWORD, '21');
+      await signupReact.fillOutSignupForm(password, AGE_21);
       // confirm reached confirm_signup_code page but do not confirm
       await expect(page).toHaveURL(/confirm_signup_code/);
 
@@ -201,9 +206,9 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('oauth endpoint chooses the right auth flows', async ({
-      emails,
       page,
       pages: { configPage, relier, signinReact, signupReact },
+      testAccountTracker,
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
       const config = await configPage.getConfig();
@@ -211,7 +216,7 @@ test.describe('severity-1 #smoke', () => {
         config.showReactApp.signUpRoutes !== true,
         'this test requires both react signup and react signin to be enabled'
       );
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
 
       await relier.goto();
       await relier.clickChooseFlow();
@@ -224,7 +229,7 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await signupReact.fillOutEmailForm(email);
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
       await signupReact.fillOutCodeForm(email);
 
       // go back to the OAuth app, the /oauth flow should

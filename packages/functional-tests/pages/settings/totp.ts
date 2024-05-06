@@ -45,6 +45,10 @@ export class TotpPage extends SettingsLayout {
     return this.page.getByTestId('submit-totp');
   }
 
+  get step1CancelButton() {
+    return this.page.getByRole('button', { name: 'Cancel' });
+  }
+
   get step2Heading() {
     return this.page.getByRole('heading', { name: 'Step 2 of 3' });
   }

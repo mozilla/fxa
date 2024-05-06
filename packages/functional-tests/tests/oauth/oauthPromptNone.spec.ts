@@ -2,12 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  PASSWORD,
-  SIGNIN_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(async ({}, { project }) => {
@@ -20,12 +18,13 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('oauth prompt none', () => {
     test('fails if no user logged in', async ({
-      emails,
       page,
       target,
       pages: { relier },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email } = testAccountTracker.generateAccountDetails();
+
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
@@ -38,15 +37,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails RP that is not allowed', async ({
-      emails,
       page,
       pages: { relier },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name !== 'local',
         'we dont have an untrusted oauth for stage and prod'
       );
-      const [email] = emails;
+      const { email } = testAccountTracker.generateAccountDetails();
+
       const query = new URLSearchParams({
         login_hint: email,
         return_on_error: 'false',
@@ -61,12 +61,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if requesting keys', async ({
-      emails,
       page,
       target,
       pages: { relier },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email } = testAccountTracker.generateAccountDetails();
       const query = new URLSearchParams({
         client_id: '7f368c6886429f19', // eslint-disable-line camelcase
         forceUA:
@@ -92,29 +92,29 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if session is no longer valid', async ({
-      emails,
       page,
       target,
       pages: { relier, login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      const creds = await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
       await target.authClient.accountDestroy(
-        email,
-        PASSWORD,
+        credentials.email,
+        credentials.password,
         {},
-        creds.sessionToken
+        credentials.sessionToken
       );
       const query = new URLSearchParams({
-        login_hint: email,
+        login_hint: credentials.email,
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
@@ -125,24 +125,27 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('fails if account is not verified', async ({
-      emails,
       page,
       target,
       pages: { relier, login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUp({
         lang: 'en',
         preVerified: 'false',
       });
+
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
 
       const query = new URLSearchParams({
-        login_hint: email,
+        login_hint: credentials.email,
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
@@ -157,21 +160,17 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('oauth prompt none with emails', () => {
     test('succeeds if login_hint same as logged in user', async ({
-      emails,
       page,
       target,
       pages: { relier, login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      const { email } = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
       const query = new URLSearchParams({
         login_hint: email,
@@ -185,21 +184,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('succeeds if no login_hint is provided', async ({
-      emails,
       page,
       target,
       pages: { relier, login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      await signInAccount(target, page, login, testAccountTracker);
 
       const query = new URLSearchParams({
         return_on_error: 'false',
@@ -210,35 +200,18 @@ test.describe('severity-1 #smoke', () => {
       //Verify logged in to relier
       expect(await relier.isLoggedIn()).toBe(true);
     });
-  });
-
-  test.describe('oauth prompt none with emails', () => {
-    test.use({
-      emailOptions: [
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-      ],
-    });
 
     test('fails if login_hint is different to logged in user', async ({
-      emails,
       page,
       target,
       pages: { relier, login },
+      testAccountTracker,
     }) => {
-      const [email, loginHintEmail] = emails;
-      await target.authClient.signUp(email, PASSWORD, {
-        lang: 'en',
-        preVerified: 'true',
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      const loginHintAccount = testAccountTracker.generateAccountDetails();
+      await signInAccount(target, page, login, testAccountTracker);
 
       const query = new URLSearchParams({
-        login_hint: loginHintEmail,
+        login_hint: loginHintAccount.email,
         return_on_error: 'false',
       });
       await page.goto(`${target.relierUrl}/?${query.toString()}`);
@@ -251,3 +224,19 @@ test.describe('severity-1 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

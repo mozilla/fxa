@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import {
-  SIGNUP_REACT_EMAIL_PREFIX,
-  expect,
-  test,
-} from '../../lib/fixtures/standard';
-import { PASSWORD } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 import {
   syncDesktopV3QueryParams,
@@ -26,32 +21,31 @@ const eventDetailLinkAccount = createCustomEventDetail(
 );
 
 test.describe('severity-1 #smoke', () => {
-  test.use({
-    emailOptions: [{ prefix: SIGNUP_REACT_EMAIL_PREFIX, password: PASSWORD }],
-  });
-
-  test.beforeEach(async ({ pages: { configPage } }) => {
-    test.slow();
-    // Ensure that the feature flag is enabled
-    const config = await configPage.getConfig();
-    if (config.showReactApp.signUpRoutes !== true) {
-      test.skip(true, 'Skip tests if not on React signUpRoutes');
-    }
-  });
-
   test.describe('signup react', () => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      // Ensure that the feature flag is enabled
+      const config = await configPage.getConfig();
+      test.skip(
+        config.showReactApp.signUpRoutes !== true,
+        'Skip tests if not on React signUpRoutes'
+      );
+      test.slow();
+    });
+
     test('signup web', async ({
       page,
       pages: { settings, signupReact },
-      emails,
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
+
       await signupReact.goto();
 
       await signupReact.fillOutEmailForm(email);
       await signupReact.waitForRoot();
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await signupReact.fillOutCodeForm(email);
 
@@ -61,12 +55,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth', async ({
-      emails,
       page,
       target,
       pages: { relier, signupReact },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
+
       relier.goto();
 
       relier.clickEmailFirst();
@@ -81,7 +77,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutEmailForm(email);
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await signupReact.fillOutCodeForm(email);
 
@@ -93,12 +89,14 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth with missing redirect_uri', async ({
-      emails,
       page,
       target,
       pages: { relier, signupReact },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
+
       relier.goto();
 
       relier.clickEmailFirst();
@@ -118,7 +116,7 @@ test.describe('severity-1 #smoke', () => {
 
       await signupReact.fillOutEmailForm(email);
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await signupReact.fillOutCodeForm(email);
       // redirectUri should have fallen back to the clientInfo config redirect URI
@@ -131,11 +129,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('signup oauth webchannel - sync mobile or FF desktop 123+', async ({
-      emails,
       syncBrowserPages: { page, login, signupReact },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -168,7 +167,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineCreditCards).toBeHidden();
       await expect(login.CWTSEngineAddresses).toBeHidden();
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await signupReact.fillOutCodeForm(email);
       await page.waitForURL(/connect_another_device/);
@@ -178,9 +177,10 @@ test.describe('severity-1 #smoke', () => {
 
     test('signup sync desktop v3, verify account', async ({
       syncBrowserPages: { page, signupReact, login },
-      emails,
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
       test.fixme(true, 'Fix required as of 2024/03/18 (see FXA-9306).');
       await signupReact.goto('/', syncDesktopV3QueryParams);
 
@@ -207,7 +207,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineCreditCards).toBeVisible();
       await expect(login.CWTSEngineAddresses).toBeHidden();
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await login.checkWebChannelMessage(FirefoxCommand.Login);
 
@@ -247,15 +247,16 @@ test.describe('severity-2 #smoke', () => {
 
     test('coppa is too young', async ({
       page,
-      pages: { login, signupReact },
-      emails,
+      pages: { signupReact },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
       await signupReact.goto();
 
       await signupReact.fillOutEmailForm(email);
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_12);
+      await signupReact.fillOutSignupForm(password, AGE_12);
 
       await expect(page).toHaveURL(/cannot_create_account/);
       await expect(signupReact.cannotCreateAccountHeading).toBeVisible();
@@ -265,13 +266,15 @@ test.describe('severity-2 #smoke', () => {
       page,
       target,
       pages: { signupReact, relier, subscribe, settings },
-      emails,
+      testAccountTracker,
     }, { project }) => {
-      const [email] = emails;
       test.skip(
         project.name === 'production',
         'no test products available in prod'
       );
+      const { email, password } =
+        testAccountTracker.generateSignupReactAccountDetails();
+
       // Go an RP's subscription page
       await relier.goto();
       await relier.clickSubscribe6Month();
@@ -289,7 +292,7 @@ test.describe('severity-2 #smoke', () => {
 
       await signupReact.fillOutEmailForm(email);
 
-      await signupReact.fillOutSignupForm(PASSWORD, AGE_21);
+      await signupReact.fillOutSignupForm(password, AGE_21);
 
       await signupReact.fillOutCodeForm(email);
       /*

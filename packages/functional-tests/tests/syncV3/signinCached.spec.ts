@@ -2,49 +2,30 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  expect,
-  test,
-  PASSWORD,
-  SIGNIN_EMAIL_PREFIX,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('sync signin cached', () => {
-    test.use({
-      emailOptions: [
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-        { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
-      ],
-    });
     test.beforeEach(async () => {
       test.slow(); //This test has steps for email rendering that runs slow on stage
     });
 
     test('sign in on desktop then specify a different email on query parameter continues to cache desktop signin', async ({
-      emails,
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
+      testAccountTracker,
     }) => {
-      await Promise.all(
-        emails.map(async (email) => {
-          await target.authClient.signUp(email, PASSWORD, {
-            lang: 'en',
-            preVerified: 'true',
-          });
-        })
+      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
       );
-      const [email, syncEmail] = emails;
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
-      );
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify sign up code header is visible
-      await expect(login.signInCodeHeader).toBeVisible();
-
-      const query = { email: email };
+      const query = { email: credentials.email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
         `${
@@ -53,8 +34,8 @@ test.describe('severity-2 #smoke', () => {
       );
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email);
-      await login.setPassword(PASSWORD);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
+      await login.setPassword(credentials.password);
       await login.clickSubmit();
       await connectAnotherDevice.clickNotNow();
 
@@ -68,40 +49,34 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
     });
 
     test('sign in with desktop context then no context, desktop credentials should persist', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
-      await Promise.all(
-        emails.map(async (email) => {
-          await target.authClient.signUp(email, PASSWORD, {
-            lang: 'en',
-            preVerified: 'true',
-          });
-        })
+      const syncCredentials = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
       );
-      const [email, syncEmail] = emails;
-      await page.goto(
-        `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
-      );
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify sign up code header is visible
-      await expect(login.signInCodeHeader).toBeVisible();
+      const credentials = await testAccountTracker.signUp();
 
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
@@ -113,9 +88,27 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
       await login.useDifferentAccountLink();
       await login.waitForEmailHeader();
     });
   });
 });
+
+async function signInSyncAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUpSync();
+  await page.goto(
+    `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
+  );
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify sign up code header is visible
+  await expect(login.signInCodeHeader).toBeVisible();
+
+  return credentials;
+}

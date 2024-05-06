@@ -2,25 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('signin here', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
-
     test('signin verified with incorrect password, click `forgot password?`', async ({
       target,
       page,
-      credentials,
       pages: { login, resetPassword },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(target.contentServerUrl);
       await login.setEmail(credentials.email);
       await login.clickSubmit();
@@ -40,9 +36,11 @@ test.describe('severity-2 #smoke', () => {
     test('signin with email with leading/trailing whitespace on the email', async ({
       target,
       page,
-      credentials,
       pages: { login },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       const emailWithleadingSpace = '   ' + credentials.email;
       await page.goto(target.contentServerUrl);
       await login.fillOutEmailFirstSignIn(
@@ -70,9 +68,11 @@ test.describe('severity-2 #smoke', () => {
     test('signin verified with password that incorrectly has leading whitespace', async ({
       target,
       page,
-      credentials,
       pages: { login },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(target.contentServerUrl);
       await login.setEmail(credentials.email);
       await login.clickSubmit();
@@ -86,17 +86,15 @@ test.describe('severity-2 #smoke', () => {
     test('login as an existing user', async ({
       target,
       page,
-      credentials,
       pages: { login, settings },
+      testAccountTracker,
     }) => {
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(
-        credentials.email,
-        credentials.password
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
       );
-
-      // Verify the header after login
-      expect(await login.isUserLoggedIn()).toBe(true);
 
       // Sign out
       await settings.signOut();
@@ -114,27 +112,31 @@ test.describe('severity-2 #smoke', () => {
       target,
       page,
       pages: { configPage, login },
-      emails,
+      testAccountTracker,
     }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'bounced email functionality does not currently work for react'
       );
-      const [email] = emails;
-      const creds = await target.createAccount(email, PASSWORD);
+
+      const credentials = await testAccountTracker.signUpSync();
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email&`
       );
-      await login.fillOutEmailFirstSignIn(email, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       // Verify the header after login
       await expect(login.signInCodeHeader).toBeVisible();
       await target.authClient.accountDestroy(
-        email,
-        PASSWORD,
+        credentials.email,
+        credentials.password,
         {},
-        creds.sessionToken
+        credentials.sessionToken
       );
       await page.waitForURL(/signin_bounced/);
 
@@ -149,3 +151,19 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

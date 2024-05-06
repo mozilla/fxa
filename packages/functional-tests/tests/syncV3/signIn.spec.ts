@@ -2,15 +2,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { EmailHeader, EmailType } from '../../lib/email';
-import {
-  expect,
-  test,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-  BLOCKED_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
 import { getCode } from 'fxa-settings/src/lib/totp';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { EmailHeader, EmailType } from '../../lib/email';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { LoginPage } from '../../pages/login';
 
 test.describe.configure({ mode: 'parallel' });
 
@@ -20,38 +17,29 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test.describe('Firefox Desktop Sync v3 sign in', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
-
     test('verified email, does not need to confirm', async ({
       target,
-      credentials,
-      syncBrowserPages,
+      syncBrowserPages: { page, login, connectAnotherDevice },
+      testAccountTracker,
     }) => {
-      const email = credentials.email;
-      const { page, login, connectAnotherDevice } = syncBrowserPages;
+      const credentials = await testAccountTracker.signUp();
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       await expect(connectAnotherDevice.fxaConnected).toBeEnabled();
     });
 
     test('verified email with signin verification, can ask to resend code', async ({
-      emails,
       target,
-      syncBrowserPages,
+      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      testAccountTracker,
     }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
-
-      const [email] = emails;
-
       // Simulate a new sign up that requires a signin verification code.
-      target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUpSync({
+        lang: 'en',
         service: 'sync',
         preVerified: 'true',
       });
@@ -59,7 +47,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       // Click resend link
       await signinTokenCode.resendLink.click();
@@ -68,7 +56,7 @@ test.describe('severity-2 #smoke', () => {
         /Email re-?sent/
       );
       const code = await target.emailClient.waitForEmail(
-        email,
+        credentials.email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );
@@ -79,17 +67,12 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('verified email with signin verification, accepts valid sign in code', async ({
-      emails,
       target,
-      syncBrowserPages,
+      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      testAccountTracker,
     }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
-
-      const [email] = emails;
-
-      // Simulate a new sign up that requires a signin verification code.
-      target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUpSync({
+        lang: 'en',
         service: 'sync',
         preVerified: 'true',
       });
@@ -97,10 +80,10 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       const code = await target.emailClient.waitForEmail(
-        email,
+        credentials.email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );
@@ -111,17 +94,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('verified email with signin verification, rejects invalid signin code', async ({
-      emails,
       target,
-      syncBrowserPages,
+      syncBrowserPages: { page, login, connectAnotherDevice, signinTokenCode },
+      testAccountTracker,
     }) => {
-      const { page, login, connectAnotherDevice, signinTokenCode } =
-        syncBrowserPages;
-
-      const [email] = emails;
-
       // Simulate a new sign up that requires a signin verification code.
-      target.authClient.signUp(email, PASSWORD, {
+      const credentials = await testAccountTracker.signUpSync({
+        lang: 'en',
         service: 'sync',
         preVerified: 'true',
       });
@@ -129,7 +108,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       // Input invalid code and verify the tooltip error
       await signinTokenCode.input.fill('000000');
@@ -139,7 +118,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tooltip).toContainText('Invalid or expired');
 
       const code = await target.emailClient.waitForEmail(
-        email,
+        credentials.email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );
@@ -149,25 +128,30 @@ test.describe('severity-2 #smoke', () => {
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
-    test('unverified email', async ({ emails, target, syncBrowserPages }) => {
-      const { page, login, connectAnotherDevice, confirmSignupCode } =
-        syncBrowserPages;
-      const [email] = emails;
-
-      await target.authClient.signUp(email, PASSWORD, {
-        service: 'sync',
+    test('unverified email', async ({
+      target,
+      syncBrowserPages: {
+        page,
+        login,
+        connectAnotherDevice,
+        confirmSignupCode,
+      },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
+        service: 'sync',
         preVerified: 'false',
       });
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`
       );
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       // Since the account is not verified yet, we'd expect to see the signup code confirmation
       const code = await target.emailClient.waitForEmail(
-        email,
+        credentials.email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );
@@ -178,23 +162,27 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('add TOTP and confirm sync signin', async ({
-      credentials,
       target,
-      syncBrowserPages,
-    }) => {
-      const {
+      syncBrowserPages: {
         page,
         login,
         connectAnotherDevice,
         settings,
         totp,
         signinTotpCode,
-      } = syncBrowserPages;
+      },
+      testAccountTracker,
+    }) => {
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
       await settings.goto();
       await settings.totp.addButton.click();
       const { secret } = await totp.fillOutTotpForms();
-      credentials.secret = secret;
       await settings.signOut();
 
       await page.goto(
@@ -204,21 +192,18 @@ test.describe('severity-2 #smoke', () => {
 
       await login.login(credentials.email, credentials.password);
 
-      const code = await getCode(credentials.secret);
+      const code = await getCode(secret);
       await signinTotpCode.input.fill(code);
       await signinTotpCode.submit.click();
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
-    });
-  });
 
-  test.describe('Firefox Desktop Sync v3 sign in', () => {
-    test.use({
-      emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
+      // Required before teardown
+      await settings.goto();
+      await settings.disconnectTotp();
     });
 
     test('verified email, in blocked state', async ({
-      emails,
       target,
       syncBrowserPages: {
         page,
@@ -228,21 +213,21 @@ test.describe('severity-2 #smoke', () => {
         settings,
         deleteAccount,
       },
+      testAccountTracker,
     }) => {
-      const [blockedEmail] = emails;
-      await target.authClient.signUp(blockedEmail, PASSWORD, {
-        service: 'sync',
+      const credentials = await testAccountTracker.signUpBlocked({
         lang: 'en',
+        service: 'sync',
         preVerified: 'true',
       });
 
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync`
       );
-      await login.login(blockedEmail, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       const code = await target.emailClient.waitForEmail(
-        blockedEmail,
+        credentials.email,
         EmailType.unblockCode,
         EmailHeader.unblockCode
       );
@@ -251,10 +236,10 @@ test.describe('severity-2 #smoke', () => {
 
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
 
-      //Delete blocked account, the fixture teardown doesn't work in this case
+      //Delete blocked account, required before teardown
       await connectAnotherDevice.notNowButton.click();
       await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
+      await deleteAccount.deleteAccount(credentials.password);
 
       await expect(
         page.getByText('Account deleted successfully')
@@ -266,9 +251,11 @@ test.describe('severity-2 #smoke', () => {
     test.describe('OAuth and Fx Desktop handshake', () => {
       test('user signed into browser and OAuth login', async ({
         target,
-        credentials,
         syncBrowserPages: { page, login, relier, settings },
+        testAccountTracker,
       }) => {
+        const credentials = await testAccountTracker.signUp();
+
         await page.goto(
           target.contentServerUrl +
             '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
@@ -305,3 +292,19 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

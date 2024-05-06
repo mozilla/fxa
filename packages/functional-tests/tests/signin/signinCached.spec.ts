@@ -2,13 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  expect,
-  test,
-  PASSWORD,
-  SIGNIN_EMAIL_PREFIX,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
   test.beforeEach(async () => {
@@ -16,30 +13,22 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test.describe('signin cached', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
-
     test('sign in twice, on second attempt email will be cached', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      const { email } = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
       await login.clearSessionStorage();
       await page.goto(target.contentServerUrl);
 
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(email);
 
       await login.clickSignIn();
 
@@ -48,27 +37,23 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('sign in with incorrect email case before normalization fix, on second attempt canonical form is used', async ({
-      emails,
       target,
       syncBrowserPages: { page, login, settings },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      const { email } = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
       await login.clearSessionStorage();
       await page.goto(target.contentServerUrl);
-      await login.denormalizeStoredEmail(syncEmail);
+      await login.denormalizeStoredEmail(email);
       await page.reload();
 
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(email);
 
       await login.clickSignIn();
 
@@ -76,32 +61,28 @@ test.describe('severity-2 #smoke', () => {
       expect(await login.isUserLoggedIn()).toBe(true);
 
       //Verify email is normalized
-      await expect(settings.primaryEmail.status).toHaveText(syncEmail);
+      await expect(settings.primaryEmail.status).toHaveText(email);
     });
 
     test('expired cached credentials', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      const credentials = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
-
-      await login.destroySession(syncEmail);
+      await login.destroySession(credentials.email);
       await page.goto(target.contentServerUrl);
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
 
-      await login.setPassword(PASSWORD);
+      await login.setPassword(credentials.password);
       await login.clickSubmit();
 
       //Verify logged in on Settings page
@@ -109,35 +90,30 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('cached credentials that expire while on page', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
-      const [syncEmail] = emails;
-      await target.authClient.signUp(syncEmail, PASSWORD, {
-        lang: 'en',
-        preVerified: true,
-      });
-      await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
-
-      //Verify logged in on Settings page
-      expect(await login.isUserLoggedIn()).toBe(true);
+      const credentials = await signInSyncAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
 
       await page.goto(target.contentServerUrl);
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
 
-      await login.destroySession(syncEmail);
+      await login.destroySession(credentials.email);
       await login.clickSignIn();
 
-      //Session expired error should show.
-      expect(await login.signInError()).toContain(
-        'Session expired. Sign in to continue.'
-      );
+      await expect(
+        page.getByText('Session expired. Sign in to continue.')
+      ).toBeVisible();
 
-      await login.setPassword(PASSWORD);
+      await login.setPassword(credentials.password);
       await login.clickSubmit();
 
       //Verify logged in on Settings page
@@ -147,15 +123,18 @@ test.describe('severity-2 #smoke', () => {
     test('unverified cached signin redirects to confirm email', async ({
       target,
       syncBrowserPages: { page, login },
-      emails,
+      testAccountTracker,
     }) => {
-      const [email_unverified] = emails;
-      await target.authClient.signUp(email_unverified, PASSWORD, {
+      const credentials = await testAccountTracker.signUpSync({
         lang: 'en',
         preVerified: 'false',
       });
+
       await page.goto(target.contentServerUrl);
-      await login.fillOutEmailFirstSignIn(email_unverified, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       //Verify sign up code header is visible
       await expect(login.signUpCodeHeader).toBeVisible();
@@ -163,7 +142,7 @@ test.describe('severity-2 #smoke', () => {
       await page.goto(target.contentServerUrl);
 
       //Check prefilled email
-      expect(await login.getPrefilledEmail()).toContain(email_unverified);
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
 
       await login.clickSignIn();
 
@@ -171,56 +150,60 @@ test.describe('severity-2 #smoke', () => {
       await expect(login.signUpCodeHeader).toBeVisible();
 
       //Fill the code and submit
-      await login.fillOutSignUpCode(email_unverified);
+      await login.fillOutSignUpCode(credentials.email);
 
       //Verify logged in on Settings page
       expect(await login.isUserLoggedIn()).toBe(true);
     });
 
-    test.describe('signin cached', () => {
-      test.use({
-        emailOptions: [
-          { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-          { prefix: SYNC_EMAIL_PREFIX, password: PASSWORD },
-        ],
-      });
-      test('sign in once, use a different account', async ({
-        emails,
+    test('sign in once, use a different account', async ({
+      target,
+      syncBrowserPages: { page, login },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
+      const syncCredentials = await signInSyncAccount(
         target,
-        syncBrowserPages: { page, login },
-      }) => {
-        const [email, syncEmail] = emails;
-        await Promise.all(
-          emails.map(async (email) => {
-            await target.authClient.signUp(email, PASSWORD, {
-              lang: 'en',
-              preVerified: 'true',
-            });
-          })
-        );
-        await page.goto(target.contentServerUrl);
-        await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+        page,
+        login,
+        testAccountTracker
+      );
 
-        //Verify logged in on Settings page
-        expect(await login.isUserLoggedIn()).toBe(true);
+      await page.goto(target.contentServerUrl);
 
-        await page.goto(target.contentServerUrl);
+      //Check prefilled email
+      expect(await login.getPrefilledEmail()).toContain(syncCredentials.email);
 
-        //Check prefilled email
-        expect(await login.getPrefilledEmail()).toContain(syncEmail);
+      await login.useDifferentAccountLink();
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
-        await login.useDifferentAccountLink();
-        await login.fillOutEmailFirstSignIn(email, PASSWORD);
+      //Verify logged in on Settings page
+      expect(await login.isUserLoggedIn()).toBe(true);
 
-        //Verify logged in on Settings page
-        expect(await login.isUserLoggedIn()).toBe(true);
+      // testing to make sure cached signin comes back after a refresh
+      await page.goto(target.contentServerUrl);
 
-        // testing to make sure cached signin comes back after a refresh
-        await page.goto(target.contentServerUrl);
-
-        //Check prefilled email
-        expect(await login.getPrefilledEmail()).toContain(email);
-      });
+      //Check prefilled email
+      expect(await login.getPrefilledEmail()).toContain(credentials.email);
     });
   });
 });
+
+async function signInSyncAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUpSync();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

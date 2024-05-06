@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { FirefoxCommand, createCustomEventDetail } from '../../lib/channels';
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('oauth webchannel', () => {
@@ -11,14 +11,16 @@ test.describe('severity-1 #smoke', () => {
       await login.clearCache();
     });
 
-    test('signup', async ({ pages: { configPage, login, relier }, emails }) => {
+    test('signup', async ({
+      pages: { configPage, login, relier },
+      testAccountTracker,
+    }) => {
       const config = await configPage.getConfig();
       test.skip(
         config.showReactApp.signUpRoutes === true,
         'this test is specific to backbone, skip if seeing React version'
       );
-
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {
@@ -41,7 +43,7 @@ test.describe('severity-1 #smoke', () => {
       await expect(login.CWTSEngineBookmarks).toBeVisible();
       await expect(login.CWTSEngineHistory).toBeVisible();
 
-      await login.fillOutFirstSignUp(email, PASSWORD, {
+      await login.fillOutFirstSignUp(email, password, {
         enterEmail: false,
         waitForNavOnSubmit: false,
       });
@@ -49,7 +51,11 @@ test.describe('severity-1 #smoke', () => {
       await login.checkWebChannelMessage(FirefoxCommand.OAuthLogin);
     });
 
-    test('signin', async ({ pages: { login, relier, page }, credentials }) => {
+    test('signin', async ({
+      pages: { login, relier, page },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUp();
       const customEventDetail = createCustomEventDetail(
         FirefoxCommand.FxAStatus,
         {

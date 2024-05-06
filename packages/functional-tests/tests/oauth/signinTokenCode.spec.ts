@@ -3,12 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { EmailHeader, EmailType } from '../../lib/email';
-import {
-  test,
-  expect,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth signin token code', () => {
@@ -33,31 +28,29 @@ test.describe('severity-2 #smoke', () => {
     };
     /* eslint-enable camelcase */
 
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
     test('verified - invalid token', async ({
-      target,
-      emails,
       page,
       pages: { login, relier, signinTokenCode },
+      testAccountTracker,
     }) => {
       // The `sync` prefix is needed to force confirmation.
-      const [syncEmail] = emails;
+      const credentials = await testAccountTracker.signUpSync();
 
-      await target.createAccount(syncEmail, PASSWORD);
       await relier.goto(toQueryString(queryParameters));
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
 
       // Check that the sign in page is show, and is asking for a sign in code
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       // This will cause the token become 'invalid' and ultimately cause an
       // INVALID_TOKEN error to be thrown.
-      await login.destroySession(syncEmail);
+      await login.destroySession(credentials.email);
 
       // Destroying the session should direct user back to sign in page
       await expect(page).toHaveURL(/oauth\/signin/);
@@ -66,17 +59,20 @@ test.describe('severity-2 #smoke', () => {
 
     test('verified - valid code', async ({
       target,
-      emails,
       pages: { login, relier, signinTokenCode },
+      testAccountTracker,
     }) => {
       // The `sync` prefix is needed to force confirmation.
-      const [syncEmail] = emails;
-      await target.createAccount(syncEmail, PASSWORD);
+      const credentials = await testAccountTracker.signUpSync();
+
       await relier.goto(toQueryString(queryParameters));
       // Click the Email First flow, which should direct to the sign in page
       await relier.clickEmailFirst();
       // Enter email, then enter password
-      await login.fillOutEmailFirstSignIn(syncEmail, PASSWORD);
+      await login.fillOutEmailFirstSignIn(
+        credentials.email,
+        credentials.password
+      );
       // Enter invalid code, ensure it doesn't work
       await signinTokenCode.input.fill('000000');
       await signinTokenCode.submit.click();
@@ -94,7 +90,7 @@ test.describe('severity-2 #smoke', () => {
       await expect(signinTokenCode.tokenCodeHeader).toBeVisible();
 
       const code = await target.emailClient.waitForEmail(
-        syncEmail,
+        credentials.email,
         EmailType.verifyLoginCode,
         EmailHeader.signinCode
       );

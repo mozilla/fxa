@@ -10,7 +10,6 @@ test.describe('severity-1 #smoke', () => {
 
   test('react signin to sync and disconnect', async ({
     target,
-    credentials,
     syncBrowserPages: {
       configPage,
       connectAnotherDevice,
@@ -18,6 +17,7 @@ test.describe('severity-1 #smoke', () => {
       signinReact,
       settings,
     },
+    testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
     test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
@@ -25,6 +25,8 @@ test.describe('severity-1 #smoke', () => {
       config.showReactApp.signInRoutes !== true,
       'Skip tests if React signInRoutes not enabled'
     );
+
+    const credentials = await testAccountTracker.signUp();
 
     await signinReact.goto(
       undefined,
@@ -57,18 +59,20 @@ test.describe('severity-1 #smoke', () => {
 
   // https://testrail.stage.mozaws.net/index.php?/cases/view/1293475
   test('react disconnect RP #1293475', async ({
-    credentials,
     pages: { configPage, page, relier, signinReact, settings },
+    testAccountTracker,
   }, { project }) => {
     const config = await configPage.getConfig();
-    test.skip(
-      config.showReactApp.signInRoutes !== true,
-      'Skip tests if React signInRoutes not enabled'
-    );
     test.fixme(
       project.name !== 'local',
       'FXA-9518 - Timing issue? Fails on stage with `Bad request - unknown state` on L86, unless breakpoint added on L85. Passes when restarting from breakpoint. '
     );
+    test.skip(
+      config.showReactApp.signInRoutes !== true,
+      'Skip tests if React signInRoutes not enabled'
+    );
+
+    const credentials = await testAccountTracker.signUp();
 
     await relier.goto();
     await relier.clickEmailFirst();

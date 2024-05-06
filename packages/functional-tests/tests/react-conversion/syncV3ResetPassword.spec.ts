@@ -2,14 +2,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { expect } from '@playwright/test';
 import { EmailHeader, EmailType } from '../../lib/email';
-import { test } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import { getReactFeatureFlagUrl } from '../../lib/react-flag';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 reset password react', () => {
-    test.beforeEach(async ({ target, pages: { configPage } }) => {
+    test.beforeEach(async ({ pages: { configPage } }) => {
       test.slow();
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
@@ -17,10 +16,13 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('reset pw for sync user', async ({
-      credentials,
       target,
       syncBrowserPages: { page, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       await page.goto(
         getReactFeatureFlagUrl(
           target,
@@ -43,15 +45,14 @@ test.describe('severity-1 #smoke', () => {
       );
       await page.goto(link);
 
-      await resetPasswordReact.fillOutNewPasswordForm('Newpassword@');
+      await resetPasswordReact.fillOutNewPasswordForm(newPassword);
+      // Update credentials file so that account can be deleted as part of test cleanup
+      credentials.password = newPassword;
 
       await expect(page).toHaveURL(/reset_password_verified/);
       await expect(
         resetPasswordReact.passwordResetConfirmationHeading
       ).toBeVisible();
-
-      // Update credentials file so that account can be deleted as part of test cleanup
-      credentials.password = 'Newpassword@';
     });
   });
 });

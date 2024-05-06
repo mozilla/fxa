@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  BLOCKED_EMAIL_PREFIX,
-  PASSWORD,
-} from '../../lib/fixtures/standard';
-
+import { expect, test } from '../../lib/fixtures/standard';
 const AGE_21 = '21';
 
 test.describe('severity-1 #smoke', () => {
@@ -22,9 +16,10 @@ test.describe('severity-1 #smoke', () => {
 
   test.describe('OAuth force auth', () => {
     test('with a registered email', async ({
-      credentials,
       pages: { login, relier },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await relier.goto(`email=${credentials.email}`);
       await relier.clickForceAuth();
 
@@ -38,16 +33,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('with a unregistered email', async ({
-      credentials,
       pages: { login, relier },
-      emails,
+      testAccountTracker,
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
-
-      const [newEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const newEmail = testAccountTracker.generateEmail();
 
       await relier.goto(`email=${newEmail}`);
       await relier.clickForceAuth();
+      credentials.email = newEmail;
 
       // Signup form is shown and email is prefilled
       expect(await login.getPrefilledEmail()).toContain(newEmail);
@@ -61,18 +56,15 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('OAuth force auth', () => {
-    test.use({
-      emailOptions: [{ prefix: BLOCKED_EMAIL_PREFIX, password: PASSWORD }],
-    });
     test('with blocked email', async ({
-      credentials,
       page,
       pages: { login, relier, settings, deleteAccount },
-      emails,
+      testAccountTracker,
     }, { project }) => {
       test.slow(project.name !== 'local', 'email delivery can be slow');
 
-      const [blockedEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const blockedEmail = testAccountTracker.generateBlockedEmail();
 
       await relier.goto(`email=${blockedEmail}`);
       await relier.clickForceAuth();
@@ -98,7 +90,7 @@ test.describe('severity-1 #smoke', () => {
       //Delete blocked account, the fixture teardown doesn't work in this case
       await settings.goto();
       await settings.deleteAccountButton.click();
-      await deleteAccount.deleteAccount(PASSWORD);
+      await deleteAccount.deleteAccount(credentials.password);
 
       await expect(
         page.getByText('Account deleted successfully')

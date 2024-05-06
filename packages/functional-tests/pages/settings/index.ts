@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Page } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import {
   AvatarRow,
   ConnectedServicesRow,
@@ -97,6 +97,15 @@ export class SettingsPage extends SettingsLayout {
         })
       );
     }, creds.uid);
+  }
+
+  async disconnectTotp() {
+    await this.totp.disableButton.click();
+    await this.modalConfirmButton.click();
+
+    await expect(this.settingsHeading).toBeVisible();
+    await expect(this.alertBar).toHaveText('Two-step authentication disabled');
+    await expect(this.totp.status).toHaveText('Not Set');
   }
 
   async clickPaidSubscriptions() {

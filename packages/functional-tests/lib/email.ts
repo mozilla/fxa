@@ -74,13 +74,6 @@ export enum EmailHeader {
 }
 
 export class EmailClient {
-  static emailFromTestTitle(title: string) {
-    return `${title
-      .match(/(\w+)/g)
-      .join('_')
-      .substr(0, 20)
-      .toLowerCase()}_${Math.floor(Math.random() * 10000)}@restmail.net`;
-  }
   constructor(private readonly host: string = 'http://restmail.net') {}
 
   async waitForEmail(

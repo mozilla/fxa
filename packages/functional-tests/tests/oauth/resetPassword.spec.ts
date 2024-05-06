@@ -20,9 +20,10 @@ test.describe('severity-1 #smoke', () => {
     test('reset password happy path', async ({
       target,
       page,
-      credentials,
       pages: { login, relier, resetPassword },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await relier.goto();
       await relier.clickEmailFirst();
       await login.setEmail(credentials.email);

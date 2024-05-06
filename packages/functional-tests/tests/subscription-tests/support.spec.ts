@@ -2,7 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('support form without valid session', () => {
@@ -24,8 +27,10 @@ test.describe('severity-1 #smoke', () => {
       page,
       target,
       pages: { login },
+      testAccountTracker,
     }) => {
       test.slow();
+      await signInAccount(target, page, login, testAccountTracker);
       await page.goto(`${target.contentServerUrl}/support`, {
         waitUntil: 'load',
       });
@@ -41,13 +46,19 @@ test.describe('severity-2 #smoke', () => {
     // case where a form is successfully submitted cannot be covered.
 
     test('go to support form, cancel, redirects to subscription management', async ({
+      target,
+      page,
       pages: { login, relier, subscribe, settings, subscriptionManagement },
+      testAccountTracker,
     }, { project }) => {
       test.skip(
         project.name === 'production',
         'no real payment method available in prod'
       );
       test.slow();
+
+      await signInAccount(target, page, login, testAccountTracker);
+
       await relier.goto();
       await relier.clickSubscribe();
       await subscribe.setConfirmPaymentCheckbox();
@@ -69,3 +80,19 @@ test.describe('severity-2 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

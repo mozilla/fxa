@@ -210,6 +210,7 @@ export class LoginPage extends BaseLayout {
       EmailType.verifyShortCode,
       EmailHeader.shortCode
     );
+    await this.target.emailClient.clear(email);
     await this.setCode(code);
     await this.submit(waitForNavOnSubmit);
   }
@@ -220,6 +221,7 @@ export class LoginPage extends BaseLayout {
       EmailType.verifyLoginCode,
       EmailHeader.signinCode
     );
+    await this.target.emailClient.clear(email);
     await this.setCode(code);
     await this.submit();
   }
@@ -341,6 +343,7 @@ export class LoginPage extends BaseLayout {
       EmailType.unblockCode,
       EmailHeader.unblockCode
     );
+    await this.target.emailClient.clear(email);
     await this.setCode(code);
     await this.submit();
   }
