@@ -21444,12 +21444,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/generic-pool@npm:^3.1.9":
-  version: 3.1.9
-  resolution: "@types/generic-pool@npm:3.1.9"
+"@types/generic-pool@npm:^3.8.1":
+  version: 3.8.1
+  resolution: "@types/generic-pool@npm:3.8.1"
   dependencies:
-    "@types/node": "*"
-  checksum: 18f1d354f318228b38529ffd7cc87dcac4bda05c16b0c230751dad9c8e0be9526ebe174545832142d2d783f6deed8f26c286ba71818662a5d9421d75295c573e
+    generic-pool: "*"
+  checksum: 260e510c3574908b16543cedbbe9e8e48ddb442b64a093e8e19430b8e4dd99e872d6279c06d7e9dccb71a02e5fa314e99b1725c81fd571e6ec0753e720893a93
   languageName: node
   linkType: hard
 
@@ -38442,7 +38442,7 @@ fsevents@~2.1.1:
     "@types/chance": ^1.1.2
     "@types/cors": ^2.8.14
     "@types/express": ^4.17.12
-    "@types/generic-pool": ^3.1.9
+    "@types/generic-pool": ^3.8.1
     "@types/i18n-abide": ^0
     "@types/ioredis": ^4.26.4
     "@types/ip": ^1
@@ -38474,7 +38474,7 @@ fsevents@~2.1.1:
     eslint: ^7.32.0
     express: ^4.19.2
     find-up: ^5.0.0
-    generic-pool: ^3.8.2
+    generic-pool: ^3.9.0
     graphql: ^16.8.0
     hot-shots: ^10.0.0
     ioredis: ^4.28.2
@@ -38835,10 +38835,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"generic-pool@npm:^3.8.2":
-  version: 3.8.2
-  resolution: "generic-pool@npm:3.8.2"
-  checksum: f549077d90265e5e4d32a2410205b357ec61cf73d17861f1013637984390e09fe7bf537129a2c6ed30ae57662a57c8d54194f80046408d3349836330f422dbde
+"generic-pool@npm:*, generic-pool@npm:^3.9.0":
+  version: 3.9.0
+  resolution: "generic-pool@npm:3.9.0"
+  checksum: 3d89e9b2018d2e3bbf44fec78c76b2b7d56d6a484237aa9daf6ff6eedb14b0899dadd703b5d810219baab2eb28e5128fb18b29e91e602deb2eccac14492d8ca8
   languageName: node
   linkType: hard
 
