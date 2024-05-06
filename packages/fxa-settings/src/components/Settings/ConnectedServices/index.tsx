@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React, { useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useState } from 'react';
 import { ApolloError } from '@apollo/client';
 import groupBy from 'lodash.groupby';
 import { LinkExternal } from 'fxa-react/components/LinkExternal';
@@ -50,7 +50,7 @@ export function sortAndFilterConnectedClients(
   return { groupedByName, sortedAndUniqueClients };
 }
 
-export const ConnectedServices = () => {
+export const ConnectedServices = forwardRef<HTMLDivElement>((_, ref) => {
   const alertBar = useAlertBar();
   const account = useAccount();
   const attachedClients = account.attachedClients;
@@ -188,7 +188,12 @@ export const ConnectedServices = () => {
   }, [clearDisconnectingState, hideAdviceModal]);
 
   return (
-    <section className="mt-11" data-testid="settings-connected-services">
+    <section
+      className="mt-11"
+      data-testid="settings-connected-services"
+      id="connected-services-section"
+      {...{ ref }}
+    >
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="connected-services" className="nav-anchor"></span>
         <Localized id="cs-heading">Connected Services</Localized>
@@ -449,6 +454,6 @@ export const ConnectedServices = () => {
       </div>
     </section>
   );
-};
+});
 
 export default ConnectedServices;

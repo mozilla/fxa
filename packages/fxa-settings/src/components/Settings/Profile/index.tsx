@@ -2,18 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { useAccount } from '../../../models';
 import { UnitRow } from '../UnitRow';
 import { UnitRowSecondaryEmail } from '../UnitRowSecondaryEmail';
 import { HomePath } from '../../../constants';
 import { FtlMsg } from 'fxa-react/lib/utils';
 
-export const Profile = () => {
+export const Profile = forwardRef<HTMLDivElement>((_, ref) => {
   const { avatar, primaryEmail, displayName } = useAccount();
 
   return (
-    <section className="mt-11" data-testid="settings-profile">
+    <section
+      className="mt-11"
+      data-testid="settings-profile"
+      {...{ ref }}
+      id="profile-section"
+    >
       <h2 className="font-header font-bold mobileLandscape:ltr:ml-6 mobileLandscape:rtl:ml-6 ltr:ml-4 rtl:mr-4 mb-4 relative">
         <span id="profile" className="nav-anchor"></span>
         <FtlMsg id="profile-heading">Profile</FtlMsg>
@@ -62,4 +67,4 @@ export const Profile = () => {
       </div>
     </section>
   );
-};
+});

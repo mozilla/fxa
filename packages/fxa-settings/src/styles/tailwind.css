@@ -22,6 +22,11 @@ body {
   @apply absolute -top-20;
 }
 
+/* Abstracted because we directly edit the element's classList */
+.nav-active {
+  @apply font-bold text-blue-500 rounded-sm bg-grey-50;
+}
+
 progress {
   -webkit-appearance: none;
   -moz-appearance: none;

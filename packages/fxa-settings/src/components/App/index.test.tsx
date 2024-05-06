@@ -91,6 +91,15 @@ const updatedFlowQueryParams = {
   flowId: FLOW_ID,
 };
 
+beforeEach(() => {
+  const mockIntersectionObserver = jest.fn();
+  mockIntersectionObserver.mockReturnValue({
+    observe: () => null,
+    disconnect: () => null,
+  });
+  window.IntersectionObserver = mockIntersectionObserver;
+});
+
 describe('metrics', () => {
   let flowInit: jest.SpyInstance;
 
