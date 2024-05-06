@@ -3,12 +3,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { currentAccount } from '../../../lib/cache';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { Integration, useAuthClient } from '../../../models';
 import ConfirmSignupCode from '.';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { GetEmailBounceStatusResponse, LocationState } from './interfaces';
 import { useQuery } from '@apollo/client';
@@ -89,7 +90,7 @@ const SignupConfirmCodeContainer = ({
       if (Array.from(params).length > 0) {
         path += `?${params.toString()}`;
       }
-      hardNavigateToContentServer(path);
+      hardNavigate(path);
     },
     [email, location.search]
   );

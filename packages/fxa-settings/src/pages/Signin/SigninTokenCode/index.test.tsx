@@ -74,9 +74,6 @@ function render(
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 

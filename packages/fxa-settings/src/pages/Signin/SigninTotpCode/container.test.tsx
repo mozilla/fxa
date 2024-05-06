@@ -76,9 +76,6 @@ function mockCache(opts: any = {}, isEmpty = false) {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
@@ -193,20 +190,20 @@ describe('signin totp code container', () => {
     mockReachRouter();
     mockCache({}, true);
     await render(false);
-    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+    expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
   });
 
   it('redirects if there is no sessionToken', async () => {
     mockReachRouter();
     mockCache({ sessionToken: '' });
     await render(false);
-    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+    expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
   });
 
   it('redirects if verification method is not totp', async () => {
     mockReachRouter(MOCK_NON_TOTP_LOCATION_STATE);
     await render(false);
-    expect(ReactUtils.hardNavigateToContentServer).toBeCalledTimes(1);
-    expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+    expect(ReactUtils.hardNavigate).toBeCalledTimes(1);
+    expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
   });
 });

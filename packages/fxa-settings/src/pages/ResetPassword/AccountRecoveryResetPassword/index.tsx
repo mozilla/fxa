@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { useLocation, useNavigate } from '@reach/router';
+import { useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { FtlMsg } from 'fxa-react/lib/utils';
 import { useForm } from 'react-hook-form';
 
@@ -255,7 +256,7 @@ const AccountRecoveryResetPassword = ({
   async function navigateAway() {
     setUserPreference('account-recovery', false);
     logViewEvent(viewName, 'recovery-key-consume.success');
-    navigate(`/reset_password_with_recovery_key_verified${location.search}`);
+    navigate('/reset_password_with_recovery_key_verified');
   }
 };
 

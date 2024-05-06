@@ -32,9 +32,7 @@ function mockUseValidateModule() {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
+  jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
 const mockNavigate = jest.fn();
@@ -85,8 +83,10 @@ describe('CompleteSignin container', () => {
 
       expect(screen.getByText('Validating sign-in…')).toBeInTheDocument();
       await waitFor(() => {
-        expect(ReactUtils.hardNavigateToContentServer).toHaveBeenCalledWith(
-          '/connect_another_device'
+        expect(ReactUtils.hardNavigate).toHaveBeenCalledWith(
+          '/connect_another_device',
+          {},
+          true
         );
       });
     });
@@ -113,7 +113,7 @@ describe('CompleteSignin container', () => {
         expect(
           screen.getByRole('heading', { name: 'Confirmation link expired' })
         ).toBeInTheDocument();
-        expect(ReactUtils.hardNavigateToContentServer).not.toHaveBeenCalled();
+        expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
       });
     });
   });
@@ -133,7 +133,7 @@ describe('CompleteSignin container', () => {
       expect(screen.getByText('Validating sign-in…')).toBeInTheDocument();
       await waitFor(() => {
         expect(screen.getByText('Unexpected error')).toBeInTheDocument();
-        expect(ReactUtils.hardNavigateToContentServer).not.toHaveBeenCalled();
+        expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
       });
     });
   });
@@ -155,7 +155,7 @@ describe('CompleteSignin container', () => {
       );
 
       await waitFor(() => {
-        expect(ReactUtils.hardNavigateToContentServer).not.toHaveBeenCalled();
+        expect(ReactUtils.hardNavigate).not.toHaveBeenCalled();
       });
     });
   });

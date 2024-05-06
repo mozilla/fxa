@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { useLocation, useNavigate } from '@reach/router';
+import { useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import { useForm } from 'react-hook-form';
 import {
   isOAuthIntegration,
@@ -15,7 +16,7 @@ import {
   settingsViewName,
   usePageViewEvent,
 } from '../../lib/metrics';
-import { FtlMsg, hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import FormPasswordWithBalloons from '../../components/FormPasswordWithBalloons';
 import InputText from '../../components/InputText';
@@ -271,7 +272,7 @@ export const Signup = ({
           });
         }
 
-        navigate(`/confirm_signup_code${location.search}`, {
+        navigate('/confirm_signup_code', {
           state: {
             origin: 'signup',
             selectedNewsletterSlugs,
@@ -304,7 +305,6 @@ export const Signup = ({
       selectedNewsletterSlugs,
       declinedSyncEngines,
       email,
-      location.search,
       integration,
       offeredSyncEngineConfigs,
       isSyncOAuth,
@@ -402,7 +402,7 @@ export const Signup = ({
               // for more info.
               params.delete('emailStatusChecked');
               params.delete('email');
-              hardNavigateToContentServer(`/?${params.toString()}`);
+              hardNavigate(`/?${params.toString()}`);
             }}
           >
             Change email

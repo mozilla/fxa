@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { Localized } from '@fluent/react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { HomePath } from '../../../constants';

@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { REACT_ENTRYPOINT } from '../../../constants';
 import {
   AuthUiErrors,
@@ -11,11 +12,7 @@ import {
   getLocalizedErrorMessage,
 } from '../../../lib/auth-errors/auth-errors';
 import { logViewEvent, usePageViewEvent } from '../../../lib/metrics';
-import {
-  FtlMsg,
-  hardNavigate,
-  hardNavigateToContentServer,
-} from 'fxa-react/lib/utils';
+import { FtlMsg, hardNavigate } from 'fxa-react/lib/utils';
 import {
   useAlertBar,
   useFtlMsgResolver,
@@ -162,7 +159,7 @@ const ConfirmSignupCode = ({
 
       if (isSyncDesktopV3Integration(integration)) {
         const { to } = getSyncNavigate(location.search);
-        hardNavigateToContentServer(to);
+        hardNavigate(to);
       } else if (isOAuthIntegration(integration)) {
         // Check to see if the relier wants TOTP.
         // Newly created accounts wouldn't have this so lets redirect them to signin.
@@ -174,7 +171,7 @@ const ConfirmSignupCode = ({
 
         // Params are included to eventually allow for redirect to RP after 2FA setup
         if (integration.wantsTwoStepAuthentication()) {
-          hardNavigateToContentServer(`oauth/signin${location.search}`);
+          hardNavigate('oauth/signin', {}, true);
           return;
         } else {
           const { redirect, code, state, error } = await finishOAuthFlowHandler(
@@ -207,7 +204,7 @@ const ConfirmSignupCode = ({
             });
             // Mobile sync will close the web view, OAuth Desktop mimics DesktopV3 behavior
             const { to } = getSyncNavigate(location.search);
-            hardNavigateToContentServer(to);
+            hardNavigate(to);
             return;
           } else {
             // Navigate to relying party
@@ -236,7 +233,7 @@ const ConfirmSignupCode = ({
               'Account confirmed successfully'
             )
           );
-          navigate(`/settings${location.search}`, { replace: true });
+          navigate('/settings', { replace: true });
         }
       }
     } catch (error) {

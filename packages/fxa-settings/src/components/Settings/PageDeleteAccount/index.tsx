@@ -4,7 +4,8 @@
 
 import React, { useCallback, useState, ChangeEvent, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { useAccount, useAlertBar } from '../../../models';
 import InputPassword from '../../InputPassword';
 import FlowContainer from '../FlowContainer';
@@ -29,7 +30,7 @@ import {
   AuthUiErrors,
   getErrorFtlId,
 } from '../../../lib/auth-errors/auth-errors';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 
 type FormData = {
@@ -146,7 +147,7 @@ export const PageDeleteAccount = (_: RouteComponentProps) => {
           'flow.settings.account-delete',
           'confirm-password.success'
         );
-        hardNavigateToContentServer(`${ROOTPATH}?delete_account_success=true`);
+        hardNavigate(ROOTPATH, { delete_account_success: true }, true);
       } catch (e) {
         const localizedError = l10n.getString(
           getErrorFtlId(AuthUiErrors.INCORRECT_PASSWORD),

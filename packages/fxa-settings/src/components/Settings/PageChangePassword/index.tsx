@@ -4,7 +4,8 @@
 
 import React, { useCallback, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { HomePath } from '../../../constants';
 import {
   logViewEvent,

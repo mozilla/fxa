@@ -3,8 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, useLocation } from '@reach/router';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { RouteComponentProps } from '@reach/router';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { CompleteSigninQueryParams } from '../../../models/pages/signin';
 import { SigninLinkDamaged } from '../../../components/LinkDamaged';
@@ -29,7 +29,6 @@ const CompleteSigninContainer = (_: RouteComponentProps) => {
 
   const authClient = useAuthClient();
   const ftlMsgResolver = useFtlMsgResolver();
-  const location = useLocation();
 
   const [errorMessage, setErrorMessage] = useState<string>();
   const [linkExpired, setLinkExpired] = useState(false);
@@ -75,7 +74,7 @@ const CompleteSigninContainer = (_: RouteComponentProps) => {
     // TODO in FXA-9132 - Add metrics event
     // Backbone had 'verification.success' and 'signin.success';
 
-    hardNavigateToContentServer(`/connect_another_device${location.search}`);
+    hardNavigate('/connect_another_device', {}, true);
   };
 
   if (validationError) {

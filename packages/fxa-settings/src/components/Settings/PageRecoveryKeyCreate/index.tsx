@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { HomePath } from '../../../constants';
 import { usePageViewEvent } from '../../../lib/metrics';
 import { useAccount, useFtlMsgResolver } from '../../../models';
@@ -23,7 +24,6 @@ export enum RecoveryKeyAction {
 
 export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   usePageViewEvent(viewName);
-  const location = useLocation();
 
   const { recoveryKey, email } = useAccount();
   const ftlMsgResolver = useFtlMsgResolver();
@@ -48,7 +48,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
   );
 
   const navigateBackward = () => {
-    navigate(`${HomePath}${location.search}`);
+    navigate(HomePath);
   };
 
   const navigateForward = (e?: React.MouseEvent<HTMLElement>) => {
@@ -56,7 +56,7 @@ export const PageRecoveryKeyCreate = (props: RouteComponentProps) => {
     if (currentStep + 1 <= numberOfSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate(`${HomePath}${location.search}`);
+      navigate(HomePath);
     }
   };
 

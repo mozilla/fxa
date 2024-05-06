@@ -2,13 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { TotpStatusResponse } from './interfaces';
 import SigninTokenCode from '.';
 import { useQuery } from '@apollo/client';
 import { GET_TOTP_STATUS } from '../../../components/App/gql';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { Integration, useAuthClient } from '../../../models';
 import { useFinishOAuthFlowHandler } from '../../../lib/oauth/hooks';
 import { SigninLocationState } from '../interfaces';
@@ -41,7 +42,7 @@ const SigninTokenCodeContainer = ({
     useQuery<TotpStatusResponse>(GET_TOTP_STATUS);
 
   if (!signinState) {
-    hardNavigateToContentServer(`/${location.search || ''}`);
+    hardNavigate('/', {}, true);
     return <LoadingSpinner fullScreen />;
   }
 

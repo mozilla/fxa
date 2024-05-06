@@ -757,16 +757,16 @@ describe('with sessionToken', () => {
     });
   });
 
-  describe('hardNavigateToContentServer', () => {
-    let hardNavigateToContentServerSpy: jest.SpyInstance;
+  describe('hardNavigate', () => {
+    let hardNavigateSpy: jest.SpyInstance;
 
     beforeEach(() => {
-      hardNavigateToContentServerSpy = jest
-        .spyOn(utils, 'hardNavigateToContentServer')
+      hardNavigateSpy = jest
+        .spyOn(utils, 'hardNavigate')
         .mockImplementation(() => {});
     });
     afterEach(() => {
-      hardNavigateToContentServerSpy.mockRestore();
+      hardNavigateSpy.mockRestore();
     });
 
     it('allows users to use a different account', async () => {
@@ -779,7 +779,7 @@ describe('with sessionToken', () => {
           })
         );
       });
-      expect(hardNavigateToContentServerSpy).toHaveBeenCalledWith(
+      expect(hardNavigateSpy).toHaveBeenCalledWith(
         `/?prefillEmail=${encodeURIComponent(MOCK_EMAIL)}`
       );
     });

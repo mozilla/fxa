@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { useState } from 'react';
-import { RouteComponentProps, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { useValidatedQueryParams } from '../../../lib/hooks/useValidate';
 import { useAuthClient, useFtlMsgResolver } from '../../../models';
 import { ReportSigninQueryParams } from '../../../models/pages/signin';

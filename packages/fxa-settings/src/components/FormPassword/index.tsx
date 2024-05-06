@@ -11,7 +11,7 @@ import { UseFormMethods, ValidateResult } from 'react-hook-form';
 import LinkExternal from 'fxa-react/components/LinkExternal';
 import InputPassword from '../InputPassword';
 import PasswordValidator from '../../lib/password-validator';
-import { useNavigate } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import { HomePath } from '../../constants';
 import { logViewEvent, settingsViewName } from '../../lib/metrics';
 

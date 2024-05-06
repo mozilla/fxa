@@ -4,7 +4,8 @@
 
 // See https://github.com/reach/router/issues/242 for a discussion
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import React, { useCallback, useLayoutEffect } from 'react';
 
 export const ScrollToTop = (

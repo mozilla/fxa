@@ -7,19 +7,40 @@ import { Message, Pattern } from '@fluent/bundle/esm/ast';
 import { Localized, LocalizedProps, ReactLocalization } from '@fluent/react';
 import React from 'react';
 
-// Going from react page to non-react page requires a hard navigate. This temporary
-// function is an easy way to reference what needs updating when applicable flows have
-// been fully converted - we should remove references to this function as we go and use
-// our regular navigate. We can remove this entirely when we're fully converted to React.
-export function hardNavigateToContentServer(href: string) {
-  window.location.href = href;
-}
-
 // There maybe situations where we are navigating away from the react app. For example when
-// directing back to an RP. Let's use this function to make it clear this behavior is
+// directing back to an RP or the content-server. Let's use this function to make it clear this behavior is
 // intentional.
-export function hardNavigate(href: string) {
-  window.location.href = href;
+export function hardNavigate(
+  href: string,
+  additionalQueryParams = {},
+  includeCurrentQueryParams = false
+) {
+  // If there are any query params in the href, we automatically include them in the new url.
+  let searchParams = new URLSearchParams();
+  if (href.includes('?')) {
+    searchParams = new URLSearchParams(href.substring(href.indexOf('?')));
+  }
+
+  if (includeCurrentQueryParams) {
+    const currentSearchParams = new URLSearchParams(window.location.search);
+    currentSearchParams.forEach((value, key) => {
+      if (!searchParams.has(key)) {
+        searchParams.append(key, value);
+      }
+    });
+  }
+
+  if (additionalQueryParams) {
+    const additionalSearchParams = new URLSearchParams(additionalQueryParams);
+    additionalSearchParams.forEach((value, key) => {
+      searchParams.append(key, value);
+    });
+  }
+
+  if (href.includes('?')) {
+    href = href.substring(0, href.indexOf('?'));
+  }
+  window.location.href = `${href}?${searchParams.toString()}`;
 }
 
 export enum LocalizedDateOptions {

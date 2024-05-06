@@ -408,7 +408,7 @@ describe('CompleteResetPassword page', () => {
     });
 
     describe('Web integration', () => {
-      // Not needed once this page doesn't use `hardNavigateToContentServer`
+      // Not needed once this page doesn't use `hardNavigate`
       const originalWindow = window.location;
       beforeAll(() => {
         // @ts-ignore

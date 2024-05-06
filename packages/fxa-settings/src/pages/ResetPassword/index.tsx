@@ -2,7 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { Control, useForm, useWatch } from 'react-hook-form';
 import { REACT_ENTRYPOINT } from '../../constants';
@@ -49,7 +51,6 @@ const ResetPassword = ({
   const account = useAccount();
   const navigate = useNavigate();
   const ftlMsgResolver = useFtlMsgResolver();
-  const location = useLocation();
 
   // NOTE: This was previously part of the persistVerificationData. Let's keep these operations atomic in the new version though.
   setOriginalTabMarker();
@@ -86,14 +87,12 @@ const ResetPassword = ({
 
   const navigateToConfirmPwReset = useCallback(
     (stateData: ConfirmResetPasswordLocationState) => {
-      const searchParams = new URLSearchParams(location.search);
-      searchParams.set('showReactApp', 'true');
-      navigate(`/confirm_reset_password?${searchParams}`, {
+      navigate('/confirm_reset_password', {
         state: stateData,
         replace: true,
       });
     },
-    [location, navigate]
+    [navigate]
   );
 
   const clearError = useCallback(() => {

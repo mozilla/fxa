@@ -3,7 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import React, { useCallback, useState } from 'react';
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../../lib/hooks/useNavigateWithQuery';
 import { POLLING_INTERVAL_MS, REACT_ENTRYPOINT } from '../../../constants';
 import { usePageViewEvent, logViewEvent } from '../../../lib/metrics';
 import { ResendStatus } from '../../../lib/types';
@@ -18,7 +19,7 @@ import ConfirmWithLink, {
   ConfirmWithLinkPageStrings,
 } from '../../../components/ConfirmWithLink';
 import LinkRememberPassword from '../../../components/LinkRememberPassword';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import { setOriginalTabMarker } from '../../../lib/storage-utils';
 import {
   ConfirmResetPasswordIntegration,
@@ -58,7 +59,7 @@ const ConfirmResetPassword = ({
     useState<string>(passwordForgotToken);
 
   const navigateToPasswordReset = useCallback(() => {
-    navigate('reset_password?showReactApp=true', { replace: true });
+    navigate('reset_password', { replace: true });
   }, [navigate]);
 
   if (!email || !passwordForgotToken) {
@@ -73,7 +74,7 @@ const ConfirmResetPassword = ({
         currentPasswordForgotToken
       );
       if (!isValid) {
-        hardNavigateToContentServer('/signin');
+        hardNavigate('/signin', {}, false);
       } else {
         // TODO: Not sure about this. It works with the flow... but.
         setOriginalTabMarker();

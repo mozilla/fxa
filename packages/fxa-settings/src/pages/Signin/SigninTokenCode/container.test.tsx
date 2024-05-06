@@ -73,9 +73,6 @@ function mockSigninTokenCodeModule() {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
@@ -162,7 +159,7 @@ describe('SigninTokenCode container', () => {
         mockLocationState = {};
         render();
         expect(CacheModule.currentAccount).toBeCalled();
-        expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+        expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
         expect(SigninTokenCodeModule.default).not.toBeCalled();
       });
     });

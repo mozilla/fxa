@@ -2,7 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { RouteComponentProps, useLocation, useNavigate } from '@reach/router';
+import { RouteComponentProps, useLocation } from '@reach/router';
+import { useNavigateWithQuery as useNavigate } from '../../lib/hooks/useNavigateWithQuery';
 import LoadingSpinner from 'fxa-react/components/LoadingSpinner';
 import { useCallback, useEffect, useState } from 'react';
 import InlineTotpSetup from '.';

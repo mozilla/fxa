@@ -30,7 +30,7 @@ import {
   PASSWORD_CHANGE_FINISH_MUTATION,
   PASSWORD_CHANGE_START_MUTATION,
 } from './gql';
-import { hardNavigateToContentServer } from 'fxa-react/lib/utils';
+import { hardNavigate } from 'fxa-react/lib/utils';
 import {
   RecoveryEmailStatusResponse,
   AvatarResponse,
@@ -180,12 +180,12 @@ const SigninContainer = ({
             }
           } catch (error) {
             queryParams.set('prefillEmail', email);
-            hardNavigateToContentServer(`/?${queryParams}`);
+            hardNavigate(`/?${queryParams}`);
           }
         }
       } else {
         const optionalParams = queryParams.size > 0 ? `?${queryParams}` : '';
-        hardNavigateToContentServer(`/${optionalParams}`);
+        hardNavigate(`/${optionalParams}`);
       }
     })();
     // Only run this on initial render
@@ -357,7 +357,7 @@ const SigninContainer = ({
   // TODO: if validationError is 'email', in content-server we show "Bad request email param"
   // For now, just redirect to index-first, until FXA-8289 is done
   if (!email || validationError) {
-    hardNavigateToContentServer(`/${location.search}`);
+    hardNavigate(`/${location.search}`);
     return <LoadingSpinner fullScreen />;
   }
 

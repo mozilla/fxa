@@ -15,6 +15,17 @@ import { HomePath } from '../../../constants';
 import { Account, AppContext } from '../../../models';
 import { SettingsContext } from '../../../models/contexts/SettingsContext';
 
+let mockLocationState = {};
+const mockLocation = () => {
+  return {
+    state: mockLocationState,
+  };
+};
+jest.mock('@reach/router', () => ({
+  ...jest.requireActual('@reach/router'),
+  useLocation: () => mockLocation(),
+}));
+
 jest.mock('../../../models/AlertBarInfo');
 const inputDisplayName = async (newName: string) => {
   await act(async () => {
@@ -71,7 +82,7 @@ it('navigates back to settings home and shows a success message on a successful 
     success: jest.fn(),
   } as any;
   const settingsContext = mockSettingsContext({ alertBarInfo });
-  renderWithRouter(
+  const { history } = renderWithRouter(
     <AppContext.Provider value={mockAppContext({ account })}>
       <SettingsContext.Provider value={settingsContext}>
         <PageDisplayName />
@@ -79,7 +90,7 @@ it('navigates back to settings home and shows a success message on a successful 
     </AppContext.Provider>
   );
   await submitDisplayName('John Hope');
-  expect(window.location.pathname).toBe(HomePath);
+  expect(history.location.pathname).toBe(HomePath);
   expect(alertBarInfo.success).toHaveBeenCalledTimes(1);
   expect(alertBarInfo.success).toHaveBeenCalledWith('Display name updated');
 });

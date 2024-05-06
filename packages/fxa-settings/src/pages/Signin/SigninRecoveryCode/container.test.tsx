@@ -73,9 +73,6 @@ function mockCache(opts: any = {}, isEmpty = false) {
 }
 
 function mockReactUtilsModule() {
-  jest
-    .spyOn(ReactUtils, 'hardNavigateToContentServer')
-    .mockImplementation(() => {});
   jest.spyOn(ReactUtils, 'hardNavigate').mockImplementation(() => {});
 }
 
@@ -138,21 +135,21 @@ describe('SigninRecoveryCode container', () => {
       mockReachRouter(undefined, 'signin_recovery_code');
       mockCache({}, true);
       await render([]);
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
     });
 
     it('redirects if there is no sessionToken', async () => {
       mockReachRouter(undefined, 'signin_recovery_code');
       mockCache({ sessionToken: '' });
       await render([]);
-      expect(ReactUtils.hardNavigateToContentServer).toBeCalledWith('/');
+      expect(ReactUtils.hardNavigate).toBeCalledWith('/', {}, true);
     });
 
     it('retrieves the session token from local storage if no location state', async () => {
       mockReachRouter(undefined, 'signin_recovery_code', {});
       mockCache(MOCK_STORED_ACCOUNT);
       await render([]);
-      expect(ReactUtils.hardNavigateToContentServer).not.toBeCalledWith('/');
+      expect(ReactUtils.hardNavigate).not.toBeCalledWith('/', {}, true);
     });
   });
 
