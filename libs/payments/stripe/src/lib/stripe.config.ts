@@ -4,6 +4,8 @@
 
 import { Transform } from 'class-transformer';
 import { IsObject, IsString } from 'class-validator';
+import { faker } from '@faker-js/faker';
+import { Provider } from '@nestjs/common';
 
 export class StripeConfig {
   @IsString()
@@ -16,3 +18,13 @@ export class StripeConfig {
   @IsObject()
   public readonly taxIds!: { [key: string]: string };
 }
+
+export const MockStripeConfig = {
+  apiKey: faker.string.uuid(),
+  taxIds: { EUR: 'EU1234' },
+} satisfies StripeConfig;
+
+export const MockStripeConfigProvider = {
+  provide: StripeConfig,
+  useValue: MockStripeConfig,
+} satisfies Provider<StripeConfig>;

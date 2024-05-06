@@ -49,7 +49,7 @@ async function directUpdate(
     .execute();
 }
 
-describe('#payments-cart - manager', () => {
+describe('CartManager', () => {
   let db: AccountDatabase;
   let cartManager: CartManager;
   let testCart: ResultCart;

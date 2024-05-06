@@ -35,6 +35,8 @@ import {
   TransactionSearchOptions,
 } from './paypal.client.types';
 import { objectToNVP, toIsoString } from './util';
+import { Test } from '@nestjs/testing';
+import { MockPaypalClientConfigProvider } from './paypal.client.config';
 
 describe('PayPalClient', () => {
   const commonPayloadArgs = {
@@ -44,15 +46,14 @@ describe('PayPalClient', () => {
     VERSION: PAYPAL_VERSION,
   };
 
-  let client: PayPalClient;
+  let paypalClient: PayPalClient;
 
-  beforeEach(() => {
-    client = new PayPalClient({
-      user: 'user',
-      sandbox: true,
-      pwd: 'pwd',
-      signature: 'sig',
-    });
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [MockPaypalClientConfigProvider, PayPalClient],
+    }).compile();
+
+    paypalClient = module.get(PayPalClient);
   });
 
   afterEach(() => {
@@ -84,7 +85,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(NVPSetExpressCheckoutResponseFactory()));
 
-      await client.setExpressCheckout({
+      await paypalClient.setExpressCheckout({
         currencyCode,
       });
     });
@@ -101,7 +102,7 @@ describe('PayPalClient', () => {
         .reply(200, objectToNVP(NVPErrorResponseFactory()));
 
       try {
-        await client.setExpressCheckout({
+        await paypalClient.setExpressCheckout({
           currencyCode,
         });
         fail('Request should have thrown an error.');
@@ -131,7 +132,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.createBillingAgreement({
+      const result = await paypalClient.createBillingAgreement({
         token,
       });
 
@@ -170,7 +171,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.doReferenceTransaction(options);
+      const result = await paypalClient.doReferenceTransaction(options);
 
       expect(result).toMatchObject(response);
     });
@@ -211,7 +212,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.doReferenceTransaction(options);
+      const result = await paypalClient.doReferenceTransaction(options);
 
       expect(result).toMatchObject(response);
     });
@@ -241,7 +242,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.refundTransaction(options);
+      const result = await paypalClient.refundTransaction(options);
 
       expect(result).toMatchObject(response);
     });
@@ -267,7 +268,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.refundTransaction(options);
+      const result = await paypalClient.refundTransaction(options);
 
       expect(result).toMatchObject(response);
     });
@@ -291,7 +292,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.baUpdate(options);
+      const result = await paypalClient.baUpdate(options);
 
       expect(result).toMatchObject(response);
     });
@@ -315,7 +316,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.baUpdate(options);
+      const result = await paypalClient.baUpdate(options);
 
       expect(result).toMatchObject(response);
     });
@@ -328,7 +329,7 @@ describe('PayPalClient', () => {
       nock(PAYPAL_SANDBOX_IPN_BASE)
         .post(PAYPAL_IPN_ROUTE, verifyPayload)
         .reply(200, 'VERIFIED');
-      const result = await client.ipnVerify(message);
+      const result = await paypalClient.ipnVerify(message);
       expect(result).toEqual('VERIFIED');
     });
   });
@@ -359,7 +360,7 @@ describe('PayPalClient', () => {
         .post(PAYPAL_NVP_ROUTE, objectToNVP(expectedPayload))
         .reply(200, objectToNVP(response));
 
-      const result = await client.transactionSearch(options);
+      const result = await paypalClient.transactionSearch(options);
 
       expect(result).toMatchObject(response);
     });

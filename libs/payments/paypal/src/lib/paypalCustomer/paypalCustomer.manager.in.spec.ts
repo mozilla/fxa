@@ -49,8 +49,7 @@ describe('PaypalCustomerManager', () => {
         billingAgreementId: 'NOT VALID LONG STRING TO CAUSE ERROR',
       });
 
-      expect.assertions(0);
-      expect(
+      await expect(
         paypalCustomerManager.createPaypalCustomer(paypalCustomer)
       ).rejects.toBeInstanceOf(PaypalCustomerNotCreatedError);
     });
@@ -75,8 +74,7 @@ describe('PaypalCustomerManager', () => {
     it('throws a PaypalCustomerNotFoundError when paypalCustomer does not exist', async () => {
       const paypalCustomer = CreatePaypalCustomerFactory();
 
-      expect.assertions(0);
-      expect(
+      await expect(
         paypalCustomerManager.fetchPaypalCustomer(
           paypalCustomer.uid,
           paypalCustomer.billingAgreementId
@@ -169,8 +167,7 @@ describe('PaypalCustomerManager', () => {
         billingAgreementId: 'NOT VALID LONG STRING TO CAUSE ERROR',
       };
 
-      expect.assertions(0);
-      expect(
+      await expect(
         paypalCustomerManager.updatePaypalCustomer(
           paypalCustomer.uid,
           paypalCustomer.billingAgreementId,
@@ -202,9 +199,8 @@ describe('PaypalCustomerManager', () => {
 
       await paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer);
 
-      expect.assertions(0);
       // Customer is already deleted, this should now throw
-      expect(
+      await expect(
         paypalCustomerManager.deletePaypalCustomer(resultPaypalCustomer)
       ).rejects.toBeInstanceOf(PaypalCustomerNotDeletedError);
     });

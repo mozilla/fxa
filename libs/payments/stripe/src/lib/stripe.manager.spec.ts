@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import { faker } from '@faker-js/faker';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import {
   StripeApiListFactory,
@@ -17,84 +17,65 @@ import { StripeProductFactory } from './factories/product.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeClient } from './stripe.client';
-import { StripeConfig } from './stripe.config';
-import {
-  PlanIntervalMultiplePlansError,
-  PlanNotFoundError,
-  ProductNotFoundError,
-} from './stripe.error';
+import { MockStripeConfigProvider } from './stripe.config';
+import { PlanIntervalMultiplePlansError } from './stripe.error';
 import { StripeManager } from './stripe.manager';
 
 describe('StripeManager', () => {
-  let manager: StripeManager;
-  let mockClient: StripeClient;
-  let mockConfig: StripeConfig;
+  let stripeManager: StripeManager;
+  let stripeClient: StripeClient;
 
   beforeEach(async () => {
-    mockClient = new StripeClient({
-      apiKey: faker.string.uuid(),
-      taxIds: { EUR: 'EU1234' },
-    });
-
-    mockConfig = {
-      apiKey: faker.string.uuid(),
-      taxIds: { EUR: 'EU1234' },
-    };
-
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        { provide: StripeClient, useValue: mockClient },
-        { provide: StripeConfig, useValue: mockConfig },
-        StripeManager,
-      ],
+    const module = await Test.createTestingModule({
+      providers: [MockStripeConfigProvider, StripeClient, StripeManager],
     }).compile();
 
-    manager = module.get<StripeManager>(StripeManager);
-  });
-
-  it('should be defined', async () => {
-    expect(manager).toBeDefined();
-    expect(manager).toBeInstanceOf(StripeManager);
+    stripeManager = module.get(StripeManager);
+    stripeClient = module.get(StripeClient);
   });
 
   describe('fetchActiveCustomer', () => {
     it('returns an existing customer from Stripe', async () => {
-      const mockCustomer = StripeCustomerFactory();
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
 
-      mockClient.customersRetrieve = jest
-        .fn()
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
         .mockResolvedValueOnce(mockCustomer);
 
-      const result = await manager.fetchActiveCustomer(mockCustomer.id);
+      const result = await stripeManager.fetchActiveCustomer(mockCustomer.id);
       expect(result).toEqual(mockCustomer);
     });
   });
 
   describe('finalizeInvoiceWithoutAutoAdvance', () => {
     it('works successfully', async () => {
-      const mockInvoice = StripeInvoiceFactory({
-        auto_advance: false,
-      });
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          auto_advance: false,
+        })
+      );
 
-      mockClient.invoicesFinalizeInvoice = jest.fn().mockResolvedValueOnce({});
+      jest
+        .spyOn(stripeClient, 'invoicesFinalizeInvoice')
+        .mockResolvedValue(mockInvoice);
 
-      const result = await manager.finalizeInvoiceWithoutAutoAdvance(
+      const result = await stripeManager.finalizeInvoiceWithoutAutoAdvance(
         mockInvoice.id
       );
-      expect(result).toEqual({});
+      expect(result).toEqual(mockInvoice);
     });
   });
 
   describe('getMinimumAmount', () => {
     it('returns minimum amout for valid currency', () => {
       const expected = 50;
-      const result = manager.getMinimumAmount('usd');
+      const result = stripeManager.getMinimumAmount('usd');
 
       expect(result).toEqual(expected);
     });
 
     it('should throw an error if currency is invalid', () => {
-      expect(() => manager.getMinimumAmount('fake')).toThrow(
+      expect(() => stripeManager.getMinimumAmount('fake')).toThrow(
         'Currency does not have a minimum charge amount available.'
       );
     });
@@ -104,14 +85,14 @@ describe('StripeManager', () => {
     it('returns the correct tax id for currency', async () => {
       const mockCurrency = 'eur';
 
-      const result = manager.getTaxIdForCurrency(mockCurrency);
+      const result = stripeManager.getTaxIdForCurrency(mockCurrency);
       expect(result).toEqual('EU1234');
     });
 
     it('returns empty string when no  tax id found', async () => {
       const mockCurrency = faker.finance.currencyCode();
 
-      const result = manager.getTaxIdForCurrency(mockCurrency);
+      const result = stripeManager.getTaxIdForCurrency(mockCurrency);
       expect(result).toEqual(undefined);
     });
   });
@@ -122,24 +103,24 @@ describe('StripeManager', () => {
       const mockSubscription = StripeSubscriptionFactory({
         status: 'incomplete',
       });
-      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
+      const mockSubscriptionList = [mockSubscription];
       const mockPrice = mockSubscription.items.data[0].price;
       const mockResponse = StripeResponseFactory(mockSubscription);
 
-      manager.getSubscriptions = jest
-        .fn()
-        .mockResolvedValueOnce(mockSubscriptionList);
+      jest
+        .spyOn(stripeManager, 'getSubscriptions')
+        .mockResolvedValue(mockSubscriptionList);
 
-      mockClient.subscriptionsCancel = jest
-        .fn()
-        .mockResolvedValueOnce(mockResponse);
+      jest
+        .spyOn(stripeClient, 'subscriptionsCancel')
+        .mockResolvedValue(mockResponse);
 
-      await manager.cancelIncompleteSubscriptionsToPrice(
+      await stripeManager.cancelIncompleteSubscriptionsToPrice(
         mockCustomer.id,
         mockPrice.id
       );
 
-      expect(mockClient.subscriptionsCancel).toBeCalledWith(
+      expect(stripeClient.subscriptionsCancel).toBeCalledWith(
         mockSubscription.id
       );
     });
@@ -151,22 +132,24 @@ describe('StripeManager', () => {
       const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
       const mockCustomer = StripeCustomerFactory();
 
-      const expected = mockSubscriptionList;
+      const expected = mockSubscriptionList.data;
 
-      mockClient.subscriptionsList = jest
-        .fn()
-        .mockResolvedValueOnce(mockSubscriptionList);
+      jest
+        .spyOn(stripeClient, 'subscriptionsList')
+        .mockResolvedValue(mockSubscriptionList);
 
-      const result = await manager.getSubscriptions(mockCustomer.id);
+      const result = await stripeManager.getSubscriptions(mockCustomer.id);
       expect(result).toEqual(expected);
     });
 
     it('returns empty array if no subscriptions exist', async () => {
       const mockCustomer = StripeCustomerFactory();
 
-      mockClient.subscriptionsList = jest.fn().mockResolvedValueOnce([]);
+      jest
+        .spyOn(stripeClient, 'subscriptionsList')
+        .mockResolvedValue(StripeApiListFactory([]));
 
-      const result = await manager.getSubscriptions(mockCustomer.id);
+      const result = await stripeManager.getSubscriptions(mockCustomer.id);
       expect(result).toEqual([]);
     });
   });
@@ -175,13 +158,13 @@ describe('StripeManager', () => {
     it('calls stripeclient', async () => {
       const mockSubscription = StripeSubscriptionFactory();
 
-      mockClient.subscriptionsCancel = jest
-        .fn()
-        .mockResolvedValueOnce(undefined);
+      jest
+        .spyOn(stripeClient, 'subscriptionsCancel')
+        .mockResolvedValue(StripeResponseFactory(mockSubscription));
 
-      await manager.cancelSubscription(mockSubscription.id);
+      await stripeManager.cancelSubscription(mockSubscription.id);
 
-      expect(mockClient.subscriptionsCancel).toBeCalledWith(
+      expect(stripeClient.subscriptionsCancel).toBeCalledWith(
         mockSubscription.id
       );
     });
@@ -192,15 +175,18 @@ describe('StripeManager', () => {
       const mockSubscription = StripeSubscriptionFactory();
       const mockResponse = StripeResponseFactory(mockSubscription);
 
-      mockClient.subscriptionsRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockResponse);
+      jest
+        .spyOn(stripeClient, 'subscriptionsRetrieve')
+        .mockResolvedValue(mockResponse);
 
-      await manager.retrieveSubscription(mockSubscription.id);
-
-      expect(mockClient.subscriptionsRetrieve).toBeCalledWith(
+      const result = await stripeManager.retrieveSubscription(
         mockSubscription.id
       );
+
+      expect(stripeClient.subscriptionsRetrieve).toBeCalledWith(
+        mockSubscription.id
+      );
+      expect(result).toEqual(mockResponse);
     });
   });
 
@@ -212,16 +198,20 @@ describe('StripeManager', () => {
       const mockSubscription = StripeSubscriptionFactory(mockParams);
       const mockResponse = StripeResponseFactory(mockSubscription);
 
-      mockClient.subscriptionsUpdate = jest
-        .fn()
-        .mockResolvedValueOnce(mockResponse);
+      jest
+        .spyOn(stripeClient, 'subscriptionsUpdate')
+        .mockResolvedValue(mockResponse);
 
-      await manager.updateSubscription(mockSubscription.id, mockParams);
-
-      expect(mockClient.subscriptionsUpdate).toBeCalledWith(
+      const result = await stripeManager.updateSubscription(
         mockSubscription.id,
         mockParams
       );
+
+      expect(stripeClient.subscriptionsUpdate).toBeCalledWith(
+        mockSubscription.id,
+        mockParams
+      );
+      expect(result).toEqual(mockResponse);
     });
   });
 
@@ -235,7 +225,7 @@ describe('StripeManager', () => {
         },
       });
 
-      const result = manager.isCustomerStripeTaxEligible(mockCustomer);
+      const result = stripeManager.isCustomerStripeTaxEligible(mockCustomer);
       expect(result).toEqual(true);
     });
 
@@ -248,7 +238,7 @@ describe('StripeManager', () => {
         },
       });
 
-      const result = manager.isCustomerStripeTaxEligible(mockCustomer);
+      const result = stripeManager.isCustomerStripeTaxEligible(mockCustomer);
       expect(result).toEqual(true);
     });
   });
@@ -262,11 +252,11 @@ describe('StripeManager', () => {
         mockPromotionCode2,
       ]);
 
-      mockClient.promotionCodesList = jest
-        .fn()
-        .mockResolvedValue(mockPromotionCodesResponse);
+      jest
+        .spyOn(stripeClient, 'promotionCodesList')
+        .mockResolvedValue(StripeResponseFactory(mockPromotionCodesResponse));
 
-      const result = await manager.getPromotionCodeByName(
+      const result = await stripeManager.getPromotionCodeByName(
         mockPromotionCode.code
       );
       expect(result).toEqual(mockPromotionCode);
@@ -276,45 +266,48 @@ describe('StripeManager', () => {
   describe('retrievePromotionCode', () => {
     it('retrieves promotion code', async () => {
       const mockPromotionCode = StripePromotionCodeFactory();
-      const mockResponse = StripeResponseFactory([mockPromotionCode]);
+      const mockResponse = StripeResponseFactory(mockPromotionCode);
 
-      mockClient.promotionCodesRetrieve = jest
-        .fn()
+      jest
+        .spyOn(stripeClient, 'promotionCodesRetrieve')
         .mockResolvedValue(mockResponse);
 
-      const result = await manager.retrievePromotionCode(mockPromotionCode.id);
+      const result = await stripeManager.retrievePromotionCode(
+        mockPromotionCode.id
+      );
       expect(result).toEqual(mockResponse);
     });
   });
 
   describe('getCustomerTaxId', () => {
     it('returns customer tax id if found', async () => {
+      const mockTaxIdValue = faker.string.uuid();
       const mockCustomer = StripeCustomerFactory({
         invoice_settings: {
-          custom_fields: [{ name: 'Tax ID', value: 'LeeroyJenkins' }],
+          custom_fields: [{ name: 'Tax ID', value: mockTaxIdValue }],
           default_payment_method: null,
           footer: null,
           rendering_options: null,
         },
       });
 
-      mockClient.customersRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(StripeResponseFactory(mockCustomer));
 
-      const result = await manager.getCustomerTaxId(mockCustomer.id);
+      const result = await stripeManager.getCustomerTaxId(mockCustomer.id);
 
-      expect(result).toEqual('LeeroyJenkins');
+      expect(result).toEqual(mockTaxIdValue);
     });
 
     it('returns undefined when customer tax id not found', async () => {
       const mockCustomer = StripeCustomerFactory();
 
-      mockClient.customersRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(StripeResponseFactory(mockCustomer));
 
-      const result = await manager.getCustomerTaxId(mockCustomer.id);
+      const result = await stripeManager.getCustomerTaxId(mockCustomer.id);
 
       expect(result).toBeUndefined();
     });
@@ -322,25 +315,30 @@ describe('StripeManager', () => {
 
   describe('setCustomerTaxId', () => {
     it('updates customer object with incoming tax id when match is not found', async () => {
-      const mockCustomer = StripeCustomerFactory();
-      const mockUpdatedCustomer = StripeCustomerFactory({
-        invoice_settings: {
-          custom_fields: [{ name: 'Tax ID', value: 'EU1234' }],
-          default_payment_method: null,
-          footer: null,
-          rendering_options: null,
-        },
-      });
+      const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
+      const mockUpdatedCustomer = StripeResponseFactory(
+        StripeCustomerFactory({
+          invoice_settings: {
+            custom_fields: [{ name: 'Tax ID', value: 'EU1234' }],
+            default_payment_method: null,
+            footer: null,
+            rendering_options: null,
+          },
+        })
+      );
 
-      mockClient.customersRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(mockCustomer);
 
-      mockClient.customersUpdate = jest
-        .fn()
-        .mockResolvedValueOnce(mockUpdatedCustomer);
+      jest
+        .spyOn(stripeClient, 'customersUpdate')
+        .mockResolvedValue(mockUpdatedCustomer);
 
-      const result = await manager.setCustomerTaxId(mockCustomer.id, 'EU1234');
+      const result = await stripeManager.setCustomerTaxId(
+        mockCustomer.id,
+        'EU1234'
+      );
 
       expect(result).toEqual(mockUpdatedCustomer);
     });
@@ -355,11 +353,11 @@ describe('StripeManager', () => {
         },
       });
 
-      mockClient.customersRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockCustomer);
+      jest
+        .spyOn(stripeClient, 'customersRetrieve')
+        .mockResolvedValue(StripeResponseFactory(mockCustomer));
 
-      const result = await manager.setCustomerTaxId(
+      const result = await stripeManager.setCustomerTaxId(
         mockCustomer.id,
         'T43CAK315A713'
       );
@@ -370,34 +368,23 @@ describe('StripeManager', () => {
 
   describe('getPlan', () => {
     it('returns plan', async () => {
-      const mockPlan = StripePlanFactory();
+      const mockPlan = StripeResponseFactory(StripePlanFactory());
 
-      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce([mockPlan]);
+      jest.spyOn(stripeClient, 'plansRetrieve').mockResolvedValue(mockPlan);
 
-      const result = await manager.getPlan(mockPlan.id);
-      expect(result).toEqual([mockPlan]);
-    });
-
-    it('should throw error if no plan exists', async () => {
-      const mockPlan = StripePlanFactory();
-
-      mockClient.plansRetrieve = jest.fn().mockResolvedValueOnce(undefined);
-
-      expect.assertions(1);
-      expect(manager.getPlan(mockPlan.id)).rejects.toBeInstanceOf(
-        PlanNotFoundError
-      );
+      const result = await stripeManager.getPlan(mockPlan.id);
+      expect(result).toEqual(mockPlan);
     });
   });
 
   describe('getPlanByInterval', () => {
     it('returns plan that matches interval', async () => {
-      const mockPlan = StripePlanFactory();
+      const mockPlan = StripeResponseFactory(StripePlanFactory());
       const mockInterval = mockPlan.interval;
 
-      manager.getPlan = jest.fn().mockResolvedValueOnce(mockPlan);
+      jest.spyOn(stripeManager, 'getPlan').mockResolvedValue(mockPlan);
 
-      const result = await manager.getPlanByInterval(
+      const result = await stripeManager.getPlanByInterval(
         [mockPlan.id],
         mockInterval
       );
@@ -412,53 +399,53 @@ describe('StripeManager', () => {
         interval: 'month',
       });
 
-      manager.getPlan = jest.fn().mockResolvedValue(mockPlan1);
-      manager.getPlan = jest.fn().mockResolvedValue(mockPlan2);
+      jest
+        .spyOn(stripeManager, 'getPlan')
+        .mockResolvedValue(StripeResponseFactory(mockPlan1));
+      jest
+        .spyOn(stripeManager, 'getPlan')
+        .mockResolvedValue(StripeResponseFactory(mockPlan2));
 
-      expect.assertions(1);
       await expect(
-        manager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
+        stripeManager.getPlanByInterval([mockPlan1.id, mockPlan2.id], 'month')
       ).rejects.toBeInstanceOf(PlanIntervalMultiplePlansError);
     });
   });
 
   describe('retrieveProduct', () => {
     it('returns product', async () => {
-      const mockProduct = StripeProductFactory();
+      const mockProduct = StripeResponseFactory(StripeProductFactory());
 
-      mockClient.productsRetrieve = jest.fn().mockResolvedValue(mockProduct);
+      jest
+        .spyOn(stripeClient, 'productsRetrieve')
+        .mockResolvedValue(mockProduct);
 
-      const result = await manager.retrieveProduct(mockProduct.id);
+      const result = await stripeManager.retrieveProduct(mockProduct.id);
       expect(result).toEqual(mockProduct);
-    });
-
-    it('should throw error if no product exists', async () => {
-      const mockProduct = StripeProductFactory();
-
-      mockClient.productsRetrieve = jest.fn().mockResolvedValue(undefined);
-
-      expect.assertions(1);
-      expect(manager.retrieveProduct(mockProduct.id)).rejects.toBeInstanceOf(
-        ProductNotFoundError
-      );
     });
   });
 
   describe('getLatestPaymentIntent', () => {
     it('fetches the latest payment intent for the subscription', async () => {
-      const mockSubscription = StripeSubscriptionFactory();
-      const mockInvoice = StripeInvoiceFactory();
-      const mockPaymentIntent = StripePaymentIntentFactory();
+      const mockSubscription = StripeResponseFactory(
+        StripeSubscriptionFactory()
+      );
+      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
+      const mockPaymentIntent = StripeResponseFactory(
+        StripePaymentIntentFactory()
+      );
 
-      mockClient.invoicesRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
 
-      mockClient.paymentIntentRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockPaymentIntent);
+      jest
+        .spyOn(stripeClient, 'paymentIntentRetrieve')
+        .mockResolvedValue(mockPaymentIntent);
 
-      const result = await manager.getLatestPaymentIntent(mockSubscription);
+      const result = await stripeManager.getLatestPaymentIntent(
+        mockSubscription
+      );
 
       expect(result).toEqual(mockPaymentIntent);
     });
@@ -468,22 +455,28 @@ describe('StripeManager', () => {
         latest_invoice: null,
       });
 
-      const result = await manager.getLatestPaymentIntent(mockSubscription);
+      const result = await stripeManager.getLatestPaymentIntent(
+        mockSubscription
+      );
 
       expect(result).toEqual(undefined);
     });
 
     it('returns undefined if the invoice has no payment intent', async () => {
       const mockSubscription = StripeSubscriptionFactory();
-      const mockInvoice = StripeInvoiceFactory({
-        payment_intent: null,
-      });
+      const mockInvoice = StripeResponseFactory(
+        StripeInvoiceFactory({
+          payment_intent: null,
+        })
+      );
 
-      mockClient.invoicesRetrieve = jest
-        .fn()
-        .mockResolvedValueOnce(mockInvoice);
+      jest
+        .spyOn(stripeClient, 'invoicesRetrieve')
+        .mockResolvedValue(mockInvoice);
 
-      const result = await manager.getLatestPaymentIntent(mockSubscription);
+      const result = await stripeManager.getLatestPaymentIntent(
+        mockSubscription
+      );
 
       expect(result).toEqual(undefined);
     });

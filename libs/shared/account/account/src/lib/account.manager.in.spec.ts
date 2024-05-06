@@ -53,7 +53,6 @@ describe('accountManager', () => {
 
       await accountManager.createAccountStub(email, 1, 'en-US');
 
-      expect.assertions(1);
       await expect(
         accountManager.createAccountStub(email, 1, 'en-US')
       ).rejects.toBeInstanceOf(AccountAlreadyExistsError);

@@ -14,11 +14,9 @@ export class CapabilityManager {
   constructor(private contentfulManager: ContentfulManager) {}
 
   async getClients() {
-    const clients: ServiceResult[] = (
+    const clients = (
       await this.contentfulManager.getServicesWithCapabilities()
     ).getServices();
-
-    if (!clients) return [];
 
     return clients.map((client: ServiceResult) => {
       const capabilities = client.capabilitiesCollection.items.map(
@@ -42,8 +40,6 @@ export class CapabilityManager {
   async planIdsToClientCapabilities(
     subscribedPrices: string[]
   ): Promise<Record<string, string[]>> {
-    if (!subscribedPrices.length) return {};
-
     const result: Record<string, string[]> = {};
 
     for (const subscribedPrice of subscribedPrices) {

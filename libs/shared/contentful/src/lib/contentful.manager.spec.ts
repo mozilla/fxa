@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 
 import { ContentfulClient } from './contentful.client';
 import { ContentfulManager } from './contentful.manager';
@@ -10,6 +10,7 @@ import {
   CapabilityPurchaseResultFactory,
   CapabilityServiceByPlanIdsQueryFactory,
   CapabilityServiceByPlanIdsResultUtil,
+  ContentfulClientConfig,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentByPlanIdsQueryFactory,
   EligibilityContentByPlanIdsResultUtil,
@@ -25,6 +26,8 @@ import {
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
 import { StatsD } from 'hot-shots';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -39,36 +42,37 @@ jest.mock('@fxa/shared/db/type-cacheable', () => ({
 }));
 
 describe('ContentfulManager', () => {
-  let manager: ContentfulManager;
-  let mockClient: ContentfulClient;
+  let contentfulManager: ContentfulManager;
+  let contentfulClient: ContentfulClient;
   let mockStatsd: StatsD;
 
   beforeEach(async () => {
-    mockClient = new ContentfulClient({} as any, {} as any);
     mockStatsd = {
       timing: jest.fn().mockReturnValue({}),
     } as unknown as StatsD;
-    const module: TestingModule = await Test.createTestingModule({
+
+    const module = await Test.createTestingModule({
       providers: [
-        { provide: StatsD, useValue: mockStatsd },
-        { provide: ContentfulClient, useValue: mockClient },
+        { provide: StatsDService, useValue: mockStatsd },
+        MockFirestoreProvider,
+        ContentfulClientConfig,
+        ContentfulClient,
         ContentfulManager,
       ],
     }).compile();
 
-    manager = module.get<ContentfulManager>(ContentfulManager);
-  });
-
-  it('should be defined', () => {
-    expect(manager).toBeDefined();
+    contentfulClient = module.get(ContentfulClient);
+    contentfulManager = module.get(ContentfulManager);
   });
 
   it('should call statsd for incoming events', async () => {
     const queryData = EligibilityContentByPlanIdsQueryFactory({
       purchaseCollection: { items: [], total: 0 },
     });
-    mockClient.client.request = jest.fn().mockResolvedValue(queryData);
-    await manager.getPurchaseDetailsForEligibility(['test']);
+    jest.spyOn(contentfulClient.client, 'request').mockResolvedValue(queryData);
+
+    await contentfulManager.getPurchaseDetailsForEligibility(['test']);
+
     expect(mockStatsd.timing).toHaveBeenCalledWith(
       'contentful_request',
       expect.any(Number),
@@ -87,8 +91,12 @@ describe('ContentfulManager', () => {
       const queryData = EligibilityContentByOfferingQueryFactory({
         offeringCollection: { items: [] },
       });
-      mockClient.query = jest.fn().mockReturnValue(queryData);
-      const result = await manager.getEligibilityContentByOffering('test');
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getEligibilityContentByOffering(
+        'test'
+      );
       expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
     });
 
@@ -102,8 +110,10 @@ describe('ContentfulManager', () => {
           items: offeringResult,
         },
       });
-      mockClient.query = jest.fn().mockResolvedValue(queryData);
-      const result = await manager.getEligibilityContentByOffering(
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getEligibilityContentByOffering(
         apiIdentifier
       );
       expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
@@ -116,8 +126,12 @@ describe('ContentfulManager', () => {
       const queryData = EligibilityContentByPlanIdsQueryFactory({
         purchaseCollection: { items: [], total: 0 },
       });
-      mockClient.query = jest.fn().mockReturnValue(queryData);
-      const result = await manager.getPurchaseDetailsForEligibility(['test']);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getPurchaseDetailsForEligibility([
+        'test',
+      ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(result.offeringForPlanId('test')).toBeUndefined;
       expect(result.purchaseCollection.items).toHaveLength(0);
@@ -134,8 +148,12 @@ describe('ContentfulManager', () => {
           total: purchaseResult.length,
         },
       });
-      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
-      const result = await manager.getPurchaseDetailsForEligibility(['test']);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getPurchaseDetailsForEligibility([
+        'test',
+      ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
       expect(
         result.offeringForPlanId(planId)?.linkedFrom.subGroupCollection.items
@@ -155,10 +173,14 @@ describe('ContentfulManager', () => {
           total: purchaseResult.length,
         },
       });
-      mockClient.query = jest.fn().mockResolvedValue(queryData);
-      const result = await manager.getPurchaseDetailsForEligibility(['test']);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getPurchaseDetailsForEligibility([
+        'test',
+      ]);
       expect(result).toBeInstanceOf(EligibilityContentByPlanIdsResultUtil);
-      expect(mockClient.query).toBeCalledTimes(2);
+      expect(contentfulClient.query).toBeCalledTimes(2);
     });
   });
 
@@ -167,9 +189,13 @@ describe('ContentfulManager', () => {
       const queryData = CapabilityServiceByPlanIdsQueryFactory({
         purchaseCollection: { items: [], total: 0 },
       });
-      mockClient.query = jest.fn().mockResolvedValue(queryData);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
       const result =
-        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+          ['test']
+        );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
       expect(result.capabilityOfferingForPlanId('test')).toBeUndefined();
     });
@@ -185,9 +211,13 @@ describe('ContentfulManager', () => {
           total: purchaseResult.length,
         },
       });
-      mockClient.query = jest.fn().mockResolvedValue(queryData);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
       const result =
-        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+          ['test']
+        );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
       expect(result.capabilityOfferingForPlanId(planId)).toBeDefined();
     });
@@ -204,28 +234,35 @@ describe('ContentfulManager', () => {
           total: purchaseResult.length,
         },
       });
-      mockClient.query = jest.fn().mockResolvedValue(queryData);
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
       const result =
-        await manager.getPurchaseDetailsForCapabilityServiceByPlanIds(['test']);
+        await contentfulManager.getPurchaseDetailsForCapabilityServiceByPlanIds(
+          ['test']
+        );
       expect(result).toBeInstanceOf(CapabilityServiceByPlanIdsResultUtil);
-      expect(mockClient.query).toBeCalledTimes(2);
+      expect(contentfulClient.query).toBeCalledTimes(2);
     });
   });
 
   describe('getServicesWithCapabilities', () => {
     it('should return results', async () => {
-      mockClient.query = jest.fn().mockReturnValue({
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue({
         serviceCollection: { items: [] },
       });
-      const result = await manager.getServicesWithCapabilities();
+
+      const result = await contentfulManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(0);
     });
 
     it('should return successfully with services and capabilities', async () => {
       const queryData = ServicesWithCapabilitiesQueryFactory();
-      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
-      const result = await manager.getServicesWithCapabilities();
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+
+      const result = await contentfulManager.getServicesWithCapabilities();
       expect(result).toBeInstanceOf(ServicesWithCapabilitiesResultUtil);
       expect(result.serviceCollection.items).toHaveLength(1);
     });
@@ -233,12 +270,13 @@ describe('ContentfulManager', () => {
 
   describe('getPurchaseWithDetailsOfferingContentByPlanIds', () => {
     it('should return empty result', async () => {
-      mockClient.query = jest.fn().mockReturnValue({
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue({
         purchaseCollection: { items: [] },
       });
-      mockClient.getLocale = jest.fn().mockResolvedValue('en');
+      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+
       const result =
-        await manager.getPurchaseWithDetailsOfferingContentByPlanIds(
+        await contentfulManager.getPurchaseWithDetailsOfferingContentByPlanIds(
           ['test'],
           'en'
         );
@@ -250,10 +288,12 @@ describe('ContentfulManager', () => {
       const queryData =
         PurchaseWithDetailsOfferingContentByPlanIdsResultFactory();
       const queryDataItem = queryData.purchaseCollection.items[0];
-      mockClient.query = jest.fn().mockResolvedValueOnce(queryData);
-      mockClient.getLocale = jest.fn().mockResolvedValue('en');
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+
       const result =
-        await manager.getPurchaseWithDetailsOfferingContentByPlanIds(
+        await contentfulManager.getPurchaseWithDetailsOfferingContentByPlanIds(
           ['test'],
           'en'
         );

@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { LocalizerRscFactory } from './localizer.rsc.factory';
 import { ILocalizerBindings } from './localizer.interfaces';
 import supportedLanguages from '../supported-languages.json';
@@ -28,7 +28,7 @@ describe('LocalizerRscFactory', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
         {
           provide: LocalizerRscFactory,
@@ -55,12 +55,12 @@ describe('LocalizerRscFactory', () => {
 
   describe('createLocalizerRsc', () => {
     it('should return instance of LocalizerRsc', async () => {
-      const localizerRsc = await localizer.createLocalizerRsc('en');
+      const localizerRsc = localizer.createLocalizerRsc('en');
       expect(localizerRsc).toBeInstanceOf(LocalizerRsc);
     });
 
     it('should error when document or bundles are not initialized', async () => {
-      const module: TestingModule = await Test.createTestingModule({
+      const module = await Test.createTestingModule({
         providers: [
           {
             provide: LocalizerRscFactory,
@@ -70,12 +70,7 @@ describe('LocalizerRscFactory', () => {
       }).compile();
       const emptyLocalizer = module.get(LocalizerRscFactory);
 
-      expect.assertions(1);
-      try {
-        emptyLocalizer.createLocalizerRsc('en');
-      } catch (error) {
-        expect(error).toBeDefined();
-      }
+      expect(() => emptyLocalizer.createLocalizerRsc('en')).toThrow();
     });
   });
 });
