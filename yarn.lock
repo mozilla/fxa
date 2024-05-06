@@ -34261,7 +34261,7 @@ __metadata:
     eslint: 6.6.0
     eslint-config-prettier: 9.1.0
     mocha: ^10.4.0
-    ramda: ^0.29.1
+    ramda: ^0.30.0
   peerDependencies:
     eslint: ">=6.6.0"
   languageName: unknown
@@ -55851,10 +55851,10 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"ramda@npm:^0.29.1":
-  version: 0.29.1
-  resolution: "ramda@npm:0.29.1"
-  checksum: df7c627597a66d5f317f6ba77ad17d7ba818efc9c2c4a638440bc23f2c651e823970ea05b05a28895738c0e4b738fadbdc17b2c97b3ad922826febc09c859c44
+"ramda@npm:^0.30.0":
+  version: 0.30.0
+  resolution: "ramda@npm:0.30.0"
+  checksum: a2b0bfc3d505193a759e5d3a25f617fbfb0dfa4d30ee6917d1975142dbcc1bc92e8465467cc3ccf9260e4d2011aba639db7a915eb376ca485191aff51bad03d8
   languageName: node
   linkType: hard
 
