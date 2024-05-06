@@ -37754,7 +37754,6 @@ fsevents@~2.1.1:
     rimraf: ^5.0.0
     safe-regex: ^2.1.1
     safe-url-assembler: 1.3.5
-    sandboxed-regexp: ^0.3.0
     sass: ^1.76.0
     simplesmtp: 0.3.35
     sinon: ^9.0.3
@@ -58455,13 +58454,6 @@ resolve@1.1.7:
   version: 1.3.0
   resolution: "samsam@npm:1.3.0"
   checksum: 084914f7707538b735a41e0edba86abd8f9dd2a47a79511b56b55e8032801db767d9eb31899246179295fbb9ab7ab4d12ebc3410ad4265d897cbf0056c3db63d
-  languageName: node
-  linkType: hard
-
-"sandboxed-regexp@npm:^0.3.0":
-  version: 0.3.0
-  resolution: "sandboxed-regexp@npm:0.3.0"
-  checksum: e4df1bbec68039b4847002bca43dd53e0283f585f45452d9dd1f49e97488d5f1b7d947157c32e1afe9ab621f44ac9f822e23dffa3d7d586aa1c252c9560769c7
   languageName: node
   linkType: hard
 
