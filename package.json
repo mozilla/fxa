@@ -243,6 +243,7 @@
     "@svgr/webpack": "^8.0.1",
     "@types/node": "^20.11.1",
     "@types/react": "^18",
+    "bn.js": "^5.2.1",
     "browserid-crypto": "https://github.com/mozilla-fxa/browserid-crypto.git#5979544d13eeb15a02d0b9a6a7a08a698d54d37d",
     "css-minimizer-webpack-plugin": ">=4 <5",
     "elliptic": ">=6.5.4",
