@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { faker } from '@faker-js/faker';
 import { Stripe } from 'stripe';
 
 import {
@@ -17,6 +16,8 @@ import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
 import { StripeSubscriptionFactory } from './factories/subscription.factory';
 import { StripeUpcomingInvoiceFactory } from './factories/upcoming-invoice.factory';
 import { StripeClient } from './stripe.client';
+import { Test } from '@nestjs/testing';
+import { MockStripeConfigProvider } from './stripe.config';
 
 const mockJestFnGenerator = <T extends (...args: any[]) => any>() => {
   return jest.fn<ReturnType<T>, Parameters<T>>();
@@ -87,13 +88,14 @@ jest.mock('stripe', () => ({
 }));
 
 describe('StripeClient', () => {
-  let mockClient: StripeClient;
+  let stripeClient: StripeClient;
 
-  beforeEach(() => {
-    mockClient = new StripeClient({
-      apiKey: faker.string.uuid(),
-      taxIds: { EUR: 'EU1234' },
-    });
+  beforeEach(async () => {
+    const module = await Test.createTestingModule({
+      providers: [MockStripeConfigProvider, StripeClient],
+    }).compile();
+
+    stripeClient = module.get(StripeClient);
   });
 
   afterEach(() => {
@@ -107,7 +109,7 @@ describe('StripeClient', () => {
 
       mockStripeCustomersRetrieve.mockResolvedValueOnce(mockResponse);
 
-      const result = await mockClient.customersRetrieve(mockCustomer.id);
+      const result = await stripeClient.customersRetrieve(mockCustomer.id);
       expect(result).toEqual(mockResponse);
     });
   });
@@ -119,7 +121,7 @@ describe('StripeClient', () => {
 
       mockStripeCustomersCreate.mockResolvedValueOnce(mockResponse);
 
-      const result = await mockClient.customersCreate();
+      const result = await stripeClient.customersCreate();
       expect(result).toEqual(mockResponse);
     });
   });
@@ -132,7 +134,7 @@ describe('StripeClient', () => {
 
       mockStripeCustomersUpdate.mockResolvedValueOnce(mockResponse);
 
-      const result = await mockClient.customersUpdate(mockCustomer.id, {
+      const result = await stripeClient.customersUpdate(mockCustomer.id, {
         balance: mockUpdatedCustomer.balance,
       });
 
@@ -149,7 +151,7 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsList.mockResolvedValue(mockSubscriptionList);
 
-      const result = await mockClient.subscriptionsList({
+      const result = await stripeClient.subscriptionsList({
         customer: mockCustomer.id,
       });
       expect(result).toEqual(mockSubscriptionList);
@@ -164,7 +166,7 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsCreate.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.subscriptionsCreate({
+      const result = await stripeClient.subscriptionsCreate({
         customer: mockCustomer.id,
       });
       expect(result).toEqual(mockResponse);
@@ -178,7 +180,9 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsCancel.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.subscriptionsCancel(mockSubscription.id);
+      const result = await stripeClient.subscriptionsCancel(
+        mockSubscription.id
+      );
 
       expect(result).toEqual(mockResponse);
     });
@@ -191,7 +195,7 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.subscriptionsRetrieve(
+      const result = await stripeClient.subscriptionsRetrieve(
         mockSubscription.id
       );
       expect(result).toEqual(mockResponse);
@@ -208,7 +212,9 @@ describe('StripeClient', () => {
 
       mockStripeSubscriptionsUpdate.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.subscriptionsUpdate(mockSubscription.id);
+      const result = await stripeClient.subscriptionsUpdate(
+        mockSubscription.id
+      );
       expect(result.description).toEqual(mockUpdatedSubscription.description);
     });
   });
@@ -220,7 +226,7 @@ describe('StripeClient', () => {
 
       mockStripeInvoicesRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.invoicesRetrieve(mockInvoice.id);
+      const result = await stripeClient.invoicesRetrieve(mockInvoice.id);
 
       expect(result).toEqual(mockResponse);
     });
@@ -234,7 +240,7 @@ describe('StripeClient', () => {
 
       mockStripeRetrieveUpcomingInvoice.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.invoicesRetrieveUpcoming({
+      const result = await stripeClient.invoicesRetrieveUpcoming({
         customer: mockCustomer.id,
       });
 
@@ -251,9 +257,12 @@ describe('StripeClient', () => {
 
       mockStripeInvoicesFinalizeInvoice.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.invoicesFinalizeInvoice(mockInvoice.id, {
-        auto_advance: false,
-      });
+      const result = await stripeClient.invoicesFinalizeInvoice(
+        mockInvoice.id,
+        {
+          auto_advance: false,
+        }
+      );
 
       expect(result).toEqual(mockResponse);
     });
@@ -266,7 +275,7 @@ describe('StripeClient', () => {
 
       mockStripePlansRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.plansRetrieve(mockPlan.id);
+      const result = await stripeClient.plansRetrieve(mockPlan.id);
       expect(result).toEqual(mockResponse);
     });
   });
@@ -278,7 +287,7 @@ describe('StripeClient', () => {
 
       mockStripeProductsRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.productsRetrieve(mockProduct.id);
+      const result = await stripeClient.productsRetrieve(mockProduct.id);
       expect(result).toEqual(mockResponse);
     });
   });
@@ -291,7 +300,7 @@ describe('StripeClient', () => {
 
       mockStripePromotionCodesList.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.promotionCodesList({
+      const result = await stripeClient.promotionCodesList({
         code: mockPromoCode.code,
       });
       expect(result).toEqual(mockResponse);
@@ -305,7 +314,9 @@ describe('StripeClient', () => {
 
       mockStripePromotionCodesRetrieve.mockResolvedValue(mockResponse);
 
-      const result = await mockClient.promotionCodesRetrieve(mockPromoCode.id);
+      const result = await stripeClient.promotionCodesRetrieve(
+        mockPromoCode.id
+      );
       expect(result).toEqual(mockResponse);
     });
   });

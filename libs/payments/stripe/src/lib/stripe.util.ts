@@ -3,7 +3,6 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 import {
-  StripeApiList,
   StripePlan,
   StripePrice,
   StripeProduct,
@@ -68,11 +67,7 @@ export const getSubscribedPrice = (subscription: StripeSubscription) => {
 /**
  * Returns array of customer subscription plans
  */
-export const getSubscribedPlans = (
-  subscriptionList: StripeApiList<StripeSubscription>
-) => {
-  const subscriptions = subscriptionList.data;
-  if (!subscriptions) return [];
+export const getSubscribedPlans = (subscriptions: StripeSubscription[]) => {
   return subscriptions
     .flatMap((sub) => sub.items.data)
     .map((item) => item.plan);

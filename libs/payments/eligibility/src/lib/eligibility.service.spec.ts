@@ -2,15 +2,25 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+const mockStripeUtil = {
+  getSubscribedPlans: jest.fn(),
+  getSubscribedProductIds: jest.fn(),
+};
+
+jest.mock('../../../stripe/src/lib/stripe.util.ts', () => mockStripeUtil);
+
 import { Test, TestingModule } from '@nestjs/testing';
 
 import {
-  StripeApiListFactory,
+  StripeClient,
+  StripeConfig,
   StripeCustomerFactory,
   StripeManager,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
 import {
+  ContentfulClient,
+  ContentfulClientConfig,
   ContentfulManager,
   EligibilityContentByOfferingResultUtil,
   EligibilityContentOfferingResultFactory,
@@ -23,20 +33,8 @@ import {
   OfferingComparison,
   OfferingOverlapProductResult,
 } from './eligibility.types';
-
-const mockSubscribedPlans = jest.fn();
-const mockSubscribedProductIds = jest.fn();
-
-jest.mock('../../../stripe/src/lib/stripe.util.ts', () => {
-  return {
-    getSubscribedPlans: function () {
-      return mockSubscribedPlans();
-    },
-    getSubscribedProductIds: function () {
-      return mockSubscribedProductIds();
-    },
-  };
-});
+import { MockStatsDFactory } from '@fxa/shared/metrics/statsd';
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
 
 describe('EligibilityService', () => {
   let contentfulManager: ContentfulManager;
@@ -51,30 +49,18 @@ describe('EligibilityService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        MockFirestoreProvider,
+        ContentfulClientConfig,
+        ContentfulClient,
+        MockStatsDFactory,
         ContentfulManager,
         EligibilityManager,
+        StripeConfig,
+        StripeClient,
         StripeManager,
         EligibilityService,
       ],
-    })
-      .overrideProvider(ContentfulManager)
-      .useValue({
-        getEligibilityContentByOffering: jest
-          .fn()
-          .mockResolvedValue(mockOfferingResult),
-      })
-      .overrideProvider(EligibilityManager)
-      .useValue({
-        compareOverlap: jest.fn(),
-        getProductIdOverlap: jest.fn(),
-      })
-      .overrideProvider(StripeManager)
-      .useValue({
-        getSubscribedPlans: jest.fn(),
-        getSubscribedProductIds: jest.fn(),
-        getSubscriptions: jest.fn(),
-      })
-      .compile();
+    }).compile();
 
     contentfulManager = module.get<ContentfulManager>(ContentfulManager);
     eligibilityManager = module.get<EligibilityManager>(EligibilityManager);
@@ -129,7 +115,6 @@ describe('EligibilityService', () => {
         },
       ] as OfferingOverlapProductResult[];
       const mockSubscription = StripeSubscriptionFactory();
-      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
 
       jest
         .spyOn(contentfulManager, 'getEligibilityContentByOffering')
@@ -139,10 +124,10 @@ describe('EligibilityService', () => {
 
       jest
         .spyOn(stripeManager, 'getSubscriptions')
-        .mockResolvedValue(mockSubscriptionList);
+        .mockResolvedValue([mockSubscription]);
 
-      mockSubscribedPlans.mockReturnValue([]);
-      mockSubscribedProductIds.mockReturnValue([]);
+      mockStripeUtil.getSubscribedPlans.mockReturnValue([]);
+      mockStripeUtil.getSubscribedProductIds.mockReturnValue([]);
 
       jest
         .spyOn(eligibilityManager, 'getProductIdOverlap')

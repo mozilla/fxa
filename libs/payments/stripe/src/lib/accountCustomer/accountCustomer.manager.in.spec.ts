@@ -51,8 +51,7 @@ describe('AccountCustomer Manager', () => {
         stripeCustomerId: faker.string.alphanumeric({ length: 50 }),
       });
 
-      expect.assertions(0);
-      expect(
+      await expect(
         accountCustomerManager.createAccountCustomer(mockAccountCustomer)
       ).rejects.toBeInstanceOf(AccountCustomerNotCreatedError);
     });
@@ -77,8 +76,7 @@ describe('AccountCustomer Manager', () => {
     it('throws an AccountCustomerNotFoundError when accountCustomer does not exist', async () => {
       const mockAccountCustomer = CreateAccountCustomerFactory();
 
-      expect.assertions(0);
-      expect(
+      await expect(
         accountCustomerManager.getAccountCustomerByUid(mockAccountCustomer.uid)
       ).rejects.toBeInstanceOf(AccountCustomerNotFoundError);
     });
@@ -113,8 +111,7 @@ describe('AccountCustomer Manager', () => {
         stripeCustomerId: faker.string.alphanumeric({ length: 50 }),
       };
 
-      expect.assertions(0);
-      expect(
+      await expect(
         accountCustomerManager.updateAccountCustomer(
           mockAccountCustomer.uid,
           mockUpdatedAccountCustomer
@@ -143,9 +140,8 @@ describe('AccountCustomer Manager', () => {
 
       await accountCustomerManager.deleteAccountCustomer(resultAccountCustomer);
 
-      expect.assertions(0);
       // Customer is already deleted, this should now throw
-      expect(
+      await expect(
         accountCustomerManager.deleteAccountCustomer(resultAccountCustomer)
       ).rejects.toBeInstanceOf(AccountCustomerNotDeletedError);
     });

@@ -73,7 +73,7 @@ export class StripeManager {
     priceId: string
   ) {
     const subscriptions = await this.getSubscriptions(customerId);
-    const targetSubs = subscriptions.data.filter((sub) =>
+    const targetSubs = subscriptions.filter((sub) =>
       sub.items.data.find((item) => item.price.id === priceId)
     );
 
@@ -88,9 +88,11 @@ export class StripeManager {
    * Retrieves subscriptions
    */
   async getSubscriptions(customerId: string) {
-    return this.client.subscriptionsList({
+    const result = await this.client.subscriptionsList({
       customer: customerId,
     });
+
+    return result.data;
   }
 
   async cancelSubscription(subscriptionId: string) {

@@ -41,7 +41,7 @@ export function setupFirestore(config: FirebaseFirestore.Settings) {
  * Factory for providing access to firestore
  */
 export const FirestoreService = Symbol('FIRESTORE');
-export const FirestoreFactory: Provider<Firestore> = {
+export const FirestoreProvider: Provider<Firestore> = {
   provide: FirestoreService,
   useFactory: (configService: ConfigService) => {
     const firestoreConfig = configService.get('authFirestore');
@@ -54,4 +54,16 @@ export const FirestoreFactory: Provider<Firestore> = {
     return firestore;
   },
   inject: [ConfigService],
+};
+
+/**
+ * Can be used to satisfy DI when unit testing things that should not need
+ * firestore access.
+ * Note: this will cause errors to be thrown if firestore is used
+ */
+export const MockFirestoreProvider: Provider<Firestore> = {
+  provide: FirestoreService,
+  useFactory: () => {
+    return {} as Firestore;
+  },
 };

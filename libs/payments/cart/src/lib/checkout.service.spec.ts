@@ -43,8 +43,8 @@ describe('CheckoutService', () => {
         PayPalManager,
         CheckoutService,
         PayPalClient,
-        { provide: StripeConfig, useValue: {} },
-        { provide: PaypalClientConfig, useValue: {} },
+        StripeConfig,
+        PaypalClientConfig,
         MockAccountDatabaseNestFactory,
       ],
     }).compile();
@@ -64,53 +64,44 @@ describe('CheckoutService', () => {
       })
     );
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-    let fetchActiveCustomerSpy: jest.SpyInstance;
-    let isCustomerStripeTaxEligibleSpy: jest.SpyInstance;
     const mockPromotionCode = StripeResponseFactory(
       StripePromotionCodeFactory()
     );
-    let getPromotionCodeByNameSpy: jest.SpyInstance;
     const mockPaymentMethod = StripeResponseFactory(
       StripePaymentMethodFactory()
     );
-    let paymentMethodsAttachSpy: jest.SpyInstance;
-    let customersUpdateSpy: jest.SpyInstance;
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
-    let subscriptionsCreateSpy: jest.SpyInstance;
     const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
-    let invoicesRetrieveSpy: jest.SpyInstance;
     const mockPaymentIntent = StripeResponseFactory(
       StripePaymentIntentFactory()
     );
-    let paymentIntentRetrieveSpy: jest.SpyInstance;
-    let cancelSubscriptionSpy: jest.SpyInstance;
 
     beforeEach(async () => {
-      fetchActiveCustomerSpy = jest
+      jest
         .spyOn(stripeManager, 'fetchActiveCustomer')
         .mockResolvedValue(mockCustomer);
-      isCustomerStripeTaxEligibleSpy = jest
+      jest
         .spyOn(stripeManager, 'isCustomerStripeTaxEligible')
         .mockReturnValue(true);
-      getPromotionCodeByNameSpy = jest
+      jest
         .spyOn(stripeManager, 'getPromotionCodeByName')
         .mockResolvedValue(mockPromotionCode);
-      paymentMethodsAttachSpy = jest
+      jest
         .spyOn(stripeClient, 'paymentMethodsAttach')
         .mockResolvedValue(mockPaymentMethod);
-      customersUpdateSpy = jest
+      jest
         .spyOn(stripeClient, 'customersUpdate')
         .mockResolvedValue(mockCustomer);
-      subscriptionsCreateSpy = jest
+      jest
         .spyOn(stripeClient, 'subscriptionsCreate')
         .mockResolvedValue(mockSubscription);
-      invoicesRetrieveSpy = jest
+      jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
-      paymentIntentRetrieveSpy = jest
+      jest
         .spyOn(stripeClient, 'paymentIntentRetrieve')
         .mockResolvedValue(mockPaymentIntent);
-      cancelSubscriptionSpy = jest
+      jest
         .spyOn(stripeManager, 'cancelSubscription')
         .mockResolvedValue(mockSubscription);
     });
@@ -121,26 +112,26 @@ describe('CheckoutService', () => {
       });
 
       it('fetches the customer', async () => {
-        expect(fetchActiveCustomerSpy).toHaveBeenCalledWith(
+        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
           mockCart.stripeCustomerId
         );
       });
 
       it('checks if customer is eligible for automatic tax', async () => {
-        expect(isCustomerStripeTaxEligibleSpy).toHaveBeenCalledWith(
+        expect(stripeManager.isCustomerStripeTaxEligible).toHaveBeenCalledWith(
           mockCustomer
         );
       });
 
       it('fetches promotion code by name', async () => {
-        expect(getPromotionCodeByNameSpy).toHaveBeenCalledWith(
+        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
           mockCart.couponCode,
           true
         );
       });
 
       it('attaches payment method to customer', async () => {
-        expect(paymentMethodsAttachSpy).toHaveBeenCalledWith(
+        expect(stripeClient.paymentMethodsAttach).toHaveBeenCalledWith(
           mockPaymentMethod.id,
           {
             customer: mockCustomer.id,
@@ -149,15 +140,18 @@ describe('CheckoutService', () => {
       });
 
       it('updates the customer with a default payment method', async () => {
-        expect(customersUpdateSpy).toHaveBeenCalledWith(mockCustomer.id, {
-          invoice_settings: {
-            default_payment_method: mockPaymentMethod.id,
-          },
-        });
+        expect(stripeClient.customersUpdate).toHaveBeenCalledWith(
+          mockCustomer.id,
+          {
+            invoice_settings: {
+              default_payment_method: mockPaymentMethod.id,
+            },
+          }
+        );
       });
 
       it('creates the subscription', async () => {
-        expect(subscriptionsCreateSpy).toHaveBeenCalledWith({
+        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -172,19 +166,19 @@ describe('CheckoutService', () => {
       });
 
       it('retrieves the lastest invoice', () => {
-        expect(invoicesRetrieveSpy).toHaveBeenCalledWith(
+        expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
       });
 
       it('retrieves the payment intent from the latest invoice', () => {
-        expect(paymentIntentRetrieveSpy).toHaveBeenCalledWith(
+        expect(stripeClient.paymentIntentRetrieve).toHaveBeenCalledWith(
           mockInvoice.payment_intent
         );
       });
 
       it('does not cancel the subscription', () => {
-        expect(cancelSubscriptionSpy).not.toHaveBeenCalled();
+        expect(stripeManager.cancelSubscription).not.toHaveBeenCalled();
       });
     });
   });
@@ -198,63 +192,47 @@ describe('CheckoutService', () => {
       })
     );
     const mockCustomer = StripeResponseFactory(StripeCustomerFactory());
-    let fetchActiveCustomerSpy: jest.SpyInstance;
-    let isCustomerStripeTaxEligibleSpy: jest.SpyInstance;
     const mockPromotionCode = StripeResponseFactory(
       StripePromotionCodeFactory()
     );
-    let getPromotionCodeByNameSpy: jest.SpyInstance;
-    let getCustomerPayPalSubscriptionsSpy: jest.SpyInstance;
     const mockBillingAgreementId = faker.string.uuid();
-    let getOrCreateBillingAgreementIdSpy: jest.SpyInstance;
     const mockSubscription = StripeResponseFactory(StripeSubscriptionFactory());
-    let subscriptionsCreateSpy: jest.SpyInstance;
-    let deletePaypalCustomersByUidSpy: jest.SpyInstance;
     const mockPaypalCustomer = ResultPaypalCustomerFactory();
-    let createPaypalCustomerSpy: jest.SpyInstance;
     const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
-    let invoicesRetrieveSpy: jest.SpyInstance;
-    let processInvoiceSpy: jest.SpyInstance;
-    let cancelSubscriptionSpy: jest.SpyInstance;
-    let cancelBillingAgreementSpy: jest.SpyInstance;
 
     beforeEach(async () => {
-      fetchActiveCustomerSpy = jest
+      jest
         .spyOn(stripeManager, 'fetchActiveCustomer')
         .mockResolvedValue(mockCustomer);
-      isCustomerStripeTaxEligibleSpy = jest
+      jest
         .spyOn(stripeManager, 'isCustomerStripeTaxEligible')
         .mockReturnValue(true);
-      getPromotionCodeByNameSpy = jest
+      jest
         .spyOn(stripeManager, 'getPromotionCodeByName')
         .mockResolvedValue(mockPromotionCode);
-      getCustomerPayPalSubscriptionsSpy = jest
+      jest
         .spyOn(paypalManager, 'getCustomerPayPalSubscriptions')
         .mockResolvedValue([]);
-      getOrCreateBillingAgreementIdSpy = jest
+      jest
         .spyOn(paypalManager, 'getOrCreateBillingAgreementId')
         .mockResolvedValue(mockBillingAgreementId);
-      subscriptionsCreateSpy = jest
+      jest
         .spyOn(stripeClient, 'subscriptionsCreate')
         .mockResolvedValue(mockSubscription);
-      deletePaypalCustomersByUidSpy = jest
+      jest
         .spyOn(paypalCustomerManager, 'deletePaypalCustomersByUid')
         .mockResolvedValue(BigInt(1));
-      createPaypalCustomerSpy = jest
+      jest
         .spyOn(paypalCustomerManager, 'createPaypalCustomer')
         .mockResolvedValue(mockPaypalCustomer);
-      invoicesRetrieveSpy = jest
+      jest
         .spyOn(stripeClient, 'invoicesRetrieve')
         .mockResolvedValue(mockInvoice);
-      processInvoiceSpy = jest
-        .spyOn(paypalManager, 'processInvoice')
-        .mockResolvedValue();
-      cancelSubscriptionSpy = jest
+      jest.spyOn(paypalManager, 'processInvoice').mockResolvedValue();
+      jest
         .spyOn(stripeManager, 'cancelSubscription')
         .mockResolvedValue(mockSubscription);
-      cancelBillingAgreementSpy = jest
-        .spyOn(paypalManager, 'cancelBillingAgreement')
-        .mockResolvedValue();
+      jest.spyOn(paypalManager, 'cancelBillingAgreement').mockResolvedValue();
     });
 
     describe('success', () => {
@@ -263,40 +241,38 @@ describe('CheckoutService', () => {
       });
 
       it('fetches the customer', async () => {
-        expect(fetchActiveCustomerSpy).toHaveBeenCalledWith(
+        expect(stripeManager.fetchActiveCustomer).toHaveBeenCalledWith(
           mockCart.stripeCustomerId
         );
       });
 
       it('checks if customer is eligible for automatic tax', async () => {
-        expect(isCustomerStripeTaxEligibleSpy).toHaveBeenCalledWith(
+        expect(stripeManager.isCustomerStripeTaxEligible).toHaveBeenCalledWith(
           mockCustomer
         );
       });
 
       it('fetches promotion code by name', async () => {
-        expect(getPromotionCodeByNameSpy).toHaveBeenCalledWith(
+        expect(stripeManager.getPromotionCodeByName).toHaveBeenCalledWith(
           mockCart.couponCode,
           true
         );
       });
 
       it('fetches the customers paypal subscriptions', async () => {
-        expect(getCustomerPayPalSubscriptionsSpy).toHaveBeenCalledWith(
-          mockCustomer.id
-        );
+        expect(
+          paypalManager.getCustomerPayPalSubscriptions
+        ).toHaveBeenCalledWith(mockCustomer.id);
       });
 
       it('fetches/creates a billing agreement for checkout', async () => {
-        expect(getOrCreateBillingAgreementIdSpy).toHaveBeenCalledWith(
-          mockCart.uid,
-          false,
-          mockToken
-        );
+        expect(
+          paypalManager.getOrCreateBillingAgreementId
+        ).toHaveBeenCalledWith(mockCart.uid, false, mockToken);
       });
 
       it('creates the subscription', async () => {
-        expect(subscriptionsCreateSpy).toHaveBeenCalledWith({
+        expect(stripeClient.subscriptionsCreate).toHaveBeenCalledWith({
           customer: mockCustomer.id,
           automatic_tax: {
             enabled: true,
@@ -313,36 +289,38 @@ describe('CheckoutService', () => {
       });
 
       it('deletes all paypalCustomers for user by uid', () => {
-        expect(deletePaypalCustomersByUidSpy).toHaveBeenCalledWith(
-          mockCart.uid
-        );
+        expect(
+          paypalCustomerManager.deletePaypalCustomersByUid
+        ).toHaveBeenCalledWith(mockCart.uid);
       });
 
       it('creates a paypalCustomer entry for created billing agreement', () => {
-        expect(createPaypalCustomerSpy).toHaveBeenCalledWith({
-          uid: mockCart.uid,
-          billingAgreementId: mockBillingAgreementId,
-          status: 'active',
-          endedAt: null,
-        });
+        expect(paypalCustomerManager.createPaypalCustomer).toHaveBeenCalledWith(
+          {
+            uid: mockCart.uid,
+            billingAgreementId: mockBillingAgreementId,
+            status: 'active',
+            endedAt: null,
+          }
+        );
       });
 
       it('retrieves the lastest invoice', () => {
-        expect(invoicesRetrieveSpy).toHaveBeenCalledWith(
+        expect(stripeClient.invoicesRetrieve).toHaveBeenCalledWith(
           mockSubscription.latest_invoice
         );
       });
 
       it('calls to process the latest invoice', () => {
-        expect(processInvoiceSpy).toHaveBeenCalledWith(mockInvoice);
+        expect(paypalManager.processInvoice).toHaveBeenCalledWith(mockInvoice);
       });
 
       it('does not cancel the subscription', () => {
-        expect(cancelSubscriptionSpy).not.toHaveBeenCalled();
+        expect(stripeManager.cancelSubscription).not.toHaveBeenCalled();
       });
 
       it('does not cancel the billing agreement', () => {
-        expect(cancelBillingAgreementSpy).not.toHaveBeenCalled();
+        expect(paypalManager.cancelBillingAgreement).not.toHaveBeenCalled();
       });
     });
   });

@@ -5,18 +5,15 @@ import { faker } from '@faker-js/faker';
 import { Test } from '@nestjs/testing';
 
 import {
-  StripeApiListFactory,
+  MockStripeConfigProvider,
+  StripeClient,
   StripeCustomerFactory,
   StripeInvoiceFactory,
   StripeManager,
   StripeResponseFactory,
-  StripeSubscription,
   StripeSubscriptionFactory,
 } from '@fxa/payments/stripe';
-import {
-  AccountDbProvider,
-  MockAccountDatabaseNestFactory,
-} from '@fxa/shared/db/mysql/account';
+import { MockAccountDatabaseNestFactory } from '@fxa/shared/db/mysql/account';
 
 import {
   NVPCreateBillingAgreementResponseFactory,
@@ -33,6 +30,7 @@ import {
 import { PaypalCustomerMultipleRecordsError } from './paypalCustomer/paypalCustomer.error';
 import { ResultPaypalCustomerFactory } from './paypalCustomer/paypalCustomer.factories';
 import { PaypalCustomerManager } from './paypalCustomer/paypalCustomer.manager';
+import { MockPaypalClientConfigProvider } from './paypal.client.config';
 
 describe('PayPalManager', () => {
   let paypalManager: PayPalManager;
@@ -43,35 +41,16 @@ describe('PayPalManager', () => {
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
       providers: [
+        MockAccountDatabaseNestFactory,
+        MockStripeConfigProvider,
+        MockPaypalClientConfigProvider,
         PayPalManager,
-        {
-          provide: AccountDbProvider,
-          useValue: MockAccountDatabaseNestFactory,
-        },
         PayPalClient,
+        StripeClient,
         StripeManager,
         PaypalCustomerManager,
       ],
-    })
-      .overrideProvider(PayPalClient)
-      .useValue({
-        createBillingAgreement: jest.fn(),
-        baUpdate: jest.fn(),
-        setExpressCheckout: jest.fn(),
-      })
-      .overrideProvider(StripeManager)
-      .useValue({
-        getMinimumAmount: jest.fn(),
-        getSubscriptions: jest.fn(),
-        finalizeInvoiceWithoutAutoAdvance: jest.fn(),
-        fetchActiveCustomer: jest.fn(),
-      })
-      .overrideProvider(PaypalCustomerManager)
-      .useValue({
-        createPaypalCustomer: jest.fn(),
-        fetchPaypalCustomersByUid: jest.fn(),
-      })
-      .compile();
+    }).compile();
 
     paypalManager = moduleRef.get(PayPalManager);
     paypalClient = moduleRef.get(PayPalClient);
@@ -90,13 +69,13 @@ describe('PayPalManager', () => {
       const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
       const mockPayPalCustomer = ResultPaypalCustomerFactory();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
-        .mockResolvedValueOnce([mockPayPalCustomer]);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([mockPayPalCustomer]);
 
-      paypalClient.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValueOnce(mockNewBillingAgreement);
+      jest
+        .spyOn(paypalClient, 'createBillingAgreement')
+        .mockResolvedValue(mockNewBillingAgreement);
 
       const result = await paypalManager.getOrCreateBillingAgreementId(
         uid,
@@ -112,13 +91,13 @@ describe('PayPalManager', () => {
       const token = faker.string.uuid();
       const mockBillingAgreementId = faker.string.uuid();
 
-      paypalManager.getCustomerBillingAgreementId = jest
-        .fn()
-        .mockResolvedValueOnce(undefined);
+      jest
+        .spyOn(paypalManager, 'getCustomerBillingAgreementId')
+        .mockResolvedValue(undefined);
 
-      paypalManager.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValueOnce(mockBillingAgreementId);
+      jest
+        .spyOn(paypalManager, 'createBillingAgreement')
+        .mockResolvedValue(mockBillingAgreementId);
 
       const result = await paypalManager.getOrCreateBillingAgreementId(
         uid,
@@ -134,15 +113,15 @@ describe('PayPalManager', () => {
       const token = faker.string.uuid();
       const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
-        .mockResolvedValueOnce([]);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([]);
 
-      paypalClient.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValueOnce(mockNewBillingAgreement);
+      jest
+        .spyOn(paypalClient, 'createBillingAgreement')
+        .mockResolvedValue(mockNewBillingAgreement);
 
-      expect(
+      await expect(
         paypalManager.getOrCreateBillingAgreementId(uid, true, token)
       ).rejects.toBeInstanceOf(PaypalManagerError);
       expect(paypalClient.createBillingAgreement).not.toBeCalled();
@@ -152,15 +131,15 @@ describe('PayPalManager', () => {
       const uid = faker.string.uuid();
       const mockNewBillingAgreement = NVPBAUpdateTransactionResponseFactory();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
-        .mockResolvedValueOnce([]);
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
+        .mockResolvedValue([]);
 
-      paypalClient.createBillingAgreement = jest
-        .fn()
-        .mockResolvedValueOnce(mockNewBillingAgreement);
+      jest
+        .spyOn(paypalClient, 'createBillingAgreement')
+        .mockResolvedValue(mockNewBillingAgreement);
 
-      expect(
+      await expect(
         paypalManager.getOrCreateBillingAgreementId(uid, false)
       ).rejects.toBeInstanceOf(PaypalManagerError);
       expect(paypalClient.createBillingAgreement).not.toBeCalled();
@@ -173,7 +152,7 @@ describe('PayPalManager', () => {
 
       jest
         .spyOn(paypalClient, 'baUpdate')
-        .mockResolvedValueOnce(NVPBAUpdateTransactionResponseFactory());
+        .mockResolvedValue(NVPBAUpdateTransactionResponseFactory());
 
       const result = await paypalManager.cancelBillingAgreement(
         billingAgreementId
@@ -191,7 +170,7 @@ describe('PayPalManager', () => {
 
       jest.spyOn(paypalClient, 'baUpdate').mockRejectedValue(new Error('Boom'));
 
-      expect(() =>
+      await expect(() =>
         paypalManager.cancelBillingAgreement(billingAgreementId)
       ).rejects.toThrowError();
     });
@@ -230,7 +209,7 @@ describe('PayPalManager', () => {
     });
 
     it('throws an error', async () => {
-      expect(paypalManager.createBillingAgreement).rejects.toThrowError();
+      await expect(paypalManager.createBillingAgreement).rejects.toThrowError();
     });
   });
 
@@ -295,8 +274,8 @@ describe('PayPalManager', () => {
       const uid = faker.string.uuid();
       const mockPayPalCustomer = ResultPaypalCustomerFactory();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
         .mockResolvedValue([mockPayPalCustomer]);
 
       const result = await paypalManager.getCustomerBillingAgreementId(uid);
@@ -306,8 +285,8 @@ describe('PayPalManager', () => {
     it('returns undefined if no PayPal customer record', async () => {
       const uid = faker.string.uuid();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
         .mockResolvedValue([]);
 
       const result = await paypalManager.getCustomerBillingAgreementId(uid);
@@ -319,11 +298,11 @@ describe('PayPalManager', () => {
       const mockPayPalCustomer1 = ResultPaypalCustomerFactory();
       const mockPayPalCustomer2 = ResultPaypalCustomerFactory();
 
-      paypalCustomerManager.fetchPaypalCustomersByUid = jest
-        .fn()
+      jest
+        .spyOn(paypalCustomerManager, 'fetchPaypalCustomersByUid')
         .mockResolvedValue([mockPayPalCustomer1, mockPayPalCustomer2]);
 
-      expect(
+      await expect(
         paypalManager.getCustomerBillingAgreementId(uid)
       ).rejects.toBeInstanceOf(PaypalCustomerMultipleRecordsError);
     });
@@ -336,17 +315,13 @@ describe('PayPalManager', () => {
         status: 'active',
       });
 
-      const mockSubscriptionList = StripeApiListFactory([
-        mockPayPalSubscription,
-      ]);
-
       const mockCustomer = StripeCustomerFactory();
 
       const expected = [mockPayPalSubscription];
 
-      stripeManager.getSubscriptions = jest
-        .fn()
-        .mockResolvedValueOnce(mockSubscriptionList);
+      jest
+        .spyOn(stripeManager, 'getSubscriptions')
+        .mockResolvedValue([mockPayPalSubscription]);
 
       const result = await paypalManager.getCustomerPayPalSubscriptions(
         mockCustomer.id
@@ -357,12 +332,8 @@ describe('PayPalManager', () => {
 
   it('returns empty array when no subscriptions', async () => {
     const mockCustomer = StripeCustomerFactory();
-    const mockPayPalSubscription = [] as StripeSubscription[];
-    const mockSubscriptionList = StripeApiListFactory([mockPayPalSubscription]);
 
-    stripeManager.getSubscriptions = jest
-      .fn()
-      .mockResolvedValueOnce(mockSubscriptionList);
+    jest.spyOn(stripeManager, 'getSubscriptions').mockResolvedValueOnce([]);
 
     const result = await paypalManager.getCustomerPayPalSubscriptions(
       mockCustomer.id
@@ -379,9 +350,9 @@ describe('PayPalManager', () => {
           TOKEN: token,
         });
 
-      paypalClient.setExpressCheckout = jest
-        .fn()
-        .mockResolvedValueOnce(successfulSetExpressCheckoutResponse);
+      jest
+        .spyOn(paypalClient, 'setExpressCheckout')
+        .mockResolvedValue(successfulSetExpressCheckoutResponse);
 
       const result = await paypalManager.getCheckoutToken(currencyCode);
 
@@ -393,15 +364,15 @@ describe('PayPalManager', () => {
 
   describe('processZeroInvoice', () => {
     it('finalizes invoices with no amount set to zero', async () => {
-      const mockInvoice = StripeInvoiceFactory();
+      const mockInvoice = StripeResponseFactory(StripeInvoiceFactory());
 
-      stripeManager.finalizeInvoiceWithoutAutoAdvance = jest
-        .fn()
-        .mockResolvedValueOnce({});
+      jest
+        .spyOn(stripeManager, 'finalizeInvoiceWithoutAutoAdvance')
+        .mockResolvedValue(mockInvoice);
 
       const result = await paypalManager.processZeroInvoice(mockInvoice.id);
 
-      expect(result).toEqual({});
+      expect(result).toEqual(mockInvoice);
       expect(stripeManager.finalizeInvoiceWithoutAutoAdvance).toBeCalledWith(
         mockInvoice.id
       );

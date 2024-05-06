@@ -2,8 +2,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 import {
   EligibilityContentByPlanIdsQuery,
   PurchaseWithDetailsOfferingContentQuery,
@@ -40,7 +41,10 @@ import {
 
 @Injectable()
 export class ContentfulManager {
-  constructor(private client: ContentfulClient, private statsd: StatsD) {
+  constructor(
+    private client: ContentfulClient,
+    @Inject(StatsDService) private statsd: StatsD
+  ) {
     this.client.on('response', (response) => {
       const defaultTags = {
         method: response.method,

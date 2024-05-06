@@ -18,3 +18,15 @@ export const StatsDFactory: Provider<StatsD> = {
   },
   inject: [ConfigService],
 };
+
+/**
+ * Can be used to satisfy DI when unit testing things that should not need
+ * statsd.
+ * Note: this will cause errors to be thrown if statsd is used
+ */
+export const MockStatsDFactory: Provider<StatsD> = {
+  provide: StatsDService,
+  useFactory: () => {
+    return {} as StatsD;
+  },
+};

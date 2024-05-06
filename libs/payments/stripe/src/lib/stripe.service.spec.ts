@@ -2,10 +2,21 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { faker } from '@faker-js/faker';
-import { Test, TestingModule } from '@nestjs/testing';
+const mockStripeUtil = {
+  checkValidPromotionCode: jest.fn(),
+  checkSubscriptionPromotionCodes: jest.fn(),
+  getSubscribedPrice: jest.fn(),
+};
 
-import { StripeResponseFactory } from './factories/api-list.factory';
+jest.mock('../lib/stripe.util.ts', () => mockStripeUtil);
+
+import { faker } from '@faker-js/faker';
+import { Test } from '@nestjs/testing';
+
+import {
+  StripeApiListFactory,
+  StripeResponseFactory,
+} from './factories/api-list.factory';
 import { StripeCustomerFactory } from './factories/customer.factory';
 import { StripePriceFactory } from './factories/price.factory';
 import { StripePromotionCodeFactory } from './factories/promotion-code.factory';
@@ -23,49 +34,26 @@ import {
 import { StripeManager } from './stripe.manager';
 import { StripeService } from './stripe.service';
 import { STRIPE_PRICE_METADATA } from './stripe.types';
-
-const mockIsValidPromotionCode = jest.fn();
-const mockPromotionCodeIncluded = jest.fn();
-const mockSubscribedPrice = jest.fn();
-
-jest.mock('../lib/stripe.util.ts', () => {
-  return {
-    checkSubscriptionPromotionCodes: function () {
-      return mockPromotionCodeIncluded();
-    },
-    checkValidPromotionCode: function () {
-      return mockIsValidPromotionCode();
-    },
-    getSubscribedPrice: function () {
-      return mockSubscribedPrice();
-    },
-  };
-});
+import { StripeClient } from './stripe.client';
+import { MockStripeConfigProvider } from './stripe.config';
+import { StripeProductFactory } from './factories/product.factory';
 
 describe('StripeService', () => {
-  let service: StripeService;
+  let stripeService: StripeService;
   let stripeManager: StripeManager;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [StripeManager, StripeService],
-    })
-      .overrideProvider(StripeManager)
-      .useValue({
-        retrieveProduct: jest.fn(),
-        retrievePromotionCode: jest.fn(),
-        retrieveSubscription: jest.fn(),
-        updateSubscription: jest.fn(),
-      })
-      .compile();
+    const module = await Test.createTestingModule({
+      providers: [
+        MockStripeConfigProvider,
+        StripeClient,
+        StripeManager,
+        StripeService,
+      ],
+    }).compile();
 
-    stripeManager = module.get<StripeManager>(StripeManager);
-    service = module.get<StripeService>(StripeService);
-  });
-
-  it('should be defined', async () => {
-    expect(service).toBeDefined();
-    expect(service).toBeInstanceOf(StripeService);
+    stripeManager = module.get(StripeManager);
+    stripeService = module.get(StripeService);
   });
 
   describe('applyPromoCodeToSubscription', () => {
@@ -81,18 +69,13 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrieveSubscription')
         .mockResolvedValue(mockResponse);
 
-      try {
-        await service.applyPromoCodeToSubscription(
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
           mockCustomer.id,
           mockSubscription.id,
           mockPromoId
-        );
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
-        expect(error.message).toEqual(
-          'Promotion code could not be attached to subscription: Subscription is not active'
-        );
-      }
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('throws an error if the customer of the subscription does not match customerId', async () => {
@@ -107,18 +90,13 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrieveSubscription')
         .mockResolvedValue(mockResponse);
 
-      try {
-        await service.applyPromoCodeToSubscription(
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
           mockCustomer.id,
           mockSubscription.id,
           mockPromoId
-        );
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
-        expect(error.message).toEqual(
-          'Promotion code could not be attached to subscription: subscription.customerId does not match passed in customerId'
-        );
-      }
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('throws an error if promotion code is invalid', async () => {
@@ -139,22 +117,17 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrievePromotionCode')
         .mockResolvedValue(mockPromoResponse);
 
-      mockIsValidPromotionCode.mockImplementation(() => {
+      mockStripeUtil.checkValidPromotionCode.mockImplementation(() => {
         throw new PromotionCodeInvalidError();
       });
 
-      try {
-        await service.applyPromoCodeToSubscription(
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
           mockCustomer.id,
           mockSubscription.id,
           mockPromotionCode.id
-        );
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
-        expect(error.message).toEqual(
-          'Promotion code could not be attached to subscription: Invalid promotion code'
-        );
-      }
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('throws an error if no subscription price exists', async () => {
@@ -175,23 +148,18 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrievePromotionCode')
         .mockResolvedValue(mockPromoResponse);
 
-      mockIsValidPromotionCode.mockReturnValue(true);
-      mockSubscribedPrice.mockImplementation(() => {
+      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.getSubscribedPrice.mockImplementation(() => {
         throw new SubscriptionPriceUnknownError();
       });
 
-      try {
-        await service.applyPromoCodeToSubscription(
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
           mockCustomer.id,
           mockSubscription.id,
           mockPromotionCode.id
-        );
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
-        expect(error.message).toEqual(
-          'Promotion code could not be attached to subscription: Unknown subscription price'
-        );
-      }
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('throws an error if the promotion code is not one from the product', async () => {
@@ -215,24 +183,19 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrievePromotionCode')
         .mockResolvedValue(mockPromoResponse);
 
-      mockIsValidPromotionCode.mockReturnValue(true);
-      mockSubscribedPrice.mockReturnValue(mockPrice);
-      mockPromotionCodeIncluded.mockImplementation(() => {
+      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
+      mockStripeUtil.checkSubscriptionPromotionCodes.mockImplementation(() => {
         throw new PromotionCodeNotForSubscriptionError();
       });
 
-      try {
-        await service.applyPromoCodeToSubscription(
+      await expect(
+        stripeService.applyPromoCodeToSubscription(
           mockCustomer.id,
           mockSubscription.id,
           mockPromotionCode.id
-        );
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
-        expect(error.message).toEqual(
-          "Promotion code could not be attached to subscription: Promotion code restricted to a product that doesn't match the product on this subscription"
-        );
-      }
+        )
+      ).rejects.toBeInstanceOf(PromotionCodeCouldNotBeAttachedError);
     });
 
     it('returns the updated subscription with the promotion code successfully', async () => {
@@ -245,47 +208,34 @@ describe('StripeService', () => {
       const mockPromoCodeResponse = StripeResponseFactory(mockPromotionCode);
       const mockSubscription = StripeSubscriptionFactory({
         customer: mockCustomer.id,
-        items: {
-          object: 'list',
-          data: [
-            StripeSubscriptionItemFactory({
-              price: StripePriceFactory({
-                metadata: {
-                  [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo_code1',
-                },
-              }),
+        items: StripeApiListFactory([
+          StripeSubscriptionItemFactory({
+            price: StripePriceFactory({
+              metadata: {
+                [STRIPE_PRICE_METADATA.PROMOTION_CODES]: 'promo_code1',
+              },
             }),
-          ],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            { length: 24 }
-          )}`,
-        },
+          }),
+        ]),
         status: 'active',
       });
       const mockUpdatedSubscription = StripeSubscriptionFactory({
         customer: mockCustomer.id,
-        items: {
-          object: 'list',
-          data: [
-            StripeSubscriptionItemFactory({
-              price: StripePriceFactory({
-                metadata: {
-                  [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
-                    'promo_code1,promo_code2',
-                },
-              }),
+        items: StripeApiListFactory([
+          StripeSubscriptionItemFactory({
+            price: StripePriceFactory({
+              metadata: {
+                [STRIPE_PRICE_METADATA.PROMOTION_CODES]:
+                  'promo_code1,promo_code2',
+              },
             }),
-          ],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            { length: 24 }
-          )}`,
-        },
+          }),
+        ]),
         status: 'active',
       });
       const mockSubResponse1 = StripeResponseFactory(mockSubscription);
       const mockSubResponse2 = StripeResponseFactory(mockUpdatedSubscription);
+      const mockProduct = StripeProductFactory();
 
       jest
         .spyOn(stripeManager, 'retrieveSubscription')
@@ -295,15 +245,19 @@ describe('StripeService', () => {
         .spyOn(stripeManager, 'retrievePromotionCode')
         .mockResolvedValue(mockPromoCodeResponse);
 
-      mockIsValidPromotionCode.mockReturnValue(true);
-      mockSubscribedPrice.mockReturnValue(mockPrice);
-      mockPromotionCodeIncluded.mockReturnValue(true);
+      mockStripeUtil.checkValidPromotionCode.mockReturnValue(true);
+      mockStripeUtil.getSubscribedPrice.mockReturnValue(mockPrice);
+      mockStripeUtil.checkSubscriptionPromotionCodes.mockReturnValue(true);
+
+      jest
+        .spyOn(stripeManager, 'retrieveProduct')
+        .mockResolvedValue(StripeResponseFactory(mockProduct));
 
       jest
         .spyOn(stripeManager, 'updateSubscription')
         .mockResolvedValue(mockSubResponse2);
 
-      const result = await service.applyPromoCodeToSubscription(
+      const result = await stripeService.applyPromoCodeToSubscription(
         mockCustomer.id,
         mockSubscription.id,
         mockPromotionCode.id

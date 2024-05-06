@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { faker } from '@faker-js/faker';
 
 import { CurrencyManager } from './currency.manager';
@@ -16,11 +16,11 @@ describe('CurrencyManager', () => {
   let currencyManager: CurrencyManager;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [CurrencyManager],
     }).compile();
 
-    currencyManager = module.get<CurrencyManager>(CurrencyManager);
+    currencyManager = module.get(CurrencyManager);
   });
 
   describe('assertCurrencyCompatibleWithCountry', () => {

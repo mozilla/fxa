@@ -2,7 +2,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { faker } from '@faker-js/faker';
 import {
   StripeApiListFactory,
   StripeResponseFactory,
@@ -36,11 +35,9 @@ describe('util', () => {
       const mockPrice = StripePriceFactory();
       const mockPromoCode = 'promo_code1';
 
-      try {
-        checkSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined);
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeNotForSubscriptionError);
-      }
+      expect(() =>
+        checkSubscriptionPromotionCodes(mockPromoCode, mockPrice, undefined)
+      ).toThrowError(PromotionCodeNotForSubscriptionError);
     });
 
     it('returns true if only subscription price provided', async () => {
@@ -88,11 +85,9 @@ describe('util', () => {
     it('throws error if there is no promotion code', async () => {
       const mockPromotionCode = StripeResponseFactory(undefined);
 
-      try {
-        checkValidPromotionCode(mockPromotionCode);
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeInvalidError);
-      }
+      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+        PromotionCodeInvalidError
+      );
     });
 
     it('throws error if the promotion code is not active', async () => {
@@ -100,11 +95,9 @@ describe('util', () => {
         active: false,
       });
 
-      try {
-        checkValidPromotionCode(mockPromotionCode);
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeInvalidError);
-      }
+      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+        PromotionCodeInvalidError
+      );
     });
 
     it('throws error if the promotion code coupon is not valid', async () => {
@@ -114,11 +107,9 @@ describe('util', () => {
         }),
       });
 
-      try {
-        checkValidPromotionCode(mockPromotionCode);
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeInvalidError);
-      }
+      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+        PromotionCodeInvalidError
+      );
     });
 
     it('throws error if the promotion code is expired', async () => {
@@ -127,11 +118,9 @@ describe('util', () => {
         expires_at: expiredTime,
       });
 
-      try {
-        checkValidPromotionCode(mockPromotionCode);
-      } catch (error) {
-        expect(error).toBeInstanceOf(PromotionCodeInvalidError);
-      }
+      expect(() => checkValidPromotionCode(mockPromotionCode)).toThrowError(
+        PromotionCodeInvalidError
+      );
     });
 
     it('returns true if the promotion code is valid', async () => {
@@ -151,16 +140,7 @@ describe('util', () => {
         price: mockPrice,
       });
       const mockSubscription = StripeSubscriptionFactory({
-        items: {
-          object: 'list',
-          data: [mockSubItem],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            {
-              length: 24,
-            }
-          )}`,
-        },
+        items: StripeApiListFactory([mockSubItem]),
       });
 
       const result = getSubscribedPrice(mockSubscription);
@@ -169,46 +149,24 @@ describe('util', () => {
 
     it('throws error if no subscription price exists', async () => {
       const mockSubscription = StripeSubscriptionFactory({
-        items: {
-          object: 'list',
-          data: [],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            {
-              length: 24,
-            }
-          )}`,
-        },
+        items: StripeApiListFactory([]),
       });
 
-      try {
-        getSubscribedPrice(mockSubscription);
-      } catch (error) {
-        expect(error).toBeInstanceOf(SubscriptionPriceUnknownError);
-      }
+      expect(() => getSubscribedPrice(mockSubscription)).toThrowError(
+        SubscriptionPriceUnknownError
+      );
     });
 
     it('throws error if multiple subscription prices exists', async () => {
       const mockSubItem1 = StripeSubscriptionItemFactory();
       const mockSubItem2 = StripeSubscriptionItemFactory();
       const mockSubscription = StripeSubscriptionFactory({
-        items: {
-          object: 'list',
-          data: [mockSubItem1, mockSubItem2],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            {
-              length: 24,
-            }
-          )}`,
-        },
+        items: StripeApiListFactory([mockSubItem1, mockSubItem2]),
       });
 
-      try {
-        getSubscribedPrice(mockSubscription);
-      } catch (error) {
-        expect(error).toBeInstanceOf(SubscriptionPriceUnknownError);
-      }
+      expect(() => getSubscribedPrice(mockSubscription)).toThrowError(
+        SubscriptionPriceUnknownError
+      );
     });
   });
 
@@ -219,27 +177,15 @@ describe('util', () => {
         plan: mockPlan,
       });
       const mockSubscription = StripeSubscriptionFactory({
-        items: {
-          object: 'list',
-          data: [mockSubItem],
-          has_more: false,
-          url: `/v1/subscription_items?subscription=sub_${faker.string.alphanumeric(
-            {
-              length: 24,
-            }
-          )}`,
-        },
+        items: StripeApiListFactory([mockSubItem]),
       });
-      const mockSubscriptionList = StripeApiListFactory([mockSubscription]);
 
-      const result = getSubscribedPlans(mockSubscriptionList);
+      const result = getSubscribedPlans([mockSubscription]);
       expect(result).toEqual([mockPlan]);
     });
 
     it('returns empty array if no subscriptions exist', async () => {
-      const mockSubscriptionList = StripeApiListFactory([]);
-
-      const result = getSubscribedPlans(mockSubscriptionList);
+      const result = getSubscribedPlans([]);
       expect(result).toEqual([]);
     });
   });
