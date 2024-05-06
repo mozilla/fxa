@@ -38599,6 +38599,7 @@ fsevents@~2.1.1:
     "@types/passport": ^1.0.6
     "@types/passport-http-bearer": ^1.0.36
     "@types/passport-jwt": ^4
+    "@types/postcss-import": ^14
     "@types/react": 18.2.33
     "@types/react-dom": 18.2.14
     "@types/react-test-renderer": ^18
@@ -38657,7 +38658,9 @@ fsevents@~2.1.1:
     passport-jwt: ^4.0.1
     persistgraphql: ^0.3.11
     pm2: ^5.3.0
-    postcss: ^8.4.32
+    postcss: ^8.4.38
+    postcss-assets: ^6.0.0
+    postcss-import: ^16.1.0
     prettier: ^2.6.2
     react: ^18.2.0
     react-dom: ^18.2.0
@@ -38672,7 +38675,7 @@ fsevents@~2.1.1:
     stylelint: ^16.5.0
     stylelint-config-prettier: ^9.0.3
     stylelint-config-recommended-scss: ^14.0.0
-    tailwindcss: ^3.4.1
+    tailwindcss: ^3.4.3
     ts-jest: ^29.1.2
     ts-node: ^10.9.2
     tsc-alias: ^1.8.8
@@ -45709,7 +45712,7 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
-"jiti@npm:^1.19.1, jiti@npm:^1.20.0":
+"jiti@npm:^1.19.1, jiti@npm:^1.20.0, jiti@npm:^1.21.0":
   version: 1.21.0
   resolution: "jiti@npm:1.21.0"
   bin:
@@ -61793,6 +61796,39 @@ resolve@1.1.7:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
   checksum: ef5a587dd32bb4e91e1549ead6162f85f0b78d3e6ffd8b4e8eeb15585b7b886cb3af6ae9df5092ed8ccb7e590608d1b3eec79ca08c862b07cd9ff7e72f73104b
+  languageName: node
+  linkType: hard
+
+"tailwindcss@npm:^3.4.3":
+  version: 3.4.3
+  resolution: "tailwindcss@npm:3.4.3"
+  dependencies:
+    "@alloc/quick-lru": ^5.2.0
+    arg: ^5.0.2
+    chokidar: ^3.5.3
+    didyoumean: ^1.2.2
+    dlv: ^1.1.3
+    fast-glob: ^3.3.0
+    glob-parent: ^6.0.2
+    is-glob: ^4.0.3
+    jiti: ^1.21.0
+    lilconfig: ^2.1.0
+    micromatch: ^4.0.5
+    normalize-path: ^3.0.0
+    object-hash: ^3.0.0
+    picocolors: ^1.0.0
+    postcss: ^8.4.23
+    postcss-import: ^15.1.0
+    postcss-js: ^4.0.1
+    postcss-load-config: ^4.0.1
+    postcss-nested: ^6.0.1
+    postcss-selector-parser: ^6.0.11
+    resolve: ^1.22.2
+    sucrase: ^3.32.0
+  bin:
+    tailwind: lib/cli.js
+    tailwindcss: lib/cli.js
+  checksum: 7d181a6aafb520c5760d23d0a199444a324dfa36538edd31934daa253ed9a7ac4bde18c4205aaa89c1269bc2ff11781efda04d2e27ded535a9a2547667a344b1
   languageName: node
   linkType: hard
 
