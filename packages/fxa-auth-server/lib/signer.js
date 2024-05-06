@@ -4,10 +4,10 @@
 
 'use strict';
 
-const jwtool = require('fxa-jwtool');
+const { JWTool } = require('@fxa/vendored/jwtool');
 
 module.exports = function (secretKeyFile, domain) {
-  const key = jwtool.JWK.fromFile(secretKeyFile, { iss: domain });
+  const key = JWTool.JWK.fromFile(secretKeyFile, { iss: domain });
 
   return {
     sign: async function (data) {

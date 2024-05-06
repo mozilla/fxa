@@ -3,7 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import jwtool from 'fxa-jwtool';
+import { JWTool, PublicJWK } from '@fxa/vendored/jwtool';
 
 import { JwtsetService } from './jwtset.service';
 import {
@@ -35,7 +35,7 @@ const TEST_PUBLIC_KEY = {
   n: TEST_KEY.n,
 };
 const TEST_CLIENT_ID = 'abc1234';
-const PUBLIC_JWT = jwtool.JWK.fromObject(TEST_PUBLIC_KEY);
+const PUBLIC_JWT = JWTool.JWK.fromObject(TEST_PUBLIC_KEY) as PublicJWK;
 const CHANGE_TIME = Date.now();
 
 describe('JwtsetService', () => {

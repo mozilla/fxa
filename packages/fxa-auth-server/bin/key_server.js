@@ -18,7 +18,7 @@ const {
 const TracingProvider = require('fxa-shared/tracing/node-tracing');
 
 const error = require('../lib/error');
-const jwtool = require('fxa-jwtool');
+const { JWTool } = require('@fxa/vendored/jwtool');
 const { StatsD } = require('hot-shots');
 const { Container } = require('typedi');
 const { StripeHelper } = require('../lib/payments/stripe');
@@ -202,13 +202,13 @@ async function run(config) {
   const senders = await require('../lib/senders')(log, config, bounces, statsd);
 
   const serverPublicKeys = {
-    primary: jwtool.JWK.fromFile(config.publicKeyFile, {
+    primary: JWTool.JWK.fromFile(config.publicKeyFile, {
       algorithm: 'RS',
       use: 'sig',
       kty: 'RSA',
     }),
     secondary: config.oldPublicKeyFile
-      ? jwtool.JWK.fromFile(config.oldPublicKeyFile, {
+      ? JWTool.JWK.fromFile(config.oldPublicKeyFile, {
           algorithm: 'RS',
           use: 'sig',
           kty: 'RSA',

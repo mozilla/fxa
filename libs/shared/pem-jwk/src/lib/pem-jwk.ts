@@ -4,11 +4,17 @@
 
 import { createPrivateKey, createPublicKey, JsonWebKey } from 'crypto';
 
-export function pem2jwk(pem: string): JsonWebKey {
+export function pem2jwk(pem: string, extras?: Record<string, any>): JsonWebKey {
   if (pem.includes('PUBLIC')) {
-    return createPublicKey({ key: pem }).export({ format: 'jwk' });
+    return Object.assign(
+      createPublicKey({ key: pem }).export({ format: 'jwk' }),
+      extras ?? {}
+    );
   }
-  return createPrivateKey({ key: pem }).export({ format: 'jwk' });
+  return Object.assign(
+    createPrivateKey({ key: pem }).export({ format: 'jwk' }),
+    extras ?? {}
+  );
 }
 
 export function jwk2pem(jwk: JsonWebKey): string {

@@ -1,10 +1,12 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+import { v4 as uuidv4 } from 'uuid';
+
+import { JWTool, PrivateJWK } from '@fxa/vendored/jwtool';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import jwtool from 'fxa-jwtool';
-import { v4 as uuidv4 } from 'uuid';
 
 import { AppConfig } from '../config';
 import * as set from './set.interface';
@@ -19,14 +21,14 @@ import * as set from './set.interface';
 @Injectable()
 export class JwtsetService {
   private issuer: string;
-  private tokenKey: jwtool.PrivateJWK;
+  private tokenKey: PrivateJWK;
 
   constructor(configService: ConfigService<AppConfig>) {
     const config = configService.get('openid') as AppConfig['openid'];
     this.issuer = config.issuer;
-    this.tokenKey = jwtool.JWK.fromObject(config.key as any, {
+    this.tokenKey = JWTool.JWK.fromObject(config.key as any, {
       iss: this.issuer,
-    });
+    }) as PrivateJWK;
   }
 
   /**
