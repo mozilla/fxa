@@ -7,7 +7,7 @@
 # For details, see https://bugzilla.mozilla.org/show_bug.cgi?id=1874935#c14
 
 ---
-$schema: moz://mozilla.org/schemas/glean/pings/2-0-0
+$schema: moz://mozilla.org/schemas/glean/metrics/2-0-0
 
 glean.client.annotation:
   experimentation_id:
