@@ -65,7 +65,7 @@ test.describe('severity-1 #smoke', () => {
     const config = await configPage.getConfig();
     test.fixme(
       project.name !== 'local',
-      'FXA-9518 - Timing issue? Fails on stage with `Bad request - unknown state` on L86, unless breakpoint added on L85. Passes when restarting from breakpoint. '
+      'Fix required as of 2024/04/26 (see FXA-9518).'
     );
     test.skip(
       config.showReactApp.signInRoutes !== true,

@@ -20,7 +20,12 @@ test.describe('severity-1 #smoke', () => {
     test('verified account, no email confirmation required', async ({
       pages: { page, relier, signinReact },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.fixme(
+        project.name !== 'local',
+        'Fix required as of 2024/04/26 (see FXA-9518).'
+      );
+
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
@@ -43,7 +48,7 @@ test.describe('severity-1 #smoke', () => {
     }, { project }) => {
       test.fixme(
         project.name !== 'local',
-        'FXA-9518 - Timing issues? Fails on stage with `Bad request - unknown state` on L54 and L74, unless breakpoint added on L53 and L72. Passes when restarting from breakpoint.'
+        'Fix required as of 2024/04/26 (see FXA-9518).'
       );
 
       const credentials = await testAccountTracker.signUp();
@@ -85,7 +90,11 @@ test.describe('severity-1 #smoke', () => {
     test('verified using a cached expired login', async ({
       pages: { page, relier, signinReact },
       testAccountTracker,
-    }) => {
+    }, { project }) => {
+      test.fixme(
+        project.name !== 'local',
+        'Fix required as of 2024/04/26 (see FXA-9518).'
+      );
       const credentials = await testAccountTracker.signUp();
 
       await relier.goto();
