@@ -2,21 +2,27 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('change password tests', () => {
     test('change password with an incorrect old password', async ({
-      credentials,
-      pages: { settings, changePassword },
+      target,
+      pages: { page, login, settings, changePassword },
+      testAccountTracker,
     }) => {
       test.slow();
+
+      await signInAccount(target, page, login, testAccountTracker);
+      const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
 
       // Enter incorrect old password and verify the tooltip error
       await settings.password.changeButton.click();
-      const newPassword = credentials.password + '@@2';
       await changePassword.fillOutChangePassword(
         'Incorrect Password',
         newPassword
@@ -26,16 +32,24 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('change password with a correct password', async ({
-      credentials,
-      pages: { settings, changePassword, login },
+      target,
+      pages: { page, settings, changePassword, login },
+      testAccountTracker,
     }) => {
       test.slow();
+
+      const credentials = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+      const newPassword = testAccountTracker.generatePassword();
 
       await settings.goto();
 
       // Enter the correct old password and verify that change password is successful
       await settings.password.changeButton.click();
-      const newPassword = credentials.password + '@@2';
       await changePassword.fillOutChangePassword(
         credentials.password,
         newPassword
@@ -77,8 +91,12 @@ test.describe('severity-1 #smoke', () => {
     ];
     for (const { name, error, password, confirmPassword } of testCases) {
       test(`new password validation - ${name}`, async ({
-        pages: { settings, changePassword },
+        target,
+        pages: { page, login, settings, changePassword },
+        testAccountTracker,
       }) => {
+        await signInAccount(target, page, login, testAccountTracker);
+
         await settings.goto();
         await settings.password.changeButton.click();
 
@@ -92,15 +110,23 @@ test.describe('severity-1 #smoke', () => {
     }
 
     test(`new password validation - email as password`, async ({
-      credentials,
-      pages: { settings, changePassword },
+      target,
+      pages: { page, login, settings, changePassword },
+      testAccountTracker,
     }) => {
+      const { email } = await signInAccount(
+        target,
+        page,
+        login,
+        testAccountTracker
+      );
+
       await settings.goto();
       await settings.password.changeButton.click();
 
       await expect(changePassword.changePasswordHeading).toBeVisible();
 
-      await changePassword.newPasswordTextbox.fill(credentials.email);
+      await changePassword.newPasswordTextbox.fill(email);
 
       await expect(changePassword.passwordError).toHaveText(
         'Not your email address'
@@ -108,8 +134,12 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('change password with short password tooltip shows, cancel and try to change password again, tooltip is not shown', async ({
-      pages: { settings, changePassword },
+      target,
+      pages: { page, login, settings, changePassword },
+      testAccountTracker,
     }) => {
+      await signInAccount(target, page, login, testAccountTracker);
+
       await settings.goto();
       await settings.password.changeButton.click();
 
@@ -129,9 +159,13 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('reset password via settings works', async ({
-      pages: { settings, changePassword, resetPasswordReact },
+      target,
+      pages: { page, login, settings, changePassword, resetPasswordReact },
+      testAccountTracker,
     }) => {
       test.slow();
+
+      await signInAccount(target, page, login, testAccountTracker);
 
       await settings.goto();
 
@@ -145,3 +179,19 @@ test.describe('severity-1 #smoke', () => {
     });
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

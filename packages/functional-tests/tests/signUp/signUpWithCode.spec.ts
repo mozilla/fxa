@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, PASSWORD } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Sign up with code', () => {
@@ -16,19 +16,19 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('bounced email', async ({
-      emails,
-      credentials,
       target,
       page,
       pages: { login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(target.contentServerUrl);
-      await login.fillOutFirstSignUp(email, PASSWORD);
+      await login.fillOutFirstSignUp(credentials.email, credentials.password);
 
       await target.authClient.accountDestroy(
-        email,
-        PASSWORD,
+        credentials.email,
+        credentials.password,
         {},
         credentials.sessionToken
       );
@@ -36,16 +36,17 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('valid code then click back', async ({
-      emails,
       target,
       page,
       pages: { login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
+
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutFirstSignUp(email, PASSWORD, {
+      await login.fillOutFirstSignUp(email, password, {
         waitForNavOnSubmit: false,
       });
       await page.goBack({ waitUntil: 'load' });
@@ -53,16 +54,16 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('invalid code', async ({
-      emails,
       target,
       page,
       pages: { login, signinTokenCode },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } = testAccountTracker.generateAccountDetails();
       await page.goto(target.contentServerUrl, {
         waitUntil: 'load',
       });
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(email, password, { verify: false });
       await login.setCode('1234');
       await signinTokenCode.submit.click();
       expect(await login.getTooltipError()).toContain(

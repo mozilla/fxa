@@ -2,26 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
 import { ResetPasswordReactPage } from '../../pages/resetPasswordReact';
 
 test.describe('severity-1 #smoke', () => {
   test.describe('reset password react', () => {
     test.beforeEach(async ({ pages: { configPage } }) => {
-      test.slow();
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
       test.skip(config.showReactApp.resetPasswordRoutes !== true);
+      test.slow();
     });
 
     test('can reset password', async ({
       page,
       target,
-      credentials,
       context,
       pages: { login, resetPasswordReact, settings },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
@@ -48,7 +51,7 @@ test.describe('severity-1 #smoke', () => {
       ).toBeVisible();
 
       // Create and submit new password
-      await diffResetPasswordReact.fillOutNewPasswordForm(NEW_PASSWORD);
+      await diffResetPasswordReact.fillOutNewPasswordForm(newPassword);
 
       // Wait for new page to navigate
       await diffPage.waitForURL(/reset_password_verified/);
@@ -73,23 +76,23 @@ test.describe('severity-1 #smoke', () => {
 
       await expect(login.passwordHeader).toBeVisible();
 
-      await login.setPassword(NEW_PASSWORD);
+      await login.setPassword(newPassword);
       await login.clickSubmit();
+      // Cleanup requires setting this value to correct password
+      credentials.password = newPassword;
 
       await expect(settings.settingsHeading).toBeVisible();
       // Check that connected service name is not empty!
       await expect(settings.connectedServiceName).toContainText('Firefox');
-
-      // Cleanup requires setting this value to correct password
-      credentials.password = NEW_PASSWORD;
     });
 
     test('forgot password', async ({
       target,
-      credentials,
       page,
       pages: { resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
@@ -122,10 +125,11 @@ test.describe('severity-1 #smoke', () => {
     for (const { name, error, password } of testCases) {
       test(`cannot set an invalid password - ${name}`, async ({
         target,
-        credentials,
         context,
         pages: { resetPasswordReact },
+        testAccountTracker,
       }) => {
+        const credentials = await testAccountTracker.signUp();
         // eslint-disable-next-line playwright/no-conditional-in-test
         const passwordValue = password ?? credentials.email;
 
@@ -173,9 +177,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('open /reset_password page from /signin', async ({
-      credentials,
       pages: { login, resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await login.goto();
 
       await expect(login.emailHeader).toBeVisible();
@@ -189,9 +194,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('open confirm_reset_password page, click resend', async ({
-      credentials,
       pages: { resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await resetPasswordReact.goto();
 
       await resetPasswordReact.fillOutEmailForm(credentials.email);
@@ -214,9 +220,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('browse directly to page with email on query params', async ({
-      credentials,
       pages: { resetPasswordReact },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await resetPasswordReact.goto(undefined, `email=${credentials.email}`);
 
       //The email shouldn't be pre-filled

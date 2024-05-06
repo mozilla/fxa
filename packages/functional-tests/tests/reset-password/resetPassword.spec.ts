@@ -2,8 +2,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect, NEW_PASSWORD } from '../../lib/fixtures/standard';
 import { EmailHeader, EmailType } from '../../lib/email';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('Reset password current', () => {
@@ -20,10 +20,13 @@ test.describe('severity-2 #smoke', () => {
     test('can reset password', async ({
       page,
       target,
-      credentials,
       context,
       pages: { login, resetPassword, settings },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+      const newPassword = testAccountTracker.generatePassword();
+
       await page.goto(`${target.contentServerUrl}/reset_password`);
 
       // Verify backbone page has been loaded
@@ -46,7 +49,7 @@ test.describe('severity-2 #smoke', () => {
 
       await resetPassword.completeResetPasswordHeader(diffPage);
 
-      await resetPassword.resetNewPassword(NEW_PASSWORD, diffPage);
+      await resetPassword.resetNewPassword(newPassword, diffPage);
 
       await page.getByRole('heading', { name: 'Settings', level: 2 }).waitFor();
 
@@ -60,21 +63,21 @@ test.describe('severity-2 #smoke', () => {
       // Verify that new password can be used to log in
       await login.setEmail(credentials.email);
       await login.submit();
-      await login.setPassword(NEW_PASSWORD);
+      await login.setPassword(newPassword);
       await login.submit();
+      credentials.password = newPassword;
 
       await page.getByRole('heading', { name: 'Settings', level: 2 }).waitFor();
-
-      // Cleanup requires setting this value to correct password
-      credentials.password = NEW_PASSWORD;
     });
 
     test('forgot password', async ({
       target,
-      credentials,
       page,
       pages: { login, settings },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(target.contentServerUrl + '/reset_password');
       await login.setEmail(credentials.email);
       await login.clickSubmit();
@@ -104,9 +107,11 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('open /reset_password page from /signin', async ({
-      credentials,
       pages: { login },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await login.goto();
       await login.setEmail(credentials.email);
       await login.submit();
@@ -114,11 +119,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('enter an email with leading/trailing whitespace', async ({
-      credentials,
       target,
       page,
-      pages: { login, resetPassword },
+      pages: { resetPassword },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(`${target.contentServerUrl}/reset_password`);
       await resetPassword.fillOutResetPassword(' ' + credentials.email);
       await resetPassword.confirmResetPasswordHeader();
@@ -129,11 +136,13 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('open confirm_reset_password page, click resend', async ({
-      credentials,
       target,
       page,
       pages: { resetPassword },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
       await page.goto(`${target.contentServerUrl}/reset_password`);
       await resetPassword.fillOutResetPassword(credentials.email);
       await resetPassword.clickResend();
@@ -156,11 +165,12 @@ test.describe('severity-2 #smoke', () => {
     });
 
     test('browse directly to page with email on query params', async ({
-      credentials,
       target,
       page,
       pages: { resetPassword },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       const url = `${target.contentServerUrl}/reset_password?email=${credentials.email}`;
       await page.goto(url);
 

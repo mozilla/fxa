@@ -2,13 +2,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-1 #smoke', () => {
-  test('cancel delete account step 1', async ({
-    pages: { settings, deleteAccount },
-  }) => {
+  test.beforeEach(async () => {
     test.slow();
+  });
+
+  test('cancel delete account step 1', async ({
+    target,
+    pages: { page, login, settings, deleteAccount },
+    testAccountTracker,
+  }) => {
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await settings.deleteAccountButton.click();
@@ -22,9 +32,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('cancel delete account step 2', async ({
-    pages: { settings, deleteAccount },
+    target,
+    pages: { page, login, settings, deleteAccount },
+    testAccountTracker,
   }) => {
-    test.slow();
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await settings.deleteAccountButton.click();
@@ -43,22 +56,32 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('delete account', async ({
-    credentials,
-    pages: { settings, deleteAccount, page },
+    target,
+    pages: { login, settings, deleteAccount, page },
+    testAccountTracker,
   }) => {
-    test.slow();
+    const { password } = await signInAccount(
+      target,
+      page,
+      login,
+      testAccountTracker
+    );
+
     await settings.goto();
 
     await settings.deleteAccountButton.click();
-    await deleteAccount.deleteAccount(credentials.password);
+    await deleteAccount.deleteAccount(password);
 
     await expect(page.getByText('Account deleted successfully')).toBeVisible();
   });
 
   test('delete account incorrect password', async ({
-    pages: { settings, deleteAccount, page },
+    target,
+    pages: { login, settings, deleteAccount, page },
+    testAccountTracker,
   }) => {
-    test.slow();
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await settings.deleteAccountButton.click();
@@ -77,3 +100,19 @@ test.describe('severity-1 #smoke', () => {
     await expect(deleteAccount.tooltip).toHaveText('Incorrect password');
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

@@ -10,10 +10,13 @@ test.describe('severity-1 #smoke', () => {
 
   test('signin to sync and disconnect', async ({
     target,
-    credentials,
     syncBrowserPages: { page, login, settings },
+    testAccountTracker,
   }) => {
     test.fixme(true, 'Fix required as of 2024/04/19 (see FXA-9490)');
+
+    const credentials = await testAccountTracker.signUp();
+
     await page.goto(
       target.contentServerUrl +
         '?context=fx_desktop_v3&entrypoint=fxa%3Aenter_email&service=sync&action=email'
@@ -35,9 +38,11 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('disconnect RP', async ({
-    credentials,
     pages: { relier, login, settings },
+    testAccountTracker,
   }) => {
+    const credentials = await testAccountTracker.signUp();
+
     await relier.goto();
     await relier.clickEmailFirst();
     await login.login(credentials.email, credentials.password);
@@ -62,11 +67,12 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test('can login to addons', async ({
-    credentials,
     pages: { page, login, settings },
+    testAccountTracker,
   }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod addons site');
 
+    const credentials = await testAccountTracker.signUp();
     await page.goto('https://addons.mozilla.org/en-US/firefox/');
     await page.getByRole('link', { name: 'Log in' }).click();
     await page.waitForURL(/accounts\.firefox\.com/);
@@ -92,11 +98,15 @@ test.describe('severity-1 #smoke', () => {
     await settings.avatarMenuSignOut.click();
   });
 
-  test('can login to monitor', async ({ credentials, page, pages: { login } }, {
-    project,
-  }) => {
+  test('can login to monitor', async ({
+    page,
+    pages: { login },
+    testAccountTracker,
+  }, { project }) => {
     // This test has a history of breaking (see FXA-9140).
     test.skip(project.name !== 'production', 'uses prod monitor');
+
+    const credentials = await testAccountTracker.signUp();
 
     await page.goto('https://monitor.mozilla.org/');
     await page.getByRole('button', { name: 'Sign In' }).click();
@@ -111,10 +121,14 @@ test.describe('severity-1 #smoke', () => {
     await expect(page).toHaveURL('https://monitor.mozilla.org/');
   });
 
-  test('can login to SUMO', async ({ credentials, page, pages: { login } }, {
-    project,
-  }) => {
+  test('can login to SUMO', async ({
+    page,
+    pages: { login },
+    testAccountTracker,
+  }, { project }) => {
     test.skip(project.name !== 'production', 'uses prod monitor');
+
+    const credentials = await testAccountTracker.signUp();
 
     await page.goto('https://support.mozilla.org/');
 

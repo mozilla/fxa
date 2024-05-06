@@ -2,13 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  SIGNIN_EMAIL_PREFIX,
-  BOUNCED_EMAIL_PREFIX,
-  PASSWORD,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-1 #smoke', () => {
   test.beforeEach(async ({ pages: { configPage } }) => {
@@ -21,11 +15,14 @@ test.describe('severity-1 #smoke', () => {
   });
 
   test.describe('Oauth sign up', () => {
-    test('sign up', async ({ emails, pages: { login, relier } }) => {
-      const [email] = emails;
+    test('sign up', async ({
+      pages: { login, relier },
+      testAccountTracker,
+    }) => {
+      const { email, password } = testAccountTracker.generateAccountDetails();
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(email, password, { verify: false });
 
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
@@ -35,25 +32,22 @@ test.describe('severity-1 #smoke', () => {
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);
     });
-  });
 
-  test.describe('Oauth sign up', () => {
-    test.use({
-      emailOptions: [
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-        { prefix: BOUNCED_EMAIL_PREFIX, password: PASSWORD },
-      ],
-    });
     test('signup, bounce email, allow user to restart flow but force a different email', async ({
-      emails,
       target,
       pages: { login, relier, page },
+      testAccountTracker,
     }) => {
-      const [email, bouncedEmail] = emails;
+      const account = testAccountTracker.generateAccountDetails();
+      const bouncedAccount = testAccountTracker.generateBouncedAccountDetails();
 
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.fillOutFirstSignUp(bouncedEmail, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(
+        bouncedAccount.email,
+        bouncedAccount.password,
+        { verify: false }
+      );
 
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
@@ -67,13 +61,13 @@ test.describe('severity-1 #smoke', () => {
         let account;
         Object.keys(accounts).forEach((uid) => {
           const foundAccount = accounts[uid];
-          if (foundAccount.email === bouncedEmail) {
+          if (foundAccount.email === bouncedAccount.email) {
             account = foundAccount;
           }
         });
         await target.authClient.accountDestroy(
-          bouncedEmail,
-          PASSWORD,
+          bouncedAccount.email,
+          bouncedAccount.password,
           {},
           account.sessionToken
         );
@@ -87,11 +81,13 @@ test.describe('severity-1 #smoke', () => {
       );
 
       await login.setEmail('');
-      await login.fillOutFirstSignUp(email, PASSWORD, { verify: false });
+      await login.fillOutFirstSignUp(account.email, account.password, {
+        verify: false,
+      });
 
       //Verify sign up code header
       await expect(login.signUpCodeHeader).toBeVisible();
-      await login.fillOutSignUpCode(email);
+      await login.fillOutSignUpCode(account.email);
 
       //Verify logged in on relier page
       expect(await relier.isLoggedIn()).toBe(true);

@@ -2,35 +2,29 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  expect,
-  test,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('Firefox Desktop Sync v3 email first', () => {
-  test.use({
-    emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-  });
   test.beforeEach(async () => {
     test.slow();
   });
 
   test('open directly to /signup page, refresh on the /signup page', async ({
-    emails,
     pages: { configPage },
     target,
     syncBrowserPages: { page, login },
+    testAccountTracker,
   }) => {
     const config = await configPage.getConfig();
     test.fixme(
       config.showReactApp.signUpRoutes === true,
       'Not currently supported in React Signup FXA-8973'
     );
-    const [email] = emails;
+
+    const { email } = testAccountTracker.generateSyncAccountDetails();
+
     await page.goto(
       `${target.contentServerUrl}/signup?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
@@ -49,20 +43,17 @@ test.describe('Firefox Desktop Sync v3 email first', () => {
   });
 
   test('open directly to /signin page, refresh on the /signin page', async ({
-    emails,
     target,
     syncBrowserPages: { page, login },
+    testAccountTracker,
   }) => {
-    const [email] = emails;
-    await target.authClient.signUp(email, PASSWORD, {
-      lang: 'en',
-      preVerified: 'true',
-    });
+    const credentials = await testAccountTracker.signUpSync();
+
     await page.goto(
       `${target.contentServerUrl}/signin?context=fx_desktop_v3&service=sync&action=email`,
       { waitUntil: 'load' }
     );
-    await login.setEmail(email);
+    await login.setEmail(credentials.email);
     await login.submit();
 
     // Verify user is redirected to the password page

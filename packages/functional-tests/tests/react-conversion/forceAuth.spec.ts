@@ -16,9 +16,11 @@ test.describe('force auth react', () => {
   test('displays signin with registered email', async ({
     page,
     target,
-    credentials,
     pages: { signinReact },
+    testAccountTracker,
   }) => {
+    const credentials = await testAccountTracker.signUp();
+
     const url = getReactFeatureFlagUrl(
       target,
       '/force_auth',

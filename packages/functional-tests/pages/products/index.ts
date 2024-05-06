@@ -7,6 +7,10 @@ export class SubscribePage extends BaseLayout {
     return this.page.getByRole('heading', { name: 'Set up your subscription' });
   }
 
+  get promoCodeAppliedHeading() {
+    return this.page.getByRole('heading', { name: 'Promo Code Applied' });
+  }
+
   async visitSignIn() {
     const link = this.page.getByText('Sign In');
     await link.click();
@@ -99,14 +103,6 @@ export class SubscribePage extends BaseLayout {
       throw new Error('Generic error, most likely rate limited');
     }
     return msg;
-  }
-
-  async discountAppliedSuccess() {
-    const discount = this.page.locator(
-      '[data-testid="coupon-component"]:has-text("Promo Code Applied")'
-    );
-    await discount.waitFor();
-    return discount.isVisible();
   }
 
   async oneTimeDiscountSuccess() {

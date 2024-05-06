@@ -2,10 +2,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import { test, expect } from '../../lib/fixtures/standard';
+import { Page, expect, test } from '../../lib/fixtures/standard';
+import { BaseTarget, Credentials } from '../../lib/targets/base';
+import { TestAccountTracker } from '../../lib/testAccountTracker';
+import { LoginPage } from '../../pages/login';
 
 test.describe('severity-2 #smoke', () => {
-  test('add the display name', async ({ pages: { settings, displayName } }) => {
+  test('add the display name', async ({
+    target,
+    pages: { page, login, settings, displayName },
+    testAccountTracker,
+  }) => {
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await expect(settings.displayName.status).toHaveText('None');
@@ -18,8 +27,12 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test('cancel add the display name', async ({
-    pages: { settings, displayName },
+    target,
+    pages: { page, login, settings, displayName },
+    testAccountTracker,
   }) => {
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await expect(settings.displayName.status).toHaveText('None');
@@ -33,8 +46,12 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test('change the display name', async ({
-    pages: { settings, displayName },
+    target,
+    pages: { page, login, settings, displayName },
+    testAccountTracker,
   }) => {
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await expect(settings.displayName.status).toHaveText('None');
@@ -53,8 +70,12 @@ test.describe('severity-2 #smoke', () => {
   });
 
   test('remove the display name', async ({
-    pages: { settings, displayName },
+    target,
+    pages: { page, login, settings, displayName },
+    testAccountTracker,
   }) => {
+    await signInAccount(target, page, login, testAccountTracker);
+
     await settings.goto();
 
     await expect(settings.displayName.status).toHaveText('None');
@@ -72,3 +93,19 @@ test.describe('severity-2 #smoke', () => {
     await expect(settings.displayName.status).toHaveText('None');
   });
 });
+
+async function signInAccount(
+  target: BaseTarget,
+  page: Page,
+  login: LoginPage,
+  testAccountTracker: TestAccountTracker
+): Promise<Credentials> {
+  const credentials = await testAccountTracker.signUp();
+  await page.goto(target.contentServerUrl);
+  await login.fillOutEmailFirstSignIn(credentials.email, credentials.password);
+
+  //Verify logged in on Settings page
+  expect(await login.isUserLoggedIn()).toBe(true);
+
+  return credentials;
+}

@@ -2,12 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  test,
-  expect,
-  PASSWORD,
-  SIGNIN_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('OAuth `login_hint` and `email` param', () => {
@@ -26,9 +21,9 @@ test.describe('severity-2 #smoke', () => {
       page,
       pages: { login, relier },
       target,
-      emails,
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email } = testAccountTracker.generateAccountDetails();
 
       await relier.goto(`login_hint=${email}`);
       await relier.clickEmailFirst();
@@ -46,9 +41,11 @@ test.describe('severity-2 #smoke', () => {
 
     ['email', 'login_hint'].forEach((query_parameter) => {
       test(`${query_parameter} specified by relier, registered`, async ({
-        credentials,
         pages: { login, relier },
+        testAccountTracker,
       }) => {
+        const credentials = await testAccountTracker.signUp();
+
         await relier.goto(`${query_parameter}=${credentials.email}`);
         await relier.clickEmailFirst();
 
@@ -62,45 +59,37 @@ test.describe('severity-2 #smoke', () => {
         expect(await login.getEmailInput()).toEqual(credentials.email);
       });
     });
-  });
 
-  test.describe('OAuth `login_hint` and `email` param', () => {
-    test.use({
-      emailOptions: [
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-        { prefix: SIGNIN_EMAIL_PREFIX, password: PASSWORD },
-      ],
-    });
     test('cached credentials, login_hint specified by relier', async ({
-      target,
       pages: { login, relier },
-      emails,
+      testAccountTracker,
     }) => {
-      const [email, loginHintEmail] = emails;
+      const credentials = await testAccountTracker.signUp();
+      const loginHintCredentials = await testAccountTracker.signUp();
 
-      await target.createAccount(email, PASSWORD);
-      await target.createAccount(loginHintEmail, PASSWORD);
       // Create a cached login
       await relier.goto();
       await relier.clickEmailFirst();
-      await login.login(email, PASSWORD);
+      await login.login(credentials.email, credentials.password);
 
       expect(await relier.isLoggedIn()).toBe(true);
 
       await relier.signOut();
 
       // login_hint takes precedence over the signed-in user
-      await relier.goto(`login_hint=${loginHintEmail}`);
+      await relier.goto(`login_hint=${loginHintCredentials.email}`);
       await relier.clickEmailFirst();
 
       // Email is prefilled
-      expect(await login.getPrefilledEmail()).toEqual(loginHintEmail);
+      expect(await login.getPrefilledEmail()).toEqual(
+        loginHintCredentials.email
+      );
       expect(await login.enterPasswordHeader()).toEqual(true);
 
       await login.useDifferentAccountLink();
 
       // Email first page has email input prefilled
-      expect(await login.getEmailInput()).toEqual(loginHintEmail);
+      expect(await login.getEmailInput()).toEqual(loginHintCredentials.email);
     });
   });
 });

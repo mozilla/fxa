@@ -14,9 +14,10 @@ test.describe('severity-1 #smoke', () => {
       );
     });
     test('with a registered email, registered uid', async ({
-      credentials,
       pages: { login, forceAuth },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await forceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();
@@ -24,9 +25,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('forgot password flow via force_auth', async ({
-      credentials,
       pages: { login, resetPassword, forceAuth },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await forceAuth.open(credentials);
       await login.clickForgotPassword();
 
@@ -53,9 +55,10 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('form prefill information is cleared after sign in->sign out', async ({
-      credentials,
       pages: { login, forceAuth, settings },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
       await forceAuth.open(credentials);
       await login.setPassword(credentials.password);
       await login.submit();

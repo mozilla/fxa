@@ -6,20 +6,14 @@ import { expect, test } from '../../lib/fixtures/standard';
 
 test.describe('severity-2 #smoke', () => {
   test.describe('redirect_to', () => {
-    test.beforeEach(
-      async ({ credentials, pages: { settings, login, configPage } }) => {
-        const config = await configPage.getConfig();
-        // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
-        // to `true`, but when we're only at 15% and the flag is "on", URLs need to have
-        // the force experiment params. Since we'll be porting these over for React, for now,
-        // skip these tests if the flag is on.
-        test.skip(config.showReactApp.signUpRoutes === true);
-
-        await settings.goto();
-        await settings.signOut();
-        await login.login(credentials.email, credentials.password);
-      }
-    );
+    test.beforeEach(async ({ pages: { configPage } }) => {
+      const config = await configPage.getConfig();
+      // NOTE: These tests pass for React when `fullProdRollout` for React Signup is set
+      // to `true`, but when we're only at 15% and the flag is "on", URLs need to have
+      // the force experiment params. Since we'll be porting these over for React, for now,
+      // skip these tests if the flag is on.
+      test.skip(config.showReactApp.signUpRoutes === true);
+    });
 
     const testCases = [
       { name: 'invalid', redirectTo: 'https://evil.com/' },
@@ -29,8 +23,15 @@ test.describe('severity-2 #smoke', () => {
       test(`prevent ${name} redirect_to parameter`, async ({
         target,
         page,
-        pages: { login },
+        pages: { login, settings },
+        testAccountTracker,
       }) => {
+        const { email, password } = testAccountTracker.generateAccountDetails();
+
+        await settings.goto();
+        await settings.signOut();
+        await login.login(email, password);
+
         await page.goto(
           `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`
         );
@@ -43,9 +44,15 @@ test.describe('severity-2 #smoke', () => {
 
     test('allows valid redirect_to parameter', async ({
       target,
-      page,
-      pages: { login },
+      pages: { page, settings, login },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUp();
+
+      await settings.goto();
+      await settings.signOut();
+      await login.login(credentials.email, credentials.password);
+
       const redirectTo = `${target.contentServerUrl}/settings`;
       await page.goto(
         `${target.contentServerUrl}/confirm_signup_code?redirect_to=${redirectTo}`

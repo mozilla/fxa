@@ -5,16 +5,24 @@ export abstract class RemoteTarget extends BaseTarget {
   async createAccount(
     email: string,
     password: string,
-    options?: any
+    options = { lang: 'en', preVerified: 'true' }
   ): Promise<Credentials> {
-    const creds = await this.authClient.signUp(email, password, options || {});
-    const code = await this.emailClient.waitForEmail(
+    // FXA-9550 - The preVerified option doesn't work in production
+    const { preVerified, ...filteredOptions } = options;
+    const creds = await this.authClient.signUp(
       email,
-      EmailType.verify,
-      EmailHeader.verifyCode
+      password,
+      filteredOptions
     );
-    await this.authClient.verifyCode(creds.uid, code);
-    await this.emailClient.clear(email);
+    if (preVerified === 'true') {
+      const code = await this.emailClient.waitForEmail(
+        email,
+        EmailType.verify,
+        EmailHeader.verifyCode
+      );
+      await this.authClient.verifyCode(creds.uid, code);
+      await this.emailClient.clear(email);
+    }
     await this.authClient.deviceRegister(
       creds.sessionToken,
       'playwright',

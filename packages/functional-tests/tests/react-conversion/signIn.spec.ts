@@ -7,9 +7,9 @@ import { test, expect } from '../../lib/fixtures/standard';
 test.describe('severity-2 #smoke', () => {
   test.describe('react signin', () => {
     test('sign in as an existing user', async ({
-      credentials,
       page,
       pages: { configPage, settings, signinReact },
+      testAccountTracker,
     }) => {
       // Ensure that the feature flag is enabled
       const config = await configPage.getConfig();
@@ -17,6 +17,7 @@ test.describe('severity-2 #smoke', () => {
         config.showReactApp.signInRoutes !== true,
         'React signInRoutes not enabled'
       );
+      const credentials = await testAccountTracker.signUp();
 
       await signinReact.goto();
       await signinReact.fillOutEmailFirstForm(credentials.email);

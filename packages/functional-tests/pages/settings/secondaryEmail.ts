@@ -40,8 +40,6 @@ export class SecondaryEmailPage extends SettingsLayout {
   }
 
   async addSecondaryEmail(email: string): Promise<void> {
-    await this.target.emailClient.clear(email);
-
     await expect(this.secondaryEmailHeading).toBeVisible();
     await expect(this.step1Heading).toBeVisible();
 
@@ -52,6 +50,7 @@ export class SecondaryEmailPage extends SettingsLayout {
       EmailType.verifySecondaryCode,
       EmailHeader.verifyCode
     );
+    await this.target.emailClient.clear(email);
 
     await expect(this.step2Heading).toBeVisible();
 

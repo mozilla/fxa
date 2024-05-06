@@ -2,23 +2,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-import {
-  expect,
-  test,
-  PASSWORD,
-  SYNC_EMAIL_PREFIX,
-} from '../../lib/fixtures/standard';
+import { expect, test } from '../../lib/fixtures/standard';
 
-const incorrectPassword = 'password123';
+const AGE_21 = '21';
 
 test.describe.configure({ mode: 'parallel' });
 
 test.describe('severity-1 #smoke', () => {
   test.describe('Firefox Desktop Sync v3 sign up', () => {
-    test.use({
-      emailOptions: [{ prefix: SYNC_EMAIL_PREFIX, password: PASSWORD }],
-    });
-
     test.beforeEach(async ({ pages: { configPage } }) => {
       const config = await configPage.getConfig();
       test.skip(
@@ -28,41 +19,47 @@ test.describe('severity-1 #smoke', () => {
       test.slow();
     });
 
-    test('sync sign up', async ({ emails, target, syncBrowserPages }) => {
-      const { page, login, connectAnotherDevice } = syncBrowserPages;
-      const [email] = emails;
+    test('sync sign up', async ({
+      target,
+      syncBrowserPages: { page, login, connectAnotherDevice },
+      testAccountTracker,
+    }) => {
+      const credentials = await testAccountTracker.signUpSync();
+      const incorrectPassword = testAccountTracker.generatePassword();
+
       await page.goto(
         `${target.contentServerUrl}?context=fx_desktop_v3&service=sync&action=email`,
         { waitUntil: 'load' }
       );
-      await login.setEmail(email);
+      await login.setEmail(credentials.email);
       await login.clickSubmit();
 
       // Verify the email is correct
-      expect(await login.getPrefilledEmail()).toMatch(email);
+      expect(await login.getPrefilledEmail()).toMatch(credentials.email);
 
       // Passwords do not match should cause an error
-      await login.setPassword(PASSWORD);
+      await login.setPassword(credentials.password);
       await login.confirmPassword(incorrectPassword);
-      await login.setAge('21');
+      await login.setAge(AGE_21);
       await login.clickSubmit();
 
       // Verify the error message
       expect(await login.getTooltipError()).toContain('Passwords do not match');
 
       // Fix the error
-      await login.confirmPassword(PASSWORD);
+      await login.confirmPassword(credentials.password);
       await login.submit();
-      await login.fillOutSignUpCode(email);
+      await login.fillOutSignUpCode(credentials.email);
       await expect(connectAnotherDevice.fxaConnected).toBeVisible();
     });
 
     test('coppa disabled', async ({
-      emails,
       target,
       syncBrowserPages: { page, login, connectAnotherDevice },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email, password } =
+        testAccountTracker.generateSyncAccountDetails();
       const query = { coppa: 'false' };
       const queryParam = new URLSearchParams(query);
       await page.goto(
@@ -73,8 +70,8 @@ test.describe('severity-1 #smoke', () => {
       );
       await login.setEmail(email);
       await login.submit();
-      await login.setPassword(PASSWORD);
-      await login.confirmPassword(PASSWORD);
+      await login.setPassword(password);
+      await login.confirmPassword(password);
 
       // Age textbox is not on the page and click submit
       await login.submit();
@@ -113,11 +110,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('email specified by relier, not registered', async ({
-      emails,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
-      const [email] = emails;
+      const { email } = testAccountTracker.generateSyncAccountDetails();
       const query = { email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
@@ -134,10 +131,11 @@ test.describe('severity-1 #smoke', () => {
     });
 
     test('email specified by relier, registered', async ({
-      credentials,
       target,
       syncBrowserPages: { page, login },
+      testAccountTracker,
     }) => {
+      const credentials = await testAccountTracker.signUpSync();
       const query = { email: credentials.email };
       const queryParam = new URLSearchParams(query);
       await page.goto(
