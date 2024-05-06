@@ -92,7 +92,7 @@
     "postcss-import": "^16.1.0",
     "prettier": "^2.3.1",
     "rimraf": "^5.0.0",
-    "sass-loader": "^14.1.0",
+    "sass-loader": "^14.2.1",
     "storybook": "^7.0.23",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.4.2",
