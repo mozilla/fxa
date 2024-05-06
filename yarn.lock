@@ -37640,7 +37640,7 @@ fsevents@~2.1.1:
     safe-regex: ^2.1.1
     safe-url-assembler: 1.3.5
     sandboxed-regexp: ^0.3.0
-    sass: ^1.59.2
+    sass: ^1.76.0
     simplesmtp: 0.3.35
     sinon: ^9.0.3
     storybook: ^7.4.6
@@ -58473,16 +58473,16 @@ resolve@1.1.7:
   languageName: node
   linkType: hard
 
-"sass@npm:^1.59.2":
-  version: 1.59.3
-  resolution: "sass@npm:1.59.3"
+"sass@npm:^1.76.0":
+  version: 1.76.0
+  resolution: "sass@npm:1.76.0"
   dependencies:
     chokidar: ">=3.0.0 <4.0.0"
     immutable: ^4.0.0
     source-map-js: ">=0.6.2 <2.0.0"
   bin:
     sass: sass.js
-  checksum: 839b5282cdf7d0ba3fdbfb605277dd584a8c40fa3e3e58ad905d64cd812acfb82ff0a4072d4981673db884ee61505472ff07c5c5a8a497f16ba013b183ba6473
+  checksum: 5f3fa7e7a1be09b7cea842a397fb07b9413fa9903bf82ead2ea059aa56faea534c2a84ede5a140103ee18a1dec9162b2fa1413fe71bbe8f8074712bf3bd3a8c7
   languageName: node
   linkType: hard
 
