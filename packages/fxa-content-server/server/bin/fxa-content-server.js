@@ -215,12 +215,14 @@ function makeApp() {
 
     addNonSettingsRoutes(modifySettingsStatic);
 
+    // if NextJS route, use a different middleware?
     app.get(settingsPath + '/*', modifySettingsStatic);
   }
 
   if (config.get('env') === 'development') {
     app.use(settingsPath, createSettingsProxy);
 
+    // if NextJS route, use a different middleware?
     addNonSettingsRoutes(createSettingsProxy);
   }
 

@@ -9,6 +9,8 @@ const config = require('../../configuration');
  * @type {import("./types").AddRoutes}
  */
 function addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n) {
+  const isDev = config.get('env') === 'development';
+
   /** Check if the feature flag passed in is `true` and the request contains `?showReactApp=true`.
    * If true, use the middleware passed ('createSettingsProxy' in dev, else 'modifySettingsStatic')
    * for that route, allowing `fxa-settings` to serve the page. If false, skip the middleware and
@@ -19,6 +21,7 @@ function addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n) {
     featureFlagOn,
     routes,
     fullProdRollout,
+    nextApp,
   }) {
     if (featureFlagOn === true) {
       routes.forEach(({ definition }) => {
@@ -26,6 +29,11 @@ function addAllReactRoutesConditionally(app, routeHelpers, middleware, i18n) {
         // this for any 'post' requests but shouldn't hurt anything; 'get' alone may suffice.
         app[definition.method](definition.path, (req, res, next) => {
           if (req.query.showReactApp === 'true' || fullProdRollout === true) {
+            // Not the cleanest/could probably be improved.
+            // If non-dev, this should be handled at the nginx level
+            if (isDev && nextApp) {
+              res.redirect(`http://localhost:3333/${req.originalUrl}`);
+            }
             return middleware(req, res, next);
           } else {
             next('route');

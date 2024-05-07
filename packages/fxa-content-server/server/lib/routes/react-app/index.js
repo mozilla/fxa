@@ -52,6 +52,7 @@ const getReactRouteGroups = (showReactApp, reactRoute) => {
         'account_recovery_reset_password',
       ]),
       fullProdRollout: true,
+      nextApp: true,
     },
 
     oauthRoutes: {
