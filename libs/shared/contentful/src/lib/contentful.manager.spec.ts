@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import { Test } from '@nestjs/testing';
+import { StatsD } from 'hot-shots';
+
+import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
+import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 import { ContentfulClient } from './contentful.client';
 import { ContentfulManager } from './contentful.manager';
@@ -23,11 +27,13 @@ import {
   EligibilityContentByOfferingQueryFactory,
   EligibilityContentOfferingResultFactory,
 } from './queries/eligibility-content-by-offering';
+import {
+  PageContentForOfferingQueryFactory,
+  PageContentForOfferingResultUtil,
+  PageContentOfferingResultFactory,
+} from './queries/page-content-for-offering';
 import { PurchaseWithDetailsOfferingContentUtil } from './queries/purchase-with-details-offering-content';
 import { PurchaseWithDetailsOfferingContentByPlanIdsResultFactory } from './queries/purchase-with-details-offering-content/factories';
-import { StatsD } from 'hot-shots';
-import { MockFirestoreProvider } from '@fxa/shared/db/firestore';
-import { StatsDService } from '@fxa/shared/metrics/statsd';
 
 jest.mock('@type-cacheable/core', () => ({
   Cacheable: () => {
@@ -118,6 +124,52 @@ describe('ContentfulManager', () => {
       );
       expect(result).toBeInstanceOf(EligibilityContentByOfferingResultUtil);
       expect(result.getOffering()).toBeDefined();
+    });
+  });
+
+  describe('getPageContentForOffering', () => {
+    it('should return empty result', async () => {
+      const queryData = PageContentForOfferingQueryFactory({
+        offeringCollection: { items: [] },
+      });
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+
+      const result = await contentfulManager.getPageContentForOffering(
+        'test',
+        'en'
+      );
+      expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
+      expect(result.offeringCollection.items).toHaveLength(0);
+    });
+
+    it('should return successfully with page content for offering', async () => {
+      const apiIdentifier = 'test';
+      const offeringResult = [
+        PageContentOfferingResultFactory({
+          apiIdentifier,
+        }),
+      ];
+      const queryData = PageContentForOfferingQueryFactory({
+        offeringCollection: {
+          items: offeringResult,
+        },
+      });
+
+      jest.spyOn(contentfulClient, 'query').mockResolvedValue(queryData);
+      jest.spyOn(contentfulClient, 'getLocale').mockResolvedValue('en');
+
+      const result = await contentfulManager.getPageContentForOffering(
+        apiIdentifier,
+        'en'
+      );
+      expect(result).toBeInstanceOf(PageContentForOfferingResultUtil);
+      expect(result.getOffering().defaultPurchase.purchaseDetails).toEqual(
+        result.purchaseDetailsTransform(
+          offeringResult[0].defaultPurchase?.purchaseDetails
+        )
+      );
     });
   });
 
