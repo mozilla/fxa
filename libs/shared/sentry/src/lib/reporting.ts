@@ -56,6 +56,23 @@ export function isApolloError(err: Error): boolean {
   return false;
 }
 
+/**
+ * Determine if an error originates from auth-server. Auth server responds with error
+ * codes and numbers, and client applications handle these states accordingly. These
+ * responses are not considered unhandled error states, and therefore should not
+ * be reported on.
+ * @param error - The error that has occurred
+ * @returns true if errors states appears to be a known auth server error
+ */
+export function isAuthServerError(
+  error: Error & { extensions?: { errno?: number; code?: number } }
+): boolean {
+  return (
+    typeof error.extensions?.code === 'number' &&
+    typeof error.extensions?.errno === 'number'
+  );
+}
+
 export function isOriginallyHttpError(
   error: Error & { originalError?: { status: number } }
 ): boolean {

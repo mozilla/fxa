@@ -3,7 +3,55 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 import * as uuid from 'uuid';
 import { FILTERED } from './pii/filter-actions';
-import { filterObject } from './reporting';
+import { filterObject, isAuthServerError } from './reporting';
+
+describe('detects auth server error', () => {
+  it('flags when code and errno are present', () => {
+    const result = isAuthServerError({
+      name: 'foo',
+      message: 'bar',
+      extensions: {
+        code: 401,
+        errno: 101,
+      },
+    });
+
+    expect(result).toBeTruthy();
+  });
+
+  it('does not flag when code is missing', () => {
+    const result = isAuthServerError({
+      name: 'foo',
+      message: 'bar',
+      extensions: {
+        errno: 101,
+      },
+    });
+
+    expect(result).toBeFalsy();
+  });
+
+  it('does not flag when errno is missing', () => {
+    const result = isAuthServerError({
+      name: 'foo',
+      message: 'bar',
+      extensions: {
+        code: 500,
+      },
+    });
+
+    expect(result).toBeFalsy();
+  });
+
+  it('does not flag general errors', () => {
+    const result = isAuthServerError({
+      name: 'foo',
+      message: 'bar',
+    });
+
+    expect(result).toBeFalsy();
+  });
+});
 
 describe('filterObject', () => {
   it('should be defined', () => {
