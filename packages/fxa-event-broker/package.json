@@ -45,7 +45,7 @@
     "fxa-shared": "workspace:*",
     "google-auth-library": "^9.8.0",
     "hot-shots": "^10.0.0",
-    "joi": "^17.8.3",
+    "joi": "^17.13.1",
     "jwks-rsa": "^3.1.0",
     "mozlog": "^3.0.2",
     "rimraf": "^5.0.0",
