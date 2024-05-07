@@ -2,6 +2,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-export default function Index() {
-  return <div className="bg-pink-200"> Hello accounts NextJS! </div>;
+export default function Settings() {
+  return (
+    <>
+      <h1 className="font-header">Account settings, with separate layout</h1>
+    </>
+  );
 }

@@ -9,13 +9,11 @@ const extractImportedComponents = require('fxa-react/extract-imported-components
 const config = require('fxa-react/configs/tailwind');
 
 if (process.env.NODE_ENV === 'production') {
-  const matches = extractImportedComponents(
-    resolve(__dirname, 'src', 'components')
-  );
+  const matches = extractImportedComponents(resolve(__dirname, 'app'));
 
   config.content.push(...matches);
 } else {
-  config.content.push('../fxa-react/components/**/*.tsx');
+  config.content.push('../../../packages/fxa-react/components/**/*.tsx');
 }
 
 if (process.env.STORYBOOK_BUILD === '1') {
@@ -34,7 +32,7 @@ config.theme.extend = {
     /* TODO: move this to `fxa-react`, FXA-5745 */
     //
     // TODO for accounts-next
-    // 'ff-logo': "url('../../libs/shared/assets/src/images/ff-logo.svg')",
+    // 'ff-logo': "url('../../../libs/shared/assets/src/images/ff-logo.svg')",
   },
   keyframes: {
     ...config.theme.extend.keyframes,

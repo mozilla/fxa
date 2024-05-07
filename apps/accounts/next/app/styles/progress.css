@@ -1,0 +1,33 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+progress {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: none;
+  border-radius: 10px;
+  /* for IE10 and up */
+  @apply text-blue-400;
+  @apply bg-grey-100;
+}
+
+progress::-webkit-progress-bar {
+  border-radius: 10px;
+  @apply bg-grey-100;
+}
+progress::-webkit-progress-inner-element {
+  border-radius: 10px;
+}
+
+progress::-webkit-progress-value {
+  border-radius: 10px;
+  @apply bg-blue-400;
+}
+
+progress[value]::-moz-progress-bar {
+  border-radius: 10px;
+  border-radius: 10px;
+  @apply bg-blue-400;
+}
