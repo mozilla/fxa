@@ -208,7 +208,7 @@
     "sass": "^1.76.0",
     "simplesmtp": "0.3.35",
     "sinon": "^9.0.3",
-    "storybook": "^7.4.6",
+    "storybook": "^8.0.10",
     "through": "2.3.8",
     "tsc-alias": "^1.8.8",
     "type-fest": "^4.18.1",

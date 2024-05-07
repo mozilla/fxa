@@ -93,7 +93,7 @@
     "prettier": "^2.3.1",
     "rimraf": "^5.0.0",
     "sass-loader": "^14.2.1",
-    "storybook": "^7.0.23",
+    "storybook": "^8.0.10",
     "tsc-alias": "^1.8.8",
     "typescript": "^5.4.2",
     "webpack": "^5.84.1"
