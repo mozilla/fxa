@@ -36,7 +36,7 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.556.0",
     "@hapi/hoek": "^11.0.2",
-    "@types/sinon": "10.0.1",
+    "@types/sinon": "17.0.3",
     "axios": "^0.28.1",
     "convict": "^6.2.4",
     "convict-format-with-moment": "^6.2.0",

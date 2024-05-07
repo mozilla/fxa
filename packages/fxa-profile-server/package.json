@@ -57,7 +57,7 @@
     "pngparse": "2.0.1",
     "prettier": "^2.3.1",
     "rimraf": "^5.0.0",
-    "sinon": "^14.0.0",
+    "sinon": "^17.0.1",
     "through": "2.3.8"
   },
   "repository": {
